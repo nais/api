@@ -1,0 +1,87 @@
+extend type Query {
+  "Get a collection of users, sorted by name."
+  users(offset: Int, limit: Int): UserList! @auth
+
+  "Get a specific user."
+  user("ID of the user." id: ID, email: String): User! @auth
+
+  "Get user sync status and logs."
+  userSync: [UserSyncRun!]! @auth
+}
+
+extend type Mutation {
+  """
+  Trigger a user synchronization
+
+  This mutation will trigger a full user synchronization with the connected Google Workspace, and return a correlation
+  ID that can later be matched to the log entries. The user synchronization itself is asynchronous.
+  """
+  synchronizeUsers: ID! @auth
+}
+
+"User sync run type."
+type UserSyncRun {
+  "The correlation ID of the sync run."
+  correlationID: ID!
+
+  "Timestamp of when the run started."
+  startedAt: Time!
+
+  "Timestamp of when the run finished."
+  finishedAt: Time
+
+  "Log entries for the sync run."
+  auditLogs(limit: Int, offset: Int): AuditLogList!
+
+  "The status of the sync run."
+  status: UserSyncRunStatus!
+
+  "Optional error."
+  error: String
+}
+
+"User sync run status."
+enum UserSyncRunStatus {
+  "User sync run in progress."
+  IN_PROGRESS
+
+  "Successful user sync run."
+  SUCCESS
+
+  "Failed user sync run."
+  FAILURE
+}
+
+"User type."
+type User @key(fields: "id") {
+  "Unique ID of the user."
+  id: ID!
+
+  "The email address of the user."
+  email: String!
+
+  "The name of the user."
+  name: String!
+
+  "List of team memberships."
+  teams(limit: Int, offset: Int): TeamMemberList!
+
+  "Roles attached to the user."
+  roles: [Role!]!
+
+  "The external ID of the user."
+  externalId: String!
+
+  "This field will only be populated via the me query"
+  isAdmin: Boolean
+}
+
+type UserList {
+  nodes: [User!]!
+  pageInfo: PageInfo!
+}
+
+type TeamMemberList {
+  nodes: [TeamMember!]!
+  pageInfo: PageInfo!
+}

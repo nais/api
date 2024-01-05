@@ -1,0 +1,57 @@
+package graph_test
+
+import (
+	"context"
+	"testing"
+
+	"github.com/google/uuid"
+	"github.com/nais/api/internal/auditlogger"
+	"github.com/nais/api/internal/authz"
+	"github.com/nais/api/internal/db"
+	"github.com/nais/api/internal/graph"
+	"github.com/nais/api/internal/logger"
+	"github.com/nais/api/internal/roles"
+	"github.com/nais/api/internal/sqlc"
+	"github.com/nais/api/internal/usersync"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestMutationResolver_Role(t *testing.T) {
+	serviceAccount := &db.ServiceAccount{
+		ServiceAccount: &sqlc.ServiceAccount{
+			ID:   uuid.New(),
+			Name: "User Name",
+		},
+	}
+	ctx := authz.ContextWithActor(context.Background(), serviceAccount, []*db.Role{
+		{
+			RoleName: sqlc.RoleNameAdmin,
+			Authorizations: []roles.Authorization{
+				roles.AuthorizationTeamsCreate,
+			},
+		},
+	})
+
+	userSyncRuns := usersync.NewRunsHandler(5)
+	auditLogger := auditlogger.NewMockAuditLogger(t)
+	database := db.NewMockDatabase(t)
+	log, err := logger.GetLogger("text", "info")
+	assert.NoError(t, err)
+	userSync := make(chan<- uuid.UUID)
+	resolver := graph.
+		NewResolver(nil, database, "example.com", userSync, auditLogger, []string{"env"}, log, userSyncRuns).
+		Role()
+
+	t.Run("get role name", func(t *testing.T) {
+		role := &db.Role{
+			Authorizations:         nil,
+			RoleName:               sqlc.RoleNameAdmin,
+			TargetServiceAccountID: nil,
+			TargetTeamSlug:         nil,
+		}
+
+		roleName, err := resolver.Name(ctx, role)
+		assert.NoError(t, err)
+		assert.Equal(t, sqlc.RoleNameAdmin, roleName)
+	})
+}

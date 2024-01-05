@@ -27,7 +27,7 @@ portforward-hookd:
 	kubectl port-forward -n nais-system --context nav-management-v2 svc/hookd 8282:80
 
 portforward-teams:
-	kubectl port-forward -n nais-system --context nav-management-v2 svc/teams-backend 8181:80
+	kubectl port-forward -n nais-system --context nav-management-v2 svc/api 8181:80
 
 local-nav:
 	DEPENDENCYTRACK_ENDPOINT="https://dependencytrack-backend.nav.cloud.nais.io" \

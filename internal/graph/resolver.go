@@ -1,19 +1,30 @@
 package graph
 
 import (
+	"context"
 	"fmt"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
+	"github.com/gobuffalo/logger"
+	"github.com/google/uuid"
+	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/db"
 	"github.com/nais/api/internal/dependencytrack"
 	"github.com/nais/api/internal/graph/apierror"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/hookd"
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/search"
+	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/sqlc"
+	"github.com/nais/api/internal/types"
+	"github.com/nais/api/internal/usersync"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/metric"
 )
@@ -32,6 +43,17 @@ type Resolver struct {
 	log                   logrus.FieldLogger
 	querier               gensql.Querier
 	clusters              []string
+
+	// TODO(thokra) Add this to NewResolver
+	teamSyncHandler teamsync.Handler
+	database        db.Database
+	tenantDomain    string
+	userSync        chan<- uuid.UUID
+	systemName      types.ComponentName
+	auditLogger     auditlogger.AuditLogger
+	gcpEnvironments []string
+	log             logger.Logger
+	userSyncRuns    *usersync.RunsHandler
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
@@ -69,4 +91,53 @@ func NewHandler(config Config, meter metric.Meter, log logrus.FieldLogger) (*han
 	})
 	graphHandler.SetErrorPresenter(apierror.GetErrorPresenter(log))
 	return graphHandler, nil
+}
+
+// GetQueriedFields Get a map of queried fields for the given context with the field names as keys
+func GetQueriedFields(ctx context.Context) map[string]bool {
+	fields := make(map[string]bool)
+	for _, field := range graphql.CollectAllFields(ctx) {
+		fields[field] = true
+	}
+	return fields
+}
+
+// addTeamToReconcilerQueue add a team (enclosed in an input) to the reconciler queue
+func (r *Resolver) addTeamToReconcilerQueue(input teamsync.Input) error {
+	err := r.teamSyncHandler.Schedule(input)
+	if err != nil {
+		r.log.WithTeamSlug(string(input.TeamSlug)).WithError(err).Errorf("add team to reconciler queue")
+		return apierror.Errorf("api is about to restart, unable to reconcile team: %q", input.TeamSlug)
+	}
+	return nil
+}
+
+// reconcileTeam Trigger team reconcilers for a given team
+func (r *Resolver) reconcileTeam(_ context.Context, correlationID uuid.UUID, slug slug.Slug) error {
+	input := teamsync.Input{
+		TeamSlug:      slug,
+		CorrelationID: correlationID,
+	}
+
+	return r.addTeamToReconcilerQueue(input)
+}
+
+func (r *Resolver) getTeamBySlug(ctx context.Context, slug slug.Slug) (*db.Team, error) {
+	team, err := r.database.GetTeamBySlug(ctx, slug)
+	if err != nil {
+		return nil, apierror.ErrTeamNotExist
+	}
+
+	return team, nil
+}
+
+func sqlcRoleFromTeamRole(teamRole model.TeamRole) (sqlc.RoleName, error) {
+	switch teamRole {
+	case model.TeamRoleMember:
+		return sqlc.RoleNameTeammember, nil
+	case model.TeamRoleOwner:
+		return sqlc.RoleNameTeamowner, nil
+	}
+
+	return "", fmt.Errorf("invalid team role: %v", teamRole)
 }

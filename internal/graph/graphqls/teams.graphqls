@@ -1,0 +1,519 @@
+extend type Query {
+  "Get a collection of teams. Default limit is 20"
+  teams(
+    "Offset to start listing teams from. Default is 0."
+    offset: Int
+
+    "Limit the number of teams to return. Default is 20."
+    limit: Int
+
+    "Filter teams by GitHub repository permissions."
+    filter: TeamsFilter
+  ): TeamList! @auth
+
+  "Get a specific team."
+  team("Slug of the team." slug: Slug!): Team! @auth
+
+  "Get a team delete key."
+  teamDeleteKey("The key to get." key: ID!): TeamDeleteKey! @auth
+}
+
+extend type Mutation {
+  """
+  Create a new team
+
+  The user creating the team will be granted team ownership, unless the user is a service account, in which case the
+  team will not get an initial owner. To add one or more owners to the team, refer to the `addTeamOwners` mutation.
+
+  The new team will be returned on success.
+  """
+  createTeam(
+    "Input for creation of the new team."
+    input: CreateTeamInput!
+  ): Team! @auth
+
+  """
+  Update an existing team
+
+  This mutation can be used to update the team purpose. It is not possible to update the team slug.
+
+  The updated team will be returned on success.
+  """
+  updateTeam(
+    "Slug of the team to update."
+    slug: Slug!
+
+    "Input for updating the team."
+    input: UpdateTeamInput!
+  ): Team! @auth
+
+  """
+  Remove one or more users from a team
+
+  The updated team will be returned on success.
+  """
+  removeUsersFromTeam(
+    "Team slug that users should be removed from."
+    slug: Slug!
+
+    "List of user IDs that should be removed from the team."
+    userIds: [ID!]!
+  ): Team! @auth
+
+  """
+  Remove a user from a team
+
+  The updated team will be returned on success.
+  """
+  removeUserFromTeam(
+    "Team slug that the user should be removed from."
+    slug: Slug!
+
+    "ID of the user that will be removed from the team."
+    userId: ID!
+  ): Team! @auth
+
+  """
+  Manually synchronize a team
+
+  This action will trigger a full synchronization of the team against the configured third party systems. The action
+  is asynchronous.
+
+  The team will be returned.
+  """
+  synchronizeTeam(
+    "The slug of the team to synchronize."
+    slug: Slug!
+  ): TeamSync! @auth
+
+  """
+  Manually synchronize all teams
+
+  This action will trigger a full synchronization of all teams against the configured third party systems. The action
+  is asynchronous. The operation can take a while, depending on the amount of teams currently managed.
+  """
+  synchronizeAllTeams: TeamSync! @auth
+
+  """
+  Add users to a team as regular team members
+
+  If one or more users are already added to the team they will not be updated. If a user is already an owner of the
+  team the user will not lose ownership. Regular team members will get read-only access to the team.
+
+  The updated team will be returned on success.
+  """
+  addTeamMembers(
+    "Slug of the team that should receive new members."
+    slug: Slug!
+
+    "List of user IDs that should be added to the team as members."
+    userIds: [ID!]!
+  ): Team! @auth
+
+  """
+  Add users to a team as team owners
+
+  If one or more users are already added to the team, they will be granted ownership of the team. If one or more users
+  are already owners of the team, they will not be updated. Team owners will get read/write access to the team.
+
+  The updated team will be returned on success.
+  """
+  addTeamOwners(
+    "Slug of the team that should receive new owners."
+    slug: Slug!
+
+    "List of user IDs that should be added to the team as owners."
+    userIds: [ID!]!
+  ): Team! @auth
+
+  """
+  Add a user to a team
+
+  If the user is already a member or an owner of the team, the mutation will fail.
+
+  The updated team will be returned on success.
+  """
+  addTeamMember(
+    "Slug of the team that should receive a new member."
+    slug: Slug!
+
+    "The new team member."
+    member: TeamMemberInput!
+  ): Team! @auth
+
+  """
+  Set the member role of a user in a team
+
+  The user must already exist in the team for this mutation to succeed.
+
+  The team will be returned on success.
+  """
+  setTeamMemberRole(
+    "The slug of the team."
+    slug: Slug!
+
+    "The ID of the user."
+    userId: ID!
+
+    "The team role to set."
+    role: TeamRole!
+  ): Team! @auth
+
+  """
+  Request a key that can be used to trigger a team deletion process
+
+  Deleting a team is a two step process. First an owner of the team (or an admin) must request a team deletion key, and
+  then a second owner of the team (or an admin) must confirm the deletion using the confirmTeamDeletion mutation.
+
+  Note: Service accounts are not allowed to request team delete keys.
+  """
+  requestTeamDeletion(
+    "The slug of the team that the deletion key will be assigned to."
+    slug: Slug!
+  ): TeamDeleteKey! @auth
+
+  """
+  Confirm a team deletion
+
+  This will start the actual team deletion process, which will be done in an asynchronous manner. All external
+  entities controlled by NAIS will also be deleted.
+
+  WARNING: There is no going back after starting this process.
+
+  Note: Service accounts are not allowed to confirm a team deletion.
+  """
+  confirmTeamDeletion(
+    "Deletion key, acquired using the requestTeamDeletion mutation."
+    key: ID!
+  ): ID! @auth
+
+  "Authorize a team to perform an action from a GitHub repository."
+  authorizeRepository(
+    "The action to authorize."
+    authorization: RepositoryAuthorization!
+
+    "The slug of the team to authorize the action for."
+    teamSlug: Slug!
+
+    "Name of the repository, with the org prefix, for instance 'org/repo'."
+    repoName: String!
+  ): Team! @auth
+
+  "Deauthorize an action from a team."
+  deauthorizeRepository(
+    "The action to deauthorize."
+    authorization: RepositoryAuthorization!
+
+    "The slug of the team to deauthorize the action for."
+    teamSlug: Slug!
+
+    "Name of the repository, with the org prefix, for instance 'org/repo'."
+    repoName: String!
+  ): Team! @auth
+}
+
+"Team deletion key type."
+type TeamDeleteKey {
+  "The unique key used to confirm the deletion of a team."
+  key: ID!
+
+  "The creation timestamp of the key."
+  createdAt: Time!
+
+  "Expiration timestamp of the key."
+  expires: Time!
+
+  "The user who created the key."
+  createdBy: User!
+
+  "The team the delete key is for."
+  team: Team!
+}
+
+"Team sync type."
+type TeamSync {
+  "The correlation ID for the sync."
+  correlationID: ID!
+}
+
+"Paginated GitHub repository type."
+type GitHubRepositoryList {
+  "The list of GitHub repositories."
+  nodes: [GitHubRepository!]!
+
+  "Pagination information."
+  pageInfo: PageInfo!
+}
+
+"Paginated teams type."
+type TeamList {
+  "The list of teams."
+  nodes: [Team!]!
+
+  "Pagination information."
+  pageInfo: PageInfo!
+}
+
+"Team type."
+type Team @key(fields: "slug") {
+  id: ID!
+
+  "Unique slug of the team."
+  slug: Slug!
+
+  "Purpose of the team."
+  purpose: String!
+
+  "Audit logs for this team."
+  auditLogs(
+    "Offset to start listing audit log entries from. Default is 0."
+    offset: Int
+
+    "Limit the number of audit log entries to return. Default is 20."
+    limit: Int
+  ): AuditLogList!
+
+  "Team members."
+  members(
+    "Offset to start listing team members from. Default is 0."
+    offset: Int
+
+    "Limit the number of team members to return. Default is 20."
+    limit: Int
+  ): TeamMemberList!
+
+  "Single team member"
+  member("The ID of the user." userId: ID!): TeamMember!
+
+  "Possible issues related to synchronization of the team to configured external systems. If there are no entries the team can be considered fully synchronized."
+  syncErrors: [SyncError!]!
+
+  "Timestamp of the last successful synchronization of the team."
+  lastSuccessfulSync: Time
+
+  "Current reconciler state for the team."
+  reconcilerState: ReconcilerState!
+
+  "Slack channel for the team."
+  slackChannel: String!
+
+  "A list of Slack channels for NAIS alerts. If no channel is specified for a given environment, NAIS will fallback to the slackChannel value."
+  slackAlertsChannels: [SlackAlertsChannel!]!
+
+  "A list of GitHub repositories for the team."
+  gitHubRepositories(
+    "Offset to start listing repositories from. Default is 0."
+    offset: Int
+
+    "Limit the number of repositories to return. Default is 20."
+    limit: Int
+
+    "Filter teams by GitHub repository permissions."
+    filter: GitHubRepositoriesFilter
+  ): GitHubRepositoryList!
+
+  "Whether or not the team is currently being deleted."
+  deletionInProgress: Boolean!
+
+  "Whether or not the viewer is an owner of the team."
+  viewerIsOwner: Boolean!
+
+  "Whether or not the viewer is a member of the team."
+  viewerIsMember: Boolean!
+}
+
+"GitHub repository type."
+type GitHubRepository {
+  "Name of the repository, with the org prefix."
+  name: String!
+
+  "A list of permissions given to the team for this repository."
+  permissions: [GitHubRepositoryPermission!]!
+
+  "The name of the role the team has been granted in the repository."
+  roleName: String!
+
+  "Whether or not the repository is archived."
+  archived: Boolean!
+
+  "A list of authorizations granted to the repository by the team."
+  authorizations: [RepositoryAuthorization!]!
+}
+
+"GitHub repository permission type."
+type GitHubRepositoryPermission {
+  "Name of the permission."
+  name: String!
+
+  "Whether or not the permission is granted for the repository."
+  granted: Boolean!
+}
+
+"Slack alerts channel type."
+type SlackAlertsChannel {
+  "The environment for the alerts sent to the channel."
+  environment: String!
+
+  "The name of the Slack channel."
+  channelName: String!
+}
+
+"Reconciler state type."
+type ReconcilerState {
+  "The GitHub team slug."
+  gitHubTeamSlug: Slug
+
+  "The Google Workspace group email."
+  googleWorkspaceGroupEmail: String
+
+  "The Azure AD group ID."
+  azureADGroupId: ID
+
+  "A list of GCP projects."
+  gcpProjects: [GcpProject!]!
+
+  "A list of NAIS namespaces."
+  naisNamespaces: [NaisNamespace!]!
+
+  "Timestamp of when the NAIS deploy key was provisioned."
+  naisDeployKeyProvisioned: Time
+
+  "Name of the GAR repository for the team."
+  garRepositoryName: String
+}
+
+"GCP project type."
+type GcpProject {
+  "The environment for the project."
+  environment: String!
+
+  "The display name of the project."
+  projectName: String!
+
+  "The GCP project ID."
+  projectId: String!
+}
+
+"NAIS namespace type."
+type NaisNamespace {
+  "The environment for the namespace."
+  environment: String!
+
+  "The namespace."
+  namespace: Slug!
+}
+
+"Sync error type."
+type SyncError {
+  "Creation time of the error."
+  createdAt: Time!
+
+  "The name of the reconciler."
+  reconciler: ReconcilerName!
+
+  "Error message."
+  error: String!
+}
+
+"Team member."
+type TeamMember {
+  "Team instance."
+  team: Team!
+
+  "User instance."
+  user: User!
+
+  "The role that the user has in the team."
+  role: TeamRole!
+
+  "Reconcilers for this member in this team."
+  reconcilers: [TeamMemberReconciler!]!
+}
+
+"Team member reconcilers."
+type TeamMemberReconciler {
+  "The reconciler."
+  reconciler: Reconciler!
+
+  "Whether or not the reconciler is enabled for the team member."
+  enabled: Boolean!
+}
+
+"Input for filtering teams."
+input TeamsFilter {
+  github: TeamsFilterGitHub
+}
+
+input TeamsFilterGitHub {
+  "Filter repostiories by repo name"
+  repoName: String!
+
+  "Filter repostiories by permission name"
+  permissionName: String!
+}
+
+"Input for creating a new team."
+input CreateTeamInput {
+  "Team slug. After creation, this value can not be changed."
+  slug: Slug!
+
+  "Team purpose."
+  purpose: String!
+
+  "Specify the Slack channel for the team."
+  slackChannel: String!
+}
+
+"Input for updating an existing team."
+input UpdateTeamInput {
+  "Specify team purpose to update the existing value."
+  purpose: String
+
+  "Specify the Slack channel to update the existing value."
+  slackChannel: String
+
+  "A list of Slack channels for NAIS alerts."
+  slackAlertsChannels: [SlackAlertsChannelInput!]
+}
+
+"Slack alerts channel input."
+input SlackAlertsChannelInput {
+  "The environment for the alerts sent to the channel."
+  environment: String!
+
+  "The name of the Slack channel."
+  channelName: String
+}
+
+"Team member input."
+input TeamMemberInput {
+  "The ID of user."
+  userId: ID!
+
+  "The role that the user will receive."
+  role: TeamRole!
+
+  "Reconcilers to opt the team member out of."
+  reconcilerOptOuts: [ReconcilerName!]
+}
+
+"Input for filtering GitHub repositories."
+input GitHubRepositoriesFilter {
+  "Include archived repositories or not. Default is false."
+  includeArchivedRepositories: Boolean!
+}
+
+"Available team roles."
+enum TeamRole {
+  "Regular member, read only access."
+  MEMBER
+
+  "Team owner, full access to the team."
+  OWNER
+}
+
+"Repository authorizations."
+enum RepositoryAuthorization {
+  "Authorize for NAIS deployment."
+  DEPLOY
+}

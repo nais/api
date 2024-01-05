@@ -42,7 +42,7 @@ func TestNew(t *testing.T) {
 		assert.Equal(t, "json", cfg.Logger.Format)
 		assert.Equal(t, "info", cfg.Logger.Level)
 
-		assert.Equal(t, "http://teams-backend/query", cfg.Teams.Endpoint)
+		assert.Equal(t, "http://api/query", cfg.Teams.Endpoint)
 		assert.Equal(t, "secret-admin-api-key", cfg.Teams.Token)
 
 		assert.Equal(t, "", cfg.IapAudience)

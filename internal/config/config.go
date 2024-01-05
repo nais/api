@@ -47,7 +47,7 @@ type ResourceUtilization struct {
 
 // Teams is the configuration for the teams backend service
 type Teams struct {
-	Endpoint string `env:"TEAMS_ENDPOINT,default=http://teams-backend/query"`
+	Endpoint string `env:"TEAMS_ENDPOINT,default=http://api/query"`
 	Token    string `env:"TEAMS_TOKEN,default=secret-admin-api-key"`
 }
 

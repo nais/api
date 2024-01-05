@@ -1,0 +1,7 @@
+extend type Query {
+    "The currently authenticated user."
+    me: AuthenticatedUser! @auth
+}
+
+"Authenticated user type. Can be a user or a service account."
+union AuthenticatedUser = User | ServiceAccount

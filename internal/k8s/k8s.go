@@ -28,11 +28,10 @@ import (
 )
 
 type Client struct {
-	informers   map[string]*Informers
-	clientSets  map[string]*kubernetes.Clientset
-	log         logrus.FieldLogger
-	errors      metric.Int64Counter
-	teamsClient teams.Client
+	informers  map[string]*Informers
+	clientSets map[string]*kubernetes.Clientset
+	log        logrus.FieldLogger
+	errors     metric.Int64Counter
 }
 
 type Informers struct {
@@ -44,7 +43,7 @@ type Informers struct {
 	EventInformer   corev1inf.EventInformer
 }
 
-func New(tenant string, cfg config.K8S, errors metric.Int64Counter, teamsClient teams.Client, log logrus.FieldLogger) (*Client, error) {
+func New(tenant string, cfg config.K8S, errors metric.Int64Counter, log logrus.FieldLogger) (*Client, error) {
 	restConfigs, err := CreateClusterConfigMap(tenant, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("create kubeconfig: %w", err)
@@ -89,11 +88,10 @@ func New(tenant string, cfg config.K8S, errors metric.Int64Counter, teamsClient 
 	}
 
 	return &Client{
-		informers:   infs,
-		log:         log,
-		errors:      errors,
-		clientSets:  clientSets,
-		teamsClient: teamsClient,
+		informers:  infs,
+		log:        log,
+		errors:     errors,
+		clientSets: clientSets,
 	}, nil
 }
 

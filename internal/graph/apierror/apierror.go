@@ -8,6 +8,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/sirupsen/logrus"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
@@ -22,6 +23,14 @@ var (
 	ErrUserNotFound     = func(email string) Error {
 		return Errorf("We were unable to find a user with the email address you are currently signed in with: %q", email)
 	}
+
+	ErrUserNotExists       = Errorf("The user does not exist.")
+	ErrTeamSlug            = Errorf("Your team identifier does not fit our requirements. Team identifiers must contain only lowercase alphanumeric characters or hyphens, contain at least 3 characters and at most 30 characters, start with an alphabetic character, end with an alphanumeric character, and not contain two hyphens in a row.")
+	ErrTeamPurpose         = Errorf("You must specify the purpose for your team. This is a human-readable string which is used in external systems, and is important because other people might need to to understand what your team is all about.")
+	ErrTeamNotExist        = Errorf("The team you are referring to does not exist in our database.")
+	ErrTeamPrefixRedundant = Errorf("The name prefix 'team' is redundant. When you create a team, it is by definition a team. Try again with a different name, perhaps just removing the prefix?")
+	ErrTeamSlugReserved    = Errorf("The specified slug is reserved by the platform.")
+	ErrUserIsNotTeamMember = Errorf("The user is not a member of the team.")
 )
 
 // Error is an error that can be presented to end-users
@@ -42,33 +51,50 @@ func Errorf(format string, args ...any) Error {
 }
 
 // GetErrorPresenter returns a GraphQL error presenter that filters out error messages not intended for end users.
-// Filtered errors will be logged with the original error attached.
+// All filtered errors are logged.
 func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
-	return func(ctx context.Context, err error) *gqlerror.Error {
-		gqlError := graphql.DefaultErrorPresenter(ctx, err)
-		unwrappedError := errors.Unwrap(err)
+	// log = log.WithComponent(types.ComponentNameGraphqlApi)
+
+	return func(ctx context.Context, e error) *gqlerror.Error {
+		err := graphql.DefaultErrorPresenter(ctx, e)
+		unwrappedError := errors.Unwrap(e)
 
 		switch originalError := unwrappedError.(type) {
+		case Error:
+			// Error is already formatted for end-user consumption.
+			return err
+		case authz.ErrMissingRole:
+			err.Message = fmt.Sprintf("You are authenticated, but your account is not authorized to perform this action. Specifically, you need the %q role.", originalError.Role())
+			return err
+		case authz.ErrMissingAuthorization:
+			err.Message = fmt.Sprintf("You are authenticated, but your account is not authorized to perform this action. Specifically, you need the %q authorization.", originalError.Authorization())
+			return err
+		case *pgconn.PgError:
+			err.Message = ErrDatabase.Error()
+			log.Errorf("database error %s: %s (%s)", originalError.Code, originalError.Message, originalError.Detail)
+			return err
 		default:
 			break
-		case Error:
-			return gqlError // err is already formatted for end-user
-		case *pgconn.PgError:
-			gqlError.Message = ErrDatabase.Error()
-			log.WithError(originalError).Errorf("database error")
-			return gqlError
 		}
 
-		switch {
+		switch unwrappedError {
+		case sql.ErrNoRows:
+			err.Message = "Object was not found in the database. This usually means you specified a non-existing team identifier or e-mail address."
+		case authz.ErrNotAuthenticated:
+			err.Message = "Valid user required. You are not logged in."
+		case context.Canceled:
+			// This won't make it back to the caller if they have cancelled the request on their end
+			err.Message = "Request cancelled"
 		default:
-			log.WithError(unwrappedError).Errorf("unhandled error in the GraphQL error presenter")
-			gqlError.Message = ErrInternal.Error()
-		case errors.Is(unwrappedError, sql.ErrNoRows):
-			gqlError.Message = "Object was not found in the database."
-		case errors.Is(unwrappedError, context.Canceled):
-			gqlError.Message = "Request canceled."
+			// identity := "<unknown>"
+			// actor := authz.ActorFromContext(ctx)
+			// if actor != nil {
+			// 	identity = actor.User.Identity()
+			// }
+			// log.WithActor(identity).Errorf("unhandled error: %q", err)
+			err.Message = ErrInternal.Error()
 		}
 
-		return gqlError
+		return err
 	}
 }
