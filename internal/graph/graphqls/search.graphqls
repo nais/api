@@ -1,0 +1,25 @@
+extend type Query {
+  search(
+    query: String!
+    filter: SearchFilter
+    offset: Int
+    limit: Int
+  ): SearchList!
+}
+
+union SearchNode = App | Team | NaisJob
+
+input SearchFilter {
+  type: SearchType
+}
+
+type SearchList {
+  pageInfo: PageInfo!
+  nodes: [SearchNode!]!
+}
+
+enum SearchType {
+  APP
+  TEAM
+  NAISJOB
+}

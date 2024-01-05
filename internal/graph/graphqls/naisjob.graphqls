@@ -1,0 +1,62 @@
+extend type Query {
+  "Get a naisjob by name, team and env."
+  naisjob(
+    "The name of the naisjob."
+    name: String!
+
+    "The name of the team who owns the naisjob."
+    team: String!
+
+    "The environment the naisjob is deployed in."
+    env: String!
+  ): NaisJob!
+}
+
+type Run {
+  id: ID!
+  name: String!
+  podNames: [String!]!
+  startTime: Time
+  completionTime: Time
+  duration: String!
+  image: String!
+  message: String!
+  failed: Boolean!
+}
+
+type JobState {
+  state: State!
+  errors: [StateError!]!
+}
+
+type FailedRunError implements StateError {
+  revision: String!
+  level: ErrorLevel!
+  runMessage: String!
+  runName: String!
+}
+
+type NaisJob {
+  id: ID!
+  accessPolicy: AccessPolicy!
+  deployInfo: DeployInfo!
+  env: Env!
+  image: String!
+  runs: [Run!]! @goField(forceResolver: true)
+  manifest: String! @goField(forceResolver: true)
+  name: String!
+  resources: Resources!
+  schedule: String!
+  team: Team! @goField(forceResolver: true)
+  storage: [Storage!]!
+  authz: [Authz!]!
+  completions: Int!
+  parallelism: Int!
+  retries: Int!
+  jobState: JobState!
+}
+
+type NaisJobList {
+  nodes: [NaisJob!]!
+  pageInfo: PageInfo!
+}

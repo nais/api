@@ -1,0 +1,35 @@
+type PageInfo {
+  totalCount: Int!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+type Env {
+  id: ID!
+  name: String!
+}
+
+input OrderBy {
+  "Order direction"
+  direction: SortOrder!
+  field: OrderByField!
+}
+
+enum OrderByField {
+  "Order by name"
+  NAME
+  "Order by env"
+  ENV
+  "Order by deployed time"
+  DEPLOYED
+  "Order by status"
+  STATUS
+}
+
+enum SortOrder {
+  "Ascending sort order."
+  ASC
+
+  "Descending sort order."
+  DESC
+}

@@ -1,0 +1,14 @@
+type Limits {
+    cpu: String!
+    memory: String!
+}
+
+type Requests {
+    cpu: String!
+    memory: String!
+}
+
+type Resources {
+    limits: Limits!
+    requests: Requests!
+}

@@ -1,0 +1,18 @@
+with-expecter: true
+disable-version-string: true
+inpackage: true
+dir: "{{.InterfaceDir}}"
+filename: "mock_{{.InterfaceNameSnake}}.go"
+packages:
+  github.com/nais/api/internal/database/gensql:
+    interfaces:
+      Querier:
+  github.com/nais/api/internal/hookd:
+    interfaces:
+      Client:
+  github.com/nais/api/internal/resourceusage:
+    interfaces:
+      Client:
+  github.com/nais/api/internal/dependencytrack:
+    interfaces:
+      InternalClient:

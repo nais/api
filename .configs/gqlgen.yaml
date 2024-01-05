@@ -1,0 +1,79 @@
+# Where are all the schema files located? globs are supported eg  src/**/*.graphqls
+schema:
+  - internal/graph/graphqls/*.graphqls
+
+# Where should the generated server code go?
+exec:
+  filename: internal/graph/gengql/generated.go
+  package: gengql
+
+# Where should any generated models go?
+model:
+  filename: internal/graph/model/models_gen.go
+  package: model
+
+# Where should the resolver implementations go?
+resolver:
+  layout: follow-schema
+  dir: internal/graph
+  package: graph
+
+# gqlgen will search for any type names in the schema in these go packages
+# if they match it will use them, otherwise it will generate them.
+autobind:
+  - "github.com/nais/api/internal/graph/model"
+
+# Optional: turn on to exclude the gqlgen version in the generated file notice. No effect if `omit_gqlgen_file_notice` is true.
+omit_gqlgen_version_in_file_notice: true
+
+# Setting this to false will generate type instances for required struct fields, and type pointers for optional fields
+struct_fields_always_pointers: false
+
+# This section declares type mapping between the GraphQL and go type systems
+#
+# The first line in each type will be used as defaults for resolver arguments and
+# modelgen, the others will be allowed when binding to fields. Configure them to
+# your liking
+models:
+  ID:
+    model:
+      - github.com/nais/api/internal/graph/scalar.Ident
+      - github.com/99designs/gqlgen/graphql.ID
+      - github.com/99designs/gqlgen/graphql.Int
+      - github.com/99designs/gqlgen/graphql.Int64
+      - github.com/99designs/gqlgen/graphql.Int32
+  Int:
+    model:
+      - github.com/99designs/gqlgen/graphql.Int
+      - github.com/99designs/gqlgen/graphql.Int64
+      - github.com/99designs/gqlgen/graphql.Int32
+  Cursor:
+    model:
+      - github.com/nais/api/internal/graph/scalar.Cursor
+  SearchEdge:
+    extraFields:
+      Rank:
+        type: int
+  Date:
+    model:
+      - github.com/nais/api/internal/graph/scalar.Date
+  DeployInfo:
+    extraFields:
+      GQLVars:
+        type: "github.com/nais/api/internal/graph/model.DeployInfoGQLVars"
+  Instance:
+    extraFields:
+      GQLVars:
+        type: "github.com/nais/api/internal/graph/model.InstanceGQLVars"
+  Run:
+    extraFields:
+      GQLVars:
+        type: "github.com/nais/api/internal/graph/model.RunGQLVars"
+  App:
+    extraFields:
+      GQLVars:
+        type: "github.com/nais/api/internal/graph/model.AppGQLVars"
+  NaisJob:
+    extraFields:
+      GQLVars:
+        type: "github.com/nais/api/internal/graph/model.NaisJobGQLVars"
