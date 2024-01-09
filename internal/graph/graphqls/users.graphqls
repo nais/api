@@ -53,7 +53,7 @@ enum UserSyncRunStatus {
 }
 
 "User type."
-type User @key(fields: "id") {
+type User {
   "Unique ID of the user."
   id: ID!
 

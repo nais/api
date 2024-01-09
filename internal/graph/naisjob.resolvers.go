@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 
+	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 )
 
@@ -34,7 +35,7 @@ func (r *queryResolver) Naisjob(ctx context.Context, name string, team string, e
 	return r.k8sClient.NaisJob(ctx, name, team, env)
 }
 
-// NaisJob returns NaisJobResolver implementation.
-func (r *Resolver) NaisJob() NaisJobResolver { return &naisJobResolver{r} }
+// NaisJob returns gengql.NaisJobResolver implementation.
+func (r *Resolver) NaisJob() gengql.NaisJobResolver { return &naisJobResolver{r} }
 
 type naisJobResolver struct{ *Resolver }

@@ -77,3 +77,16 @@ models:
     extraFields:
       GQLVars:
         type: "github.com/nais/api/internal/graph/model.NaisJobGQLVars"
+  ComponentName:
+    model:
+      - github.com/nais/api/internal/logger.ComponentName
+  AuditAction:
+    model:
+      - github.com/nais/api/internal/auditlogger.AuditAction
+
+  AuditLogsTargetType:
+    model:
+      - github.com/nais/api/internal/auditlogger.AuditLogsTargetType
+  Slug:
+    model:
+      - github.com/nais/api/internal/slug.Slug

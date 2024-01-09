@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 
-	"github.com/nais/api/internal/roles"
+	"github.com/nais/api/internal/auth/roles"
 
 	"github.com/nais/api/internal/slug"
 

@@ -7,11 +7,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/auth/roles"
 	db "github.com/nais/api/internal/database"
 	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/logger"
-	"github.com/nais/api/internal/roles"
 	"github.com/nais/api/internal/usersync"
 	"github.com/stretchr/testify/assert"
 )

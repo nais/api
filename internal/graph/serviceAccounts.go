@@ -11,7 +11,7 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	db "github.com/nais/api/internal/database"
 	sqlc "github.com/nais/api/internal/database/gensql"
-	"github.com/nais/api/internal/graph/generated"
+	generated "github.com/nais/api/internal/graph/gengql"
 )
 
 // Roles is the resolver for the roles field.

@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 )
 
@@ -29,7 +30,7 @@ func (r *subscriptionResolver) Log(ctx context.Context, input *model.LogSubscrip
 	return r.k8sClient.LogStream(ctx, input.Env, input.Team, selector, container, input.Instances)
 }
 
-// Subscription returns SubscriptionResolver implementation.
-func (r *Resolver) Subscription() SubscriptionResolver { return &subscriptionResolver{r} }
+// Subscription returns gengql.SubscriptionResolver implementation.
+func (r *Resolver) Subscription() gengql.SubscriptionResolver { return &subscriptionResolver{r} }
 
 type subscriptionResolver struct{ *Resolver }

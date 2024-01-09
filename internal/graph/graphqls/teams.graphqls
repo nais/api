@@ -255,7 +255,7 @@ type TeamList {
 }
 
 "Team type."
-type Team @key(fields: "slug") {
+type Team {
   id: ID!
 
   "Unique slug of the team."
@@ -320,6 +320,59 @@ type Team @key(fields: "slug") {
 
   "Whether or not the viewer is a member of the team."
   viewerIsMember: Boolean!
+
+  "The status of the team."
+  status: TeamStatus! @goField(forceResolver: true)
+
+  "The NAIS applications owned by the team."
+  apps(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order apps by"
+    orderBy: OrderBy
+  ): AppList! @goField(forceResolver: true)
+
+  "The deploy key of the team."
+  deployKey: DeploymentKey! @goField(forceResolver: true)
+
+  "The NAIS jobs owned by the team."
+  naisjobs(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order naisjobs by"
+    orderBy: OrderBy
+  ): NaisJobList! @goField(forceResolver: true)
+
+  "The deployments of the team's applications."
+  deployments(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Limit the number of entries returned."
+    limit: Int
+  ): DeploymentList! @goField(forceResolver: true)
+
+  "The vulnerabilities for the team's applications."
+  vulnerabilities(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order apps by"
+    orderBy: OrderBy
+  ): VulnerabilityList! @goField(forceResolver: true)
+
+  vulnerabilitiesSummary: VulnerabilitySummary! @goField(forceResolver: true)
 }
 
 "GitHub repository type."

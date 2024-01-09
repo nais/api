@@ -45,14 +45,14 @@ type (
 	}
 
 	userByIDMap  map[uuid.UUID]*db.User
-	userRolesMap map[*db.User]map[sqlc.RoleName]struct{}
+	userRolesMap map[*db.User]map[gensql.RoleName]struct{}
 )
 
-var DefaultRoleNames = []sqlc.RoleName{
-	sqlc.RoleNameTeamcreator,
-	sqlc.RoleNameTeamviewer,
-	sqlc.RoleNameUserviewer,
-	sqlc.RoleNameServiceaccountcreator,
+var DefaultRoleNames = []gensql.RoleName{
+	gensql.RoleNameTeamcreator,
+	gensql.RoleNameTeamviewer,
+	gensql.RoleNameUserviewer,
+	gensql.RoleNameServiceaccountcreator,
 }
 
 func New(database gensql.Querier, auditLogger auditlogger.AuditLogger, adminGroupPrefix, tenantDomain string, service *admin_directory_v1.Service, log logrus.FieldLogger, syncRuns *RunsHandler) *UserSynchronizer {
@@ -132,7 +132,7 @@ func (s *UserSynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) er
 		for _, row := range allUserRolesRows {
 			user := usersByID[row.UserID]
 			if _, exists := userRoles[user]; !exists {
-				userRoles[user] = make(map[sqlc.RoleName]struct{})
+				userRoles[user] = make(map[gensql.RoleName]struct{})
 			}
 			userRoles[user][row.RoleName] = struct{}{}
 		}
@@ -247,7 +247,7 @@ func assignTeamsBackendAdmins(ctx context.Context, dbtx db.Database, membersServ
 	existingAdmins := getExistingTeamsBackendAdmins(userRoles)
 	for _, existingAdmin := range existingAdmins {
 		if _, shouldBeAdmin := admins[existingAdmin.ID]; !shouldBeAdmin {
-			err = dbtx.RevokeGlobalUserRole(ctx, existingAdmin.ID, sqlc.RoleNameAdmin)
+			err = dbtx.RevokeGlobalUserRole(ctx, existingAdmin.ID, gensql.RoleNameAdmin)
 			if err != nil {
 				return err
 			}
@@ -262,7 +262,7 @@ func assignTeamsBackendAdmins(ctx context.Context, dbtx db.Database, membersServ
 
 	for _, admin := range admins {
 		if _, isAlreadyAdmin := existingAdmins[admin.ID]; !isAlreadyAdmin {
-			err = dbtx.AssignGlobalRoleToUser(ctx, admin.ID, sqlc.RoleNameAdmin)
+			err = dbtx.AssignGlobalRoleToUser(ctx, admin.ID, gensql.RoleNameAdmin)
 			if err != nil {
 				return err
 			}
@@ -283,7 +283,7 @@ func getExistingTeamsBackendAdmins(userWithRoles userRolesMap) map[uuid.UUID]*db
 	admins := make(map[uuid.UUID]*db.User)
 	for user, roles := range userWithRoles {
 		for roleName := range roles {
-			if roleName == sqlc.RoleNameAdmin {
+			if roleName == gensql.RoleNameAdmin {
 				admins[user.ID] = user
 			}
 		}

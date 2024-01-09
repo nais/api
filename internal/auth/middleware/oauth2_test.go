@@ -9,11 +9,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/authn"
+	"github.com/nais/api/internal/auth/middleware"
 	db "github.com/nais/api/internal/database"
 	sqlc "github.com/nais/api/internal/database/gensql"
-	"github.com/nais/api/internal/middleware"
 	"github.com/stretchr/testify/assert"
 )
 

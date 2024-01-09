@@ -6,11 +6,9 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	db "github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/graph/generated"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -22,19 +20,4 @@ func (r *entityResolver) FindTeamBySlug(ctx context.Context, slug slug.Slug) (*d
 // FindUserByID is the resolver for the findUserByID field.
 func (r *entityResolver) FindUserByID(ctx context.Context, id uuid.UUID) (*db.User, error) {
 	return r.database.GetUserByID(ctx, id)
-}
-
-// Entity returns generated.EntityResolver implementation.
-func (r *Resolver) Entity() generated.EntityResolver { return &entityResolver{r} }
-
-type entityResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *entityResolver) FindTeamByID(ctx context.Context, id uuid.UUID) (*db.Team, error) {
-	panic(fmt.Errorf("not implemented: FindTeamByID - findTeamByID"))
 }

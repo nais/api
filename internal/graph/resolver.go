@@ -9,7 +9,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
-	"github.com/gobuffalo/logger"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auditlogger"
 	db "github.com/nais/api/internal/database"
@@ -20,10 +19,10 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/hookd"
 	"github.com/nais/api/internal/k8s"
+	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/types"
 	"github.com/nais/api/internal/usersync"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/metric"
@@ -49,10 +48,9 @@ type Resolver struct {
 	database        db.Database
 	tenantDomain    string
 	userSync        chan<- uuid.UUID
-	systemName      types.ComponentName
+	systemName      logger.ComponentName
 	auditLogger     auditlogger.AuditLogger
 	gcpEnvironments []string
-	log             logger.Logger
 	userSyncRuns    *usersync.RunsHandler
 }
 

@@ -3,10 +3,9 @@ package database
 import (
 	"context"
 
-	"github.com/nais/api/internal/types"
-
 	"github.com/google/uuid"
 	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -56,7 +55,7 @@ func (d *database) GetAuditLogsForReconciler(ctx context.Context, reconcilerName
 	return entries, int(total), nil
 }
 
-func (d *database) CreateAuditLogEntry(ctx context.Context, correlationID uuid.UUID, componentName types.ComponentName, actor *string, targetType types.AuditLogsTargetType, targetIdentifier string, action types.AuditAction, message string) error {
+func (d *database) CreateAuditLogEntry(ctx context.Context, correlationID uuid.UUID, componentName logger.ComponentName, actor *string, targetType auditlogger.AuditLogsTargetType, targetIdentifier string, action types.AuditAction, message string) error {
 	return d.querier.CreateAuditLog(ctx, sqlc.CreateAuditLogParams{
 		CorrelationID:    correlationID,
 		Actor:            actor,

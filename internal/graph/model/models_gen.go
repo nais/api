@@ -8,8 +8,16 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/logger"
+	"github.com/nais/api/internal/slug"
 )
+
+// Authenticated user type. Can be a user or a service account.
+type AuthenticatedUser interface {
+	IsAuthenticatedUser()
+}
 
 type Authz interface {
 	IsAuthz()
@@ -112,6 +120,33 @@ type AppsStatus struct {
 	Failing int `json:"failing"`
 }
 
+// Audit log type.
+type AuditLog struct {
+	// ID of the log entry.
+	ID scalar.Ident `json:"id"`
+	// String representation of the action performed.
+	Action auditlogger.AuditAction `json:"action"`
+	// The related component.
+	ComponentName logger.ComponentName `json:"componentName"`
+	// The related correlation ID.
+	CorrelationID scalar.Ident `json:"correlationID"`
+	// The identity of the actor who performed the action. When this field is empty it means that some backend process performed the action. The value, when present, is either the name of a service account, or the email address of a user.
+	Actor *string `json:"actor,omitempty"`
+	// The type of the audit log target.
+	TargetType auditlogger.AuditLogsTargetType `json:"targetType"`
+	// The identifier of the target.
+	TargetIdentifier string `json:"targetIdentifier"`
+	// Log entry message.
+	Message string `json:"message"`
+	// Creation time of the log entry.
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+type AuditLogList struct {
+	Nodes    []*AuditLog `json:"nodes"`
+	PageInfo PageInfo    `json:"pageInfo"`
+}
+
 type AutoScaling struct {
 	Disabled bool `json:"disabled"`
 	// CPU threshold in percent
@@ -186,6 +221,16 @@ type CostSeries struct {
 	Sum float64 `json:"sum"`
 	// The cost data.
 	Data []*CostEntry `json:"data"`
+}
+
+// Input for creating a new team.
+type CreateTeamInput struct {
+	// Team slug. After creation, this value can not be changed.
+	Slug slug.Slug `json:"slug"`
+	// Team purpose.
+	Purpose string `json:"purpose"`
+	// Specify the Slack channel for the team.
+	SlackChannel string `json:"slackChannel"`
 }
 
 // Current resource utilization type.
@@ -354,6 +399,52 @@ type Flag struct {
 	Value string `json:"value"`
 }
 
+// GCP project type.
+type GcpProject struct {
+	// The environment for the project.
+	Environment string `json:"environment"`
+	// The display name of the project.
+	ProjectName string `json:"projectName"`
+	// The GCP project ID.
+	ProjectID string `json:"projectId"`
+}
+
+// Input for filtering GitHub repositories.
+type GitHubRepositoriesFilter struct {
+	// Include archived repositories or not. Default is false.
+	IncludeArchivedRepositories bool `json:"includeArchivedRepositories"`
+}
+
+// GitHub repository type.
+type GitHubRepository struct {
+	// Name of the repository, with the org prefix.
+	Name string `json:"name"`
+	// A list of permissions given to the team for this repository.
+	Permissions []*GitHubRepositoryPermission `json:"permissions"`
+	// The name of the role the team has been granted in the repository.
+	RoleName string `json:"roleName"`
+	// Whether or not the repository is archived.
+	Archived bool `json:"archived"`
+	// A list of authorizations granted to the repository by the team.
+	Authorizations []RepositoryAuthorization `json:"authorizations"`
+}
+
+// Paginated GitHub repository type.
+type GitHubRepositoryList struct {
+	// The list of GitHub repositories.
+	Nodes []*GitHubRepository `json:"nodes"`
+	// Pagination information.
+	PageInfo PageInfo `json:"pageInfo"`
+}
+
+// GitHub repository permission type.
+type GitHubRepositoryPermission struct {
+	// Name of the permission.
+	Name string `json:"name"`
+	// Whether or not the permission is granted for the repository.
+	Granted bool `json:"granted"`
+}
+
 type Group struct {
 	ID string `json:"id"`
 }
@@ -505,6 +596,9 @@ type MonthlyCostFilter struct {
 	Env string `json:"env"`
 }
 
+type Mutation struct {
+}
+
 type NaisJob struct {
 	ID           scalar.Ident   `json:"id"`
 	AccessPolicy AccessPolicy   `json:"accessPolicy"`
@@ -531,6 +625,14 @@ func (NaisJob) IsSearchNode() {}
 type NaisJobList struct {
 	Nodes    []*NaisJob `json:"nodes"`
 	PageInfo PageInfo   `json:"pageInfo"`
+}
+
+// NAIS namespace type.
+type NaisNamespace struct {
+	// The environment for the namespace.
+	Environment string `json:"environment"`
+	// The namespace.
+	Namespace slug.Slug `json:"namespace"`
 }
 
 type NewInstancesFailingError struct {
@@ -590,6 +692,73 @@ type PageInfo struct {
 
 type Port struct {
 	Port int `json:"port"`
+}
+
+type Query struct {
+}
+
+// Reconciler type.
+type Reconciler struct {
+	// The name of the reconciler.
+	Name string `json:"name"`
+	// The human-friendly name of the reconciler.
+	DisplayName string `json:"displayName"`
+	// Description of what the reconciler is responsible for.
+	Description string `json:"description"`
+	// Whether or not the reconciler is enabled.
+	Enabled bool `json:"enabled"`
+	// Whether or not the reconciler uses team memberships when syncing.
+	UsesTeamMemberships bool `json:"usesTeamMemberships"`
+	// Reconciler configuration keys and descriptions.
+	Config []*ReconcilerConfig `json:"config"`
+	// Whether or not the reconciler is fully configured and ready to be enabled.
+	Configured bool `json:"configured"`
+	// The run order of the reconciler.
+	RunOrder int `json:"runOrder"`
+	// Audit logs for this reconciler.
+	AuditLogs AuditLogList `json:"auditLogs"`
+}
+
+// Reconciler configuration type.
+type ReconcilerConfig struct {
+	// Configuration key.
+	Key string `json:"key"`
+	// The human-friendly name of the configuration key.
+	DisplayName string `json:"displayName"`
+	// Configuration description.
+	Description string `json:"description"`
+	// Whether or not the configuration key has a value.
+	Configured bool `json:"configured"`
+	// Whether or not the configuration value is considered a secret. Secret values will not be exposed through the API.
+	Secret bool `json:"secret"`
+	// Configuration value. This will be set to null if the value is considered a secret.
+	Value *string `json:"value,omitempty"`
+}
+
+// Reconciler configuration input.
+type ReconcilerConfigInput struct {
+	// Configuration key.
+	Key string `json:"key"`
+	// Configuration value.
+	Value string `json:"value"`
+}
+
+// Reconciler state type.
+type ReconcilerState struct {
+	// The GitHub team slug.
+	GitHubTeamSlug *slug.Slug `json:"gitHubTeamSlug,omitempty"`
+	// The Google Workspace group email.
+	GoogleWorkspaceGroupEmail *string `json:"googleWorkspaceGroupEmail,omitempty"`
+	// The Azure AD group ID.
+	AzureADGroupID *scalar.Ident `json:"azureADGroupId,omitempty"`
+	// A list of GCP projects.
+	GcpProjects []*GcpProject `json:"gcpProjects"`
+	// A list of NAIS namespaces.
+	NaisNamespaces []*NaisNamespace `json:"naisNamespaces"`
+	// Timestamp of when the NAIS deploy key was provisioned.
+	NaisDeployKeyProvisioned *time.Time `json:"naisDeployKeyProvisioned,omitempty"`
+	// Name of the GAR repository for the team.
+	GarRepositoryName *string `json:"garRepositoryName,omitempty"`
 }
 
 type Redis struct {
@@ -684,6 +853,18 @@ type Resources struct {
 	Requests Requests `json:"requests"`
 }
 
+// Role binding type.
+type Role struct {
+	// Name of the role.
+	Name string `json:"name"`
+	// Whether or not the role is global.
+	IsGlobal bool `json:"isGlobal"`
+	// Optional service account ID if the role binding targets a service account.
+	TargetServiceAccountID *scalar.Ident `json:"targetServiceAccountID,omitempty"`
+	// Optional team slug if the role binding targets a team.
+	TargetTeamSlug *slug.Slug `json:"targetTeamSlug,omitempty"`
+}
+
 type Rule struct {
 	Application       string `json:"application"`
 	Namespace         string `json:"namespace"`
@@ -715,10 +896,38 @@ type SearchList struct {
 	Nodes    []SearchNode `json:"nodes"`
 }
 
+// Service account type.
+type ServiceAccount struct {
+	// Unique ID of the service account.
+	ID scalar.Ident `json:"id"`
+	// The name of the service account.
+	Name string `json:"name"`
+	// Roles attached to the service account.
+	Roles []*Role `json:"roles"`
+}
+
+func (ServiceAccount) IsAuthenticatedUser() {}
+
 type Sidecar struct {
 	AutoLogin            bool      `json:"autoLogin"`
 	AutoLoginIgnorePaths []string  `json:"autoLoginIgnorePaths"`
 	Resources            Resources `json:"resources"`
+}
+
+// Slack alerts channel type.
+type SlackAlertsChannel struct {
+	// The environment for the alerts sent to the channel.
+	Environment string `json:"environment"`
+	// The name of the Slack channel.
+	ChannelName string `json:"channelName"`
+}
+
+// Slack alerts channel input.
+type SlackAlertsChannelInput struct {
+	// The environment for the alerts sent to the channel.
+	Environment string `json:"environment"`
+	// The name of the Slack channel.
+	ChannelName *string `json:"channelName,omitempty"`
 }
 
 type SQLInstance struct {
@@ -743,11 +952,50 @@ type SQLInstance struct {
 func (SQLInstance) IsStorage()           {}
 func (this SQLInstance) GetName() string { return this.Name }
 
+type Subscription struct {
+}
+
+// Sync error type.
+type SyncError struct {
+	// Creation time of the error.
+	CreatedAt time.Time `json:"createdAt"`
+	// The name of the reconciler.
+	Reconciler string `json:"reconciler"`
+	// Error message.
+	Error string `json:"error"`
+}
+
+// Team type.
 type Team struct {
-	// The unique identifier of the team.
 	ID scalar.Ident `json:"id"`
-	// The unique slug of the team.
-	Slug string `json:"slug"`
+	// Unique slug of the team.
+	Slug slug.Slug `json:"slug"`
+	// Purpose of the team.
+	Purpose string `json:"purpose"`
+	// Audit logs for this team.
+	AuditLogs AuditLogList `json:"auditLogs"`
+	// Team members.
+	Members TeamMemberList `json:"members"`
+	// Single team member
+	Member TeamMember `json:"member"`
+	// Possible issues related to synchronization of the team to configured external systems. If there are no entries the team can be considered fully synchronized.
+	SyncErrors []*SyncError `json:"syncErrors"`
+	// Timestamp of the last successful synchronization of the team.
+	LastSuccessfulSync *time.Time `json:"lastSuccessfulSync,omitempty"`
+	// Current reconciler state for the team.
+	ReconcilerState ReconcilerState `json:"reconcilerState"`
+	// Slack channel for the team.
+	SlackChannel string `json:"slackChannel"`
+	// A list of Slack channels for NAIS alerts. If no channel is specified for a given environment, NAIS will fallback to the slackChannel value.
+	SlackAlertsChannels []*SlackAlertsChannel `json:"slackAlertsChannels"`
+	// A list of GitHub repositories for the team.
+	GitHubRepositories GitHubRepositoryList `json:"gitHubRepositories"`
+	// Whether or not the team is currently being deleted.
+	DeletionInProgress bool `json:"deletionInProgress"`
+	// Whether or not the viewer is an owner of the team.
+	ViewerIsOwner bool `json:"viewerIsOwner"`
+	// Whether or not the viewer is a member of the team.
+	ViewerIsMember bool `json:"viewerIsMember"`
 	// The status of the team.
 	Status TeamStatus `json:"status"`
 	// The NAIS applications owned by the team.
@@ -765,12 +1013,73 @@ type Team struct {
 
 func (Team) IsSearchNode() {}
 
-func (Team) IsEntity() {}
+// Team deletion key type.
+type TeamDeleteKey struct {
+	// The unique key used to confirm the deletion of a team.
+	Key scalar.Ident `json:"key"`
+	// The creation timestamp of the key.
+	CreatedAt time.Time `json:"createdAt"`
+	// Expiration timestamp of the key.
+	Expires time.Time `json:"expires"`
+	// The user who created the key.
+	CreatedBy User `json:"createdBy"`
+	// The team the delete key is for.
+	Team Team `json:"team"`
+}
+
+// Paginated teams type.
+type TeamList struct {
+	// The list of teams.
+	Nodes []*Team `json:"nodes"`
+	// Pagination information.
+	PageInfo PageInfo `json:"pageInfo"`
+}
+
+// Team member input.
+type TeamMemberInput struct {
+	// The ID of user.
+	UserID scalar.Ident `json:"userId"`
+	// The role that the user will receive.
+	Role TeamRole `json:"role"`
+	// Reconcilers to opt the team member out of.
+	ReconcilerOptOuts []string `json:"reconcilerOptOuts,omitempty"`
+}
+
+type TeamMemberList struct {
+	Nodes    []*TeamMember `json:"nodes"`
+	PageInfo PageInfo      `json:"pageInfo"`
+}
+
+// Team member reconcilers.
+type TeamMemberReconciler struct {
+	// The reconciler.
+	Reconciler Reconciler `json:"reconciler"`
+	// Whether or not the reconciler is enabled for the team member.
+	Enabled bool `json:"enabled"`
+}
 
 // Team status.
 type TeamStatus struct {
 	Apps AppsStatus `json:"apps"`
 	Jobs JobsStatus `json:"jobs"`
+}
+
+// Team sync type.
+type TeamSync struct {
+	// The correlation ID for the sync.
+	CorrelationID scalar.Ident `json:"correlationID"`
+}
+
+// Input for filtering teams.
+type TeamsFilter struct {
+	Github *TeamsFilterGitHub `json:"github,omitempty"`
+}
+
+type TeamsFilterGitHub struct {
+	// Filter repostiories by repo name
+	RepoName string `json:"repoName"`
+	// Filter repostiories by permission name
+	PermissionName string `json:"permissionName"`
 }
 
 type TokenX struct {
@@ -782,6 +1091,57 @@ func (TokenX) IsAuthz() {}
 type Topic struct {
 	Name string `json:"name"`
 	ACL  []*ACL `json:"acl"`
+}
+
+// Input for updating an existing team.
+type UpdateTeamInput struct {
+	// Specify team purpose to update the existing value.
+	Purpose *string `json:"purpose,omitempty"`
+	// Specify the Slack channel to update the existing value.
+	SlackChannel *string `json:"slackChannel,omitempty"`
+	// A list of Slack channels for NAIS alerts.
+	SlackAlertsChannels []*SlackAlertsChannelInput `json:"slackAlertsChannels,omitempty"`
+}
+
+// User type.
+type User struct {
+	// Unique ID of the user.
+	ID scalar.Ident `json:"id"`
+	// The email address of the user.
+	Email string `json:"email"`
+	// The name of the user.
+	Name string `json:"name"`
+	// List of team memberships.
+	Teams TeamMemberList `json:"teams"`
+	// Roles attached to the user.
+	Roles []*Role `json:"roles"`
+	// The external ID of the user.
+	ExternalID string `json:"externalId"`
+	// This field will only be populated via the me query
+	IsAdmin *bool `json:"isAdmin,omitempty"`
+}
+
+func (User) IsAuthenticatedUser() {}
+
+type UserList struct {
+	Nodes    []*User  `json:"nodes"`
+	PageInfo PageInfo `json:"pageInfo"`
+}
+
+// User sync run type.
+type UserSyncRun struct {
+	// The correlation ID of the sync run.
+	CorrelationID scalar.Ident `json:"correlationID"`
+	// Timestamp of when the run started.
+	StartedAt time.Time `json:"startedAt"`
+	// Timestamp of when the run finished.
+	FinishedAt *time.Time `json:"finishedAt,omitempty"`
+	// Log entries for the sync run.
+	AuditLogs AuditLogList `json:"auditLogs"`
+	// The status of the sync run.
+	Status UserSyncRunStatus `json:"status"`
+	// Optional error.
+	Error *string `json:"error,omitempty"`
 }
 
 type Variable struct {
@@ -972,6 +1332,47 @@ func (e OrderByField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Repository authorizations.
+type RepositoryAuthorization string
+
+const (
+	// Authorize for NAIS deployment.
+	RepositoryAuthorizationDeploy RepositoryAuthorization = "DEPLOY"
+)
+
+var AllRepositoryAuthorization = []RepositoryAuthorization{
+	RepositoryAuthorizationDeploy,
+}
+
+func (e RepositoryAuthorization) IsValid() bool {
+	switch e {
+	case RepositoryAuthorizationDeploy:
+		return true
+	}
+	return false
+}
+
+func (e RepositoryAuthorization) String() string {
+	return string(e)
+}
+
+func (e *RepositoryAuthorization) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RepositoryAuthorization(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RepositoryAuthorization", str)
+	}
+	return nil
+}
+
+func (e RepositoryAuthorization) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // Resource type.
 type ResourceType string
 
@@ -1142,5 +1543,96 @@ func (e *State) UnmarshalGQL(v interface{}) error {
 }
 
 func (e State) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Available team roles.
+type TeamRole string
+
+const (
+	// Regular member, read only access.
+	TeamRoleMember TeamRole = "MEMBER"
+	// Team owner, full access to the team.
+	TeamRoleOwner TeamRole = "OWNER"
+)
+
+var AllTeamRole = []TeamRole{
+	TeamRoleMember,
+	TeamRoleOwner,
+}
+
+func (e TeamRole) IsValid() bool {
+	switch e {
+	case TeamRoleMember, TeamRoleOwner:
+		return true
+	}
+	return false
+}
+
+func (e TeamRole) String() string {
+	return string(e)
+}
+
+func (e *TeamRole) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TeamRole(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TeamRole", str)
+	}
+	return nil
+}
+
+func (e TeamRole) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// User sync run status.
+type UserSyncRunStatus string
+
+const (
+	// User sync run in progress.
+	UserSyncRunStatusInProgress UserSyncRunStatus = "IN_PROGRESS"
+	// Successful user sync run.
+	UserSyncRunStatusSuccess UserSyncRunStatus = "SUCCESS"
+	// Failed user sync run.
+	UserSyncRunStatusFailure UserSyncRunStatus = "FAILURE"
+)
+
+var AllUserSyncRunStatus = []UserSyncRunStatus{
+	UserSyncRunStatusInProgress,
+	UserSyncRunStatusSuccess,
+	UserSyncRunStatusFailure,
+}
+
+func (e UserSyncRunStatus) IsValid() bool {
+	switch e {
+	case UserSyncRunStatusInProgress, UserSyncRunStatusSuccess, UserSyncRunStatusFailure:
+		return true
+	}
+	return false
+}
+
+func (e UserSyncRunStatus) String() string {
+	return string(e)
+}
+
+func (e *UserSyncRunStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UserSyncRunStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UserSyncRunStatus", str)
+	}
+	return nil
+}
+
+func (e UserSyncRunStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

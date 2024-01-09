@@ -8,9 +8,8 @@ import (
 	slug "github.com/nais/api/internal/slug"
 	mock "github.com/stretchr/testify/mock"
 
-	sqlc sqlc "github.com/nais/api/internal/database/gensql"
+	sqlc "github.com/nais/api/internal/database/gensql"
 
-	types "github.com/nais/api/internal/types"
 
 	uuid "github.com/google/uuid"
 )

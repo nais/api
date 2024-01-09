@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
+	"github.com/nais/api/internal/auth/roles"
 	db "github.com/nais/api/internal/database"
 	sqlc "github.com/nais/api/internal/database/gensql"
-	"github.com/nais/api/internal/roles"
 	"github.com/nais/api/internal/slug"
 )
 

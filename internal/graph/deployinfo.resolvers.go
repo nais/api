@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/hookd"
 )
@@ -37,7 +38,7 @@ func (r *deployInfoResolver) History(ctx context.Context, obj *model.DeployInfo,
 	}, nil
 }
 
-// DeployInfo returns DeployInfoResolver implementation.
-func (r *Resolver) DeployInfo() DeployInfoResolver { return &deployInfoResolver{r} }
+// DeployInfo returns gengql.DeployInfoResolver implementation.
+func (r *Resolver) DeployInfo() gengql.DeployInfoResolver { return &deployInfoResolver{r} }
 
 type deployInfoResolver struct{ *Resolver }

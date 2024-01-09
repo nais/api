@@ -10,7 +10,7 @@ type TeamsInternal {
 "Role binding type."
 type Role {
   "Name of the role."
-  name: RoleName!
+  name: RoleName! @goField(forceResolver: true)
 
   "Whether or not the role is global."
   isGlobal: Boolean!

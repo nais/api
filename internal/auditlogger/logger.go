@@ -8,10 +8,10 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	db "github.com/nais/api/internal/database"
 	sqlc "github.com/nais/api/internal/database/gensql"
-	"github.com/nais/api/internal/helpers"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
+	"k8s.io/utils/ptr"
 )
 
 type AuditLogger interface {
@@ -94,7 +94,7 @@ func (l *auditLogger) Logf(ctx context.Context, targets []Target, fields Fields,
 
 	var actor *string
 	if fields.Actor != nil {
-		actor = helpers.Strp(fields.Actor.User.Identity())
+		actor = ptr.To[string](fields.Actor.User.Identity())
 	}
 
 	for _, target := range targets {

@@ -8,8 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nais/api/internal/types"
-
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/google/uuid"
 	db "github.com/nais/api/internal/database"

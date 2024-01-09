@@ -10,6 +10,7 @@ import (
 
 	"github.com/nais/api/internal/dependencytrack"
 	"github.com/nais/api/internal/graph/apierror"
+	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 )
 
@@ -55,13 +56,11 @@ func (r *queryResolver) App(ctx context.Context, name string, team string, env s
 	return app, nil
 }
 
-// App returns AppResolver implementation.
-func (r *Resolver) App() AppResolver { return &appResolver{r} }
+// App returns gengql.AppResolver implementation.
+func (r *Resolver) App() gengql.AppResolver { return &appResolver{r} }
 
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
+// Query returns gengql.QueryResolver implementation.
+func (r *Resolver) Query() gengql.QueryResolver { return &queryResolver{r} }
 
-type (
-	appResolver   struct{ *Resolver }
-	queryResolver struct{ *Resolver }
-)
+type appResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }

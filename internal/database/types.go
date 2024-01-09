@@ -4,12 +4,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/nais/api/internal/types"
 
-	"github.com/nais/api/internal/roles"
+	"github.com/nais/api/internal/auth/roles"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
 	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 )

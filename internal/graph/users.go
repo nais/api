@@ -11,14 +11,14 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/auth/roles"
 	db "github.com/nais/api/internal/database"
 	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/dataloader"
-	"github.com/nais/api/internal/graph/generated"
+	generated "github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/roles"
-	"github.com/nais/api/internal/types"
+	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/usersync"
 )
 
@@ -36,10 +36,10 @@ func (r *mutationResolver) SynchronizeUsers(ctx context.Context) (uuid.UUID, err
 	}
 
 	targets := []auditlogger.Target{
-		auditlogger.ComponentTarget(types.ComponentNameUsersync),
+		auditlogger.ComponentTarget(logger.ComponentNameUsersync),
 	}
 	fields := auditlogger.Fields{
-		Action:        types.AuditActionGraphqlApiUsersSync,
+		Action:        auditlogger.AuditActionGraphqlApiUsersSync,
 		Actor:         actor,
 		CorrelationID: correlationID,
 	}

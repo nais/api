@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/nais/api/internal/types"
-
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auditlogger"
 	db "github.com/nais/api/internal/database"
