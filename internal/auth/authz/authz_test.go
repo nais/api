@@ -4,11 +4,11 @@ import (
 	"context"
 	"testing"
 
-	"github.com/nais/api/internal/authz"
-	"github.com/nais/api/internal/db"
+	"github.com/nais/api/internal/auth/authz"
+	db "github.com/nais/api/internal/database"
+	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/roles"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/sqlc"
 	"github.com/stretchr/testify/assert"
 )
 

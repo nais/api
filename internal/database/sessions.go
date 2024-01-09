@@ -1,11 +1,11 @@
-package db
+package database
 
 import (
 	"context"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/sqlc"
+	sqlc "github.com/nais/api/internal/database/gensql"
 )
 
 const sessionLength = 30 * time.Minute

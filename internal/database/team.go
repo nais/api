@@ -1,12 +1,12 @@
-package db
+package database
 
 import (
 	"context"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgtype"
+	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/sqlc"
 )
 
 func (d *database) RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error {

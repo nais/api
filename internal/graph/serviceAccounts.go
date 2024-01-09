@@ -8,10 +8,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/nais/api/internal/authz"
-	"github.com/nais/api/internal/db"
+	"github.com/nais/api/internal/auth/authz"
+	db "github.com/nais/api/internal/database"
+	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/generated"
-	"github.com/nais/api/internal/sqlc"
 )
 
 // Roles is the resolver for the roles field.

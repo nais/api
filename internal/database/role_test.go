@@ -1,11 +1,11 @@
-package db_test
+package database_test
 
 import (
 	"testing"
 
 	"github.com/nais/api/internal/slug"
 
-	"github.com/nais/api/internal/db"
+	db "github.com/nais/api/internal/database"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -8,24 +8,25 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/nais/api/internal/db"
+	"github.com/nais/api/internal/auditlogger"
+	db "github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/generated"
-	"github.com/nais/api/internal/types"
+	"github.com/nais/api/internal/logger"
 )
 
 // Action is the resolver for the action field.
-func (r *auditLogResolver) Action(ctx context.Context, obj *db.AuditLog) (types.AuditAction, error) {
-	return types.AuditAction(obj.Action), nil
+func (r *auditLogResolver) Action(ctx context.Context, obj *db.AuditLog) (auditlogger.AuditAction, error) {
+	return auditlogger.AuditAction(obj.Action), nil
 }
 
 // ComponentName is the resolver for the componentName field.
-func (r *auditLogResolver) ComponentName(ctx context.Context, obj *db.AuditLog) (types.ComponentName, error) {
-	return types.ComponentName(obj.ComponentName), nil
+func (r *auditLogResolver) ComponentName(ctx context.Context, obj *db.AuditLog) (logger.ComponentName, error) {
+	return logger.ComponentName(obj.ComponentName), nil
 }
 
 // TargetType is the resolver for the targetType field.
-func (r *auditLogResolver) TargetType(ctx context.Context, obj *db.AuditLog) (types.AuditLogsTargetType, error) {
-	return types.AuditLogsTargetType(obj.TargetType), nil
+func (r *auditLogResolver) TargetType(ctx context.Context, obj *db.AuditLog) (auditlogger.AuditLogsTargetType, error) {
+	return auditlogger.AuditLogsTargetType(obj.TargetType), nil
 }
 
 // AuditLog returns generated.AuditLogResolver implementation.

@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/graph-gophers/dataloader/v7"
-	"github.com/nais/api/internal/db"
+	db "github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/metrics"
 )
 

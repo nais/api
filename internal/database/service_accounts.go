@@ -1,9 +1,9 @@
-package db
+package database
 
 import (
 	"context"
 
-	"github.com/nais/api/internal/sqlc"
+	sqlc "github.com/nais/api/internal/database/gensql"
 
 	"github.com/google/uuid"
 )

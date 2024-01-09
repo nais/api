@@ -9,9 +9,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auditlogger"
-	"github.com/nais/api/internal/db"
+	db "github.com/nais/api/internal/database"
+	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"
-	"github.com/nais/api/internal/sqlc"
 	"github.com/nais/api/internal/test"
 	"github.com/nais/api/internal/usersync"
 	"github.com/stretchr/testify/assert"

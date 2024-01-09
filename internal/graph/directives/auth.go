@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/nais/api/internal/authz"
+	"github.com/nais/api/internal/auth/authz"
 )
 
 // Auth Make sure there is an authenticated user making this request.

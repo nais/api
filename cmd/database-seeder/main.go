@@ -12,10 +12,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/nais/api/internal/db"
+	db "github.com/nais/api/internal/database"
+	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/sqlc"
 	"github.com/nais/api/internal/usersync"
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"

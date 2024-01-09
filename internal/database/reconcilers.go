@@ -1,11 +1,11 @@
-package db
+package database
 
 import (
 	"context"
 
 	"github.com/google/uuid"
+	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/sqlc"
 )
 
 func (d *database) GetReconciler(ctx context.Context, reconcilerName sqlc.ReconcilerName) (*Reconciler, error) {

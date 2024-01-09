@@ -12,7 +12,7 @@ import (
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/db"
+	db "github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/logger"
 	"golang.org/x/oauth2"
 )

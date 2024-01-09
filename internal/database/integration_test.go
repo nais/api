@@ -1,7 +1,7 @@
 //go:build db_integration_test
 // +build db_integration_test
 
-package db_test
+package database_test
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 
 	"github.com/jackc/pgx/v4"
 
-	"github.com/nais/api/internal/db"
+	db "github.com/nais/api/internal/database"
 	"github.com/stretchr/testify/assert"
 )
 

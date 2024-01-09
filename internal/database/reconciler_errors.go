@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"github.com/nais/api/internal/slug"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/sqlc"
+	sqlc "github.com/nais/api/internal/database/gensql"
 )
 
 func (d *database) SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, slug slug.Slug, reconcilerName sqlc.ReconcilerName, err error) error {

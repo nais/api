@@ -9,7 +9,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/db"
+	db "github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/generated"
 	"github.com/nais/api/internal/slug"
 )

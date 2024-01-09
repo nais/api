@@ -3,10 +3,10 @@ package directives
 import (
 	"context"
 
-	"github.com/nais/api/internal/sqlc"
+	sqlc "github.com/nais/api/internal/database/gensql"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/nais/api/internal/authz"
+	"github.com/nais/api/internal/auth/authz"
 )
 
 // Admin Require a user with the admin role to allow the request

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nais/api/internal/db"
-	"github.com/nais/api/internal/sqlc"
+	db "github.com/nais/api/internal/database"
+	sqlc "github.com/nais/api/internal/database/gensql"
 )
 
 type ServiceAccount struct {

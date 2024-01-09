@@ -4,12 +4,12 @@ import (
 	"context"
 	"testing"
 
-	"github.com/nais/api/internal/sqlc"
+	sqlc "github.com/nais/api/internal/database/gensql"
 
-	"github.com/nais/api/internal/authz"
-	"github.com/nais/api/internal/db"
+	"github.com/nais/api/internal/auth/authz"
+	db "github.com/nais/api/internal/database"
 
-	"github.com/nais/api/internal/directives"
+	"github.com/nais/api/internal/graph/directives"
 	"github.com/stretchr/testify/assert"
 )
 

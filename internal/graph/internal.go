@@ -8,10 +8,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/nais/api/internal/db"
+	db "github.com/nais/api/internal/database"
+	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/generated"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/sqlc"
 )
 
 // TeamsInternal is the resolver for the teamsInternal field.

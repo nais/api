@@ -1,10 +1,10 @@
-package db
+package database
 
 import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/sqlc"
+	sqlc "github.com/nais/api/internal/database/gensql"
 )
 
 func (d *database) CreateUser(ctx context.Context, name, email, externalID string) (*User, error) {

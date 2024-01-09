@@ -3,8 +3,8 @@ package metrics_test
 import (
 	"testing"
 
+	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/metrics"
-	"github.com/nais/api/internal/sqlc"
 )
 
 func Test_MeasureReconcilerDurations(t *testing.T) {

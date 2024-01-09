@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"github.com/nais/api/internal/types"
 
 	"github.com/google/uuid"
+	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/sqlc"
 )
 
 func (d *database) GetAuditLogsForTeam(ctx context.Context, slug slug.Slug, offset, limit int) ([]*AuditLog, int, error) {

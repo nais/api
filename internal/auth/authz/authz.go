@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"github.com/nais/api/internal/db"
+	db "github.com/nais/api/internal/database"
+	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/roles"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/sqlc"
 )
 
 type ContextKey string

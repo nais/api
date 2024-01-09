@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/nais/api/internal/db"
-	"github.com/nais/api/internal/sqlc"
+	db "github.com/nais/api/internal/database"
+	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/sirupsen/logrus"
 )
 

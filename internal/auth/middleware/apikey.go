@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/nais/api/internal/db"
+	db "github.com/nais/api/internal/database"
 
-	"github.com/nais/api/internal/authz"
+	"github.com/nais/api/internal/auth/authz"
 )
 
 // ApiKeyAuthentication If the request has an authorization header, we will try to pull the service account who owns it

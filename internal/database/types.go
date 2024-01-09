@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"context"
@@ -10,8 +10,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4/pgxpool"
+	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/sqlc"
 )
 
 const teamDeleteKeyLifetime = time.Hour * 1

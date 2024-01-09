@@ -1,10 +1,10 @@
-package db
+package database
 
 import (
 	"context"
 
+	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/sqlc"
 )
 
 func (d *database) CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization sqlc.RepositoryAuthorizationEnum) error {

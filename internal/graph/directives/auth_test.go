@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/nais/api/internal/authz"
-	"github.com/nais/api/internal/directives"
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/graph/directives"
 	"github.com/stretchr/testify/assert"
 )
 

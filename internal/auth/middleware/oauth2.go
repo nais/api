@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/authn"
-	"github.com/nais/api/internal/authz"
-	"github.com/nais/api/internal/db"
+	db "github.com/nais/api/internal/database"
 )
 
 // Oauth2Authentication If the request has a session cookie, look up the session from the store, and if it exists, try

@@ -3,7 +3,7 @@ package roles
 import (
 	"fmt"
 
-	"github.com/nais/api/internal/sqlc"
+	sqlc "github.com/nais/api/internal/database/gensql"
 )
 
 type Authorization string

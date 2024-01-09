@@ -1,6 +1,6 @@
 package logger
 
-import "github.com/nais/api/internal/sqlc"
+import sqlc "github.com/nais/api/internal/database/gensql"
 
 type ComponentName string
 

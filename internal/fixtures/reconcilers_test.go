@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/fixtures"
-	"github.com/nais/api/internal/sqlc"
 	"github.com/stretchr/testify/assert"
 )
 

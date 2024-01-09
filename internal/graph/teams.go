@@ -13,8 +13,9 @@ import (
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v4"
 	"github.com/nais/api/internal/auditlogger"
-	"github.com/nais/api/internal/authz"
-	"github.com/nais/api/internal/db"
+	"github.com/nais/api/internal/auth/authz"
+	db "github.com/nais/api/internal/database"
+	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/dataloader"
 	"github.com/nais/api/internal/graph/generated"
@@ -23,7 +24,6 @@ import (
 	google_gcp_reconciler "github.com/nais/api/internal/reconcilers/google/gcp"
 	"github.com/nais/api/internal/roles"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/sqlc"
 	"github.com/nais/api/internal/types"
 )
 

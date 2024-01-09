@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/nais/api/internal/slug"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/sqlc"
+	sqlc "github.com/nais/api/internal/database/gensql"
 )
 
 func (d *database) AssignGlobalRoleToUser(ctx context.Context, userID uuid.UUID, roleName sqlc.RoleName) error {

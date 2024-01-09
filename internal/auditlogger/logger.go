@@ -5,12 +5,12 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/authz"
-	"github.com/nais/api/internal/db"
+	"github.com/nais/api/internal/auth/authz"
+	db "github.com/nais/api/internal/database"
+	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/helpers"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/sqlc"
 	"github.com/sirupsen/logrus"
 )
 

@@ -7,8 +7,8 @@ package graph
 import (
 	"context"
 
-	"github.com/nais/api/internal/authz"
-	"github.com/nais/api/internal/db"
+	"github.com/nais/api/internal/auth/authz"
+	db "github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/generated"
 )
 

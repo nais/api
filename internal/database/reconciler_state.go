@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/nais/api/internal/slug"
 
 	"github.com/jackc/pgtype"
-	"github.com/nais/api/internal/sqlc"
+	sqlc "github.com/nais/api/internal/database/gensql"
 )
 
 // LoadReconcilerStateForTeam Load the team state for a given reconciler into the state parameter
