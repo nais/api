@@ -8,11 +8,11 @@ SELECT count (*) FROM users;
 
 -- name: GetUsers :many
 SELECT * FROM users
-ORDER BY name ASC LIMIT $1 OFFSET $2;
+ORDER BY name, email ASC LIMIT $1 OFFSET $2;
 
 -- name: GetAllUsers :many
 SELECT * FROM users
-ORDER BY name ASC;
+ORDER BY name, email ASC;
 
 -- name: GetUserByID :one
 SELECT * FROM users

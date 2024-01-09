@@ -10,23 +10,23 @@ WITH last_run AS (
     SELECT MAX(date)::date AS "last_run"
     FROM cost
 )
-SELECT 
-    team, 
-    app, 
-    env, 
+SELECT
+    team,
+    app,
+    env,
     date_trunc('month', date)::date AS month,
     -- Extract last day of known cost samples for the month, or the last recorded date
     -- This helps with estimation etc
-    MAX(CASE 
+    MAX(CASE
         WHEN date_trunc('month', date) < date_trunc('month', last_run) THEN date_trunc('month', date) + interval '1 month' - interval '1 day'
         ELSE date_trunc('day', last_run)
     END)::date AS last_recorded_date,
     SUM(daily_cost)::real AS daily_cost
-FROM cost c 
+FROM cost c
 LEFT JOIN last_run ON true
-WHERE c.team = $1
-AND c.app = $2
-AND c.env = $3
+WHERE c.team = @team_slug
+AND c.app = @app
+AND c.env = @environment
 GROUP BY team, app, env, month
 ORDER BY month DESC
 LIMIT 12;
@@ -36,19 +36,19 @@ WITH last_run AS (
     SELECT MAX(date)::date AS "last_run"
     FROM cost
 )
-SELECT 
-    team, 
+SELECT
+    team,
     date_trunc('month', date)::date AS month,
     -- Extract last day of known cost samples for the month, or the last recorded date
     -- This helps with estimation etc
-    MAX(CASE 
+    MAX(CASE
         WHEN date_trunc('month', date) < date_trunc('month', last_run) THEN date_trunc('month', date) + interval '1 month' - interval '1 day'
         ELSE date_trunc('day', last_run)
     END)::date AS last_recorded_date,
     SUM(daily_cost)::real AS daily_cost
 FROM cost c
 LEFT JOIN last_run ON true
-WHERE c.team = $1
+WHERE c.team = @team_slug
 GROUP BY team, month
 ORDER BY month DESC
 LIMIT 12;
@@ -57,7 +57,7 @@ LIMIT 12;
 -- daily_cost column will be updated.
 -- name: CostUpsert :batchexec
 INSERT INTO cost (env, team, app, cost_type, date, daily_cost)
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES (@environment, @team_slug, @app, @cost_type, @date, @daily_cost)
 ON CONFLICT ON CONSTRAINT daily_cost_key DO
     UPDATE SET daily_cost = EXCLUDED.daily_cost;
 
@@ -69,11 +69,11 @@ SELECT
 FROM
     cost
 WHERE
-    date >= sqlc.arg('from_date')::date
-    AND date <= sqlc.arg('to_date')::date
-    AND env = $1
-    AND team = $2
-    AND app = $3
+    date >= @from_date::date
+    AND date <= @to_date::date
+    AND env = @environment
+    AND team = @team_slug
+    AND app = @app
 ORDER BY
     date, cost_type ASC;
 
@@ -84,9 +84,9 @@ SELECT
 FROM
     cost
 WHERE
-    date >= sqlc.arg('from_date')::date
-    AND date <= sqlc.arg('to_date')::date
-    AND team = $1
+    date >= @from_date::date
+    AND date <= @to_date::date
+    AND team = @team_slug
 ORDER BY
     date, env, app, cost_type ASC;
 
@@ -100,10 +100,10 @@ SELECT
 FROM
     cost
 WHERE
-    date >= sqlc.arg('from_date')::date
-    AND date <= sqlc.arg('to_date')::date
-    AND env = $1
-    AND team = $2
+    date >= @from_date::date
+    AND date <= @to_date::date
+    AND env = @environment
+    AND team = @team_slug
 GROUP BY
     team, app, date
 ORDER BY

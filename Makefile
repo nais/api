@@ -5,8 +5,8 @@ all: generate fmt test check api helm-lint
 generate: generate-sql generate-graphql generate-mocks
 
 generate-sql:
-	go run github.com/sqlc-dev/sqlc/cmd/sqlc generate -f .sqlc.yaml
-	go run github.com/sqlc-dev/sqlc/cmd/sqlc vet -f .sqlc.yaml
+	go run github.com/sqlc-dev/sqlc/cmd/sqlc@latest generate -f .configs/sqlc.yaml
+	go run github.com/sqlc-dev/sqlc/cmd/sqlc@latest vet -f .configs/sqlc.yaml
 	go run mvdan.cc/gofumpt@latest -w ./internal/database/gensql
 
 generate-graphql:

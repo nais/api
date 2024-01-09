@@ -1,18 +1,18 @@
 -- name: CreateSession :one
 INSERT INTO sessions (user_id, expires)
-VALUES ($1, $2)
+VALUES (@user_id, @expires)
 RETURNING *;
 
 -- name: GetSessionByID :one
 SELECT * FROM sessions
-WHERE id = $1;
+WHERE id = @id;
 
 -- name: DeleteSession :exec
 DELETE FROM sessions
-WHERE id = $1;
+WHERE id = @id;
 
 -- name: SetSessionExpires :one
 UPDATE sessions
-SET expires = $1
-WHERE id = $2
+SET expires = @expires
+WHERE id = @id
 RETURNING *;

@@ -9,29 +9,29 @@ ORDER BY run_order ASC;
 
 -- name: GetReconciler :one
 SELECT * FROM reconcilers
-WHERE name = $1;
+WHERE name = @name;
 
 -- name: EnableReconciler :one
 UPDATE reconcilers
 SET enabled = true
-WHERE name = $1
+WHERE name = @name
 RETURNING *;
 
 -- name: DisableReconciler :one
 UPDATE reconcilers
 SET enabled = false
-WHERE name = $1
+WHERE name = @name
 RETURNING *;
 
 -- name: ResetReconcilerConfig :exec
 UPDATE reconciler_config
 SET value = NULL
-WHERE reconciler = $1;
+WHERE reconciler = @reconciler_name;
 
 -- name: ConfigureReconciler :exec
 UPDATE reconciler_config
-SET value = sqlc.arg(value)::TEXT
-WHERE reconciler = $1 AND key = $2;
+SET value = @value::TEXT
+WHERE reconciler = @reconciler_name AND key = @key;
 
 -- name: GetReconcilerConfig :many
 SELECT
@@ -44,18 +44,19 @@ SELECT
     rc.secret
 FROM reconciler_config rc
 LEFT JOIN reconciler_config rc2 ON rc2.reconciler = rc.reconciler AND rc2.key = rc.key AND rc2.secret = false
-WHERE rc.reconciler = $1
+WHERE rc.reconciler = @reconciler_name
 ORDER BY rc.display_name ASC;
 
 -- name: DangerousGetReconcilerConfigValues :many
 SELECT key, value::TEXT
 FROM reconciler_config
-WHERE reconciler = $1;
+WHERE reconciler = @reconciler_name
+ORDER BY key ASC;
 
 -- name: AddReconcilerOptOut :exec
 INSERT INTO reconciler_opt_outs (team_slug, user_id, reconciler_name)
-VALUES ($1, $2, $3) ON CONFLICT DO NOTHING;
+VALUES (@team_slug, @user_id, @reconciler_name) ON CONFLICT DO NOTHING;
 
 -- name: RemoveReconcilerOptOut :exec
 DELETE FROM reconciler_opt_outs
-WHERE team_slug = $1 AND user_id = $2 AND reconciler_name = $3;
+WHERE team_slug = @team_slug AND user_id = @user_id AND reconciler_name = @reconciler_name;

@@ -1,13 +1,13 @@
 -- name: CreateRepositoryAuthorization :exec
 INSERT INTO repository_authorizations (team_slug, github_repository, repository_authorization)
-VALUES ($1, $2, $3);
+VALUES (@team_slug, @github_repository, @repository_authorization);
 
 -- name: RemoveRepositoryAuthorization :exec
 DELETE FROM repository_authorizations
 WHERE
-    team_slug = $1
-    AND github_repository = $2
-    AND repository_authorization = $3;
+    team_slug = @team_slug
+    AND github_repository = @github_repository
+    AND repository_authorization = @repository_authorization;
 
 -- name: GetRepositoryAuthorizations :many
 SELECT
@@ -15,7 +15,7 @@ SELECT
 FROM
     repository_authorizations
 WHERE
-    team_slug = $1
-    AND github_repository = $2
+    team_slug = @team_slug
+    AND github_repository = @github_repository
 ORDER BY
     repository_authorization;

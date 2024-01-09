@@ -1,6 +1,6 @@
 -- name: CreateTeam :one
 INSERT INTO teams (slug, purpose, slack_channel)
-VALUES ($1, $2, $3)
+VALUES (@slug, @purpose, @slack_channel)
 RETURNING *;
 
 -- name: GetActiveTeams :many
@@ -23,47 +23,47 @@ SELECT COUNT(*) as total FROM teams;
 
 -- name: GetTeamsPaginated :many
 SELECT teams.* FROM teams
-ORDER BY teams.slug ASC LIMIT $1 OFFSET $2;
+ORDER BY teams.slug ASC LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
 -- name: GetActiveTeamBySlug :one
 SELECT teams.* FROM teams
 WHERE
-    teams.slug = $1
+    teams.slug = @slug
     AND NOT EXISTS (
         SELECT team_delete_keys.team_slug
         FROM team_delete_keys
         WHERE
-            team_delete_keys.team_slug = $1
+            team_delete_keys.team_slug = @slug
             AND team_delete_keys.confirmed_at IS NOT NULL
     );
 
 -- name: GetTeamBySlug :one
 SELECT teams.* FROM teams
-WHERE teams.slug = $1;
+WHERE teams.slug = @slug;
 
 -- name: GetAllTeamMembers :many
 SELECT users.* FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 JOIN users ON users.id = user_roles.user_id
-WHERE user_roles.target_team_slug = $1
+WHERE user_roles.target_team_slug = @team_slug
 ORDER BY users.name ASC;
 
 -- name: GetTeamMembers :many
 SELECT users.* FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 JOIN users ON users.id = user_roles.user_id
-WHERE user_roles.target_team_slug = $1
-ORDER BY users.name ASC LIMIT $2 OFFSET $3;
+WHERE user_roles.target_team_slug = @team_slug
+ORDER BY users.name ASC LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
 -- name: GetTeamMembersCount :one
 SELECT COUNT (*) FROM user_roles
-WHERE user_roles.target_team_slug = $1;
+WHERE user_roles.target_team_slug = @team_slug;
 
 -- name: GetTeamMember :one
 SELECT users.* FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 JOIN users ON users.id = user_roles.user_id
-WHERE user_roles.target_team_slug = $1 AND users.id = $2
+WHERE user_roles.target_team_slug = @team_slug AND users.id = @user_id
 ORDER BY users.name ASC;
 
 -- name: GetTeamMembersForReconciler :many
@@ -71,13 +71,13 @@ SELECT users.* FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 JOIN users ON users.id = user_roles.user_id
 WHERE
-    user_roles.target_team_slug = $1
+    user_roles.target_team_slug = @team_slug
     AND NOT EXISTS (
         SELECT roo.user_id
         FROM reconciler_opt_outs AS roo
         WHERE
-            roo.team_slug = $1
-            AND roo.reconciler_name = $2
+            roo.team_slug = @team_slug
+            AND roo.reconciler_name = @reconciler_name
             AND roo.user_id = users.id
     )
 ORDER BY users.name ASC;
@@ -86,56 +86,56 @@ ORDER BY users.name ASC;
 UPDATE teams
 SET purpose = COALESCE(sqlc.narg(purpose), purpose),
     slack_channel = COALESCE(sqlc.narg(slack_channel), slack_channel)
-WHERE slug = sqlc.arg(slug)
+WHERE slug = @slug
 RETURNING *;
 
 -- name: RemoveUserFromTeam :exec
 DELETE FROM user_roles
-WHERE user_id = $1 AND target_team_slug = $2;
+WHERE user_id = @user_id AND target_team_slug = @team_slug;
 
 -- name: SetLastSuccessfulSyncForTeam :exec
 UPDATE teams SET last_successful_sync = NOW()
-WHERE slug = $1;
+WHERE slug = @slug;
 
 -- name: GetSlackAlertsChannels :many
 SELECT * FROM slack_alerts_channels
-WHERE team_slug = $1
+WHERE team_slug = @team_slug
 ORDER BY environment ASC;
 
 -- name: SetSlackAlertsChannel :exec
 INSERT INTO slack_alerts_channels (team_slug, environment, channel_name)
-VALUES ($1, $2, $3)
+VALUES (@team_slug, @environment, @channel_name)
 ON CONFLICT (team_slug, environment) DO
-    UPDATE SET channel_name = $3;
+    UPDATE SET channel_name = @channel_name;
 
 -- name: RemoveSlackAlertsChannel :exec
 DELETE FROM slack_alerts_channels
-WHERE team_slug = $1 AND environment = $2;
+WHERE team_slug = @team_slug AND environment = @environment;
 
 -- name: CreateTeamDeleteKey :one
 INSERT INTO team_delete_keys (team_slug, created_by)
-VALUES($1, $2)
+VALUES(@team_slug, @created_by)
 RETURNING *;
 
 -- name: GetTeamDeleteKey :one
 SELECT * FROM team_delete_keys
-WHERE key = $1;
+WHERE key = @key;
 
 -- name: ConfirmTeamDeleteKey :exec
 UPDATE team_delete_keys
 SET confirmed_at = NOW()
-WHERE key = $1;
+WHERE key = @key;
 
 -- name: DeleteTeam :exec
 DELETE FROM teams
-WHERE slug = $1;
+WHERE slug = @slug;
 
 -- name: GetTeamMemberOptOuts :many
 SELECT
     reconcilers.name,
     NOT EXISTS(
         SELECT reconciler_name FROM reconciler_opt_outs
-        WHERE user_id = $1 AND team_slug = $2 AND reconciler_name = reconcilers.name
+        WHERE user_id = @user_id AND team_slug = @team_slug AND reconciler_name = reconcilers.name
     ) AS enabled
 FROM reconcilers
 WHERE reconcilers.enabled = true
