@@ -1,0 +1,8 @@
+sa.json
+kubeconfig
+values.json
+.idea
+/bin
+.env
+.vscode/
+.DS_Store
