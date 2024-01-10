@@ -6,3 +6,4 @@ values.json
 .env
 .vscode/
 .DS_Store
+.direnv
