@@ -24,20 +24,6 @@ type (
 	DatabaseTransactionFunc func(ctx context.Context, dbtx Database) error
 )
 
-type Querier interface {
-	gensql.Querier
-	Transaction(ctx context.Context, callback QuerierTransactionFunc) error
-}
-
-type Queries struct {
-	*gensql.Queries
-	connPool *pgxpool.Pool
-}
-
-type database struct {
-	querier Querier
-}
-
 type Database interface {
 	AuditLogsRepo
 	CostRepo
@@ -56,6 +42,46 @@ type Database interface {
 	search.Searchable
 
 	Transaction(ctx context.Context, fn DatabaseTransactionFunc) error
+}
+
+type Querier interface {
+	gensql.Querier
+	Transaction(ctx context.Context, callback QuerierTransactionFunc) error
+}
+
+type Queries struct {
+	*gensql.Queries
+	connPool *pgxpool.Pool
+}
+
+func (q *Queries) Transaction(ctx context.Context, callback QuerierTransactionFunc) error {
+	tx, err := q.connPool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback(ctx)
+
+	qtx := &Queries{
+		Queries:  q.Queries.WithTx(tx),
+		connPool: q.connPool,
+	}
+
+	if err := callback(ctx, qtx); err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
+}
+
+type database struct {
+	querier Querier
+}
+
+func (d *database) Transaction(ctx context.Context, fn DatabaseTransactionFunc) error {
+	return d.querier.Transaction(ctx, func(ctx context.Context, querier Querier) error {
+		return fn(ctx, &database{querier: querier})
+	})
 }
 
 // New connects to the database, runs migrations and returns a database instance. The caller must call the
