@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auditlogger/audittype"
-	"github.com/nais/api/internal/config"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"
@@ -68,11 +67,11 @@ func New(dbc database.Database, auditLogger auditlogger.AuditLogger, adminGroupP
 	}
 }
 
-func NewFromConfig(cfg *config.TeamsConfig, dbc database.Database, log logrus.FieldLogger, syncRuns *RunsHandler) (*UserSynchronizer, error) {
+func NewFromConfig(googleManagementProjectID, tenantDomain, adminGroupPrefix string, db database.Database, log logrus.FieldLogger, syncRuns *RunsHandler) (*UserSynchronizer, error) {
 	log = log.WithField("component", logger.ComponentNameUsersync)
 	ctx := context.Background()
 
-	builder, err := google_token_source.NewFromConfig(cfg)
+	builder, err := google_token_source.New(googleManagementProjectID, tenantDomain)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +86,7 @@ func NewFromConfig(cfg *config.TeamsConfig, dbc database.Database, log logrus.Fi
 		return nil, fmt.Errorf("retrieve directory client: %w", err)
 	}
 
-	return New(dbc, auditlogger.New(dbc, logger.ComponentNameUsersync, log), cfg.UserSync.AdminGroupPrefix, cfg.TenantDomain, srv, log, syncRuns), nil
+	return New(db, auditlogger.New(db, logger.ComponentNameUsersync, log), adminGroupPrefix, tenantDomain, srv, log, syncRuns), nil
 }
 
 // Sync Fetch all users from the tenant and add them as local users in api. If a user already exists in

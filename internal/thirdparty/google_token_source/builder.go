@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/nais/api/internal/config"
 	"golang.org/x/oauth2"
 	admin_directory "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/cloudresourcemanager/v3"
@@ -16,18 +15,18 @@ type Builder struct {
 	subjectEmail        string
 }
 
-func NewFromConfig(cfg *config.TeamsConfig) (*Builder, error) {
-	if cfg.GoogleManagementProjectID == "" {
+func New(googleManagementProjectID, tenantDomain string) (*Builder, error) {
+	if googleManagementProjectID == "" {
 		return nil, fmt.Errorf("missing required configuration: API_BACKEND_GOOGLE_MANAGEMENT_PROJECT_ID")
 	}
 
-	if cfg.TenantDomain == "" {
+	if tenantDomain == "" {
 		return nil, fmt.Errorf("missing required configuration: API_BACKEND_TENANT_DOMAIN")
 	}
 
 	return &Builder{
-		serviceAccountEmail: fmt.Sprintf("console@%s.iam.gserviceaccount.com", cfg.GoogleManagementProjectID),
-		subjectEmail:        "nais-console@" + cfg.TenantDomain,
+		serviceAccountEmail: fmt.Sprintf("console@%s.iam.gserviceaccount.com", googleManagementProjectID),
+		subjectEmail:        "nais-console@" + tenantDomain,
 	}, nil
 }
 

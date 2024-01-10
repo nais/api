@@ -14,6 +14,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/auth"
 	"github.com/nais/api/internal/config"
@@ -28,6 +29,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
+	"github.com/nais/api/internal/usersync"
 	"github.com/prometheus/client_golang/api"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -51,6 +53,8 @@ const (
 const (
 	costUpdateSchedule     = time.Hour
 	resourceUpdateSchedule = time.Hour
+	userSyncInterval       = time.Minute * 15
+	userSyncTimeout        = time.Second * 30
 )
 
 func main() {
@@ -127,6 +131,63 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 	if err != nil {
 		return fmt.Errorf("create graph handler: %w", err)
 	}
+
+	// User sync
+	go func() {
+		if !cfg.UserSyncEnabled {
+			log.Infof("user sync is disabled")
+			return
+		}
+
+		defer cancel()
+
+		userSync := make(chan uuid.UUID, 1)
+		userSyncRuns := usersync.NewRunsHandler(cfg.UserSync.RunsToStore)
+		userSyncer, err := usersync.NewFromConfig(cfg.GoogleManagementProjectID, cfg.TenantDomain, cfg.UserSync.AdminGroupPrefix, db, log, userSyncRuns)
+		if err != nil {
+			log.WithError(err).Errorf("unable to set up user syncer")
+			return
+		}
+
+		userSyncTimer := time.NewTimer(1 * time.Second)
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+
+			case correlationID := <-userSync:
+				if userSyncer == nil {
+					log.Infof("user sync is disabled")
+					break
+				}
+
+				log.Debug("starting user synchronization...")
+				ctx, cancel := context.WithTimeout(ctx, userSyncTimeout)
+				err = userSyncer.Sync(ctx, correlationID)
+				cancel()
+
+				if err != nil {
+					log.WithError(err).Error("sync users")
+				}
+
+				log.Debugf("user sync complete")
+
+			case <-userSyncTimer.C:
+				nextUserSync := time.Now().Add(userSyncInterval)
+				userSyncTimer.Reset(userSyncInterval)
+				log.Debugf("scheduled user sync triggered; next run at %s", nextUserSync)
+
+				correlationID, err := uuid.NewUUID()
+				if err != nil {
+					log.WithError(err).Errorf("unable to create correlation ID for user sync")
+					break
+				}
+
+				userSync <- correlationID
+			}
+		}
+	}()
 
 	// k8s informers
 	go func() {

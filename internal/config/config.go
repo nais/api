@@ -3,7 +3,6 @@ package config
 import (
 	"context"
 	"fmt"
-
 	"github.com/sethvargo/go-envconfig"
 )
 
@@ -45,10 +44,12 @@ type ResourceUtilization struct {
 	ImportEnabled bool `env:"RESOURCE_UTILIZATION_IMPORT_ENABLED,default=false"`
 }
 
-// Teams is the configuration for the teams backend service
-type Teams struct {
-	Endpoint string `env:"API_ENDPOINT,default=http://api/query"`
-	Token    string `env:"API_TOKEN,default=secret-admin-api-key"`
+type UserSync struct {
+	// AdminGroupPrefix The prefix of the admin group email address.
+	AdminGroupPrefix string `envconfig:"API_BACKEND_USERSYNC_ADMIN_GROUP_PREFIX" default:"console-admins"`
+
+	// RunsToStore Number of runs to store for the userSync GraphQL query.
+	RunsToStore int `envconfig:"API_BACKEND_USERSYNC_RUNS_TO_STORE" default:"5"`
 }
 
 // Config is the configuration for the api application
@@ -59,7 +60,7 @@ type Config struct {
 	Logger              Logger
 	DependencyTrack     DependencyTrack
 	ResourceUtilization ResourceUtilization
-	Teams               Teams
+	UserSync            UserSync
 
 	// IapAudience is the audience for the IAP JWT token. Will not be used when RUN_AS_USER is set
 	IapAudience string `env:"IAP_AUDIENCE"`
@@ -75,6 +76,16 @@ type Config struct {
 
 	// Tenant is the active tenant
 	Tenant string `env:"TENANT,default=dev-nais"`
+
+	// GoogleManagementProjectID The ID of the NAIS management project in the tenant organization in GCP.
+	GoogleManagementProjectID string `env:"API_BACKEND_GOOGLE_MANAGEMENT_PROJECT_ID"`
+
+	// TenantDomain The domain for the tenant.
+	TenantDomain string `env:"API_BACKEND_TENANT_DOMAIN,default=example.com"`
+
+	// UserSyncEnabled When set to true api will keep the user database in sync with the connected Google
+	// organization. The Google organization will be treated as the master.
+	UserSyncEnabled bool `envconfig:"API_BACKEND_USERSYNC_ENABLED"`
 }
 
 // New creates a new configuration instance from environment variables

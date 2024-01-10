@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/kelseyhightower/envconfig"
 	"github.com/nais/api/internal/fixtures"
 	"github.com/nais/api/internal/gcp"
 )
@@ -41,18 +40,6 @@ type NaisNamespace struct {
 	AzureEnabled bool `envconfig:"API_BACKEND_NAIS_NAMESPACE_AZURE_ENABLED"`
 }
 
-type UserSync struct {
-	// Enabled When set to true api will keep the user database in sync with the connected Google
-	// organization. The Google organization will be treated as the master.
-	Enabled bool `envconfig:"API_BACKEND_USERSYNC_ENABLED"`
-
-	// AdminGroupPrefix The prefix of the admin group email address.
-	AdminGroupPrefix string `envconfig:"API_BACKEND_USERSYNC_ADMIN_GROUP_PREFIX" default:"console-admins"`
-
-	// RunsToStore Number of runs to store for the userSync GraphQL query.
-	RunsToStore int `envconfig:"API_BACKEND_USERSYNC_RUNS_TO_STORE" default:"5"`
-}
-
 type OAuth struct {
 	// ClientID The ID of the OAuth 2.0 client to use for the OAuth login flow.
 	ClientID string `envconfig:"API_BACKEND_OAUTH_CLIENT_ID"`
@@ -78,6 +65,7 @@ type NaisDeploy struct {
 type IAP struct {
 	// IAP audience for validating IAP tokens
 	Audience string `envconfig:"API_BACKEND_IAP_AUDIENCE"`
+
 	// Insecure bypasses IAP authentication, just using the email header
 	Insecure bool `envconfig:"API_BACKEND_IAP_INSECURE"`
 }
@@ -86,7 +74,6 @@ type TeamsConfig struct {
 	DependencyTrack DependencyTrack
 	GitHub          GitHub
 	GCP             GCP
-	UserSync        UserSync
 	NaisDeploy      NaisDeploy
 	NaisNamespace   NaisNamespace
 	OAuth           OAuth
@@ -132,20 +119,4 @@ type TeamsConfig struct {
 
 	// TenantName The name of the tenant.
 	TenantName string `envconfig:"API_BACKEND_TENANT_NAME" default:"example"`
-}
-
-func NewTeamsConfig() (*TeamsConfig, error) {
-	cfg := &TeamsConfig{}
-
-	err := envconfig.Process("", cfg)
-	if err != nil {
-		return nil, err
-	}
-
-	for environment := range cfg.GCP.Clusters {
-		cfg.Environments = append(cfg.Environments, environment)
-	}
-	cfg.Environments = append(cfg.Environments, cfg.OnpremClusters...)
-
-	return cfg, nil
 }
