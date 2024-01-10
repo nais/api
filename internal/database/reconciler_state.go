@@ -9,6 +9,12 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
+type ReconcilerStateRepo interface {
+	LoadReconcilerStateForTeam(ctx context.Context, reconcilerName sqlc.ReconcilerName, slug slug.Slug, state interface{}) error
+	RemoveReconcilerStateForTeam(ctx context.Context, reconcilerName sqlc.ReconcilerName, slug slug.Slug) error
+	SetReconcilerStateForTeam(ctx context.Context, reconcilerName sqlc.ReconcilerName, slug slug.Slug, state interface{}) error
+}
+
 // LoadReconcilerStateForTeam Load the team state for a given reconciler into the state parameter
 func (d *database) LoadReconcilerStateForTeam(ctx context.Context, reconcilerName sqlc.ReconcilerName, slug slug.Slug, state interface{}) error {
 	systemState, err := d.querier.GetReconcilerStateForTeam(ctx, reconcilerName, slug)

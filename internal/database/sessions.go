@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"github.com/nais/api/internal/database/gensql"
 	"time"
 
 	"github.com/google/uuid"
@@ -9,6 +10,17 @@ import (
 )
 
 const sessionLength = 30 * time.Minute
+
+type SessionRepo interface {
+	CreateSession(ctx context.Context, userID uuid.UUID) (*Session, error)
+	DeleteSession(ctx context.Context, sessionID uuid.UUID) error
+	ExtendSession(ctx context.Context, sessionID uuid.UUID) (*Session, error)
+	GetSessionByID(ctx context.Context, sessionID uuid.UUID) (*Session, error)
+}
+
+type Session struct {
+	*gensql.Session
+}
 
 func (d *database) CreateSession(ctx context.Context, userID uuid.UUID) (*Session, error) {
 	session, err := d.querier.CreateSession(ctx, userID, pgtype.Timestamptz{Time: time.Now().Add(sessionLength), Valid: true})

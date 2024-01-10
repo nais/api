@@ -8,6 +8,12 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
+type ReconcilerErrorRepo interface {
+	ClearReconcilerErrorsForTeam(ctx context.Context, slug slug.Slug, reconcilerName sqlc.ReconcilerName) error
+	GetTeamReconcilerErrors(ctx context.Context, slug slug.Slug) ([]*ReconcilerError, error)
+	SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, slug slug.Slug, reconcilerName sqlc.ReconcilerName, err error) error
+}
+
 func (d *database) SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, slug slug.Slug, reconcilerName sqlc.ReconcilerName, err error) error {
 	return d.querier.SetReconcilerErrorForTeam(ctx, correlationID, slug, reconcilerName, err.Error())
 }

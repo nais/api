@@ -2,10 +2,42 @@ package database
 
 import (
 	"context"
+	"github.com/nais/api/internal/database/gensql"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
 )
+
+type ServiceAccountRepo interface {
+	CreateAPIKey(ctx context.Context, apiKey string, serviceAccountID uuid.UUID) error
+	CreateServiceAccount(ctx context.Context, name string) (*ServiceAccount, error)
+	DeleteServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
+	GetServiceAccountByApiKey(ctx context.Context, apiKey string) (*ServiceAccount, error)
+	GetServiceAccountByName(ctx context.Context, name string) (*ServiceAccount, error)
+	GetServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) ([]*authz.Role, error)
+	GetServiceAccounts(ctx context.Context) ([]*ServiceAccount, error)
+	RemoveAllServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) error
+	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
+}
+
+type ServiceAccount struct {
+	*gensql.ServiceAccount
+}
+
+func (s ServiceAccount) GetID() uuid.UUID {
+	return s.ID
+}
+
+func (s ServiceAccount) Identity() string {
+	return s.Name
+}
+
+func (s ServiceAccount) IsServiceAccount() bool {
+	return true
+}
+
+// TODO: remove
+func (s *ServiceAccount) IsAuthenticatedUser() {}
 
 func (d *database) CreateServiceAccount(ctx context.Context, name string) (*ServiceAccount, error) {
 	serviceAccount, err := d.querier.CreateServiceAccount(ctx, name)

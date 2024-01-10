@@ -96,7 +96,7 @@ func (c *client) ResourceUtilizationForTeam(ctx context.Context, team slug.Slug,
 }
 
 func (c *client) ResourceUtilizationOverageForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationOverageForTeam, error) {
-	dateRange, err := c.db.Querier().ResourceUtilizationRangeForTeam(ctx, team)
+	dateRange, err := c.db.ResourceUtilizationRangeForTeam(ctx, team)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func (c *client) ResourceUtilizationOverageForTeam(ctx context.Context, team slu
 }
 
 func (c *client) ResourceUtilizationRangeForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.ResourceUtilizationDateRange, error) {
-	dates, err := c.db.Querier().ResourceUtilizationRangeForApp(ctx, env, team, app)
+	dates, err := c.db.ResourceUtilizationRangeForApp(ctx, env, team, app)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +128,7 @@ func (c *client) ResourceUtilizationRangeForApp(ctx context.Context, env string,
 }
 
 func (c *client) ResourceUtilizationRangeForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationDateRange, error) {
-	dates, err := c.db.Querier().ResourceUtilizationRangeForTeam(ctx, team)
+	dates, err := c.db.ResourceUtilizationRangeForTeam(ctx, team)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (c *client) ResourceUtilizationRangeForTeam(ctx context.Context, team slug.
 }
 
 func (c *client) CurrentResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.CurrentResourceUtilization, error) {
-	timeRange, err := c.db.Querier().ResourceUtilizationRangeForTeam(ctx, team)
+	timeRange, err := c.db.ResourceUtilizationRangeForTeam(ctx, team)
 	if err != nil {
 		return nil, err
 	}
@@ -151,12 +151,12 @@ func (c *client) CurrentResourceUtilizationForApp(ctx context.Context, env strin
 		return nil, err
 	}
 
-	cpu, err := c.db.Querier().SpecificResourceUtilizationForApp(ctx, env, team, app, gensql.ResourceTypeCpu, ts)
+	cpu, err := c.db.SpecificResourceUtilizationForApp(ctx, env, team, app, gensql.ResourceTypeCpu, ts)
 	if err != nil {
 		return nil, err
 	}
 
-	memory, err := c.db.Querier().SpecificResourceUtilizationForApp(ctx, env, team, app, gensql.ResourceTypeMemory, ts)
+	memory, err := c.db.SpecificResourceUtilizationForApp(ctx, env, team, app, gensql.ResourceTypeMemory, ts)
 	if err != nil {
 		return nil, err
 	}
@@ -169,7 +169,7 @@ func (c *client) CurrentResourceUtilizationForApp(ctx context.Context, env strin
 }
 
 func (c *client) CurrentResourceUtilizationForTeam(ctx context.Context, team slug.Slug) (*model.CurrentResourceUtilization, error) {
-	timeRange, err := c.db.Querier().ResourceUtilizationRangeForTeam(ctx, team)
+	timeRange, err := c.db.ResourceUtilizationRangeForTeam(ctx, team)
 	if err != nil {
 		return nil, err
 	}
@@ -184,12 +184,12 @@ func (c *client) CurrentResourceUtilizationForTeam(ctx context.Context, team slu
 		return nil, err
 	}
 
-	currentCpu, err := c.db.Querier().SpecificResourceUtilizationForTeam(ctx, team, gensql.ResourceTypeCpu, ts)
+	currentCpu, err := c.db.SpecificResourceUtilizationForTeam(ctx, team, gensql.ResourceTypeCpu, ts)
 	if err != nil {
 		return nil, err
 	}
 
-	currentMemory, err := c.db.Querier().SpecificResourceUtilizationForTeam(ctx, team, gensql.ResourceTypeMemory, ts)
+	currentMemory, err := c.db.SpecificResourceUtilizationForTeam(ctx, team, gensql.ResourceTypeMemory, ts)
 	if err != nil {
 		return nil, err
 	}
@@ -213,12 +213,12 @@ func (c *client) ResourceUtilizationTrendForTeam(ctx context.Context, team slug.
 		return nil, err
 	}
 
-	cpuAverage, err := c.db.Querier().AverageResourceUtilizationForTeam(ctx, team, gensql.ResourceTypeCpu, ts)
+	cpuAverage, err := c.db.AverageResourceUtilizationForTeam(ctx, team, gensql.ResourceTypeCpu, ts)
 	if err != nil {
 		return nil, err
 	}
 
-	memoryAverage, err := c.db.Querier().AverageResourceUtilizationForTeam(ctx, team, gensql.ResourceTypeMemory, ts)
+	memoryAverage, err := c.db.AverageResourceUtilizationForTeam(ctx, team, gensql.ResourceTypeMemory, ts)
 	if err != nil {
 		return nil, err
 	}
@@ -262,7 +262,7 @@ func (c *client) resourceUtilizationForApp(ctx context.Context, resourceType mod
 		return nil, err
 	}
 
-	rows, err := c.db.Querier().ResourceUtilizationForApp(ctx, gensql.ResourceUtilizationForAppParams{
+	rows, err := c.db.ResourceUtilizationForApp(ctx, gensql.ResourceUtilizationForAppParams{
 		Environment:  env,
 		TeamSlug:     team,
 		App:          app,
@@ -316,7 +316,7 @@ func (c *client) resourceUtilizationForTeam(ctx context.Context, resourceType mo
 		return nil, err
 	}
 
-	rows, err := c.db.Querier().ResourceUtilizationForTeam(ctx, env, team, resourceType.ToDatabaseEnum(), startTs, endTs)
+	rows, err := c.db.ResourceUtilizationForTeam(ctx, env, team, resourceType.ToDatabaseEnum(), startTs, endTs)
 	if err != nil {
 		return nil, err
 	}
@@ -340,7 +340,7 @@ func (c *client) resourceUtilizationForTeam(ctx context.Context, resourceType mo
 }
 
 func (c *client) resourceUtilizationOverageForTeam(ctx context.Context, resource gensql.ResourceType, team slug.Slug, timestamp pgtype.Timestamptz) (models []*model.AppWithResourceUtilizationOverage, sumOverageCost float64, err error) {
-	rows, err := c.db.Querier().ResourceUtilizationOverageForTeam(ctx, team, timestamp, resource)
+	rows, err := c.db.ResourceUtilizationOverageForTeam(ctx, team, timestamp, resource)
 	if err != nil {
 		return
 	}

@@ -3,11 +3,58 @@ package database
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/google/uuid"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 )
+
+const teamDeleteKeyLifetime = time.Hour * 1
+
+type TeamRepo interface {
+	ConfirmTeamDeleteKey(ctx context.Context, key uuid.UUID) error
+	CreateTeam(ctx context.Context, slug slug.Slug, purpose, slackChannel string) (*Team, error)
+	CreateTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*TeamDeleteKey, error)
+	DeleteTeam(ctx context.Context, teamSlug slug.Slug) error
+	GetActiveTeamBySlug(ctx context.Context, slug slug.Slug) (*Team, error)
+	GetActiveTeams(ctx context.Context) ([]*Team, error)
+	GetAllTeamMembers(ctx context.Context, teamSlug slug.Slug) ([]*User, error)
+	GetAllTeams(ctx context.Context) ([]*Team, error)
+	GetSlackAlertsChannels(ctx context.Context, teamSlug slug.Slug) (map[string]string, error)
+	GetTeamBySlug(ctx context.Context, slug slug.Slug) (*Team, error)
+	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
+	GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*User, error)
+	GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*gensql.GetTeamMemberOptOutsRow, error)
+	GetTeamMembers(ctx context.Context, teamSlug slug.Slug, offset, limit int) ([]*User, int, error)
+	GetTeamMembersForReconciler(ctx context.Context, teamSlug slug.Slug, reconcilerName gensql.ReconcilerName) ([]*User, error)
+	GetTeams(ctx context.Context, offset, limit int) ([]*Team, int, error)
+	GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string, offset, limit int) ([]*Team, int, error)
+	GetUserTeams(ctx context.Context, userID uuid.UUID, offset, limit int) ([]*UserTeam, int, error)
+	RemoveSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string) error
+	RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error
+	SetLastSuccessfulSyncForTeam(ctx context.Context, teamSlug slug.Slug) error
+	SetSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment, channelName string) error
+	UpdateTeam(ctx context.Context, teamSlug slug.Slug, purpose, slackChannel *string) (*Team, error)
+}
+
+type TeamDeleteKey struct {
+	*gensql.TeamDeleteKey
+}
+
+func (k TeamDeleteKey) Expires() time.Time {
+	return k.CreatedAt.Time.Add(teamDeleteKeyLifetime)
+}
+
+func (k TeamDeleteKey) HasExpired() bool {
+	return time.Now().After(k.Expires())
+}
+
+type Team struct {
+	*gensql.Team
+}
+
+func (t *Team) IsEntity() {}
 
 func (d *database) RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error {
 	return d.querier.RemoveUserFromTeam(ctx, userID, &teamSlug)
@@ -50,7 +97,7 @@ func (d *database) GetTeamBySlug(ctx context.Context, slug slug.Slug) (*Team, er
 }
 
 func (d *database) GetTeams(ctx context.Context, offset, limit int) ([]*Team, int, error) {
-	var teams []*sqlc.Team
+	var teams []*gensql.Team
 	var err error
 	teams, err = d.querier.GetTeamsPaginated(ctx, int32(offset), int32(limit))
 	if err != nil {
@@ -118,7 +165,7 @@ func (d *database) GetUserTeams(ctx context.Context, userID uuid.UUID, offset, l
 }
 
 func (d *database) GetAllTeamMembers(ctx context.Context, teamSlug slug.Slug) ([]*User, error) {
-	var rows []*sqlc.User
+	var rows []*gensql.User
 	var err error
 	rows, err = d.querier.GetAllTeamMembers(ctx, &teamSlug)
 	if err != nil {
@@ -134,7 +181,7 @@ func (d *database) GetAllTeamMembers(ctx context.Context, teamSlug slug.Slug) ([
 }
 
 func (d *database) GetTeamMembers(ctx context.Context, teamSlug slug.Slug, offset, limit int) ([]*User, int, error) {
-	var rows []*sqlc.User
+	var rows []*gensql.User
 	var err error
 	rows, err = d.querier.GetTeamMembers(ctx, &teamSlug, int32(offset), int32(limit))
 	if err != nil {
@@ -162,7 +209,7 @@ func (d *database) GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID
 	return &User{User: user}, nil
 }
 
-func (d *database) GetTeamMembersForReconciler(ctx context.Context, teamSlug slug.Slug, reconcilerName sqlc.ReconcilerName) ([]*User, error) {
+func (d *database) GetTeamMembersForReconciler(ctx context.Context, teamSlug slug.Slug, reconcilerName gensql.ReconcilerName) ([]*User, error) {
 	rows, err := d.querier.GetTeamMembersForReconciler(ctx, &teamSlug, reconcilerName)
 	if err != nil {
 		return nil, err
@@ -226,7 +273,7 @@ func (d *database) DeleteTeam(ctx context.Context, teamSlug slug.Slug) error {
 	return d.querier.DeleteTeam(ctx, teamSlug)
 }
 
-func (d *database) GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*sqlc.GetTeamMemberOptOutsRow, error) {
+func (d *database) GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*gensql.GetTeamMemberOptOutsRow, error) {
 	return d.querier.GetTeamMemberOptOuts(ctx, userID, teamSlug)
 }
 

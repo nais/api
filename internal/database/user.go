@@ -8,6 +8,27 @@ import (
 	sqlc "github.com/nais/api/internal/database/gensql"
 )
 
+type UserRepo interface {
+	CreateUser(ctx context.Context, name, email, externalID string) (*User, error)
+	DeleteUser(ctx context.Context, userID uuid.UUID) error
+	GetAllUsers(ctx context.Context) ([]*User, error)
+	GetUserByEmail(ctx context.Context, email string) (*User, error)
+	GetUserByExternalID(ctx context.Context, externalID string) (*User, error)
+	GetUserByID(ctx context.Context, id uuid.UUID) (*User, error)
+	GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*authz.Role, error)
+	GetUsers(ctx context.Context, offset, limit int) ([]*User, int, error)
+	UpdateUser(ctx context.Context, userID uuid.UUID, name, email, externalID string) (*User, error)
+}
+
+type UserRole struct {
+	*sqlc.UserRole
+}
+
+type UserTeam struct {
+	*sqlc.Team
+	RoleName sqlc.RoleName
+}
+
 func (d *database) CreateUser(ctx context.Context, name, email, externalID string) (*User, error) {
 	user, err := d.querier.CreateUser(ctx, name, email, externalID)
 	if err != nil {
@@ -115,3 +136,25 @@ func (d *database) GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*authz
 
 	return roles, nil
 }
+
+type User struct {
+	*sqlc.User
+	IsAdmin *bool
+}
+
+func (u User) GetID() uuid.UUID {
+	return u.ID
+}
+
+func (u User) Identity() string {
+	return u.Email
+}
+
+func (u User) IsServiceAccount() bool {
+	return false
+}
+
+// TODO: remove
+func (u *User) IsAuthenticatedUser() {}
+
+func (u *User) IsEntity() {}

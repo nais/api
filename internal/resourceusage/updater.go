@@ -3,6 +3,7 @@ package resourceusage
 import (
 	"context"
 	"fmt"
+	"github.com/nais/api/internal/database"
 	"strings"
 	"time"
 
@@ -24,7 +25,7 @@ type (
 
 type Updater struct {
 	k8sClient   *k8s.Client
-	querier     gensql.Querier
+	db          database.Database
 	promClients map[string]promv1.API
 	log         logrus.FieldLogger
 }
@@ -60,10 +61,10 @@ var (
 )
 
 // NewUpdater creates a new resourceusage updater
-func NewUpdater(k8sClient *k8s.Client, promClients map[string]promv1.API, querier gensql.Querier, log logrus.FieldLogger) *Updater {
+func NewUpdater(k8sClient *k8s.Client, promClients map[string]promv1.API, db database.Database, log logrus.FieldLogger) *Updater {
 	return &Updater{
 		k8sClient:   k8sClient,
-		querier:     querier,
+		db:          db,
 		promClients: promClients,
 		log:         log,
 	}
@@ -71,7 +72,7 @@ func NewUpdater(k8sClient *k8s.Client, promClients map[string]promv1.API, querie
 
 // UpdateResourceUsage will update the resource usage from all added prometheus instances
 func (u *Updater) UpdateResourceUsage(ctx context.Context) (rowsUpserted int, err error) {
-	maxTimestamp, err := u.querier.MaxResourceUtilizationDate(ctx)
+	maxTimestamp, err := u.db.MaxResourceUtilizationDate(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("unable to fetch max timestamp from database: %w", err)
 	}
@@ -95,7 +96,7 @@ func (u *Updater) UpdateResourceUsage(ctx context.Context) (rowsUpserted int, er
 
 			batchErrors := 0
 			batch := getBatchParams(resourceType, env, values)
-			u.querier.ResourceUtilizationUpsert(ctx, batch).Exec(func(i int, err error) {
+			u.db.ResourceUtilizationUpsert(ctx, batch).Exec(func(i int, err error) {
 				if err != nil {
 					log.WithError(err).Errorf("unable to upsert resource utilization")
 					batchErrors++

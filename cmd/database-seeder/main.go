@@ -90,7 +90,7 @@ func run(cfg *seedConfig, log logrus.FieldLogger) error {
 	}
 	numLastNames := len(lastNames)
 
-	db, close, err := database.NewQuerier(ctx, cfg.DatabaseURL, log)
+	db, close, err := database.New(ctx, cfg.DatabaseURL, log)
 	if err != nil {
 		return err
 	}

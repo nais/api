@@ -10,6 +10,17 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
+type AuditLogsRepo interface {
+	CreateAuditLogEntry(ctx context.Context, correlationID uuid.UUID, componentName logger.ComponentName, actor *string, targetType audittype.AuditLogsTargetType, targetIdentifier string, action audittype.AuditAction, message string) error
+	GetAuditLogsForCorrelationID(ctx context.Context, correlationID uuid.UUID, offset, limit int) ([]*AuditLog, int, error)
+	GetAuditLogsForReconciler(ctx context.Context, reconcilerName sqlc.ReconcilerName, offset, limit int) ([]*AuditLog, int, error)
+	GetAuditLogsForTeam(ctx context.Context, slug slug.Slug, offset, limit int) ([]*AuditLog, int, error)
+}
+
+type AuditLog struct {
+	*sqlc.AuditLog
+}
+
 func (d *database) GetAuditLogsForTeam(ctx context.Context, slug slug.Slug, offset, limit int) ([]*AuditLog, int, error) {
 	rows, err := d.querier.GetAuditLogsForTeam(ctx, string(slug), int32(offset), int32(limit))
 	if err != nil {

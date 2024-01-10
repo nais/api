@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/nais/api/internal/database"
 	"time"
 
 	"cloud.google.com/go/bigquery"
@@ -34,7 +35,7 @@ type bigQueryCostTableRow struct {
 // Updater is the cost updater struct
 type Updater struct {
 	log             logrus.FieldLogger
-	querier         gensql.Querier
+	db              database.Database
 	bigQueryClient  *bigquery.Client
 	bigQueryTable   string
 	daysToFetch     int
@@ -59,9 +60,9 @@ func WithDaysToFetch(daysToFetch int) Option {
 }
 
 // NewCostUpdater creates a new cost updater
-func NewCostUpdater(bigQueryClient *bigquery.Client, querier gensql.Querier, tenantName string, log logrus.FieldLogger, opts ...Option) *Updater {
+func NewCostUpdater(bigQueryClient *bigquery.Client, db database.Database, tenantName string, log logrus.FieldLogger, opts ...Option) *Updater {
 	updater := &Updater{
-		querier:         querier,
+		db:              db,
 		bigQueryClient:  bigQueryClient,
 		log:             log,
 		bigQueryTable:   "nais-io.console.cost_" + tenantName,
@@ -78,7 +79,7 @@ func NewCostUpdater(bigQueryClient *bigquery.Client, querier gensql.Querier, ten
 
 // ShouldUpdateCosts returns true if costs should be updated, false otherwise
 func (c *Updater) ShouldUpdateCosts(ctx context.Context) (bool, error) {
-	lastDate, err := c.querier.LastCostDate(ctx)
+	lastDate, err := c.db.LastCostDate(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -178,7 +179,7 @@ func (c *Updater) upsertBatch(ctx context.Context, batch []gensql.CostUpsertPara
 	}
 
 	start := time.Now()
-	c.querier.CostUpsert(ctx, batch).Exec(func(i int, err error) {
+	c.db.CostUpsert(ctx, batch).Exec(func(i int, err error) {
 		if err != nil {
 			errors++
 		}

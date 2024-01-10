@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"github.com/nais/api/internal/search"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -18,9 +19,48 @@ var embedMigrations embed.FS
 
 const databaseConnectRetries = 5
 
-// NewQuerier connects to the database, runs migrations and returns a querier instance. The caller must call the
+type (
+	QuerierTransactionFunc  func(ctx context.Context, querier Querier) error
+	DatabaseTransactionFunc func(ctx context.Context, dbtx Database) error
+)
+
+type Querier interface {
+	gensql.Querier
+	Transaction(ctx context.Context, callback QuerierTransactionFunc) error
+}
+
+type Queries struct {
+	*gensql.Queries
+	connPool *pgxpool.Pool
+}
+
+type database struct {
+	querier Querier
+}
+
+type Database interface {
+	AuditLogsRepo
+	CostRepo
+	FirstRunRepo
+	ReconcilerErrorRepo
+	ReconcilerRepo
+	ReconcilerStateRepo
+	RepositoryAuthorizationRepo
+	ResourceUtilizationRepo
+	RoleRepo
+	ServiceAccountRepo
+	SessionRepo
+	TeamRepo
+	UserRepo
+
+	search.Searchable
+
+	Transaction(ctx context.Context, fn DatabaseTransactionFunc) error
+}
+
+// New connects to the database, runs migrations and returns a database instance. The caller must call the
 // returned closer function when the database connection is no longer needed
-func NewQuerier(ctx context.Context, dsn string, log logrus.FieldLogger) (querier Database, closer func(), err error) {
+func New(ctx context.Context, dsn string, log logrus.FieldLogger) (db Database, closer func(), err error) {
 	config, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to parse dsn config: %w", err)

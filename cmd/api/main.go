@@ -104,13 +104,13 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 	}
 
 	log.Info("connecting to database")
-	querier, closer, err := database.NewQuerier(ctx, cfg.DatabaseConnectionString, log.WithField("subsystem", "database"))
+	db, closer, err := database.New(ctx, cfg.DatabaseConnectionString, log.WithField("subsystem", "database"))
 	if err != nil {
 		return fmt.Errorf("setting up database: %w", err)
 	}
 	defer closer()
 
-	k8sClient, err := k8s.New(cfg.Tenant, cfg.K8S, errorsCounter, &teamChecker{querier}, log.WithField("client", "k8s"))
+	k8sClient, err := k8s.New(cfg.Tenant, cfg.K8S, errorsCounter, &teamChecker{db}, log.WithField("client", "k8s"))
 	if err != nil {
 		var authErr *google.AuthenticationError
 		if errors.As(err, &authErr) {
@@ -121,8 +121,8 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 
 	hookdClient := hookd.New(cfg.Hookd, errorsCounter, log.WithField("client", "hookd"))
 	dependencyTrackClient := dependencytrack.New(cfg.DependencyTrack, log.WithField("client", "dependencytrack"))
-	resourceUsageClient := resourceusage.NewClient(cfg.K8S.AllClusterNames, querier, log)
-	resolver := graph.NewResolver(hookdClient, k8sClient, dependencyTrackClient, resourceUsageClient, querier, cfg.K8S.Clusters, log)
+	resourceUsageClient := resourceusage.NewClient(cfg.K8S.AllClusterNames, db, log)
+	resolver := graph.NewResolver(hookdClient, k8sClient, dependencyTrackClient, resourceUsageClient, db, cfg.K8S.Clusters, log)
 	graphHandler, err := graph.NewHandler(gengql.Config{Resolvers: resolver}, meter, log)
 	if err != nil {
 		return fmt.Errorf("create graph handler: %w", err)
@@ -163,7 +163,7 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 			return
 		}
 
-		resourceUsageUpdater := resourceusage.NewUpdater(k8sClient, promClients, querier.Querier(), log)
+		resourceUsageUpdater := resourceusage.NewUpdater(k8sClient, promClients, db, log)
 		if err != nil {
 			log.WithError(err).Errorf("create resource usage updater")
 			return
@@ -184,7 +184,7 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 		}
 
 		defer cancel()
-		err = runCostUpdater(ctx, querier.Querier(), cfg.Tenant, cfg.Cost, log.WithField("task", "cost_updater"))
+		err = runCostUpdater(ctx, db, cfg.Tenant, cfg.Cost, log.WithField("task", "cost_updater"))
 		if err != nil {
 			log.WithError(err).Errorf("error in cost updater")
 		}
@@ -257,7 +257,7 @@ func getBigQueryClient(ctx context.Context, projectID string) (*bigquery.Client,
 }
 
 // getBigQueryClient will return a new cost updater instance
-func getUpdater(ctx context.Context, querier gensql.Querier, tenant string, cfg config.Cost, log logrus.FieldLogger) (*cost.Updater, error) {
+func getUpdater(ctx context.Context, db database.Database, tenant string, cfg config.Cost, log logrus.FieldLogger) (*cost.Updater, error) {
 	bigQueryClient, err := getBigQueryClient(ctx, cfg.BigQueryProjectID)
 	if err != nil {
 		return nil, err
@@ -265,7 +265,7 @@ func getUpdater(ctx context.Context, querier gensql.Querier, tenant string, cfg 
 
 	return cost.NewCostUpdater(
 		bigQueryClient,
-		querier,
+		db,
 		tenant,
 		log.WithField("subsystem", "cost_updater"),
 	), nil
@@ -273,8 +273,8 @@ func getUpdater(ctx context.Context, querier gensql.Querier, tenant string, cfg 
 
 // runCostUpdater will create an instance of the cost updater, and update the costs on a schedule. This function will
 // block until the context is cancelled, so it should be run in a goroutine.
-func runCostUpdater(ctx context.Context, querier gensql.Querier, tenant string, cfg config.Cost, log logrus.FieldLogger) error {
-	updater, err := getUpdater(ctx, querier, tenant, cfg, log)
+func runCostUpdater(ctx context.Context, db database.Database, tenant string, cfg config.Cost, log logrus.FieldLogger) error {
+	updater, err := getUpdater(ctx, db, tenant, cfg, log)
 	if err != nil {
 		return fmt.Errorf("unable to set up and run cost updater: %w", err)
 	}
