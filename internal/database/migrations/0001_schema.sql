@@ -223,15 +223,15 @@ CREATE TABLE users (
 -- additional indexes
 
 CREATE INDEX ON audit_logs USING btree (created_at DESC);
-CREATE INDEX cost_env_idx ON cost (env);
-CREATE INDEX cost_team_idx ON cost (team);
+CREATE INDEX cost_env_idx ON cost (environment);
+CREATE INDEX cost_team_idx ON cost (team_slug);
 CREATE INDEX cost_app_idx ON cost (app);
 CREATE INDEX cost_date_idx ON cost (date);
 CREATE INDEX ON reconciler_errors USING btree (created_at DESC);
 CREATE INDEX ON resource_utilization_metrics (app);
-CREATE INDEX ON resource_utilization_metrics (env);
+CREATE INDEX ON resource_utilization_metrics (environment);
 CREATE INDEX ON resource_utilization_metrics (resource_type);
-CREATE INDEX ON resource_utilization_metrics (team);
+CREATE INDEX ON resource_utilization_metrics (team_slug);
 CREATE INDEX ON resource_utilization_metrics (timestamp);
 CREATE UNIQUE INDEX ON service_account_roles USING btree (service_account_id, role_name) WHERE ((target_team_slug IS NULL) AND (target_service_account_id IS NULL));
 CREATE UNIQUE INDEX ON user_roles USING btree (user_id, role_name) WHERE ((target_team_slug IS NULL) AND (target_service_account_id IS NULL));
