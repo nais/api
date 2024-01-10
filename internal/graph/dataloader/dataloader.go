@@ -6,6 +6,7 @@ import (
 
 	"github.com/graph-gophers/dataloader/v7"
 	db "github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/metrics"
 )
 
@@ -15,8 +16,8 @@ const loadersKey = ctxKey("dataloaders")
 
 // Loaders wrap your data loaders to inject via middleware
 type Loaders struct {
-	UsersLoader     *dataloader.Loader[string, *db.User]
-	TeamsLoader     *dataloader.Loader[string, *db.Team]
+	UsersLoader     *dataloader.Loader[string, *model.User]
+	TeamsLoader     *dataloader.Loader[string, *model.Team]
 	UserRolesLoader *dataloader.Loader[string, []*db.UserRole]
 }
 
@@ -30,11 +31,11 @@ func NewLoaders(database db.Database) *Loaders {
 	loaders := &Loaders{
 		UsersLoader: dataloader.NewBatchedLoader(usersReader.load,
 			dataloader.WithCache(usersReader.newCache()),
-			dataloader.WithInputCapacity[string, *db.User](5000),
+			dataloader.WithInputCapacity[string, *model.User](5000),
 		),
 		TeamsLoader: dataloader.NewBatchedLoader(teamsReader.load,
 			dataloader.WithCache(teamsReader.newCache()),
-			dataloader.WithInputCapacity[string, *db.Team](500),
+			dataloader.WithInputCapacity[string, *model.Team](500),
 		),
 		UserRolesLoader: dataloader.NewBatchedLoader(userRolesReader.load,
 			dataloader.WithCache(userRolesReader.newCache()),

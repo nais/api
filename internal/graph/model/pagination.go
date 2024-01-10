@@ -44,3 +44,13 @@ func PaginatedSlice[T any](slice []T, p *Pagination) ([]T, PageInfo) {
 		TotalCount:      len(slice),
 	}
 }
+
+func NewPageInfo(p *Pagination, total int) PageInfo {
+	hasNext := p.Offset+p.Limit < total
+	hasPrev := p.Offset > 0
+	return PageInfo{
+		HasNextPage:     hasNext,
+		HasPreviousPage: hasPrev,
+		TotalCount:      total,
+	}
+}

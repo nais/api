@@ -5,8 +5,9 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/auth/authz"
-	db "github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database"
 	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
@@ -19,9 +20,9 @@ type AuditLogger interface {
 }
 
 type auditLogger struct {
-	componentName ComponentName
-	db            db.Database
-	log           logger.Logger
+	componentName logger.ComponentName
+	db            database.Database
+	log           logrus.FieldLogger
 }
 
 type auditLoggerForTesting struct {
@@ -29,12 +30,12 @@ type auditLoggerForTesting struct {
 }
 
 type Target struct {
-	Type       AuditLogsTargetType
+	Type       audittype.AuditLogsTargetType
 	Identifier string
 }
 
 type Fields struct {
-	Action        AuditAction
+	Action        audittype.AuditAction
 	Actor         *authz.Actor
 	CorrelationID uuid.UUID
 }
@@ -46,11 +47,11 @@ type Entry struct {
 	Message string
 }
 
-func New(db db.Database, componentName ComponentName, log logger.Logger) AuditLogger {
+func New(db database.Database, componentName logger.ComponentName, log logrus.FieldLogger) AuditLogger {
 	return &auditLogger{
 		componentName: componentName,
 		db:            db,
-		log:           log.WithComponent(componentName),
+		log:           log.WithField("component", componentName),
 	}
 }
 
@@ -122,16 +123,16 @@ func (l *auditLogger) Logf(ctx context.Context, targets []Target, fields Fields,
 		log := l.log
 		if actor != nil {
 			logFields["actor"] = *actor
-			log = log.WithActor(*actor)
+			log = log.WithField("actor", *actor)
 		}
 
 		switch target.Type {
-		case AuditLogsTargetTypeTeam:
-			log = log.WithTeamSlug(target.Identifier)
-		case AuditLogsTargetTypeUser:
-			log = log.WithUser(target.Identifier)
-		case AuditLogsTargetTypeReconciler:
-			log = log.WithReconciler(target.Identifier)
+		case audittype.AuditLogsTargetTypeTeam:
+			log = log.WithField("team_slug", target.Identifier)
+		case audittype.AuditLogsTargetTypeUser:
+			log = log.WithField("user", target.Identifier)
+		case audittype.AuditLogsTargetTypeReconciler:
+			log = log.WithField("reconciler", target.Identifier)
 		default:
 			logFields["target_identifier"] = target.Identifier
 		}
@@ -141,17 +142,17 @@ func (l *auditLogger) Logf(ctx context.Context, targets []Target, fields Fields,
 }
 
 func UserTarget(email string) Target {
-	return Target{Type: AuditLogsTargetTypeUser, Identifier: email}
+	return Target{Type: audittype.AuditLogsTargetTypeUser, Identifier: email}
 }
 
 func TeamTarget(slug slug.Slug) Target {
-	return Target{Type: AuditLogsTargetTypeTeam, Identifier: string(slug)}
+	return Target{Type: audittype.AuditLogsTargetTypeTeam, Identifier: string(slug)}
 }
 
 func ReconcilerTarget(name sqlc.ReconcilerName) Target {
-	return Target{Type: AuditLogsTargetTypeReconciler, Identifier: string(name)}
+	return Target{Type: audittype.AuditLogsTargetTypeReconciler, Identifier: string(name)}
 }
 
-func ComponentTarget(name ComponentName) Target {
-	return Target{Type: AuditLogsTargetTypeSystem, Identifier: string(name)}
+func ComponentTarget(name logger.ComponentName) Target {
+	return Target{Type: audittype.AuditLogsTargetTypeSystem, Identifier: string(name)}
 }

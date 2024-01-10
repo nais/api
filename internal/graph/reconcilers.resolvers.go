@@ -7,14 +7,24 @@ package graph
 import (
 	"context"
 	"fmt"
+	"strings"
 
+	"github.com/google/uuid"
+	"github.com/nais/api/internal/auditlogger"
+	"github.com/nais/api/internal/auditlogger/audittype"
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/auth/roles"
+	db "github.com/nais/api/internal/database"
+	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/graph/apierror"
+	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
 )
 
 // EnableReconciler is the resolver for the enableReconciler field.
-func (r *mutationResolver) EnableReconciler(ctx context.Context, name string) (*model.Reconciler, error) {
+func (r *mutationResolver) EnableReconciler(ctx context.Context, name sqlc.ReconcilerName) (*model.Reconciler, error) {
 	if !name.Valid() {
 		return nil, apierror.Errorf("%q is not a valid name", name)
 	}
@@ -70,7 +80,7 @@ func (r *mutationResolver) EnableReconciler(ctx context.Context, name string) (*
 		auditlogger.ReconcilerTarget(name),
 	}
 	fields := auditlogger.Fields{
-		Action:        auditlogger.AuditActionGraphqlApiReconcilersEnable,
+		Action:        audittype.AuditActionGraphqlApiReconcilersEnable,
 		Actor:         actor,
 		CorrelationID: correlationID,
 	}
@@ -81,11 +91,11 @@ func (r *mutationResolver) EnableReconciler(ctx context.Context, name string) (*
 		r.log.WithError(err).Errorf("reconcile all teams")
 	}
 
-	return reconciler, nil
+	return toGraphReconciler(reconciler), nil
 }
 
 // DisableReconciler is the resolver for the disableReconciler field.
-func (r *mutationResolver) DisableReconciler(ctx context.Context, name string) (*model.Reconciler, error) {
+func (r *mutationResolver) DisableReconciler(ctx context.Context, name sqlc.ReconcilerName) (*model.Reconciler, error) {
 	if !name.Valid() {
 		return nil, apierror.Errorf("%q is not a valid name", name)
 	}
@@ -114,24 +124,24 @@ func (r *mutationResolver) DisableReconciler(ctx context.Context, name string) (
 		auditlogger.ReconcilerTarget(name),
 	}
 	fields := auditlogger.Fields{
-		Action: auditlogger.AuditActionGraphqlApiReconcilersDisable,
+		Action: audittype.AuditActionGraphqlApiReconcilersDisable,
 		Actor:  actor,
 	}
 	r.auditLogger.Logf(ctx, targets, fields, "Disable reconciler: %q", name)
 	r.teamSyncHandler.RemoveReconciler(name)
 
-	return reconciler, nil
+	return toGraphReconciler(reconciler), nil
 }
 
 // ConfigureReconciler is the resolver for the configureReconciler field.
-func (r *mutationResolver) ConfigureReconciler(ctx context.Context, name string, config []*model.ReconcilerConfigInput) (*model.Reconciler, error) {
+func (r *mutationResolver) ConfigureReconciler(ctx context.Context, name sqlc.ReconcilerName, config []*model.ReconcilerConfigInput) (*model.Reconciler, error) {
 	if !name.Valid() {
 		return nil, apierror.Errorf("%q is not a valid name", name)
 	}
 
 	reconcilerConfig := make(map[sqlc.ReconcilerConfigKey]string)
 	for _, entry := range config {
-		reconcilerConfig[entry.Key] = entry.Value
+		reconcilerConfig[sqlc.ReconcilerConfigKey(entry.Key)] = entry.Value
 	}
 
 	err := r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
@@ -183,16 +193,16 @@ func (r *mutationResolver) ConfigureReconciler(ctx context.Context, name string,
 		auditlogger.ReconcilerTarget(name),
 	}
 	fields := auditlogger.Fields{
-		Action: auditlogger.AuditActionGraphqlApiReconcilersConfigure,
+		Action: audittype.AuditActionGraphqlApiReconcilersConfigure,
 		Actor:  actor,
 	}
 	r.auditLogger.Logf(ctx, targets, fields, "Configure reconciler: %q", name)
 
-	return reconciler, nil
+	return toGraphReconciler(reconciler), nil
 }
 
 // ResetReconciler is the resolver for the resetReconciler field.
-func (r *mutationResolver) ResetReconciler(ctx context.Context, name string) (*model.Reconciler, error) {
+func (r *mutationResolver) ResetReconciler(ctx context.Context, name sqlc.ReconcilerName) (*model.Reconciler, error) {
 	if !name.Valid() {
 		return nil, fmt.Errorf("%q is not a valid name", name)
 	}
@@ -225,16 +235,16 @@ func (r *mutationResolver) ResetReconciler(ctx context.Context, name string) (*m
 		auditlogger.ReconcilerTarget(name),
 	}
 	fields := auditlogger.Fields{
-		Action: auditlogger.AuditActionGraphqlApiReconcilersReset,
+		Action: audittype.AuditActionGraphqlApiReconcilersReset,
 		Actor:  actor,
 	}
 	r.auditLogger.Logf(ctx, targets, fields, "Reset reconciler: %q", name)
 
-	return reconciler, nil
+	return toGraphReconciler(reconciler), nil
 }
 
 // AddReconcilerOptOut is the resolver for the addReconcilerOptOut field.
-func (r *mutationResolver) AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler string) (*model.TeamMember, error) {
+func (r *mutationResolver) AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler sqlc.ReconcilerName) (*model.TeamMember, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsUpdate, teamSlug)
 	if err != nil {
@@ -246,12 +256,17 @@ func (r *mutationResolver) AddReconcilerOptOut(ctx context.Context, teamSlug slu
 		return nil, apierror.ErrTeamNotExist
 	}
 
-	user, err := r.database.GetTeamMember(ctx, teamSlug, userID)
+	uuid, err := userID.AsUUID()
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := r.database.GetTeamMember(ctx, teamSlug, uuid)
 	if err != nil {
 		return nil, apierror.ErrUserIsNotTeamMember
 	}
 
-	err = r.database.AddReconcilerOptOut(ctx, userID, teamSlug, reconciler)
+	err = r.database.AddReconcilerOptOut(ctx, uuid, teamSlug, reconciler)
 	if err != nil {
 		return nil, err
 	}
@@ -263,7 +278,7 @@ func (r *mutationResolver) AddReconcilerOptOut(ctx context.Context, teamSlug slu
 }
 
 // RemoveReconcilerOptOut is the resolver for the removeReconcilerOptOut field.
-func (r *mutationResolver) RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler string) (*model.TeamMember, error) {
+func (r *mutationResolver) RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler sqlc.ReconcilerName) (*model.TeamMember, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsUpdate, teamSlug)
 	if err != nil {
@@ -275,12 +290,16 @@ func (r *mutationResolver) RemoveReconcilerOptOut(ctx context.Context, teamSlug 
 		return nil, apierror.ErrTeamNotExist
 	}
 
-	user, err := r.database.GetTeamMember(ctx, teamSlug, userID)
+	uuid, err := userID.AsUUID()
+	if err != nil {
+		return nil, err
+	}
+	user, err := r.database.GetTeamMember(ctx, teamSlug, uuid)
 	if err != nil {
 		return nil, apierror.ErrUserIsNotTeamMember
 	}
 
-	err = r.database.RemoveReconcilerOptOut(ctx, userID, teamSlug, reconciler)
+	err = r.database.RemoveReconcilerOptOut(ctx, uuid, teamSlug, reconciler)
 	if err != nil {
 		return nil, err
 	}
@@ -299,5 +318,46 @@ func (r *queryResolver) Reconcilers(ctx context.Context) ([]*model.Reconciler, e
 		return nil, err
 	}
 
-	return r.database.GetReconcilers(ctx)
+	reconcilers, err := r.database.GetReconcilers(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	graphReconcilers := make([]*model.Reconciler, 0, len(reconcilers))
+	for _, reconciler := range reconcilers {
+		graphReconcilers = append(graphReconcilers, toGraphReconciler(reconciler))
+	}
+
+	return graphReconcilers, nil
 }
+
+// UsesTeamMemberships is the resolver for the usesTeamMemberships field.
+func (r *reconcilerResolver) UsesTeamMemberships(ctx context.Context, obj *model.Reconciler) (bool, error) {
+	switch obj.Name {
+	case sqlc.ReconcilerNameGithubTeam:
+		return true, nil
+	case sqlc.ReconcilerNameAzureGroup:
+		return true, nil
+	case sqlc.ReconcilerNameGoogleWorkspaceAdmin:
+		return true, nil
+	case sqlc.ReconcilerNameNaisDependencytrack:
+		return true, nil
+	default:
+		return false, nil
+	}
+}
+
+// Config is the resolver for the config field.
+func (r *reconcilerResolver) Config(ctx context.Context, obj *model.Reconciler) ([]*model.ReconcilerConfig, error) {
+	panic(fmt.Errorf("not implemented: Config - config"))
+}
+
+// Configured is the resolver for the configured field.
+func (r *reconcilerResolver) Configured(ctx context.Context, obj *model.Reconciler) (bool, error) {
+	panic(fmt.Errorf("not implemented: Configured - configured"))
+}
+
+// Reconciler returns gengql.ReconcilerResolver implementation.
+func (r *Resolver) Reconciler() gengql.ReconcilerResolver { return &reconcilerResolver{r} }
+
+type reconcilerResolver struct{ *Resolver }

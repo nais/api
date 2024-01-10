@@ -8,7 +8,7 @@ package gensql
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createAPIKey = `-- name: CreateAPIKey :exec
@@ -16,7 +16,7 @@ INSERT INTO api_keys (api_key, service_account_id)
 VALUES ($1, $2)
 `
 
-func (q *Queries) CreateAPIKey(ctx context.Context, apiKey string, serviceAccountID pgtype.UUID) error {
+func (q *Queries) CreateAPIKey(ctx context.Context, apiKey string, serviceAccountID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, createAPIKey, apiKey, serviceAccountID)
 	return err
 }
@@ -26,7 +26,7 @@ DELETE FROM api_keys
 WHERE service_account_id = $1
 `
 
-func (q *Queries) RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID pgtype.UUID) error {
+func (q *Queries) RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, removeApiKeysFromServiceAccount, serviceAccountID)
 	return err
 }

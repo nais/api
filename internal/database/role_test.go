@@ -3,9 +3,8 @@ package database_test
 import (
 	"testing"
 
-	"github.com/nais/api/internal/slug"
-
 	db "github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/slug"
 	"github.com/stretchr/testify/assert"
 )
 

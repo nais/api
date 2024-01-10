@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	db "github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/logger"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
 
@@ -41,16 +42,16 @@ type handler struct {
 	oauth2Config OAuth2
 	frontendURL  url.URL
 	secureCookie bool
-	log          logger.Logger
+	log          logrus.FieldLogger
 }
 
-func New(oauth2Config OAuth2, database db.Database, frontendURL url.URL, log logger.Logger) Handler {
+func New(oauth2Config OAuth2, database db.Database, frontendURL url.URL, log logrus.FieldLogger) Handler {
 	return &handler{
 		database:     database,
 		oauth2Config: oauth2Config,
 		frontendURL:  frontendURL,
 		secureCookie: shouldUseSecureCookies(frontendURL),
-		log:          log.WithComponent(types.ComponentNameAuthn),
+		log:          log.WithField("component", logger.ComponentNameAuthn),
 	}
 }
 
@@ -205,7 +206,7 @@ func (h *handler) SetSessionCookie(w http.ResponseWriter, session *db.Session) {
 		Name:     SessionCookieName,
 		Value:    session.ID.String(),
 		Path:     "/",
-		Expires:  session.Expires,
+		Expires:  session.Expires.Time,
 		Secure:   h.secureCookie,
 		HttpOnly: true,
 	})

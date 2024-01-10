@@ -2,6 +2,9 @@
 
 -- types
 
+CREATE DOMAIN slug AS
+   TEXT CHECK (value ~ '^(?=.{3,30}$)[a-z](-?[a-z0-9]+)+$'::text);
+
 CREATE TYPE reconciler_config_key AS ENUM (
     'azure:client_id',
     'azure:client_secret',
@@ -66,13 +69,13 @@ CREATE TABLE audit_logs (
 
 CREATE TABLE cost (
     id serial PRIMARY KEY,
-    env text,
-    team text,
+    environment text,
+    team_slug slug,
     app text NOT NULL,
     cost_type text NOT NULL,
     date date NOT NULL,
     daily_cost real NOT NULL,
-    CONSTRAINT daily_cost_key UNIQUE (env, team, app, cost_type, date)
+    CONSTRAINT daily_cost_key UNIQUE (environment, team_slug, app, cost_type, date)
 );
 
 CREATE TABLE first_run (
@@ -85,7 +88,7 @@ CREATE TABLE reconciler_errors (
     reconciler reconciler_name NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     error_message text NOT NULL,
-    team_slug text NOT NULL,
+    team_slug slug NOT NULL,
     PRIMARY KEY(id),
     UNIQUE (team_slug, reconciler)
 );
@@ -103,12 +106,12 @@ CREATE TABLE reconciler_config (
 CREATE TABLE reconciler_states (
     reconciler reconciler_name NOT NULL,
     state jsonb DEFAULT '{}'::jsonb NOT NULL,
-    team_slug text NOT NULL,
+    team_slug slug NOT NULL,
     PRIMARY KEY (reconciler, team_slug)
 );
 
 CREATE TABLE reconciler_opt_outs (
-    team_slug text NOT NULL,
+    team_slug slug NOT NULL,
     user_id UUID NOT NULL,
     reconciler_name reconciler_name NOT NULL,
     PRIMARY KEY(team_slug, user_id, reconciler_name)
@@ -126,7 +129,7 @@ CREATE TABLE reconcilers (
 );
 
 CREATE TABLE repository_authorizations (
-    team_slug text NOT NULL,
+    team_slug slug NOT NULL,
     github_repository text NOT NULL,
     repository_authorization repository_authorization_enum NOT NULL,
     PRIMARY KEY(team_slug, github_repository, repository_authorization)
@@ -136,7 +139,7 @@ CREATE TABLE resource_utilization_metrics (
     id serial PRIMARY KEY,
     timestamp timestamp with time zone NOT NULL,
     environment text NOT NULL,
-    team_slug text NOT NULL,
+    team_slug slug NOT NULL,
     app text NOT NULL,
     resource_type resource_type NOT NULL,
     usage double precision NOT NULL,
@@ -150,7 +153,7 @@ CREATE TABLE service_account_roles (
     id SERIAL,
     role_name role_name NOT NULL,
     service_account_id uuid NOT NULL,
-    target_team_slug text,
+    target_team_slug slug,
     target_service_account_id uuid,
     PRIMARY KEY(id),
     CHECK (((target_team_slug IS NULL) OR (target_service_account_id IS NULL)))
@@ -171,7 +174,7 @@ CREATE TABLE sessions (
 );
 
 CREATE TABLE slack_alerts_channels (
-    team_slug text NOT NULL,
+    team_slug slug NOT NULL,
     environment text NOT NULL,
     channel_name text NOT NULL,
     PRIMARY KEY (team_slug, environment),
@@ -180,7 +183,7 @@ CREATE TABLE slack_alerts_channels (
 
 CREATE TABLE team_delete_keys (
     key uuid DEFAULT gen_random_uuid() NOT NULL,
-    team_slug text NOT NULL,
+    team_slug slug NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_by uuid NOT NULL,
     confirmed_at timestamp with time zone,
@@ -188,21 +191,20 @@ CREATE TABLE team_delete_keys (
 );
 
 CREATE TABLE teams (
-    slug text NOT NULL,
+    slug slug NOT NULL,
     purpose text NOT NULL,
     last_successful_sync timestamp without time zone,
     slack_channel text NOT NULL,
     PRIMARY KEY(slug),
     CHECK ((TRIM(BOTH FROM purpose) <> ''::text)),
-    CHECK ((slack_channel ~ '^#[a-z0-9æøå_-]{2,80}$'::text)),
-    CHECK ((slug ~ '^(?=.{3,30}$)[a-z](-?[a-z0-9]+)+$'::text))
+    CHECK ((slack_channel ~ '^#[a-z0-9æøå_-]{2,80}$'::text))
 );
 
 CREATE TABLE user_roles (
     id SERIAL,
     role_name role_name NOT NULL,
     user_id uuid NOT NULL,
-    target_team_slug text,
+    target_team_slug slug,
     target_service_account_id uuid,
     PRIMARY KEY(id),
     CHECK (((target_team_slug IS NULL) OR (target_service_account_id IS NULL)))

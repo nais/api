@@ -3,7 +3,7 @@ package graph
 import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
-	"github.com/nais/api/internal/hookd"
+	"github.com/nais/api/internal/thirdparty/hookd"
 )
 
 func deployToModel(deploys []hookd.Deploy) []*model.Deployment {

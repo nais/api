@@ -1,6 +1,6 @@
 package graph
 
-import "github.com/nais/api/internal/hookd"
+import "github.com/nais/api/internal/thirdparty/hookd"
 
 // filterDeploysByNameAndKind filters a list of deployments by name and kind
 func filterDeploysByNameAndKind(deploys []hookd.Deploy, name, kind string) []hookd.Deploy {

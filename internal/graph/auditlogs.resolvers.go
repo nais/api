@@ -7,15 +7,15 @@ package graph
 import (
 	"context"
 
-	"github.com/nais/api/internal/auditlogger"
+	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/logger"
 )
 
 // Action is the resolver for the action field.
-func (r *auditLogResolver) Action(ctx context.Context, obj *model.AuditLog) (auditlogger.AuditAction, error) {
-	return auditlogger.AuditAction(obj.Action), nil
+func (r *auditLogResolver) Action(ctx context.Context, obj *model.AuditLog) (audittype.AuditAction, error) {
+	return audittype.AuditAction(obj.Action), nil
 }
 
 // ComponentName is the resolver for the componentName field.
@@ -24,8 +24,8 @@ func (r *auditLogResolver) ComponentName(ctx context.Context, obj *model.AuditLo
 }
 
 // TargetType is the resolver for the targetType field.
-func (r *auditLogResolver) TargetType(ctx context.Context, obj *model.AuditLog) (auditlogger.AuditLogsTargetType, error) {
-	return auditlogger.AuditLogsTargetType(obj.TargetType), nil
+func (r *auditLogResolver) TargetType(ctx context.Context, obj *model.AuditLog) (audittype.AuditLogsTargetType, error) {
+	return audittype.AuditLogsTargetType(obj.TargetType), nil
 }
 
 // AuditLog returns gengql.AuditLogResolver implementation.

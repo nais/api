@@ -5,16 +5,15 @@ import (
 	"strings"
 
 	"github.com/bombsimon/logrusr/v4"
-	"github.com/nais/api/internal/config"
 	"github.com/sirupsen/logrus"
 	"k8s.io/klog/v2"
 )
 
 // New creates a new logger with the given format and level
-func New(cfg config.Logger) (logrus.FieldLogger, error) {
+func New(format, level string) (logrus.FieldLogger, error) {
 	log := logrus.StandardLogger()
 
-	switch strings.ToLower(cfg.Format) {
+	switch strings.ToLower(format) {
 	case "json":
 		log.SetFormatter(&logrus.JSONFormatter{})
 	case "text":
@@ -22,15 +21,15 @@ func New(cfg config.Logger) (logrus.FieldLogger, error) {
 			FullTimestamp: true,
 		})
 	default:
-		return nil, fmt.Errorf("invalid log format: %q", cfg.Format)
+		return nil, fmt.Errorf("invalid log format: %q", format)
 	}
 
-	level, err := logrus.ParseLevel(cfg.Level)
+	parsedLevel, err := logrus.ParseLevel(level)
 	if err != nil {
 		return nil, err
 	}
 
-	log.SetLevel(level)
+	log.SetLevel(parsedLevel)
 
 	// set an internal logger for klog (used by k8s client-go)
 	klogLogger := logrus.New()

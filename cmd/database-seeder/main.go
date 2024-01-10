@@ -12,11 +12,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
-	db "github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/config"
+	"github.com/nais/api/internal/database"
 	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/usersync"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
@@ -56,7 +58,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	log, err := logger.GetLogger("text", "INFO")
+	log, err := logger.New(config.Logger{
+		Format: "text",
+		Level:  "INFO",
+	})
 	if err != nil {
 		fmt.Printf("fatal: %s", err)
 		os.Exit(2)
@@ -69,7 +74,7 @@ func main() {
 	}
 }
 
-func run(cfg *seedConfig, log logger.Logger) error {
+func run(cfg *seedConfig, log logrus.FieldLogger) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -85,24 +90,25 @@ func run(cfg *seedConfig, log logger.Logger) error {
 	}
 	numLastNames := len(lastNames)
 
-	database, err := db.New(ctx, cfg.DatabaseURL)
+	db, close, err := database.NewQuerier(ctx, cfg.DatabaseURL, log)
 	if err != nil {
 		return err
 	}
+	defer close()
 
 	emails := map[string]struct{}{}
 	slugs := map[string]struct{}{}
 
 	if !*cfg.ForceSeed {
-		if existingUsers, err := database.GetAllUsers(ctx); len(existingUsers) != 0 || err != nil {
+		if existingUsers, err := db.GetAllUsers(ctx); len(existingUsers) != 0 || err != nil {
 			return fmt.Errorf("database already has users, abort")
 		}
 
-		if existingTeams, err := database.GetAllTeams(ctx); len(existingTeams) != 0 || err != nil {
+		if existingTeams, err := db.GetAllTeams(ctx); len(existingTeams) != 0 || err != nil {
 			return fmt.Errorf("database already has teams, abort")
 		}
 	} else {
-		users, err := database.GetAllUsers(ctx)
+		users, err := db.GetAllUsers(ctx)
 		if err != nil {
 			return err
 		}
@@ -110,7 +116,7 @@ func run(cfg *seedConfig, log logger.Logger) error {
 			emails[user.Email] = struct{}{}
 		}
 
-		teams, err := database.GetAllTeams(ctx)
+		teams, err := db.GetAllTeams(ctx)
 		if err != nil {
 			return err
 		}
@@ -119,9 +125,9 @@ func run(cfg *seedConfig, log logger.Logger) error {
 		}
 	}
 
-	err = database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
+	err = db.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		var err error
-		var devUser, adminUser *db.User
+		var devUser, adminUser *database.User
 
 		devUser, err = dbtx.GetUserByEmail(ctx, nameToEmail("dev usersen", cfg.Domain))
 		if err != nil {
@@ -151,7 +157,7 @@ func run(cfg *seedConfig, log logger.Logger) error {
 				return fmt.Errorf("attach default role %q to user %q: %w", roleName, devUser.Email, err)
 			}
 		}
-		users := []*db.User{devUser}
+		users := []*database.User{devUser}
 		for i := 1; i <= *cfg.NumUsers; i++ {
 			firstName := firstNames[rand.Intn(numFirstNames)]
 			lastName := lastNames[rand.Intn(numLastNames)]
@@ -172,7 +178,7 @@ func run(cfg *seedConfig, log logger.Logger) error {
 		}
 		usersCreated := len(users)
 
-		var devteam *db.Team
+		var devteam *database.Team
 		devteam, err = dbtx.GetTeamBySlug(ctx, "devteam")
 		if err != nil {
 			devteam, err = dbtx.CreateTeam(ctx, "devteam", "dev-purpose", "#devteam")

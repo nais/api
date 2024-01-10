@@ -9,7 +9,7 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/hookd"
+	"github.com/nais/api/internal/thirdparty/hookd"
 )
 
 // Deployments is the resolver for the deployments field.

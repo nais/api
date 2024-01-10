@@ -126,6 +126,6 @@ FROM
 WHERE
     team_slug = @team_slug
     AND resource_type = @resource_type
-    AND timestamp >= @timestamp::timestamptz - INTERVAL '1 week'
-    AND timestamp < @timestamp::timestamptz
+    AND timestamp >= sqlc.arg(timestamp)::timestamptz - INTERVAL '1 week'
+    AND timestamp < sqlc.arg(timestamp)::timestamptz
     AND request > usage;

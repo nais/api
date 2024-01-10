@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/slug"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/database/gensql"
@@ -18,7 +19,7 @@ import (
 
 type (
 	// utilizationMapForEnv is a map of team -> app -> time.Time -> *model.ResourceUtilization
-	utilizationMapForEnv map[string]map[string]map[time.Time]*model.ResourceUtilization
+	utilizationMapForEnv map[slug.Slug]map[string]map[time.Time]*model.ResourceUtilization
 )
 
 type Updater struct {
@@ -140,15 +141,15 @@ func utilizationInEnv(ctx context.Context, env string, k8sClient *k8s.Client, pr
 					continue
 				}
 
-				if _, exists := utilization[team]; !exists {
-					utilization[team] = make(map[string]map[time.Time]*model.ResourceUtilization)
+				if _, exists := utilization[slug.Slug(team)]; !exists {
+					utilization[slug.Slug(team)] = make(map[string]map[time.Time]*model.ResourceUtilization)
 				}
 
-				if _, exists := utilization[team][app]; !exists {
-					utilization[team][app] = make(map[time.Time]*model.ResourceUtilization)
+				if _, exists := utilization[slug.Slug(team)][app]; !exists {
+					utilization[slug.Slug(team)][app] = make(map[time.Time]*model.ResourceUtilization)
 				}
 
-				utilization[team][app][ts] = &model.ResourceUtilization{
+				utilization[slug.Slug(team)][app][ts] = &model.ResourceUtilization{
 					Usage: usageValue,
 				}
 			}
@@ -175,11 +176,11 @@ func utilizationInEnv(ctx context.Context, env string, k8sClient *k8s.Client, pr
 			for _, val := range sample.Values {
 				ts := val.Timestamp.Time().UTC()
 				requestValue := float64(val.Value)
-				if _, exists := utilization[team][app][ts]; !exists || requestValue == 0 {
+				if _, exists := utilization[slug.Slug(team)][app][ts]; !exists || requestValue == 0 {
 					continue
 				}
 
-				utilization[team][app][ts].Request = requestValue
+				utilization[slug.Slug(team)][app][ts].Request = requestValue
 			}
 		}
 	}
@@ -201,8 +202,8 @@ func getBatchParams(resourceType gensql.ResourceType, env string, utilization ut
 
 				params = append(params, gensql.ResourceUtilizationUpsertParams{
 					Timestamp:    *pgTs,
-					Env:          env,
-					Team:         team,
+					Environment:  env,
+					TeamSlug:     team,
 					App:          app,
 					ResourceType: resourceType,
 					Usage:        value.Usage,

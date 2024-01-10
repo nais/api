@@ -3,19 +3,13 @@ package database
 import (
 	"context"
 
-	"github.com/nais/api/internal/slug"
-
 	"github.com/google/uuid"
 	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/slug"
 )
 
 func (d *database) SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, slug slug.Slug, reconcilerName sqlc.ReconcilerName, err error) error {
-	return d.querier.SetReconcilerErrorForTeam(ctx, sqlc.SetReconcilerErrorForTeamParams{
-		CorrelationID: correlationID,
-		TeamSlug:      slug,
-		Reconciler:    reconcilerName,
-		ErrorMessage:  err.Error(),
-	})
+	return d.querier.SetReconcilerErrorForTeam(ctx, correlationID, slug, reconcilerName, err.Error())
 }
 
 func (d *database) GetTeamReconcilerErrors(ctx context.Context, slug slug.Slug) ([]*ReconcilerError, error) {
@@ -33,8 +27,5 @@ func (d *database) GetTeamReconcilerErrors(ctx context.Context, slug slug.Slug) 
 }
 
 func (d *database) ClearReconcilerErrorsForTeam(ctx context.Context, slug slug.Slug, reconcilerName sqlc.ReconcilerName) error {
-	return d.querier.ClearReconcilerErrorsForTeam(ctx, sqlc.ClearReconcilerErrorsForTeamParams{
-		TeamSlug:   slug,
-		Reconciler: reconcilerName,
-	})
+	return d.querier.ClearReconcilerErrorsForTeam(ctx, slug, reconcilerName)
 }

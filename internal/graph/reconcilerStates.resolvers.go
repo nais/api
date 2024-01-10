@@ -7,7 +7,15 @@ package graph
 import (
 	"context"
 	"fmt"
+	"slices"
+	"strings"
 
+	"github.com/google/uuid"
+	"github.com/nais/api/internal/auditlogger"
+	"github.com/nais/api/internal/auditlogger/audittype"
+	"github.com/nais/api/internal/auth/authz"
+	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
@@ -26,7 +34,25 @@ func (r *mutationResolver) SetGitHubTeamSlug(ctx context.Context, teamSlug slug.
 		return nil, fmt.Errorf("create log correlation ID: %w", err)
 	}
 
-	err = r.database.SetReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGithubTeam, teamSlug, reconciler.GitHubState{
+	// TODO: How to do this?
+	type GitHubRepositoryPermission struct {
+		Name    string `json:"name"`
+		Granted bool   `json:"granted"`
+	}
+	type GitHubRepository struct {
+		Name        string                        `json:"name"`
+		Permissions []*GitHubRepositoryPermission `json:"permissions"`
+		Archived    bool                          `json:"archived"`
+		RoleName    string                        `json:"roleName"`
+		TeamSlug    *slug.Slug                    `json:"-"`
+	}
+
+	type GitHubState struct {
+		Slug         *slug.Slug          `json:"slug"`
+		Repositories []*GitHubRepository `json:"repositories"`
+	}
+
+	err = r.database.SetReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGithubTeam, teamSlug, GitHubState{
 		Slug: &gitHubTeamSlug,
 	})
 	if err != nil {
@@ -37,7 +63,7 @@ func (r *mutationResolver) SetGitHubTeamSlug(ctx context.Context, teamSlug slug.
 		auditlogger.TeamTarget(slug.Slug(team.Slug)),
 	}
 	fields := auditlogger.Fields{
-		Action:        auditlogger.AuditActionGraphqlApiReconcilersUpdateTeamState,
+		Action:        audittype.AuditActionGraphqlApiReconcilersUpdateTeamState,
 		Actor:         authz.ActorFromContext(ctx),
 		CorrelationID: correlationID,
 	}
@@ -45,7 +71,7 @@ func (r *mutationResolver) SetGitHubTeamSlug(ctx context.Context, teamSlug slug.
 
 	r.reconcileTeam(ctx, correlationID, slug.Slug(team.Slug))
 
-	return team, nil
+	return toGraphTeam(team), nil
 }
 
 // SetGoogleWorkspaceGroupEmail is the resolver for the setGoogleWorkspaceGroupEmail field.
@@ -64,7 +90,10 @@ func (r *mutationResolver) SetGoogleWorkspaceGroupEmail(ctx context.Context, tea
 		return nil, fmt.Errorf("create log correlation ID: %w", err)
 	}
 
-	err = r.database.SetReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGoogleWorkspaceAdmin, teamSlug, reconciler.GoogleWorkspaceState{
+	type GoogleWorkspaceState struct {
+		GroupEmail *string `json:"groupEmail"`
+	}
+	err = r.database.SetReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGoogleWorkspaceAdmin, teamSlug, GoogleWorkspaceState{
 		GroupEmail: &googleWorkspaceGroupEmail,
 	})
 	if err != nil {
@@ -75,7 +104,7 @@ func (r *mutationResolver) SetGoogleWorkspaceGroupEmail(ctx context.Context, tea
 		auditlogger.TeamTarget(slug.Slug(team.Slug)),
 	}
 	fields := auditlogger.Fields{
-		Action:        auditlogger.AuditActionGraphqlApiReconcilersUpdateTeamState,
+		Action:        audittype.AuditActionGraphqlApiReconcilersUpdateTeamState,
 		Actor:         authz.ActorFromContext(ctx),
 		CorrelationID: correlationID,
 	}
@@ -83,7 +112,7 @@ func (r *mutationResolver) SetGoogleWorkspaceGroupEmail(ctx context.Context, tea
 
 	r.reconcileTeam(ctx, correlationID, slug.Slug(team.Slug))
 
-	return team, nil
+	return toGraphTeam(team), nil
 }
 
 // SetAzureADGroupID is the resolver for the setAzureADGroupId field.
@@ -98,8 +127,17 @@ func (r *mutationResolver) SetAzureADGroupID(ctx context.Context, teamSlug slug.
 		return nil, fmt.Errorf("create log correlation ID: %w", err)
 	}
 
-	err = r.database.SetReconcilerStateForTeam(ctx, sqlc.ReconcilerNameAzureGroup, teamSlug, reconciler.AzureState{
-		GroupID: azureADGroupID,
+	type AzureState struct {
+		GroupID uuid.UUID `json:"groupId"`
+	}
+
+	uuid, err := azureADGroupID.AsUUID()
+	if err != nil {
+		return nil, apierror.Errorf("Unable to parse Azure AD group ID: %w", err)
+	}
+
+	err = r.database.SetReconcilerStateForTeam(ctx, sqlc.ReconcilerNameAzureGroup, teamSlug, AzureState{
+		GroupID: uuid,
 	})
 	if err != nil {
 		return nil, apierror.Errorf("Unable to save the Azure AD state.")
@@ -109,7 +147,7 @@ func (r *mutationResolver) SetAzureADGroupID(ctx context.Context, teamSlug slug.
 		auditlogger.TeamTarget(slug.Slug(team.Slug)),
 	}
 	fields := auditlogger.Fields{
-		Action:        types.AuditActionGraphqlApiReconcilersUpdateTeamState,
+		Action:        audittype.AuditActionGraphqlApiReconcilersUpdateTeamState,
 		Actor:         authz.ActorFromContext(ctx),
 		CorrelationID: correlationID,
 	}
@@ -117,7 +155,7 @@ func (r *mutationResolver) SetAzureADGroupID(ctx context.Context, teamSlug slug.
 
 	r.reconcileTeam(ctx, correlationID, slug.Slug(team.Slug))
 
-	return team, nil
+	return toGraphTeam(team), nil
 }
 
 // SetGcpProjectID is the resolver for the setGcpProjectId field.
@@ -140,18 +178,24 @@ func (r *mutationResolver) SetGcpProjectID(ctx context.Context, teamSlug slug.Sl
 		return nil, fmt.Errorf("create log correlation ID: %w", err)
 	}
 
-	state := &reconciler.GoogleGcpProjectState{
-		Projects: make(map[string]reconciler.GoogleGcpEnvironmentProject),
+	type GoogleGcpEnvironmentProject struct {
+		ProjectID string `json:"projectId"` // Unique of the project, for instance `my-project-123`
+	}
+	type GoogleGcpProjectState struct {
+		Projects map[string]GoogleGcpEnvironmentProject `json:"projects"` // environment name is used as key
+	}
+	state := &GoogleGcpProjectState{
+		Projects: make(map[string]GoogleGcpEnvironmentProject),
 	}
 	err = r.database.LoadReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGoogleGcpProject, teamSlug, state)
 	if err != nil {
 		return nil, apierror.Errorf("Unable to load the existing GCP project state.")
 	}
 	if state.Projects == nil {
-		state.Projects = make(map[string]reconciler.GoogleGcpEnvironmentProject)
+		state.Projects = make(map[string]GoogleGcpEnvironmentProject)
 	}
 
-	state.Projects[gcpEnvironment] = reconciler.GoogleGcpEnvironmentProject{ProjectID: gcpProjectID}
+	state.Projects[gcpEnvironment] = GoogleGcpEnvironmentProject{ProjectID: gcpProjectID}
 	err = r.database.SetReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGoogleGcpProject, teamSlug, state)
 	if err != nil {
 		return nil, apierror.Errorf("Unable to save the GCP project state.")
@@ -161,7 +205,7 @@ func (r *mutationResolver) SetGcpProjectID(ctx context.Context, teamSlug slug.Sl
 		auditlogger.TeamTarget(slug.Slug(team.Slug)),
 	}
 	fields := auditlogger.Fields{
-		Action:        types.AuditActionGraphqlApiReconcilersUpdateTeamState,
+		Action:        audittype.AuditActionGraphqlApiReconcilersUpdateTeamState,
 		Actor:         authz.ActorFromContext(ctx),
 		CorrelationID: correlationID,
 	}
@@ -169,7 +213,7 @@ func (r *mutationResolver) SetGcpProjectID(ctx context.Context, teamSlug slug.Sl
 
 	r.reconcileTeam(ctx, correlationID, slug.Slug(team.Slug))
 
-	return team, nil
+	return toGraphTeam(team), nil
 }
 
 // SetNaisNamespace is the resolver for the setNaisNamespace field.
@@ -192,7 +236,10 @@ func (r *mutationResolver) SetNaisNamespace(ctx context.Context, teamSlug slug.S
 		return nil, fmt.Errorf("create log correlation ID: %w", err)
 	}
 
-	state := &reconciler.NaisNamespaceState{
+	type NaisNamespaceState struct {
+		Namespaces map[string]slug.Slug `json:"namespaces"` // Key is the environment for the team namespace
+	}
+	state := &NaisNamespaceState{
 		Namespaces: make(map[string]slug.Slug),
 	}
 	err = r.database.LoadReconcilerStateForTeam(ctx, sqlc.ReconcilerNameNaisNamespace, teamSlug, state)
@@ -213,7 +260,7 @@ func (r *mutationResolver) SetNaisNamespace(ctx context.Context, teamSlug slug.S
 		auditlogger.TeamTarget(slug.Slug(team.Slug)),
 	}
 	fields := auditlogger.Fields{
-		Action:        types.AuditActionGraphqlApiReconcilersUpdateTeamState,
+		Action:        audittype.AuditActionGraphqlApiReconcilersUpdateTeamState,
 		Actor:         authz.ActorFromContext(ctx),
 		CorrelationID: correlationID,
 	}
@@ -221,7 +268,7 @@ func (r *mutationResolver) SetNaisNamespace(ctx context.Context, teamSlug slug.S
 
 	r.reconcileTeam(ctx, correlationID, slug.Slug(team.Slug))
 
-	return team, nil
+	return toGraphTeam(team), nil
 }
 
 // Mutation returns gengql.MutationResolver implementation.

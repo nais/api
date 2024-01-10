@@ -5,16 +5,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const sessionLength = 30 * time.Minute
 
 func (d *database) CreateSession(ctx context.Context, userID uuid.UUID) (*Session, error) {
-	session, err := d.querier.CreateSession(ctx, sqlc.CreateSessionParams{
-		UserID:  userID,
-		Expires: time.Now().Add(sessionLength),
-	})
+	session, err := d.querier.CreateSession(ctx, userID, pgtype.Timestamptz{Time: time.Now().Add(sessionLength), Valid: true})
 	if err != nil {
 		return nil, err
 	}
@@ -36,10 +33,7 @@ func (d *database) GetSessionByID(ctx context.Context, sessionID uuid.UUID) (*Se
 }
 
 func (d *database) ExtendSession(ctx context.Context, sessionID uuid.UUID) (*Session, error) {
-	session, err := d.querier.SetSessionExpires(ctx, sqlc.SetSessionExpiresParams{
-		Expires: time.Now().Add(sessionLength),
-		ID:      sessionID,
-	})
+	session, err := d.querier.SetSessionExpires(ctx, pgtype.Timestamptz{Time: time.Now().Add(sessionLength), Valid: true}, sessionID)
 	if err != nil {
 		return nil, err
 	}

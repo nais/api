@@ -8,7 +8,7 @@ package gensql
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createAuditLog = `-- name: CreateAuditLog :exec
@@ -16,15 +16,25 @@ INSERT INTO audit_logs (correlation_id, actor, component_name, target_type, targ
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 `
 
-func (q *Queries) CreateAuditLog(ctx context.Context, correlationID pgtype.UUID, actor *string, componentName string, targetType string, targetIdentifier string, action string, message string) error {
+type CreateAuditLogParams struct {
+	CorrelationID    uuid.UUID
+	Actor            *string
+	ComponentName    string
+	TargetType       string
+	TargetIdentifier string
+	Action           string
+	Message          string
+}
+
+func (q *Queries) CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) error {
 	_, err := q.db.Exec(ctx, createAuditLog,
-		correlationID,
-		actor,
-		componentName,
-		targetType,
-		targetIdentifier,
-		action,
-		message,
+		arg.CorrelationID,
+		arg.Actor,
+		arg.ComponentName,
+		arg.TargetType,
+		arg.TargetIdentifier,
+		arg.Action,
+		arg.Message,
 	)
 	return err
 }
@@ -36,7 +46,7 @@ ORDER BY created_at DESC
 LIMIT $3 OFFSET $2
 `
 
-func (q *Queries) GetAuditLogsForCorrelationID(ctx context.Context, correlationID pgtype.UUID, offset int32, limit int32) ([]*AuditLog, error) {
+func (q *Queries) GetAuditLogsForCorrelationID(ctx context.Context, correlationID uuid.UUID, offset int32, limit int32) ([]*AuditLog, error) {
 	rows, err := q.db.Query(ctx, getAuditLogsForCorrelationID, correlationID, offset, limit)
 	if err != nil {
 		return nil, err
@@ -71,7 +81,7 @@ select COUNT(*) from audit_logs
 where correlation_id = $1
 `
 
-func (q *Queries) GetAuditLogsForCorrelationIDCount(ctx context.Context, correlationID pgtype.UUID) (int64, error) {
+func (q *Queries) GetAuditLogsForCorrelationIDCount(ctx context.Context, correlationID uuid.UUID) (int64, error) {
 	row := q.db.QueryRow(ctx, getAuditLogsForCorrelationIDCount, correlationID)
 	var count int64
 	err := row.Scan(&count)

@@ -8,7 +8,9 @@ import (
 	"database/sql/driver"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/nais/api/internal/slug"
 )
 
 type ReconcilerConfigKey string
@@ -347,9 +349,9 @@ func AllRoleNameValues() []RoleName {
 }
 
 type AuditLog struct {
-	ID               pgtype.UUID
+	ID               uuid.UUID
 	CreatedAt        pgtype.Timestamptz
-	CorrelationID    pgtype.UUID
+	CorrelationID    uuid.UUID
 	ComponentName    string
 	Actor            *string
 	Action           string
@@ -359,13 +361,13 @@ type AuditLog struct {
 }
 
 type Cost struct {
-	ID        int32
-	Env       *string
-	Team      *string
-	App       string
-	CostType  string
-	Date      pgtype.Date
-	DailyCost float32
+	ID          int32
+	Environment *string
+	TeamSlug    *slug.Slug
+	App         string
+	CostType    string
+	Date        pgtype.Date
+	DailyCost   float32
 }
 
 type Reconciler struct {
@@ -378,24 +380,24 @@ type Reconciler struct {
 
 type ReconcilerError struct {
 	ID            int64
-	CorrelationID pgtype.UUID
+	CorrelationID uuid.UUID
 	Reconciler    ReconcilerName
 	CreatedAt     pgtype.Timestamptz
 	ErrorMessage  string
-	TeamSlug      string
+	TeamSlug      slug.Slug
 }
 
 type ReconcilerState struct {
 	Reconciler ReconcilerName
 	State      []byte
-	TeamSlug   string
+	TeamSlug   slug.Slug
 }
 
 type ResourceUtilizationMetric struct {
 	ID           int32
 	Timestamp    pgtype.Timestamptz
 	Environment  string
-	TeamSlug     string
+	TeamSlug     slug.Slug
 	App          string
 	ResourceType ResourceType
 	Usage        float64
@@ -403,47 +405,47 @@ type ResourceUtilizationMetric struct {
 }
 
 type ServiceAccount struct {
-	ID   pgtype.UUID
+	ID   uuid.UUID
 	Name string
 }
 
 type ServiceAccountRole struct {
 	ID                     int32
 	RoleName               RoleName
-	ServiceAccountID       pgtype.UUID
-	TargetTeamSlug         *string
-	TargetServiceAccountID pgtype.UUID
+	ServiceAccountID       uuid.UUID
+	TargetTeamSlug         *slug.Slug
+	TargetServiceAccountID *uuid.UUID
 }
 
 type Session struct {
-	ID      pgtype.UUID
-	UserID  pgtype.UUID
+	ID      uuid.UUID
+	UserID  uuid.UUID
 	Expires pgtype.Timestamptz
 }
 
 type SlackAlertsChannel struct {
-	TeamSlug    string
+	TeamSlug    slug.Slug
 	Environment string
 	ChannelName string
 }
 
 type Team struct {
-	Slug               string
+	Slug               slug.Slug
 	Purpose            string
 	LastSuccessfulSync pgtype.Timestamp
 	SlackChannel       string
 }
 
 type TeamDeleteKey struct {
-	Key         pgtype.UUID
-	TeamSlug    string
+	Key         uuid.UUID
+	TeamSlug    slug.Slug
 	CreatedAt   pgtype.Timestamptz
-	CreatedBy   pgtype.UUID
+	CreatedBy   uuid.UUID
 	ConfirmedAt pgtype.Timestamptz
 }
 
 type User struct {
-	ID         pgtype.UUID
+	ID         uuid.UUID
 	Email      string
 	Name       string
 	ExternalID string
@@ -452,7 +454,7 @@ type User struct {
 type UserRole struct {
 	ID                     int32
 	RoleName               RoleName
-	UserID                 pgtype.UUID
-	TargetTeamSlug         *string
-	TargetServiceAccountID pgtype.UUID
+	UserID                 uuid.UUID
+	TargetTeamSlug         *slug.Slug
+	TargetServiceAccountID *uuid.UUID
 }

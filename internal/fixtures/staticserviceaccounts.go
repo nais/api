@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/nais/api/internal/auth/authz"
 	db "github.com/nais/api/internal/database"
 	sqlc "github.com/nais/api/internal/database/gensql"
 )
@@ -124,7 +125,7 @@ func SetupStaticServiceAccounts(ctx context.Context, database db.Database, servi
 	})
 }
 
-func hasGlobalRoleRole(roleName sqlc.RoleName, existingRoles []*db.Role) bool {
+func hasGlobalRoleRole(roleName sqlc.RoleName, existingRoles []*authz.Role) bool {
 	for _, r := range existingRoles {
 		if r.TargetTeamSlug != nil {
 			continue

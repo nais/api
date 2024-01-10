@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/config"
+	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/attribute"
 	api "go.opentelemetry.io/otel/metric"
@@ -42,7 +43,7 @@ type Deploy struct {
 
 type DeploymentInfo struct {
 	ID               string    `json:"id"`
-	Team             string    `json:"team"`
+	Team             slug.Slug `json:"team"`
 	Cluster          string    `json:"cluster"`
 	Created          time.Time `json:"created"`
 	GithubRepository string    `json:"githubRepository"`

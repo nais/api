@@ -8,7 +8,8 @@ package gensql
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
+	"github.com/nais/api/internal/slug"
 )
 
 const clearReconcilerErrorsForTeam = `-- name: ClearReconcilerErrorsForTeam :exec
@@ -16,7 +17,7 @@ DELETE FROM reconciler_errors
 WHERE team_slug = $1 AND reconciler = $2
 `
 
-func (q *Queries) ClearReconcilerErrorsForTeam(ctx context.Context, teamSlug string, reconciler ReconcilerName) error {
+func (q *Queries) ClearReconcilerErrorsForTeam(ctx context.Context, teamSlug slug.Slug, reconciler ReconcilerName) error {
 	_, err := q.db.Exec(ctx, clearReconcilerErrorsForTeam, teamSlug, reconciler)
 	return err
 }
@@ -27,7 +28,7 @@ WHERE team_slug = $1
 ORDER BY created_at DESC
 `
 
-func (q *Queries) GetTeamReconcilerErrors(ctx context.Context, teamSlug string) ([]*ReconcilerError, error) {
+func (q *Queries) GetTeamReconcilerErrors(ctx context.Context, teamSlug slug.Slug) ([]*ReconcilerError, error) {
 	rows, err := q.db.Query(ctx, getTeamReconcilerErrors, teamSlug)
 	if err != nil {
 		return nil, err
@@ -61,7 +62,7 @@ ON CONFLICT(team_slug, reconciler) DO
     UPDATE SET correlation_id = $1, created_at = NOW(), error_message = $4
 `
 
-func (q *Queries) SetReconcilerErrorForTeam(ctx context.Context, correlationID pgtype.UUID, teamSlug string, reconciler ReconcilerName, errorMessage string) error {
+func (q *Queries) SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, teamSlug slug.Slug, reconciler ReconcilerName, errorMessage string) error {
 	_, err := q.db.Exec(ctx, setReconcilerErrorForTeam,
 		correlationID,
 		teamSlug,

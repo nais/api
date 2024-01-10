@@ -11,6 +11,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/nais/api/internal/slug"
 )
 
 var (
@@ -18,7 +19,7 @@ var (
 )
 
 const costUpsert = `-- name: CostUpsert :batchexec
-INSERT INTO cost (env, team, app, cost_type, date, daily_cost)
+INSERT INTO cost (environment, team_slug, app, cost_type, date, daily_cost)
 VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT ON CONSTRAINT daily_cost_key DO
     UPDATE SET daily_cost = EXCLUDED.daily_cost
@@ -28,6 +29,15 @@ type CostUpsertBatchResults struct {
 	br     pgx.BatchResults
 	tot    int
 	closed bool
+}
+
+type CostUpsertParams struct {
+	Environment *string
+	TeamSlug    *slug.Slug
+	App         string
+	CostType    string
+	Date        pgtype.Date
+	DailyCost   float32
 }
 
 // CostUpsert will insert or update a cost record. If there is a conflict on the daily_cost_key constrant, the
@@ -80,6 +90,16 @@ type ResourceUtilizationUpsertBatchResults struct {
 	br     pgx.BatchResults
 	tot    int
 	closed bool
+}
+
+type ResourceUtilizationUpsertParams struct {
+	Timestamp    pgtype.Timestamptz
+	Environment  string
+	TeamSlug     slug.Slug
+	App          string
+	ResourceType ResourceType
+	Usage        float64
+	Request      float64
 }
 
 // ResourceUtilizationUpsert will insert or update resource utilization records.

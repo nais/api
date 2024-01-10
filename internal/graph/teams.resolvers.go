@@ -9,10 +9,23 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
+	pgx "github.com/jackc/pgx/v5"
+	"github.com/nais/api/internal/auditlogger"
+	"github.com/nais/api/internal/auditlogger/audittype"
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/auth/roles"
+	db "github.com/nais/api/internal/database"
+	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/graph/apierror"
+	"github.com/nais/api/internal/graph/dataloader"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/model/vulnerabilities"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/thirdparty/dependencytrack"
+	"github.com/nais/api/internal/thirdparty/hookd"
 )
 
 // CreateTeam is the resolver for the createTeam field.
@@ -56,7 +69,7 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTea
 		auditlogger.TeamTarget(team.Slug),
 	}
 	fields := auditlogger.Fields{
-		Action:        auditlogger.AuditActionGraphqlApiTeamCreate,
+		Action:        audittype.AuditActionGraphqlApiTeamCreate,
 		CorrelationID: correlationID,
 		Actor:         actor,
 	}
@@ -64,7 +77,7 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTea
 
 	r.reconcileTeam(ctx, correlationID, team.Slug)
 
-	return team, nil
+	return toGraphTeam(team), nil
 }
 
 // UpdateTeam is the resolver for the updateTeam field.
@@ -116,7 +129,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 			auditlogger.TeamTarget(team.Slug),
 		}
 		fields := auditlogger.Fields{
-			Action:        auditlogger.AuditActionGraphqlApiTeamUpdate,
+			Action:        audittype.AuditActionGraphqlApiTeamUpdate,
 			CorrelationID: correlationID,
 			Actor:         actor,
 		}
@@ -137,7 +150,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 
 	r.reconcileTeam(ctx, correlationID, team.Slug)
 
-	return team, nil
+	return toGraphTeam(team), nil
 }
 
 // RemoveUsersFromTeam is the resolver for the removeUsersFromTeam field.
@@ -175,12 +188,16 @@ func (r *mutationResolver) RemoveUsersFromTeam(ctx context.Context, slug slug.Sl
 		}
 
 		for _, userID := range userIds {
-			member := memberFromUserID(userID)
+			uuid, err := userID.AsUUID()
+			if err != nil {
+				return err
+			}
+			member := memberFromUserID(uuid)
 			if member == nil {
-				return apierror.Errorf("The user %q is not a member of team %q.", userID, slug)
+				return apierror.Errorf("The user %q is not a member of team %q.", uuid, slug)
 			}
 
-			err = dbtx.RemoveUserFromTeam(ctx, userID, team.Slug)
+			err = dbtx.RemoveUserFromTeam(ctx, uuid, team.Slug)
 			if err != nil {
 				return err
 			}
@@ -190,7 +207,7 @@ func (r *mutationResolver) RemoveUsersFromTeam(ctx context.Context, slug slug.Sl
 				auditlogger.UserTarget(member.Email),
 			}
 			fields := auditlogger.Fields{
-				Action:        auditlogger.AuditActionGraphqlApiTeamRemoveMember,
+				Action:        audittype.AuditActionGraphqlApiTeamRemoveMember,
 				CorrelationID: correlationID,
 				Actor:         actor,
 			}
@@ -212,13 +229,18 @@ func (r *mutationResolver) RemoveUsersFromTeam(ctx context.Context, slug slug.Sl
 
 	r.reconcileTeam(ctx, correlationID, team.Slug)
 
-	return team, nil
+	return toGraphTeam(team), nil
 }
 
 // RemoveUserFromTeam is the resolver for the removeUserFromTeam field.
 func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slug, userID scalar.Ident) (*model.Team, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsUpdate, slug)
+	if err != nil {
+		return nil, err
+	}
+
+	userUID, err := userID.AsUUID()
 	if err != nil {
 		return nil, err
 	}
@@ -249,12 +271,12 @@ func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slu
 			return nil
 		}
 
-		member := memberFromUserID(userID)
+		member := memberFromUserID(userUID)
 		if member == nil {
-			return apierror.Errorf("The user %q is not a member of team %q.", userID, slug)
+			return apierror.Errorf("The user %q is not a member of team %q.", userUID, slug)
 		}
 
-		err = dbtx.RemoveUserFromTeam(ctx, userID, team.Slug)
+		err = dbtx.RemoveUserFromTeam(ctx, userUID, team.Slug)
 		if err != nil {
 			return err
 		}
@@ -264,7 +286,7 @@ func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slu
 			auditlogger.UserTarget(member.Email),
 		}
 		fields := auditlogger.Fields{
-			Action:        auditlogger.AuditActionGraphqlApiTeamRemoveMember,
+			Action:        audittype.AuditActionGraphqlApiTeamRemoveMember,
 			CorrelationID: correlationID,
 			Actor:         actor,
 		}
@@ -285,7 +307,7 @@ func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slu
 
 	r.reconcileTeam(ctx, correlationID, team.Slug)
 
-	return team, nil
+	return toGraphTeam(team), nil
 }
 
 // SynchronizeTeam is the resolver for the synchronizeTeam field.
@@ -310,7 +332,7 @@ func (r *mutationResolver) SynchronizeTeam(ctx context.Context, slug slug.Slug) 
 		auditlogger.TeamTarget(team.Slug),
 	}
 	fields := auditlogger.Fields{
-		Action:        auditlogger.AuditActionGraphqlApiTeamSync,
+		Action:        audittype.AuditActionGraphqlApiTeamSync,
 		CorrelationID: correlationID,
 		Actor:         actor,
 	}
@@ -319,42 +341,43 @@ func (r *mutationResolver) SynchronizeTeam(ctx context.Context, slug slug.Slug) 
 	r.reconcileTeam(ctx, correlationID, team.Slug)
 
 	return &model.TeamSync{
-		CorrelationID: correlationID,
+		CorrelationID: scalar.CorrelationID(correlationID),
 	}, nil
 }
 
 // SynchronizeAllTeams is the resolver for the synchronizeAllTeams field.
 func (r *mutationResolver) SynchronizeAllTeams(ctx context.Context) (*model.TeamSync, error) {
-	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationTeamsSynchronize)
-	if err != nil {
-		return nil, err
-	}
+	// actor := authz.ActorFromContext(ctx)
+	// err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationTeamsSynchronize)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return nil, fmt.Errorf("create log correlation ID: %w", err)
-	}
+	// correlationID, err := uuid.NewUUID()
+	// if err != nil {
+	// 	return nil, fmt.Errorf("create log correlation ID: %w", err)
+	// }
 
-	teams, err := r.teamSyncHandler.ScheduleAllTeams(ctx, correlationID)
-	if err != nil {
-		return nil, err
-	}
+	// teams, err := r.teamSyncHandler.ScheduleAllTeams(ctx, correlationID)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	targets := make([]auditlogger.Target, 0, len(teams))
-	for _, entry := range teams {
-		targets = append(targets, auditlogger.TeamTarget(entry.Team.Slug))
-	}
-	fields := auditlogger.Fields{
-		Action:        auditlogger.AuditActionGraphqlApiTeamSync,
-		Actor:         actor,
-		CorrelationID: correlationID,
-	}
-	r.auditLogger.Logf(ctx, targets, fields, "Manually scheduled for synchronization")
+	// targets := make([]auditlogger.Target, 0, len(teams))
+	// for _, entry := range teams {
+	// 	targets = append(targets, auditlogger.TeamTarget(entry.Team.Slug))
+	// }
+	// fields := auditlogger.Fields{
+	// 	Action:        audittype.AuditActionGraphqlApiTeamSync,
+	// 	Actor:         actor,
+	// 	CorrelationID: correlationID,
+	// }
+	// r.auditLogger.Logf(ctx, targets, fields, "Manually scheduled for synchronization")
 
-	return &model.TeamSync{
-		CorrelationID: correlationID,
-	}, nil
+	// return &model.TeamSync{
+	// 	CorrelationID: correlationID,
+	// }, nil
+	panic("not implemented")
 }
 
 // AddTeamMembers is the resolver for the addTeamMembers field.
@@ -378,12 +401,16 @@ func (r *mutationResolver) AddTeamMembers(ctx context.Context, slug slug.Slug, u
 	auditLogEntries := make([]auditlogger.Entry, 0)
 	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
 		for _, userID := range userIds {
-			user, err := dbtx.GetUserByID(ctx, userID)
+			uid, err := userID.AsUUID()
+			if err != nil {
+				return err
+			}
+			user, err := dbtx.GetUserByID(ctx, uid)
 			if err != nil {
 				return err
 			}
 
-			err = dbtx.SetTeamMemberRole(ctx, userID, team.Slug, sqlc.RoleNameTeammember)
+			err = dbtx.SetTeamMemberRole(ctx, uid, team.Slug, sqlc.RoleNameTeammember)
 			if err != nil {
 				return err
 			}
@@ -393,7 +420,7 @@ func (r *mutationResolver) AddTeamMembers(ctx context.Context, slug slug.Slug, u
 				auditlogger.UserTarget(user.Email),
 			}
 			fields := auditlogger.Fields{
-				Action:        auditlogger.AuditActionGraphqlApiTeamAddMember,
+				Action:        audittype.AuditActionGraphqlApiTeamAddMember,
 				CorrelationID: correlationID,
 				Actor:         actor,
 			}
@@ -415,7 +442,7 @@ func (r *mutationResolver) AddTeamMembers(ctx context.Context, slug slug.Slug, u
 
 	r.reconcileTeam(ctx, correlationID, team.Slug)
 
-	return team, nil
+	return toGraphTeam(team), nil
 }
 
 // AddTeamOwners is the resolver for the addTeamOwners field.
@@ -439,12 +466,16 @@ func (r *mutationResolver) AddTeamOwners(ctx context.Context, slug slug.Slug, us
 	auditLogEntries := make([]auditlogger.Entry, 0)
 	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
 		for _, userID := range userIds {
-			user, err := dbtx.GetUserByID(ctx, userID)
+			uid, err := userID.AsUUID()
+			if err != nil {
+				return err
+			}
+			user, err := dbtx.GetUserByID(ctx, uid)
 			if err != nil {
 				return err
 			}
 
-			err = dbtx.SetTeamMemberRole(ctx, userID, team.Slug, sqlc.RoleNameTeamowner)
+			err = dbtx.SetTeamMemberRole(ctx, uid, team.Slug, sqlc.RoleNameTeamowner)
 			if err != nil {
 				return err
 			}
@@ -454,7 +485,7 @@ func (r *mutationResolver) AddTeamOwners(ctx context.Context, slug slug.Slug, us
 				auditlogger.UserTarget(user.Email),
 			}
 			fields := auditlogger.Fields{
-				Action:        auditlogger.AuditActionGraphqlApiTeamAddOwner,
+				Action:        audittype.AuditActionGraphqlApiTeamAddOwner,
 				CorrelationID: correlationID,
 				Actor:         actor,
 			}
@@ -476,7 +507,7 @@ func (r *mutationResolver) AddTeamOwners(ctx context.Context, slug slug.Slug, us
 
 	r.reconcileTeam(ctx, correlationID, team.Slug)
 
-	return team, nil
+	return toGraphTeam(team), nil
 }
 
 // AddTeamMember is the resolver for the addTeamMember field.
@@ -487,12 +518,17 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 		return nil, err
 	}
 
+	mid, err := member.UserID.AsUUID()
+	if err != nil {
+		return nil, err
+	}
+
 	team, err := r.getTeamBySlug(ctx, slug)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.database.GetUserByID(ctx, member.UserID)
+	user, err := r.database.GetUserByID(ctx, mid)
 	if err != nil {
 		return nil, apierror.ErrUserNotExists
 	}
@@ -504,7 +540,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 
 	auditLogEntries := make([]auditlogger.Entry, 0)
 	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
-		teamMember, _ := dbtx.GetTeamMember(ctx, slug, member.UserID)
+		teamMember, _ := dbtx.GetTeamMember(ctx, slug, mid)
 		if teamMember != nil {
 			return apierror.Errorf("User is already a member of the team.")
 		}
@@ -514,13 +550,13 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 			return err
 		}
 
-		err = dbtx.SetTeamMemberRole(ctx, member.UserID, team.Slug, role)
+		err = dbtx.SetTeamMemberRole(ctx, mid, team.Slug, role)
 		if err != nil {
 			return err
 		}
 
 		for _, reconcilerName := range member.ReconcilerOptOuts {
-			err = dbtx.AddReconcilerOptOut(ctx, member.UserID, team.Slug, reconcilerName)
+			err = dbtx.AddReconcilerOptOut(ctx, mid, team.Slug, reconcilerName)
 			if err != nil {
 				return err
 			}
@@ -531,14 +567,14 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 			auditlogger.UserTarget(user.Email),
 		}
 
-		var action auditlogger.AuditAction
+		var action audittype.AuditAction
 		var msg string
 
 		if role == sqlc.RoleNameTeamowner {
-			action = auditlogger.AuditActionGraphqlApiTeamAddOwner
+			action = audittype.AuditActionGraphqlApiTeamAddOwner
 			msg = fmt.Sprintf("Add team owner: %q", user.Email)
 		} else if role == sqlc.RoleNameTeammember {
-			action = auditlogger.AuditActionGraphqlApiTeamAddMember
+			action = audittype.AuditActionGraphqlApiTeamAddMember
 			msg = fmt.Sprintf("Add team member: %q", user.Email)
 		} else {
 			return fmt.Errorf("unknown role: %q", role)
@@ -566,13 +602,18 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 
 	r.reconcileTeam(ctx, correlationID, team.Slug)
 
-	return team, nil
+	return toGraphTeam(team), nil
 }
 
 // SetTeamMemberRole is the resolver for the setTeamMemberRole field.
 func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug, userID scalar.Ident, role model.TeamRole) (*model.Team, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsUpdate, slug)
+	if err != nil {
+		return nil, err
+	}
+
+	uid, err := userID.AsUUID()
 	if err != nil {
 		return nil, err
 	}
@@ -594,13 +635,13 @@ func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug
 
 	var member *db.User = nil
 	for _, m := range members {
-		if m.ID == userID {
+		if m.ID == uid {
 			member = m
 			break
 		}
 	}
 	if member == nil {
-		return nil, fmt.Errorf("user %q not in team %q", userID, slug)
+		return nil, fmt.Errorf("user %q not in team %q", uid, slug)
 	}
 
 	desiredRole, err := sqlcRoleFromTeamRole(role)
@@ -609,12 +650,12 @@ func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug
 	}
 
 	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
-		err = dbtx.RemoveUserFromTeam(ctx, userID, team.Slug)
+		err = dbtx.RemoveUserFromTeam(ctx, uid, team.Slug)
 		if err != nil {
 			return err
 		}
 
-		return dbtx.SetTeamMemberRole(ctx, userID, team.Slug, desiredRole)
+		return dbtx.SetTeamMemberRole(ctx, uid, team.Slug, desiredRole)
 	})
 	if err != nil {
 		return nil, err
@@ -625,7 +666,7 @@ func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug
 		auditlogger.UserTarget(member.Email),
 	}
 	fields := auditlogger.Fields{
-		Action:        auditlogger.AuditActionGraphqlApiTeamSetMemberRole,
+		Action:        audittype.AuditActionGraphqlApiTeamSetMemberRole,
 		CorrelationID: correlationID,
 		Actor:         actor,
 	}
@@ -634,7 +675,7 @@ func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug
 
 	r.reconcileTeam(ctx, correlationID, team.Slug)
 
-	return team, nil
+	return toGraphTeam(team), nil
 }
 
 // RequestTeamDeletion is the resolver for the requestTeamDeletion field.
@@ -668,66 +709,72 @@ func (r *mutationResolver) RequestTeamDeletion(ctx context.Context, slug slug.Sl
 		auditlogger.TeamTarget(team.Slug),
 	}
 	fields := auditlogger.Fields{
-		Action:        auditlogger.AuditActionGraphqlApiTeamsRequestDelete,
+		Action:        audittype.AuditActionGraphqlApiTeamsRequestDelete,
 		Actor:         actor,
 		CorrelationID: correlationID,
 	}
 	r.auditLogger.Logf(ctx, targets, fields, "Request team deletion")
 
-	return deleteKey, nil
+	return toGraphTeamDeleteKey(deleteKey), nil
 }
 
 // ConfirmTeamDeletion is the resolver for the confirmTeamDeletion field.
-func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, key scalar.Ident) (*scalar.Ident, error) {
-	deleteKey, err := r.database.GetTeamDeleteKey(ctx, key)
+func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, key string) (bool, error) {
+	uid, err := uuid.Parse(key)
 	if err != nil {
-		return uuid.Nil, apierror.Errorf("Unknown deletion key: %q", key)
+		return false, apierror.Errorf("Invalid deletion key: %q", key)
+	}
+
+	deleteKey, err := r.database.GetTeamDeleteKey(ctx, uid)
+	if err != nil {
+		return false, apierror.Errorf("Unknown deletion key: %q", key)
 	}
 
 	actor := authz.ActorFromContext(ctx)
 	if actor.User.IsServiceAccount() {
-		return uuid.Nil, apierror.Errorf("Service accounts are not allowed to confirm a team deletion.")
+		return false, apierror.Errorf("Service accounts are not allowed to confirm a team deletion.")
 	}
 	err = authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsUpdate, deleteKey.TeamSlug)
 	if err != nil {
-		return uuid.Nil, err
+		return false, err
 	}
 
 	if actor.User.GetID() == deleteKey.CreatedBy {
-		return uuid.Nil, apierror.Errorf("You cannot confirm your own delete key.")
+		return false, apierror.Errorf("You cannot confirm your own delete key.")
 	}
 
-	if deleteKey.ConfirmedAt != nil {
-		return uuid.Nil, apierror.Errorf("Key has already been confirmed, team is currently being deleted.")
+	if !deleteKey.ConfirmedAt.Valid {
+		return false, apierror.Errorf("Key has already been confirmed, team is currently being deleted.")
 	}
 
 	if deleteKey.HasExpired() {
-		return uuid.Nil, apierror.Errorf("Team delete key has expired, you need to request a new key.")
+		return false, apierror.Errorf("Team delete key has expired, you need to request a new key.")
 	}
 
 	correlationID, err := uuid.NewUUID()
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("create log correlation ID: %w", err)
+		return false, fmt.Errorf("create log correlation ID: %w", err)
 	}
 
-	err = r.database.ConfirmTeamDeleteKey(ctx, key)
+	err = r.database.ConfirmTeamDeleteKey(ctx, uid)
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("confirm team delete key: %w", err)
+		return false, fmt.Errorf("confirm team delete key: %w", err)
 	}
 
-	go r.teamSyncHandler.DeleteTeam(deleteKey.TeamSlug, correlationID)
+	// TODO: fix
+	// go r.teamSyncHandler.DeleteTeam(deleteKey.TeamSlug, correlationID)
 
 	targets := []auditlogger.Target{
 		auditlogger.TeamTarget(deleteKey.TeamSlug),
 	}
 	fields := auditlogger.Fields{
-		Action:        auditlogger.AuditActionGraphqlApiTeamsDelete,
+		Action:        audittype.AuditActionGraphqlApiTeamsDelete,
 		Actor:         actor,
 		CorrelationID: correlationID,
 	}
 	r.auditLogger.Logf(ctx, targets, fields, "Delete team")
 
-	return correlationID, nil
+	return true, nil
 }
 
 // AuthorizeRepository is the resolver for the authorizeRepository field.
@@ -756,7 +803,7 @@ func (r *mutationResolver) AuthorizeRepository(ctx context.Context, authorizatio
 		return nil, err
 	}
 
-	return team, nil
+	return toGraphTeam(team), nil
 }
 
 // DeauthorizeRepository is the resolver for the deauthorizeRepository field.
@@ -785,7 +832,7 @@ func (r *mutationResolver) DeauthorizeRepository(ctx context.Context, authorizat
 		return nil, err
 	}
 
-	return team, nil
+	return toGraphTeam(team), nil
 }
 
 // Teams is the resolver for the teams field.
@@ -813,7 +860,7 @@ func (r *queryResolver) Teams(ctx context.Context, offset *int, limit *int, filt
 	}
 
 	return &model.TeamList{
-		Nodes:    teams,
+		Nodes:    toGraphTeams(teams),
 		PageInfo: model.NewPageInfo(p, total),
 	}, nil
 }
@@ -831,12 +878,17 @@ func (r *queryResolver) Team(ctx context.Context, slug slug.Slug) (*model.Team, 
 		return nil, err
 	}
 
-	return team, nil
+	return toGraphTeam(team), nil
 }
 
 // TeamDeleteKey is the resolver for the teamDeleteKey field.
-func (r *queryResolver) TeamDeleteKey(ctx context.Context, key scalar.Ident) (*model.TeamDeleteKey, error) {
-	deleteKey, err := r.database.GetTeamDeleteKey(ctx, key)
+func (r *queryResolver) TeamDeleteKey(ctx context.Context, key string) (*model.TeamDeleteKey, error) {
+	kid, err := uuid.Parse(key)
+	if err != nil {
+		return nil, apierror.Errorf("Invalid deletion key: %q", key)
+	}
+
+	deleteKey, err := r.database.GetTeamDeleteKey(ctx, kid)
 	if err != nil {
 		return nil, apierror.Errorf("Unknown deletion key: %q", key)
 	}
@@ -850,17 +902,17 @@ func (r *queryResolver) TeamDeleteKey(ctx context.Context, key scalar.Ident) (*m
 		return nil, err
 	}
 
-	return deleteKey, nil
+	return toGraphTeamDeleteKey(deleteKey), nil
 }
 
 // Status is the resolver for the status field.
 func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.TeamStatus, error) {
-	apps, err := r.k8sClient.Apps(ctx, obj.Slug)
+	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
 	}
 
-	jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug)
+	jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
 	}
@@ -892,7 +944,7 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 
 // Apps is the resolver for the apps field.
 func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.AppList, error) {
-	apps, err := r.k8sClient.Apps(ctx, obj.Slug)
+	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
 	}
@@ -960,13 +1012,13 @@ func (r *teamResolver) DeployKey(ctx context.Context, obj *model.Team) (*model.D
 		return nil, fmt.Errorf("access denied")
 	}
 
-	key, err := r.hookdClient.DeployKey(ctx, obj.Slug)
+	key, err := r.hookdClient.DeployKey(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting deploy key from Hookd: %w", err)
 	}
 
 	return &model.DeploymentKey{
-		ID:      scalar.DeployKeyIdent(obj.Slug),
+		ID:      scalar.DeployKeyIdent(obj.Slug.String()),
 		Key:     key.Key,
 		Created: key.Created,
 		Expires: key.Expires,
@@ -975,7 +1027,7 @@ func (r *teamResolver) DeployKey(ctx context.Context, obj *model.Team) (*model.D
 
 // Naisjobs is the resolver for the naisjobs field.
 func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.NaisJobList, error) {
-	naisjobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug)
+	naisjobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
 	}
@@ -1043,7 +1095,7 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 func (r *teamResolver) Deployments(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.DeploymentList, error) {
 	pagination := model.NewPagination(offset, limit)
 
-	deploys, err := r.hookdClient.Deployments(ctx, hookd.WithTeam(obj.Slug), hookd.WithLimit(pagination.Limit))
+	deploys, err := r.hookdClient.Deployments(ctx, hookd.WithTeam(obj.Slug.String()), hookd.WithLimit(pagination.Limit))
 	if err != nil {
 		return nil, fmt.Errorf("getting deploys from Hookd: %w", err)
 	}
@@ -1060,7 +1112,7 @@ func (r *teamResolver) Deployments(ctx context.Context, obj *model.Team, offset 
 
 // Vulnerabilities is the resolver for the vulnerabilities field.
 func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.VulnerabilityList, error) {
-	apps, err := r.k8sClient.Apps(ctx, obj.Slug)
+	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
 	}
@@ -1071,7 +1123,7 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 			Env:   app.Env.Name,
 			App:   app.Name,
 			Image: app.Image,
-			Team:  obj.Slug,
+			Team:  obj.Slug.String(),
 		})
 	}
 
@@ -1095,7 +1147,7 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 
 // VulnerabilitiesSummary is the resolver for the vulnerabilitiesSummary field.
 func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummary, error) {
-	apps, err := r.k8sClient.Apps(ctx, obj.Slug)
+	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
 	}
@@ -1106,7 +1158,7 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 			Env:   app.Env.Name,
 			App:   app.Name,
 			Image: app.Image,
-			Team:  obj.Slug,
+			Team:  obj.Slug.String(),
 		})
 	}
 
@@ -1174,8 +1226,18 @@ func (r *teamMemberResolver) Role(ctx context.Context, obj *model.TeamMember) (m
 }
 
 // Reconcilers is the resolver for the reconcilers field.
-func (r *teamMemberResolver) Reconcilers(ctx context.Context, obj *model.TeamMember) ([]*model.TeamMemberReconciler, error) {
+func (r *teamMemberResolver) Reconcilers(ctx context.Context, obj *model.TeamMember) ([]*sqlc.GetTeamMemberOptOutsRow, error) {
 	return r.database.GetTeamMemberOptOuts(ctx, obj.UserID, obj.TeamSlug)
+}
+
+// Reconciler is the resolver for the reconciler field.
+func (r *teamMemberReconcilerResolver) Reconciler(ctx context.Context, obj *sqlc.GetTeamMemberOptOutsRow) (*model.Reconciler, error) {
+	reconciler, err := r.database.GetReconciler(ctx, obj.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return toGraphReconciler(reconciler), nil
 }
 
 // Team returns gengql.TeamResolver implementation.
@@ -1184,5 +1246,11 @@ func (r *Resolver) Team() gengql.TeamResolver { return &teamResolver{r} }
 // TeamMember returns gengql.TeamMemberResolver implementation.
 func (r *Resolver) TeamMember() gengql.TeamMemberResolver { return &teamMemberResolver{r} }
 
+// TeamMemberReconciler returns gengql.TeamMemberReconcilerResolver implementation.
+func (r *Resolver) TeamMemberReconciler() gengql.TeamMemberReconcilerResolver {
+	return &teamMemberReconcilerResolver{r}
+}
+
 type teamResolver struct{ *Resolver }
 type teamMemberResolver struct{ *Resolver }
+type teamMemberReconcilerResolver struct{ *Resolver }

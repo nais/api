@@ -1,4 +1,4 @@
-package auditlogger
+package audittype
 
 type AuditAction string
 

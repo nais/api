@@ -10,7 +10,7 @@ import (
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/hookd"
+	"github.com/nais/api/internal/thirdparty/hookd"
 )
 
 // History is the resolver for the history field.
@@ -22,7 +22,7 @@ func (r *deployInfoResolver) History(ctx context.Context, obj *model.DeployInfo,
 		name = obj.GQLVars.Job
 	}
 
-	deploys, err := r.hookdClient.Deployments(ctx, hookd.WithTeam(obj.GQLVars.Team), hookd.WithCluster(obj.GQLVars.Env))
+	deploys, err := r.hookdClient.Deployments(ctx, hookd.WithTeam(obj.GQLVars.Team.String()), hookd.WithCluster(obj.GQLVars.Env))
 	if err != nil {
 		return nil, fmt.Errorf("getting deploys from Hookd: %w", err)
 	}

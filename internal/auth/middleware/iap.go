@@ -80,7 +80,7 @@ func iapAuthentication(database db.Database, aud string, validator valfunc) func
 				h.ServeHTTP(w, r)
 				return
 			}
-			isAdmin := slices.ContainsFunc(roles, func(role *db.Role) bool {
+			isAdmin := slices.ContainsFunc(roles, func(role *authz.Role) bool {
 				return role.RoleName == sqlc.RoleNameAdmin
 			})
 			user.IsAdmin = &isAdmin

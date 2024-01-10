@@ -9,13 +9,13 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 )
 
 // DailyCostForApp is the resolver for the dailyCostForApp field.
-func (r *queryResolver) DailyCostForApp(ctx context.Context, team string, app string, env string, from scalar.Date, to scalar.Date) (*model.DailyCost, error) {
+func (r *queryResolver) DailyCostForApp(ctx context.Context, team slug.Slug, app string, env string, from scalar.Date, to scalar.Date) (*model.DailyCost, error) {
 	err := ValidateDateInterval(from, to)
 	if err != nil {
 		return nil, err
@@ -31,13 +31,7 @@ func (r *queryResolver) DailyCostForApp(ctx context.Context, team string, app st
 		return nil, err
 	}
 
-	rows, err := r.querier.DailyCostForApp(ctx, gensql.DailyCostForAppParams{
-		App:      app,
-		Team:     &team,
-		Env:      &env,
-		FromDate: fromDate,
-		ToDate:   toDate,
-	})
+	rows, err := r.querier.DailyCostForApp(ctx, fromDate, toDate, env, team, app)
 	if err != nil {
 		return nil, fmt.Errorf("cost query: %w", err)
 	}
@@ -63,7 +57,7 @@ func (r *queryResolver) DailyCostForApp(ctx context.Context, team string, app st
 }
 
 // DailyCostForTeam is the resolver for the dailyCostForTeam field.
-func (r *queryResolver) DailyCostForTeam(ctx context.Context, team string, from scalar.Date, to scalar.Date) (*model.DailyCost, error) {
+func (r *queryResolver) DailyCostForTeam(ctx context.Context, team slug.Slug, from scalar.Date, to scalar.Date) (*model.DailyCost, error) {
 	err := ValidateDateInterval(from, to)
 	if err != nil {
 		return nil, err
@@ -79,11 +73,7 @@ func (r *queryResolver) DailyCostForTeam(ctx context.Context, team string, from 
 		return nil, err
 	}
 
-	rows, err := r.querier.DailyCostForTeam(ctx, gensql.DailyCostForTeamParams{
-		Team:     &team,
-		FromDate: fromDate,
-		ToDate:   toDate,
-	})
+	rows, err := r.querier.DailyCostForTeam(ctx, fromDate, toDate, team)
 	if err != nil {
 		return nil, fmt.Errorf("cost query: %w", err)
 	}
@@ -112,11 +102,7 @@ func (r *queryResolver) DailyCostForTeam(ctx context.Context, team string, from 
 // MonthlyCost is the resolver for the monthlyCost field.
 func (r *queryResolver) MonthlyCost(ctx context.Context, filter model.MonthlyCostFilter) (*model.MonthlyCost, error) {
 	if filter.App != "" && filter.Env != "" && filter.Team != "" {
-		rows, err := r.querier.MonthlyCostForApp(ctx, gensql.MonthlyCostForAppParams{
-			Team: &filter.Team,
-			App:  filter.App,
-			Env:  &filter.Env,
-		})
+		rows, err := r.querier.MonthlyCostForApp(ctx, filter.Team, filter.App, filter.Env)
 		if err != nil {
 			return nil, err
 		}
@@ -136,7 +122,7 @@ func (r *queryResolver) MonthlyCost(ctx context.Context, filter model.MonthlyCos
 			Cost: cost,
 		}, nil
 	} else if filter.App == "" && filter.Env == "" && filter.Team != "" {
-		rows, err := r.querier.MonthlyCostForTeam(ctx, &filter.Team)
+		rows, err := r.querier.MonthlyCostForTeam(ctx, filter.Team)
 		if err != nil {
 			return nil, err
 		}
@@ -179,12 +165,7 @@ func (r *queryResolver) EnvCost(ctx context.Context, filter model.EnvCostFilter)
 	ret := make([]*model.EnvCost, len(r.clusters))
 	for idx, cluster := range r.clusters {
 		appsCost := make([]*model.AppCost, 0)
-		rows, err := r.querier.DailyEnvCostForTeam(ctx, gensql.DailyEnvCostForTeamParams{
-			Team:     &filter.Team,
-			Env:      &cluster,
-			FromDate: fromDate,
-			ToDate:   toDate,
-		})
+		rows, err := r.querier.DailyEnvCostForTeam(ctx, fromDate, toDate, &cluster, filter.Team)
 		if err != nil {
 			return nil, fmt.Errorf("cost query: %w", err)
 		}

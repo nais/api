@@ -79,13 +79,13 @@ type Reconciler {
   enabled: Boolean!
 
   "Whether or not the reconciler uses team memberships when syncing."
-  usesTeamMemberships: Boolean!
+  usesTeamMemberships: Boolean! @goField(forceResolver: true)
 
   "Reconciler configuration keys and descriptions."
-  config: [ReconcilerConfig!]! @admin
+  config: [ReconcilerConfig!]! @admin @goField(forceResolver: true)
 
   "Whether or not the reconciler is fully configured and ready to be enabled."
-  configured: Boolean! @admin
+  configured: Boolean! @admin @goField(forceResolver: true)
 
   "The run order of the reconciler."
   runOrder: Int!

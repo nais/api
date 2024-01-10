@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/middleware"
@@ -88,14 +89,20 @@ func TestOauth2Authentication(t *testing.T) {
 			{RoleName: sqlc.RoleNameAdmin},
 		}
 		session := &db.Session{Session: &sqlc.Session{
-			ID:      sessionID,
-			UserID:  userID,
-			Expires: time.Now().Add(10 * time.Second),
+			ID:     sessionID,
+			UserID: userID,
+			Expires: pgtype.Timestamptz{
+				Time:  time.Now().Add(10 * time.Second),
+				Valid: true,
+			},
 		}}
 		extendedSession := &db.Session{Session: &sqlc.Session{
-			ID:      sessionID,
-			UserID:  userID,
-			Expires: time.Now().Add(30 * time.Minute),
+			ID:     sessionID,
+			UserID: userID,
+			Expires: pgtype.Timestamptz{
+				Time:  time.Now().Add(30 * time.Minute),
+				Valid: true,
+			},
 		}}
 
 		responseWriter := httptest.NewRecorder()
@@ -154,9 +161,12 @@ func TestOauth2Authentication(t *testing.T) {
 			Value: sessionID.String(),
 		})
 		session := &db.Session{Session: &sqlc.Session{
-			ID:      sessionID,
-			UserID:  userID,
-			Expires: time.Now().Add(-10 * time.Second),
+			ID:     sessionID,
+			UserID: userID,
+			Expires: pgtype.Timestamptz{
+				Time:  time.Now().Add(-10 * time.Second),
+				Valid: true,
+			},
 		}}
 		database.
 			On("GetSessionByID", ctx, sessionID).
@@ -188,9 +198,12 @@ func TestOauth2Authentication(t *testing.T) {
 			Value: sessionID.String(),
 		})
 		session := &db.Session{Session: &sqlc.Session{
-			ID:      sessionID,
-			UserID:  userID,
-			Expires: time.Now().Add(10 * time.Second),
+			ID:     sessionID,
+			UserID: userID,
+			Expires: pgtype.Timestamptz{
+				Time:  time.Now().Add(10 * time.Second),
+				Valid: true,
+			},
 		}}
 		database.
 			On("GetSessionByID", ctx, sessionID).

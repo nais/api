@@ -8,7 +8,7 @@ package gensql
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createServiceAccount = `-- name: CreateServiceAccount :one
@@ -29,7 +29,7 @@ DELETE FROM service_accounts
 WHERE id = $1
 `
 
-func (q *Queries) DeleteServiceAccount(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteServiceAccount(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteServiceAccount, id)
 	return err
 }
@@ -65,7 +65,7 @@ WHERE service_account_id = $1
 ORDER BY role_name ASC
 `
 
-func (q *Queries) GetServiceAccountRoles(ctx context.Context, serviceAccountID pgtype.UUID) ([]*ServiceAccountRole, error) {
+func (q *Queries) GetServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) ([]*ServiceAccountRole, error) {
 	rows, err := q.db.Query(ctx, getServiceAccountRoles, serviceAccountID)
 	if err != nil {
 		return nil, err

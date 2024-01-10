@@ -34,7 +34,7 @@ func Oauth2Authentication(database db.Database, authHandler authn.Handler) func(
 				return
 			}
 
-			if session.Expires.Before(time.Now()) {
+			if !session.Expires.Valid || session.Expires.Time.Before(time.Now()) {
 				_ = database.DeleteSession(ctx, sessionID)
 				next.ServeHTTP(w, r)
 				return

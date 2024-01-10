@@ -8,7 +8,8 @@ package gensql
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
+	"github.com/nais/api/internal/slug"
 )
 
 const addReconcilerOptOut = `-- name: AddReconcilerOptOut :exec
@@ -16,7 +17,7 @@ INSERT INTO reconciler_opt_outs (team_slug, user_id, reconciler_name)
 VALUES ($1, $2, $3) ON CONFLICT DO NOTHING
 `
 
-func (q *Queries) AddReconcilerOptOut(ctx context.Context, teamSlug string, userID pgtype.UUID, reconcilerName ReconcilerName) error {
+func (q *Queries) AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName ReconcilerName) error {
 	_, err := q.db.Exec(ctx, addReconcilerOptOut, teamSlug, userID, reconcilerName)
 	return err
 }
@@ -243,7 +244,7 @@ DELETE FROM reconciler_opt_outs
 WHERE team_slug = $1 AND user_id = $2 AND reconciler_name = $3
 `
 
-func (q *Queries) RemoveReconcilerOptOut(ctx context.Context, teamSlug string, userID pgtype.UUID, reconcilerName ReconcilerName) error {
+func (q *Queries) RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName ReconcilerName) error {
 	_, err := q.db.Exec(ctx, removeReconcilerOptOut, teamSlug, userID, reconcilerName)
 	return err
 }

@@ -7,13 +7,15 @@ package graph
 import (
 	"context"
 
+	"github.com/nais/api/internal/graph/dataloader"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/slug"
 )
 
 // Runs is the resolver for the runs field.
 func (r *naisJobResolver) Runs(ctx context.Context, obj *model.NaisJob) ([]*model.Run, error) {
-	runs, err := r.k8sClient.Runs(ctx, obj.GQLVars.Team, obj.Env.Name, obj.Name)
+	runs, err := r.k8sClient.Runs(ctx, obj.GQLVars.Team.String(), obj.Env.Name, obj.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -22,17 +24,17 @@ func (r *naisJobResolver) Runs(ctx context.Context, obj *model.NaisJob) ([]*mode
 
 // Manifest is the resolver for the manifest field.
 func (r *naisJobResolver) Manifest(ctx context.Context, obj *model.NaisJob) (string, error) {
-	return r.k8sClient.NaisJobManifest(ctx, obj.Name, obj.GQLVars.Team, obj.Env.Name)
+	return r.k8sClient.NaisJobManifest(ctx, obj.Name, obj.GQLVars.Team.String(), obj.Env.Name)
 }
 
 // Team is the resolver for the team field.
 func (r *naisJobResolver) Team(ctx context.Context, obj *model.NaisJob) (*model.Team, error) {
-	return r.teamsClient.GetTeam(ctx, obj.GQLVars.Team)
+	return dataloader.GetTeam(ctx, &obj.GQLVars.Team)
 }
 
 // Naisjob is the resolver for the naisjob field.
-func (r *queryResolver) Naisjob(ctx context.Context, name string, team string, env string) (*model.NaisJob, error) {
-	return r.k8sClient.NaisJob(ctx, name, team, env)
+func (r *queryResolver) Naisjob(ctx context.Context, name string, team slug.Slug, env string) (*model.NaisJob, error) {
+	return r.k8sClient.NaisJob(ctx, name, team.String(), env)
 }
 
 // NaisJob returns gengql.NaisJobResolver implementation.

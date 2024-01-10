@@ -8,7 +8,8 @@ package gensql
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
+	"github.com/nais/api/internal/slug"
 )
 
 const assignGlobalRoleToServiceAccount = `-- name: AssignGlobalRoleToServiceAccount :exec
@@ -16,7 +17,7 @@ INSERT INTO service_account_roles (service_account_id, role_name)
 VALUES ($1, $2) ON CONFLICT DO NOTHING
 `
 
-func (q *Queries) AssignGlobalRoleToServiceAccount(ctx context.Context, serviceAccountID pgtype.UUID, roleName RoleName) error {
+func (q *Queries) AssignGlobalRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName RoleName) error {
 	_, err := q.db.Exec(ctx, assignGlobalRoleToServiceAccount, serviceAccountID, roleName)
 	return err
 }
@@ -26,27 +27,27 @@ INSERT INTO user_roles (user_id, role_name)
 VALUES ($1, $2) ON CONFLICT DO NOTHING
 `
 
-func (q *Queries) AssignGlobalRoleToUser(ctx context.Context, userID pgtype.UUID, roleName RoleName) error {
+func (q *Queries) AssignGlobalRoleToUser(ctx context.Context, userID uuid.UUID, roleName RoleName) error {
 	_, err := q.db.Exec(ctx, assignGlobalRoleToUser, userID, roleName)
 	return err
 }
 
 const assignTeamRoleToServiceAccount = `-- name: AssignTeamRoleToServiceAccount :exec
 INSERT INTO service_account_roles (service_account_id, role_name, target_team_slug)
-VALUES ($1, $2, $3) ON CONFLICT DO NOTHING
+VALUES ($1, $2, $3::slug) ON CONFLICT DO NOTHING
 `
 
-func (q *Queries) AssignTeamRoleToServiceAccount(ctx context.Context, serviceAccountID pgtype.UUID, roleName RoleName, targetTeamSlug *string) error {
+func (q *Queries) AssignTeamRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName RoleName, targetTeamSlug slug.Slug) error {
 	_, err := q.db.Exec(ctx, assignTeamRoleToServiceAccount, serviceAccountID, roleName, targetTeamSlug)
 	return err
 }
 
 const assignTeamRoleToUser = `-- name: AssignTeamRoleToUser :exec
 INSERT INTO user_roles (user_id, role_name, target_team_slug)
-VALUES ($1, $2, $3) ON CONFLICT DO NOTHING
+VALUES ($1, $2, $3::slug) ON CONFLICT DO NOTHING
 `
 
-func (q *Queries) AssignTeamRoleToUser(ctx context.Context, userID pgtype.UUID, roleName RoleName, targetTeamSlug *string) error {
+func (q *Queries) AssignTeamRoleToUser(ctx context.Context, userID uuid.UUID, roleName RoleName, targetTeamSlug slug.Slug) error {
 	_, err := q.db.Exec(ctx, assignTeamRoleToUser, userID, roleName, targetTeamSlug)
 	return err
 }
@@ -88,7 +89,7 @@ WHERE user_id = $1
 ORDER BY role_name ASC
 `
 
-func (q *Queries) GetUserRoles(ctx context.Context, userID pgtype.UUID) ([]*UserRole, error) {
+func (q *Queries) GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*UserRole, error) {
 	rows, err := q.db.Query(ctx, getUserRoles, userID)
 	if err != nil {
 		return nil, err
@@ -153,7 +154,7 @@ DELETE FROM service_account_roles
 WHERE service_account_id = $1
 `
 
-func (q *Queries) RemoveAllServiceAccountRoles(ctx context.Context, serviceAccountID pgtype.UUID) error {
+func (q *Queries) RemoveAllServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, removeAllServiceAccountRoles, serviceAccountID)
 	return err
 }
@@ -166,7 +167,7 @@ AND target_service_account_id IS NULL
 AND role_name = $2
 `
 
-func (q *Queries) RevokeGlobalUserRole(ctx context.Context, userID pgtype.UUID, roleName RoleName) error {
+func (q *Queries) RevokeGlobalUserRole(ctx context.Context, userID uuid.UUID, roleName RoleName) error {
 	_, err := q.db.Exec(ctx, revokeGlobalUserRole, userID, roleName)
 	return err
 }

@@ -15,11 +15,13 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/nais/api/internal/auditlogger"
+	"github.com/nais/api/internal/auditlogger/audittype"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/usersync"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -50,11 +52,15 @@ type ResolverRoot interface {
 	Mutation() MutationResolver
 	NaisJob() NaisJobResolver
 	Query() QueryResolver
+	Reconciler() ReconcilerResolver
 	Role() RoleResolver
+	ServiceAccount() ServiceAccountResolver
 	Subscription() SubscriptionResolver
 	Team() TeamResolver
 	TeamMember() TeamMemberResolver
+	TeamMemberReconciler() TeamMemberReconcilerResolver
 	TeamsInternal() TeamsInternalResolver
+	UserSyncRun() UserSyncRunResolver
 }
 
 type DirectiveRoot struct {
@@ -459,23 +465,23 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddReconcilerOptOut          func(childComplexity int, teamSlug slug.Slug, userID scalar.Ident, reconciler string) int
+		AddReconcilerOptOut          func(childComplexity int, teamSlug slug.Slug, userID scalar.Ident, reconciler gensql.ReconcilerName) int
 		AddTeamMember                func(childComplexity int, slug slug.Slug, member model.TeamMemberInput) int
 		AddTeamMembers               func(childComplexity int, slug slug.Slug, userIds []*scalar.Ident) int
 		AddTeamOwners                func(childComplexity int, slug slug.Slug, userIds []*scalar.Ident) int
 		AuthorizeRepository          func(childComplexity int, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) int
-		ChangeDeployKey              func(childComplexity int, team string) int
-		ConfigureReconciler          func(childComplexity int, name string, config []*model.ReconcilerConfigInput) int
-		ConfirmTeamDeletion          func(childComplexity int, key scalar.Ident) int
+		ChangeDeployKey              func(childComplexity int, team slug.Slug) int
+		ConfigureReconciler          func(childComplexity int, name gensql.ReconcilerName, config []*model.ReconcilerConfigInput) int
+		ConfirmTeamDeletion          func(childComplexity int, key string) int
 		CreateTeam                   func(childComplexity int, input model.CreateTeamInput) int
 		DeauthorizeRepository        func(childComplexity int, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) int
-		DisableReconciler            func(childComplexity int, name string) int
-		EnableReconciler             func(childComplexity int, name string) int
-		RemoveReconcilerOptOut       func(childComplexity int, teamSlug slug.Slug, userID scalar.Ident, reconciler string) int
+		DisableReconciler            func(childComplexity int, name gensql.ReconcilerName) int
+		EnableReconciler             func(childComplexity int, name gensql.ReconcilerName) int
+		RemoveReconcilerOptOut       func(childComplexity int, teamSlug slug.Slug, userID scalar.Ident, reconciler gensql.ReconcilerName) int
 		RemoveUserFromTeam           func(childComplexity int, slug slug.Slug, userID scalar.Ident) int
 		RemoveUsersFromTeam          func(childComplexity int, slug slug.Slug, userIds []*scalar.Ident) int
 		RequestTeamDeletion          func(childComplexity int, slug slug.Slug) int
-		ResetReconciler              func(childComplexity int, name string) int
+		ResetReconciler              func(childComplexity int, name gensql.ReconcilerName) int
 		SetAzureADGroupID            func(childComplexity int, teamSlug slug.Slug, azureADGroupID scalar.Ident) int
 		SetGcpProjectID              func(childComplexity int, teamSlug slug.Slug, gcpEnvironment string, gcpProjectID string) int
 		SetGitHubTeamSlug            func(childComplexity int, teamSlug slug.Slug, gitHubTeamSlug slug.Slug) int
@@ -556,26 +562,26 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		App                                 func(childComplexity int, name string, team string, env string) int
-		CurrentResourceUtilizationForApp    func(childComplexity int, env string, team string, app string) int
-		CurrentResourceUtilizationForTeam   func(childComplexity int, team string) int
-		DailyCostForApp                     func(childComplexity int, team string, app string, env string, from scalar.Date, to scalar.Date) int
-		DailyCostForTeam                    func(childComplexity int, team string, from scalar.Date, to scalar.Date) int
+		App                                 func(childComplexity int, name string, team slug.Slug, env string) int
+		CurrentResourceUtilizationForApp    func(childComplexity int, env string, team slug.Slug, app string) int
+		CurrentResourceUtilizationForTeam   func(childComplexity int, team slug.Slug) int
+		DailyCostForApp                     func(childComplexity int, team slug.Slug, app string, env string, from scalar.Date, to scalar.Date) int
+		DailyCostForTeam                    func(childComplexity int, team slug.Slug, from scalar.Date, to scalar.Date) int
 		Deployments                         func(childComplexity int, offset *int, limit *int) int
 		EnvCost                             func(childComplexity int, filter model.EnvCostFilter) int
 		Me                                  func(childComplexity int) int
 		MonthlyCost                         func(childComplexity int, filter model.MonthlyCostFilter) int
-		Naisjob                             func(childComplexity int, name string, team string, env string) int
+		Naisjob                             func(childComplexity int, name string, team slug.Slug, env string) int
 		Reconcilers                         func(childComplexity int) int
-		ResourceUtilizationDateRangeForApp  func(childComplexity int, env string, team string, app string) int
-		ResourceUtilizationDateRangeForTeam func(childComplexity int, team string) int
-		ResourceUtilizationForApp           func(childComplexity int, env string, team string, app string, from *scalar.Date, to *scalar.Date) int
-		ResourceUtilizationForTeam          func(childComplexity int, team string, from *scalar.Date, to *scalar.Date) int
-		ResourceUtilizationOverageForTeam   func(childComplexity int, team string) int
-		ResourceUtilizationTrendForTeam     func(childComplexity int, team string) int
+		ResourceUtilizationDateRangeForApp  func(childComplexity int, env string, team slug.Slug, app string) int
+		ResourceUtilizationDateRangeForTeam func(childComplexity int, team slug.Slug) int
+		ResourceUtilizationForApp           func(childComplexity int, env string, team slug.Slug, app string, from *scalar.Date, to *scalar.Date) int
+		ResourceUtilizationForTeam          func(childComplexity int, team slug.Slug, from *scalar.Date, to *scalar.Date) int
+		ResourceUtilizationOverageForTeam   func(childComplexity int, team slug.Slug) int
+		ResourceUtilizationTrendForTeam     func(childComplexity int, team slug.Slug) int
 		Search                              func(childComplexity int, query string, filter *model.SearchFilter, offset *int, limit *int) int
 		Team                                func(childComplexity int, slug slug.Slug) int
-		TeamDeleteKey                       func(childComplexity int, key scalar.Ident) int
+		TeamDeleteKey                       func(childComplexity int, key string) int
 		Teams                               func(childComplexity int, offset *int, limit *int, filter *model.TeamsFilter) int
 		TeamsInternal                       func(childComplexity int) int
 		User                                func(childComplexity int, id *scalar.Ident, email *string) int
@@ -891,10 +897,10 @@ type AppResolver interface {
 	Vulnerabilities(ctx context.Context, obj *model.App) (*model.Vulnerability, error)
 }
 type AuditLogResolver interface {
-	Action(ctx context.Context, obj *model.AuditLog) (auditlogger.AuditAction, error)
+	Action(ctx context.Context, obj *model.AuditLog) (audittype.AuditAction, error)
 	ComponentName(ctx context.Context, obj *model.AuditLog) (logger.ComponentName, error)
 
-	TargetType(ctx context.Context, obj *model.AuditLog) (auditlogger.AuditLogsTargetType, error)
+	TargetType(ctx context.Context, obj *model.AuditLog) (audittype.AuditLogsTargetType, error)
 }
 type DeployInfoResolver interface {
 	History(ctx context.Context, obj *model.DeployInfo, offset *int, limit *int) (model.DeploymentResponse, error)
@@ -905,13 +911,13 @@ type MutationResolver interface {
 	SetAzureADGroupID(ctx context.Context, teamSlug slug.Slug, azureADGroupID scalar.Ident) (*model.Team, error)
 	SetGcpProjectID(ctx context.Context, teamSlug slug.Slug, gcpEnvironment string, gcpProjectID string) (*model.Team, error)
 	SetNaisNamespace(ctx context.Context, teamSlug slug.Slug, gcpEnvironment string, naisNamespace slug.Slug) (*model.Team, error)
-	EnableReconciler(ctx context.Context, name string) (*model.Reconciler, error)
-	DisableReconciler(ctx context.Context, name string) (*model.Reconciler, error)
-	ConfigureReconciler(ctx context.Context, name string, config []*model.ReconcilerConfigInput) (*model.Reconciler, error)
-	ResetReconciler(ctx context.Context, name string) (*model.Reconciler, error)
-	AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler string) (*model.TeamMember, error)
-	RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler string) (*model.TeamMember, error)
-	ChangeDeployKey(ctx context.Context, team string) (*model.DeploymentKey, error)
+	EnableReconciler(ctx context.Context, name gensql.ReconcilerName) (*model.Reconciler, error)
+	DisableReconciler(ctx context.Context, name gensql.ReconcilerName) (*model.Reconciler, error)
+	ConfigureReconciler(ctx context.Context, name gensql.ReconcilerName, config []*model.ReconcilerConfigInput) (*model.Reconciler, error)
+	ResetReconciler(ctx context.Context, name gensql.ReconcilerName) (*model.Reconciler, error)
+	AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler gensql.ReconcilerName) (*model.TeamMember, error)
+	RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler gensql.ReconcilerName) (*model.TeamMember, error)
+	ChangeDeployKey(ctx context.Context, team slug.Slug) (*model.DeploymentKey, error)
 	CreateTeam(ctx context.Context, input model.CreateTeamInput) (*model.Team, error)
 	UpdateTeam(ctx context.Context, slug slug.Slug, input model.UpdateTeamInput) (*model.Team, error)
 	RemoveUsersFromTeam(ctx context.Context, slug slug.Slug, userIds []*scalar.Ident) (*model.Team, error)
@@ -923,10 +929,10 @@ type MutationResolver interface {
 	AddTeamMember(ctx context.Context, slug slug.Slug, member model.TeamMemberInput) (*model.Team, error)
 	SetTeamMemberRole(ctx context.Context, slug slug.Slug, userID scalar.Ident, role model.TeamRole) (*model.Team, error)
 	RequestTeamDeletion(ctx context.Context, slug slug.Slug) (*model.TeamDeleteKey, error)
-	ConfirmTeamDeletion(ctx context.Context, key scalar.Ident) (*scalar.Ident, error)
+	ConfirmTeamDeletion(ctx context.Context, key string) (bool, error)
 	AuthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.Team, error)
 	DeauthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.Team, error)
-	SynchronizeUsers(ctx context.Context) (*scalar.Ident, error)
+	SynchronizeUsers(ctx context.Context) (string, error)
 }
 type NaisJobResolver interface {
 	Runs(ctx context.Context, obj *model.NaisJob) ([]*model.Run, error)
@@ -935,34 +941,42 @@ type NaisJobResolver interface {
 	Team(ctx context.Context, obj *model.NaisJob) (*model.Team, error)
 }
 type QueryResolver interface {
-	App(ctx context.Context, name string, team string, env string) (*model.App, error)
+	App(ctx context.Context, name string, team slug.Slug, env string) (*model.App, error)
 	Me(ctx context.Context) (model.AuthenticatedUser, error)
-	DailyCostForApp(ctx context.Context, team string, app string, env string, from scalar.Date, to scalar.Date) (*model.DailyCost, error)
-	DailyCostForTeam(ctx context.Context, team string, from scalar.Date, to scalar.Date) (*model.DailyCost, error)
+	DailyCostForApp(ctx context.Context, team slug.Slug, app string, env string, from scalar.Date, to scalar.Date) (*model.DailyCost, error)
+	DailyCostForTeam(ctx context.Context, team slug.Slug, from scalar.Date, to scalar.Date) (*model.DailyCost, error)
 	MonthlyCost(ctx context.Context, filter model.MonthlyCostFilter) (*model.MonthlyCost, error)
 	EnvCost(ctx context.Context, filter model.EnvCostFilter) ([]*model.EnvCost, error)
 	Deployments(ctx context.Context, offset *int, limit *int) (*model.DeploymentList, error)
 	TeamsInternal(ctx context.Context) (*model.TeamsInternal, error)
-	Naisjob(ctx context.Context, name string, team string, env string) (*model.NaisJob, error)
+	Naisjob(ctx context.Context, name string, team slug.Slug, env string) (*model.NaisJob, error)
 	Reconcilers(ctx context.Context) ([]*model.Reconciler, error)
-	ResourceUtilizationTrendForTeam(ctx context.Context, team string) (*model.ResourceUtilizationTrend, error)
-	CurrentResourceUtilizationForApp(ctx context.Context, env string, team string, app string) (*model.CurrentResourceUtilization, error)
-	CurrentResourceUtilizationForTeam(ctx context.Context, team string) (*model.CurrentResourceUtilization, error)
-	ResourceUtilizationOverageForTeam(ctx context.Context, team string) (*model.ResourceUtilizationOverageForTeam, error)
-	ResourceUtilizationForTeam(ctx context.Context, team string, from *scalar.Date, to *scalar.Date) ([]*model.ResourceUtilizationForEnv, error)
-	ResourceUtilizationDateRangeForTeam(ctx context.Context, team string) (*model.ResourceUtilizationDateRange, error)
-	ResourceUtilizationDateRangeForApp(ctx context.Context, env string, team string, app string) (*model.ResourceUtilizationDateRange, error)
-	ResourceUtilizationForApp(ctx context.Context, env string, team string, app string, from *scalar.Date, to *scalar.Date) (*model.ResourceUtilizationForApp, error)
+	ResourceUtilizationTrendForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationTrend, error)
+	CurrentResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.CurrentResourceUtilization, error)
+	CurrentResourceUtilizationForTeam(ctx context.Context, team slug.Slug) (*model.CurrentResourceUtilization, error)
+	ResourceUtilizationOverageForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationOverageForTeam, error)
+	ResourceUtilizationForTeam(ctx context.Context, team slug.Slug, from *scalar.Date, to *scalar.Date) ([]*model.ResourceUtilizationForEnv, error)
+	ResourceUtilizationDateRangeForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationDateRange, error)
+	ResourceUtilizationDateRangeForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.ResourceUtilizationDateRange, error)
+	ResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string, from *scalar.Date, to *scalar.Date) (*model.ResourceUtilizationForApp, error)
 	Search(ctx context.Context, query string, filter *model.SearchFilter, offset *int, limit *int) (*model.SearchList, error)
 	Teams(ctx context.Context, offset *int, limit *int, filter *model.TeamsFilter) (*model.TeamList, error)
 	Team(ctx context.Context, slug slug.Slug) (*model.Team, error)
-	TeamDeleteKey(ctx context.Context, key scalar.Ident) (*model.TeamDeleteKey, error)
+	TeamDeleteKey(ctx context.Context, key string) (*model.TeamDeleteKey, error)
 	Users(ctx context.Context, offset *int, limit *int) (*model.UserList, error)
 	User(ctx context.Context, id *scalar.Ident, email *string) (*model.User, error)
-	UserSync(ctx context.Context) ([]*model.UserSyncRun, error)
+	UserSync(ctx context.Context) ([]*usersync.Run, error)
+}
+type ReconcilerResolver interface {
+	UsesTeamMemberships(ctx context.Context, obj *model.Reconciler) (bool, error)
+	Config(ctx context.Context, obj *model.Reconciler) ([]*model.ReconcilerConfig, error)
+	Configured(ctx context.Context, obj *model.Reconciler) (bool, error)
 }
 type RoleResolver interface {
-	Name(ctx context.Context, obj *model.Role) (string, error)
+	Name(ctx context.Context, obj *model.Role) (gensql.RoleName, error)
+}
+type ServiceAccountResolver interface {
+	Roles(ctx context.Context, obj *model.ServiceAccount) ([]*model.Role, error)
 }
 type SubscriptionResolver interface {
 	Log(ctx context.Context, input *model.LogSubscriptionInput) (<-chan *model.LogLine, error)
@@ -980,10 +994,20 @@ type TeamMemberResolver interface {
 	Team(ctx context.Context, obj *model.TeamMember) (*model.Team, error)
 	User(ctx context.Context, obj *model.TeamMember) (*model.User, error)
 	Role(ctx context.Context, obj *model.TeamMember) (model.TeamRole, error)
-	Reconcilers(ctx context.Context, obj *model.TeamMember) ([]*model.TeamMemberReconciler, error)
+	Reconcilers(ctx context.Context, obj *model.TeamMember) ([]*gensql.GetTeamMemberOptOutsRow, error)
+}
+type TeamMemberReconcilerResolver interface {
+	Reconciler(ctx context.Context, obj *gensql.GetTeamMemberOptOutsRow) (*model.Reconciler, error)
 }
 type TeamsInternalResolver interface {
-	Roles(ctx context.Context, obj *model.TeamsInternal) ([]string, error)
+	Roles(ctx context.Context, obj *model.TeamsInternal) ([]gensql.RoleName, error)
+}
+type UserSyncRunResolver interface {
+	CorrelationID(ctx context.Context, obj *usersync.Run) (*scalar.Ident, error)
+
+	AuditLogs(ctx context.Context, obj *usersync.Run, limit *int, offset *int) (*model.AuditLogList, error)
+	Status(ctx context.Context, obj *usersync.Run) (model.UserSyncRunStatus, error)
+	Error(ctx context.Context, obj *usersync.Run) (*string, error)
 }
 
 type executableSchema struct {
@@ -2504,7 +2528,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.AddReconcilerOptOut(childComplexity, args["teamSlug"].(slug.Slug), args["userId"].(scalar.Ident), args["reconciler"].(string)), true
+		return e.complexity.Mutation.AddReconcilerOptOut(childComplexity, args["teamSlug"].(slug.Slug), args["userId"].(scalar.Ident), args["reconciler"].(gensql.ReconcilerName)), true
 
 	case "Mutation.addTeamMember":
 		if e.complexity.Mutation.AddTeamMember == nil {
@@ -2564,7 +2588,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.ChangeDeployKey(childComplexity, args["team"].(string)), true
+		return e.complexity.Mutation.ChangeDeployKey(childComplexity, args["team"].(slug.Slug)), true
 
 	case "Mutation.configureReconciler":
 		if e.complexity.Mutation.ConfigureReconciler == nil {
@@ -2576,7 +2600,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.ConfigureReconciler(childComplexity, args["name"].(string), args["config"].([]*model.ReconcilerConfigInput)), true
+		return e.complexity.Mutation.ConfigureReconciler(childComplexity, args["name"].(gensql.ReconcilerName), args["config"].([]*model.ReconcilerConfigInput)), true
 
 	case "Mutation.confirmTeamDeletion":
 		if e.complexity.Mutation.ConfirmTeamDeletion == nil {
@@ -2588,7 +2612,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.ConfirmTeamDeletion(childComplexity, args["key"].(scalar.Ident)), true
+		return e.complexity.Mutation.ConfirmTeamDeletion(childComplexity, args["key"].(string)), true
 
 	case "Mutation.createTeam":
 		if e.complexity.Mutation.CreateTeam == nil {
@@ -2624,7 +2648,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DisableReconciler(childComplexity, args["name"].(string)), true
+		return e.complexity.Mutation.DisableReconciler(childComplexity, args["name"].(gensql.ReconcilerName)), true
 
 	case "Mutation.enableReconciler":
 		if e.complexity.Mutation.EnableReconciler == nil {
@@ -2636,7 +2660,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.EnableReconciler(childComplexity, args["name"].(string)), true
+		return e.complexity.Mutation.EnableReconciler(childComplexity, args["name"].(gensql.ReconcilerName)), true
 
 	case "Mutation.removeReconcilerOptOut":
 		if e.complexity.Mutation.RemoveReconcilerOptOut == nil {
@@ -2648,7 +2672,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.RemoveReconcilerOptOut(childComplexity, args["teamSlug"].(slug.Slug), args["userId"].(scalar.Ident), args["reconciler"].(string)), true
+		return e.complexity.Mutation.RemoveReconcilerOptOut(childComplexity, args["teamSlug"].(slug.Slug), args["userId"].(scalar.Ident), args["reconciler"].(gensql.ReconcilerName)), true
 
 	case "Mutation.removeUserFromTeam":
 		if e.complexity.Mutation.RemoveUserFromTeam == nil {
@@ -2696,7 +2720,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.ResetReconciler(childComplexity, args["name"].(string)), true
+		return e.complexity.Mutation.ResetReconciler(childComplexity, args["name"].(gensql.ReconcilerName)), true
 
 	case "Mutation.setAzureADGroupId":
 		if e.complexity.Mutation.SetAzureADGroupID == nil {
@@ -3077,7 +3101,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.App(childComplexity, args["name"].(string), args["team"].(string), args["env"].(string)), true
+		return e.complexity.Query.App(childComplexity, args["name"].(string), args["team"].(slug.Slug), args["env"].(string)), true
 
 	case "Query.currentResourceUtilizationForApp":
 		if e.complexity.Query.CurrentResourceUtilizationForApp == nil {
@@ -3089,7 +3113,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.CurrentResourceUtilizationForApp(childComplexity, args["env"].(string), args["team"].(string), args["app"].(string)), true
+		return e.complexity.Query.CurrentResourceUtilizationForApp(childComplexity, args["env"].(string), args["team"].(slug.Slug), args["app"].(string)), true
 
 	case "Query.currentResourceUtilizationForTeam":
 		if e.complexity.Query.CurrentResourceUtilizationForTeam == nil {
@@ -3101,7 +3125,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.CurrentResourceUtilizationForTeam(childComplexity, args["team"].(string)), true
+		return e.complexity.Query.CurrentResourceUtilizationForTeam(childComplexity, args["team"].(slug.Slug)), true
 
 	case "Query.dailyCostForApp":
 		if e.complexity.Query.DailyCostForApp == nil {
@@ -3113,7 +3137,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.DailyCostForApp(childComplexity, args["team"].(string), args["app"].(string), args["env"].(string), args["from"].(scalar.Date), args["to"].(scalar.Date)), true
+		return e.complexity.Query.DailyCostForApp(childComplexity, args["team"].(slug.Slug), args["app"].(string), args["env"].(string), args["from"].(scalar.Date), args["to"].(scalar.Date)), true
 
 	case "Query.dailyCostForTeam":
 		if e.complexity.Query.DailyCostForTeam == nil {
@@ -3125,7 +3149,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.DailyCostForTeam(childComplexity, args["team"].(string), args["from"].(scalar.Date), args["to"].(scalar.Date)), true
+		return e.complexity.Query.DailyCostForTeam(childComplexity, args["team"].(slug.Slug), args["from"].(scalar.Date), args["to"].(scalar.Date)), true
 
 	case "Query.deployments":
 		if e.complexity.Query.Deployments == nil {
@@ -3180,7 +3204,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Naisjob(childComplexity, args["name"].(string), args["team"].(string), args["env"].(string)), true
+		return e.complexity.Query.Naisjob(childComplexity, args["name"].(string), args["team"].(slug.Slug), args["env"].(string)), true
 
 	case "Query.reconcilers":
 		if e.complexity.Query.Reconcilers == nil {
@@ -3199,7 +3223,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ResourceUtilizationDateRangeForApp(childComplexity, args["env"].(string), args["team"].(string), args["app"].(string)), true
+		return e.complexity.Query.ResourceUtilizationDateRangeForApp(childComplexity, args["env"].(string), args["team"].(slug.Slug), args["app"].(string)), true
 
 	case "Query.resourceUtilizationDateRangeForTeam":
 		if e.complexity.Query.ResourceUtilizationDateRangeForTeam == nil {
@@ -3211,7 +3235,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ResourceUtilizationDateRangeForTeam(childComplexity, args["team"].(string)), true
+		return e.complexity.Query.ResourceUtilizationDateRangeForTeam(childComplexity, args["team"].(slug.Slug)), true
 
 	case "Query.resourceUtilizationForApp":
 		if e.complexity.Query.ResourceUtilizationForApp == nil {
@@ -3223,7 +3247,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ResourceUtilizationForApp(childComplexity, args["env"].(string), args["team"].(string), args["app"].(string), args["from"].(*scalar.Date), args["to"].(*scalar.Date)), true
+		return e.complexity.Query.ResourceUtilizationForApp(childComplexity, args["env"].(string), args["team"].(slug.Slug), args["app"].(string), args["from"].(*scalar.Date), args["to"].(*scalar.Date)), true
 
 	case "Query.resourceUtilizationForTeam":
 		if e.complexity.Query.ResourceUtilizationForTeam == nil {
@@ -3235,7 +3259,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ResourceUtilizationForTeam(childComplexity, args["team"].(string), args["from"].(*scalar.Date), args["to"].(*scalar.Date)), true
+		return e.complexity.Query.ResourceUtilizationForTeam(childComplexity, args["team"].(slug.Slug), args["from"].(*scalar.Date), args["to"].(*scalar.Date)), true
 
 	case "Query.resourceUtilizationOverageForTeam":
 		if e.complexity.Query.ResourceUtilizationOverageForTeam == nil {
@@ -3247,7 +3271,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ResourceUtilizationOverageForTeam(childComplexity, args["team"].(string)), true
+		return e.complexity.Query.ResourceUtilizationOverageForTeam(childComplexity, args["team"].(slug.Slug)), true
 
 	case "Query.resourceUtilizationTrendForTeam":
 		if e.complexity.Query.ResourceUtilizationTrendForTeam == nil {
@@ -3259,7 +3283,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ResourceUtilizationTrendForTeam(childComplexity, args["team"].(string)), true
+		return e.complexity.Query.ResourceUtilizationTrendForTeam(childComplexity, args["team"].(slug.Slug)), true
 
 	case "Query.search":
 		if e.complexity.Query.Search == nil {
@@ -3295,7 +3319,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.TeamDeleteKey(childComplexity, args["key"].(scalar.Ident)), true
+		return e.complexity.Query.TeamDeleteKey(childComplexity, args["key"].(string)), true
 
 	case "Query.teams":
 		if e.complexity.Query.Teams == nil {
@@ -4827,7 +4851,7 @@ type AccessPolicy {
     name: String!
 
     "The name of the team who owns the application."
-    team: String!
+    team: Slug!
 
     "The environment the application is deployed to."
     env: String!
@@ -4969,7 +4993,7 @@ type AuditLog {
   componentName: ComponentName! @goField(forceResolver: true)
 
   "The related correlation ID."
-  correlationID: ID!
+  correlationID: String!
 
   "The identity of the actor who performed the action. When this field is empty it means that some backend process performed the action. The value, when present, is either the name of a service account, or the email address of a user."
   actor: String
@@ -5083,128 +5107,128 @@ type TokenX {
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/cost.graphqls", Input: `extend type Query {
-    "Get the daily cost for a team application in a specific environment."
-    dailyCostForApp(
-        "The name of the team that owns the application."
-        team: String!
+  "Get the daily cost for a team application in a specific environment."
+  dailyCostForApp(
+    "The name of the team that owns the application."
+    team: Slug!
 
-        "The name of the application to get costs for."
-        app: String!
+    "The name of the application to get costs for."
+    app: String!
 
-        "The environment that the application runs in."
-        env: String!
+    "The environment that the application runs in."
+    env: String!
 
-        "Start date for the cost series, inclusive."
-        from: Date!
-
-        "End date for cost series, inclusive."
-        to: Date!
-    ): DailyCost!
-
-    "Get the daily cost for a team across all apps and environments."
-    dailyCostForTeam(
-        "The name of the team that owns the application."
-        team: String!
-
-        "Start date for the cost series, inclusive."
-        from: Date!
-
-        "End date for cost series, inclusive."
-        to: Date!
-    ): DailyCost!
-
-    "Get monthly costs."
-    monthlyCost(filter: MonthlyCostFilter!): MonthlyCost!
-
-    "Get env cost for a team."
-    envCost(filter: EnvCostFilter!): [EnvCost!]!
-}
-
-"Env cost filter input type."
-input EnvCostFilter {
     "Start date for the cost series, inclusive."
     from: Date!
 
     "End date for cost series, inclusive."
     to: Date!
+  ): DailyCost!
 
-    "The name of the team to get costs for."
-    team: String!
+  "Get the daily cost for a team across all apps and environments."
+  dailyCostForTeam(
+    "The name of the team that owns the application."
+    team: Slug!
+
+    "Start date for the cost series, inclusive."
+    from: Date!
+
+    "End date for cost series, inclusive."
+    to: Date!
+  ): DailyCost!
+
+  "Get monthly costs."
+  monthlyCost(filter: MonthlyCostFilter!): MonthlyCost!
+
+  "Get env cost for a team."
+  envCost(filter: EnvCostFilter!): [EnvCost!]!
+}
+
+"Env cost filter input type."
+input EnvCostFilter {
+  "Start date for the cost series, inclusive."
+  from: Date!
+
+  "End date for cost series, inclusive."
+  to: Date!
+
+  "The name of the team to get costs for."
+  team: Slug!
 }
 
 "Monthly cost filter input type."
 input MonthlyCostFilter {
-    "The name of the team to get costs for."
-    team: String!
+  "The name of the team to get costs for."
+  team: Slug!
 
-    "The name of the application to get costs for."
-    app: String!
+  "The name of the application to get costs for."
+  app: String!
 
-    "The name of the environment to get costs for."
-    env: String!
+  "The name of the environment to get costs for."
+  env: String!
 }
 
 "Env cost type."
 type EnvCost {
-    "The name of the environment."
-    env: String!
+  "The name of the environment."
+  env: String!
 
-    "The sum of all app costs for the environment in euros."
-    sum: Float!
+  "The sum of all app costs for the environment in euros."
+  sum: Float!
 
-    "A list of app costs in the environment."
-    apps: [AppCost!]!
+  "A list of app costs in the environment."
+  apps: [AppCost!]!
 }
 
 "App cost type."
 type AppCost {
-    "The name of the application."
-    app: String!
+  "The name of the application."
+  app: String!
 
-    "The sum of all cost entries for the application in euros."
-    sum: Float!
+  "The sum of all cost entries for the application in euros."
+  sum: Float!
 
-    "A list of cost entries for the application."
-    cost: [CostEntry!]!
+  "A list of cost entries for the application."
+  cost: [CostEntry!]!
 }
 
 "Montly cost type."
 type MonthlyCost {
-    "Sum for all months in the series in euros."
-    sum: Float!
+  "Sum for all months in the series in euros."
+  sum: Float!
 
-    "A list of monthly cost entries."
-    cost: [CostEntry!]!
+  "A list of monthly cost entries."
+  cost: [CostEntry!]!
 }
 
 "Daily cost type."
 type DailyCost {
-    "The sum of all costs in the cost series in euros."
-    sum: Float!
+  "The sum of all costs in the cost series in euros."
+  sum: Float!
 
-    "The cost series."
-    series: [CostSeries!]!
+  "The cost series."
+  series: [CostSeries!]!
 }
 
 "Cost series type."
 type CostSeries {
-    "The type of cost."
-    costType: String!
+  "The type of cost."
+  costType: String!
 
-    "The sum of all daily costs in the series for this cost type in euros."
-    sum: Float!
+  "The sum of all daily costs in the series for this cost type in euros."
+  sum: Float!
 
-    "The cost data."
-    data: [CostEntry!]!
+  "The cost data."
+  data: [CostEntry!]!
 }
 
 "Cost entry type."
 type CostEntry {
-    "The date for the entry."
-    date: Date!
+  "The date for the entry."
+  date: Date!
 
-    "The cost in euros."
-    cost: Float!
+  "The cost in euros."
+  cost: Float!
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/dependencytrack.graphqls", Input: `extend enum OrderByField {
@@ -5341,7 +5365,7 @@ input LogSubscriptionInput {
   app: String
   job: String
   env: String!
-  team: String!
+  team: Slug!
   instances: [String!]
 }
 
@@ -5358,7 +5382,7 @@ type LogLine {
     name: String!
 
     "The name of the team who owns the naisjob."
-    team: String!
+    team: Slug!
 
     "The environment the naisjob is deployed in."
     env: String!
@@ -5548,13 +5572,13 @@ type Reconciler {
   enabled: Boolean!
 
   "Whether or not the reconciler uses team memberships when syncing."
-  usesTeamMemberships: Boolean!
+  usesTeamMemberships: Boolean! @goField(forceResolver: true)
 
   "Reconciler configuration keys and descriptions."
-  config: [ReconcilerConfig!]! @admin
+  config: [ReconcilerConfig!]! @admin @goField(forceResolver: true)
 
   "Whether or not the reconciler is fully configured and ready to be enabled."
-  configured: Boolean! @admin
+  configured: Boolean! @admin @goField(forceResolver: true)
 
   "The run order of the reconciler."
   runOrder: Int!
@@ -5609,218 +5633,218 @@ type Resources {
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/resourceusage.graphqls", Input: `extend type Query {
-    "Get the resource utilization trend for a team."
-    resourceUtilizationTrendForTeam(
-        "The name of the team."
-        team: String!
-    ): ResourceUtilizationTrend!
+  "Get the resource utilization trend for a team."
+  resourceUtilizationTrendForTeam(
+    "The name of the team."
+    team: Slug!
+  ): ResourceUtilizationTrend!
 
-    "Get the current resource utilization values for a specific app."
-    currentResourceUtilizationForApp(
-        "The environment where the app is running."
-        env: String!
+  "Get the current resource utilization values for a specific app."
+  currentResourceUtilizationForApp(
+    "The environment where the app is running."
+    env: String!
 
-        "The name of the team."
-        team: String!
+    "The name of the team."
+    team: Slug!
 
-        "The name of the app."
-        app: String!
-    ): CurrentResourceUtilization!
+    "The name of the app."
+    app: String!
+  ): CurrentResourceUtilization!
 
-    "Get the current resource utilization for a team across all apps and environments."
-    currentResourceUtilizationForTeam(
-        "The name of the team."
-        team: String!
-    ): CurrentResourceUtilization!
+  "Get the current resource utilization for a team across all apps and environments."
+  currentResourceUtilizationForTeam(
+    "The name of the team."
+    team: Slug!
+  ): CurrentResourceUtilization!
 
-    "Get resource utilization overage data for a team."
-    resourceUtilizationOverageForTeam(
-        "The name of the team."
-        team: String!
-    ): ResourceUtilizationOverageForTeam!
+  "Get resource utilization overage data for a team."
+  resourceUtilizationOverageForTeam(
+    "The name of the team."
+    team: Slug!
+  ): ResourceUtilizationOverageForTeam!
 
-    "Get the resource utilization for a team across all environments."
-    resourceUtilizationForTeam(
-        "The team to fetch data for."
-        team: String!
+  "Get the resource utilization for a team across all environments."
+  resourceUtilizationForTeam(
+    "The team to fetch data for."
+    team: Slug!
 
-        "Fetch resource utilization from this date. Defaults to 7 days before the to date."
-        from: Date
+    "Fetch resource utilization from this date. Defaults to 7 days before the to date."
+    from: Date
 
-        "Fetch resource utilization until this date. Defaults to today."
-        to: Date
-    ): [ResourceUtilizationForEnv!]!
+    "Fetch resource utilization until this date. Defaults to today."
+    to: Date
+  ): [ResourceUtilizationForEnv!]!
 
-    "Get the date range for resource utilization for a team across all environments."
-    resourceUtilizationDateRangeForTeam(
-        "The name of the team."
-        team: String!
-    ): ResourceUtilizationDateRange!
+  "Get the date range for resource utilization for a team across all environments."
+  resourceUtilizationDateRangeForTeam(
+    "The name of the team."
+    team: Slug!
+  ): ResourceUtilizationDateRange!
 
-    "Get the date range for resource utilization for an app."
-    resourceUtilizationDateRangeForApp(
-        "The environment where the app is running."
-        env: String!
+  "Get the date range for resource utilization for an app."
+  resourceUtilizationDateRangeForApp(
+    "The environment where the app is running."
+    env: String!
 
-        "The name of the team."
-        team: String!
+    "The name of the team."
+    team: Slug!
 
-        "The name of the app."
-        app: String!
-    ): ResourceUtilizationDateRange!
+    "The name of the app."
+    app: String!
+  ): ResourceUtilizationDateRange!
 
-    "Get the resource utilization for an app."
-    resourceUtilizationForApp(
-        "The environment where the app is running."
-        env: String!
+  "Get the resource utilization for an app."
+  resourceUtilizationForApp(
+    "The environment where the app is running."
+    env: String!
 
-        "The name of the team."
-        team: String!
+    "The name of the team."
+    team: Slug!
 
-        "The name of the app."
-        app: String!
+    "The name of the app."
+    app: String!
 
-        "Fetch resource utilization from this date. Defaults to 7 days before the to date."
-        from: Date
+    "Fetch resource utilization from this date. Defaults to 7 days before the to date."
+    from: Date
 
-        "Fetch resource utilization until this date. Defaults to today."
-        to: Date
-    ): ResourceUtilizationForApp!
+    "Fetch resource utilization until this date. Defaults to today."
+    to: Date
+  ): ResourceUtilizationForApp!
 }
 
 "Resource utilization trend type."
 type ResourceUtilizationTrend {
-    "The current CPU utilization."
-    currentCpuUtilization: Float!
+  "The current CPU utilization."
+  currentCpuUtilization: Float!
 
-    "The average CPU utilization from the previous week."
-    averageCpuUtilization: Float!
+  "The average CPU utilization from the previous week."
+  averageCpuUtilization: Float!
 
-    "The CPU utilization trend in percentage."
-    cpuUtilizationTrend: Float!
+  "The CPU utilization trend in percentage."
+  cpuUtilizationTrend: Float!
 
-    "The current memory utilization."
-    currentMemoryUtilization: Float!
+  "The current memory utilization."
+  currentMemoryUtilization: Float!
 
-    "The average memory utilization from the previous week."
-    averageMemoryUtilization: Float!
+  "The average memory utilization from the previous week."
+  averageMemoryUtilization: Float!
 
-    "The memory utilization trend in percentage."
-    memoryUtilizationTrend: Float!
+  "The memory utilization trend in percentage."
+  memoryUtilizationTrend: Float!
 }
 
 "Current resource utilization type."
 type CurrentResourceUtilization {
-    "The timestamp used for the calculated values."
-    timestamp: Time!
+  "The timestamp used for the calculated values."
+  timestamp: Time!
 
-    "The CPU utilization."
-    cpu: ResourceUtilization!
+  "The CPU utilization."
+  cpu: ResourceUtilization!
 
-    "The memory utilization."
-    memory: ResourceUtilization!
+  "The memory utilization."
+  memory: ResourceUtilization!
 }
 
 "Date range type."
 type ResourceUtilizationDateRange {
-    "The start of the range."
-    from: Date
+  "The start of the range."
+  from: Date
 
-    "The end of the range."
-    to: Date
+  "The end of the range."
+  to: Date
 }
 
 "Resource utilization overage cost for team type."
 type ResourceUtilizationOverageForTeam {
-    "The sum of the overage cost for all apps."
-    overageCost: Float!
+  "The sum of the overage cost for all apps."
+  overageCost: Float!
 
-    "Timestamp used for the calculated values."
-    timestamp: Time!
+  "Timestamp used for the calculated values."
+  timestamp: Time!
 
-    "List of CPU overage data for all apps."
-    cpu: [AppWithResourceUtilizationOverage!]!
+  "List of CPU overage data for all apps."
+  cpu: [AppWithResourceUtilizationOverage!]!
 
-    "List of memory overage data for all apps."
-    memory: [AppWithResourceUtilizationOverage!]!
+  "List of memory overage data for all apps."
+  memory: [AppWithResourceUtilizationOverage!]!
 }
 
 "Resource utilization overage cost for an app."
 type AppWithResourceUtilizationOverage {
-    "The overage for the app."
-    overage: Float!
+  "The overage for the app."
+  overage: Float!
 
-    "The overage cost for the app."
-    overageCost: Float!
+  "The overage cost for the app."
+  overageCost: Float!
 
-    "Estimated annual cost of the request overage."
-    estimatedAnnualOverageCost: Float!
+  "Estimated annual cost of the request overage."
+  estimatedAnnualOverageCost: Float!
 
-    "The utilization in percent."
-    utilization: Float!
+  "The utilization in percent."
+  utilization: Float!
 
-    "The environment where the app is running."
-    env: String!
+  "The environment where the app is running."
+  env: String!
 
-    "The name of the team who owns the app."
-    team: String!
+  "The name of the team who owns the app."
+  team: Slug!
 
-    "The name of the app."
-    app: String!
+  "The name of the app."
+  app: String!
 }
 
 "Resource utilization for env type."
 type ResourceUtilizationForEnv {
-    "Name of the environment."
-    env: String!
+  "Name of the environment."
+  env: String!
 
-    "CPU resource utilization data for the environment."
-    cpu: [ResourceUtilization!]!
+  "CPU resource utilization data for the environment."
+  cpu: [ResourceUtilization!]!
 
-    "Memory resource utilization data for the environment."
-    memory: [ResourceUtilization!]!
+  "Memory resource utilization data for the environment."
+  memory: [ResourceUtilization!]!
 }
 
 "Resource utilization for app type."
 type ResourceUtilizationForApp {
-    "CPU resource utilization data for the environment."
-    cpu: [ResourceUtilization!]!
+  "CPU resource utilization data for the environment."
+  cpu: [ResourceUtilization!]!
 
-    "Memory resource utilization data for the environment."
-    memory: [ResourceUtilization!]!
+  "Memory resource utilization data for the environment."
+  memory: [ResourceUtilization!]!
 }
 
 "Resource utilization type."
 type ResourceUtilization {
-    "Timestamp of the value."
-    timestamp: Time!
+  "Timestamp of the value."
+  timestamp: Time!
 
-    "The requested resource amount per pod."
-    request: Float!
+  "The requested resource amount per pod."
+  request: Float!
 
-    "The cost associated with the requested resource amount."
-    requestCost: Float!
+  "The cost associated with the requested resource amount."
+  requestCost: Float!
 
-    "The actual resource usage."
-    usage: Float!
+  "The actual resource usage."
+  usage: Float!
 
-    "The cost associated with the actual resource usage."
-    usageCost: Float!
+  "The cost associated with the actual resource usage."
+  usageCost: Float!
 
-    "The overage of the requested resource amount."
-    requestCostOverage: Float!
+  "The overage of the requested resource amount."
+  requestCostOverage: Float!
 
-    "The utilization in percent."
-    utilization: Float!
+  "The utilization in percent."
+  utilization: Float!
 
-    "Estimated annual cost of the request overage."
-    estimatedAnnualOverageCost: Float!
+  "Estimated annual cost of the request overage."
+  estimatedAnnualOverageCost: Float!
 }
 
 "Resource type."
 enum ResourceType {
-    CPU
-    MEMORY
+  CPU
+  MEMORY
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/scalars.graphqls", Input: `"Time is a string in [RFC 3339](https://rfc-editor.org/rfc/rfc3339.html) format, with sub-second precision added if present."
@@ -5938,116 +5962,116 @@ type ServiceAccount {
   name: String!
 
   "Roles attached to the service account."
-  roles: [Role!]!
+  roles: [Role!]! @goField(forceResolver: true)
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/storage.graphqls", Input: `interface Storage {
-    name: String!
+  name: String!
 }
 
 type InfluxDb implements Storage {
-    name: String!
+  name: String!
 }
 
 type Redis implements Storage {
-    name: String!
-    access: String!
+  name: String!
+  access: String!
 }
 
 type BigQueryDataset implements Storage {
-    cascadingDelete: Boolean!
-    description: String!
-    name: String!
-    permission: String!
+  cascadingDelete: Boolean!
+  description: String!
+  name: String!
+  permission: String!
 }
 
 type Bucket implements Storage {
-    cascadingDelete: Boolean!
-    name: String!
-    publicAccessPrevention: Boolean!
-    retentionPeriodDays: Int!
-    uniformBucketLevelAccess: Boolean!
+  cascadingDelete: Boolean!
+  name: String!
+  publicAccessPrevention: Boolean!
+  retentionPeriodDays: Int!
+  uniformBucketLevelAccess: Boolean!
 }
 
 type Kafka implements Storage {
-    """
-    The kafka pool name
-    """
-    name: String!
-    streams: Boolean!
-    topics: [Topic!]!
+  """
+  The kafka pool name
+  """
+  name: String!
+  streams: Boolean!
+  topics: [Topic!]!
 }
 
 type Topic {
-    name: String!
-    acl: [Acl!]!
+  name: String!
+  acl: [Acl!]!
 }
 
 type Acl {
-    access: String!
-    application: String!
-    team: String!
+  access: String!
+  application: String!
+  team: Slug!
 }
 
 type OpenSearch implements Storage {
-    """
-    The opensearch instance name
-    """
-    name: String!
-    access: String!
+  """
+  The opensearch instance name
+  """
+  name: String!
+  access: String!
 }
 
 type Flag {
-    name: String!
-    value: String!
+  name: String!
+  value: String!
 }
 
 type Insights {
-    enabled: Boolean!
-    queryStringLength: Int!
-    recordApplicationTags: Boolean!
-    recordClientAddress: Boolean!
+  enabled: Boolean!
+  queryStringLength: Int!
+  recordApplicationTags: Boolean!
+  recordClientAddress: Boolean!
 }
 
 type Maintenance {
-    day: Int!
-    hour: Int!
+  day: Int!
+  hour: Int!
 }
 
 type Database {
-    envVarPrefix: String!
-    name: String!
-    users: [DatabaseUser!]!
+  envVarPrefix: String!
+  name: String!
+  users: [DatabaseUser!]!
 }
 
 type DatabaseUser {
-    name: String!
+  name: String!
 }
 
 type SqlInstance implements Storage {
-    autoBackupHour: Int!
-    cascadingDelete: Boolean!
-    collation: String!
-    databases: [Database!]!
-    diskAutoresize: Boolean!
-    diskSize: Int!
-    diskType: String!
-    flags: [Flag!]!
-    highAvailability: Boolean!
-    insights: Insights!
-    maintenance: Maintenance!
-    name: String!
-    pointInTimeRecovery: Boolean!
-    retainedBackups: Int!
-    tier: String!
-    type: String!
+  autoBackupHour: Int!
+  cascadingDelete: Boolean!
+  collation: String!
+  databases: [Database!]!
+  diskAutoresize: Boolean!
+  diskSize: Int!
+  diskType: String!
+  flags: [Flag!]!
+  highAvailability: Boolean!
+  insights: Insights!
+  maintenance: Maintenance!
+  name: String!
+  pointInTimeRecovery: Boolean!
+  retainedBackups: Int!
+  tier: String!
+  type: String!
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/team.graphqls", Input: `extend type Mutation {
   "Update the deploy key of a team. Returns the updated deploy key."
   changeDeployKey(
     "The name of the team to update the deploy key for."
-    team: String!
+    team: Slug!
   ): DeploymentKey!
 }
 
@@ -6105,7 +6129,7 @@ type VulnerabilityList {
   team("Slug of the team." slug: Slug!): Team! @auth
 
   "Get a team delete key."
-  teamDeleteKey("The key to get." key: ID!): TeamDeleteKey! @auth
+  teamDeleteKey("The key to get." key: String!): TeamDeleteKey! @auth
 }
 
 extend type Mutation {
@@ -6274,8 +6298,8 @@ extend type Mutation {
   """
   confirmTeamDeletion(
     "Deletion key, acquired using the requestTeamDeletion mutation."
-    key: ID!
-  ): ID! @auth
+    key: String!
+  ): Boolean! @auth
 
   "Authorize a team to perform an action from a GitHub repository."
   authorizeRepository(
@@ -6305,7 +6329,7 @@ extend type Mutation {
 "Team deletion key type."
 type TeamDeleteKey {
   "The unique key used to confirm the deletion of a team."
-  key: ID!
+  key: String!
 
   "The creation timestamp of the key."
   createdAt: Time!
@@ -6679,7 +6703,7 @@ extend type Mutation {
   This mutation will trigger a full user synchronization with the connected Google Workspace, and return a correlation
   ID that can later be matched to the log entries. The user synchronization itself is asynchronous.
   """
-  synchronizeUsers: ID! @auth
+  synchronizeUsers: String! @auth
 }
 
 "User sync run type."
@@ -6801,10 +6825,10 @@ func (ec *executionContext) field_Mutation_addReconcilerOptOut_args(ctx context.
 		}
 	}
 	args["userId"] = arg1
-	var arg2 string
+	var arg2 gensql.ReconcilerName
 	if tmp, ok := rawArgs["reconciler"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reconciler"))
-		arg2, err = ec.unmarshalNReconcilerName2string(ctx, tmp)
+		arg2, err = ec.unmarshalNReconcilerName2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerName(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -6921,10 +6945,10 @@ func (ec *executionContext) field_Mutation_authorizeRepository_args(ctx context.
 func (ec *executionContext) field_Mutation_changeDeployKey_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 slug.Slug
 	if tmp, ok := rawArgs["team"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -6936,10 +6960,10 @@ func (ec *executionContext) field_Mutation_changeDeployKey_args(ctx context.Cont
 func (ec *executionContext) field_Mutation_configureReconciler_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 gensql.ReconcilerName
 	if tmp, ok := rawArgs["name"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-		arg0, err = ec.unmarshalNReconcilerName2string(ctx, tmp)
+		arg0, err = ec.unmarshalNReconcilerName2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerName(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -6960,10 +6984,10 @@ func (ec *executionContext) field_Mutation_configureReconciler_args(ctx context.
 func (ec *executionContext) field_Mutation_confirmTeamDeletion_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 scalar.Ident
+	var arg0 string
 	if tmp, ok := rawArgs["key"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-		arg0, err = ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, tmp)
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7023,10 +7047,10 @@ func (ec *executionContext) field_Mutation_deauthorizeRepository_args(ctx contex
 func (ec *executionContext) field_Mutation_disableReconciler_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 gensql.ReconcilerName
 	if tmp, ok := rawArgs["name"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-		arg0, err = ec.unmarshalNReconcilerName2string(ctx, tmp)
+		arg0, err = ec.unmarshalNReconcilerName2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerName(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7038,10 +7062,10 @@ func (ec *executionContext) field_Mutation_disableReconciler_args(ctx context.Co
 func (ec *executionContext) field_Mutation_enableReconciler_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 gensql.ReconcilerName
 	if tmp, ok := rawArgs["name"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-		arg0, err = ec.unmarshalNReconcilerName2string(ctx, tmp)
+		arg0, err = ec.unmarshalNReconcilerName2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerName(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7071,10 +7095,10 @@ func (ec *executionContext) field_Mutation_removeReconcilerOptOut_args(ctx conte
 		}
 	}
 	args["userId"] = arg1
-	var arg2 string
+	var arg2 gensql.ReconcilerName
 	if tmp, ok := rawArgs["reconciler"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reconciler"))
-		arg2, err = ec.unmarshalNReconcilerName2string(ctx, tmp)
+		arg2, err = ec.unmarshalNReconcilerName2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerName(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7149,10 +7173,10 @@ func (ec *executionContext) field_Mutation_requestTeamDeletion_args(ctx context.
 func (ec *executionContext) field_Mutation_resetReconciler_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 gensql.ReconcilerName
 	if tmp, ok := rawArgs["name"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-		arg0, err = ec.unmarshalNReconcilerName2string(ctx, tmp)
+		arg0, err = ec.unmarshalNReconcilerName2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerName(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7398,10 +7422,10 @@ func (ec *executionContext) field_Query_app_args(ctx context.Context, rawArgs ma
 		}
 	}
 	args["name"] = arg0
-	var arg1 string
+	var arg1 slug.Slug
 	if tmp, ok := rawArgs["team"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		arg1, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7431,10 +7455,10 @@ func (ec *executionContext) field_Query_currentResourceUtilizationForApp_args(ct
 		}
 	}
 	args["env"] = arg0
-	var arg1 string
+	var arg1 slug.Slug
 	if tmp, ok := rawArgs["team"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		arg1, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7455,10 +7479,10 @@ func (ec *executionContext) field_Query_currentResourceUtilizationForApp_args(ct
 func (ec *executionContext) field_Query_currentResourceUtilizationForTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 slug.Slug
 	if tmp, ok := rawArgs["team"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7470,10 +7494,10 @@ func (ec *executionContext) field_Query_currentResourceUtilizationForTeam_args(c
 func (ec *executionContext) field_Query_dailyCostForApp_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 slug.Slug
 	if tmp, ok := rawArgs["team"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7521,10 +7545,10 @@ func (ec *executionContext) field_Query_dailyCostForApp_args(ctx context.Context
 func (ec *executionContext) field_Query_dailyCostForTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 slug.Slug
 	if tmp, ok := rawArgs["team"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7617,10 +7641,10 @@ func (ec *executionContext) field_Query_naisjob_args(ctx context.Context, rawArg
 		}
 	}
 	args["name"] = arg0
-	var arg1 string
+	var arg1 slug.Slug
 	if tmp, ok := rawArgs["team"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		arg1, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7650,10 +7674,10 @@ func (ec *executionContext) field_Query_resourceUtilizationDateRangeForApp_args(
 		}
 	}
 	args["env"] = arg0
-	var arg1 string
+	var arg1 slug.Slug
 	if tmp, ok := rawArgs["team"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		arg1, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7674,10 +7698,10 @@ func (ec *executionContext) field_Query_resourceUtilizationDateRangeForApp_args(
 func (ec *executionContext) field_Query_resourceUtilizationDateRangeForTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 slug.Slug
 	if tmp, ok := rawArgs["team"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7698,10 +7722,10 @@ func (ec *executionContext) field_Query_resourceUtilizationForApp_args(ctx conte
 		}
 	}
 	args["env"] = arg0
-	var arg1 string
+	var arg1 slug.Slug
 	if tmp, ok := rawArgs["team"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		arg1, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7740,10 +7764,10 @@ func (ec *executionContext) field_Query_resourceUtilizationForApp_args(ctx conte
 func (ec *executionContext) field_Query_resourceUtilizationForTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 slug.Slug
 	if tmp, ok := rawArgs["team"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7773,10 +7797,10 @@ func (ec *executionContext) field_Query_resourceUtilizationForTeam_args(ctx cont
 func (ec *executionContext) field_Query_resourceUtilizationOverageForTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 slug.Slug
 	if tmp, ok := rawArgs["team"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7788,10 +7812,10 @@ func (ec *executionContext) field_Query_resourceUtilizationOverageForTeam_args(c
 func (ec *executionContext) field_Query_resourceUtilizationTrendForTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 slug.Slug
 	if tmp, ok := rawArgs["team"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7845,10 +7869,10 @@ func (ec *executionContext) field_Query_search_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_teamDeleteKey_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 scalar.Ident
+	var arg0 string
 	if tmp, ok := rawArgs["key"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-		arg0, err = ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, tmp)
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -8509,9 +8533,9 @@ func (ec *executionContext) _Acl_team(ctx context.Context, field graphql.Collect
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(slug.Slug)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Acl_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8521,7 +8545,7 @@ func (ec *executionContext) fieldContext_Acl_team(ctx context.Context, field gra
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Slug does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10004,9 +10028,9 @@ func (ec *executionContext) _AppWithResourceUtilizationOverage_team(ctx context.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(slug.Slug)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AppWithResourceUtilizationOverage_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10016,7 +10040,7 @@ func (ec *executionContext) fieldContext_AppWithResourceUtilizationOverage_team(
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Slug does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10224,9 +10248,9 @@ func (ec *executionContext) _AuditLog_action(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(auditlogger.AuditAction)
+	res := resTmp.(audittype.AuditAction)
 	fc.Result = res
-	return ec.marshalNAuditAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditloggerᚐAuditAction(ctx, field.Selections, res)
+	return ec.marshalNAuditAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditloggerᚋaudittypeᚐAuditAction(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuditLog_action(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10312,9 +10336,9 @@ func (ec *executionContext) _AuditLog_correlationID(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(scalar.Ident)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuditLog_correlationID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10324,7 +10348,7 @@ func (ec *executionContext) fieldContext_AuditLog_correlationID(ctx context.Cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10397,9 +10421,9 @@ func (ec *executionContext) _AuditLog_targetType(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(auditlogger.AuditLogsTargetType)
+	res := resTmp.(audittype.AuditLogsTargetType)
 	fc.Result = res
-	return ec.marshalNAuditLogsTargetType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditloggerᚐAuditLogsTargetType(ctx, field.Selections, res)
+	return ec.marshalNAuditLogsTargetType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditloggerᚋaudittypeᚐAuditLogsTargetType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuditLog_targetType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18715,7 +18739,7 @@ func (ec *executionContext) _Mutation_enableReconciler(ctx context.Context, fiel
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().EnableReconciler(rctx, fc.Args["name"].(string))
+			return ec.resolvers.Mutation().EnableReconciler(rctx, fc.Args["name"].(gensql.ReconcilerName))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Admin == nil {
@@ -18810,7 +18834,7 @@ func (ec *executionContext) _Mutation_disableReconciler(ctx context.Context, fie
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().DisableReconciler(rctx, fc.Args["name"].(string))
+			return ec.resolvers.Mutation().DisableReconciler(rctx, fc.Args["name"].(gensql.ReconcilerName))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Admin == nil {
@@ -18905,7 +18929,7 @@ func (ec *executionContext) _Mutation_configureReconciler(ctx context.Context, f
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().ConfigureReconciler(rctx, fc.Args["name"].(string), fc.Args["config"].([]*model.ReconcilerConfigInput))
+			return ec.resolvers.Mutation().ConfigureReconciler(rctx, fc.Args["name"].(gensql.ReconcilerName), fc.Args["config"].([]*model.ReconcilerConfigInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Admin == nil {
@@ -19000,7 +19024,7 @@ func (ec *executionContext) _Mutation_resetReconciler(ctx context.Context, field
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().ResetReconciler(rctx, fc.Args["name"].(string))
+			return ec.resolvers.Mutation().ResetReconciler(rctx, fc.Args["name"].(gensql.ReconcilerName))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Admin == nil {
@@ -19094,7 +19118,7 @@ func (ec *executionContext) _Mutation_addReconcilerOptOut(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AddReconcilerOptOut(rctx, fc.Args["teamSlug"].(slug.Slug), fc.Args["userId"].(scalar.Ident), fc.Args["reconciler"].(string))
+		return ec.resolvers.Mutation().AddReconcilerOptOut(rctx, fc.Args["teamSlug"].(slug.Slug), fc.Args["userId"].(scalar.Ident), fc.Args["reconciler"].(gensql.ReconcilerName))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19159,7 +19183,7 @@ func (ec *executionContext) _Mutation_removeReconcilerOptOut(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().RemoveReconcilerOptOut(rctx, fc.Args["teamSlug"].(slug.Slug), fc.Args["userId"].(scalar.Ident), fc.Args["reconciler"].(string))
+		return ec.resolvers.Mutation().RemoveReconcilerOptOut(rctx, fc.Args["teamSlug"].(slug.Slug), fc.Args["userId"].(scalar.Ident), fc.Args["reconciler"].(gensql.ReconcilerName))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19224,7 +19248,7 @@ func (ec *executionContext) _Mutation_changeDeployKey(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().ChangeDeployKey(rctx, fc.Args["team"].(string))
+		return ec.resolvers.Mutation().ChangeDeployKey(rctx, fc.Args["team"].(slug.Slug))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20492,7 +20516,7 @@ func (ec *executionContext) _Mutation_confirmTeamDeletion(ctx context.Context, f
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().ConfirmTeamDeletion(rctx, fc.Args["key"].(scalar.Ident))
+			return ec.resolvers.Mutation().ConfirmTeamDeletion(rctx, fc.Args["key"].(string))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Auth == nil {
@@ -20508,10 +20532,10 @@ func (ec *executionContext) _Mutation_confirmTeamDeletion(ctx context.Context, f
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*scalar.Ident); ok {
+		if data, ok := tmp.(bool); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/scalar.Ident`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20523,9 +20547,9 @@ func (ec *executionContext) _Mutation_confirmTeamDeletion(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*scalar.Ident)
+	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalNID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_confirmTeamDeletion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -20535,7 +20559,7 @@ func (ec *executionContext) fieldContext_Mutation_confirmTeamDeletion(ctx contex
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	defer func() {
@@ -20825,10 +20849,10 @@ func (ec *executionContext) _Mutation_synchronizeUsers(ctx context.Context, fiel
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*scalar.Ident); ok {
+		if data, ok := tmp.(string); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/scalar.Ident`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20840,9 +20864,9 @@ func (ec *executionContext) _Mutation_synchronizeUsers(ctx context.Context, fiel
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*scalar.Ident)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_synchronizeUsers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -20852,7 +20876,7 @@ func (ec *executionContext) fieldContext_Mutation_synchronizeUsers(ctx context.C
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -22680,7 +22704,7 @@ func (ec *executionContext) _Query_app(ctx context.Context, field graphql.Collec
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().App(rctx, fc.Args["name"].(string), fc.Args["team"].(string), fc.Args["env"].(string))
+		return ec.resolvers.Query().App(rctx, fc.Args["name"].(string), fc.Args["team"].(slug.Slug), fc.Args["env"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22835,7 +22859,7 @@ func (ec *executionContext) _Query_dailyCostForApp(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().DailyCostForApp(rctx, fc.Args["team"].(string), fc.Args["app"].(string), fc.Args["env"].(string), fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date))
+		return ec.resolvers.Query().DailyCostForApp(rctx, fc.Args["team"].(slug.Slug), fc.Args["app"].(string), fc.Args["env"].(string), fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22896,7 +22920,7 @@ func (ec *executionContext) _Query_dailyCostForTeam(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().DailyCostForTeam(rctx, fc.Args["team"].(string), fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date))
+		return ec.resolvers.Query().DailyCostForTeam(rctx, fc.Args["team"].(slug.Slug), fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23190,7 +23214,7 @@ func (ec *executionContext) _Query_naisjob(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Naisjob(rctx, fc.Args["name"].(string), fc.Args["team"].(string), fc.Args["env"].(string))
+		return ec.resolvers.Query().Naisjob(rctx, fc.Args["name"].(string), fc.Args["team"].(slug.Slug), fc.Args["env"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23365,7 +23389,7 @@ func (ec *executionContext) _Query_resourceUtilizationTrendForTeam(ctx context.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ResourceUtilizationTrendForTeam(rctx, fc.Args["team"].(string))
+		return ec.resolvers.Query().ResourceUtilizationTrendForTeam(rctx, fc.Args["team"].(slug.Slug))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23434,7 +23458,7 @@ func (ec *executionContext) _Query_currentResourceUtilizationForApp(ctx context.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().CurrentResourceUtilizationForApp(rctx, fc.Args["env"].(string), fc.Args["team"].(string), fc.Args["app"].(string))
+		return ec.resolvers.Query().CurrentResourceUtilizationForApp(rctx, fc.Args["env"].(string), fc.Args["team"].(slug.Slug), fc.Args["app"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23497,7 +23521,7 @@ func (ec *executionContext) _Query_currentResourceUtilizationForTeam(ctx context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().CurrentResourceUtilizationForTeam(rctx, fc.Args["team"].(string))
+		return ec.resolvers.Query().CurrentResourceUtilizationForTeam(rctx, fc.Args["team"].(slug.Slug))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23560,7 +23584,7 @@ func (ec *executionContext) _Query_resourceUtilizationOverageForTeam(ctx context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ResourceUtilizationOverageForTeam(rctx, fc.Args["team"].(string))
+		return ec.resolvers.Query().ResourceUtilizationOverageForTeam(rctx, fc.Args["team"].(slug.Slug))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23625,7 +23649,7 @@ func (ec *executionContext) _Query_resourceUtilizationForTeam(ctx context.Contex
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ResourceUtilizationForTeam(rctx, fc.Args["team"].(string), fc.Args["from"].(*scalar.Date), fc.Args["to"].(*scalar.Date))
+		return ec.resolvers.Query().ResourceUtilizationForTeam(rctx, fc.Args["team"].(slug.Slug), fc.Args["from"].(*scalar.Date), fc.Args["to"].(*scalar.Date))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23688,7 +23712,7 @@ func (ec *executionContext) _Query_resourceUtilizationDateRangeForTeam(ctx conte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ResourceUtilizationDateRangeForTeam(rctx, fc.Args["team"].(string))
+		return ec.resolvers.Query().ResourceUtilizationDateRangeForTeam(rctx, fc.Args["team"].(slug.Slug))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23749,7 +23773,7 @@ func (ec *executionContext) _Query_resourceUtilizationDateRangeForApp(ctx contex
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ResourceUtilizationDateRangeForApp(rctx, fc.Args["env"].(string), fc.Args["team"].(string), fc.Args["app"].(string))
+		return ec.resolvers.Query().ResourceUtilizationDateRangeForApp(rctx, fc.Args["env"].(string), fc.Args["team"].(slug.Slug), fc.Args["app"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23810,7 +23834,7 @@ func (ec *executionContext) _Query_resourceUtilizationForApp(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ResourceUtilizationForApp(rctx, fc.Args["env"].(string), fc.Args["team"].(string), fc.Args["app"].(string), fc.Args["from"].(*scalar.Date), fc.Args["to"].(*scalar.Date))
+		return ec.resolvers.Query().ResourceUtilizationForApp(rctx, fc.Args["env"].(string), fc.Args["team"].(slug.Slug), fc.Args["app"].(string), fc.Args["from"].(*scalar.Date), fc.Args["to"].(*scalar.Date))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24135,7 +24159,7 @@ func (ec *executionContext) _Query_teamDeleteKey(ctx context.Context, field grap
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().TeamDeleteKey(rctx, fc.Args["key"].(scalar.Ident))
+			return ec.resolvers.Query().TeamDeleteKey(rctx, fc.Args["key"].(string))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Auth == nil {
@@ -24410,10 +24434,10 @@ func (ec *executionContext) _Query_userSync(ctx context.Context, field graphql.C
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.([]*model.UserSyncRun); ok {
+		if data, ok := tmp.([]*usersync.Run); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/nais/api/internal/graph/model.UserSyncRun`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/nais/api/internal/usersync.Run`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24425,9 +24449,9 @@ func (ec *executionContext) _Query_userSync(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.UserSyncRun)
+	res := resTmp.([]*usersync.Run)
 	fc.Result = res
-	return ec.marshalNUserSyncRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUserSyncRunᚄ(ctx, field.Selections, res)
+	return ec.marshalNUserSyncRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋusersyncᚐRunᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_userSync(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -24612,9 +24636,9 @@ func (ec *executionContext) _Reconciler_name(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(gensql.ReconcilerName)
 	fc.Result = res
-	return ec.marshalNReconcilerName2string(ctx, field.Selections, res)
+	return ec.marshalNReconcilerName2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerName(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Reconciler_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -24776,7 +24800,7 @@ func (ec *executionContext) _Reconciler_usesTeamMemberships(ctx context.Context,
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.UsesTeamMemberships, nil
+		return ec.resolvers.Reconciler().UsesTeamMemberships(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24797,8 +24821,8 @@ func (ec *executionContext) fieldContext_Reconciler_usesTeamMemberships(ctx cont
 	fc = &graphql.FieldContext{
 		Object:     "Reconciler",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
 		},
@@ -24821,7 +24845,7 @@ func (ec *executionContext) _Reconciler_config(ctx context.Context, field graphq
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return obj.Config, nil
+			return ec.resolvers.Reconciler().Config(rctx, obj)
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Admin == nil {
@@ -24861,8 +24885,8 @@ func (ec *executionContext) fieldContext_Reconciler_config(ctx context.Context, 
 	fc = &graphql.FieldContext{
 		Object:     "Reconciler",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "key":
@@ -24899,7 +24923,7 @@ func (ec *executionContext) _Reconciler_configured(ctx context.Context, field gr
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return obj.Configured, nil
+			return ec.resolvers.Reconciler().Configured(rctx, obj)
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Admin == nil {
@@ -24939,8 +24963,8 @@ func (ec *executionContext) fieldContext_Reconciler_configured(ctx context.Conte
 	fc = &graphql.FieldContext{
 		Object:     "Reconciler",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
 		},
@@ -25099,9 +25123,9 @@ func (ec *executionContext) _ReconcilerConfig_key(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(gensql.ReconcilerConfigKey)
 	fc.Result = res
-	return ec.marshalNReconcilerConfigKey2string(ctx, field.Selections, res)
+	return ec.marshalNReconcilerConfigKey2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerConfigKey(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ReconcilerConfig_key(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -27141,9 +27165,9 @@ func (ec *executionContext) _Role_name(ctx context.Context, field graphql.Collec
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(gensql.RoleName)
 	fc.Result = res
-	return ec.marshalNRoleName2string(ctx, field.Selections, res)
+	return ec.marshalNRoleName2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐRoleName(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Role_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -28137,7 +28161,7 @@ func (ec *executionContext) _ServiceAccount_roles(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Roles, nil
+		return ec.resolvers.ServiceAccount().Roles(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -28158,8 +28182,8 @@ func (ec *executionContext) fieldContext_ServiceAccount_roles(ctx context.Contex
 	fc = &graphql.FieldContext{
 		Object:     "ServiceAccount",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "name":
@@ -29284,9 +29308,9 @@ func (ec *executionContext) _SyncError_reconciler(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(gensql.ReconcilerName)
 	fc.Result = res
-	return ec.marshalNReconcilerName2string(ctx, field.Selections, res)
+	return ec.marshalNReconcilerName2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerName(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SyncError_reconciler(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -30539,9 +30563,9 @@ func (ec *executionContext) _TeamDeleteKey_key(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(scalar.Ident)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamDeleteKey_key(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -30551,7 +30575,7 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_key(ctx context.Context, 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -31157,9 +31181,9 @@ func (ec *executionContext) _TeamMember_reconcilers(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.TeamMemberReconciler)
+	res := resTmp.([]*gensql.GetTeamMemberOptOutsRow)
 	fc.Result = res
-	return ec.marshalNTeamMemberReconciler2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMemberReconcilerᚄ(ctx, field.Selections, res)
+	return ec.marshalNTeamMemberReconciler2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐGetTeamMemberOptOutsRowᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamMember_reconcilers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -31287,7 +31311,7 @@ func (ec *executionContext) fieldContext_TeamMemberList_pageInfo(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberReconciler_reconciler(ctx context.Context, field graphql.CollectedField, obj *model.TeamMemberReconciler) (ret graphql.Marshaler) {
+func (ec *executionContext) _TeamMemberReconciler_reconciler(ctx context.Context, field graphql.CollectedField, obj *gensql.GetTeamMemberOptOutsRow) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamMemberReconciler_reconciler(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -31301,7 +31325,7 @@ func (ec *executionContext) _TeamMemberReconciler_reconciler(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Reconciler, nil
+		return ec.resolvers.TeamMemberReconciler().Reconciler(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -31313,17 +31337,17 @@ func (ec *executionContext) _TeamMemberReconciler_reconciler(ctx context.Context
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.Reconciler)
+	res := resTmp.(*model.Reconciler)
 	fc.Result = res
-	return ec.marshalNReconciler2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconciler(ctx, field.Selections, res)
+	return ec.marshalNReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconciler(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamMemberReconciler_reconciler(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamMemberReconciler",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "name":
@@ -31351,7 +31375,7 @@ func (ec *executionContext) fieldContext_TeamMemberReconciler_reconciler(ctx con
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberReconciler_enabled(ctx context.Context, field graphql.CollectedField, obj *model.TeamMemberReconciler) (ret graphql.Marshaler) {
+func (ec *executionContext) _TeamMemberReconciler_enabled(ctx context.Context, field graphql.CollectedField, obj *gensql.GetTeamMemberOptOutsRow) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamMemberReconciler_enabled(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -31565,9 +31589,9 @@ func (ec *executionContext) _TeamsInternal_roles(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]string)
+	res := resTmp.([]gensql.RoleName)
 	fc.Result = res
-	return ec.marshalNRoleName2ᚕstringᚄ(ctx, field.Selections, res)
+	return ec.marshalNRoleName2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐRoleNameᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamsInternal_roles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -32167,7 +32191,7 @@ func (ec *executionContext) fieldContext_UserList_pageInfo(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSyncRun_correlationID(ctx context.Context, field graphql.CollectedField, obj *model.UserSyncRun) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserSyncRun_correlationID(ctx context.Context, field graphql.CollectedField, obj *usersync.Run) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserSyncRun_correlationID(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -32181,7 +32205,7 @@ func (ec *executionContext) _UserSyncRun_correlationID(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CorrelationID, nil
+		return ec.resolvers.UserSyncRun().CorrelationID(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -32193,17 +32217,17 @@ func (ec *executionContext) _UserSyncRun_correlationID(ctx context.Context, fiel
 		}
 		return graphql.Null
 	}
-	res := resTmp.(scalar.Ident)
+	res := resTmp.(*scalar.Ident)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+	return ec.marshalNID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserSyncRun_correlationID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UserSyncRun",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
 		},
@@ -32211,7 +32235,7 @@ func (ec *executionContext) fieldContext_UserSyncRun_correlationID(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSyncRun_startedAt(ctx context.Context, field graphql.CollectedField, obj *model.UserSyncRun) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserSyncRun_startedAt(ctx context.Context, field graphql.CollectedField, obj *usersync.Run) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserSyncRun_startedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -32225,7 +32249,7 @@ func (ec *executionContext) _UserSyncRun_startedAt(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.StartedAt, nil
+		return obj.StartedAt(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -32246,7 +32270,7 @@ func (ec *executionContext) fieldContext_UserSyncRun_startedAt(ctx context.Conte
 	fc = &graphql.FieldContext{
 		Object:     "UserSyncRun",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Time does not have child fields")
@@ -32255,7 +32279,7 @@ func (ec *executionContext) fieldContext_UserSyncRun_startedAt(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSyncRun_finishedAt(ctx context.Context, field graphql.CollectedField, obj *model.UserSyncRun) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserSyncRun_finishedAt(ctx context.Context, field graphql.CollectedField, obj *usersync.Run) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserSyncRun_finishedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -32269,7 +32293,7 @@ func (ec *executionContext) _UserSyncRun_finishedAt(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.FinishedAt, nil
+		return obj.FinishedAt(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -32287,7 +32311,7 @@ func (ec *executionContext) fieldContext_UserSyncRun_finishedAt(ctx context.Cont
 	fc = &graphql.FieldContext{
 		Object:     "UserSyncRun",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Time does not have child fields")
@@ -32296,7 +32320,7 @@ func (ec *executionContext) fieldContext_UserSyncRun_finishedAt(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSyncRun_auditLogs(ctx context.Context, field graphql.CollectedField, obj *model.UserSyncRun) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserSyncRun_auditLogs(ctx context.Context, field graphql.CollectedField, obj *usersync.Run) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserSyncRun_auditLogs(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -32310,7 +32334,7 @@ func (ec *executionContext) _UserSyncRun_auditLogs(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.AuditLogs, nil
+		return ec.resolvers.UserSyncRun().AuditLogs(rctx, obj, fc.Args["limit"].(*int), fc.Args["offset"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -32322,17 +32346,17 @@ func (ec *executionContext) _UserSyncRun_auditLogs(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.AuditLogList)
+	res := resTmp.(*model.AuditLogList)
 	fc.Result = res
-	return ec.marshalNAuditLogList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditLogList(ctx, field.Selections, res)
+	return ec.marshalNAuditLogList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditLogList(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserSyncRun_auditLogs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UserSyncRun",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "nodes":
@@ -32357,7 +32381,7 @@ func (ec *executionContext) fieldContext_UserSyncRun_auditLogs(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSyncRun_status(ctx context.Context, field graphql.CollectedField, obj *model.UserSyncRun) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserSyncRun_status(ctx context.Context, field graphql.CollectedField, obj *usersync.Run) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserSyncRun_status(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -32371,7 +32395,7 @@ func (ec *executionContext) _UserSyncRun_status(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Status, nil
+		return ec.resolvers.UserSyncRun().Status(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -32392,8 +32416,8 @@ func (ec *executionContext) fieldContext_UserSyncRun_status(ctx context.Context,
 	fc = &graphql.FieldContext{
 		Object:     "UserSyncRun",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type UserSyncRunStatus does not have child fields")
 		},
@@ -32401,7 +32425,7 @@ func (ec *executionContext) fieldContext_UserSyncRun_status(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSyncRun_error(ctx context.Context, field graphql.CollectedField, obj *model.UserSyncRun) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserSyncRun_error(ctx context.Context, field graphql.CollectedField, obj *usersync.Run) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserSyncRun_error(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -32415,7 +32439,7 @@ func (ec *executionContext) _UserSyncRun_error(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Error, nil
+		return ec.resolvers.UserSyncRun().Error(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -32433,8 +32457,8 @@ func (ec *executionContext) fieldContext_UserSyncRun_error(ctx context.Context, 
 	fc = &graphql.FieldContext{
 		Object:     "UserSyncRun",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -35069,7 +35093,7 @@ func (ec *executionContext) unmarshalInputEnvCostFilter(ctx context.Context, obj
 			it.To = data
 		case "team":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -35144,7 +35168,7 @@ func (ec *executionContext) unmarshalInputLogSubscriptionInput(ctx context.Conte
 			it.Env = data
 		case "team":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -35178,7 +35202,7 @@ func (ec *executionContext) unmarshalInputMonthlyCostFilter(ctx context.Context,
 		switch k {
 		case "team":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -35253,7 +35277,7 @@ func (ec *executionContext) unmarshalInputReconcilerConfigInput(ctx context.Cont
 		switch k {
 		case "key":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-			data, err := ec.unmarshalNReconcilerConfigKey2string(ctx, v)
+			data, err := ec.unmarshalNReconcilerConfigKey2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerConfigKey(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -35362,7 +35386,7 @@ func (ec *executionContext) unmarshalInputTeamMemberInput(ctx context.Context, o
 			it.Role = data
 		case "reconcilerOptOuts":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reconcilerOptOuts"))
-			data, err := ec.unmarshalOReconcilerName2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOReconcilerName2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerNameᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -40501,47 +40525,140 @@ func (ec *executionContext) _Reconciler(ctx context.Context, sel ast.SelectionSe
 		case "name":
 			out.Values[i] = ec._Reconciler_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "displayName":
 			out.Values[i] = ec._Reconciler_displayName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "description":
 			out.Values[i] = ec._Reconciler_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "enabled":
 			out.Values[i] = ec._Reconciler_enabled(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "usesTeamMemberships":
-			out.Values[i] = ec._Reconciler_usesTeamMemberships(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Reconciler_usesTeamMemberships(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "config":
-			out.Values[i] = ec._Reconciler_config(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Reconciler_config(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "configured":
-			out.Values[i] = ec._Reconciler_configured(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Reconciler_configured(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "runOrder":
 			out.Values[i] = ec._Reconciler_runOrder(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "auditLogs":
 			out.Values[i] = ec._Reconciler_auditLogs(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -41410,18 +41527,49 @@ func (ec *executionContext) _ServiceAccount(ctx context.Context, sel ast.Selecti
 		case "id":
 			out.Values[i] = ec._ServiceAccount_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
 			out.Values[i] = ec._ServiceAccount_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "roles":
-			out.Values[i] = ec._ServiceAccount_roles(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ServiceAccount_roles(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -42406,7 +42554,7 @@ func (ec *executionContext) _TeamMemberList(ctx context.Context, sel ast.Selecti
 
 var teamMemberReconcilerImplementors = []string{"TeamMemberReconciler"}
 
-func (ec *executionContext) _TeamMemberReconciler(ctx context.Context, sel ast.SelectionSet, obj *model.TeamMemberReconciler) graphql.Marshaler {
+func (ec *executionContext) _TeamMemberReconciler(ctx context.Context, sel ast.SelectionSet, obj *gensql.GetTeamMemberOptOutsRow) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberReconcilerImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -42416,14 +42564,45 @@ func (ec *executionContext) _TeamMemberReconciler(ctx context.Context, sel ast.S
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamMemberReconciler")
 		case "reconciler":
-			out.Values[i] = ec._TeamMemberReconciler_reconciler(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamMemberReconciler_reconciler(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "enabled":
 			out.Values[i] = ec._TeamMemberReconciler_enabled(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -42796,7 +42975,7 @@ func (ec *executionContext) _UserList(ctx context.Context, sel ast.SelectionSet,
 
 var userSyncRunImplementors = []string{"UserSyncRun"}
 
-func (ec *executionContext) _UserSyncRun(ctx context.Context, sel ast.SelectionSet, obj *model.UserSyncRun) graphql.Marshaler {
+func (ec *executionContext) _UserSyncRun(ctx context.Context, sel ast.SelectionSet, obj *usersync.Run) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, userSyncRunImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -42806,29 +42985,153 @@ func (ec *executionContext) _UserSyncRun(ctx context.Context, sel ast.SelectionS
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("UserSyncRun")
 		case "correlationID":
-			out.Values[i] = ec._UserSyncRun_correlationID(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UserSyncRun_correlationID(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "startedAt":
 			out.Values[i] = ec._UserSyncRun_startedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "finishedAt":
 			out.Values[i] = ec._UserSyncRun_finishedAt(ctx, field, obj)
 		case "auditLogs":
-			out.Values[i] = ec._UserSyncRun_auditLogs(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UserSyncRun_auditLogs(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "status":
-			out.Values[i] = ec._UserSyncRun_status(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UserSyncRun_status(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "error":
-			out.Values[i] = ec._UserSyncRun_error(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UserSyncRun_error(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -43642,13 +43945,13 @@ func (ec *executionContext) marshalNAppsStatus2githubᚗcomᚋnaisᚋapiᚋinter
 	return ec._AppsStatus(ctx, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNAuditAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditloggerᚐAuditAction(ctx context.Context, v interface{}) (auditlogger.AuditAction, error) {
+func (ec *executionContext) unmarshalNAuditAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditloggerᚋaudittypeᚐAuditAction(ctx context.Context, v interface{}) (audittype.AuditAction, error) {
 	tmp, err := graphql.UnmarshalString(v)
-	res := auditlogger.AuditAction(tmp)
+	res := audittype.AuditAction(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNAuditAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditloggerᚐAuditAction(ctx context.Context, sel ast.SelectionSet, v auditlogger.AuditAction) graphql.Marshaler {
+func (ec *executionContext) marshalNAuditAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditloggerᚋaudittypeᚐAuditAction(ctx context.Context, sel ast.SelectionSet, v audittype.AuditAction) graphql.Marshaler {
 	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -43716,13 +44019,23 @@ func (ec *executionContext) marshalNAuditLogList2githubᚗcomᚋnaisᚋapiᚋint
 	return ec._AuditLogList(ctx, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNAuditLogsTargetType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditloggerᚐAuditLogsTargetType(ctx context.Context, v interface{}) (auditlogger.AuditLogsTargetType, error) {
+func (ec *executionContext) marshalNAuditLogList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditLogList(ctx context.Context, sel ast.SelectionSet, v *model.AuditLogList) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AuditLogList(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAuditLogsTargetType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditloggerᚋaudittypeᚐAuditLogsTargetType(ctx context.Context, v interface{}) (audittype.AuditLogsTargetType, error) {
 	tmp, err := graphql.UnmarshalString(v)
-	res := auditlogger.AuditLogsTargetType(tmp)
+	res := audittype.AuditLogsTargetType(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNAuditLogsTargetType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditloggerᚐAuditLogsTargetType(ctx context.Context, sel ast.SelectionSet, v auditlogger.AuditLogsTargetType) graphql.Marshaler {
+func (ec *executionContext) marshalNAuditLogsTargetType2githubᚗcomᚋnaisᚋapiᚋinternalᚋauditloggerᚋaudittypeᚐAuditLogsTargetType(ctx context.Context, sel ast.SelectionSet, v audittype.AuditLogsTargetType) graphql.Marshaler {
 	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -45406,13 +45719,14 @@ func (ec *executionContext) unmarshalNReconcilerConfigInput2ᚖgithubᚗcomᚋna
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNReconcilerConfigKey2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalString(v)
+func (ec *executionContext) unmarshalNReconcilerConfigKey2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerConfigKey(ctx context.Context, v interface{}) (gensql.ReconcilerConfigKey, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := gensql.ReconcilerConfigKey(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNReconcilerConfigKey2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalString(v)
+func (ec *executionContext) marshalNReconcilerConfigKey2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerConfigKey(ctx context.Context, sel ast.SelectionSet, v gensql.ReconcilerConfigKey) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45421,13 +45735,14 @@ func (ec *executionContext) marshalNReconcilerConfigKey2string(ctx context.Conte
 	return res
 }
 
-func (ec *executionContext) unmarshalNReconcilerName2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalString(v)
+func (ec *executionContext) unmarshalNReconcilerName2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerName(ctx context.Context, v interface{}) (gensql.ReconcilerName, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := gensql.ReconcilerName(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNReconcilerName2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalString(v)
+func (ec *executionContext) marshalNReconcilerName2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerName(ctx context.Context, sel ast.SelectionSet, v gensql.ReconcilerName) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45741,13 +46056,14 @@ func (ec *executionContext) marshalNRole2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 	return ec._Role(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNRoleName2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalString(v)
+func (ec *executionContext) unmarshalNRoleName2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐRoleName(ctx context.Context, v interface{}) (gensql.RoleName, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := gensql.RoleName(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNRoleName2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalString(v)
+func (ec *executionContext) marshalNRoleName2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐRoleName(ctx context.Context, sel ast.SelectionSet, v gensql.RoleName) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -45756,16 +46072,16 @@ func (ec *executionContext) marshalNRoleName2string(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) unmarshalNRoleName2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+func (ec *executionContext) unmarshalNRoleName2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐRoleNameᚄ(ctx context.Context, v interface{}) ([]gensql.RoleName, error) {
 	var vSlice []interface{}
 	if v != nil {
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]string, len(vSlice))
+	res := make([]gensql.RoleName, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNRoleName2string(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNRoleName2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐRoleName(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -45773,10 +46089,10 @@ func (ec *executionContext) unmarshalNRoleName2ᚕstringᚄ(ctx context.Context,
 	return res, nil
 }
 
-func (ec *executionContext) marshalNRoleName2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+func (ec *executionContext) marshalNRoleName2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐRoleNameᚄ(ctx context.Context, sel ast.SelectionSet, v []gensql.RoleName) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	for i := range v {
-		ret[i] = ec.marshalNRoleName2string(ctx, sel, v[i])
+		ret[i] = ec.marshalNRoleName2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐRoleName(ctx, sel, v[i])
 	}
 
 	for _, e := range ret {
@@ -46419,7 +46735,7 @@ func (ec *executionContext) marshalNTeamMemberList2githubᚗcomᚋnaisᚋapiᚋi
 	return ec._TeamMemberList(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamMemberReconciler2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMemberReconcilerᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.TeamMemberReconciler) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamMemberReconciler2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐGetTeamMemberOptOutsRowᚄ(ctx context.Context, sel ast.SelectionSet, v []*gensql.GetTeamMemberOptOutsRow) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -46443,7 +46759,7 @@ func (ec *executionContext) marshalNTeamMemberReconciler2ᚕᚖgithubᚗcomᚋna
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNTeamMemberReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMemberReconciler(ctx, sel, v[i])
+			ret[i] = ec.marshalNTeamMemberReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐGetTeamMemberOptOutsRow(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -46463,7 +46779,7 @@ func (ec *executionContext) marshalNTeamMemberReconciler2ᚕᚖgithubᚗcomᚋna
 	return ret
 }
 
-func (ec *executionContext) marshalNTeamMemberReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMemberReconciler(ctx context.Context, sel ast.SelectionSet, v *model.TeamMemberReconciler) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamMemberReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐGetTeamMemberOptOutsRow(ctx context.Context, sel ast.SelectionSet, v *gensql.GetTeamMemberOptOutsRow) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -46671,7 +46987,7 @@ func (ec *executionContext) marshalNUserList2ᚖgithubᚗcomᚋnaisᚋapiᚋinte
 	return ec._UserList(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUserSyncRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUserSyncRunᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.UserSyncRun) graphql.Marshaler {
+func (ec *executionContext) marshalNUserSyncRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋusersyncᚐRunᚄ(ctx context.Context, sel ast.SelectionSet, v []*usersync.Run) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -46695,7 +47011,7 @@ func (ec *executionContext) marshalNUserSyncRun2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUserSyncRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUserSyncRun(ctx, sel, v[i])
+			ret[i] = ec.marshalNUserSyncRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋusersyncᚐRun(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -46715,7 +47031,7 @@ func (ec *executionContext) marshalNUserSyncRun2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) marshalNUserSyncRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUserSyncRun(ctx context.Context, sel ast.SelectionSet, v *model.UserSyncRun) graphql.Marshaler {
+func (ec *executionContext) marshalNUserSyncRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋusersyncᚐRun(ctx context.Context, sel ast.SelectionSet, v *usersync.Run) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -47236,7 +47552,7 @@ func (ec *executionContext) unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋint
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOReconcilerName2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+func (ec *executionContext) unmarshalOReconcilerName2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerNameᚄ(ctx context.Context, v interface{}) ([]gensql.ReconcilerName, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -47245,10 +47561,10 @@ func (ec *executionContext) unmarshalOReconcilerName2ᚕstringᚄ(ctx context.Co
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]string, len(vSlice))
+	res := make([]gensql.ReconcilerName, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNReconcilerName2string(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNReconcilerName2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerName(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -47256,13 +47572,13 @@ func (ec *executionContext) unmarshalOReconcilerName2ᚕstringᚄ(ctx context.Co
 	return res, nil
 }
 
-func (ec *executionContext) marshalOReconcilerName2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+func (ec *executionContext) marshalOReconcilerName2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerNameᚄ(ctx context.Context, sel ast.SelectionSet, v []gensql.ReconcilerName) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	ret := make(graphql.Array, len(v))
 	for i := range v {
-		ret[i] = ec.marshalNReconcilerName2string(ctx, sel, v[i])
+		ret[i] = ec.marshalNReconcilerName2githubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐReconcilerName(ctx, sel, v[i])
 	}
 
 	for _, e := range ret {

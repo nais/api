@@ -2,26 +2,19 @@ package database
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgtype"
 	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 )
 
 func (d *database) RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error {
-	return d.querier.RemoveUserFromTeam(ctx, sqlc.RemoveUserFromTeamParams{
-		UserID:         userID,
-		TargetTeamSlug: &teamSlug,
-	})
+	return d.querier.RemoveUserFromTeam(ctx, userID, &teamSlug)
 }
 
 func (d *database) UpdateTeam(ctx context.Context, teamSlug slug.Slug, purpose, slackChannel *string) (*Team, error) {
-	team, err := d.querier.UpdateTeam(ctx, sqlc.UpdateTeamParams{
-		Slug:         teamSlug,
-		Purpose:      purpose,
-		SlackChannel: slackChannel,
-	})
+	team, err := d.querier.UpdateTeam(ctx, purpose, slackChannel, teamSlug)
 	if err != nil {
 		return nil, err
 	}
@@ -30,11 +23,7 @@ func (d *database) UpdateTeam(ctx context.Context, teamSlug slug.Slug, purpose, 
 }
 
 func (d *database) CreateTeam(ctx context.Context, slug slug.Slug, purpose, slackChannel string) (*Team, error) {
-	team, err := d.querier.CreateTeam(ctx, sqlc.CreateTeamParams{
-		Slug:         slug,
-		Purpose:      purpose,
-		SlackChannel: slackChannel,
-	})
+	team, err := d.querier.CreateTeam(ctx, slug, purpose, slackChannel)
 	if err != nil {
 		return nil, err
 	}
@@ -63,10 +52,7 @@ func (d *database) GetTeamBySlug(ctx context.Context, slug slug.Slug) (*Team, er
 func (d *database) GetTeams(ctx context.Context, offset, limit int) ([]*Team, int, error) {
 	var teams []*sqlc.Team
 	var err error
-	teams, err = d.querier.GetTeamsPaginated(ctx, sqlc.GetTeamsPaginatedParams{
-		Limit:  int32(limit),
-		Offset: int32(offset),
-	})
+	teams, err = d.querier.GetTeamsPaginated(ctx, int32(offset), int32(limit))
 	if err != nil {
 		return nil, 0, err
 	}
@@ -113,11 +99,7 @@ func (d *database) GetActiveTeams(ctx context.Context) ([]*Team, error) {
 }
 
 func (d *database) GetUserTeams(ctx context.Context, userID uuid.UUID, offset, limit int) ([]*UserTeam, int, error) {
-	rows, err := d.querier.GetUserTeams(ctx, sqlc.GetUserTeamsParams{
-		UserID: userID,
-		Limit:  int32(limit),
-		Offset: int32(offset),
-	})
+	rows, err := d.querier.GetUserTeams(ctx, userID, int32(limit), int32(offset))
 	if err != nil {
 		return nil, 0, err
 	}
@@ -154,11 +136,7 @@ func (d *database) GetAllTeamMembers(ctx context.Context, teamSlug slug.Slug) ([
 func (d *database) GetTeamMembers(ctx context.Context, teamSlug slug.Slug, offset, limit int) ([]*User, int, error) {
 	var rows []*sqlc.User
 	var err error
-	rows, err = d.querier.GetTeamMembers(ctx, sqlc.GetTeamMembersParams{
-		TargetTeamSlug: &teamSlug,
-		Limit:          int32(limit),
-		Offset:         int32(offset),
-	})
+	rows, err = d.querier.GetTeamMembers(ctx, &teamSlug, int32(offset), int32(limit))
 	if err != nil {
 		return nil, 0, err
 	}
@@ -176,10 +154,7 @@ func (d *database) GetTeamMembers(ctx context.Context, teamSlug slug.Slug, offse
 }
 
 func (d *database) GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*User, error) {
-	user, err := d.querier.GetTeamMember(ctx, sqlc.GetTeamMemberParams{
-		TargetTeamSlug: &teamSlug,
-		ID:             userID,
-	})
+	user, err := d.querier.GetTeamMember(ctx, &teamSlug, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -188,10 +163,7 @@ func (d *database) GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID
 }
 
 func (d *database) GetTeamMembersForReconciler(ctx context.Context, teamSlug slug.Slug, reconcilerName sqlc.ReconcilerName) ([]*User, error) {
-	rows, err := d.querier.GetTeamMembersForReconciler(ctx, sqlc.GetTeamMembersForReconcilerParams{
-		TargetTeamSlug: &teamSlug,
-		ReconcilerName: reconcilerName,
-	})
+	rows, err := d.querier.GetTeamMembersForReconciler(ctx, &teamSlug, reconcilerName)
 	if err != nil {
 		return nil, err
 	}
@@ -223,25 +195,15 @@ func (d *database) GetSlackAlertsChannels(ctx context.Context, teamSlug slug.Slu
 }
 
 func (d *database) SetSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment, channelName string) error {
-	return d.querier.SetSlackAlertsChannel(ctx, sqlc.SetSlackAlertsChannelParams{
-		TeamSlug:    teamSlug,
-		Environment: environment,
-		ChannelName: channelName,
-	})
+	return d.querier.SetSlackAlertsChannel(ctx, teamSlug, environment, channelName)
 }
 
 func (d *database) RemoveSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string) error {
-	return d.querier.RemoveSlackAlertsChannel(ctx, sqlc.RemoveSlackAlertsChannelParams{
-		TeamSlug:    teamSlug,
-		Environment: environment,
-	})
+	return d.querier.RemoveSlackAlertsChannel(ctx, teamSlug, environment)
 }
 
 func (d *database) CreateTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*TeamDeleteKey, error) {
-	deleteKey, err := d.querier.CreateTeamDeleteKey(ctx, sqlc.CreateTeamDeleteKeyParams{
-		TeamSlug:  teamSlug,
-		CreatedBy: userID,
-	})
+	deleteKey, err := d.querier.CreateTeamDeleteKey(ctx, teamSlug, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -265,15 +227,11 @@ func (d *database) DeleteTeam(ctx context.Context, teamSlug slug.Slug) error {
 }
 
 func (d *database) GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*sqlc.GetTeamMemberOptOutsRow, error) {
-	return d.querier.GetTeamMemberOptOuts(ctx, sqlc.GetTeamMemberOptOutsParams{
-		UserID:   userID,
-		TeamSlug: teamSlug,
-	})
+	return d.querier.GetTeamMemberOptOuts(ctx, userID, teamSlug)
 }
 
 func (d *database) GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string, offset, limit int) ([]*Team, int, error) {
-	var state pgtype.JSONB
-	err := state.Set(map[string]interface{}{
+	matcher, err := json.Marshal(map[string]interface{}{
 		"repositories": []map[string]interface{}{
 			{
 				"name": repoName,
@@ -290,11 +248,7 @@ func (d *database) GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoN
 		return nil, 0, err
 	}
 
-	rows, err := d.querier.GetTeamsWithPermissionInGitHubRepo(ctx, sqlc.GetTeamsWithPermissionInGitHubRepoParams{
-		State:  state,
-		Limit:  int32(limit),
-		Offset: int32(offset),
-	})
+	rows, err := d.querier.GetTeamsWithPermissionInGitHubRepo(ctx, matcher, int32(offset), int32(limit))
 	if err != nil {
 		return nil, 0, err
 	}
@@ -304,7 +258,7 @@ func (d *database) GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoN
 		teams = append(teams, &Team{Team: row})
 	}
 
-	total, err := d.querier.GetTeamsWithPermissionInGitHubRepoCount(ctx, state)
+	total, err := d.querier.GetTeamsWithPermissionInGitHubRepoCount(ctx, matcher)
 	if err != nil {
 		return nil, 0, err
 	}

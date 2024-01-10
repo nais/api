@@ -22,7 +22,7 @@ func Test_Logf(t *testing.T) {
 	ctx := context.Background()
 	database := db.NewMockDatabase(t)
 	msg := "some message"
-	componentName := ComponentNameConsole
+	componentName := logger.ComponentNameConsole
 
 	t.Run("missing audit action", func(t *testing.T) {
 		log := logger.NewMockLogger(t)
@@ -49,7 +49,7 @@ func Test_Logf(t *testing.T) {
 			Once()
 
 		fields := auditlogger.Fields{
-			Action: AuditActionAzureGroupAddMember,
+			Action: audittype.AuditActionAzureGroupAddMember,
 		}
 		auditlogger.
 			New(database, componentName, log).
@@ -65,7 +65,7 @@ func Test_Logf(t *testing.T) {
 		reconcilerName := sqlc.ReconcilerNameGithubTeam
 		componentName := ComponentNameGithubTeam
 		actorIdentity := "actor"
-		action := AuditActionAzureGroupAddMember
+		action := audittype.AuditActionAzureGroupAddMember
 
 		correlationID := uuid.New()
 		targets := []auditlogger.Target{

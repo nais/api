@@ -36,11 +36,7 @@ func (d *database) GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, er
 }
 
 func (d *database) ConfigureReconciler(ctx context.Context, reconcilerName sqlc.ReconcilerName, key sqlc.ReconcilerConfigKey, value string) error {
-	return d.querier.ConfigureReconciler(ctx, sqlc.ConfigureReconcilerParams{
-		Reconciler: reconcilerName,
-		Key:        key,
-		Value:      value,
-	})
+	return d.querier.ConfigureReconciler(ctx, value, reconcilerName, key)
 }
 
 func (d *database) GetReconcilerConfig(ctx context.Context, reconcilerName sqlc.ReconcilerName) ([]*ReconcilerConfig, error) {
@@ -104,19 +100,11 @@ func (d *database) DangerousGetReconcilerConfigValues(ctx context.Context, recon
 }
 
 func (d *database) AddReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName sqlc.ReconcilerName) error {
-	return d.querier.AddReconcilerOptOut(ctx, sqlc.AddReconcilerOptOutParams{
-		TeamSlug:       teamSlug,
-		UserID:         userID,
-		ReconcilerName: reconcilerName,
-	})
+	return d.querier.AddReconcilerOptOut(ctx, teamSlug, userID, reconcilerName)
 }
 
 func (d *database) RemoveReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName sqlc.ReconcilerName) error {
-	return d.querier.RemoveReconcilerOptOut(ctx, sqlc.RemoveReconcilerOptOutParams{
-		TeamSlug:       teamSlug,
-		UserID:         userID,
-		ReconcilerName: reconcilerName,
-	})
+	return d.querier.RemoveReconcilerOptOut(ctx, teamSlug, userID, reconcilerName)
 }
 
 func wrapReconcilers(rows []*sqlc.Reconciler) []*Reconciler {

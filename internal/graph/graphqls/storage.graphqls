@@ -1,101 +1,101 @@
 interface Storage {
-    name: String!
+  name: String!
 }
 
 type InfluxDb implements Storage {
-    name: String!
+  name: String!
 }
 
 type Redis implements Storage {
-    name: String!
-    access: String!
+  name: String!
+  access: String!
 }
 
 type BigQueryDataset implements Storage {
-    cascadingDelete: Boolean!
-    description: String!
-    name: String!
-    permission: String!
+  cascadingDelete: Boolean!
+  description: String!
+  name: String!
+  permission: String!
 }
 
 type Bucket implements Storage {
-    cascadingDelete: Boolean!
-    name: String!
-    publicAccessPrevention: Boolean!
-    retentionPeriodDays: Int!
-    uniformBucketLevelAccess: Boolean!
+  cascadingDelete: Boolean!
+  name: String!
+  publicAccessPrevention: Boolean!
+  retentionPeriodDays: Int!
+  uniformBucketLevelAccess: Boolean!
 }
 
 type Kafka implements Storage {
-    """
-    The kafka pool name
-    """
-    name: String!
-    streams: Boolean!
-    topics: [Topic!]!
+  """
+  The kafka pool name
+  """
+  name: String!
+  streams: Boolean!
+  topics: [Topic!]!
 }
 
 type Topic {
-    name: String!
-    acl: [Acl!]!
+  name: String!
+  acl: [Acl!]!
 }
 
 type Acl {
-    access: String!
-    application: String!
-    team: String!
+  access: String!
+  application: String!
+  team: Slug!
 }
 
 type OpenSearch implements Storage {
-    """
-    The opensearch instance name
-    """
-    name: String!
-    access: String!
+  """
+  The opensearch instance name
+  """
+  name: String!
+  access: String!
 }
 
 type Flag {
-    name: String!
-    value: String!
+  name: String!
+  value: String!
 }
 
 type Insights {
-    enabled: Boolean!
-    queryStringLength: Int!
-    recordApplicationTags: Boolean!
-    recordClientAddress: Boolean!
+  enabled: Boolean!
+  queryStringLength: Int!
+  recordApplicationTags: Boolean!
+  recordClientAddress: Boolean!
 }
 
 type Maintenance {
-    day: Int!
-    hour: Int!
+  day: Int!
+  hour: Int!
 }
 
 type Database {
-    envVarPrefix: String!
-    name: String!
-    users: [DatabaseUser!]!
+  envVarPrefix: String!
+  name: String!
+  users: [DatabaseUser!]!
 }
 
 type DatabaseUser {
-    name: String!
+  name: String!
 }
 
 type SqlInstance implements Storage {
-    autoBackupHour: Int!
-    cascadingDelete: Boolean!
-    collation: String!
-    databases: [Database!]!
-    diskAutoresize: Boolean!
-    diskSize: Int!
-    diskType: String!
-    flags: [Flag!]!
-    highAvailability: Boolean!
-    insights: Insights!
-    maintenance: Maintenance!
-    name: String!
-    pointInTimeRecovery: Boolean!
-    retainedBackups: Int!
-    tier: String!
-    type: String!
+  autoBackupHour: Int!
+  cascadingDelete: Boolean!
+  collation: String!
+  databases: [Database!]!
+  diskAutoresize: Boolean!
+  diskSize: Int!
+  diskType: String!
+  flags: [Flag!]!
+  highAvailability: Boolean!
+  insights: Insights!
+  maintenance: Maintenance!
+  name: String!
+  pointInTimeRecovery: Boolean!
+  retainedBackups: Int!
+  tier: String!
+  type: String!
 }

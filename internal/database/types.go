@@ -4,12 +4,13 @@ import (
 	"context"
 	"time"
 
-
-	"github.com/nais/api/internal/auth/roles"
-
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/auditlogger/audittype"
+	"github.com/nais/api/internal/auth/authz"
 	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/logger"
+	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -19,12 +20,6 @@ type (
 	QuerierTransactionFunc  func(ctx context.Context, querier Querier) error
 	DatabaseTransactionFunc func(ctx context.Context, dbtx Database) error
 )
-
-type AuthenticatedUser interface {
-	GetID() uuid.UUID
-	Identity() string
-	IsServiceAccount() bool
-}
 
 type AuditLog struct {
 	*sqlc.AuditLog
@@ -59,13 +54,6 @@ type ReconcilerError struct {
 
 type UserRole struct {
 	*sqlc.UserRole
-}
-
-type Role struct {
-	Authorizations         []roles.Authorization
-	RoleName               sqlc.RoleName
-	TargetServiceAccountID *uuid.UUID
-	TargetTeamSlug         *slug.Slug
 }
 
 type ServiceAccount struct {
@@ -109,9 +97,11 @@ type database struct {
 }
 
 type Database interface {
+	search.Searchable
+
 	CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization sqlc.RepositoryAuthorizationEnum) error
 	RemoveRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization sqlc.RepositoryAuthorizationEnum) error
-	CreateAuditLogEntry(ctx context.Context, correlationID uuid.UUID, componentName types.ComponentName, actor *string, targetType types.AuditLogsTargetType, targetIdentifier string, action types.AuditAction, message string) error
+	CreateAuditLogEntry(ctx context.Context, correlationID uuid.UUID, componentName logger.ComponentName, actor *string, targetType audittype.AuditLogsTargetType, targetIdentifier string, action audittype.AuditAction, message string) error
 	CreateUser(ctx context.Context, name, email, externalID string) (*User, error)
 	CreateServiceAccount(ctx context.Context, name string) (*ServiceAccount, error)
 	GetServiceAccountByName(ctx context.Context, name string) (*ServiceAccount, error)
@@ -142,9 +132,9 @@ type Database interface {
 	CreateAPIKey(ctx context.Context, apiKey string, serviceAccountID uuid.UUID) error
 	RemoveAllServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
-	GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*Role, error)
+	GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*authz.Role, error)
 	GetAllUserRoles(ctx context.Context) ([]*UserRole, error)
-	GetServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) ([]*Role, error)
+	GetServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) ([]*authz.Role, error)
 	Transaction(ctx context.Context, fn DatabaseTransactionFunc) error
 	LoadReconcilerStateForTeam(ctx context.Context, reconcilerName sqlc.ReconcilerName, slug slug.Slug, state interface{}) error
 	SetReconcilerStateForTeam(ctx context.Context, reconcilerName sqlc.ReconcilerName, slug slug.Slug, state interface{}) error
@@ -216,7 +206,7 @@ func (s ServiceAccount) IsServiceAccount() bool {
 }
 
 func (k TeamDeleteKey) Expires() time.Time {
-	return k.CreatedAt.Add(teamDeleteKeyLifetime)
+	return k.CreatedAt.Time.Add(teamDeleteKeyLifetime)
 }
 
 func (k TeamDeleteKey) HasExpired() bool {

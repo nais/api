@@ -2,7 +2,7 @@ extend type Mutation {
   "Update the deploy key of a team. Returns the updated deploy key."
   changeDeployKey(
     "The name of the team to update the deploy key for."
-    team: String!
+    team: Slug!
   ): DeploymentKey!
 }
 

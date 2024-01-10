@@ -3,27 +3,44 @@ package graph
 import (
 	"context"
 
-	"github.com/nais/api/internal/auth"
+	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 )
 
-func (r *Resolver) hasAccess(ctx context.Context, teamName string) bool {
-	email, err := auth.GetEmail(ctx)
-	if err != nil {
-		r.log.Errorf("getting email from context: %v", err)
-		return false
+func toGraphTeam(m *database.Team) *model.Team {
+	ret := &model.Team{
+		ID:           scalar.TeamIdent(m.Slug),
+		Slug:         m.Slug,
+		Purpose:      m.Purpose,
+		SlackChannel: m.SlackChannel,
 	}
 
-	teams, err := r.teamsClient.GetTeamsForUser(ctx, email)
-	if err != nil {
-		r.log.Errorf("getting teams from Teams: %v", err)
-		return false
+	if m.LastSuccessfulSync.Valid {
+		ret.LastSuccessfulSync = &m.LastSuccessfulSync.Time
 	}
 
-	for _, team := range teams {
-		if team.Team.Slug == teamName {
-			return true
-		}
-	}
+	return ret
+}
 
+func toGraphTeams(m []*database.Team) []*model.Team {
+	ret := make([]*model.Team, 0)
+	for _, team := range m {
+		ret = append(ret, toGraphTeam(team))
+	}
+	return ret
+}
+
+func toGraphTeamDeleteKey(m *database.TeamDeleteKey) *model.TeamDeleteKey {
+	return &model.TeamDeleteKey{
+		Key:       m.Key.String(),
+		CreatedAt: m.CreatedAt.Time,
+		Expires:   m.Expires(),
+	}
+}
+
+func (r *Resolver) hasAccess(ctx context.Context, teamName slug.Slug) bool {
+	// Replace with RBAC
 	return false
 }

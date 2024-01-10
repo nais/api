@@ -10,33 +10,34 @@ import (
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
 )
 
 type Client interface {
 	// ResourceUtilizationForApp returns resource utilization (usage and request) for the given app, in the given time range
-	ResourceUtilizationForApp(ctx context.Context, env, team, app string, start, end scalar.Date) (*model.ResourceUtilizationForApp, error)
+	ResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string, start, end scalar.Date) (*model.ResourceUtilizationForApp, error)
 
 	// ResourceUtilizationForTeam returns resource utilization (usage and request) for a given team in the given time range
-	ResourceUtilizationForTeam(ctx context.Context, team string, start, end scalar.Date) ([]*model.ResourceUtilizationForEnv, error)
+	ResourceUtilizationForTeam(ctx context.Context, team slug.Slug, start, end scalar.Date) ([]*model.ResourceUtilizationForEnv, error)
 
 	// ResourceUtilizationOverageForTeam will return latest overage data for a given team
-	ResourceUtilizationOverageForTeam(ctx context.Context, team string) (*model.ResourceUtilizationOverageForTeam, error)
+	ResourceUtilizationOverageForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationOverageForTeam, error)
 
 	// ResourceUtilizationRangeForApp will return the min and max timestamps for a specific app
-	ResourceUtilizationRangeForApp(ctx context.Context, env, team, app string) (*model.ResourceUtilizationDateRange, error)
+	ResourceUtilizationRangeForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.ResourceUtilizationDateRange, error)
 
 	// ResourceUtilizationRangeForTeam will return the min and max timestamps for a specific team
-	ResourceUtilizationRangeForTeam(ctx context.Context, team string) (*model.ResourceUtilizationDateRange, error)
+	ResourceUtilizationRangeForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationDateRange, error)
 
 	// CurrentResourceUtilizationForApp will return the current percentages of resource utilization for an app
-	CurrentResourceUtilizationForApp(ctx context.Context, env, team, app string) (*model.CurrentResourceUtilization, error)
+	CurrentResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.CurrentResourceUtilization, error)
 
 	// CurrentResourceUtilizationForTeam will return the current percentages of resource utilization for a team across all apps and environments
-	CurrentResourceUtilizationForTeam(ctx context.Context, team string) (*model.CurrentResourceUtilization, error)
+	CurrentResourceUtilizationForTeam(ctx context.Context, team slug.Slug) (*model.CurrentResourceUtilization, error)
 
 	// ResourceUtilizationTrendForTeam will return the resource utilization trend for a team across all apps and environments
-	ResourceUtilizationTrendForTeam(ctx context.Context, team string) (*model.ResourceUtilizationTrend, error)
+	ResourceUtilizationTrendForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationTrend, error)
 }
 
 type client struct {
@@ -54,7 +55,7 @@ func NewClient(clusters []string, querier gensql.Querier, log logrus.FieldLogger
 	}
 }
 
-func (c *client) ResourceUtilizationForApp(ctx context.Context, env, team, app string, start, end scalar.Date) (*model.ResourceUtilizationForApp, error) {
+func (c *client) ResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string, start, end scalar.Date) (*model.ResourceUtilizationForApp, error) {
 	cpu, err := c.resourceUtilizationForApp(ctx, model.ResourceTypeCPU, env, team, app, start, end)
 	if err != nil {
 		return nil, err
@@ -71,7 +72,7 @@ func (c *client) ResourceUtilizationForApp(ctx context.Context, env, team, app s
 	}, nil
 }
 
-func (c *client) ResourceUtilizationForTeam(ctx context.Context, team string, start, end scalar.Date) ([]*model.ResourceUtilizationForEnv, error) {
+func (c *client) ResourceUtilizationForTeam(ctx context.Context, team slug.Slug, start, end scalar.Date) ([]*model.ResourceUtilizationForEnv, error) {
 	ret := make([]*model.ResourceUtilizationForEnv, 0)
 	for _, env := range c.clusters {
 		cpu, err := c.resourceUtilizationForTeam(ctx, model.ResourceTypeCPU, env, team, start, end)
@@ -93,7 +94,7 @@ func (c *client) ResourceUtilizationForTeam(ctx context.Context, team string, st
 	return ret, nil
 }
 
-func (c *client) ResourceUtilizationOverageForTeam(ctx context.Context, team string) (*model.ResourceUtilizationOverageForTeam, error) {
+func (c *client) ResourceUtilizationOverageForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationOverageForTeam, error) {
 	dateRange, err := c.querier.ResourceUtilizationRangeForTeam(ctx, team)
 	if err != nil {
 		return nil, err
@@ -117,19 +118,15 @@ func (c *client) ResourceUtilizationOverageForTeam(ctx context.Context, team str
 	}, nil
 }
 
-func (c *client) ResourceUtilizationRangeForApp(ctx context.Context, env, team, app string) (*model.ResourceUtilizationDateRange, error) {
-	dates, err := c.querier.ResourceUtilizationRangeForApp(ctx, gensql.ResourceUtilizationRangeForAppParams{
-		Env:  env,
-		Team: team,
-		App:  app,
-	})
+func (c *client) ResourceUtilizationRangeForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.ResourceUtilizationDateRange, error) {
+	dates, err := c.querier.ResourceUtilizationRangeForApp(ctx, env, team, app)
 	if err != nil {
 		return nil, err
 	}
 	return getDateRange(dates.From, dates.To), nil
 }
 
-func (c *client) ResourceUtilizationRangeForTeam(ctx context.Context, team string) (*model.ResourceUtilizationDateRange, error) {
+func (c *client) ResourceUtilizationRangeForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationDateRange, error) {
 	dates, err := c.querier.ResourceUtilizationRangeForTeam(ctx, team)
 	if err != nil {
 		return nil, err
@@ -137,7 +134,7 @@ func (c *client) ResourceUtilizationRangeForTeam(ctx context.Context, team strin
 	return getDateRange(dates.From, dates.To), nil
 }
 
-func (c *client) CurrentResourceUtilizationForApp(ctx context.Context, env, team, app string) (*model.CurrentResourceUtilization, error) {
+func (c *client) CurrentResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.CurrentResourceUtilization, error) {
 	timeRange, err := c.querier.ResourceUtilizationRangeForTeam(ctx, team)
 	if err != nil {
 		return nil, err
@@ -153,24 +150,12 @@ func (c *client) CurrentResourceUtilizationForApp(ctx context.Context, env, team
 		return nil, err
 	}
 
-	cpu, err := c.querier.SpecificResourceUtilizationForApp(ctx, gensql.SpecificResourceUtilizationForAppParams{
-		Env:          env,
-		Team:         team,
-		App:          app,
-		ResourceType: gensql.ResourceTypeCpu,
-		Timestamp:    ts,
-	})
+	cpu, err := c.querier.SpecificResourceUtilizationForApp(ctx, env, team, app, gensql.ResourceTypeCpu, ts)
 	if err != nil {
 		return nil, err
 	}
 
-	memory, err := c.querier.SpecificResourceUtilizationForApp(ctx, gensql.SpecificResourceUtilizationForAppParams{
-		Env:          env,
-		Team:         team,
-		App:          app,
-		ResourceType: gensql.ResourceTypeMemory,
-		Timestamp:    ts,
-	})
+	memory, err := c.querier.SpecificResourceUtilizationForApp(ctx, env, team, app, gensql.ResourceTypeMemory, ts)
 	if err != nil {
 		return nil, err
 	}
@@ -182,7 +167,7 @@ func (c *client) CurrentResourceUtilizationForApp(ctx context.Context, env, team
 	}, nil
 }
 
-func (c *client) CurrentResourceUtilizationForTeam(ctx context.Context, team string) (*model.CurrentResourceUtilization, error) {
+func (c *client) CurrentResourceUtilizationForTeam(ctx context.Context, team slug.Slug) (*model.CurrentResourceUtilization, error) {
 	timeRange, err := c.querier.ResourceUtilizationRangeForTeam(ctx, team)
 	if err != nil {
 		return nil, err
@@ -198,20 +183,12 @@ func (c *client) CurrentResourceUtilizationForTeam(ctx context.Context, team str
 		return nil, err
 	}
 
-	currentCpu, err := c.querier.SpecificResourceUtilizationForTeam(ctx, gensql.SpecificResourceUtilizationForTeamParams{
-		Team:         team,
-		ResourceType: gensql.ResourceTypeCpu,
-		Timestamp:    ts,
-	})
+	currentCpu, err := c.querier.SpecificResourceUtilizationForTeam(ctx, team, gensql.ResourceTypeCpu, ts)
 	if err != nil {
 		return nil, err
 	}
 
-	currentMemory, err := c.querier.SpecificResourceUtilizationForTeam(ctx, gensql.SpecificResourceUtilizationForTeamParams{
-		Team:         team,
-		ResourceType: gensql.ResourceTypeMemory,
-		Timestamp:    ts,
-	})
+	currentMemory, err := c.querier.SpecificResourceUtilizationForTeam(ctx, team, gensql.ResourceTypeMemory, ts)
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +200,7 @@ func (c *client) CurrentResourceUtilizationForTeam(ctx context.Context, team str
 	}, nil
 }
 
-func (c *client) ResourceUtilizationTrendForTeam(ctx context.Context, team string) (*model.ResourceUtilizationTrend, error) {
+func (c *client) ResourceUtilizationTrendForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationTrend, error) {
 	current, err := c.CurrentResourceUtilizationForTeam(ctx, team)
 	if err != nil {
 		return nil, err
@@ -235,20 +212,12 @@ func (c *client) ResourceUtilizationTrendForTeam(ctx context.Context, team strin
 		return nil, err
 	}
 
-	cpuAverage, err := c.querier.AverageResourceUtilizationForTeam(ctx, gensql.AverageResourceUtilizationForTeamParams{
-		Team:         team,
-		ResourceType: gensql.ResourceTypeCpu,
-		Timestamp:    ts,
-	})
+	cpuAverage, err := c.querier.AverageResourceUtilizationForTeam(ctx, team, gensql.ResourceTypeCpu, ts)
 	if err != nil {
 		return nil, err
 	}
 
-	memoryAverage, err := c.querier.AverageResourceUtilizationForTeam(ctx, gensql.AverageResourceUtilizationForTeamParams{
-		Team:         team,
-		ResourceType: gensql.ResourceTypeMemory,
-		Timestamp:    ts,
-	})
+	memoryAverage, err := c.querier.AverageResourceUtilizationForTeam(ctx, team, gensql.ResourceTypeMemory, ts)
 	if err != nil {
 		return nil, err
 	}
@@ -268,7 +237,7 @@ func (c *client) ResourceUtilizationTrendForTeam(ctx context.Context, team strin
 	}, nil
 }
 
-func (c *client) resourceUtilizationForApp(ctx context.Context, resourceType model.ResourceType, env, team, app string, start, end scalar.Date) ([]*model.ResourceUtilization, error) {
+func (c *client) resourceUtilizationForApp(ctx context.Context, resourceType model.ResourceType, env string, team slug.Slug, app string, start, end scalar.Date) ([]*model.ResourceUtilization, error) {
 	s, err := start.Time()
 	if err != nil {
 		return nil, err
@@ -293,8 +262,8 @@ func (c *client) resourceUtilizationForApp(ctx context.Context, resourceType mod
 	}
 
 	rows, err := c.querier.ResourceUtilizationForApp(ctx, gensql.ResourceUtilizationForAppParams{
-		Env:          env,
-		Team:         team,
+		Environment:  env,
+		TeamSlug:     team,
 		App:          app,
 		ResourceType: resourceType.ToDatabaseEnum(),
 		Start:        startTs,
@@ -322,7 +291,7 @@ func (c *client) resourceUtilizationForApp(ctx context.Context, resourceType mod
 	return data, nil
 }
 
-func (c *client) resourceUtilizationForTeam(ctx context.Context, resourceType model.ResourceType, env, team string, start, end scalar.Date) ([]*model.ResourceUtilization, error) {
+func (c *client) resourceUtilizationForTeam(ctx context.Context, resourceType model.ResourceType, env string, team slug.Slug, start, end scalar.Date) ([]*model.ResourceUtilization, error) {
 	s, err := start.Time()
 	if err != nil {
 		return nil, err
@@ -346,13 +315,7 @@ func (c *client) resourceUtilizationForTeam(ctx context.Context, resourceType mo
 		return nil, err
 	}
 
-	rows, err := c.querier.ResourceUtilizationForTeam(ctx, gensql.ResourceUtilizationForTeamParams{
-		Env:          env,
-		Team:         team,
-		ResourceType: resourceType.ToDatabaseEnum(),
-		Start:        startTs,
-		End:          endTs,
-	})
+	rows, err := c.querier.ResourceUtilizationForTeam(ctx, env, team, resourceType.ToDatabaseEnum(), startTs, endTs)
 	if err != nil {
 		return nil, err
 	}
@@ -375,12 +338,8 @@ func (c *client) resourceUtilizationForTeam(ctx context.Context, resourceType mo
 	return data, nil
 }
 
-func (c *client) resourceUtilizationOverageForTeam(ctx context.Context, resource gensql.ResourceType, team string, timestamp pgtype.Timestamptz) (models []*model.AppWithResourceUtilizationOverage, sumOverageCost float64, err error) {
-	rows, err := c.querier.ResourceUtilizationOverageForTeam(ctx, gensql.ResourceUtilizationOverageForTeamParams{
-		Team:         team,
-		ResourceType: resource,
-		Timestamp:    timestamp,
-	})
+func (c *client) resourceUtilizationOverageForTeam(ctx context.Context, resource gensql.ResourceType, team slug.Slug, timestamp pgtype.Timestamptz) (models []*model.AppWithResourceUtilizationOverage, sumOverageCost float64, err error) {
+	rows, err := c.querier.ResourceUtilizationOverageForTeam(ctx, team, timestamp, resource)
 	if err != nil {
 		return
 	}
@@ -393,7 +352,7 @@ func (c *client) resourceUtilizationOverageForTeam(ctx context.Context, resource
 			OverageCost:                overageCostPerHour,
 			Utilization:                row.Usage / row.Request * 100,
 			EstimatedAnnualOverageCost: overageCostPerHour * 24 * 365,
-			Env:                        row.Env,
+			Env:                        row.Environment,
 			Team:                       team,
 			App:                        row.App,
 		})

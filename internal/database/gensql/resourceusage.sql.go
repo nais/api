@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/nais/api/internal/slug"
 )
 
 const averageResourceUtilizationForTeam = `-- name: AverageResourceUtilizationForTeam :one
@@ -20,7 +21,8 @@ FROM
 WHERE
     team_slug = $1
     AND resource_type = $2
-    AND timestamp >= $3  AND timestamp < $4::timestamptz
+    AND timestamp >= $3::timestamptz - INTERVAL '1 week'
+    AND timestamp < $3::timestamptz
     AND request > usage
 `
 
@@ -30,13 +32,8 @@ type AverageResourceUtilizationForTeamRow struct {
 }
 
 // AverageResourceUtilizationForTeam will return the average resource utilization for a team for a week.
-func (q *Queries) AverageResourceUtilizationForTeam(ctx context.Context, teamSlug string, resourceType ResourceType, timestamptimestamptz1WeekpgCataloginterval pgtype.Timestamptz, timestamp pgtype.Timestamptz) (*AverageResourceUtilizationForTeamRow, error) {
-	row := q.db.QueryRow(ctx, averageResourceUtilizationForTeam,
-		teamSlug,
-		resourceType,
-		timestamptimestamptz1WeekpgCataloginterval,
-		timestamp,
-	)
+func (q *Queries) AverageResourceUtilizationForTeam(ctx context.Context, teamSlug slug.Slug, resourceType ResourceType, timestamp pgtype.Timestamptz) (*AverageResourceUtilizationForTeamRow, error) {
+	row := q.db.QueryRow(ctx, averageResourceUtilizationForTeam, teamSlug, resourceType, timestamp)
 	var i AverageResourceUtilizationForTeamRow
 	err := row.Scan(&i.Usage, &i.Request)
 	return &i, err
@@ -70,15 +67,24 @@ ORDER BY
     timestamp ASC
 `
 
+type ResourceUtilizationForAppParams struct {
+	Environment  string
+	TeamSlug     slug.Slug
+	App          string
+	ResourceType ResourceType
+	Start        pgtype.Timestamptz
+	End          pgtype.Timestamptz
+}
+
 // ResourceUtilizationForApp will return resource utilization records for a given app.
-func (q *Queries) ResourceUtilizationForApp(ctx context.Context, environment string, teamSlug string, app string, resourceType ResourceType, start pgtype.Timestamptz, end pgtype.Timestamptz) ([]*ResourceUtilizationMetric, error) {
+func (q *Queries) ResourceUtilizationForApp(ctx context.Context, arg ResourceUtilizationForAppParams) ([]*ResourceUtilizationMetric, error) {
 	rows, err := q.db.Query(ctx, resourceUtilizationForApp,
-		environment,
-		teamSlug,
-		app,
-		resourceType,
-		start,
-		end,
+		arg.Environment,
+		arg.TeamSlug,
+		arg.App,
+		arg.ResourceType,
+		arg.Start,
+		arg.End,
 	)
 	if err != nil {
 		return nil, err
@@ -133,7 +139,7 @@ type ResourceUtilizationForTeamRow struct {
 }
 
 // ResourceUtilizationForTeam will return resource utilization records for a given team.
-func (q *Queries) ResourceUtilizationForTeam(ctx context.Context, environment string, teamSlug string, resourceType ResourceType, start pgtype.Timestamptz, end pgtype.Timestamptz) ([]*ResourceUtilizationForTeamRow, error) {
+func (q *Queries) ResourceUtilizationForTeam(ctx context.Context, environment string, teamSlug slug.Slug, resourceType ResourceType, start pgtype.Timestamptz, end pgtype.Timestamptz) ([]*ResourceUtilizationForTeamRow, error) {
 	rows, err := q.db.Query(ctx, resourceUtilizationForTeam,
 		environment,
 		teamSlug,
@@ -187,7 +193,7 @@ type ResourceUtilizationOverageForTeamRow struct {
 }
 
 // ResourceUtilizationOverageForTeam will return overage records for a given team, ordered by overage descending.
-func (q *Queries) ResourceUtilizationOverageForTeam(ctx context.Context, teamSlug string, timestamp pgtype.Timestamptz, resourceType ResourceType) ([]*ResourceUtilizationOverageForTeamRow, error) {
+func (q *Queries) ResourceUtilizationOverageForTeam(ctx context.Context, teamSlug slug.Slug, timestamp pgtype.Timestamptz, resourceType ResourceType) ([]*ResourceUtilizationOverageForTeamRow, error) {
 	rows, err := q.db.Query(ctx, resourceUtilizationOverageForTeam, teamSlug, timestamp, resourceType)
 	if err != nil {
 		return nil, err
@@ -231,7 +237,7 @@ type ResourceUtilizationRangeForAppRow struct {
 }
 
 // ResourceUtilizationRangeForApp will return the min and max timestamps for a specific app.
-func (q *Queries) ResourceUtilizationRangeForApp(ctx context.Context, environment string, teamSlug string, app string) (*ResourceUtilizationRangeForAppRow, error) {
+func (q *Queries) ResourceUtilizationRangeForApp(ctx context.Context, environment string, teamSlug slug.Slug, app string) (*ResourceUtilizationRangeForAppRow, error) {
 	row := q.db.QueryRow(ctx, resourceUtilizationRangeForApp, environment, teamSlug, app)
 	var i ResourceUtilizationRangeForAppRow
 	err := row.Scan(&i.From, &i.To)
@@ -254,7 +260,7 @@ type ResourceUtilizationRangeForTeamRow struct {
 }
 
 // ResourceUtilizationRangeForTeam will return the min and max timestamps for a specific team.
-func (q *Queries) ResourceUtilizationRangeForTeam(ctx context.Context, teamSlug string) (*ResourceUtilizationRangeForTeamRow, error) {
+func (q *Queries) ResourceUtilizationRangeForTeam(ctx context.Context, teamSlug slug.Slug) (*ResourceUtilizationRangeForTeamRow, error) {
 	row := q.db.QueryRow(ctx, resourceUtilizationRangeForTeam, teamSlug)
 	var i ResourceUtilizationRangeForTeamRow
 	err := row.Scan(&i.From, &i.To)
@@ -283,7 +289,7 @@ type SpecificResourceUtilizationForAppRow struct {
 }
 
 // SpecificResourceUtilizationForApp will return resource utilization for an app at a specific timestamp.
-func (q *Queries) SpecificResourceUtilizationForApp(ctx context.Context, environment string, teamSlug string, app string, resourceType ResourceType, timestamp pgtype.Timestamptz) (*SpecificResourceUtilizationForAppRow, error) {
+func (q *Queries) SpecificResourceUtilizationForApp(ctx context.Context, environment string, teamSlug slug.Slug, app string, resourceType ResourceType, timestamp pgtype.Timestamptz) (*SpecificResourceUtilizationForAppRow, error) {
 	row := q.db.QueryRow(ctx, specificResourceUtilizationForApp,
 		environment,
 		teamSlug,
@@ -320,7 +326,7 @@ type SpecificResourceUtilizationForTeamRow struct {
 
 // SpecificResourceUtilizationForTeam will return resource utilization for a team at a specific timestamp. Applications
 // with a usage greater than request will be ignored.
-func (q *Queries) SpecificResourceUtilizationForTeam(ctx context.Context, teamSlug string, resourceType ResourceType, timestamp pgtype.Timestamptz) (*SpecificResourceUtilizationForTeamRow, error) {
+func (q *Queries) SpecificResourceUtilizationForTeam(ctx context.Context, teamSlug slug.Slug, resourceType ResourceType, timestamp pgtype.Timestamptz) (*SpecificResourceUtilizationForTeamRow, error) {
 	row := q.db.QueryRow(ctx, specificResourceUtilizationForTeam, teamSlug, resourceType, timestamp)
 	var i SpecificResourceUtilizationForTeamRow
 	err := row.Scan(&i.Usage, &i.Request, &i.Timestamp)

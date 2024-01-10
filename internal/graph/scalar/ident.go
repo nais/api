@@ -8,6 +8,8 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/google/uuid"
+	"github.com/nais/api/internal/slug"
 	"k8s.io/apimachinery/pkg/types"
 )
 
@@ -15,6 +17,7 @@ type IdentType string
 
 const (
 	IdentTypeApp                IdentType = "app"
+	IdentTypeAuditLog           IdentType = "auditLog"
 	IdentTypeDeployKey          IdentType = "deployKey"
 	IdentTypeDeployment         IdentType = "deployment"
 	IdentTypeDeploymentResource IdentType = "deploymentResource"
@@ -22,6 +25,7 @@ const (
 	IdentTypeEnv                IdentType = "env"
 	IdentTypeJob                IdentType = "job"
 	IdentTypePod                IdentType = "pod"
+	IdentTypeServiceAccount     IdentType = "serviceAccount"
 	IdentTypeTeam               IdentType = "team"
 	IdentTypeUser               IdentType = "user"
 	IdentTypeVulnerabilities    IdentType = "vulnerabilities"
@@ -30,6 +34,10 @@ const (
 type Ident struct {
 	ID   string
 	Type IdentType
+}
+
+func (i Ident) AsUUID() (uuid.UUID, error) {
+	return uuid.Parse(i.ID)
 }
 
 func (i Ident) MarshalGQLContext(_ context.Context, w io.Writer) error {
@@ -85,8 +93,8 @@ func PodIdent(id types.UID) Ident {
 	return newIdent(string(id), IdentTypePod)
 }
 
-func TeamIdent(id string) Ident {
-	return newIdent(id, IdentTypeTeam)
+func TeamIdent(id slug.Slug) Ident {
+	return newIdent(id.String(), IdentTypeTeam)
 }
 
 func DeploymentIdent(id string) Ident {
@@ -103,6 +111,22 @@ func DeploymentStatusIdent(id string) Ident {
 
 func VulnerabilitiesIdent(id string) Ident {
 	return newIdent(id, IdentTypeVulnerabilities)
+}
+
+func AuditLogIdent(id uuid.UUID) Ident {
+	return newIdent(id.String(), IdentTypeAuditLog)
+}
+
+func CorrelationID(id uuid.UUID) Ident {
+	return newIdent(id.String(), IdentTypeAuditLog)
+}
+
+func ServiceAccountIdent(id uuid.UUID) Ident {
+	return newIdent(id.String(), IdentTypeServiceAccount)
+}
+
+func UserIdent(id uuid.UUID) Ident {
+	return newIdent(id.String(), IdentTypeUser)
 }
 
 func newIdent(id string, t IdentType) Ident {

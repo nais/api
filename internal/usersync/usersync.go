@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/nais/api/internal/auditlogger/audittype"
 	db "github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"
@@ -30,7 +31,7 @@ type (
 	}
 
 	auditLogEntry struct {
-		action    auditlogger.AuditAction
+		action    audittype.AuditAction
 		userEmail string
 		message   string
 	}

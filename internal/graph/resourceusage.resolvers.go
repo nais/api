@@ -12,10 +12,11 @@ import (
 	pgx "github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 )
 
 // ResourceUtilizationTrendForTeam is the resolver for the resourceUtilizationTrendForTeam field.
-func (r *queryResolver) ResourceUtilizationTrendForTeam(ctx context.Context, team string) (*model.ResourceUtilizationTrend, error) {
+func (r *queryResolver) ResourceUtilizationTrendForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationTrend, error) {
 	trend, err := r.resourceUsageClient.ResourceUtilizationTrendForTeam(ctx, team)
 	if err != nil {
 		return nil, err
@@ -24,7 +25,7 @@ func (r *queryResolver) ResourceUtilizationTrendForTeam(ctx context.Context, tea
 }
 
 // CurrentResourceUtilizationForApp is the resolver for the currentResourceUtilizationForApp field.
-func (r *queryResolver) CurrentResourceUtilizationForApp(ctx context.Context, env string, team string, app string) (*model.CurrentResourceUtilization, error) {
+func (r *queryResolver) CurrentResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.CurrentResourceUtilization, error) {
 	resp, err := r.resourceUsageClient.CurrentResourceUtilizationForApp(ctx, env, team, app)
 	if errors.Is(err, pgx.ErrNoRows) {
 		m := model.ResourceUtilization{
@@ -41,7 +42,7 @@ func (r *queryResolver) CurrentResourceUtilizationForApp(ctx context.Context, en
 }
 
 // CurrentResourceUtilizationForTeam is the resolver for the currentResourceUtilizationForTeam field.
-func (r *queryResolver) CurrentResourceUtilizationForTeam(ctx context.Context, team string) (*model.CurrentResourceUtilization, error) {
+func (r *queryResolver) CurrentResourceUtilizationForTeam(ctx context.Context, team slug.Slug) (*model.CurrentResourceUtilization, error) {
 	resp, err := r.resourceUsageClient.CurrentResourceUtilizationForTeam(ctx, team)
 	if errors.Is(err, pgx.ErrNoRows) {
 		m := model.ResourceUtilization{
@@ -58,12 +59,12 @@ func (r *queryResolver) CurrentResourceUtilizationForTeam(ctx context.Context, t
 }
 
 // ResourceUtilizationOverageForTeam is the resolver for the resourceUtilizationOverageForTeam field.
-func (r *queryResolver) ResourceUtilizationOverageForTeam(ctx context.Context, team string) (*model.ResourceUtilizationOverageForTeam, error) {
+func (r *queryResolver) ResourceUtilizationOverageForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationOverageForTeam, error) {
 	return r.resourceUsageClient.ResourceUtilizationOverageForTeam(ctx, team)
 }
 
 // ResourceUtilizationForTeam is the resolver for the resourceUtilizationForTeam field.
-func (r *queryResolver) ResourceUtilizationForTeam(ctx context.Context, team string, from *scalar.Date, to *scalar.Date) ([]*model.ResourceUtilizationForEnv, error) {
+func (r *queryResolver) ResourceUtilizationForTeam(ctx context.Context, team slug.Slug, from *scalar.Date, to *scalar.Date) ([]*model.ResourceUtilizationForEnv, error) {
 	now := time.Now().Truncate(24 * time.Hour).UTC()
 	if to == nil {
 		d := scalar.NewDate(now)
@@ -79,17 +80,17 @@ func (r *queryResolver) ResourceUtilizationForTeam(ctx context.Context, team str
 }
 
 // ResourceUtilizationDateRangeForTeam is the resolver for the resourceUtilizationDateRangeForTeam field.
-func (r *queryResolver) ResourceUtilizationDateRangeForTeam(ctx context.Context, team string) (*model.ResourceUtilizationDateRange, error) {
+func (r *queryResolver) ResourceUtilizationDateRangeForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationDateRange, error) {
 	return r.resourceUsageClient.ResourceUtilizationRangeForTeam(ctx, team)
 }
 
 // ResourceUtilizationDateRangeForApp is the resolver for the resourceUtilizationDateRangeForApp field.
-func (r *queryResolver) ResourceUtilizationDateRangeForApp(ctx context.Context, env string, team string, app string) (*model.ResourceUtilizationDateRange, error) {
+func (r *queryResolver) ResourceUtilizationDateRangeForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.ResourceUtilizationDateRange, error) {
 	return r.resourceUsageClient.ResourceUtilizationRangeForApp(ctx, env, team, app)
 }
 
 // ResourceUtilizationForApp is the resolver for the resourceUtilizationForApp field.
-func (r *queryResolver) ResourceUtilizationForApp(ctx context.Context, env string, team string, app string, from *scalar.Date, to *scalar.Date) (*model.ResourceUtilizationForApp, error) {
+func (r *queryResolver) ResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string, from *scalar.Date, to *scalar.Date) (*model.ResourceUtilizationForApp, error) {
 	now := time.Now().Truncate(24 * time.Hour).UTC()
 	if to == nil {
 		d := scalar.NewDate(now)

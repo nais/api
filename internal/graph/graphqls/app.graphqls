@@ -5,7 +5,7 @@ extend type Query {
     name: String!
 
     "The name of the team who owns the application."
-    team: String!
+    team: Slug!
 
     "The environment the application is deployed to."
     env: String!

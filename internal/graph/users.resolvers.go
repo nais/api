@@ -8,35 +8,45 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
+	"github.com/nais/api/internal/auditlogger"
+	"github.com/nais/api/internal/auditlogger/audittype"
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/auth/roles"
+	"github.com/nais/api/internal/graph/apierror"
+	"github.com/nais/api/internal/graph/dataloader"
+	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/logger"
+	"github.com/nais/api/internal/usersync"
 )
 
 // SynchronizeUsers is the resolver for the synchronizeUsers field.
-func (r *mutationResolver) SynchronizeUsers(ctx context.Context) (*scalar.Ident, error) {
+func (r *mutationResolver) SynchronizeUsers(ctx context.Context) (string, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationUsersyncSynchronize)
 	if err != nil {
-		return uuid.Nil, err
+		return "", err
 	}
 
 	correlationID, err := uuid.NewUUID()
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("create log correlation ID: %w", err)
+		return "", fmt.Errorf("create log correlation ID: %w", err)
 	}
 
 	targets := []auditlogger.Target{
 		auditlogger.ComponentTarget(logger.ComponentNameUsersync),
 	}
 	fields := auditlogger.Fields{
-		Action:        auditlogger.AuditActionGraphqlApiUsersSync,
+		Action:        audittype.AuditActionGraphqlApiUsersSync,
 		Actor:         actor,
 		CorrelationID: correlationID,
 	}
 	r.auditLogger.Logf(ctx, targets, fields, "Trigger user sync")
 	r.userSync <- correlationID
 
-	return correlationID, nil
+	return correlationID.String(), nil
 }
 
 // Users is the resolver for the users field.
@@ -52,8 +62,13 @@ func (r *queryResolver) Users(ctx context.Context, offset *int, limit *int) (*mo
 		return nil, err
 	}
 
+	ret := make([]*model.User, 0, len(users))
+	for _, u := range users {
+		ret = append(ret, dataloader.ToGraphUser(u))
+	}
+
 	return &model.UserList{
-			Nodes:    users,
+			Nodes:    ret,
 			PageInfo: model.NewPageInfo(p, total),
 		},
 		nil
@@ -68,16 +83,24 @@ func (r *queryResolver) User(ctx context.Context, id *scalar.Ident, email *strin
 	}
 
 	if id != nil {
-		return dataloader.GetUser(ctx, id)
+		uid, err := id.AsUUID()
+		if err != nil {
+			return nil, err
+		}
+		return dataloader.GetUser(ctx, &uid)
 	}
 	if email != nil {
-		return r.database.GetUserByEmail(ctx, *email)
+		u, err := r.database.GetUserByEmail(ctx, *email)
+		if err != nil {
+			return nil, err
+		}
+		return dataloader.ToGraphUser(u), nil
 	}
 	return nil, apierror.Errorf("Either id or email must be specified")
 }
 
 // UserSync is the resolver for the userSync field.
-func (r *queryResolver) UserSync(ctx context.Context) ([]*model.UserSyncRun, error) {
+func (r *queryResolver) UserSync(ctx context.Context) ([]*usersync.Run, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationUsersyncSynchronize)
 	if err != nil {
@@ -86,3 +109,50 @@ func (r *queryResolver) UserSync(ctx context.Context) ([]*model.UserSyncRun, err
 
 	return r.userSyncRuns.GetRuns(), nil
 }
+
+// CorrelationID is the resolver for the correlationID field.
+func (r *userSyncRunResolver) CorrelationID(ctx context.Context, obj *usersync.Run) (*scalar.Ident, error) {
+	panic(fmt.Errorf("not implemented: CorrelationID - correlationID"))
+}
+
+// AuditLogs is the resolver for the auditLogs field.
+func (r *userSyncRunResolver) AuditLogs(ctx context.Context, obj *usersync.Run, limit *int, offset *int) (*model.AuditLogList, error) {
+	p := model.NewPagination(offset, limit)
+	entries, total, err := r.database.GetAuditLogsForCorrelationID(ctx, obj.CorrelationID(), p.Offset, p.Limit)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AuditLogList{
+		Nodes:    toGraphAuditLogs(entries),
+		PageInfo: model.NewPageInfo(p, total),
+	}, nil
+}
+
+// Status is the resolver for the status field.
+func (r *userSyncRunResolver) Status(ctx context.Context, obj *usersync.Run) (model.UserSyncRunStatus, error) {
+	switch obj.Status() {
+	case usersync.RunSuccess:
+		return model.UserSyncRunStatusSuccess, nil
+	case usersync.RunFailure:
+		return model.UserSyncRunStatusFailure, nil
+	default:
+		return model.UserSyncRunStatusInProgress, nil
+	}
+}
+
+// Error is the resolver for the error field.
+func (r *userSyncRunResolver) Error(ctx context.Context, obj *usersync.Run) (*string, error) {
+	err := obj.Error()
+	if err != nil {
+		msg := err.Error()
+		return &msg, nil
+	}
+
+	return nil, nil
+}
+
+// UserSyncRun returns gengql.UserSyncRunResolver implementation.
+func (r *Resolver) UserSyncRun() gengql.UserSyncRunResolver { return &userSyncRunResolver{r} }
+
+type userSyncRunResolver struct{ *Resolver }

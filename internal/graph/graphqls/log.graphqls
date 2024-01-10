@@ -6,7 +6,7 @@ input LogSubscriptionInput {
   app: String
   job: String
   env: String!
-  team: String!
+  team: Slug!
   instances: [String!]
 }
 

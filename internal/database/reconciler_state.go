@@ -2,26 +2,22 @@ package database
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
-	"github.com/nais/api/internal/slug"
-
-	"github.com/jackc/pgtype"
 	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/slug"
 )
 
 // LoadReconcilerStateForTeam Load the team state for a given reconciler into the state parameter
 func (d *database) LoadReconcilerStateForTeam(ctx context.Context, reconcilerName sqlc.ReconcilerName, slug slug.Slug, state interface{}) error {
-	systemState, err := d.querier.GetReconcilerStateForTeam(ctx, sqlc.GetReconcilerStateForTeamParams{
-		Reconciler: reconcilerName,
-		TeamSlug:   slug,
-	})
+	systemState, err := d.querier.GetReconcilerStateForTeam(ctx, reconcilerName, slug)
 	if err != nil {
 		// assume empty state
-		systemState = &sqlc.ReconcilerState{State: pgtype.JSONB{}}
+		systemState = &sqlc.ReconcilerState{State: []byte{}}
 	}
 
-	err = systemState.State.AssignTo(state)
+	err = json.Unmarshal(systemState.State, state)
 	if err != nil {
 		return fmt.Errorf("unable to assign state: %w", err)
 	}
@@ -31,22 +27,14 @@ func (d *database) LoadReconcilerStateForTeam(ctx context.Context, reconcilerNam
 
 // SetReconcilerStateForTeam Update the team state for a given reconciler
 func (d *database) SetReconcilerStateForTeam(ctx context.Context, reconcilerName sqlc.ReconcilerName, slug slug.Slug, state interface{}) error {
-	newState := pgtype.JSONB{}
-	err := newState.Set(state)
+	data, err := json.Marshal(state)
 	if err != nil {
 		return fmt.Errorf("unable to set new system state: %w", err)
 	}
 
-	return d.querier.SetReconcilerStateForTeam(ctx, sqlc.SetReconcilerStateForTeamParams{
-		Reconciler: reconcilerName,
-		TeamSlug:   slug,
-		State:      newState,
-	})
+	return d.querier.SetReconcilerStateForTeam(ctx, reconcilerName, slug, data)
 }
 
 func (d *database) RemoveReconcilerStateForTeam(ctx context.Context, reconcilerName sqlc.ReconcilerName, slug slug.Slug) error {
-	return d.querier.RemoveReconcilerStateForTeam(ctx, sqlc.RemoveReconcilerStateForTeamParams{
-		Reconciler: reconcilerName,
-		TeamSlug:   slug,
-	})
+	return d.querier.RemoveReconcilerStateForTeam(ctx, reconcilerName, slug)
 }

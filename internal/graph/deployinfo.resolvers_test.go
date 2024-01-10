@@ -8,7 +8,7 @@ import (
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
-	"github.com/nais/api/internal/hookd"
+	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

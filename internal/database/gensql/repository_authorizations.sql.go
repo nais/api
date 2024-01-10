@@ -7,6 +7,8 @@ package gensql
 
 import (
 	"context"
+
+	"github.com/nais/api/internal/slug"
 )
 
 const createRepositoryAuthorization = `-- name: CreateRepositoryAuthorization :exec
@@ -14,7 +16,7 @@ INSERT INTO repository_authorizations (team_slug, github_repository, repository_
 VALUES ($1, $2, $3)
 `
 
-func (q *Queries) CreateRepositoryAuthorization(ctx context.Context, teamSlug string, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum) error {
+func (q *Queries) CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum) error {
 	_, err := q.db.Exec(ctx, createRepositoryAuthorization, teamSlug, githubRepository, repositoryAuthorization)
 	return err
 }
@@ -31,7 +33,7 @@ ORDER BY
     repository_authorization
 `
 
-func (q *Queries) GetRepositoryAuthorizations(ctx context.Context, teamSlug string, githubRepository string) ([]RepositoryAuthorizationEnum, error) {
+func (q *Queries) GetRepositoryAuthorizations(ctx context.Context, teamSlug slug.Slug, githubRepository string) ([]RepositoryAuthorizationEnum, error) {
 	rows, err := q.db.Query(ctx, getRepositoryAuthorizations, teamSlug, githubRepository)
 	if err != nil {
 		return nil, err
@@ -59,7 +61,7 @@ WHERE
     AND repository_authorization = $3
 `
 
-func (q *Queries) RemoveRepositoryAuthorization(ctx context.Context, teamSlug string, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum) error {
+func (q *Queries) RemoveRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum) error {
 	_, err := q.db.Exec(ctx, removeRepositoryAuthorization, teamSlug, githubRepository, repositoryAuthorization)
 	return err
 }

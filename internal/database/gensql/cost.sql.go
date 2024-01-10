@@ -9,18 +9,19 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/nais/api/internal/slug"
 )
 
 const dailyCostForApp = `-- name: DailyCostForApp :many
 SELECT
-    id, env, team, app, cost_type, date, daily_cost
+    id, environment, team_slug, app, cost_type, date, daily_cost
 FROM
     cost
 WHERE
     date >= $1::date
     AND date <= $2::date
-    AND env = $3
-    AND team = $4
+    AND environment = $3::text
+    AND team_slug = $4::slug
     AND app = $5
 ORDER BY
     date, cost_type ASC
@@ -28,7 +29,7 @@ ORDER BY
 
 // DailyCostForApp will fetch the daily cost for a specific team app in a specific environment, across all cost types
 // in a date range.
-func (q *Queries) DailyCostForApp(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment *string, teamSlug *string, app string) ([]*Cost, error) {
+func (q *Queries) DailyCostForApp(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment string, teamSlug slug.Slug, app string) ([]*Cost, error) {
 	rows, err := q.db.Query(ctx, dailyCostForApp,
 		fromDate,
 		toDate,
@@ -45,8 +46,8 @@ func (q *Queries) DailyCostForApp(ctx context.Context, fromDate pgtype.Date, toD
 		var i Cost
 		if err := rows.Scan(
 			&i.ID,
-			&i.Env,
-			&i.Team,
+			&i.Environment,
+			&i.TeamSlug,
 			&i.App,
 			&i.CostType,
 			&i.Date,
@@ -64,19 +65,19 @@ func (q *Queries) DailyCostForApp(ctx context.Context, fromDate pgtype.Date, toD
 
 const dailyCostForTeam = `-- name: DailyCostForTeam :many
 SELECT
-    id, env, team, app, cost_type, date, daily_cost
+    id, environment, team_slug, app, cost_type, date, daily_cost
 FROM
     cost
 WHERE
     date >= $1::date
     AND date <= $2::date
-    AND team = $3
+    AND team_slug = $3::slug
 ORDER BY
-    date, env, app, cost_type ASC
+    date, environment, app, cost_type ASC
 `
 
 // DailyCostForTeam will fetch the daily cost for a specific team across all apps and envs in a date range.
-func (q *Queries) DailyCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug *string) ([]*Cost, error) {
+func (q *Queries) DailyCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug) ([]*Cost, error) {
 	rows, err := q.db.Query(ctx, dailyCostForTeam, fromDate, toDate, teamSlug)
 	if err != nil {
 		return nil, err
@@ -87,8 +88,8 @@ func (q *Queries) DailyCostForTeam(ctx context.Context, fromDate pgtype.Date, to
 		var i Cost
 		if err := rows.Scan(
 			&i.ID,
-			&i.Env,
-			&i.Team,
+			&i.Environment,
+			&i.TeamSlug,
 			&i.App,
 			&i.CostType,
 			&i.Date,
@@ -106,7 +107,7 @@ func (q *Queries) DailyCostForTeam(ctx context.Context, fromDate pgtype.Date, to
 
 const dailyEnvCostForTeam = `-- name: DailyEnvCostForTeam :many
 SELECT
-    team,
+    team_slug,
     app,
     date,
     SUM(daily_cost)::real AS daily_cost
@@ -115,23 +116,23 @@ FROM
 WHERE
     date >= $1::date
     AND date <= $2::date
-    AND env = $3
-    AND team = $4
+    AND environment = $3
+    AND team_slug = $4::slug
 GROUP BY
-    team, app, date
+    team_slug, app, date
 ORDER BY
     date, app ASC
 `
 
 type DailyEnvCostForTeamRow struct {
-	Team      *string
+	TeamSlug  *slug.Slug
 	App       string
 	Date      pgtype.Date
 	DailyCost float32
 }
 
-// DailyEnvCostForTeam will fetch the daily cost for a specific team and env across all apps in a date range.
-func (q *Queries) DailyEnvCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment *string, teamSlug *string) ([]*DailyEnvCostForTeamRow, error) {
+// DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
+func (q *Queries) DailyEnvCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment *string, teamSlug slug.Slug) ([]*DailyEnvCostForTeamRow, error) {
 	rows, err := q.db.Query(ctx, dailyEnvCostForTeam,
 		fromDate,
 		toDate,
@@ -146,7 +147,7 @@ func (q *Queries) DailyEnvCostForTeam(ctx context.Context, fromDate pgtype.Date,
 	for rows.Next() {
 		var i DailyEnvCostForTeamRow
 		if err := rows.Scan(
-			&i.Team,
+			&i.TeamSlug,
 			&i.App,
 			&i.Date,
 			&i.DailyCost,
@@ -182,9 +183,9 @@ WITH last_run AS (
     FROM cost
 )
 SELECT
-    team,
+    team_slug,
     app,
-    env,
+    environment,
     date_trunc('month', date)::date AS month,
     -- Extract last day of known cost samples for the month, or the last recorded date
     -- This helps with estimation etc
@@ -195,24 +196,24 @@ SELECT
     SUM(daily_cost)::real AS daily_cost
 FROM cost c
 LEFT JOIN last_run ON true
-WHERE c.team = $1
+WHERE c.team_slug = $1::slug
 AND c.app = $2
-AND c.env = $3
-GROUP BY team, app, env, month
+AND c.environment = $3::text
+GROUP BY team_slug, app, environment, month
 ORDER BY month DESC
 LIMIT 12
 `
 
 type MonthlyCostForAppRow struct {
-	Team             *string
+	TeamSlug         *slug.Slug
 	App              string
-	Env              *string
+	Environment      *string
 	Month            pgtype.Date
 	LastRecordedDate pgtype.Date
 	DailyCost        float32
 }
 
-func (q *Queries) MonthlyCostForApp(ctx context.Context, teamSlug *string, app string, environment *string) ([]*MonthlyCostForAppRow, error) {
+func (q *Queries) MonthlyCostForApp(ctx context.Context, teamSlug slug.Slug, app string, environment string) ([]*MonthlyCostForAppRow, error) {
 	rows, err := q.db.Query(ctx, monthlyCostForApp, teamSlug, app, environment)
 	if err != nil {
 		return nil, err
@@ -222,9 +223,9 @@ func (q *Queries) MonthlyCostForApp(ctx context.Context, teamSlug *string, app s
 	for rows.Next() {
 		var i MonthlyCostForAppRow
 		if err := rows.Scan(
-			&i.Team,
+			&i.TeamSlug,
 			&i.App,
-			&i.Env,
+			&i.Environment,
 			&i.Month,
 			&i.LastRecordedDate,
 			&i.DailyCost,
@@ -245,7 +246,7 @@ WITH last_run AS (
     FROM cost
 )
 SELECT
-    team,
+    team_slug,
     date_trunc('month', date)::date AS month,
     -- Extract last day of known cost samples for the month, or the last recorded date
     -- This helps with estimation etc
@@ -256,20 +257,20 @@ SELECT
     SUM(daily_cost)::real AS daily_cost
 FROM cost c
 LEFT JOIN last_run ON true
-WHERE c.team = $1
-GROUP BY team, month
+WHERE c.team_slug = $1::slug
+GROUP BY team_slug, month
 ORDER BY month DESC
 LIMIT 12
 `
 
 type MonthlyCostForTeamRow struct {
-	Team             *string
+	TeamSlug         *slug.Slug
 	Month            pgtype.Date
 	LastRecordedDate pgtype.Date
 	DailyCost        float32
 }
 
-func (q *Queries) MonthlyCostForTeam(ctx context.Context, teamSlug *string) ([]*MonthlyCostForTeamRow, error) {
+func (q *Queries) MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*MonthlyCostForTeamRow, error) {
 	rows, err := q.db.Query(ctx, monthlyCostForTeam, teamSlug)
 	if err != nil {
 		return nil, err
@@ -279,7 +280,7 @@ func (q *Queries) MonthlyCostForTeam(ctx context.Context, teamSlug *string) ([]*
 	for rows.Next() {
 		var i MonthlyCostForTeamRow
 		if err := rows.Scan(
-			&i.Team,
+			&i.TeamSlug,
 			&i.Month,
 			&i.LastRecordedDate,
 			&i.DailyCost,

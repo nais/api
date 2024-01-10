@@ -1,30 +1,32 @@
 package model
 
+import "github.com/nais/api/internal/slug"
+
 type (
 	AppGQLVars struct {
-		Team string
+		Team slug.Slug
 	}
 
 	DeployInfoGQLVars struct {
 		App  string
 		Job  string
 		Env  string
-		Team string
+		Team slug.Slug
 	}
 
 	InstanceGQLVars struct {
 		Env     string
-		Team    string
+		Team    slug.Slug
 		AppName string
 	}
 
 	NaisJobGQLVars struct {
-		Team string
+		Team slug.Slug
 	}
 
 	RunGQLVars struct {
 		Env     string
-		Team    string
+		Team    slug.Slug
 		NaisJob string
 	}
 )

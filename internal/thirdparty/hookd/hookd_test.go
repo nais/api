@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/config"
-	"github.com/nais/api/internal/hookd"
 	httptest "github.com/nais/api/internal/test"
+	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/otel/exporters/prometheus"

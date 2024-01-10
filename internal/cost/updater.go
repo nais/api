@@ -15,7 +15,6 @@ import (
 )
 
 const (
-	YYYYMMDD        = "2006-01-02"
 	UpsertBatchSize = 100000
 	daysToFetch     = 5
 )
@@ -82,7 +81,7 @@ func (c *Updater) ShouldUpdateCosts(ctx context.Context) (bool, error) {
 		return false, err
 	}
 
-	if lastDate.Time.Format(YYYYMMDD) == time.Now().Format(YYYYMMDD) {
+	if lastDate.Time.Format(time.DateOnly) == time.Now().Format(time.DateOnly) {
 		// already have todays date in the costs, no need for another update
 		return false, nil
 	}
@@ -124,12 +123,12 @@ func (c *Updater) FetchBigQueryData(ctx context.Context, ch chan<- gensql.CostUp
 		case <-ctx.Done():
 			return ctx.Err()
 		case ch <- gensql.CostUpsertParams{
-			Env:       nullToStringPointer(row.Env),
-			Team:      nullToStringPointer(row.Team),
-			App:       row.App.StringVal,
-			CostType:  row.CostType,
-			Date:      pgtype.Date{Time: row.Date.In(time.UTC), Valid: true},
-			DailyCost: row.Cost,
+			Environment: nullToStringPointer(row.Env),
+			TeamSlug:    nullToStringPointer(row.Team),
+			App:         row.App.StringVal,
+			CostType:    row.CostType,
+			Date:        pgtype.Date{Time: row.Date.In(time.UTC), Valid: true},
+			DailyCost:   row.Cost,
 		}:
 			// entry sent to the channel
 		}

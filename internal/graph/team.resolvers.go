@@ -7,55 +7,26 @@ package graph
 import (
 	"context"
 	"fmt"
-	"strings"
 
-	"github.com/nais/api/internal/auth"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 )
 
 // ChangeDeployKey is the resolver for the changeDeployKey field.
-func (r *mutationResolver) ChangeDeployKey(ctx context.Context, team string) (*model.DeploymentKey, error) {
+func (r *mutationResolver) ChangeDeployKey(ctx context.Context, team slug.Slug) (*model.DeploymentKey, error) {
 	if !r.hasAccess(ctx, team) {
 		return nil, fmt.Errorf("access denied")
 	}
 
-	deployKey, err := r.hookdClient.ChangeDeployKey(ctx, team)
+	deployKey, err := r.hookdClient.ChangeDeployKey(ctx, team.String())
 	if err != nil {
 		return nil, fmt.Errorf("changing deploy key in Hookd: %w", err)
 	}
 	return &model.DeploymentKey{
-		ID:      scalar.DeployKeyIdent(team),
+		ID:      scalar.DeployKeyIdent(team.String()),
 		Key:     deployKey.Key,
 		Created: deployKey.Created,
 		Expires: deployKey.Expires,
 	}, nil
-}
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *teamResolver) ViewerIsMember(ctx context.Context, obj *model.Team) (bool, error) {
-	email, err := auth.GetEmail(ctx)
-	if err != nil {
-		return false, fmt.Errorf("getting email from context: %w", err)
-	}
-
-	members, err := r.teamsClient.GetTeamMembers(ctx, obj.Slug)
-	if err != nil {
-		return false, fmt.Errorf("getting teams from Teams: %w", err)
-	}
-
-	for _, m := range members {
-		if strings.EqualFold(m.User.Email, email) {
-			if m.Role == "OWNER" || m.Role == "MEMBER" {
-				return true, nil
-			}
-		}
-	}
-
-	return false, nil
 }

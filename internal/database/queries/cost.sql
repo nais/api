@@ -11,9 +11,9 @@ WITH last_run AS (
     FROM cost
 )
 SELECT
-    team,
+    team_slug,
     app,
-    env,
+    environment,
     date_trunc('month', date)::date AS month,
     -- Extract last day of known cost samples for the month, or the last recorded date
     -- This helps with estimation etc
@@ -24,10 +24,10 @@ SELECT
     SUM(daily_cost)::real AS daily_cost
 FROM cost c
 LEFT JOIN last_run ON true
-WHERE c.team = @team_slug
+WHERE c.team_slug = @team_slug::slug
 AND c.app = @app
-AND c.env = @environment
-GROUP BY team, app, env, month
+AND c.environment = @environment::text
+GROUP BY team_slug, app, environment, month
 ORDER BY month DESC
 LIMIT 12;
 
@@ -37,7 +37,7 @@ WITH last_run AS (
     FROM cost
 )
 SELECT
-    team,
+    team_slug,
     date_trunc('month', date)::date AS month,
     -- Extract last day of known cost samples for the month, or the last recorded date
     -- This helps with estimation etc
@@ -48,15 +48,15 @@ SELECT
     SUM(daily_cost)::real AS daily_cost
 FROM cost c
 LEFT JOIN last_run ON true
-WHERE c.team = @team_slug
-GROUP BY team, month
+WHERE c.team_slug = @team_slug::slug
+GROUP BY team_slug, month
 ORDER BY month DESC
 LIMIT 12;
 
 -- CostUpsert will insert or update a cost record. If there is a conflict on the daily_cost_key constrant, the
 -- daily_cost column will be updated.
 -- name: CostUpsert :batchexec
-INSERT INTO cost (env, team, app, cost_type, date, daily_cost)
+INSERT INTO cost (environment, team_slug, app, cost_type, date, daily_cost)
 VALUES (@environment, @team_slug, @app, @cost_type, @date, @daily_cost)
 ON CONFLICT ON CONSTRAINT daily_cost_key DO
     UPDATE SET daily_cost = EXCLUDED.daily_cost;
@@ -71,8 +71,8 @@ FROM
 WHERE
     date >= @from_date::date
     AND date <= @to_date::date
-    AND env = @environment
-    AND team = @team_slug
+    AND environment = @environment::text
+    AND team_slug = @team_slug::slug
     AND app = @app
 ORDER BY
     date, cost_type ASC;
@@ -86,14 +86,14 @@ FROM
 WHERE
     date >= @from_date::date
     AND date <= @to_date::date
-    AND team = @team_slug
+    AND team_slug = @team_slug::slug
 ORDER BY
-    date, env, app, cost_type ASC;
+    date, environment, app, cost_type ASC;
 
--- DailyEnvCostForTeam will fetch the daily cost for a specific team and env across all apps in a date range.
+-- DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
 -- name: DailyEnvCostForTeam :many
 SELECT
-    team,
+    team_slug,
     app,
     date,
     SUM(daily_cost)::real AS daily_cost
@@ -102,9 +102,9 @@ FROM
 WHERE
     date >= @from_date::date
     AND date <= @to_date::date
-    AND env = @environment
-    AND team = @team_slug
+    AND environment = @environment
+    AND team_slug = @team_slug::slug
 GROUP BY
-    team, app, date
+    team_slug, app, date
 ORDER BY
     date, app ASC;

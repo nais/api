@@ -8,7 +8,7 @@ package gensql
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -34,7 +34,7 @@ DELETE FROM users
 WHERE id = $1
 `
 
-func (q *Queries) DeleteUser(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
 }
@@ -108,7 +108,7 @@ SELECT id, email, name, external_id FROM users
 WHERE id = $1
 `
 
-func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (*User, error) {
+func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (*User, error) {
 	row := q.db.QueryRow(ctx, getUserByID, id)
 	var i User
 	err := row.Scan(
@@ -133,7 +133,7 @@ type GetUserTeamsRow struct {
 	RoleName RoleName
 }
 
-func (q *Queries) GetUserTeams(ctx context.Context, userID pgtype.UUID, limit int32, offset int32) ([]*GetUserTeamsRow, error) {
+func (q *Queries) GetUserTeams(ctx context.Context, userID uuid.UUID, limit int32, offset int32) ([]*GetUserTeamsRow, error) {
 	rows, err := q.db.Query(ctx, getUserTeams, userID, limit, offset)
 	if err != nil {
 		return nil, err
@@ -165,7 +165,7 @@ WHERE user_roles.user_id = $1
 AND target_team_slug IS NOT NULL
 `
 
-func (q *Queries) GetUserTeamsCount(ctx context.Context, userID pgtype.UUID) (int64, error) {
+func (q *Queries) GetUserTeamsCount(ctx context.Context, userID uuid.UUID) (int64, error) {
 	row := q.db.QueryRow(ctx, getUserTeamsCount, userID)
 	var count int64
 	err := row.Scan(&count)
@@ -220,7 +220,7 @@ WHERE id = $3
 RETURNING id, email, name, external_id
 `
 
-func (q *Queries) UpdateUser(ctx context.Context, name string, externalID string, iD pgtype.UUID, email string) (*User, error) {
+func (q *Queries) UpdateUser(ctx context.Context, name string, externalID string, iD uuid.UUID, email string) (*User, error) {
 	row := q.db.QueryRow(ctx, updateUser,
 		name,
 		externalID,

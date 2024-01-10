@@ -14,15 +14,16 @@ import (
 	db "github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	sqlc "github.com/nais/api/internal/database/gensql"
-	"github.com/nais/api/internal/dependencytrack"
 	"github.com/nais/api/internal/graph/apierror"
+	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/hookd"
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/thirdparty/dependencytrack"
+	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/usersync"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/metric"
@@ -34,7 +35,6 @@ import (
 
 type Resolver struct {
 	hookdClient           hookd.Client
-	teamsClient           teams.Client
 	k8sClient             *k8s.Client
 	dependencyTrackClient *dependencytrack.Client
 	resourceUsageClient   resourceusage.Client
@@ -44,7 +44,16 @@ type Resolver struct {
 	clusters              []string
 
 	// TODO(thokra) Add this to NewResolver
-	teamSyncHandler teamsync.Handler
+	teamSyncHandler interface {
+		ScheduleAllTeams(ctx context.Context, correlationID uuid.UUID) ([]*db.Team, error)
+		InitReconcilers(ctx context.Context) error
+		UseReconciler(reconciler db.Reconciler) error
+		RemoveReconciler(reconcilerName sqlc.ReconcilerName)
+		SyncTeams(ctx context.Context)
+		UpdateMetrics(ctx context.Context)
+		DeleteTeam(teamSlug slug.Slug, correlationID uuid.UUID) error
+		Close()
+	}
 	database        db.Database
 	tenantDomain    string
 	userSync        chan<- uuid.UUID
@@ -55,14 +64,13 @@ type Resolver struct {
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
-func NewResolver(hookdClient hookd.Client, teamsClient teams.Client, k8sClient *k8s.Client, dependencyTrackClient *dependencytrack.Client, resourceUsageClient resourceusage.Client, querier gensql.Querier, clusters []string, log logrus.FieldLogger) *Resolver {
+func NewResolver(hookdClient hookd.Client, k8sClient *k8s.Client, dependencyTrackClient *dependencytrack.Client, resourceUsageClient resourceusage.Client, querier gensql.Querier, clusters []string, log logrus.FieldLogger) *Resolver {
 	return &Resolver{
 		hookdClient:           hookdClient,
-		teamsClient:           teamsClient,
 		k8sClient:             k8sClient,
 		dependencyTrackClient: dependencyTrackClient,
 		resourceUsageClient:   resourceUsageClient,
-		searcher:              search.New(teamsClient, k8sClient),
+		searcher:              search.New(querier, k8sClient),
 		log:                   log,
 		querier:               querier,
 		clusters:              clusters,
@@ -70,13 +78,13 @@ func NewResolver(hookdClient hookd.Client, teamsClient teams.Client, k8sClient *
 }
 
 // NewHandler creates and returns a new GraphQL handler with the given configuration
-func NewHandler(config Config, meter metric.Meter, log logrus.FieldLogger) (*handler.Server, error) {
+func NewHandler(config gengql.Config, meter metric.Meter, log logrus.FieldLogger) (*handler.Server, error) {
 	metricsMiddleware, err := NewMetrics(meter)
 	if err != nil {
 		return nil, fmt.Errorf("create metrics middleware: %w", err)
 	}
 
-	schema := NewExecutableSchema(config)
+	schema := gengql.NewExecutableSchema(config)
 	graphHandler := handler.New(schema)
 	graphHandler.Use(metricsMiddleware)
 	graphHandler.AddTransport(transport.SSE{}) // Support subscriptions
@@ -101,23 +109,24 @@ func GetQueriedFields(ctx context.Context) map[string]bool {
 }
 
 // addTeamToReconcilerQueue add a team (enclosed in an input) to the reconciler queue
-func (r *Resolver) addTeamToReconcilerQueue(input teamsync.Input) error {
-	err := r.teamSyncHandler.Schedule(input)
-	if err != nil {
-		r.log.WithTeamSlug(string(input.TeamSlug)).WithError(err).Errorf("add team to reconciler queue")
-		return apierror.Errorf("api is about to restart, unable to reconcile team: %q", input.TeamSlug)
-	}
-	return nil
-}
+// func (r *Resolver) addTeamToReconcilerQueue(input teamsync.Input) error {
+// 	err := r.teamSyncHandler.Schedule(input)
+// 	if err != nil {
+// 		r.log.WithTeamSlug(string(input.TeamSlug)).WithError(err).Errorf("add team to reconciler queue")
+// 		return apierror.Errorf("api is about to restart, unable to reconcile team: %q", input.TeamSlug)
+// 	}
+// 	return nil
+// }
 
 // reconcileTeam Trigger team reconcilers for a given team
 func (r *Resolver) reconcileTeam(_ context.Context, correlationID uuid.UUID, slug slug.Slug) error {
-	input := teamsync.Input{
-		TeamSlug:      slug,
-		CorrelationID: correlationID,
-	}
+	// input := teamsync.Input{
+	// 	TeamSlug:      slug,
+	// 	CorrelationID: correlationID,
+	// }
 
-	return r.addTeamToReconcilerQueue(input)
+	// return r.addTeamToReconcilerQueue(input)
+	return nil
 }
 
 func (r *Resolver) getTeamBySlug(ctx context.Context, slug slug.Slug) (*db.Team, error) {

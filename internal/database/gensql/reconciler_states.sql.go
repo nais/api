@@ -7,6 +7,8 @@ package gensql
 
 import (
 	"context"
+
+	"github.com/nais/api/internal/slug"
 )
 
 const getReconcilerStateForTeam = `-- name: GetReconcilerStateForTeam :one
@@ -14,7 +16,7 @@ SELECT reconciler, state, team_slug FROM reconciler_states
 WHERE reconciler = $1 AND team_slug = $2
 `
 
-func (q *Queries) GetReconcilerStateForTeam(ctx context.Context, reconcilerName ReconcilerName, teamSlug string) (*ReconcilerState, error) {
+func (q *Queries) GetReconcilerStateForTeam(ctx context.Context, reconcilerName ReconcilerName, teamSlug slug.Slug) (*ReconcilerState, error) {
 	row := q.db.QueryRow(ctx, getReconcilerStateForTeam, reconcilerName, teamSlug)
 	var i ReconcilerState
 	err := row.Scan(&i.Reconciler, &i.State, &i.TeamSlug)
@@ -75,7 +77,7 @@ DELETE FROM reconciler_states
 WHERE reconciler = $1 AND team_slug = $2
 `
 
-func (q *Queries) RemoveReconcilerStateForTeam(ctx context.Context, reconcilerName ReconcilerName, teamSlug string) error {
+func (q *Queries) RemoveReconcilerStateForTeam(ctx context.Context, reconcilerName ReconcilerName, teamSlug slug.Slug) error {
 	_, err := q.db.Exec(ctx, removeReconcilerStateForTeam, reconcilerName, teamSlug)
 	return err
 }
@@ -87,7 +89,7 @@ ON CONFLICT (reconciler, team_slug) DO
     UPDATE SET state = $3
 `
 
-func (q *Queries) SetReconcilerStateForTeam(ctx context.Context, reconciler ReconcilerName, teamSlug string, state []byte) error {
+func (q *Queries) SetReconcilerStateForTeam(ctx context.Context, reconciler ReconcilerName, teamSlug slug.Slug, state []byte) error {
 	_, err := q.db.Exec(ctx, setReconcilerStateForTeam, reconciler, teamSlug, state)
 	return err
 }

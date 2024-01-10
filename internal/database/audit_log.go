@@ -4,17 +4,14 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/auditlogger/audittype"
 	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
 )
 
 func (d *database) GetAuditLogsForTeam(ctx context.Context, slug slug.Slug, offset, limit int) ([]*AuditLog, int, error) {
-	rows, err := d.querier.GetAuditLogsForTeam(ctx, sqlc.GetAuditLogsForTeamParams{
-		TargetIdentifier: string(slug),
-		Offset:           int32(offset),
-		Limit:            int32(limit),
-	})
+	rows, err := d.querier.GetAuditLogsForTeam(ctx, string(slug), int32(offset), int32(limit))
 	if err != nil {
 		return nil, 0, err
 	}
@@ -33,11 +30,7 @@ func (d *database) GetAuditLogsForTeam(ctx context.Context, slug slug.Slug, offs
 }
 
 func (d *database) GetAuditLogsForReconciler(ctx context.Context, reconcilerName sqlc.ReconcilerName, offset, limit int) ([]*AuditLog, int, error) {
-	rows, err := d.querier.GetAuditLogsForReconciler(ctx, sqlc.GetAuditLogsForReconcilerParams{
-		TargetIdentifier: string(reconcilerName),
-		Offset:           int32(offset),
-		Limit:            int32(limit),
-	})
+	rows, err := d.querier.GetAuditLogsForReconciler(ctx, string(reconcilerName), int32(offset), int32(limit))
 	if err != nil {
 		return nil, 0, err
 	}
@@ -55,7 +48,7 @@ func (d *database) GetAuditLogsForReconciler(ctx context.Context, reconcilerName
 	return entries, int(total), nil
 }
 
-func (d *database) CreateAuditLogEntry(ctx context.Context, correlationID uuid.UUID, componentName logger.ComponentName, actor *string, targetType auditlogger.AuditLogsTargetType, targetIdentifier string, action types.AuditAction, message string) error {
+func (d *database) CreateAuditLogEntry(ctx context.Context, correlationID uuid.UUID, componentName logger.ComponentName, actor *string, targetType audittype.AuditLogsTargetType, targetIdentifier string, action audittype.AuditAction, message string) error {
 	return d.querier.CreateAuditLog(ctx, sqlc.CreateAuditLogParams{
 		CorrelationID:    correlationID,
 		Actor:            actor,
@@ -68,11 +61,7 @@ func (d *database) CreateAuditLogEntry(ctx context.Context, correlationID uuid.U
 }
 
 func (d *database) GetAuditLogsForCorrelationID(ctx context.Context, correlationID uuid.UUID, offset, limit int) ([]*AuditLog, int, error) {
-	rows, err := d.querier.GetAuditLogsForCorrelationID(ctx, sqlc.GetAuditLogsForCorrelationIDParams{
-		CorrelationID: correlationID,
-		Offset:        int32(offset),
-		Limit:         int32(limit),
-	})
+	rows, err := d.querier.GetAuditLogsForCorrelationID(ctx, correlationID, int32(offset), int32(limit))
 	if err != nil {
 		return nil, 0, err
 	}

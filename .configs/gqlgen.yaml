@@ -82,11 +82,31 @@ models:
       - github.com/nais/api/internal/logger.ComponentName
   AuditAction:
     model:
-      - github.com/nais/api/internal/auditlogger.AuditAction
+      - github.com/nais/api/internal/auditlogger/audittype.AuditAction
 
   AuditLogsTargetType:
     model:
-      - github.com/nais/api/internal/auditlogger.AuditLogsTargetType
+      - github.com/nais/api/internal/auditlogger/audittype.AuditLogsTargetType
   Slug:
     model:
       - github.com/nais/api/internal/slug.Slug
+
+  TeamMemberReconciler:
+    model:
+      - github.com/nais/api/internal/database/gensql.GetTeamMemberOptOutsRow
+
+  UserSyncRun:
+    model:
+      - github.com/nais/api/internal/usersync.Run
+
+  ReconcilerName:
+    model:
+      - github.com/nais/api/internal/database/gensql.ReconcilerName
+
+  RoleName:
+    model:
+      - github.com/nais/api/internal/database/gensql.RoleName
+
+  ReconcilerConfigKey:
+    model:
+      - github.com/nais/api/internal/database/gensql.ReconcilerConfigKey

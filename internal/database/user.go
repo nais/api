@@ -4,15 +4,12 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/auth/authz"
 	sqlc "github.com/nais/api/internal/database/gensql"
 )
 
 func (d *database) CreateUser(ctx context.Context, name, email, externalID string) (*User, error) {
-	user, err := d.querier.CreateUser(ctx, sqlc.CreateUserParams{
-		Name:       name,
-		Email:      email,
-		ExternalID: externalID,
-	})
+	user, err := d.querier.CreateUser(ctx, name, email, externalID)
 	if err != nil {
 		return nil, err
 	}
@@ -52,12 +49,7 @@ func (d *database) GetUserByExternalID(ctx context.Context, externalID string) (
 }
 
 func (d *database) UpdateUser(ctx context.Context, userID uuid.UUID, name, email, externalID string) (*User, error) {
-	user, err := d.querier.UpdateUser(ctx, sqlc.UpdateUserParams{
-		Email:      email,
-		ExternalID: externalID,
-		ID:         userID,
-		Name:       name,
-	})
+	user, err := d.querier.UpdateUser(ctx, name, externalID, userID, email)
 	if err != nil {
 		return nil, err
 	}
@@ -68,10 +60,7 @@ func (d *database) UpdateUser(ctx context.Context, userID uuid.UUID, name, email
 func (d *database) GetUsers(ctx context.Context, offset, limit int) ([]*User, int, error) {
 	var users []*sqlc.User
 	var err error
-	users, err = d.querier.GetUsers(ctx, sqlc.GetUsersParams{
-		Limit:  int32(limit),
-		Offset: int32(offset),
-	})
+	users, err = d.querier.GetUsers(ctx, int32(limit), int32(offset))
 	if err != nil {
 		return nil, 0, err
 	}
@@ -108,18 +97,19 @@ func wrapUser(user *sqlc.User) *User {
 	return &User{User: user}
 }
 
-func (d *database) GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*Role, error) {
+func (d *database) GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*authz.Role, error) {
 	userRoles, err := d.querier.GetUserRoles(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	roles := make([]*Role, 0, len(userRoles))
+	roles := make([]*authz.Role, 0, len(userRoles))
 	for _, userRole := range userRoles {
 		role, err := d.roleFromRoleBinding(ctx, userRole.RoleName, userRole.TargetServiceAccountID, userRole.TargetTeamSlug)
 		if err != nil {
 			return nil, err
 		}
+
 		roles = append(roles, role)
 	}
 

@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 )
@@ -17,13 +18,13 @@ func (r *queryResolver) TeamsInternal(ctx context.Context) (*model.TeamsInternal
 }
 
 // Name is the resolver for the name field.
-func (r *roleResolver) Name(ctx context.Context, obj *model.Role) (string, error) {
-	return obj.RoleName, nil
+func (r *roleResolver) Name(ctx context.Context, obj *model.Role) (gensql.RoleName, error) {
+	return obj.Name, nil
 }
 
 // Roles is the resolver for the roles field.
-func (r *teamsInternalResolver) Roles(ctx context.Context, obj *model.TeamsInternal) ([]string, error) {
-	return sqlc.AllRoleNameValues(), nil
+func (r *teamsInternalResolver) Roles(ctx context.Context, obj *model.TeamsInternal) ([]gensql.RoleName, error) {
+	return gensql.AllRoleNameValues(), nil
 }
 
 // Role returns gengql.RoleResolver implementation.

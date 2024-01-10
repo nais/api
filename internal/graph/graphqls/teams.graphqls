@@ -15,7 +15,7 @@ extend type Query {
   team("Slug of the team." slug: Slug!): Team! @auth
 
   "Get a team delete key."
-  teamDeleteKey("The key to get." key: ID!): TeamDeleteKey! @auth
+  teamDeleteKey("The key to get." key: String!): TeamDeleteKey! @auth
 }
 
 extend type Mutation {
@@ -184,8 +184,8 @@ extend type Mutation {
   """
   confirmTeamDeletion(
     "Deletion key, acquired using the requestTeamDeletion mutation."
-    key: ID!
-  ): ID! @auth
+    key: String!
+  ): Boolean! @auth
 
   "Authorize a team to perform an action from a GitHub repository."
   authorizeRepository(
@@ -215,7 +215,7 @@ extend type Mutation {
 "Team deletion key type."
 type TeamDeleteKey {
   "The unique key used to confirm the deletion of a team."
-  key: ID!
+  key: String!
 
   "The creation timestamp of the key."
   createdAt: Time!

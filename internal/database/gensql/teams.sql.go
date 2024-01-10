@@ -8,7 +8,8 @@ package gensql
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
+	"github.com/nais/api/internal/slug"
 )
 
 const confirmTeamDeleteKey = `-- name: ConfirmTeamDeleteKey :exec
@@ -17,7 +18,7 @@ SET confirmed_at = NOW()
 WHERE key = $1
 `
 
-func (q *Queries) ConfirmTeamDeleteKey(ctx context.Context, key pgtype.UUID) error {
+func (q *Queries) ConfirmTeamDeleteKey(ctx context.Context, key uuid.UUID) error {
 	_, err := q.db.Exec(ctx, confirmTeamDeleteKey, key)
 	return err
 }
@@ -28,7 +29,7 @@ VALUES ($1, $2, $3)
 RETURNING slug, purpose, last_successful_sync, slack_channel
 `
 
-func (q *Queries) CreateTeam(ctx context.Context, slug string, purpose string, slackChannel string) (*Team, error) {
+func (q *Queries) CreateTeam(ctx context.Context, slug slug.Slug, purpose string, slackChannel string) (*Team, error) {
 	row := q.db.QueryRow(ctx, createTeam, slug, purpose, slackChannel)
 	var i Team
 	err := row.Scan(
@@ -46,7 +47,7 @@ VALUES($1, $2)
 RETURNING key, team_slug, created_at, created_by, confirmed_at
 `
 
-func (q *Queries) CreateTeamDeleteKey(ctx context.Context, teamSlug string, createdBy pgtype.UUID) (*TeamDeleteKey, error) {
+func (q *Queries) CreateTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, createdBy uuid.UUID) (*TeamDeleteKey, error) {
 	row := q.db.QueryRow(ctx, createTeamDeleteKey, teamSlug, createdBy)
 	var i TeamDeleteKey
 	err := row.Scan(
@@ -64,8 +65,8 @@ DELETE FROM teams
 WHERE slug = $1
 `
 
-func (q *Queries) DeleteTeam(ctx context.Context, slug string) error {
-	_, err := q.db.Exec(ctx, deleteTeam, slug)
+func (q *Queries) DeleteTeam(ctx context.Context, argSlug slug.Slug) error {
+	_, err := q.db.Exec(ctx, deleteTeam, argSlug)
 	return err
 }
 
@@ -82,8 +83,8 @@ WHERE
     )
 `
 
-func (q *Queries) GetActiveTeamBySlug(ctx context.Context, slug string) (*Team, error) {
-	row := q.db.QueryRow(ctx, getActiveTeamBySlug, slug)
+func (q *Queries) GetActiveTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error) {
+	row := q.db.QueryRow(ctx, getActiveTeamBySlug, argSlug)
 	var i Team
 	err := row.Scan(
 		&i.Slug,
@@ -139,7 +140,7 @@ WHERE user_roles.target_team_slug = $1
 ORDER BY users.name ASC
 `
 
-func (q *Queries) GetAllTeamMembers(ctx context.Context, teamSlug *string) ([]*User, error) {
+func (q *Queries) GetAllTeamMembers(ctx context.Context, teamSlug *slug.Slug) ([]*User, error) {
 	rows, err := q.db.Query(ctx, getAllTeamMembers, teamSlug)
 	if err != nil {
 		return nil, err
@@ -170,7 +171,7 @@ WHERE team_slug = $1
 ORDER BY environment ASC
 `
 
-func (q *Queries) GetSlackAlertsChannels(ctx context.Context, teamSlug string) ([]*SlackAlertsChannel, error) {
+func (q *Queries) GetSlackAlertsChannels(ctx context.Context, teamSlug slug.Slug) ([]*SlackAlertsChannel, error) {
 	rows, err := q.db.Query(ctx, getSlackAlertsChannels, teamSlug)
 	if err != nil {
 		return nil, err
@@ -195,8 +196,8 @@ SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channe
 WHERE teams.slug = $1
 `
 
-func (q *Queries) GetTeamBySlug(ctx context.Context, slug string) (*Team, error) {
-	row := q.db.QueryRow(ctx, getTeamBySlug, slug)
+func (q *Queries) GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error) {
+	row := q.db.QueryRow(ctx, getTeamBySlug, argSlug)
 	var i Team
 	err := row.Scan(
 		&i.Slug,
@@ -212,7 +213,7 @@ SELECT key, team_slug, created_at, created_by, confirmed_at FROM team_delete_key
 WHERE key = $1
 `
 
-func (q *Queries) GetTeamDeleteKey(ctx context.Context, key pgtype.UUID) (*TeamDeleteKey, error) {
+func (q *Queries) GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error) {
 	row := q.db.QueryRow(ctx, getTeamDeleteKey, key)
 	var i TeamDeleteKey
 	err := row.Scan(
@@ -233,7 +234,7 @@ WHERE user_roles.target_team_slug = $1 AND users.id = $2
 ORDER BY users.name ASC
 `
 
-func (q *Queries) GetTeamMember(ctx context.Context, teamSlug *string, userID pgtype.UUID) (*User, error) {
+func (q *Queries) GetTeamMember(ctx context.Context, teamSlug *slug.Slug, userID uuid.UUID) (*User, error) {
 	row := q.db.QueryRow(ctx, getTeamMember, teamSlug, userID)
 	var i User
 	err := row.Scan(
@@ -262,7 +263,7 @@ type GetTeamMemberOptOutsRow struct {
 	Enabled bool
 }
 
-func (q *Queries) GetTeamMemberOptOuts(ctx context.Context, userID pgtype.UUID, teamSlug string) ([]*GetTeamMemberOptOutsRow, error) {
+func (q *Queries) GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*GetTeamMemberOptOutsRow, error) {
 	rows, err := q.db.Query(ctx, getTeamMemberOptOuts, userID, teamSlug)
 	if err != nil {
 		return nil, err
@@ -290,7 +291,7 @@ WHERE user_roles.target_team_slug = $1
 ORDER BY users.name ASC LIMIT $3 OFFSET $2
 `
 
-func (q *Queries) GetTeamMembers(ctx context.Context, teamSlug *string, offset int32, limit int32) ([]*User, error) {
+func (q *Queries) GetTeamMembers(ctx context.Context, teamSlug *slug.Slug, offset int32, limit int32) ([]*User, error) {
 	rows, err := q.db.Query(ctx, getTeamMembers, teamSlug, offset, limit)
 	if err != nil {
 		return nil, err
@@ -320,7 +321,7 @@ SELECT COUNT (*) FROM user_roles
 WHERE user_roles.target_team_slug = $1
 `
 
-func (q *Queries) GetTeamMembersCount(ctx context.Context, teamSlug *string) (int64, error) {
+func (q *Queries) GetTeamMembersCount(ctx context.Context, teamSlug *slug.Slug) (int64, error) {
 	row := q.db.QueryRow(ctx, getTeamMembersCount, teamSlug)
 	var count int64
 	err := row.Scan(&count)
@@ -344,7 +345,7 @@ WHERE
 ORDER BY users.name ASC
 `
 
-func (q *Queries) GetTeamMembersForReconciler(ctx context.Context, teamSlug *string, reconcilerName ReconcilerName) ([]*User, error) {
+func (q *Queries) GetTeamMembersForReconciler(ctx context.Context, teamSlug *slug.Slug, reconcilerName ReconcilerName) ([]*User, error) {
 	rows, err := q.db.Query(ctx, getTeamMembersForReconciler, teamSlug, reconcilerName)
 	if err != nil {
 		return nil, err
@@ -445,7 +446,7 @@ DELETE FROM slack_alerts_channels
 WHERE team_slug = $1 AND environment = $2
 `
 
-func (q *Queries) RemoveSlackAlertsChannel(ctx context.Context, teamSlug string, environment string) error {
+func (q *Queries) RemoveSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string) error {
 	_, err := q.db.Exec(ctx, removeSlackAlertsChannel, teamSlug, environment)
 	return err
 }
@@ -455,7 +456,7 @@ DELETE FROM user_roles
 WHERE user_id = $1 AND target_team_slug = $2
 `
 
-func (q *Queries) RemoveUserFromTeam(ctx context.Context, userID pgtype.UUID, teamSlug *string) error {
+func (q *Queries) RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug *slug.Slug) error {
 	_, err := q.db.Exec(ctx, removeUserFromTeam, userID, teamSlug)
 	return err
 }
@@ -465,8 +466,8 @@ UPDATE teams SET last_successful_sync = NOW()
 WHERE slug = $1
 `
 
-func (q *Queries) SetLastSuccessfulSyncForTeam(ctx context.Context, slug string) error {
-	_, err := q.db.Exec(ctx, setLastSuccessfulSyncForTeam, slug)
+func (q *Queries) SetLastSuccessfulSyncForTeam(ctx context.Context, argSlug slug.Slug) error {
+	_, err := q.db.Exec(ctx, setLastSuccessfulSyncForTeam, argSlug)
 	return err
 }
 
@@ -477,7 +478,7 @@ ON CONFLICT (team_slug, environment) DO
     UPDATE SET channel_name = $3
 `
 
-func (q *Queries) SetSlackAlertsChannel(ctx context.Context, teamSlug string, environment string, channelName string) error {
+func (q *Queries) SetSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string, channelName string) error {
 	_, err := q.db.Exec(ctx, setSlackAlertsChannel, teamSlug, environment, channelName)
 	return err
 }
@@ -490,7 +491,7 @@ WHERE slug = $3
 RETURNING slug, purpose, last_successful_sync, slack_channel
 `
 
-func (q *Queries) UpdateTeam(ctx context.Context, purpose *string, slackChannel *string, slug string) (*Team, error) {
+func (q *Queries) UpdateTeam(ctx context.Context, purpose *string, slackChannel *string, slug slug.Slug) (*Team, error) {
 	row := q.db.QueryRow(ctx, updateTeam, purpose, slackChannel, slug)
 	var i Team
 	err := row.Scan(

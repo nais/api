@@ -7,12 +7,12 @@ packages:
   github.com/nais/api/internal/database/gensql:
     interfaces:
       Querier:
-  github.com/nais/api/internal/hookd:
+  github.com/nais/api/internal/thirdparty/hookd:
     interfaces:
       Client:
   github.com/nais/api/internal/resourceusage:
     interfaces:
       Client:
-  github.com/nais/api/internal/dependencytrack:
+  github.com/nais/api/internal/thirdparty/dependencytrack:
     interfaces:
       InternalClient:

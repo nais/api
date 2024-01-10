@@ -17,7 +17,20 @@ sql:
         emit_empty_slices: true
         json_tags_id_uppercase: true
         omit_unused_structs: true
-        query_parameter_limit: 100000 # Let's try to avoid params structs.
+        query_parameter_limit: 5 # Let's try to avoid params structs.
+        overrides:
+          - db_type: "slug"
+            go_type: "*github.com/nais/api/internal/slug.Slug"
+            nullable: true
+          - db_type: "slug"
+            go_type: "github.com/nais/api/internal/slug.Slug"
+
+          - db_type: "uuid"
+            go_type: github.com/google/uuid.UUID
+          - db_type: "uuid"
+            go_type: "*github.com/google/uuid.UUID"
+            nullable: true
+
     rules:
       - always-order-by
 

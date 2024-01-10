@@ -8,7 +8,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/nais/api/internal/auditlogger"
+	"github.com/nais/api/internal/auditlogger/audittype"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
@@ -48,9 +49,9 @@ type AccessPolicy struct {
 }
 
 type ACL struct {
-	Access      string `json:"access"`
-	Application string `json:"application"`
-	Team        string `json:"team"`
+	Access      string    `json:"access"`
+	Application string    `json:"application"`
+	Team        slug.Slug `json:"team"`
 }
 
 type App struct {
@@ -109,7 +110,7 @@ type AppWithResourceUtilizationOverage struct {
 	// The environment where the app is running.
 	Env string `json:"env"`
 	// The name of the team who owns the app.
-	Team string `json:"team"`
+	Team slug.Slug `json:"team"`
 	// The name of the app.
 	App string `json:"app"`
 }
@@ -125,15 +126,15 @@ type AuditLog struct {
 	// ID of the log entry.
 	ID scalar.Ident `json:"id"`
 	// String representation of the action performed.
-	Action auditlogger.AuditAction `json:"action"`
+	Action audittype.AuditAction `json:"action"`
 	// The related component.
 	ComponentName logger.ComponentName `json:"componentName"`
 	// The related correlation ID.
-	CorrelationID scalar.Ident `json:"correlationID"`
+	CorrelationID string `json:"correlationID"`
 	// The identity of the actor who performed the action. When this field is empty it means that some backend process performed the action. The value, when present, is either the name of a service account, or the email address of a user.
 	Actor *string `json:"actor,omitempty"`
 	// The type of the audit log target.
-	TargetType auditlogger.AuditLogsTargetType `json:"targetType"`
+	TargetType audittype.AuditLogsTargetType `json:"targetType"`
 	// The identifier of the target.
 	TargetIdentifier string `json:"targetIdentifier"`
 	// Log entry message.
@@ -360,7 +361,7 @@ type EnvCostFilter struct {
 	// End date for cost series, inclusive.
 	To scalar.Date `json:"to"`
 	// The name of the team to get costs for.
-	Team string `json:"team"`
+	Team slug.Slug `json:"team"`
 }
 
 type Error struct {
@@ -554,11 +555,11 @@ type LogLine struct {
 }
 
 type LogSubscriptionInput struct {
-	App       *string  `json:"app,omitempty"`
-	Job       *string  `json:"job,omitempty"`
-	Env       string   `json:"env"`
-	Team      string   `json:"team"`
-	Instances []string `json:"instances,omitempty"`
+	App       *string   `json:"app,omitempty"`
+	Job       *string   `json:"job,omitempty"`
+	Env       string    `json:"env"`
+	Team      slug.Slug `json:"team"`
+	Instances []string  `json:"instances,omitempty"`
 }
 
 type Maintenance struct {
@@ -589,7 +590,7 @@ type MonthlyCost struct {
 // Monthly cost filter input type.
 type MonthlyCostFilter struct {
 	// The name of the team to get costs for.
-	Team string `json:"team"`
+	Team slug.Slug `json:"team"`
 	// The name of the application to get costs for.
 	App string `json:"app"`
 	// The name of the environment to get costs for.
@@ -700,7 +701,7 @@ type Query struct {
 // Reconciler type.
 type Reconciler struct {
 	// The name of the reconciler.
-	Name string `json:"name"`
+	Name gensql.ReconcilerName `json:"name"`
 	// The human-friendly name of the reconciler.
 	DisplayName string `json:"displayName"`
 	// Description of what the reconciler is responsible for.
@@ -722,7 +723,7 @@ type Reconciler struct {
 // Reconciler configuration type.
 type ReconcilerConfig struct {
 	// Configuration key.
-	Key string `json:"key"`
+	Key gensql.ReconcilerConfigKey `json:"key"`
 	// The human-friendly name of the configuration key.
 	DisplayName string `json:"displayName"`
 	// Configuration description.
@@ -738,7 +739,7 @@ type ReconcilerConfig struct {
 // Reconciler configuration input.
 type ReconcilerConfigInput struct {
 	// Configuration key.
-	Key string `json:"key"`
+	Key gensql.ReconcilerConfigKey `json:"key"`
 	// Configuration value.
 	Value string `json:"value"`
 }
@@ -856,7 +857,7 @@ type Resources struct {
 // Role binding type.
 type Role struct {
 	// Name of the role.
-	Name string `json:"name"`
+	Name gensql.RoleName `json:"name"`
 	// Whether or not the role is global.
 	IsGlobal bool `json:"isGlobal"`
 	// Optional service account ID if the role binding targets a service account.
@@ -960,7 +961,7 @@ type SyncError struct {
 	// Creation time of the error.
 	CreatedAt time.Time `json:"createdAt"`
 	// The name of the reconciler.
-	Reconciler string `json:"reconciler"`
+	Reconciler gensql.ReconcilerName `json:"reconciler"`
 	// Error message.
 	Error string `json:"error"`
 }
@@ -1016,7 +1017,7 @@ func (Team) IsSearchNode() {}
 // Team deletion key type.
 type TeamDeleteKey struct {
 	// The unique key used to confirm the deletion of a team.
-	Key scalar.Ident `json:"key"`
+	Key string `json:"key"`
 	// The creation timestamp of the key.
 	CreatedAt time.Time `json:"createdAt"`
 	// Expiration timestamp of the key.
@@ -1042,20 +1043,12 @@ type TeamMemberInput struct {
 	// The role that the user will receive.
 	Role TeamRole `json:"role"`
 	// Reconcilers to opt the team member out of.
-	ReconcilerOptOuts []string `json:"reconcilerOptOuts,omitempty"`
+	ReconcilerOptOuts []gensql.ReconcilerName `json:"reconcilerOptOuts,omitempty"`
 }
 
 type TeamMemberList struct {
 	Nodes    []*TeamMember `json:"nodes"`
 	PageInfo PageInfo      `json:"pageInfo"`
-}
-
-// Team member reconcilers.
-type TeamMemberReconciler struct {
-	// The reconciler.
-	Reconciler Reconciler `json:"reconciler"`
-	// Whether or not the reconciler is enabled for the team member.
-	Enabled bool `json:"enabled"`
 }
 
 // Team status.
@@ -1126,22 +1119,6 @@ func (User) IsAuthenticatedUser() {}
 type UserList struct {
 	Nodes    []*User  `json:"nodes"`
 	PageInfo PageInfo `json:"pageInfo"`
-}
-
-// User sync run type.
-type UserSyncRun struct {
-	// The correlation ID of the sync run.
-	CorrelationID scalar.Ident `json:"correlationID"`
-	// Timestamp of when the run started.
-	StartedAt time.Time `json:"startedAt"`
-	// Timestamp of when the run finished.
-	FinishedAt *time.Time `json:"finishedAt,omitempty"`
-	// Log entries for the sync run.
-	AuditLogs AuditLogList `json:"auditLogs"`
-	// The status of the sync run.
-	Status UserSyncRunStatus `json:"status"`
-	// Optional error.
-	Error *string `json:"error,omitempty"`
 }
 
 type Variable struct {

@@ -4,17 +4,46 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/roles"
-	db "github.com/nais/api/internal/database"
 	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 )
 
 type ContextKey string
 
+type AuthenticatedUser interface {
+	GetID() uuid.UUID
+	Identity() string
+	IsServiceAccount() bool
+	IsAuthenticatedUser()
+}
+
+type Role struct {
+	Authorizations         []roles.Authorization
+	RoleName               sqlc.RoleName
+	TargetServiceAccountID *uuid.UUID
+	TargetTeamSlug         *slug.Slug
+}
+
+// IsGlobal Check if the role is globally assigned or not
+func (r Role) IsGlobal() bool {
+	return r.TargetServiceAccountID == nil && r.TargetTeamSlug == nil
+}
+
+// TargetsTeam Check if the role targets a specific team
+func (r Role) TargetsTeam(targetsTeamSlug slug.Slug) bool {
+	return r.TargetTeamSlug != nil && *r.TargetTeamSlug == targetsTeamSlug
+}
+
+// TargetsServiceAccount Check if the role targets a specific service account
+func (r Role) TargetsServiceAccount(targetServiceAccountID uuid.UUID) bool {
+	return r.TargetServiceAccountID != nil && *r.TargetServiceAccountID == targetServiceAccountID
+}
+
 type Actor struct {
-	User  db.AuthenticatedUser
-	Roles []*db.Role
+	User  AuthenticatedUser
+	Roles []*Role
 }
 
 var ErrNotAuthenticated = errors.New("not authenticated")
@@ -30,7 +59,7 @@ func (u *Actor) Authenticated() bool {
 const contextKeyUser ContextKey = "actor"
 
 // ContextWithActor Return a context with an actor attached to it.
-func ContextWithActor(ctx context.Context, user db.AuthenticatedUser, roles []*db.Role) context.Context {
+func ContextWithActor(ctx context.Context, user AuthenticatedUser, roles []*Role) context.Context {
 	return context.WithValue(ctx, contextKeyUser, &Actor{
 		User:  user,
 		Roles: roles,
