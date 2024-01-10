@@ -835,6 +835,24 @@ func (r *mutationResolver) DeauthorizeRepository(ctx context.Context, authorizat
 	return toGraphTeam(team), nil
 }
 
+// ChangeDeployKey is the resolver for the changeDeployKey field.
+func (r *mutationResolver) ChangeDeployKey(ctx context.Context, team slug.Slug) (*model.DeploymentKey, error) {
+	if !r.hasAccess(ctx, team) {
+		return nil, fmt.Errorf("access denied")
+	}
+
+	deployKey, err := r.hookdClient.ChangeDeployKey(ctx, team.String())
+	if err != nil {
+		return nil, fmt.Errorf("changing deploy key in Hookd: %w", err)
+	}
+	return &model.DeploymentKey{
+		ID:      scalar.DeployKeyIdent(team.String()),
+		Key:     deployKey.Key,
+		Created: deployKey.Created,
+		Expires: deployKey.Expires,
+	}, nil
+}
+
 // Teams is the resolver for the teams field.
 func (r *queryResolver) Teams(ctx context.Context, offset *int, limit *int, filter *model.TeamsFilter) (*model.TeamList, error) {
 	actor := authz.ActorFromContext(ctx)
@@ -1251,6 +1269,8 @@ func (r *Resolver) TeamMemberReconciler() gengql.TeamMemberReconcilerResolver {
 	return &teamMemberReconcilerResolver{r}
 }
 
-type teamResolver struct{ *Resolver }
-type teamMemberResolver struct{ *Resolver }
-type teamMemberReconcilerResolver struct{ *Resolver }
+type (
+	teamResolver                 struct{ *Resolver }
+	teamMemberResolver           struct{ *Resolver }
+	teamMemberReconcilerResolver struct{ *Resolver }
+)

@@ -33,5 +33,7 @@ func (r *Resolver) Role() gengql.RoleResolver { return &roleResolver{r} }
 // TeamsInternal returns gengql.TeamsInternalResolver implementation.
 func (r *Resolver) TeamsInternal() gengql.TeamsInternalResolver { return &teamsInternalResolver{r} }
 
-type roleResolver struct{ *Resolver }
-type teamsInternalResolver struct{ *Resolver }
+type (
+	roleResolver          struct{ *Resolver }
+	teamsInternalResolver struct{ *Resolver }
+)

@@ -917,7 +917,6 @@ type MutationResolver interface {
 	ResetReconciler(ctx context.Context, name gensql.ReconcilerName) (*model.Reconciler, error)
 	AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler gensql.ReconcilerName) (*model.TeamMember, error)
 	RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler gensql.ReconcilerName) (*model.TeamMember, error)
-	ChangeDeployKey(ctx context.Context, team slug.Slug) (*model.DeploymentKey, error)
 	CreateTeam(ctx context.Context, input model.CreateTeamInput) (*model.Team, error)
 	UpdateTeam(ctx context.Context, slug slug.Slug, input model.UpdateTeamInput) (*model.Team, error)
 	RemoveUsersFromTeam(ctx context.Context, slug slug.Slug, userIds []*scalar.Ident) (*model.Team, error)
@@ -932,6 +931,7 @@ type MutationResolver interface {
 	ConfirmTeamDeletion(ctx context.Context, key string) (bool, error)
 	AuthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.Team, error)
 	DeauthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.Team, error)
+	ChangeDeployKey(ctx context.Context, team slug.Slug) (*model.DeploymentKey, error)
 	SynchronizeUsers(ctx context.Context) (string, error)
 }
 type NaisJobResolver interface {
@@ -6067,51 +6067,6 @@ type SqlInstance implements Storage {
   type: String!
 }
 `, BuiltIn: false},
-	{Name: "../graphqls/team.graphqls", Input: `extend type Mutation {
-  "Update the deploy key of a team. Returns the updated deploy key."
-  changeDeployKey(
-    "The name of the team to update the deploy key for."
-    team: Slug!
-  ): DeploymentKey!
-}
-
-"Team status."
-type TeamStatus {
-  apps: AppsStatus!
-  jobs: JobsStatus!
-}
-
-"Team status for apps."
-type AppsStatus {
-  total: Int!
-  failing: Int!
-}
-
-"Team status for jobs."
-type JobsStatus {
-  total: Int!
-  failing: Int!
-}
-
-"Deployment key type."
-type DeploymentKey {
-  "The unique identifier of the deployment key."
-  id: ID!
-
-  "The actual key."
-  key: String!
-
-  "The date the deployment key was created."
-  created: Time!
-
-  "The date the deployment key expires."
-  expires: Time!
-}
-type VulnerabilityList {
-  nodes: [Vulnerability!]!
-  pageInfo: PageInfo!
-}
-`, BuiltIn: false},
 	{Name: "../graphqls/teams.graphqls", Input: `extend type Query {
   "Get a collection of teams. Default limit is 20"
   teams(
@@ -6324,6 +6279,12 @@ extend type Mutation {
     "Name of the repository, with the org prefix, for instance 'org/repo'."
     repoName: String!
   ): Team! @auth
+
+  "Update the deploy key of a team. Returns the updated deploy key."
+  changeDeployKey(
+    "The name of the team to update the deploy key for."
+    team: Slug!
+  ): DeploymentKey!
 }
 
 "Team deletion key type."
@@ -6604,6 +6565,44 @@ type TeamMemberReconciler {
 
   "Whether or not the reconciler is enabled for the team member."
   enabled: Boolean!
+}
+
+"Team status."
+type TeamStatus {
+  apps: AppsStatus!
+  jobs: JobsStatus!
+}
+
+"Team status for apps."
+type AppsStatus {
+  total: Int!
+  failing: Int!
+}
+
+"Team status for jobs."
+type JobsStatus {
+  total: Int!
+  failing: Int!
+}
+
+"Deployment key type."
+type DeploymentKey {
+  "The unique identifier of the deployment key."
+  id: ID!
+
+  "The actual key."
+  key: String!
+
+  "The date the deployment key was created."
+  created: Time!
+
+  "The date the deployment key expires."
+  expires: Time!
+}
+
+type VulnerabilityList {
+  nodes: [Vulnerability!]!
+  pageInfo: PageInfo!
 }
 
 "Input for filtering teams."
@@ -19234,71 +19233,6 @@ func (ec *executionContext) fieldContext_Mutation_removeReconcilerOptOut(ctx con
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_changeDeployKey(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_changeDeployKey(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().ChangeDeployKey(rctx, fc.Args["team"].(slug.Slug))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.DeploymentKey)
-	fc.Result = res
-	return ec.marshalNDeploymentKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐDeploymentKey(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_changeDeployKey(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_DeploymentKey_id(ctx, field)
-			case "key":
-				return ec.fieldContext_DeploymentKey_key(ctx, field)
-			case "created":
-				return ec.fieldContext_DeploymentKey_created(ctx, field)
-			case "expires":
-				return ec.fieldContext_DeploymentKey_expires(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type DeploymentKey", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_changeDeployKey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_createTeam(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createTeam(ctx, field)
 	if err != nil {
@@ -20812,6 +20746,71 @@ func (ec *executionContext) fieldContext_Mutation_deauthorizeRepository(ctx cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deauthorizeRepository_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_changeDeployKey(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_changeDeployKey(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().ChangeDeployKey(rctx, fc.Args["team"].(slug.Slug))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.DeploymentKey)
+	fc.Result = res
+	return ec.marshalNDeploymentKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐDeploymentKey(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_changeDeployKey(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_DeploymentKey_id(ctx, field)
+			case "key":
+				return ec.fieldContext_DeploymentKey_key(ctx, field)
+			case "created":
+				return ec.fieldContext_DeploymentKey_created(ctx, field)
+			case "expires":
+				return ec.fieldContext_DeploymentKey_expires(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeploymentKey", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_changeDeployKey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -39158,13 +39157,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "changeDeployKey":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_changeDeployKey(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "createTeam":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createTeam(ctx, field)
@@ -39259,6 +39251,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deauthorizeRepository":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deauthorizeRepository(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "changeDeployKey":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_changeDeployKey(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

@@ -210,6 +210,12 @@ extend type Mutation {
     "Name of the repository, with the org prefix, for instance 'org/repo'."
     repoName: String!
   ): Team! @auth
+
+  "Update the deploy key of a team. Returns the updated deploy key."
+  changeDeployKey(
+    "The name of the team to update the deploy key for."
+    team: Slug!
+  ): DeploymentKey!
 }
 
 "Team deletion key type."
@@ -490,6 +496,44 @@ type TeamMemberReconciler {
 
   "Whether or not the reconciler is enabled for the team member."
   enabled: Boolean!
+}
+
+"Team status."
+type TeamStatus {
+  apps: AppsStatus!
+  jobs: JobsStatus!
+}
+
+"Team status for apps."
+type AppsStatus {
+  total: Int!
+  failing: Int!
+}
+
+"Team status for jobs."
+type JobsStatus {
+  total: Int!
+  failing: Int!
+}
+
+"Deployment key type."
+type DeploymentKey {
+  "The unique identifier of the deployment key."
+  id: ID!
+
+  "The actual key."
+  key: String!
+
+  "The date the deployment key was created."
+  created: Time!
+
+  "The date the deployment key expires."
+  expires: Time!
+}
+
+type VulnerabilityList {
+  nodes: [Vulnerability!]!
+  pageInfo: PageInfo!
 }
 
 "Input for filtering teams."
