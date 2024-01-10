@@ -47,8 +47,8 @@ type ResourceUtilization struct {
 
 // Teams is the configuration for the teams backend service
 type Teams struct {
-	Endpoint string `env:"TEAMS_ENDPOINT,default=http://api/query"`
-	Token    string `env:"TEAMS_TOKEN,default=secret-admin-api-key"`
+	Endpoint string `env:"API_ENDPOINT,default=http://api/query"`
+	Token    string `env:"API_TOKEN,default=secret-admin-api-key"`
 }
 
 // Config is the configuration for the api application
@@ -65,7 +65,7 @@ type Config struct {
 	IapAudience string `env:"IAP_AUDIENCE"`
 
 	// DatabaseConnectionString is the database DSN
-	DatabaseConnectionString string `env:"CONSOLE_DATABASE_URL,default=postgres://postgres:postgres@127.0.0.1:5432/console?sslmode=disable"`
+	DatabaseConnectionString string `env:"API_DATABASE_URL,default=postgres://api:api@127.0.0.1:3002/api?sslmode=disable"`
 
 	// ListenAddress is host:port combination used by the http server
 	ListenAddress string `env:"LISTEN_ADDRESS,default=:8080"`

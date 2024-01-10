@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nais/api/internal/auditlogger/audittype"
-	db "github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
-	"github.com/nais/api/internal/logger"
-	"github.com/sirupsen/logrus"
-
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auditlogger"
+	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/config"
+	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/logger"
+	"github.com/nais/api/internal/thirdparty/google_token_source"
+	"github.com/sirupsen/logrus"
 	admin_directory_v1 "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/option"
@@ -21,7 +21,7 @@ import (
 
 type (
 	UserSynchronizer struct {
-		database         gensql.Querier
+		database         database.Database
 		auditLogger      auditlogger.AuditLogger
 		adminGroupPrefix string
 		tenantDomain     string
@@ -37,16 +37,16 @@ type (
 	}
 
 	// Key is the ID from Azure AD
-	remoteUsersMap map[string]*db.User
+	remoteUsersMap map[string]*database.User
 
 	userMap struct {
 		// byExternalID key is the ID from Azure AD
-		byExternalID map[string]*db.User
-		byEmail      map[string]*db.User
+		byExternalID map[string]*database.User
+		byEmail      map[string]*database.User
 	}
 
-	userByIDMap  map[uuid.UUID]*db.User
-	userRolesMap map[*db.User]map[gensql.RoleName]struct{}
+	userByIDMap  map[uuid.UUID]*database.User
+	userRolesMap map[*database.User]map[gensql.RoleName]struct{}
 )
 
 var DefaultRoleNames = []gensql.RoleName{
@@ -56,9 +56,9 @@ var DefaultRoleNames = []gensql.RoleName{
 	gensql.RoleNameServiceaccountcreator,
 }
 
-func New(database gensql.Querier, auditLogger auditlogger.AuditLogger, adminGroupPrefix, tenantDomain string, service *admin_directory_v1.Service, log logrus.FieldLogger, syncRuns *RunsHandler) *UserSynchronizer {
+func New(dbc database.Database, auditLogger auditlogger.AuditLogger, adminGroupPrefix, tenantDomain string, service *admin_directory_v1.Service, log logrus.FieldLogger, syncRuns *RunsHandler) *UserSynchronizer {
 	return &UserSynchronizer{
-		database:         database,
+		database:         dbc,
 		auditLogger:      auditLogger,
 		adminGroupPrefix: adminGroupPrefix,
 		tenantDomain:     tenantDomain,
@@ -68,7 +68,7 @@ func New(database gensql.Querier, auditLogger auditlogger.AuditLogger, adminGrou
 	}
 }
 
-func NewFromConfig(cfg *config.TeamsConfig, database db.Database, log logrus.FieldLogger, syncRuns *RunsHandler) (*UserSynchronizer, error) {
+func NewFromConfig(cfg *config.TeamsConfig, dbc database.Database, log logrus.FieldLogger, syncRuns *RunsHandler) (*UserSynchronizer, error) {
 	log = log.WithField("component", logger.ComponentNameUsersync)
 	ctx := context.Background()
 
@@ -87,7 +87,7 @@ func NewFromConfig(cfg *config.TeamsConfig, database db.Database, log logrus.Fie
 		return nil, fmt.Errorf("retrieve directory client: %w", err)
 	}
 
-	return New(database, auditlogger.New(database, types.ComponentNameUsersync, log), cfg.UserSync.AdminGroupPrefix, cfg.TenantDomain, srv, log, syncRuns), nil
+	return New(dbc, auditlogger.New(dbc, logger.ComponentNameUsersync, log), cfg.UserSync.AdminGroupPrefix, cfg.TenantDomain, srv, log, syncRuns), nil
 }
 
 // Sync Fetch all users from the tenant and add them as local users in api. If a user already exists in
@@ -106,7 +106,7 @@ func (s *UserSynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) er
 	}
 
 	auditLogEntries := make([]auditLogEntry, 0)
-	err = s.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
+	err = s.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		allUsersRows, err := dbtx.GetAllUsers(ctx)
 		if err != nil {
 			return fmt.Errorf("get existing users: %w", err)
@@ -114,8 +114,8 @@ func (s *UserSynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) er
 
 		usersByID := make(userByIDMap)
 		existingUsers := userMap{
-			byExternalID: make(map[string]*db.User),
-			byEmail:      make(map[string]*db.User),
+			byExternalID: make(map[string]*database.User),
+			byEmail:      make(map[string]*database.User),
 		}
 
 		for _, user := range allUsersRows {
@@ -147,7 +147,7 @@ func (s *UserSynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) er
 
 			if created {
 				auditLogEntries = append(auditLogEntries, auditLogEntry{
-					action:    types.AuditActionUsersyncCreate,
+					action:    audittype.AuditActionUsersyncCreate,
 					message:   fmt.Sprintf("Local user created: %q, external ID: %q", localUser.Email, localUser.ExternalID),
 					userEmail: localUser.Email,
 				})
@@ -160,7 +160,7 @@ func (s *UserSynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) er
 				}
 
 				auditLogEntries = append(auditLogEntries, auditLogEntry{
-					action:    types.AuditActionUsersyncUpdate,
+					action:    audittype.AuditActionUsersyncUpdate,
 					message:   fmt.Sprintf("Local user updated: %q, external ID: %q", updatedUser.Email, updatedUser.ExternalID),
 					userEmail: updatedUser.Email,
 				})
@@ -219,15 +219,15 @@ func (s *UserSynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) er
 }
 
 // deleteUnknownUsers Delete users from the api database that does not exist in the Google Workspace
-func deleteUnknownUsers(ctx context.Context, dbtx db.Database, unknownUsers userByIDMap, auditLogEntries *[]auditLogEntry) ([]*db.User, error) {
-	deletedUsers := make([]*db.User, 0)
+func deleteUnknownUsers(ctx context.Context, dbtx database.Database, unknownUsers userByIDMap, auditLogEntries *[]auditLogEntry) ([]*database.User, error) {
+	deletedUsers := make([]*database.User, 0)
 	for _, user := range unknownUsers {
 		err := dbtx.DeleteUser(ctx, user.ID)
 		if err != nil {
 			return nil, fmt.Errorf("delete local user %q: %w", user.Email, err)
 		}
 		*auditLogEntries = append(*auditLogEntries, auditLogEntry{
-			action:    types.AuditActionUsersyncDelete,
+			action:    audittype.AuditActionUsersyncDelete,
 			message:   fmt.Sprintf("Local user deleted: %q, external ID: %q", user.Email, user.ExternalID),
 			userEmail: user.Email,
 		})
@@ -239,7 +239,7 @@ func deleteUnknownUsers(ctx context.Context, dbtx db.Database, unknownUsers user
 
 // assignTeamsBackendAdmins Assign the global admin role to users based on the admin group. Existing admins that is not
 // present in the list of admins will get the admin role revoked.
-func assignTeamsBackendAdmins(ctx context.Context, dbtx db.Database, membersService *admin_directory_v1.MembersService, adminGroupPrefix, tenantDomain string, remoteUserMapping map[string]*db.User, userRoles userRolesMap, auditLogEntries *[]auditLogEntry, log logrus.FieldLogger) error {
+func assignTeamsBackendAdmins(ctx context.Context, dbtx database.Database, membersService *admin_directory_v1.MembersService, adminGroupPrefix, tenantDomain string, remoteUserMapping map[string]*database.User, userRoles userRolesMap, auditLogEntries *[]auditLogEntry, log logrus.FieldLogger) error {
 	admins, err := getAdminUsers(ctx, membersService, adminGroupPrefix, tenantDomain, remoteUserMapping, log)
 	if err != nil {
 		return err
@@ -254,7 +254,7 @@ func assignTeamsBackendAdmins(ctx context.Context, dbtx db.Database, membersServ
 			}
 
 			*auditLogEntries = append(*auditLogEntries, auditLogEntry{
-				action:    types.AuditActionUsersyncRevokeAdminRole,
+				action:    audittype.AuditActionUsersyncRevokeAdminRole,
 				message:   fmt.Sprintf("Revoke global admin role from user: %q", existingAdmin.Email),
 				userEmail: existingAdmin.Email,
 			})
@@ -269,7 +269,7 @@ func assignTeamsBackendAdmins(ctx context.Context, dbtx db.Database, membersServ
 			}
 
 			*auditLogEntries = append(*auditLogEntries, auditLogEntry{
-				action:    types.AuditActionUsersyncAssignAdminRole,
+				action:    audittype.AuditActionUsersyncAssignAdminRole,
 				message:   fmt.Sprintf("Assign global admin role to user: %q", admin.Email),
 				userEmail: admin.Email,
 			})
@@ -280,8 +280,8 @@ func assignTeamsBackendAdmins(ctx context.Context, dbtx db.Database, membersServ
 }
 
 // getExistingTeamsBackendAdmins Get all users with a globally assigned admin role
-func getExistingTeamsBackendAdmins(userWithRoles userRolesMap) map[uuid.UUID]*db.User {
-	admins := make(map[uuid.UUID]*db.User)
+func getExistingTeamsBackendAdmins(userWithRoles userRolesMap) map[uuid.UUID]*database.User {
+	admins := make(map[uuid.UUID]*database.User)
 	for user, roles := range userWithRoles {
 		for roleName := range roles {
 			if roleName == gensql.RoleNameAdmin {
@@ -293,7 +293,7 @@ func getExistingTeamsBackendAdmins(userWithRoles userRolesMap) map[uuid.UUID]*db
 }
 
 // getAdminUsers Get a list of admin users based on the api admins group in the Google Workspace
-func getAdminUsers(ctx context.Context, membersService *admin_directory_v1.MembersService, adminGroupPrefix, tenantDomain string, remoteUserMapping map[string]*db.User, log logrus.FieldLogger) (map[uuid.UUID]*db.User, error) {
+func getAdminUsers(ctx context.Context, membersService *admin_directory_v1.MembersService, adminGroupPrefix, tenantDomain string, remoteUserMapping map[string]*database.User, log logrus.FieldLogger) (map[uuid.UUID]*database.User, error) {
 	adminGroupKey := adminGroupPrefix + "@" + tenantDomain
 	groupMembers := make([]*admin_directory_v1.Member, 0)
 	callback := func(fragments *admin_directory_v1.Members) error {
@@ -304,7 +304,7 @@ func getAdminUsers(ctx context.Context, membersService *admin_directory_v1.Membe
 		}
 		return nil
 	}
-	admins := make(map[uuid.UUID]*db.User)
+	admins := make(map[uuid.UUID]*database.User)
 	err := membersService.
 		List(adminGroupKey).
 		IncludeDerivedMembership(true).
@@ -336,7 +336,7 @@ func getAdminUsers(ctx context.Context, membersService *admin_directory_v1.Membe
 }
 
 // localUserIsOutdated Check if a local user is outdated when compared to the remote user
-func localUserIsOutdated(localUser *db.User, remoteUser *admin_directory_v1.User) bool {
+func localUserIsOutdated(localUser *database.User, remoteUser *admin_directory_v1.User) bool {
 	if localUser.Name != remoteUser.Name.FullName {
 		return true
 	}
@@ -354,7 +354,7 @@ func localUserIsOutdated(localUser *db.User, remoteUser *admin_directory_v1.User
 
 // getOrCreateLocalUserFromRemoteUser Look up the local user table for a match for the remote user. If no match is
 // found, create the user.
-func getOrCreateLocalUserFromRemoteUser(ctx context.Context, dbtx db.Database, remoteUser *admin_directory_v1.User, existingUsers userMap) (*db.User, bool, error) {
+func getOrCreateLocalUserFromRemoteUser(ctx context.Context, dbtx database.Database, remoteUser *admin_directory_v1.User, existingUsers userMap) (*database.User, bool, error) {
 	if existingUser, exists := existingUsers.byExternalID[remoteUser.Id]; exists {
 		return existingUser, false, nil
 	}

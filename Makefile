@@ -43,8 +43,8 @@ local-nav:
 	LOG_FORMAT="text" \
 	LOG_LEVEL="debug" \
 	RUN_AS_USER="johnny.horvi@nav.no" \
-	TEAMS_ENDPOINT="http://localhost:8181/query" \
-	TEAMS_TOKEN="$(shell kubectl get secret api --context nav-management-v2 -n nais-system -ojsonpath='{.data.TEAMS_TOKEN}' | base64 --decode)" \
+	API_ENDPOINT="http://localhost:8181/query" \
+	API_TOKEN="$(shell kubectl get secret api --context nav-management-v2 -n nais-system -ojsonpath='{.data.API_TOKEN}' | base64 --decode)" \
 	TENANT="nav" \
 	go run ./cmd/api/main.go
 
@@ -55,7 +55,7 @@ local:
 	LOG_FORMAT="text" \
 	LOG_LEVEL="debug" \
 	RUN_AS_USER="dev.usersen@nais.io" \
-	TEAMS_ENDPOINT="http://teams.local.nais.io:3000/query" \
+	API_ENDPOINT="http://teams.local.nais.io:3000/query" \
 	go run ./cmd/api/main.go
 
 test:

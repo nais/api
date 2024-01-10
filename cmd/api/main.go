@@ -21,9 +21,11 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph"
+	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/resourceusage"
+	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/prometheus/client_golang/api"
@@ -68,7 +70,7 @@ func main() {
 		os.Exit(exitCodeConfigError)
 	}
 
-	appLogger, err := logger.New(cfg.Logger)
+	appLogger, err := logger.New(cfg.Logger.Format, cfg.Logger.Level)
 	if err != nil {
 		log.WithError(err).Errorf("error when creating application logger")
 		os.Exit(exitCodeLoggerError)
@@ -108,8 +110,7 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 	}
 	defer closer()
 
-	teamsBackendClient := teams.New(cfg.Teams, false, errorsCounter, log.WithField("client", "teams"))
-	k8sClient, err := k8s.New(cfg.Tenant, cfg.K8S, errorsCounter, teamsBackendClient, log.WithField("client", "k8s"))
+	k8sClient, err := k8s.New(cfg.Tenant, cfg.K8S, errorsCounter, &teamChecker{querier}, log.WithField("client", "k8s"))
 	if err != nil {
 		var authErr *google.AuthenticationError
 		if errors.As(err, &authErr) {
@@ -121,9 +122,8 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 	hookdClient := hookd.New(cfg.Hookd, errorsCounter, log.WithField("client", "hookd"))
 	dependencyTrackClient := dependencytrack.New(cfg.DependencyTrack, log.WithField("client", "dependencytrack"))
 	resourceUsageClient := resourceusage.NewClient(cfg.K8S.AllClusterNames, querier, log)
-	teamsOnBehalfOfBackendClient := teams.New(cfg.Teams, true, errorsCounter, log.WithField("client", "teams_obo"))
-	resolver := graph.NewResolver(hookdClient, teamsOnBehalfOfBackendClient, k8sClient, dependencyTrackClient, resourceUsageClient, querier, cfg.K8S.Clusters, log)
-	graphHandler, err := graph.NewHandler(graph.Config{Resolvers: resolver}, meter, log)
+	resolver := graph.NewResolver(hookdClient, k8sClient, dependencyTrackClient, resourceUsageClient, querier, cfg.K8S.Clusters, log)
+	graphHandler, err := graph.NewHandler(gengql.Config{Resolvers: resolver}, meter, log)
 	if err != nil {
 		return fmt.Errorf("create graph handler: %w", err)
 	}
@@ -163,7 +163,7 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 			return
 		}
 
-		resourceUsageUpdater := resourceusage.NewUpdater(k8sClient, promClients, querier, log)
+		resourceUsageUpdater := resourceusage.NewUpdater(k8sClient, promClients, querier.Querier(), log)
 		if err != nil {
 			log.WithError(err).Errorf("create resource usage updater")
 			return
@@ -184,7 +184,7 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 		}
 
 		defer cancel()
-		err = runCostUpdater(ctx, querier, cfg.Tenant, cfg.Cost, log.WithField("task", "cost_updater"))
+		err = runCostUpdater(ctx, querier.Querier(), cfg.Tenant, cfg.Cost, log.WithField("task", "cost_updater"))
 		if err != nil {
 			log.WithError(err).Errorf("error in cost updater")
 		}
@@ -396,4 +396,13 @@ func loadEnvFile() (fileLoaded bool, err error) {
 	}
 
 	return true, nil
+}
+
+type teamChecker struct {
+	db database.Database
+}
+
+func (t teamChecker) TeamExists(ctx context.Context, team slug.Slug) bool {
+	_, err := t.db.GetTeamBySlug(ctx, team)
+	return err == nil
 }

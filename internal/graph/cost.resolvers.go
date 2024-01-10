@@ -31,7 +31,7 @@ func (r *queryResolver) DailyCostForApp(ctx context.Context, team slug.Slug, app
 		return nil, err
 	}
 
-	rows, err := r.querier.DailyCostForApp(ctx, fromDate, toDate, env, team, app)
+	rows, err := r.database.Querier().DailyCostForApp(ctx, fromDate, toDate, env, team, app)
 	if err != nil {
 		return nil, fmt.Errorf("cost query: %w", err)
 	}
@@ -73,7 +73,7 @@ func (r *queryResolver) DailyCostForTeam(ctx context.Context, team slug.Slug, fr
 		return nil, err
 	}
 
-	rows, err := r.querier.DailyCostForTeam(ctx, fromDate, toDate, team)
+	rows, err := r.database.Querier().DailyCostForTeam(ctx, fromDate, toDate, team)
 	if err != nil {
 		return nil, fmt.Errorf("cost query: %w", err)
 	}
@@ -102,7 +102,7 @@ func (r *queryResolver) DailyCostForTeam(ctx context.Context, team slug.Slug, fr
 // MonthlyCost is the resolver for the monthlyCost field.
 func (r *queryResolver) MonthlyCost(ctx context.Context, filter model.MonthlyCostFilter) (*model.MonthlyCost, error) {
 	if filter.App != "" && filter.Env != "" && filter.Team != "" {
-		rows, err := r.querier.MonthlyCostForApp(ctx, filter.Team, filter.App, filter.Env)
+		rows, err := r.database.Querier().MonthlyCostForApp(ctx, filter.Team, filter.App, filter.Env)
 		if err != nil {
 			return nil, err
 		}
@@ -122,7 +122,7 @@ func (r *queryResolver) MonthlyCost(ctx context.Context, filter model.MonthlyCos
 			Cost: cost,
 		}, nil
 	} else if filter.App == "" && filter.Env == "" && filter.Team != "" {
-		rows, err := r.querier.MonthlyCostForTeam(ctx, filter.Team)
+		rows, err := r.database.Querier().MonthlyCostForTeam(ctx, filter.Team)
 		if err != nil {
 			return nil, err
 		}
@@ -165,7 +165,7 @@ func (r *queryResolver) EnvCost(ctx context.Context, filter model.EnvCostFilter)
 	ret := make([]*model.EnvCost, len(r.clusters))
 	for idx, cluster := range r.clusters {
 		appsCost := make([]*model.AppCost, 0)
-		rows, err := r.querier.DailyEnvCostForTeam(ctx, fromDate, toDate, &cluster, filter.Team)
+		rows, err := r.database.Querier().DailyEnvCostForTeam(ctx, fromDate, toDate, &cluster, filter.Team)
 		if err != nil {
 			return nil, fmt.Errorf("cost query: %w", err)
 		}

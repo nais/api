@@ -32,7 +32,7 @@ func (e *EnableableReconciler) Decode(s string) error {
 
 func SetupDefaultReconcilers(ctx context.Context, log *logrus.Entry, reconcilers []EnableableReconciler, database db.Database) error {
 	if len(reconcilers) == 0 {
-		log.Infof("TEAMS_BACKEND_FIRST_RUN_ENABLE_RECONCILERS not set or empty - not enabling any reconcilers")
+		log.Infof("API_BACKEND_FIRST_RUN_ENABLE_RECONCILERS not set or empty - not enabling any reconcilers")
 		return nil
 	}
 

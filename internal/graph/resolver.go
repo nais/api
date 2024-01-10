@@ -12,7 +12,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auditlogger"
 	db "github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
 	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
@@ -40,7 +39,6 @@ type Resolver struct {
 	resourceUsageClient   resourceusage.Client
 	searcher              *search.Searcher
 	log                   logrus.FieldLogger
-	querier               gensql.Querier
 	clusters              []string
 
 	// TODO(thokra) Add this to NewResolver
@@ -64,16 +62,17 @@ type Resolver struct {
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
-func NewResolver(hookdClient hookd.Client, k8sClient *k8s.Client, dependencyTrackClient *dependencytrack.Client, resourceUsageClient resourceusage.Client, querier gensql.Querier, clusters []string, log logrus.FieldLogger) *Resolver {
+func NewResolver(hookdClient hookd.Client, k8sClient *k8s.Client, dependencyTrackClient *dependencytrack.Client, resourceUsageClient resourceusage.Client, querier db.Database, clusters []string, log logrus.FieldLogger) *Resolver {
 	return &Resolver{
 		hookdClient:           hookdClient,
 		k8sClient:             k8sClient,
 		dependencyTrackClient: dependencyTrackClient,
 		resourceUsageClient:   resourceUsageClient,
-		searcher:              search.New(querier, k8sClient),
-		log:                   log,
-		querier:               querier,
-		clusters:              clusters,
+		// TODO: Fix
+		// searcher:              search.New(querier, k8sClient),
+		log:      log,
+		database: querier,
+		clusters: clusters,
 	}
 }
 

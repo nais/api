@@ -10,6 +10,7 @@ import (
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"gopkg.in/yaml.v2"
@@ -422,7 +423,7 @@ func (c *Client) getTopics(ctx context.Context, name, team, env string) ([]*mode
 		}
 
 		for _, acl := range t.ACL {
-			if acl.Team == team && acl.Application == name {
+			if acl.Team.String() == team && acl.Application == name {
 				ret = append(ret, t)
 			}
 		}
@@ -558,7 +559,7 @@ func Instance(pod *corev1.Pod, env string) *model.Instance {
 		Created:  pod.GetCreationTimestamp().Time,
 		GQLVars: model.InstanceGQLVars{
 			Env:     env,
-			Team:    pod.GetNamespace(),
+			Team:    slug.Slug(pod.GetNamespace()),
 			AppName: appName,
 		},
 	}
@@ -624,13 +625,14 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 
 	appSynchState := app.GetStatus().SynchronizationState
 
-	if appSynchState == "RolloutComplete" {
+	switch appSynchState {
+	case "RolloutComplete":
 		timestamp := time.Unix(0, app.GetStatus().RolloutCompleteTime)
 		ret.DeployInfo.Timestamp = &timestamp
-	} else if appSynchState == "Synchronized" {
+	case "Synchronized":
 		timestamp := time.Unix(0, app.GetStatus().SynchronizationTime)
 		ret.DeployInfo.Timestamp = &timestamp
-	} else {
+	default:
 		ret.DeployInfo.Timestamp = nil
 	}
 
@@ -639,8 +641,8 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 	ret.DeployInfo.URL = app.GetAnnotations()["deploy.nais.io/github-workflow-run-url"]
 	ret.DeployInfo.GQLVars.App = app.GetName()
 	ret.DeployInfo.GQLVars.Env = env
-	ret.DeployInfo.GQLVars.Team = app.GetNamespace()
-	ret.GQLVars.Team = app.GetNamespace()
+	ret.DeployInfo.GQLVars.Team = slug.Slug(app.GetNamespace())
+	ret.GQLVars.Team = slug.Slug(app.GetNamespace())
 
 	ret.Image = app.Spec.Image
 
@@ -712,7 +714,7 @@ func toTopic(u *unstructured.Unstructured, name, team string) (*model.Topic, err
 		if err := convert(v, acl); err != nil {
 			return nil, fmt.Errorf("converting acl: %w", err)
 		}
-		if acl.Team == team && acl.Application == name {
+		if acl.Team.String() == team && acl.Application == name {
 			ret.ACL = append(ret.ACL, acl)
 		}
 	}

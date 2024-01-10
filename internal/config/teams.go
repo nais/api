@@ -8,78 +8,78 @@ import (
 
 type GitHub struct {
 	// Organization The GitHub organization slug for the tenant.
-	Organization string `envconfig:"TEAMS_BACKEND_GITHUB_ORG"`
+	Organization string `envconfig:"API_BACKEND_GITHUB_ORG"`
 
 	// AuthEndpoint Endpoint URL to the GitHub auth component.
-	AuthEndpoint string `envconfig:"TEAMS_BACKEND_GITHUB_AUTH_ENDPOINT"`
+	AuthEndpoint string `envconfig:"API_BACKEND_GITHUB_AUTH_ENDPOINT"`
 }
 
 type GCP struct {
 	// Clusters A JSON-encoded value describing the GCP clusters to use. Refer to the README for the format.
-	Clusters gcp.Clusters `envconfig:"TEAMS_BACKEND_GCP_CLUSTERS"`
+	Clusters gcp.Clusters `envconfig:"API_BACKEND_GCP_CLUSTERS"`
 
 	// CnrmRole The name of the custom CNRM role that is used when creating role bindings for the GCP projects of each
 	// team. The value must also contain the organization ID.
 	//
 	// Example: `organizations/<org_id>/roles/CustomCNRMRole`, where `<org_id>` is a numeric ID.
-	CnrmRole string `envconfig:"TEAMS_BACKEND_GCP_CNRM_ROLE"`
+	CnrmRole string `envconfig:"API_BACKEND_GCP_CNRM_ROLE"`
 
 	// BillingAccount The ID of the billing account that each team project will be assigned to.
 	//
 	// Example: `billingAccounts/123456789ABC`
-	BillingAccount string `envconfig:"TEAMS_BACKEND_GCP_BILLING_ACCOUNT"`
+	BillingAccount string `envconfig:"API_BACKEND_GCP_BILLING_ACCOUNT"`
 
 	// WorkloadIdentityPoolName The name of the workload identity pool used in the management project.
 	//
 	// Example: projects/{project_number}/locations/global/workloadIdentityPools/{workload_identity_pool_id}
-	WorkloadIdentityPoolName string `envconfig:"TEAMS_BACKEND_GCP_WORKLOAD_IDENTITY_POOL_NAME"`
+	WorkloadIdentityPoolName string `envconfig:"API_BACKEND_GCP_WORKLOAD_IDENTITY_POOL_NAME"`
 }
 
 type NaisNamespace struct {
 	// AzureEnabled When set to true api will send the Azure group ID of the team, if it has been created by
 	// the Azure AD group reconciler, to naisd when creating a namespace for the NAIS team.
-	AzureEnabled bool `envconfig:"TEAMS_BACKEND_NAIS_NAMESPACE_AZURE_ENABLED"`
+	AzureEnabled bool `envconfig:"API_BACKEND_NAIS_NAMESPACE_AZURE_ENABLED"`
 }
 
 type UserSync struct {
 	// Enabled When set to true api will keep the user database in sync with the connected Google
 	// organization. The Google organization will be treated as the master.
-	Enabled bool `envconfig:"TEAMS_BACKEND_USERSYNC_ENABLED"`
+	Enabled bool `envconfig:"API_BACKEND_USERSYNC_ENABLED"`
 
 	// AdminGroupPrefix The prefix of the admin group email address.
-	AdminGroupPrefix string `envconfig:"TEAMS_BACKEND_USERSYNC_ADMIN_GROUP_PREFIX" default:"console-admins"`
+	AdminGroupPrefix string `envconfig:"API_BACKEND_USERSYNC_ADMIN_GROUP_PREFIX" default:"console-admins"`
 
 	// RunsToStore Number of runs to store for the userSync GraphQL query.
-	RunsToStore int `envconfig:"TEAMS_BACKEND_USERSYNC_RUNS_TO_STORE" default:"5"`
+	RunsToStore int `envconfig:"API_BACKEND_USERSYNC_RUNS_TO_STORE" default:"5"`
 }
 
 type OAuth struct {
 	// ClientID The ID of the OAuth 2.0 client to use for the OAuth login flow.
-	ClientID string `envconfig:"TEAMS_BACKEND_OAUTH_CLIENT_ID"`
+	ClientID string `envconfig:"API_BACKEND_OAUTH_CLIENT_ID"`
 
 	// ClientSecret The client secret to use for the OAuth login flow.
-	ClientSecret string `envconfig:"TEAMS_BACKEND_OAUTH_CLIENT_SECRET"`
+	ClientSecret string `envconfig:"API_BACKEND_OAUTH_CLIENT_SECRET"`
 
 	// RedirectURL The URL that Google will redirect back to after performing authentication.
-	RedirectURL string `envconfig:"TEAMS_BACKEND_OAUTH_REDIRECT_URL"`
+	RedirectURL string `envconfig:"API_BACKEND_OAUTH_REDIRECT_URL"`
 }
 
 type NaisDeploy struct {
 	// Endpoint URL to the NAIS deploy key provisioning endpoint
-	Endpoint string `envconfig:"TEAMS_BACKEND_NAIS_DEPLOY_ENDPOINT" default:"http://localhost:8080/api/v1/provision"`
+	Endpoint string `envconfig:"API_BACKEND_NAIS_DEPLOY_ENDPOINT" default:"http://localhost:8080/api/v1/provision"`
 
 	// ProvisionKey The API key used when provisioning deploy keys on behalf of NAIS teams.
-	ProvisionKey string `envconfig:"TEAMS_BACKEND_NAIS_DEPLOY_PROVISION_KEY"`
+	ProvisionKey string `envconfig:"API_BACKEND_NAIS_DEPLOY_PROVISION_KEY"`
 
 	// DeployKeyEndpoint URL to the NAIS deploy key endpoint
-	// DeployKeyEndpoint string `envconfig:"TEAMS_BACKEND_NAIS_DEPLOY_DEPLOY_KEY_ENDPOINT" default:"http://localhost:8080/internal/api/v1/apikey"`
+	// DeployKeyEndpoint string `envconfig:"API_BACKEND_NAIS_DEPLOY_DEPLOY_KEY_ENDPOINT" default:"http://localhost:8080/internal/api/v1/apikey"`
 }
 
 type IAP struct {
 	// IAP audience for validating IAP tokens
-	Audience string `envconfig:"TEAMS_BACKEND_IAP_AUDIENCE"`
+	Audience string `envconfig:"API_BACKEND_IAP_AUDIENCE"`
 	// Insecure bypasses IAP authentication, just using the email header
-	Insecure bool `envconfig:"TEAMS_BACKEND_IAP_INSECURE"`
+	Insecure bool `envconfig:"API_BACKEND_IAP_INSECURE"`
 }
 
 type TeamsConfig struct {
@@ -96,42 +96,42 @@ type TeamsConfig struct {
 	Environments []string
 
 	// DatabaseURL The URL for the database.
-	DatabaseURL string `envconfig:"TEAMS_BACKEND_DATABASE_URL" default:"postgres://console:console@localhost:3002/console?sslmode=disable"`
+	DatabaseURL string `envconfig:"API_BACKEND_DATABASE_URL" default:"postgres://api:api@localhost:3002/api?sslmode=disable"`
 
 	// FrontendURL URL to the teams-frontend instance.
-	FrontendURL string `envconfig:"TEAMS_BACKEND_FRONTEND_URL" default:"http://localhost:3001"`
+	FrontendURL string `envconfig:"API_BACKEND_FRONTEND_URL" default:"http://localhost:3001"`
 
 	// Names of reconcilers to enable on first run of api
 	//
 	// Example: google:gcp:project,nais:namespace
 	// Valid: [google:gcp:project|google:workspace-admin|nais:namespace|nais:deploy]
-	FirstRunEnableReconcilers []fixtures.EnableableReconciler `envconfig:"TEAMS_BACKEND_FIRST_RUN_ENABLE_RECONCILERS"`
+	FirstRunEnableReconcilers []fixtures.EnableableReconciler `envconfig:"API_BACKEND_FIRST_RUN_ENABLE_RECONCILERS"`
 
 	// ListenAddress The host:port combination used by the http server.
-	ListenAddress string `envconfig:"TEAMS_BACKEND_LISTEN_ADDRESS" default:"127.0.0.1:3000"`
+	ListenAddress string `envconfig:"API_BACKEND_LISTEN_ADDRESS" default:"127.0.0.1:3000"`
 
 	// LogFormat Customize the log format. Can be "text" or "json".
-	LogFormat string `envconfig:"TEAMS_BACKEND_LOG_FORMAT" default:"text"`
+	LogFormat string `envconfig:"API_BACKEND_LOG_FORMAT" default:"text"`
 
 	// LogLevel The log level used in api.
-	LogLevel string `envconfig:"TEAMS_BACKEND_LOG_LEVEL" default:"DEBUG"`
+	LogLevel string `envconfig:"API_BACKEND_LOG_LEVEL" default:"DEBUG"`
 
 	// GoogleManagementProjectID The ID of the NAIS management project in the tenant organization in GCP.
-	GoogleManagementProjectID string `envconfig:"TEAMS_BACKEND_GOOGLE_MANAGEMENT_PROJECT_ID"`
+	GoogleManagementProjectID string `envconfig:"API_BACKEND_GOOGLE_MANAGEMENT_PROJECT_ID"`
 
 	// OnpremClusters a list of onprem clusters (NAV only)
 	// Example: "dev-fss,prod-fss,ci-fss"
-	OnpremClusters []string `envconfig:"TEAMS_BACKEND_ONPREM_CLUSTERS"`
+	OnpremClusters []string `envconfig:"API_BACKEND_ONPREM_CLUSTERS"`
 
 	// StaticServiceAccounts A JSON-encoded value describing a set of service accounts to be created when the
 	// application starts. Refer to the README for the format.
-	StaticServiceAccounts fixtures.ServiceAccounts `envconfig:"TEAMS_BACKEND_STATIC_SERVICE_ACCOUNTS"`
+	StaticServiceAccounts fixtures.ServiceAccounts `envconfig:"API_BACKEND_STATIC_SERVICE_ACCOUNTS"`
 
 	// TenantDomain The domain for the tenant.
-	TenantDomain string `envconfig:"TEAMS_BACKEND_TENANT_DOMAIN" default:"example.com"`
+	TenantDomain string `envconfig:"API_BACKEND_TENANT_DOMAIN" default:"example.com"`
 
 	// TenantName The name of the tenant.
-	TenantName string `envconfig:"TEAMS_BACKEND_TENANT_NAME" default:"example"`
+	TenantName string `envconfig:"API_BACKEND_TENANT_NAME" default:"example"`
 }
 
 func NewTeamsConfig() (*TeamsConfig, error) {

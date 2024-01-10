@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/internal/config"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/search"
+	"github.com/nais/api/internal/slug"
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	naisv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
@@ -27,11 +28,16 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+type TeamChecker interface {
+	TeamExists(ctx context.Context, team slug.Slug) bool
+}
+
 type Client struct {
-	informers  map[string]*Informers
-	clientSets map[string]*kubernetes.Clientset
-	log        logrus.FieldLogger
-	errors     metric.Int64Counter
+	informers   map[string]*Informers
+	clientSets  map[string]*kubernetes.Clientset
+	log         logrus.FieldLogger
+	errors      metric.Int64Counter
+	teamChecker TeamChecker
 }
 
 type Informers struct {
@@ -43,7 +49,7 @@ type Informers struct {
 	EventInformer   corev1inf.EventInformer
 }
 
-func New(tenant string, cfg config.K8S, errors metric.Int64Counter, log logrus.FieldLogger) (*Client, error) {
+func New(tenant string, cfg config.K8S, errors metric.Int64Counter, teamChecker TeamChecker, log logrus.FieldLogger) (*Client, error) {
 	restConfigs, err := CreateClusterConfigMap(tenant, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("create kubeconfig: %w", err)
@@ -120,7 +126,7 @@ func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilte
 				if err != nil {
 					c.error(ctx, err, "converting to job")
 					return nil
-				} else if !c.teamsClient.TeamExists(ctx, job.GQLVars.Team) {
+				} else if !c.teamChecker.TeamExists(ctx, job.GQLVars.Team) {
 					continue
 				}
 
@@ -148,7 +154,7 @@ func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilte
 				if err != nil {
 					c.error(ctx, err, "converting to app")
 					return nil
-				} else if !c.teamsClient.TeamExists(ctx, app.GQLVars.Team) {
+				} else if !c.teamChecker.TeamExists(ctx, app.GQLVars.Team) {
 					continue
 				}
 

@@ -60,6 +60,9 @@ type ServiceAccount struct {
 	*sqlc.ServiceAccount
 }
 
+// TODO: remove
+func (s *ServiceAccount) IsAuthenticatedUser() {}
+
 type Session struct {
 	*sqlc.Session
 }
@@ -79,6 +82,9 @@ type User struct {
 	*sqlc.User
 	IsAdmin *bool
 }
+
+// TODO: remove
+func (u *User) IsAuthenticatedUser() {}
 
 func (u *User) IsEntity() {}
 
@@ -179,6 +185,13 @@ type Database interface {
 	GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*sqlc.GetTeamMemberOptOutsRow, error)
 	GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string, offset, limit int) ([]*Team, int, error)
 	GetRepositoryAuthorizations(ctx context.Context, teamSlug slug.Slug, repo string) ([]sqlc.RepositoryAuthorizationEnum, error)
+
+	// Temp workaround
+	Querier() Querier
+}
+
+func (d *database) Querier() Querier {
+	return d.querier
 }
 
 func (u User) GetID() uuid.UUID {

@@ -10,8 +10,10 @@ import (
 	"cloud.google.com/go/civil"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/iterator"
+	"k8s.io/utils/ptr"
 )
 
 const (
@@ -124,7 +126,7 @@ func (c *Updater) FetchBigQueryData(ctx context.Context, ch chan<- gensql.CostUp
 			return ctx.Err()
 		case ch <- gensql.CostUpsertParams{
 			Environment: nullToStringPointer(row.Env),
-			TeamSlug:    nullToStringPointer(row.Team),
+			TeamSlug:    nullToSlugPointer(row.Team),
 			App:         row.App.StringVal,
 			CostType:    row.CostType,
 			Date:        pgtype.Date{Time: row.Date.In(time.UTC), Valid: true},
@@ -227,6 +229,14 @@ func (c *Updater) getBatch(ctx context.Context, ch <-chan gensql.CostUpsertParam
 func nullToStringPointer(s bigquery.NullString) *string {
 	if s.Valid {
 		return &s.StringVal
+	}
+	return nil
+}
+
+// nullToStringPointer converts a bigquery.NullString to a *string
+func nullToSlugPointer(s bigquery.NullString) *slug.Slug {
+	if s.Valid {
+		return ptr.To(slug.Slug(s.StringVal))
 	}
 	return nil
 }

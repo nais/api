@@ -9,6 +9,7 @@ import (
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 	naisv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"gopkg.in/yaml.v2"
 	batchv1 "k8s.io/api/batch/v1"
@@ -422,7 +423,7 @@ func (c *Client) Runs(ctx context.Context, team, env, name string) ([]*model.Run
 			Message:        Message(job),
 			GQLVars: model.RunGQLVars{
 				Env:     env,
-				Team:    team,
+				Team:    slug.Slug(team),
 				NaisJob: name,
 			},
 		})
@@ -530,11 +531,11 @@ func (c *Client) ToNaisJob(u *unstructured.Unstructured, env string) (*model.Nai
 	}
 	ret.DeployInfo.GQLVars.Job = naisjob.GetName()
 	ret.DeployInfo.GQLVars.Env = env
-	ret.DeployInfo.GQLVars.Team = naisjob.GetNamespace()
+	ret.DeployInfo.GQLVars.Team = slug.Slug(naisjob.GetNamespace())
 
 	timestamp := time.Unix(0, naisjob.GetStatus().RolloutCompleteTime)
 	ret.DeployInfo.Timestamp = &timestamp
-	ret.GQLVars.Team = naisjob.GetNamespace()
+	ret.GQLVars.Team = slug.Slug(naisjob.GetNamespace())
 	ret.Image = naisjob.Spec.Image
 
 	ap := model.AccessPolicy{}

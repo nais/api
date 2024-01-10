@@ -25,8 +25,8 @@ import (
 )
 
 type seedConfig struct {
-	DatabaseURL       string `envconfig:"TEAMS_BACKEND_DATABASE_URL" default:"postgres://console:console@localhost:3002/console?sslmode=disable"`
-	Domain            string `envconfig:"TEAMS_BACKEND_TENANT_DOMAIN" default:"example.com"`
+	DatabaseURL       string `envconfig:"API_BACKEND_DATABASE_URL" default:"postgres://api:api@localhost:3002/api?sslmode=disable"`
+	Domain            string `envconfig:"API_BACKEND_TENANT_DOMAIN" default:"example.com"`
 	NumUsers          *int
 	NumTeams          *int
 	NumOwnersPerTeam  *int

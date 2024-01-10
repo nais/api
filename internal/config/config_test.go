@@ -46,7 +46,7 @@ func TestNew(t *testing.T) {
 		assert.Equal(t, "secret-admin-api-key", cfg.Teams.Token)
 
 		assert.Equal(t, "", cfg.IapAudience)
-		assert.Equal(t, "postgres://postgres:postgres@127.0.0.1:5432/console?sslmode=disable", cfg.DatabaseConnectionString)
+		assert.Equal(t, "postgres://postgres:postgres@127.0.0.1:5432/api?sslmode=disable", cfg.DatabaseConnectionString)
 		assert.Equal(t, ":8080", cfg.ListenAddress)
 		assert.Equal(t, "some-user", cfg.RunAsUser)
 		assert.Equal(t, "dev-nais", cfg.Tenant)
