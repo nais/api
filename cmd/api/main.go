@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -17,11 +18,15 @@ import (
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/auth"
+	"github.com/nais/api/internal/auth/authn"
+	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/config"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph"
+	"github.com/nais/api/internal/graph/dataloader"
+	"github.com/nais/api/internal/graph/directives"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/logger"
@@ -127,7 +132,13 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 	dependencyTrackClient := dependencytrack.New(cfg.DependencyTrack, log.WithField("client", "dependencytrack"))
 	resourceUsageClient := resourceusage.NewClient(cfg.K8S.AllClusterNames, db, log)
 	resolver := graph.NewResolver(hookdClient, k8sClient, dependencyTrackClient, resourceUsageClient, db, cfg.K8S.Clusters, log)
-	graphHandler, err := graph.NewHandler(gengql.Config{Resolvers: resolver}, meter, log)
+	graphHandler, err := graph.NewHandler(gengql.Config{
+		Resolvers: resolver,
+		Directives: gengql.DirectiveRoot{
+			Admin: directives.Admin(),
+			Auth:  directives.Auth(),
+		},
+	}, meter, log)
 	if err != nil {
 		return fmt.Errorf("create graph handler: %w", err)
 	}
@@ -251,10 +262,15 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 		}
 	}()
 
+	authHandler, err := setupAuthHandler(cfg, db, log)
+	if err != nil {
+		return err
+	}
+
 	// HTTP server
 	go func() {
 		defer cancel()
-		err = getHttpServer(cfg, graphHandler).ListenAndServe()
+		err = getHttpServer(cfg, db, authHandler, graphHandler).ListenAndServe()
 		if !errors.Is(err, http.ErrServerClosed) {
 			log.WithError(err).Infof("unexpected error from HTTP server")
 		}
@@ -274,12 +290,13 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 }
 
 // getHttpServer will return a new HTTP server with the specified configuration
-func getHttpServer(cfg *config.Config, graphHandler *handler.Server) *http.Server {
+func getHttpServer(cfg *config.Config, db database.Database, authHandler authn.Handler, graphHandler *handler.Server) *http.Server {
 	router := chi.NewRouter()
 	router.Handle("/metrics", promhttp.Handler())
 	router.Get("/healthz", func(_ http.ResponseWriter, _ *http.Request) {})
 	router.Get("/", playground.Handler("GraphQL playground", "/query"))
 
+	dataLoaders := dataloader.NewLoaders(db)
 	middlewares := []func(http.Handler) http.Handler{
 		cors.New(
 			cors.Options{
@@ -288,6 +305,10 @@ func getHttpServer(cfg *config.Config, graphHandler *handler.Server) *http.Serve
 				AllowCredentials: true,
 			},
 		).Handler,
+
+		middleware.ApiKeyAuthentication(db),
+		middleware.Oauth2Authentication(db, authHandler),
+		dataloader.Middleware(dataLoaders),
 	}
 
 	authMiddlware := auth.ValidateIAPJWT(cfg.IapAudience)
@@ -466,4 +487,14 @@ type teamChecker struct {
 func (t teamChecker) TeamExists(ctx context.Context, team slug.Slug) bool {
 	_, err := t.db.GetTeamBySlug(ctx, team)
 	return err == nil
+}
+
+func setupAuthHandler(cfg *config.Config, db database.Database, log logrus.FieldLogger) (authn.Handler, error) {
+	cf := authn.NewGoogle(cfg.OAuth.ClientID, cfg.OAuth.ClientSecret, cfg.OAuth.RedirectURL)
+	frontendURL, err := url.Parse(cfg.FrontendURL)
+	if err != nil {
+		return nil, err
+	}
+	handler := authn.New(cf, db, *frontendURL, log)
+	return handler, nil
 }

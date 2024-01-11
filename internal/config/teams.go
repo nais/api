@@ -40,17 +40,6 @@ type NaisNamespace struct {
 	AzureEnabled bool `envconfig:"API_BACKEND_NAIS_NAMESPACE_AZURE_ENABLED"`
 }
 
-type OAuth struct {
-	// ClientID The ID of the OAuth 2.0 client to use for the OAuth login flow.
-	ClientID string `envconfig:"API_BACKEND_OAUTH_CLIENT_ID"`
-
-	// ClientSecret The client secret to use for the OAuth login flow.
-	ClientSecret string `envconfig:"API_BACKEND_OAUTH_CLIENT_SECRET"`
-
-	// RedirectURL The URL that Google will redirect back to after performing authentication.
-	RedirectURL string `envconfig:"API_BACKEND_OAUTH_REDIRECT_URL"`
-}
-
 type NaisDeploy struct {
 	// Endpoint URL to the NAIS deploy key provisioning endpoint
 	Endpoint string `envconfig:"API_BACKEND_NAIS_DEPLOY_ENDPOINT" default:"http://localhost:8080/api/v1/provision"`
