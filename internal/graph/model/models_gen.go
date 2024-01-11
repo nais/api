@@ -1022,26 +1022,6 @@ type UpdateTeamInput struct {
 	SlackAlertsChannels []*SlackAlertsChannelInput `json:"slackAlertsChannels,omitempty"`
 }
 
-// User type.
-type User struct {
-	// Unique ID of the user.
-	ID scalar.Ident `json:"id"`
-	// The email address of the user.
-	Email string `json:"email"`
-	// The name of the user.
-	Name string `json:"name"`
-	// List of team memberships.
-	Teams TeamMemberList `json:"teams"`
-	// Roles attached to the user.
-	Roles []*Role `json:"roles"`
-	// The external ID of the user.
-	ExternalID string `json:"externalId"`
-	// This field will only be populated via the me query
-	IsAdmin *bool `json:"isAdmin,omitempty"`
-}
-
-func (User) IsAuthenticatedUser() {}
-
 type UserList struct {
 	Nodes    []*User  `json:"nodes"`
 	PageInfo PageInfo `json:"pageInfo"`

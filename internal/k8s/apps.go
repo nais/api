@@ -409,6 +409,10 @@ func (c *Client) getTopics(ctx context.Context, name, team, env string) ([]*mode
 		topicEnv = "prod-gcp"
 	}
 
+	if c.informers[topicEnv].TopicInformer == nil {
+		return []*model.Topic{}, nil
+	}
+
 	topics, err := c.informers[topicEnv].TopicInformer.Lister().List(labels.Everything())
 	if err != nil {
 		return nil, c.error(ctx, err, "listing topics")

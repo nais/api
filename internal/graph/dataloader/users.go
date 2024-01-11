@@ -18,7 +18,6 @@ func ToGraphUser(m *db.User) *model.User {
 		Email:      m.Email,
 		Name:       m.Name,
 		ExternalID: m.ExternalID,
-		IsAdmin:    m.IsAdmin,
 	}
 }
 

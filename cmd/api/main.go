@@ -30,6 +30,7 @@ import (
 	"github.com/nais/api/internal/graph/directives"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/k8s"
+	"github.com/nais/api/internal/k8s/fake"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/slug"
@@ -141,7 +142,12 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 		return err
 	}
 
-	k8sClient, err := k8s.New(cfg.Tenant, cfg.K8S, errorsCounter, &teamChecker{db}, log.WithField("client", "k8s"))
+	k8sOpts := []k8s.Opt{}
+	if cfg.WithFakeKubernetes {
+		k8sOpts = append(k8sOpts, k8s.WithClientsCreator(fake.Clients(os.DirFS("./data/k8s"))))
+	}
+
+	k8sClient, err := k8s.New(cfg.Tenant, cfg.K8S, errorsCounter, &teamChecker{db}, log.WithField("client", "k8s"), k8sOpts...)
 	if err != nil {
 		var authErr *google.AuthenticationError
 		if errors.As(err, &authErr) {
@@ -319,7 +325,13 @@ func getHttpServer(cfg *config.Config, db database.Database, authHandler authn.H
 	router.Get("/", playground.Handler("GraphQL playground", "/query"))
 
 	dataLoaders := dataloader.NewLoaders(db)
-	middlewares := []func(http.Handler) http.Handler{
+	middlewares := []func(http.Handler) http.Handler{}
+
+	if cfg.RunAsUser != "" {
+		middlewares = append(middlewares, auth.StaticUser(db, cfg.RunAsUser))
+	}
+
+	middlewares = append(middlewares,
 		cors.New(
 			cors.Options{
 				AllowedOrigins:   []string{"https://*", "http://*"},
@@ -331,14 +343,7 @@ func getHttpServer(cfg *config.Config, db database.Database, authHandler authn.H
 		middleware.ApiKeyAuthentication(db),
 		middleware.Oauth2Authentication(db, authHandler),
 		dataloader.Middleware(dataLoaders),
-	}
-
-	authMiddlware := auth.ValidateIAPJWT(cfg.IapAudience)
-	if cfg.RunAsUser != "" {
-		authMiddlware = auth.StaticUser(cfg.RunAsUser)
-	}
-	middlewares = append(middlewares, authMiddlware)
-
+	)
 	router.Route("/query", func(r chi.Router) {
 		r.Use(middlewares...)
 		r.Post("/", graphHandler.ServeHTTP)

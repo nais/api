@@ -25,7 +25,6 @@ func (r *queryResolver) Me(ctx context.Context) (model.AuthenticatedUser, error)
 			Email:      me.Email,
 			Name:       me.Name,
 			ExternalID: me.ExternalID,
-			IsAdmin:    me.IsAdmin,
 		}, nil
 	case *database.ServiceAccount:
 		return &model.ServiceAccount{

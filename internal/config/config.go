@@ -76,6 +76,9 @@ type Config struct {
 	UserSync            UserSync
 	OAuth               OAuth
 
+	// WithFakeKubernetes When set to true, the api will use a fake kubernetes client.
+	WithFakeKubernetes bool `env:"WITH_FAKE_KUBERNETES"`
+
 	// IapAudience is the audience for the IAP JWT token. Will not be used when RUN_AS_USER is set
 	IapAudience string `env:"IAP_AUDIENCE"`
 

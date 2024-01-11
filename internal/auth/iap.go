@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/database"
 	"google.golang.org/api/idtoken"
 )
 
@@ -22,12 +24,24 @@ type (
 )
 
 // StaticUser returns a middleware that sets the email address of the authenticated user to the given value
-func StaticUser(email string) Middleware {
+func StaticUser(db database.Database, email string) Middleware {
+	usr, err := db.GetUserByEmail(context.Background(), email)
+	if err != nil {
+		panic(err)
+	}
+
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ctx := SetIAP(r.Context(), "dummy", ":"+email)
-			ctx = context.WithValue(ctx, contextEmail, email)
-			next.ServeHTTP(w, r.WithContext(ctx))
+			ctx := r.Context()
+
+			roles, err := db.GetUserRoles(ctx, usr.ID)
+			if err != nil {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			r = r.WithContext(authz.ContextWithActor(ctx, usr, roles))
+			next.ServeHTTP(w, r)
 		})
 	}
 }

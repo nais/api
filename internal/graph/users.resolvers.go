@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/dataloader"
 	"github.com/nais/api/internal/graph/gengql"
@@ -20,6 +21,7 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/usersync"
+	"k8s.io/utils/ptr"
 )
 
 // SynchronizeUsers is the resolver for the synchronizeUsers field.
@@ -110,6 +112,109 @@ func (r *queryResolver) UserSync(ctx context.Context) ([]*usersync.Run, error) {
 	return r.userSyncRuns.GetRuns(), nil
 }
 
+// Teams is the resolver for the teams field.
+func (r *userResolver) Teams(ctx context.Context, obj *model.User, limit *int, offset *int) (*model.TeamMemberList, error) {
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationTeamsList)
+	if err != nil {
+		return nil, err
+	}
+	p := model.NewPagination(offset, limit)
+
+	uid, err := obj.ID.AsUUID()
+	if err != nil {
+		return nil, err
+	}
+
+	userTeams, totalCount, err := r.database.GetUserTeams(ctx, uid, p.Offset, p.Limit)
+	if err != nil {
+		return nil, err
+	}
+
+	teams := make([]*model.TeamMember, 0)
+	for _, userTeam := range userTeams {
+		var teamRole model.TeamRole
+		switch userTeam.RoleName {
+		case gensql.RoleNameTeammember:
+			teamRole = model.TeamRoleMember
+		case gensql.RoleNameTeamowner:
+			teamRole = model.TeamRoleOwner
+		default:
+			continue
+		}
+		teams = append(teams, &model.TeamMember{
+			TeamRole: teamRole,
+			TeamSlug: userTeam.Team.Slug,
+			UserID:   uid,
+		})
+	}
+
+	return &model.TeamMemberList{
+		PageInfo: model.NewPageInfo(p, totalCount),
+		Nodes:    teams,
+	}, nil
+}
+
+// Roles is the resolver for the roles field.
+func (r *userResolver) Roles(ctx context.Context, obj *model.User) ([]*model.Role, error) {
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireRole(actor, gensql.RoleNameAdmin)
+	if err != nil {
+		return nil, err
+	}
+
+	uid, err := obj.ID.AsUUID()
+	if err != nil {
+		return nil, err
+	}
+
+	if err != nil && actor.User.GetID() != uid {
+		return nil, err
+	}
+
+	userRoles, err := dataloader.GetUserRoles(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+	ret := make([]*model.Role, 0)
+	for _, ur := range userRoles {
+		r := &model.Role{
+			Name:           string(ur.RoleName),
+			TargetTeamSlug: ur.TargetTeamSlug,
+		}
+
+		if ur.TargetServiceAccountID != nil {
+			r.TargetServiceAccountID = ptr.To(scalar.ServiceAccountIdent(*ur.TargetServiceAccountID))
+		}
+
+		ret = append(ret, r)
+	}
+
+	return ret, nil
+}
+
+// IsAdmin is the resolver for the isAdmin field.
+func (r *userResolver) IsAdmin(ctx context.Context, obj *model.User) (*bool, error) {
+	// TODO: christer, is this correct?
+	uid, err := obj.ID.AsUUID()
+	if err != nil {
+		return nil, err
+	}
+
+	userRoles, err := dataloader.GetUserRoles(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, ur := range userRoles {
+		if ur.RoleName == gensql.RoleNameAdmin {
+			return ptr.To(true), nil
+		}
+	}
+
+	return ptr.To(false), nil
+}
+
 // CorrelationID is the resolver for the correlationID field.
 func (r *userSyncRunResolver) CorrelationID(ctx context.Context, obj *usersync.Run) (*scalar.Ident, error) {
 	panic(fmt.Errorf("not implemented: CorrelationID - correlationID"))
@@ -152,7 +257,13 @@ func (r *userSyncRunResolver) Error(ctx context.Context, obj *usersync.Run) (*st
 	return nil, nil
 }
 
+// User returns gengql.UserResolver implementation.
+func (r *Resolver) User() gengql.UserResolver { return &userResolver{r} }
+
 // UserSyncRun returns gengql.UserSyncRunResolver implementation.
 func (r *Resolver) UserSyncRun() gengql.UserSyncRunResolver { return &userSyncRunResolver{r} }
 
-type userSyncRunResolver struct{ *Resolver }
+type (
+	userResolver        struct{ *Resolver }
+	userSyncRunResolver struct{ *Resolver }
+)

@@ -26,6 +26,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
+	"k8s.io/utils/ptr"
 )
 
 // CreateTeam is the resolver for the createTeam field.
@@ -929,7 +930,7 @@ func (r *queryResolver) TeamDeleteKey(ctx context.Context, key string) (*model.T
 
 // ID is the resolver for the id field.
 func (r *teamResolver) ID(ctx context.Context, obj *model.Team) (*scalar.Ident, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return ptr.To(scalar.TeamIdent(obj.Slug)), nil
 }
 
 // AuditLogs is the resolver for the auditLogs field.

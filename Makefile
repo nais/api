@@ -42,7 +42,7 @@ local-nav:
 	LISTEN_ADDRESS="127.0.0.1:3000" \
 	LOG_FORMAT="text" \
 	LOG_LEVEL="debug" \
-	RUN_AS_USER="johnny.horvi@nav.no" \
+	RUN_AS_USER="admin.usersen@example.com" \
 	API_ENDPOINT="http://localhost:8181/query" \
 	API_TOKEN="$(shell kubectl get secret console-backend --context nav-management-v2 -n nais-system -ojsonpath='{.data.API_TOKEN}' | base64 --decode)" \
 	TENANT="nav" \
@@ -51,13 +51,14 @@ local-nav:
 
 local:
 	HOOKD_ENDPOINT="http://hookd.local.nais.io" \
-	KUBERNETES_CLUSTERS="ci,dev" \
+	KUBERNETES_CLUSTERS="superprod,dev" \
 	LISTEN_ADDRESS="127.0.0.1:3000" \
 	LOG_FORMAT="text" \
 	LOG_LEVEL="debug" \
-	RUN_AS_USER="dev.usersen@nais.io" \
+	RUN_AS_USER="admin.usersen@example.com" \
 	API_ENDPOINT="http://teams.local.nais.io:3000/query" \
 	STATIC_SERVICE_ACCOUNTS='[{"name": "nais-admin","apiKey": "somekey","roles": [{"name": "Admin"}]}]' \
+	WITH_FAKE_KUBERNETES="true" \
 	go run ./cmd/api/main.go
 
 test:

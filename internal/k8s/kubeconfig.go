@@ -8,6 +8,15 @@ import (
 	"k8s.io/client-go/tools/clientcmd/api"
 )
 
+func clusters(cfg config.K8S) []string {
+	ret := cfg.Clusters
+
+	for _, sc := range cfg.StaticClusters {
+		ret = append(ret, sc.Name)
+	}
+	return ret
+}
+
 type ClusterConfigMap map[string]rest.Config
 
 func CreateClusterConfigMap(tenant string, cfg config.K8S) (ClusterConfigMap, error) {

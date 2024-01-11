@@ -34,7 +34,7 @@ type TeamChecker interface {
 
 type Client struct {
 	informers   map[string]*Informers
-	clientSets  map[string]*kubernetes.Clientset
+	clientSets  map[string]kubernetes.Interface
 	log         logrus.FieldLogger
 	errors      metric.Int64Counter
 	teamChecker TeamChecker
@@ -49,25 +49,54 @@ type Informers struct {
 	EventInformer   corev1inf.EventInformer
 }
 
-func New(tenant string, cfg config.K8S, errors metric.Int64Counter, teamChecker TeamChecker, log logrus.FieldLogger) (*Client, error) {
-	restConfigs, err := CreateClusterConfigMap(tenant, cfg)
-	if err != nil {
-		return nil, fmt.Errorf("create kubeconfig: %w", err)
+type settings struct {
+	clientsCreator func(cluster string) (kubernetes.Interface, dynamic.Interface, error)
+}
+
+type Opt func(*settings)
+
+func WithClientsCreator(f func(cluster string) (kubernetes.Interface, dynamic.Interface, error)) Opt {
+	return func(s *settings) {
+		s.clientsCreator = f
+	}
+}
+
+func New(tenant string, cfg config.K8S, errors metric.Int64Counter, teamChecker TeamChecker, log logrus.FieldLogger, opts ...Opt) (*Client, error) {
+	s := &settings{}
+	for _, opt := range opts {
+		opt(s)
+	}
+
+	if s.clientsCreator == nil {
+		restConfigs, err := CreateClusterConfigMap(tenant, cfg)
+		if err != nil {
+			return nil, fmt.Errorf("create kubeconfig: %w", err)
+		}
+
+		s.clientsCreator = func(cluster string) (kubernetes.Interface, dynamic.Interface, error) {
+			restConfig := restConfigs[cluster]
+			clientSet, err := kubernetes.NewForConfig(&restConfig)
+			if err != nil {
+				return nil, nil, fmt.Errorf("create clientset: %w", err)
+			}
+
+			dynamicClient, err := dynamic.NewForConfig(&restConfig)
+			if err != nil {
+				return nil, nil, fmt.Errorf("create dynamic client: %w", err)
+			}
+
+			return clientSet, dynamicClient, nil
+		}
 	}
 
 	infs := map[string]*Informers{}
-	clientSets := map[string]*kubernetes.Clientset{}
-	for cluster, restConfig := range restConfigs {
+	clientSets := map[string]kubernetes.Interface{}
+	for _, cluster := range clusters(cfg) {
 		infs[cluster] = &Informers{}
 
-		clientSet, err := kubernetes.NewForConfig(&restConfig)
+		clientSet, dynamicClient, err := s.clientsCreator(cluster)
 		if err != nil {
-			return nil, fmt.Errorf("create clientset: %w", err)
-		}
-
-		dynamicClient, err := dynamic.NewForConfig(&restConfig)
-		if err != nil {
-			return nil, fmt.Errorf("create dynamic client: %w", err)
+			return nil, fmt.Errorf("create clientsets: %w", err)
 		}
 
 		log.WithField("cluster", cluster).Debug("creating informers")
@@ -80,14 +109,16 @@ func New(tenant string, cfg config.K8S, errors metric.Int64Counter, teamChecker 
 		infs[cluster].JobInformer = inf.Batch().V1().Jobs()
 		clientSets[cluster] = clientSet
 
-		resources, err := discovery.NewDiscoveryClient(clientSet.RESTClient()).ServerResourcesForGroupVersion(kafka_nais_io_v1.GroupVersion.String())
-		if err != nil && !strings.Contains(err.Error(), "the server could not find the requested resource") {
-			return nil, fmt.Errorf("get server resources for group version: %w", err)
-		}
-		if err == nil {
-			for _, r := range resources.APIResources {
-				if r.Name == "topics" {
-					infs[cluster].TopicInformer = dinf.ForResource(kafka_nais_io_v1.GroupVersion.WithResource("topics"))
+		if clientSet, ok := clientSet.(*kubernetes.Clientset); ok {
+			resources, err := discovery.NewDiscoveryClient(clientSet.RESTClient()).ServerResourcesForGroupVersion(kafka_nais_io_v1.GroupVersion.String())
+			if err != nil && !strings.Contains(err.Error(), "the server could not find the requested resource") {
+				return nil, fmt.Errorf("get server resources for group version: %w", err)
+			}
+			if err == nil {
+				for _, r := range resources.APIResources {
+					if r.Name == "topics" {
+						infs[cluster].TopicInformer = dinf.ForResource(kafka_nais_io_v1.GroupVersion.WithResource("topics"))
+					}
 				}
 			}
 		}
