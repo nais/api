@@ -1,6 +1,7 @@
 package fixtures
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -25,13 +26,13 @@ const NaisServiceAccountPrefix = "nais-"
 
 type ServiceAccounts []ServiceAccount
 
-func (s *ServiceAccounts) Decode(value string) error {
-	if value == "" {
+func (s *ServiceAccounts) UnmarshalJSON(value []byte) error {
+	if len(value) == 0 {
 		return nil
 	}
 
-	serviceAccounts := make(ServiceAccounts, 0)
-	err := json.NewDecoder(strings.NewReader(value)).Decode(&serviceAccounts)
+	serviceAccounts := make([]ServiceAccount, 0)
+	err := json.NewDecoder(bytes.NewReader(value)).Decode(&serviceAccounts)
 	if err != nil {
 		return err
 	}

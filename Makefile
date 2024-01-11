@@ -46,6 +46,7 @@ local-nav:
 	API_ENDPOINT="http://localhost:8181/query" \
 	API_TOKEN="$(shell kubectl get secret api --context nav-management-v2 -n nais-system -ojsonpath='{.data.API_TOKEN}' | base64 --decode)" \
 	TENANT="nav" \
+	STATIC_SERVICE_ACCOUNTS='[{"name": "nais-admin","apiKey": "somekey","roles": [{"name": "Admin"}]}]' \
 	go run ./cmd/api/main.go
 
 local:
@@ -56,6 +57,7 @@ local:
 	LOG_LEVEL="debug" \
 	RUN_AS_USER="dev.usersen@nais.io" \
 	API_ENDPOINT="http://teams.local.nais.io:3000/query" \
+	STATIC_SERVICE_ACCOUNTS='[{"name": "nais-admin","apiKey": "somekey","roles": [{"name": "Admin"}]}]' \
 	go run ./cmd/api/main.go
 
 test:

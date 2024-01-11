@@ -24,6 +24,7 @@ import (
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/fixtures"
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/dataloader"
 	"github.com/nais/api/internal/graph/directives"
@@ -118,6 +119,27 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 		return fmt.Errorf("setting up database: %w", err)
 	}
 	defer closer()
+
+	firstRun, err := db.IsFirstRun(ctx)
+	if err != nil {
+		return err
+	}
+	if firstRun {
+		log.Infof("first run detected ")
+		firstRunLogger := log.WithField("system", "first-run")
+		if err := fixtures.SetupDefaultReconcilers(ctx, firstRunLogger, cfg.FirstRunEnableReconcilers, db); err != nil {
+			return err
+		}
+
+		if err := db.FirstRunComplete(ctx); err != nil {
+			return err
+		}
+	}
+
+	err = fixtures.SetupStaticServiceAccounts(ctx, db, cfg.StaticServiceAccounts)
+	if err != nil {
+		return err
+	}
 
 	k8sClient, err := k8s.New(cfg.Tenant, cfg.K8S, errorsCounter, &teamChecker{db}, log.WithField("client", "k8s"))
 	if err != nil {
