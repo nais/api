@@ -79,3 +79,6 @@ fmt:
 
 helm-lint:
 	helm lint --strict ./charts
+
+seed:
+	go run cmd/database-seeder/main.go -users 1000 -teams 100 -owners 2 -members 10

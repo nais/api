@@ -12,7 +12,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/nais/api/internal/config"
 	"github.com/nais/api/internal/database"
 	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"
@@ -25,8 +24,8 @@ import (
 )
 
 type seedConfig struct {
-	DatabaseURL       string `envconfig:"API_BACKEND_DATABASE_URL" default:"postgres://api:api@localhost:3002/api?sslmode=disable"`
-	Domain            string `envconfig:"API_BACKEND_TENANT_DOMAIN" default:"example.com"`
+	DatabaseURL       string `envconfig:"DATABASE_URL" default:"postgres://api:api@localhost:3002/api?sslmode=disable"`
+	Domain            string `envconfig:"TENANT_DOMAIN" default:"example.com"`
 	NumUsers          *int
 	NumTeams          *int
 	NumOwnersPerTeam  *int
@@ -58,10 +57,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	log, err := logger.New(config.Logger{
-		Format: "text",
-		Level:  "INFO",
-	})
+	log, err := logger.New("text", "INFO")
 	if err != nil {
 		fmt.Printf("fatal: %s", err)
 		os.Exit(2)
