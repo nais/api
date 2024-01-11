@@ -34,24 +34,6 @@ func (r *mutationResolver) SetGitHubTeamSlug(ctx context.Context, teamSlug slug.
 		return nil, fmt.Errorf("create log correlation ID: %w", err)
 	}
 
-	// TODO: How to do this?
-	type GitHubRepositoryPermission struct {
-		Name    string `json:"name"`
-		Granted bool   `json:"granted"`
-	}
-	type GitHubRepository struct {
-		Name        string                        `json:"name"`
-		Permissions []*GitHubRepositoryPermission `json:"permissions"`
-		Archived    bool                          `json:"archived"`
-		RoleName    string                        `json:"roleName"`
-		TeamSlug    *slug.Slug                    `json:"-"`
-	}
-
-	type GitHubState struct {
-		Slug         *slug.Slug          `json:"slug"`
-		Repositories []*GitHubRepository `json:"repositories"`
-	}
-
 	err = r.database.SetReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGithubTeam, teamSlug, GitHubState{
 		Slug: &gitHubTeamSlug,
 	})

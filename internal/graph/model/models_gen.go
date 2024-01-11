@@ -8,10 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/nais/api/internal/auditlogger/audittype"
-	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/scalar"
-	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -53,29 +50,6 @@ type ACL struct {
 	Application string    `json:"application"`
 	Team        slug.Slug `json:"team"`
 }
-
-type App struct {
-	ID              scalar.Ident   `json:"id"`
-	Name            string         `json:"name"`
-	Image           string         `json:"image"`
-	DeployInfo      DeployInfo     `json:"deployInfo"`
-	Env             Env            `json:"env"`
-	Ingresses       []string       `json:"ingresses"`
-	Instances       []*Instance    `json:"instances"`
-	AccessPolicy    AccessPolicy   `json:"accessPolicy"`
-	Resources       Resources      `json:"resources"`
-	AutoScaling     AutoScaling    `json:"autoScaling"`
-	Storage         []Storage      `json:"storage"`
-	Variables       []*Variable    `json:"variables"`
-	Authz           []Authz        `json:"authz"`
-	Manifest        string         `json:"manifest"`
-	Team            Team           `json:"team"`
-	AppState        AppState       `json:"appState"`
-	Vulnerabilities *Vulnerability `json:"vulnerabilities,omitempty"`
-	GQLVars         AppGQLVars     `json:"-"`
-}
-
-func (App) IsSearchNode() {}
 
 // App cost type.
 type AppCost struct {
@@ -126,15 +100,15 @@ type AuditLog struct {
 	// ID of the log entry.
 	ID scalar.Ident `json:"id"`
 	// String representation of the action performed.
-	Action audittype.AuditAction `json:"action"`
+	Action string `json:"action"`
 	// The related component.
-	ComponentName logger.ComponentName `json:"componentName"`
+	ComponentName string `json:"componentName"`
 	// The related correlation ID.
 	CorrelationID string `json:"correlationID"`
 	// The identity of the actor who performed the action. When this field is empty it means that some backend process performed the action. The value, when present, is either the name of a service account, or the email address of a user.
 	Actor *string `json:"actor,omitempty"`
 	// The type of the audit log target.
-	TargetType audittype.AuditLogsTargetType `json:"targetType"`
+	TargetType string `json:"targetType"`
 	// The identifier of the target.
 	TargetIdentifier string `json:"targetIdentifier"`
 	// Log entry message.
@@ -701,7 +675,7 @@ type Query struct {
 // Reconciler type.
 type Reconciler struct {
 	// The name of the reconciler.
-	Name gensql.ReconcilerName `json:"name"`
+	Name string `json:"name"`
 	// The human-friendly name of the reconciler.
 	DisplayName string `json:"displayName"`
 	// Description of what the reconciler is responsible for.
@@ -723,7 +697,7 @@ type Reconciler struct {
 // Reconciler configuration type.
 type ReconcilerConfig struct {
 	// Configuration key.
-	Key gensql.ReconcilerConfigKey `json:"key"`
+	Key string `json:"key"`
 	// The human-friendly name of the configuration key.
 	DisplayName string `json:"displayName"`
 	// Configuration description.
@@ -739,7 +713,7 @@ type ReconcilerConfig struct {
 // Reconciler configuration input.
 type ReconcilerConfigInput struct {
 	// Configuration key.
-	Key gensql.ReconcilerConfigKey `json:"key"`
+	Key string `json:"key"`
 	// Configuration value.
 	Value string `json:"value"`
 }
@@ -857,12 +831,12 @@ type Resources struct {
 // Role binding type.
 type Role struct {
 	// Name of the role.
-	Name gensql.RoleName `json:"name"`
+	Name string `json:"name"`
 	// Whether or not the role is global.
 	IsGlobal bool `json:"isGlobal"`
-	// Optional service account ID if the role binding targets a service account.
+	// Optional service account ID if the role binding targets a service account. TODO: Make these resolvers returning service account and team, not IDs
 	TargetServiceAccountID *scalar.Ident `json:"targetServiceAccountID,omitempty"`
-	// Optional team slug if the role binding targets a team.
+	// Optional team slug if the role binding targets a team. TODO: Make these resolvers returning service account and team, not IDs
 	TargetTeamSlug *slug.Slug `json:"targetTeamSlug,omitempty"`
 }
 
@@ -961,58 +935,10 @@ type SyncError struct {
 	// Creation time of the error.
 	CreatedAt time.Time `json:"createdAt"`
 	// The name of the reconciler.
-	Reconciler gensql.ReconcilerName `json:"reconciler"`
+	Reconciler string `json:"reconciler"`
 	// Error message.
 	Error string `json:"error"`
 }
-
-// Team type.
-type Team struct {
-	ID scalar.Ident `json:"id"`
-	// Unique slug of the team.
-	Slug slug.Slug `json:"slug"`
-	// Purpose of the team.
-	Purpose string `json:"purpose"`
-	// Audit logs for this team.
-	AuditLogs AuditLogList `json:"auditLogs"`
-	// Team members.
-	Members TeamMemberList `json:"members"`
-	// Single team member
-	Member TeamMember `json:"member"`
-	// Possible issues related to synchronization of the team to configured external systems. If there are no entries the team can be considered fully synchronized.
-	SyncErrors []*SyncError `json:"syncErrors"`
-	// Timestamp of the last successful synchronization of the team.
-	LastSuccessfulSync *time.Time `json:"lastSuccessfulSync,omitempty"`
-	// Current reconciler state for the team.
-	ReconcilerState ReconcilerState `json:"reconcilerState"`
-	// Slack channel for the team.
-	SlackChannel string `json:"slackChannel"`
-	// A list of Slack channels for NAIS alerts. If no channel is specified for a given environment, NAIS will fallback to the slackChannel value.
-	SlackAlertsChannels []*SlackAlertsChannel `json:"slackAlertsChannels"`
-	// A list of GitHub repositories for the team.
-	GitHubRepositories GitHubRepositoryList `json:"gitHubRepositories"`
-	// Whether or not the team is currently being deleted.
-	DeletionInProgress bool `json:"deletionInProgress"`
-	// Whether or not the viewer is an owner of the team.
-	ViewerIsOwner bool `json:"viewerIsOwner"`
-	// Whether or not the viewer is a member of the team.
-	ViewerIsMember bool `json:"viewerIsMember"`
-	// The status of the team.
-	Status TeamStatus `json:"status"`
-	// The NAIS applications owned by the team.
-	Apps AppList `json:"apps"`
-	// The deploy key of the team.
-	DeployKey DeploymentKey `json:"deployKey"`
-	// The NAIS jobs owned by the team.
-	Naisjobs NaisJobList `json:"naisjobs"`
-	// The deployments of the team's applications.
-	Deployments DeploymentList `json:"deployments"`
-	// The vulnerabilities for the team's applications.
-	Vulnerabilities        VulnerabilityList    `json:"vulnerabilities"`
-	VulnerabilitiesSummary VulnerabilitySummary `json:"vulnerabilitiesSummary"`
-}
-
-func (Team) IsSearchNode() {}
 
 // Team deletion key type.
 type TeamDeleteKey struct {
@@ -1043,7 +969,7 @@ type TeamMemberInput struct {
 	// The role that the user will receive.
 	Role TeamRole `json:"role"`
 	// Reconcilers to opt the team member out of.
-	ReconcilerOptOuts []gensql.ReconcilerName `json:"reconcilerOptOuts,omitempty"`
+	ReconcilerOptOuts []string `json:"reconcilerOptOuts,omitempty"`
 }
 
 type TeamMemberList struct {

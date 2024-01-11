@@ -556,7 +556,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 		}
 
 		for _, reconcilerName := range member.ReconcilerOptOuts {
-			err = dbtx.AddReconcilerOptOut(ctx, mid, team.Slug, reconcilerName)
+			err = dbtx.AddReconcilerOptOut(ctx, mid, team.Slug, sqlc.ReconcilerName(reconcilerName))
 			if err != nil {
 				return err
 			}
@@ -570,13 +570,14 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 		var action audittype.AuditAction
 		var msg string
 
-		if role == sqlc.RoleNameTeamowner {
+		switch role {
+		case sqlc.RoleNameTeamowner:
 			action = audittype.AuditActionGraphqlApiTeamAddOwner
 			msg = fmt.Sprintf("Add team owner: %q", user.Email)
-		} else if role == sqlc.RoleNameTeammember {
+		case sqlc.RoleNameTeammember:
 			action = audittype.AuditActionGraphqlApiTeamAddMember
 			msg = fmt.Sprintf("Add team member: %q", user.Email)
-		} else {
+		default:
 			return fmt.Errorf("unknown role: %q", role)
 		}
 
@@ -924,6 +925,197 @@ func (r *queryResolver) TeamDeleteKey(ctx context.Context, key string) (*model.T
 	}
 
 	return toGraphTeamDeleteKey(deleteKey), nil
+}
+
+// ID is the resolver for the id field.
+func (r *teamResolver) ID(ctx context.Context, obj *model.Team) (*scalar.Ident, error) {
+	panic(fmt.Errorf("not implemented: ID - id"))
+}
+
+// AuditLogs is the resolver for the auditLogs field.
+func (r *teamResolver) AuditLogs(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.AuditLogList, error) {
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationAuditLogsRead, obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	p := model.NewPagination(offset, limit)
+	entries, total, err := r.database.GetAuditLogsForTeam(ctx, obj.Slug, p.Offset, p.Limit)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AuditLogList{
+		Nodes:    toGraphAuditLogs(entries),
+		PageInfo: model.NewPageInfo(p, total),
+	}, nil
+}
+
+// Members is the resolver for the members field.
+func (r *teamResolver) Members(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.TeamMemberList, error) {
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationUsersList)
+	if err != nil {
+		return nil, err
+	}
+
+	p := model.NewPagination(offset, limit)
+
+	users, total, err := r.database.GetTeamMembers(ctx, obj.Slug, p.Offset, p.Limit)
+	if err != nil {
+		return nil, err
+	}
+
+	members := make([]*model.TeamMember, len(users))
+	for idx, user := range users {
+		members[idx] = &model.TeamMember{
+			UserID:   user.ID,
+			TeamSlug: obj.Slug,
+		}
+	}
+
+	return &model.TeamMemberList{
+		Nodes:    members,
+		PageInfo: model.NewPageInfo(p, total),
+	}, nil
+}
+
+// Member is the resolver for the member field.
+func (r *teamResolver) Member(ctx context.Context, obj *model.Team, userID scalar.Ident) (*model.TeamMember, error) {
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationUsersList)
+	if err != nil {
+		return nil, err
+	}
+
+	uid, err := userID.AsUUID()
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := r.database.GetUserByID(ctx, uid)
+	if err != nil {
+		return nil, apierror.ErrUserNotExists
+	}
+
+	return &model.TeamMember{
+		UserID:   user.ID,
+		TeamSlug: obj.Slug,
+	}, nil
+}
+
+// SyncErrors is the resolver for the syncErrors field.
+func (r *teamResolver) SyncErrors(ctx context.Context, obj *model.Team) ([]*model.SyncError, error) {
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsRead, obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := r.database.GetTeamReconcilerErrors(ctx, obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	syncErrors := make([]*model.SyncError, 0)
+	for _, row := range rows {
+		syncErrors = append(syncErrors, &model.SyncError{
+			CreatedAt:  row.CreatedAt.Time,
+			Reconciler: string(row.Reconciler),
+			Error:      row.ErrorMessage,
+		})
+	}
+
+	return syncErrors, nil
+}
+
+// ReconcilerState is the resolver for the reconcilerState field.
+func (r *teamResolver) ReconcilerState(ctx context.Context, obj *model.Team) (*model.ReconcilerState, error) {
+	panic(fmt.Errorf("not implemented: ReconcilerState - reconcilerState"))
+}
+
+// SlackAlertsChannels is the resolver for the slackAlertsChannels field.
+func (r *teamResolver) SlackAlertsChannels(ctx context.Context, obj *model.Team) ([]*model.SlackAlertsChannel, error) {
+	channels := make([]*model.SlackAlertsChannel, 0, len(r.gcpEnvironments))
+	existingChannels, err := r.database.GetSlackAlertsChannels(ctx, obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, environment := range r.gcpEnvironments {
+		var channel string
+		if value, exists := existingChannels[environment]; exists {
+			channel = value
+		} else {
+			channel = obj.SlackChannel
+		}
+		channels = append(channels, &model.SlackAlertsChannel{
+			Environment: environment,
+			ChannelName: channel,
+		})
+	}
+	return channels, nil
+}
+
+// GitHubRepositories is the resolver for the gitHubRepositories field.
+func (r *teamResolver) GitHubRepositories(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.GitHubRepositoriesFilter) (*model.GitHubRepositoryList, error) {
+	state := GitHubState{}
+	err := r.database.LoadReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGithubTeam, obj.Slug, state)
+	if err != nil {
+		return nil, apierror.Errorf("Unable to load the GitHub state for the team.")
+	}
+
+	if filter == nil {
+		filter = &model.GitHubRepositoriesFilter{
+			IncludeArchivedRepositories: false,
+		}
+	}
+
+	repositories := make([]*model.GitHubRepository, 0)
+	for _, repo := range state.Repositories {
+		if repo.Archived && !filter.IncludeArchivedRepositories {
+			continue
+		}
+
+		repo.TeamSlug = &obj.Slug
+		repositories = append(repositories, toGraphGithubRepository(repo))
+	}
+
+	paginatedRepositories, pageInfo := model.PaginatedSlice(repositories, model.NewPagination(offset, limit))
+	return &model.GitHubRepositoryList{
+		Nodes:    paginatedRepositories,
+		PageInfo: pageInfo,
+	}, nil
+}
+
+// DeletionInProgress is the resolver for the deletionInProgress field.
+func (r *teamResolver) DeletionInProgress(ctx context.Context, obj *model.Team) (bool, error) {
+	_, err := r.database.GetActiveTeamBySlug(ctx, obj.Slug)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return true, nil
+	}
+
+	return false, err
+}
+
+// ViewerIsOwner is the resolver for the viewerIsOwner field.
+func (r *teamResolver) ViewerIsOwner(ctx context.Context, obj *model.Team) (bool, error) {
+	actor := authz.ActorFromContext(ctx)
+	return r.database.UserIsTeamOwner(ctx, actor.User.GetID(), obj.Slug)
+}
+
+// ViewerIsMember is the resolver for the viewerIsMember field.
+func (r *teamResolver) ViewerIsMember(ctx context.Context, obj *model.Team) (bool, error) {
+	actor := authz.ActorFromContext(ctx)
+	u, err := r.database.GetTeamMember(ctx, obj.Slug, actor.User.GetID())
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return false, nil
+		}
+		return false, err
+	}
+	return u != nil, nil
 }
 
 // Status is the resolver for the status field.

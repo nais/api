@@ -1,11 +1,9 @@
 package graph
 
 import (
-	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
-	"github.com/nais/api/internal/logger"
 )
 
 func toGraphAuditLogs(logs []*database.AuditLog) []*model.AuditLog {
@@ -13,10 +11,10 @@ func toGraphAuditLogs(logs []*database.AuditLog) []*model.AuditLog {
 	for _, log := range logs {
 		graphLogs = append(graphLogs, &model.AuditLog{
 			ID:               scalar.AuditLogIdent(log.ID),
-			Action:           audittype.AuditAction(log.Action),
+			Action:           log.Action,
 			Actor:            log.Actor,
-			ComponentName:    logger.ComponentName(log.ComponentName),
-			TargetType:       audittype.AuditLogsTargetType(log.TargetType),
+			ComponentName:    log.ComponentName,
+			TargetType:       log.TargetType,
 			CorrelationID:    log.CorrelationID.String(),
 			TargetIdentifier: log.TargetIdentifier,
 			Message:          log.Message,

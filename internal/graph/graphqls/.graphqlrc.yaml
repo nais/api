@@ -1,4 +1,0 @@
-projects:
-  default:
-    schema:
-      - ./internal/graph/graphqls/*.graphqls

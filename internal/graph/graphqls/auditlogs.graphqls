@@ -4,10 +4,10 @@ type AuditLog {
   id: ID!
 
   "String representation of the action performed."
-  action: AuditAction! @goField(forceResolver: true)
+  action: String!
 
   "The related component."
-  componentName: ComponentName! @goField(forceResolver: true)
+  componentName: String!
 
   "The related correlation ID."
   correlationID: String!
@@ -16,7 +16,7 @@ type AuditLog {
   actor: String
 
   "The type of the audit log target."
-  targetType: AuditLogsTargetType! @goField(forceResolver: true)
+  targetType: String!
 
   "The identifier of the target."
   targetIdentifier: String!

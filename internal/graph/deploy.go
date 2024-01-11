@@ -17,7 +17,6 @@ func deployToModel(deploys []hookd.Deploy) []*model.Deployment {
 			Resources: mapResources(deploy.Resources),
 			Team: model.Team{
 				Slug: deploy.DeploymentInfo.Team,
-				ID:   scalar.TeamIdent(deploy.DeploymentInfo.Team),
 			},
 			Env:        deploy.DeploymentInfo.Cluster,
 			Created:    deploy.DeploymentInfo.Created,

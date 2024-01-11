@@ -23,21 +23,3 @@ Examples of valid slugs:
 - `my-team-123`
 """
 scalar Slug
-
-"String value representing an audit action."
-scalar AuditAction
-
-"String value representing the type of the audit log target."
-scalar AuditLogsTargetType
-
-"String value representing a role name."
-scalar RoleName
-
-"String value representing a reconciler configuration key."
-scalar ReconcilerConfigKey
-
-"String value representing a reconciler name."
-scalar ReconcilerName
-
-"String value representing a system name."
-scalar ComponentName

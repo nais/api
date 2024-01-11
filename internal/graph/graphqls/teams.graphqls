@@ -328,7 +328,7 @@ type Team {
   viewerIsMember: Boolean!
 
   "The status of the team."
-  status: TeamStatus! @goField(forceResolver: true)
+  status: TeamStatus!
 
   "The NAIS applications owned by the team."
   apps(
@@ -340,10 +340,10 @@ type Team {
 
     "Order apps by"
     orderBy: OrderBy
-  ): AppList! @goField(forceResolver: true)
+  ): AppList!
 
   "The deploy key of the team."
-  deployKey: DeploymentKey! @goField(forceResolver: true)
+  deployKey: DeploymentKey!
 
   "The NAIS jobs owned by the team."
   naisjobs(
@@ -355,7 +355,7 @@ type Team {
 
     "Order naisjobs by"
     orderBy: OrderBy
-  ): NaisJobList! @goField(forceResolver: true)
+  ): NaisJobList!
 
   "The deployments of the team's applications."
   deployments(
@@ -364,7 +364,7 @@ type Team {
 
     "Limit the number of entries returned."
     limit: Int
-  ): DeploymentList! @goField(forceResolver: true)
+  ): DeploymentList!
 
   "The vulnerabilities for the team's applications."
   vulnerabilities(
@@ -376,9 +376,9 @@ type Team {
 
     "Order apps by"
     orderBy: OrderBy
-  ): VulnerabilityList! @goField(forceResolver: true)
+  ): VulnerabilityList!
 
-  vulnerabilitiesSummary: VulnerabilitySummary! @goField(forceResolver: true)
+  vulnerabilitiesSummary: VulnerabilitySummary!
 }
 
 "GitHub repository type."
@@ -468,7 +468,7 @@ type SyncError {
   createdAt: Time!
 
   "The name of the reconciler."
-  reconciler: ReconcilerName!
+  reconciler: String!
 
   "Error message."
   error: String!
@@ -591,7 +591,7 @@ input TeamMemberInput {
   role: TeamRole!
 
   "Reconcilers to opt the team member out of."
-  reconcilerOptOuts: [ReconcilerName!]
+  reconcilerOptOuts: [String!]
 }
 
 "Input for filtering GitHub repositories."

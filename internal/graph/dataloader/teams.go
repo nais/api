@@ -7,7 +7,6 @@ import (
 	"github.com/graph-gophers/dataloader/v7"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/metrics"
 	"github.com/nais/api/internal/slug"
 )
@@ -21,7 +20,6 @@ const LoaderNameTeams = "teams"
 // TODO: Deduplicate this with what's in graph pkg
 func toGraphTeam(m *database.Team) *model.Team {
 	ret := &model.Team{
-		ID:           scalar.TeamIdent(m.Slug),
 		Slug:         m.Slug,
 		Purpose:      m.Purpose,
 		SlackChannel: m.SlackChannel,

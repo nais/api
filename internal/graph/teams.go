@@ -3,12 +3,10 @@ package graph
 import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/scalar"
 )
 
 func toGraphTeam(m *database.Team) *model.Team {
 	ret := &model.Team{
-		ID:           scalar.TeamIdent(m.Slug),
 		Slug:         m.Slug,
 		Purpose:      m.Purpose,
 		SlackChannel: m.SlackChannel,
@@ -36,7 +34,6 @@ func toGraphTeamDeleteKey(m *database.TeamDeleteKey) *model.TeamDeleteKey {
 		Expires:   m.Expires(),
 	}
 }
-
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.

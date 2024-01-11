@@ -69,10 +69,6 @@ models:
     extraFields:
       GQLVars:
         type: "github.com/nais/api/internal/graph/model.RunGQLVars"
-  App:
-    extraFields:
-      GQLVars:
-        type: "github.com/nais/api/internal/graph/model.AppGQLVars"
   NaisJob:
     extraFields:
       GQLVars:

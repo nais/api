@@ -19,17 +19,17 @@ type App {
   deployInfo: DeployInfo!
   env: Env!
   ingresses: [String!]!
-  instances: [Instance!]! @goField(forceResolver: true)
+  instances: [Instance!]!
   accessPolicy: AccessPolicy!
   resources: Resources!
   autoScaling: AutoScaling!
   storage: [Storage!]!
   variables: [Variable!]!
   authz: [Authz!]!
-  manifest: String! @goField(forceResolver: true)
-  team: Team! @goField(forceResolver: true)
+  manifest: String!
+  team: Team!
   appState: AppState!
-  vulnerabilities: Vulnerability @goField(forceResolver: true)
+  vulnerabilities: Vulnerability
 }
 
 type AppState {

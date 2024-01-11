@@ -6,7 +6,7 @@ extend type Mutation {
   """
   enableReconciler(
     "The name of the reconciler to enable."
-    name: ReconcilerName!
+    name: String!
   ): Reconciler! @admin
 
   """
@@ -16,13 +16,13 @@ extend type Mutation {
   """
   disableReconciler(
     "The name of the reconciler to disable."
-    name: ReconcilerName!
+    name: String!
   ): Reconciler! @admin
 
   "Configure a reconciler."
   configureReconciler(
     "The name of the reconciler to configure."
-    name: ReconcilerName!
+    name: String!
 
     "List of reconciler config inputs."
     config: [ReconcilerConfigInput!]!
@@ -31,7 +31,7 @@ extend type Mutation {
   "Reset all reconciler configuration options to their initial state and disable the reconciler if it is currently enabled."
   resetReconciler(
     "The name of the reconciler to reset."
-    name: ReconcilerName!
+    name: String!
   ): Reconciler! @admin
 
   "Add opt-out of a reconciler for a team member. Only reconcilers that uses team memberships can be opted out from."
@@ -43,7 +43,7 @@ extend type Mutation {
     userId: ID!
 
     "The name of the reconciler to opt the team member out of."
-    reconciler: ReconcilerName!
+    reconciler: String!
   ): TeamMember!
 
   "Remove opt-out of a reconciler for a team member."
@@ -55,7 +55,7 @@ extend type Mutation {
     userId: ID!
 
     "The name of the reconciler to clear the opt-out from."
-    reconciler: ReconcilerName!
+    reconciler: String!
   ): TeamMember!
 }
 
@@ -67,7 +67,7 @@ extend type Query {
 "Reconciler type."
 type Reconciler {
   "The name of the reconciler."
-  name: ReconcilerName!
+  name: String!
 
   "The human-friendly name of the reconciler."
   displayName: String!
@@ -97,7 +97,7 @@ type Reconciler {
 "Reconciler configuration type."
 type ReconcilerConfig {
   "Configuration key."
-  key: ReconcilerConfigKey!
+  key: String!
 
   "The human-friendly name of the configuration key."
   displayName: String!
@@ -118,7 +118,7 @@ type ReconcilerConfig {
 "Reconciler configuration input."
 input ReconcilerConfigInput {
   "Configuration key."
-  key: ReconcilerConfigKey!
+  key: String!
 
   "Configuration value."
   value: String!

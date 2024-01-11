@@ -7,7 +7,7 @@ import (
 
 func toGraphReconciler(m *database.Reconciler) *model.Reconciler {
 	return &model.Reconciler{
-		Name:        m.Name,
+		Name:        string(m.Name),
 		DisplayName: m.DisplayName,
 		Description: m.Description,
 		Enabled:     m.Enabled,

@@ -11,7 +11,7 @@ func toGraphRoles(roles []*authz.Role) []*model.Role {
 	ret := make([]*model.Role, 0, len(roles))
 	for _, role := range roles {
 		a := &model.Role{
-			Name:           role.RoleName,
+			Name:           string(role.RoleName),
 			TargetTeamSlug: role.TargetTeamSlug,
 			IsGlobal:       role.IsGlobal(),
 		}
