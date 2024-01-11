@@ -215,11 +215,6 @@ func (r *userResolver) IsAdmin(ctx context.Context, obj *model.User) (*bool, err
 	return ptr.To(false), nil
 }
 
-// CorrelationID is the resolver for the correlationID field.
-func (r *userSyncRunResolver) CorrelationID(ctx context.Context, obj *usersync.Run) (*scalar.Ident, error) {
-	panic(fmt.Errorf("not implemented: CorrelationID - correlationID"))
-}
-
 // AuditLogs is the resolver for the auditLogs field.
 func (r *userSyncRunResolver) AuditLogs(ctx context.Context, obj *usersync.Run, limit *int, offset *int) (*model.AuditLogList, error) {
 	p := model.NewPagination(offset, limit)
@@ -267,3 +262,13 @@ type (
 	userResolver        struct{ *Resolver }
 	userSyncRunResolver struct{ *Resolver }
 )
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *userSyncRunResolver) CorrelationID(ctx context.Context, obj *usersync.Run) (*scalar.Ident, error) {
+	panic(fmt.Errorf("not implemented: CorrelationID - correlationID"))
+}

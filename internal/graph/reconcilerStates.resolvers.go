@@ -72,9 +72,6 @@ func (r *mutationResolver) SetGoogleWorkspaceGroupEmail(ctx context.Context, tea
 		return nil, fmt.Errorf("create log correlation ID: %w", err)
 	}
 
-	type GoogleWorkspaceState struct {
-		GroupEmail *string `json:"groupEmail"`
-	}
 	err = r.database.SetReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGoogleWorkspaceAdmin, teamSlug, GoogleWorkspaceState{
 		GroupEmail: &googleWorkspaceGroupEmail,
 	})
@@ -107,10 +104,6 @@ func (r *mutationResolver) SetAzureADGroupID(ctx context.Context, teamSlug slug.
 	correlationID, err := uuid.NewUUID()
 	if err != nil {
 		return nil, fmt.Errorf("create log correlation ID: %w", err)
-	}
-
-	type AzureState struct {
-		GroupID uuid.UUID `json:"groupId"`
 	}
 
 	uuid, err := azureADGroupID.AsUUID()
@@ -160,12 +153,6 @@ func (r *mutationResolver) SetGcpProjectID(ctx context.Context, teamSlug slug.Sl
 		return nil, fmt.Errorf("create log correlation ID: %w", err)
 	}
 
-	type GoogleGcpEnvironmentProject struct {
-		ProjectID string `json:"projectId"` // Unique of the project, for instance `my-project-123`
-	}
-	type GoogleGcpProjectState struct {
-		Projects map[string]GoogleGcpEnvironmentProject `json:"projects"` // environment name is used as key
-	}
 	state := &GoogleGcpProjectState{
 		Projects: make(map[string]GoogleGcpEnvironmentProject),
 	}
@@ -218,9 +205,6 @@ func (r *mutationResolver) SetNaisNamespace(ctx context.Context, teamSlug slug.S
 		return nil, fmt.Errorf("create log correlation ID: %w", err)
 	}
 
-	type NaisNamespaceState struct {
-		Namespaces map[string]slug.Slug `json:"namespaces"` // Key is the environment for the team namespace
-	}
 	state := &NaisNamespaceState{
 		Namespaces: make(map[string]slug.Slug),
 	}
