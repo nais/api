@@ -59,15 +59,3 @@ status:
   synchronizationHash: 7fc5fa83f2ae4eaa
   synchronizationState: RolloutComplete
   synchronizationTime: 1704981603962494011
-
----
-apiVersion: kafka.nais.io/v1
-kind: Topic
-metadata:
-  name: aura
-spec:
-  acl:
-    - access: read
-      team: aura
-      application: aura
-  pool: aiven

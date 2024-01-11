@@ -46,7 +46,7 @@ func Clients(dir fs.FS) func(cluster string) (kubernetes.Interface, dynamic.Inte
 			return nil
 		}
 
-		resources[cluster] = parseResources(dir, path)
+		resources[cluster] = append(resources[cluster], parseResources(dir, path)...)
 
 		return nil
 	})
@@ -106,16 +106,15 @@ func parseResources(dir fs.FS, path string) []runtime.Object {
 			panic(err)
 		}
 
-		if strings.Contains(path, "/teams/") {
-			team := strings.ReplaceAll(filepath.Base(path), filepath.Ext(path), "")
-			r.SetNamespace(team)
-			lbls := r.GetLabels()
-			if lbls == nil {
-				lbls = make(map[string]string)
-			}
-			lbls["team"] = team
-			r.SetLabels(lbls)
+		ns := strings.Trim(filepath.Base(filepath.Dir(path)), string(filepath.Separator))
+
+		r.SetNamespace(ns)
+		lbls := r.GetLabels()
+		if lbls == nil {
+			lbls = make(map[string]string)
 		}
+		lbls["team"] = ns
+		r.SetLabels(lbls)
 		ret = append(ret, r)
 	}
 
