@@ -11,8 +11,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auditlogger"
-	db "github.com/nais/api/internal/database"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
@@ -43,16 +43,16 @@ type Resolver struct {
 
 	// TODO(thokra) Add this to NewResolver
 	teamSyncHandler interface {
-		ScheduleAllTeams(ctx context.Context, correlationID uuid.UUID) ([]*db.Team, error)
+		ScheduleAllTeams(ctx context.Context, correlationID uuid.UUID) ([]*database.Team, error)
 		InitReconcilers(ctx context.Context) error
-		UseReconciler(reconciler db.Reconciler) error
-		RemoveReconciler(reconcilerName sqlc.ReconcilerName)
+		UseReconciler(reconciler database.Reconciler) error
+		RemoveReconciler(reconcilerName gensql.ReconcilerName)
 		SyncTeams(ctx context.Context)
 		UpdateMetrics(ctx context.Context)
 		DeleteTeam(teamSlug slug.Slug, correlationID uuid.UUID) error
 		Close()
 	}
-	database        db.Database
+	database        database.Database
 	tenantDomain    string
 	userSync        chan<- uuid.UUID
 	systemName      logger.ComponentName
@@ -62,16 +62,16 @@ type Resolver struct {
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
-func NewResolver(hookdClient hookd.Client, k8sClient *k8s.Client, dependencyTrackClient *dependencytrack.Client, resourceUsageClient resourceusage.Client, querier db.Database, clusters []string, log logrus.FieldLogger) *Resolver {
+func NewResolver(hookdClient hookd.Client, k8sClient *k8s.Client, dependencyTrackClient *dependencytrack.Client, resourceUsageClient resourceusage.Client, db database.Database, clusters []string, log logrus.FieldLogger) *Resolver {
 	return &Resolver{
 		hookdClient:           hookdClient,
 		k8sClient:             k8sClient,
 		dependencyTrackClient: dependencyTrackClient,
 		resourceUsageClient:   resourceUsageClient,
 		// TODO: Fix
-		// searcher:              search.New(querier, k8sClient),
+		searcher: search.New(db, k8sClient),
 		log:      log,
-		database: querier,
+		database: db,
 		clusters: clusters,
 	}
 }
@@ -128,7 +128,7 @@ func (r *Resolver) reconcileTeam(_ context.Context, correlationID uuid.UUID, slu
 	return nil
 }
 
-func (r *Resolver) getTeamBySlug(ctx context.Context, slug slug.Slug) (*db.Team, error) {
+func (r *Resolver) getTeamBySlug(ctx context.Context, slug slug.Slug) (*database.Team, error) {
 	team, err := r.database.GetTeamBySlug(ctx, slug)
 	if err != nil {
 		return nil, apierror.ErrTeamNotExist
@@ -137,12 +137,12 @@ func (r *Resolver) getTeamBySlug(ctx context.Context, slug slug.Slug) (*db.Team,
 	return team, nil
 }
 
-func sqlcRoleFromTeamRole(teamRole model.TeamRole) (sqlc.RoleName, error) {
+func sqlcRoleFromTeamRole(teamRole model.TeamRole) (gensql.RoleName, error) {
 	switch teamRole {
 	case model.TeamRoleMember:
-		return sqlc.RoleNameTeammember, nil
+		return gensql.RoleNameTeammember, nil
 	case model.TeamRoleOwner:
-		return sqlc.RoleNameTeamowner, nil
+		return gensql.RoleNameTeamowner, nil
 	}
 
 	return "", fmt.Errorf("invalid team role: %v", teamRole)

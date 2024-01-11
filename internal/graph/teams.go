@@ -1,11 +1,9 @@
 package graph
 
 import (
-	"context"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
-	"github.com/nais/api/internal/slug"
 )
 
 func toGraphTeam(m *database.Team) *model.Team {
@@ -39,10 +37,6 @@ func toGraphTeamDeleteKey(m *database.TeamDeleteKey) *model.TeamDeleteKey {
 	}
 }
 
-func (r *Resolver) hasAccess(ctx context.Context, teamName slug.Slug) bool {
-	// Replace with RBAC
-	return false
-}
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.

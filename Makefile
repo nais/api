@@ -36,15 +36,15 @@ local-nav:
 	DEPENDENCYTRACK_PASSWORD="todo" \
 	BIGQUERY_PROJECTID="nais-io" \
 	HOOKD_ENDPOINT="http://localhost:8282" \
-	HOOKD_PSK="$(shell kubectl get secret api --context nav-management-v2 -n nais-system -ojsonpath='{.data.HOOKD_PSK}' | base64 --decode)" \
+	HOOKD_PSK="$(shell kubectl get secret console-backend --context nav-management-v2 -n nais-system -ojsonpath='{.data.HOOKD_PSK}' | base64 --decode)" \
 	KUBERNETES_CLUSTERS="dev-gcp,prod-gcp" \
-	KUBERNETES_CLUSTERS_STATIC="dev-fss|apiserver.dev-fss.nais.io|$(shell kubectl get secret --context nav-dev-fss --namespace nais-system api -ojsonpath='{ .data.token }' | base64 --decode)" \
+	KUBERNETES_CLUSTERS_STATIC="dev-fss|apiserver.dev-fss.nais.io|$(shell kubectl get secret --context nav-dev-fss --namespace nais-system console-backend -ojsonpath='{ .data.token }' | base64 --decode)" \
 	LISTEN_ADDRESS="127.0.0.1:3000" \
 	LOG_FORMAT="text" \
 	LOG_LEVEL="debug" \
 	RUN_AS_USER="johnny.horvi@nav.no" \
 	API_ENDPOINT="http://localhost:8181/query" \
-	API_TOKEN="$(shell kubectl get secret api --context nav-management-v2 -n nais-system -ojsonpath='{.data.API_TOKEN}' | base64 --decode)" \
+	API_TOKEN="$(shell kubectl get secret console-backend --context nav-management-v2 -n nais-system -ojsonpath='{.data.API_TOKEN}' | base64 --decode)" \
 	TENANT="nav" \
 	STATIC_SERVICE_ACCOUNTS='[{"name": "nais-admin","apiKey": "somekey","roles": [{"name": "Admin"}]}]' \
 	go run ./cmd/api/main.go

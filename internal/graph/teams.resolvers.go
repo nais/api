@@ -837,8 +837,11 @@ func (r *mutationResolver) DeauthorizeRepository(ctx context.Context, authorizat
 
 // ChangeDeployKey is the resolver for the changeDeployKey field.
 func (r *mutationResolver) ChangeDeployKey(ctx context.Context, team slug.Slug) (*model.DeploymentKey, error) {
-	if !r.hasAccess(ctx, team) {
-		return nil, fmt.Errorf("access denied")
+	actor := authz.ActorFromContext(ctx)
+	if _, err := r.database.GetTeamMember(ctx, team, actor.User.GetID()); errors.Is(err, pgx.ErrNoRows) {
+		return nil, apierror.ErrUserIsNotTeamMember
+	} else if err != nil {
+		return nil, err
 	}
 
 	deployKey, err := r.hookdClient.ChangeDeployKey(ctx, team.String())
@@ -1026,8 +1029,11 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 
 // DeployKey is the resolver for the deployKey field.
 func (r *teamResolver) DeployKey(ctx context.Context, obj *model.Team) (*model.DeploymentKey, error) {
-	if !r.hasAccess(ctx, obj.Slug) {
-		return nil, fmt.Errorf("access denied")
+	actor := authz.ActorFromContext(ctx)
+	if _, err := r.database.GetTeamMember(ctx, obj.Slug, actor.User.GetID()); errors.Is(err, pgx.ErrNoRows) {
+		return nil, apierror.ErrUserIsNotTeamMember
+	} else if err != nil {
+		return nil, err
 	}
 
 	key, err := r.hookdClient.DeployKey(ctx, obj.Slug.String())
