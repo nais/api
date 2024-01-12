@@ -50,15 +50,13 @@ local-nav:
 	go run ./cmd/api/main.go
 
 local:
-	HOOKD_ENDPOINT="http://hookd.local.nais.io" \
 	KUBERNETES_CLUSTERS="superprod,dev" \
 	LISTEN_ADDRESS="127.0.0.1:3000" \
 	LOG_FORMAT="text" \
 	LOG_LEVEL="debug" \
 	RUN_AS_USER="admin.usersen@example.com" \
-	API_ENDPOINT="http://teams.local.nais.io:3000/query" \
 	STATIC_SERVICE_ACCOUNTS='[{"name": "nais-admin","apiKey": "somekey","roles": [{"name": "Admin"}]}]' \
-	WITH_FAKE_KUBERNETES="true" \
+	WITH_FAKE_CLIENTS="true" \
 	go run ./cmd/api/main.go
 
 test:

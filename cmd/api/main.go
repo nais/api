@@ -38,6 +38,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
+	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/usersync"
 	"github.com/prometheus/client_golang/api"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
@@ -145,7 +146,7 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 	}
 
 	k8sOpts := []k8s.Opt{}
-	if cfg.WithFakeKubernetes {
+	if cfg.WithFakeClients {
 		k8sOpts = append(k8sOpts, k8s.WithClientsCreator(fake.Clients(os.DirFS("./data/k8s"))))
 	}
 
@@ -172,7 +173,14 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 
 	auditLogger := auditlogger.New(db, logger.ComponentNameGraphqlApi, log)
 	userSync := make(chan uuid.UUID, 1)
-	hookdClient := hookd.New(cfg.Hookd, errorsCounter, log.WithField("client", "hookd"))
+
+	var hookdClient graph.HookdClient
+	if cfg.WithFakeClients {
+		hookdClient = fakehookd.New()
+	} else {
+		hookdClient = hookd.New(cfg.Hookd, errorsCounter, log.WithField("client", "hookd"))
+	}
+
 	dependencyTrackClient := dependencytrack.New(cfg.DependencyTrack, log.WithField("client", "dependencytrack"))
 	resourceUsageClient := resourceusage.NewClient(cfg.K8S.AllClusterNames, db, log)
 	resolver := graph.NewResolver(

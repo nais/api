@@ -27,6 +27,10 @@ import (
 	"go.opentelemetry.io/otel/metric"
 )
 
+// This file will not be regenerated automatically.
+//
+// It serves as dependency injection for your app, add any dependencies you require here.
+
 type ClusterInfo struct {
 	GCP bool
 }
@@ -48,12 +52,14 @@ func (c ClusterList) GCPClusters() []string {
 	return ret
 }
 
-// This file will not be regenerated automatically.
-//
-// It serves as dependency injection for your app, add any dependencies you require here.
+type HookdClient interface {
+	Deployments(ctx context.Context, opts ...hookd.RequestOption) ([]hookd.Deploy, error)
+	ChangeDeployKey(ctx context.Context, team string) (*hookd.DeployKey, error)
+	DeployKey(ctx context.Context, team string) (*hookd.DeployKey, error)
+}
 
 type Resolver struct {
-	hookdClient           hookd.Client
+	hookdClient           HookdClient
 	k8sClient             *k8s.Client
 	dependencyTrackClient *dependencytrack.Client
 	resourceUsageClient   resourceusage.Client
@@ -81,7 +87,7 @@ type Resolver struct {
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
 func NewResolver(
-	hookdClient hookd.Client,
+	hookdClient HookdClient,
 	k8sClient *k8s.Client,
 	dependencyTrackClient *dependencytrack.Client,
 	resourceUsageClient resourceusage.Client,
