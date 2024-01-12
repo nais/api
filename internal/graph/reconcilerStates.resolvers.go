@@ -135,7 +135,7 @@ func (r *mutationResolver) SetAzureADGroupID(ctx context.Context, teamSlug slug.
 
 // SetGcpProjectID is the resolver for the setGcpProjectId field.
 func (r *mutationResolver) SetGcpProjectID(ctx context.Context, teamSlug slug.Slug, gcpEnvironment string, gcpProjectID string) (*model.Team, error) {
-	if len(r.gcpEnvironments) == 0 {
+	if len(r.clusters.GCPClusters()) == 0 {
 		return nil, apierror.Errorf("GCP cluster info has not been configured.")
 	}
 
@@ -144,8 +144,8 @@ func (r *mutationResolver) SetGcpProjectID(ctx context.Context, teamSlug slug.Sl
 		return nil, apierror.ErrTeamNotExist
 	}
 
-	if !slices.Contains(r.gcpEnvironments, gcpEnvironment) {
-		return nil, apierror.Errorf("Unknown GCP environment %q. Supported environments are: %s", gcpEnvironment, strings.Join(r.gcpEnvironments, ", "))
+	if !slices.Contains(r.clusters.GCPClusters(), gcpEnvironment) {
+		return nil, apierror.Errorf("Unknown GCP environment %q. Supported environments are: %s", gcpEnvironment, strings.Join(r.clusters.GCPClusters(), ", "))
 	}
 
 	correlationID, err := uuid.NewUUID()
@@ -187,7 +187,7 @@ func (r *mutationResolver) SetGcpProjectID(ctx context.Context, teamSlug slug.Sl
 
 // SetNaisNamespace is the resolver for the setNaisNamespace field.
 func (r *mutationResolver) SetNaisNamespace(ctx context.Context, teamSlug slug.Slug, gcpEnvironment string, naisNamespace slug.Slug) (*model.Team, error) {
-	if len(r.gcpEnvironments) == 0 {
+	if len(r.clusters.GCPClusters()) == 0 {
 		return nil, apierror.Errorf("GCP cluster info has not been configured.")
 	}
 
@@ -196,8 +196,8 @@ func (r *mutationResolver) SetNaisNamespace(ctx context.Context, teamSlug slug.S
 		return nil, apierror.ErrTeamNotExist
 	}
 
-	if !slices.Contains(r.gcpEnvironments, gcpEnvironment) {
-		return nil, apierror.Errorf("Unknown GCP environment %q. Supported environments are: %s", gcpEnvironment, strings.Join(r.gcpEnvironments, ", "))
+	if !slices.Contains(r.clusters.GCPClusters(), gcpEnvironment) {
+		return nil, apierror.Errorf("Unknown GCP environment %q. Supported environments are: %s", gcpEnvironment, strings.Join(r.clusters.GCPClusters(), ", "))
 	}
 
 	correlationID, err := uuid.NewUUID()

@@ -95,7 +95,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 	}
 
 	input = input.Sanitize()
-	err = input.Validate(r.gcpEnvironments)
+	err = input.Validate(r.clusters.GCPClusters())
 	if err != nil {
 		return nil, err
 	}
@@ -1132,13 +1132,13 @@ func (r *teamResolver) ReconcilerState(ctx context.Context, obj *model.Team) (*m
 
 // SlackAlertsChannels is the resolver for the slackAlertsChannels field.
 func (r *teamResolver) SlackAlertsChannels(ctx context.Context, obj *model.Team) ([]*model.SlackAlertsChannel, error) {
-	channels := make([]*model.SlackAlertsChannel, 0, len(r.gcpEnvironments))
+	channels := make([]*model.SlackAlertsChannel, 0, len(r.clusters.GCPClusters()))
 	existingChannels, err := r.database.GetSlackAlertsChannels(ctx, obj.Slug)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, environment := range r.gcpEnvironments {
+	for _, environment := range r.clusters.GCPClusters() {
 		var channel string
 		if value, exists := existingChannels[environment]; exists {
 			channel = value

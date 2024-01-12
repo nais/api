@@ -17,7 +17,6 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/k8s"
-	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/slug"
@@ -27,6 +26,27 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/metric"
 )
+
+type ClusterInfo struct {
+	GCP bool
+}
+
+type ClusterList map[string]ClusterInfo
+
+func (c ClusterList) GCPClusters() []string {
+	if c == nil {
+		return nil
+	}
+
+	var ret []string
+	for cluster, info := range c {
+		if info.GCP {
+			ret = append(ret, cluster)
+		}
+	}
+
+	return ret
+}
 
 // This file will not be regenerated automatically.
 //
@@ -39,7 +59,11 @@ type Resolver struct {
 	resourceUsageClient   resourceusage.Client
 	searcher              *search.Searcher
 	log                   logrus.FieldLogger
-	clusters              []string
+	clusters              ClusterList
+	database              database.Database
+	tenantDomain          string
+	userSync              chan<- uuid.UUID
+	auditLogger           auditlogger.AuditLogger
 
 	// TODO(thokra) Add this to NewResolver
 	teamSyncHandler interface {
@@ -52,22 +76,30 @@ type Resolver struct {
 		DeleteTeam(teamSlug slug.Slug, correlationID uuid.UUID) error
 		Close()
 	}
-	database        database.Database
-	tenantDomain    string
-	userSync        chan<- uuid.UUID
-	systemName      logger.ComponentName
-	auditLogger     auditlogger.AuditLogger
-	gcpEnvironments []string
-	userSyncRuns    *usersync.RunsHandler
+	userSyncRuns *usersync.RunsHandler
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
-func NewResolver(hookdClient hookd.Client, k8sClient *k8s.Client, dependencyTrackClient *dependencytrack.Client, resourceUsageClient resourceusage.Client, db database.Database, clusters []string, log logrus.FieldLogger) *Resolver {
+func NewResolver(
+	hookdClient hookd.Client,
+	k8sClient *k8s.Client,
+	dependencyTrackClient *dependencytrack.Client,
+	resourceUsageClient resourceusage.Client,
+	db database.Database,
+	tenantDomain string,
+	userSync chan<- uuid.UUID,
+	auditLogger auditlogger.AuditLogger,
+	clusters ClusterList,
+	log logrus.FieldLogger,
+) *Resolver {
 	return &Resolver{
 		hookdClient:           hookdClient,
 		k8sClient:             k8sClient,
 		dependencyTrackClient: dependencyTrackClient,
 		resourceUsageClient:   resourceUsageClient,
+		tenantDomain:          tenantDomain,
+		userSync:              userSync,
+		auditLogger:           auditLogger,
 		// TODO: Fix
 		searcher: search.New(db, k8sClient),
 		log:      log,

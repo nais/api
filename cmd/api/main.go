@@ -14,9 +14,11 @@ import (
 	"cloud.google.com/go/bigquery"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
+	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auth"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
@@ -156,10 +158,35 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 		return fmt.Errorf("unable to create k8s client: %w", err)
 	}
 
+	clusters := make(graph.ClusterList)
+	for _, cluster := range cfg.K8S.Clusters {
+		clusters[cluster] = graph.ClusterInfo{
+			GCP: true,
+		}
+	}
+	for _, staticCluster := range cfg.K8S.StaticClusters {
+		clusters[staticCluster.Name] = graph.ClusterInfo{}
+	}
+
+	spew.Dump(clusters)
+
+	auditLogger := auditlogger.New(db, logger.ComponentNameGraphqlApi, log)
+	userSync := make(chan uuid.UUID, 1)
 	hookdClient := hookd.New(cfg.Hookd, errorsCounter, log.WithField("client", "hookd"))
 	dependencyTrackClient := dependencytrack.New(cfg.DependencyTrack, log.WithField("client", "dependencytrack"))
 	resourceUsageClient := resourceusage.NewClient(cfg.K8S.AllClusterNames, db, log)
-	resolver := graph.NewResolver(hookdClient, k8sClient, dependencyTrackClient, resourceUsageClient, db, cfg.K8S.Clusters, log)
+	resolver := graph.NewResolver(
+		hookdClient,
+		k8sClient,
+		dependencyTrackClient,
+		resourceUsageClient,
+		db,
+		cfg.TenantDomain,
+		userSync,
+		auditLogger,
+		clusters,
+		log,
+	)
 	graphHandler, err := graph.NewHandler(gengql.Config{
 		Resolvers: resolver,
 		Directives: gengql.DirectiveRoot{
@@ -175,12 +202,14 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 	go func() {
 		if !cfg.UserSyncEnabled {
 			log.Infof("user sync is disabled")
+			for range userSync {
+				// drain channel
+			}
 			return
 		}
 
 		defer cancel()
 
-		userSync := make(chan uuid.UUID, 1)
 		userSyncRuns := usersync.NewRunsHandler(cfg.UserSync.RunsToStore)
 		userSyncer, err := usersync.NewFromConfig(cfg.GoogleManagementProjectID, cfg.TenantDomain, cfg.UserSync.AdminGroupPrefix, db, log, userSyncRuns)
 		if err != nil {

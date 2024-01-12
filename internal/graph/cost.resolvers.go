@@ -7,7 +7,9 @@ package graph
 import (
 	"context"
 	"fmt"
+	"slices"
 	"sort"
+	"strings"
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
@@ -163,7 +165,9 @@ func (r *queryResolver) EnvCost(ctx context.Context, filter model.EnvCostFilter)
 	}
 
 	ret := make([]*model.EnvCost, len(r.clusters))
-	for idx, cluster := range r.clusters {
+	idx := -1
+	for cluster := range r.clusters {
+		idx++
 		appsCost := make([]*model.AppCost, 0)
 		rows, err := r.database.DailyEnvCostForTeam(ctx, fromDate, toDate, &cluster, filter.Team)
 		if err != nil {
@@ -194,6 +198,10 @@ func (r *queryResolver) EnvCost(ctx context.Context, filter model.EnvCostFilter)
 			Sum:  sum,
 		}
 	}
+
+	slices.SortFunc(ret, func(a, b *model.EnvCost) int {
+		return strings.Compare(a.Env, b.Env)
+	})
 
 	return ret, nil
 }
