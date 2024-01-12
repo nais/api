@@ -14,7 +14,6 @@ import (
 	"cloud.google.com/go/bigquery"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
@@ -37,6 +36,7 @@ import (
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
+	faketrack "github.com/nais/api/internal/thirdparty/dependencytrack/fake"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/usersync"
@@ -103,9 +103,14 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
+	// TODO: Replace with signal.NotifyContext
 	signals := make(chan os.Signal, 1)
 	defer close(signals)
 	signal.Notify(signals, syscall.SIGTERM, syscall.SIGINT)
+
+	if cfg.WithFakeClients {
+		log.Warn("using fake clients")
+	}
 
 	meter, err := getMetricMeter()
 	if err != nil {
@@ -169,19 +174,19 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 		clusters[staticCluster.Name] = graph.ClusterInfo{}
 	}
 
-	spew.Dump(clusters)
-
 	auditLogger := auditlogger.New(db, logger.ComponentNameGraphqlApi, log)
 	userSync := make(chan uuid.UUID, 1)
 
 	var hookdClient graph.HookdClient
+	var dependencyTrackClient graph.DependencytrackClient
 	if cfg.WithFakeClients {
 		hookdClient = fakehookd.New()
+		dependencyTrackClient = faketrack.New()
 	} else {
 		hookdClient = hookd.New(cfg.Hookd, errorsCounter, log.WithField("client", "hookd"))
+		dependencyTrackClient = dependencytrack.New(cfg.DependencyTrack, log.WithField("client", "dependencytrack"))
 	}
 
-	dependencyTrackClient := dependencytrack.New(cfg.DependencyTrack, log.WithField("client", "dependencytrack"))
 	resourceUsageClient := resourceusage.NewClient(cfg.K8S.AllClusterNames, db, log)
 	resolver := graph.NewResolver(
 		hookdClient,

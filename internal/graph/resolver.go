@@ -58,10 +58,15 @@ type HookdClient interface {
 	DeployKey(ctx context.Context, team string) (*hookd.DeployKey, error)
 }
 
+type DependencytrackClient interface {
+	VulnerabilitySummary(ctx context.Context, app *dependencytrack.AppInstance) (*model.Vulnerability, error)
+	GetVulnerabilities(ctx context.Context, apps []*dependencytrack.AppInstance) ([]*model.Vulnerability, error)
+}
+
 type Resolver struct {
 	hookdClient           HookdClient
 	k8sClient             *k8s.Client
-	dependencyTrackClient *dependencytrack.Client
+	dependencyTrackClient DependencytrackClient
 	resourceUsageClient   resourceusage.Client
 	searcher              *search.Searcher
 	log                   logrus.FieldLogger
@@ -89,7 +94,7 @@ type Resolver struct {
 func NewResolver(
 	hookdClient HookdClient,
 	k8sClient *k8s.Client,
-	dependencyTrackClient *dependencytrack.Client,
+	dependencyTrackClient DependencytrackClient,
 	resourceUsageClient resourceusage.Client,
 	db database.Database,
 	tenantDomain string,
