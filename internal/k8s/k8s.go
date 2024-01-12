@@ -125,16 +125,21 @@ func New(tenant string, cfg config.K8S, errors metric.Int64Counter, teamChecker 
 	}
 
 	return &Client{
-		informers:  infs,
-		log:        log,
-		errors:     errors,
-		clientSets: clientSets,
+		informers:   infs,
+		log:         log,
+		errors:      errors,
+		clientSets:  clientSets,
+		teamChecker: teamChecker,
 	}, nil
 }
 
 func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilter) []*search.Result {
 	if !isFilterOrNoFilter(filter) {
 		return nil
+	}
+
+	if c.teamChecker == nil {
+		panic("team checker not set")
 	}
 
 	ret := []*search.Result{}

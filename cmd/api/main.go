@@ -149,7 +149,7 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 		k8sOpts = append(k8sOpts, k8s.WithClientsCreator(fake.Clients(os.DirFS("./data/k8s"))))
 	}
 
-	k8sClient, err := k8s.New(cfg.Tenant, cfg.K8S, errorsCounter, &teamChecker{db}, log.WithField("client", "k8s"), k8sOpts...)
+	k8sClient, err := k8s.New(cfg.Tenant, cfg.K8S, errorsCounter, &teamChecker{db: db}, log.WithField("client", "k8s"), k8sOpts...)
 	if err != nil {
 		var authErr *google.AuthenticationError
 		if errors.As(err, &authErr) {
@@ -540,7 +540,7 @@ type teamChecker struct {
 	db database.Database
 }
 
-func (t teamChecker) TeamExists(ctx context.Context, team slug.Slug) bool {
+func (t *teamChecker) TeamExists(ctx context.Context, team slug.Slug) bool {
 	_, err := t.db.GetTeamBySlug(ctx, team)
 	return err == nil
 }

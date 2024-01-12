@@ -1,5 +1,8 @@
 -- +goose Up
 
+-- extensions
+CREATE EXTENSION fuzzystrmatch;
+
 -- types
 
 CREATE DOMAIN slug AS
