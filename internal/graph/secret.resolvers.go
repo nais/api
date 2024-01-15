@@ -30,8 +30,8 @@ func (r *mutationResolver) DeleteSecret(ctx context.Context, name string) (*mode
 }
 
 // Secret is the resolver for the secret field.
-func (r *queryResolver) Secret(ctx context.Context, name string, team slug.Slug, env string) (*model.Secret, error) {
-	panic(fmt.Errorf("not implemented: Secret - secret"))
+func (r *queryResolver) Secret(ctx context.Context, name string, team slug.Slug, env string) ([]*model.Secret, error) {
+	return r.k8sClient.Secrets(ctx, name, team.String(), env)
 }
 
 // ID is the resolver for the id field.

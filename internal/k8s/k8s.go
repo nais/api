@@ -68,11 +68,12 @@ type Client struct {
 
 type Informers struct {
 	AppInformer     informers.GenericInformer
-	PodInformer     corev1inf.PodInformer
-	NaisjobInformer informers.GenericInformer
-	JobInformer     batchv1inf.JobInformer
-	TopicInformer   informers.GenericInformer
 	EventInformer   corev1inf.EventInformer
+	JobInformer     batchv1inf.JobInformer
+	NaisjobInformer informers.GenericInformer
+	PodInformer     corev1inf.PodInformer
+	SecretInformer  corev1inf.SecretInformer
+	TopicInformer   informers.GenericInformer
 }
 
 type settings struct {
@@ -133,6 +134,7 @@ func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLog
 		infs[cluster].AppInformer = dinf.ForResource(naisv1alpha1.GroupVersion.WithResource("applications"))
 		infs[cluster].NaisjobInformer = dinf.ForResource(naisv1.GroupVersion.WithResource("naisjobs"))
 		infs[cluster].JobInformer = inf.Batch().V1().Jobs()
+		infs[cluster].SecretInformer = inf.Core().V1().Secrets()
 		clientSets[cluster] = clientSet
 
 		if clientSet, ok := clientSet.(*kubernetes.Clientset); ok {
