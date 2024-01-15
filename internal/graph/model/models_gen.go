@@ -236,15 +236,6 @@ type DatabaseUser struct {
 	Name string `json:"name"`
 }
 
-type DeployInfo struct {
-	Deployer  string             `json:"deployer"`
-	Timestamp *time.Time         `json:"timestamp,omitempty"`
-	CommitSha string             `json:"commitSha"`
-	URL       string             `json:"url"`
-	History   DeploymentResponse `json:"history"`
-	GQLVars   DeployInfoGQLVars  `json:"-"`
-}
-
 type Deployment struct {
 	ID         scalar.Ident          `json:"id"`
 	Team       Team                  `json:"team"`
@@ -475,17 +466,6 @@ type Insights struct {
 	RecordClientAddress   bool `json:"recordClientAddress"`
 }
 
-type Instance struct {
-	ID       scalar.Ident    `json:"id"`
-	Name     string          `json:"name"`
-	State    InstanceState   `json:"state"`
-	Message  string          `json:"message"`
-	Image    string          `json:"image"`
-	Restarts int             `json:"restarts"`
-	Created  time.Time       `json:"created"`
-	GQLVars  InstanceGQLVars `json:"-"`
-}
-
 type InvalidNaisYamlError struct {
 	Revision string     `json:"revision"`
 	Level    ErrorLevel `json:"level"`
@@ -573,29 +553,6 @@ type MonthlyCostFilter struct {
 
 type Mutation struct {
 }
-
-type NaisJob struct {
-	ID           scalar.Ident   `json:"id"`
-	AccessPolicy AccessPolicy   `json:"accessPolicy"`
-	DeployInfo   DeployInfo     `json:"deployInfo"`
-	Env          Env            `json:"env"`
-	Image        string         `json:"image"`
-	Runs         []*Run         `json:"runs"`
-	Manifest     string         `json:"manifest"`
-	Name         string         `json:"name"`
-	Resources    Resources      `json:"resources"`
-	Schedule     string         `json:"schedule"`
-	Team         Team           `json:"team"`
-	Storage      []Storage      `json:"storage"`
-	Authz        []Authz        `json:"authz"`
-	Completions  int            `json:"completions"`
-	Parallelism  int            `json:"parallelism"`
-	Retries      int            `json:"retries"`
-	JobState     JobState       `json:"jobState"`
-	GQLVars      NaisJobGQLVars `json:"-"`
-}
-
-func (NaisJob) IsSearchNode() {}
 
 type NaisJobList struct {
 	Nodes    []*NaisJob `json:"nodes"`
@@ -831,19 +788,6 @@ type Rule struct {
 	IsJob             bool   `json:"isJob"`
 }
 
-type Run struct {
-	ID             scalar.Ident `json:"id"`
-	Name           string       `json:"name"`
-	PodNames       []string     `json:"podNames"`
-	StartTime      *time.Time   `json:"startTime,omitempty"`
-	CompletionTime *time.Time   `json:"completionTime,omitempty"`
-	Duration       string       `json:"duration"`
-	Image          string       `json:"image"`
-	Message        string       `json:"message"`
-	Failed         bool         `json:"failed"`
-	GQLVars        RunGQLVars   `json:"-"`
-}
-
 type SearchFilter struct {
 	Type *SearchType `json:"type,omitempty"`
 }
@@ -852,18 +796,6 @@ type SearchList struct {
 	PageInfo PageInfo     `json:"pageInfo"`
 	Nodes    []SearchNode `json:"nodes"`
 }
-
-// Service account type.
-type ServiceAccount struct {
-	// Unique ID of the service account.
-	ID scalar.Ident `json:"id"`
-	// The name of the service account.
-	Name string `json:"name"`
-	// Roles attached to the service account.
-	Roles []*Role `json:"roles"`
-}
-
-func (ServiceAccount) IsAuthenticatedUser() {}
 
 type Sidecar struct {
 	AutoLogin            bool      `json:"autoLogin"`

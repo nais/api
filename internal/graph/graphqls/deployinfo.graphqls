@@ -4,7 +4,6 @@ type DeployInfo {
   commitSha: String!
   url: String!
   history(offset: Int, limit: Int): DeploymentResponse!
-    @goField(forceResolver: true)
 }
 
 union DeploymentResponse = DeploymentList | Error

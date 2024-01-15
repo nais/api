@@ -16,7 +16,6 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
@@ -990,10 +989,10 @@ type TeamMemberResolver interface {
 	Team(ctx context.Context, obj *model.TeamMember) (*model.Team, error)
 	User(ctx context.Context, obj *model.TeamMember) (*model.User, error)
 	Role(ctx context.Context, obj *model.TeamMember) (model.TeamRole, error)
-	Reconcilers(ctx context.Context, obj *model.TeamMember) ([]*gensql.GetTeamMemberOptOutsRow, error)
+	Reconcilers(ctx context.Context, obj *model.TeamMember) ([]*model.TeamMemberReconciler, error)
 }
 type TeamMemberReconcilerResolver interface {
-	Reconciler(ctx context.Context, obj *gensql.GetTeamMemberOptOutsRow) (*model.Reconciler, error)
+	Reconciler(ctx context.Context, obj *model.TeamMemberReconciler) (*model.Reconciler, error)
 }
 type UserResolver interface {
 	Teams(ctx context.Context, obj *model.User, limit *int, offset *int) (*model.TeamMemberList, error)
@@ -5295,7 +5294,6 @@ type DeploymentStatus {
   commitSha: String!
   url: String!
   history(offset: Int, limit: Int): DeploymentResponse!
-    @goField(forceResolver: true)
 }
 
 union DeploymentResponse = DeploymentList | Error
@@ -5378,12 +5376,12 @@ type NaisJob {
   deployInfo: DeployInfo!
   env: Env!
   image: String!
-  runs: [Run!]! @goField(forceResolver: true)
-  manifest: String! @goField(forceResolver: true)
+  runs: [Run!]!
+  manifest: String!
   name: String!
   resources: Resources!
   schedule: String!
-  team: Team! @goField(forceResolver: true)
+  team: Team!
   storage: [Storage!]!
   authz: [Authz!]!
   completions: Int!
@@ -5809,9 +5807,6 @@ enum ResourceType {
 	{Name: "../graphqls/scalars.graphqls", Input: `"Time is a string in [RFC 3339](https://rfc-editor.org/rfc/rfc3339.html) format, with sub-second precision added if present."
 scalar Time
 
-"Cursor is a string that can be used to paginate through a list of objects. It is opaque to the client and may change at any time."
-scalar Cursor
-
 "Date type in YYYY-MM-DD format."
 scalar Date
 
@@ -5903,7 +5898,7 @@ type ServiceAccount {
   name: String!
 
   "Roles attached to the service account."
-  roles: [Role!]! @goField(forceResolver: true)
+  roles: [Role!]!
 }
 
 "Role binding type."
@@ -31088,9 +31083,9 @@ func (ec *executionContext) _TeamMember_reconcilers(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*gensql.GetTeamMemberOptOutsRow)
+	res := resTmp.([]*model.TeamMemberReconciler)
 	fc.Result = res
-	return ec.marshalNTeamMemberReconciler2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐGetTeamMemberOptOutsRowᚄ(ctx, field.Selections, res)
+	return ec.marshalNTeamMemberReconciler2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMemberReconcilerᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamMember_reconcilers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -31218,7 +31213,7 @@ func (ec *executionContext) fieldContext_TeamMemberList_pageInfo(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberReconciler_reconciler(ctx context.Context, field graphql.CollectedField, obj *gensql.GetTeamMemberOptOutsRow) (ret graphql.Marshaler) {
+func (ec *executionContext) _TeamMemberReconciler_reconciler(ctx context.Context, field graphql.CollectedField, obj *model.TeamMemberReconciler) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamMemberReconciler_reconciler(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -31282,7 +31277,7 @@ func (ec *executionContext) fieldContext_TeamMemberReconciler_reconciler(ctx con
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberReconciler_enabled(ctx context.Context, field graphql.CollectedField, obj *gensql.GetTeamMemberOptOutsRow) (ret graphql.Marshaler) {
+func (ec *executionContext) _TeamMemberReconciler_enabled(ctx context.Context, field graphql.CollectedField, obj *model.TeamMemberReconciler) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamMemberReconciler_enabled(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -42612,7 +42607,7 @@ func (ec *executionContext) _TeamMemberList(ctx context.Context, sel ast.Selecti
 
 var teamMemberReconcilerImplementors = []string{"TeamMemberReconciler"}
 
-func (ec *executionContext) _TeamMemberReconciler(ctx context.Context, sel ast.SelectionSet, obj *gensql.GetTeamMemberOptOutsRow) graphql.Marshaler {
+func (ec *executionContext) _TeamMemberReconciler(ctx context.Context, sel ast.SelectionSet, obj *model.TeamMemberReconciler) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberReconcilerImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -46702,7 +46697,7 @@ func (ec *executionContext) marshalNTeamMemberList2ᚖgithubᚗcomᚋnaisᚋapi�
 	return ec._TeamMemberList(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamMemberReconciler2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐGetTeamMemberOptOutsRowᚄ(ctx context.Context, sel ast.SelectionSet, v []*gensql.GetTeamMemberOptOutsRow) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamMemberReconciler2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMemberReconcilerᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.TeamMemberReconciler) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -46726,7 +46721,7 @@ func (ec *executionContext) marshalNTeamMemberReconciler2ᚕᚖgithubᚗcomᚋna
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNTeamMemberReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐGetTeamMemberOptOutsRow(ctx, sel, v[i])
+			ret[i] = ec.marshalNTeamMemberReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMemberReconciler(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -46746,7 +46741,7 @@ func (ec *executionContext) marshalNTeamMemberReconciler2ᚕᚖgithubᚗcomᚋna
 	return ret
 }
 
-func (ec *executionContext) marshalNTeamMemberReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdatabaseᚋgensqlᚐGetTeamMemberOptOutsRow(ctx context.Context, sel ast.SelectionSet, v *gensql.GetTeamMemberOptOutsRow) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamMemberReconciler2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamMemberReconciler(ctx context.Context, sel ast.SelectionSet, v *model.TeamMemberReconciler) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")

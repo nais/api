@@ -42,12 +42,12 @@ type NaisJob {
   deployInfo: DeployInfo!
   env: Env!
   image: String!
-  runs: [Run!]! @goField(forceResolver: true)
-  manifest: String! @goField(forceResolver: true)
+  runs: [Run!]!
+  manifest: String!
   name: String!
   resources: Resources!
   schedule: String!
-  team: Team! @goField(forceResolver: true)
+  team: Team!
   storage: [Storage!]!
   authz: [Authz!]!
   completions: Int!

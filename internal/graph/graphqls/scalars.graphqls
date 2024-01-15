@@ -1,9 +1,6 @@
 "Time is a string in [RFC 3339](https://rfc-editor.org/rfc/rfc3339.html) format, with sub-second precision added if present."
 scalar Time
 
-"Cursor is a string that can be used to paginate through a list of objects. It is opaque to the client and may change at any time."
-scalar Cursor
-
 "Date type in YYYY-MM-DD format."
 scalar Date
 

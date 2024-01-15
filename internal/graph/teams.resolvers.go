@@ -1537,13 +1537,17 @@ func (r *teamMemberResolver) Role(ctx context.Context, obj *model.TeamMember) (m
 }
 
 // Reconcilers is the resolver for the reconcilers field.
-func (r *teamMemberResolver) Reconcilers(ctx context.Context, obj *model.TeamMember) ([]*sqlc.GetTeamMemberOptOutsRow, error) {
-	return r.database.GetTeamMemberOptOuts(ctx, obj.UserID, obj.TeamSlug)
+func (r *teamMemberResolver) Reconcilers(ctx context.Context, obj *model.TeamMember) ([]*model.TeamMemberReconciler, error) {
+	rows, err := r.database.GetTeamMemberOptOuts(ctx, obj.UserID, obj.TeamSlug)
+	if err != nil {
+		return nil, err
+	}
+	return toGraphTeamMemberReconcilers(rows), nil
 }
 
 // Reconciler is the resolver for the reconciler field.
-func (r *teamMemberReconcilerResolver) Reconciler(ctx context.Context, obj *sqlc.GetTeamMemberOptOutsRow) (*model.Reconciler, error) {
-	reconciler, err := r.database.GetReconciler(ctx, obj.Name)
+func (r *teamMemberReconcilerResolver) Reconciler(ctx context.Context, obj *model.TeamMemberReconciler) (*model.Reconciler, error) {
+	reconciler, err := r.database.GetReconciler(ctx, obj.GQLVars.Name)
 	if err != nil {
 		return nil, err
 	}

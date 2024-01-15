@@ -3,6 +3,8 @@ package graph
 import (
 	"strings"
 
+	"github.com/nais/api/internal/database/gensql"
+
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
@@ -27,6 +29,16 @@ func toGraphTeams(m []*database.Team) []*model.Team {
 	ret := make([]*model.Team, 0)
 	for _, team := range m {
 		ret = append(ret, toGraphTeam(team))
+	}
+	return ret
+}
+
+func toGraphTeamMemberReconcilers(tmoors []*gensql.GetTeamMemberOptOutsRow) []*model.TeamMemberReconciler {
+	ret := make([]*model.TeamMemberReconciler, 0)
+	for _, tmoor := range tmoors {
+		ret = append(ret, &model.TeamMemberReconciler{
+			Enabled: tmoor.Enabled,
+		})
 	}
 	return ret
 }

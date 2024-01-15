@@ -1,6 +1,10 @@
 package model
 
-import "github.com/nais/api/internal/graph/scalar"
+import (
+	"time"
+
+	"github.com/nais/api/internal/graph/scalar"
+)
 
 type App struct {
 	ID           scalar.Ident `json:"id"`
@@ -21,3 +25,15 @@ type App struct {
 }
 
 func (App) IsSearchNode() {}
+
+type Instance struct {
+	ID       scalar.Ident  `json:"id"`
+	Name     string        `json:"name"`
+	State    InstanceState `json:"state"`
+	Message  string        `json:"message"`
+	Image    string        `json:"image"`
+	Restarts int           `json:"restarts"`
+	Created  time.Time     `json:"created"`
+
+	GQLVars InstanceGQLVars `json:"-"`
+}

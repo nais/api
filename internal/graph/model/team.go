@@ -3,6 +3,8 @@ package model
 import (
 	"time"
 
+	"github.com/nais/api/internal/database/gensql"
+
 	"github.com/nais/api/internal/slug"
 )
 
@@ -19,3 +21,15 @@ type Team struct {
 }
 
 func (Team) IsSearchNode() {}
+
+// Team member reconcilers.
+type TeamMemberReconciler struct {
+	// Whether or not the reconciler is enabled for the team member.
+	Enabled bool `json:"enabled"`
+
+	GQLVars TeamMemberReconcilerGQLVars `json:"-"`
+}
+
+type TeamMemberReconcilerGQLVars struct {
+	Name gensql.ReconcilerName
+}
