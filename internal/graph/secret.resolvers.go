@@ -14,6 +14,21 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
+// CreateSecret is the resolver for the createSecret field.
+func (r *mutationResolver) CreateSecret(ctx context.Context, name string, keys []*string, values []*string) (*model.Secret, error) {
+	panic(fmt.Errorf("not implemented: CreateSecret - createSecret"))
+}
+
+// UpdateSecret is the resolver for the updateSecret field.
+func (r *mutationResolver) UpdateSecret(ctx context.Context, name string, keys []*string, values []*string, data []*model.SecretTupleInput) (*model.Secret, error) {
+	panic(fmt.Errorf("not implemented: UpdateSecret - updateSecret"))
+}
+
+// DeleteSecret is the resolver for the deleteSecret field.
+func (r *mutationResolver) DeleteSecret(ctx context.Context, name string) (*model.Secret, error) {
+	panic(fmt.Errorf("not implemented: DeleteSecret - deleteSecret"))
+}
+
 // Secret is the resolver for the secret field.
 func (r *queryResolver) Secret(ctx context.Context, name string, team slug.Slug, env string) (*model.Secret, error) {
 	panic(fmt.Errorf("not implemented: Secret - secret"))

@@ -764,6 +764,11 @@ type SecretTuple struct {
 	Value string `json:"value"`
 }
 
+type SecretTupleInput struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
 type Sidecar struct {
 	AutoLogin            bool      `json:"autoLogin"`
 	AutoLoginIgnorePaths []string  `json:"autoLoginIgnorePaths"`

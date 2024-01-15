@@ -475,8 +475,10 @@ type ComplexityRoot struct {
 		ChangeDeployKey        func(childComplexity int, team slug.Slug) int
 		ConfigureReconciler    func(childComplexity int, name string, config []*model.ReconcilerConfigInput) int
 		ConfirmTeamDeletion    func(childComplexity int, key string) int
+		CreateSecret           func(childComplexity int, name string, keys []*string, values []*string) int
 		CreateTeam             func(childComplexity int, input model.CreateTeamInput) int
 		DeauthorizeRepository  func(childComplexity int, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) int
+		DeleteSecret           func(childComplexity int, name string) int
 		DisableReconciler      func(childComplexity int, name string) int
 		EnableReconciler       func(childComplexity int, name string) int
 		RemoveReconcilerOptOut func(childComplexity int, teamSlug slug.Slug, userID scalar.Ident, reconciler string) int
@@ -488,6 +490,7 @@ type ComplexityRoot struct {
 		SynchronizeAllTeams    func(childComplexity int) int
 		SynchronizeTeam        func(childComplexity int, slug slug.Slug) int
 		SynchronizeUsers       func(childComplexity int) int
+		UpdateSecret           func(childComplexity int, name string, keys []*string, values []*string, data []*model.SecretTupleInput) int
 		UpdateTeam             func(childComplexity int, slug slug.Slug, input model.UpdateTeamInput) int
 	}
 
@@ -942,6 +945,9 @@ type MutationResolver interface {
 	ResetReconciler(ctx context.Context, name string) (*model.Reconciler, error)
 	AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler string) (*model.TeamMember, error)
 	RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler string) (*model.TeamMember, error)
+	CreateSecret(ctx context.Context, name string, keys []*string, values []*string) (*model.Secret, error)
+	UpdateSecret(ctx context.Context, name string, keys []*string, values []*string, data []*model.SecretTupleInput) (*model.Secret, error)
+	DeleteSecret(ctx context.Context, name string) (*model.Secret, error)
 	CreateTeam(ctx context.Context, input model.CreateTeamInput) (*model.Team, error)
 	UpdateTeam(ctx context.Context, slug slug.Slug, input model.UpdateTeamInput) (*model.Team, error)
 	RemoveUsersFromTeam(ctx context.Context, slug slug.Slug, userIds []*scalar.Ident) (*model.Team, error)
@@ -2679,6 +2685,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.ConfirmTeamDeletion(childComplexity, args["key"].(string)), true
 
+	case "Mutation.createSecret":
+		if e.complexity.Mutation.CreateSecret == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createSecret_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateSecret(childComplexity, args["name"].(string), args["keys"].([]*string), args["values"].([]*string)), true
+
 	case "Mutation.createTeam":
 		if e.complexity.Mutation.CreateTeam == nil {
 			break
@@ -2702,6 +2720,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeauthorizeRepository(childComplexity, args["authorization"].(model.RepositoryAuthorization), args["teamSlug"].(slug.Slug), args["repoName"].(string)), true
+
+	case "Mutation.deleteSecret":
+		if e.complexity.Mutation.DeleteSecret == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteSecret_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteSecret(childComplexity, args["name"].(string)), true
 
 	case "Mutation.disableReconciler":
 		if e.complexity.Mutation.DisableReconciler == nil {
@@ -2824,6 +2854,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SynchronizeUsers(childComplexity), true
+
+	case "Mutation.updateSecret":
+		if e.complexity.Mutation.UpdateSecret == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateSecret_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateSecret(childComplexity, args["name"].(string), args["keys"].([]*string), args["values"].([]*string), args["data"].([]*model.SecretTupleInput)), true
 
 	case "Mutation.updateTeam":
 		if e.complexity.Mutation.UpdateTeam == nil {
@@ -4825,6 +4867,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOrderBy,
 		ec.unmarshalInputReconcilerConfigInput,
 		ec.unmarshalInputSearchFilter,
+		ec.unmarshalInputSecretTupleInput,
 		ec.unmarshalInputSlackAlertsChannelInput,
 		ec.unmarshalInputTeamMemberInput,
 		ec.unmarshalInputTeamsFilter,
@@ -6094,6 +6137,24 @@ enum SearchType {
   ): Secret!
 }
 
+extend type Mutation {
+  createSecret(name: String!, keys: [String], values: [String]): Secret!
+
+  updateSecret(
+    name: String!
+    keys: [String]
+    values: [String]
+    data: [SecretTupleInput]
+  ): Secret!
+
+  deleteSecret(name: String!): Secret
+}
+
+input SecretTupleInput {
+  key: String!
+  value: String!
+}
+
 type SecretTuple {
   key: String!
   value: String!
@@ -7118,6 +7179,39 @@ func (ec *executionContext) field_Mutation_confirmTeamDeletion_args(ctx context.
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_createSecret_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["name"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["name"] = arg0
+	var arg1 []*string
+	if tmp, ok := rawArgs["keys"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("keys"))
+		arg1, err = ec.unmarshalOString2ᚕᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["keys"] = arg1
+	var arg2 []*string
+	if tmp, ok := rawArgs["values"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("values"))
+		arg2, err = ec.unmarshalOString2ᚕᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["values"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_createTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -7163,6 +7257,21 @@ func (ec *executionContext) field_Mutation_deauthorizeRepository_args(ctx contex
 		}
 	}
 	args["repoName"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteSecret_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["name"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["name"] = arg0
 	return args, nil
 }
 
@@ -7352,6 +7461,48 @@ func (ec *executionContext) field_Mutation_synchronizeTeam_args(ctx context.Cont
 		}
 	}
 	args["slug"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateSecret_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["name"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["name"] = arg0
+	var arg1 []*string
+	if tmp, ok := rawArgs["keys"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("keys"))
+		arg1, err = ec.unmarshalOString2ᚕᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["keys"] = arg1
+	var arg2 []*string
+	if tmp, ok := rawArgs["values"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("values"))
+		arg2, err = ec.unmarshalOString2ᚕᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["values"] = arg2
+	var arg3 []*model.SecretTupleInput
+	if tmp, ok := rawArgs["data"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
+		arg3, err = ec.unmarshalOSecretTupleInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretTupleInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["data"] = arg3
 	return args, nil
 }
 
@@ -19009,6 +19160,198 @@ func (ec *executionContext) fieldContext_Mutation_removeReconcilerOptOut(ctx con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_removeReconcilerOptOut_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createSecret(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createSecret(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateSecret(rctx, fc.Args["name"].(string), fc.Args["keys"].([]*string), fc.Args["values"].([]*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Secret)
+	fc.Result = res
+	return ec.marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecret(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createSecret(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Secret_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Secret_name(ctx, field)
+			case "env":
+				return ec.fieldContext_Secret_env(ctx, field)
+			case "data":
+				return ec.fieldContext_Secret_data(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createSecret_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateSecret(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateSecret(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateSecret(rctx, fc.Args["name"].(string), fc.Args["keys"].([]*string), fc.Args["values"].([]*string), fc.Args["data"].([]*model.SecretTupleInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Secret)
+	fc.Result = res
+	return ec.marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecret(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateSecret(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Secret_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Secret_name(ctx, field)
+			case "env":
+				return ec.fieldContext_Secret_env(ctx, field)
+			case "data":
+				return ec.fieldContext_Secret_data(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateSecret_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteSecret(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteSecret(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteSecret(rctx, fc.Args["name"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Secret)
+	fc.Result = res
+	return ec.marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecret(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteSecret(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Secret_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Secret_name(ctx, field)
+			case "env":
+				return ec.fieldContext_Secret_env(ctx, field)
+			case "data":
+				return ec.fieldContext_Secret_data(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteSecret_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -35795,6 +36138,40 @@ func (ec *executionContext) unmarshalInputSearchFilter(ctx context.Context, obj 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSecretTupleInput(ctx context.Context, obj interface{}) (model.SecretTupleInput, error) {
+	var it model.SecretTupleInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"key", "value"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "key":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Key = data
+		case "value":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Value = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSlackAlertsChannelInput(ctx context.Context, obj interface{}) (model.SlackAlertsChannelInput, error) {
 	var it model.SlackAlertsChannelInput
 	asMap := map[string]interface{}{}
@@ -39660,6 +40037,24 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "createSecret":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createSecret(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateSecret":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateSecret(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteSecret":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteSecret(ctx, field)
+			})
 		case "createTeam":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createTeam(ctx, field)
@@ -48676,11 +49071,46 @@ func (ec *executionContext) marshalOSearchType2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 	return v
 }
 
+func (ec *executionContext) marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecret(ctx context.Context, sel ast.SelectionSet, v *model.Secret) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Secret(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOSecretTuple2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretTuple(ctx context.Context, sel ast.SelectionSet, v *model.SecretTuple) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._SecretTuple(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOSecretTupleInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretTupleInput(ctx context.Context, v interface{}) ([]*model.SecretTupleInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.SecretTupleInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOSecretTupleInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretTupleInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOSecretTupleInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretTupleInput(ctx context.Context, v interface{}) (*model.SecretTupleInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputSecretTupleInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐServiceAccount(ctx context.Context, sel ast.SelectionSet, v *model.ServiceAccount) graphql.Marshaler {
