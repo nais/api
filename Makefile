@@ -21,7 +21,7 @@ setup:
 	gcloud secrets versions access latest --secret=api-kubeconfig --project aura-dev-d9f5 > kubeconfig
 
 api:
-	go build -o bin/api ./cmd/api/main.go
+	go build -o bin/api ./cmd/api
 
 portforward-hookd:
 	kubectl port-forward -n nais-system --context nav-management-v2 svc/hookd 8282:80
@@ -47,8 +47,7 @@ local-nav:
 	API_TOKEN="$(shell kubectl get secret console-backend --context nav-management-v2 -n nais-system -ojsonpath='{.data.API_TOKEN}' | base64 --decode)" \
 	TENANT="nav" \
 	STATIC_SERVICE_ACCOUNTS='[{"name": "nais-admin","apiKey": "somekey","roles": [{"name": "Admin"}]}]' \
-	go run ./cmd/api/main.go
-
+	go run ./cmd/api
 local:
 	KUBERNETES_CLUSTERS="superprod,dev" \
 	LISTEN_ADDRESS="127.0.0.1:3000" \
@@ -57,7 +56,7 @@ local:
 	RUN_AS_USER="admin.usersen@example.com" \
 	STATIC_SERVICE_ACCOUNTS='[{"name": "nais-admin","apiKey": "somekey","roles": [{"name": "Admin"}]}]' \
 	WITH_FAKE_CLIENTS="true" \
-	go run ./cmd/api/main.go
+	go run ./cmd/api
 
 test:
 	go test ./... -v

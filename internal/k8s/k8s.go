@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nais/api/internal/config"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/slug"
@@ -61,7 +60,7 @@ func WithClientsCreator(f func(cluster string) (kubernetes.Interface, dynamic.In
 	}
 }
 
-func New(tenant string, cfg config.K8S, errors metric.Int64Counter, teamChecker TeamChecker, log logrus.FieldLogger, opts ...Opt) (*Client, error) {
+func New(tenant string, cfg Config, errors metric.Int64Counter, teamChecker TeamChecker, log logrus.FieldLogger, opts ...Opt) (*Client, error) {
 	s := &settings{}
 	for _, opt := range opts {
 		opt(s)

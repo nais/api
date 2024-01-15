@@ -3,12 +3,11 @@ package k8s
 import (
 	"fmt"
 
-	"github.com/nais/api/internal/config"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd/api"
 )
 
-func clusters(cfg config.K8S) []string {
+func clusters(cfg Config) []string {
 	ret := cfg.Clusters
 
 	for _, sc := range cfg.StaticClusters {
@@ -19,7 +18,7 @@ func clusters(cfg config.K8S) []string {
 
 type ClusterConfigMap map[string]rest.Config
 
-func CreateClusterConfigMap(tenant string, cfg config.K8S) (ClusterConfigMap, error) {
+func CreateClusterConfigMap(tenant string, cfg Config) (ClusterConfigMap, error) {
 	configs := ClusterConfigMap{}
 
 	for _, cluster := range cfg.Clusters {
@@ -43,7 +42,7 @@ func CreateClusterConfigMap(tenant string, cfg config.K8S) (ClusterConfigMap, er
 	return configs, nil
 }
 
-func getStaticClusterConfigs(clusters []config.StaticCluster) (ClusterConfigMap, error) {
+func getStaticClusterConfigs(clusters []StaticCluster) (ClusterConfigMap, error) {
 	configs := ClusterConfigMap{}
 	for _, cluster := range clusters {
 		configs[cluster.Name] = rest.Config{

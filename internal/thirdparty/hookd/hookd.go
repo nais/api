@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nais/api/internal/config"
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/attribute"
@@ -107,12 +106,12 @@ func WithIgnoreTeams(teams ...string) RequestOption {
 }
 
 // New creates a new hookd client
-func New(cfg config.Hookd, errors api.Int64Counter, log logrus.FieldLogger) Client {
+func New(endpoint, psk string, errors api.Int64Counter, log logrus.FieldLogger) Client {
 	return &client{
-		endpoint: cfg.Endpoint,
+		endpoint: endpoint,
 		httpClient: &httpClient{
 			client: &http.Client{},
-			psk:    cfg.PSK,
+			psk:    psk,
 		},
 		log:    log,
 		errors: errors,

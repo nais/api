@@ -3,7 +3,7 @@ package k8s_test
 import (
 	"testing"
 
-	"github.com/nais/api/internal/config"
+	"github.com/nais/api/internal/do_not_use"
 
 	"github.com/nais/api/internal/k8s"
 	"github.com/stretchr/testify/assert"
@@ -13,7 +13,7 @@ func TestCreateClusterConfigMap(t *testing.T) {
 	const tenant = "tenant"
 
 	t.Run("valid configuration with no static clusters", func(t *testing.T) {
-		cfg := config.K8S{
+		cfg := do_not_use.K8S{
 			Clusters: []string{"cluster"},
 		}
 		configMap, err := k8s.CreateClusterConfigMap(tenant, cfg)
@@ -22,9 +22,9 @@ func TestCreateClusterConfigMap(t *testing.T) {
 	})
 
 	t.Run("valid configuration with static clusters", func(t *testing.T) {
-		cfg := config.K8S{
+		cfg := do_not_use.K8S{
 			Clusters:       []string{"cluster"},
-			StaticClusters: []config.StaticCluster{{Name: "static-cluster", Host: "host", Token: "token"}},
+			StaticClusters: []do_not_use.StaticCluster{{Name: "static-cluster", Host: "host", Token: "token"}},
 		}
 		configMap, err := k8s.CreateClusterConfigMap(tenant, cfg)
 		assert.Equal(t, "https://apiserver.cluster.tenant.cloud.nais.io", configMap["cluster"].Host)

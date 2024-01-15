@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nais/api/internal/config"
+	"github.com/nais/api/internal/do_not_use"
 	httptest "github.com/nais/api/internal/test"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/sirupsen/logrus/hooks/test"
@@ -31,7 +31,7 @@ func TestClient(t *testing.T) {
 	counter, err := meter.Int64Counter("errors")
 	assert.NoError(t, err)
 
-	cfg := config.Hookd{
+	cfg := do_not_use.Hookd{
 		PSK: token,
 	}
 

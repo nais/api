@@ -1,9 +1,16 @@
-package config
+package k8s
 
 import (
 	"fmt"
 	"strings"
 )
+
+// Config is the configuration related to Kubernetes
+type Config struct {
+	Clusters        []string        `env:"KUBERNETES_CLUSTERS"`
+	StaticClusters  []StaticCluster `env:"KUBERNETES_CLUSTERS_STATIC"`
+	AllClusterNames []string
+}
 
 type StaticCluster struct {
 	Name  string

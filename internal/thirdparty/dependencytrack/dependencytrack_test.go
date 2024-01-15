@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/nais/api/internal/config"
+	"github.com/nais/api/internal/do_not_use"
 	"github.com/nais/api/internal/graph/model"
 	dependencytrack "github.com/nais/dependencytrack/pkg/client"
 	"github.com/sirupsen/logrus"
@@ -13,7 +13,7 @@ import (
 )
 
 func TestClient_GetVulnerabilities(t *testing.T) {
-	cfg := config.DependencyTrack{}
+	cfg := do_not_use.DependencyTrack{}
 	log := logrus.New().WithField("test", "dependencytrack")
 	ctx := context.Background()
 
@@ -129,7 +129,7 @@ func TestClient_GetVulnerabilities(t *testing.T) {
 }
 
 func TestClient_VulnerabilitySummary(t *testing.T) {
-	cfg := config.DependencyTrack{}
+	cfg := do_not_use.DependencyTrack{}
 	log := logrus.New().WithField("test", "dependencytrack")
 	ctx := context.Background()
 

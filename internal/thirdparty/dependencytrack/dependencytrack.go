@@ -8,7 +8,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/nais/api/internal/config"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	dependencytrack "github.com/nais/dependencytrack/pkg/client"
@@ -35,11 +34,11 @@ type Client struct {
 	cache       *cache.Cache
 }
 
-func New(cfg config.DependencyTrack, log *logrus.Entry) *Client {
+func New(endpoint, username, password, frontend string, log *logrus.Entry) *Client {
 	c := dependencytrack.New(
-		cfg.Endpoint,
-		cfg.Username,
-		cfg.Password,
+		endpoint,
+		username,
+		password,
 		dependencytrack.WithApiKeySource("Administrators"),
 		dependencytrack.WithLogger(log),
 	)
@@ -48,7 +47,7 @@ func New(cfg config.DependencyTrack, log *logrus.Entry) *Client {
 
 	return &Client{
 		client:      c,
-		frontendUrl: cfg.Frontend,
+		frontendUrl: frontend,
 		log:         log,
 		cache:       ch,
 	}

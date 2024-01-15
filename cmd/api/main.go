@@ -21,7 +21,6 @@ import (
 	"github.com/nais/api/internal/auth"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
-	"github.com/nais/api/internal/config"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
@@ -78,13 +77,13 @@ func main() {
 		log.Infof("loaded .env file")
 	}
 
-	cfg, err := config.New(ctx, envconfig.OsLookuper())
+	cfg, err := NewConfig(ctx, envconfig.OsLookuper())
 	if err != nil {
 		log.WithError(err).Errorf("error when processing configuration")
 		os.Exit(exitCodeConfigError)
 	}
 
-	appLogger, err := logger.New(cfg.Logger.Format, cfg.Logger.Level)
+	appLogger, err := logger.New(cfg.LogFormat, cfg.LogLevel)
 	if err != nil {
 		log.WithError(err).Errorf("error when creating application logger")
 		os.Exit(exitCodeLoggerError)
@@ -99,7 +98,7 @@ func main() {
 	os.Exit(exitCodeSuccess)
 }
 
-func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error {
+func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -155,7 +154,14 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 		k8sOpts = append(k8sOpts, k8s.WithClientsCreator(fake.Clients(os.DirFS("./data/k8s"))))
 	}
 
-	k8sClient, err := k8s.New(cfg.Tenant, cfg.K8S, errorsCounter, &teamChecker{db: db}, log.WithField("client", "k8s"), k8sOpts...)
+	k8sClient, err := k8s.New(
+		cfg.Tenant,
+		cfg.K8s.PkgConfig(),
+		errorsCounter,
+		&teamChecker{db: db},
+		log.WithField("client", "k8s"),
+		k8sOpts...,
+	)
 	if err != nil {
 		var authErr *google.AuthenticationError
 		if errors.As(err, &authErr) {
@@ -165,12 +171,12 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 	}
 
 	clusters := make(graph.ClusterList)
-	for _, cluster := range cfg.K8S.Clusters {
+	for _, cluster := range cfg.K8s.Clusters {
 		clusters[cluster] = graph.ClusterInfo{
 			GCP: true,
 		}
 	}
-	for _, staticCluster := range cfg.K8S.StaticClusters {
+	for _, staticCluster := range cfg.K8s.StaticClusters {
 		clusters[staticCluster.Name] = graph.ClusterInfo{}
 	}
 
@@ -183,12 +189,18 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 		hookdClient = fakehookd.New()
 		dependencyTrackClient = faketrack.New()
 	} else {
-		hookdClient = hookd.New(cfg.Hookd, errorsCounter, log.WithField("client", "hookd"))
-		dependencyTrackClient = dependencytrack.New(cfg.DependencyTrack, log.WithField("client", "dependencytrack"))
+		hookdClient = hookd.New(cfg.Hookd.Endpoint, cfg.Hookd.PSK, errorsCounter, log.WithField("client", "hookd"))
+		dependencyTrackClient = dependencytrack.New(
+			cfg.DependencyTrack.Endpoint,
+			cfg.DependencyTrack.Username,
+			cfg.DependencyTrack.Password,
+			cfg.DependencyTrack.Frontend,
+			log.WithField("client", "dependencytrack"),
+		)
 	}
 
 	userSyncRuns := usersync.NewRunsHandler(cfg.UserSync.RunsToStore)
-	resourceUsageClient := resourceusage.NewClient(cfg.K8S.AllClusterNames, db, log)
+	resourceUsageClient := resourceusage.NewClient(cfg.K8s.AllClusterNames(), db, log)
 	resolver := graph.NewResolver(
 		hookdClient,
 		k8sClient,
@@ -215,7 +227,7 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 
 	// User sync
 	go func() {
-		if !cfg.UserSyncEnabled {
+		if !cfg.UserSync.Enabled {
 			log.Infof("user sync is disabled")
 			for sync := range userSync {
 				// drain channel
@@ -289,7 +301,7 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 
 	// resource usage updater
 	go func() {
-		if !cfg.ResourceUtilization.ImportEnabled {
+		if !cfg.ResourceUtilizationImportEnabled {
 			log.Warningf(`resource utilization import is not enabled. Enable by setting the "RESOURCE_UTILIZATION_IMPORT_ENABLED" environment variable to "true"`)
 			return
 		}
@@ -301,7 +313,7 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 			}
 		}
 
-		promClients, err := getPrometheusClients(cfg.K8S.AllClusterNames, cfg.Tenant)
+		promClients, err := getPrometheusClients(cfg.K8s.AllClusterNames(), cfg.Tenant)
 		if err != nil {
 			log.WithError(err).Errorf("create prometheus clients")
 			return
@@ -328,13 +340,13 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 		}
 
 		defer cancel()
-		err = runCostUpdater(ctx, db, cfg.Tenant, cfg.Cost, log.WithField("task", "cost_updater"))
+		err = runCostUpdater(ctx, db, cfg.Tenant, cfg.Cost.BigQueryProjectID, log.WithField("task", "cost_updater"))
 		if err != nil {
 			log.WithError(err).Errorf("error in cost updater")
 		}
 	}()
 
-	authHandler, err := setupAuthHandler(cfg, db, log)
+	authHandler, err := setupAuthHandler(cfg.OAuth, db, log)
 	if err != nil {
 		return err
 	}
@@ -362,7 +374,7 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 }
 
 // getHttpServer will return a new HTTP server with the specified configuration
-func getHttpServer(cfg *config.Config, db database.Database, authHandler authn.Handler, graphHandler *handler.Server) *http.Server {
+func getHttpServer(cfg *Config, db database.Database, authHandler authn.Handler, graphHandler *handler.Server) *http.Server {
 	router := chi.NewRouter()
 	router.Handle("/metrics", promhttp.Handler())
 	router.Get("/healthz", func(_ http.ResponseWriter, _ *http.Request) {})
@@ -410,8 +422,8 @@ func getBigQueryClient(ctx context.Context, projectID string) (*bigquery.Client,
 }
 
 // getBigQueryClient will return a new cost updater instance
-func getUpdater(ctx context.Context, db database.Database, tenant string, cfg config.Cost, log logrus.FieldLogger) (*cost.Updater, error) {
-	bigQueryClient, err := getBigQueryClient(ctx, cfg.BigQueryProjectID)
+func getUpdater(ctx context.Context, db database.Database, tenant, bigQueryProjectID string, log logrus.FieldLogger) (*cost.Updater, error) {
+	bigQueryClient, err := getBigQueryClient(ctx, bigQueryProjectID)
 	if err != nil {
 		return nil, err
 	}
@@ -426,8 +438,8 @@ func getUpdater(ctx context.Context, db database.Database, tenant string, cfg co
 
 // runCostUpdater will create an instance of the cost updater, and update the costs on a schedule. This function will
 // block until the context is cancelled, so it should be run in a goroutine.
-func runCostUpdater(ctx context.Context, db database.Database, tenant string, cfg config.Cost, log logrus.FieldLogger) error {
-	updater, err := getUpdater(ctx, db, tenant, cfg, log)
+func runCostUpdater(ctx context.Context, db database.Database, tenant, bigQueryProjectID string, log logrus.FieldLogger) error {
+	updater, err := getUpdater(ctx, db, tenant, bigQueryProjectID, log)
 	if err != nil {
 		return fmt.Errorf("unable to set up and run cost updater: %w", err)
 	}
@@ -560,8 +572,8 @@ func (t *teamChecker) TeamExists(ctx context.Context, team slug.Slug) bool {
 	return err == nil
 }
 
-func setupAuthHandler(cfg *config.Config, db database.Database, log logrus.FieldLogger) (authn.Handler, error) {
-	cf := authn.NewGoogle(cfg.OAuth.ClientID, cfg.OAuth.ClientSecret, cfg.OAuth.RedirectURL)
+func setupAuthHandler(cfg oAuthConfig, db database.Database, log logrus.FieldLogger) (authn.Handler, error) {
+	cf := authn.NewGoogle(cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL)
 	frontendURL, err := url.Parse(cfg.FrontendURL)
 	if err != nil {
 		return nil, err
