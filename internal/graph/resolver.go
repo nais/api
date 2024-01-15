@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database/teamsearch"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
@@ -111,11 +112,10 @@ func NewResolver(
 		tenantDomain:          tenantDomain,
 		userSync:              userSync,
 		auditLogger:           auditLogger,
-		// TODO: Fix
-		searcher: search.New(db, k8sClient),
-		log:      log,
-		database: db,
-		clusters: clusters,
+		searcher:              search.New(teamsearch.New(db), k8sClient),
+		log:                   log,
+		database:              db,
+		clusters:              clusters,
 	}
 }
 

@@ -19,7 +19,6 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/usersync"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -949,7 +948,7 @@ type QueryResolver interface {
 	TeamDeleteKey(ctx context.Context, key string) (*model.TeamDeleteKey, error)
 	Users(ctx context.Context, offset *int, limit *int) (*model.UserList, error)
 	User(ctx context.Context, id *scalar.Ident, email *string) (*model.User, error)
-	UserSync(ctx context.Context) ([]*usersync.Run, error)
+	UserSync(ctx context.Context) ([]*model.UserSyncRun, error)
 }
 type ReconcilerResolver interface {
 	UsesTeamMemberships(ctx context.Context, obj *model.Reconciler) (bool, error)
@@ -1001,9 +1000,9 @@ type UserResolver interface {
 	IsAdmin(ctx context.Context, obj *model.User) (*bool, error)
 }
 type UserSyncRunResolver interface {
-	AuditLogs(ctx context.Context, obj *usersync.Run, limit *int, offset *int) (*model.AuditLogList, error)
-	Status(ctx context.Context, obj *usersync.Run) (model.UserSyncRunStatus, error)
-	Error(ctx context.Context, obj *usersync.Run) (*string, error)
+	AuditLogs(ctx context.Context, obj *model.UserSyncRun, limit *int, offset *int) (*model.AuditLogList, error)
+	Status(ctx context.Context, obj *model.UserSyncRun) (model.UserSyncRunStatus, error)
+	Error(ctx context.Context, obj *model.UserSyncRun) (*string, error)
 }
 
 type executableSchema struct {
@@ -24336,10 +24335,10 @@ func (ec *executionContext) _Query_userSync(ctx context.Context, field graphql.C
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.([]*usersync.Run); ok {
+		if data, ok := tmp.([]*model.UserSyncRun); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/nais/api/internal/usersync.Run`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/nais/api/internal/graph/model.UserSyncRun`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24351,9 +24350,9 @@ func (ec *executionContext) _Query_userSync(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*usersync.Run)
+	res := resTmp.([]*model.UserSyncRun)
 	fc.Result = res
-	return ec.marshalNUserSyncRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋusersyncᚐRunᚄ(ctx, field.Selections, res)
+	return ec.marshalNUserSyncRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUserSyncRunᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_userSync(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -32049,7 +32048,7 @@ func (ec *executionContext) fieldContext_UserList_pageInfo(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSyncRun_correlationID(ctx context.Context, field graphql.CollectedField, obj *usersync.Run) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserSyncRun_correlationID(ctx context.Context, field graphql.CollectedField, obj *model.UserSyncRun) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserSyncRun_correlationID(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -32063,7 +32062,7 @@ func (ec *executionContext) _UserSyncRun_correlationID(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CorrelationID(), nil
+		return obj.CorrelationID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -32084,7 +32083,7 @@ func (ec *executionContext) fieldContext_UserSyncRun_correlationID(ctx context.C
 	fc = &graphql.FieldContext{
 		Object:     "UserSyncRun",
 		Field:      field,
-		IsMethod:   true,
+		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
@@ -32093,7 +32092,7 @@ func (ec *executionContext) fieldContext_UserSyncRun_correlationID(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSyncRun_startedAt(ctx context.Context, field graphql.CollectedField, obj *usersync.Run) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserSyncRun_startedAt(ctx context.Context, field graphql.CollectedField, obj *model.UserSyncRun) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserSyncRun_startedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -32107,7 +32106,7 @@ func (ec *executionContext) _UserSyncRun_startedAt(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.StartedAt(), nil
+		return obj.StartedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -32128,7 +32127,7 @@ func (ec *executionContext) fieldContext_UserSyncRun_startedAt(ctx context.Conte
 	fc = &graphql.FieldContext{
 		Object:     "UserSyncRun",
 		Field:      field,
-		IsMethod:   true,
+		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Time does not have child fields")
@@ -32137,7 +32136,7 @@ func (ec *executionContext) fieldContext_UserSyncRun_startedAt(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSyncRun_finishedAt(ctx context.Context, field graphql.CollectedField, obj *usersync.Run) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserSyncRun_finishedAt(ctx context.Context, field graphql.CollectedField, obj *model.UserSyncRun) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserSyncRun_finishedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -32151,7 +32150,7 @@ func (ec *executionContext) _UserSyncRun_finishedAt(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.FinishedAt(), nil
+		return obj.FinishedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -32169,7 +32168,7 @@ func (ec *executionContext) fieldContext_UserSyncRun_finishedAt(ctx context.Cont
 	fc = &graphql.FieldContext{
 		Object:     "UserSyncRun",
 		Field:      field,
-		IsMethod:   true,
+		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Time does not have child fields")
@@ -32178,7 +32177,7 @@ func (ec *executionContext) fieldContext_UserSyncRun_finishedAt(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSyncRun_auditLogs(ctx context.Context, field graphql.CollectedField, obj *usersync.Run) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserSyncRun_auditLogs(ctx context.Context, field graphql.CollectedField, obj *model.UserSyncRun) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserSyncRun_auditLogs(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -32239,7 +32238,7 @@ func (ec *executionContext) fieldContext_UserSyncRun_auditLogs(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSyncRun_status(ctx context.Context, field graphql.CollectedField, obj *usersync.Run) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserSyncRun_status(ctx context.Context, field graphql.CollectedField, obj *model.UserSyncRun) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserSyncRun_status(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -32283,7 +32282,7 @@ func (ec *executionContext) fieldContext_UserSyncRun_status(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSyncRun_error(ctx context.Context, field graphql.CollectedField, obj *usersync.Run) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserSyncRun_error(ctx context.Context, field graphql.CollectedField, obj *model.UserSyncRun) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserSyncRun_error(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -43051,7 +43050,7 @@ func (ec *executionContext) _UserList(ctx context.Context, sel ast.SelectionSet,
 
 var userSyncRunImplementors = []string{"UserSyncRun"}
 
-func (ec *executionContext) _UserSyncRun(ctx context.Context, sel ast.SelectionSet, obj *usersync.Run) graphql.Marshaler {
+func (ec *executionContext) _UserSyncRun(ctx context.Context, sel ast.SelectionSet, obj *model.UserSyncRun) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, userSyncRunImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -46935,7 +46934,7 @@ func (ec *executionContext) marshalNUserList2ᚖgithubᚗcomᚋnaisᚋapiᚋinte
 	return ec._UserList(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUserSyncRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋusersyncᚐRunᚄ(ctx context.Context, sel ast.SelectionSet, v []*usersync.Run) graphql.Marshaler {
+func (ec *executionContext) marshalNUserSyncRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUserSyncRunᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.UserSyncRun) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -46959,7 +46958,7 @@ func (ec *executionContext) marshalNUserSyncRun2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUserSyncRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋusersyncᚐRun(ctx, sel, v[i])
+			ret[i] = ec.marshalNUserSyncRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUserSyncRun(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -46979,7 +46978,7 @@ func (ec *executionContext) marshalNUserSyncRun2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) marshalNUserSyncRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋusersyncᚐRun(ctx context.Context, sel ast.SelectionSet, v *usersync.Run) graphql.Marshaler {
+func (ec *executionContext) marshalNUserSyncRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUserSyncRun(ctx context.Context, sel ast.SelectionSet, v *model.UserSyncRun) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")

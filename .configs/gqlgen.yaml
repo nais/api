@@ -38,10 +38,6 @@ models:
   ID:
     model:
       - github.com/nais/api/internal/graph/scalar.Ident
-      - github.com/99designs/gqlgen/graphql.ID
-      - github.com/99designs/gqlgen/graphql.Int
-      - github.com/99designs/gqlgen/graphql.Int64
-      - github.com/99designs/gqlgen/graphql.Int32
       - github.com/nais/api/internal/graph/scalar.UUID
 
   Int:
@@ -57,7 +53,3 @@ models:
   Slug:
     model:
       - github.com/nais/api/internal/slug.Slug
-
-  UserSyncRun:
-    model:
-      - github.com/nais/api/internal/usersync.Run

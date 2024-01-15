@@ -102,14 +102,14 @@ func (r *queryResolver) User(ctx context.Context, id *scalar.Ident, email *strin
 }
 
 // UserSync is the resolver for the userSync field.
-func (r *queryResolver) UserSync(ctx context.Context) ([]*usersync.Run, error) {
+func (r *queryResolver) UserSync(ctx context.Context) ([]*model.UserSyncRun, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationUsersyncSynchronize)
 	if err != nil {
 		return nil, err
 	}
 
-	return r.userSyncRuns.GetRuns(), nil
+	return toGraphUserSyncRuns(r.userSyncRuns.GetRuns()), nil
 }
 
 // Teams is the resolver for the teams field.
@@ -216,9 +216,9 @@ func (r *userResolver) IsAdmin(ctx context.Context, obj *model.User) (*bool, err
 }
 
 // AuditLogs is the resolver for the auditLogs field.
-func (r *userSyncRunResolver) AuditLogs(ctx context.Context, obj *usersync.Run, limit *int, offset *int) (*model.AuditLogList, error) {
+func (r *userSyncRunResolver) AuditLogs(ctx context.Context, obj *model.UserSyncRun, limit *int, offset *int) (*model.AuditLogList, error) {
 	p := model.NewPagination(offset, limit)
-	entries, total, err := r.database.GetAuditLogsForCorrelationID(ctx, obj.CorrelationID(), p.Offset, p.Limit)
+	entries, total, err := r.database.GetAuditLogsForCorrelationID(ctx, obj.CorrelationID, p.Offset, p.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -230,8 +230,8 @@ func (r *userSyncRunResolver) AuditLogs(ctx context.Context, obj *usersync.Run, 
 }
 
 // Status is the resolver for the status field.
-func (r *userSyncRunResolver) Status(ctx context.Context, obj *usersync.Run) (model.UserSyncRunStatus, error) {
-	switch obj.Status() {
+func (r *userSyncRunResolver) Status(ctx context.Context, obj *model.UserSyncRun) (model.UserSyncRunStatus, error) {
+	switch obj.GQLVars.Status {
 	case usersync.RunSuccess:
 		return model.UserSyncRunStatusSuccess, nil
 	case usersync.RunFailure:
@@ -242,8 +242,8 @@ func (r *userSyncRunResolver) Status(ctx context.Context, obj *usersync.Run) (mo
 }
 
 // Error is the resolver for the error field.
-func (r *userSyncRunResolver) Error(ctx context.Context, obj *usersync.Run) (*string, error) {
-	err := obj.Error()
+func (r *userSyncRunResolver) Error(ctx context.Context, obj *model.UserSyncRun) (*string, error) {
+	err := obj.GQLVars.Error
 	if err != nil {
 		msg := err.Error()
 		return &msg, nil
@@ -258,17 +258,5 @@ func (r *Resolver) User() gengql.UserResolver { return &userResolver{r} }
 // UserSyncRun returns gengql.UserSyncRunResolver implementation.
 func (r *Resolver) UserSyncRun() gengql.UserSyncRunResolver { return &userSyncRunResolver{r} }
 
-type (
-	userResolver        struct{ *Resolver }
-	userSyncRunResolver struct{ *Resolver }
-)
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *userSyncRunResolver) CorrelationID(ctx context.Context, obj *usersync.Run) (*scalar.Ident, error) {
-	panic(fmt.Errorf("not implemented: CorrelationID - correlationID"))
-}
+type userResolver struct{ *Resolver }
+type userSyncRunResolver struct{ *Resolver }

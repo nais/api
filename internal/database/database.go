@@ -4,7 +4,6 @@ import (
 	"context"
 	"embed"
 	"fmt"
-	"github.com/nais/api/internal/search"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -38,8 +37,6 @@ type Database interface {
 	SessionRepo
 	TeamRepo
 	UserRepo
-
-	search.Searchable
 
 	Transaction(ctx context.Context, fn DatabaseTransactionFunc) error
 }

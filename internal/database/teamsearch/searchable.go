@@ -1,18 +1,29 @@
-package database
+package teamsearch
 
 import (
 	"context"
 
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/search"
 )
 
-func (d *database) Search(ctx context.Context, q string, filter *model.SearchFilter) []*search.Result {
+type TeamSearcher struct {
+	db database.Database
+}
+
+func New(db database.Database) *TeamSearcher {
+	return &TeamSearcher{
+		db: db,
+	}
+}
+
+func (d *TeamSearcher) Search(ctx context.Context, q string, filter *model.SearchFilter) []*search.Result {
 	if !isTeamFilterOrNoFilter(filter) {
 		return nil
 	}
 
-	ret, err := d.querier.SearchTeams(ctx, q, 10)
+	ret, err := d.db.SearchTeams(ctx, q, 10)
 	if err != nil {
 		return nil
 	}
