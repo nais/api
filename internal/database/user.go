@@ -153,6 +153,3 @@ func (u User) Identity() string {
 func (u User) IsServiceAccount() bool {
 	return false
 }
-
-// TODO: remove
-func (u *User) IsAuthenticatedUser() {}

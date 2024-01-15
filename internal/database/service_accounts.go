@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+
 	"github.com/nais/api/internal/database/gensql"
 
 	"github.com/google/uuid"
@@ -35,9 +36,6 @@ func (s ServiceAccount) Identity() string {
 func (s ServiceAccount) IsServiceAccount() bool {
 	return true
 }
-
-// TODO: remove
-func (s *ServiceAccount) IsAuthenticatedUser() {}
 
 func (d *database) CreateServiceAccount(ctx context.Context, name string) (*ServiceAccount, error) {
 	serviceAccount, err := d.querier.CreateServiceAccount(ctx, name)

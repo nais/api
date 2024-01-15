@@ -16,7 +16,6 @@ type AuthenticatedUser interface {
 	GetID() uuid.UUID
 	Identity() string
 	IsServiceAccount() bool
-	IsAuthenticatedUser()
 }
 
 type Role struct {
