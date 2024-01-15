@@ -389,6 +389,20 @@ func (r *reconcilerResolver) Configured(ctx context.Context, obj *model.Reconcil
 	return true, nil
 }
 
+// AuditLogs is the resolver for the auditLogs field.
+func (r *reconcilerResolver) AuditLogs(ctx context.Context, obj *model.Reconciler, offset *int, limit *int) (*model.AuditLogList, error) {
+	p := model.NewPagination(offset, limit)
+	dbe, total, err := r.database.GetAuditLogsForReconciler(ctx, sqlc.ReconcilerName(obj.Name), p.Offset, p.Limit)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AuditLogList{
+		Nodes:    toGraphAuditLogs(dbe),
+		PageInfo: model.NewPageInfo(p, total),
+	}, nil
+}
+
 // Reconciler returns gengql.ReconcilerResolver implementation.
 func (r *Resolver) Reconciler() gengql.ReconcilerResolver { return &reconcilerResolver{r} }
 

@@ -629,28 +629,6 @@ type Port struct {
 type Query struct {
 }
 
-// Reconciler type.
-type Reconciler struct {
-	// The name of the reconciler.
-	Name string `json:"name"`
-	// The human-friendly name of the reconciler.
-	DisplayName string `json:"displayName"`
-	// Description of what the reconciler is responsible for.
-	Description string `json:"description"`
-	// Whether or not the reconciler is enabled.
-	Enabled bool `json:"enabled"`
-	// Whether or not the reconciler uses team memberships when syncing.
-	UsesTeamMemberships bool `json:"usesTeamMemberships"`
-	// Reconciler configuration keys and descriptions.
-	Config []*ReconcilerConfig `json:"config"`
-	// Whether or not the reconciler is fully configured and ready to be enabled.
-	Configured bool `json:"configured"`
-	// The run order of the reconciler.
-	RunOrder int `json:"runOrder"`
-	// Audit logs for this reconciler.
-	AuditLogs AuditLogList `json:"auditLogs"`
-}
-
 // Reconciler configuration type.
 type ReconcilerConfig struct {
 	// Configuration key.

@@ -1,9 +1,3 @@
-directive @goField(
-  forceResolver: Boolean
-  name: String
-  omittable: Boolean
-) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
-
 "Require an authenticated user for all requests with this directive."
 directive @auth on FIELD_DEFINITION
 

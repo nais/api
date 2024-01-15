@@ -954,6 +954,8 @@ type ReconcilerResolver interface {
 	UsesTeamMemberships(ctx context.Context, obj *model.Reconciler) (bool, error)
 	Config(ctx context.Context, obj *model.Reconciler) ([]*model.ReconcilerConfig, error)
 	Configured(ctx context.Context, obj *model.Reconciler) (bool, error)
+
+	AuditLogs(ctx context.Context, obj *model.Reconciler, offset *int, limit *int) (*model.AuditLogList, error)
 }
 type ServiceAccountResolver interface {
 	Roles(ctx context.Context, obj *model.ServiceAccount) ([]*model.Role, error)
@@ -5528,13 +5530,13 @@ type Reconciler {
   enabled: Boolean!
 
   "Whether or not the reconciler uses team memberships when syncing."
-  usesTeamMemberships: Boolean! @goField(forceResolver: true)
+  usesTeamMemberships: Boolean!
 
   "Reconciler configuration keys and descriptions."
-  config: [ReconcilerConfig!]! @admin @goField(forceResolver: true)
+  config: [ReconcilerConfig!]! @admin
 
   "Whether or not the reconciler is fully configured and ready to be enabled."
-  configured: Boolean! @admin @goField(forceResolver: true)
+  configured: Boolean! @admin
 
   "The run order of the reconciler."
   runOrder: Int!
@@ -24932,7 +24934,7 @@ func (ec *executionContext) _Reconciler_auditLogs(ctx context.Context, field gra
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return obj.AuditLogs, nil
+			return ec.resolvers.Reconciler().AuditLogs(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Admin == nil {
@@ -24948,10 +24950,10 @@ func (ec *executionContext) _Reconciler_auditLogs(ctx context.Context, field gra
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(model.AuditLogList); ok {
+		if data, ok := tmp.(*model.AuditLogList); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/nais/api/internal/graph/model.AuditLogList`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.AuditLogList`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24963,17 +24965,17 @@ func (ec *executionContext) _Reconciler_auditLogs(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.AuditLogList)
+	res := resTmp.(*model.AuditLogList)
 	fc.Result = res
-	return ec.marshalNAuditLogList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditLogList(ctx, field.Selections, res)
+	return ec.marshalNAuditLogList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditLogList(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Reconciler_auditLogs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Reconciler",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "nodes":
@@ -40398,10 +40400,41 @@ func (ec *executionContext) _Reconciler(ctx context.Context, sel ast.SelectionSe
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "auditLogs":
-			out.Values[i] = ec._Reconciler_auditLogs(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Reconciler_auditLogs(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
