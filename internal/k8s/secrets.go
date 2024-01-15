@@ -22,6 +22,12 @@ import (
 	"k8s.io/apimachinery/pkg/selection"
 )
 
-func (c *Client) Secret(ctx context.Context, name, team, env string) (*model.Secret, error) {
-
+func (c *Client) GetSecret(ctx context.Context, name, team, env string) (*model.Secret, error) {
+	return nil, nil
 }
+
+func (c *Client) CreateSecret(ctx context.Context, secret *model.Secret) error { return nil }
+
+func (c *Client) UpdateSecret(ctx context.Context, secret *model.Secret) error { return nil }
+
+func (c *Client) DeleteSecret(ctx context.Context, secret *model.Secret) error { return nil }
