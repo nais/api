@@ -156,5 +156,3 @@ func (u User) IsServiceAccount() bool {
 
 // TODO: remove
 func (u *User) IsAuthenticatedUser() {}
-
-func (u *User) IsEntity() {}

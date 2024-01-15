@@ -54,8 +54,6 @@ type Team struct {
 	*gensql.Team
 }
 
-func (t *Team) IsEntity() {}
-
 func (d *database) RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error {
 	return d.querier.RemoveUserFromTeam(ctx, userID, &teamSlug)
 }
