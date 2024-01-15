@@ -187,6 +187,7 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 		dependencyTrackClient = dependencytrack.New(cfg.DependencyTrack, log.WithField("client", "dependencytrack"))
 	}
 
+	userSyncRuns := usersync.NewRunsHandler(cfg.UserSync.RunsToStore)
 	resourceUsageClient := resourceusage.NewClient(cfg.K8S.AllClusterNames, db, log)
 	resolver := graph.NewResolver(
 		hookdClient,
@@ -198,6 +199,7 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 		userSync,
 		auditLogger,
 		clusters,
+		userSyncRuns,
 		log,
 	)
 	graphHandler, err := graph.NewHandler(gengql.Config{
@@ -215,15 +217,15 @@ func run(ctx context.Context, cfg *config.Config, log logrus.FieldLogger) error 
 	go func() {
 		if !cfg.UserSyncEnabled {
 			log.Infof("user sync is disabled")
-			for range userSync {
+			for sync := range userSync {
 				// drain channel
+				log.Infof("draining user sync request with correlation ID %s", sync)
 			}
 			return
 		}
 
 		defer cancel()
 
-		userSyncRuns := usersync.NewRunsHandler(cfg.UserSync.RunsToStore)
 		userSyncer, err := usersync.NewFromConfig(cfg.GoogleManagementProjectID, cfg.TenantDomain, cfg.UserSync.AdminGroupPrefix, db, log, userSyncRuns)
 		if err != nil {
 			log.WithError(err).Errorf("unable to set up user syncer")

@@ -76,6 +76,7 @@ type Resolver struct {
 	tenantDomain          string
 	userSync              chan<- uuid.UUID
 	auditLogger           auditlogger.AuditLogger
+	userSyncRuns          *usersync.RunsHandler
 
 	// TODO(thokra) Add this to NewResolver
 	teamSyncHandler interface {
@@ -88,7 +89,6 @@ type Resolver struct {
 		DeleteTeam(teamSlug slug.Slug, correlationID uuid.UUID) error
 		Close()
 	}
-	userSyncRuns *usersync.RunsHandler
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
@@ -102,6 +102,7 @@ func NewResolver(
 	userSync chan<- uuid.UUID,
 	auditLogger auditlogger.AuditLogger,
 	clusters ClusterList,
+	userSyncRuns *usersync.RunsHandler,
 	log logrus.FieldLogger,
 ) *Resolver {
 	return &Resolver{
@@ -115,6 +116,7 @@ func NewResolver(
 		searcher:              search.New(teamsearch.New(db), k8sClient),
 		log:                   log,
 		database:              db,
+		userSyncRuns:          userSyncRuns,
 		clusters:              clusters,
 	}
 }
