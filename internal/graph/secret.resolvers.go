@@ -15,12 +15,12 @@ import (
 )
 
 // CreateSecret is the resolver for the createSecret field.
-func (r *mutationResolver) CreateSecret(ctx context.Context, name string, keys []*string, values []*string) (*model.Secret, error) {
+func (r *mutationResolver) CreateSecret(ctx context.Context, name string, data []*model.SecretTupleInput) (*model.Secret, error) {
 	panic(fmt.Errorf("not implemented: CreateSecret - createSecret"))
 }
 
 // UpdateSecret is the resolver for the updateSecret field.
-func (r *mutationResolver) UpdateSecret(ctx context.Context, name string, keys []*string, values []*string, data []*model.SecretTupleInput) (*model.Secret, error) {
+func (r *mutationResolver) UpdateSecret(ctx context.Context, name string, data []*model.SecretTupleInput) (*model.Secret, error) {
 	panic(fmt.Errorf("not implemented: UpdateSecret - updateSecret"))
 }
 

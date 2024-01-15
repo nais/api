@@ -475,7 +475,7 @@ type ComplexityRoot struct {
 		ChangeDeployKey        func(childComplexity int, team slug.Slug) int
 		ConfigureReconciler    func(childComplexity int, name string, config []*model.ReconcilerConfigInput) int
 		ConfirmTeamDeletion    func(childComplexity int, key string) int
-		CreateSecret           func(childComplexity int, name string, keys []*string, values []*string) int
+		CreateSecret           func(childComplexity int, name string, data []*model.SecretTupleInput) int
 		CreateTeam             func(childComplexity int, input model.CreateTeamInput) int
 		DeauthorizeRepository  func(childComplexity int, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) int
 		DeleteSecret           func(childComplexity int, name string) int
@@ -490,7 +490,7 @@ type ComplexityRoot struct {
 		SynchronizeAllTeams    func(childComplexity int) int
 		SynchronizeTeam        func(childComplexity int, slug slug.Slug) int
 		SynchronizeUsers       func(childComplexity int) int
-		UpdateSecret           func(childComplexity int, name string, keys []*string, values []*string, data []*model.SecretTupleInput) int
+		UpdateSecret           func(childComplexity int, name string, data []*model.SecretTupleInput) int
 		UpdateTeam             func(childComplexity int, slug slug.Slug, input model.UpdateTeamInput) int
 	}
 
@@ -945,8 +945,8 @@ type MutationResolver interface {
 	ResetReconciler(ctx context.Context, name string) (*model.Reconciler, error)
 	AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler string) (*model.TeamMember, error)
 	RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler string) (*model.TeamMember, error)
-	CreateSecret(ctx context.Context, name string, keys []*string, values []*string) (*model.Secret, error)
-	UpdateSecret(ctx context.Context, name string, keys []*string, values []*string, data []*model.SecretTupleInput) (*model.Secret, error)
+	CreateSecret(ctx context.Context, name string, data []*model.SecretTupleInput) (*model.Secret, error)
+	UpdateSecret(ctx context.Context, name string, data []*model.SecretTupleInput) (*model.Secret, error)
 	DeleteSecret(ctx context.Context, name string) (*model.Secret, error)
 	CreateTeam(ctx context.Context, input model.CreateTeamInput) (*model.Team, error)
 	UpdateTeam(ctx context.Context, slug slug.Slug, input model.UpdateTeamInput) (*model.Team, error)
@@ -2695,7 +2695,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateSecret(childComplexity, args["name"].(string), args["keys"].([]*string), args["values"].([]*string)), true
+		return e.complexity.Mutation.CreateSecret(childComplexity, args["name"].(string), args["data"].([]*model.SecretTupleInput)), true
 
 	case "Mutation.createTeam":
 		if e.complexity.Mutation.CreateTeam == nil {
@@ -2865,7 +2865,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateSecret(childComplexity, args["name"].(string), args["keys"].([]*string), args["values"].([]*string), args["data"].([]*model.SecretTupleInput)), true
+		return e.complexity.Mutation.UpdateSecret(childComplexity, args["name"].(string), args["data"].([]*model.SecretTupleInput)), true
 
 	case "Mutation.updateTeam":
 		if e.complexity.Mutation.UpdateTeam == nil {
@@ -6138,14 +6138,9 @@ enum SearchType {
 }
 
 extend type Mutation {
-  createSecret(name: String!, keys: [String], values: [String]): Secret!
+  createSecret(name: String!, data: [SecretTupleInput]): Secret!
 
-  updateSecret(
-    name: String!
-    keys: [String]
-    values: [String]
-    data: [SecretTupleInput]
-  ): Secret!
+  updateSecret(name: String!, data: [SecretTupleInput]): Secret!
 
   deleteSecret(name: String!): Secret
 }
@@ -7191,24 +7186,15 @@ func (ec *executionContext) field_Mutation_createSecret_args(ctx context.Context
 		}
 	}
 	args["name"] = arg0
-	var arg1 []*string
-	if tmp, ok := rawArgs["keys"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("keys"))
-		arg1, err = ec.unmarshalOString2ᚕᚖstring(ctx, tmp)
+	var arg1 []*model.SecretTupleInput
+	if tmp, ok := rawArgs["data"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
+		arg1, err = ec.unmarshalOSecretTupleInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretTupleInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["keys"] = arg1
-	var arg2 []*string
-	if tmp, ok := rawArgs["values"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("values"))
-		arg2, err = ec.unmarshalOString2ᚕᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["values"] = arg2
+	args["data"] = arg1
 	return args, nil
 }
 
@@ -7476,33 +7462,15 @@ func (ec *executionContext) field_Mutation_updateSecret_args(ctx context.Context
 		}
 	}
 	args["name"] = arg0
-	var arg1 []*string
-	if tmp, ok := rawArgs["keys"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("keys"))
-		arg1, err = ec.unmarshalOString2ᚕᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["keys"] = arg1
-	var arg2 []*string
-	if tmp, ok := rawArgs["values"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("values"))
-		arg2, err = ec.unmarshalOString2ᚕᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["values"] = arg2
-	var arg3 []*model.SecretTupleInput
+	var arg1 []*model.SecretTupleInput
 	if tmp, ok := rawArgs["data"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-		arg3, err = ec.unmarshalOSecretTupleInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretTupleInput(ctx, tmp)
+		arg1, err = ec.unmarshalOSecretTupleInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretTupleInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["data"] = arg3
+	args["data"] = arg1
 	return args, nil
 }
 
@@ -19180,7 +19148,7 @@ func (ec *executionContext) _Mutation_createSecret(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateSecret(rctx, fc.Args["name"].(string), fc.Args["keys"].([]*string), fc.Args["values"].([]*string))
+		return ec.resolvers.Mutation().CreateSecret(rctx, fc.Args["name"].(string), fc.Args["data"].([]*model.SecretTupleInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19245,7 +19213,7 @@ func (ec *executionContext) _Mutation_updateSecret(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateSecret(rctx, fc.Args["name"].(string), fc.Args["keys"].([]*string), fc.Args["values"].([]*string), fc.Args["data"].([]*model.SecretTupleInput))
+		return ec.resolvers.Mutation().UpdateSecret(rctx, fc.Args["name"].(string), fc.Args["data"].([]*model.SecretTupleInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
