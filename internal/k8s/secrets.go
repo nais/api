@@ -48,24 +48,24 @@ func (c *Client) Secret(ctx context.Context, name, team, env string) (*model.Sec
 	return toGraphSecret(secret, env), nil
 }
 
-func (c *Client) CreateSecret(ctx context.Context, secret *model.Secret) error {
+func (c *Client) CreateSecret(ctx context.Context, secret *model.Secret) (*model.Secret, error) {
 	env := secret.Env.Name
 	namespace := secret.GQLVars.Team.String()
-	_, err := c.clientSets[env].CoreV1().Secrets(namespace).Create(ctx, toKubeSecret(secret), metav1.CreateOptions{})
+	created, err := c.clientSets[env].CoreV1().Secrets(namespace).Create(ctx, toKubeSecret(secret), metav1.CreateOptions{})
 	if err != nil {
-		return c.error(ctx, err, "creating secret")
+		return nil, c.error(ctx, err, "creating secret")
 	}
-	return nil
+	return toGraphSecret(env, created), nil
 }
 
-func (c *Client) UpdateSecret(ctx context.Context, secret *model.Secret) error {
+func (c *Client) UpdateSecret(ctx context.Context, secret *model.Secret) (*model.Secret, error) {
 	env := secret.Env.Name
 	namespace := secret.GQLVars.Team.String()
-	_, err := c.clientSets[env].CoreV1().Secrets(namespace).Update(ctx, toKubeSecret(secret), metav1.UpdateOptions{})
+	updated, err := c.clientSets[env].CoreV1().Secrets(namespace).Update(ctx, toKubeSecret(secret), metav1.UpdateOptions{})
 	if err != nil {
-		return c.error(ctx, err, "updating secret")
+		return nil, c.error(ctx, err, "updating secret")
 	}
-	return nil
+	return toGraphSecret(env, updated), nil
 }
 
 func (c *Client) DeleteSecret(ctx context.Context, secret *model.Secret) error {
