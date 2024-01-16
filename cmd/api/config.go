@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/nais/api/internal/fixtures"
 	"github.com/nais/api/internal/k8s"
 	"github.com/sethvargo/go-envconfig"
@@ -97,12 +95,6 @@ type Config struct {
 	// GoogleManagementProjectID The ID of the NAIS management project in the tenant organization in GCP.
 	GoogleManagementProjectID string `env:"GOOGLE_MANAGEMENT_PROJECT_ID"`
 
-	// RunAsUser is the static user to run as. Used for development purposes. Will override IAP_AUDIENCE when set
-	RunAsUser string `env:"RUN_AS_USER"`
-
-	// IapAudience is the audience for the IAP JWT token. Will not be used when RUN_AS_USER is set
-	IapAudience string `env:"IAP_AUDIENCE"`
-
 	// DatabaseConnectionString is the database DSN
 	DatabaseConnectionString string `env:"DATABASE_URL,default=postgres://api:api@127.0.0.1:3002/api?sslmode=disable"`
 
@@ -142,9 +134,6 @@ func NewConfig(ctx context.Context, lookuper envconfig.Lookuper) (*Config, error
 	err := envconfig.ProcessWith(ctx, cfg, lookuper)
 	if err != nil {
 		return nil, err
-	}
-	if cfg.RunAsUser == "" && cfg.IapAudience == "" {
-		return nil, fmt.Errorf("either RUN_AS_USER or IAP_AUDIENCE must be set")
 	}
 
 	return cfg, nil

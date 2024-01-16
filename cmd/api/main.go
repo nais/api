@@ -383,8 +383,8 @@ func getHttpServer(cfg *Config, db database.Database, authHandler authn.Handler,
 	dataLoaders := dataloader.NewLoaders(db)
 	middlewares := []func(http.Handler) http.Handler{}
 
-	if cfg.RunAsUser != "" {
-		middlewares = append(middlewares, auth.StaticUser(db, cfg.RunAsUser))
+	if cfg.WithFakeClients {
+		middlewares = append(middlewares, auth.StaticUser(db))
 	}
 
 	middlewares = append(middlewares,
