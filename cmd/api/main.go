@@ -391,7 +391,7 @@ func getHttpServer(cfg *Config, db database.Database, authHandler authn.Handler,
 		cors.New(
 			cors.Options{
 				AllowedOrigins:   []string{"https://*", "http://*"},
-				AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+				AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
 				AllowCredentials: true,
 			},
 		).Handler,
