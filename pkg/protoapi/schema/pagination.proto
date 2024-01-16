@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option go_package = "./pkg/protoapi";
+
+message PageInfo {
+  int64 total_count = 1;
+  bool has_next_page = 2;
+  bool has_previous_page = 3;
+}

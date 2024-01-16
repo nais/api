@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+
 	"github.com/nais/api/internal/fixtures"
 	"github.com/nais/api/internal/k8s"
 	"github.com/sethvargo/go-envconfig"
@@ -125,6 +126,9 @@ type Config struct {
 
 	// ListenAddress is host:port combination used by the http server
 	ListenAddress string `env:"LISTEN_ADDRESS,default=127.0.0.1:3000"`
+
+	// GRPCListenAddress is host:port combination used by the GRPC server
+	GRPCListenAddress string `env:"GRPC_LISTEN_ADDRESS,default=127.0.0.1:3001"`
 
 	K8s             k8sConfig
 	UserSync        userSyncConfig

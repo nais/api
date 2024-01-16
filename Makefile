@@ -2,7 +2,7 @@
 
 all: generate fmt test check api helm-lint
 
-generate: generate-sql generate-graphql generate-mocks
+generate: generate-sql generate-graphql generate-mocks generate-proto
 
 generate-sql:
 	go run github.com/sqlc-dev/sqlc/cmd/sqlc generate -f .configs/sqlc.yaml
@@ -16,6 +16,13 @@ generate-graphql:
 generate-mocks:
 	go run github.com/vektra/mockery/v2 --config ./.configs/mockery.yaml
 	find internal -type f -name "mock_*.go" -exec go run mvdan.cc/gofumpt@latest -w {} \;
+
+generate-proto:
+	protoc \
+		-I pkg/protoapi/schema/ \
+		./pkg/protoapi/schema/*.proto \
+		--go_out=. \
+		--go-grpc_out=.
 
 api:
 	go build -o bin/api ./cmd/api
@@ -49,4 +56,3 @@ helm-lint:
 
 seed:
 	go run cmd/database-seeder/main.go -users 1000 -teams 100 -owners 2 -members 10
-

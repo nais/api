@@ -29,6 +29,7 @@ import (
 	"github.com/nais/api/internal/graph/dataloader"
 	"github.com/nais/api/internal/graph/directives"
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/grpc"
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/k8s/fake"
 	"github.com/nais/api/internal/logger"
@@ -103,9 +104,8 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	defer cancel()
 
 	// TODO: Replace with signal.NotifyContext
-	signals := make(chan os.Signal, 1)
-	defer close(signals)
-	signal.Notify(signals, syscall.SIGTERM, syscall.SIGINT)
+	ctx, signalStop := signal.NotifyContext(ctx, syscall.SIGTERM, syscall.SIGINT)
+	defer signalStop()
 
 	if cfg.WithFakeClients {
 		log.Warn("using fake clients")
@@ -361,11 +361,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		log.Infof("HTTP server finished, terminating...")
 	}()
 
-	// signal handling
 	go func() {
 		defer cancel()
-		sig := <-signals
-		log.Infof("received signal %s, terminating...", sig)
+		if err := grpc.Run(ctx, cfg.GRPCListenAddress, db, log); err != nil {
+			log.WithError(err).Errorf("error in GRPC server")
+		}
 	}()
 
 	log.Infof("HTTP server accepting requests on %q", cfg.ListenAddress)
