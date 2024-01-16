@@ -7,8 +7,6 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/selection"
 )
 
 const (
@@ -20,23 +18,37 @@ const (
 func (c *Client) Secrets(ctx context.Context, team string) ([]*model.Secret, error) {
 	ret := make([]*model.Secret, 0)
 
-	secretReq, err := labels.NewRequirement(consoleSecretLabelKey, selection.Equals, []string{consoleSecretLabelVal})
-	if err != nil {
-		return nil, c.error(ctx, err, "creating label selector")
-	}
-	secretSelector := labels.NewSelector().Add(*secretReq)
-
-	for env, infs := range c.informers {
-		objs, err := infs.SecretInformer.Lister().Secrets(team).List(secretSelector)
-		if err != nil {
-			return nil, c.error(ctx, err, "listing applications")
-		}
-
-		for _, obj := range objs {
-			ret = append(ret, toGraphSecret(obj, env))
-		}
+	for env, _ := range c.informers {
+		ret = staticSecrets(env, "nais")
 	}
 	return ret, nil
+}
+
+func staticSecrets(env, team string) []*model.Secret {
+	return []*model.Secret{
+		{
+			ID: makeSecretIdent(env, team, "some-secret"),
+			Env: model.Env{
+				Name: env,
+				ID:   scalar.EnvIdent(env),
+			},
+			Name: "some-secret",
+			Data: map[string]string{
+				"some-key": "some-value",
+			},
+		},
+		{
+			ID: makeSecretIdent(env, team, "some-other-secret"),
+			Env: model.Env{
+				Name: env,
+				ID:   scalar.EnvIdent(env),
+			},
+			Name: "some-other-secret",
+			Data: map[string]string{
+				"some-other-key": "some-other-value",
+			},
+		},
+	}
 }
 
 func (c *Client) Secret(ctx context.Context, name, team, env string) (*model.Secret, error) {
