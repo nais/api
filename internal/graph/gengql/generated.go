@@ -5303,13 +5303,7 @@ type Error {
   message: String!
 }
 `, BuiltIn: false},
-	{Name: "../graphqls/directives.graphqls", Input: `directive @goField(
-  forceResolver: Boolean
-  name: String
-  omittable: Boolean
-) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
-
-"Require an authenticated user for all requests with this directive."
+	{Name: "../graphqls/directives.graphqls", Input: `"Require an authenticated user for all requests with this directive."
 directive @auth on FIELD_DEFINITION
 
 "Require an authenticated user with the admin role for all requests with this directive."
