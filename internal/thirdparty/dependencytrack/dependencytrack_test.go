@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/nais/api/internal/do_not_use"
 	"github.com/nais/api/internal/graph/model"
 	dependencytrack "github.com/nais/dependencytrack/pkg/client"
 	"github.com/sirupsen/logrus"
@@ -13,7 +12,6 @@ import (
 )
 
 func TestClient_GetVulnerabilities(t *testing.T) {
-	cfg := do_not_use.DependencyTrack{}
 	log := logrus.New().WithField("test", "dependencytrack")
 	ctx := context.Background()
 
@@ -121,7 +119,7 @@ func TestClient_GetVulnerabilities(t *testing.T) {
 
 	for _, tc := range tt {
 		mock := NewMockInternalClient(t)
-		c := New(cfg, log).WithClient(mock)
+		c := New("endpoint", "username", "password", "frontend", log).WithClient(mock)
 		tc.expect(tc.input, mock)
 		v, err := c.GetVulnerabilities(ctx, tc.input)
 		tc.assert(t, v, err)
@@ -129,7 +127,6 @@ func TestClient_GetVulnerabilities(t *testing.T) {
 }
 
 func TestClient_VulnerabilitySummary(t *testing.T) {
-	cfg := do_not_use.DependencyTrack{}
 	log := logrus.New().WithField("test", "dependencytrack")
 	ctx := context.Background()
 
@@ -197,7 +194,7 @@ func TestClient_VulnerabilitySummary(t *testing.T) {
 
 	for _, tc := range tt {
 		mock := NewMockInternalClient(t)
-		c := New(cfg, log).WithClient(mock)
+		c := New("endpoint", "username", "password", "frontend", log).WithClient(mock)
 		tc.expect(tc.input, mock)
 		v, err := c.VulnerabilitySummary(ctx, tc.input)
 		tc.assert(t, v, err)

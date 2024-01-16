@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nais/api/internal/do_not_use"
 	httptest "github.com/nais/api/internal/test"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/sirupsen/logrus/hooks/test"
@@ -31,9 +30,7 @@ func TestClient(t *testing.T) {
 	counter, err := meter.Int64Counter("errors")
 	assert.NoError(t, err)
 
-	cfg := do_not_use.Hookd{
-		PSK: token,
-	}
+	psk := token
 
 	t.Run("empty response when fetching deployments", func(t *testing.T) {
 		hookdServer := httptest.NewHttpServerWithHandlers(t, []http.HandlerFunc{
@@ -46,8 +43,8 @@ func TestClient(t *testing.T) {
 			},
 		})
 
-		cfg.Endpoint = hookdServer.URL
-		client := hookd.New(cfg, counter, logger)
+		endpoint := hookdServer.URL
+		client := hookd.New(endpoint, psk, counter, logger)
 
 		deployments, err := client.Deployments(ctx)
 		assert.NoError(t, err)
@@ -65,8 +62,8 @@ func TestClient(t *testing.T) {
 			},
 		})
 
-		cfg.Endpoint = hookdServer.URL
-		client := hookd.New(cfg, counter, logger)
+		endpoint := hookdServer.URL
+		client := hookd.New(endpoint, psk, counter, logger)
 
 		deployments, err := client.Deployments(ctx, hookd.WithTeam("team"))
 		assert.NoError(t, err)
@@ -103,8 +100,8 @@ func TestClient(t *testing.T) {
 			},
 		})
 
-		cfg.Endpoint = hookdServer.URL
-		client := hookd.New(cfg, counter, logger)
+		endpoint := hookdServer.URL
+		client := hookd.New(endpoint, psk, counter, logger)
 
 		deployments, err := client.Deployments(ctx, hookd.WithTeam("team"))
 		assert.NoError(t, err)
@@ -121,8 +118,8 @@ func TestClient(t *testing.T) {
 			},
 		})
 
-		cfg.Endpoint = hookdServer.URL
-		client := hookd.New(cfg, counter, logger)
+		endpoint := hookdServer.URL
+		client := hookd.New(endpoint, psk, counter, logger)
 
 		deployments, err := client.DeployKey(ctx, "team")
 		assert.Nil(t, deployments)
@@ -136,8 +133,8 @@ func TestClient(t *testing.T) {
 			},
 		})
 
-		cfg.Endpoint = hookdServer.URL
-		client := hookd.New(cfg, counter, logger)
+		endpoint := hookdServer.URL
+		client := hookd.New(endpoint, psk, counter, logger)
 
 		key, err := client.DeployKey(ctx, "team")
 		assert.Nil(t, key)
@@ -151,8 +148,8 @@ func TestClient(t *testing.T) {
 			},
 		})
 
-		cfg.Endpoint = hookdServer.URL
-		client := hookd.New(cfg, counter, logger)
+		endpoint := hookdServer.URL
+		client := hookd.New(endpoint, psk, counter, logger)
 
 		key, err := client.DeployKey(ctx, "team")
 		assert.NoError(t, err)
