@@ -2,11 +2,11 @@ package database
 
 import (
 	"context"
-	"github.com/nais/api/internal/database/gensql"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/nais/api/internal/database/gensql"
 )
 
 const sessionLength = 30 * time.Minute

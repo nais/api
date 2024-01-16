@@ -3,16 +3,15 @@ package resourceusage
 import (
 	"context"
 	"fmt"
-	"github.com/nais/api/internal/database"
 	"strings"
 	"time"
 
-	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/slug"
-
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/k8s"
+	"github.com/nais/api/internal/slug"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"

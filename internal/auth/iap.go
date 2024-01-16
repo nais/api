@@ -2,9 +2,10 @@ package auth
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
-	"net/http"
 )
 
 // StaticUser returns a middleware that sets the email address of the authenticated user to the given value
