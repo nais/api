@@ -152,16 +152,6 @@ func GetQueriedFields(ctx context.Context) map[string]bool {
 	return fields
 }
 
-// addTeamToReconcilerQueue add a team (enclosed in an input) to the reconciler queue
-// func (r *Resolver) addTeamToReconcilerQueue(input teamsync.Input) error {
-// 	err := r.teamSyncHandler.Schedule(input)
-// 	if err != nil {
-// 		r.log.WithTeamSlug(string(input.TeamSlug)).WithError(err).Errorf("add team to reconciler queue")
-// 		return apierror.Errorf("api is about to restart, unable to reconcile team: %q", input.TeamSlug)
-// 	}
-// 	return nil
-// }
-
 // reconcileTeam Trigger team reconcilers for a given team
 func (r *Resolver) reconcileTeam(_ context.Context, correlationID uuid.UUID, slug slug.Slug) error {
 	// input := teamsync.Input{
