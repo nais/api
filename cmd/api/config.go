@@ -47,15 +47,18 @@ type userSyncConfig struct {
 	// Enabled When set to true api will keep the user database in sync with the connected Google
 	// organization. The Google organization will be treated as the master.
 	Enabled bool `env:"USERSYNC_ENABLED"`
-	// RunsToStore Number of runs to store for the userSync GraphQL query.
-	RunsToStore int `env:"USERSYNC_RUNS_TO_STORE,default=5"`
+
+	// RunsToPersist Number of runs to store for the userSync GraphQL query.
+	RunsToPersist int `env:"USERSYNC_RUNS_TO_PERSIST,default=5"`
+
 	// AdminGroupPrefix The prefix of the admin group email address.
+	// TODO: change default value to nais-admins (or something similar) and rename existing groups
 	AdminGroupPrefix string `env:"USERSYNC_ADMIN_GROUP_PREFIX,default=console-admins"`
 }
 
 // costConfig is the configuration for the cost service
 type costConfig struct {
-	ImportEnabled     bool   `env:"COST_DATA_IMPORT_ENABLED,default=false"`
+	ImportEnabled     bool   `env:"COST_DATA_IMPORT_ENABLED"`
 	BigQueryProjectID string `env:"BIGQUERY_PROJECTID,default=*detect-project-id*"`
 }
 
@@ -63,6 +66,7 @@ type costConfig struct {
 type dependencyTrackConfig struct {
 	Endpoint string `env:"DEPENDENCYTRACK_ENDPOINT,default=http://dependencytrack-backend:8080"`
 	Frontend string `env:"DEPENDENCYTRACK_FRONTEND"`
+	// TODO: change default value to something other than console
 	Username string `env:"DEPENDENCYTRACK_USERNAME,default=console"`
 	Password string `env:"DEPENDENCYTRACK_PASSWORD"`
 }
@@ -70,7 +74,7 @@ type dependencyTrackConfig struct {
 // hookdConfig is the configuration for the hookd service
 type hookdConfig struct {
 	Endpoint string `env:"HOOKD_ENDPOINT,default=http://hookd"`
-	PSK      string `env:"HOOKD_PSK,default=secret-frontend-psk"`
+	PSK      string `env:"HOOKD_PSK"`
 }
 
 type oAuthConfig struct {
@@ -90,8 +94,10 @@ type oAuthConfig struct {
 type Config struct {
 	// Tenant is the active tenant
 	Tenant string `env:"TENANT,default=dev-nais"`
+
 	// TenantDomain The domain for the tenant.
 	TenantDomain string `env:"TENANT_DOMAIN,default=example.com"`
+
 	// GoogleManagementProjectID The ID of the NAIS management project in the tenant organization in GCP.
 	GoogleManagementProjectID string `env:"GOOGLE_MANAGEMENT_PROJECT_ID"`
 
@@ -112,13 +118,13 @@ type Config struct {
 	StaticServiceAccounts fixtures.ServiceAccounts `env:"STATIC_SERVICE_ACCOUNTS"`
 
 	// ResourceUtilization is the configuration for the resource utilization service
-	ResourceUtilizationImportEnabled bool `env:"RESOURCE_UTILIZATION_IMPORT_ENABLED,default=false"`
+	ResourceUtilizationImportEnabled bool `env:"RESOURCE_UTILIZATION_IMPORT_ENABLED"`
 
 	// WithFakeKubernetes When set to true, the api will use a fake kubernetes client.
 	WithFakeClients bool `env:"WITH_FAKE_CLIENTS"`
 
 	// ListenAddress is host:port combination used by the http server
-	ListenAddress string `env:"LISTEN_ADDRESS,default=:8080"`
+	ListenAddress string `env:"LISTEN_ADDRESS,default=127.0.0.1:3000"`
 
 	K8s             k8sConfig
 	UserSync        userSyncConfig
@@ -128,7 +134,7 @@ type Config struct {
 	OAuth           oAuthConfig
 }
 
-// New creates a new configuration instance from environment variables
+// NewConfig creates a new configuration instance from environment variables
 func NewConfig(ctx context.Context, lookuper envconfig.Lookuper) (*Config, error) {
 	cfg := &Config{}
 	err := envconfig.ProcessWith(ctx, cfg, lookuper)

@@ -199,7 +199,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		)
 	}
 
-	userSyncRuns := usersync.NewRunsHandler(cfg.UserSync.RunsToStore)
+	userSyncRuns := usersync.NewRunsHandler(cfg.UserSync.RunsToPersist)
 	resourceUsageClient := resourceusage.NewClient(cfg.K8s.AllClusterNames(), db, log)
 	resolver := graph.NewResolver(
 		hookdClient,

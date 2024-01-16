@@ -17,44 +17,13 @@ generate-mocks:
 	go run github.com/vektra/mockery/v2 --config ./.configs/mockery.yaml
 	find internal -type f -name "mock_*.go" -exec go run mvdan.cc/gofumpt@latest -w {} \;
 
-setup:
-	gcloud secrets versions access latest --secret=api-kubeconfig --project aura-dev-d9f5 > kubeconfig
-
 api:
 	go build -o bin/api ./cmd/api
 
-portforward-hookd:
-	kubectl port-forward -n nais-system --context nav-management-v2 svc/hookd 8282:80
-
-portforward-teams:
-	kubectl port-forward -n nais-system --context nav-management-v2 svc/api 8181:80
-
-local-nav:
-	DEPENDENCYTRACK_ENDPOINT="https://dependencytrack-backend.nav.cloud.nais.io" \
-	DEPENDENCYTRACK_FRONTEND="https://salsa.nav.cloud.nais.io" \
-	DEPENDENCYTRACK_USERNAME="todo" \
-	DEPENDENCYTRACK_PASSWORD="todo" \
-	BIGQUERY_PROJECTID="nais-io" \
-	HOOKD_ENDPOINT="http://localhost:8282" \
-	HOOKD_PSK="$(shell kubectl get secret console-backend --context nav-management-v2 -n nais-system -ojsonpath='{.data.HOOKD_PSK}' | base64 --decode)" \
-	KUBERNETES_CLUSTERS="dev-gcp,prod-gcp" \
-	KUBERNETES_CLUSTERS_STATIC="dev-fss|apiserver.dev-fss.nais.io|$(shell kubectl get secret --context nav-dev-fss --namespace nais-system console-backend -ojsonpath='{ .data.token }' | base64 --decode)" \
-	LISTEN_ADDRESS="127.0.0.1:3000" \
-	LOG_FORMAT="text" \
-	LOG_LEVEL="debug" \
-	RUN_AS_USER="admin.usersen@example.com" \
-	API_ENDPOINT="http://localhost:8181/query" \
-	API_TOKEN="$(shell kubectl get secret console-backend --context nav-management-v2 -n nais-system -ojsonpath='{.data.API_TOKEN}' | base64 --decode)" \
-	TENANT="nav" \
-	STATIC_SERVICE_ACCOUNTS='[{"name": "nais-admin","apiKey": "somekey","roles": [{"name": "Admin"}]}]' \
-	go run ./cmd/api
 local:
 	KUBERNETES_CLUSTERS="superprod,dev" \
-	LISTEN_ADDRESS="127.0.0.1:3000" \
 	LOG_FORMAT="text" \
 	LOG_LEVEL="debug" \
-	RUN_AS_USER="admin.usersen@example.com" \
-	STATIC_SERVICE_ACCOUNTS='[{"name": "nais-admin","apiKey": "somekey","roles": [{"name": "Admin"}]}]' \
 	WITH_FAKE_CLIENTS="true" \
 	go run ./cmd/api
 
@@ -80,3 +49,4 @@ helm-lint:
 
 seed:
 	go run cmd/database-seeder/main.go -users 1000 -teams 100 -owners 2 -members 10
+
