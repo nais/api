@@ -10,33 +10,32 @@ import (
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
 )
 
 // CreateSecret is the resolver for the createSecret field.
-func (r *mutationResolver) CreateSecret(ctx context.Context, name string, data []*model.SecretTupleInput) (*model.Secret, error) {
+func (r *mutationResolver) CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
 	panic(fmt.Errorf("not implemented: CreateSecret - createSecret"))
 }
 
 // UpdateSecret is the resolver for the updateSecret field.
-func (r *mutationResolver) UpdateSecret(ctx context.Context, name string, data []*model.SecretTupleInput) (*model.Secret, error) {
+func (r *mutationResolver) UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
 	panic(fmt.Errorf("not implemented: UpdateSecret - updateSecret"))
 }
 
 // DeleteSecret is the resolver for the deleteSecret field.
-func (r *mutationResolver) DeleteSecret(ctx context.Context, name string) (*model.Secret, error) {
+func (r *mutationResolver) DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) (bool, error) {
 	panic(fmt.Errorf("not implemented: DeleteSecret - deleteSecret"))
 }
 
-// Secret is the resolver for the secret field.
-func (r *queryResolver) Secret(ctx context.Context, name string, team slug.Slug, env string) ([]*model.Secret, error) {
-	return r.k8sClient.Secrets(ctx, name, team.String(), env)
+// Secrets is the resolver for the secrets field.
+func (r *queryResolver) Secrets(ctx context.Context, team slug.Slug) ([]*model.Secret, error) {
+	return r.k8sClient.Secrets(ctx, team.String())
 }
 
-// ID is the resolver for the id field.
-func (r *secretResolver) ID(ctx context.Context, obj *model.Secret) (*scalar.Ident, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+// Secret is the resolver for the secret field.
+func (r *queryResolver) Secret(ctx context.Context, name string, team slug.Slug, env string) (*model.Secret, error) {
+	panic(fmt.Errorf("not implemented: Secret - secret"))
 }
 
 // Data is the resolver for the data field.
