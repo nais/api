@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cloud.google.com/go/pubsub"
 	"context"
 	"errors"
 	"fmt"
@@ -183,6 +184,13 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	auditLogger := auditlogger.New(db, logger.ComponentNameGraphqlApi, log)
 	userSync := make(chan uuid.UUID, 1)
 
+	pubsubClient, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
+	if err != nil {
+		return err
+	}
+
+	pubsubTopic := pubsubClient.Topic("nais-api")
+
 	var hookdClient graph.HookdClient
 	var dependencyTrackClient graph.DependencytrackClient
 	if cfg.WithFakeClients {
@@ -212,6 +220,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		auditLogger,
 		clusters,
 		userSyncRuns,
+		pubsubTopic,
 		log,
 	)
 	graphHandler, err := graph.NewHandler(gengql.Config{

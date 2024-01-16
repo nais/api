@@ -26,7 +26,7 @@ func TestQueryResolver_Users(t *testing.T) {
 	userSync := make(chan<- uuid.UUID)
 	userSyncRuns := usersync.NewRunsHandler(5)
 	resolver := graph.
-		NewResolver(nil, database, "example.com", userSync, auditLogger, gcpEnvironments, log, userSyncRuns).
+		NewResolver(nil, database, "example.com", userSync, auditLogger, gcpEnvironments, log, userSyncRuns, nil).
 		Query()
 
 	t.Run("unauthenticated user", func(t *testing.T) {

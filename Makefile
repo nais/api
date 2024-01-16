@@ -28,6 +28,7 @@ api:
 	go build -o bin/api ./cmd/api
 
 local:
+	PUBSUB_EMULATOR_HOST="localhost:3004" \
 	KUBERNETES_CLUSTERS="superprod,dev" \
 	LOG_FORMAT="text" \
 	LOG_LEVEL="debug" \
@@ -54,5 +55,5 @@ fmt:
 helm-lint:
 	helm lint --strict ./charts
 
-seed:
-	go run cmd/database-seeder/main.go -users 1000 -teams 100 -owners 2 -members 10
+setup-local:
+	GOOGLE_MANAGEMENT_PROJECT_ID=nais-local-dev go run ./cmd/setup_local -users 1000 -teams 100 -owners 2 -members 10

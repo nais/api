@@ -2,9 +2,12 @@ package main
 
 import (
 	"bufio"
+	"cloud.google.com/go/pubsub"
 	"context"
 	"flag"
 	"fmt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"math/rand"
 	"os"
 	"strings"
@@ -24,8 +27,10 @@ import (
 )
 
 type seedConfig struct {
-	DatabaseURL       string `env:"DATABASE_URL,default=postgres://api:api@localhost:3002/api?sslmode=disable"`
-	Domain            string `env:"TENANT_DOMAIN,default=example.com"`
+	DatabaseURL               string `env:"DATABASE_URL,default=postgres://api:api@localhost:3002/api?sslmode=disable"`
+	Domain                    string `env:"TENANT_DOMAIN,default=example.com"`
+	GoogleManagementProjectID string `env:"GOOGLE_MANAGEMENT_PROJECT_ID"`
+
 	NumUsers          *int
 	NumTeams          *int
 	NumOwnersPerTeam  *int
@@ -74,6 +79,21 @@ func main() {
 func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
+
+	if err := os.Setenv("PUBSUB_EMULATOR_HOST", "localhost:3004"); err != nil {
+		return err
+	}
+
+	client, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
+	if err != nil {
+		return err
+	}
+
+	if _, err := client.CreateTopic(ctx, "nais-api"); err != nil {
+		if s, ok := status.FromError(err); !ok || s.Code() != codes.AlreadyExists {
+			return err
+		}
+	}
 
 	firstNames, err := fileToSlice("data/first_names.txt")
 	if err != nil {

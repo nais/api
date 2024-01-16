@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.EnumValueOptions {
+  optional string string_name = 123456789;
+}
+
+option go_package = "./pkg/protoapi";
+
+enum EventTypes {
+  EVENT_TEAM_UPDATED = 0;
+  EVENT_RECONCILER_ENABLED = 1;
+  EVENT_RECONCILER_DISABLED = 2;
+  EVENT_RECONCILER_CONFIGURED = 3;
+}
+
+message EventTeamUpdated {
+  string slug = 1;
+}
+
+message EventReconcilerEnabled {
+  string reconciler = 1;
+}
+
+message EventReconcilerDisabled {
+  string reconciler = 1;
+}
+
+message EventReconcilerConfigured {
+  string reconciler = 1;
+}

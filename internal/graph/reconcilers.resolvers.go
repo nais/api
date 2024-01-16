@@ -30,13 +30,9 @@ func (r *mutationResolver) EnableReconciler(ctx context.Context, name string) (*
 		return nil, apierror.Errorf("%q is not a valid name", name)
 	}
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return nil, fmt.Errorf("create log correlation ID: %w", err)
-	}
+	correlationID := uuid.New()
 
-	_, err = r.database.GetReconciler(ctx, rname)
-	if err != nil {
+	if _, err := r.database.GetReconciler(ctx, rname); err != nil {
 		r.log.WithError(err).Errorf("unable to get reconciler: %q", name)
 		return nil, apierror.Errorf("Unable to get reconciler: %q", name)
 	}
@@ -65,17 +61,6 @@ func (r *mutationResolver) EnableReconciler(ctx context.Context, name string) (*
 		return nil, apierror.Errorf("Unable to enable reconciler")
 	}
 
-	err = r.teamSyncHandler.UseReconciler(*reconciler)
-	if err != nil {
-		if _, err := r.database.DisableReconciler(ctx, rname); err != nil {
-			r.log.WithError(err).Errorf("reconciler was enabled, but initialization failed, and we were unable to disable the reconciler.")
-			return nil, apierror.Errorf("Reconciler was enabled, but initialization failed, and we were unable to disable the reconciler.")
-		}
-
-		r.log.WithError(err).Errorf("reconciler will not be enabled because of an initialization failure. Please verify that you have entered correct configuration values.")
-		return nil, apierror.Errorf("Reconciler will not be enabled because of an initialization failure. Please verify that you have entered correct configuration values.")
-	}
-
 	actor := authz.ActorFromContext(ctx)
 	targets := []auditlogger.Target{
 		auditlogger.ReconcilerTarget(rname),
@@ -86,11 +71,7 @@ func (r *mutationResolver) EnableReconciler(ctx context.Context, name string) (*
 		CorrelationID: correlationID,
 	}
 	r.auditLogger.Logf(ctx, targets, fields, "Enable reconciler: %q", name)
-
-	_, err = r.teamSyncHandler.ScheduleAllTeams(ctx, correlationID)
-	if err != nil {
-		r.log.WithError(err).Errorf("reconcile all teams")
-	}
+	r.enableReconciler(ctx, rname, correlationID)
 
 	return toGraphReconciler(reconciler), nil
 }
@@ -121,16 +102,19 @@ func (r *mutationResolver) DisableReconciler(ctx context.Context, name string) (
 		return nil, err
 	}
 
+	correlationID := uuid.New()
+
 	actor := authz.ActorFromContext(ctx)
 	targets := []auditlogger.Target{
 		auditlogger.ReconcilerTarget(rname),
 	}
 	fields := auditlogger.Fields{
-		Action: audittype.AuditActionGraphqlApiReconcilersDisable,
-		Actor:  actor,
+		Action:        audittype.AuditActionGraphqlApiReconcilersDisable,
+		Actor:         actor,
+		CorrelationID: correlationID,
 	}
 	r.auditLogger.Logf(ctx, targets, fields, "Disable reconciler: %q", name)
-	r.teamSyncHandler.RemoveReconciler(rname)
+	r.disableReconciler(ctx, rname, correlationID)
 
 	return toGraphReconciler(reconciler), nil
 }
@@ -184,22 +168,19 @@ func (r *mutationResolver) ConfigureReconciler(ctx context.Context, name string,
 		return nil, err
 	}
 
-	if reconciler.Enabled {
-		err = r.teamSyncHandler.UseReconciler(*reconciler)
-		if err != nil {
-			r.log.WithError(err).Errorf("use reconciler: %q", reconciler.Name)
-		}
-	}
+	correlationID := uuid.New()
 
 	actor := authz.ActorFromContext(ctx)
 	targets := []auditlogger.Target{
 		auditlogger.ReconcilerTarget(rname),
 	}
 	fields := auditlogger.Fields{
-		Action: audittype.AuditActionGraphqlApiReconcilersConfigure,
-		Actor:  actor,
+		Action:        audittype.AuditActionGraphqlApiReconcilersConfigure,
+		Actor:         actor,
+		CorrelationID: correlationID,
 	}
 	r.auditLogger.Logf(ctx, targets, fields, "Configure reconciler: %q", rname)
+	r.configureReconciler(ctx, rname, correlationID)
 
 	return toGraphReconciler(reconciler), nil
 }

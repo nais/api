@@ -70,7 +70,7 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 
 	t.Run("create team with empty purpose", func(t *testing.T) {
 		_, err := graph.
-			NewResolver(teamSyncHandler, database, tenantDomain, userSync, auditlogger.NewAuditLoggerForTesting(), gcpEnvironments, log, userSyncRuns).
+			NewResolver(teamSyncHandler, database, tenantDomain, userSync, auditlogger.NewAuditLoggerForTesting(), gcpEnvironments, log, userSyncRuns, nil).
 			Mutation().
 			CreateTeam(ctx, model.CreateTeamInput{
 				Slug:         teamSlug,
@@ -114,7 +114,7 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 
 		auditLogger := auditlogger.NewAuditLoggerForTesting()
 		returnedTeam, err := graph.
-			NewResolver(teamSyncHandler, database, tenantDomain, userSync, auditLogger, gcpEnvironments, log, userSyncRuns).
+			NewResolver(teamSyncHandler, database, tenantDomain, userSync, auditLogger, gcpEnvironments, log, userSyncRuns, nil).
 			Mutation().
 			CreateTeam(ctx, model.CreateTeamInput{
 				Slug:         teamSlug,
@@ -166,7 +166,7 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 
 		auditLogger := auditlogger.NewAuditLoggerForTesting()
 		returnedTeam, err := graph.
-			NewResolver(teamSyncHandler, database, tenantDomain, userSync, auditLogger, gcpEnvironments, log, userSyncRuns).
+			NewResolver(teamSyncHandler, database, tenantDomain, userSync, auditLogger, gcpEnvironments, log, userSyncRuns, nil).
 			Mutation().CreateTeam(saCtx, model.CreateTeamInput{
 			Slug:         teamSlug,
 			Purpose:      " some purpose ",
@@ -200,7 +200,7 @@ func TestMutationResolver_RequestTeamDeletion(t *testing.T) {
 
 	t.Run("service accounts can not create delete keys", func(t *testing.T) {
 		resolver := graph.
-			NewResolver(teamSyncHandler, database, tenantDomain, userSync, auditlogger.NewAuditLoggerForTesting(), gcpEnvironments, log, userSyncRuns).
+			NewResolver(teamSyncHandler, database, tenantDomain, userSync, auditlogger.NewAuditLoggerForTesting(), gcpEnvironments, log, userSyncRuns, nil).
 			Mutation()
 
 		serviceAccount := db.ServiceAccount{
@@ -218,7 +218,7 @@ func TestMutationResolver_RequestTeamDeletion(t *testing.T) {
 
 	t.Run("missing authz", func(t *testing.T) {
 		resolver := graph.
-			NewResolver(teamSyncHandler, database, tenantDomain, userSync, auditlogger.NewAuditLoggerForTesting(), gcpEnvironments, log, userSyncRuns).
+			NewResolver(teamSyncHandler, database, tenantDomain, userSync, auditlogger.NewAuditLoggerForTesting(), gcpEnvironments, log, userSyncRuns, nil).
 			Mutation()
 
 		user := db.User{
@@ -259,7 +259,7 @@ func TestMutationResolver_RequestTeamDeletion(t *testing.T) {
 			Once()
 
 		resolver := graph.
-			NewResolver(teamSyncHandler, database, tenantDomain, userSync, auditlogger.NewAuditLoggerForTesting(), gcpEnvironments, log, userSyncRuns).
+			NewResolver(teamSyncHandler, database, tenantDomain, userSync, auditlogger.NewAuditLoggerForTesting(), gcpEnvironments, log, userSyncRuns, nil).
 			Mutation()
 
 		key, err := resolver.RequestTeamDeletion(ctx, teamSlug)
@@ -313,7 +313,7 @@ func TestMutationResolver_RequestTeamDeletion(t *testing.T) {
 
 		auditLogger := auditlogger.NewAuditLoggerForTesting()
 		resolver := graph.
-			NewResolver(teamSyncHandler, database, tenantDomain, userSync, auditLogger, gcpEnvironments, log, userSyncRuns).
+			NewResolver(teamSyncHandler, database, tenantDomain, userSync, auditLogger, gcpEnvironments, log, userSyncRuns, nil).
 			Mutation()
 
 		returnedKey, err := resolver.RequestTeamDeletion(ctx, teamSlug)

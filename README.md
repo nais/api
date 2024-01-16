@@ -5,7 +5,7 @@
 ```bash
 asdf install # Install required dependencies
 docker compose up -d
-make seed
+make setup-local # Setup local environment (seeds database and creates pubsub topic)
 make local
 ```
 

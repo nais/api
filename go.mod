@@ -5,6 +5,7 @@ go 1.21.5
 require (
 	cloud.google.com/go v0.111.0
 	cloud.google.com/go/bigquery v1.57.1
+	cloud.google.com/go/pubsub v1.33.0
 	github.com/99designs/gqlgen v0.17.42
 	github.com/bombsimon/logrusr/v4 v4.1.0
 	github.com/coreos/go-oidc/v3 v3.9.0

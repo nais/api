@@ -1,9 +1,9 @@
 package graph
 
 import (
+	"cloud.google.com/go/pubsub"
 	"context"
 	"fmt"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -24,8 +24,10 @@ import (
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/usersync"
+	"github.com/nais/api/pkg/protoapi"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/metric"
+	"google.golang.org/protobuf/proto"
 )
 
 // This file will not be regenerated automatically.
@@ -77,18 +79,7 @@ type Resolver struct {
 	userSync              chan<- uuid.UUID
 	auditLogger           auditlogger.AuditLogger
 	userSyncRuns          *usersync.RunsHandler
-
-	// TODO(thokra) Add this to NewResolver
-	teamSyncHandler interface {
-		ScheduleAllTeams(ctx context.Context, correlationID uuid.UUID) ([]*database.Team, error)
-		InitReconcilers(ctx context.Context) error
-		UseReconciler(reconciler database.Reconciler) error
-		RemoveReconciler(reconcilerName gensql.ReconcilerName)
-		SyncTeams(ctx context.Context)
-		UpdateMetrics(ctx context.Context)
-		DeleteTeam(teamSlug slug.Slug, correlationID uuid.UUID) error
-		Close()
-	}
+	pubsubTopic           *pubsub.Topic
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
@@ -103,6 +94,7 @@ func NewResolver(
 	auditLogger auditlogger.AuditLogger,
 	clusters ClusterList,
 	userSyncRuns *usersync.RunsHandler,
+	pubsubTopic *pubsub.Topic,
 	log logrus.FieldLogger,
 ) *Resolver {
 	return &Resolver{
@@ -118,6 +110,7 @@ func NewResolver(
 		database:              db,
 		userSyncRuns:          userSyncRuns,
 		clusters:              clusters,
+		pubsubTopic:           pubsubTopic,
 	}
 }
 
@@ -152,15 +145,72 @@ func GetQueriedFields(ctx context.Context) map[string]bool {
 	return fields
 }
 
-// reconcileTeam Trigger team reconcilers for a given team
-func (r *Resolver) reconcileTeam(_ context.Context, correlationID uuid.UUID, slug slug.Slug) error {
-	// input := teamsync.Input{
-	// 	TeamSlug:      slug,
-	// 	CorrelationID: correlationID,
-	// }
+func (r *Resolver) reconcileTeam(ctx context.Context, correlationID uuid.UUID, slug slug.Slug) {
+	msg, err := proto.Marshal(&protoapi.EventTeamUpdated{
+		Slug: slug.String(),
+	})
+	if err != nil {
+		panic(err)
+	}
 
-	// return r.addTeamToReconcilerQueue(input)
-	return nil
+	r.pubsubTopic.Publish(ctx, &pubsub.Message{
+		Data: msg,
+		Attributes: map[string]string{
+			"CorrelationID": correlationID.String(),
+			"EventType":     protoapi.EventTypes_EVENT_TEAM_UPDATED.String(),
+		},
+	})
+}
+
+func (r *Resolver) enableReconciler(ctx context.Context, reconciler gensql.ReconcilerName, correlationID uuid.UUID) {
+	msg, err := proto.Marshal(&protoapi.EventReconcilerEnabled{
+		Reconciler: string(reconciler),
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	r.pubsubTopic.Publish(ctx, &pubsub.Message{
+		Data: msg,
+		Attributes: map[string]string{
+			"CorrelationID": correlationID.String(),
+			"EventType":     protoapi.EventTypes_EVENT_RECONCILER_ENABLED.String(),
+		},
+	})
+}
+
+func (r *Resolver) disableReconciler(ctx context.Context, reconciler gensql.ReconcilerName, correlationID uuid.UUID) {
+	msg, err := proto.Marshal(&protoapi.EventReconcilerDisabled{
+		Reconciler: string(reconciler),
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	r.pubsubTopic.Publish(ctx, &pubsub.Message{
+		Data: msg,
+		Attributes: map[string]string{
+			"CorrelationID": correlationID.String(),
+			"EventType":     protoapi.EventTypes_EVENT_RECONCILER_DISABLED.String(),
+		},
+	})
+}
+
+func (r *Resolver) configureReconciler(ctx context.Context, reconciler gensql.ReconcilerName, correlationID uuid.UUID) {
+	msg, err := proto.Marshal(&protoapi.EventReconcilerConfigured{
+		Reconciler: string(reconciler),
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	r.pubsubTopic.Publish(ctx, &pubsub.Message{
+		Data: msg,
+		Attributes: map[string]string{
+			"CorrelationID": correlationID.String(),
+			"EventType":     protoapi.EventTypes_EVENT_RECONCILER_CONFIGURED.String(),
+		},
+	})
 }
 
 func (r *Resolver) getTeamBySlug(ctx context.Context, slug slug.Slug) (*database.Team, error) {

@@ -22,5 +22,17 @@ services:
     environment:
       ADMINER_DEFAULT_SERVER: postgres
 
+  pubsub:
+    image: google/cloud-sdk
+    command:
+      - gcloud
+      - beta
+      - emulators
+      - pubsub
+      - start
+      - --host-port=0.0.0.0:8085
+    ports:
+      - 3004:8085
+
 volumes:
   pgdata:

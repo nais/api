@@ -37,7 +37,7 @@ func Test_queryResolver_ResourceUtilizationForApp(t *testing.T) {
 			}, nil)
 
 		resp, err := graph.
-			NewResolver(nil, nil, nil, nil, resourceUsageClient, nil, nil, nil).
+			NewResolver(nil, nil, nil, nil, resourceUsageClient, nil, nil, nil, nil).
 			Query().
 			ResourceUtilizationForApp(ctx, "env", "team", "app", nil, nil)
 		assert.Equal(t, cpuData, resp.CPU)
@@ -68,7 +68,7 @@ func Test_queryResolver_ResourceUtilizationForApp(t *testing.T) {
 			}, nil)
 
 		resp, err := graph.
-			NewResolver(nil, nil, nil, nil, resourceUsageClient, nil, nil, nil).
+			NewResolver(nil, nil, nil, nil, resourceUsageClient, nil, nil, nil, nil).
 			Query().
 			ResourceUtilizationForApp(ctx, "env", "team", "app", &from, &to)
 		assert.NoError(t, err)
