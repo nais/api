@@ -11,12 +11,12 @@ import (
 	"unicode"
 
 	"github.com/google/uuid"
-	"github.com/kelseyhightower/envconfig"
 	"github.com/nais/api/internal/database"
 	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/usersync"
+	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
@@ -24,8 +24,8 @@ import (
 )
 
 type seedConfig struct {
-	DatabaseURL       string `envconfig:"DATABASE_URL" default:"postgres://api:api@localhost:3002/api?sslmode=disable"`
-	Domain            string `envconfig:"TENANT_DOMAIN" default:"example.com"`
+	DatabaseURL       string `env:"DATABASE_URL,default=postgres://api:api@localhost:3002/api?sslmode=disable"`
+	Domain            string `env:"TENANT_DOMAIN,default=example.com"`
 	NumUsers          *int
 	NumTeams          *int
 	NumOwnersPerTeam  *int
@@ -33,9 +33,9 @@ type seedConfig struct {
 	ForceSeed         *bool
 }
 
-func newSeedConfig() (*seedConfig, error) {
+func newSeedConfig(ctx context.Context) (*seedConfig, error) {
 	cfg := &seedConfig{}
-	err := envconfig.Process("", cfg)
+	err := envconfig.Process(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,8 @@ func newSeedConfig() (*seedConfig, error) {
 }
 
 func main() {
-	cfg, err := newSeedConfig()
+	ctx := context.Background()
+	cfg, err := newSeedConfig(ctx)
 	if err != nil {
 		fmt.Printf("fatal: %s", err)
 		os.Exit(1)
@@ -63,15 +64,15 @@ func main() {
 		os.Exit(2)
 	}
 
-	err = run(cfg, log)
+	err = run(ctx, cfg, log)
 	if err != nil {
 		log.WithError(err).Error("fatal error in run()")
 		os.Exit(3)
 	}
 }
 
-func run(cfg *seedConfig, log logrus.FieldLogger) error {
-	ctx, cancel := context.WithCancel(context.Background())
+func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	firstNames, err := fileToSlice("data/first_names.txt")
