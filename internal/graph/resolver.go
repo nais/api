@@ -1,9 +1,10 @@
 package graph
 
 import (
-	"cloud.google.com/go/pubsub"
 	"context"
 	"fmt"
+
+	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -209,6 +210,21 @@ func (r *Resolver) configureReconciler(ctx context.Context, reconciler gensql.Re
 		Attributes: map[string]string{
 			"CorrelationID": correlationID.String(),
 			"EventType":     protoapi.EventTypes_EVENT_RECONCILER_CONFIGURED.String(),
+		},
+	})
+}
+
+func (r *Resolver) syncAllTeams(ctx context.Context, correlationID uuid.UUID) {
+	msg, err := proto.Marshal(&protoapi.EventSyncAllTeams{})
+	if err != nil {
+		panic(err)
+	}
+
+	r.pubsubTopic.Publish(ctx, &pubsub.Message{
+		Data: msg,
+		Attributes: map[string]string{
+			"CorrelationID": correlationID.String(),
+			"EventType":     protoapi.EventTypes_EVENT_SYNC_ALL_TEAMS.String(),
 		},
 	})
 }

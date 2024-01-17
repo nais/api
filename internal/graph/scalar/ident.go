@@ -18,6 +18,7 @@ type IdentType string
 const (
 	IdentTypeApp                IdentType = "app"
 	IdentTypeAuditLog           IdentType = "auditLog"
+	IdentTypeCorrelationID      IdentType = "correlationID"
 	IdentTypeDeployKey          IdentType = "deployKey"
 	IdentTypeDeployment         IdentType = "deployment"
 	IdentTypeDeploymentResource IdentType = "deploymentResource"
@@ -118,7 +119,7 @@ func AuditLogIdent(id uuid.UUID) Ident {
 }
 
 func CorrelationID(id uuid.UUID) Ident {
-	return newIdent(id.String(), IdentTypeAuditLog)
+	return newIdent(id.String(), IdentTypeCorrelationID)
 }
 
 func ServiceAccountIdent(id uuid.UUID) Ident {

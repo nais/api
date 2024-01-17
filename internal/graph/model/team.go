@@ -3,8 +3,8 @@ package model
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/database/gensql"
-
 	"github.com/nais/api/internal/slug"
 )
 
@@ -32,4 +32,8 @@ type TeamMemberReconciler struct {
 
 type TeamMemberReconcilerGQLVars struct {
 	Name gensql.ReconcilerName
+}
+
+type TeamSync struct {
+	CorrelationID uuid.UUID `json:"correlationID"`
 }

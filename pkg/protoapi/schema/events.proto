@@ -13,6 +13,7 @@ enum EventTypes {
   EVENT_RECONCILER_ENABLED = 1;
   EVENT_RECONCILER_DISABLED = 2;
   EVENT_RECONCILER_CONFIGURED = 3;
+  EVENT_SYNC_ALL_TEAMS = 4;
 }
 
 message EventTeamUpdated {
@@ -30,3 +31,5 @@ message EventReconcilerDisabled {
 message EventReconcilerConfigured {
   string reconciler = 1;
 }
+
+message EventSyncAllTeams {}

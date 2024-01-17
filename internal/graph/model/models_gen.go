@@ -875,12 +875,6 @@ type TeamStatus struct {
 	Jobs JobsStatus `json:"jobs"`
 }
 
-// Team sync type.
-type TeamSync struct {
-	// The correlation ID for the sync.
-	CorrelationID scalar.Ident `json:"correlationID"`
-}
-
 // Input for filtering teams.
 type TeamsFilter struct {
 	Github *TeamsFilterGitHub `json:"github,omitempty"`

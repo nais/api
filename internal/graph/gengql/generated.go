@@ -31442,9 +31442,9 @@ func (ec *executionContext) _TeamSync_correlationID(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(scalar.Ident)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamSync_correlationID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {

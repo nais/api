@@ -342,43 +342,40 @@ func (r *mutationResolver) SynchronizeTeam(ctx context.Context, slug slug.Slug) 
 	r.reconcileTeam(ctx, correlationID, team.Slug)
 
 	return &model.TeamSync{
-		CorrelationID: scalar.CorrelationID(correlationID),
+		CorrelationID: correlationID,
 	}, nil
 }
 
 // SynchronizeAllTeams is the resolver for the synchronizeAllTeams field.
 func (r *mutationResolver) SynchronizeAllTeams(ctx context.Context) (*model.TeamSync, error) {
-	// actor := authz.ActorFromContext(ctx)
-	// err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationTeamsSynchronize)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationTeamsSynchronize)
+	if err != nil {
+		return nil, err
+	}
 
-	// correlationID, err := uuid.NewUUID()
-	// if err != nil {
-	// 	return nil, fmt.Errorf("create log correlation ID: %w", err)
-	// }
+	correlationID := uuid.New()
 
-	// teams, err := r.teamSyncHandler.ScheduleAllTeams(ctx, correlationID)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	teams, err := r.database.GetAllTeams(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-	// targets := make([]auditlogger.Target, 0, len(teams))
-	// for _, entry := range teams {
-	// 	targets = append(targets, auditlogger.TeamTarget(entry.Team.Slug))
-	// }
-	// fields := auditlogger.Fields{
-	// 	Action:        audittype.AuditActionGraphqlApiTeamSync,
-	// 	Actor:         actor,
-	// 	CorrelationID: correlationID,
-	// }
-	// r.auditLogger.Logf(ctx, targets, fields, "Manually scheduled for synchronization")
+	targets := make([]auditlogger.Target, 0, len(teams))
+	for _, entry := range teams {
+		targets = append(targets, auditlogger.TeamTarget(entry.Team.Slug))
+	}
+	fields := auditlogger.Fields{
+		Action:        audittype.AuditActionGraphqlApiTeamSync,
+		Actor:         actor,
+		CorrelationID: correlationID,
+	}
+	r.auditLogger.Logf(ctx, targets, fields, "Manually scheduled for synchronization")
+	r.syncAllTeams(ctx, correlationID)
 
-	// return &model.TeamSync{
-	// 	CorrelationID: correlationID,
-	// }, nil
-	panic("not implemented")
+	return &model.TeamSync{
+		CorrelationID: correlationID,
+	}, nil
 }
 
 // AddTeamMembers is the resolver for the addTeamMembers field.
