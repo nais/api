@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 )
 
 const (
@@ -18,8 +19,15 @@ const (
 func (c *Client) Secrets(ctx context.Context, team string) ([]*model.EnvSecret, error) {
 	ret := make([]*model.EnvSecret, 0)
 
-	for env := range c.informers {
-		ret = append(ret, staticSecrets(env, "nais"))
+	for _, infs := range c.informers {
+		objs, err := infs.SecretInformer.Lister().Secrets(team).List(labels.Everything())
+		if err != nil {
+			return nil, c.error(ctx, err, "listing applications")
+		}
+		for _, obj := range objs {
+			ret = append(ret, toGraphSecret(env, obj))
+		}
+
 	}
 	return ret, nil
 }
@@ -102,11 +110,18 @@ func toKubeSecret(secret *model.Secret) *corev1.Secret {
 	}
 }
 
-func toGraphSecret(obj *corev1.Secret, env string) *model.Secret {
-	return &model.Secret{
-		ID:   makeSecretIdent(env, obj.GetNamespace(), obj.GetName()),
-		Name: obj.Name,
-		Data: secretBytesToString(obj.Data),
+func toGraphSecret(env string, obj *corev1.Secret) *model.EnvSecret {
+	return &model.EnvSecret{
+		Env: model.Env{Name: env},
+		Secrets: []model.Secret{
+			{
+				ID:   makeSecretIdent(env, obj.GetNamespace(), "some-secret"),
+				Name: "some-secret",
+
+				Data: map[string]string{
+					"some-key": "some-value",
+				}},
+		},
 	}
 }
 
