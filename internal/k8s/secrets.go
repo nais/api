@@ -20,43 +20,18 @@ func (c *Client) Secrets(ctx context.Context, team string) ([]*model.EnvSecret, 
 	ret := make([]*model.EnvSecret, 0)
 
 	for name, infs := range c.informers {
+		secrets := make([]model.Secret, 0)
 		objs, err := infs.SecretInformer.Lister().Secrets(team).List(labels.Everything())
 		if err != nil {
-			return nil, c.error(ctx, err, "listing applications")
+			return nil, c.error(ctx, err, "listing secrets")
 		}
 		for _, obj := range objs {
-			env := name
-			ret = append(ret, toGraphSecret(env, obj))
+			secrets = append(secrets, *toGraphSecret(name, obj))
 		}
+		ret = append(ret, toGraphEnvSecret(name, team, secrets...))
 
 	}
 	return ret, nil
-}
-
-func staticSecrets(env, team string) []*model.EnvSecret {
-	return []*model.EnvSecret{
-		{
-
-			Env: model.Env{Team: team, Name: env},
-			Secrets: []model.Secret{model.Secret{
-				ID:   makeSecretIdent(env, team, "some-secret"),
-				Name: "some-secret",
-
-				Data: map[string]string{
-					"some-key": "some-value",
-				}}},
-		},
-		{
-			Env: model.Env{Team: team, Name: env},
-			Secrets: []model.Secret{model.Secret{
-				ID:   makeSecretIdent(env, team, "some-other-secret"),
-				Name: "some-other-secret",
-
-				Data: map[string]string{
-					"some-other-key": "some-other-value",
-				}}},
-		},
-	}
 }
 
 func (c *Client) Secret(ctx context.Context, name, team, env string) (*model.Secret, error) {
@@ -65,7 +40,7 @@ func (c *Client) Secret(ctx context.Context, name, team, env string) (*model.Sec
 		return nil, c.error(ctx, err, "getting secret")
 	}
 
-	return toGraphSecret(secret, env), nil
+	return toGraphSecret(env, secret), nil
 }
 
 func (c *Client) CreateSecret(ctx context.Context, secret *model.Secret) (*model.Secret, error) {
@@ -111,18 +86,17 @@ func toKubeSecret(secret *model.Secret) *corev1.Secret {
 	}
 }
 
-func toGraphSecret(env string, obj *corev1.Secret) *model.EnvSecret {
+func toGraphEnvSecret(env string, team string, secret ...model.Secret) *model.EnvSecret {
 	return &model.EnvSecret{
-		Env: model.Env{Name: env},
-		Secrets: []model.Secret{
-			{
-				ID:   makeSecretIdent(env, obj.GetNamespace(), "some-secret"),
-				Name: "some-secret",
+		Env:     model.Env{Team: team, Name: env},
+		Secrets: secret,
+	}
+}
 
-				Data: map[string]string{
-					"some-key": "some-value",
-				}},
-		},
+func toGraphSecret(env string, obj *corev1.Secret) *model.Secret {
+	return &model.Secret{
+		ID:   makeSecretIdent(env, obj.GetNamespace(), obj.GetName()),
+		Name: obj.Name,
 	}
 }
 

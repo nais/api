@@ -11,6 +11,7 @@ import (
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/dynamic"
@@ -75,7 +76,7 @@ func newScheme() *runtime.Scheme {
 	nais_io_v1.AddToScheme(scheme)
 	nais_io_v1alpha1.AddToScheme(scheme)
 	kafka_nais_io_v1.AddToScheme(scheme)
-
+	corev1.AddToScheme(scheme)
 	return scheme
 }
 
