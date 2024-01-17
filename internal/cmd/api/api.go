@@ -190,7 +190,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 
 	wg, ctx := errgroup.WithContext(ctx)
-	wg.SetLimit(-1)
 
 	wg.Go(func() error {
 		return runUserSync(ctx, cfg, db, log, userSync, userSyncRuns)
