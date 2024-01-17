@@ -21,6 +21,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/pkg/protoapi"
 )
 
 // EnableReconciler is the resolver for the enableReconciler field.
@@ -71,7 +72,7 @@ func (r *mutationResolver) EnableReconciler(ctx context.Context, name string) (*
 		CorrelationID: correlationID,
 	}
 	r.auditLogger.Logf(ctx, targets, fields, "Enable reconciler: %q", name)
-	r.enableReconciler(ctx, rname, correlationID)
+	r.triggerEvent(ctx, protoapi.EventTypes_EVENT_RECONCILER_ENABLED, &protoapi.EventReconcilerEnabled{Reconciler: string(rname)}, correlationID)
 
 	return toGraphReconciler(reconciler), nil
 }
@@ -114,7 +115,7 @@ func (r *mutationResolver) DisableReconciler(ctx context.Context, name string) (
 		CorrelationID: correlationID,
 	}
 	r.auditLogger.Logf(ctx, targets, fields, "Disable reconciler: %q", name)
-	r.disableReconciler(ctx, rname, correlationID)
+	r.triggerEvent(ctx, protoapi.EventTypes_EVENT_RECONCILER_DISABLED, &protoapi.EventReconcilerDisabled{Reconciler: string(rname)}, correlationID)
 
 	return toGraphReconciler(reconciler), nil
 }
@@ -180,7 +181,7 @@ func (r *mutationResolver) ConfigureReconciler(ctx context.Context, name string,
 		CorrelationID: correlationID,
 	}
 	r.auditLogger.Logf(ctx, targets, fields, "Configure reconciler: %q", rname)
-	r.configureReconciler(ctx, rname, correlationID)
+	r.triggerEvent(ctx, protoapi.EventTypes_EVENT_RECONCILER_CONFIGURED, &protoapi.EventReconcilerConfigured{Reconciler: string(rname)}, correlationID)
 
 	return toGraphReconciler(reconciler), nil
 }

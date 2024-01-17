@@ -25,10 +25,8 @@ import (
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/usersync"
-	"github.com/nais/api/pkg/protoapi"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/metric"
-	"google.golang.org/protobuf/proto"
 )
 
 // This file will not be regenerated automatically.
@@ -144,89 +142,6 @@ func GetQueriedFields(ctx context.Context) map[string]bool {
 		fields[field] = true
 	}
 	return fields
-}
-
-func (r *Resolver) reconcileTeam(ctx context.Context, correlationID uuid.UUID, slug slug.Slug) {
-	msg, err := proto.Marshal(&protoapi.EventTeamUpdated{
-		Slug: slug.String(),
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	r.pubsubTopic.Publish(ctx, &pubsub.Message{
-		Data: msg,
-		Attributes: map[string]string{
-			"CorrelationID": correlationID.String(),
-			"EventType":     protoapi.EventTypes_EVENT_TEAM_UPDATED.String(),
-		},
-	})
-}
-
-func (r *Resolver) enableReconciler(ctx context.Context, reconciler gensql.ReconcilerName, correlationID uuid.UUID) {
-	msg, err := proto.Marshal(&protoapi.EventReconcilerEnabled{
-		Reconciler: string(reconciler),
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	r.pubsubTopic.Publish(ctx, &pubsub.Message{
-		Data: msg,
-		Attributes: map[string]string{
-			"CorrelationID": correlationID.String(),
-			"EventType":     protoapi.EventTypes_EVENT_RECONCILER_ENABLED.String(),
-		},
-	})
-}
-
-func (r *Resolver) disableReconciler(ctx context.Context, reconciler gensql.ReconcilerName, correlationID uuid.UUID) {
-	msg, err := proto.Marshal(&protoapi.EventReconcilerDisabled{
-		Reconciler: string(reconciler),
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	r.pubsubTopic.Publish(ctx, &pubsub.Message{
-		Data: msg,
-		Attributes: map[string]string{
-			"CorrelationID": correlationID.String(),
-			"EventType":     protoapi.EventTypes_EVENT_RECONCILER_DISABLED.String(),
-		},
-	})
-}
-
-func (r *Resolver) configureReconciler(ctx context.Context, reconciler gensql.ReconcilerName, correlationID uuid.UUID) {
-	msg, err := proto.Marshal(&protoapi.EventReconcilerConfigured{
-		Reconciler: string(reconciler),
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	r.pubsubTopic.Publish(ctx, &pubsub.Message{
-		Data: msg,
-		Attributes: map[string]string{
-			"CorrelationID": correlationID.String(),
-			"EventType":     protoapi.EventTypes_EVENT_RECONCILER_CONFIGURED.String(),
-		},
-	})
-}
-
-func (r *Resolver) syncAllTeams(ctx context.Context, correlationID uuid.UUID) {
-	msg, err := proto.Marshal(&protoapi.EventSyncAllTeams{})
-	if err != nil {
-		panic(err)
-	}
-
-	r.pubsubTopic.Publish(ctx, &pubsub.Message{
-		Data: msg,
-		Attributes: map[string]string{
-			"CorrelationID": correlationID.String(),
-			"EventType":     protoapi.EventTypes_EVENT_SYNC_ALL_TEAMS.String(),
-		},
-	})
 }
 
 func (r *Resolver) getTeamBySlug(ctx context.Context, slug slug.Slug) (*database.Team, error) {

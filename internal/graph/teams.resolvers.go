@@ -26,6 +26,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
+	"github.com/nais/api/pkg/protoapi"
 	"k8s.io/utils/ptr"
 )
 
@@ -76,7 +77,7 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTea
 	}
 	r.auditLogger.Logf(ctx, targets, fields, "Team created")
 
-	r.reconcileTeam(ctx, correlationID, team.Slug)
+	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 
 	return toGraphTeam(team), nil
 }
@@ -149,7 +150,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 		r.auditLogger.Logf(ctx, entry.Targets, entry.Fields, entry.Message)
 	}
 
-	r.reconcileTeam(ctx, correlationID, team.Slug)
+	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 
 	return toGraphTeam(team), nil
 }
@@ -228,7 +229,7 @@ func (r *mutationResolver) RemoveUsersFromTeam(ctx context.Context, slug slug.Sl
 		r.auditLogger.Logf(ctx, entry.Targets, entry.Fields, entry.Message)
 	}
 
-	r.reconcileTeam(ctx, correlationID, team.Slug)
+	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 
 	return toGraphTeam(team), nil
 }
@@ -306,7 +307,7 @@ func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slu
 		r.auditLogger.Logf(ctx, entry.Targets, entry.Fields, entry.Message)
 	}
 
-	r.reconcileTeam(ctx, correlationID, team.Slug)
+	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 
 	return toGraphTeam(team), nil
 }
@@ -339,7 +340,7 @@ func (r *mutationResolver) SynchronizeTeam(ctx context.Context, slug slug.Slug) 
 	}
 	r.auditLogger.Logf(ctx, targets, fields, "Manually scheduled for synchronization")
 
-	r.reconcileTeam(ctx, correlationID, team.Slug)
+	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 
 	return &model.TeamSync{
 		CorrelationID: correlationID,
@@ -371,7 +372,7 @@ func (r *mutationResolver) SynchronizeAllTeams(ctx context.Context) (*model.Team
 		CorrelationID: correlationID,
 	}
 	r.auditLogger.Logf(ctx, targets, fields, "Manually scheduled for synchronization")
-	r.syncAllTeams(ctx, correlationID)
+	r.triggerEvent(ctx, protoapi.EventTypes_EVENT_SYNC_ALL_TEAMS, &protoapi.EventSyncAllTeams{}, correlationID)
 
 	return &model.TeamSync{
 		CorrelationID: correlationID,
@@ -438,7 +439,7 @@ func (r *mutationResolver) AddTeamMembers(ctx context.Context, slug slug.Slug, u
 		r.auditLogger.Logf(ctx, entry.Targets, entry.Fields, entry.Message)
 	}
 
-	r.reconcileTeam(ctx, correlationID, team.Slug)
+	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 
 	return toGraphTeam(team), nil
 }
@@ -503,7 +504,7 @@ func (r *mutationResolver) AddTeamOwners(ctx context.Context, slug slug.Slug, us
 		r.auditLogger.Logf(ctx, entry.Targets, entry.Fields, entry.Message)
 	}
 
-	r.reconcileTeam(ctx, correlationID, team.Slug)
+	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 
 	return toGraphTeam(team), nil
 }
@@ -599,7 +600,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 		r.auditLogger.Logf(ctx, entry.Targets, entry.Fields, entry.Message)
 	}
 
-	r.reconcileTeam(ctx, correlationID, team.Slug)
+	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 
 	return toGraphTeam(team), nil
 }
@@ -672,7 +673,7 @@ func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug
 
 	r.auditLogger.Logf(ctx, targets, fields, "Assign %q to %s", desiredRole, member.Email)
 
-	r.reconcileTeam(ctx, correlationID, team.Slug)
+	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 
 	return toGraphTeam(team), nil
 }
