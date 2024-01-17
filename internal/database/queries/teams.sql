@@ -148,3 +148,9 @@ WHERE levenshtein(@slug_match::text, slug) >= 0
 ORDER BY levenshtein(@slug_match::text, slug) ASC
 LIMIT sqlc.arg('limit');
 ;
+
+-- name: TeamExists :one
+SELECT EXISTS(
+    SELECT 1 FROM teams
+    WHERE slug = @slug
+) AS exists;

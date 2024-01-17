@@ -14,8 +14,6 @@ import (
 	naisv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/metric"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/discovery"
@@ -28,14 +26,43 @@ import (
 )
 
 type TeamChecker interface {
-	TeamExists(ctx context.Context, team slug.Slug) bool
+	TeamExists(ctx context.Context, team slug.Slug) (bool, error)
+}
+
+type ClusterInformers map[string]*Informers
+
+func (c ClusterInformers) Start(ctx context.Context, log logrus.FieldLogger) error {
+	for cluster, informer := range c {
+		log.WithField("cluster", cluster).Infof("starting informers")
+		go informer.PodInformer.Informer().Run(ctx.Done())
+		go informer.AppInformer.Informer().Run(ctx.Done())
+		go informer.NaisjobInformer.Informer().Run(ctx.Done())
+		go informer.JobInformer.Informer().Run(ctx.Done())
+		if informer.TopicInformer != nil {
+			go informer.TopicInformer.Informer().Run(ctx.Done())
+		}
+	}
+
+	for env, informers := range c {
+		for !informers.AppInformer.Informer().HasSynced() {
+			log.Infof("waiting for app informer in %q to sync", env)
+
+			select {
+			case <-ctx.Done():
+				return fmt.Errorf("informers not started: %w", ctx.Err())
+			default:
+				time.Sleep(2 * time.Second)
+			}
+		}
+	}
+
+	return nil
 }
 
 type Client struct {
-	informers   map[string]*Informers
+	informers   ClusterInformers
 	clientSets  map[string]kubernetes.Interface
 	log         logrus.FieldLogger
-	errors      metric.Int64Counter
 	teamChecker TeamChecker
 }
 
@@ -60,7 +87,7 @@ func WithClientsCreator(f func(cluster string) (kubernetes.Interface, dynamic.In
 	}
 }
 
-func New(tenant string, cfg Config, errors metric.Int64Counter, teamChecker TeamChecker, log logrus.FieldLogger, opts ...Opt) (*Client, error) {
+func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLogger, opts ...Opt) (*Client, error) {
 	s := &settings{}
 	for _, opt := range opts {
 		opt(s)
@@ -126,7 +153,6 @@ func New(tenant string, cfg Config, errors metric.Int64Counter, teamChecker Team
 	return &Client{
 		informers:   infs,
 		log:         log,
-		errors:      errors,
 		clientSets:  clientSets,
 		teamChecker: teamChecker,
 	}, nil
@@ -161,7 +187,7 @@ func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilte
 				if err != nil {
 					c.error(ctx, err, "converting to job")
 					return nil
-				} else if !c.teamChecker.TeamExists(ctx, job.GQLVars.Team) {
+				} else if ok, _ := c.teamChecker.TeamExists(ctx, job.GQLVars.Team); !ok {
 					continue
 				}
 
@@ -189,7 +215,7 @@ func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilte
 				if err != nil {
 					c.error(ctx, err, "converting to app")
 					return nil
-				} else if !c.teamChecker.TeamExists(ctx, app.GQLVars.Team) {
+				} else if ok, _ := c.teamChecker.TeamExists(ctx, app.GQLVars.Team); !ok {
 					continue
 				}
 
@@ -205,7 +231,7 @@ func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilte
 }
 
 // Informers returns a map of informers, keyed by environment
-func (c *Client) Informers() map[string]*Informers {
+func (c *Client) Informers() ClusterInformers {
 	return c.informers
 }
 
@@ -223,7 +249,6 @@ func convert(m any, target any) error {
 }
 
 func (c *Client) error(ctx context.Context, err error, msg string) error {
-	c.errors.Add(ctx, 1, metric.WithAttributes(attribute.String("component", "k8s-client")))
 	c.log.WithError(err).Error(msg)
 	return fmt.Errorf("%s: %w", msg, err)
 }

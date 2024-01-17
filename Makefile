@@ -33,6 +33,7 @@ local:
 	LOG_FORMAT="text" \
 	LOG_LEVEL="debug" \
 	WITH_FAKE_CLIENTS="true" \
+	GOOGLE_MANAGEMENT_PROJECT_ID="nais-local-dev" \
 	go run ./cmd/api
 
 test:

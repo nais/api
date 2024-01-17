@@ -1,9 +1,10 @@
-package main
+package api
 
 import (
 	"context"
 
 	"github.com/nais/api/internal/fixtures"
+	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/k8s"
 	"github.com/sethvargo/go-envconfig"
 )
@@ -24,6 +25,20 @@ func (k *k8sConfig) AllClusterNames() []string {
 	for _, c := range k.StaticClusters {
 		clusters = append(clusters, c.Name)
 	}
+	return clusters
+}
+
+func (k *k8sConfig) GraphClusterList() graph.ClusterList {
+	clusters := make(graph.ClusterList)
+	for _, cluster := range k.Clusters {
+		clusters[cluster] = graph.ClusterInfo{
+			GCP: true,
+		}
+	}
+	for _, staticCluster := range k.StaticClusters {
+		clusters[staticCluster.Name] = graph.ClusterInfo{}
+	}
+
 	return clusters
 }
 

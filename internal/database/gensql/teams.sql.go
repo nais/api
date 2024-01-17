@@ -516,6 +516,20 @@ func (q *Queries) SetSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug,
 	return err
 }
 
+const teamExists = `-- name: TeamExists :one
+SELECT EXISTS(
+    SELECT 1 FROM teams
+    WHERE slug = $1
+) AS exists
+`
+
+func (q *Queries) TeamExists(ctx context.Context, argSlug slug.Slug) (bool, error) {
+	row := q.db.QueryRow(ctx, teamExists, argSlug)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const updateTeam = `-- name: UpdateTeam :one
 UPDATE teams
 SET purpose = COALESCE($1, purpose),

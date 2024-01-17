@@ -13,8 +13,6 @@ import (
 
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/otel/attribute"
-	api "go.opentelemetry.io/otel/metric"
 )
 
 type Client interface {
@@ -27,7 +25,6 @@ type client struct {
 	endpoint   string
 	httpClient *httpClient
 	log        logrus.FieldLogger
-	errors     api.Int64Counter
 }
 
 type DeploymentsResponse struct {
@@ -106,15 +103,14 @@ func WithIgnoreTeams(teams ...string) RequestOption {
 }
 
 // New creates a new hookd client
-func New(endpoint, psk string, errors api.Int64Counter, log logrus.FieldLogger) Client {
+func New(endpoint, psk string, log logrus.FieldLogger) Client {
 	return &client{
 		endpoint: endpoint,
 		httpClient: &httpClient{
 			client: &http.Client{},
 			psk:    psk,
 		},
-		log:    log,
-		errors: errors,
+		log: log,
 	}
 }
 
@@ -215,7 +211,6 @@ func (c *client) DeployKey(ctx context.Context, team string) (*DeployKey, error)
 
 // error increments the error counter, logs an error, and returns an error instance
 func (c *client) error(ctx context.Context, err error, msg string) error {
-	c.errors.Add(ctx, 1, api.WithAttributes(attribute.String("component", "hookd-client")))
 	c.log.WithError(err).Error(msg)
 	return fmt.Errorf("%s: %w", msg, err)
 }

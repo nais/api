@@ -36,6 +36,7 @@ type TeamRepo interface {
 	SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*gensql.Team, error)
 	SetLastSuccessfulSyncForTeam(ctx context.Context, teamSlug slug.Slug) error
 	SetSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment, channelName string) error
+	TeamExists(ctx context.Context, team slug.Slug) (bool, error)
 	UpdateTeam(ctx context.Context, teamSlug slug.Slug, purpose, slackChannel *string) (*Team, error)
 }
 
@@ -314,4 +315,8 @@ func (d *database) GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoN
 
 func (d *database) SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*gensql.Team, error) {
 	return d.querier.SearchTeams(ctx, slugMatch, limit)
+}
+
+func (d *database) TeamExists(ctx context.Context, team slug.Slug) (bool, error) {
+	return d.querier.TeamExists(ctx, team)
 }

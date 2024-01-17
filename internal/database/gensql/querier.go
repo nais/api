@@ -133,6 +133,7 @@ type Querier interface {
 	// SpecificResourceUtilizationForTeam will return resource utilization for a team at a specific timestamp. Applications
 	// with a usage greater than request will be ignored.
 	SpecificResourceUtilizationForTeam(ctx context.Context, teamSlug slug.Slug, resourceType ResourceType, timestamp pgtype.Timestamptz) (*SpecificResourceUtilizationForTeamRow, error)
+	TeamExists(ctx context.Context, argSlug slug.Slug) (bool, error)
 	UpdateTeam(ctx context.Context, purpose *string, slackChannel *string, slug slug.Slug) (*Team, error)
 	UpdateUser(ctx context.Context, name string, externalID string, iD uuid.UUID, email string) (*User, error)
 }
