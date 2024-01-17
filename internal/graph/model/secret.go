@@ -6,10 +6,10 @@ import (
 )
 
 type Secret struct {
-	ID      scalar.Ident      `json:"id"` // TODO: What is the purpose of this?
+	ID      scalar.Ident      `json:"id"` // This is a graphql ID, cahcing, deduplication etc
 	Name    string            `json:"name"`
 	Data    map[string]string `json:"data"`
-	GQLVars SecretGQLVars     `json:"-"` // TODO: What is the purpose of this? Should Env be a part of this?
+	GQLVars SecretGQLVars     `json:"-"` // Internal context for custom resolvers
 }
 
 type EnvSecret struct {
