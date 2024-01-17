@@ -19,7 +19,7 @@ func (c *Client) Secrets(ctx context.Context, team string) ([]*model.EnvSecret, 
 	ret := make([]*model.EnvSecret, 0)
 
 	for env := range c.informers {
-		ret = staticSecrets(env, "nais")
+		ret = append(ret, staticSecrets(env, "nais"))
 	}
 	return ret, nil
 }
