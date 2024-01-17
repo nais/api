@@ -96,6 +96,17 @@ func parseResources(dir fs.FS, path string) []runtime.Object {
 	}
 
 	parts := bytes.Split(b, []byte("\n---"))
+	ns := strings.Trim(filepath.Base(filepath.Dir(path)), string(filepath.Separator))
+
+	// TODO: clean this up
+	if strings.HasSuffix(path, "/nais/secrets.yaml") {
+		secret, err := parseSecret(b, ns)
+		if err != nil {
+			panic(err)
+		}
+
+		return []runtime.Object{secret}
+	}
 
 	ret := make([]runtime.Object, 0, len(parts))
 	for _, p := range parts {
@@ -108,8 +119,6 @@ func parseResources(dir fs.FS, path string) []runtime.Object {
 			panic(err)
 		}
 
-		ns := strings.Trim(filepath.Base(filepath.Dir(path)), string(filepath.Separator))
-
 		r.SetNamespace(ns)
 		lbls := r.GetLabels()
 		if lbls == nil {
@@ -121,4 +130,20 @@ func parseResources(dir fs.FS, path string) []runtime.Object {
 	}
 
 	return ret
+}
+
+func parseSecret(part []byte, ns string) (*corev1.Secret, error) {
+	secret := &corev1.Secret{}
+	if err := yaml.Unmarshal(part, secret); err != nil {
+		return nil, err
+	}
+
+	secret.SetNamespace(ns)
+	lbls := secret.GetLabels()
+	if lbls == nil {
+		lbls = make(map[string]string)
+	}
+	lbls["team"] = ns
+	secret.SetLabels(lbls)
+	return secret, nil
 }

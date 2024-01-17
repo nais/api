@@ -31,7 +31,7 @@ func (r *mutationResolver) UpdateSecret(ctx context.Context, name string, team s
 
 // DeleteSecret is the resolver for the deleteSecret field.
 func (r *mutationResolver) DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) (bool, error) {
-	err := r.k8sClient.DeleteSecret(ctx, emptySecret(name, team, env))
+	err := r.k8sClient.DeleteSecret(ctx, name, team, env)
 	if err != nil {
 		return false, err
 	}

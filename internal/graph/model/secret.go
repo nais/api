@@ -18,5 +18,6 @@ type EnvSecret struct {
 }
 
 type SecretGQLVars struct {
+	Env  string
 	Team slug.Slug
 }

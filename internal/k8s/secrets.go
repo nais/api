@@ -2,6 +2,9 @@ package k8s
 
 import (
 	"context"
+	"slices"
+
+	"github.com/nais/api/internal/slug"
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
@@ -29,12 +32,23 @@ func (c *Client) Secrets(ctx context.Context, team string) ([]*model.EnvSecret, 
 			secrets = append(secrets, *toGraphSecret(name, obj))
 		}
 		ret = append(ret, toGraphEnvSecret(name, team, secrets...))
-
 	}
+
+	slices.SortFunc(ret, func(a, b *model.EnvSecret) int {
+		if a.Env.Name < b.Env.Name {
+			return -1
+		}
+		if a.Env.Name > b.Env.Name {
+			return 1
+		}
+		return 0
+	})
+
 	return ret, nil
 }
 
 func (c *Client) Secret(ctx context.Context, name, team, env string) (*model.Secret, error) {
+	// TODO: clientSet might be nil of no matching env
 	secret, err := c.informers[env].SecretInformer.Lister().Secrets(team).Get(name)
 	if err != nil {
 		return nil, c.error(ctx, err, "getting secret")
@@ -46,6 +60,7 @@ func (c *Client) Secret(ctx context.Context, name, team, env string) (*model.Sec
 func (c *Client) CreateSecret(ctx context.Context, secret *model.Secret) (*model.Secret, error) {
 	env := "foo"
 	namespace := secret.GQLVars.Team.String()
+	// TODO: clientSet might be nil of no matching env
 	created, err := c.clientSets[env].CoreV1().Secrets(namespace).Create(ctx, toKubeSecret(secret), metav1.CreateOptions{})
 	if err != nil {
 		return nil, c.error(ctx, err, "creating secret")
@@ -56,6 +71,7 @@ func (c *Client) CreateSecret(ctx context.Context, secret *model.Secret) (*model
 func (c *Client) UpdateSecret(ctx context.Context, secret *model.Secret) (*model.Secret, error) {
 	env := "foo"
 	namespace := secret.GQLVars.Team.String()
+	// TODO: clientSet might be nil of no matching env
 	updated, err := c.clientSets[env].CoreV1().Secrets(namespace).Update(ctx, toKubeSecret(secret), metav1.UpdateOptions{})
 	if err != nil {
 		return nil, c.error(ctx, err, "updating secret")
@@ -63,10 +79,9 @@ func (c *Client) UpdateSecret(ctx context.Context, secret *model.Secret) (*model
 	return toGraphSecret(env, updated), nil
 }
 
-func (c *Client) DeleteSecret(ctx context.Context, secret *model.Secret) error {
-	env := "foo"
-	namespace := secret.GQLVars.Team.String()
-	err := c.clientSets[env].CoreV1().Secrets(namespace).Delete(ctx, secret.Name, metav1.DeleteOptions{})
+func (c *Client) DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) error {
+	namespace := team.String()
+	err := c.clientSets[env].CoreV1().Secrets(namespace).Delete(ctx, name, metav1.DeleteOptions{})
 	if err != nil {
 		return c.error(ctx, err, "deleting secret")
 	}
@@ -97,6 +112,7 @@ func toGraphSecret(env string, obj *corev1.Secret) *model.Secret {
 	return &model.Secret{
 		ID:   makeSecretIdent(env, obj.GetNamespace(), obj.GetName()),
 		Name: obj.Name,
+		Data: secretBytesToString(obj.Data),
 	}
 }
 
