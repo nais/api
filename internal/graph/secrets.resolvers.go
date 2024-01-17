@@ -6,9 +6,10 @@ package graph
 
 import (
 	"context"
+	"fmt"
+
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -39,7 +40,7 @@ func (r *mutationResolver) DeleteSecret(ctx context.Context, name string, team s
 }
 
 // Secrets is the resolver for the secrets field.
-func (r *queryResolver) Secrets(ctx context.Context, team slug.Slug) ([]*model.Secret, error) {
+func (r *queryResolver) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecret, error) {
 	return r.k8sClient.Secrets(ctx, team.String())
 }
 
@@ -48,44 +49,14 @@ func (r *queryResolver) Secret(ctx context.Context, name string, team slug.Slug,
 	return r.k8sClient.Secret(ctx, name, team.String(), env)
 }
 
+// Env is the resolver for the env field.
+func (r *secretResolver) Env(ctx context.Context, obj *model.Secret) (*model.Env, error) {
+	panic(fmt.Errorf("not implemented: Env - env"))
+}
+
 // Data is the resolver for the data field.
-func (r *secretResolver) Data(_ context.Context, obj *model.Secret) ([]*model.SecretTuple, error) {
+func (r *secretResolver) Data(ctx context.Context, obj *model.Secret) ([]*model.SecretTuple, error) {
 	return convertSecretDataToTuple(obj.Data), nil
-}
-
-func convertSecretDataToTuple(data map[string]string) []*model.SecretTuple {
-	ret := make([]*model.SecretTuple, 0, len(data))
-	for key, value := range data {
-		ret = append(ret, &model.SecretTuple{
-			Key:   key,
-			Value: value,
-		})
-	}
-	return ret
-}
-
-func makeSecretIdent(env, namespace, name string) scalar.Ident {
-	return scalar.SecretIdent("secret_" + env + "_" + namespace + "_" + name)
-}
-
-func convertSecretData(data []*model.SecretTupleInput) map[string]string {
-	ret := make(map[string]string, len(data))
-	for _, value := range data {
-		ret[value.Key] = value.Value
-	}
-	return ret
-}
-
-func emptySecret(name string, team slug.Slug, env string) *model.Secret {
-	return &model.Secret{
-		ID: makeSecretIdent(env, team.String(), name),
-		Env: model.Env{
-			Name: env,
-			ID:   scalar.EnvIdent(env),
-		},
-		Name: name,
-		Data: make(map[string]string),
-	}
 }
 
 // Secret returns gengql.SecretResolver implementation.

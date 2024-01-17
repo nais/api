@@ -15,38 +15,37 @@ const (
 )
 
 // TODO: implement impersonation
-func (c *Client) Secrets(ctx context.Context, team string) ([]*model.Secret, error) {
-	ret := make([]*model.Secret, 0)
+func (c *Client) Secrets(ctx context.Context, team string) ([]*model.EnvSecret, error) {
+	ret := make([]*model.EnvSecret, 0)
 
-	for env, _ := range c.informers {
+	for env := range c.informers {
 		ret = staticSecrets(env, "nais")
 	}
 	return ret, nil
 }
 
-func staticSecrets(env, team string) []*model.Secret {
-	return []*model.Secret{
+func staticSecrets(env, team string) []*model.EnvSecret {
+	return []*model.EnvSecret{
 		{
-			ID: makeSecretIdent(env, team, "some-secret"),
-			Env: model.Env{
-				Name: env,
-				ID:   scalar.EnvIdent(env),
-			},
-			Name: "some-secret",
-			Data: map[string]string{
-				"some-key": "some-value",
-			},
+
+			Env: model.Env{Team: team, Name: env},
+			Secrets: []model.Secret{model.Secret{
+				ID:   makeSecretIdent(env, team, "some-secret"),
+				Name: "some-secret",
+
+				Data: map[string]string{
+					"some-key": "some-value",
+				}}},
 		},
 		{
-			ID: makeSecretIdent(env, team, "some-other-secret"),
-			Env: model.Env{
-				Name: env,
-				ID:   scalar.EnvIdent(env),
-			},
-			Name: "some-other-secret",
-			Data: map[string]string{
-				"some-other-key": "some-other-value",
-			},
+			Env: model.Env{Team: team, Name: env},
+			Secrets: []model.Secret{model.Secret{
+				ID:   makeSecretIdent(env, team, "some-other-secret"),
+				Name: "some-other-secret",
+
+				Data: map[string]string{
+					"some-other-key": "some-other-value",
+				}}},
 		},
 	}
 }
@@ -61,7 +60,7 @@ func (c *Client) Secret(ctx context.Context, name, team, env string) (*model.Sec
 }
 
 func (c *Client) CreateSecret(ctx context.Context, secret *model.Secret) (*model.Secret, error) {
-	env := secret.Env.Name
+	env := "foo"
 	namespace := secret.GQLVars.Team.String()
 	created, err := c.clientSets[env].CoreV1().Secrets(namespace).Create(ctx, toKubeSecret(secret), metav1.CreateOptions{})
 	if err != nil {
@@ -71,7 +70,7 @@ func (c *Client) CreateSecret(ctx context.Context, secret *model.Secret) (*model
 }
 
 func (c *Client) UpdateSecret(ctx context.Context, secret *model.Secret) (*model.Secret, error) {
-	env := secret.Env.Name
+	env := "foo"
 	namespace := secret.GQLVars.Team.String()
 	updated, err := c.clientSets[env].CoreV1().Secrets(namespace).Update(ctx, toKubeSecret(secret), metav1.UpdateOptions{})
 	if err != nil {
@@ -81,7 +80,7 @@ func (c *Client) UpdateSecret(ctx context.Context, secret *model.Secret) (*model
 }
 
 func (c *Client) DeleteSecret(ctx context.Context, secret *model.Secret) error {
-	env := secret.Env.Name
+	env := "foo"
 	namespace := secret.GQLVars.Team.String()
 	err := c.clientSets[env].CoreV1().Secrets(namespace).Delete(ctx, secret.Name, metav1.DeleteOptions{})
 	if err != nil {
@@ -105,10 +104,7 @@ func toKubeSecret(secret *model.Secret) *corev1.Secret {
 
 func toGraphSecret(obj *corev1.Secret, env string) *model.Secret {
 	return &model.Secret{
-		ID: makeSecretIdent(env, obj.GetNamespace(), obj.GetName()),
-		Env: model.Env{
-			Name: env,
-		},
+		ID:   makeSecretIdent(env, obj.GetNamespace(), obj.GetName()),
 		Name: obj.Name,
 		Data: secretBytesToString(obj.Data),
 	}
