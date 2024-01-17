@@ -8,8 +8,8 @@ import (
 	"github.com/nais/api/internal/database"
 )
 
-// StaticUser returns a middleware that sets the email address of the authenticated user to the given value
-func StaticUser(db database.Database) func(next http.Handler) http.Handler {
+// InsecureUserHeader returns a middleware that sets the email address of the authenticated user to the given value
+func InsecureUserHeader(db database.Database) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()

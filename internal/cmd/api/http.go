@@ -17,18 +17,19 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sync/errgroup"
 )
 
 // runHttpServer will start the HTTP server
 func runHttpServer(
 	ctx context.Context,
-	cancel context.CancelFunc,
-	cfg *Config,
+	listenAddress string,
+	insecureAuth bool,
 	db database.Database,
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
 	log logrus.FieldLogger,
-) {
+) error {
 	router := chi.NewRouter()
 	router.Handle("/metrics", promhttp.Handler())
 	router.Get("/healthz", func(_ http.ResponseWriter, _ *http.Request) {})
@@ -37,8 +38,8 @@ func runHttpServer(
 	dataLoaders := dataloader.NewLoaders(db)
 	middlewares := []func(http.Handler) http.Handler{}
 
-	if cfg.WithFakeClients {
-		middlewares = append(middlewares, auth.StaticUser(db))
+	if insecureAuth {
+		middlewares = append(middlewares, auth.InsecureUserHeader(db))
 	}
 
 	middlewares = append(middlewares,
@@ -60,24 +61,31 @@ func runHttpServer(
 	})
 
 	srv := &http.Server{
-		Addr:    cfg.ListenAddress,
+		Addr:    listenAddress,
 		Handler: router,
 	}
-	defer cancel()
 
-	go func() {
+	wg, ctx := errgroup.WithContext(ctx)
+	wg.Go(func() error {
 		<-ctx.Done()
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		log.Infof("HTTP server shutting down...")
 		if err := srv.Shutdown(ctx); err != nil && !errors.Is(err, context.Canceled) {
 			log.WithError(err).Infof("HTTP server shutdown failed")
+			return err
 		}
-	}()
+		return nil
+	})
 
-	err := srv.ListenAndServe()
-	if !errors.Is(err, http.ErrServerClosed) {
-		log.WithError(err).Infof("unexpected error from HTTP server")
-	}
-	log.Infof("HTTP server finished, terminating...")
+	wg.Go(func() error {
+		log.Infof("HTTP server accepting requests on %q", listenAddress)
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.WithError(err).Infof("unexpected error from HTTP server")
+			return err
+		}
+		log.Infof("HTTP server finished, terminating...")
+		return nil
+	})
+	return wg.Wait()
 }

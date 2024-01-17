@@ -36,6 +36,7 @@ import (
 	met "go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"golang.org/x/oauth2/google"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -188,15 +189,24 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create graph handler: %w", err)
 	}
 
-	go runUserSync(ctx, cancel, cfg, db, log, userSync, userSyncRuns)
+	wg, ctx := errgroup.WithContext(ctx)
+	wg.SetLimit(-1)
+
+	wg.Go(func() error {
+		return runUserSync(ctx, cfg, db, log, userSync, userSyncRuns)
+	})
 
 	// k8s informers
 	if err := k8sClient.Informers().Start(ctx, log); err != nil {
 		return fmt.Errorf("start k8s informers: %w", err)
 	}
 
-	go resourceUsageUpdater(ctx, cancel, cfg, db, k8sClient, log)
-	go costUpdater(ctx, cancel, cfg, db, log)
+	wg.Go(func() error {
+		return resourceUsageUpdater(ctx, cfg, db, k8sClient, log)
+	})
+	wg.Go(func() error {
+		return costUpdater(ctx, cfg, db, log)
+	})
 
 	authHandler, err := setupAuthHandler(cfg.OAuth, db, log)
 	if err != nil {
@@ -204,22 +214,35 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 
 	// HTTP server
-	go runHttpServer(ctx, cancel, cfg, db, authHandler, graphHandler, log)
+	wg.Go(func() error {
+		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, db, authHandler, graphHandler, log)
+	})
 
-	go func() {
-		defer cancel()
+	wg.Go(func() error {
 		if err := grpc.Run(ctx, cfg.GRPCListenAddress, db, log); err != nil {
 			log.WithError(err).Errorf("error in GRPC server")
+			return err
 		}
+		return nil
+	})
+
+	<-ctx.Done()
+	signalStop()
+	log.Infof("shutting down...")
+
+	ch := make(chan error)
+	go func() {
+		ch <- wg.Wait()
 	}()
 
-	log.Infof("HTTP server accepting requests on %q", cfg.ListenAddress)
-	<-ctx.Done()
+	select {
+	case <-time.After(10 * time.Second):
+		log.Warn("timed out waiting for graceful shutdown")
+	case err := <-ch:
+		return err
+	}
 
-	// TODO: Better shutdown handling
-	log.Infof("shutting down...")
-	time.Sleep(6 * time.Second)
-	return ctx.Err()
+	return nil
 }
 
 func firstRun(ctx context.Context, db database.Database, enableReconcilers []fixtures.EnableableReconciler, log logrus.FieldLogger) error {

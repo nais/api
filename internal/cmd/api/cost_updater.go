@@ -12,17 +12,18 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func costUpdater(ctx context.Context, cancel context.CancelFunc, cfg *Config, db database.Database, log logrus.FieldLogger) {
+func costUpdater(ctx context.Context, cfg *Config, db database.Database, log logrus.FieldLogger) error {
 	if !cfg.Cost.ImportEnabled {
 		log.Warningf(`cost import is not enabled. Enable by setting the "COST_DATA_IMPORT_ENABLED" environment variable to "true".`)
-		return
+		return nil
 	}
 
-	defer cancel()
 	err := runCostUpdater(ctx, db, cfg.Tenant, cfg.Cost.BigQueryProjectID, log.WithField("task", "cost_updater"))
 	if err != nil {
 		log.WithError(err).Errorf("error in cost updater")
+		return err
 	}
+	return nil
 }
 
 // runCostUpdater will create an instance of the cost updater, and update the costs on a schedule. This function will

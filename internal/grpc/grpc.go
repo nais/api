@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"time"
 
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/pkg/protoapi"
@@ -29,7 +30,21 @@ func Run(ctx context.Context, listenAddress string, repo database.Database, log 
 	g.Go(func() error { return s.Serve(lis) })
 	g.Go(func() error {
 		<-ctx.Done()
-		s.GracefulStop()
+
+		ch := make(chan struct{})
+		go func() {
+			s.GracefulStop()
+			close(ch)
+		}()
+
+		select {
+		case <-ch:
+			// ok
+		case <-time.After(5 * time.Second):
+			// force shutdown
+			s.Stop()
+		}
+
 		return nil
 	})
 

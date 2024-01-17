@@ -13,29 +13,28 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func resourceUsageUpdater(ctx context.Context, cancel context.CancelFunc, cfg *Config, db database.Database, k8sClient *k8s.Client, log logrus.FieldLogger) {
+func resourceUsageUpdater(ctx context.Context, cfg *Config, db database.Database, k8sClient *k8s.Client, log logrus.FieldLogger) error {
 	if !cfg.ResourceUtilizationImportEnabled {
 		log.Warningf(`resource utilization import is not enabled. Enable by setting the "RESOURCE_UTILIZATION_IMPORT_ENABLED" environment variable to "true"`)
-		return
+		return nil
 	}
 
 	promClients, err := getPrometheusClients(cfg.K8s.AllClusterNames(), cfg.Tenant)
 	if err != nil {
 		log.WithError(err).Errorf("create prometheus clients")
-		return
+		return err
 	}
 
 	resourceUsageUpdater := resourceusage.NewUpdater(k8sClient, promClients, db, log)
 	if err != nil {
 		log.WithError(err).Errorf("create resource usage updater")
-		return
+		return err
 	}
-
-	defer cancel()
 
 	if err := runResourceUsageUpdater(ctx, resourceUsageUpdater, log.WithField("task", "resource_updater")); err != nil {
 		log.WithError(err).Errorf("error in resource usage updater")
 	}
+	return nil
 }
 
 // runResourceUsageUpdater will update resource usage data hourly. This function will block until the context is

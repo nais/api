@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/database"
@@ -42,6 +43,7 @@ func (u *UsersServer) Get(ctx context.Context, r *protoapi.GetUserRequest) (*pro
 }
 
 func (u *UsersServer) List(ctx context.Context, r *protoapi.ListUsersRequest) (*protoapi.ListUsersResponse, error) {
+	time.Sleep(20 * time.Second)
 	limit, offset := pagination(r)
 	users, total, err := u.db.GetUsers(ctx, offset, limit)
 	if err != nil {

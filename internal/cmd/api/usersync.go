@@ -10,22 +10,24 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func runUserSync(ctx context.Context, cancel context.CancelFunc, cfg *Config, db database.Database, log logrus.FieldLogger, userSync chan uuid.UUID, userSyncRuns *usersync.RunsHandler) {
+func runUserSync(ctx context.Context, cfg *Config, db database.Database, log logrus.FieldLogger, userSync chan uuid.UUID, userSyncRuns *usersync.RunsHandler) error {
 	if !cfg.UserSync.Enabled {
 		log.Infof("user sync is disabled")
-		for sync := range userSync {
-			// drain channel
-			log.Infof("draining user sync request with correlation ID %s", sync)
+		for {
+			select {
+			case <-ctx.Done():
+				return nil
+			case cID := <-userSync:
+				// drain channel
+				log.Infof("draining user sync request with correlation ID %s", cID)
+			}
 		}
-		return
 	}
-
-	defer cancel()
 
 	userSyncer, err := usersync.NewFromConfig(cfg.GoogleManagementProjectID, cfg.TenantDomain, cfg.UserSync.AdminGroupPrefix, db, log, userSyncRuns)
 	if err != nil {
 		log.WithError(err).Errorf("unable to set up user syncer")
-		return
+		return err
 	}
 
 	userSyncTimer := time.NewTimer(1 * time.Second)
@@ -33,7 +35,7 @@ func runUserSync(ctx context.Context, cancel context.CancelFunc, cfg *Config, db
 	for {
 		select {
 		case <-ctx.Done():
-			return
+			return ctx.Err()
 
 		case correlationID := <-userSync:
 			if userSyncer == nil {
