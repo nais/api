@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"slices"
 	"strings"
 
@@ -29,10 +28,7 @@ func (r *mutationResolver) SetGitHubTeamSlug(ctx context.Context, teamSlug slug.
 		return nil, apierror.ErrTeamNotExist
 	}
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return nil, fmt.Errorf("create log correlation ID: %w", err)
-	}
+	correlationID := uuid.New()
 
 	err = r.database.SetReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGithubTeam, teamSlug, GitHubState{
 		Slug: &gitHubTeamSlug,
@@ -66,10 +62,7 @@ func (r *mutationResolver) SetGoogleWorkspaceGroupEmail(ctx context.Context, tea
 		return nil, apierror.Errorf("Incorrect domain in email address %q. The required domain is %q.", googleWorkspaceGroupEmail, r.tenantDomain)
 	}
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return nil, fmt.Errorf("create log correlation ID: %w", err)
-	}
+	correlationID := uuid.New()
 
 	err = r.database.SetReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGoogleWorkspaceAdmin, teamSlug, GoogleWorkspaceState{
 		GroupEmail: &googleWorkspaceGroupEmail,
@@ -99,10 +92,7 @@ func (r *mutationResolver) SetAzureADGroupID(ctx context.Context, teamSlug slug.
 		return nil, apierror.ErrTeamNotExist
 	}
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return nil, fmt.Errorf("create log correlation ID: %w", err)
-	}
+	correlationID := uuid.New()
 
 	uuid, err := azureADGroupID.AsUUID()
 	if err != nil {
@@ -145,10 +135,7 @@ func (r *mutationResolver) SetGcpProjectID(ctx context.Context, teamSlug slug.Sl
 		return nil, apierror.Errorf("Unknown GCP environment %q. Supported environments are: %s", gcpEnvironment, strings.Join(r.clusters.GCPClusters(), ", "))
 	}
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return nil, fmt.Errorf("create log correlation ID: %w", err)
-	}
+	correlationID := uuid.New()
 
 	state := &GoogleGcpProjectState{
 		Projects: make(map[string]GoogleGcpEnvironmentProject),
@@ -196,10 +183,7 @@ func (r *mutationResolver) SetNaisNamespace(ctx context.Context, teamSlug slug.S
 		return nil, apierror.Errorf("Unknown GCP environment %q. Supported environments are: %s", gcpEnvironment, strings.Join(r.clusters.GCPClusters(), ", "))
 	}
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return nil, fmt.Errorf("create log correlation ID: %w", err)
-	}
+	correlationID := uuid.New()
 
 	state := &NaisNamespaceState{
 		Namespaces: make(map[string]slug.Slug),

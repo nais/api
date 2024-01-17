@@ -1,7 +1,6 @@
 package main
 
 import (
-	"cloud.google.com/go/pubsub"
 	"context"
 	"errors"
 	"fmt"
@@ -13,6 +12,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/bigquery"
+	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
@@ -282,11 +282,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 				userSyncTimer.Reset(userSyncInterval)
 				log.Debugf("scheduled user sync triggered; next run at %s", nextUserSync)
 
-				correlationID, err := uuid.NewUUID()
-				if err != nil {
-					log.WithError(err).Errorf("unable to create correlation ID for user sync")
-					break
-				}
+				correlationID := uuid.New()
 
 				userSync <- correlationID
 			}

@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auditlogger"
@@ -32,10 +31,7 @@ func (r *mutationResolver) SynchronizeUsers(ctx context.Context) (string, error)
 		return "", err
 	}
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return "", fmt.Errorf("create log correlation ID: %w", err)
-	}
+	correlationID := uuid.New()
 
 	targets := []auditlogger.Target{
 		auditlogger.ComponentTarget(logger.ComponentNameUsersync),

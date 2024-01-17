@@ -45,10 +45,7 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTea
 		return nil, err
 	}
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return nil, fmt.Errorf("create log correlation ID: %w", err)
-	}
+	correlationID := uuid.New()
 
 	var team *db.Team
 	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
@@ -101,10 +98,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 		return nil, err
 	}
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return nil, fmt.Errorf("create log correlation ID: %w", err)
-	}
+	correlationID := uuid.New()
 
 	auditLogEntries := make([]auditlogger.Entry, 0)
 	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
@@ -168,10 +162,7 @@ func (r *mutationResolver) RemoveUsersFromTeam(ctx context.Context, slug slug.Sl
 		return nil, err
 	}
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return nil, fmt.Errorf("create log correlation ID: %w", err)
-	}
+	correlationID := uuid.New()
 
 	auditLogEntries := make([]auditlogger.Entry, 0)
 	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
@@ -252,10 +243,7 @@ func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slu
 		return nil, err
 	}
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return nil, fmt.Errorf("create log correlation ID: %w", err)
-	}
+	correlationID := uuid.New()
 
 	auditLogEntries := make([]auditlogger.Entry, 0)
 	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
@@ -325,10 +313,7 @@ func (r *mutationResolver) SynchronizeTeam(ctx context.Context, slug slug.Slug) 
 		return nil, err
 	}
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return nil, fmt.Errorf("create log correlation ID: %w", err)
-	}
+	correlationID := uuid.New()
 
 	targets := []auditlogger.Target{
 		auditlogger.TeamTarget(team.Slug),
@@ -392,10 +377,7 @@ func (r *mutationResolver) AddTeamMembers(ctx context.Context, slug slug.Slug, u
 		return nil, err
 	}
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return nil, fmt.Errorf("create log correlation ID: %w", err)
-	}
+	correlationID := uuid.New()
 
 	auditLogEntries := make([]auditlogger.Entry, 0)
 	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
@@ -457,10 +439,7 @@ func (r *mutationResolver) AddTeamOwners(ctx context.Context, slug slug.Slug, us
 		return nil, err
 	}
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return nil, fmt.Errorf("create log correlation ID: %w", err)
-	}
+	correlationID := uuid.New()
 
 	auditLogEntries := make([]auditlogger.Entry, 0)
 	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
@@ -532,10 +511,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 		return nil, apierror.ErrUserNotExists
 	}
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return nil, fmt.Errorf("create log correlation ID: %w", err)
-	}
+	correlationID := uuid.New()
 
 	auditLogEntries := make([]auditlogger.Entry, 0)
 	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
@@ -623,10 +599,7 @@ func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug
 		return nil, err
 	}
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return nil, fmt.Errorf("create log correlation ID: %w", err)
-	}
+	correlationID := uuid.New()
 
 	members, err := r.database.GetAllTeamMembers(ctx, team.Slug)
 	if err != nil {
@@ -695,10 +668,7 @@ func (r *mutationResolver) RequestTeamDeletion(ctx context.Context, slug slug.Sl
 		return nil, err
 	}
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return nil, fmt.Errorf("create log correlation ID: %w", err)
-	}
+	correlationID := uuid.New()
 
 	deleteKey, err := r.database.CreateTeamDeleteKey(ctx, slug, actor.User.GetID())
 	if err != nil {
@@ -751,10 +721,7 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, key string) 
 		return false, apierror.Errorf("Team delete key has expired, you need to request a new key.")
 	}
 
-	correlationID, err := uuid.NewUUID()
-	if err != nil {
-		return false, fmt.Errorf("create log correlation ID: %w", err)
-	}
+	correlationID := uuid.New()
 
 	err = r.database.ConfirmTeamDeleteKey(ctx, uid)
 	if err != nil {

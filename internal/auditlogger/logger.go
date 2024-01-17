@@ -83,12 +83,7 @@ func (l *auditLogger) Logf(ctx context.Context, targets []Target, fields Fields,
 	}
 
 	if fields.CorrelationID == uuid.Nil {
-		id, err := uuid.NewUUID()
-		if err != nil {
-			l.log.WithError(err).Errorf("missing correlation ID in fields and unable to generate one")
-			return
-		}
-		fields.CorrelationID = id
+		fields.CorrelationID = uuid.New()
 	}
 
 	message = fmt.Sprintf(message, messageArgs...)
