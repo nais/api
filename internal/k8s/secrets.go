@@ -19,12 +19,13 @@ const (
 func (c *Client) Secrets(ctx context.Context, team string) ([]*model.EnvSecret, error) {
 	ret := make([]*model.EnvSecret, 0)
 
-	for _, infs := range c.informers {
+	for name, infs := range c.informers {
 		objs, err := infs.SecretInformer.Lister().Secrets(team).List(labels.Everything())
 		if err != nil {
 			return nil, c.error(ctx, err, "listing applications")
 		}
 		for _, obj := range objs {
+			env := name
 			ret = append(ret, toGraphSecret(env, obj))
 		}
 
