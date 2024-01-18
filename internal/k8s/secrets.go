@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/nais/api/internal/slug"
+
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
@@ -83,12 +85,10 @@ func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, 
 	if !ok {
 		return nil, fmt.Errorf("no clientset for env %q", env)
 	}
-
 	updated, err := cli.CoreV1().Secrets(namespace).Update(ctx, kubeSecret(name, namespace, data), metav1.UpdateOptions{})
 	if err != nil {
 		return nil, c.error(ctx, err, "updating secret")
 	}
-
 	return toGraphSecret(env, updated), nil
 }
 
@@ -116,7 +116,7 @@ func kubeSecret(name, namespace string, data []*model.SecretTupleInput) *corev1.
 				consoleSecretLabelKey: consoleSecretLabelVal,
 			},
 		},
-		StringData: secretTupleToMap(data),
+		Data: secretTupleToMap(data),
 	}
 }
 
@@ -143,10 +143,10 @@ func secretBytesToString(data map[string][]byte) map[string]string {
 	return ret
 }
 
-func secretTupleToMap(data []*model.SecretTupleInput) map[string]string {
-	ret := make(map[string]string, len(data))
+func secretTupleToMap(data []*model.SecretTupleInput) map[string][]byte {
+	ret := make(map[string][]byte, len(data))
 	for _, tuple := range data {
-		ret[tuple.Key] = tuple.Value
+		ret[tuple.Key] = []byte(tuple.Value)
 	}
 	return ret
 }
