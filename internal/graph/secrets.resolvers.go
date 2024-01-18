@@ -15,38 +15,27 @@ import (
 
 // CreateSecret is the resolver for the createSecret field.
 func (r *mutationResolver) CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
-	secret := emptySecret(name, team, env)
-	secret.Data = convertSecretData(data)
-
-	return r.k8sClient.CreateSecret(ctx, secret)
+	return r.k8sClient.CreateSecret(ctx, name, team, env, data)
 }
 
 // UpdateSecret is the resolver for the updateSecret field.
 func (r *mutationResolver) UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
-	secret := emptySecret(name, team, env)
-	secret.Data = convertSecretData(data)
-
-	return r.k8sClient.UpdateSecret(ctx, secret)
+	return r.k8sClient.UpdateSecret(ctx, name, team, env, data)
 }
 
 // DeleteSecret is the resolver for the deleteSecret field.
 func (r *mutationResolver) DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) (bool, error) {
-	err := r.k8sClient.DeleteSecret(ctx, name, team, env)
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
+	return r.k8sClient.DeleteSecret(ctx, name, team, env)
 }
 
 // Secrets is the resolver for the secrets field.
 func (r *queryResolver) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecret, error) {
-	return r.k8sClient.Secrets(ctx, team.String())
+	return r.k8sClient.Secrets(ctx, team)
 }
 
 // Secret is the resolver for the secret field.
 func (r *queryResolver) Secret(ctx context.Context, name string, team slug.Slug, env string) (*model.Secret, error) {
-	return r.k8sClient.Secret(ctx, name, team.String(), env)
+	return r.k8sClient.Secret(ctx, name, team, env)
 }
 
 // Env is the resolver for the env field.
