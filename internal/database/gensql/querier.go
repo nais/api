@@ -28,6 +28,7 @@ type Querier interface {
 	CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults
 	CreateAPIKey(ctx context.Context, apiKey string, serviceAccountID uuid.UUID) error
 	CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) error
+	CreateReconcilerResource(ctx context.Context, reconcilerName ReconcilerName, teamSlug slug.Slug, name string, value string, metadata []byte) (*ReconcilerResource, error)
 	CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum) error
 	CreateServiceAccount(ctx context.Context, name string) (*ServiceAccount, error)
 	CreateSession(ctx context.Context, userID uuid.UUID, expires pgtype.Timestamptz) (*Session, error)
@@ -63,7 +64,8 @@ type Querier interface {
 	GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error)
 	GetReconciler(ctx context.Context, name ReconcilerName) (*Reconciler, error)
 	GetReconcilerConfig(ctx context.Context, reconcilerName ReconcilerName) ([]*GetReconcilerConfigRow, error)
-	GetReconcilerStateForTeam(ctx context.Context, reconcilerName ReconcilerName, teamSlug slug.Slug) (*ReconcilerState, error)
+	GetReconcilerResourcesForReconciler(ctx context.Context, reconcilerName ReconcilerName, offset int32, limit int32) ([]*ReconcilerResource, error)
+	GetReconcilerResourcesForReconcilerAndTeam(ctx context.Context, reconcilerName ReconcilerName, teamSlug slug.Slug, offset int32, limit int32) ([]*ReconcilerResource, error)
 	GetReconcilers(ctx context.Context) ([]*Reconciler, error)
 	GetRepositoryAuthorizations(ctx context.Context, teamSlug slug.Slug, githubRepository string) ([]RepositoryAuthorizationEnum, error)
 	GetServiceAccountByApiKey(ctx context.Context, apiKey string) (*ServiceAccount, error)
@@ -83,8 +85,6 @@ type Querier interface {
 	GetTeams(ctx context.Context) ([]*Team, error)
 	GetTeamsCount(ctx context.Context) (int64, error)
 	GetTeamsPaginated(ctx context.Context, offset int32, limit int32) ([]*Team, error)
-	GetTeamsWithPermissionInGitHubRepo(ctx context.Context, stateMatcher []byte, offset int32, limit int32) ([]*Team, error)
-	GetTeamsWithPermissionInGitHubRepoCount(ctx context.Context, stateMatcher []byte) (int64, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserByExternalID(ctx context.Context, externalID string) (*User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (*User, error)
@@ -104,7 +104,6 @@ type Querier interface {
 	RemoveAllServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName ReconcilerName) error
-	RemoveReconcilerStateForTeam(ctx context.Context, reconcilerName ReconcilerName, teamSlug slug.Slug) error
 	RemoveRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum) error
 	RemoveSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string) error
 	RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug *slug.Slug) error
@@ -125,7 +124,6 @@ type Querier interface {
 	SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*Team, error)
 	SetLastSuccessfulSyncForTeam(ctx context.Context, argSlug slug.Slug) error
 	SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, teamSlug slug.Slug, reconciler ReconcilerName, errorMessage string) error
-	SetReconcilerStateForTeam(ctx context.Context, reconciler ReconcilerName, teamSlug slug.Slug, state []byte) error
 	SetSessionExpires(ctx context.Context, expires pgtype.Timestamptz, iD uuid.UUID) (*Session, error)
 	SetSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string, channelName string) error
 	// SpecificResourceUtilizationForApp will return resource utilization for an app at a specific timestamp.

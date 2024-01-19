@@ -27,7 +27,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TeamsClient interface {
-	Get(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*Team, error)
+	Get(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
 	List(ctx context.Context, in *ListTeamsRequest, opts ...grpc.CallOption) (*ListTeamsResponse, error)
 }
 
@@ -39,8 +39,8 @@ func NewTeamsClient(cc grpc.ClientConnInterface) TeamsClient {
 	return &teamsClient{cc}
 }
 
-func (c *teamsClient) Get(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*Team, error) {
-	out := new(Team)
+func (c *teamsClient) Get(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error) {
+	out := new(GetTeamResponse)
 	err := c.cc.Invoke(ctx, Teams_Get_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func (c *teamsClient) List(ctx context.Context, in *ListTeamsRequest, opts ...gr
 // All implementations must embed UnimplementedTeamsServer
 // for forward compatibility
 type TeamsServer interface {
-	Get(context.Context, *GetTeamRequest) (*Team, error)
+	Get(context.Context, *GetTeamRequest) (*GetTeamResponse, error)
 	List(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error)
 	mustEmbedUnimplementedTeamsServer()
 }
@@ -70,7 +70,7 @@ type TeamsServer interface {
 type UnimplementedTeamsServer struct {
 }
 
-func (UnimplementedTeamsServer) Get(context.Context, *GetTeamRequest) (*Team, error) {
+func (UnimplementedTeamsServer) Get(context.Context, *GetTeamRequest) (*GetTeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (UnimplementedTeamsServer) List(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error) {

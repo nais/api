@@ -297,8 +297,9 @@ type Team {
   "Timestamp of the last successful synchronization of the team."
   lastSuccessfulSync: Time
 
-  "Current reconciler state for the team."
-  reconcilerState: ReconcilerState!
+  # "Current reconciler state for the team."
+  # reconcilerState: ReconcilerState!
+  # TODO: FIX
 
   "Slack channel for the team."
   slackChannel: String!
@@ -417,29 +418,30 @@ type SlackAlertsChannel {
   channelName: String!
 }
 
-"Reconciler state type."
-type ReconcilerState {
-  "The GitHub team slug."
-  gitHubTeamSlug: Slug
+# TODO: FIX
+# "Reconciler state type."
+# type ReconcilerState {
+#   "The GitHub team slug."
+#   gitHubTeamSlug: Slug
 
-  "The Google Workspace group email."
-  googleWorkspaceGroupEmail: String
+#   "The Google Workspace group email."
+#   googleWorkspaceGroupEmail: String
 
-  "The Azure AD group ID."
-  azureADGroupId: ID
+#   "The Azure AD group ID."
+#   azureADGroupId: ID
 
-  "A list of GCP projects."
-  gcpProjects: [GcpProject!]!
+#   "A list of GCP projects."
+#   gcpProjects: [GcpProject!]!
 
-  "A list of NAIS namespaces."
-  naisNamespaces: [NaisNamespace!]!
+#   "A list of NAIS namespaces."
+#   naisNamespaces: [NaisNamespace!]!
 
-  "Timestamp of when the NAIS deploy key was provisioned."
-  naisDeployKeyProvisioned: Time
+#   "Timestamp of when the NAIS deploy key was provisioned."
+#   naisDeployKeyProvisioned: Time
 
-  "Name of the GAR repository for the team."
-  garRepositoryName: String
-}
+#   "Name of the GAR repository for the team."
+#   garRepositoryName: String
+# }
 
 "GCP project type."
 type GcpProject {

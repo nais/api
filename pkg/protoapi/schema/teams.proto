@@ -10,8 +10,12 @@ message Team {
 }
 
 service Teams {
-  rpc Get(GetTeamRequest) returns (Team) {}
+  rpc Get(GetTeamRequest) returns (GetTeamResponse) {}
   rpc List(ListTeamsRequest) returns (ListTeamsResponse) {}
+}
+
+message GetTeamResponse {
+  Team team = 1;
 }
 
 message GetTeamRequest {

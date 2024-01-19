@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -278,39 +277,40 @@ func (d *database) GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, t
 }
 
 func (d *database) GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string, offset, limit int) ([]*Team, int, error) {
-	matcher, err := json.Marshal(map[string]interface{}{
-		"repositories": []map[string]interface{}{
-			{
-				"name": repoName,
-				"permissions": []map[string]interface{}{
-					{
-						"name":    permission,
-						"granted": true,
-					},
-				},
-			},
-		},
-	})
-	if err != nil {
-		return nil, 0, err
-	}
+	panic("not implemented")
+	// 	matcher, err := json.Marshal(map[string]interface{}{
+	// 		"repositories": []map[string]interface{}{
+	// 			{
+	// 				"name": repoName,
+	// 				"permissions": []map[string]interface{}{
+	// 					{
+	// 						"name":    permission,
+	// 						"granted": true,
+	// 					},
+	// 				},
+	// 			},
+	// 		},
+	// 	})
+	// 	if err != nil {
+	// 		return nil, 0, err
+	// 	}
 
-	rows, err := d.querier.GetTeamsWithPermissionInGitHubRepo(ctx, matcher, int32(offset), int32(limit))
-	if err != nil {
-		return nil, 0, err
-	}
+	// 	rows, err := d.querier.GetTeamsWithPermissionInGitHubRepo(ctx, matcher, int32(offset), int32(limit))
+	// 	if err != nil {
+	// 		return nil, 0, err
+	// 	}
 
-	teams := make([]*Team, 0)
-	for _, row := range rows {
-		teams = append(teams, &Team{Team: row})
-	}
+	// 	teams := make([]*Team, 0)
+	// 	for _, row := range rows {
+	// 		teams = append(teams, &Team{Team: row})
+	// 	}
 
-	total, err := d.querier.GetTeamsWithPermissionInGitHubRepoCount(ctx, matcher)
-	if err != nil {
-		return nil, 0, err
-	}
+	// 	total, err := d.querier.GetTeamsWithPermissionInGitHubRepoCount(ctx, matcher)
+	// 	if err != nil {
+	// 		return nil, 0, err
+	// 	}
 
-	return teams, int(total), nil
+	// return teams, int(total), nil
 }
 
 func (d *database) SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*gensql.Team, error) {

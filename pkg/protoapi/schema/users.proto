@@ -12,8 +12,12 @@ message User {
 }
 
 service Users {
-  rpc Get(GetUserRequest) returns (User) {}
+  rpc Get(GetUserRequest) returns (GetUserResponse) {}
   rpc List(ListUsersRequest) returns (ListUsersResponse) {}
+}
+
+message GetUserResponse {
+  User user = 1;
 }
 
 message GetUserRequest {

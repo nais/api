@@ -15,13 +15,15 @@ type TeamsServer struct {
 	protoapi.UnimplementedTeamsServer
 }
 
-func (t *TeamsServer) Get(ctx context.Context, r *protoapi.GetTeamRequest) (*protoapi.Team, error) {
+func (t *TeamsServer) Get(ctx context.Context, r *protoapi.GetTeamRequest) (*protoapi.GetTeamResponse, error) {
 	team, err := t.db.GetTeamBySlug(ctx, slug.Slug(r.Slug))
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "team not found")
 	}
 
-	return toProtoTeam(team), nil
+	return &protoapi.GetTeamResponse{
+		Team: toProtoTeam(team),
+	}, nil
 }
 
 func (t *TeamsServer) List(ctx context.Context, r *protoapi.ListTeamsRequest) (*protoapi.ListTeamsResponse, error) {

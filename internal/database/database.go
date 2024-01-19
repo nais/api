@@ -29,7 +29,7 @@ type Database interface {
 	FirstRunRepo
 	ReconcilerErrorRepo
 	ReconcilerRepo
-	ReconcilerStateRepo
+	ReconcilerResourceRepo
 	RepositoryAuthorizationRepo
 	ResourceUtilizationRepo
 	RoleRepo

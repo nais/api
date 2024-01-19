@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/database"
@@ -16,7 +15,7 @@ type UsersServer struct {
 	protoapi.UnimplementedUsersServer
 }
 
-func (u *UsersServer) Get(ctx context.Context, r *protoapi.GetUserRequest) (*protoapi.User, error) {
+func (u *UsersServer) Get(ctx context.Context, r *protoapi.GetUserRequest) (*protoapi.GetUserResponse, error) {
 	var user *database.User
 	var err error
 
@@ -39,11 +38,12 @@ func (u *UsersServer) Get(ctx context.Context, r *protoapi.GetUserRequest) (*pro
 		return nil, status.Errorf(codes.NotFound, "user not found")
 	}
 
-	return toProtoUser(user), nil
+	return &protoapi.GetUserResponse{
+		User: toProtoUser(user),
+	}, nil
 }
 
 func (u *UsersServer) List(ctx context.Context, r *protoapi.ListUsersRequest) (*protoapi.ListUsersResponse, error) {
-	time.Sleep(20 * time.Second)
 	limit, offset := pagination(r)
 	users, total, err := u.db.GetUsers(ctx, offset, limit)
 	if err != nil {

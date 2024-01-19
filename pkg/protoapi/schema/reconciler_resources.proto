@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+option go_package = "./pkg/protoapi";
+
+import "google/protobuf/timestamp.proto";
+import "pagination.proto";
+
+message ReconcilerResource {
+  string id = 1;
+  string reconciler_name = 2;
+  string team_slug = 3;
+  string name = 4;
+  string value = 5;
+  bytes metadata = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+service ReconcilerResources {
+  rpc Create(CreateReconcilerResourceRequest) returns (GetReconcilerResourceResponse) {}
+  rpc List(ListReconcilerResourceRequest) returns (ListReconcilerResourceResponse) {}
+}
+
+message GetReconcilerResourceResponse {
+  ReconcilerResource resource = 1;
+}
+
+message CreateReconcilerResourceRequest {
+  string reconciler_name = 1;
+  string team_slug = 2;
+  string name = 3;
+  string value = 4;
+  bytes metadata = 5;
+}
+
+message ListReconcilerResourceRequest {
+  int64 limit = 1;
+  int64 offset = 2;
+  string reconciler_name = 3;
+  string team_slug = 4;
+}
+
+message ListReconcilerResourceResponse {
+  repeated ReconcilerResource nodes = 1;
+  PageInfo page_info = 2;
+}

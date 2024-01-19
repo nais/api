@@ -387,10 +387,15 @@ type ReconcilerError struct {
 	TeamSlug      slug.Slug
 }
 
-type ReconcilerState struct {
-	Reconciler ReconcilerName
-	State      []byte
-	TeamSlug   slug.Slug
+type ReconcilerResource struct {
+	ID             uuid.UUID
+	ReconcilerName ReconcilerName
+	TeamSlug       slug.Slug
+	Name           string
+	Value          string
+	Metadata       []byte
+	CreatedAt      pgtype.Timestamptz
+	UpdatedAt      pgtype.Timestamptz
 }
 
 type ResourceUtilizationMetric struct {

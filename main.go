@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/nais/api/pkg/apiclient"
 	"github.com/nais/api/pkg/protoapi"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -12,16 +13,14 @@ import (
 func main() {
 	ctx := context.Background()
 	var opts []grpc.DialOption
-
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
-	gclient, err := grpc.Dial("127.0.0.1:3001", opts...)
+	client, err := apiclient.New("127.0.0.1:3001", opts...)
 	if err != nil {
-		panic("Failed to connect to provider " + err.Error())
+		panic(err)
 	}
 
-	client := protoapi.NewUsersClient(gclient)
-	teams, err := client.List(ctx, &protoapi.ListUsersRequest{
+	teams, err := client.Users().List(ctx, &protoapi.ListUsersRequest{
 		Limit:  10,
 		Offset: 3,
 	})
