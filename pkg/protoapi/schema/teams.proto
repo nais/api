@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "pagination.proto";
+import "users.proto";
 
 option go_package = "./pkg/protoapi";
 
@@ -12,6 +13,7 @@ message Team {
 service Teams {
   rpc Get(GetTeamRequest) returns (GetTeamResponse) {}
   rpc List(ListTeamsRequest) returns (ListTeamsResponse) {}
+  rpc Members(ListTeamMembersRequest) returns (ListTeamMembersResponse) {}
 }
 
 message GetTeamResponse {
@@ -30,4 +32,26 @@ message ListTeamsRequest {
 message ListTeamsResponse {
   repeated Team nodes = 1;
   PageInfo page_info = 2;
+}
+
+message ListTeamMembersRequest {
+  int64 limit = 1;
+  int64 offset = 2;
+  string slug = 3;
+}
+
+message ListTeamMembersResponse {
+  repeated TeamMember nodes = 1;
+  PageInfo page_info = 2;
+}
+
+message TeamMember {
+  User user = 1;
+  TeamMemberRole role = 2;
+}
+
+enum TeamMemberRole {
+  UNDEFINED = 0;
+  MEMBER = 1;
+  OWNER = 2;
 }

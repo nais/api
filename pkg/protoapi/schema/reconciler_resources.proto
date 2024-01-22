@@ -17,30 +17,34 @@ message ReconcilerResource {
 }
 
 service ReconcilerResources {
-  rpc Create(CreateReconcilerResourceRequest) returns (GetReconcilerResourceResponse) {}
-  rpc List(ListReconcilerResourceRequest) returns (ListReconcilerResourceResponse) {}
+  rpc Save(SaveReconcilerResourceRequest) returns (SaveReconcilerResourceResponse) {}
+  rpc List(ListReconcilerResourcesRequest) returns (ListReconcilerResourcesResponse) {}
 }
 
-message GetReconcilerResourceResponse {
-  ReconcilerResource resource = 1;
+message SaveReconcilerResourceResponse {}
+
+message SaveReconcilerResourceRequest {
+  repeated NewReconcilerResource resources = 1;
+  string reconciler_name = 2;
+  string team_slug = 3;
+  // If true, delete all resources that are not in the request for the team.
+  bool delete_undefined = 4;
 }
 
-message CreateReconcilerResourceRequest {
-  string reconciler_name = 1;
-  string team_slug = 2;
-  string name = 3;
-  string value = 4;
-  bytes metadata = 5;
+message NewReconcilerResource {
+  string name = 1;
+  string value = 2;
+  bytes metadata = 3;
 }
 
-message ListReconcilerResourceRequest {
+message ListReconcilerResourcesRequest {
   int64 limit = 1;
   int64 offset = 2;
   string reconciler_name = 3;
   string team_slug = 4;
 }
 
-message ListReconcilerResourceResponse {
+message ListReconcilerResourcesResponse {
   repeated ReconcilerResource nodes = 1;
   PageInfo page_info = 2;
 }

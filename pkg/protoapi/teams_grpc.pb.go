@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Teams_Get_FullMethodName  = "/Teams/Get"
-	Teams_List_FullMethodName = "/Teams/List"
+	Teams_Get_FullMethodName     = "/Teams/Get"
+	Teams_List_FullMethodName    = "/Teams/List"
+	Teams_Members_FullMethodName = "/Teams/Members"
 )
 
 // TeamsClient is the client API for Teams service.
@@ -29,6 +30,7 @@ const (
 type TeamsClient interface {
 	Get(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
 	List(ctx context.Context, in *ListTeamsRequest, opts ...grpc.CallOption) (*ListTeamsResponse, error)
+	Members(ctx context.Context, in *ListTeamMembersRequest, opts ...grpc.CallOption) (*ListTeamMembersResponse, error)
 }
 
 type teamsClient struct {
@@ -57,12 +59,22 @@ func (c *teamsClient) List(ctx context.Context, in *ListTeamsRequest, opts ...gr
 	return out, nil
 }
 
+func (c *teamsClient) Members(ctx context.Context, in *ListTeamMembersRequest, opts ...grpc.CallOption) (*ListTeamMembersResponse, error) {
+	out := new(ListTeamMembersResponse)
+	err := c.cc.Invoke(ctx, Teams_Members_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TeamsServer is the server API for Teams service.
 // All implementations must embed UnimplementedTeamsServer
 // for forward compatibility
 type TeamsServer interface {
 	Get(context.Context, *GetTeamRequest) (*GetTeamResponse, error)
 	List(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error)
+	Members(context.Context, *ListTeamMembersRequest) (*ListTeamMembersResponse, error)
 	mustEmbedUnimplementedTeamsServer()
 }
 
@@ -75,6 +87,9 @@ func (UnimplementedTeamsServer) Get(context.Context, *GetTeamRequest) (*GetTeamR
 }
 func (UnimplementedTeamsServer) List(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
+}
+func (UnimplementedTeamsServer) Members(context.Context, *ListTeamMembersRequest) (*ListTeamMembersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Members not implemented")
 }
 func (UnimplementedTeamsServer) mustEmbedUnimplementedTeamsServer() {}
 
@@ -125,6 +140,24 @@ func _Teams_List_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Teams_Members_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListTeamMembersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TeamsServer).Members(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Teams_Members_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TeamsServer).Members(ctx, req.(*ListTeamMembersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Teams_ServiceDesc is the grpc.ServiceDesc for Teams service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -139,6 +172,10 @@ var Teams_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "List",
 			Handler:    _Teams_List_Handler,
+		},
+		{
+			MethodName: "Members",
+			Handler:    _Teams_Members_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

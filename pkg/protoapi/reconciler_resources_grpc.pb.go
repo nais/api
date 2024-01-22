@@ -19,16 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ReconcilerResources_Create_FullMethodName = "/ReconcilerResources/Create"
-	ReconcilerResources_List_FullMethodName   = "/ReconcilerResources/List"
+	ReconcilerResources_Save_FullMethodName = "/ReconcilerResources/Save"
+	ReconcilerResources_List_FullMethodName = "/ReconcilerResources/List"
 )
 
 // ReconcilerResourcesClient is the client API for ReconcilerResources service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ReconcilerResourcesClient interface {
-	Create(ctx context.Context, in *CreateReconcilerResourceRequest, opts ...grpc.CallOption) (*GetReconcilerResourceResponse, error)
-	List(ctx context.Context, in *ListReconcilerResourceRequest, opts ...grpc.CallOption) (*ListReconcilerResourceResponse, error)
+	Save(ctx context.Context, in *SaveReconcilerResourceRequest, opts ...grpc.CallOption) (*SaveReconcilerResourceResponse, error)
+	List(ctx context.Context, in *ListReconcilerResourcesRequest, opts ...grpc.CallOption) (*ListReconcilerResourcesResponse, error)
 }
 
 type reconcilerResourcesClient struct {
@@ -39,17 +39,17 @@ func NewReconcilerResourcesClient(cc grpc.ClientConnInterface) ReconcilerResourc
 	return &reconcilerResourcesClient{cc}
 }
 
-func (c *reconcilerResourcesClient) Create(ctx context.Context, in *CreateReconcilerResourceRequest, opts ...grpc.CallOption) (*GetReconcilerResourceResponse, error) {
-	out := new(GetReconcilerResourceResponse)
-	err := c.cc.Invoke(ctx, ReconcilerResources_Create_FullMethodName, in, out, opts...)
+func (c *reconcilerResourcesClient) Save(ctx context.Context, in *SaveReconcilerResourceRequest, opts ...grpc.CallOption) (*SaveReconcilerResourceResponse, error) {
+	out := new(SaveReconcilerResourceResponse)
+	err := c.cc.Invoke(ctx, ReconcilerResources_Save_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *reconcilerResourcesClient) List(ctx context.Context, in *ListReconcilerResourceRequest, opts ...grpc.CallOption) (*ListReconcilerResourceResponse, error) {
-	out := new(ListReconcilerResourceResponse)
+func (c *reconcilerResourcesClient) List(ctx context.Context, in *ListReconcilerResourcesRequest, opts ...grpc.CallOption) (*ListReconcilerResourcesResponse, error) {
+	out := new(ListReconcilerResourcesResponse)
 	err := c.cc.Invoke(ctx, ReconcilerResources_List_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -61,8 +61,8 @@ func (c *reconcilerResourcesClient) List(ctx context.Context, in *ListReconciler
 // All implementations must embed UnimplementedReconcilerResourcesServer
 // for forward compatibility
 type ReconcilerResourcesServer interface {
-	Create(context.Context, *CreateReconcilerResourceRequest) (*GetReconcilerResourceResponse, error)
-	List(context.Context, *ListReconcilerResourceRequest) (*ListReconcilerResourceResponse, error)
+	Save(context.Context, *SaveReconcilerResourceRequest) (*SaveReconcilerResourceResponse, error)
+	List(context.Context, *ListReconcilerResourcesRequest) (*ListReconcilerResourcesResponse, error)
 	mustEmbedUnimplementedReconcilerResourcesServer()
 }
 
@@ -70,10 +70,10 @@ type ReconcilerResourcesServer interface {
 type UnimplementedReconcilerResourcesServer struct {
 }
 
-func (UnimplementedReconcilerResourcesServer) Create(context.Context, *CreateReconcilerResourceRequest) (*GetReconcilerResourceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+func (UnimplementedReconcilerResourcesServer) Save(context.Context, *SaveReconcilerResourceRequest) (*SaveReconcilerResourceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Save not implemented")
 }
-func (UnimplementedReconcilerResourcesServer) List(context.Context, *ListReconcilerResourceRequest) (*ListReconcilerResourceResponse, error) {
+func (UnimplementedReconcilerResourcesServer) List(context.Context, *ListReconcilerResourcesRequest) (*ListReconcilerResourcesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 func (UnimplementedReconcilerResourcesServer) mustEmbedUnimplementedReconcilerResourcesServer() {}
@@ -89,26 +89,26 @@ func RegisterReconcilerResourcesServer(s grpc.ServiceRegistrar, srv ReconcilerRe
 	s.RegisterService(&ReconcilerResources_ServiceDesc, srv)
 }
 
-func _ReconcilerResources_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateReconcilerResourceRequest)
+func _ReconcilerResources_Save_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SaveReconcilerResourceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ReconcilerResourcesServer).Create(ctx, in)
+		return srv.(ReconcilerResourcesServer).Save(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ReconcilerResources_Create_FullMethodName,
+		FullMethod: ReconcilerResources_Save_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ReconcilerResourcesServer).Create(ctx, req.(*CreateReconcilerResourceRequest))
+		return srv.(ReconcilerResourcesServer).Save(ctx, req.(*SaveReconcilerResourceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _ReconcilerResources_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListReconcilerResourceRequest)
+	in := new(ListReconcilerResourcesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func _ReconcilerResources_List_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: ReconcilerResources_List_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ReconcilerResourcesServer).List(ctx, req.(*ListReconcilerResourceRequest))
+		return srv.(ReconcilerResourcesServer).List(ctx, req.(*ListReconcilerResourcesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -133,8 +133,8 @@ var ReconcilerResources_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ReconcilerResourcesServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Create",
-			Handler:    _ReconcilerResources_Create_Handler,
+			MethodName: "Save",
+			Handler:    _ReconcilerResources_Save_Handler,
 		},
 		{
 			MethodName: "List",

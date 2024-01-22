@@ -20,6 +20,10 @@ func New(target string, opts ...grpc.DialOption) (*APIClient, error) {
 	}, nil
 }
 
+func (a *APIClient) Reconcilers() protoapi.ReconcilersClient {
+	return protoapi.NewReconcilersClient(a.conn)
+}
+
 func (a *APIClient) Users() protoapi.UsersClient {
 	return protoapi.NewUsersClient(a.conn)
 }
