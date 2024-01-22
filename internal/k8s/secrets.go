@@ -10,10 +10,8 @@ import (
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
-	"github.com/nais/api/internal/slug"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 )
 
 const (
@@ -25,21 +23,26 @@ const (
 //  authorization: check that requesting user has access to the requested team?
 
 func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecret, error) {
+	impersonatedClients, err := c.impersonationClientCreator(ctx)
+	if err != nil {
+		return nil, c.error(ctx, err, "impersonation")
+	}
 	ret := make([]*model.EnvSecret, 0)
 	namespace := team.String()
 
-	for name, infs := range c.informers {
+	for env, clientSet := range impersonatedClients {
 		secrets := make([]model.Secret, 0)
 
-		objs, err := infs.SecretInformer.Lister().Secrets(namespace).List(labels.Everything())
+		kubeSecrets, err := clientSet.CoreV1().Secrets(namespace).List(ctx, metav1.ListOptions{})
+
 		if err != nil {
 			return nil, c.error(ctx, err, "listing secrets")
 		}
 
-		for _, obj := range objs {
-			secrets = append(secrets, *toGraphSecret(name, obj))
+		for _, obj := range kubeSecrets.Items {
+			secrets = append(secrets, *toGraphSecret(env, &obj))
 		}
-		ret = append(ret, toGraphEnvSecret(name, team, secrets...))
+		ret = append(ret, toGraphEnvSecret(env, team, secrets...))
 	}
 
 	slices.SortFunc(ret, func(a, b *model.EnvSecret) int {
@@ -50,13 +53,20 @@ func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecre
 }
 
 func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env string) (*model.Secret, error) {
+
+	impersonatedClients, err := c.impersonationClientCreator(ctx)
+	if err != nil {
+		return nil, c.error(ctx, err, "impersonation")
+	}
+
 	namespace := team.String()
-	infs, ok := c.informers[env]
+	cli, ok := impersonatedClients[env]
 	if !ok {
 		return nil, fmt.Errorf("no informer for env %q", env)
 	}
 
-	secret, err := infs.SecretInformer.Lister().Secrets(namespace).Get(name)
+	secret, err := cli.CoreV1().Secrets(namespace).Get(ctx, name, metav1.GetOptions{})
+
 	if err != nil {
 		return nil, c.error(ctx, err, "getting secret")
 	}
@@ -65,8 +75,14 @@ func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env st
 }
 
 func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
+
+	impersonatedClients, err := c.impersonationClientCreator(ctx)
+	if err != nil {
+		return nil, c.error(ctx, err, "impersonation")
+	}
+
 	namespace := team.String()
-	cli, ok := c.clientSets[env]
+	cli, ok := impersonatedClients[env]
 	if !ok {
 		return nil, fmt.Errorf("no clientset for env %q", env)
 	}
@@ -80,8 +96,14 @@ func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, 
 }
 
 func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
+
+	impersonatedClients, err := c.impersonationClientCreator(ctx)
+	if err != nil {
+		return nil, c.error(ctx, err, "impersonation")
+	}
+
 	namespace := team.String()
-	cli, ok := c.clientSets[env]
+	cli, ok := impersonatedClients[env]
 	if !ok {
 		return nil, fmt.Errorf("no clientset for env %q", env)
 	}
@@ -93,13 +115,19 @@ func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, 
 }
 
 func (c *Client) DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) (bool, error) {
+
+	impersonatedClients, err := c.impersonationClientCreator(ctx)
+	if err != nil {
+		return false, c.error(ctx, err, "impersonation")
+	}
+
 	namespace := team.String()
-	cli, ok := c.clientSets[env]
+	cli, ok := impersonatedClients[env]
 	if !ok {
 		return false, fmt.Errorf("no clientset for env %q", env)
 	}
 
-	err := cli.CoreV1().Secrets(namespace).Delete(ctx, name, metav1.DeleteOptions{})
+	err = cli.CoreV1().Secrets(namespace).Delete(ctx, name, metav1.DeleteOptions{})
 	if err != nil {
 		return false, c.error(ctx, err, "deleting secret")
 	}

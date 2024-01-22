@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/nais/api/internal/auth/authz"
+	"k8s.io/client-go/rest"
 	"strings"
 	"time"
 
@@ -60,10 +62,11 @@ func (c ClusterInformers) Start(ctx context.Context, log logrus.FieldLogger) err
 }
 
 type Client struct {
-	informers   ClusterInformers
-	clientSets  map[string]kubernetes.Interface
-	log         logrus.FieldLogger
-	teamChecker TeamChecker
+	informers                  ClusterInformers
+	clientSets                 map[string]kubernetes.Interface
+	log                        logrus.FieldLogger
+	teamChecker                TeamChecker
+	impersonationClientCreator impersonationClientCreator
 }
 
 type Informers struct {
@@ -72,7 +75,6 @@ type Informers struct {
 	JobInformer     batchv1inf.JobInformer
 	NaisjobInformer informers.GenericInformer
 	PodInformer     corev1inf.PodInformer
-	SecretInformer  corev1inf.SecretInformer
 	TopicInformer   informers.GenericInformer
 }
 
@@ -88,16 +90,41 @@ func WithClientsCreator(f func(cluster string) (kubernetes.Interface, dynamic.In
 	}
 }
 
+type impersonationClientCreator = func(context.Context) (map[string]kubernetes.Interface, error)
+
 func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLogger, opts ...Opt) (*Client, error) {
 	s := &settings{}
 	for _, opt := range opts {
 		opt(s)
 	}
-
+	// impersonationClientCreator is only nil when not using fake
+	var impersonationClientCreator impersonationClientCreator = nil
+	// s.clientsCreator is only nil when not using fake
 	if s.clientsCreator == nil {
 		restConfigs, err := CreateClusterConfigMap(tenant, cfg)
 		if err != nil {
 			return nil, fmt.Errorf("create kubeconfig: %w", err)
+		}
+
+		impersonationClientCreator = func(ctx context.Context) (map[string]kubernetes.Interface, error) {
+			user := authz.ActorFromContext(ctx).User
+			clientSets := make(map[string]kubernetes.Interface)
+			for _, cluster := range clusters(cfg) {
+				restConfig, ok := restConfigs[cluster]
+				if !ok {
+					return nil, fmt.Errorf("invalid cluster name %w", ok)
+				}
+				restConfig.Impersonate = rest.ImpersonationConfig{
+					UserName: user.Identity(),
+				}
+
+				clientSet, err := kubernetes.NewForConfig(&restConfig)
+				if err != nil {
+					return nil, fmt.Errorf("create clientsets: %w", err)
+				}
+				clientSets[cluster] = clientSet
+			}
+			return clientSets, nil
 		}
 
 		s.clientsCreator = func(cluster string) (kubernetes.Interface, dynamic.Interface, error) {
@@ -134,7 +161,7 @@ func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLog
 		infs[cluster].AppInformer = dinf.ForResource(naisv1alpha1.GroupVersion.WithResource("applications"))
 		infs[cluster].NaisjobInformer = dinf.ForResource(naisv1.GroupVersion.WithResource("naisjobs"))
 		infs[cluster].JobInformer = inf.Batch().V1().Jobs()
-		infs[cluster].SecretInformer = inf.Core().V1().Secrets()
+
 		clientSets[cluster] = clientSet
 
 		if clientSet, ok := clientSet.(*kubernetes.Clientset); ok {
@@ -152,11 +179,18 @@ func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLog
 		}
 	}
 
+	if impersonationClientCreator == nil {
+		impersonationClientCreator = func(ctx context.Context) (map[string]kubernetes.Interface, error) {
+			return clientSets, nil
+		}
+	}
+
 	return &Client{
-		informers:   infs,
-		log:         log,
-		clientSets:  clientSets,
-		teamChecker: teamChecker,
+		informers:                  infs,
+		clientSets:                 clientSets,
+		log:                        log,
+		teamChecker:                teamChecker,
+		impersonationClientCreator: impersonationClientCreator,
 	}, nil
 }
 
