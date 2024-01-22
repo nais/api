@@ -13,6 +13,9 @@ metadata:
   resourceVersion: "3701834314"
   uid: 91ba6c9d-0199-4123-aff6-aa27ce5d2056
 spec:
+  envFrom:
+    - secret: my-secret
+    - other: other-secret
   env:
     - name: DEPLOY_START
       value: "1704981602000000000"
