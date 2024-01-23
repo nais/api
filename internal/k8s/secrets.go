@@ -4,6 +4,10 @@ import (
 	"cmp"
 	"context"
 	"fmt"
+	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/runtime"
 	"slices"
 
 	"github.com/nais/api/internal/slug"
@@ -32,15 +36,53 @@ func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecre
 
 	for env, clientSet := range impersonatedClients {
 		secrets := make([]model.Secret, 0)
-
 		kubeSecrets, err := clientSet.CoreV1().Secrets(namespace).List(ctx, metav1.ListOptions{})
 
 		if err != nil {
 			return nil, c.error(ctx, err, "listing secrets")
 		}
 
+		objs, err := c.informers[env].AppInformer.Lister().ByNamespace(team.String()).List(labels.Everything())
+		if err != nil {
+			return nil, c.error(ctx, err, fmt.Sprintf("getting application %s.%s", env, team))
+		}
+
+		// we want a map: Secret -> [App]
+		appsForSecrets := make(map[string][]string)
+		for _ ,obj := range objs {
+		    u := obj.(*unstructured.Unstructured)
+			app := &naisv1alpha1.Application{}
+
+			if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, app); err != nil {
+				return nil, fmt.Errorf("converting to application: %w", err)
+			}
+
+ 			for _, secret := range app.Spec.EnvFrom {
+
+				as, ok := appsForSecrets[secret.Secret]
+				if !ok {
+					appsForSecrets[secret.Secret] = []string{app.Name}
+				} else  {
+					appsForSecrets[secret.Secret] = append(as, app.Name)
+				}
+			}
+
+			for _, secret := range app.Spec.FilesFrom {
+				as, ok := appsForSecrets[secret.Secret]
+				if !ok {
+					appsForSecrets[secret.Secret] = []string{app.Name}
+				} else  {
+					appsForSecrets[secret.Secret] = append(as, app.Name)
+				}
+			}
+		}
+
 		for _, obj := range kubeSecrets.Items {
-			secrets = append(secrets, *toGraphSecret(env, &obj))
+			as, ok := appsForSecrets[obj.Name]
+			if !ok {
+				as = make([]string, 0)
+			}
+			secrets = append(secrets, *toGraphSecret(env, &obj, as))
 		}
 		ret = append(ret, toGraphEnvSecret(env, team, secrets...))
 	}
@@ -71,7 +113,7 @@ func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env st
 		return nil, c.error(ctx, err, "getting secret")
 	}
 
-	return toGraphSecret(env, secret), nil
+	return toGraphSecret(env, secret, make([]string, 0)), nil
 }
 
 func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
@@ -92,7 +134,7 @@ func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, 
 		return nil, c.error(ctx, err, "creating secret")
 	}
 
-	return toGraphSecret(env, created), nil
+	return toGraphSecret(env, created, make([]string,0)), nil
 }
 
 func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
@@ -111,7 +153,7 @@ func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, 
 	if err != nil {
 		return nil, c.error(ctx, err, "updating secret")
 	}
-	return toGraphSecret(env, updated), nil
+	return toGraphSecret(env, updated, make([]string, 0)), nil
 }
 
 func (c *Client) DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) (bool, error) {
@@ -155,11 +197,19 @@ func toGraphEnvSecret(env string, team slug.Slug, secret ...model.Secret) *model
 	}
 }
 
-func toGraphSecret(env string, obj *corev1.Secret) *model.Secret {
+// toGraphSecret accepts apps as an empty list for cases where only the secret is getting
+// updated
+func toGraphSecret(
+	env string,
+	obj *corev1.Secret,
+	apps []string,
+) *model.Secret {
+	apps = slices.Compact(apps)
 	return &model.Secret{
 		ID:   makeSecretIdent(env, obj.GetNamespace(), obj.GetName()),
 		Name: obj.Name,
 		Data: secretBytesToString(obj.Data),
+		Apps: apps,
 	}
 }
 
