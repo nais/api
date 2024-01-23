@@ -19,7 +19,7 @@ type ReconcilerRepo interface {
 	GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error)
 	GetReconciler(ctx context.Context, reconcilerName string) (*Reconciler, error)
 	GetReconcilerConfig(ctx context.Context, reconcilerName string) ([]*ReconcilerConfig, error)
-	GetReconcilers(ctx context.Context) ([]*Reconciler, error)
+	GetReconcilers(ctx context.Context, offset, limit int) ([]*Reconciler, int, error)
 	RemoveReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string) error
 	ResetReconcilerConfig(ctx context.Context, reconcilerName string) (*Reconciler, error)
 	SyncReconcilerConfig(ctx context.Context, reconcilerName string, configs []*protoapi.ReconcilerConfigSpec) error
@@ -59,13 +59,18 @@ func (d *database) GetReconciler(ctx context.Context, reconcilerName string) (*R
 	return &Reconciler{Reconciler: reconciler}, nil
 }
 
-func (d *database) GetReconcilers(ctx context.Context) ([]*Reconciler, error) {
-	rows, err := d.querier.GetReconcilers(ctx)
+func (d *database) GetReconcilers(ctx context.Context, offset, limit int) ([]*Reconciler, int, error) {
+	rows, err := d.querier.GetReconcilers(ctx, int32(offset), int32(limit))
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return wrapReconcilers(rows), nil
+	total, err := d.querier.GetReconcilersCount(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return wrapReconcilers(rows), int(total), nil
 }
 
 func (d *database) GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error) {

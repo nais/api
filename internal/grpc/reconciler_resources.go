@@ -36,7 +36,7 @@ func (r *ReconcilerResourcesServer) Save(ctx context.Context, in *protoapi.SaveR
 		case rr.Value == "":
 			return nil, status.Error(400, "value is required")
 		}
-		_, err := r.db.CreateReconcilerResource(ctx, rn, slg, rr.Name, rr.Value, rr.Metadata)
+		_, err := r.db.UpsertReconcilerResource(ctx, rn, slg, rr.Name, rr.Value, rr.Metadata)
 		if err != nil {
 			return nil, err
 		}

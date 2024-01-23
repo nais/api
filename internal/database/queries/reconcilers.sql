@@ -1,6 +1,9 @@
 -- name: GetReconcilers :many
 SELECT * FROM reconcilers
-ORDER BY display_name ASC;
+ORDER BY display_name ASC LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
+-- name: GetReconcilersCount :one
+SELECT COUNT(*) as total FROM reconcilers;
 
 -- name: GetEnabledReconcilers :many
 SELECT * FROM reconcilers

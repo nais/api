@@ -39,7 +39,8 @@ func (r *ReconcilersServer) Get(ctx context.Context, req *protoapi.GetReconciler
 }
 
 func (r *ReconcilersServer) List(ctx context.Context, req *protoapi.ListReconcilersRequest) (*protoapi.ListReconcilersResponse, error) {
-	recs, err := r.db.GetReconcilers(ctx)
+	limit, offset := pagination(req)
+	recs, total, err := r.db.GetReconcilers(ctx, offset, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +51,8 @@ func (r *ReconcilersServer) List(ctx context.Context, req *protoapi.ListReconcil
 	}
 
 	return &protoapi.ListReconcilersResponse{
-		Nodes: ret,
+		Nodes:    ret,
+		PageInfo: pageInfo(req, total),
 	}, nil
 }
 

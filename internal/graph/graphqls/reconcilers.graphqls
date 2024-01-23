@@ -61,7 +61,19 @@ extend type Mutation {
 
 extend type Query {
   "Get a collection of reconcilers."
-  reconcilers: [Reconciler!]! @auth
+  reconcilers(
+    offset: Int
+    limit: Int
+  ): ReconcilerList! @auth
+}
+
+"Paginated reconcilers type."
+type ReconcilerList {
+  "The list of reconcilers."
+  nodes: [Reconciler!]!
+
+  "Pagination information."
+  pageInfo: PageInfo!
 }
 
 "Reconciler type."

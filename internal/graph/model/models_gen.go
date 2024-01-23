@@ -653,6 +653,14 @@ type ReconcilerConfigInput struct {
 	Value string `json:"value"`
 }
 
+// Paginated reconcilers type.
+type ReconcilerList struct {
+	// The list of reconcilers.
+	Nodes []*Reconciler `json:"nodes"`
+	// Pagination information.
+	PageInfo PageInfo `json:"pageInfo"`
+}
+
 type Redis struct {
 	Name   string `json:"name"`
 	Access string `json:"access"`

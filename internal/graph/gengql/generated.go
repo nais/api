@@ -562,7 +562,7 @@ type ComplexityRoot struct {
 		Me                                  func(childComplexity int) int
 		MonthlyCost                         func(childComplexity int, filter model.MonthlyCostFilter) int
 		Naisjob                             func(childComplexity int, name string, team slug.Slug, env string) int
-		Reconcilers                         func(childComplexity int) int
+		Reconcilers                         func(childComplexity int, offset *int, limit *int) int
 		ResourceUtilizationDateRangeForApp  func(childComplexity int, env string, team slug.Slug, app string) int
 		ResourceUtilizationDateRangeForTeam func(childComplexity int, team slug.Slug) int
 		ResourceUtilizationForApp           func(childComplexity int, env string, team slug.Slug, app string, from *scalar.Date, to *scalar.Date) int
@@ -597,6 +597,11 @@ type ComplexityRoot struct {
 		Key         func(childComplexity int) int
 		Secret      func(childComplexity int) int
 		Value       func(childComplexity int) int
+	}
+
+	ReconcilerList struct {
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
 	}
 
 	Redis struct {
@@ -912,7 +917,7 @@ type QueryResolver interface {
 	EnvCost(ctx context.Context, filter model.EnvCostFilter) ([]*model.EnvCost, error)
 	Deployments(ctx context.Context, offset *int, limit *int) (*model.DeploymentList, error)
 	Naisjob(ctx context.Context, name string, team slug.Slug, env string) (*model.NaisJob, error)
-	Reconcilers(ctx context.Context) ([]*model.Reconciler, error)
+	Reconcilers(ctx context.Context, offset *int, limit *int) (*model.ReconcilerList, error)
 	ResourceUtilizationTrendForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationTrend, error)
 	CurrentResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.CurrentResourceUtilization, error)
 	CurrentResourceUtilizationForTeam(ctx context.Context, team slug.Slug) (*model.CurrentResourceUtilization, error)
@@ -3125,7 +3130,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.Reconcilers(childComplexity), true
+		args, err := ec.field_Query_reconcilers_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Reconcilers(childComplexity, args["offset"].(*int), args["limit"].(*int)), true
 
 	case "Query.resourceUtilizationDateRangeForApp":
 		if e.complexity.Query.ResourceUtilizationDateRangeForApp == nil {
@@ -3387,6 +3397,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ReconcilerConfig.Value(childComplexity), true
+
+	case "ReconcilerList.nodes":
+		if e.complexity.ReconcilerList.Nodes == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerList.Nodes(childComplexity), true
+
+	case "ReconcilerList.pageInfo":
+		if e.complexity.ReconcilerList.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerList.PageInfo(childComplexity), true
 
 	case "Redis.access":
 		if e.complexity.Redis.Access == nil {
@@ -5314,7 +5338,19 @@ type NaisJobList {
 
 extend type Query {
   "Get a collection of reconcilers."
-  reconcilers: [Reconciler!]! @auth
+  reconcilers(
+    offset: Int
+    limit: Int
+  ): ReconcilerList! @auth
+}
+
+"Paginated reconcilers type."
+type ReconcilerList {
+  "The list of reconcilers."
+  nodes: [Reconciler!]!
+
+  "Pagination information."
+  pageInfo: PageInfo!
 }
 
 "Reconciler type."
@@ -7276,6 +7312,30 @@ func (ec *executionContext) field_Query_naisjob_args(ctx context.Context, rawArg
 		}
 	}
 	args["env"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_reconcilers_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
 	return args, nil
 }
 
@@ -22244,7 +22304,7 @@ func (ec *executionContext) _Query_reconcilers(ctx context.Context, field graphq
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().Reconcilers(rctx)
+			return ec.resolvers.Query().Reconcilers(rctx, fc.Args["offset"].(*int), fc.Args["limit"].(*int))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Auth == nil {
@@ -22260,10 +22320,10 @@ func (ec *executionContext) _Query_reconcilers(ctx context.Context, field graphq
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.([]*model.Reconciler); ok {
+		if data, ok := tmp.(*model.ReconcilerList); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/nais/api/internal/graph/model.Reconciler`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.ReconcilerList`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22275,9 +22335,9 @@ func (ec *executionContext) _Query_reconcilers(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Reconciler)
+	res := resTmp.(*model.ReconcilerList)
 	fc.Result = res
-	return ec.marshalNReconciler2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerᚄ(ctx, field.Selections, res)
+	return ec.marshalNReconcilerList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerList(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_reconcilers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -22288,27 +22348,24 @@ func (ec *executionContext) fieldContext_Query_reconcilers(ctx context.Context, 
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "name":
-				return ec.fieldContext_Reconciler_name(ctx, field)
-			case "displayName":
-				return ec.fieldContext_Reconciler_displayName(ctx, field)
-			case "description":
-				return ec.fieldContext_Reconciler_description(ctx, field)
-			case "enabled":
-				return ec.fieldContext_Reconciler_enabled(ctx, field)
-			case "usesTeamMemberships":
-				return ec.fieldContext_Reconciler_usesTeamMemberships(ctx, field)
-			case "config":
-				return ec.fieldContext_Reconciler_config(ctx, field)
-			case "configured":
-				return ec.fieldContext_Reconciler_configured(ctx, field)
-			case "runOrder":
-				return ec.fieldContext_Reconciler_runOrder(ctx, field)
-			case "auditLogs":
-				return ec.fieldContext_Reconciler_auditLogs(ctx, field)
+			case "nodes":
+				return ec.fieldContext_ReconcilerList_nodes(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_ReconcilerList_pageInfo(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Reconciler", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ReconcilerList", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_reconcilers_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -24289,6 +24346,122 @@ func (ec *executionContext) fieldContext_ReconcilerConfig_value(ctx context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.ReconcilerList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerList_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Reconciler)
+	fc.Result = res
+	return ec.marshalNReconciler2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerList_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_Reconciler_name(ctx, field)
+			case "displayName":
+				return ec.fieldContext_Reconciler_displayName(ctx, field)
+			case "description":
+				return ec.fieldContext_Reconciler_description(ctx, field)
+			case "enabled":
+				return ec.fieldContext_Reconciler_enabled(ctx, field)
+			case "usesTeamMemberships":
+				return ec.fieldContext_Reconciler_usesTeamMemberships(ctx, field)
+			case "config":
+				return ec.fieldContext_Reconciler_config(ctx, field)
+			case "configured":
+				return ec.fieldContext_Reconciler_configured(ctx, field)
+			case "runOrder":
+				return ec.fieldContext_Reconciler_runOrder(ctx, field)
+			case "auditLogs":
+				return ec.fieldContext_Reconciler_auditLogs(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Reconciler", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerList_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.ReconcilerList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerList_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerList_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
 	}
 	return fc, nil
@@ -39144,6 +39317,50 @@ func (ec *executionContext) _ReconcilerConfig(ctx context.Context, sel ast.Selec
 	return out
 }
 
+var reconcilerListImplementors = []string{"ReconcilerList"}
+
+func (ec *executionContext) _ReconcilerList(ctx context.Context, sel ast.SelectionSet, obj *model.ReconcilerList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerListImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ReconcilerList")
+		case "nodes":
+			out.Values[i] = ec._ReconcilerList_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pageInfo":
+			out.Values[i] = ec._ReconcilerList_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var redisImplementors = []string{"Redis", "Storage"}
 
 func (ec *executionContext) _Redis(ctx context.Context, sel ast.SelectionSet, obj *model.Redis) graphql.Marshaler {
@@ -44198,6 +44415,20 @@ func (ec *executionContext) unmarshalNReconcilerConfigInput2ᚕᚖgithubᚗcom�
 func (ec *executionContext) unmarshalNReconcilerConfigInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerConfigInput(ctx context.Context, v interface{}) (*model.ReconcilerConfigInput, error) {
 	res, err := ec.unmarshalInputReconcilerConfigInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNReconcilerList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerList(ctx context.Context, sel ast.SelectionSet, v model.ReconcilerList) graphql.Marshaler {
+	return ec._ReconcilerList(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNReconcilerList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerList(ctx context.Context, sel ast.SelectionSet, v *model.ReconcilerList) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ReconcilerList(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNRepositoryAuthorization2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorization(ctx context.Context, v interface{}) (model.RepositoryAuthorization, error) {

@@ -11,44 +11,6 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-const createReconcilerResource = `-- name: CreateReconcilerResource :one
-INSERT INTO reconciler_resources (
-  reconciler_name,
-  team_slug,
-  name,
-  value,
-  metadata
-) VALUES (
-  $1,
-  $2,
-  $3,
-  $4,
-  COALESCE($5, '{}'::jsonb)
-) RETURNING id, reconciler_name, team_slug, name, value, metadata, created_at, updated_at
-`
-
-func (q *Queries) CreateReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, value string, metadata interface{}) (*ReconcilerResource, error) {
-	row := q.db.QueryRow(ctx, createReconcilerResource,
-		reconcilerName,
-		teamSlug,
-		name,
-		value,
-		metadata,
-	)
-	var i ReconcilerResource
-	err := row.Scan(
-		&i.ID,
-		&i.ReconcilerName,
-		&i.TeamSlug,
-		&i.Name,
-		&i.Value,
-		&i.Metadata,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return &i, err
-}
-
 const getReconcilerResourcesForReconciler = `-- name: GetReconcilerResourcesForReconciler :many
 SELECT id, reconciler_name, team_slug, name, value, metadata, created_at, updated_at
 FROM reconciler_resources
@@ -126,4 +88,45 @@ func (q *Queries) GetReconcilerResourcesForReconcilerAndTeam(ctx context.Context
 		return nil, err
 	}
 	return items, nil
+}
+
+const upsertReconcilerResource = `-- name: UpsertReconcilerResource :one
+INSERT INTO reconciler_resources (
+  reconciler_name,
+  team_slug,
+  name,
+  value,
+  metadata
+) VALUES (
+  $1,
+  $2,
+  $3,
+  $4,
+  COALESCE($5, '{}'::jsonb)
+)
+ON CONFLICT (reconciler_name, team_slug, name) DO
+UPDATE SET value = EXCLUDED.value, metadata = EXCLUDED.metadata
+RETURNING id, reconciler_name, team_slug, name, value, metadata, created_at, updated_at
+`
+
+func (q *Queries) UpsertReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, value string, metadata interface{}) (*ReconcilerResource, error) {
+	row := q.db.QueryRow(ctx, upsertReconcilerResource,
+		reconcilerName,
+		teamSlug,
+		name,
+		value,
+		metadata,
+	)
+	var i ReconcilerResource
+	err := row.Scan(
+		&i.ID,
+		&i.ReconcilerName,
+		&i.TeamSlug,
+		&i.Name,
+		&i.Value,
+		&i.Metadata,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
 }

@@ -28,7 +28,6 @@ type Querier interface {
 	CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults
 	CreateAPIKey(ctx context.Context, apiKey string, serviceAccountID uuid.UUID) error
 	CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) error
-	CreateReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, value string, metadata interface{}) (*ReconcilerResource, error)
 	CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum) error
 	CreateServiceAccount(ctx context.Context, name string) (*ServiceAccount, error)
 	CreateSession(ctx context.Context, userID uuid.UUID, expires pgtype.Timestamptz) (*Session, error)
@@ -67,7 +66,8 @@ type Querier interface {
 	GetReconcilerConfig(ctx context.Context, reconcilerName string) ([]*GetReconcilerConfigRow, error)
 	GetReconcilerResourcesForReconciler(ctx context.Context, reconcilerName string, offset int32, limit int32) ([]*ReconcilerResource, error)
 	GetReconcilerResourcesForReconcilerAndTeam(ctx context.Context, reconcilerName string, teamSlug slug.Slug, offset int32, limit int32) ([]*ReconcilerResource, error)
-	GetReconcilers(ctx context.Context) ([]*Reconciler, error)
+	GetReconcilers(ctx context.Context, offset int32, limit int32) ([]*Reconciler, error)
+	GetReconcilersCount(ctx context.Context) (int64, error)
 	GetRepositoryAuthorizations(ctx context.Context, teamSlug slug.Slug, githubRepository string) ([]RepositoryAuthorizationEnum, error)
 	GetServiceAccountByApiKey(ctx context.Context, apiKey string) (*ServiceAccount, error)
 	GetServiceAccountByName(ctx context.Context, name string) (*ServiceAccount, error)
@@ -137,6 +137,7 @@ type Querier interface {
 	UpdateUser(ctx context.Context, name string, externalID string, iD uuid.UUID, email string) (*User, error)
 	UpsertReconciler(ctx context.Context, name string, displayName string, description string, memberAware bool) (*Reconciler, error)
 	UpsertReconcilerConfig(ctx context.Context, reconciler string, key string, displayName string, description string, secret bool) error
+	UpsertReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, value string, metadata interface{}) (*ReconcilerResource, error)
 }
 
 var _ Querier = (*Queries)(nil)

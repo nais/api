@@ -7,7 +7,8 @@ CREATE TABLE reconciler_resources (
   value TEXT NOT NULL,
   metadata JSONB DEFAULT '{}'::jsonb NOT NULL,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(reconciler_name, team_slug, name)
 );
 
 CREATE INDEX ON reconciler_resources (reconciler_name, name, team_slug);

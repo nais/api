@@ -276,14 +276,16 @@ func (r *mutationResolver) RemoveReconcilerOptOut(ctx context.Context, teamSlug 
 }
 
 // Reconcilers is the resolver for the reconcilers field.
-func (r *queryResolver) Reconcilers(ctx context.Context) ([]*model.Reconciler, error) {
+func (r *queryResolver) Reconcilers(ctx context.Context, offset *int, limit *int) (*model.ReconcilerList, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationTeamsCreate)
 	if err != nil {
 		return nil, err
 	}
 
-	reconcilers, err := r.database.GetReconcilers(ctx)
+	p := model.NewPagination(offset, limit)
+
+	reconcilers, total, err := r.database.GetReconcilers(ctx, p.Offset, p.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -293,7 +295,10 @@ func (r *queryResolver) Reconcilers(ctx context.Context) ([]*model.Reconciler, e
 		graphReconcilers = append(graphReconcilers, toGraphReconciler(reconciler))
 	}
 
-	return graphReconcilers, nil
+	return &model.ReconcilerList{
+		Nodes:    graphReconcilers,
+		PageInfo: model.NewPageInfo(p, total),
+	}, nil
 }
 
 // UsesTeamMemberships is the resolver for the usesTeamMemberships field.
@@ -359,7 +364,5 @@ func (r *Resolver) Mutation() gengql.MutationResolver { return &mutationResolver
 // Reconciler returns gengql.ReconcilerResolver implementation.
 func (r *Resolver) Reconciler() gengql.ReconcilerResolver { return &reconcilerResolver{r} }
 
-type (
-	mutationResolver   struct{ *Resolver }
-	reconcilerResolver struct{ *Resolver }
-)
+type mutationResolver struct{ *Resolver }
+type reconcilerResolver struct{ *Resolver }

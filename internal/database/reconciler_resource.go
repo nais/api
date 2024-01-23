@@ -12,7 +12,7 @@ type ReconcilerResource struct {
 }
 
 type ReconcilerResourceRepo interface {
-	CreateReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key, value string, metadata []byte) (*ReconcilerResource, error)
+	UpsertReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key, value string, metadata []byte) (*ReconcilerResource, error)
 	GetReconcilerResources(ctx context.Context, reconcilerName string, teamSlug *slug.Slug, offset, limit int) ([]*ReconcilerResource, error)
 }
 
@@ -36,8 +36,8 @@ func (d *database) GetReconcilerResources(ctx context.Context, reconcilerName st
 	return ret, nil
 }
 
-func (d *database) CreateReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key, value string, metadata []byte) (*ReconcilerResource, error) {
-	res, err := d.querier.CreateReconcilerResource(ctx, reconcilerName, teamSlug, key, value, metadata)
+func (d *database) UpsertReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key, value string, metadata []byte) (*ReconcilerResource, error) {
+	res, err := d.querier.UpsertReconcilerResource(ctx, reconcilerName, teamSlug, key, value, metadata)
 	if err != nil {
 		return nil, err
 	}

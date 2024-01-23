@@ -12,7 +12,7 @@ WHERE reconciler_name = @reconciler_name AND team_slug = @team_slug
 ORDER BY team_slug, name ASC
 LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
--- name: CreateReconcilerResource :one
+-- name: UpsertReconcilerResource :one
 INSERT INTO reconciler_resources (
   reconciler_name,
   team_slug,
@@ -25,4 +25,7 @@ INSERT INTO reconciler_resources (
   @name,
   @value,
   COALESCE(@metadata, '{}'::jsonb)
-) RETURNING *;
+)
+ON CONFLICT (reconciler_name, team_slug, name) DO
+UPDATE SET value = EXCLUDED.value, metadata = EXCLUDED.metadata
+RETURNING *;

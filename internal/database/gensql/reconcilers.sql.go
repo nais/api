@@ -220,11 +220,11 @@ func (q *Queries) GetReconcilerConfig(ctx context.Context, reconcilerName string
 
 const getReconcilers = `-- name: GetReconcilers :many
 SELECT name, display_name, description, enabled, member_aware FROM reconcilers
-ORDER BY display_name ASC
+ORDER BY display_name ASC LIMIT $2 OFFSET $1
 `
 
-func (q *Queries) GetReconcilers(ctx context.Context) ([]*Reconciler, error) {
-	rows, err := q.db.Query(ctx, getReconcilers)
+func (q *Queries) GetReconcilers(ctx context.Context, offset int32, limit int32) ([]*Reconciler, error) {
+	rows, err := q.db.Query(ctx, getReconcilers, offset, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -247,6 +247,17 @@ func (q *Queries) GetReconcilers(ctx context.Context) ([]*Reconciler, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const getReconcilersCount = `-- name: GetReconcilersCount :one
+SELECT COUNT(*) as total FROM reconcilers
+`
+
+func (q *Queries) GetReconcilersCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, getReconcilersCount)
+	var total int64
+	err := row.Scan(&total)
+	return total, err
 }
 
 const removeReconcilerOptOut = `-- name: RemoveReconcilerOptOut :exec
