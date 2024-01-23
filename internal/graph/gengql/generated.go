@@ -93,6 +93,7 @@ type ComplexityRoot struct {
 		Manifest        func(childComplexity int) int
 		Name            func(childComplexity int) int
 		Resources       func(childComplexity int) int
+		Secrets         func(childComplexity int) int
 		Storage         func(childComplexity int) int
 		Team            func(childComplexity int) int
 		Variables       func(childComplexity int) int
@@ -1210,6 +1211,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.App.Resources(childComplexity), true
+
+	case "App.secrets":
+		if e.complexity.App.Secrets == nil {
+			break
+		}
+
+		return e.complexity.App.Secrets(childComplexity), true
 
 	case "App.storage":
 		if e.complexity.App.Storage == nil {
@@ -5083,6 +5091,7 @@ type App {
   team: Team!
   appState: AppState!
   vulnerabilities: Vulnerability
+  secrets: [String!]!
 }
 
 type AppState {
@@ -9768,6 +9777,50 @@ func (ec *executionContext) fieldContext_App_vulnerabilities(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _App_secrets(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_App_secrets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Secrets, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_App_secrets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "App",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AppCost_app(ctx context.Context, field graphql.CollectedField, obj *model.AppCost) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AppCost_app(ctx, field)
 	if err != nil {
@@ -9979,6 +10032,8 @@ func (ec *executionContext) fieldContext_AppList_nodes(ctx context.Context, fiel
 				return ec.fieldContext_App_appState(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_App_vulnerabilities(ctx, field)
+			case "secrets":
+				return ec.fieldContext_App_secrets(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type App", field.Name)
 		},
@@ -22998,6 +23053,8 @@ func (ec *executionContext) fieldContext_Query_app(ctx context.Context, field gr
 				return ec.fieldContext_App_appState(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_App_vulnerabilities(ctx, field)
+			case "secrets":
+				return ec.fieldContext_App_secrets(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type App", field.Name)
 		},
@@ -37288,6 +37345,11 @@ func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "secrets":
+			out.Values[i] = ec._App_secrets(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
