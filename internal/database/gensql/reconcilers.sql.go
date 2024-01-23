@@ -65,6 +65,16 @@ func (q *Queries) DangerousGetReconcilerConfigValues(ctx context.Context, reconc
 	return items, nil
 }
 
+const deleteReconcilerConfig = `-- name: DeleteReconcilerConfig :exec
+DELETE FROM reconciler_config
+WHERE reconciler = $1 AND key = ANY($2::TEXT[])
+`
+
+func (q *Queries) DeleteReconcilerConfig(ctx context.Context, reconciler string, keys []string) error {
+	_, err := q.db.Exec(ctx, deleteReconcilerConfig, reconciler, keys)
+	return err
+}
+
 const disableReconciler = `-- name: DisableReconciler :one
 UPDATE reconcilers
 SET enabled = false
@@ -284,4 +294,22 @@ func (q *Queries) UpsertReconciler(ctx context.Context, name string, displayName
 		&i.MemberAware,
 	)
 	return &i, err
+}
+
+const upsertReconcilerConfig = `-- name: UpsertReconcilerConfig :exec
+INSERT INTO reconciler_config (reconciler, key, display_name, description, secret)
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (reconciler, key) DO UPDATE
+SET display_name = $3, description = $4, secret = $5
+`
+
+func (q *Queries) UpsertReconcilerConfig(ctx context.Context, reconciler string, key string, displayName string, description string, secret bool) error {
+	_, err := q.db.Exec(ctx, upsertReconcilerConfig,
+		reconciler,
+		key,
+		displayName,
+		description,
+		secret,
+	)
+	return err
 }

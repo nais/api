@@ -18,6 +18,10 @@ func (r *ReconcilersServer) Register(ctx context.Context, req *protoapi.Register
 		if _, err := r.db.UpsertReconciler(ctx, rec.Name, rec.DisplayName, rec.Description, rec.MemberAware); err != nil {
 			return nil, err
 		}
+
+		if err := r.db.SyncReconcilerConfig(ctx, rec.Name, rec.Config); err != nil {
+			return nil, err
+		}
 	}
 
 	return &protoapi.RegisterReconcilerResponse{}, nil

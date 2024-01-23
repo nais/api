@@ -43,6 +43,7 @@ type Querier interface {
 	// DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
 	DailyEnvCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment *string, teamSlug slug.Slug) ([]*DailyEnvCostForTeamRow, error)
 	DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName string) ([]*DangerousGetReconcilerConfigValuesRow, error)
+	DeleteReconcilerConfig(ctx context.Context, reconciler string, keys []string) error
 	DeleteServiceAccount(ctx context.Context, id uuid.UUID) error
 	DeleteSession(ctx context.Context, id uuid.UUID) error
 	DeleteTeam(ctx context.Context, argSlug slug.Slug) error
@@ -135,6 +136,7 @@ type Querier interface {
 	UpdateTeam(ctx context.Context, purpose *string, slackChannel *string, slug slug.Slug) (*Team, error)
 	UpdateUser(ctx context.Context, name string, externalID string, iD uuid.UUID, email string) (*User, error)
 	UpsertReconciler(ctx context.Context, name string, displayName string, description string, memberAware bool) (*Reconciler, error)
+	UpsertReconcilerConfig(ctx context.Context, reconciler string, key string, displayName string, description string, secret bool) error
 }
 
 var _ Querier = (*Queries)(nil)

@@ -6,12 +6,14 @@ import (
 	"github.com/google/uuid"
 	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/pkg/protoapi"
 )
 
 type ReconcilerRepo interface {
 	AddReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string) error
 	ConfigureReconciler(ctx context.Context, reconcilerName string, key string, value string) error
 	DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName string) (*ReconcilerConfigValues, error)
+	DeleteReconcilerConfig(ctx context.Context, reconcilerName string, keysToDelete []string) error
 	DisableReconciler(ctx context.Context, reconcilerName string) (*Reconciler, error)
 	EnableReconciler(ctx context.Context, reconcilerName string) (*Reconciler, error)
 	GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error)
@@ -20,7 +22,9 @@ type ReconcilerRepo interface {
 	GetReconcilers(ctx context.Context) ([]*Reconciler, error)
 	RemoveReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string) error
 	ResetReconcilerConfig(ctx context.Context, reconcilerName string) (*Reconciler, error)
+	SyncReconcilerConfig(ctx context.Context, reconcilerName string, configs []*protoapi.ReconcilerConfigSpec) error
 	UpsertReconciler(ctx context.Context, name, display_name, description string, memberAware bool) (*Reconciler, error)
+	UpsertReconcilerConfig(ctx context.Context, reconciler, key, displayName, description string, secret bool) error
 }
 
 type Reconciler struct {
@@ -152,6 +156,40 @@ func (d *database) UpsertReconciler(ctx context.Context, name, display_name, des
 	}
 
 	return &Reconciler{Reconciler: reconciler}, nil
+}
+
+func (d *database) UpsertReconcilerConfig(ctx context.Context, reconciler, key, displayName, description string, secret bool) error {
+	return d.querier.UpsertReconcilerConfig(ctx, reconciler, key, displayName, description, secret)
+}
+
+func (d *database) DeleteReconcilerConfig(ctx context.Context, reconcilerName string, keysToDelete []string) error {
+	return d.querier.DeleteReconcilerConfig(ctx, reconcilerName, keysToDelete)
+}
+
+func (d *database) SyncReconcilerConfig(ctx context.Context, reconcilerName string, configs []*protoapi.ReconcilerConfigSpec) error {
+	cfg, err := d.GetReconcilerConfig(ctx, reconcilerName)
+	if err != nil {
+		return err
+	}
+
+	existing := make(map[string]struct{})
+	for _, c := range cfg {
+		existing[c.Key] = struct{}{}
+	}
+
+	return d.Transaction(ctx, func(ctx context.Context, dbtx Database) error {
+		for _, c := range configs {
+			dbtx.UpsertReconcilerConfig(ctx, reconcilerName, c.Key, c.DisplayName, c.Description, c.Secret)
+			delete(existing, c.Key)
+		}
+
+		toDelete := []string{}
+		for k := range existing {
+			toDelete = append(toDelete, k)
+		}
+
+		return dbtx.DeleteReconcilerConfig(ctx, reconcilerName, toDelete)
+	})
 }
 
 func wrapReconcilers(rows []*sqlc.Reconciler) []*Reconciler {

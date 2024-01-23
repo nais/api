@@ -12,19 +12,27 @@ message Reconciler {
   bool member_aware = 5;
 }
 
-message NewReconciler {
-  string name = 1;
-  string display_name = 2;
-  string description = 3;
-  bool member_aware = 4;
-}
-
 message ReconcilerConfig {
   string key = 1;
   string display_name = 2;
   string description = 3;
   string value = 4;
   bool secret = 5;
+}
+
+message ReconcilerConfigSpec {
+  string key = 1;
+  string display_name = 2;
+  string description = 3;
+  bool secret = 4;
+}
+
+message NewReconciler {
+  string name = 1;
+  string display_name = 2;
+  string description = 3;
+  bool member_aware = 4;
+  repeated ReconcilerConfigSpec config = 5;
 }
 
 service Reconcilers {

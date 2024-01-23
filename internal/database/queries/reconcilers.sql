@@ -67,3 +67,13 @@ VALUES (@name, @display_name, @description, @member_aware)
 ON CONFLICT (name) DO UPDATE
 SET display_name = @display_name, description = @description, member_aware = @member_aware
 RETURNING *;
+
+-- name: UpsertReconcilerConfig :exec
+INSERT INTO reconciler_config (reconciler, key, display_name, description, secret)
+VALUES (@reconciler, @key, @display_name, @description, @secret)
+ON CONFLICT (reconciler, key) DO UPDATE
+SET display_name = @display_name, description = @description, secret = @secret;
+
+-- name: DeleteReconcilerConfig :exec
+DELETE FROM reconciler_config
+WHERE reconciler = @reconciler AND key = ANY(@keys::TEXT[]);
