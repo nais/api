@@ -26,7 +26,7 @@ type TeamRepo interface {
 	GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*User, error)
 	GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*gensql.GetTeamMemberOptOutsRow, error)
 	GetTeamMembers(ctx context.Context, teamSlug slug.Slug, offset, limit int) ([]*User, int, error)
-	GetTeamMembersForReconciler(ctx context.Context, teamSlug slug.Slug, reconcilerName gensql.ReconcilerName) ([]*User, error)
+	GetTeamMembersForReconciler(ctx context.Context, teamSlug slug.Slug, reconcilerName string) ([]*User, error)
 	GetTeams(ctx context.Context, offset, limit int) ([]*Team, int, error)
 	GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string, offset, limit int) ([]*Team, int, error)
 	GetUserTeams(ctx context.Context, userID uuid.UUID, offset, limit int) ([]*UserTeam, int, error)
@@ -208,7 +208,7 @@ func (d *database) GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID
 	return &User{User: user}, nil
 }
 
-func (d *database) GetTeamMembersForReconciler(ctx context.Context, teamSlug slug.Slug, reconcilerName gensql.ReconcilerName) ([]*User, error) {
+func (d *database) GetTeamMembersForReconciler(ctx context.Context, teamSlug slug.Slug, reconcilerName string) ([]*User, error) {
 	rows, err := d.querier.GetTeamMembersForReconciler(ctx, &teamSlug, reconcilerName)
 	if err != nil {
 		return nil, err

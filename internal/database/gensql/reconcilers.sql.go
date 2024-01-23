@@ -17,7 +17,7 @@ INSERT INTO reconciler_opt_outs (team_slug, user_id, reconciler_name)
 VALUES ($1, $2, $3) ON CONFLICT DO NOTHING
 `
 
-func (q *Queries) AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName ReconcilerName) error {
+func (q *Queries) AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName string) error {
 	_, err := q.db.Exec(ctx, addReconcilerOptOut, teamSlug, userID, reconcilerName)
 	return err
 }
@@ -28,7 +28,7 @@ SET value = $1::TEXT
 WHERE reconciler = $2 AND key = $3
 `
 
-func (q *Queries) ConfigureReconciler(ctx context.Context, value string, reconcilerName ReconcilerName, key ReconcilerConfigKey) error {
+func (q *Queries) ConfigureReconciler(ctx context.Context, value string, reconcilerName string, key string) error {
 	_, err := q.db.Exec(ctx, configureReconciler, value, reconcilerName, key)
 	return err
 }
@@ -41,11 +41,11 @@ ORDER BY key ASC
 `
 
 type DangerousGetReconcilerConfigValuesRow struct {
-	Key   ReconcilerConfigKey
+	Key   string
 	Value string
 }
 
-func (q *Queries) DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName ReconcilerName) ([]*DangerousGetReconcilerConfigValuesRow, error) {
+func (q *Queries) DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName string) ([]*DangerousGetReconcilerConfigValuesRow, error) {
 	rows, err := q.db.Query(ctx, dangerousGetReconcilerConfigValues, reconcilerName)
 	if err != nil {
 		return nil, err
@@ -69,10 +69,10 @@ const disableReconciler = `-- name: DisableReconciler :one
 UPDATE reconcilers
 SET enabled = false
 WHERE name = $1
-RETURNING name, display_name, description, enabled, run_order
+RETURNING name, display_name, description, enabled, member_aware
 `
 
-func (q *Queries) DisableReconciler(ctx context.Context, name ReconcilerName) (*Reconciler, error) {
+func (q *Queries) DisableReconciler(ctx context.Context, name string) (*Reconciler, error) {
 	row := q.db.QueryRow(ctx, disableReconciler, name)
 	var i Reconciler
 	err := row.Scan(
@@ -80,7 +80,7 @@ func (q *Queries) DisableReconciler(ctx context.Context, name ReconcilerName) (*
 		&i.DisplayName,
 		&i.Description,
 		&i.Enabled,
-		&i.RunOrder,
+		&i.MemberAware,
 	)
 	return &i, err
 }
@@ -89,10 +89,10 @@ const enableReconciler = `-- name: EnableReconciler :one
 UPDATE reconcilers
 SET enabled = true
 WHERE name = $1
-RETURNING name, display_name, description, enabled, run_order
+RETURNING name, display_name, description, enabled, member_aware
 `
 
-func (q *Queries) EnableReconciler(ctx context.Context, name ReconcilerName) (*Reconciler, error) {
+func (q *Queries) EnableReconciler(ctx context.Context, name string) (*Reconciler, error) {
 	row := q.db.QueryRow(ctx, enableReconciler, name)
 	var i Reconciler
 	err := row.Scan(
@@ -100,15 +100,15 @@ func (q *Queries) EnableReconciler(ctx context.Context, name ReconcilerName) (*R
 		&i.DisplayName,
 		&i.Description,
 		&i.Enabled,
-		&i.RunOrder,
+		&i.MemberAware,
 	)
 	return &i, err
 }
 
 const getEnabledReconcilers = `-- name: GetEnabledReconcilers :many
-SELECT name, display_name, description, enabled, run_order FROM reconcilers
+SELECT name, display_name, description, enabled, member_aware FROM reconcilers
 WHERE enabled = true
-ORDER BY run_order ASC
+ORDER BY display_name ASC
 `
 
 func (q *Queries) GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error) {
@@ -125,7 +125,7 @@ func (q *Queries) GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, err
 			&i.DisplayName,
 			&i.Description,
 			&i.Enabled,
-			&i.RunOrder,
+			&i.MemberAware,
 		); err != nil {
 			return nil, err
 		}
@@ -138,11 +138,11 @@ func (q *Queries) GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, err
 }
 
 const getReconciler = `-- name: GetReconciler :one
-SELECT name, display_name, description, enabled, run_order FROM reconcilers
+SELECT name, display_name, description, enabled, member_aware FROM reconcilers
 WHERE name = $1
 `
 
-func (q *Queries) GetReconciler(ctx context.Context, name ReconcilerName) (*Reconciler, error) {
+func (q *Queries) GetReconciler(ctx context.Context, name string) (*Reconciler, error) {
 	row := q.db.QueryRow(ctx, getReconciler, name)
 	var i Reconciler
 	err := row.Scan(
@@ -150,7 +150,7 @@ func (q *Queries) GetReconciler(ctx context.Context, name ReconcilerName) (*Reco
 		&i.DisplayName,
 		&i.Description,
 		&i.Enabled,
-		&i.RunOrder,
+		&i.MemberAware,
 	)
 	return &i, err
 }
@@ -171,8 +171,8 @@ ORDER BY rc.display_name ASC
 `
 
 type GetReconcilerConfigRow struct {
-	Reconciler  ReconcilerName
-	Key         ReconcilerConfigKey
+	Reconciler  string
+	Key         string
 	DisplayName string
 	Description string
 	Configured  bool
@@ -180,7 +180,7 @@ type GetReconcilerConfigRow struct {
 	Secret      bool
 }
 
-func (q *Queries) GetReconcilerConfig(ctx context.Context, reconcilerName ReconcilerName) ([]*GetReconcilerConfigRow, error) {
+func (q *Queries) GetReconcilerConfig(ctx context.Context, reconcilerName string) ([]*GetReconcilerConfigRow, error) {
 	rows, err := q.db.Query(ctx, getReconcilerConfig, reconcilerName)
 	if err != nil {
 		return nil, err
@@ -209,8 +209,8 @@ func (q *Queries) GetReconcilerConfig(ctx context.Context, reconcilerName Reconc
 }
 
 const getReconcilers = `-- name: GetReconcilers :many
-SELECT name, display_name, description, enabled, run_order FROM reconcilers
-ORDER BY run_order ASC
+SELECT name, display_name, description, enabled, member_aware FROM reconcilers
+ORDER BY display_name ASC
 `
 
 func (q *Queries) GetReconcilers(ctx context.Context) ([]*Reconciler, error) {
@@ -227,7 +227,7 @@ func (q *Queries) GetReconcilers(ctx context.Context) ([]*Reconciler, error) {
 			&i.DisplayName,
 			&i.Description,
 			&i.Enabled,
-			&i.RunOrder,
+			&i.MemberAware,
 		); err != nil {
 			return nil, err
 		}
@@ -244,7 +244,7 @@ DELETE FROM reconciler_opt_outs
 WHERE team_slug = $1 AND user_id = $2 AND reconciler_name = $3
 `
 
-func (q *Queries) RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName ReconcilerName) error {
+func (q *Queries) RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName string) error {
 	_, err := q.db.Exec(ctx, removeReconcilerOptOut, teamSlug, userID, reconcilerName)
 	return err
 }
@@ -255,7 +255,33 @@ SET value = NULL
 WHERE reconciler = $1
 `
 
-func (q *Queries) ResetReconcilerConfig(ctx context.Context, reconcilerName ReconcilerName) error {
+func (q *Queries) ResetReconcilerConfig(ctx context.Context, reconcilerName string) error {
 	_, err := q.db.Exec(ctx, resetReconcilerConfig, reconcilerName)
 	return err
+}
+
+const upsertReconciler = `-- name: UpsertReconciler :one
+INSERT INTO reconcilers (name, display_name, description, member_aware)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (name) DO UPDATE
+SET display_name = $2, description = $3, member_aware = $4
+RETURNING name, display_name, description, enabled, member_aware
+`
+
+func (q *Queries) UpsertReconciler(ctx context.Context, name string, displayName string, description string, memberAware bool) (*Reconciler, error) {
+	row := q.db.QueryRow(ctx, upsertReconciler,
+		name,
+		displayName,
+		description,
+		memberAware,
+	)
+	var i Reconciler
+	err := row.Scan(
+		&i.Name,
+		&i.DisplayName,
+		&i.Description,
+		&i.Enabled,
+		&i.MemberAware,
+	)
+	return &i, err
 }

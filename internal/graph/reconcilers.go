@@ -11,6 +11,5 @@ func toGraphReconciler(m *database.Reconciler) *model.Reconciler {
 		DisplayName: m.DisplayName,
 		Description: m.Description,
 		Enabled:     m.Enabled,
-		RunOrder:    int(m.RunOrder),
 	}
 }

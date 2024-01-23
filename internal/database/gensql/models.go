@@ -13,143 +13,6 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-type ReconcilerConfigKey string
-
-const (
-	ReconcilerConfigKeyAzureClientID     ReconcilerConfigKey = "azure:client_id"
-	ReconcilerConfigKeyAzureClientSecret ReconcilerConfigKey = "azure:client_secret"
-	ReconcilerConfigKeyAzureTenantID     ReconcilerConfigKey = "azure:tenant_id"
-)
-
-func (e *ReconcilerConfigKey) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = ReconcilerConfigKey(s)
-	case string:
-		*e = ReconcilerConfigKey(s)
-	default:
-		return fmt.Errorf("unsupported scan type for ReconcilerConfigKey: %T", src)
-	}
-	return nil
-}
-
-type NullReconcilerConfigKey struct {
-	ReconcilerConfigKey ReconcilerConfigKey
-	Valid               bool // Valid is true if ReconcilerConfigKey is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullReconcilerConfigKey) Scan(value interface{}) error {
-	if value == nil {
-		ns.ReconcilerConfigKey, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.ReconcilerConfigKey.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullReconcilerConfigKey) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.ReconcilerConfigKey), nil
-}
-
-func (e ReconcilerConfigKey) Valid() bool {
-	switch e {
-	case ReconcilerConfigKeyAzureClientID,
-		ReconcilerConfigKeyAzureClientSecret,
-		ReconcilerConfigKeyAzureTenantID:
-		return true
-	}
-	return false
-}
-
-func AllReconcilerConfigKeyValues() []ReconcilerConfigKey {
-	return []ReconcilerConfigKey{
-		ReconcilerConfigKeyAzureClientID,
-		ReconcilerConfigKeyAzureClientSecret,
-		ReconcilerConfigKeyAzureTenantID,
-	}
-}
-
-type ReconcilerName string
-
-const (
-	ReconcilerNameAzureGroup           ReconcilerName = "azure:group"
-	ReconcilerNameGithubTeam           ReconcilerName = "github:team"
-	ReconcilerNameGoogleGcpGar         ReconcilerName = "google:gcp:gar"
-	ReconcilerNameGoogleGcpProject     ReconcilerName = "google:gcp:project"
-	ReconcilerNameGoogleWorkspaceAdmin ReconcilerName = "google:workspace-admin"
-	ReconcilerNameNaisDependencytrack  ReconcilerName = "nais:dependencytrack"
-	ReconcilerNameNaisDeploy           ReconcilerName = "nais:deploy"
-	ReconcilerNameNaisNamespace        ReconcilerName = "nais:namespace"
-)
-
-func (e *ReconcilerName) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = ReconcilerName(s)
-	case string:
-		*e = ReconcilerName(s)
-	default:
-		return fmt.Errorf("unsupported scan type for ReconcilerName: %T", src)
-	}
-	return nil
-}
-
-type NullReconcilerName struct {
-	ReconcilerName ReconcilerName
-	Valid          bool // Valid is true if ReconcilerName is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullReconcilerName) Scan(value interface{}) error {
-	if value == nil {
-		ns.ReconcilerName, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.ReconcilerName.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullReconcilerName) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.ReconcilerName), nil
-}
-
-func (e ReconcilerName) Valid() bool {
-	switch e {
-	case ReconcilerNameAzureGroup,
-		ReconcilerNameGithubTeam,
-		ReconcilerNameGoogleGcpGar,
-		ReconcilerNameGoogleGcpProject,
-		ReconcilerNameGoogleWorkspaceAdmin,
-		ReconcilerNameNaisDependencytrack,
-		ReconcilerNameNaisDeploy,
-		ReconcilerNameNaisNamespace:
-		return true
-	}
-	return false
-}
-
-func AllReconcilerNameValues() []ReconcilerName {
-	return []ReconcilerName{
-		ReconcilerNameAzureGroup,
-		ReconcilerNameGithubTeam,
-		ReconcilerNameGoogleGcpGar,
-		ReconcilerNameGoogleGcpProject,
-		ReconcilerNameGoogleWorkspaceAdmin,
-		ReconcilerNameNaisDependencytrack,
-		ReconcilerNameNaisDeploy,
-		ReconcilerNameNaisNamespace,
-	}
-}
-
 type RepositoryAuthorizationEnum string
 
 const (
@@ -371,17 +234,17 @@ type Cost struct {
 }
 
 type Reconciler struct {
-	Name        ReconcilerName
+	Name        string
 	DisplayName string
 	Description string
 	Enabled     bool
-	RunOrder    int32
+	MemberAware bool
 }
 
 type ReconcilerError struct {
 	ID            int64
 	CorrelationID uuid.UUID
-	Reconciler    ReconcilerName
+	Reconciler    string
 	CreatedAt     pgtype.Timestamptz
 	ErrorMessage  string
 	TeamSlug      slug.Slug
@@ -389,7 +252,7 @@ type ReconcilerError struct {
 
 type ReconcilerResource struct {
 	ID             uuid.UUID
-	ReconcilerName ReconcilerName
+	ReconcilerName string
 	TeamSlug       slug.Slug
 	Name           string
 	Value          string

@@ -13,7 +13,7 @@ import (
 type AuditLogsRepo interface {
 	CreateAuditLogEntry(ctx context.Context, correlationID uuid.UUID, componentName logger.ComponentName, actor *string, targetType audittype.AuditLogsTargetType, targetIdentifier string, action audittype.AuditAction, message string) error
 	GetAuditLogsForCorrelationID(ctx context.Context, correlationID uuid.UUID, offset, limit int) ([]*AuditLog, int, error)
-	GetAuditLogsForReconciler(ctx context.Context, reconcilerName sqlc.ReconcilerName, offset, limit int) ([]*AuditLog, int, error)
+	GetAuditLogsForReconciler(ctx context.Context, reconcilerName string, offset, limit int) ([]*AuditLog, int, error)
 	GetAuditLogsForTeam(ctx context.Context, slug slug.Slug, offset, limit int) ([]*AuditLog, int, error)
 }
 
@@ -40,8 +40,8 @@ func (d *database) GetAuditLogsForTeam(ctx context.Context, slug slug.Slug, offs
 	return entries, int(total), nil
 }
 
-func (d *database) GetAuditLogsForReconciler(ctx context.Context, reconcilerName sqlc.ReconcilerName, offset, limit int) ([]*AuditLog, int, error) {
-	rows, err := d.querier.GetAuditLogsForReconciler(ctx, string(reconcilerName), int32(offset), int32(limit))
+func (d *database) GetAuditLogsForReconciler(ctx context.Context, reconcilerName string, offset, limit int) ([]*AuditLog, int, error) {
+	rows, err := d.querier.GetAuditLogsForReconciler(ctx, reconcilerName, int32(offset), int32(limit))
 	if err != nil {
 		return nil, 0, err
 	}
@@ -51,7 +51,7 @@ func (d *database) GetAuditLogsForReconciler(ctx context.Context, reconcilerName
 		entries = append(entries, &AuditLog{AuditLog: row})
 	}
 
-	total, err := d.querier.GetAuditLogsForReconcilerCount(ctx, string(reconcilerName))
+	total, err := d.querier.GetAuditLogsForReconcilerCount(ctx, reconcilerName)
 	if err != nil {
 		return nil, 0, err
 	}

@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -31,7 +30,7 @@ type TeamMemberReconciler struct {
 }
 
 type TeamMemberReconcilerGQLVars struct {
-	Name gensql.ReconcilerName
+	Name string
 }
 
 type TeamSync struct {

@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/pkg/protoapi"
 	"google.golang.org/grpc/status"
@@ -19,36 +18,34 @@ type ReconcilerResourcesServer struct {
 	protoapi.UnimplementedReconcilerResourcesServer
 }
 
-func (r *ReconcilerResourcesServer) Create(ctx context.Context, in *protoapi.CreateReconcilerResourceRequest) (*protoapi.GetReconcilerResourceResponse, error) {
+func (r *ReconcilerResourcesServer) Create(ctx context.Context, in *protoapi.SaveReconcilerResourceRequest) (*protoapi.SaveReconcilerResourceResponse, error) {
 	switch {
 	case in.ReconcilerName == "":
 		return nil, status.Error(400, "reconcilerName is required")
 	case in.TeamSlug == "":
 		return nil, status.Error(400, "teamSlug is required")
-	case in.Name == "":
-		return nil, status.Error(400, "name is required")
-	case in.Value == "":
-		return nil, status.Error(400, "value is required")
 	}
 
 	slg := slug.Slug(in.TeamSlug)
-	rn := gensql.ReconcilerName(in.ReconcilerName)
+	rn := in.ReconcilerName
 
-	if !rn.Valid() {
-		return nil, status.Error(400, "invalid reconciler name")
+	for _, rr := range in.Resources {
+		switch {
+		case rr.Name == "":
+			return nil, status.Error(400, "name is required")
+		case rr.Value == "":
+			return nil, status.Error(400, "value is required")
+		}
+		_, err := r.db.CreateReconcilerResource(ctx, rn, slg, rr.Name, rr.Value, rr.Metadata)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	res, err := r.db.CreateReconcilerResource(ctx, rn, slg, in.Name, in.Value, in.Metadata)
-	if err != nil {
-		return nil, err
-	}
-
-	return &protoapi.GetReconcilerResourceResponse{
-		Resource: toProtoReconcilerResource(res),
-	}, nil
+	return &protoapi.SaveReconcilerResourceResponse{}, nil
 }
 
-func (r *ReconcilerResourcesServer) List(ctx context.Context, req *protoapi.ListReconcilerResourceRequest) (*protoapi.ListReconcilerResourceResponse, error) {
+func (r *ReconcilerResourcesServer) List(ctx context.Context, req *protoapi.ListReconcilerResourcesRequest) (*protoapi.ListReconcilerResourcesResponse, error) {
 	var teamSlug *slug.Slug
 
 	if req.TeamSlug != "" {
@@ -58,12 +55,12 @@ func (r *ReconcilerResourcesServer) List(ctx context.Context, req *protoapi.List
 
 	limit, offset := pagination(req)
 	total := 0
-	res, err := r.db.GetReconcilerResources(ctx, gensql.ReconcilerName(req.ReconcilerName), teamSlug, offset, limit)
+	res, err := r.db.GetReconcilerResources(ctx, req.ReconcilerName, teamSlug, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 
-	resp := &protoapi.ListReconcilerResourceResponse{
+	resp := &protoapi.ListReconcilerResourcesResponse{
 		PageInfo: pageInfo(req, total),
 	}
 	for _, rr := range res {
@@ -75,7 +72,7 @@ func (r *ReconcilerResourcesServer) List(ctx context.Context, req *protoapi.List
 func toProtoReconcilerResource(res *database.ReconcilerResource) *protoapi.ReconcilerResource {
 	return &protoapi.ReconcilerResource{
 		Id:             res.ID.String(),
-		ReconcilerName: string(res.ReconcilerName),
+		ReconcilerName: res.ReconcilerName,
 		TeamSlug:       string(res.TeamSlug),
 		Name:           res.Name,
 		Value:          res.Value,

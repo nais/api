@@ -244,7 +244,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	return nil
 }
 
-func firstRun(ctx context.Context, db database.Database, enableReconcilers []fixtures.EnableableReconciler, log logrus.FieldLogger) error {
+func firstRun(ctx context.Context, db database.Database, enableReconcilers []string, log logrus.FieldLogger) error {
 	firstRun, err := db.IsFirstRun(ctx)
 	if err != nil {
 		return err

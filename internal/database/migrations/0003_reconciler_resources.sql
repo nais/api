@@ -1,7 +1,7 @@
 -- +goose Up
 CREATE TABLE reconciler_resources (
   id UUID DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
-  reconciler_name reconciler_name NOT NULL REFERENCES reconcilers(name),
+  reconciler_name text NOT NULL REFERENCES reconcilers(name),
   team_slug slug NOT NULL REFERENCES teams(slug),
   name TEXT NOT NULL,
   value TEXT NOT NULL,

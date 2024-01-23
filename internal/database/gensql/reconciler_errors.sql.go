@@ -17,7 +17,7 @@ DELETE FROM reconciler_errors
 WHERE team_slug = $1 AND reconciler = $2
 `
 
-func (q *Queries) ClearReconcilerErrorsForTeam(ctx context.Context, teamSlug slug.Slug, reconciler ReconcilerName) error {
+func (q *Queries) ClearReconcilerErrorsForTeam(ctx context.Context, teamSlug slug.Slug, reconciler string) error {
 	_, err := q.db.Exec(ctx, clearReconcilerErrorsForTeam, teamSlug, reconciler)
 	return err
 }
@@ -62,7 +62,7 @@ ON CONFLICT(team_slug, reconciler) DO
     UPDATE SET correlation_id = $1, created_at = NOW(), error_message = $4
 `
 
-func (q *Queries) SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, teamSlug slug.Slug, reconciler ReconcilerName, errorMessage string) error {
+func (q *Queries) SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, teamSlug slug.Slug, reconciler string, errorMessage string) error {
 	_, err := q.db.Exec(ctx, setReconcilerErrorForTeam,
 		correlationID,
 		teamSlug,

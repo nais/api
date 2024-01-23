@@ -4,17 +4,16 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 )
 
 type ReconcilerErrorRepo interface {
-	ClearReconcilerErrorsForTeam(ctx context.Context, slug slug.Slug, reconcilerName sqlc.ReconcilerName) error
+	ClearReconcilerErrorsForTeam(ctx context.Context, slug slug.Slug, reconcilerName string) error
 	GetTeamReconcilerErrors(ctx context.Context, slug slug.Slug) ([]*ReconcilerError, error)
-	SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, slug slug.Slug, reconcilerName sqlc.ReconcilerName, err error) error
+	SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, slug slug.Slug, reconcilerName string, err error) error
 }
 
-func (d *database) SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, slug slug.Slug, reconcilerName sqlc.ReconcilerName, err error) error {
+func (d *database) SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, slug slug.Slug, reconcilerName string, err error) error {
 	return d.querier.SetReconcilerErrorForTeam(ctx, correlationID, slug, reconcilerName, err.Error())
 }
 
@@ -32,6 +31,6 @@ func (d *database) GetTeamReconcilerErrors(ctx context.Context, slug slug.Slug) 
 	return errors, nil
 }
 
-func (d *database) ClearReconcilerErrorsForTeam(ctx context.Context, slug slug.Slug, reconcilerName sqlc.ReconcilerName) error {
+func (d *database) ClearReconcilerErrorsForTeam(ctx context.Context, slug slug.Slug, reconcilerName string) error {
 	return d.querier.ClearReconcilerErrorsForTeam(ctx, slug, reconcilerName)
 }

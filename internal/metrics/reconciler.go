@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strconv"
 
-	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
@@ -75,7 +74,7 @@ var (
 	})
 )
 
-func IncReconcilerCounter(name sqlc.ReconcilerName, state ReconcilerState) {
+func IncReconcilerCounter(name string, state ReconcilerState) {
 	labels := prometheus.Labels{
 		labelReconciler: string(name),
 		labelState:      string(state),
@@ -125,7 +124,7 @@ func SetPendingTeamCount(numTeams int) {
 	pendingTeams.Set(float64(numTeams))
 }
 
-func MeasureReconcilerDuration(reconciler sqlc.ReconcilerName) *prometheus.Timer {
+func MeasureReconcilerDuration(reconciler string) *prometheus.Timer {
 	return prometheus.NewTimer(reconcilerDuration.WithLabelValues(string(reconciler)))
 }
 

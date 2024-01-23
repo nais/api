@@ -8,23 +8,6 @@ CREATE EXTENSION fuzzystrmatch;
 CREATE DOMAIN slug AS
    TEXT CHECK (value ~ '^(?=.{3,30}$)[a-z](-?[a-z0-9]+)+$'::text);
 
-CREATE TYPE reconciler_config_key AS ENUM (
-    'azure:client_id',
-    'azure:client_secret',
-    'azure:tenant_id'
-);
-
-CREATE TYPE reconciler_name AS ENUM (
-    'azure:group',
-    'github:team',
-    'google:gcp:gar',
-    'google:gcp:project',
-    'google:workspace-admin',
-    'nais:dependencytrack',
-    'nais:deploy',
-    'nais:namespace'
-);
-
 CREATE TYPE resource_type AS ENUM (
     'cpu',
     'memory'
@@ -88,7 +71,7 @@ CREATE TABLE first_run (
 CREATE TABLE reconciler_errors (
     id BIGSERIAL,
     correlation_id uuid NOT NULL,
-    reconciler reconciler_name NOT NULL,
+    reconciler text NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     error_message text NOT NULL,
     team_slug slug NOT NULL,
@@ -97,8 +80,8 @@ CREATE TABLE reconciler_errors (
 );
 
 CREATE TABLE reconciler_config (
-    reconciler reconciler_name NOT NULL,
-    key reconciler_config_key NOT NULL,
+    reconciler text NOT NULL,
+    key text NOT NULL,
     display_name text NOT NULL,
     description text NOT NULL,
     value text,
@@ -107,7 +90,7 @@ CREATE TABLE reconciler_config (
 );
 
 CREATE TABLE reconciler_states (
-    reconciler reconciler_name NOT NULL,
+    reconciler text NOT NULL,
     state jsonb DEFAULT '{}'::jsonb NOT NULL,
     team_slug slug NOT NULL,
     PRIMARY KEY (reconciler, team_slug)
@@ -116,19 +99,18 @@ CREATE TABLE reconciler_states (
 CREATE TABLE reconciler_opt_outs (
     team_slug slug NOT NULL,
     user_id UUID NOT NULL,
-    reconciler_name reconciler_name NOT NULL,
+    reconciler_name text NOT NULL,
     PRIMARY KEY(team_slug, user_id, reconciler_name)
 );
 
 CREATE TABLE reconcilers (
-    name reconciler_name NOT NULL,
+    name text NOT NULL,
     display_name text NOT NULL,
     description text NOT NULL,
     enabled boolean DEFAULT false NOT NULL,
-    run_order integer NOT NULL,
+    member_aware boolean DEFAULT false NOT NULL,
     PRIMARY KEY(name),
-    UNIQUE(display_name),
-    UNIQUE(run_order)
+    UNIQUE(display_name)
 );
 
 CREATE TABLE repository_authorizations (
@@ -290,20 +272,3 @@ ADD FOREIGN KEY (team_slug) REFERENCES teams(slug) ON DELETE CASCADE;
 -- data
 
 INSERT INTO first_run VALUES(true);
-
-INSERT INTO reconcilers
-(name, display_name, description, enabled, run_order) VALUES
-('github:team', 'GitHub teams', 'Create and maintain GitHub teams for the Console teams.', false, 1),
-('azure:group', 'Azure AD groups', 'Create and maintain Azure AD security groups for the Console teams.', false, 2),
-('google:workspace-admin', 'Google workspace group', 'Create and maintain Google workspace groups for the Console teams.', false, 3),
-('google:gcp:project', 'GCP projects', 'Create GCP projects for the Console teams.', false, 4),
-('nais:namespace', 'NAIS namespace', 'Create NAIS namespaces for the Console teams.', false, 5),
-('nais:deploy', 'NAIS deploy', 'Provision NAIS deploy key for Console teams.', false, 6),
-('google:gcp:gar', 'Google Artifact Registry', 'Provision artifact registry repositories for Console teams.', false, 7),
-('nais:dependencytrack', 'DependencyTrack', 'Create teams and users in dependencytrack', false, 8);
-
-INSERT INTO reconciler_config
-(reconciler, key, display_name, description, secret) VALUES
-('azure:group', 'azure:client_secret', 'Client secret', 'The client secret of the application registration.', true),
-('azure:group', 'azure:client_id', 'Client ID', 'The client ID of the application registration that Console will use when communicating with the Azure AD APIs. The application must have the following API permissions: Group.Create, GroupMember.ReadWrite.All.', false),
-('azure:group', 'azure:tenant_id', 'Tenant ID', 'The ID of the Azure AD tenant.', false);

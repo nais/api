@@ -531,7 +531,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 		}
 
 		for _, reconcilerName := range member.ReconcilerOptOuts {
-			err = dbtx.AddReconcilerOptOut(ctx, mid, team.Slug, sqlc.ReconcilerName(reconcilerName))
+			err = dbtx.AddReconcilerOptOut(ctx, mid, team.Slug, reconcilerName)
 			if err != nil {
 				return err
 			}

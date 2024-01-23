@@ -1,11 +1,11 @@
 -- name: GetReconcilers :many
 SELECT * FROM reconcilers
-ORDER BY run_order ASC;
+ORDER BY display_name ASC;
 
 -- name: GetEnabledReconcilers :many
 SELECT * FROM reconcilers
 WHERE enabled = true
-ORDER BY run_order ASC;
+ORDER BY display_name ASC;
 
 -- name: GetReconciler :one
 SELECT * FROM reconcilers
@@ -60,3 +60,10 @@ VALUES (@team_slug, @user_id, @reconciler_name) ON CONFLICT DO NOTHING;
 -- name: RemoveReconcilerOptOut :exec
 DELETE FROM reconciler_opt_outs
 WHERE team_slug = @team_slug AND user_id = @user_id AND reconciler_name = @reconciler_name;
+
+-- name: UpsertReconciler :one
+INSERT INTO reconcilers (name, display_name, description, member_aware)
+VALUES (@name, @display_name, @description, @member_aware)
+ON CONFLICT (name) DO UPDATE
+SET display_name = @display_name, description = @description, member_aware = @member_aware
+RETURNING *;

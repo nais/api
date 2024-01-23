@@ -13,22 +13,22 @@ import (
 )
 
 type Querier interface {
-	AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName ReconcilerName) error
+	AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName string) error
 	AssignGlobalRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName RoleName) error
 	AssignGlobalRoleToUser(ctx context.Context, userID uuid.UUID, roleName RoleName) error
 	AssignTeamRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName RoleName, targetTeamSlug slug.Slug) error
 	AssignTeamRoleToUser(ctx context.Context, userID uuid.UUID, roleName RoleName, targetTeamSlug slug.Slug) error
 	// AverageResourceUtilizationForTeam will return the average resource utilization for a team for a week.
 	AverageResourceUtilizationForTeam(ctx context.Context, teamSlug slug.Slug, resourceType ResourceType, timestamp pgtype.Timestamptz) (*AverageResourceUtilizationForTeamRow, error)
-	ClearReconcilerErrorsForTeam(ctx context.Context, teamSlug slug.Slug, reconciler ReconcilerName) error
-	ConfigureReconciler(ctx context.Context, value string, reconcilerName ReconcilerName, key ReconcilerConfigKey) error
+	ClearReconcilerErrorsForTeam(ctx context.Context, teamSlug slug.Slug, reconciler string) error
+	ConfigureReconciler(ctx context.Context, value string, reconcilerName string, key string) error
 	ConfirmTeamDeleteKey(ctx context.Context, key uuid.UUID) error
 	// CostUpsert will insert or update a cost record. If there is a conflict on the daily_cost_key constrant, the
 	// daily_cost column will be updated.
 	CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults
 	CreateAPIKey(ctx context.Context, apiKey string, serviceAccountID uuid.UUID) error
 	CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) error
-	CreateReconcilerResource(ctx context.Context, reconcilerName ReconcilerName, teamSlug slug.Slug, name string, value string, metadata []byte) (*ReconcilerResource, error)
+	CreateReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, value string, metadata []byte) (*ReconcilerResource, error)
 	CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum) error
 	CreateServiceAccount(ctx context.Context, name string) (*ServiceAccount, error)
 	CreateSession(ctx context.Context, userID uuid.UUID, expires pgtype.Timestamptz) (*Session, error)
@@ -42,13 +42,13 @@ type Querier interface {
 	DailyCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug) ([]*Cost, error)
 	// DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
 	DailyEnvCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment *string, teamSlug slug.Slug) ([]*DailyEnvCostForTeamRow, error)
-	DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName ReconcilerName) ([]*DangerousGetReconcilerConfigValuesRow, error)
+	DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName string) ([]*DangerousGetReconcilerConfigValuesRow, error)
 	DeleteServiceAccount(ctx context.Context, id uuid.UUID) error
 	DeleteSession(ctx context.Context, id uuid.UUID) error
 	DeleteTeam(ctx context.Context, argSlug slug.Slug) error
 	DeleteUser(ctx context.Context, id uuid.UUID) error
-	DisableReconciler(ctx context.Context, name ReconcilerName) (*Reconciler, error)
-	EnableReconciler(ctx context.Context, name ReconcilerName) (*Reconciler, error)
+	DisableReconciler(ctx context.Context, name string) (*Reconciler, error)
+	EnableReconciler(ctx context.Context, name string) (*Reconciler, error)
 	FirstRunComplete(ctx context.Context) error
 	GetActiveTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	GetActiveTeams(ctx context.Context) ([]*Team, error)
@@ -62,10 +62,10 @@ type Querier interface {
 	GetAuditLogsForTeam(ctx context.Context, targetIdentifier string, offset int32, limit int32) ([]*AuditLog, error)
 	GetAuditLogsForTeamCount(ctx context.Context, targetIdentifier string) (int64, error)
 	GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error)
-	GetReconciler(ctx context.Context, name ReconcilerName) (*Reconciler, error)
-	GetReconcilerConfig(ctx context.Context, reconcilerName ReconcilerName) ([]*GetReconcilerConfigRow, error)
-	GetReconcilerResourcesForReconciler(ctx context.Context, reconcilerName ReconcilerName, offset int32, limit int32) ([]*ReconcilerResource, error)
-	GetReconcilerResourcesForReconcilerAndTeam(ctx context.Context, reconcilerName ReconcilerName, teamSlug slug.Slug, offset int32, limit int32) ([]*ReconcilerResource, error)
+	GetReconciler(ctx context.Context, name string) (*Reconciler, error)
+	GetReconcilerConfig(ctx context.Context, reconcilerName string) ([]*GetReconcilerConfigRow, error)
+	GetReconcilerResourcesForReconciler(ctx context.Context, reconcilerName string, offset int32, limit int32) ([]*ReconcilerResource, error)
+	GetReconcilerResourcesForReconcilerAndTeam(ctx context.Context, reconcilerName string, teamSlug slug.Slug, offset int32, limit int32) ([]*ReconcilerResource, error)
 	GetReconcilers(ctx context.Context) ([]*Reconciler, error)
 	GetRepositoryAuthorizations(ctx context.Context, teamSlug slug.Slug, githubRepository string) ([]RepositoryAuthorizationEnum, error)
 	GetServiceAccountByApiKey(ctx context.Context, apiKey string) (*ServiceAccount, error)
@@ -80,7 +80,7 @@ type Querier interface {
 	GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*GetTeamMemberOptOutsRow, error)
 	GetTeamMembers(ctx context.Context, teamSlug *slug.Slug, offset int32, limit int32) ([]*User, error)
 	GetTeamMembersCount(ctx context.Context, teamSlug *slug.Slug) (int64, error)
-	GetTeamMembersForReconciler(ctx context.Context, teamSlug *slug.Slug, reconcilerName ReconcilerName) ([]*User, error)
+	GetTeamMembersForReconciler(ctx context.Context, teamSlug *slug.Slug, reconcilerName string) ([]*User, error)
 	GetTeamReconcilerErrors(ctx context.Context, teamSlug slug.Slug) ([]*ReconcilerError, error)
 	GetTeams(ctx context.Context) ([]*Team, error)
 	GetTeamsCount(ctx context.Context) (int64, error)
@@ -103,11 +103,11 @@ type Querier interface {
 	MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*MonthlyCostForTeamRow, error)
 	RemoveAllServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
-	RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName ReconcilerName) error
+	RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName string) error
 	RemoveRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum) error
 	RemoveSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string) error
 	RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug *slug.Slug) error
-	ResetReconcilerConfig(ctx context.Context, reconcilerName ReconcilerName) error
+	ResetReconcilerConfig(ctx context.Context, reconcilerName string) error
 	// ResourceUtilizationForApp will return resource utilization records for a given app.
 	ResourceUtilizationForApp(ctx context.Context, arg ResourceUtilizationForAppParams) ([]*ResourceUtilizationMetric, error)
 	// ResourceUtilizationForTeam will return resource utilization records for a given team.
@@ -123,7 +123,7 @@ type Querier interface {
 	RevokeGlobalUserRole(ctx context.Context, userID uuid.UUID, roleName RoleName) error
 	SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*Team, error)
 	SetLastSuccessfulSyncForTeam(ctx context.Context, argSlug slug.Slug) error
-	SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, teamSlug slug.Slug, reconciler ReconcilerName, errorMessage string) error
+	SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, teamSlug slug.Slug, reconciler string, errorMessage string) error
 	SetSessionExpires(ctx context.Context, expires pgtype.Timestamptz, iD uuid.UUID) (*Session, error)
 	SetSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string, channelName string) error
 	// SpecificResourceUtilizationForApp will return resource utilization for an app at a specific timestamp.
@@ -134,6 +134,7 @@ type Querier interface {
 	TeamExists(ctx context.Context, argSlug slug.Slug) (bool, error)
 	UpdateTeam(ctx context.Context, purpose *string, slackChannel *string, slug slug.Slug) (*Team, error)
 	UpdateUser(ctx context.Context, name string, externalID string, iD uuid.UUID, email string) (*User, error)
+	UpsertReconciler(ctx context.Context, name string, displayName string, description string, memberAware bool) (*Reconciler, error)
 }
 
 var _ Querier = (*Queries)(nil)

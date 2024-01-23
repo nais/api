@@ -27,7 +27,7 @@ INSERT INTO reconciler_resources (
 ) RETURNING id, reconciler_name, team_slug, name, value, metadata, created_at, updated_at
 `
 
-func (q *Queries) CreateReconcilerResource(ctx context.Context, reconcilerName ReconcilerName, teamSlug slug.Slug, name string, value string, metadata []byte) (*ReconcilerResource, error) {
+func (q *Queries) CreateReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, value string, metadata []byte) (*ReconcilerResource, error) {
 	row := q.db.QueryRow(ctx, createReconcilerResource,
 		reconcilerName,
 		teamSlug,
@@ -57,7 +57,7 @@ ORDER BY team_slug, name ASC
 LIMIT $3 OFFSET $2
 `
 
-func (q *Queries) GetReconcilerResourcesForReconciler(ctx context.Context, reconcilerName ReconcilerName, offset int32, limit int32) ([]*ReconcilerResource, error) {
+func (q *Queries) GetReconcilerResourcesForReconciler(ctx context.Context, reconcilerName string, offset int32, limit int32) ([]*ReconcilerResource, error) {
 	rows, err := q.db.Query(ctx, getReconcilerResourcesForReconciler, reconcilerName, offset, limit)
 	if err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ ORDER BY team_slug, name ASC
 LIMIT $4 OFFSET $3
 `
 
-func (q *Queries) GetReconcilerResourcesForReconcilerAndTeam(ctx context.Context, reconcilerName ReconcilerName, teamSlug slug.Slug, offset int32, limit int32) ([]*ReconcilerResource, error) {
+func (q *Queries) GetReconcilerResourcesForReconcilerAndTeam(ctx context.Context, reconcilerName string, teamSlug slug.Slug, offset int32, limit int32) ([]*ReconcilerResource, error) {
 	rows, err := q.db.Query(ctx, getReconcilerResourcesForReconcilerAndTeam,
 		reconcilerName,
 		teamSlug,

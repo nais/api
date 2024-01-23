@@ -259,7 +259,7 @@ ORDER BY reconcilers.name ASC
 `
 
 type GetTeamMemberOptOutsRow struct {
-	Name    ReconcilerName
+	Name    string
 	Enabled bool
 }
 
@@ -345,7 +345,7 @@ WHERE
 ORDER BY users.name ASC
 `
 
-func (q *Queries) GetTeamMembersForReconciler(ctx context.Context, teamSlug *slug.Slug, reconcilerName ReconcilerName) ([]*User, error) {
+func (q *Queries) GetTeamMembersForReconciler(ctx context.Context, teamSlug *slug.Slug, reconcilerName string) ([]*User, error) {
 	rows, err := q.db.Query(ctx, getTeamMembersForReconciler, teamSlug, reconcilerName)
 	if err != nil {
 		return nil, err
