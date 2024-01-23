@@ -18,7 +18,7 @@ type ReconcilerResourcesServer struct {
 	protoapi.UnimplementedReconcilerResourcesServer
 }
 
-func (r *ReconcilerResourcesServer) Create(ctx context.Context, in *protoapi.SaveReconcilerResourceRequest) (*protoapi.SaveReconcilerResourceResponse, error) {
+func (r *ReconcilerResourcesServer) Save(ctx context.Context, in *protoapi.SaveReconcilerResourceRequest) (*protoapi.SaveReconcilerResourceResponse, error) {
 	switch {
 	case in.ReconcilerName == "":
 		return nil, status.Error(400, "reconcilerName is required")
@@ -66,7 +66,7 @@ func (r *ReconcilerResourcesServer) List(ctx context.Context, req *protoapi.List
 	for _, rr := range res {
 		resp.Nodes = append(resp.Nodes, toProtoReconcilerResource(rr))
 	}
-	return nil, nil
+	return resp, nil
 }
 
 func toProtoReconcilerResource(res *database.ReconcilerResource) *protoapi.ReconcilerResource {

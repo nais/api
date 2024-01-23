@@ -156,7 +156,10 @@ type Config struct {
 // NewConfig creates a new configuration instance from environment variables
 func NewConfig(ctx context.Context, lookuper envconfig.Lookuper) (*Config, error) {
 	cfg := &Config{}
-	err := envconfig.ProcessWith(ctx, cfg, lookuper)
+	err := envconfig.ProcessWith(ctx, &envconfig.Config{
+		Target:   cfg,
+		Lookuper: lookuper,
+	})
 	if err != nil {
 		return nil, err
 	}

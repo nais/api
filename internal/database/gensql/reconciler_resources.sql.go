@@ -23,11 +23,11 @@ INSERT INTO reconciler_resources (
   $2,
   $3,
   $4,
-  $5
+  COALESCE($5, '{}'::jsonb)
 ) RETURNING id, reconciler_name, team_slug, name, value, metadata, created_at, updated_at
 `
 
-func (q *Queries) CreateReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, value string, metadata []byte) (*ReconcilerResource, error) {
+func (q *Queries) CreateReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, value string, metadata interface{}) (*ReconcilerResource, error) {
 	row := q.db.QueryRow(ctx, createReconcilerResource,
 		reconcilerName,
 		teamSlug,

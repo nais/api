@@ -63,7 +63,7 @@ func (r *ReconcilersServer) Config(ctx context.Context, req *protoapi.ConfigReco
 	ret := make([]*protoapi.ReconcilerConfig, len(cfg))
 	for i, c := range cfg {
 		ret[i] = &protoapi.ReconcilerConfig{
-			Key:         string(c.Key),
+			Key:         c.Key,
 			DisplayName: c.DisplayName,
 			Description: c.Description,
 			Value:       ptr.Deref(c.Value, ""),
@@ -78,9 +78,10 @@ func (r *ReconcilersServer) Config(ctx context.Context, req *protoapi.ConfigReco
 
 func toProtoReconciler(rec *database.Reconciler) *protoapi.Reconciler {
 	return &protoapi.Reconciler{
-		Name:        string(rec.Name),
+		Name:        rec.Name,
 		Description: rec.Description,
 		DisplayName: rec.DisplayName,
 		Enabled:     rec.Enabled,
+		MemberAware: rec.MemberAware,
 	}
 }

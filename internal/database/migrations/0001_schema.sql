@@ -89,13 +89,6 @@ CREATE TABLE reconciler_config (
     PRIMARY KEY (reconciler, key)
 );
 
-CREATE TABLE reconciler_states (
-    reconciler text NOT NULL,
-    state jsonb DEFAULT '{}'::jsonb NOT NULL,
-    team_slug slug NOT NULL,
-    PRIMARY KEY (reconciler, team_slug)
-);
-
 CREATE TABLE reconciler_opt_outs (
     team_slug slug NOT NULL,
     user_id UUID NOT NULL,
@@ -234,10 +227,6 @@ ALTER TABLE reconciler_config
 ADD FOREIGN KEY (reconciler) REFERENCES reconcilers(name) ON DELETE CASCADE;
 
 ALTER TABLE reconciler_errors
-ADD FOREIGN KEY (reconciler) REFERENCES reconcilers(name) ON DELETE CASCADE,
-ADD FOREIGN KEY (team_slug) REFERENCES teams(slug) ON DELETE CASCADE;
-
-ALTER TABLE reconciler_states
 ADD FOREIGN KEY (reconciler) REFERENCES reconcilers(name) ON DELETE CASCADE,
 ADD FOREIGN KEY (team_slug) REFERENCES teams(slug) ON DELETE CASCADE;
 

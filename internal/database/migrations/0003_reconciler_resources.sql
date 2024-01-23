@@ -5,7 +5,7 @@ CREATE TABLE reconciler_resources (
   team_slug slug NOT NULL REFERENCES teams(slug),
   name TEXT NOT NULL,
   value TEXT NOT NULL,
-  metadata JSONB NOT NULL,
+  metadata JSONB DEFAULT '{}'::jsonb NOT NULL,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

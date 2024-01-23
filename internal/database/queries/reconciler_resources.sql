@@ -24,5 +24,5 @@ INSERT INTO reconciler_resources (
   @team_slug,
   @name,
   @value,
-  @metadata
+  COALESCE(@metadata, '{}'::jsonb)
 ) RETURNING *;

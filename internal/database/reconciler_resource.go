@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
@@ -38,11 +37,6 @@ func (d *database) GetReconcilerResources(ctx context.Context, reconcilerName st
 }
 
 func (d *database) CreateReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key, value string, metadata []byte) (*ReconcilerResource, error) {
-	v := map[string]any{}
-	if err := json.Unmarshal(metadata, &v); err != nil {
-		return nil, err
-	}
-
 	res, err := d.querier.CreateReconcilerResource(ctx, reconcilerName, teamSlug, key, value, metadata)
 	if err != nil {
 		return nil, err
