@@ -17,6 +17,7 @@ message ReconcilerResource {
 }
 
 service ReconcilerResources {
+  rpc Delete(DeleteReconcilerResourcesRequest) returns (DeleteReconcilerResourcesResponse) {}
   rpc Save(SaveReconcilerResourceRequest) returns (SaveReconcilerResourceResponse) {}
   rpc List(ListReconcilerResourcesRequest) returns (ListReconcilerResourcesResponse) {}
 }
@@ -30,6 +31,13 @@ message SaveReconcilerResourceRequest {
   // If true, delete all resources that are not in the request for the team.
   bool delete_undefined = 4;
 }
+
+message DeleteReconcilerResourcesRequest {
+  string reconciler_name = 1;
+  string team_slug = 2;
+}
+
+message DeleteReconcilerResourcesResponse {}
 
 message NewReconcilerResource {
   string name = 1;
