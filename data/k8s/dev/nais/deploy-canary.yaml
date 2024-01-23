@@ -15,7 +15,12 @@ metadata:
 spec:
   envFrom:
     - secret: my-secret
-    - other: other-secret
+    - secret: other-secret
+    - configMap: my-config-map
+
+  filesFrom:
+    - secret: my-secret
+      mountPath: /var/secret
   env:
     - name: DEPLOY_START
       value: "1704981602000000000"
