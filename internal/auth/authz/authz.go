@@ -122,6 +122,8 @@ func RequireTeamAuthorization(actor *Actor, requiredAuthzName roles.Authorizatio
 	return authorized(authorizations, requiredAuthzName)
 }
 
+// TODO: RequireUserIsMemberOfTeam or something
+
 // authorized Check if one of the authorizations in the map matches the required authorization.
 func authorized(authorizations map[roles.Authorization]struct{}, requiredAuthzName roles.Authorization) error {
 	for authorization := range authorizations {

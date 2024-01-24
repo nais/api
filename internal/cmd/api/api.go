@@ -122,6 +122,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	k8sOpts := []k8s.Opt{}
 	if cfg.WithFakeClients {
+		// TODO: comment out to test against actual kubernetes
 		k8sOpts = append(k8sOpts, k8s.WithClientsCreator(fake.Clients(os.DirFS("./data/k8s"))))
 	}
 

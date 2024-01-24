@@ -108,6 +108,16 @@ func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLog
 
 		impersonationClientCreator = func(ctx context.Context) (map[string]kubernetes.Interface, error) {
 			user := authz.ActorFromContext(ctx).User
+			// TODO: authz.RequireUserIsMemberOfTeam
+
+			groups := make([]string, 0)
+			// TODO: get all groups for the given user for impersonation config
+			//  - look up actual group name from database state for the google workspace reconciler (database.LoadReconcilerStateForTeam)
+			//  - can we get this from the GoogleWorkspaceState struct?
+			//  - fetch all teams for user
+			//  - for each team, look up state and get the group name
+			//  - construct fully qualified group name with the tenant domain
+
 			clientSets := make(map[string]kubernetes.Interface)
 			for _, cluster := range clusters(cfg) {
 				restConfig, ok := restConfigs[cluster]
@@ -116,6 +126,7 @@ func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLog
 				}
 				restConfig.Impersonate = rest.ImpersonationConfig{
 					UserName: user.Identity(),
+					Groups:   groups,
 				}
 
 				clientSet, err := kubernetes.NewForConfig(&restConfig)
