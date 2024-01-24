@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/nais/api/pkg/apiclient"
+	"github.com/nais/api/pkg/apiclient/iterator"
 	"github.com/nais/api/pkg/protoapi"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -20,15 +21,21 @@ func main() {
 		panic(err)
 	}
 
-	teams, err := client.Users().List(ctx, &protoapi.ListUsersRequest{
-		Limit:  10,
-		Offset: 3,
+	it := iterator.New(ctx, 2, func(limit, offset int64) (*protoapi.ListTeamsResponse, error) {
+		return client.Teams().List(ctx, &protoapi.ListTeamsRequest{
+			Limit:  limit,
+			Offset: offset,
+		})
 	})
-	if err != nil {
-		panic(err)
+
+	count := 0
+	for it.Next() {
+		fmt.Printf("%+v\n", it.Value().Slug)
+		count += 1
 	}
 
-	for _, team := range teams.Nodes {
-		fmt.Println(team.Name)
+	if err := it.Err(); err != nil {
+		panic(err)
 	}
+	fmt.Println("count:", count)
 }
