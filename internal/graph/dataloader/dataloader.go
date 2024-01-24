@@ -5,9 +5,11 @@ import (
 	"net/http"
 
 	"github.com/graph-gophers/dataloader/v7"
+	dlotel "github.com/graph-gophers/dataloader/v7/trace/otel"
 	db "github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/metrics"
+	"go.opentelemetry.io/otel"
 )
 
 type ctxKey string
@@ -32,14 +34,17 @@ func NewLoaders(database db.Database) *Loaders {
 		UsersLoader: dataloader.NewBatchedLoader(usersReader.load,
 			dataloader.WithCache(usersReader.newCache()),
 			dataloader.WithInputCapacity[string, *model.User](5000),
+			dataloader.WithTracer(dlotel.NewTracer[string, *model.User](otel.Tracer("dataloader"))),
 		),
 		TeamsLoader: dataloader.NewBatchedLoader(teamsReader.load,
 			dataloader.WithCache(teamsReader.newCache()),
 			dataloader.WithInputCapacity[string, *model.Team](500),
+			dataloader.WithTracer(dlotel.NewTracer[string, *model.Team](otel.Tracer("dataloader"))),
 		),
 		UserRolesLoader: dataloader.NewBatchedLoader(userRolesReader.load,
 			dataloader.WithCache(userRolesReader.newCache()),
 			dataloader.WithInputCapacity[string, []*db.UserRole](5000),
+			dataloader.WithTracer(dlotel.NewTracer[string, []*db.UserRole](otel.Tracer("dataloader"))),
 		),
 	}
 

@@ -32,9 +32,6 @@ import (
 	"github.com/nais/api/internal/usersync"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/otel/exporters/prometheus"
-	met "go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/sdk/metric"
 	"golang.org/x/oauth2/google"
 	"golang.org/x/sync/errgroup"
 )
@@ -96,7 +93,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		log.Warn("using fake clients")
 	}
 
-	meter, err := getMetricMeter()
+	_, promReg, err := newMeterProvider(ctx)
 	if err != nil {
 		return fmt.Errorf("create metric meter: %w", err)
 	}
@@ -184,7 +181,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			Admin: directives.Admin(),
 			Auth:  directives.Auth(),
 		},
-	}, meter, log)
+	}, log)
 	if err != nil {
 		return fmt.Errorf("create graph handler: %w", err)
 	}
@@ -214,7 +211,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	// HTTP server
 	wg.Go(func() error {
-		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, db, authHandler, graphHandler, log)
+		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, db, authHandler, graphHandler, promReg, log)
 	})
 
 	wg.Go(func() error {
@@ -261,17 +258,6 @@ func firstRun(ctx context.Context, db database.Database, enableReconcilers []str
 		}
 	}
 	return nil
-}
-
-// getMetricMeter will return a new metric meter that uses a Prometheus exporter
-func getMetricMeter() (met.Meter, error) {
-	exporter, err := prometheus.New()
-	if err != nil {
-		return nil, fmt.Errorf("create prometheus exporter: %w", err)
-	}
-
-	provider := metric.NewMeterProvider(metric.WithReader(exporter))
-	return provider.Meter("github.com/nais/api"), nil
 }
 
 // loadEnvFile will load a .env file if it exists. This is useful for local development.

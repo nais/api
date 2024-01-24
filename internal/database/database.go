@@ -4,8 +4,10 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"regexp"
 	"time"
 
+	"github.com/exaring/otelpgx"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/nais/api/internal/database/gensql"
@@ -81,6 +83,8 @@ func (d *database) Transaction(ctx context.Context, fn DatabaseTransactionFunc) 
 	})
 }
 
+var regParseSQLName = regexp.MustCompile(`\-\-\s*name:\s+(\S+)`)
+
 // New connects to the database, runs migrations and returns a database instance. The caller must call the
 // returned closer function when the database connection is no longer needed
 func New(ctx context.Context, dsn string, log logrus.FieldLogger) (db Database, closer func(), err error) {
@@ -88,6 +92,18 @@ func New(ctx context.Context, dsn string, log logrus.FieldLogger) (db Database, 
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to parse dsn config: %w", err)
 	}
+
+	config.ConnConfig.Tracer = otelpgx.NewTracer(
+		otelpgx.WithTrimSQLInSpanName(),
+		otelpgx.WithSpanNameFunc(func(stmt string) string {
+			matches := regParseSQLName.FindStringSubmatch(stmt)
+			if len(matches) > 1 {
+				return matches[1]
+			}
+
+			return "unknown"
+		}),
+	)
 
 	conn, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {

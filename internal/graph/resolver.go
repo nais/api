@@ -25,8 +25,9 @@ import (
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/usersync"
+	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel"
 )
 
 // This file will not be regenerated automatically.
@@ -114,7 +115,8 @@ func NewResolver(
 }
 
 // NewHandler creates and returns a new GraphQL handler with the given configuration
-func NewHandler(config gengql.Config, meter metric.Meter, log logrus.FieldLogger) (*handler.Server, error) {
+func NewHandler(config gengql.Config, log logrus.FieldLogger) (*handler.Server, error) {
+	meter := otel.Meter("graph")
 	metricsMiddleware, err := NewMetrics(meter)
 	if err != nil {
 		return nil, fmt.Errorf("create metrics middleware: %w", err)
@@ -132,6 +134,12 @@ func NewHandler(config gengql.Config, meter metric.Meter, log logrus.FieldLogger
 		Cache: lru.New(100),
 	})
 	graphHandler.SetErrorPresenter(apierror.GetErrorPresenter(log))
+	graphHandler.Use(otelgqlgen.Middleware(
+		otelgqlgen.WithoutVariables(),
+		otelgqlgen.WithCreateSpanFromFields(func(ctx *graphql.FieldContext) bool {
+			return ctx.IsResolver
+		}),
+	))
 	return graphHandler, nil
 }
 

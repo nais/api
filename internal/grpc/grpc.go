@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/pkg/protoapi"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 )
@@ -21,7 +22,9 @@ func Run(ctx context.Context, listenAddress string, repo database.Database, audi
 		return fmt.Errorf("failed to listen: %w", err)
 	}
 
-	opts := []grpc.ServerOption{}
+	opts := []grpc.ServerOption{
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
+	}
 	s := grpc.NewServer(opts...)
 
 	protoapi.RegisterTeamsServer(s, &TeamsServer{db: repo})

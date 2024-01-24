@@ -2,7 +2,9 @@ package k8s
 
 import (
 	"fmt"
+	"net/http"
 
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd/api"
 )
@@ -27,6 +29,9 @@ func CreateClusterConfigMap(tenant string, cfg Config) (ClusterConfigMap, error)
 			AuthProvider: &api.AuthProviderConfig{
 				Name: googleAuthPlugin,
 			},
+			WrapTransport: func(rt http.RoundTripper) http.RoundTripper {
+				return otelhttp.NewTransport(rt, otelhttp.WithServerName(cluster))
+			},
 		}
 	}
 
@@ -50,6 +55,9 @@ func getStaticClusterConfigs(clusters []StaticCluster) (ClusterConfigMap, error)
 			BearerToken: cluster.Token,
 			TLSClientConfig: rest.TLSClientConfig{
 				Insecure: true,
+			},
+			WrapTransport: func(rt http.RoundTripper) http.RoundTripper {
+				return otelhttp.NewTransport(rt, otelhttp.WithServerName(cluster.Name))
 			},
 		}
 	}
