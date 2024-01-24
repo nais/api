@@ -84,11 +84,13 @@ func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecre
 
 		for _, obj := range kubeSecrets.Items {
 			isOpaque := obj.Type == corev1.SecretTypeOpaque || obj.Type == "kubernetes.io/Opaque"
+			hasOwnerReferences := len(obj.GetOwnerReferences()) > 0
+			hasFinalizers := len(obj.GetFinalizers()) > 0
 			typeLabel, ok := obj.GetLabels()["type"]
-			if len(obj.GetOwnerReferences()) > 0 ||
-				len(obj.GetFinalizers()) > 0 ||
-				isOpaque ||
-				(ok && typeLabel == "jwker.nais.io") {
+			isJwker := ok && typeLabel == "jwker.nais.io"
+
+			isIrrelevant := hasOwnerReferences || hasFinalizers || !isOpaque || isJwker
+			if isIrrelevant {
 				continue
 			}
 
