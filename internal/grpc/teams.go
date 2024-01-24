@@ -60,10 +60,29 @@ func (t *TeamsServer) Members(ctx context.Context, r *protoapi.ListTeamMembersRe
 	return resp, nil
 }
 
+func (t *TeamsServer) SlackAlertsChannels(ctx context.Context, r *protoapi.SlackAlertsChannelsRequest) (*protoapi.SlackAlertsChannelsResponse, error) {
+	// TODO: Pagination?
+	channelMap, err := t.db.GetSlackAlertsChannels(ctx, slug.Slug(r.Slug))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to list slack alerts channels: %s", err)
+	}
+
+	resp := &protoapi.SlackAlertsChannelsResponse{}
+	for env, name := range channelMap {
+		resp.Channels = append(resp.Channels, &protoapi.SlackAlertsChannel{
+			Environment: env,
+			Channel:     name,
+		})
+	}
+
+	return resp, nil
+}
+
 func toProtoTeam(team *database.Team) *protoapi.Team {
 	return &protoapi.Team{
-		Slug:    team.Slug.String(),
-		Purpose: team.Purpose,
+		Slug:         team.Slug.String(),
+		Purpose:      team.Purpose,
+		SlackChannel: team.SlackChannel,
 	}
 }
 

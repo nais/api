@@ -8,12 +8,14 @@ option go_package = "./pkg/protoapi";
 message Team {
   string slug = 1;
   string purpose = 2;
+  string slack_channel = 3;
 }
 
 service Teams {
   rpc Get(GetTeamRequest) returns (GetTeamResponse) {}
   rpc List(ListTeamsRequest) returns (ListTeamsResponse) {}
   rpc Members(ListTeamMembersRequest) returns (ListTeamMembersResponse) {}
+  rpc SlackAlertsChannels(SlackAlertsChannelsRequest) returns (SlackAlertsChannelsResponse) {}
 }
 
 message GetTeamResponse {
@@ -43,6 +45,19 @@ message ListTeamMembersRequest {
 message ListTeamMembersResponse {
   repeated TeamMember nodes = 1;
   PageInfo page_info = 2;
+}
+
+message SlackAlertsChannelsRequest {
+  string slug = 3;
+}
+
+message SlackAlertsChannelsResponse {
+  repeated SlackAlertsChannel channels = 1;
+}
+
+message SlackAlertsChannel {
+  string environment = 1;
+  string channel = 2;
 }
 
 message TeamMember {

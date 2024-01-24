@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Teams_Get_FullMethodName     = "/Teams/Get"
-	Teams_List_FullMethodName    = "/Teams/List"
-	Teams_Members_FullMethodName = "/Teams/Members"
+	Teams_Get_FullMethodName                 = "/Teams/Get"
+	Teams_List_FullMethodName                = "/Teams/List"
+	Teams_Members_FullMethodName             = "/Teams/Members"
+	Teams_SlackAlertsChannels_FullMethodName = "/Teams/SlackAlertsChannels"
 )
 
 // TeamsClient is the client API for Teams service.
@@ -31,6 +32,7 @@ type TeamsClient interface {
 	Get(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
 	List(ctx context.Context, in *ListTeamsRequest, opts ...grpc.CallOption) (*ListTeamsResponse, error)
 	Members(ctx context.Context, in *ListTeamMembersRequest, opts ...grpc.CallOption) (*ListTeamMembersResponse, error)
+	SlackAlertsChannels(ctx context.Context, in *SlackAlertsChannelsRequest, opts ...grpc.CallOption) (*SlackAlertsChannelsResponse, error)
 }
 
 type teamsClient struct {
@@ -68,6 +70,15 @@ func (c *teamsClient) Members(ctx context.Context, in *ListTeamMembersRequest, o
 	return out, nil
 }
 
+func (c *teamsClient) SlackAlertsChannels(ctx context.Context, in *SlackAlertsChannelsRequest, opts ...grpc.CallOption) (*SlackAlertsChannelsResponse, error) {
+	out := new(SlackAlertsChannelsResponse)
+	err := c.cc.Invoke(ctx, Teams_SlackAlertsChannels_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TeamsServer is the server API for Teams service.
 // All implementations must embed UnimplementedTeamsServer
 // for forward compatibility
@@ -75,6 +86,7 @@ type TeamsServer interface {
 	Get(context.Context, *GetTeamRequest) (*GetTeamResponse, error)
 	List(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error)
 	Members(context.Context, *ListTeamMembersRequest) (*ListTeamMembersResponse, error)
+	SlackAlertsChannels(context.Context, *SlackAlertsChannelsRequest) (*SlackAlertsChannelsResponse, error)
 	mustEmbedUnimplementedTeamsServer()
 }
 
@@ -90,6 +102,9 @@ func (UnimplementedTeamsServer) List(context.Context, *ListTeamsRequest) (*ListT
 }
 func (UnimplementedTeamsServer) Members(context.Context, *ListTeamMembersRequest) (*ListTeamMembersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Members not implemented")
+}
+func (UnimplementedTeamsServer) SlackAlertsChannels(context.Context, *SlackAlertsChannelsRequest) (*SlackAlertsChannelsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SlackAlertsChannels not implemented")
 }
 func (UnimplementedTeamsServer) mustEmbedUnimplementedTeamsServer() {}
 
@@ -158,6 +173,24 @@ func _Teams_Members_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Teams_SlackAlertsChannels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SlackAlertsChannelsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TeamsServer).SlackAlertsChannels(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Teams_SlackAlertsChannels_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TeamsServer).SlackAlertsChannels(ctx, req.(*SlackAlertsChannelsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Teams_ServiceDesc is the grpc.ServiceDesc for Teams service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -176,6 +209,10 @@ var Teams_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Members",
 			Handler:    _Teams_Members_Handler,
+		},
+		{
+			MethodName: "SlackAlertsChannels",
+			Handler:    _Teams_SlackAlertsChannels_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
