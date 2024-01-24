@@ -618,69 +618,6 @@ func (_c *MockQuerier_CreateAuditLog_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
-// CreateReconcilerResource provides a mock function with given fields: ctx, reconcilerName, teamSlug, name, value, metadata
-func (_m *MockQuerier) CreateReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, value string, metadata interface{}) (*ReconcilerResource, error) {
-	ret := _m.Called(ctx, reconcilerName, teamSlug, name, value, metadata)
-
-	if len(ret) == 0 {
-		panic("no return value specified for CreateReconcilerResource")
-	}
-
-	var r0 *ReconcilerResource
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, string, interface{}) (*ReconcilerResource, error)); ok {
-		return rf(ctx, reconcilerName, teamSlug, name, value, metadata)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, string, interface{}) *ReconcilerResource); ok {
-		r0 = rf(ctx, reconcilerName, teamSlug, name, value, metadata)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*ReconcilerResource)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string, string, interface{}) error); ok {
-		r1 = rf(ctx, reconcilerName, teamSlug, name, value, metadata)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_CreateReconcilerResource_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateReconcilerResource'
-type MockQuerier_CreateReconcilerResource_Call struct {
-	*mock.Call
-}
-
-// CreateReconcilerResource is a helper method to define mock.On call
-//   - ctx context.Context
-//   - reconcilerName string
-//   - teamSlug slug.Slug
-//   - name string
-//   - value string
-//   - metadata interface{}
-func (_e *MockQuerier_Expecter) CreateReconcilerResource(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, name interface{}, value interface{}, metadata interface{}) *MockQuerier_CreateReconcilerResource_Call {
-	return &MockQuerier_CreateReconcilerResource_Call{Call: _e.mock.On("CreateReconcilerResource", ctx, reconcilerName, teamSlug, name, value, metadata)}
-}
-
-func (_c *MockQuerier_CreateReconcilerResource_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, value string, metadata interface{})) *MockQuerier_CreateReconcilerResource_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].(string), args[5].(interface{}))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_CreateReconcilerResource_Call) Return(_a0 *ReconcilerResource, _a1 error) *MockQuerier_CreateReconcilerResource_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_CreateReconcilerResource_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, string, interface{}) (*ReconcilerResource, error)) *MockQuerier_CreateReconcilerResource_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // CreateRepositoryAuthorization provides a mock function with given fields: ctx, teamSlug, githubRepository, repositoryAuthorization
 func (_m *MockQuerier) CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum) error {
 	ret := _m.Called(ctx, teamSlug, githubRepository, repositoryAuthorization)
@@ -2621,9 +2558,9 @@ func (_c *MockQuerier_GetReconcilerResourcesForReconcilerAndTeam_Call) RunAndRet
 	return _c
 }
 
-// GetReconcilers provides a mock function with given fields: ctx
-func (_m *MockQuerier) GetReconcilers(ctx context.Context) ([]*Reconciler, error) {
-	ret := _m.Called(ctx)
+// GetReconcilers provides a mock function with given fields: ctx, offset, limit
+func (_m *MockQuerier) GetReconcilers(ctx context.Context, offset int32, limit int32) ([]*Reconciler, error) {
+	ret := _m.Called(ctx, offset, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetReconcilers")
@@ -2631,19 +2568,19 @@ func (_m *MockQuerier) GetReconcilers(ctx context.Context) ([]*Reconciler, error
 
 	var r0 []*Reconciler
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]*Reconciler, error)); ok {
-		return rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, int32, int32) ([]*Reconciler, error)); ok {
+		return rf(ctx, offset, limit)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []*Reconciler); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, int32, int32) []*Reconciler); ok {
+		r0 = rf(ctx, offset, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*Reconciler)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, int32, int32) error); ok {
+		r1 = rf(ctx, offset, limit)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -2658,13 +2595,15 @@ type MockQuerier_GetReconcilers_Call struct {
 
 // GetReconcilers is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *MockQuerier_Expecter) GetReconcilers(ctx interface{}) *MockQuerier_GetReconcilers_Call {
-	return &MockQuerier_GetReconcilers_Call{Call: _e.mock.On("GetReconcilers", ctx)}
+//   - offset int32
+//   - limit int32
+func (_e *MockQuerier_Expecter) GetReconcilers(ctx interface{}, offset interface{}, limit interface{}) *MockQuerier_GetReconcilers_Call {
+	return &MockQuerier_GetReconcilers_Call{Call: _e.mock.On("GetReconcilers", ctx, offset, limit)}
 }
 
-func (_c *MockQuerier_GetReconcilers_Call) Run(run func(ctx context.Context)) *MockQuerier_GetReconcilers_Call {
+func (_c *MockQuerier_GetReconcilers_Call) Run(run func(ctx context.Context, offset int32, limit int32)) *MockQuerier_GetReconcilers_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
+		run(args[0].(context.Context), args[1].(int32), args[2].(int32))
 	})
 	return _c
 }
@@ -2674,7 +2613,63 @@ func (_c *MockQuerier_GetReconcilers_Call) Return(_a0 []*Reconciler, _a1 error) 
 	return _c
 }
 
-func (_c *MockQuerier_GetReconcilers_Call) RunAndReturn(run func(context.Context) ([]*Reconciler, error)) *MockQuerier_GetReconcilers_Call {
+func (_c *MockQuerier_GetReconcilers_Call) RunAndReturn(run func(context.Context, int32, int32) ([]*Reconciler, error)) *MockQuerier_GetReconcilers_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetReconcilersCount provides a mock function with given fields: ctx
+func (_m *MockQuerier) GetReconcilersCount(ctx context.Context) (int64, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetReconcilersCount")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (int64, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) int64); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetReconcilersCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetReconcilersCount'
+type MockQuerier_GetReconcilersCount_Call struct {
+	*mock.Call
+}
+
+// GetReconcilersCount is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockQuerier_Expecter) GetReconcilersCount(ctx interface{}) *MockQuerier_GetReconcilersCount_Call {
+	return &MockQuerier_GetReconcilersCount_Call{Call: _e.mock.On("GetReconcilersCount", ctx)}
+}
+
+func (_c *MockQuerier_GetReconcilersCount_Call) Run(run func(ctx context.Context)) *MockQuerier_GetReconcilersCount_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetReconcilersCount_Call) Return(_a0 int64, _a1 error) *MockQuerier_GetReconcilersCount_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetReconcilersCount_Call) RunAndReturn(run func(context.Context) (int64, error)) *MockQuerier_GetReconcilersCount_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -5972,6 +5967,69 @@ func (_c *MockQuerier_UpsertReconcilerConfig_Call) Return(_a0 error) *MockQuerie
 }
 
 func (_c *MockQuerier_UpsertReconcilerConfig_Call) RunAndReturn(run func(context.Context, string, string, string, string, bool) error) *MockQuerier_UpsertReconcilerConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpsertReconcilerResource provides a mock function with given fields: ctx, reconcilerName, teamSlug, name, value, metadata
+func (_m *MockQuerier) UpsertReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, value string, metadata interface{}) (*ReconcilerResource, error) {
+	ret := _m.Called(ctx, reconcilerName, teamSlug, name, value, metadata)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpsertReconcilerResource")
+	}
+
+	var r0 *ReconcilerResource
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, string, interface{}) (*ReconcilerResource, error)); ok {
+		return rf(ctx, reconcilerName, teamSlug, name, value, metadata)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, string, interface{}) *ReconcilerResource); ok {
+		r0 = rf(ctx, reconcilerName, teamSlug, name, value, metadata)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*ReconcilerResource)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string, string, interface{}) error); ok {
+		r1 = rf(ctx, reconcilerName, teamSlug, name, value, metadata)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_UpsertReconcilerResource_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpsertReconcilerResource'
+type MockQuerier_UpsertReconcilerResource_Call struct {
+	*mock.Call
+}
+
+// UpsertReconcilerResource is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reconcilerName string
+//   - teamSlug slug.Slug
+//   - name string
+//   - value string
+//   - metadata interface{}
+func (_e *MockQuerier_Expecter) UpsertReconcilerResource(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, name interface{}, value interface{}, metadata interface{}) *MockQuerier_UpsertReconcilerResource_Call {
+	return &MockQuerier_UpsertReconcilerResource_Call{Call: _e.mock.On("UpsertReconcilerResource", ctx, reconcilerName, teamSlug, name, value, metadata)}
+}
+
+func (_c *MockQuerier_UpsertReconcilerResource_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, value string, metadata interface{})) *MockQuerier_UpsertReconcilerResource_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].(string), args[5].(interface{}))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_UpsertReconcilerResource_Call) Return(_a0 *ReconcilerResource, _a1 error) *MockQuerier_UpsertReconcilerResource_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_UpsertReconcilerResource_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, string, interface{}) (*ReconcilerResource, error)) *MockQuerier_UpsertReconcilerResource_Call {
 	_c.Call.Return(run)
 	return _c
 }

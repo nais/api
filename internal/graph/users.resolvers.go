@@ -254,5 +254,7 @@ func (r *Resolver) User() gengql.UserResolver { return &userResolver{r} }
 // UserSyncRun returns gengql.UserSyncRunResolver implementation.
 func (r *Resolver) UserSyncRun() gengql.UserSyncRunResolver { return &userSyncRunResolver{r} }
 
-type userResolver struct{ *Resolver }
-type userSyncRunResolver struct{ *Resolver }
+type (
+	userResolver        struct{ *Resolver }
+	userSyncRunResolver struct{ *Resolver }
+)

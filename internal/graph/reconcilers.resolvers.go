@@ -364,5 +364,7 @@ func (r *Resolver) Mutation() gengql.MutationResolver { return &mutationResolver
 // Reconciler returns gengql.ReconcilerResolver implementation.
 func (r *Resolver) Reconciler() gengql.ReconcilerResolver { return &reconcilerResolver{r} }
 
-type mutationResolver struct{ *Resolver }
-type reconcilerResolver struct{ *Resolver }
+type (
+	mutationResolver   struct{ *Resolver }
+	reconcilerResolver struct{ *Resolver }
+)
