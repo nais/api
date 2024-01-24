@@ -36,6 +36,10 @@ func (a *APIClient) ReconcilerResources() protoapi.ReconcilerResourcesClient {
 	return protoapi.NewReconcilerResourcesClient(a.conn)
 }
 
+func (a *APIClient) AuditLogs() protoapi.AuditLogsClient {
+	return protoapi.NewAuditLogsClient(a.conn)
+}
+
 func (a *APIClient) Close() error {
 	return a.conn.Close()
 }

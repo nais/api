@@ -218,7 +218,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	})
 
 	wg.Go(func() error {
-		if err := grpc.Run(ctx, cfg.GRPCListenAddress, db, log); err != nil {
+		if err := grpc.Run(ctx, cfg.GRPCListenAddress, db, auditLogger, log); err != nil {
 			log.WithError(err).Errorf("error in GRPC server")
 			return err
 		}
