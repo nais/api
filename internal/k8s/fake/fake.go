@@ -98,19 +98,19 @@ func parseResources(dir fs.FS, path string) []runtime.Object {
 	parts := bytes.Split(b, []byte("\n---"))
 	ns := strings.Trim(filepath.Base(filepath.Dir(path)), string(filepath.Separator))
 
-	// TODO: clean this up
-	if strings.HasSuffix(path, "/nais/secrets.yaml") {
-		secret, err := parseSecret(b, ns)
-		if err != nil {
-			panic(err)
-		}
-
-		return []runtime.Object{secret}
-	}
-
 	ret := make([]runtime.Object, 0, len(parts))
 	for _, p := range parts {
 		if len(bytes.TrimSpace(p)) == 0 {
+			continue
+		}
+
+		if strings.HasSuffix(path, "/nais/secrets.yaml") {
+			secret, err := parseSecret(p, ns)
+			if err != nil {
+				panic(err)
+			}
+
+			ret = append(ret, secret)
 			continue
 		}
 
