@@ -24,7 +24,7 @@ generate-proto:
 		--go_out=. \
 		--go-grpc_out=.
 
-api:
+build:
 	go build -o bin/api ./cmd/api
 
 local:
