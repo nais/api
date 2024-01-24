@@ -995,7 +995,6 @@ func (r *teamResolver) ViewerIsOwner(ctx context.Context, obj *model.Team) (bool
 
 // ViewerIsMember is the resolver for the viewerIsMember field.
 func (r *teamResolver) ViewerIsMember(ctx context.Context, obj *model.Team) (bool, error) {
-	// TODO: Extract to helper/util function for re-use
 	actor := authz.ActorFromContext(ctx)
 	u, err := r.database.GetTeamMember(ctx, obj.Slug, actor.User.GetID())
 	if err != nil {

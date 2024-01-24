@@ -3,8 +3,13 @@ package k8s
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/database"
+	sqlc "github.com/nais/api/internal/database/gensql"
 	"k8s.io/client-go/rest"
 	"strings"
 	"time"
@@ -29,6 +34,10 @@ import (
 
 type TeamChecker interface {
 	TeamExists(ctx context.Context, team slug.Slug) (bool, error)
+	GetActiveTeams(ctx context.Context) ([]*database.Team, error)
+	GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*database.User, error)
+	LoadReconcilerStateForTeam(ctx context.Context, reconcilerName sqlc.ReconcilerName, slug slug.Slug, state interface{}) error
+
 }
 
 type ClusterInformers map[string]*Informers
@@ -100,6 +109,7 @@ func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLog
 	// impersonationClientCreator is only nil when not using fake
 	var impersonationClientCreator impersonationClientCreator = nil
 	// s.clientsCreator is only nil when not using fake
+
 	if s.clientsCreator == nil {
 		restConfigs, err := CreateClusterConfigMap(tenant, cfg)
 		if err != nil {
@@ -107,16 +117,40 @@ func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLog
 		}
 
 		impersonationClientCreator = func(ctx context.Context) (map[string]kubernetes.Interface, error) {
-			user := authz.ActorFromContext(ctx).User
-			// TODO: authz.RequireUserIsMemberOfTeam
+			actor := authz.ActorFromContext(ctx)
 
+
+			teams, err := teamChecker.GetActiveTeams(ctx)
+			if err != nil {
+				return nil, err
+			}
+			filteredTeams := make([]*database.Team, 0)
+			for _, team := range teams {
+				_, err := teamChecker.GetTeamMember(ctx, team.Slug, actor.User.GetID())
+				if err != nil {
+					if errors.Is(err, pgx.ErrNoRows) {
+						continue
+					}
+					return nil, err
+				}
+				filteredTeams = append(filteredTeams, team)
+			}
 			groups := make([]string, 0)
-			// TODO: get all groups for the given user for impersonation config
-			//  - look up actual group name from database state for the google workspace reconciler (database.LoadReconcilerStateForTeam)
-			//  - can we get this from the GoogleWorkspaceState struct?
-			//  - fetch all teams for user
-			//  - for each team, look up state and get the group name
-			//  - construct fully qualified group name with the tenant domain
+
+			for _,fteam := range filteredTeams {
+				type googleState struct {
+					GroupEmail *string `json:"GroupEmail"`
+				}
+
+				gws := &googleState{}
+
+				err = teamChecker.LoadReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGoogleWorkspaceAdmin, fteam.Slug, gws)
+				if err != nil {
+					return nil, err
+				}
+
+				groups = append(groups, *gws.GroupEmail)
+			}
 
 			clientSets := make(map[string]kubernetes.Interface)
 			for _, cluster := range clusters(cfg) {
@@ -125,7 +159,7 @@ func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLog
 					return nil, fmt.Errorf("invalid cluster name %w", ok)
 				}
 				restConfig.Impersonate = rest.ImpersonationConfig{
-					UserName: user.Identity(),
+					UserName: actor.User.Identity(),
 					Groups:   groups,
 				}
 
