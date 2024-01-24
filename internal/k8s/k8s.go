@@ -146,6 +146,7 @@ func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLog
 
 				err = teamChecker.LoadReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGoogleWorkspaceAdmin, fteam.Slug, gws)
 				if err != nil {
+					// TODO: replace with continue when testing locally. (or fill in the postgres state with many jsons)
 					return nil, err
 				}
 
