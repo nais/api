@@ -40,33 +40,34 @@ func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecre
 
 	for env, clientSet := range impersonatedClients {
 		secrets := make([]model.Secret, 0)
-		kubeSecrets, err := clientSet.CoreV1().Secrets(namespace).List(ctx, metav1.ListOptions{})
-
+		kubeSecrets, err := clientSet.CoreV1().Secrets(namespace).List(ctx, metav1.ListOptions{
+			LabelSelector: fmt.Sprintf("%s=%s", secretLabelKey, secretLabelVal),
+		})
 		if err != nil {
 			return nil, c.error(ctx, err, "listing secrets")
 		}
 
-		objs, err := c.informers[env].AppInformer.Lister().ByNamespace(team.String()).List(labels.Everything())
+		// fetch apps to build map of apps that use each secret
+		apps, err := c.informers[env].AppInformer.Lister().ByNamespace(team.String()).List(labels.Everything())
 		if err != nil {
 			return nil, c.error(ctx, err, fmt.Sprintf("getting application %s.%s", env, team))
 		}
 
 		// we want a map: Secret -> [App]
 		appsForSecrets := make(map[string][]string)
-		for _ ,obj := range objs {
-		    u := obj.(*unstructured.Unstructured)
+		for _, obj := range apps {
+			u := obj.(*unstructured.Unstructured)
 			app := &naisv1alpha1.Application{}
 
 			if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, app); err != nil {
 				return nil, fmt.Errorf("converting to application: %w", err)
 			}
 
- 			for _, secret := range app.Spec.EnvFrom {
-
+			for _, secret := range app.Spec.EnvFrom {
 				as, ok := appsForSecrets[secret.Secret]
 				if !ok {
 					appsForSecrets[secret.Secret] = []string{app.Name}
-				} else  {
+				} else {
 					appsForSecrets[secret.Secret] = append(as, app.Name)
 				}
 			}
@@ -75,13 +76,22 @@ func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecre
 				as, ok := appsForSecrets[secret.Secret]
 				if !ok {
 					appsForSecrets[secret.Secret] = []string{app.Name}
-				} else  {
+				} else {
 					appsForSecrets[secret.Secret] = append(as, app.Name)
 				}
 			}
 		}
 
 		for _, obj := range kubeSecrets.Items {
+			isOpaque := obj.Type == corev1.SecretTypeOpaque || obj.Type == "kubernetes.io/Opaque"
+			typeLabel, ok := obj.GetLabels()["type"]
+			if len(obj.GetOwnerReferences()) > 0 ||
+				len(obj.GetFinalizers()) > 0 ||
+				isOpaque ||
+				(ok && typeLabel == "jwker.nais.io") {
+				continue
+			}
+
 			as, ok := appsForSecrets[obj.Name]
 			if !ok {
 				as = make([]string, 0)
@@ -98,6 +108,7 @@ func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecre
 	return ret, nil
 }
 
+// Secret doesnt actually work right now. TODO: fix it.
 func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env string) (*model.Secret, error) {
 
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
@@ -202,7 +213,6 @@ func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, 
 }
 
 func (c *Client) DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) (bool, error) {
-
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
 	if err != nil {
 		return false, c.error(ctx, err, "impersonation")
