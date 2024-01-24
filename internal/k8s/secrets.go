@@ -4,11 +4,13 @@ import (
 	"cmp"
 	"context"
 	"fmt"
+	"github.com/nais/api/internal/auth/authz"
 	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"slices"
+	"time"
 
 	"github.com/nais/api/internal/slug"
 
@@ -19,8 +21,10 @@ import (
 )
 
 const (
-	consoleSecretLabelKey = "nais.io/managed-by"
-	consoleSecretLabelVal = "console"
+	secretLabelKey                    = "nais.io/managed-by"
+	secretLabelVal                    = "console"
+	secretAnnotationLastModifiedByKey = "console.nais.io/last-modified-by"
+	secretAnnotationLastModifiedAtKey = "console.nais.io/last-modified-at"
 )
 
 // TODO: implement impersonation
@@ -129,16 +133,29 @@ func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, 
 		return nil, fmt.Errorf("no clientset for env %q", env)
 	}
 
-	created, err := cli.CoreV1().Secrets(namespace).Create(ctx, kubeSecret(name, namespace, data), metav1.CreateOptions{})
+	user := authz.ActorFromContext(ctx).User.Identity()
+
+	meta := metav1.ObjectMeta{
+		Name:      name,
+		Namespace: namespace,
+		Annotations: map[string]string{
+			secretAnnotationLastModifiedByKey: user,
+			secretAnnotationLastModifiedAtKey: time.Now().Format(time.RFC3339),
+		},
+		Labels: map[string]string{
+			secretLabelKey: secretLabelVal,
+		},
+	}
+
+	created, err := cli.CoreV1().Secrets(namespace).Create(ctx, kubeSecret(meta, data), metav1.CreateOptions{})
 	if err != nil {
 		return nil, c.error(ctx, err, "creating secret")
 	}
 
-	return toGraphSecret(env, created, make([]string,0)), nil
+	return toGraphSecret(env, created, make([]string, 0)), nil
 }
 
 func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
-
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
 	if err != nil {
 		return nil, c.error(ctx, err, "impersonation")
@@ -149,7 +166,35 @@ func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, 
 	if !ok {
 		return nil, fmt.Errorf("no clientset for env %q", env)
 	}
-	updated, err := cli.CoreV1().Secrets(namespace).Update(ctx, kubeSecret(name, namespace, data), metav1.UpdateOptions{})
+
+	existing, err := cli.CoreV1().Secrets(namespace).Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		return nil, c.error(ctx, err, "getting secret")
+	}
+
+	user := authz.ActorFromContext(ctx).User.Identity()
+
+	annotations := existing.GetAnnotations()
+	if annotations == nil {
+		annotations = make(map[string]string)
+	}
+	annotations[secretAnnotationLastModifiedByKey] = user
+	annotations[secretAnnotationLastModifiedAtKey] = time.Now().Format(time.RFC3339)
+
+	metaLabels := existing.GetLabels()
+	if metaLabels == nil {
+		metaLabels = make(map[string]string)
+	}
+	metaLabels[secretLabelKey] = secretLabelVal
+
+	meta := metav1.ObjectMeta{
+		Name:        name,
+		Namespace:   namespace,
+		Annotations: annotations,
+		Labels:      metaLabels,
+	}
+
+	updated, err := cli.CoreV1().Secrets(namespace).Update(ctx, kubeSecret(meta, data), metav1.UpdateOptions{})
 	if err != nil {
 		return nil, c.error(ctx, err, "updating secret")
 	}
@@ -177,16 +222,11 @@ func (c *Client) DeleteSecret(ctx context.Context, name string, team slug.Slug, 
 	return true, nil
 }
 
-func kubeSecret(name, namespace string, data []*model.SecretTupleInput) *corev1.Secret {
+func kubeSecret(meta metav1.ObjectMeta, data []*model.SecretTupleInput) *corev1.Secret {
 	return &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: namespace,
-			Labels: map[string]string{
-				consoleSecretLabelKey: consoleSecretLabelVal,
-			},
-		},
-		Data: secretTupleToMap(data),
+		ObjectMeta: meta,
+		Data:       secretTupleToMap(data),
+		Type:       corev1.SecretTypeOpaque,
 	}
 }
 
