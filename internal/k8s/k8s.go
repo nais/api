@@ -37,7 +37,6 @@ type TeamChecker interface {
 	GetActiveTeams(ctx context.Context) ([]*database.Team, error)
 	GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*database.User, error)
 	LoadReconcilerStateForTeam(ctx context.Context, reconcilerName sqlc.ReconcilerName, slug slug.Slug, state interface{}) error
-
 }
 
 type ClusterInformers map[string]*Informers
@@ -109,7 +108,6 @@ func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLog
 	// impersonationClientCreator is only nil when not using fake
 	var impersonationClientCreator impersonationClientCreator = nil
 	// s.clientsCreator is only nil when not using fake
-
 	if s.clientsCreator == nil {
 		restConfigs, err := CreateClusterConfigMap(tenant, cfg)
 		if err != nil {
@@ -119,7 +117,7 @@ func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLog
 		impersonationClientCreator = func(ctx context.Context) (map[string]kubernetes.Interface, error) {
 			actor := authz.ActorFromContext(ctx)
 
-
+			// TODO: replace with db.GetUserTeams()
 			teams, err := teamChecker.GetActiveTeams(ctx)
 			if err != nil {
 				return nil, err
@@ -135,15 +133,15 @@ func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLog
 				}
 				filteredTeams = append(filteredTeams, team)
 			}
-			groups := make([]string, 0)
 
-			for _,fteam := range filteredTeams {
+			groups := make([]string, 0)
+			// TODO: at some point, the groupEmail will be available in the Team struct instead
+			for _, fteam := range filteredTeams {
 				type googleState struct {
 					GroupEmail *string `json:"GroupEmail"`
 				}
 
 				gws := &googleState{}
-
 				err = teamChecker.LoadReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGoogleWorkspaceAdmin, fteam.Slug, gws)
 				if err != nil {
 					// TODO: replace with continue when testing locally. (or fill in the postgres state with many jsons)
@@ -159,6 +157,7 @@ func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLog
 				if !ok {
 					return nil, fmt.Errorf("invalid cluster name %w", ok)
 				}
+
 				restConfig.Impersonate = rest.ImpersonationConfig{
 					UserName: actor.User.Identity(),
 					Groups:   groups,
@@ -170,6 +169,7 @@ func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLog
 				}
 				clientSets[cluster] = clientSet
 			}
+
 			return clientSets, nil
 		}
 
@@ -226,6 +226,7 @@ func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLog
 	}
 
 	if impersonationClientCreator == nil {
+		log.Warnf("impersonation not configured; using default clientSets")
 		impersonationClientCreator = func(ctx context.Context) (map[string]kubernetes.Interface, error) {
 			return clientSets, nil
 		}

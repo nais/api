@@ -134,7 +134,8 @@ func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env st
 }
 
 func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
-
+	// TODO: validate that the secret doesn't already exist
+	// TODO: validate the secret name
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
 	if err != nil {
 		return nil, c.error(ctx, err, "impersonation")
@@ -169,6 +170,7 @@ func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, 
 }
 
 func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
+	// TODO: validate that the secret we're updating is managed by console
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
 	if err != nil {
 		return nil, c.error(ctx, err, "impersonation")
@@ -215,6 +217,7 @@ func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, 
 }
 
 func (c *Client) DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) (bool, error) {
+	// TODO: validate that the secret we're deleting is managed by console
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
 	if err != nil {
 		return false, c.error(ctx, err, "impersonation")
