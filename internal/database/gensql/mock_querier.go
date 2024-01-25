@@ -4251,9 +4251,9 @@ func (_c *MockQuerier_GetUserRolesForUsers_Call) RunAndReturn(run func(context.C
 	return _c
 }
 
-// GetUserTeams provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) GetUserTeams(ctx context.Context, arg GetUserTeamsParams) ([]*GetUserTeamsRow, error) {
-	ret := _m.Called(ctx, arg)
+// GetUserTeams provides a mock function with given fields: ctx, userID
+func (_m *MockQuerier) GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*GetUserTeamsRow, error) {
+	ret := _m.Called(ctx, userID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserTeams")
@@ -4261,19 +4261,19 @@ func (_m *MockQuerier) GetUserTeams(ctx context.Context, arg GetUserTeamsParams)
 
 	var r0 []*GetUserTeamsRow
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, GetUserTeamsParams) ([]*GetUserTeamsRow, error)); ok {
-		return rf(ctx, arg)
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) ([]*GetUserTeamsRow, error)); ok {
+		return rf(ctx, userID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, GetUserTeamsParams) []*GetUserTeamsRow); ok {
-		r0 = rf(ctx, arg)
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) []*GetUserTeamsRow); ok {
+		r0 = rf(ctx, userID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*GetUserTeamsRow)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, GetUserTeamsParams) error); ok {
-		r1 = rf(ctx, arg)
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = rf(ctx, userID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -4288,14 +4288,14 @@ type MockQuerier_GetUserTeams_Call struct {
 
 // GetUserTeams is a helper method to define mock.On call
 //   - ctx context.Context
-//   - arg GetUserTeamsParams
-func (_e *MockQuerier_Expecter) GetUserTeams(ctx interface{}, arg interface{}) *MockQuerier_GetUserTeams_Call {
-	return &MockQuerier_GetUserTeams_Call{Call: _e.mock.On("GetUserTeams", ctx, arg)}
+//   - userID uuid.UUID
+func (_e *MockQuerier_Expecter) GetUserTeams(ctx interface{}, userID interface{}) *MockQuerier_GetUserTeams_Call {
+	return &MockQuerier_GetUserTeams_Call{Call: _e.mock.On("GetUserTeams", ctx, userID)}
 }
 
-func (_c *MockQuerier_GetUserTeams_Call) Run(run func(ctx context.Context, arg GetUserTeamsParams)) *MockQuerier_GetUserTeams_Call {
+func (_c *MockQuerier_GetUserTeams_Call) Run(run func(ctx context.Context, userID uuid.UUID)) *MockQuerier_GetUserTeams_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(GetUserTeamsParams))
+		run(args[0].(context.Context), args[1].(uuid.UUID))
 	})
 	return _c
 }
@@ -4305,7 +4305,7 @@ func (_c *MockQuerier_GetUserTeams_Call) Return(_a0 []*GetUserTeamsRow, _a1 erro
 	return _c
 }
 
-func (_c *MockQuerier_GetUserTeams_Call) RunAndReturn(run func(context.Context, GetUserTeamsParams) ([]*GetUserTeamsRow, error)) *MockQuerier_GetUserTeams_Call {
+func (_c *MockQuerier_GetUserTeams_Call) RunAndReturn(run func(context.Context, uuid.UUID) ([]*GetUserTeamsRow, error)) *MockQuerier_GetUserTeams_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4363,6 +4363,65 @@ func (_c *MockQuerier_GetUserTeamsCount_Call) Return(_a0 int64, _a1 error) *Mock
 }
 
 func (_c *MockQuerier_GetUserTeamsCount_Call) RunAndReturn(run func(context.Context, uuid.UUID) (int64, error)) *MockQuerier_GetUserTeamsCount_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetUserTeamsPaginated provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetUserTeamsPaginated(ctx context.Context, arg GetUserTeamsPaginatedParams) ([]*GetUserTeamsPaginatedRow, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUserTeamsPaginated")
+	}
+
+	var r0 []*GetUserTeamsPaginatedRow
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, GetUserTeamsPaginatedParams) ([]*GetUserTeamsPaginatedRow, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, GetUserTeamsPaginatedParams) []*GetUserTeamsPaginatedRow); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*GetUserTeamsPaginatedRow)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, GetUserTeamsPaginatedParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetUserTeamsPaginated_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUserTeamsPaginated'
+type MockQuerier_GetUserTeamsPaginated_Call struct {
+	*mock.Call
+}
+
+// GetUserTeamsPaginated is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg GetUserTeamsPaginatedParams
+func (_e *MockQuerier_Expecter) GetUserTeamsPaginated(ctx interface{}, arg interface{}) *MockQuerier_GetUserTeamsPaginated_Call {
+	return &MockQuerier_GetUserTeamsPaginated_Call{Call: _e.mock.On("GetUserTeamsPaginated", ctx, arg)}
+}
+
+func (_c *MockQuerier_GetUserTeamsPaginated_Call) Run(run func(ctx context.Context, arg GetUserTeamsPaginatedParams)) *MockQuerier_GetUserTeamsPaginated_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(GetUserTeamsPaginatedParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetUserTeamsPaginated_Call) Return(_a0 []*GetUserTeamsPaginatedRow, _a1 error) *MockQuerier_GetUserTeamsPaginated_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetUserTeamsPaginated_Call) RunAndReturn(run func(context.Context, GetUserTeamsPaginatedParams) ([]*GetUserTeamsPaginatedRow, error)) *MockQuerier_GetUserTeamsPaginated_Call {
 	_c.Call.Return(run)
 	return _c
 }

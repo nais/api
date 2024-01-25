@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
@@ -42,12 +43,12 @@ func (r *queryResolver) Secret(ctx context.Context, name string, team slug.Slug,
 }
 
 // Env is the resolver for the env field.
-func (r *secretResolver) Env(_ context.Context, obj *model.Secret) (*model.Env, error) {
+func (r *secretResolver) Env(ctx context.Context, obj *model.Secret) (*model.Env, error) {
 	return &model.Env{Name: obj.GQLVars.Env}, nil
 }
 
 // Data is the resolver for the data field.
-func (r *secretResolver) Data(_ context.Context, obj *model.Secret) ([]*model.SecretTuple, error) {
+func (r *secretResolver) Data(ctx context.Context, obj *model.Secret) ([]*model.SecretTuple, error) {
 	return convertSecretDataToTuple(obj.Data), nil
 }
 

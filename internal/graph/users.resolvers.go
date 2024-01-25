@@ -120,8 +120,7 @@ func (r *userResolver) Teams(ctx context.Context, obj *model.User, limit *int, o
 		return nil, err
 	}
 	p := model.NewPagination(offset, limit)
-
-	userTeams, totalCount, err := r.database.GetUserTeams(ctx, obj.ID, database.Page{
+	userTeams, totalCount, err := r.database.GetUserTeamsPaginated(ctx, obj.ID, database.Page{
 		Limit:  p.Limit,
 		Offset: p.Offset,
 	})

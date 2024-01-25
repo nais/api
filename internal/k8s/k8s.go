@@ -5,18 +5,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
-	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/database"
-	sqlc "github.com/nais/api/internal/database/gensql"
-	"k8s.io/client-go/rest"
 	"strings"
 	"time"
 
-	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/search"
-	"github.com/nais/api/internal/slug"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
+	"k8s.io/client-go/rest"
+
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/database"
+
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	naisv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
@@ -30,13 +28,16 @@ import (
 	batchv1inf "k8s.io/client-go/informers/batch/v1"
 	corev1inf "k8s.io/client-go/informers/core/v1"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/search"
+	"github.com/nais/api/internal/slug"
 )
 
 type TeamChecker interface {
 	TeamExists(ctx context.Context, team slug.Slug) (bool, error)
 	GetActiveTeams(ctx context.Context) ([]*database.Team, error)
 	GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*database.User, error)
-	LoadReconcilerStateForTeam(ctx context.Context, reconcilerName sqlc.ReconcilerName, slug slug.Slug, state interface{}) error
 }
 
 type ClusterInformers map[string]*Informers
@@ -135,20 +136,8 @@ func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLog
 			}
 
 			groups := make([]string, 0)
-			// TODO: at some point, the groupEmail will be available in the Team struct instead
 			for _, fteam := range filteredTeams {
-				type googleState struct {
-					GroupEmail *string `json:"GroupEmail"`
-				}
-
-				gws := &googleState{}
-				err = teamChecker.LoadReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGoogleWorkspaceAdmin, fteam.Slug, gws)
-				if err != nil {
-					// TODO: replace with continue when testing locally. (or fill in the postgres state with many jsons)
-					return nil, err
-				}
-
-				groups = append(groups, *gws.GroupEmail)
+				groups = append(groups, *fteam.GoogleGroupEmail)
 			}
 
 			clientSets := make(map[string]kubernetes.Interface)

@@ -3983,12 +3983,71 @@ func (_c *MockDatabase_GetUserRolesForUsers_Call) RunAndReturn(run func(context.
 	return _c
 }
 
-// GetUserTeams provides a mock function with given fields: ctx, userID, p
-func (_m *MockDatabase) GetUserTeams(ctx context.Context, userID uuid.UUID, p Page) ([]*UserTeam, int, error) {
-	ret := _m.Called(ctx, userID, p)
+// GetUserTeams provides a mock function with given fields: ctx, userID
+func (_m *MockDatabase) GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*UserTeam, error) {
+	ret := _m.Called(ctx, userID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserTeams")
+	}
+
+	var r0 []*UserTeam
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) ([]*UserTeam, error)); ok {
+		return rf(ctx, userID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) []*UserTeam); ok {
+		r0 = rf(ctx, userID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*UserTeam)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = rf(ctx, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockDatabase_GetUserTeams_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUserTeams'
+type MockDatabase_GetUserTeams_Call struct {
+	*mock.Call
+}
+
+// GetUserTeams is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID uuid.UUID
+func (_e *MockDatabase_Expecter) GetUserTeams(ctx interface{}, userID interface{}) *MockDatabase_GetUserTeams_Call {
+	return &MockDatabase_GetUserTeams_Call{Call: _e.mock.On("GetUserTeams", ctx, userID)}
+}
+
+func (_c *MockDatabase_GetUserTeams_Call) Run(run func(ctx context.Context, userID uuid.UUID)) *MockDatabase_GetUserTeams_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_GetUserTeams_Call) Return(_a0 []*UserTeam, _a1 error) *MockDatabase_GetUserTeams_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockDatabase_GetUserTeams_Call) RunAndReturn(run func(context.Context, uuid.UUID) ([]*UserTeam, error)) *MockDatabase_GetUserTeams_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetUserTeamsPaginated provides a mock function with given fields: ctx, userID, p
+func (_m *MockDatabase) GetUserTeamsPaginated(ctx context.Context, userID uuid.UUID, p Page) ([]*UserTeam, int, error) {
+	ret := _m.Called(ctx, userID, p)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUserTeamsPaginated")
 	}
 
 	var r0 []*UserTeam
@@ -4020,32 +4079,32 @@ func (_m *MockDatabase) GetUserTeams(ctx context.Context, userID uuid.UUID, p Pa
 	return r0, r1, r2
 }
 
-// MockDatabase_GetUserTeams_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUserTeams'
-type MockDatabase_GetUserTeams_Call struct {
+// MockDatabase_GetUserTeamsPaginated_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUserTeamsPaginated'
+type MockDatabase_GetUserTeamsPaginated_Call struct {
 	*mock.Call
 }
 
-// GetUserTeams is a helper method to define mock.On call
+// GetUserTeamsPaginated is a helper method to define mock.On call
 //   - ctx context.Context
 //   - userID uuid.UUID
 //   - p Page
-func (_e *MockDatabase_Expecter) GetUserTeams(ctx interface{}, userID interface{}, p interface{}) *MockDatabase_GetUserTeams_Call {
-	return &MockDatabase_GetUserTeams_Call{Call: _e.mock.On("GetUserTeams", ctx, userID, p)}
+func (_e *MockDatabase_Expecter) GetUserTeamsPaginated(ctx interface{}, userID interface{}, p interface{}) *MockDatabase_GetUserTeamsPaginated_Call {
+	return &MockDatabase_GetUserTeamsPaginated_Call{Call: _e.mock.On("GetUserTeamsPaginated", ctx, userID, p)}
 }
 
-func (_c *MockDatabase_GetUserTeams_Call) Run(run func(ctx context.Context, userID uuid.UUID, p Page)) *MockDatabase_GetUserTeams_Call {
+func (_c *MockDatabase_GetUserTeamsPaginated_Call) Run(run func(ctx context.Context, userID uuid.UUID, p Page)) *MockDatabase_GetUserTeamsPaginated_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(Page))
 	})
 	return _c
 }
 
-func (_c *MockDatabase_GetUserTeams_Call) Return(_a0 []*UserTeam, _a1 int, _a2 error) *MockDatabase_GetUserTeams_Call {
+func (_c *MockDatabase_GetUserTeamsPaginated_Call) Return(_a0 []*UserTeam, _a1 int, _a2 error) *MockDatabase_GetUserTeamsPaginated_Call {
 	_c.Call.Return(_a0, _a1, _a2)
 	return _c
 }
 
-func (_c *MockDatabase_GetUserTeams_Call) RunAndReturn(run func(context.Context, uuid.UUID, Page) ([]*UserTeam, int, error)) *MockDatabase_GetUserTeams_Call {
+func (_c *MockDatabase_GetUserTeamsPaginated_Call) RunAndReturn(run func(context.Context, uuid.UUID, Page) ([]*UserTeam, int, error)) *MockDatabase_GetUserTeamsPaginated_Call {
 	_c.Call.Return(run)
 	return _c
 }

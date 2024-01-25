@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 )
@@ -48,7 +49,9 @@ type TeamRepo interface {
 	GetTeams(ctx context.Context, p Page) ([]*Team, int, error)
 	GetTeamsBySlugs(ctx context.Context, teamSlugs []slug.Slug) ([]*Team, error)
 	GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string, p Page) ([]*Team, int, error)
-	GetUserTeams(ctx context.Context, userID uuid.UUID, p Page) ([]*UserTeam, int, error)
+	GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*UserTeam, error)
+	GetUserTeamsPaginated(ctx context.Context, userID uuid.UUID, p Page) ([]*UserTeam, int, error)
+	RemoveSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string) error
 	RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error
 	SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*gensql.Team, error)
 	SetLastSuccessfulSyncForTeam(ctx context.Context, teamSlug slug.Slug) error
@@ -220,8 +223,22 @@ func (d *database) GetActiveTeams(ctx context.Context) ([]*Team, error) {
 	return collection, nil
 }
 
-func (d *database) GetUserTeams(ctx context.Context, userID uuid.UUID, p Page) ([]*UserTeam, int, error) {
-	rows, err := d.querier.GetUserTeams(ctx, gensql.GetUserTeamsParams{
+func (d *database) GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*UserTeam, error) {
+	rows, err := d.querier.GetUserTeams(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	teams := make([]*UserTeam, 0)
+	for _, row := range rows {
+		teams = append(teams, &UserTeam{Team: &row.Team, RoleName: row.RoleName})
+	}
+
+	return teams, nil
+}
+
+func (d *database) GetUserTeamsPaginated(ctx context.Context, userID uuid.UUID, p Page) ([]*UserTeam, int, error) {
+	rows, err := d.querier.GetUserTeamsPaginated(ctx, gensql.GetUserTeamsPaginatedParams{
 		UserID: userID,
 		Offset: int32(p.Offset),
 		Limit:  int32(p.Limit),
