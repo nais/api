@@ -122,6 +122,20 @@ func RequireTeamAuthorization(actor *Actor, requiredAuthzName roles.Authorizatio
 	return authorized(authorizations, requiredAuthzName)
 }
 
+func RequireTeamRole(actor *Actor, targetTeamSlug slug.Slug, requiredRoleName sqlc.RoleName) error {
+	if !actor.Authenticated() {
+		return ErrNotAuthenticated
+	}
+
+	for _, role := range actor.Roles {
+		if role.TargetsTeam(targetTeamSlug) && role.RoleName == requiredRoleName {
+			return nil
+		}
+	}
+
+	return ErrMissingRole{role: string(requiredRoleName)}
+}
+
 // authorized Check if one of the authorizations in the map matches the required authorization.
 func authorized(authorizations map[roles.Authorization]struct{}, requiredAuthzName roles.Authorization) error {
 	for authorization := range authorizations {

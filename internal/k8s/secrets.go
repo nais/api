@@ -27,9 +27,6 @@ const (
 	secretAnnotationLastModifiedAtKey = "console.nais.io/last-modified-at"
 )
 
-// TODO: implement impersonation
-//  authorization: check that requesting user has access to the requested team?
-
 func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecret, error) {
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
 	if err != nil {
