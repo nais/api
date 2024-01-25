@@ -77,6 +77,8 @@ type Querier interface {
 	GetSlackAlertsChannels(ctx context.Context, teamSlug slug.Slug) ([]*SlackAlertsChannel, error)
 	GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
+	GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, offset int32, limit int32) ([]*TeamEnvironment, error)
+	GetTeamEnvironmentsCount(ctx context.Context, teamSlug slug.Slug) (int64, error)
 	GetTeamMember(ctx context.Context, teamSlug *slug.Slug, userID uuid.UUID) (*User, error)
 	GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*GetTeamMemberOptOutsRow, error)
 	GetTeamMembers(ctx context.Context, teamSlug *slug.Slug, offset int32, limit int32) ([]*User, error)

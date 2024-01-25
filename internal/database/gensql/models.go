@@ -313,6 +313,14 @@ type TeamDeleteKey struct {
 	ConfirmedAt pgtype.Timestamptz
 }
 
+type TeamEnvironment struct {
+	ID           uuid.UUID
+	TeamSlug     slug.Slug
+	Environment  string
+	Namespace    *string
+	GcpProjectID *string
+}
+
 type User struct {
 	ID         uuid.UUID
 	Email      string

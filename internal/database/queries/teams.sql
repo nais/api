@@ -21,9 +21,22 @@ ORDER BY teams.slug ASC;
 -- name: GetTeamsCount :one
 SELECT COUNT(*) as total FROM teams;
 
+-- name: GetTeamEnvironments :many
+SELECT team_environments.*
+FROM team_environments
+WHERE team_environments.team_slug = @team_slug
+ORDER BY team_environments.environment ASC
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
+-- name: GetTeamEnvironmentsCount :one
+SELECT COUNT(*) as total
+FROM team_environments
+WHERE team_slug = @team_slug;
+
 -- name: GetTeamsPaginated :many
 SELECT teams.* FROM teams
-ORDER BY teams.slug ASC LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+ORDER BY teams.slug ASC
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
 -- name: GetActiveTeamBySlug :one
 SELECT teams.* FROM teams

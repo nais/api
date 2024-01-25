@@ -179,6 +179,15 @@ CREATE TABLE teams (
     CHECK ((slack_channel ~ '^#[a-z0-9æøå_-]{2,80}$'::text))
 );
 
+CREATE TABLE team_environments (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    team_slug slug NOT NULL,
+    environment text NOT NULL,
+    namespace text,
+    gcp_project_id text,
+    UNIQUE(team_slug, environment)
+);
+
 CREATE TABLE user_roles (
     id SERIAL,
     role_name role_name NOT NULL,
@@ -249,6 +258,9 @@ ADD FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
 ALTER TABLE team_delete_keys
 ADD FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE,
+ADD FOREIGN KEY (team_slug) REFERENCES teams(slug) ON DELETE CASCADE;
+
+ALTER TABLE team_environments
 ADD FOREIGN KEY (team_slug) REFERENCES teams(slug) ON DELETE CASCADE;
 
 ALTER TABLE user_roles

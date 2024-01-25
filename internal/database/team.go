@@ -23,6 +23,7 @@ type TeamRepo interface {
 	GetSlackAlertsChannels(ctx context.Context, teamSlug slug.Slug) (map[string]string, error)
 	GetTeamBySlug(ctx context.Context, slug slug.Slug) (*Team, error)
 	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
+	GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, offset, limit int) ([]*TeamEnvironment, int, error)
 	GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*User, error)
 	GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*gensql.GetTeamMemberOptOutsRow, error)
 	GetTeamMembers(ctx context.Context, teamSlug slug.Slug, offset, limit int) ([]*User, int, error)
@@ -38,6 +39,10 @@ type TeamRepo interface {
 	SetSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment, channelName string) error
 	TeamExists(ctx context.Context, team slug.Slug) (bool, error)
 	UpdateTeam(ctx context.Context, teamSlug slug.Slug, purpose, slackChannel *string) (*Team, error)
+}
+
+type TeamEnvironment struct {
+	*gensql.TeamEnvironment
 }
 
 type TeamDeleteKey struct {
@@ -129,6 +134,25 @@ func (d *database) GetAllTeams(ctx context.Context) ([]*Team, error) {
 	}
 
 	return collection, nil
+}
+
+func (d *database) GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, offset, limit int) ([]*TeamEnvironment, int, error) {
+	rows, err := d.querier.GetTeamEnvironments(ctx, teamSlug, int32(offset), int32(limit))
+	if err != nil {
+		return nil, 0, err
+	}
+
+	envs := make([]*TeamEnvironment, len(rows))
+	for i, row := range rows {
+		envs[i] = &TeamEnvironment{TeamEnvironment: row}
+	}
+
+	total, err := d.querier.GetTeamEnvironmentsCount(ctx, teamSlug)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return envs, int(total), nil
 }
 
 func (d *database) GetActiveTeams(ctx context.Context) ([]*Team, error) {

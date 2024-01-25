@@ -230,6 +230,53 @@ func (q *Queries) GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDel
 	return &i, err
 }
 
+const getTeamEnvironments = `-- name: GetTeamEnvironments :many
+SELECT team_environments.id, team_environments.team_slug, team_environments.environment, team_environments.namespace, team_environments.gcp_project_id
+FROM team_environments
+WHERE team_environments.team_slug = $1
+ORDER BY team_environments.environment ASC
+LIMIT $3 OFFSET $2
+`
+
+func (q *Queries) GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, offset int32, limit int32) ([]*TeamEnvironment, error) {
+	rows, err := q.db.Query(ctx, getTeamEnvironments, teamSlug, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*TeamEnvironment{}
+	for rows.Next() {
+		var i TeamEnvironment
+		if err := rows.Scan(
+			&i.ID,
+			&i.TeamSlug,
+			&i.Environment,
+			&i.Namespace,
+			&i.GcpProjectID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTeamEnvironmentsCount = `-- name: GetTeamEnvironmentsCount :one
+SELECT COUNT(*) as total
+FROM team_environments
+WHERE team_slug = $1
+`
+
+func (q *Queries) GetTeamEnvironmentsCount(ctx context.Context, teamSlug slug.Slug) (int64, error) {
+	row := q.db.QueryRow(ctx, getTeamEnvironmentsCount, teamSlug)
+	var total int64
+	err := row.Scan(&total)
+	return total, err
+}
+
 const getTeamMember = `-- name: GetTeamMember :one
 SELECT users.id, users.email, users.name, users.external_id FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
@@ -418,7 +465,8 @@ func (q *Queries) GetTeamsCount(ctx context.Context) (int64, error) {
 
 const getTeamsPaginated = `-- name: GetTeamsPaginated :many
 SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email FROM teams
-ORDER BY teams.slug ASC LIMIT $2 OFFSET $1
+ORDER BY teams.slug ASC
+LIMIT $2 OFFSET $1
 `
 
 func (q *Queries) GetTeamsPaginated(ctx context.Context, offset int32, limit int32) ([]*Team, error) {
