@@ -9,6 +9,7 @@ message Team {
   string slug = 1;
   string purpose = 2;
   string slack_channel = 3;
+  string google_group_email = 4;
 }
 
 service Teams {
@@ -16,7 +17,15 @@ service Teams {
   rpc List(ListTeamsRequest) returns (ListTeamsResponse) {}
   rpc Members(ListTeamMembersRequest) returns (ListTeamMembersResponse) {}
   rpc SlackAlertsChannels(SlackAlertsChannelsRequest) returns (SlackAlertsChannelsResponse) {}
+  rpc SetGoogleGroupEmailForTeam(SetGoogleGroupEmailForTeamRequest) returns (SetGoogleGroupEmailForTeamResponse) {}
 }
+
+message SetGoogleGroupEmailForTeamRequest {
+  string slug = 1;
+  string google_group_email = 2;
+}
+
+message SetGoogleGroupEmailForTeamResponse{}
 
 message GetTeamResponse {
   Team team = 1;

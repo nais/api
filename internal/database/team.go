@@ -33,6 +33,7 @@ type TeamRepo interface {
 	RemoveSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string) error
 	RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error
 	SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*gensql.Team, error)
+	SetGoogleGroupEmailForTeam(ctx context.Context, teamSlug slug.Slug, email string) error
 	SetLastSuccessfulSyncForTeam(ctx context.Context, teamSlug slug.Slug) error
 	SetSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment, channelName string) error
 	TeamExists(ctx context.Context, team slug.Slug) (bool, error)
@@ -319,4 +320,8 @@ func (d *database) SearchTeams(ctx context.Context, slugMatch string, limit int3
 
 func (d *database) TeamExists(ctx context.Context, team slug.Slug) (bool, error) {
 	return d.querier.TeamExists(ctx, team)
+}
+
+func (d *database) SetGoogleGroupEmailForTeam(ctx context.Context, teamSlug slug.Slug, email string) error {
+	return d.querier.SetGoogleGroupEmailForTeam(ctx, email, teamSlug)
 }

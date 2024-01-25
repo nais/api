@@ -89,6 +89,11 @@ SET purpose = COALESCE(sqlc.narg(purpose), purpose),
 WHERE slug = @slug
 RETURNING *;
 
+-- name: SetGoogleGroupEmailForTeam :exec
+UPDATE teams
+SET google_group_email = @google_group_email::text
+WHERE slug = @slug;
+
 -- name: RemoveUserFromTeam :exec
 DELETE FROM user_roles
 WHERE user_id = @user_id AND target_team_slug = @team_slug;

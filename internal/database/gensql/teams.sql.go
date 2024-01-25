@@ -501,6 +501,17 @@ func (q *Queries) SearchTeams(ctx context.Context, slugMatch string, limit int32
 	return items, nil
 }
 
+const setGoogleGroupEmailForTeam = `-- name: SetGoogleGroupEmailForTeam :exec
+UPDATE teams
+SET google_group_email = $1::text
+WHERE slug = $2
+`
+
+func (q *Queries) SetGoogleGroupEmailForTeam(ctx context.Context, googleGroupEmail string, slug slug.Slug) error {
+	_, err := q.db.Exec(ctx, setGoogleGroupEmailForTeam, googleGroupEmail, slug)
+	return err
+}
+
 const setLastSuccessfulSyncForTeam = `-- name: SetLastSuccessfulSyncForTeam :exec
 UPDATE teams SET last_successful_sync = NOW()
 WHERE slug = $1

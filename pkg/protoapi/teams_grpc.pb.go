@@ -19,10 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Teams_Get_FullMethodName                 = "/Teams/Get"
-	Teams_List_FullMethodName                = "/Teams/List"
-	Teams_Members_FullMethodName             = "/Teams/Members"
-	Teams_SlackAlertsChannels_FullMethodName = "/Teams/SlackAlertsChannels"
+	Teams_Get_FullMethodName                        = "/Teams/Get"
+	Teams_List_FullMethodName                       = "/Teams/List"
+	Teams_Members_FullMethodName                    = "/Teams/Members"
+	Teams_SlackAlertsChannels_FullMethodName        = "/Teams/SlackAlertsChannels"
+	Teams_SetGoogleGroupEmailForTeam_FullMethodName = "/Teams/SetGoogleGroupEmailForTeam"
 )
 
 // TeamsClient is the client API for Teams service.
@@ -33,6 +34,7 @@ type TeamsClient interface {
 	List(ctx context.Context, in *ListTeamsRequest, opts ...grpc.CallOption) (*ListTeamsResponse, error)
 	Members(ctx context.Context, in *ListTeamMembersRequest, opts ...grpc.CallOption) (*ListTeamMembersResponse, error)
 	SlackAlertsChannels(ctx context.Context, in *SlackAlertsChannelsRequest, opts ...grpc.CallOption) (*SlackAlertsChannelsResponse, error)
+	SetGoogleGroupEmailForTeam(ctx context.Context, in *SetGoogleGroupEmailForTeamRequest, opts ...grpc.CallOption) (*SetGoogleGroupEmailForTeamResponse, error)
 }
 
 type teamsClient struct {
@@ -79,6 +81,15 @@ func (c *teamsClient) SlackAlertsChannels(ctx context.Context, in *SlackAlertsCh
 	return out, nil
 }
 
+func (c *teamsClient) SetGoogleGroupEmailForTeam(ctx context.Context, in *SetGoogleGroupEmailForTeamRequest, opts ...grpc.CallOption) (*SetGoogleGroupEmailForTeamResponse, error) {
+	out := new(SetGoogleGroupEmailForTeamResponse)
+	err := c.cc.Invoke(ctx, Teams_SetGoogleGroupEmailForTeam_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TeamsServer is the server API for Teams service.
 // All implementations must embed UnimplementedTeamsServer
 // for forward compatibility
@@ -87,6 +98,7 @@ type TeamsServer interface {
 	List(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error)
 	Members(context.Context, *ListTeamMembersRequest) (*ListTeamMembersResponse, error)
 	SlackAlertsChannels(context.Context, *SlackAlertsChannelsRequest) (*SlackAlertsChannelsResponse, error)
+	SetGoogleGroupEmailForTeam(context.Context, *SetGoogleGroupEmailForTeamRequest) (*SetGoogleGroupEmailForTeamResponse, error)
 	mustEmbedUnimplementedTeamsServer()
 }
 
@@ -105,6 +117,9 @@ func (UnimplementedTeamsServer) Members(context.Context, *ListTeamMembersRequest
 }
 func (UnimplementedTeamsServer) SlackAlertsChannels(context.Context, *SlackAlertsChannelsRequest) (*SlackAlertsChannelsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SlackAlertsChannels not implemented")
+}
+func (UnimplementedTeamsServer) SetGoogleGroupEmailForTeam(context.Context, *SetGoogleGroupEmailForTeamRequest) (*SetGoogleGroupEmailForTeamResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetGoogleGroupEmailForTeam not implemented")
 }
 func (UnimplementedTeamsServer) mustEmbedUnimplementedTeamsServer() {}
 
@@ -191,6 +206,24 @@ func _Teams_SlackAlertsChannels_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Teams_SetGoogleGroupEmailForTeam_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetGoogleGroupEmailForTeamRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TeamsServer).SetGoogleGroupEmailForTeam(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Teams_SetGoogleGroupEmailForTeam_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TeamsServer).SetGoogleGroupEmailForTeam(ctx, req.(*SetGoogleGroupEmailForTeamRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Teams_ServiceDesc is the grpc.ServiceDesc for Teams service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -213,6 +246,10 @@ var Teams_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SlackAlertsChannels",
 			Handler:    _Teams_SlackAlertsChannels_Handler,
+		},
+		{
+			MethodName: "SetGoogleGroupEmailForTeam",
+			Handler:    _Teams_SetGoogleGroupEmailForTeam_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

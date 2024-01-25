@@ -123,6 +123,7 @@ type Querier interface {
 	ResourceUtilizationUpsert(ctx context.Context, arg []ResourceUtilizationUpsertParams) *ResourceUtilizationUpsertBatchResults
 	RevokeGlobalUserRole(ctx context.Context, userID uuid.UUID, roleName RoleName) error
 	SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*Team, error)
+	SetGoogleGroupEmailForTeam(ctx context.Context, googleGroupEmail string, slug slug.Slug) error
 	SetLastSuccessfulSyncForTeam(ctx context.Context, argSlug slug.Slug) error
 	SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, teamSlug slug.Slug, reconciler string, errorMessage string) error
 	SetSessionExpires(ctx context.Context, expires pgtype.Timestamptz, iD uuid.UUID) (*Session, error)

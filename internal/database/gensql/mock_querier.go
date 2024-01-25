@@ -5348,6 +5348,54 @@ func (_c *MockQuerier_SearchTeams_Call) RunAndReturn(run func(context.Context, s
 	return _c
 }
 
+// SetGoogleGroupEmailForTeam provides a mock function with given fields: ctx, googleGroupEmail, _a2
+func (_m *MockQuerier) SetGoogleGroupEmailForTeam(ctx context.Context, googleGroupEmail string, _a2 slug.Slug) error {
+	ret := _m.Called(ctx, googleGroupEmail, _a2)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetGoogleGroupEmailForTeam")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug) error); ok {
+		r0 = rf(ctx, googleGroupEmail, _a2)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockQuerier_SetGoogleGroupEmailForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetGoogleGroupEmailForTeam'
+type MockQuerier_SetGoogleGroupEmailForTeam_Call struct {
+	*mock.Call
+}
+
+// SetGoogleGroupEmailForTeam is a helper method to define mock.On call
+//   - ctx context.Context
+//   - googleGroupEmail string
+//   - _a2 slug.Slug
+func (_e *MockQuerier_Expecter) SetGoogleGroupEmailForTeam(ctx interface{}, googleGroupEmail interface{}, _a2 interface{}) *MockQuerier_SetGoogleGroupEmailForTeam_Call {
+	return &MockQuerier_SetGoogleGroupEmailForTeam_Call{Call: _e.mock.On("SetGoogleGroupEmailForTeam", ctx, googleGroupEmail, _a2)}
+}
+
+func (_c *MockQuerier_SetGoogleGroupEmailForTeam_Call) Run(run func(ctx context.Context, googleGroupEmail string, _a2 slug.Slug)) *MockQuerier_SetGoogleGroupEmailForTeam_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_SetGoogleGroupEmailForTeam_Call) Return(_a0 error) *MockQuerier_SetGoogleGroupEmailForTeam_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockQuerier_SetGoogleGroupEmailForTeam_Call) RunAndReturn(run func(context.Context, string, slug.Slug) error) *MockQuerier_SetGoogleGroupEmailForTeam_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SetLastSuccessfulSyncForTeam provides a mock function with given fields: ctx, argSlug
 func (_m *MockQuerier) SetLastSuccessfulSyncForTeam(ctx context.Context, argSlug slug.Slug) error {
 	ret := _m.Called(ctx, argSlug)

@@ -78,11 +78,32 @@ func (t *TeamsServer) SlackAlertsChannels(ctx context.Context, r *protoapi.Slack
 	return resp, nil
 }
 
+func (t *TeamsServer) SetGoogleGroupEmailForTeam(ctx context.Context, r *protoapi.SetGoogleGroupEmailForTeamRequest) (*protoapi.SetGoogleGroupEmailForTeamResponse, error) {
+	if r.Slug == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "slug is required")
+	}
+
+	if r.GoogleGroupEmail == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "google group email is required")
+	}
+
+	if err := t.db.SetGoogleGroupEmailForTeam(ctx, slug.Slug(r.Slug), r.GoogleGroupEmail); err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to set google group email for team: %s", err)
+	}
+
+	return &protoapi.SetGoogleGroupEmailForTeamResponse{}, nil
+}
+
 func toProtoTeam(team *database.Team) *protoapi.Team {
+	gge := ""
+	if team.GoogleGroupEmail != nil {
+		gge = *team.GoogleGroupEmail
+	}
 	return &protoapi.Team{
-		Slug:         team.Slug.String(),
-		Purpose:      team.Purpose,
-		SlackChannel: team.SlackChannel,
+		Slug:             team.Slug.String(),
+		Purpose:          team.Purpose,
+		SlackChannel:     team.SlackChannel,
+		GoogleGroupEmail: gge,
 	}
 }
 
