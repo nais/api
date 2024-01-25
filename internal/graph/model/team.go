@@ -16,7 +16,8 @@ type Team struct {
 	// Timestamp of the last successful synchronization of the team.
 	LastSuccessfulSync *time.Time `json:"lastSuccessfulSync,omitempty"`
 	// Slack channel for the team.
-	SlackChannel string `json:"slackChannel"`
+	SlackChannel     string  `json:"slackChannel"`
+	GoogleGroupEmail *string `json:"googleGroupEmail"`
 }
 
 func (Team) IsSearchNode() {}

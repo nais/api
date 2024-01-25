@@ -302,6 +302,7 @@ type Team struct {
 	Purpose            string
 	LastSuccessfulSync pgtype.Timestamp
 	SlackChannel       string
+	GoogleGroupEmail   *string
 }
 
 type TeamDeleteKey struct {

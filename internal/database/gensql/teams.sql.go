@@ -26,7 +26,7 @@ func (q *Queries) ConfirmTeamDeleteKey(ctx context.Context, key uuid.UUID) error
 const createTeam = `-- name: CreateTeam :one
 INSERT INTO teams (slug, purpose, slack_channel)
 VALUES ($1, $2, $3)
-RETURNING slug, purpose, last_successful_sync, slack_channel
+RETURNING slug, purpose, last_successful_sync, slack_channel, google_group_email
 `
 
 func (q *Queries) CreateTeam(ctx context.Context, slug slug.Slug, purpose string, slackChannel string) (*Team, error) {
@@ -37,6 +37,7 @@ func (q *Queries) CreateTeam(ctx context.Context, slug slug.Slug, purpose string
 		&i.Purpose,
 		&i.LastSuccessfulSync,
 		&i.SlackChannel,
+		&i.GoogleGroupEmail,
 	)
 	return &i, err
 }
@@ -71,7 +72,7 @@ func (q *Queries) DeleteTeam(ctx context.Context, argSlug slug.Slug) error {
 }
 
 const getActiveTeamBySlug = `-- name: GetActiveTeamBySlug :one
-SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel FROM teams
+SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email FROM teams
 WHERE
     teams.slug = $1
     AND NOT EXISTS (
@@ -91,12 +92,13 @@ func (q *Queries) GetActiveTeamBySlug(ctx context.Context, argSlug slug.Slug) (*
 		&i.Purpose,
 		&i.LastSuccessfulSync,
 		&i.SlackChannel,
+		&i.GoogleGroupEmail,
 	)
 	return &i, err
 }
 
 const getActiveTeams = `-- name: GetActiveTeams :many
-SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel FROM teams
+SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email FROM teams
 WHERE NOT EXISTS (
     SELECT team_delete_keys.team_slug
     FROM team_delete_keys
@@ -121,6 +123,7 @@ func (q *Queries) GetActiveTeams(ctx context.Context) ([]*Team, error) {
 			&i.Purpose,
 			&i.LastSuccessfulSync,
 			&i.SlackChannel,
+			&i.GoogleGroupEmail,
 		); err != nil {
 			return nil, err
 		}
@@ -192,7 +195,7 @@ func (q *Queries) GetSlackAlertsChannels(ctx context.Context, teamSlug slug.Slug
 }
 
 const getTeamBySlug = `-- name: GetTeamBySlug :one
-SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel FROM teams
+SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email FROM teams
 WHERE teams.slug = $1
 `
 
@@ -204,6 +207,7 @@ func (q *Queries) GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, 
 		&i.Purpose,
 		&i.LastSuccessfulSync,
 		&i.SlackChannel,
+		&i.GoogleGroupEmail,
 	)
 	return &i, err
 }
@@ -371,7 +375,7 @@ func (q *Queries) GetTeamMembersForReconciler(ctx context.Context, teamSlug *slu
 }
 
 const getTeams = `-- name: GetTeams :many
-SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel FROM teams
+SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email FROM teams
 ORDER BY teams.slug ASC
 `
 
@@ -389,6 +393,7 @@ func (q *Queries) GetTeams(ctx context.Context) ([]*Team, error) {
 			&i.Purpose,
 			&i.LastSuccessfulSync,
 			&i.SlackChannel,
+			&i.GoogleGroupEmail,
 		); err != nil {
 			return nil, err
 		}
@@ -412,7 +417,7 @@ func (q *Queries) GetTeamsCount(ctx context.Context) (int64, error) {
 }
 
 const getTeamsPaginated = `-- name: GetTeamsPaginated :many
-SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel FROM teams
+SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email FROM teams
 ORDER BY teams.slug ASC LIMIT $2 OFFSET $1
 `
 
@@ -430,6 +435,7 @@ func (q *Queries) GetTeamsPaginated(ctx context.Context, offset int32, limit int
 			&i.Purpose,
 			&i.LastSuccessfulSync,
 			&i.SlackChannel,
+			&i.GoogleGroupEmail,
 		); err != nil {
 			return nil, err
 		}
@@ -462,7 +468,7 @@ func (q *Queries) RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, team
 }
 
 const searchTeams = `-- name: SearchTeams :many
-SELECT slug, purpose, last_successful_sync, slack_channel
+SELECT slug, purpose, last_successful_sync, slack_channel, google_group_email
 FROM teams
 WHERE levenshtein($1::text, slug) >= 0
 ORDER BY levenshtein($1::text, slug) ASC
@@ -483,6 +489,7 @@ func (q *Queries) SearchTeams(ctx context.Context, slugMatch string, limit int32
 			&i.Purpose,
 			&i.LastSuccessfulSync,
 			&i.SlackChannel,
+			&i.GoogleGroupEmail,
 		); err != nil {
 			return nil, err
 		}
@@ -535,7 +542,7 @@ UPDATE teams
 SET purpose = COALESCE($1, purpose),
     slack_channel = COALESCE($2, slack_channel)
 WHERE slug = $3
-RETURNING slug, purpose, last_successful_sync, slack_channel
+RETURNING slug, purpose, last_successful_sync, slack_channel, google_group_email
 `
 
 func (q *Queries) UpdateTeam(ctx context.Context, purpose *string, slackChannel *string, slug slug.Slug) (*Team, error) {
@@ -546,6 +553,7 @@ func (q *Queries) UpdateTeam(ctx context.Context, purpose *string, slackChannel 
 		&i.Purpose,
 		&i.LastSuccessfulSync,
 		&i.SlackChannel,
+		&i.GoogleGroupEmail,
 	)
 	return &i, err
 }

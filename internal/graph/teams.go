@@ -13,9 +13,10 @@ import (
 
 func toGraphTeam(m *database.Team) *model.Team {
 	ret := &model.Team{
-		Slug:         m.Slug,
-		Purpose:      m.Purpose,
-		SlackChannel: m.SlackChannel,
+		Slug:             m.Slug,
+		Purpose:          m.Purpose,
+		SlackChannel:     m.SlackChannel,
+		GoogleGroupEmail: m.GoogleGroupEmail,
 	}
 
 	if m.LastSuccessfulSync.Valid {

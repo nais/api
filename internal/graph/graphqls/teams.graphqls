@@ -270,6 +270,9 @@ type Team {
   "Purpose of the team."
   purpose: String!
 
+  "The email address of the Google Group for the team. This value is only available after the initial team synchronization."
+  googleGroupEmail: String
+
   "Audit logs for this team."
   auditLogs(
     "Offset to start listing audit log entries from. Default is 0."
