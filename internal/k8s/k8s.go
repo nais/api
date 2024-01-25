@@ -3,18 +3,11 @@ package k8s
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
-	"k8s.io/client-go/rest"
-
-	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/database"
-
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	naisv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
@@ -28,16 +21,18 @@ import (
 	batchv1inf "k8s.io/client-go/informers/batch/v1"
 	corev1inf "k8s.io/client-go/informers/core/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/slug"
 )
 
-type TeamChecker interface {
+type Database interface {
 	TeamExists(ctx context.Context, team slug.Slug) (bool, error)
-	GetActiveTeams(ctx context.Context) ([]*database.Team, error)
-	GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*database.User, error)
+	GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*database.UserTeam, error)
 }
 
 type ClusterInformers map[string]*Informers
@@ -74,7 +69,7 @@ type Client struct {
 	informers                  ClusterInformers
 	clientSets                 map[string]kubernetes.Interface
 	log                        logrus.FieldLogger
-	teamChecker                TeamChecker
+	database                   Database
 	impersonationClientCreator impersonationClientCreator
 }
 
@@ -101,7 +96,7 @@ func WithClientsCreator(f func(cluster string) (kubernetes.Interface, dynamic.In
 
 type impersonationClientCreator = func(context.Context) (map[string]kubernetes.Interface, error)
 
-func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLogger, opts ...Opt) (*Client, error) {
+func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ...Opt) (*Client, error) {
 	s := &settings{}
 	for _, opt := range opts {
 		opt(s)
@@ -117,27 +112,14 @@ func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLog
 
 		impersonationClientCreator = func(ctx context.Context) (map[string]kubernetes.Interface, error) {
 			actor := authz.ActorFromContext(ctx)
-
-			// TODO: replace with db.GetUserTeams()
-			teams, err := teamChecker.GetActiveTeams(ctx)
+			teams, err := db.GetUserTeams(ctx, actor.User.GetID())
 			if err != nil {
 				return nil, err
 			}
-			filteredTeams := make([]*database.Team, 0)
-			for _, team := range teams {
-				_, err := teamChecker.GetTeamMember(ctx, team.Slug, actor.User.GetID())
-				if err != nil {
-					if errors.Is(err, pgx.ErrNoRows) {
-						continue
-					}
-					return nil, err
-				}
-				filteredTeams = append(filteredTeams, team)
-			}
 
 			groups := make([]string, 0)
-			for _, fteam := range filteredTeams {
-				groups = append(groups, *fteam.GoogleGroupEmail)
+			for _, team := range teams {
+				groups = append(groups, *team.GoogleGroupEmail)
 			}
 
 			clientSets := make(map[string]kubernetes.Interface)
@@ -225,7 +207,7 @@ func New(tenant string, cfg Config, teamChecker TeamChecker, log logrus.FieldLog
 		informers:                  infs,
 		clientSets:                 clientSets,
 		log:                        log,
-		teamChecker:                teamChecker,
+		database:                   db,
 		impersonationClientCreator: impersonationClientCreator,
 	}, nil
 }
@@ -235,8 +217,8 @@ func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilte
 		return nil
 	}
 
-	if c.teamChecker == nil {
-		panic("team checker not set")
+	if c.database == nil {
+		panic("database not set")
 	}
 
 	ret := []*search.Result{}
@@ -259,7 +241,7 @@ func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilte
 				if err != nil {
 					c.error(ctx, err, "converting to job")
 					return nil
-				} else if ok, _ := c.teamChecker.TeamExists(ctx, job.GQLVars.Team); !ok {
+				} else if ok, _ := c.database.TeamExists(ctx, job.GQLVars.Team); !ok {
 					continue
 				}
 
@@ -287,7 +269,7 @@ func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilte
 				if err != nil {
 					c.error(ctx, err, "converting to app")
 					return nil
-				} else if ok, _ := c.teamChecker.TeamExists(ctx, app.GQLVars.Team); !ok {
+				} else if ok, _ := c.database.TeamExists(ctx, app.GQLVars.Team); !ok {
 					continue
 				}
 
