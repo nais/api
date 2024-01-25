@@ -14,6 +14,7 @@ type ReconcilerResource struct {
 type ReconcilerResourceRepo interface {
 	UpsertReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key, value string, metadata []byte) (*ReconcilerResource, error)
 	GetReconcilerResources(ctx context.Context, reconcilerName string, teamSlug *slug.Slug, offset, limit int) ([]*ReconcilerResource, error)
+	GetReconcilerResourceByKey(ctx context.Context, reconcilerName string, teamSlug *slug.Slug, key string, offset, limit int) (*ReconcilerResource, error)
 }
 
 func (d *database) GetReconcilerResources(ctx context.Context, reconcilerName string, teamSlug *slug.Slug, offset, limit int) ([]*ReconcilerResource, error) {

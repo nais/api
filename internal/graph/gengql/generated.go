@@ -604,6 +604,14 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
+	ReconcilerResource struct {
+		ID         func(childComplexity int) int
+		Key        func(childComplexity int) int
+		Metadata   func(childComplexity int) int
+		Reconciler func(childComplexity int) int
+		Value      func(childComplexity int) int
+	}
+
 	Redis struct {
 		Access func(childComplexity int) int
 		Name   func(childComplexity int) int
@@ -755,6 +763,7 @@ type ComplexityRoot struct {
 		Members                func(childComplexity int, offset *int, limit *int) int
 		Naisjobs               func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		Purpose                func(childComplexity int) int
+		ReconcilerResource     func(childComplexity int, reconciler string, key string) int
 		SlackAlertsChannels    func(childComplexity int) int
 		SlackChannel           func(childComplexity int) int
 		Slug                   func(childComplexity int) int
@@ -955,6 +964,8 @@ type TeamResolver interface {
 	Members(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.TeamMemberList, error)
 	Member(ctx context.Context, obj *model.Team, userID scalar.Ident) (*model.TeamMember, error)
 	SyncErrors(ctx context.Context, obj *model.Team) ([]*model.SyncError, error)
+
+	ReconcilerResource(ctx context.Context, obj *model.Team, reconciler string, key string) (*model.ReconcilerResource, error)
 
 	SlackAlertsChannels(ctx context.Context, obj *model.Team) ([]*model.SlackAlertsChannel, error)
 	GitHubRepositories(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.GitHubRepositoriesFilter) (*model.GitHubRepositoryList, error)
@@ -3413,6 +3424,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ReconcilerList.PageInfo(childComplexity), true
 
+	case "ReconcilerResource.id":
+		if e.complexity.ReconcilerResource.ID == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerResource.ID(childComplexity), true
+
+	case "ReconcilerResource.key":
+		if e.complexity.ReconcilerResource.Key == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerResource.Key(childComplexity), true
+
+	case "ReconcilerResource.metadata":
+		if e.complexity.ReconcilerResource.Metadata == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerResource.Metadata(childComplexity), true
+
+	case "ReconcilerResource.reconciler":
+		if e.complexity.ReconcilerResource.Reconciler == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerResource.Reconciler(childComplexity), true
+
+	case "ReconcilerResource.value":
+		if e.complexity.ReconcilerResource.Value == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerResource.Value(childComplexity), true
+
 	case "Redis.access":
 		if e.complexity.Redis.Access == nil {
 			break
@@ -4103,6 +4149,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Team.Purpose(childComplexity), true
+
+	case "Team.reconcilerResource":
+		if e.complexity.Team.ReconcilerResource == nil {
+			break
+		}
+
+		args, err := ec.field_Team_reconcilerResource_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Team.ReconcilerResource(childComplexity, args["reconciler"].(string), args["key"].(string)), true
 
 	case "Team.slackAlertsChannels":
 		if e.complexity.Team.SlackAlertsChannels == nil {
@@ -6170,6 +6228,12 @@ type Team {
   # "Current reconciler state for the team."
   # reconcilerState: ReconcilerState!
   # TODO: FIX
+  reconcilerResource(
+    "The name of the reconciler."
+    reconciler: String!
+    "Key to read"
+    key: String!
+  ): ReconcilerResource!
 
   "Slack channel for the team."
   slackChannel: String!
@@ -6286,6 +6350,23 @@ type SlackAlertsChannel {
 
   "The name of the Slack channel."
   channelName: String!
+}
+
+type ReconcilerResource {
+  "ID of the resource."
+  id: ID!
+
+  "The name of the reconciler."
+  reconciler: String!
+
+  "Key of the reconciler resource."
+  key: String!
+
+  "Value of the reconciler resource."
+  value: String!
+
+  "Metadata if any. JSON formatted."
+  metadata: String!
 }
 
 # TODO: FIX
@@ -7890,6 +7971,30 @@ func (ec *executionContext) field_Team_naisjobs_args(ctx context.Context, rawArg
 	return args, nil
 }
 
+func (ec *executionContext) field_Team_reconcilerResource_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["reconciler"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reconciler"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["reconciler"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["key"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["key"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Team_vulnerabilities_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -8974,6 +9079,8 @@ func (ec *executionContext) fieldContext_App_team(ctx context.Context, field gra
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "reconcilerResource":
+				return ec.fieldContext_Team_reconcilerResource(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "slackAlertsChannels":
@@ -12498,6 +12605,8 @@ func (ec *executionContext) fieldContext_Deployment_team(ctx context.Context, fi
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "reconcilerResource":
+				return ec.fieldContext_Team_reconcilerResource(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "slackAlertsChannels":
@@ -18394,6 +18503,8 @@ func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "reconcilerResource":
+				return ec.fieldContext_Team_reconcilerResource(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "slackAlertsChannels":
@@ -18515,6 +18626,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "reconcilerResource":
+				return ec.fieldContext_Team_reconcilerResource(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "slackAlertsChannels":
@@ -18636,6 +18749,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUsersFromTeam(ctx contex
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "reconcilerResource":
+				return ec.fieldContext_Team_reconcilerResource(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "slackAlertsChannels":
@@ -18757,6 +18872,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUserFromTeam(ctx context
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "reconcilerResource":
+				return ec.fieldContext_Team_reconcilerResource(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "slackAlertsChannels":
@@ -19025,6 +19142,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMembers(ctx context.Con
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "reconcilerResource":
+				return ec.fieldContext_Team_reconcilerResource(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "slackAlertsChannels":
@@ -19146,6 +19265,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamOwners(ctx context.Cont
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "reconcilerResource":
+				return ec.fieldContext_Team_reconcilerResource(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "slackAlertsChannels":
@@ -19267,6 +19388,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "reconcilerResource":
+				return ec.fieldContext_Team_reconcilerResource(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "slackAlertsChannels":
@@ -19388,6 +19511,8 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "reconcilerResource":
+				return ec.fieldContext_Team_reconcilerResource(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "slackAlertsChannels":
@@ -19671,6 +19796,8 @@ func (ec *executionContext) fieldContext_Mutation_authorizeRepository(ctx contex
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "reconcilerResource":
+				return ec.fieldContext_Team_reconcilerResource(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "slackAlertsChannels":
@@ -19792,6 +19919,8 @@ func (ec *executionContext) fieldContext_Mutation_deauthorizeRepository(ctx cont
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "reconcilerResource":
+				return ec.fieldContext_Team_reconcilerResource(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "slackAlertsChannels":
@@ -20512,6 +20641,8 @@ func (ec *executionContext) fieldContext_NaisJob_team(ctx context.Context, field
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "reconcilerResource":
+				return ec.fieldContext_Team_reconcilerResource(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "slackAlertsChannels":
@@ -23132,6 +23263,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "reconcilerResource":
+				return ec.fieldContext_Team_reconcilerResource(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "slackAlertsChannels":
@@ -24501,6 +24634,226 @@ func (ec *executionContext) fieldContext_ReconcilerList_pageInfo(ctx context.Con
 				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerResource_id(ctx context.Context, field graphql.CollectedField, obj *model.ReconcilerResource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerResource_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uuid.UUID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerResource_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerResource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerResource_reconciler(ctx context.Context, field graphql.CollectedField, obj *model.ReconcilerResource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerResource_reconciler(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Reconciler, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerResource_reconciler(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerResource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerResource_key(ctx context.Context, field graphql.CollectedField, obj *model.ReconcilerResource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerResource_key(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Key, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerResource_key(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerResource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerResource_value(ctx context.Context, field graphql.CollectedField, obj *model.ReconcilerResource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerResource_value(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Value, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerResource_value(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerResource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerResource_metadata(ctx context.Context, field graphql.CollectedField, obj *model.ReconcilerResource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerResource_metadata(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Metadata, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerResource_metadata(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerResource",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -28664,6 +29017,73 @@ func (ec *executionContext) fieldContext_Team_lastSuccessfulSync(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_reconcilerResource(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_reconcilerResource(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().ReconcilerResource(rctx, obj, fc.Args["reconciler"].(string), fc.Args["key"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ReconcilerResource)
+	fc.Result = res
+	return ec.marshalNReconcilerResource2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerResource(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_reconcilerResource(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ReconcilerResource_id(ctx, field)
+			case "reconciler":
+				return ec.fieldContext_ReconcilerResource_reconciler(ctx, field)
+			case "key":
+				return ec.fieldContext_ReconcilerResource_key(ctx, field)
+			case "value":
+				return ec.fieldContext_ReconcilerResource_value(ctx, field)
+			case "metadata":
+				return ec.fieldContext_ReconcilerResource_metadata(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ReconcilerResource", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Team_reconcilerResource_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_slackChannel(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_slackChannel(ctx, field)
 	if err != nil {
@@ -29608,6 +30028,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(ctx context.Context,
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "reconcilerResource":
+				return ec.fieldContext_Team_reconcilerResource(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "slackAlertsChannels":
@@ -29698,6 +30120,8 @@ func (ec *executionContext) fieldContext_TeamList_nodes(ctx context.Context, fie
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "reconcilerResource":
+				return ec.fieldContext_Team_reconcilerResource(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "slackAlertsChannels":
@@ -29840,6 +30264,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(ctx context.Context, fi
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "reconcilerResource":
+				return ec.fieldContext_Team_reconcilerResource(ctx, field)
 			case "slackChannel":
 				return ec.fieldContext_Team_slackChannel(ctx, field)
 			case "slackAlertsChannels":
@@ -39447,6 +39873,65 @@ func (ec *executionContext) _ReconcilerList(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var reconcilerResourceImplementors = []string{"ReconcilerResource"}
+
+func (ec *executionContext) _ReconcilerResource(ctx context.Context, sel ast.SelectionSet, obj *model.ReconcilerResource) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerResourceImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ReconcilerResource")
+		case "id":
+			out.Values[i] = ec._ReconcilerResource_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "reconciler":
+			out.Values[i] = ec._ReconcilerResource_reconciler(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "key":
+			out.Values[i] = ec._ReconcilerResource_key(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "value":
+			out.Values[i] = ec._ReconcilerResource_value(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "metadata":
+			out.Values[i] = ec._ReconcilerResource_metadata(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var redisImplementors = []string{"Redis", "Storage"}
 
 func (ec *executionContext) _Redis(ctx context.Context, sel ast.SelectionSet, obj *model.Redis) graphql.Marshaler {
@@ -40692,6 +41177,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "lastSuccessfulSync":
 			out.Values[i] = ec._Team_lastSuccessfulSync(ctx, field, obj)
+		case "reconcilerResource":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_reconcilerResource(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "slackChannel":
 			out.Values[i] = ec._Team_slackChannel(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -44517,6 +45038,20 @@ func (ec *executionContext) marshalNReconcilerList2ᚖgithubᚗcomᚋnaisᚋapi�
 		return graphql.Null
 	}
 	return ec._ReconcilerList(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNReconcilerResource2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerResource(ctx context.Context, sel ast.SelectionSet, v model.ReconcilerResource) graphql.Marshaler {
+	return ec._ReconcilerResource(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNReconcilerResource2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerResource(ctx context.Context, sel ast.SelectionSet, v *model.ReconcilerResource) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ReconcilerResource(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNRepositoryAuthorization2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorization(ctx context.Context, v interface{}) (model.RepositoryAuthorization, error) {

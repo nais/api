@@ -29,3 +29,9 @@ INSERT INTO reconciler_resources (
 ON CONFLICT (reconciler_name, team_slug, name) DO
 UPDATE SET value = EXCLUDED.value, metadata = EXCLUDED.metadata
 RETURNING *;
+
+-- name: GetReconcilerResourceByKey :one
+SELECT *
+FROM reconciler_resources
+WHERE reconciler_name = @reconciler_name AND team_slug = @team_slug AND name = @name
+LIMIT 1;

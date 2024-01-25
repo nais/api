@@ -303,6 +303,12 @@ type Team {
   # "Current reconciler state for the team."
   # reconcilerState: ReconcilerState!
   # TODO: FIX
+  reconcilerResource(
+    "The name of the reconciler."
+    reconciler: String!
+    "Key to read"
+    key: String!
+  ): ReconcilerResource!
 
   "Slack channel for the team."
   slackChannel: String!
@@ -419,6 +425,23 @@ type SlackAlertsChannel {
 
   "The name of the Slack channel."
   channelName: String!
+}
+
+type ReconcilerResource {
+  "ID of the resource."
+  id: ID!
+
+  "The name of the reconciler."
+  reconciler: String!
+
+  "Key of the reconciler resource."
+  key: String!
+
+  "Value of the reconciler resource."
+  value: String!
+
+  "Metadata if any. JSON formatted."
+  metadata: String!
 }
 
 # TODO: FIX

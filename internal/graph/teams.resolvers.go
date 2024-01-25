@@ -996,6 +996,27 @@ func (r *teamResolver) SyncErrors(ctx context.Context, obj *model.Team) ([]*mode
 	return syncErrors, nil
 }
 
+// ReconcilerResource is the resolver for the reconcilerResource field.
+func (r *teamResolver) ReconcilerResource(ctx context.Context, obj *model.Team, reconciler string, key string) (*model.ReconcilerResource, error) {
+	res, err := r.database.GetReconcilerResourceByKey(ctx, reconciler, obj.Slug, key)
+	if err != nil {
+		return nil, err
+	}
+
+	var metadata *string
+	if len(res.Metadata) > 0 {
+		metadata = ptr.To(string(res.Metadata))
+	}
+
+	return &model.ReconcilerResource{
+		ID:         res.ID,
+		Reconciler: res.ReconcilerName,
+		Key:        res.Name,
+		Value:      res.Value,
+		Metadata:   metadata,
+	}, nil
+}
+
 // SlackAlertsChannels is the resolver for the slackAlertsChannels field.
 func (r *teamResolver) SlackAlertsChannels(ctx context.Context, obj *model.Team) ([]*model.SlackAlertsChannel, error) {
 	channels := make([]*model.SlackAlertsChannel, 0, len(r.clusters.GCPClusters()))
@@ -1438,109 +1459,3 @@ type (
 	teamMemberResolver           struct{ *Resolver }
 	teamMemberReconcilerResolver struct{ *Resolver }
 )
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *teamResolver) ReconcilerState(ctx context.Context, obj *model.Team) (*model.ReconcilerState, error) {
-	panic("not implemented")
-
-	// gitHubState := &GitHubState{}
-	// googleWorkspaceState := &GoogleWorkspaceState{}
-	// gcpProjectState := &GoogleGcpProjectState{
-	// 	Projects: make(map[string]GoogleGcpEnvironmentProject),
-	// }
-	// naisNamespaceState := &NaisNamespaceState{
-	// 	Namespaces: make(map[string]slug.Slug),
-	// }
-	// azureADState := &AzureState{}
-	// naisDeployKeyState := &NaisDeployKeyState{}
-	// googleGarState := &GoogleGarState{}
-
-	// queriedFields := GetQueriedFields(ctx)
-
-	// if _, inQuery := queriedFields["gitHubTeamSlug"]; inQuery {
-	// 	err := r.database.LoadReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGithubTeam, obj.Slug, gitHubState)
-	// 	if err != nil {
-	// 		return nil, apierror.Errorf("Unable to load the existing GCP project state.")
-	// 	}
-	// }
-
-	// if _, inQuery := queriedFields["googleWorkspaceGroupEmail"]; inQuery {
-	// 	err := r.database.LoadReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGoogleWorkspaceAdmin, obj.Slug, googleWorkspaceState)
-	// 	if err != nil {
-	// 		return nil, apierror.Errorf("Unable to load the existing Google Workspace state.")
-	// 	}
-	// }
-
-	// gcpProjects := make([]*model.GcpProject, 0)
-	// if _, inQuery := queriedFields["gcpProjects"]; inQuery {
-	// 	err := r.database.LoadReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGoogleGcpProject, obj.Slug, gcpProjectState)
-	// 	if err != nil {
-	// 		return nil, apierror.Errorf("Unable to load the existing GCP project state.")
-	// 	}
-	// 	if gcpProjectState.Projects == nil {
-	// 		gcpProjectState.Projects = make(map[string]GoogleGcpEnvironmentProject)
-	// 	}
-
-	// 	for env, projectID := range gcpProjectState.Projects {
-	// 		gcpProjects = append(gcpProjects, &model.GcpProject{
-	// 			Environment: env,
-	// 			ProjectName: GetProjectDisplayName(obj.Slug, env),
-	// 			ProjectID:   projectID.ProjectID,
-	// 		})
-	// 	}
-	// }
-
-	// naisNamespaces := make([]*model.NaisNamespace, 0)
-	// if _, inQuery := queriedFields["naisNamespaces"]; inQuery {
-	// 	err := r.database.LoadReconcilerStateForTeam(ctx, sqlc.ReconcilerNameNaisNamespace, obj.Slug, naisNamespaceState)
-	// 	if err != nil {
-	// 		return nil, apierror.Errorf("Unable to load the existing GCP project state.")
-	// 	}
-	// 	if naisNamespaceState.Namespaces == nil {
-	// 		naisNamespaceState.Namespaces = make(map[string]slug.Slug)
-	// 	}
-
-	// 	for environment, namespace := range naisNamespaceState.Namespaces {
-	// 		naisNamespaces = append(naisNamespaces, &model.NaisNamespace{
-	// 			Environment: environment,
-	// 			Namespace:   namespace,
-	// 		})
-	// 	}
-	// }
-
-	// if _, inQuery := queriedFields["azureADGroupId"]; inQuery {
-	// 	err := r.database.LoadReconcilerStateForTeam(ctx, sqlc.ReconcilerNameAzureGroup, obj.Slug, azureADState)
-	// 	if err != nil {
-	// 		return nil, apierror.Errorf("Unable to load the existing Azure AD state.")
-	// 	}
-	// }
-
-	// if _, inQuery := queriedFields["naisDeployKeyProvisioned"]; inQuery {
-	// 	err := r.database.LoadReconcilerStateForTeam(ctx, sqlc.ReconcilerNameNaisDeploy, obj.Slug, naisDeployKeyState)
-	// 	if err != nil {
-	// 		return nil, apierror.Errorf("Unable to load the existing NAIS deploy key state.")
-	// 	}
-	// }
-
-	// if _, inQuery := queriedFields["garRepositoryName"]; inQuery {
-	// 	err := r.database.LoadReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGoogleGcpGar, obj.Slug, googleGarState)
-	// 	if err != nil {
-	// 		return nil, apierror.Errorf("Unable to load the existing GAR state.")
-	// 	}
-	// }
-
-	// return &model.ReconcilerState{
-	// 	GitHubTeamSlug:            gitHubState.Slug,
-	// 	GoogleWorkspaceGroupEmail: googleWorkspaceState.GroupEmail,
-	// 	GcpProjects:               gcpProjects,
-	// 	NaisNamespaces:            naisNamespaces,
-	// 	AzureADGroupID:            &azureADState.GroupID,
-	// 	NaisDeployKeyProvisioned:  naisDeployKeyState.Provisioned,
-	// 	GarRepositoryName:         googleGarState.RepositoryName,
-	// }, nil
-}
