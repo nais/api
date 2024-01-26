@@ -78,8 +78,8 @@ func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env st
 }
 
 func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
-	// TODO: validate that the secret doesn't already exist
-	// TODO: validate the secret name
+	// TODO: validate the secret name - validation.IsDNS1123Subdomain(name)
+	// TODO: validate data - validation.IsConfigMapKey()
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
 	if err != nil {
 		return nil, c.error(ctx, err, "impersonation")
@@ -102,6 +102,7 @@ func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, 
 }
 
 func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
+	// TODO: validate data
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
 	if err != nil {
 		return nil, c.error(ctx, err, "impersonation")
