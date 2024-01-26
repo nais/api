@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"github.com/nais/api/internal/graph/apierror"
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
@@ -18,7 +19,11 @@ func (r *mutationResolver) CreateSecret(ctx context.Context, name string, team s
 	if err != nil {
 		return nil, err
 	}
-	return r.k8sClient.CreateSecret(ctx, name, team, env, data)
+	res, createErrror := r.k8sClient.CreateSecret(ctx, name, team, env, data)
+	if createErrror != nil {
+		return nil, apierror.Errorf(createErrror.Error())
+	}
+	return res, nil
 }
 
 // UpdateSecret is the resolver for the updateSecret field.
