@@ -4,130 +4,77 @@ import (
 	"cmp"
 	"context"
 	"fmt"
-	"github.com/nais/api/internal/auth/authz"
-	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/runtime"
 	"slices"
 	"time"
 
-	"github.com/nais/api/internal/slug"
-
-	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/scalar"
+	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/runtime"
+
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 )
 
 const (
-	secretLabelKey                    = "nais.io/managed-by"
-	secretLabelVal                    = "console"
-	secretAnnotationLastModifiedByKey = "console.nais.io/last-modified-by"
-	secretAnnotationLastModifiedAtKey = "console.nais.io/last-modified-at"
+	secretLabelKey = "nais.io/managed-by"
+	secretLabelVal = "console"
 )
 
+// Secrets lists all secrets for a given team in all environments
 func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecret, error) {
+	envSecrets := make([]*model.EnvSecret, 0)
+
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
 	if err != nil {
 		return nil, c.error(ctx, err, "impersonation")
 	}
-	ret := make([]*model.EnvSecret, 0)
-	namespace := team.String()
 
 	for env, clientSet := range impersonatedClients {
-		secrets := make([]model.Secret, 0)
-		kubeSecrets, err := clientSet.CoreV1().Secrets(namespace).List(ctx, metav1.ListOptions{
+		namespace := team.String()
+		opts := metav1.ListOptions{
 			LabelSelector: fmt.Sprintf("%s=%s", secretLabelKey, secretLabelVal),
-		})
+		}
+
+		kubeSecrets, err := clientSet.CoreV1().Secrets(namespace).List(ctx, opts)
 		if err != nil {
 			return nil, c.error(ctx, err, "listing secrets")
 		}
 
-		// fetch apps to build map of apps that use each secret
-		apps, err := c.informers[env].AppInformer.Lister().ByNamespace(team.String()).List(labels.Everything())
+		appsForSecrets, err := c.mapAppsBySecret(ctx, team, env)
 		if err != nil {
-			return nil, c.error(ctx, err, fmt.Sprintf("getting application %s.%s", env, team))
+			return nil, c.error(ctx, err, "mapping apps to secrets")
 		}
 
-		// we want a map: Secret -> [App]
-		appsForSecrets := make(map[string][]string)
-		for _, obj := range apps {
-			u := obj.(*unstructured.Unstructured)
-			app := &naisv1alpha1.Application{}
-
-			if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, app); err != nil {
-				return nil, fmt.Errorf("converting to application: %w", err)
-			}
-
-			for _, secret := range app.Spec.EnvFrom {
-				as, ok := appsForSecrets[secret.Secret]
-				if !ok {
-					appsForSecrets[secret.Secret] = []string{app.Name}
-				} else {
-					appsForSecrets[secret.Secret] = append(as, app.Name)
-				}
-			}
-
-			for _, secret := range app.Spec.FilesFrom {
-				as, ok := appsForSecrets[secret.Secret]
-				if !ok {
-					appsForSecrets[secret.Secret] = []string{app.Name}
-				} else {
-					appsForSecrets[secret.Secret] = append(as, app.Name)
-				}
-			}
-		}
-
-		for _, obj := range kubeSecrets.Items {
-			isOpaque := obj.Type == corev1.SecretTypeOpaque || obj.Type == "kubernetes.io/Opaque"
-			hasOwnerReferences := len(obj.GetOwnerReferences()) > 0
-			hasFinalizers := len(obj.GetFinalizers()) > 0
-			typeLabel, ok := obj.GetLabels()["type"]
-			isJwker := ok && typeLabel == "jwker.nais.io"
-
-			isIrrelevant := hasOwnerReferences || hasFinalizers || !isOpaque || isJwker
-			if isIrrelevant {
+		graphSecrets := make([]model.Secret, 0)
+		for _, secret := range kubeSecrets.Items {
+			if !secretIsManagedByConsole(secret) {
 				continue
 			}
 
-			as, ok := appsForSecrets[obj.Name]
+			apps, ok := appsForSecrets[secret.Name]
 			if !ok {
-				as = make([]string, 0)
+				apps = make([]string, 0)
 			}
-			secrets = append(secrets, *toGraphSecret(env, &obj, as))
+
+			graphSecrets = append(graphSecrets, *toGraphSecret(env, &secret, apps))
 		}
-		ret = append(ret, toGraphEnvSecret(env, team, secrets...))
+		envSecrets = append(envSecrets, toGraphEnvSecret(env, team, graphSecrets...))
 	}
 
-	slices.SortFunc(ret, func(a, b *model.EnvSecret) int {
+	slices.SortFunc(envSecrets, func(a, b *model.EnvSecret) int {
 		return cmp.Compare(a.Env.Name, b.Env.Name)
 	})
 
-	return ret, nil
+	return envSecrets, nil
 }
 
-// Secret doesnt actually work right now. TODO: fix it.
 func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env string) (*model.Secret, error) {
-
-	impersonatedClients, err := c.impersonationClientCreator(ctx)
-	if err != nil {
-		return nil, c.error(ctx, err, "impersonation")
-	}
-
-	namespace := team.String()
-	cli, ok := impersonatedClients[env]
-	if !ok {
-		return nil, fmt.Errorf("no informer for env %q", env)
-	}
-
-	secret, err := cli.CoreV1().Secrets(namespace).Get(ctx, name, metav1.GetOptions{})
-
-	if err != nil {
-		return nil, c.error(ctx, err, "getting secret")
-	}
-
-	return toGraphSecret(env, secret, make([]string, 0)), nil
+	panic("TODO: not implemented")
 }
 
 func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
@@ -145,20 +92,8 @@ func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, 
 	}
 
 	user := authz.ActorFromContext(ctx).User.Identity()
-
-	meta := metav1.ObjectMeta{
-		Name:      name,
-		Namespace: namespace,
-		Annotations: map[string]string{
-			secretAnnotationLastModifiedByKey: user,
-			secretAnnotationLastModifiedAtKey: time.Now().Format(time.RFC3339),
-		},
-		Labels: map[string]string{
-			secretLabelKey: secretLabelVal,
-		},
-	}
-
-	created, err := cli.CoreV1().Secrets(namespace).Create(ctx, kubeSecret(meta, data), metav1.CreateOptions{})
+	secret := kubeSecret(name, namespace, user, data)
+	created, err := cli.CoreV1().Secrets(namespace).Create(ctx, secret, metav1.CreateOptions{})
 	if err != nil {
 		return nil, c.error(ctx, err, "creating secret")
 	}
@@ -167,7 +102,6 @@ func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, 
 }
 
 func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
-	// TODO: validate that the secret we're updating is managed by console
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
 	if err != nil {
 		return nil, c.error(ctx, err, "impersonation")
@@ -179,37 +113,19 @@ func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, 
 		return nil, fmt.Errorf("no clientset for env %q", env)
 	}
 
-	existing, err := cli.CoreV1().Secrets(namespace).Get(ctx, name, metav1.GetOptions{})
+	// TODO: validate that the secret we're updating is managed by console
+	_, err = cli.CoreV1().Secrets(namespace).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
-		return nil, c.error(ctx, err, "getting secret")
+		return nil, c.error(ctx, err, "getting existing secret")
 	}
 
 	user := authz.ActorFromContext(ctx).User.Identity()
-
-	annotations := existing.GetAnnotations()
-	if annotations == nil {
-		annotations = make(map[string]string)
-	}
-	annotations[secretAnnotationLastModifiedByKey] = user
-	annotations[secretAnnotationLastModifiedAtKey] = time.Now().Format(time.RFC3339)
-
-	metaLabels := existing.GetLabels()
-	if metaLabels == nil {
-		metaLabels = make(map[string]string)
-	}
-	metaLabels[secretLabelKey] = secretLabelVal
-
-	meta := metav1.ObjectMeta{
-		Name:        name,
-		Namespace:   namespace,
-		Annotations: annotations,
-		Labels:      metaLabels,
-	}
-
-	updated, err := cli.CoreV1().Secrets(namespace).Update(ctx, kubeSecret(meta, data), metav1.UpdateOptions{})
+	secret := kubeSecret(name, namespace, user, data)
+	updated, err := cli.CoreV1().Secrets(namespace).Update(ctx, secret, metav1.UpdateOptions{})
 	if err != nil {
 		return nil, c.error(ctx, err, "updating secret")
 	}
+
 	return toGraphSecret(env, updated, make([]string, 0)), nil
 }
 
@@ -234,11 +150,72 @@ func (c *Client) DeleteSecret(ctx context.Context, name string, team slug.Slug, 
 	return true, nil
 }
 
-func kubeSecret(meta metav1.ObjectMeta, data []*model.SecretTupleInput) *corev1.Secret {
+// mapAppsBySecret returns a map of secrets to a list of apps that references said secret
+func (c *Client) mapAppsBySecret(ctx context.Context, team slug.Slug, env string) (map[string][]string, error) {
+	// fetch apps to build map of apps that use each secret
+	apps, err := c.informers[env].AppInformer.Lister().ByNamespace(team.String()).List(labels.Everything())
+	if err != nil {
+		return nil, c.error(ctx, err, fmt.Sprintf("listing applications for %q in %q", team, env))
+	}
+
+	// we want a map: Secret -> [App]
+	appsBySecret := make(map[string][]string)
+	for _, obj := range apps {
+		u := obj.(*unstructured.Unstructured)
+		app := &naisv1alpha1.Application{}
+
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, app); err != nil {
+			return nil, fmt.Errorf("converting to application: %w", err)
+		}
+
+		for _, secret := range app.Spec.EnvFrom {
+			as, ok := appsBySecret[secret.Secret]
+			if !ok {
+				appsBySecret[secret.Secret] = []string{app.Name}
+			} else {
+				appsBySecret[secret.Secret] = append(as, app.Name)
+			}
+		}
+
+		for _, secret := range app.Spec.FilesFrom {
+			as, ok := appsBySecret[secret.Secret]
+			if !ok {
+				appsBySecret[secret.Secret] = []string{app.Name}
+			} else {
+				appsBySecret[secret.Secret] = append(as, app.Name)
+			}
+		}
+	}
+
+	return appsBySecret, nil
+}
+
+func secretIsManagedByConsole(secret corev1.Secret) bool {
+	isOpaque := secret.Type == corev1.SecretTypeOpaque || secret.Type == "kubernetes.io/Opaque"
+	hasOwnerReferences := len(secret.GetOwnerReferences()) > 0
+	hasFinalizers := len(secret.GetFinalizers()) > 0
+
+	typeLabel, ok := secret.GetLabels()["type"]
+	isJwker := ok && typeLabel == "jwker.nais.io"
+
+	return isOpaque && !hasOwnerReferences && !hasFinalizers && !isJwker
+}
+
+func kubeSecret(name, namespace, user string, data []*model.SecretTupleInput) *corev1.Secret {
 	return &corev1.Secret{
-		ObjectMeta: meta,
-		Data:       secretTupleToMap(data),
-		Type:       corev1.SecretTypeOpaque,
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      name,
+			Namespace: namespace,
+			Annotations: map[string]string{
+				"console.nais.io/last-modified-by": user,
+				"console.nais.io/last-modified-at": time.Now().Format(time.RFC3339),
+			},
+			Labels: map[string]string{
+				secretLabelKey: secretLabelVal,
+			},
+		},
+		Data: secretTupleToMap(data),
+		Type: corev1.SecretTypeOpaque,
 	}
 }
 
@@ -251,12 +228,11 @@ func toGraphEnvSecret(env string, team slug.Slug, secret ...model.Secret) *model
 
 // toGraphSecret accepts apps as an empty list for cases where only the secret is getting
 // updated
-func toGraphSecret(
-	env string,
-	obj *corev1.Secret,
-	apps []string,
-) *model.Secret {
+func toGraphSecret(env string, obj *corev1.Secret, apps []string) *model.Secret {
+	// sort first as Compact only removes consecutive duplicates
+	slices.Sort(apps)
 	apps = slices.Compact(apps)
+
 	return &model.Secret{
 		ID:   makeSecretIdent(env, obj.GetNamespace(), obj.GetName()),
 		Name: obj.Name,

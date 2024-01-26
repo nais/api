@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"

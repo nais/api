@@ -3,11 +3,11 @@ package graph
 import (
 	"cmp"
 	"context"
-	"github.com/nais/api/internal/graph/apierror"
 	"slices"
 
 	"github.com/nais/api/internal/auth/authz"
 	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
 )
