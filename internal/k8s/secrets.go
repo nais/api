@@ -4,7 +4,9 @@ import (
 	"cmp"
 	"context"
 	"fmt"
+	"k8s.io/apimachinery/pkg/util/validation"
 	"slices"
+	"strings"
 	"time"
 
 	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
@@ -78,11 +80,22 @@ func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env st
 }
 
 func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
-	// TODO: validate the secret name - validation.IsDNS1123Subdomain(name)
-	// TODO: validate data - validation.IsConfigMapKey()
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
 	if err != nil {
 		return nil, c.error(ctx, err, "impersonation")
+	}
+
+	errorStrings := validation.IsDNS1123Subdomain(name)
+	if len(errorStrings) > 0 {
+		return nil, fmt.Errorf(strings.Join(errorStrings, ", "))
+	}
+
+	keyErrors := make([]string, 0)
+	for _, d := range data {
+		keyErrors = append(keyErrors, validation.IsConfigMapKey(d.Key)...)
+	}
+	if len(keyErrors) > 0 {
+		return nil, fmt.Errorf("invalid key: %s", strings.Join(keyErrors, ", "))
 	}
 
 	namespace := team.String()
