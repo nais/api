@@ -113,10 +113,13 @@ func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, 
 		return nil, fmt.Errorf("no clientset for env %q", env)
 	}
 
-	// TODO: validate that the secret we're updating is managed by console
-	_, err = cli.CoreV1().Secrets(namespace).Get(ctx, name, metav1.GetOptions{})
+	existing, err := cli.CoreV1().Secrets(namespace).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
 		return nil, c.error(ctx, err, "getting existing secret")
+	}
+
+	if !secretIsManagedByConsole(*existing) {
+		return nil, fmt.Errorf("secret %q is not managed by console", existing.GetName())
 	}
 
 	user := authz.ActorFromContext(ctx).User.Identity()
@@ -130,7 +133,6 @@ func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, 
 }
 
 func (c *Client) DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) (bool, error) {
-	// TODO: validate that the secret we're deleting is managed by console
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
 	if err != nil {
 		return false, c.error(ctx, err, "impersonation")
@@ -140,6 +142,15 @@ func (c *Client) DeleteSecret(ctx context.Context, name string, team slug.Slug, 
 	cli, ok := impersonatedClients[env]
 	if !ok {
 		return false, fmt.Errorf("no clientset for env %q", env)
+	}
+
+	existing, err := cli.CoreV1().Secrets(namespace).Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		return false, c.error(ctx, err, "getting existing secret")
+	}
+
+	if !secretIsManagedByConsole(*existing) {
+		return false, fmt.Errorf("secret %q is not managed by console", existing.GetName())
 	}
 
 	err = cli.CoreV1().Secrets(namespace).Delete(ctx, name, metav1.DeleteOptions{})
@@ -191,6 +202,9 @@ func (c *Client) mapAppsBySecret(ctx context.Context, team slug.Slug, env string
 }
 
 func secretIsManagedByConsole(secret corev1.Secret) bool {
+	secretLabel, ok := secret.GetLabels()[secretLabelKey]
+	hasConsoleLabel := ok && secretLabel == secretLabelVal
+
 	isOpaque := secret.Type == corev1.SecretTypeOpaque || secret.Type == "kubernetes.io/Opaque"
 	hasOwnerReferences := len(secret.GetOwnerReferences()) > 0
 	hasFinalizers := len(secret.GetFinalizers()) > 0
@@ -198,7 +212,7 @@ func secretIsManagedByConsole(secret corev1.Secret) bool {
 	typeLabel, ok := secret.GetLabels()["type"]
 	isJwker := ok && typeLabel == "jwker.nais.io"
 
-	return isOpaque && !hasOwnerReferences && !hasFinalizers && !isJwker
+	return hasConsoleLabel && isOpaque && !hasOwnerReferences && !hasFinalizers && !isJwker
 }
 
 func kubeSecret(name, namespace, user string, data []*model.SecretTupleInput) *corev1.Secret {
