@@ -76,7 +76,40 @@ func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecre
 }
 
 func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env string) (*model.Secret, error) {
-	panic("TODO: not implemented")
+
+	impersonatedClients, err := c.impersonationClientCreator(ctx)
+	if err != nil {
+		return nil, c.error(ctx, err, "impersonation")
+	}
+
+	clientSet, ok := impersonatedClients[env]
+	if !ok {
+		return nil, fmt.Errorf("impersonation")
+	}
+	namespace := team.String()
+	opts := metav1.GetOptions{}
+
+	kubeSecret, err := clientSet.CoreV1().Secrets(namespace).Get(ctx, name, opts)
+	if err != nil {
+		return nil, c.error(ctx, err, "listing secrets")
+	}
+
+	appsForSecrets, err := c.mapAppsBySecret(ctx, team, env)
+	if err != nil {
+		return nil, c.error(ctx, err, "mapping apps to secrets")
+	}
+
+	if !secretIsManagedByConsole(*kubeSecret) {
+		return nil, fmt.Errorf("unmanaged secret")
+	}
+
+	apps, ok := appsForSecrets[kubeSecret.Name]
+	if !ok {
+		apps = make([]string, 0)
+	}
+
+	return toGraphSecret(env, kubeSecret, apps), nil
+
 }
 
 func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
@@ -119,6 +152,14 @@ func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, 
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
 	if err != nil {
 		return nil, c.error(ctx, err, "impersonation")
+	}
+
+	keyErrors := make([]string, 0)
+	for _, d := range data {
+		keyErrors = append(keyErrors, validation.IsConfigMapKey(d.Key)...)
+	}
+	if len(keyErrors) > 0 {
+		return nil, fmt.Errorf("invalid key: %s", strings.Join(keyErrors, ", "))
 	}
 
 	namespace := team.String()
