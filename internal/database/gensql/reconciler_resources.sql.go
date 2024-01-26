@@ -11,6 +11,61 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
+const getReconcilerResourceByKey = `-- name: GetReconcilerResourceByKey :many
+SELECT id, reconciler_name, team_slug, name, value, metadata, created_at, updated_at
+FROM reconciler_resources
+WHERE reconciler_name = $1 AND team_slug = $2 AND name = $3
+ORDER BY value ASC LIMIT $5 OFFSET $4
+`
+
+func (q *Queries) GetReconcilerResourceByKey(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, offset int32, limit int32) ([]*ReconcilerResource, error) {
+	rows, err := q.db.Query(ctx, getReconcilerResourceByKey,
+		reconcilerName,
+		teamSlug,
+		name,
+		offset,
+		limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ReconcilerResource{}
+	for rows.Next() {
+		var i ReconcilerResource
+		if err := rows.Scan(
+			&i.ID,
+			&i.ReconcilerName,
+			&i.TeamSlug,
+			&i.Name,
+			&i.Value,
+			&i.Metadata,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getReconcilerResourceByKeyTotal = `-- name: GetReconcilerResourceByKeyTotal :one
+SELECT count(*)
+FROM reconciler_resources
+WHERE reconciler_name = $1 AND team_slug = $2 AND name = $3
+`
+
+func (q *Queries) GetReconcilerResourceByKeyTotal(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string) (int64, error) {
+	row := q.db.QueryRow(ctx, getReconcilerResourceByKeyTotal, reconcilerName, teamSlug, name)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getReconcilerResourcesForReconciler = `-- name: GetReconcilerResourcesForReconciler :many
 SELECT id, reconciler_name, team_slug, name, value, metadata, created_at, updated_at
 FROM reconciler_resources

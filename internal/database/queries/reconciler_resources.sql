@@ -30,8 +30,13 @@ ON CONFLICT (reconciler_name, team_slug, name) DO
 UPDATE SET value = EXCLUDED.value, metadata = EXCLUDED.metadata
 RETURNING *;
 
--- name: GetReconcilerResourceByKey :one
+-- name: GetReconcilerResourceByKey :many
 SELECT *
 FROM reconciler_resources
 WHERE reconciler_name = @reconciler_name AND team_slug = @team_slug AND name = @name
-LIMIT 1;
+ORDER BY value ASC LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
+-- name: GetReconcilerResourceByKeyTotal :one
+SELECT count(*)
+FROM reconciler_resources
+WHERE reconciler_name = @reconciler_name AND team_slug = @team_slug AND name = @name;

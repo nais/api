@@ -300,33 +300,22 @@ type Team {
   "Timestamp of the last successful synchronization of the team."
   lastSuccessfulSync: Time
 
-  # "Current reconciler state for the team."
-  # reconcilerState: ReconcilerState!
-  # TODO: FIX
-  reconcilerResource(
+  "Get the state of the team as it is represented by the reconciler."
+  reconcilerResources(
     "The name of the reconciler."
     reconciler: String!
     "Key to read"
     key: String!
-  ): ReconcilerResource!
+
+    limit: Int
+    offset: Int
+  ): ReconcilerResourceList!
 
   "Slack channel for the team."
   slackChannel: String!
 
   "A list of Slack channels for NAIS alerts. If no channel is specified for a given environment, NAIS will fallback to the slackChannel value."
   slackAlertsChannels: [SlackAlertsChannel!]!
-
-  "A list of GitHub repositories for the team."
-  gitHubRepositories(
-    "Offset to start listing repositories from. Default is 0."
-    offset: Int
-
-    "Limit the number of repositories to return. Default is 20."
-    limit: Int
-
-    "Filter teams by GitHub repository permissions."
-    filter: GitHubRepositoriesFilter
-  ): GitHubRepositoryList!
 
   "Whether or not the team is currently being deleted."
   deletionInProgress: Boolean!
@@ -427,6 +416,15 @@ type SlackAlertsChannel {
   channelName: String!
 }
 
+"Paginated GitHub repository type."
+type ReconcilerResourceList {
+  "The list of GitHub repositories."
+  nodes: [ReconcilerResource!]!
+
+  "Pagination information."
+  pageInfo: PageInfo!
+}
+
 type ReconcilerResource {
   "ID of the resource."
   id: ID!
@@ -441,7 +439,7 @@ type ReconcilerResource {
   value: String!
 
   "Metadata if any. JSON formatted."
-  metadata: String!
+  metadata: String
 }
 
 # TODO: FIX

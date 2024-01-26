@@ -28,5 +28,5 @@ type ReconcilerResource struct {
 	// Value of the reconciler resource.
 	Value string `json:"value"`
 	// Metadata if any. JSON formatted.
-	Metadata string `json:"metadata"`
+	Metadata *string `json:"metadata"`
 }

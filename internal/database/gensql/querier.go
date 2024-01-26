@@ -64,6 +64,8 @@ type Querier interface {
 	GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error)
 	GetReconciler(ctx context.Context, name string) (*Reconciler, error)
 	GetReconcilerConfig(ctx context.Context, reconcilerName string) ([]*GetReconcilerConfigRow, error)
+	GetReconcilerResourceByKey(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, offset int32, limit int32) ([]*ReconcilerResource, error)
+	GetReconcilerResourceByKeyTotal(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string) (int64, error)
 	GetReconcilerResourcesForReconciler(ctx context.Context, reconcilerName string, offset int32, limit int32) ([]*ReconcilerResource, error)
 	GetReconcilerResourcesForReconcilerAndTeam(ctx context.Context, reconcilerName string, teamSlug slug.Slug, offset int32, limit int32) ([]*ReconcilerResource, error)
 	GetReconcilers(ctx context.Context, offset int32, limit int32) ([]*Reconciler, error)

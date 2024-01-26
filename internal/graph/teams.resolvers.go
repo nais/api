@@ -997,23 +997,32 @@ func (r *teamResolver) SyncErrors(ctx context.Context, obj *model.Team) ([]*mode
 }
 
 // ReconcilerResource is the resolver for the reconcilerResource field.
-func (r *teamResolver) ReconcilerResource(ctx context.Context, obj *model.Team, reconciler string, key string) (*model.ReconcilerResource, error) {
-	res, err := r.database.GetReconcilerResourceByKey(ctx, reconciler, obj.Slug, key)
+func (r *teamResolver) ReconcilerResources(ctx context.Context, obj *model.Team, reconciler string, key string, limit *int, offset *int) (*model.ReconcilerResourceList, error) {
+	pg := model.NewPagination(offset, limit)
+	res, total, err := r.database.GetReconcilerResourcesByKey(ctx, reconciler, obj.Slug, key, pg.Limit, pg.Offset)
 	if err != nil {
 		return nil, err
 	}
 
-	var metadata *string
-	if len(res.Metadata) > 0 {
-		metadata = ptr.To(string(res.Metadata))
+	ret := make([]*model.ReconcilerResource, 0, len(res))
+
+	for _, r := range res {
+		var metadata *string
+		if len(r.Metadata) > 0 {
+			metadata = ptr.To(string(r.Metadata))
+		}
+		ret = append(ret, &model.ReconcilerResource{
+			ID:         r.ID,
+			Reconciler: r.ReconcilerName,
+			Key:        r.Name,
+			Value:      r.Value,
+			Metadata:   metadata,
+		})
 	}
 
-	return &model.ReconcilerResource{
-		ID:         res.ID,
-		Reconciler: res.ReconcilerName,
-		Key:        res.Name,
-		Value:      res.Value,
-		Metadata:   metadata,
+	return &model.ReconcilerResourceList{
+		Nodes:    ret,
+		PageInfo: model.NewPageInfo(pg, total),
 	}, nil
 }
 

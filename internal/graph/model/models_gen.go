@@ -661,6 +661,14 @@ type ReconcilerList struct {
 	PageInfo PageInfo `json:"pageInfo"`
 }
 
+// Paginated GitHub repository type.
+type ReconcilerResourceList struct {
+	// The list of GitHub repositories.
+	Nodes []*ReconcilerResource `json:"nodes"`
+	// Pagination information.
+	PageInfo PageInfo `json:"pageInfo"`
+}
+
 type Redis struct {
 	Name   string `json:"name"`
 	Access string `json:"access"`
