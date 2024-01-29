@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auditlogger/audittype"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
 )
@@ -18,7 +18,7 @@ type AuditLogsRepo interface {
 }
 
 type AuditLog struct {
-	*sqlc.AuditLog
+	*gensql.AuditLog
 }
 
 func (d *database) GetAuditLogsForTeam(ctx context.Context, slug slug.Slug, offset, limit int) ([]*AuditLog, int, error) {
@@ -60,7 +60,7 @@ func (d *database) GetAuditLogsForReconciler(ctx context.Context, reconcilerName
 }
 
 func (d *database) CreateAuditLogEntry(ctx context.Context, correlationID uuid.UUID, componentName logger.ComponentName, actor *string, targetType audittype.AuditLogsTargetType, targetIdentifier string, action audittype.AuditAction, message string) error {
-	return d.querier.CreateAuditLog(ctx, sqlc.CreateAuditLogParams{
+	return d.querier.CreateAuditLog(ctx, gensql.CreateAuditLogParams{
 		CorrelationID:    correlationID,
 		Actor:            actor,
 		ComponentName:    string(componentName),

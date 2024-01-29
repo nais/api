@@ -2,20 +2,18 @@ package main
 
 import (
 	"bufio"
-	"cloud.google.com/go/pubsub"
 	"context"
 	"flag"
 	"fmt"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"math/rand"
 	"os"
 	"strings"
 	"unicode"
 
+	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/database"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/usersync"
@@ -24,6 +22,8 @@ import (
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type seedConfig struct {
@@ -165,7 +165,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 		if err != nil {
 			return err
 		}
-		if err = dbtx.AssignGlobalRoleToUser(ctx, adminUser.ID, sqlc.RoleNameAdmin); err != nil {
+		if err = dbtx.AssignGlobalRoleToUser(ctx, adminUser.ID, gensql.RoleNameAdmin); err != nil {
 			return err
 		}
 		for _, roleName := range usersync.DefaultRoleNames {
@@ -204,7 +204,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			}
 		}
 
-		err = dbtx.SetTeamMemberRole(ctx, devUser.ID, devteam.Slug, sqlc.RoleNameTeamowner)
+		err = dbtx.SetTeamMemberRole(ctx, devUser.ID, devteam.Slug, gensql.RoleNameTeamowner)
 		if err != nil {
 			return err
 		}
@@ -221,14 +221,14 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			}
 
 			for o := 0; o < *cfg.NumOwnersPerTeam; o++ {
-				err = dbtx.SetTeamMemberRole(ctx, users[rand.Intn(usersCreated)].ID, team.Slug, sqlc.RoleNameTeamowner)
+				err = dbtx.SetTeamMemberRole(ctx, users[rand.Intn(usersCreated)].ID, team.Slug, gensql.RoleNameTeamowner)
 				if err != nil {
 					return err
 				}
 			}
 
 			for o := 0; o < *cfg.NumMembersPerTeam; o++ {
-				err = dbtx.SetTeamMemberRole(ctx, users[rand.Intn(usersCreated)].ID, team.Slug, sqlc.RoleNameTeammember)
+				err = dbtx.SetTeamMemberRole(ctx, users[rand.Intn(usersCreated)].ID, team.Slug, gensql.RoleNameTeammember)
 				if err != nil {
 					return err
 				}

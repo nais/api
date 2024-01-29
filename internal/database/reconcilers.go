@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/pkg/protoapi"
 )
@@ -28,15 +28,15 @@ type ReconcilerRepo interface {
 }
 
 type Reconciler struct {
-	*sqlc.Reconciler
+	*gensql.Reconciler
 }
 
 type ReconcilerConfig struct {
-	*sqlc.GetReconcilerConfigRow
+	*gensql.GetReconcilerConfigRow
 }
 
 type ReconcilerError struct {
-	*sqlc.ReconcilerError
+	*gensql.ReconcilerError
 }
 
 type ReconcilerConfigValues struct {
@@ -197,7 +197,7 @@ func (d *database) SyncReconcilerConfig(ctx context.Context, reconcilerName stri
 	})
 }
 
-func wrapReconcilers(rows []*sqlc.Reconciler) []*Reconciler {
+func wrapReconcilers(rows []*gensql.Reconciler) []*Reconciler {
 	reconcilers := make([]*Reconciler, 0, len(rows))
 	for _, row := range rows {
 		reconcilers = append(reconcilers, &Reconciler{Reconciler: row})

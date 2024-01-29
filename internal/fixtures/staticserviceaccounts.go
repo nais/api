@@ -9,7 +9,7 @@ import (
 
 	"github.com/nais/api/internal/auth/authz"
 	db "github.com/nais/api/internal/database"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database/gensql"
 )
 
 type ServiceAccount struct {
@@ -19,7 +19,7 @@ type ServiceAccount struct {
 }
 
 type ServiceAccountRole struct {
-	Name sqlc.RoleName `json:"name"`
+	Name gensql.RoleName `json:"name"`
 }
 
 const NaisServiceAccountPrefix = "nais-"
@@ -126,7 +126,7 @@ func SetupStaticServiceAccounts(ctx context.Context, database db.Database, servi
 	})
 }
 
-func hasGlobalRoleRole(roleName sqlc.RoleName, existingRoles []*authz.Role) bool {
+func hasGlobalRoleRole(roleName gensql.RoleName, existingRoles []*authz.Role) bool {
 	for _, r := range existingRoles {
 		if r.TargetTeamSlug != nil {
 			continue

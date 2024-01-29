@@ -8,7 +8,7 @@ import (
 	"context"
 
 	"github.com/nais/api/internal/auth/authz"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 )
@@ -21,7 +21,7 @@ func (r *serviceAccountResolver) Roles(ctx context.Context, obj *model.ServiceAc
 		return nil, err
 	}
 
-	err = authz.RequireRole(actor, sqlc.RoleNameAdmin)
+	err = authz.RequireRole(actor, gensql.RoleNameAdmin)
 	if err != nil && actor.User.GetID() != said {
 		return nil, err
 	}

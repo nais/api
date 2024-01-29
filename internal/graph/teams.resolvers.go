@@ -16,7 +16,7 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
 	db "github.com/nais/api/internal/database"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/dataloader"
 	"github.com/nais/api/internal/graph/gengql"
@@ -55,10 +55,10 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTea
 		}
 
 		if actor.User.IsServiceAccount() {
-			return dbtx.AssignTeamRoleToServiceAccount(ctx, actor.User.GetID(), sqlc.RoleNameTeamowner, input.Slug)
+			return dbtx.AssignTeamRoleToServiceAccount(ctx, actor.User.GetID(), gensql.RoleNameTeamowner, input.Slug)
 		}
 
-		return dbtx.SetTeamMemberRole(ctx, actor.User.GetID(), team.Slug, sqlc.RoleNameTeamowner)
+		return dbtx.SetTeamMemberRole(ctx, actor.User.GetID(), team.Slug, gensql.RoleNameTeamowner)
 	})
 	if err != nil {
 		return nil, err
@@ -391,7 +391,7 @@ func (r *mutationResolver) AddTeamMembers(ctx context.Context, slug slug.Slug, u
 				return err
 			}
 
-			err = dbtx.SetTeamMemberRole(ctx, uid, team.Slug, sqlc.RoleNameTeammember)
+			err = dbtx.SetTeamMemberRole(ctx, uid, team.Slug, gensql.RoleNameTeammember)
 			if err != nil {
 				return err
 			}
@@ -453,7 +453,7 @@ func (r *mutationResolver) AddTeamOwners(ctx context.Context, slug slug.Slug, us
 				return err
 			}
 
-			err = dbtx.SetTeamMemberRole(ctx, uid, team.Slug, sqlc.RoleNameTeamowner)
+			err = dbtx.SetTeamMemberRole(ctx, uid, team.Slug, gensql.RoleNameTeamowner)
 			if err != nil {
 				return err
 			}
@@ -546,10 +546,10 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 		var msg string
 
 		switch role {
-		case sqlc.RoleNameTeamowner:
+		case gensql.RoleNameTeamowner:
 			action = audittype.AuditActionGraphqlApiTeamAddOwner
 			msg = fmt.Sprintf("Add team owner: %q", user.Email)
-		case sqlc.RoleNameTeammember:
+		case gensql.RoleNameTeammember:
 			action = audittype.AuditActionGraphqlApiTeamAddMember
 			msg = fmt.Sprintf("Add team member: %q", user.Email)
 		default:
@@ -758,12 +758,12 @@ func (r *mutationResolver) AuthorizeRepository(ctx context.Context, authorizatio
 		return nil, err
 	}
 
-	var repoAuthorization sqlc.RepositoryAuthorizationEnum
+	var repoAuthorization gensql.RepositoryAuthorizationEnum
 	switch authorization {
 	default:
 		return nil, fmt.Errorf("invalid authorization: %q", string(authorization))
 	case model.RepositoryAuthorizationDeploy:
-		repoAuthorization = sqlc.RepositoryAuthorizationEnumDeploy
+		repoAuthorization = gensql.RepositoryAuthorizationEnumDeploy
 	}
 
 	if err := r.database.CreateRepositoryAuthorization(ctx, teamSlug, repoName, repoAuthorization); err != nil {
@@ -787,12 +787,12 @@ func (r *mutationResolver) DeauthorizeRepository(ctx context.Context, authorizat
 		return nil, err
 	}
 
-	var repoAuthorization sqlc.RepositoryAuthorizationEnum
+	var repoAuthorization gensql.RepositoryAuthorizationEnum
 	switch authorization {
 	default:
 		return nil, fmt.Errorf("invalid authorization: %q", string(authorization))
 	case model.RepositoryAuthorizationDeploy:
-		repoAuthorization = sqlc.RepositoryAuthorizationEnumDeploy
+		repoAuthorization = gensql.RepositoryAuthorizationEnumDeploy
 	}
 
 	if err := r.database.RemoveRepositoryAuthorization(ctx, teamSlug, repoName, repoAuthorization); err != nil {
@@ -1053,7 +1053,7 @@ func (r *teamResolver) SlackAlertsChannels(ctx context.Context, obj *model.Team)
 func (r *teamResolver) GitHubRepositories(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.GitHubRepositoriesFilter) (*model.GitHubRepositoryList, error) {
 	panic("not implemented")
 	// state := GitHubState{}
-	// err := r.database.LoadReconcilerStateForTeam(ctx, sqlc.ReconcilerNameGithubTeam, obj.Slug, state)
+	// err := r.database.LoadReconcilerStateForTeam(ctx, gensql.ReconcilerNameGithubTeam, obj.Slug, state)
 	// if err != nil {
 	// 	return nil, apierror.Errorf("Unable to load the GitHub state for the team.")
 	// }

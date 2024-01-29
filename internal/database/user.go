@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database/gensql"
 )
 
 type UserRepo interface {
@@ -24,12 +24,12 @@ type UserRepo interface {
 }
 
 type UserRole struct {
-	*sqlc.UserRole
+	*gensql.UserRole
 }
 
 type UserTeam struct {
-	*sqlc.Team
-	RoleName sqlc.RoleName
+	*gensql.Team
+	RoleName gensql.RoleName
 }
 
 func (d *database) CreateUser(ctx context.Context, name, email, externalID string) (*User, error) {
@@ -82,7 +82,7 @@ func (d *database) UpdateUser(ctx context.Context, userID uuid.UUID, name, email
 }
 
 func (d *database) GetUsers(ctx context.Context, offset, limit int) ([]*User, int, error) {
-	var users []*sqlc.User
+	var users []*gensql.User
 	var err error
 	users, err = d.querier.GetUsers(ctx, int32(limit), int32(offset))
 	if err != nil {
@@ -98,7 +98,7 @@ func (d *database) GetUsers(ctx context.Context, offset, limit int) ([]*User, in
 }
 
 func (d *database) GetAllUsers(ctx context.Context) ([]*User, error) {
-	var users []*sqlc.User
+	var users []*gensql.User
 	var err error
 	users, err = d.querier.GetAllUsers(ctx)
 	if err != nil {
@@ -108,7 +108,7 @@ func (d *database) GetAllUsers(ctx context.Context) ([]*User, error) {
 	return wrapUsers(users), nil
 }
 
-func wrapUsers(users []*sqlc.User) []*User {
+func wrapUsers(users []*gensql.User) []*User {
 	result := make([]*User, 0)
 	for _, user := range users {
 		result = append(result, wrapUser(user))
@@ -117,7 +117,7 @@ func wrapUsers(users []*sqlc.User) []*User {
 	return result
 }
 
-func wrapUser(user *sqlc.User) *User {
+func wrapUser(user *gensql.User) *User {
 	return &User{User: user}
 }
 
@@ -141,7 +141,7 @@ func (d *database) GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*authz
 }
 
 type User struct {
-	*sqlc.User
+	*gensql.User
 	IsAdmin *bool
 }
 
