@@ -18,6 +18,26 @@ service Teams {
   rpc Members(ListTeamMembersRequest) returns (ListTeamMembersResponse) {}
   rpc SlackAlertsChannels(SlackAlertsChannelsRequest) returns (SlackAlertsChannelsResponse) {}
   rpc SetGoogleGroupEmailForTeam(SetGoogleGroupEmailForTeamRequest) returns (SetGoogleGroupEmailForTeamResponse) {}
+  rpc Environments(ListTeamEnvironmentsRequest) returns (ListTeamEnvironmentsResponse) {}
+}
+
+message ListTeamEnvironmentsRequest {
+  int64 limit = 1;
+  int64 offset = 2;
+  string slug = 3;
+}
+
+message ListTeamEnvironmentsResponse {
+  repeated TeamEnvironment nodes = 1;
+  PageInfo page_info = 2;
+}
+
+message TeamEnvironment {
+  string id = 1;
+  string slug = 2;
+  string environment_name = 3;
+  optional string namespace = 4;
+  optional string gcp_project_id = 5;
 }
 
 message SetGoogleGroupEmailForTeamRequest {

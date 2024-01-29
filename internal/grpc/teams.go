@@ -94,6 +94,23 @@ func (t *TeamsServer) SetGoogleGroupEmailForTeam(ctx context.Context, r *protoap
 	return &protoapi.SetGoogleGroupEmailForTeamResponse{}, nil
 }
 
+func (t *TeamsServer) Environments(ctx context.Context, r *protoapi.ListTeamEnvironmentsRequest) (*protoapi.ListTeamEnvironmentsResponse, error) {
+	limit, offset := pagination(r)
+	environments, total, err := t.db.GetTeamEnvironments(ctx, slug.Slug(r.Slug), offset, limit)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to list team environments: %s", err)
+	}
+
+	resp := &protoapi.ListTeamEnvironmentsResponse{
+		PageInfo: pageInfo(r, total),
+	}
+	for _, env := range environments {
+		resp.Nodes = append(resp.Nodes, toProtoTeamEnvironment(env))
+	}
+
+	return resp, nil
+}
+
 func toProtoTeam(team *database.Team) *protoapi.Team {
 	gge := ""
 	if team.GoogleGroupEmail != nil {
@@ -111,5 +128,15 @@ func toProtoTeamMember(user *database.User) *protoapi.TeamMember {
 	return &protoapi.TeamMember{
 		User: toProtoUser(user),
 		// TODO: Role:   ...,
+	}
+}
+
+func toProtoTeamEnvironment(env *database.TeamEnvironment) *protoapi.TeamEnvironment {
+	return &protoapi.TeamEnvironment{
+		Id:              env.ID.String(),
+		Slug:            env.TeamSlug.String(),
+		EnvironmentName: env.Environment,
+		Namespace:       env.Namespace,
+		GcpProjectId:    env.GcpProjectID,
 	}
 }
