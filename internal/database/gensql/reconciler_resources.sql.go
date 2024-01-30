@@ -54,7 +54,7 @@ func (q *Queries) GetReconcilerResourceByKey(ctx context.Context, reconcilerName
 }
 
 const getReconcilerResourceByKeyTotal = `-- name: GetReconcilerResourceByKeyTotal :one
-SELECT count(*)
+SELECT COUNT(*)
 FROM reconciler_resources
 WHERE reconciler_name = $1 AND team_slug = $2 AND name = $3
 `
