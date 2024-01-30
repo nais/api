@@ -39,36 +39,6 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
-const getAllUsers = `-- name: GetAllUsers :many
-SELECT id, email, name, external_id FROM users
-ORDER BY name, email ASC
-`
-
-func (q *Queries) GetAllUsers(ctx context.Context) ([]*User, error) {
-	rows, err := q.db.Query(ctx, getAllUsers)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*User{}
-	for rows.Next() {
-		var i User
-		if err := rows.Scan(
-			&i.ID,
-			&i.Email,
-			&i.Name,
-			&i.ExternalID,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT id, email, name, external_id FROM users
 WHERE email = LOWER($1)

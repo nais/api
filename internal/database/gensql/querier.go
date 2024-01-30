@@ -54,7 +54,6 @@ type Querier interface {
 	GetActiveTeams(ctx context.Context) ([]*Team, error)
 	GetAllTeamMembers(ctx context.Context, teamSlug *slug.Slug) ([]*User, error)
 	GetAllUserRoles(ctx context.Context) ([]*UserRole, error)
-	GetAllUsers(ctx context.Context) ([]*User, error)
 	GetAuditLogsForCorrelationID(ctx context.Context, correlationID uuid.UUID, offset int32, limit int32) ([]*AuditLog, error)
 	GetAuditLogsForCorrelationIDCount(ctx context.Context, correlationID uuid.UUID) (int64, error)
 	GetAuditLogsForReconciler(ctx context.Context, targetIdentifier string, offset int32, limit int32) ([]*AuditLog, error)

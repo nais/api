@@ -94,17 +94,6 @@ func (d *database) GetUsers(ctx context.Context, offset, limit int) ([]*User, in
 	return wrapUsers(users), int(total), nil
 }
 
-func (d *database) GetAllUsers(ctx context.Context) ([]*User, error) {
-	var users []*gensql.User
-	var err error
-	users, err = d.querier.GetAllUsers(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return wrapUsers(users), nil
-}
-
 func wrapUsers(users []*gensql.User) []*User {
 	result := make([]*User, 0)
 	for _, user := range users {

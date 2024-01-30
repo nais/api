@@ -10,10 +10,6 @@ SELECT count (*) FROM users;
 SELECT * FROM users
 ORDER BY name, email ASC LIMIT $1 OFFSET $2;
 
--- name: GetAllUsers :many
-SELECT * FROM users
-ORDER BY name, email ASC;
-
 -- name: GetUserByID :one
 SELECT * FROM users
 WHERE id = $1;

@@ -1847,64 +1847,6 @@ func (_c *MockQuerier_GetAllUserRoles_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
-// GetAllUsers provides a mock function with given fields: ctx
-func (_m *MockQuerier) GetAllUsers(ctx context.Context) ([]*User, error) {
-	ret := _m.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetAllUsers")
-	}
-
-	var r0 []*User
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]*User, error)); ok {
-		return rf(ctx)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context) []*User); ok {
-		r0 = rf(ctx)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*User)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_GetAllUsers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAllUsers'
-type MockQuerier_GetAllUsers_Call struct {
-	*mock.Call
-}
-
-// GetAllUsers is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *MockQuerier_Expecter) GetAllUsers(ctx interface{}) *MockQuerier_GetAllUsers_Call {
-	return &MockQuerier_GetAllUsers_Call{Call: _e.mock.On("GetAllUsers", ctx)}
-}
-
-func (_c *MockQuerier_GetAllUsers_Call) Run(run func(ctx context.Context)) *MockQuerier_GetAllUsers_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_GetAllUsers_Call) Return(_a0 []*User, _a1 error) *MockQuerier_GetAllUsers_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_GetAllUsers_Call) RunAndReturn(run func(context.Context) ([]*User, error)) *MockQuerier_GetAllUsers_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetAuditLogsForCorrelationID provides a mock function with given fields: ctx, correlationID, offset, limit
 func (_m *MockQuerier) GetAuditLogsForCorrelationID(ctx context.Context, correlationID uuid.UUID, offset int32, limit int32) ([]*AuditLog, error) {
 	ret := _m.Called(ctx, correlationID, offset, limit)
