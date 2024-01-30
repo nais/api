@@ -1,0 +1,114 @@
+projects:
+  - id: nais-io
+    datasets:
+      - id: console
+        tables:
+          - id: cost_test
+            columns:
+              - { name: env, type: STRING }
+              - { name: app, type: STRING }
+              - { name: team, type: STRING }
+              - { name: cost_type, type: STRING }
+              - { name: date, type: DATE }
+              - { name: cost, type: FLOAT }
+            data:
+              - { env: dev,  app: team-1-app-1,  team: team-1,  cost_type: Cloud SQL,      date: 2023-08-31, cost: 0.204017 }
+              - { env: dev,  app: team-2-app-1,  team: team-2,  cost_type: Cloud SQL,      date: 2023-08-31, cost: 0.204017 }
+              - { env: prod, app: team-3-app-1,  team: team-3,  cost_type: Cloud Storage,  date: 2023-08-31, cost: 0.000013 }
+              - { env: dev,  app: team-3-app-2,  team: team-3,  cost_type: Cloud SQL,      date: 2023-08-31, cost: 0.204017 }
+              - { env: prod, app: team-4-app-2,  team: team-4,  cost_type: Cloud SQL,      date: 2023-08-31, cost: 0.204017 }
+              - { env: dev,  app: team-5-app-1,  team: team-5,  cost_type: Cloud Storage,  date: 2023-08-31, cost: 0.000201 }
+              - { env: prod, app: team-6-app-1,  team: team-6,  cost_type: Cloud SQL,      date: 2023-08-31, cost: 4.370649 }
+              - { env: dev,  app: team-7-app-1,  team: team-7,  cost_type: Cloud SQL,      date: 2023-08-31, cost: 0.971941 }
+              - { env: dev,  app: team-6-app-2,  team: team-6,  cost_type: Cloud Storage,  date: 2023-08-31, cost: 0.000001 }
+              - { env: dev,  app: team-8-app-1,  team: team-8,  cost_type: Cloud Storage,  date: 2023-08-31, cost: 0.000406 }
+              - { env: dev,  app: team-9-app-1,  team: team-9,  cost_type: Cloud SQL,      date: 2023-08-31, cost: 0.479298 }
+              - { env: dev,  app: team-6-app-1,  team: team-6,  cost_type: Cloud SQL,      date: 2023-08-31, cost: 0.406606 }
+              - { env: prod, app: team-3-app-2,  team: team-3,  cost_type: Cloud SQL,      date: 2023-08-31, cost: 0.408051 }
+              - { env: prod, app: team-6-app-3,  team: team-6,  cost_type: Cloud Storage,  date: 2023-08-31, cost: 0.000048 }
+              - { env: prod, app: team-4-app-3,  team: team-4,  cost_type: Cloud Storage,  date: 2023-08-31, cost: 0.000094 }
+              - { env: dev,  app: team-9-app-2,  team: team-9,  cost_type: Cloud SQL,      date: 2023-08-31, cost: 0.676215 }
+              - { env: dev,  app: team-6-app-3,  team: team-6,  cost_type: Cloud Storage,  date: 2023-08-31, cost: 0.000201 }
+              - { env: prod, app: team-2-app-1,  team: team-2,  cost_type: Cloud SQL,      date: 2023-08-31, cost: 0.204017 }
+              - { env: dev,  app: team-10-app-1, team: team-10, cost_type: Cloud Storage,  date: 2023-08-31, cost: 0.000403 }
+              - { env: dev,  app: team-5-app-2,  team: team-5,  cost_type: Cloud SQL,      date: 2023-08-31, cost: 0.204025 }
+              - { env: dev,  app: team-5-app-3,  team: team-5,  cost_type: Cloud SQL,      date: 2023-08-31, cost: 0.204026 }
+              - { env: prod, app: team-4-app-4,  team: team-4,  cost_type: Cloud Storage,  date: 2023-08-31, cost: 0.000002 }
+              - { env: prod, app: team-11-app-1, team: team-11, cost_type: Cloud SQL,      date: 2023-08-31, cost: 0.204017 }
+              - { env: dev,  app: team-11-app-1, team: team-11, cost_type: Cloud SQL,      date: 2023-08-31, cost: 0.204017 }
+              - { env: dev,  app: team-4-app-3,  team: team-4,  cost_type: Cloud Storage,  date: 2023-08-31, cost: 0.001081 }
+              - { env: dev,  app: team-4-app-2,  team: team-4,  cost_type: Cloud SQL,      date: 2023-08-31, cost: 0.204017 }
+              - { env: prod, app: team-4-app-4,  team: team-4,  cost_type: Cloud Storage,  date: 2023-09-01, cost: 0.000003 }
+              - { env: prod, app: team-4-app-3,  team: team-4,  cost_type: Cloud Storage,  date: 2023-09-01, cost: 0.000074 }
+              - { env: prod, app: team-4-app-2,  team: team-4,  cost_type: Cloud SQL,      date: 2023-09-01, cost: 0.288296 }
+              - { env: dev,  app: team-1-app-1,  team: team-1,  cost_type: Cloud SQL,      date: 2023-09-01, cost: 0.288296 }
+              - { env: dev,  app: team-4-app-2,  team: team-4,  cost_type: Cloud SQL,      date: 2023-09-01, cost: 0.288296 }
+              - { env: prod, app: team-3-app-2,  team: team-3,  cost_type: Cloud SQL,      date: 2023-09-01, cost: 0.576616 }
+              - { env: dev,  app: team-6-app-3,  team: team-6,  cost_type: Cloud Storage,  date: 2023-09-01, cost: 0.000276 }
+              - { env: dev,  app: team-6-app-2,  team: team-6,  cost_type: Cloud Storage,  date: 2023-09-01, cost: 0.000083 }
+              - { env: dev,  app: team-5-app-2,  team: team-5,  cost_type: Cloud SQL,      date: 2023-09-01, cost: 0.288301 }
+              - { env: dev,  app: team-11-app-1, team: team-11, cost_type: Cloud SQL,      date: 2023-09-01, cost: 0.288296 }
+              - { env: prod, app: team-3-app-1,  team: team-3,  cost_type: Cloud Storage,  date: 2023-09-01, cost: 0.000013 }
+              - { env: prod, app: team-11-app-1, team: team-11, cost_type: Cloud SQL,      date: 2023-09-01, cost: 0.288296 }
+              - { env: dev,  app: team-5-app-3,  team: team-5,  cost_type: Cloud SQL,      date: 2023-09-01, cost: 0.288298 }
+              - { env: dev,  app: team-9-app-1,  team: team-9,  cost_type: Cloud SQL,      date: 2023-09-01, cost: 0.679274 }
+              - { env: prod, app: team-6-app-3,  team: team-6,  cost_type: Cloud Storage,  date: 2023-09-01, cost: 0.000024 }
+              - { env: dev,  app: team-3-app-2,  team: team-3,  cost_type: Cloud SQL,      date: 2023-09-01, cost: 0.288296 }
+              - { env: dev,  app: team-7-app-1,  team: team-7,  cost_type: Cloud SQL,      date: 2023-09-01, cost: 0.621507 }
+              - { env: dev,  app: team-2-app-1,  team: team-2,  cost_type: Cloud SQL,      date: 2023-09-01, cost: 0.288296 }
+              - { env: prod, app: team-2-app-1,  team: team-2,  cost_type: Cloud SQL,      date: 2023-09-01, cost: 0.288296 }
+              - { env: dev,  app: team-10-app-1, team: team-10, cost_type: Cloud Storage,  date: 2023-09-01, cost: 0.000621 }
+              - { env: dev,  app: team-4-app-3,  team: team-4,  cost_type: Cloud Storage,  date: 2023-09-01, cost: 0.000432 }
+              - { env: prod, app: team-6-app-1,  team: team-6,  cost_type: Cloud SQL,      date: 2023-09-01, cost: 6.152699 }
+              - { env: dev,  app: team-8-app-1,  team: team-8,  cost_type: Cloud Storage,  date: 2023-09-01, cost: 0.000597 }
+              - { env: dev,  app: team-7-app-2,  team: team-7,  cost_type: Cloud SQL,      date: 2023-09-01, cost: 0.163203 }
+              - { env: dev,  app: team-5-app-1,  team: team-5,  cost_type: Cloud Storage,  date: 2023-09-01, cost: 0.000283 }
+              - { env: dev,  app: team-6-app-1,  team: team-6,  cost_type: Cloud SQL,      date: 2023-09-01, cost: 0.574593 }
+              - { env: dev,  app: team-9-app-2,  team: team-9,  cost_type: Cloud SQL,      date: 2023-09-01, cost: 0.984584 }
+              - { env: dev,  app: team-6-app-2,  team: team-6,  cost_type: Cloud Storage,  date: 2023-09-02, cost: 0.000083 }
+              - { env: prod, app: team-4-app-3,  team: team-4,  cost_type: Cloud Storage,  date: 2023-09-02, cost: 0.000121 }
+              - { env: dev,  app: team-9-app-2,  team: team-9,  cost_type: Cloud SQL,      date: 2023-09-02, cost: 0.996945 }
+              - { env: dev,  app: team-5-app-4,  team: team-5,  cost_type: Cloud SQL,      date: 2023-09-02, cost: 0.152617 }
+              - { env: prod, app: team-2-app-1,  team: team-2,  cost_type: Cloud SQL,      date: 2023-09-02, cost: 0.288408 }
+              - { env: dev,  app: team-12-app-1, team: team-12, cost_type: Cloud SQL,      date: 2023-09-02, cost: 0.140723 }
+              - { env: prod, app: team-4-app-2,  team: team-4,  cost_type: Cloud SQL,      date: 2023-09-02, cost: 0.288408 }
+              - { env: prod, app: team-11-app-1, team: team-11, cost_type: Cloud SQL,      date: 2023-09-02, cost: 0.288408 }
+              - { env: dev,  app: team-7-app-2,  team: team-7,  cost_type: Cloud SQL,      date: 2023-09-02, cost: 0.271489 }
+              - { env: prod, app: team-4-app-4,  team: team-4,  cost_type: Cloud Storage,  date: 2023-09-02, cost: 0.000041 }
+              - { env: dev,  app: team-3-app-2,  team: team-3,  cost_type: Cloud SQL,      date: 2023-09-02, cost: 0.288408 }
+              - { env: dev,  app: team-4-app-3,  team: team-4,  cost_type: Cloud Storage,  date: 2023-09-02, cost: 0.000562 }
+              - { env: dev,  app: team-6-app-1,  team: team-6,  cost_type: Cloud SQL,      date: 2023-09-02, cost: 0.574824 }
+              - { env: dev,  app: team-8-app-1,  team: team-8,  cost_type: Cloud Storage,  date: 2023-09-02, cost: 0.000732 }
+              - { env: dev,  app: team-10-app-1, team: team-10, cost_type: Cloud Storage,  date: 2023-09-02, cost: 0.000765 }
+              - { env: prod, app: team-6-app-3,  team: team-6,  cost_type: Cloud Storage,  date: 2023-09-02, cost: 0.000061 }
+              - { env: prod, app: team-3-app-2,  team: team-3,  cost_type: Cloud SQL,      date: 2023-09-02, cost: 0.576841 }
+              - { env: dev,  app: team-4-app-2,  team: team-4,  cost_type: Cloud SQL,      date: 2023-09-02, cost: 0.288408 }
+              - { env: dev,  app: team-11-app-1, team: team-11, cost_type: Cloud SQL,      date: 2023-09-02, cost: 0.288408 }
+              - { env: prod, app: team-6-app-1,  team: team-6,  cost_type: Cloud SQL,      date: 2023-09-02, cost: 6.145441 }
+              - { env: prod, app: team-3-app-1,  team: team-3,  cost_type: Cloud Storage,  date: 2023-09-02, cost: 0.000013 }
+              - { env: dev,  app: team-2-app-1,  team: team-2,  cost_type: Cloud SQL,      date: 2023-09-02, cost: 0.288408 }
+              - { env: dev,  app: team-7-app-1,  team: team-7,  cost_type: Cloud SQL,      date: 2023-09-02, cost: 0.091119 }
+              - { env: dev,  app: team-9-app-1,  team: team-9,  cost_type: Cloud SQL,      date: 2023-09-02, cost: 0.680352 }
+              - { env: dev,  app: team-5-app-2,  team: team-5,  cost_type: Cloud SQL,      date: 2023-09-02, cost: 0.288424 }
+              - { env: dev,  app: team-5-app-1,  team: team-5,  cost_type: Cloud Storage,  date: 2023-09-02, cost: 0.000361 }
+              - { env: dev,  app: team-6-app-3,  team: team-6,  cost_type: Cloud Storage,  date: 2023-09-02, cost: 0.000365 }
+              - { env: dev,  app: team-1-app-1,  team: team-1,  cost_type: Cloud SQL,      date: 2023-09-02, cost: 0.288408 }
+              - { env: dev,  app: team-5-app-3,  team: team-5,  cost_type: Cloud SQL,      date: 2023-09-02, cost: 0.288422 }
+              - { env: dev,  app: team-9-app-2,  team: team-9,  cost_type: Cloud SQL,      date: 2023-09-03, cost: 0.290781 }
+              - { env: dev,  app: app-1,         team: null,    cost_type: Compute Engine, date: 2023-09-03, cost: 0.563098 }
+              - { env: dev,  app: team-13-app-1, team: team-13, cost_type: Compute Engine, date: 2023-09-03, cost: 0.285574 }
+              - { env: dev,  app: team-2-app-2,  team: team-2,  cost_type: Compute Engine, date: 2023-09-03, cost: 1.338954 }
+              - { env: dev,  app: app-2,         team: null,    cost_type: Compute Engine, date: 2023-09-03, cost: 0.209157 }
+              - { env: dev,  app: team-9-app-3,  team: team-9,  cost_type: Compute Engine, date: 2023-09-03, cost: 0.854277 }
+              - { env: dev,  app: team-2-app-3,  team: team-2,  cost_type: Compute Engine, date: 2023-09-03, cost: 0.882816 }
+              - { env: dev,  app: app-3,         team: null,    cost_type: Compute Engine, date: 2023-09-03, cost: 0.323519 }
+              - { env: dev,  app: team-13-app-2, team: team-13, cost_type: Compute Engine, date: 2023-09-03, cost: 0.332108 }
+              - { env: dev,  app: team-6-app-1,  team: team-6,  cost_type: Cloud SQL,      date: 2023-09-03, cost: 0.574824 }
+              - { env: dev,  app: team-14-app-1, team: team-14, cost_type: Compute Engine, date: 2023-09-03, cost: 0.335513 }
+              - { env: dev,  app: team-2-app-4,  team: team-2,  cost_type: Compute Engine, date: 2023-09-03, cost: 0.555858 }
+              - { env: dev,  app: team-4-app-3,  team: team-4,  cost_type: Compute Engine, date: 2023-09-03, cost: 0.213772 }
+              - { env: dev,  app: team-13-app-3, team: team-13, cost_type: Compute Engine, date: 2023-09-03, cost: 0.553126 }
+              - { env: dev,  app: team-6-app-4,  team: team-6,  cost_type: Compute Engine, date: 2023-09-03, cost: 0.279061 }
+              - { env: dev,  app: team-7-app-3,  team: team-7,  cost_type: Compute Engine, date: 2023-09-03, cost: 0.311838 }
+              - { env: dev,  app: team-8-app-2,  team: team-8,  cost_type: Compute Engine, date: 2023-09-03, cost: 0.580576 }
+              - { env: prod, app: team-3-app-2,  team: team-3,  cost_type: Cloud SQL,      date: 2023-09-03, cost: 0.576842 }

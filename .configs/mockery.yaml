@@ -16,3 +16,9 @@ packages:
   github.com/nais/api/internal/thirdparty/dependencytrack:
     interfaces:
       InternalClient:
+  github.com/nais/api/internal/database:
+    interfaces:
+      Database:
+  github.com/nais/api/internal/auth/authz:
+    interfaces:
+      AuthenticatedUser:

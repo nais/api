@@ -50,5 +50,17 @@ services:
       - jaeger
     mem_limit: 100m
 
+  bigquery:
+    image: ghcr.io/goccy/bigquery-emulator:latest
+    command:
+      - "bigquery-emulator"
+      - "--project=project"
+      - "--dataset=dataset"
+      - "--data-from-yaml=/data.yaml"
+    ports:
+      - "9050:9050"
+    volumes:
+      - ./hack/bigquery-emulator-data.yaml:/data.yaml
+
 volumes:
   pgdata:

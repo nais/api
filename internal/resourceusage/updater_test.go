@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/resourceusage"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
@@ -14,7 +14,7 @@ import (
 func Test_updater_UpdateResourceUsage(t *testing.T) {
 	ctx := context.Background()
 	t.Run("error when fetching max timestamp from database", func(t *testing.T) {
-		querier := gensql.NewMockQuerier(t)
+		querier := database.NewMockDatabase(t)
 		querier.EXPECT().MaxResourceUtilizationDate(ctx).Return(pgtype.Timestamptz{}, assert.AnError)
 		log, _ := logrustest.NewNullLogger()
 		updater := resourceusage.NewUpdater(nil, nil, querier, log)

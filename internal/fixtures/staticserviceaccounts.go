@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/auth/authz"
-	db "github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 )
 
@@ -62,8 +62,8 @@ func (s *ServiceAccounts) UnmarshalJSON(value []byte) error {
 }
 
 // SetupStaticServiceAccounts Create a set of service accounts with roles and API keys
-func SetupStaticServiceAccounts(ctx context.Context, database db.Database, serviceAccounts ServiceAccounts) error {
-	return database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
+func SetupStaticServiceAccounts(ctx context.Context, db database.Database, serviceAccounts ServiceAccounts) error {
+	return db.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		serviceAccountNames := make(map[string]struct{})
 		for _, serviceAccountFromInput := range serviceAccounts {
 			serviceAccountNames[serviceAccountFromInput.Name] = struct{}{}

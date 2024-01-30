@@ -2,14 +2,15 @@ package fixtures_test
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"testing"
 
 	"github.com/google/uuid"
-	db "github.com/nais/api/internal/database"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/fixtures"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -17,134 +18,161 @@ func TestSetupStaticServiceAccounts(t *testing.T) {
 	serviceAccounts := make(fixtures.ServiceAccounts, 0)
 
 	t.Run("empty string", func(t *testing.T) {
-		err := serviceAccounts.Decode("")
-		assert.NoError(t, err)
-		assert.Len(t, serviceAccounts, 0)
+		err := serviceAccounts.UnmarshalJSON([]byte(""))
+		if err != nil {
+			t.Errorf("unexpected error: %q", err)
+		}
+
+		if len(serviceAccounts) != 0 {
+			t.Errorf("expected no service accounts, got %v", len(serviceAccounts))
+		}
 	})
 
 	t.Run("invalid data", func(t *testing.T) {
-		err := serviceAccounts.Decode(`{"foo":"bar"}`)
-		assert.ErrorContains(t, err, `json: cannot unmarshal object`)
-		assert.Len(t, serviceAccounts, 0)
+		err := serviceAccounts.UnmarshalJSON([]byte(`{"foo":"bar"}`))
+		tgt := &json.UnmarshalTypeError{}
+		if !errors.As(err, &tgt) {
+			t.Errorf("expected error to be of type json.UnmarshalTypeError, got %T", err)
+		}
+		if len(serviceAccounts) != 0 {
+			t.Errorf("expected no service accounts, got %v", len(serviceAccounts))
+		}
 	})
 
 	t.Run("service account with no roles", func(t *testing.T) {
-		err := serviceAccounts.Decode(`[{
+		err := serviceAccounts.UnmarshalJSON([]byte(`[{
 			"name": "nais-service-account",
 			"apiKey": "some key",
 			"roles": []
-		}]`)
-		assert.EqualError(t, err, `service account must have at least one role: "nais-service-account"`)
-		assert.Len(t, serviceAccounts, 0)
+		}]`))
+		if err.Error() != `service account must have at least one role: "nais-service-account"` {
+			t.Errorf("expected error to contain 'service account must have at least one role: \"nais-service-account\"', got %q", err)
+		}
+		if len(serviceAccounts) != 0 {
+			t.Errorf("expected no service accounts, got %v", len(serviceAccounts))
+		}
 	})
 
 	t.Run("missing API key", func(t *testing.T) {
-		err := serviceAccounts.Decode(`[{
+		err := serviceAccounts.UnmarshalJSON([]byte(`[{
 			"name": "nais-service-account",
 			"roles": [{"name":"Admin"}]
-		}]`)
-		assert.EqualError(t, err, `service account is missing an API key: "nais-service-account"`)
-		assert.Len(t, serviceAccounts, 0)
+		}]`))
+		if err.Error() != `service account is missing an API key: "nais-service-account"` {
+			t.Errorf("expected error to contain 'service account is missing an API key: \"nais-service-account\"', got %q", err)
+		}
+		if len(serviceAccounts) != 0 {
+			t.Errorf("expected no service accounts, got %v", len(serviceAccounts))
+		}
 	})
 
 	t.Run("service account with invalid name", func(t *testing.T) {
-		err := serviceAccounts.Decode(`[{
+		err := serviceAccounts.UnmarshalJSON([]byte(`[{
 			"name": "service-account",
 			"apiKey": "some key",
 			"roles": [{"name":"Team viewer"}]
-		}]`)
-		assert.EqualError(t, err, `service account is missing required "nais-" prefix: "service-account"`)
-		assert.Len(t, serviceAccounts, 0)
+		}]`))
+		if err.Error() != `service account is missing required "nais-" prefix: "service-account"` {
+			t.Errorf("expected error to contain 'service account is missing required \"nais-\" prefix: \"service-account\"', got %q", err)
+		}
+		if len(serviceAccounts) != 0 {
+			t.Errorf("expected no service accounts, got %v", len(serviceAccounts))
+		}
 	})
 
 	t.Run("service account with invalid role", func(t *testing.T) {
-		err := serviceAccounts.Decode(`[{
+		err := serviceAccounts.UnmarshalJSON([]byte(`[{
 			"name": "nais-service-account",
 			"apiKey": "some key",
 			"roles": [{"name":"role"}]
-		}]`)
-		assert.EqualError(t, err, `invalid role name: "role" for service account "nais-service-account"`)
-		assert.Len(t, serviceAccounts, 0)
+		}]`))
+		// assert.EqualError(t, err, `invalid role name: "role" for service account "nais-service-account"`)
+		// assert.Len(t, serviceAccounts, 0)
+		if err.Error() != `invalid role name: "role" for service account "nais-service-account"` {
+			t.Errorf("expected error to contain 'invalid role name: \"role\" for service account \"nais-service-account\"', got %q", err)
+		}
+		if len(serviceAccounts) != 0 {
+			t.Errorf("expected no service accounts, got %v", len(serviceAccounts))
+		}
 	})
 
 	t.Run("create multiple service accounts and delete old one", func(t *testing.T) {
 		ctx := context.Background()
 		txCtx := context.Background()
-		database := db.NewMockDatabase(t)
-		dbtx := db.NewMockDatabase(t)
+		db := database.NewMockDatabase(t)
+		dbtx := database.NewMockDatabase(t)
 
 		sa1 := serviceAccountWithName("nais-service-account-1")
 		sa2 := serviceAccountWithName("nais-service-account-2")
 		sa3 := serviceAccountWithName("nais-service-account-3")
 
-		database.
-			On("Transaction", ctx, mock.AnythingOfType("db.DatabaseTransactionFunc")).
-			Run(func(args mock.Arguments) {
-				fn := args.Get(1).(db.DatabaseTransactionFunc)
+		db.EXPECT().
+			Transaction(ctx, mock.AnythingOfType("database.DatabaseTransactionFunc")).
+			Run(func(ctx context.Context, fn database.DatabaseTransactionFunc) {
 				fn(txCtx, dbtx)
 			}).
 			Return(nil).
 			Once()
 
 		// First service account
-		dbtx.
-			On("GetServiceAccountByName", txCtx, sa1.Name).
+		dbtx.EXPECT().
+			GetServiceAccountByName(txCtx, sa1.Name).
 			Return(nil, errors.New("service account not found")).
 			Once()
-		dbtx.
-			On("CreateServiceAccount", txCtx, "nais-service-account-1").
+		dbtx.EXPECT().
+			CreateServiceAccount(txCtx, "nais-service-account-1").
 			Return(sa1, nil).
 			Once()
-		dbtx.
-			On("RemoveApiKeysFromServiceAccount", txCtx, sa1.ID).
+		dbtx.EXPECT().
+			RemoveApiKeysFromServiceAccount(txCtx, sa1.ID).
 			Return(nil).
 			Once()
-		dbtx.
-			On("GetServiceAccountRoles", txCtx, sa1.ID).
+		dbtx.EXPECT().
+			GetServiceAccountRoles(txCtx, sa1.ID).
 			Return(nil, nil).
 			Once()
-		dbtx.
-			On("AssignGlobalRoleToServiceAccount", txCtx, sa1.ID, sqlc.RoleNameTeamcreator).
+		dbtx.EXPECT().
+			AssignGlobalRoleToServiceAccount(txCtx, sa1.ID, gensql.RoleNameTeamcreator).
 			Return(nil).
 			Once()
-		dbtx.
-			On("AssignGlobalRoleToServiceAccount", txCtx, sa1.ID, sqlc.RoleNameTeamviewer).
+		dbtx.EXPECT().
+			AssignGlobalRoleToServiceAccount(txCtx, sa1.ID, gensql.RoleNameTeamviewer).
 			Return(nil).
 			Once()
-		dbtx.
-			On("CreateAPIKey", txCtx, "key-1", sa1.ID).
+		dbtx.EXPECT().
+			CreateAPIKey(txCtx, "key-1", sa1.ID).
 			Return(nil).
 			Once()
 
 		// Second service account, already has the role requested
-		dbtx.
-			On("GetServiceAccountByName", txCtx, sa2.Name).
+		dbtx.EXPECT().
+			GetServiceAccountByName(txCtx, sa2.Name).
 			Return(sa2, nil).
 			Once()
-		dbtx.
-			On("RemoveApiKeysFromServiceAccount", txCtx, sa2.ID).
+		dbtx.EXPECT().
+			RemoveApiKeysFromServiceAccount(txCtx, sa2.ID).
 			Return(nil).
 			Once()
-		dbtx.
-			On("GetServiceAccountRoles", txCtx, sa2.ID).
-			Return([]*db.Role{{RoleName: sqlc.RoleNameAdmin}}, nil).
+		dbtx.EXPECT().
+			GetServiceAccountRoles(txCtx, sa2.ID).
+			Return([]*authz.Role{{RoleName: gensql.RoleNameAdmin}}, nil).
 			Once()
-		dbtx.
-			On("CreateAPIKey", txCtx, "key-2", sa2.ID).
+		dbtx.EXPECT().
+			CreateAPIKey(txCtx, "key-2", sa2.ID).
 			Return(nil).
 			Once()
 
 		// Delete old service account
-		dbtx.
-			On("GetServiceAccounts", txCtx).
-			Return([]*db.ServiceAccount{sa1, sa2, sa3}, nil).
+		dbtx.EXPECT().
+			GetServiceAccounts(txCtx).
+			Return([]*database.ServiceAccount{sa1, sa2, sa3}, nil).
 			Once()
-		dbtx.
-			On("DeleteServiceAccount", txCtx, sa3.ID).
+		dbtx.EXPECT().
+			DeleteServiceAccount(txCtx, sa3.ID).
 			Return(nil).
 			Once()
 
-		err := serviceAccounts.Decode(`[{
+		err := serviceAccounts.UnmarshalJSON([]byte(`[{
 			"name": "nais-service-account-1",
 			"apiKey": "key-1",
 			"roles": [{"name":"Team creator"}, {"name":"Team viewer"}]
@@ -152,18 +180,24 @@ func TestSetupStaticServiceAccounts(t *testing.T) {
 			"name": "nais-service-account-2",
 			"apiKey": "key-2",
 			"roles": [{"name":"Admin"}]
-		}]`)
-		assert.NoError(t, err)
-		assert.Len(t, serviceAccounts, 2)
+		}]`))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(serviceAccounts) != 2 {
+			t.Errorf("expected 2 service accounts, got %v", len(serviceAccounts))
+		}
 
-		err = fixtures.SetupStaticServiceAccounts(ctx, database, serviceAccounts)
-		assert.NoError(t, err)
+		err = fixtures.SetupStaticServiceAccounts(ctx, db, serviceAccounts)
+		if err != nil {
+			t.Fatal(err)
+		}
 	})
 }
 
-func serviceAccountWithName(name string) *db.ServiceAccount {
-	return &db.ServiceAccount{
-		ServiceAccount: &sqlc.ServiceAccount{
+func serviceAccountWithName(name string) *database.ServiceAccount {
+	return &database.ServiceAccount{
+		ServiceAccount: &gensql.ServiceAccount{
 			ID:   uuid.New(),
 			Name: name,
 		},
