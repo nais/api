@@ -70,7 +70,7 @@ func (d *database) GetUserByExternalID(ctx context.Context, externalID string) (
 }
 
 func (d *database) UpdateUser(ctx context.Context, userID uuid.UUID, name, email, externalID string) (*User, error) {
-	user, err := d.querier.UpdateUser(ctx, name, externalID, userID, email)
+	user, err := d.querier.UpdateUser(ctx, name, email, externalID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (d *database) UpdateUser(ctx context.Context, userID uuid.UUID, name, email
 func (d *database) GetUsers(ctx context.Context, offset, limit int) ([]*User, int, error) {
 	var users []*gensql.User
 	var err error
-	users, err = d.querier.GetUsers(ctx, int32(limit), int32(offset))
+	users, err = d.querier.GetUsers(ctx, int32(offset), int32(limit))
 	if err != nil {
 		return nil, 0, err
 	}

@@ -155,7 +155,7 @@ func (d *database) GetActiveTeams(ctx context.Context) ([]*Team, error) {
 }
 
 func (d *database) GetUserTeams(ctx context.Context, userID uuid.UUID, offset, limit int) ([]*UserTeam, int, error) {
-	rows, err := d.querier.GetUserTeams(ctx, userID, int32(limit), int32(offset))
+	rows, err := d.querier.GetUserTeams(ctx, userID, int32(offset), int32(limit))
 	if err != nil {
 		return nil, 0, err
 	}

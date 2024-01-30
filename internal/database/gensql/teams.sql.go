@@ -368,7 +368,7 @@ func (q *Queries) GetTeamMembers(ctx context.Context, teamSlug *slug.Slug, offse
 }
 
 const getTeamMembersCount = `-- name: GetTeamMembersCount :one
-SELECT COUNT (*) FROM user_roles
+SELECT COUNT(*) FROM user_roles
 WHERE user_roles.target_team_slug = $1
 `
 

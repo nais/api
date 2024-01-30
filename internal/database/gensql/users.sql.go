@@ -95,7 +95,7 @@ SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channe
 JOIN teams ON teams.slug = user_roles.target_team_slug
 WHERE user_roles.user_id = $1
 ORDER BY teams.slug ASC
-LIMIT $2 OFFSET $3
+LIMIT $3 OFFSET $2
 `
 
 type GetUserTeamsRow struct {
@@ -103,8 +103,8 @@ type GetUserTeamsRow struct {
 	RoleName RoleName
 }
 
-func (q *Queries) GetUserTeams(ctx context.Context, userID uuid.UUID, limit int32, offset int32) ([]*GetUserTeamsRow, error) {
-	rows, err := q.db.Query(ctx, getUserTeams, userID, limit, offset)
+func (q *Queries) GetUserTeams(ctx context.Context, userID uuid.UUID, offset int32, limit int32) ([]*GetUserTeamsRow, error) {
+	rows, err := q.db.Query(ctx, getUserTeams, userID, offset, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +131,7 @@ func (q *Queries) GetUserTeams(ctx context.Context, userID uuid.UUID, limit int3
 }
 
 const getUserTeamsCount = `-- name: GetUserTeamsCount :one
-SELECT COUNT (*) FROM user_roles
+SELECT COUNT(*) FROM user_roles
 WHERE user_roles.user_id = $1
 AND target_team_slug IS NOT NULL
 `
@@ -145,11 +145,12 @@ func (q *Queries) GetUserTeamsCount(ctx context.Context, userID uuid.UUID) (int6
 
 const getUsers = `-- name: GetUsers :many
 SELECT id, email, name, external_id FROM users
-ORDER BY name, email ASC LIMIT $1 OFFSET $2
+ORDER BY name, email ASC
+LIMIT $2 OFFSET $1
 `
 
-func (q *Queries) GetUsers(ctx context.Context, limit int32, offset int32) ([]*User, error) {
-	rows, err := q.db.Query(ctx, getUsers, limit, offset)
+func (q *Queries) GetUsers(ctx context.Context, offset int32, limit int32) ([]*User, error) {
+	rows, err := q.db.Query(ctx, getUsers, offset, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -174,7 +175,7 @@ func (q *Queries) GetUsers(ctx context.Context, limit int32, offset int32) ([]*U
 }
 
 const getUsersCount = `-- name: GetUsersCount :one
-SELECT count (*) FROM users
+SELECT COUNT(*) FROM users
 `
 
 func (q *Queries) GetUsersCount(ctx context.Context) (int64, error) {
@@ -186,17 +187,17 @@ func (q *Queries) GetUsersCount(ctx context.Context) (int64, error) {
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
-SET name = $1, email = LOWER($4), external_id = $2
-WHERE id = $3
+SET name = $1, email = LOWER($2), external_id = $3
+WHERE id = $4
 RETURNING id, email, name, external_id
 `
 
-func (q *Queries) UpdateUser(ctx context.Context, name string, externalID string, iD uuid.UUID, email string) (*User, error) {
+func (q *Queries) UpdateUser(ctx context.Context, name string, email string, externalID string, iD uuid.UUID) (*User, error) {
 	row := q.db.QueryRow(ctx, updateUser,
 		name,
+		email,
 		externalID,
 		iD,
-		email,
 	)
 	var i User
 	err := row.Scan(

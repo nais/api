@@ -65,7 +65,7 @@ WHERE user_roles.target_team_slug = @team_slug
 ORDER BY users.name ASC LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
 -- name: GetTeamMembersCount :one
-SELECT COUNT (*) FROM user_roles
+SELECT COUNT(*) FROM user_roles
 WHERE user_roles.target_team_slug = @team_slug;
 
 -- name: GetTeamMember :one

@@ -4096,9 +4096,9 @@ func (_c *MockQuerier_GetUserRoles_Call) RunAndReturn(run func(context.Context, 
 	return _c
 }
 
-// GetUserTeams provides a mock function with given fields: ctx, userID, limit, offset
-func (_m *MockQuerier) GetUserTeams(ctx context.Context, userID uuid.UUID, limit int32, offset int32) ([]*GetUserTeamsRow, error) {
-	ret := _m.Called(ctx, userID, limit, offset)
+// GetUserTeams provides a mock function with given fields: ctx, userID, offset, limit
+func (_m *MockQuerier) GetUserTeams(ctx context.Context, userID uuid.UUID, offset int32, limit int32) ([]*GetUserTeamsRow, error) {
+	ret := _m.Called(ctx, userID, offset, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserTeams")
@@ -4107,10 +4107,10 @@ func (_m *MockQuerier) GetUserTeams(ctx context.Context, userID uuid.UUID, limit
 	var r0 []*GetUserTeamsRow
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, int32, int32) ([]*GetUserTeamsRow, error)); ok {
-		return rf(ctx, userID, limit, offset)
+		return rf(ctx, userID, offset, limit)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, int32, int32) []*GetUserTeamsRow); ok {
-		r0 = rf(ctx, userID, limit, offset)
+		r0 = rf(ctx, userID, offset, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*GetUserTeamsRow)
@@ -4118,7 +4118,7 @@ func (_m *MockQuerier) GetUserTeams(ctx context.Context, userID uuid.UUID, limit
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, int32, int32) error); ok {
-		r1 = rf(ctx, userID, limit, offset)
+		r1 = rf(ctx, userID, offset, limit)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -4134,13 +4134,13 @@ type MockQuerier_GetUserTeams_Call struct {
 // GetUserTeams is a helper method to define mock.On call
 //   - ctx context.Context
 //   - userID uuid.UUID
-//   - limit int32
 //   - offset int32
-func (_e *MockQuerier_Expecter) GetUserTeams(ctx interface{}, userID interface{}, limit interface{}, offset interface{}) *MockQuerier_GetUserTeams_Call {
-	return &MockQuerier_GetUserTeams_Call{Call: _e.mock.On("GetUserTeams", ctx, userID, limit, offset)}
+//   - limit int32
+func (_e *MockQuerier_Expecter) GetUserTeams(ctx interface{}, userID interface{}, offset interface{}, limit interface{}) *MockQuerier_GetUserTeams_Call {
+	return &MockQuerier_GetUserTeams_Call{Call: _e.mock.On("GetUserTeams", ctx, userID, offset, limit)}
 }
 
-func (_c *MockQuerier_GetUserTeams_Call) Run(run func(ctx context.Context, userID uuid.UUID, limit int32, offset int32)) *MockQuerier_GetUserTeams_Call {
+func (_c *MockQuerier_GetUserTeams_Call) Run(run func(ctx context.Context, userID uuid.UUID, offset int32, limit int32)) *MockQuerier_GetUserTeams_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(int32), args[3].(int32))
 	})
@@ -4214,9 +4214,9 @@ func (_c *MockQuerier_GetUserTeamsCount_Call) RunAndReturn(run func(context.Cont
 	return _c
 }
 
-// GetUsers provides a mock function with given fields: ctx, limit, offset
-func (_m *MockQuerier) GetUsers(ctx context.Context, limit int32, offset int32) ([]*User, error) {
-	ret := _m.Called(ctx, limit, offset)
+// GetUsers provides a mock function with given fields: ctx, offset, limit
+func (_m *MockQuerier) GetUsers(ctx context.Context, offset int32, limit int32) ([]*User, error) {
+	ret := _m.Called(ctx, offset, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUsers")
@@ -4225,10 +4225,10 @@ func (_m *MockQuerier) GetUsers(ctx context.Context, limit int32, offset int32) 
 	var r0 []*User
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, int32, int32) ([]*User, error)); ok {
-		return rf(ctx, limit, offset)
+		return rf(ctx, offset, limit)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, int32, int32) []*User); ok {
-		r0 = rf(ctx, limit, offset)
+		r0 = rf(ctx, offset, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*User)
@@ -4236,7 +4236,7 @@ func (_m *MockQuerier) GetUsers(ctx context.Context, limit int32, offset int32) 
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, int32, int32) error); ok {
-		r1 = rf(ctx, limit, offset)
+		r1 = rf(ctx, offset, limit)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -4251,13 +4251,13 @@ type MockQuerier_GetUsers_Call struct {
 
 // GetUsers is a helper method to define mock.On call
 //   - ctx context.Context
-//   - limit int32
 //   - offset int32
-func (_e *MockQuerier_Expecter) GetUsers(ctx interface{}, limit interface{}, offset interface{}) *MockQuerier_GetUsers_Call {
-	return &MockQuerier_GetUsers_Call{Call: _e.mock.On("GetUsers", ctx, limit, offset)}
+//   - limit int32
+func (_e *MockQuerier_Expecter) GetUsers(ctx interface{}, offset interface{}, limit interface{}) *MockQuerier_GetUsers_Call {
+	return &MockQuerier_GetUsers_Call{Call: _e.mock.On("GetUsers", ctx, offset, limit)}
 }
 
-func (_c *MockQuerier_GetUsers_Call) Run(run func(ctx context.Context, limit int32, offset int32)) *MockQuerier_GetUsers_Call {
+func (_c *MockQuerier_GetUsers_Call) Run(run func(ctx context.Context, offset int32, limit int32)) *MockQuerier_GetUsers_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(int32), args[2].(int32))
 	})
@@ -5968,9 +5968,9 @@ func (_c *MockQuerier_UpdateTeam_Call) RunAndReturn(run func(context.Context, *s
 	return _c
 }
 
-// UpdateUser provides a mock function with given fields: ctx, name, externalID, iD, email
-func (_m *MockQuerier) UpdateUser(ctx context.Context, name string, externalID string, iD uuid.UUID, email string) (*User, error) {
-	ret := _m.Called(ctx, name, externalID, iD, email)
+// UpdateUser provides a mock function with given fields: ctx, name, email, externalID, iD
+func (_m *MockQuerier) UpdateUser(ctx context.Context, name string, email string, externalID string, iD uuid.UUID) (*User, error) {
+	ret := _m.Called(ctx, name, email, externalID, iD)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateUser")
@@ -5978,19 +5978,19 @@ func (_m *MockQuerier) UpdateUser(ctx context.Context, name string, externalID s
 
 	var r0 *User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, uuid.UUID, string) (*User, error)); ok {
-		return rf(ctx, name, externalID, iD, email)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, uuid.UUID) (*User, error)); ok {
+		return rf(ctx, name, email, externalID, iD)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, uuid.UUID, string) *User); ok {
-		r0 = rf(ctx, name, externalID, iD, email)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, uuid.UUID) *User); ok {
+		r0 = rf(ctx, name, email, externalID, iD)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, uuid.UUID, string) error); ok {
-		r1 = rf(ctx, name, externalID, iD, email)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, string, uuid.UUID) error); ok {
+		r1 = rf(ctx, name, email, externalID, iD)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -6006,16 +6006,16 @@ type MockQuerier_UpdateUser_Call struct {
 // UpdateUser is a helper method to define mock.On call
 //   - ctx context.Context
 //   - name string
+//   - email string
 //   - externalID string
 //   - iD uuid.UUID
-//   - email string
-func (_e *MockQuerier_Expecter) UpdateUser(ctx interface{}, name interface{}, externalID interface{}, iD interface{}, email interface{}) *MockQuerier_UpdateUser_Call {
-	return &MockQuerier_UpdateUser_Call{Call: _e.mock.On("UpdateUser", ctx, name, externalID, iD, email)}
+func (_e *MockQuerier_Expecter) UpdateUser(ctx interface{}, name interface{}, email interface{}, externalID interface{}, iD interface{}) *MockQuerier_UpdateUser_Call {
+	return &MockQuerier_UpdateUser_Call{Call: _e.mock.On("UpdateUser", ctx, name, email, externalID, iD)}
 }
 
-func (_c *MockQuerier_UpdateUser_Call) Run(run func(ctx context.Context, name string, externalID string, iD uuid.UUID, email string)) *MockQuerier_UpdateUser_Call {
+func (_c *MockQuerier_UpdateUser_Call) Run(run func(ctx context.Context, name string, email string, externalID string, iD uuid.UUID)) *MockQuerier_UpdateUser_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(uuid.UUID), args[4].(string))
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string), args[4].(uuid.UUID))
 	})
 	return _c
 }
@@ -6025,7 +6025,7 @@ func (_c *MockQuerier_UpdateUser_Call) Return(_a0 *User, _a1 error) *MockQuerier
 	return _c
 }
 
-func (_c *MockQuerier_UpdateUser_Call) RunAndReturn(run func(context.Context, string, string, uuid.UUID, string) (*User, error)) *MockQuerier_UpdateUser_Call {
+func (_c *MockQuerier_UpdateUser_Call) RunAndReturn(run func(context.Context, string, string, string, uuid.UUID) (*User, error)) *MockQuerier_UpdateUser_Call {
 	_c.Call.Return(run)
 	return _c
 }
