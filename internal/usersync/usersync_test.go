@@ -96,8 +96,8 @@ func TestSync(t *testing.T) {
 		}
 
 		dbtx.EXPECT().
-			GetAllUsers(txCtx).
-			Return([]*database.User{user1, user2}, nil).
+			GetUsers(txCtx, 0, 100).
+			Return([]*database.User{user1, user2}, 2, nil).
 			Once()
 		dbtx.EXPECT().
 			GetAllUserRoles(txCtx).
@@ -204,12 +204,12 @@ func TestSync(t *testing.T) {
 			Once()
 
 		dbtx.EXPECT().
-			GetAllUsers(txCtx).
+			GetUsers(txCtx, 0, 100).
 			Return([]*database.User{
 				localUserWithIncorrectName,
 				localUserWithIncorrectEmail,
 				localUserThatWillBeDeleted,
-			}, nil).
+			}, 3, nil).
 			Once()
 
 		// user1@example.com

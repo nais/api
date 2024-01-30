@@ -26,6 +26,7 @@ generate-proto:
 
 build:
 	go build -o bin/api ./cmd/api
+	go build -o bin/setup_local ./cmd/setup_local
 
 local:
 	PUBSUB_EMULATOR_HOST="localhost:3004" \

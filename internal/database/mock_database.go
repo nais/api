@@ -1930,64 +1930,6 @@ func (_c *MockDatabase_GetAllUserRoles_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
-// GetAllUsers provides a mock function with given fields: ctx
-func (_m *MockDatabase) GetAllUsers(ctx context.Context) ([]*User, error) {
-	ret := _m.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetAllUsers")
-	}
-
-	var r0 []*User
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]*User, error)); ok {
-		return rf(ctx)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context) []*User); ok {
-		r0 = rf(ctx)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*User)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_GetAllUsers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAllUsers'
-type MockDatabase_GetAllUsers_Call struct {
-	*mock.Call
-}
-
-// GetAllUsers is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *MockDatabase_Expecter) GetAllUsers(ctx interface{}) *MockDatabase_GetAllUsers_Call {
-	return &MockDatabase_GetAllUsers_Call{Call: _e.mock.On("GetAllUsers", ctx)}
-}
-
-func (_c *MockDatabase_GetAllUsers_Call) Run(run func(ctx context.Context)) *MockDatabase_GetAllUsers_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_GetAllUsers_Call) Return(_a0 []*User, _a1 error) *MockDatabase_GetAllUsers_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockDatabase_GetAllUsers_Call) RunAndReturn(run func(context.Context) ([]*User, error)) *MockDatabase_GetAllUsers_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetAuditLogsForCorrelationID provides a mock function with given fields: ctx, correlationID, offset, limit
 func (_m *MockDatabase) GetAuditLogsForCorrelationID(ctx context.Context, correlationID uuid.UUID, offset int, limit int) ([]*AuditLog, int, error) {
 	ret := _m.Called(ctx, correlationID, offset, limit)

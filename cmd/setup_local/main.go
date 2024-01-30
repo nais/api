@@ -117,7 +117,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 	slugs := map[string]struct{}{}
 
 	if !*cfg.ForceSeed {
-		if existingUsers, err := db.GetAllUsers(ctx); len(existingUsers) != 0 || err != nil {
+		if existingUsers, err := getAllUsers(ctx, db); len(existingUsers) != 0 || err != nil {
 			return fmt.Errorf("database already has users, abort")
 		}
 
@@ -125,7 +125,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			return fmt.Errorf("database already has teams, abort")
 		}
 	} else {
-		users, err := db.GetAllUsers(ctx)
+		users, err := getAllUsers(ctx, db)
 		if err != nil {
 			return err
 		}
@@ -278,4 +278,25 @@ func fileToSlice(path string) ([]string, error) {
 	}
 
 	return lines, nil
+}
+
+func getAllUsers(ctx context.Context, db database.UserRepo) ([]*database.User, error) {
+	offset, limit := 0, 100
+	users := make([]*database.User, 0)
+	for {
+		page, _, err := db.GetUsers(ctx, offset, limit)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, page...)
+
+		if len(page) < limit {
+			break
+		}
+
+		offset += limit
+	}
+
+	return users, nil
 }

@@ -11,9 +11,6 @@ import (
 type UserRepo interface {
 	CreateUser(ctx context.Context, name, email, externalID string) (*User, error)
 	DeleteUser(ctx context.Context, userID uuid.UUID) error
-	// TODO: Remove GetAllUsers
-	// deprecated: Use GetUsers instead
-	GetAllUsers(ctx context.Context) ([]*User, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserByExternalID(ctx context.Context, externalID string) (*User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (*User, error)
