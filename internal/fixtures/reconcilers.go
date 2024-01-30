@@ -3,11 +3,11 @@ package fixtures
 import (
 	"context"
 
-	db "github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database"
 	"github.com/sirupsen/logrus"
 )
 
-func SetupDefaultReconcilers(ctx context.Context, log *logrus.Entry, reconcilers []string, database db.Database) error {
+func SetupDefaultReconcilers(ctx context.Context, log logrus.FieldLogger, reconcilers []string, db database.ReconcilerRepo) error {
 	if len(reconcilers) == 0 {
 		log.Infof("API_BACKEND_FIRST_RUN_ENABLE_RECONCILERS not set or empty - not enabling any reconcilers")
 		return nil
@@ -15,7 +15,7 @@ func SetupDefaultReconcilers(ctx context.Context, log *logrus.Entry, reconcilers
 
 	log.Infof("enablling reconcilers: %v", reconcilers)
 	for _, reconciler := range reconcilers {
-		_, err := database.EnableReconciler(ctx, reconciler)
+		_, err := db.EnableReconciler(ctx, reconciler)
 		if err != nil {
 			return err
 		}

@@ -6,13 +6,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/graph-gophers/dataloader/v7"
-	db "github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/metrics"
 )
 
-func ToGraphUser(m *db.User) *model.User {
+func ToGraphUser(m *database.User) *model.User {
 	return &model.User{
 		ID:         scalar.UserIdent(m.ID),
 		Email:      m.Email,
@@ -22,7 +22,7 @@ func ToGraphUser(m *db.User) *model.User {
 }
 
 type UserReader struct {
-	db db.Database
+	db database.UserRepo
 }
 
 const LoaderNameUsers = "users"
@@ -69,11 +69,11 @@ func GetUser(ctx context.Context, userID *uuid.UUID) (*model.User, error) {
 	return result, nil
 }
 
-func getUsers(ctx context.Context, database db.UserRepo) ([]*db.User, error) {
+func getUsers(ctx context.Context, db database.UserRepo) ([]*database.User, error) {
 	limit, offset := 100, 0
-	users := make([]*db.User, 0)
+	users := make([]*database.User, 0)
 	for {
-		page, _, err := database.GetUsers(ctx, db.Page{
+		page, _, err := db.GetUsers(ctx, database.Page{
 			Limit:  limit,
 			Offset: offset,
 		})

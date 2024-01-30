@@ -1,6 +1,9 @@
+TEST_POSTGRES_CONTAINER_NAME = nais-api-postgres-integration-test
+TEST_POSTGRES_CONTAINER_PORT = 5666
+
 .PHONY: all
 
-all: generate fmt test check api helm-lint
+all: generate fmt test check build helm-lint
 
 generate: generate-sql generate-graphql generate-mocks generate-proto
 
@@ -59,3 +62,13 @@ helm-lint:
 
 setup-local:
 	GOOGLE_MANAGEMENT_PROJECT_ID=nais-local-dev go run ./cmd/setup_local -users 1000 -teams 100 -owners 2 -members 10
+
+stop-integration-test-db:
+	docker stop $(TEST_POSTGRES_CONTAINER_NAME) || true && docker rm $(TEST_POSTGRES_CONTAINER_NAME) || true
+
+start-integration-test-db: stop-integration-test-db
+	docker run -d -e POSTGRES_PASSWORD=postgres --name $(TEST_POSTGRES_CONTAINER_NAME) -p $(TEST_POSTGRES_CONTAINER_PORT):5432 postgres:14-alpine
+
+integration-test: start-integration-test-db
+	go test ./... -tags=db_integration_test
+

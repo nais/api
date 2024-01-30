@@ -10,7 +10,7 @@ import (
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/auth/authz"
-	db "github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
@@ -33,7 +33,7 @@ var cmpFilterPathLogs = cmp.FilterPath(func(p cmp.Path) bool {
 
 func Test_Logf(t *testing.T) {
 	ctx := context.Background()
-	database := db.NewMockDatabase(t)
+	db := database.NewMockDatabase(t)
 	msg := "some message"
 	componentName := logger.ComponentNameConsole
 
@@ -50,7 +50,7 @@ func Test_Logf(t *testing.T) {
 		// 	Once()
 
 		auditlogger.
-			New(database, componentName, testLogger).
+			New(db, componentName, testLogger).
 			Logf(ctx, []auditlogger.Target{}, auditlogger.Fields{}, msg)
 
 		want := []*logrus.Entry{
@@ -72,7 +72,7 @@ func Test_Logf(t *testing.T) {
 			Action: audittype.AuditActionAzureGroupAddMember,
 		}
 		auditlogger.
-			New(database, componentName, log).
+			New(db, componentName, log).
 			Logf(ctx, []auditlogger.Target{}, fields, msg)
 	})
 
@@ -105,14 +105,14 @@ func Test_Logf(t *testing.T) {
 			CorrelationID: correlationID,
 		}
 
-		database := db.NewMockDatabase(t)
-		database.EXPECT().CreateAuditLogEntry(ctx, correlationID, componentName, &actorIdentity, audittype.AuditLogsTargetTypeUser, userEmail, action, msg).Return(nil).Once()
-		database.EXPECT().CreateAuditLogEntry(ctx, correlationID, componentName, &actorIdentity, audittype.AuditLogsTargetTypeTeam, teamSlug.String(), action, msg).Return(nil).Once()
-		database.EXPECT().CreateAuditLogEntry(ctx, correlationID, componentName, &actorIdentity, audittype.AuditLogsTargetTypeReconciler, reconcilerName, action, msg).Return(nil).Once()
-		database.EXPECT().CreateAuditLogEntry(ctx, correlationID, componentName, &actorIdentity, audittype.AuditLogsTargetTypeSystem, string(componentName), action, msg).Return(nil).Once()
+		db := database.NewMockDatabase(t)
+		db.EXPECT().CreateAuditLogEntry(ctx, correlationID, componentName, &actorIdentity, audittype.AuditLogsTargetTypeUser, userEmail, action, msg).Return(nil).Once()
+		db.EXPECT().CreateAuditLogEntry(ctx, correlationID, componentName, &actorIdentity, audittype.AuditLogsTargetTypeTeam, teamSlug.String(), action, msg).Return(nil).Once()
+		db.EXPECT().CreateAuditLogEntry(ctx, correlationID, componentName, &actorIdentity, audittype.AuditLogsTargetTypeReconciler, reconcilerName, action, msg).Return(nil).Once()
+		db.EXPECT().CreateAuditLogEntry(ctx, correlationID, componentName, &actorIdentity, audittype.AuditLogsTargetTypeSystem, string(componentName), action, msg).Return(nil).Once()
 
 		auditlogger.
-			New(database, componentName, testLogger).
+			New(db, componentName, testLogger).
 			Logf(ctx, targets, fields, msg)
 
 		want := []*logrus.Entry{

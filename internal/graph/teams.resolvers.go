@@ -15,7 +15,7 @@ import (
 	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
-	db "github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/dataloader"
@@ -47,8 +47,8 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTea
 
 	correlationID := uuid.New()
 
-	var team *db.Team
-	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
+	var team *database.Team
+	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		team, err = dbtx.CreateTeam(ctx, input.Slug, input.Purpose, input.SlackChannel)
 		if err != nil {
 			return err
@@ -101,7 +101,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 	correlationID := uuid.New()
 
 	auditLogEntries := make([]auditlogger.Entry, 0)
-	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
+	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		team, err = dbtx.UpdateTeam(ctx, team.Slug, input.Purpose, input.SlackChannel)
 		if err != nil {
 			return err
@@ -165,13 +165,13 @@ func (r *mutationResolver) RemoveUsersFromTeam(ctx context.Context, slug slug.Sl
 	correlationID := uuid.New()
 
 	auditLogEntries := make([]auditlogger.Entry, 0)
-	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
+	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		members, err := dbtx.GetAllTeamMembers(ctx, team.Slug)
 		if err != nil {
 			return fmt.Errorf("get team members of %q: %w", slug, err)
 		}
 
-		memberFromUserID := func(userId uuid.UUID) *db.User {
+		memberFromUserID := func(userId uuid.UUID) *database.User {
 			for _, m := range members {
 				if m.ID == userId {
 					return m
@@ -246,13 +246,13 @@ func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slu
 	correlationID := uuid.New()
 
 	auditLogEntries := make([]auditlogger.Entry, 0)
-	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
+	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		members, err := dbtx.GetAllTeamMembers(ctx, team.Slug)
 		if err != nil {
 			return fmt.Errorf("get team members of %q: %w", slug, err)
 		}
 
-		memberFromUserID := func(userId uuid.UUID) *db.User {
+		memberFromUserID := func(userId uuid.UUID) *database.User {
 			for _, m := range members {
 				if m.ID == userId {
 					return m
@@ -343,9 +343,9 @@ func (r *mutationResolver) SynchronizeAllTeams(ctx context.Context) (*model.Team
 	correlationID := uuid.New()
 
 	limit, offset := 100, 0
-	teams := make([]*db.Team, 0)
+	teams := make([]*database.Team, 0)
 	for {
-		page, _, err := r.database.GetTeams(ctx, db.Page{
+		page, _, err := r.database.GetTeams(ctx, database.Page{
 			Limit:  limit,
 			Offset: offset,
 		})
@@ -392,7 +392,7 @@ func (r *mutationResolver) AddTeamMembers(ctx context.Context, slug slug.Slug, u
 	correlationID := uuid.New()
 
 	auditLogEntries := make([]auditlogger.Entry, 0)
-	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
+	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		for _, userID := range userIds {
 			uid, err := userID.AsUUID()
 			if err != nil {
@@ -454,7 +454,7 @@ func (r *mutationResolver) AddTeamOwners(ctx context.Context, slug slug.Slug, us
 	correlationID := uuid.New()
 
 	auditLogEntries := make([]auditlogger.Entry, 0)
-	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
+	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		for _, userID := range userIds {
 			uid, err := userID.AsUUID()
 			if err != nil {
@@ -526,7 +526,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 	correlationID := uuid.New()
 
 	auditLogEntries := make([]auditlogger.Entry, 0)
-	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
+	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		teamMember, _ := dbtx.GetTeamMember(ctx, slug, mid)
 		if teamMember != nil {
 			return apierror.Errorf("User is already a member of the team.")
@@ -618,7 +618,7 @@ func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug
 		return nil, fmt.Errorf("get team members: %w", err)
 	}
 
-	var member *db.User = nil
+	var member *database.User = nil
 	for _, m := range members {
 		if m.ID == uid {
 			member = m
@@ -634,7 +634,7 @@ func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug
 		return nil, err
 	}
 
-	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
+	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		err = dbtx.RemoveUserFromTeam(ctx, uid, team.Slug)
 		if err != nil {
 			return err
@@ -843,20 +843,20 @@ func (r *queryResolver) Teams(ctx context.Context, offset *int, limit *int, filt
 		return nil, err
 	}
 
-	var teams []*db.Team
+	var teams []*database.Team
 	var total int
 
 	p := model.NewPagination(offset, limit)
 
 	if filter != nil {
 		if filter.Github != nil {
-			teams, total, err = r.database.GetTeamsWithPermissionInGitHubRepo(ctx, filter.Github.RepoName, filter.Github.PermissionName, db.Page{
+			teams, total, err = r.database.GetTeamsWithPermissionInGitHubRepo(ctx, filter.Github.RepoName, filter.Github.PermissionName, database.Page{
 				Limit:  p.Limit,
 				Offset: p.Offset,
 			})
 		}
 	} else {
-		teams, total, err = r.database.GetTeams(ctx, db.Page{
+		teams, total, err = r.database.GetTeams(ctx, database.Page{
 			Limit:  p.Limit,
 			Offset: p.Offset,
 		})
@@ -925,7 +925,7 @@ func (r *teamResolver) AuditLogs(ctx context.Context, obj *model.Team, offset *i
 	}
 
 	p := model.NewPagination(offset, limit)
-	entries, total, err := r.database.GetAuditLogsForTeam(ctx, obj.Slug, db.Page{
+	entries, total, err := r.database.GetAuditLogsForTeam(ctx, obj.Slug, database.Page{
 		Limit:  p.Limit,
 		Offset: p.Offset,
 	})
@@ -949,7 +949,7 @@ func (r *teamResolver) Members(ctx context.Context, obj *model.Team, offset *int
 
 	p := model.NewPagination(offset, limit)
 
-	users, total, err := r.database.GetTeamMembers(ctx, obj.Slug, db.Page{
+	users, total, err := r.database.GetTeamMembers(ctx, obj.Slug, database.Page{
 		Limit:  p.Limit,
 		Offset: p.Offset,
 	})
@@ -1023,7 +1023,7 @@ func (r *teamResolver) SyncErrors(ctx context.Context, obj *model.Team) ([]*mode
 // ReconcilerResource is the resolver for the reconcilerResource field.
 func (r *teamResolver) ReconcilerResources(ctx context.Context, obj *model.Team, reconciler string, key string, limit *int, offset *int) (*model.ReconcilerResourceList, error) {
 	pg := model.NewPagination(offset, limit)
-	res, total, err := r.database.GetReconcilerResourcesByKey(ctx, reconciler, obj.Slug, key, db.Page{
+	res, total, err := r.database.GetReconcilerResourcesByKey(ctx, reconciler, obj.Slug, key, database.Page{
 		Limit:  pg.Limit,
 		Offset: pg.Offset,
 	})

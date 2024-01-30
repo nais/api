@@ -14,7 +14,7 @@ import (
 	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
-	db "github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
@@ -73,9 +73,9 @@ func (r *mutationResolver) EnableReconciler(ctx context.Context, name string) (*
 
 // DisableReconciler is the resolver for the disableReconciler field.
 func (r *mutationResolver) DisableReconciler(ctx context.Context, name string) (*model.Reconciler, error) {
-	var reconciler *db.Reconciler
+	var reconciler *database.Reconciler
 	var err error
-	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
+	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		reconciler, err = dbtx.GetReconciler(ctx, name)
 		if err != nil {
 			return err
@@ -116,7 +116,7 @@ func (r *mutationResolver) ConfigureReconciler(ctx context.Context, name string,
 		reconcilerConfig[string(entry.Key)] = entry.Value
 	}
 
-	err := r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
+	err := r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		rows, err := dbtx.GetReconcilerConfig(ctx, name)
 		if err != nil {
 			return err
@@ -172,9 +172,9 @@ func (r *mutationResolver) ConfigureReconciler(ctx context.Context, name string,
 
 // ResetReconciler is the resolver for the resetReconciler field.
 func (r *mutationResolver) ResetReconciler(ctx context.Context, name string) (*model.Reconciler, error) {
-	var reconciler *db.Reconciler
+	var reconciler *database.Reconciler
 	var err error
-	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
+	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		reconciler, err = dbtx.ResetReconcilerConfig(ctx, name)
 		if err != nil {
 			return err
@@ -285,7 +285,7 @@ func (r *queryResolver) Reconcilers(ctx context.Context, offset *int, limit *int
 
 	p := model.NewPagination(offset, limit)
 
-	reconcilers, total, err := r.database.GetReconcilers(ctx, db.Page{
+	reconcilers, total, err := r.database.GetReconcilers(ctx, database.Page{
 		Limit:  p.Limit,
 		Offset: p.Offset,
 	})
@@ -350,7 +350,7 @@ func (r *reconcilerResolver) Configured(ctx context.Context, obj *model.Reconcil
 // AuditLogs is the resolver for the auditLogs field.
 func (r *reconcilerResolver) AuditLogs(ctx context.Context, obj *model.Reconciler, offset *int, limit *int) (*model.AuditLogList, error) {
 	p := model.NewPagination(offset, limit)
-	dbe, total, err := r.database.GetAuditLogsForReconciler(ctx, obj.Name, db.Page{
+	dbe, total, err := r.database.GetAuditLogsForReconciler(ctx, obj.Name, database.Page{
 		Limit:  p.Limit,
 		Offset: p.Offset,
 	})

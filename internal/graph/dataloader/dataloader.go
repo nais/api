@@ -6,7 +6,7 @@ import (
 
 	"github.com/graph-gophers/dataloader/v7"
 	dlotel "github.com/graph-gophers/dataloader/v7/trace/otel"
-	db "github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/metrics"
 	"go.opentelemetry.io/otel"
@@ -20,15 +20,15 @@ const loadersKey = ctxKey("dataloaders")
 type Loaders struct {
 	UsersLoader     *dataloader.Loader[string, *model.User]
 	TeamsLoader     *dataloader.Loader[string, *model.Team]
-	UserRolesLoader *dataloader.Loader[string, []*db.UserRole]
+	UserRolesLoader *dataloader.Loader[string, []*database.UserRole]
 }
 
 // NewLoaders instantiates data loaders for the middleware
-func NewLoaders(database db.Database) *Loaders {
+func NewLoaders(db database.Database) *Loaders {
 	// define the data loader
-	usersReader := &UserReader{db: database}
-	teamsReader := &TeamReader{db: database}
-	userRolesReader := &UserRoleReader{db: database}
+	usersReader := &UserReader{db: db}
+	teamsReader := &TeamReader{db: db}
+	userRolesReader := &UserRoleReader{db: db}
 
 	loaders := &Loaders{
 		UsersLoader: dataloader.NewBatchedLoader(usersReader.load,
@@ -43,8 +43,8 @@ func NewLoaders(database db.Database) *Loaders {
 		),
 		UserRolesLoader: dataloader.NewBatchedLoader(userRolesReader.load,
 			dataloader.WithCache(userRolesReader.newCache()),
-			dataloader.WithInputCapacity[string, []*db.UserRole](5000),
-			dataloader.WithTracer(dlotel.NewTracer[string, []*db.UserRole](otel.Tracer("dataloader"))),
+			dataloader.WithInputCapacity[string, []*database.UserRole](5000),
+			dataloader.WithTracer(dlotel.NewTracer[string, []*database.UserRole](otel.Tracer("dataloader"))),
 		),
 	}
 
