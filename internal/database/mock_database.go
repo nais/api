@@ -1814,64 +1814,6 @@ func (_c *MockDatabase_GetAllTeamMembers_Call) RunAndReturn(run func(context.Con
 	return _c
 }
 
-// GetAllTeams provides a mock function with given fields: ctx
-func (_m *MockDatabase) GetAllTeams(ctx context.Context) ([]*Team, error) {
-	ret := _m.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetAllTeams")
-	}
-
-	var r0 []*Team
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]*Team, error)); ok {
-		return rf(ctx)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context) []*Team); ok {
-		r0 = rf(ctx)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*Team)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_GetAllTeams_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAllTeams'
-type MockDatabase_GetAllTeams_Call struct {
-	*mock.Call
-}
-
-// GetAllTeams is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *MockDatabase_Expecter) GetAllTeams(ctx interface{}) *MockDatabase_GetAllTeams_Call {
-	return &MockDatabase_GetAllTeams_Call{Call: _e.mock.On("GetAllTeams", ctx)}
-}
-
-func (_c *MockDatabase_GetAllTeams_Call) Run(run func(ctx context.Context)) *MockDatabase_GetAllTeams_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_GetAllTeams_Call) Return(_a0 []*Team, _a1 error) *MockDatabase_GetAllTeams_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockDatabase_GetAllTeams_Call) RunAndReturn(run func(context.Context) ([]*Team, error)) *MockDatabase_GetAllTeams_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetAllUserRoles provides a mock function with given fields: ctx
 func (_m *MockDatabase) GetAllUserRoles(ctx context.Context) ([]*UserRole, error) {
 	ret := _m.Called(ctx)

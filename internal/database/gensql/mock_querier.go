@@ -3744,9 +3744,9 @@ func (_c *MockQuerier_GetTeamReconcilerErrors_Call) RunAndReturn(run func(contex
 	return _c
 }
 
-// GetTeams provides a mock function with given fields: ctx
-func (_m *MockQuerier) GetTeams(ctx context.Context) ([]*Team, error) {
-	ret := _m.Called(ctx)
+// GetTeams provides a mock function with given fields: ctx, offset, limit
+func (_m *MockQuerier) GetTeams(ctx context.Context, offset int32, limit int32) ([]*Team, error) {
+	ret := _m.Called(ctx, offset, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTeams")
@@ -3754,19 +3754,19 @@ func (_m *MockQuerier) GetTeams(ctx context.Context) ([]*Team, error) {
 
 	var r0 []*Team
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]*Team, error)); ok {
-		return rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, int32, int32) ([]*Team, error)); ok {
+		return rf(ctx, offset, limit)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []*Team); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, int32, int32) []*Team); ok {
+		r0 = rf(ctx, offset, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*Team)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, int32, int32) error); ok {
+		r1 = rf(ctx, offset, limit)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -3781,13 +3781,15 @@ type MockQuerier_GetTeams_Call struct {
 
 // GetTeams is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *MockQuerier_Expecter) GetTeams(ctx interface{}) *MockQuerier_GetTeams_Call {
-	return &MockQuerier_GetTeams_Call{Call: _e.mock.On("GetTeams", ctx)}
+//   - offset int32
+//   - limit int32
+func (_e *MockQuerier_Expecter) GetTeams(ctx interface{}, offset interface{}, limit interface{}) *MockQuerier_GetTeams_Call {
+	return &MockQuerier_GetTeams_Call{Call: _e.mock.On("GetTeams", ctx, offset, limit)}
 }
 
-func (_c *MockQuerier_GetTeams_Call) Run(run func(ctx context.Context)) *MockQuerier_GetTeams_Call {
+func (_c *MockQuerier_GetTeams_Call) Run(run func(ctx context.Context, offset int32, limit int32)) *MockQuerier_GetTeams_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
+		run(args[0].(context.Context), args[1].(int32), args[2].(int32))
 	})
 	return _c
 }
@@ -3797,7 +3799,7 @@ func (_c *MockQuerier_GetTeams_Call) Return(_a0 []*Team, _a1 error) *MockQuerier
 	return _c
 }
 
-func (_c *MockQuerier_GetTeams_Call) RunAndReturn(run func(context.Context) ([]*Team, error)) *MockQuerier_GetTeams_Call {
+func (_c *MockQuerier_GetTeams_Call) RunAndReturn(run func(context.Context, int32, int32) ([]*Team, error)) *MockQuerier_GetTeams_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3854,66 +3856,6 @@ func (_c *MockQuerier_GetTeamsCount_Call) Return(_a0 int64, _a1 error) *MockQuer
 }
 
 func (_c *MockQuerier_GetTeamsCount_Call) RunAndReturn(run func(context.Context) (int64, error)) *MockQuerier_GetTeamsCount_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetTeamsPaginated provides a mock function with given fields: ctx, offset, limit
-func (_m *MockQuerier) GetTeamsPaginated(ctx context.Context, offset int32, limit int32) ([]*Team, error) {
-	ret := _m.Called(ctx, offset, limit)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetTeamsPaginated")
-	}
-
-	var r0 []*Team
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, int32, int32) ([]*Team, error)); ok {
-		return rf(ctx, offset, limit)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, int32, int32) []*Team); ok {
-		r0 = rf(ctx, offset, limit)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*Team)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, int32, int32) error); ok {
-		r1 = rf(ctx, offset, limit)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_GetTeamsPaginated_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamsPaginated'
-type MockQuerier_GetTeamsPaginated_Call struct {
-	*mock.Call
-}
-
-// GetTeamsPaginated is a helper method to define mock.On call
-//   - ctx context.Context
-//   - offset int32
-//   - limit int32
-func (_e *MockQuerier_Expecter) GetTeamsPaginated(ctx interface{}, offset interface{}, limit interface{}) *MockQuerier_GetTeamsPaginated_Call {
-	return &MockQuerier_GetTeamsPaginated_Call{Call: _e.mock.On("GetTeamsPaginated", ctx, offset, limit)}
-}
-
-func (_c *MockQuerier_GetTeamsPaginated_Call) Run(run func(ctx context.Context, offset int32, limit int32)) *MockQuerier_GetTeamsPaginated_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(int32), args[2].(int32))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_GetTeamsPaginated_Call) Return(_a0 []*Team, _a1 error) *MockQuerier_GetTeamsPaginated_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_GetTeamsPaginated_Call) RunAndReturn(run func(context.Context, int32, int32) ([]*Team, error)) *MockQuerier_GetTeamsPaginated_Call {
 	_c.Call.Return(run)
 	return _c
 }

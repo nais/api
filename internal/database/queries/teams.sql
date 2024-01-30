@@ -14,13 +14,6 @@ WHERE NOT EXISTS (
 )
 ORDER BY teams.slug ASC;
 
--- name: GetTeams :many
-SELECT teams.* FROM teams
-ORDER BY teams.slug ASC;
-
--- name: GetTeamsCount :one
-SELECT COUNT(*) as total FROM teams;
-
 -- name: GetTeamEnvironments :many
 SELECT team_environments.*
 FROM team_environments
@@ -33,10 +26,13 @@ SELECT COUNT(*) as total
 FROM team_environments
 WHERE team_slug = @team_slug;
 
--- name: GetTeamsPaginated :many
+-- name: GetTeams :many
 SELECT teams.* FROM teams
 ORDER BY teams.slug ASC
 LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
+-- name: GetTeamsCount :one
+SELECT COUNT(*) as total FROM teams;
 
 -- name: GetActiveTeamBySlug :one
 SELECT teams.* FROM teams

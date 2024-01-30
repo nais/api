@@ -121,7 +121,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			return fmt.Errorf("database already has users, abort")
 		}
 
-		if existingTeams, err := db.GetAllTeams(ctx); len(existingTeams) != 0 || err != nil {
+		if existingTeams, err := getAllTeams(ctx, db); len(existingTeams) != 0 || err != nil {
 			return fmt.Errorf("database already has teams, abort")
 		}
 	} else {
@@ -133,7 +133,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			emails[user.Email] = struct{}{}
 		}
 
-		teams, err := db.GetAllTeams(ctx)
+		teams, err := getAllTeams(ctx, db)
 		if err != nil {
 			return err
 		}
@@ -299,4 +299,25 @@ func getAllUsers(ctx context.Context, db database.UserRepo) ([]*database.User, e
 	}
 
 	return users, nil
+}
+
+func getAllTeams(ctx context.Context, db database.TeamRepo) ([]*database.Team, error) {
+	offset, limit := 0, 100
+	teams := make([]*database.Team, 0)
+	for {
+		page, _, err := db.GetTeams(ctx, offset, limit)
+		if err != nil {
+			return nil, err
+		}
+
+		teams = append(teams, page...)
+
+		if len(page) < limit {
+			break
+		}
+
+		offset += limit
+	}
+
+	return teams, nil
 }

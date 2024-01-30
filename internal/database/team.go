@@ -19,7 +19,6 @@ type TeamRepo interface {
 	GetActiveTeamBySlug(ctx context.Context, slug slug.Slug) (*Team, error)
 	GetActiveTeams(ctx context.Context) ([]*Team, error)
 	GetAllTeamMembers(ctx context.Context, teamSlug slug.Slug) ([]*User, error)
-	GetAllTeams(ctx context.Context) ([]*Team, error)
 	GetSlackAlertsChannels(ctx context.Context, teamSlug slug.Slug) (map[string]string, error)
 	GetTeamBySlug(ctx context.Context, slug slug.Slug) (*Team, error)
 	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
@@ -104,7 +103,7 @@ func (d *database) GetTeamBySlug(ctx context.Context, slug slug.Slug) (*Team, er
 func (d *database) GetTeams(ctx context.Context, offset, limit int) ([]*Team, int, error) {
 	var teams []*gensql.Team
 	var err error
-	teams, err = d.querier.GetTeamsPaginated(ctx, int32(offset), int32(limit))
+	teams, err = d.querier.GetTeams(ctx, int32(offset), int32(limit))
 	if err != nil {
 		return nil, 0, err
 	}
@@ -120,20 +119,6 @@ func (d *database) GetTeams(ctx context.Context, offset, limit int) ([]*Team, in
 	}
 
 	return collection, int(total), nil
-}
-
-func (d *database) GetAllTeams(ctx context.Context) ([]*Team, error) {
-	teams, err := d.querier.GetTeams(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	collection := make([]*Team, 0)
-	for _, team := range teams {
-		collection = append(collection, &Team{Team: team})
-	}
-
-	return collection, nil
 }
 
 func (d *database) GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, offset, limit int) ([]*TeamEnvironment, int, error) {

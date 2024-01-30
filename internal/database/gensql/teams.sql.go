@@ -424,10 +424,11 @@ func (q *Queries) GetTeamMembersForReconciler(ctx context.Context, teamSlug *slu
 const getTeams = `-- name: GetTeams :many
 SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email FROM teams
 ORDER BY teams.slug ASC
+LIMIT $2 OFFSET $1
 `
 
-func (q *Queries) GetTeams(ctx context.Context) ([]*Team, error) {
-	rows, err := q.db.Query(ctx, getTeams)
+func (q *Queries) GetTeams(ctx context.Context, offset int32, limit int32) ([]*Team, error) {
+	rows, err := q.db.Query(ctx, getTeams, offset, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -461,38 +462,6 @@ func (q *Queries) GetTeamsCount(ctx context.Context) (int64, error) {
 	var total int64
 	err := row.Scan(&total)
 	return total, err
-}
-
-const getTeamsPaginated = `-- name: GetTeamsPaginated :many
-SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email FROM teams
-ORDER BY teams.slug ASC
-LIMIT $2 OFFSET $1
-`
-
-func (q *Queries) GetTeamsPaginated(ctx context.Context, offset int32, limit int32) ([]*Team, error) {
-	rows, err := q.db.Query(ctx, getTeamsPaginated, offset, limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*Team{}
-	for rows.Next() {
-		var i Team
-		if err := rows.Scan(
-			&i.Slug,
-			&i.Purpose,
-			&i.LastSuccessfulSync,
-			&i.SlackChannel,
-			&i.GoogleGroupEmail,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const removeSlackAlertsChannel = `-- name: RemoveSlackAlertsChannel :exec

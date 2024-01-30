@@ -342,9 +342,18 @@ func (r *mutationResolver) SynchronizeAllTeams(ctx context.Context) (*model.Team
 
 	correlationID := uuid.New()
 
-	teams, err := r.database.GetAllTeams(ctx)
-	if err != nil {
-		return nil, err
+	offset, limit := 0, 100
+	teams := make([]*db.Team, 0)
+	for {
+		page, _, err := r.database.GetTeams(ctx, offset, limit)
+		if err != nil {
+			return nil, err
+		}
+		teams = append(teams, page...)
+		if len(page) < limit {
+			break
+		}
+		offset += limit
 	}
 
 	targets := make([]auditlogger.Target, 0, len(teams))

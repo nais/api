@@ -34,9 +34,18 @@ func toGraphTeam(m *database.Team) *model.Team {
 
 func (r *TeamReader) load(ctx context.Context, keys []string) []*dataloader.Result[*model.Team] {
 	// TODO (only fetch teams requested by keys var)
-	teams, err := r.db.GetAllTeams(ctx)
-	if err != nil {
-		panic(err)
+	offset, limit := 0, 100
+	teams := make([]*database.Team, 0)
+	for {
+		page, _, err := r.db.GetTeams(ctx, offset, limit)
+		if err != nil {
+			panic(err)
+		}
+		teams = append(teams, page...)
+		if len(page) < limit {
+			break
+		}
+		offset += limit
 	}
 
 	teamBySlug := map[string]*model.Team{}
