@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/database"
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
