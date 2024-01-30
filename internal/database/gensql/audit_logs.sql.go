@@ -77,8 +77,8 @@ func (q *Queries) GetAuditLogsForCorrelationID(ctx context.Context, correlationI
 }
 
 const getAuditLogsForCorrelationIDCount = `-- name: GetAuditLogsForCorrelationIDCount :one
-select COUNT(*) from audit_logs
-where correlation_id = $1
+SELECT COUNT(*) FROM audit_logs
+WHERE correlation_id = $1
 `
 
 func (q *Queries) GetAuditLogsForCorrelationIDCount(ctx context.Context, correlationID uuid.UUID) (int64, error) {
