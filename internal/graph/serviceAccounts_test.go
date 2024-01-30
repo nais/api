@@ -8,24 +8,25 @@ import (
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
-	db "github.com/nais/api/internal/database"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph"
-	"github.com/nais/api/internal/logger"
+	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/usersync"
-	"github.com/stretchr/testify/assert"
+	"github.com/sirupsen/logrus/hooks/test"
 )
 
 func TestMutationResolver_Roles(t *testing.T) {
-	serviceAccount := &db.ServiceAccount{
-		ServiceAccount: &sqlc.ServiceAccount{
+	serviceAccount := &database.ServiceAccount{
+		ServiceAccount: &gensql.ServiceAccount{
 			ID:   uuid.New(),
 			Name: "User Name",
 		},
 	}
-	ctx := authz.ContextWithActor(context.Background(), serviceAccount, []*db.Role{
+	ctx := authz.ContextWithActor(context.Background(), serviceAccount, []*authz.Role{
 		{
-			RoleName: sqlc.RoleNameAdmin,
+			RoleName: gensql.RoleNameAdmin,
 			Authorizations: []roles.Authorization{
 				roles.AuthorizationTeamsCreate,
 			},
@@ -33,28 +34,39 @@ func TestMutationResolver_Roles(t *testing.T) {
 	})
 
 	userSyncRuns := usersync.NewRunsHandler(5)
-	auditLogger := auditlogger.NewMockAuditLogger(t)
-	database := db.NewMockDatabase(t)
-	log, err := logger.GetLogger("text", "info")
-	assert.NoError(t, err)
+	auditLogger := auditlogger.NewAuditLoggerForTesting()
+	db := database.NewMockDatabase(t)
+	log, _ := test.NewNullLogger()
 	userSync := make(chan<- uuid.UUID)
 	resolver := graph.
-		NewResolver(nil, database, "example.com", userSync, auditLogger, []string{"env"}, log, userSyncRuns, nil).
+		NewResolver(nil, nil, nil, nil, db, "example.com", userSync, auditLogger, nil, userSyncRuns, nil, log).
 		ServiceAccount()
 
 	t.Run("get roles for serviceAccount", func(t *testing.T) {
-		role := &db.Role{
+		role := &authz.Role{
 			Authorizations:         nil,
 			RoleName:               "",
-			TargetServiceAccountID: nil,
+			TargetServiceAccountID: &serviceAccount.ID,
 			TargetTeamSlug:         nil,
 		}
 
-		database.On("GetServiceAccountRoles", ctx, serviceAccount.ID).
-			Return([]*db.Role{role}, nil)
+		db.EXPECT().
+			GetServiceAccountRoles(ctx, serviceAccount.ID).
+			Return([]*authz.Role{role}, nil)
 
-		roles, err := resolver.Roles(ctx, serviceAccount)
-		assert.NoError(t, err)
-		assert.Equal(t, roles[0], role)
+		r, err := resolver.Roles(ctx, &model.ServiceAccount{
+			ID: scalar.ServiceAccountIdent(serviceAccount.ID),
+		})
+		if err != nil {
+			t.Fatal("unexpected error")
+		}
+		expectedID, err := r[0].TargetServiceAccountID.AsUUID()
+		if err != nil {
+			t.Fatal("unexpected error")
+		}
+
+		if expectedID != *role.TargetServiceAccountID {
+			t.Fatal("unexpected target service account id")
+		}
 	})
 }

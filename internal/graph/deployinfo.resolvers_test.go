@@ -88,7 +88,20 @@ func Test_deployInfoResolver_History(t *testing.T) {
 		}, nil)
 
 	resp, err := graph.
-		NewResolver(hookdClient, nil, nil, nil, nil, nil, nil, nil, nil).
+		NewResolver(
+			hookdClient,
+			nil,
+			nil,
+			nil,
+			nil,
+			"example.com",
+			nil,
+			nil,
+			nil,
+			nil,
+			nil,
+			nil,
+		).
 		DeployInfo().
 		History(ctx, deployInfo, nil, nil)
 	assert.NoError(t, err)

@@ -20,7 +20,7 @@ func (r *Resolver) triggerTeamUpdatedEvent(ctx context.Context, s slug.Slug, cor
 }
 
 func (r *Resolver) triggerEvent(ctx context.Context, event protoapi.EventTypes, msg proto.Message, correlationID uuid.UUID) {
-	ctx, span := otel.Tracer("").Start(ctx, "tigger pubsub event", trace.WithSpanKind(trace.SpanKindProducer), trace.WithAttributes(
+	ctx, span := otel.Tracer("").Start(ctx, "trigger pubsub event", trace.WithSpanKind(trace.SpanKindProducer), trace.WithAttributes(
 		semconv.EventName(event.String()),
 		semconv.MessagingDestinationNameKey.String(r.pubsubTopic.String()),
 		semconv.MessagingSystemGCPPubsub,

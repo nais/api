@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/resourceusage"
+	"github.com/nais/api/internal/slug"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -23,8 +24,8 @@ func Test_queryResolver_ResourceUtilizationForApp(t *testing.T) {
 		resourceUsageClient := resourceusage.NewMockClient(t)
 		resourceUsageClient.
 			EXPECT().
-			ResourceUtilizationForApp(ctx, "env", "team", "app", mock.AnythingOfType("scalar.Date"), mock.AnythingOfType("scalar.Date")).
-			Run(func(_ context.Context, _, _, _ string, start, end scalar.Date) {
+			ResourceUtilizationForApp(ctx, "env", slug.Slug("team"), "app", mock.AnythingOfType("scalar.Date"), mock.AnythingOfType("scalar.Date")).
+			Run(func(_ context.Context, _ string, _ slug.Slug, _ string, start, end scalar.Date) {
 				now := time.Now()
 				today := now.Format(scalar.DateFormatYYYYMMDD)
 				oneWeekAgo := now.AddDate(0, 0, -7).Format(scalar.DateFormatYYYYMMDD)
@@ -37,7 +38,20 @@ func Test_queryResolver_ResourceUtilizationForApp(t *testing.T) {
 			}, nil)
 
 		resp, err := graph.
-			NewResolver(nil, nil, nil, nil, resourceUsageClient, nil, nil, nil, nil).
+			NewResolver(
+				nil,
+				nil,
+				nil,
+				resourceUsageClient,
+				nil,
+				"example.com",
+				nil,
+				nil,
+				nil,
+				nil,
+				nil,
+				nil,
+			).
 			Query().
 			ResourceUtilizationForApp(ctx, "env", "team", "app", nil, nil)
 		assert.Equal(t, cpuData, resp.CPU)
@@ -57,8 +71,8 @@ func Test_queryResolver_ResourceUtilizationForApp(t *testing.T) {
 		resourceUsageClient := resourceusage.NewMockClient(t)
 		resourceUsageClient.
 			EXPECT().
-			ResourceUtilizationForApp(ctx, "env", "team", "app", mock.AnythingOfType("scalar.Date"), mock.AnythingOfType("scalar.Date")).
-			Run(func(_ context.Context, _, _, _ string, start, end scalar.Date) {
+			ResourceUtilizationForApp(ctx, "env", slug.Slug("team"), "app", mock.AnythingOfType("scalar.Date"), mock.AnythingOfType("scalar.Date")).
+			Run(func(_ context.Context, _ string, _ slug.Slug, _ string, start, end scalar.Date) {
 				assert.Equal(t, fromTime.Format(scalar.DateFormatYYYYMMDD), start.String())
 				assert.Equal(t, toTime.Format(scalar.DateFormatYYYYMMDD), end.String())
 			}).
@@ -68,7 +82,20 @@ func Test_queryResolver_ResourceUtilizationForApp(t *testing.T) {
 			}, nil)
 
 		resp, err := graph.
-			NewResolver(nil, nil, nil, nil, resourceUsageClient, nil, nil, nil, nil).
+			NewResolver(
+				nil,
+				nil,
+				nil,
+				resourceUsageClient,
+				nil,
+				"example.com",
+				nil,
+				nil,
+				nil,
+				nil,
+				nil,
+				nil,
+			).
 			Query().
 			ResourceUtilizationForApp(ctx, "env", "team", "app", &from, &to)
 		assert.NoError(t, err)
