@@ -11,16 +11,16 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/middleware"
-	db "github.com/nais/api/internal/database"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestApiKeyAuthentication(t *testing.T) {
 	t.Run("No authorization header", func(t *testing.T) {
-		database := db.NewMockDatabase(t)
+		db := database.NewMockDatabase(t)
 		responseWriter := httptest.NewRecorder()
-		middleware := middleware.ApiKeyAuthentication(database)
+		apiKeyAuth := middleware.ApiKeyAuthentication(db)
 		next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			actor := authz.ActorFromContext(r.Context())
 			if actor != nil {
@@ -28,17 +28,17 @@ func TestApiKeyAuthentication(t *testing.T) {
 			}
 		})
 		req := getRequest(context.Background())
-		middleware(next).ServeHTTP(responseWriter, req)
+		apiKeyAuth(next).ServeHTTP(responseWriter, req)
 	})
 
 	t.Run("Unknown API key in header", func(t *testing.T) {
-		database := db.NewMockDatabase(t)
-		database.
+		db := database.NewMockDatabase(t)
+		db.
 			On("GetServiceAccountByApiKey", mock.Anything, "unknown").
 			Return(nil, errors.New("user not found")).
 			Once()
 		responseWriter := httptest.NewRecorder()
-		middleware := middleware.ApiKeyAuthentication(database)
+		apiKeyAuth := middleware.ApiKeyAuthentication(db)
 		next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			actor := authz.ActorFromContext(r.Context())
 			if actor != nil {
@@ -47,32 +47,32 @@ func TestApiKeyAuthentication(t *testing.T) {
 		})
 		req := getRequest(context.Background())
 		req.Header.Set("Authorization", "Bearer unknown")
-		middleware(next).ServeHTTP(responseWriter, req)
+		apiKeyAuth(next).ServeHTTP(responseWriter, req)
 	})
 
 	t.Run("Valid API key", func(t *testing.T) {
-		serviceAccount := &db.ServiceAccount{
-			ServiceAccount: &sqlc.ServiceAccount{
+		serviceAccount := &database.ServiceAccount{
+			ServiceAccount: &gensql.ServiceAccount{
 				ID:   uuid.New(),
 				Name: "service-account",
 			},
 		}
 		roles := []*authz.Role{
-			{RoleName: sqlc.RoleNameAdmin},
+			{RoleName: gensql.RoleNameAdmin},
 		}
 
-		database := db.NewMockDatabase(t)
-		database.
+		db := database.NewMockDatabase(t)
+		db.
 			On("GetServiceAccountByApiKey", mock.Anything, "user1-key").
 			Return(serviceAccount, nil).
 			Once()
-		database.
+		db.
 			On("GetServiceAccountRoles", mock.Anything, serviceAccount.ID).
 			Return(roles, nil).
 			Once()
 
 		responseWriter := httptest.NewRecorder()
-		middleware := middleware.ApiKeyAuthentication(database)
+		apiKeyAuth := middleware.ApiKeyAuthentication(db)
 		next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			actor := authz.ActorFromContext(r.Context())
 			if actor == nil {
@@ -89,7 +89,7 @@ func TestApiKeyAuthentication(t *testing.T) {
 		})
 		req := getRequest(context.Background())
 		req.Header.Set("Authorization", "Bearer user1-key")
-		middleware(next).ServeHTTP(responseWriter, req)
+		apiKeyAuth(next).ServeHTTP(responseWriter, req)
 	})
 }
 

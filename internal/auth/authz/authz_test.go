@@ -8,8 +8,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
-	db "github.com/nais/api/internal/database"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -24,8 +24,8 @@ func TestContextWithUser(t *testing.T) {
 		t.Fatal("expected nil actor")
 	}
 
-	user := &db.User{
-		User: &sqlc.User{
+	user := &database.User{
+		User: &gensql.User{
 			Name:  "User Name",
 			Email: "mail@example.com",
 		},
@@ -47,8 +47,8 @@ func TestContextWithUser(t *testing.T) {
 }
 
 func TestRequireGlobalAuthorization(t *testing.T) {
-	user := &db.User{
-		User: &sqlc.User{
+	user := &database.User{
+		User: &gensql.User{
 			Name:  "User Name",
 			Email: "mail@example.com",
 		},
@@ -70,7 +70,7 @@ func TestRequireGlobalAuthorization(t *testing.T) {
 	t.Run("User with insufficient roles", func(t *testing.T) {
 		userRoles := []*authz.Role{
 			{
-				RoleName:       sqlc.RoleNameTeamviewer,
+				RoleName:       gensql.RoleNameTeamviewer,
 				Authorizations: []roles.Authorization{},
 			},
 		}
@@ -83,7 +83,7 @@ func TestRequireGlobalAuthorization(t *testing.T) {
 	t.Run("User with sufficient role", func(t *testing.T) {
 		userRoles := []*authz.Role{
 			{
-				RoleName:       sqlc.RoleNameTeamcreator,
+				RoleName:       gensql.RoleNameTeamcreator,
 				Authorizations: []roles.Authorization{roles.AuthorizationTeamsCreate},
 			},
 		}
@@ -95,8 +95,8 @@ func TestRequireGlobalAuthorization(t *testing.T) {
 }
 
 func TestRequireAuthorizationForTeamTarget(t *testing.T) {
-	user := &db.User{
-		User: &sqlc.User{
+	user := &database.User{
+		User: &gensql.User{
 			Name:  "User Name",
 			Email: "mail@example.com",
 		},

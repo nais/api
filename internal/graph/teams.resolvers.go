@@ -532,7 +532,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 			return apierror.Errorf("User is already a member of the team.")
 		}
 
-		role, err := sqlcRoleFromTeamRole(member.Role)
+		role, err := gensqlRoleFromTeamRole(member.Role)
 		if err != nil {
 			return err
 		}
@@ -629,7 +629,7 @@ func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug
 		return nil, fmt.Errorf("user %q not in team %q", uid, slug)
 	}
 
-	desiredRole, err := sqlcRoleFromTeamRole(role)
+	desiredRole, err := gensqlRoleFromTeamRole(role)
 	if err != nil {
 		return nil, err
 	}

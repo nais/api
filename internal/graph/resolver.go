@@ -161,7 +161,7 @@ func (r *Resolver) getTeamBySlug(ctx context.Context, slug slug.Slug) (*database
 	return team, nil
 }
 
-func sqlcRoleFromTeamRole(teamRole model.TeamRole) (gensql.RoleName, error) {
+func gensqlRoleFromTeamRole(teamRole model.TeamRole) (gensql.RoleName, error) {
 	switch teamRole {
 	case model.TeamRoleMember:
 		return gensql.RoleNameTeammember, nil
