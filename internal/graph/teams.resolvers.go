@@ -1049,38 +1049,6 @@ func (r *teamResolver) SlackAlertsChannels(ctx context.Context, obj *model.Team)
 	return channels, nil
 }
 
-// GitHubRepositories is the resolver for the gitHubRepositories field.
-func (r *teamResolver) GitHubRepositories(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.GitHubRepositoriesFilter) (*model.GitHubRepositoryList, error) {
-	panic("not implemented")
-	// state := GitHubState{}
-	// err := r.database.LoadReconcilerStateForTeam(ctx, gensql.ReconcilerNameGithubTeam, obj.Slug, state)
-	// if err != nil {
-	// 	return nil, apierror.Errorf("Unable to load the GitHub state for the team.")
-	// }
-
-	// if filter == nil {
-	// 	filter = &model.GitHubRepositoriesFilter{
-	// 		IncludeArchivedRepositories: false,
-	// 	}
-	// }
-
-	// repositories := make([]*model.GitHubRepository, 0)
-	// for _, repo := range state.Repositories {
-	// 	if repo.Archived && !filter.IncludeArchivedRepositories {
-	// 		continue
-	// 	}
-
-	// 	repo.TeamSlug = &obj.Slug
-	// 	repositories = append(repositories, toGraphGithubRepository(repo))
-	// }
-
-	// paginatedRepositories, pageInfo := model.PaginatedSlice(repositories, model.NewPagination(offset, limit))
-	// return &model.GitHubRepositoryList{
-	// 	Nodes:    paginatedRepositories,
-	// 	PageInfo: pageInfo,
-	// }, nil
-}
-
 // DeletionInProgress is the resolver for the deletionInProgress field.
 func (r *teamResolver) DeletionInProgress(ctx context.Context, obj *model.Team) (bool, error) {
 	_, err := r.database.GetActiveTeamBySlug(ctx, obj.Slug)
@@ -1468,3 +1436,40 @@ type (
 	teamMemberResolver           struct{ *Resolver }
 	teamMemberReconcilerResolver struct{ *Resolver }
 )
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *teamResolver) GitHubRepositories(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.GitHubRepositoriesFilter) (*model.GitHubRepositoryList, error) {
+	panic("not implemented")
+	// state := GitHubState{}
+	// err := r.database.LoadReconcilerStateForTeam(ctx, gensql.ReconcilerNameGithubTeam, obj.Slug, state)
+	// if err != nil {
+	// 	return nil, apierror.Errorf("Unable to load the GitHub state for the team.")
+	// }
+
+	// if filter == nil {
+	// 	filter = &model.GitHubRepositoriesFilter{
+	// 		IncludeArchivedRepositories: false,
+	// 	}
+	// }
+
+	// repositories := make([]*model.GitHubRepository, 0)
+	// for _, repo := range state.Repositories {
+	// 	if repo.Archived && !filter.IncludeArchivedRepositories {
+	// 		continue
+	// 	}
+
+	// 	repo.TeamSlug = &obj.Slug
+	// 	repositories = append(repositories, toGraphGithubRepository(repo))
+	// }
+
+	// paginatedRepositories, pageInfo := model.PaginatedSlice(repositories, model.NewPagination(offset, limit))
+	// return &model.GitHubRepositoryList{
+	// 	Nodes:    paginatedRepositories,
+	// 	PageInfo: pageInfo,
+	// }, nil
+}
