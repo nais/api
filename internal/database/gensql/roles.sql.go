@@ -17,8 +17,13 @@ INSERT INTO service_account_roles (service_account_id, role_name)
 VALUES ($1, $2) ON CONFLICT DO NOTHING
 `
 
-func (q *Queries) AssignGlobalRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName RoleName) error {
-	_, err := q.db.Exec(ctx, assignGlobalRoleToServiceAccount, serviceAccountID, roleName)
+type AssignGlobalRoleToServiceAccountParams struct {
+	ServiceAccountID uuid.UUID
+	RoleName         RoleName
+}
+
+func (q *Queries) AssignGlobalRoleToServiceAccount(ctx context.Context, arg AssignGlobalRoleToServiceAccountParams) error {
+	_, err := q.db.Exec(ctx, assignGlobalRoleToServiceAccount, arg.ServiceAccountID, arg.RoleName)
 	return err
 }
 
@@ -27,8 +32,13 @@ INSERT INTO user_roles (user_id, role_name)
 VALUES ($1, $2) ON CONFLICT DO NOTHING
 `
 
-func (q *Queries) AssignGlobalRoleToUser(ctx context.Context, userID uuid.UUID, roleName RoleName) error {
-	_, err := q.db.Exec(ctx, assignGlobalRoleToUser, userID, roleName)
+type AssignGlobalRoleToUserParams struct {
+	UserID   uuid.UUID
+	RoleName RoleName
+}
+
+func (q *Queries) AssignGlobalRoleToUser(ctx context.Context, arg AssignGlobalRoleToUserParams) error {
+	_, err := q.db.Exec(ctx, assignGlobalRoleToUser, arg.UserID, arg.RoleName)
 	return err
 }
 
@@ -37,8 +47,14 @@ INSERT INTO service_account_roles (service_account_id, role_name, target_team_sl
 VALUES ($1, $2, $3::slug) ON CONFLICT DO NOTHING
 `
 
-func (q *Queries) AssignTeamRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName RoleName, targetTeamSlug slug.Slug) error {
-	_, err := q.db.Exec(ctx, assignTeamRoleToServiceAccount, serviceAccountID, roleName, targetTeamSlug)
+type AssignTeamRoleToServiceAccountParams struct {
+	ServiceAccountID uuid.UUID
+	RoleName         RoleName
+	TargetTeamSlug   slug.Slug
+}
+
+func (q *Queries) AssignTeamRoleToServiceAccount(ctx context.Context, arg AssignTeamRoleToServiceAccountParams) error {
+	_, err := q.db.Exec(ctx, assignTeamRoleToServiceAccount, arg.ServiceAccountID, arg.RoleName, arg.TargetTeamSlug)
 	return err
 }
 
@@ -47,8 +63,14 @@ INSERT INTO user_roles (user_id, role_name, target_team_slug)
 VALUES ($1, $2, $3::slug) ON CONFLICT DO NOTHING
 `
 
-func (q *Queries) AssignTeamRoleToUser(ctx context.Context, userID uuid.UUID, roleName RoleName, targetTeamSlug slug.Slug) error {
-	_, err := q.db.Exec(ctx, assignTeamRoleToUser, userID, roleName, targetTeamSlug)
+type AssignTeamRoleToUserParams struct {
+	UserID         uuid.UUID
+	RoleName       RoleName
+	TargetTeamSlug slug.Slug
+}
+
+func (q *Queries) AssignTeamRoleToUser(ctx context.Context, arg AssignTeamRoleToUserParams) error {
+	_, err := q.db.Exec(ctx, assignTeamRoleToUser, arg.UserID, arg.RoleName, arg.TargetTeamSlug)
 	return err
 }
 
@@ -167,7 +189,12 @@ AND target_service_account_id IS NULL
 AND role_name = $2
 `
 
-func (q *Queries) RevokeGlobalUserRole(ctx context.Context, userID uuid.UUID, roleName RoleName) error {
-	_, err := q.db.Exec(ctx, revokeGlobalUserRole, userID, roleName)
+type RevokeGlobalUserRoleParams struct {
+	UserID   uuid.UUID
+	RoleName RoleName
+}
+
+func (q *Queries) RevokeGlobalUserRole(ctx context.Context, arg RevokeGlobalUserRoleParams) error {
+	_, err := q.db.Exec(ctx, revokeGlobalUserRole, arg.UserID, arg.RoleName)
 	return err
 }

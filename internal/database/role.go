@@ -17,20 +17,30 @@ type RoleRepo interface {
 	GetAllUserRoles(ctx context.Context) ([]*UserRole, error)
 	GetUsersWithGloballyAssignedRole(ctx context.Context, roleName gensql.RoleName) ([]*User, error)
 	RevokeGlobalUserRole(ctx context.Context, userID uuid.UUID, roleName gensql.RoleName) error
-	SetTeamMemberRole(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, role gensql.RoleName) error
+	SetTeamMemberRole(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, roleName gensql.RoleName) error
 	UserIsTeamOwner(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) (bool, error)
 }
 
 func (d *database) AssignGlobalRoleToUser(ctx context.Context, userID uuid.UUID, roleName gensql.RoleName) error {
-	return d.querier.AssignGlobalRoleToUser(ctx, userID, roleName)
+	return d.querier.AssignGlobalRoleToUser(ctx, gensql.AssignGlobalRoleToUserParams{
+		UserID:   userID,
+		RoleName: roleName,
+	})
 }
 
 func (d *database) AssignGlobalRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName gensql.RoleName) error {
-	return d.querier.AssignGlobalRoleToServiceAccount(ctx, serviceAccountID, roleName)
+	return d.querier.AssignGlobalRoleToServiceAccount(ctx, gensql.AssignGlobalRoleToServiceAccountParams{
+		ServiceAccountID: serviceAccountID,
+		RoleName:         roleName,
+	})
 }
 
 func (d *database) AssignTeamRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName gensql.RoleName, teamSlug slug.Slug) error {
-	return d.querier.AssignTeamRoleToServiceAccount(ctx, serviceAccountID, roleName, teamSlug)
+	return d.querier.AssignTeamRoleToServiceAccount(ctx, gensql.AssignTeamRoleToServiceAccountParams{
+		ServiceAccountID: serviceAccountID,
+		RoleName:         roleName,
+		TargetTeamSlug:   teamSlug,
+	})
 }
 
 func (d *database) UserIsTeamOwner(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) (bool, error) {
@@ -48,12 +58,19 @@ func (d *database) UserIsTeamOwner(ctx context.Context, userID uuid.UUID, teamSl
 	return false, nil
 }
 
-func (d *database) SetTeamMemberRole(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, role gensql.RoleName) error {
-	return d.querier.AssignTeamRoleToUser(ctx, userID, role, teamSlug)
+func (d *database) SetTeamMemberRole(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, roleName gensql.RoleName) error {
+	return d.querier.AssignTeamRoleToUser(ctx, gensql.AssignTeamRoleToUserParams{
+		UserID:         userID,
+		RoleName:       roleName,
+		TargetTeamSlug: teamSlug,
+	})
 }
 
 func (d *database) RevokeGlobalUserRole(ctx context.Context, userID uuid.UUID, roleName gensql.RoleName) error {
-	return d.querier.RevokeGlobalUserRole(ctx, userID, roleName)
+	return d.querier.RevokeGlobalUserRole(ctx, gensql.RevokeGlobalUserRoleParams{
+		UserID:   userID,
+		RoleName: roleName,
+	})
 }
 
 func (d *database) GetUsersWithGloballyAssignedRole(ctx context.Context, roleName gensql.RoleName) ([]*User, error) {

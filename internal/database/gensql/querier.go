@@ -13,36 +13,36 @@ import (
 )
 
 type Querier interface {
-	AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName string) error
-	AssignGlobalRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName RoleName) error
-	AssignGlobalRoleToUser(ctx context.Context, userID uuid.UUID, roleName RoleName) error
-	AssignTeamRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName RoleName, targetTeamSlug slug.Slug) error
-	AssignTeamRoleToUser(ctx context.Context, userID uuid.UUID, roleName RoleName, targetTeamSlug slug.Slug) error
+	AddReconcilerOptOut(ctx context.Context, arg AddReconcilerOptOutParams) error
+	AssignGlobalRoleToServiceAccount(ctx context.Context, arg AssignGlobalRoleToServiceAccountParams) error
+	AssignGlobalRoleToUser(ctx context.Context, arg AssignGlobalRoleToUserParams) error
+	AssignTeamRoleToServiceAccount(ctx context.Context, arg AssignTeamRoleToServiceAccountParams) error
+	AssignTeamRoleToUser(ctx context.Context, arg AssignTeamRoleToUserParams) error
 	// AverageResourceUtilizationForTeam will return the average resource utilization for a team for a week.
-	AverageResourceUtilizationForTeam(ctx context.Context, teamSlug slug.Slug, resourceType ResourceType, timestamp pgtype.Timestamptz) (*AverageResourceUtilizationForTeamRow, error)
-	ClearReconcilerErrorsForTeam(ctx context.Context, teamSlug slug.Slug, reconciler string) error
-	ConfigureReconciler(ctx context.Context, value string, reconcilerName string, key string) error
+	AverageResourceUtilizationForTeam(ctx context.Context, arg AverageResourceUtilizationForTeamParams) (*AverageResourceUtilizationForTeamRow, error)
+	ClearReconcilerErrorsForTeam(ctx context.Context, arg ClearReconcilerErrorsForTeamParams) error
+	ConfigureReconciler(ctx context.Context, arg ConfigureReconcilerParams) error
 	ConfirmTeamDeleteKey(ctx context.Context, key uuid.UUID) error
 	// CostUpsert will insert or update a cost record. If there is a conflict on the daily_cost_key constrant, the
 	// daily_cost column will be updated.
 	CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults
-	CreateAPIKey(ctx context.Context, apiKey string, serviceAccountID uuid.UUID) error
+	CreateAPIKey(ctx context.Context, arg CreateAPIKeyParams) error
 	CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) error
-	CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum) error
+	CreateRepositoryAuthorization(ctx context.Context, arg CreateRepositoryAuthorizationParams) error
 	CreateServiceAccount(ctx context.Context, name string) (*ServiceAccount, error)
-	CreateSession(ctx context.Context, userID uuid.UUID, expires pgtype.Timestamptz) (*Session, error)
-	CreateTeam(ctx context.Context, slug slug.Slug, purpose string, slackChannel string) (*Team, error)
-	CreateTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, createdBy uuid.UUID) (*TeamDeleteKey, error)
-	CreateUser(ctx context.Context, name string, email string, externalID string) (*User, error)
+	CreateSession(ctx context.Context, arg CreateSessionParams) (*Session, error)
+	CreateTeam(ctx context.Context, arg CreateTeamParams) (*Team, error)
+	CreateTeamDeleteKey(ctx context.Context, arg CreateTeamDeleteKeyParams) (*TeamDeleteKey, error)
+	CreateUser(ctx context.Context, arg CreateUserParams) (*User, error)
 	// DailyCostForApp will fetch the daily cost for a specific team app in a specific environment, across all cost types
 	// in a date range.
-	DailyCostForApp(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment string, teamSlug slug.Slug, app string) ([]*Cost, error)
+	DailyCostForApp(ctx context.Context, arg DailyCostForAppParams) ([]*Cost, error)
 	// DailyCostForTeam will fetch the daily cost for a specific team across all apps and envs in a date range.
-	DailyCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug) ([]*Cost, error)
+	DailyCostForTeam(ctx context.Context, arg DailyCostForTeamParams) ([]*Cost, error)
 	// DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
-	DailyEnvCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment *string, teamSlug slug.Slug) ([]*DailyEnvCostForTeamRow, error)
+	DailyEnvCostForTeam(ctx context.Context, arg DailyEnvCostForTeamParams) ([]*DailyEnvCostForTeamRow, error)
 	DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName string) ([]*DangerousGetReconcilerConfigValuesRow, error)
-	DeleteReconcilerConfig(ctx context.Context, reconciler string, keys []string) error
+	DeleteReconcilerConfig(ctx context.Context, arg DeleteReconcilerConfigParams) error
 	DeleteServiceAccount(ctx context.Context, id uuid.UUID) error
 	DeleteSession(ctx context.Context, id uuid.UUID) error
 	DeleteTeam(ctx context.Context, argSlug slug.Slug) error
@@ -54,22 +54,22 @@ type Querier interface {
 	GetActiveTeams(ctx context.Context) ([]*Team, error)
 	GetAllTeamMembers(ctx context.Context, teamSlug *slug.Slug) ([]*User, error)
 	GetAllUserRoles(ctx context.Context) ([]*UserRole, error)
-	GetAuditLogsForCorrelationID(ctx context.Context, correlationID uuid.UUID, offset int32, limit int32) ([]*AuditLog, error)
+	GetAuditLogsForCorrelationID(ctx context.Context, arg GetAuditLogsForCorrelationIDParams) ([]*AuditLog, error)
 	GetAuditLogsForCorrelationIDCount(ctx context.Context, correlationID uuid.UUID) (int64, error)
-	GetAuditLogsForReconciler(ctx context.Context, targetIdentifier string, offset int32, limit int32) ([]*AuditLog, error)
+	GetAuditLogsForReconciler(ctx context.Context, arg GetAuditLogsForReconcilerParams) ([]*AuditLog, error)
 	GetAuditLogsForReconcilerCount(ctx context.Context, targetIdentifier string) (int64, error)
-	GetAuditLogsForTeam(ctx context.Context, targetIdentifier string, offset int32, limit int32) ([]*AuditLog, error)
+	GetAuditLogsForTeam(ctx context.Context, arg GetAuditLogsForTeamParams) ([]*AuditLog, error)
 	GetAuditLogsForTeamCount(ctx context.Context, targetIdentifier string) (int64, error)
 	GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error)
 	GetReconciler(ctx context.Context, name string) (*Reconciler, error)
 	GetReconcilerConfig(ctx context.Context, reconcilerName string) ([]*GetReconcilerConfigRow, error)
-	GetReconcilerResourceByKey(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, offset int32, limit int32) ([]*ReconcilerResource, error)
-	GetReconcilerResourceByKeyTotal(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string) (int64, error)
-	GetReconcilerResourcesForReconciler(ctx context.Context, reconcilerName string, offset int32, limit int32) ([]*ReconcilerResource, error)
-	GetReconcilerResourcesForReconcilerAndTeam(ctx context.Context, reconcilerName string, teamSlug slug.Slug, offset int32, limit int32) ([]*ReconcilerResource, error)
-	GetReconcilers(ctx context.Context, offset int32, limit int32) ([]*Reconciler, error)
+	GetReconcilerResourceByKey(ctx context.Context, arg GetReconcilerResourceByKeyParams) ([]*ReconcilerResource, error)
+	GetReconcilerResourceByKeyTotal(ctx context.Context, arg GetReconcilerResourceByKeyTotalParams) (int64, error)
+	GetReconcilerResourcesForReconciler(ctx context.Context, arg GetReconcilerResourcesForReconcilerParams) ([]*ReconcilerResource, error)
+	GetReconcilerResourcesForReconcilerAndTeam(ctx context.Context, arg GetReconcilerResourcesForReconcilerAndTeamParams) ([]*ReconcilerResource, error)
+	GetReconcilers(ctx context.Context, arg GetReconcilersParams) ([]*Reconciler, error)
 	GetReconcilersCount(ctx context.Context) (int64, error)
-	GetRepositoryAuthorizations(ctx context.Context, teamSlug slug.Slug, githubRepository string) ([]RepositoryAuthorizationEnum, error)
+	GetRepositoryAuthorizations(ctx context.Context, arg GetRepositoryAuthorizationsParams) ([]RepositoryAuthorizationEnum, error)
 	GetServiceAccountByApiKey(ctx context.Context, apiKey string) (*ServiceAccount, error)
 	GetServiceAccountByName(ctx context.Context, name string) (*ServiceAccount, error)
 	GetServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) ([]*ServiceAccountRole, error)
@@ -78,23 +78,23 @@ type Querier interface {
 	GetSlackAlertsChannels(ctx context.Context, teamSlug slug.Slug) ([]*SlackAlertsChannel, error)
 	GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
-	GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, offset int32, limit int32) ([]*TeamEnvironment, error)
+	GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmentsParams) ([]*TeamEnvironment, error)
 	GetTeamEnvironmentsCount(ctx context.Context, teamSlug slug.Slug) (int64, error)
-	GetTeamMember(ctx context.Context, teamSlug *slug.Slug, userID uuid.UUID) (*User, error)
-	GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*GetTeamMemberOptOutsRow, error)
-	GetTeamMembers(ctx context.Context, teamSlug *slug.Slug, offset int32, limit int32) ([]*User, error)
+	GetTeamMember(ctx context.Context, arg GetTeamMemberParams) (*User, error)
+	GetTeamMemberOptOuts(ctx context.Context, arg GetTeamMemberOptOutsParams) ([]*GetTeamMemberOptOutsRow, error)
+	GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) ([]*User, error)
 	GetTeamMembersCount(ctx context.Context, teamSlug *slug.Slug) (int64, error)
-	GetTeamMembersForReconciler(ctx context.Context, teamSlug *slug.Slug, reconcilerName string) ([]*User, error)
+	GetTeamMembersForReconciler(ctx context.Context, arg GetTeamMembersForReconcilerParams) ([]*User, error)
 	GetTeamReconcilerErrors(ctx context.Context, teamSlug slug.Slug) ([]*ReconcilerError, error)
-	GetTeams(ctx context.Context, offset int32, limit int32) ([]*Team, error)
+	GetTeams(ctx context.Context, arg GetTeamsParams) ([]*Team, error)
 	GetTeamsCount(ctx context.Context) (int64, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserByExternalID(ctx context.Context, externalID string) (*User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (*User, error)
 	GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*UserRole, error)
-	GetUserTeams(ctx context.Context, userID uuid.UUID, offset int32, limit int32) ([]*GetUserTeamsRow, error)
+	GetUserTeams(ctx context.Context, arg GetUserTeamsParams) ([]*GetUserTeamsRow, error)
 	GetUserTeamsCount(ctx context.Context, userID uuid.UUID) (int64, error)
-	GetUsers(ctx context.Context, offset int32, limit int32) ([]*User, error)
+	GetUsers(ctx context.Context, arg GetUsersParams) ([]*User, error)
 	GetUsersCount(ctx context.Context) (int64, error)
 	GetUsersWithGloballyAssignedRole(ctx context.Context, roleName RoleName) ([]*User, error)
 	IsFirstRun(ctx context.Context) (bool, error)
@@ -102,45 +102,45 @@ type Querier interface {
 	LastCostDate(ctx context.Context) (pgtype.Date, error)
 	// MaxResourceUtilizationDate will return the max date for resource utilization records.
 	MaxResourceUtilizationDate(ctx context.Context) (pgtype.Timestamptz, error)
-	MonthlyCostForApp(ctx context.Context, teamSlug slug.Slug, app string, environment string) ([]*MonthlyCostForAppRow, error)
+	MonthlyCostForApp(ctx context.Context, arg MonthlyCostForAppParams) ([]*MonthlyCostForAppRow, error)
 	MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*MonthlyCostForTeamRow, error)
 	RemoveAllServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
-	RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName string) error
-	RemoveRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum) error
-	RemoveSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string) error
-	RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug *slug.Slug) error
+	RemoveReconcilerOptOut(ctx context.Context, arg RemoveReconcilerOptOutParams) error
+	RemoveRepositoryAuthorization(ctx context.Context, arg RemoveRepositoryAuthorizationParams) error
+	RemoveSlackAlertsChannel(ctx context.Context, arg RemoveSlackAlertsChannelParams) error
+	RemoveUserFromTeam(ctx context.Context, arg RemoveUserFromTeamParams) error
 	ResetReconcilerConfig(ctx context.Context, reconcilerName string) error
 	// ResourceUtilizationForApp will return resource utilization records for a given app.
 	ResourceUtilizationForApp(ctx context.Context, arg ResourceUtilizationForAppParams) ([]*ResourceUtilizationMetric, error)
 	// ResourceUtilizationForTeam will return resource utilization records for a given team.
-	ResourceUtilizationForTeam(ctx context.Context, environment string, teamSlug slug.Slug, resourceType ResourceType, start pgtype.Timestamptz, end pgtype.Timestamptz) ([]*ResourceUtilizationForTeamRow, error)
+	ResourceUtilizationForTeam(ctx context.Context, arg ResourceUtilizationForTeamParams) ([]*ResourceUtilizationForTeamRow, error)
 	// ResourceUtilizationOverageForTeam will return overage records for a given team, ordered by overage descending.
-	ResourceUtilizationOverageForTeam(ctx context.Context, teamSlug slug.Slug, timestamp pgtype.Timestamptz, resourceType ResourceType) ([]*ResourceUtilizationOverageForTeamRow, error)
+	ResourceUtilizationOverageForTeam(ctx context.Context, arg ResourceUtilizationOverageForTeamParams) ([]*ResourceUtilizationOverageForTeamRow, error)
 	// ResourceUtilizationRangeForApp will return the min and max timestamps for a specific app.
-	ResourceUtilizationRangeForApp(ctx context.Context, environment string, teamSlug slug.Slug, app string) (*ResourceUtilizationRangeForAppRow, error)
+	ResourceUtilizationRangeForApp(ctx context.Context, arg ResourceUtilizationRangeForAppParams) (*ResourceUtilizationRangeForAppRow, error)
 	// ResourceUtilizationRangeForTeam will return the min and max timestamps for a specific team.
 	ResourceUtilizationRangeForTeam(ctx context.Context, teamSlug slug.Slug) (*ResourceUtilizationRangeForTeamRow, error)
 	// ResourceUtilizationUpsert will insert or update resource utilization records.
 	ResourceUtilizationUpsert(ctx context.Context, arg []ResourceUtilizationUpsertParams) *ResourceUtilizationUpsertBatchResults
-	RevokeGlobalUserRole(ctx context.Context, userID uuid.UUID, roleName RoleName) error
-	SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*Team, error)
-	SetGoogleGroupEmailForTeam(ctx context.Context, googleGroupEmail string, slug slug.Slug) error
+	RevokeGlobalUserRole(ctx context.Context, arg RevokeGlobalUserRoleParams) error
+	SearchTeams(ctx context.Context, arg SearchTeamsParams) ([]*Team, error)
+	SetGoogleGroupEmailForTeam(ctx context.Context, arg SetGoogleGroupEmailForTeamParams) error
 	SetLastSuccessfulSyncForTeam(ctx context.Context, argSlug slug.Slug) error
-	SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, teamSlug slug.Slug, reconciler string, errorMessage string) error
-	SetSessionExpires(ctx context.Context, expires pgtype.Timestamptz, iD uuid.UUID) (*Session, error)
-	SetSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string, channelName string) error
+	SetReconcilerErrorForTeam(ctx context.Context, arg SetReconcilerErrorForTeamParams) error
+	SetSessionExpires(ctx context.Context, arg SetSessionExpiresParams) (*Session, error)
+	SetSlackAlertsChannel(ctx context.Context, arg SetSlackAlertsChannelParams) error
 	// SpecificResourceUtilizationForApp will return resource utilization for an app at a specific timestamp.
-	SpecificResourceUtilizationForApp(ctx context.Context, environment string, teamSlug slug.Slug, app string, resourceType ResourceType, timestamp pgtype.Timestamptz) (*SpecificResourceUtilizationForAppRow, error)
+	SpecificResourceUtilizationForApp(ctx context.Context, arg SpecificResourceUtilizationForAppParams) (*SpecificResourceUtilizationForAppRow, error)
 	// SpecificResourceUtilizationForTeam will return resource utilization for a team at a specific timestamp. Applications
 	// with a usage greater than request will be ignored.
-	SpecificResourceUtilizationForTeam(ctx context.Context, teamSlug slug.Slug, resourceType ResourceType, timestamp pgtype.Timestamptz) (*SpecificResourceUtilizationForTeamRow, error)
+	SpecificResourceUtilizationForTeam(ctx context.Context, arg SpecificResourceUtilizationForTeamParams) (*SpecificResourceUtilizationForTeamRow, error)
 	TeamExists(ctx context.Context, argSlug slug.Slug) (bool, error)
-	UpdateTeam(ctx context.Context, purpose *string, slackChannel *string, slug slug.Slug) (*Team, error)
-	UpdateUser(ctx context.Context, name string, email string, externalID string, iD uuid.UUID) (*User, error)
-	UpsertReconciler(ctx context.Context, name string, displayName string, description string, memberAware bool) (*Reconciler, error)
-	UpsertReconcilerConfig(ctx context.Context, reconciler string, key string, displayName string, description string, secret bool) error
-	UpsertReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, value string, metadata interface{}) (*ReconcilerResource, error)
+	UpdateTeam(ctx context.Context, arg UpdateTeamParams) (*Team, error)
+	UpdateUser(ctx context.Context, arg UpdateUserParams) (*User, error)
+	UpsertReconciler(ctx context.Context, arg UpsertReconcilerParams) (*Reconciler, error)
+	UpsertReconcilerConfig(ctx context.Context, arg UpsertReconcilerConfigParams) error
+	UpsertReconcilerResource(ctx context.Context, arg UpsertReconcilerResourceParams) (*ReconcilerResource, error)
 }
 
 var _ Querier = (*Queries)(nil)

@@ -16,8 +16,14 @@ INSERT INTO repository_authorizations (team_slug, github_repository, repository_
 VALUES ($1, $2, $3)
 `
 
-func (q *Queries) CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum) error {
-	_, err := q.db.Exec(ctx, createRepositoryAuthorization, teamSlug, githubRepository, repositoryAuthorization)
+type CreateRepositoryAuthorizationParams struct {
+	TeamSlug                slug.Slug
+	GithubRepository        string
+	RepositoryAuthorization RepositoryAuthorizationEnum
+}
+
+func (q *Queries) CreateRepositoryAuthorization(ctx context.Context, arg CreateRepositoryAuthorizationParams) error {
+	_, err := q.db.Exec(ctx, createRepositoryAuthorization, arg.TeamSlug, arg.GithubRepository, arg.RepositoryAuthorization)
 	return err
 }
 
@@ -33,8 +39,13 @@ ORDER BY
     repository_authorization
 `
 
-func (q *Queries) GetRepositoryAuthorizations(ctx context.Context, teamSlug slug.Slug, githubRepository string) ([]RepositoryAuthorizationEnum, error) {
-	rows, err := q.db.Query(ctx, getRepositoryAuthorizations, teamSlug, githubRepository)
+type GetRepositoryAuthorizationsParams struct {
+	TeamSlug         slug.Slug
+	GithubRepository string
+}
+
+func (q *Queries) GetRepositoryAuthorizations(ctx context.Context, arg GetRepositoryAuthorizationsParams) ([]RepositoryAuthorizationEnum, error) {
+	rows, err := q.db.Query(ctx, getRepositoryAuthorizations, arg.TeamSlug, arg.GithubRepository)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +72,13 @@ WHERE
     AND repository_authorization = $3
 `
 
-func (q *Queries) RemoveRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum) error {
-	_, err := q.db.Exec(ctx, removeRepositoryAuthorization, teamSlug, githubRepository, repositoryAuthorization)
+type RemoveRepositoryAuthorizationParams struct {
+	TeamSlug                slug.Slug
+	GithubRepository        string
+	RepositoryAuthorization RepositoryAuthorizationEnum
+}
+
+func (q *Queries) RemoveRepositoryAuthorization(ctx context.Context, arg RemoveRepositoryAuthorizationParams) error {
+	_, err := q.db.Exec(ctx, removeRepositoryAuthorization, arg.TeamSlug, arg.GithubRepository, arg.RepositoryAuthorization)
 	return err
 }

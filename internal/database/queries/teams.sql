@@ -61,7 +61,7 @@ ORDER BY users.name ASC;
 SELECT users.* FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 JOIN users ON users.id = user_roles.user_id
-WHERE user_roles.target_team_slug = @team_slug
+WHERE user_roles.target_team_slug = @team_slug::slug
 ORDER BY users.name ASC LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
 -- name: GetTeamMembersCount :one
@@ -72,7 +72,7 @@ WHERE user_roles.target_team_slug = @team_slug;
 SELECT users.* FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 JOIN users ON users.id = user_roles.user_id
-WHERE user_roles.target_team_slug = @team_slug AND users.id = @user_id
+WHERE user_roles.target_team_slug = @team_slug::slug AND users.id = @user_id
 ORDER BY users.name ASC;
 
 -- name: GetTeamMembersForReconciler :many
@@ -80,7 +80,7 @@ SELECT users.* FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 JOIN users ON users.id = user_roles.user_id
 WHERE
-    user_roles.target_team_slug = @team_slug
+    user_roles.target_team_slug = @team_slug::slug
     AND NOT EXISTS (
         SELECT roo.user_id
         FROM reconciler_opt_outs AS roo
@@ -105,7 +105,7 @@ WHERE slug = @slug;
 
 -- name: RemoveUserFromTeam :exec
 DELETE FROM user_roles
-WHERE user_id = @user_id AND target_team_slug = @team_slug;
+WHERE user_id = @user_id AND target_team_slug = @team_slug::slug;
 
 -- name: SetLastSuccessfulSyncForTeam :exec
 UPDATE teams SET last_successful_sync = NOW()

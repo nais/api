@@ -18,13 +18,21 @@ WHERE reconciler_name = $1 AND team_slug = $2 AND name = $3
 ORDER BY value ASC LIMIT $5 OFFSET $4
 `
 
-func (q *Queries) GetReconcilerResourceByKey(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, offset int32, limit int32) ([]*ReconcilerResource, error) {
+type GetReconcilerResourceByKeyParams struct {
+	ReconcilerName string
+	TeamSlug       slug.Slug
+	Name           string
+	Offset         int32
+	Limit          int32
+}
+
+func (q *Queries) GetReconcilerResourceByKey(ctx context.Context, arg GetReconcilerResourceByKeyParams) ([]*ReconcilerResource, error) {
 	rows, err := q.db.Query(ctx, getReconcilerResourceByKey,
-		reconcilerName,
-		teamSlug,
-		name,
-		offset,
-		limit,
+		arg.ReconcilerName,
+		arg.TeamSlug,
+		arg.Name,
+		arg.Offset,
+		arg.Limit,
 	)
 	if err != nil {
 		return nil, err
@@ -59,8 +67,14 @@ FROM reconciler_resources
 WHERE reconciler_name = $1 AND team_slug = $2 AND name = $3
 `
 
-func (q *Queries) GetReconcilerResourceByKeyTotal(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string) (int64, error) {
-	row := q.db.QueryRow(ctx, getReconcilerResourceByKeyTotal, reconcilerName, teamSlug, name)
+type GetReconcilerResourceByKeyTotalParams struct {
+	ReconcilerName string
+	TeamSlug       slug.Slug
+	Name           string
+}
+
+func (q *Queries) GetReconcilerResourceByKeyTotal(ctx context.Context, arg GetReconcilerResourceByKeyTotalParams) (int64, error) {
+	row := q.db.QueryRow(ctx, getReconcilerResourceByKeyTotal, arg.ReconcilerName, arg.TeamSlug, arg.Name)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -74,8 +88,14 @@ ORDER BY team_slug, name ASC
 LIMIT $3 OFFSET $2
 `
 
-func (q *Queries) GetReconcilerResourcesForReconciler(ctx context.Context, reconcilerName string, offset int32, limit int32) ([]*ReconcilerResource, error) {
-	rows, err := q.db.Query(ctx, getReconcilerResourcesForReconciler, reconcilerName, offset, limit)
+type GetReconcilerResourcesForReconcilerParams struct {
+	ReconcilerName string
+	Offset         int32
+	Limit          int32
+}
+
+func (q *Queries) GetReconcilerResourcesForReconciler(ctx context.Context, arg GetReconcilerResourcesForReconcilerParams) ([]*ReconcilerResource, error) {
+	rows, err := q.db.Query(ctx, getReconcilerResourcesForReconciler, arg.ReconcilerName, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -111,12 +131,19 @@ ORDER BY team_slug, name ASC
 LIMIT $4 OFFSET $3
 `
 
-func (q *Queries) GetReconcilerResourcesForReconcilerAndTeam(ctx context.Context, reconcilerName string, teamSlug slug.Slug, offset int32, limit int32) ([]*ReconcilerResource, error) {
+type GetReconcilerResourcesForReconcilerAndTeamParams struct {
+	ReconcilerName string
+	TeamSlug       slug.Slug
+	Offset         int32
+	Limit          int32
+}
+
+func (q *Queries) GetReconcilerResourcesForReconcilerAndTeam(ctx context.Context, arg GetReconcilerResourcesForReconcilerAndTeamParams) ([]*ReconcilerResource, error) {
 	rows, err := q.db.Query(ctx, getReconcilerResourcesForReconcilerAndTeam,
-		reconcilerName,
-		teamSlug,
-		offset,
-		limit,
+		arg.ReconcilerName,
+		arg.TeamSlug,
+		arg.Offset,
+		arg.Limit,
 	)
 	if err != nil {
 		return nil, err
@@ -164,13 +191,21 @@ UPDATE SET value = EXCLUDED.value, metadata = EXCLUDED.metadata
 RETURNING id, reconciler_name, team_slug, name, value, metadata, created_at, updated_at
 `
 
-func (q *Queries) UpsertReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, value string, metadata interface{}) (*ReconcilerResource, error) {
+type UpsertReconcilerResourceParams struct {
+	ReconcilerName string
+	TeamSlug       slug.Slug
+	Name           string
+	Value          string
+	Metadata       interface{}
+}
+
+func (q *Queries) UpsertReconcilerResource(ctx context.Context, arg UpsertReconcilerResourceParams) (*ReconcilerResource, error) {
 	row := q.db.QueryRow(ctx, upsertReconcilerResource,
-		reconcilerName,
-		teamSlug,
-		name,
-		value,
-		metadata,
+		arg.ReconcilerName,
+		arg.TeamSlug,
+		arg.Name,
+		arg.Value,
+		arg.Metadata,
 	)
 	var i ReconcilerResource
 	err := row.Scan(

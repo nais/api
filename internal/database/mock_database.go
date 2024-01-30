@@ -291,9 +291,9 @@ func (_c *MockDatabase_AverageResourceUtilizationForTeam_Call) RunAndReturn(run 
 	return _c
 }
 
-// ClearReconcilerErrorsForTeam provides a mock function with given fields: ctx, _a1, reconcilerName
-func (_m *MockDatabase) ClearReconcilerErrorsForTeam(ctx context.Context, _a1 slug.Slug, reconcilerName string) error {
-	ret := _m.Called(ctx, _a1, reconcilerName)
+// ClearReconcilerErrorsForTeam provides a mock function with given fields: ctx, teamSlug, reconcilerName
+func (_m *MockDatabase) ClearReconcilerErrorsForTeam(ctx context.Context, teamSlug slug.Slug, reconcilerName string) error {
+	ret := _m.Called(ctx, teamSlug, reconcilerName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ClearReconcilerErrorsForTeam")
@@ -301,7 +301,7 @@ func (_m *MockDatabase) ClearReconcilerErrorsForTeam(ctx context.Context, _a1 sl
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) error); ok {
-		r0 = rf(ctx, _a1, reconcilerName)
+		r0 = rf(ctx, teamSlug, reconcilerName)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -316,13 +316,13 @@ type MockDatabase_ClearReconcilerErrorsForTeam_Call struct {
 
 // ClearReconcilerErrorsForTeam is a helper method to define mock.On call
 //   - ctx context.Context
-//   - _a1 slug.Slug
+//   - teamSlug slug.Slug
 //   - reconcilerName string
-func (_e *MockDatabase_Expecter) ClearReconcilerErrorsForTeam(ctx interface{}, _a1 interface{}, reconcilerName interface{}) *MockDatabase_ClearReconcilerErrorsForTeam_Call {
-	return &MockDatabase_ClearReconcilerErrorsForTeam_Call{Call: _e.mock.On("ClearReconcilerErrorsForTeam", ctx, _a1, reconcilerName)}
+func (_e *MockDatabase_Expecter) ClearReconcilerErrorsForTeam(ctx interface{}, teamSlug interface{}, reconcilerName interface{}) *MockDatabase_ClearReconcilerErrorsForTeam_Call {
+	return &MockDatabase_ClearReconcilerErrorsForTeam_Call{Call: _e.mock.On("ClearReconcilerErrorsForTeam", ctx, teamSlug, reconcilerName)}
 }
 
-func (_c *MockDatabase_ClearReconcilerErrorsForTeam_Call) Run(run func(ctx context.Context, _a1 slug.Slug, reconcilerName string)) *MockDatabase_ClearReconcilerErrorsForTeam_Call {
+func (_c *MockDatabase_ClearReconcilerErrorsForTeam_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, reconcilerName string)) *MockDatabase_ClearReconcilerErrorsForTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string))
 	})
@@ -752,9 +752,9 @@ func (_c *MockDatabase_CreateSession_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
-// CreateTeam provides a mock function with given fields: ctx, _a1, purpose, slackChannel
-func (_m *MockDatabase) CreateTeam(ctx context.Context, _a1 slug.Slug, purpose string, slackChannel string) (*Team, error) {
-	ret := _m.Called(ctx, _a1, purpose, slackChannel)
+// CreateTeam provides a mock function with given fields: ctx, teamSlug, purpose, slackChannel
+func (_m *MockDatabase) CreateTeam(ctx context.Context, teamSlug slug.Slug, purpose string, slackChannel string) (*Team, error) {
+	ret := _m.Called(ctx, teamSlug, purpose, slackChannel)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateTeam")
@@ -763,10 +763,10 @@ func (_m *MockDatabase) CreateTeam(ctx context.Context, _a1 slug.Slug, purpose s
 	var r0 *Team
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, string) (*Team, error)); ok {
-		return rf(ctx, _a1, purpose, slackChannel)
+		return rf(ctx, teamSlug, purpose, slackChannel)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, string) *Team); ok {
-		r0 = rf(ctx, _a1, purpose, slackChannel)
+		r0 = rf(ctx, teamSlug, purpose, slackChannel)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Team)
@@ -774,7 +774,7 @@ func (_m *MockDatabase) CreateTeam(ctx context.Context, _a1 slug.Slug, purpose s
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, string, string) error); ok {
-		r1 = rf(ctx, _a1, purpose, slackChannel)
+		r1 = rf(ctx, teamSlug, purpose, slackChannel)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -789,14 +789,14 @@ type MockDatabase_CreateTeam_Call struct {
 
 // CreateTeam is a helper method to define mock.On call
 //   - ctx context.Context
-//   - _a1 slug.Slug
+//   - teamSlug slug.Slug
 //   - purpose string
 //   - slackChannel string
-func (_e *MockDatabase_Expecter) CreateTeam(ctx interface{}, _a1 interface{}, purpose interface{}, slackChannel interface{}) *MockDatabase_CreateTeam_Call {
-	return &MockDatabase_CreateTeam_Call{Call: _e.mock.On("CreateTeam", ctx, _a1, purpose, slackChannel)}
+func (_e *MockDatabase_Expecter) CreateTeam(ctx interface{}, teamSlug interface{}, purpose interface{}, slackChannel interface{}) *MockDatabase_CreateTeam_Call {
+	return &MockDatabase_CreateTeam_Call{Call: _e.mock.On("CreateTeam", ctx, teamSlug, purpose, slackChannel)}
 }
 
-func (_c *MockDatabase_CreateTeam_Call) Run(run func(ctx context.Context, _a1 slug.Slug, purpose string, slackChannel string)) *MockDatabase_CreateTeam_Call {
+func (_c *MockDatabase_CreateTeam_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, purpose string, slackChannel string)) *MockDatabase_CreateTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string), args[3].(string))
 	})
@@ -1638,9 +1638,9 @@ func (_c *MockDatabase_FirstRunComplete_Call) RunAndReturn(run func(context.Cont
 	return _c
 }
 
-// GetActiveTeamBySlug provides a mock function with given fields: ctx, _a1
-func (_m *MockDatabase) GetActiveTeamBySlug(ctx context.Context, _a1 slug.Slug) (*Team, error) {
-	ret := _m.Called(ctx, _a1)
+// GetActiveTeamBySlug provides a mock function with given fields: ctx, teamSlug
+func (_m *MockDatabase) GetActiveTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error) {
+	ret := _m.Called(ctx, teamSlug)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetActiveTeamBySlug")
@@ -1649,10 +1649,10 @@ func (_m *MockDatabase) GetActiveTeamBySlug(ctx context.Context, _a1 slug.Slug) 
 	var r0 *Team
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (*Team, error)); ok {
-		return rf(ctx, _a1)
+		return rf(ctx, teamSlug)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) *Team); ok {
-		r0 = rf(ctx, _a1)
+		r0 = rf(ctx, teamSlug)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Team)
@@ -1660,7 +1660,7 @@ func (_m *MockDatabase) GetActiveTeamBySlug(ctx context.Context, _a1 slug.Slug) 
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
-		r1 = rf(ctx, _a1)
+		r1 = rf(ctx, teamSlug)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1675,12 +1675,12 @@ type MockDatabase_GetActiveTeamBySlug_Call struct {
 
 // GetActiveTeamBySlug is a helper method to define mock.On call
 //   - ctx context.Context
-//   - _a1 slug.Slug
-func (_e *MockDatabase_Expecter) GetActiveTeamBySlug(ctx interface{}, _a1 interface{}) *MockDatabase_GetActiveTeamBySlug_Call {
-	return &MockDatabase_GetActiveTeamBySlug_Call{Call: _e.mock.On("GetActiveTeamBySlug", ctx, _a1)}
+//   - teamSlug slug.Slug
+func (_e *MockDatabase_Expecter) GetActiveTeamBySlug(ctx interface{}, teamSlug interface{}) *MockDatabase_GetActiveTeamBySlug_Call {
+	return &MockDatabase_GetActiveTeamBySlug_Call{Call: _e.mock.On("GetActiveTeamBySlug", ctx, teamSlug)}
 }
 
-func (_c *MockDatabase_GetActiveTeamBySlug_Call) Run(run func(ctx context.Context, _a1 slug.Slug)) *MockDatabase_GetActiveTeamBySlug_Call {
+func (_c *MockDatabase_GetActiveTeamBySlug_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockDatabase_GetActiveTeamBySlug_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(slug.Slug))
 	})
@@ -2008,9 +2008,9 @@ func (_c *MockDatabase_GetAuditLogsForReconciler_Call) RunAndReturn(run func(con
 	return _c
 }
 
-// GetAuditLogsForTeam provides a mock function with given fields: ctx, _a1, offset, limit
-func (_m *MockDatabase) GetAuditLogsForTeam(ctx context.Context, _a1 slug.Slug, offset int, limit int) ([]*AuditLog, int, error) {
-	ret := _m.Called(ctx, _a1, offset, limit)
+// GetAuditLogsForTeam provides a mock function with given fields: ctx, teamSlug, offset, limit
+func (_m *MockDatabase) GetAuditLogsForTeam(ctx context.Context, teamSlug slug.Slug, offset int, limit int) ([]*AuditLog, int, error) {
+	ret := _m.Called(ctx, teamSlug, offset, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAuditLogsForTeam")
@@ -2020,10 +2020,10 @@ func (_m *MockDatabase) GetAuditLogsForTeam(ctx context.Context, _a1 slug.Slug, 
 	var r1 int
 	var r2 error
 	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, int, int) ([]*AuditLog, int, error)); ok {
-		return rf(ctx, _a1, offset, limit)
+		return rf(ctx, teamSlug, offset, limit)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, int, int) []*AuditLog); ok {
-		r0 = rf(ctx, _a1, offset, limit)
+		r0 = rf(ctx, teamSlug, offset, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*AuditLog)
@@ -2031,13 +2031,13 @@ func (_m *MockDatabase) GetAuditLogsForTeam(ctx context.Context, _a1 slug.Slug, 
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, int, int) int); ok {
-		r1 = rf(ctx, _a1, offset, limit)
+		r1 = rf(ctx, teamSlug, offset, limit)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
 	if rf, ok := ret.Get(2).(func(context.Context, slug.Slug, int, int) error); ok {
-		r2 = rf(ctx, _a1, offset, limit)
+		r2 = rf(ctx, teamSlug, offset, limit)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -2052,14 +2052,14 @@ type MockDatabase_GetAuditLogsForTeam_Call struct {
 
 // GetAuditLogsForTeam is a helper method to define mock.On call
 //   - ctx context.Context
-//   - _a1 slug.Slug
+//   - teamSlug slug.Slug
 //   - offset int
 //   - limit int
-func (_e *MockDatabase_Expecter) GetAuditLogsForTeam(ctx interface{}, _a1 interface{}, offset interface{}, limit interface{}) *MockDatabase_GetAuditLogsForTeam_Call {
-	return &MockDatabase_GetAuditLogsForTeam_Call{Call: _e.mock.On("GetAuditLogsForTeam", ctx, _a1, offset, limit)}
+func (_e *MockDatabase_Expecter) GetAuditLogsForTeam(ctx interface{}, teamSlug interface{}, offset interface{}, limit interface{}) *MockDatabase_GetAuditLogsForTeam_Call {
+	return &MockDatabase_GetAuditLogsForTeam_Call{Call: _e.mock.On("GetAuditLogsForTeam", ctx, teamSlug, offset, limit)}
 }
 
-func (_c *MockDatabase_GetAuditLogsForTeam_Call) Run(run func(ctx context.Context, _a1 slug.Slug, offset int, limit int)) *MockDatabase_GetAuditLogsForTeam_Call {
+func (_c *MockDatabase_GetAuditLogsForTeam_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, offset int, limit int)) *MockDatabase_GetAuditLogsForTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(int), args[3].(int))
 	})
@@ -2451,9 +2451,9 @@ func (_c *MockDatabase_GetReconcilers_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
-// GetRepositoryAuthorizations provides a mock function with given fields: ctx, teamSlug, repo
-func (_m *MockDatabase) GetRepositoryAuthorizations(ctx context.Context, teamSlug slug.Slug, repo string) ([]gensql.RepositoryAuthorizationEnum, error) {
-	ret := _m.Called(ctx, teamSlug, repo)
+// GetRepositoryAuthorizations provides a mock function with given fields: ctx, teamSlug, repoName
+func (_m *MockDatabase) GetRepositoryAuthorizations(ctx context.Context, teamSlug slug.Slug, repoName string) ([]gensql.RepositoryAuthorizationEnum, error) {
+	ret := _m.Called(ctx, teamSlug, repoName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetRepositoryAuthorizations")
@@ -2462,10 +2462,10 @@ func (_m *MockDatabase) GetRepositoryAuthorizations(ctx context.Context, teamSlu
 	var r0 []gensql.RepositoryAuthorizationEnum
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) ([]gensql.RepositoryAuthorizationEnum, error)); ok {
-		return rf(ctx, teamSlug, repo)
+		return rf(ctx, teamSlug, repoName)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) []gensql.RepositoryAuthorizationEnum); ok {
-		r0 = rf(ctx, teamSlug, repo)
+		r0 = rf(ctx, teamSlug, repoName)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]gensql.RepositoryAuthorizationEnum)
@@ -2473,7 +2473,7 @@ func (_m *MockDatabase) GetRepositoryAuthorizations(ctx context.Context, teamSlu
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, string) error); ok {
-		r1 = rf(ctx, teamSlug, repo)
+		r1 = rf(ctx, teamSlug, repoName)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -2489,12 +2489,12 @@ type MockDatabase_GetRepositoryAuthorizations_Call struct {
 // GetRepositoryAuthorizations is a helper method to define mock.On call
 //   - ctx context.Context
 //   - teamSlug slug.Slug
-//   - repo string
-func (_e *MockDatabase_Expecter) GetRepositoryAuthorizations(ctx interface{}, teamSlug interface{}, repo interface{}) *MockDatabase_GetRepositoryAuthorizations_Call {
-	return &MockDatabase_GetRepositoryAuthorizations_Call{Call: _e.mock.On("GetRepositoryAuthorizations", ctx, teamSlug, repo)}
+//   - repoName string
+func (_e *MockDatabase_Expecter) GetRepositoryAuthorizations(ctx interface{}, teamSlug interface{}, repoName interface{}) *MockDatabase_GetRepositoryAuthorizations_Call {
+	return &MockDatabase_GetRepositoryAuthorizations_Call{Call: _e.mock.On("GetRepositoryAuthorizations", ctx, teamSlug, repoName)}
 }
 
-func (_c *MockDatabase_GetRepositoryAuthorizations_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, repo string)) *MockDatabase_GetRepositoryAuthorizations_Call {
+func (_c *MockDatabase_GetRepositoryAuthorizations_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, repoName string)) *MockDatabase_GetRepositoryAuthorizations_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string))
 	})
@@ -2864,9 +2864,9 @@ func (_c *MockDatabase_GetSlackAlertsChannels_Call) RunAndReturn(run func(contex
 	return _c
 }
 
-// GetTeamBySlug provides a mock function with given fields: ctx, _a1
-func (_m *MockDatabase) GetTeamBySlug(ctx context.Context, _a1 slug.Slug) (*Team, error) {
-	ret := _m.Called(ctx, _a1)
+// GetTeamBySlug provides a mock function with given fields: ctx, teamSlug
+func (_m *MockDatabase) GetTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error) {
+	ret := _m.Called(ctx, teamSlug)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTeamBySlug")
@@ -2875,10 +2875,10 @@ func (_m *MockDatabase) GetTeamBySlug(ctx context.Context, _a1 slug.Slug) (*Team
 	var r0 *Team
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (*Team, error)); ok {
-		return rf(ctx, _a1)
+		return rf(ctx, teamSlug)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) *Team); ok {
-		r0 = rf(ctx, _a1)
+		r0 = rf(ctx, teamSlug)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Team)
@@ -2886,7 +2886,7 @@ func (_m *MockDatabase) GetTeamBySlug(ctx context.Context, _a1 slug.Slug) (*Team
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
-		r1 = rf(ctx, _a1)
+		r1 = rf(ctx, teamSlug)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -2901,12 +2901,12 @@ type MockDatabase_GetTeamBySlug_Call struct {
 
 // GetTeamBySlug is a helper method to define mock.On call
 //   - ctx context.Context
-//   - _a1 slug.Slug
-func (_e *MockDatabase_Expecter) GetTeamBySlug(ctx interface{}, _a1 interface{}) *MockDatabase_GetTeamBySlug_Call {
-	return &MockDatabase_GetTeamBySlug_Call{Call: _e.mock.On("GetTeamBySlug", ctx, _a1)}
+//   - teamSlug slug.Slug
+func (_e *MockDatabase_Expecter) GetTeamBySlug(ctx interface{}, teamSlug interface{}) *MockDatabase_GetTeamBySlug_Call {
+	return &MockDatabase_GetTeamBySlug_Call{Call: _e.mock.On("GetTeamBySlug", ctx, teamSlug)}
 }
 
-func (_c *MockDatabase_GetTeamBySlug_Call) Run(run func(ctx context.Context, _a1 slug.Slug)) *MockDatabase_GetTeamBySlug_Call {
+func (_c *MockDatabase_GetTeamBySlug_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockDatabase_GetTeamBySlug_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(slug.Slug))
 	})
@@ -3298,9 +3298,9 @@ func (_c *MockDatabase_GetTeamMembersForReconciler_Call) RunAndReturn(run func(c
 	return _c
 }
 
-// GetTeamReconcilerErrors provides a mock function with given fields: ctx, _a1
-func (_m *MockDatabase) GetTeamReconcilerErrors(ctx context.Context, _a1 slug.Slug) ([]*ReconcilerError, error) {
-	ret := _m.Called(ctx, _a1)
+// GetTeamReconcilerErrors provides a mock function with given fields: ctx, teamSlug
+func (_m *MockDatabase) GetTeamReconcilerErrors(ctx context.Context, teamSlug slug.Slug) ([]*ReconcilerError, error) {
+	ret := _m.Called(ctx, teamSlug)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTeamReconcilerErrors")
@@ -3309,10 +3309,10 @@ func (_m *MockDatabase) GetTeamReconcilerErrors(ctx context.Context, _a1 slug.Sl
 	var r0 []*ReconcilerError
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) ([]*ReconcilerError, error)); ok {
-		return rf(ctx, _a1)
+		return rf(ctx, teamSlug)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) []*ReconcilerError); ok {
-		r0 = rf(ctx, _a1)
+		r0 = rf(ctx, teamSlug)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*ReconcilerError)
@@ -3320,7 +3320,7 @@ func (_m *MockDatabase) GetTeamReconcilerErrors(ctx context.Context, _a1 slug.Sl
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
-		r1 = rf(ctx, _a1)
+		r1 = rf(ctx, teamSlug)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -3335,12 +3335,12 @@ type MockDatabase_GetTeamReconcilerErrors_Call struct {
 
 // GetTeamReconcilerErrors is a helper method to define mock.On call
 //   - ctx context.Context
-//   - _a1 slug.Slug
-func (_e *MockDatabase_Expecter) GetTeamReconcilerErrors(ctx interface{}, _a1 interface{}) *MockDatabase_GetTeamReconcilerErrors_Call {
-	return &MockDatabase_GetTeamReconcilerErrors_Call{Call: _e.mock.On("GetTeamReconcilerErrors", ctx, _a1)}
+//   - teamSlug slug.Slug
+func (_e *MockDatabase_Expecter) GetTeamReconcilerErrors(ctx interface{}, teamSlug interface{}) *MockDatabase_GetTeamReconcilerErrors_Call {
+	return &MockDatabase_GetTeamReconcilerErrors_Call{Call: _e.mock.On("GetTeamReconcilerErrors", ctx, teamSlug)}
 }
 
-func (_c *MockDatabase_GetTeamReconcilerErrors_Call) Run(run func(ctx context.Context, _a1 slug.Slug)) *MockDatabase_GetTeamReconcilerErrors_Call {
+func (_c *MockDatabase_GetTeamReconcilerErrors_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockDatabase_GetTeamReconcilerErrors_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(slug.Slug))
 	})
@@ -5113,9 +5113,9 @@ func (_c *MockDatabase_SetLastSuccessfulSyncForTeam_Call) RunAndReturn(run func(
 	return _c
 }
 
-// SetReconcilerErrorForTeam provides a mock function with given fields: ctx, correlationID, _a2, reconcilerName, err
-func (_m *MockDatabase) SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, _a2 slug.Slug, reconcilerName string, err error) error {
-	ret := _m.Called(ctx, correlationID, _a2, reconcilerName, err)
+// SetReconcilerErrorForTeam provides a mock function with given fields: ctx, correlationID, teamSlug, reconcilerName, err
+func (_m *MockDatabase) SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, teamSlug slug.Slug, reconcilerName string, err error) error {
+	ret := _m.Called(ctx, correlationID, teamSlug, reconcilerName, err)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SetReconcilerErrorForTeam")
@@ -5123,7 +5123,7 @@ func (_m *MockDatabase) SetReconcilerErrorForTeam(ctx context.Context, correlati
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, slug.Slug, string, error) error); ok {
-		r0 = rf(ctx, correlationID, _a2, reconcilerName, err)
+		r0 = rf(ctx, correlationID, teamSlug, reconcilerName, err)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -5139,14 +5139,14 @@ type MockDatabase_SetReconcilerErrorForTeam_Call struct {
 // SetReconcilerErrorForTeam is a helper method to define mock.On call
 //   - ctx context.Context
 //   - correlationID uuid.UUID
-//   - _a2 slug.Slug
+//   - teamSlug slug.Slug
 //   - reconcilerName string
 //   - err error
-func (_e *MockDatabase_Expecter) SetReconcilerErrorForTeam(ctx interface{}, correlationID interface{}, _a2 interface{}, reconcilerName interface{}, err interface{}) *MockDatabase_SetReconcilerErrorForTeam_Call {
-	return &MockDatabase_SetReconcilerErrorForTeam_Call{Call: _e.mock.On("SetReconcilerErrorForTeam", ctx, correlationID, _a2, reconcilerName, err)}
+func (_e *MockDatabase_Expecter) SetReconcilerErrorForTeam(ctx interface{}, correlationID interface{}, teamSlug interface{}, reconcilerName interface{}, err interface{}) *MockDatabase_SetReconcilerErrorForTeam_Call {
+	return &MockDatabase_SetReconcilerErrorForTeam_Call{Call: _e.mock.On("SetReconcilerErrorForTeam", ctx, correlationID, teamSlug, reconcilerName, err)}
 }
 
-func (_c *MockDatabase_SetReconcilerErrorForTeam_Call) Run(run func(ctx context.Context, correlationID uuid.UUID, _a2 slug.Slug, reconcilerName string, err error)) *MockDatabase_SetReconcilerErrorForTeam_Call {
+func (_c *MockDatabase_SetReconcilerErrorForTeam_Call) Run(run func(ctx context.Context, correlationID uuid.UUID, teamSlug slug.Slug, reconcilerName string, err error)) *MockDatabase_SetReconcilerErrorForTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(slug.Slug), args[3].(string), args[4].(error))
 	})
@@ -5212,9 +5212,9 @@ func (_c *MockDatabase_SetSlackAlertsChannel_Call) RunAndReturn(run func(context
 	return _c
 }
 
-// SetTeamMemberRole provides a mock function with given fields: ctx, userID, teamSlug, role
-func (_m *MockDatabase) SetTeamMemberRole(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, role gensql.RoleName) error {
-	ret := _m.Called(ctx, userID, teamSlug, role)
+// SetTeamMemberRole provides a mock function with given fields: ctx, userID, teamSlug, roleName
+func (_m *MockDatabase) SetTeamMemberRole(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, roleName gensql.RoleName) error {
+	ret := _m.Called(ctx, userID, teamSlug, roleName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SetTeamMemberRole")
@@ -5222,7 +5222,7 @@ func (_m *MockDatabase) SetTeamMemberRole(ctx context.Context, userID uuid.UUID,
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, slug.Slug, gensql.RoleName) error); ok {
-		r0 = rf(ctx, userID, teamSlug, role)
+		r0 = rf(ctx, userID, teamSlug, roleName)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -5239,12 +5239,12 @@ type MockDatabase_SetTeamMemberRole_Call struct {
 //   - ctx context.Context
 //   - userID uuid.UUID
 //   - teamSlug slug.Slug
-//   - role gensql.RoleName
-func (_e *MockDatabase_Expecter) SetTeamMemberRole(ctx interface{}, userID interface{}, teamSlug interface{}, role interface{}) *MockDatabase_SetTeamMemberRole_Call {
-	return &MockDatabase_SetTeamMemberRole_Call{Call: _e.mock.On("SetTeamMemberRole", ctx, userID, teamSlug, role)}
+//   - roleName gensql.RoleName
+func (_e *MockDatabase_Expecter) SetTeamMemberRole(ctx interface{}, userID interface{}, teamSlug interface{}, roleName interface{}) *MockDatabase_SetTeamMemberRole_Call {
+	return &MockDatabase_SetTeamMemberRole_Call{Call: _e.mock.On("SetTeamMemberRole", ctx, userID, teamSlug, roleName)}
 }
 
-func (_c *MockDatabase_SetTeamMemberRole_Call) Run(run func(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, role gensql.RoleName)) *MockDatabase_SetTeamMemberRole_Call {
+func (_c *MockDatabase_SetTeamMemberRole_Call) Run(run func(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, roleName gensql.RoleName)) *MockDatabase_SetTeamMemberRole_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(slug.Slug), args[3].(gensql.RoleName))
 	})
@@ -5660,9 +5660,9 @@ func (_c *MockDatabase_UpdateUser_Call) RunAndReturn(run func(context.Context, u
 	return _c
 }
 
-// UpsertReconciler provides a mock function with given fields: ctx, name, display_name, description, memberAware
-func (_m *MockDatabase) UpsertReconciler(ctx context.Context, name string, display_name string, description string, memberAware bool) (*Reconciler, error) {
-	ret := _m.Called(ctx, name, display_name, description, memberAware)
+// UpsertReconciler provides a mock function with given fields: ctx, name, displayName, description, memberAware
+func (_m *MockDatabase) UpsertReconciler(ctx context.Context, name string, displayName string, description string, memberAware bool) (*Reconciler, error) {
+	ret := _m.Called(ctx, name, displayName, description, memberAware)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpsertReconciler")
@@ -5671,10 +5671,10 @@ func (_m *MockDatabase) UpsertReconciler(ctx context.Context, name string, displ
 	var r0 *Reconciler
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, bool) (*Reconciler, error)); ok {
-		return rf(ctx, name, display_name, description, memberAware)
+		return rf(ctx, name, displayName, description, memberAware)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, bool) *Reconciler); ok {
-		r0 = rf(ctx, name, display_name, description, memberAware)
+		r0 = rf(ctx, name, displayName, description, memberAware)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Reconciler)
@@ -5682,7 +5682,7 @@ func (_m *MockDatabase) UpsertReconciler(ctx context.Context, name string, displ
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string, string, string, bool) error); ok {
-		r1 = rf(ctx, name, display_name, description, memberAware)
+		r1 = rf(ctx, name, displayName, description, memberAware)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -5698,14 +5698,14 @@ type MockDatabase_UpsertReconciler_Call struct {
 // UpsertReconciler is a helper method to define mock.On call
 //   - ctx context.Context
 //   - name string
-//   - display_name string
+//   - displayName string
 //   - description string
 //   - memberAware bool
-func (_e *MockDatabase_Expecter) UpsertReconciler(ctx interface{}, name interface{}, display_name interface{}, description interface{}, memberAware interface{}) *MockDatabase_UpsertReconciler_Call {
-	return &MockDatabase_UpsertReconciler_Call{Call: _e.mock.On("UpsertReconciler", ctx, name, display_name, description, memberAware)}
+func (_e *MockDatabase_Expecter) UpsertReconciler(ctx interface{}, name interface{}, displayName interface{}, description interface{}, memberAware interface{}) *MockDatabase_UpsertReconciler_Call {
+	return &MockDatabase_UpsertReconciler_Call{Call: _e.mock.On("UpsertReconciler", ctx, name, displayName, description, memberAware)}
 }
 
-func (_c *MockDatabase_UpsertReconciler_Call) Run(run func(ctx context.Context, name string, display_name string, description string, memberAware bool)) *MockDatabase_UpsertReconciler_Call {
+func (_c *MockDatabase_UpsertReconciler_Call) Run(run func(ctx context.Context, name string, displayName string, description string, memberAware bool)) *MockDatabase_UpsertReconciler_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string), args[4].(bool))
 	})

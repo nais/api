@@ -26,17 +26,17 @@ func (_m *MockQuerier) EXPECT() *MockQuerier_Expecter {
 	return &MockQuerier_Expecter{mock: &_m.Mock}
 }
 
-// AddReconcilerOptOut provides a mock function with given fields: ctx, teamSlug, userID, reconcilerName
-func (_m *MockQuerier) AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName string) error {
-	ret := _m.Called(ctx, teamSlug, userID, reconcilerName)
+// AddReconcilerOptOut provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) AddReconcilerOptOut(ctx context.Context, arg AddReconcilerOptOutParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AddReconcilerOptOut")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, uuid.UUID, string) error); ok {
-		r0 = rf(ctx, teamSlug, userID, reconcilerName)
+	if rf, ok := ret.Get(0).(func(context.Context, AddReconcilerOptOutParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -51,16 +51,14 @@ type MockQuerier_AddReconcilerOptOut_Call struct {
 
 // AddReconcilerOptOut is a helper method to define mock.On call
 //   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - userID uuid.UUID
-//   - reconcilerName string
-func (_e *MockQuerier_Expecter) AddReconcilerOptOut(ctx interface{}, teamSlug interface{}, userID interface{}, reconcilerName interface{}) *MockQuerier_AddReconcilerOptOut_Call {
-	return &MockQuerier_AddReconcilerOptOut_Call{Call: _e.mock.On("AddReconcilerOptOut", ctx, teamSlug, userID, reconcilerName)}
+//   - arg AddReconcilerOptOutParams
+func (_e *MockQuerier_Expecter) AddReconcilerOptOut(ctx interface{}, arg interface{}) *MockQuerier_AddReconcilerOptOut_Call {
+	return &MockQuerier_AddReconcilerOptOut_Call{Call: _e.mock.On("AddReconcilerOptOut", ctx, arg)}
 }
 
-func (_c *MockQuerier_AddReconcilerOptOut_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName string)) *MockQuerier_AddReconcilerOptOut_Call {
+func (_c *MockQuerier_AddReconcilerOptOut_Call) Run(run func(ctx context.Context, arg AddReconcilerOptOutParams)) *MockQuerier_AddReconcilerOptOut_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(uuid.UUID), args[3].(string))
+		run(args[0].(context.Context), args[1].(AddReconcilerOptOutParams))
 	})
 	return _c
 }
@@ -70,22 +68,22 @@ func (_c *MockQuerier_AddReconcilerOptOut_Call) Return(_a0 error) *MockQuerier_A
 	return _c
 }
 
-func (_c *MockQuerier_AddReconcilerOptOut_Call) RunAndReturn(run func(context.Context, slug.Slug, uuid.UUID, string) error) *MockQuerier_AddReconcilerOptOut_Call {
+func (_c *MockQuerier_AddReconcilerOptOut_Call) RunAndReturn(run func(context.Context, AddReconcilerOptOutParams) error) *MockQuerier_AddReconcilerOptOut_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// AssignGlobalRoleToServiceAccount provides a mock function with given fields: ctx, serviceAccountID, roleName
-func (_m *MockQuerier) AssignGlobalRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName RoleName) error {
-	ret := _m.Called(ctx, serviceAccountID, roleName)
+// AssignGlobalRoleToServiceAccount provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) AssignGlobalRoleToServiceAccount(ctx context.Context, arg AssignGlobalRoleToServiceAccountParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AssignGlobalRoleToServiceAccount")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, RoleName) error); ok {
-		r0 = rf(ctx, serviceAccountID, roleName)
+	if rf, ok := ret.Get(0).(func(context.Context, AssignGlobalRoleToServiceAccountParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -100,15 +98,14 @@ type MockQuerier_AssignGlobalRoleToServiceAccount_Call struct {
 
 // AssignGlobalRoleToServiceAccount is a helper method to define mock.On call
 //   - ctx context.Context
-//   - serviceAccountID uuid.UUID
-//   - roleName RoleName
-func (_e *MockQuerier_Expecter) AssignGlobalRoleToServiceAccount(ctx interface{}, serviceAccountID interface{}, roleName interface{}) *MockQuerier_AssignGlobalRoleToServiceAccount_Call {
-	return &MockQuerier_AssignGlobalRoleToServiceAccount_Call{Call: _e.mock.On("AssignGlobalRoleToServiceAccount", ctx, serviceAccountID, roleName)}
+//   - arg AssignGlobalRoleToServiceAccountParams
+func (_e *MockQuerier_Expecter) AssignGlobalRoleToServiceAccount(ctx interface{}, arg interface{}) *MockQuerier_AssignGlobalRoleToServiceAccount_Call {
+	return &MockQuerier_AssignGlobalRoleToServiceAccount_Call{Call: _e.mock.On("AssignGlobalRoleToServiceAccount", ctx, arg)}
 }
 
-func (_c *MockQuerier_AssignGlobalRoleToServiceAccount_Call) Run(run func(ctx context.Context, serviceAccountID uuid.UUID, roleName RoleName)) *MockQuerier_AssignGlobalRoleToServiceAccount_Call {
+func (_c *MockQuerier_AssignGlobalRoleToServiceAccount_Call) Run(run func(ctx context.Context, arg AssignGlobalRoleToServiceAccountParams)) *MockQuerier_AssignGlobalRoleToServiceAccount_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(RoleName))
+		run(args[0].(context.Context), args[1].(AssignGlobalRoleToServiceAccountParams))
 	})
 	return _c
 }
@@ -118,22 +115,22 @@ func (_c *MockQuerier_AssignGlobalRoleToServiceAccount_Call) Return(_a0 error) *
 	return _c
 }
 
-func (_c *MockQuerier_AssignGlobalRoleToServiceAccount_Call) RunAndReturn(run func(context.Context, uuid.UUID, RoleName) error) *MockQuerier_AssignGlobalRoleToServiceAccount_Call {
+func (_c *MockQuerier_AssignGlobalRoleToServiceAccount_Call) RunAndReturn(run func(context.Context, AssignGlobalRoleToServiceAccountParams) error) *MockQuerier_AssignGlobalRoleToServiceAccount_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// AssignGlobalRoleToUser provides a mock function with given fields: ctx, userID, roleName
-func (_m *MockQuerier) AssignGlobalRoleToUser(ctx context.Context, userID uuid.UUID, roleName RoleName) error {
-	ret := _m.Called(ctx, userID, roleName)
+// AssignGlobalRoleToUser provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) AssignGlobalRoleToUser(ctx context.Context, arg AssignGlobalRoleToUserParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AssignGlobalRoleToUser")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, RoleName) error); ok {
-		r0 = rf(ctx, userID, roleName)
+	if rf, ok := ret.Get(0).(func(context.Context, AssignGlobalRoleToUserParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -148,15 +145,14 @@ type MockQuerier_AssignGlobalRoleToUser_Call struct {
 
 // AssignGlobalRoleToUser is a helper method to define mock.On call
 //   - ctx context.Context
-//   - userID uuid.UUID
-//   - roleName RoleName
-func (_e *MockQuerier_Expecter) AssignGlobalRoleToUser(ctx interface{}, userID interface{}, roleName interface{}) *MockQuerier_AssignGlobalRoleToUser_Call {
-	return &MockQuerier_AssignGlobalRoleToUser_Call{Call: _e.mock.On("AssignGlobalRoleToUser", ctx, userID, roleName)}
+//   - arg AssignGlobalRoleToUserParams
+func (_e *MockQuerier_Expecter) AssignGlobalRoleToUser(ctx interface{}, arg interface{}) *MockQuerier_AssignGlobalRoleToUser_Call {
+	return &MockQuerier_AssignGlobalRoleToUser_Call{Call: _e.mock.On("AssignGlobalRoleToUser", ctx, arg)}
 }
 
-func (_c *MockQuerier_AssignGlobalRoleToUser_Call) Run(run func(ctx context.Context, userID uuid.UUID, roleName RoleName)) *MockQuerier_AssignGlobalRoleToUser_Call {
+func (_c *MockQuerier_AssignGlobalRoleToUser_Call) Run(run func(ctx context.Context, arg AssignGlobalRoleToUserParams)) *MockQuerier_AssignGlobalRoleToUser_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(RoleName))
+		run(args[0].(context.Context), args[1].(AssignGlobalRoleToUserParams))
 	})
 	return _c
 }
@@ -166,22 +162,22 @@ func (_c *MockQuerier_AssignGlobalRoleToUser_Call) Return(_a0 error) *MockQuerie
 	return _c
 }
 
-func (_c *MockQuerier_AssignGlobalRoleToUser_Call) RunAndReturn(run func(context.Context, uuid.UUID, RoleName) error) *MockQuerier_AssignGlobalRoleToUser_Call {
+func (_c *MockQuerier_AssignGlobalRoleToUser_Call) RunAndReturn(run func(context.Context, AssignGlobalRoleToUserParams) error) *MockQuerier_AssignGlobalRoleToUser_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// AssignTeamRoleToServiceAccount provides a mock function with given fields: ctx, serviceAccountID, roleName, targetTeamSlug
-func (_m *MockQuerier) AssignTeamRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName RoleName, targetTeamSlug slug.Slug) error {
-	ret := _m.Called(ctx, serviceAccountID, roleName, targetTeamSlug)
+// AssignTeamRoleToServiceAccount provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) AssignTeamRoleToServiceAccount(ctx context.Context, arg AssignTeamRoleToServiceAccountParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AssignTeamRoleToServiceAccount")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, RoleName, slug.Slug) error); ok {
-		r0 = rf(ctx, serviceAccountID, roleName, targetTeamSlug)
+	if rf, ok := ret.Get(0).(func(context.Context, AssignTeamRoleToServiceAccountParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -196,16 +192,14 @@ type MockQuerier_AssignTeamRoleToServiceAccount_Call struct {
 
 // AssignTeamRoleToServiceAccount is a helper method to define mock.On call
 //   - ctx context.Context
-//   - serviceAccountID uuid.UUID
-//   - roleName RoleName
-//   - targetTeamSlug slug.Slug
-func (_e *MockQuerier_Expecter) AssignTeamRoleToServiceAccount(ctx interface{}, serviceAccountID interface{}, roleName interface{}, targetTeamSlug interface{}) *MockQuerier_AssignTeamRoleToServiceAccount_Call {
-	return &MockQuerier_AssignTeamRoleToServiceAccount_Call{Call: _e.mock.On("AssignTeamRoleToServiceAccount", ctx, serviceAccountID, roleName, targetTeamSlug)}
+//   - arg AssignTeamRoleToServiceAccountParams
+func (_e *MockQuerier_Expecter) AssignTeamRoleToServiceAccount(ctx interface{}, arg interface{}) *MockQuerier_AssignTeamRoleToServiceAccount_Call {
+	return &MockQuerier_AssignTeamRoleToServiceAccount_Call{Call: _e.mock.On("AssignTeamRoleToServiceAccount", ctx, arg)}
 }
 
-func (_c *MockQuerier_AssignTeamRoleToServiceAccount_Call) Run(run func(ctx context.Context, serviceAccountID uuid.UUID, roleName RoleName, targetTeamSlug slug.Slug)) *MockQuerier_AssignTeamRoleToServiceAccount_Call {
+func (_c *MockQuerier_AssignTeamRoleToServiceAccount_Call) Run(run func(ctx context.Context, arg AssignTeamRoleToServiceAccountParams)) *MockQuerier_AssignTeamRoleToServiceAccount_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(RoleName), args[3].(slug.Slug))
+		run(args[0].(context.Context), args[1].(AssignTeamRoleToServiceAccountParams))
 	})
 	return _c
 }
@@ -215,22 +209,22 @@ func (_c *MockQuerier_AssignTeamRoleToServiceAccount_Call) Return(_a0 error) *Mo
 	return _c
 }
 
-func (_c *MockQuerier_AssignTeamRoleToServiceAccount_Call) RunAndReturn(run func(context.Context, uuid.UUID, RoleName, slug.Slug) error) *MockQuerier_AssignTeamRoleToServiceAccount_Call {
+func (_c *MockQuerier_AssignTeamRoleToServiceAccount_Call) RunAndReturn(run func(context.Context, AssignTeamRoleToServiceAccountParams) error) *MockQuerier_AssignTeamRoleToServiceAccount_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// AssignTeamRoleToUser provides a mock function with given fields: ctx, userID, roleName, targetTeamSlug
-func (_m *MockQuerier) AssignTeamRoleToUser(ctx context.Context, userID uuid.UUID, roleName RoleName, targetTeamSlug slug.Slug) error {
-	ret := _m.Called(ctx, userID, roleName, targetTeamSlug)
+// AssignTeamRoleToUser provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) AssignTeamRoleToUser(ctx context.Context, arg AssignTeamRoleToUserParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AssignTeamRoleToUser")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, RoleName, slug.Slug) error); ok {
-		r0 = rf(ctx, userID, roleName, targetTeamSlug)
+	if rf, ok := ret.Get(0).(func(context.Context, AssignTeamRoleToUserParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -245,16 +239,14 @@ type MockQuerier_AssignTeamRoleToUser_Call struct {
 
 // AssignTeamRoleToUser is a helper method to define mock.On call
 //   - ctx context.Context
-//   - userID uuid.UUID
-//   - roleName RoleName
-//   - targetTeamSlug slug.Slug
-func (_e *MockQuerier_Expecter) AssignTeamRoleToUser(ctx interface{}, userID interface{}, roleName interface{}, targetTeamSlug interface{}) *MockQuerier_AssignTeamRoleToUser_Call {
-	return &MockQuerier_AssignTeamRoleToUser_Call{Call: _e.mock.On("AssignTeamRoleToUser", ctx, userID, roleName, targetTeamSlug)}
+//   - arg AssignTeamRoleToUserParams
+func (_e *MockQuerier_Expecter) AssignTeamRoleToUser(ctx interface{}, arg interface{}) *MockQuerier_AssignTeamRoleToUser_Call {
+	return &MockQuerier_AssignTeamRoleToUser_Call{Call: _e.mock.On("AssignTeamRoleToUser", ctx, arg)}
 }
 
-func (_c *MockQuerier_AssignTeamRoleToUser_Call) Run(run func(ctx context.Context, userID uuid.UUID, roleName RoleName, targetTeamSlug slug.Slug)) *MockQuerier_AssignTeamRoleToUser_Call {
+func (_c *MockQuerier_AssignTeamRoleToUser_Call) Run(run func(ctx context.Context, arg AssignTeamRoleToUserParams)) *MockQuerier_AssignTeamRoleToUser_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(RoleName), args[3].(slug.Slug))
+		run(args[0].(context.Context), args[1].(AssignTeamRoleToUserParams))
 	})
 	return _c
 }
@@ -264,14 +256,14 @@ func (_c *MockQuerier_AssignTeamRoleToUser_Call) Return(_a0 error) *MockQuerier_
 	return _c
 }
 
-func (_c *MockQuerier_AssignTeamRoleToUser_Call) RunAndReturn(run func(context.Context, uuid.UUID, RoleName, slug.Slug) error) *MockQuerier_AssignTeamRoleToUser_Call {
+func (_c *MockQuerier_AssignTeamRoleToUser_Call) RunAndReturn(run func(context.Context, AssignTeamRoleToUserParams) error) *MockQuerier_AssignTeamRoleToUser_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// AverageResourceUtilizationForTeam provides a mock function with given fields: ctx, teamSlug, resourceType, timestamp
-func (_m *MockQuerier) AverageResourceUtilizationForTeam(ctx context.Context, teamSlug slug.Slug, resourceType ResourceType, timestamp pgtype.Timestamptz) (*AverageResourceUtilizationForTeamRow, error) {
-	ret := _m.Called(ctx, teamSlug, resourceType, timestamp)
+// AverageResourceUtilizationForTeam provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) AverageResourceUtilizationForTeam(ctx context.Context, arg AverageResourceUtilizationForTeamParams) (*AverageResourceUtilizationForTeamRow, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AverageResourceUtilizationForTeam")
@@ -279,19 +271,19 @@ func (_m *MockQuerier) AverageResourceUtilizationForTeam(ctx context.Context, te
 
 	var r0 *AverageResourceUtilizationForTeamRow
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, ResourceType, pgtype.Timestamptz) (*AverageResourceUtilizationForTeamRow, error)); ok {
-		return rf(ctx, teamSlug, resourceType, timestamp)
+	if rf, ok := ret.Get(0).(func(context.Context, AverageResourceUtilizationForTeamParams) (*AverageResourceUtilizationForTeamRow, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, ResourceType, pgtype.Timestamptz) *AverageResourceUtilizationForTeamRow); ok {
-		r0 = rf(ctx, teamSlug, resourceType, timestamp)
+	if rf, ok := ret.Get(0).(func(context.Context, AverageResourceUtilizationForTeamParams) *AverageResourceUtilizationForTeamRow); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*AverageResourceUtilizationForTeamRow)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, ResourceType, pgtype.Timestamptz) error); ok {
-		r1 = rf(ctx, teamSlug, resourceType, timestamp)
+	if rf, ok := ret.Get(1).(func(context.Context, AverageResourceUtilizationForTeamParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -306,16 +298,14 @@ type MockQuerier_AverageResourceUtilizationForTeam_Call struct {
 
 // AverageResourceUtilizationForTeam is a helper method to define mock.On call
 //   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - resourceType ResourceType
-//   - timestamp pgtype.Timestamptz
-func (_e *MockQuerier_Expecter) AverageResourceUtilizationForTeam(ctx interface{}, teamSlug interface{}, resourceType interface{}, timestamp interface{}) *MockQuerier_AverageResourceUtilizationForTeam_Call {
-	return &MockQuerier_AverageResourceUtilizationForTeam_Call{Call: _e.mock.On("AverageResourceUtilizationForTeam", ctx, teamSlug, resourceType, timestamp)}
+//   - arg AverageResourceUtilizationForTeamParams
+func (_e *MockQuerier_Expecter) AverageResourceUtilizationForTeam(ctx interface{}, arg interface{}) *MockQuerier_AverageResourceUtilizationForTeam_Call {
+	return &MockQuerier_AverageResourceUtilizationForTeam_Call{Call: _e.mock.On("AverageResourceUtilizationForTeam", ctx, arg)}
 }
 
-func (_c *MockQuerier_AverageResourceUtilizationForTeam_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, resourceType ResourceType, timestamp pgtype.Timestamptz)) *MockQuerier_AverageResourceUtilizationForTeam_Call {
+func (_c *MockQuerier_AverageResourceUtilizationForTeam_Call) Run(run func(ctx context.Context, arg AverageResourceUtilizationForTeamParams)) *MockQuerier_AverageResourceUtilizationForTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(ResourceType), args[3].(pgtype.Timestamptz))
+		run(args[0].(context.Context), args[1].(AverageResourceUtilizationForTeamParams))
 	})
 	return _c
 }
@@ -325,22 +315,22 @@ func (_c *MockQuerier_AverageResourceUtilizationForTeam_Call) Return(_a0 *Averag
 	return _c
 }
 
-func (_c *MockQuerier_AverageResourceUtilizationForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug, ResourceType, pgtype.Timestamptz) (*AverageResourceUtilizationForTeamRow, error)) *MockQuerier_AverageResourceUtilizationForTeam_Call {
+func (_c *MockQuerier_AverageResourceUtilizationForTeam_Call) RunAndReturn(run func(context.Context, AverageResourceUtilizationForTeamParams) (*AverageResourceUtilizationForTeamRow, error)) *MockQuerier_AverageResourceUtilizationForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// ClearReconcilerErrorsForTeam provides a mock function with given fields: ctx, teamSlug, reconciler
-func (_m *MockQuerier) ClearReconcilerErrorsForTeam(ctx context.Context, teamSlug slug.Slug, reconciler string) error {
-	ret := _m.Called(ctx, teamSlug, reconciler)
+// ClearReconcilerErrorsForTeam provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) ClearReconcilerErrorsForTeam(ctx context.Context, arg ClearReconcilerErrorsForTeamParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ClearReconcilerErrorsForTeam")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) error); ok {
-		r0 = rf(ctx, teamSlug, reconciler)
+	if rf, ok := ret.Get(0).(func(context.Context, ClearReconcilerErrorsForTeamParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -355,15 +345,14 @@ type MockQuerier_ClearReconcilerErrorsForTeam_Call struct {
 
 // ClearReconcilerErrorsForTeam is a helper method to define mock.On call
 //   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - reconciler string
-func (_e *MockQuerier_Expecter) ClearReconcilerErrorsForTeam(ctx interface{}, teamSlug interface{}, reconciler interface{}) *MockQuerier_ClearReconcilerErrorsForTeam_Call {
-	return &MockQuerier_ClearReconcilerErrorsForTeam_Call{Call: _e.mock.On("ClearReconcilerErrorsForTeam", ctx, teamSlug, reconciler)}
+//   - arg ClearReconcilerErrorsForTeamParams
+func (_e *MockQuerier_Expecter) ClearReconcilerErrorsForTeam(ctx interface{}, arg interface{}) *MockQuerier_ClearReconcilerErrorsForTeam_Call {
+	return &MockQuerier_ClearReconcilerErrorsForTeam_Call{Call: _e.mock.On("ClearReconcilerErrorsForTeam", ctx, arg)}
 }
 
-func (_c *MockQuerier_ClearReconcilerErrorsForTeam_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, reconciler string)) *MockQuerier_ClearReconcilerErrorsForTeam_Call {
+func (_c *MockQuerier_ClearReconcilerErrorsForTeam_Call) Run(run func(ctx context.Context, arg ClearReconcilerErrorsForTeamParams)) *MockQuerier_ClearReconcilerErrorsForTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string))
+		run(args[0].(context.Context), args[1].(ClearReconcilerErrorsForTeamParams))
 	})
 	return _c
 }
@@ -373,22 +362,22 @@ func (_c *MockQuerier_ClearReconcilerErrorsForTeam_Call) Return(_a0 error) *Mock
 	return _c
 }
 
-func (_c *MockQuerier_ClearReconcilerErrorsForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug, string) error) *MockQuerier_ClearReconcilerErrorsForTeam_Call {
+func (_c *MockQuerier_ClearReconcilerErrorsForTeam_Call) RunAndReturn(run func(context.Context, ClearReconcilerErrorsForTeamParams) error) *MockQuerier_ClearReconcilerErrorsForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// ConfigureReconciler provides a mock function with given fields: ctx, value, reconcilerName, key
-func (_m *MockQuerier) ConfigureReconciler(ctx context.Context, value string, reconcilerName string, key string) error {
-	ret := _m.Called(ctx, value, reconcilerName, key)
+// ConfigureReconciler provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) ConfigureReconciler(ctx context.Context, arg ConfigureReconcilerParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ConfigureReconciler")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) error); ok {
-		r0 = rf(ctx, value, reconcilerName, key)
+	if rf, ok := ret.Get(0).(func(context.Context, ConfigureReconcilerParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -403,16 +392,14 @@ type MockQuerier_ConfigureReconciler_Call struct {
 
 // ConfigureReconciler is a helper method to define mock.On call
 //   - ctx context.Context
-//   - value string
-//   - reconcilerName string
-//   - key string
-func (_e *MockQuerier_Expecter) ConfigureReconciler(ctx interface{}, value interface{}, reconcilerName interface{}, key interface{}) *MockQuerier_ConfigureReconciler_Call {
-	return &MockQuerier_ConfigureReconciler_Call{Call: _e.mock.On("ConfigureReconciler", ctx, value, reconcilerName, key)}
+//   - arg ConfigureReconcilerParams
+func (_e *MockQuerier_Expecter) ConfigureReconciler(ctx interface{}, arg interface{}) *MockQuerier_ConfigureReconciler_Call {
+	return &MockQuerier_ConfigureReconciler_Call{Call: _e.mock.On("ConfigureReconciler", ctx, arg)}
 }
 
-func (_c *MockQuerier_ConfigureReconciler_Call) Run(run func(ctx context.Context, value string, reconcilerName string, key string)) *MockQuerier_ConfigureReconciler_Call {
+func (_c *MockQuerier_ConfigureReconciler_Call) Run(run func(ctx context.Context, arg ConfigureReconcilerParams)) *MockQuerier_ConfigureReconciler_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string))
+		run(args[0].(context.Context), args[1].(ConfigureReconcilerParams))
 	})
 	return _c
 }
@@ -422,7 +409,7 @@ func (_c *MockQuerier_ConfigureReconciler_Call) Return(_a0 error) *MockQuerier_C
 	return _c
 }
 
-func (_c *MockQuerier_ConfigureReconciler_Call) RunAndReturn(run func(context.Context, string, string, string) error) *MockQuerier_ConfigureReconciler_Call {
+func (_c *MockQuerier_ConfigureReconciler_Call) RunAndReturn(run func(context.Context, ConfigureReconcilerParams) error) *MockQuerier_ConfigureReconciler_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -523,17 +510,17 @@ func (_c *MockQuerier_CostUpsert_Call) RunAndReturn(run func(context.Context, []
 	return _c
 }
 
-// CreateAPIKey provides a mock function with given fields: ctx, apiKey, serviceAccountID
-func (_m *MockQuerier) CreateAPIKey(ctx context.Context, apiKey string, serviceAccountID uuid.UUID) error {
-	ret := _m.Called(ctx, apiKey, serviceAccountID)
+// CreateAPIKey provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) CreateAPIKey(ctx context.Context, arg CreateAPIKeyParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateAPIKey")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, uuid.UUID) error); ok {
-		r0 = rf(ctx, apiKey, serviceAccountID)
+	if rf, ok := ret.Get(0).(func(context.Context, CreateAPIKeyParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -548,15 +535,14 @@ type MockQuerier_CreateAPIKey_Call struct {
 
 // CreateAPIKey is a helper method to define mock.On call
 //   - ctx context.Context
-//   - apiKey string
-//   - serviceAccountID uuid.UUID
-func (_e *MockQuerier_Expecter) CreateAPIKey(ctx interface{}, apiKey interface{}, serviceAccountID interface{}) *MockQuerier_CreateAPIKey_Call {
-	return &MockQuerier_CreateAPIKey_Call{Call: _e.mock.On("CreateAPIKey", ctx, apiKey, serviceAccountID)}
+//   - arg CreateAPIKeyParams
+func (_e *MockQuerier_Expecter) CreateAPIKey(ctx interface{}, arg interface{}) *MockQuerier_CreateAPIKey_Call {
+	return &MockQuerier_CreateAPIKey_Call{Call: _e.mock.On("CreateAPIKey", ctx, arg)}
 }
 
-func (_c *MockQuerier_CreateAPIKey_Call) Run(run func(ctx context.Context, apiKey string, serviceAccountID uuid.UUID)) *MockQuerier_CreateAPIKey_Call {
+func (_c *MockQuerier_CreateAPIKey_Call) Run(run func(ctx context.Context, arg CreateAPIKeyParams)) *MockQuerier_CreateAPIKey_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(uuid.UUID))
+		run(args[0].(context.Context), args[1].(CreateAPIKeyParams))
 	})
 	return _c
 }
@@ -566,7 +552,7 @@ func (_c *MockQuerier_CreateAPIKey_Call) Return(_a0 error) *MockQuerier_CreateAP
 	return _c
 }
 
-func (_c *MockQuerier_CreateAPIKey_Call) RunAndReturn(run func(context.Context, string, uuid.UUID) error) *MockQuerier_CreateAPIKey_Call {
+func (_c *MockQuerier_CreateAPIKey_Call) RunAndReturn(run func(context.Context, CreateAPIKeyParams) error) *MockQuerier_CreateAPIKey_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -618,17 +604,17 @@ func (_c *MockQuerier_CreateAuditLog_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
-// CreateRepositoryAuthorization provides a mock function with given fields: ctx, teamSlug, githubRepository, repositoryAuthorization
-func (_m *MockQuerier) CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum) error {
-	ret := _m.Called(ctx, teamSlug, githubRepository, repositoryAuthorization)
+// CreateRepositoryAuthorization provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) CreateRepositoryAuthorization(ctx context.Context, arg CreateRepositoryAuthorizationParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateRepositoryAuthorization")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, RepositoryAuthorizationEnum) error); ok {
-		r0 = rf(ctx, teamSlug, githubRepository, repositoryAuthorization)
+	if rf, ok := ret.Get(0).(func(context.Context, CreateRepositoryAuthorizationParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -643,16 +629,14 @@ type MockQuerier_CreateRepositoryAuthorization_Call struct {
 
 // CreateRepositoryAuthorization is a helper method to define mock.On call
 //   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - githubRepository string
-//   - repositoryAuthorization RepositoryAuthorizationEnum
-func (_e *MockQuerier_Expecter) CreateRepositoryAuthorization(ctx interface{}, teamSlug interface{}, githubRepository interface{}, repositoryAuthorization interface{}) *MockQuerier_CreateRepositoryAuthorization_Call {
-	return &MockQuerier_CreateRepositoryAuthorization_Call{Call: _e.mock.On("CreateRepositoryAuthorization", ctx, teamSlug, githubRepository, repositoryAuthorization)}
+//   - arg CreateRepositoryAuthorizationParams
+func (_e *MockQuerier_Expecter) CreateRepositoryAuthorization(ctx interface{}, arg interface{}) *MockQuerier_CreateRepositoryAuthorization_Call {
+	return &MockQuerier_CreateRepositoryAuthorization_Call{Call: _e.mock.On("CreateRepositoryAuthorization", ctx, arg)}
 }
 
-func (_c *MockQuerier_CreateRepositoryAuthorization_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum)) *MockQuerier_CreateRepositoryAuthorization_Call {
+func (_c *MockQuerier_CreateRepositoryAuthorization_Call) Run(run func(ctx context.Context, arg CreateRepositoryAuthorizationParams)) *MockQuerier_CreateRepositoryAuthorization_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string), args[3].(RepositoryAuthorizationEnum))
+		run(args[0].(context.Context), args[1].(CreateRepositoryAuthorizationParams))
 	})
 	return _c
 }
@@ -662,7 +646,7 @@ func (_c *MockQuerier_CreateRepositoryAuthorization_Call) Return(_a0 error) *Moc
 	return _c
 }
 
-func (_c *MockQuerier_CreateRepositoryAuthorization_Call) RunAndReturn(run func(context.Context, slug.Slug, string, RepositoryAuthorizationEnum) error) *MockQuerier_CreateRepositoryAuthorization_Call {
+func (_c *MockQuerier_CreateRepositoryAuthorization_Call) RunAndReturn(run func(context.Context, CreateRepositoryAuthorizationParams) error) *MockQuerier_CreateRepositoryAuthorization_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -726,9 +710,9 @@ func (_c *MockQuerier_CreateServiceAccount_Call) RunAndReturn(run func(context.C
 	return _c
 }
 
-// CreateSession provides a mock function with given fields: ctx, userID, expires
-func (_m *MockQuerier) CreateSession(ctx context.Context, userID uuid.UUID, expires pgtype.Timestamptz) (*Session, error) {
-	ret := _m.Called(ctx, userID, expires)
+// CreateSession provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) CreateSession(ctx context.Context, arg CreateSessionParams) (*Session, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateSession")
@@ -736,19 +720,19 @@ func (_m *MockQuerier) CreateSession(ctx context.Context, userID uuid.UUID, expi
 
 	var r0 *Session
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, pgtype.Timestamptz) (*Session, error)); ok {
-		return rf(ctx, userID, expires)
+	if rf, ok := ret.Get(0).(func(context.Context, CreateSessionParams) (*Session, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, pgtype.Timestamptz) *Session); ok {
-		r0 = rf(ctx, userID, expires)
+	if rf, ok := ret.Get(0).(func(context.Context, CreateSessionParams) *Session); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Session)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, pgtype.Timestamptz) error); ok {
-		r1 = rf(ctx, userID, expires)
+	if rf, ok := ret.Get(1).(func(context.Context, CreateSessionParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -763,15 +747,14 @@ type MockQuerier_CreateSession_Call struct {
 
 // CreateSession is a helper method to define mock.On call
 //   - ctx context.Context
-//   - userID uuid.UUID
-//   - expires pgtype.Timestamptz
-func (_e *MockQuerier_Expecter) CreateSession(ctx interface{}, userID interface{}, expires interface{}) *MockQuerier_CreateSession_Call {
-	return &MockQuerier_CreateSession_Call{Call: _e.mock.On("CreateSession", ctx, userID, expires)}
+//   - arg CreateSessionParams
+func (_e *MockQuerier_Expecter) CreateSession(ctx interface{}, arg interface{}) *MockQuerier_CreateSession_Call {
+	return &MockQuerier_CreateSession_Call{Call: _e.mock.On("CreateSession", ctx, arg)}
 }
 
-func (_c *MockQuerier_CreateSession_Call) Run(run func(ctx context.Context, userID uuid.UUID, expires pgtype.Timestamptz)) *MockQuerier_CreateSession_Call {
+func (_c *MockQuerier_CreateSession_Call) Run(run func(ctx context.Context, arg CreateSessionParams)) *MockQuerier_CreateSession_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(pgtype.Timestamptz))
+		run(args[0].(context.Context), args[1].(CreateSessionParams))
 	})
 	return _c
 }
@@ -781,14 +764,14 @@ func (_c *MockQuerier_CreateSession_Call) Return(_a0 *Session, _a1 error) *MockQ
 	return _c
 }
 
-func (_c *MockQuerier_CreateSession_Call) RunAndReturn(run func(context.Context, uuid.UUID, pgtype.Timestamptz) (*Session, error)) *MockQuerier_CreateSession_Call {
+func (_c *MockQuerier_CreateSession_Call) RunAndReturn(run func(context.Context, CreateSessionParams) (*Session, error)) *MockQuerier_CreateSession_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// CreateTeam provides a mock function with given fields: ctx, _a1, purpose, slackChannel
-func (_m *MockQuerier) CreateTeam(ctx context.Context, _a1 slug.Slug, purpose string, slackChannel string) (*Team, error) {
-	ret := _m.Called(ctx, _a1, purpose, slackChannel)
+// CreateTeam provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) CreateTeam(ctx context.Context, arg CreateTeamParams) (*Team, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateTeam")
@@ -796,19 +779,19 @@ func (_m *MockQuerier) CreateTeam(ctx context.Context, _a1 slug.Slug, purpose st
 
 	var r0 *Team
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, string) (*Team, error)); ok {
-		return rf(ctx, _a1, purpose, slackChannel)
+	if rf, ok := ret.Get(0).(func(context.Context, CreateTeamParams) (*Team, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, string) *Team); ok {
-		r0 = rf(ctx, _a1, purpose, slackChannel)
+	if rf, ok := ret.Get(0).(func(context.Context, CreateTeamParams) *Team); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Team)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, string, string) error); ok {
-		r1 = rf(ctx, _a1, purpose, slackChannel)
+	if rf, ok := ret.Get(1).(func(context.Context, CreateTeamParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -823,16 +806,14 @@ type MockQuerier_CreateTeam_Call struct {
 
 // CreateTeam is a helper method to define mock.On call
 //   - ctx context.Context
-//   - _a1 slug.Slug
-//   - purpose string
-//   - slackChannel string
-func (_e *MockQuerier_Expecter) CreateTeam(ctx interface{}, _a1 interface{}, purpose interface{}, slackChannel interface{}) *MockQuerier_CreateTeam_Call {
-	return &MockQuerier_CreateTeam_Call{Call: _e.mock.On("CreateTeam", ctx, _a1, purpose, slackChannel)}
+//   - arg CreateTeamParams
+func (_e *MockQuerier_Expecter) CreateTeam(ctx interface{}, arg interface{}) *MockQuerier_CreateTeam_Call {
+	return &MockQuerier_CreateTeam_Call{Call: _e.mock.On("CreateTeam", ctx, arg)}
 }
 
-func (_c *MockQuerier_CreateTeam_Call) Run(run func(ctx context.Context, _a1 slug.Slug, purpose string, slackChannel string)) *MockQuerier_CreateTeam_Call {
+func (_c *MockQuerier_CreateTeam_Call) Run(run func(ctx context.Context, arg CreateTeamParams)) *MockQuerier_CreateTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string), args[3].(string))
+		run(args[0].(context.Context), args[1].(CreateTeamParams))
 	})
 	return _c
 }
@@ -842,14 +823,14 @@ func (_c *MockQuerier_CreateTeam_Call) Return(_a0 *Team, _a1 error) *MockQuerier
 	return _c
 }
 
-func (_c *MockQuerier_CreateTeam_Call) RunAndReturn(run func(context.Context, slug.Slug, string, string) (*Team, error)) *MockQuerier_CreateTeam_Call {
+func (_c *MockQuerier_CreateTeam_Call) RunAndReturn(run func(context.Context, CreateTeamParams) (*Team, error)) *MockQuerier_CreateTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// CreateTeamDeleteKey provides a mock function with given fields: ctx, teamSlug, createdBy
-func (_m *MockQuerier) CreateTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, createdBy uuid.UUID) (*TeamDeleteKey, error) {
-	ret := _m.Called(ctx, teamSlug, createdBy)
+// CreateTeamDeleteKey provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) CreateTeamDeleteKey(ctx context.Context, arg CreateTeamDeleteKeyParams) (*TeamDeleteKey, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateTeamDeleteKey")
@@ -857,19 +838,19 @@ func (_m *MockQuerier) CreateTeamDeleteKey(ctx context.Context, teamSlug slug.Sl
 
 	var r0 *TeamDeleteKey
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, uuid.UUID) (*TeamDeleteKey, error)); ok {
-		return rf(ctx, teamSlug, createdBy)
+	if rf, ok := ret.Get(0).(func(context.Context, CreateTeamDeleteKeyParams) (*TeamDeleteKey, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, uuid.UUID) *TeamDeleteKey); ok {
-		r0 = rf(ctx, teamSlug, createdBy)
+	if rf, ok := ret.Get(0).(func(context.Context, CreateTeamDeleteKeyParams) *TeamDeleteKey); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*TeamDeleteKey)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, uuid.UUID) error); ok {
-		r1 = rf(ctx, teamSlug, createdBy)
+	if rf, ok := ret.Get(1).(func(context.Context, CreateTeamDeleteKeyParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -884,15 +865,14 @@ type MockQuerier_CreateTeamDeleteKey_Call struct {
 
 // CreateTeamDeleteKey is a helper method to define mock.On call
 //   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - createdBy uuid.UUID
-func (_e *MockQuerier_Expecter) CreateTeamDeleteKey(ctx interface{}, teamSlug interface{}, createdBy interface{}) *MockQuerier_CreateTeamDeleteKey_Call {
-	return &MockQuerier_CreateTeamDeleteKey_Call{Call: _e.mock.On("CreateTeamDeleteKey", ctx, teamSlug, createdBy)}
+//   - arg CreateTeamDeleteKeyParams
+func (_e *MockQuerier_Expecter) CreateTeamDeleteKey(ctx interface{}, arg interface{}) *MockQuerier_CreateTeamDeleteKey_Call {
+	return &MockQuerier_CreateTeamDeleteKey_Call{Call: _e.mock.On("CreateTeamDeleteKey", ctx, arg)}
 }
 
-func (_c *MockQuerier_CreateTeamDeleteKey_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, createdBy uuid.UUID)) *MockQuerier_CreateTeamDeleteKey_Call {
+func (_c *MockQuerier_CreateTeamDeleteKey_Call) Run(run func(ctx context.Context, arg CreateTeamDeleteKeyParams)) *MockQuerier_CreateTeamDeleteKey_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(uuid.UUID))
+		run(args[0].(context.Context), args[1].(CreateTeamDeleteKeyParams))
 	})
 	return _c
 }
@@ -902,14 +882,14 @@ func (_c *MockQuerier_CreateTeamDeleteKey_Call) Return(_a0 *TeamDeleteKey, _a1 e
 	return _c
 }
 
-func (_c *MockQuerier_CreateTeamDeleteKey_Call) RunAndReturn(run func(context.Context, slug.Slug, uuid.UUID) (*TeamDeleteKey, error)) *MockQuerier_CreateTeamDeleteKey_Call {
+func (_c *MockQuerier_CreateTeamDeleteKey_Call) RunAndReturn(run func(context.Context, CreateTeamDeleteKeyParams) (*TeamDeleteKey, error)) *MockQuerier_CreateTeamDeleteKey_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// CreateUser provides a mock function with given fields: ctx, name, email, externalID
-func (_m *MockQuerier) CreateUser(ctx context.Context, name string, email string, externalID string) (*User, error) {
-	ret := _m.Called(ctx, name, email, externalID)
+// CreateUser provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) CreateUser(ctx context.Context, arg CreateUserParams) (*User, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateUser")
@@ -917,19 +897,19 @@ func (_m *MockQuerier) CreateUser(ctx context.Context, name string, email string
 
 	var r0 *User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) (*User, error)); ok {
-		return rf(ctx, name, email, externalID)
+	if rf, ok := ret.Get(0).(func(context.Context, CreateUserParams) (*User, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) *User); ok {
-		r0 = rf(ctx, name, email, externalID)
+	if rf, ok := ret.Get(0).(func(context.Context, CreateUserParams) *User); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, string) error); ok {
-		r1 = rf(ctx, name, email, externalID)
+	if rf, ok := ret.Get(1).(func(context.Context, CreateUserParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -944,16 +924,14 @@ type MockQuerier_CreateUser_Call struct {
 
 // CreateUser is a helper method to define mock.On call
 //   - ctx context.Context
-//   - name string
-//   - email string
-//   - externalID string
-func (_e *MockQuerier_Expecter) CreateUser(ctx interface{}, name interface{}, email interface{}, externalID interface{}) *MockQuerier_CreateUser_Call {
-	return &MockQuerier_CreateUser_Call{Call: _e.mock.On("CreateUser", ctx, name, email, externalID)}
+//   - arg CreateUserParams
+func (_e *MockQuerier_Expecter) CreateUser(ctx interface{}, arg interface{}) *MockQuerier_CreateUser_Call {
+	return &MockQuerier_CreateUser_Call{Call: _e.mock.On("CreateUser", ctx, arg)}
 }
 
-func (_c *MockQuerier_CreateUser_Call) Run(run func(ctx context.Context, name string, email string, externalID string)) *MockQuerier_CreateUser_Call {
+func (_c *MockQuerier_CreateUser_Call) Run(run func(ctx context.Context, arg CreateUserParams)) *MockQuerier_CreateUser_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string))
+		run(args[0].(context.Context), args[1].(CreateUserParams))
 	})
 	return _c
 }
@@ -963,14 +941,14 @@ func (_c *MockQuerier_CreateUser_Call) Return(_a0 *User, _a1 error) *MockQuerier
 	return _c
 }
 
-func (_c *MockQuerier_CreateUser_Call) RunAndReturn(run func(context.Context, string, string, string) (*User, error)) *MockQuerier_CreateUser_Call {
+func (_c *MockQuerier_CreateUser_Call) RunAndReturn(run func(context.Context, CreateUserParams) (*User, error)) *MockQuerier_CreateUser_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// DailyCostForApp provides a mock function with given fields: ctx, fromDate, toDate, environment, teamSlug, app
-func (_m *MockQuerier) DailyCostForApp(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment string, teamSlug slug.Slug, app string) ([]*Cost, error) {
-	ret := _m.Called(ctx, fromDate, toDate, environment, teamSlug, app)
+// DailyCostForApp provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) DailyCostForApp(ctx context.Context, arg DailyCostForAppParams) ([]*Cost, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DailyCostForApp")
@@ -978,19 +956,19 @@ func (_m *MockQuerier) DailyCostForApp(ctx context.Context, fromDate pgtype.Date
 
 	var r0 []*Cost
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Date, pgtype.Date, string, slug.Slug, string) ([]*Cost, error)); ok {
-		return rf(ctx, fromDate, toDate, environment, teamSlug, app)
+	if rf, ok := ret.Get(0).(func(context.Context, DailyCostForAppParams) ([]*Cost, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Date, pgtype.Date, string, slug.Slug, string) []*Cost); ok {
-		r0 = rf(ctx, fromDate, toDate, environment, teamSlug, app)
+	if rf, ok := ret.Get(0).(func(context.Context, DailyCostForAppParams) []*Cost); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*Cost)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, pgtype.Date, pgtype.Date, string, slug.Slug, string) error); ok {
-		r1 = rf(ctx, fromDate, toDate, environment, teamSlug, app)
+	if rf, ok := ret.Get(1).(func(context.Context, DailyCostForAppParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1005,18 +983,14 @@ type MockQuerier_DailyCostForApp_Call struct {
 
 // DailyCostForApp is a helper method to define mock.On call
 //   - ctx context.Context
-//   - fromDate pgtype.Date
-//   - toDate pgtype.Date
-//   - environment string
-//   - teamSlug slug.Slug
-//   - app string
-func (_e *MockQuerier_Expecter) DailyCostForApp(ctx interface{}, fromDate interface{}, toDate interface{}, environment interface{}, teamSlug interface{}, app interface{}) *MockQuerier_DailyCostForApp_Call {
-	return &MockQuerier_DailyCostForApp_Call{Call: _e.mock.On("DailyCostForApp", ctx, fromDate, toDate, environment, teamSlug, app)}
+//   - arg DailyCostForAppParams
+func (_e *MockQuerier_Expecter) DailyCostForApp(ctx interface{}, arg interface{}) *MockQuerier_DailyCostForApp_Call {
+	return &MockQuerier_DailyCostForApp_Call{Call: _e.mock.On("DailyCostForApp", ctx, arg)}
 }
 
-func (_c *MockQuerier_DailyCostForApp_Call) Run(run func(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment string, teamSlug slug.Slug, app string)) *MockQuerier_DailyCostForApp_Call {
+func (_c *MockQuerier_DailyCostForApp_Call) Run(run func(ctx context.Context, arg DailyCostForAppParams)) *MockQuerier_DailyCostForApp_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(pgtype.Date), args[2].(pgtype.Date), args[3].(string), args[4].(slug.Slug), args[5].(string))
+		run(args[0].(context.Context), args[1].(DailyCostForAppParams))
 	})
 	return _c
 }
@@ -1026,14 +1000,14 @@ func (_c *MockQuerier_DailyCostForApp_Call) Return(_a0 []*Cost, _a1 error) *Mock
 	return _c
 }
 
-func (_c *MockQuerier_DailyCostForApp_Call) RunAndReturn(run func(context.Context, pgtype.Date, pgtype.Date, string, slug.Slug, string) ([]*Cost, error)) *MockQuerier_DailyCostForApp_Call {
+func (_c *MockQuerier_DailyCostForApp_Call) RunAndReturn(run func(context.Context, DailyCostForAppParams) ([]*Cost, error)) *MockQuerier_DailyCostForApp_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// DailyCostForTeam provides a mock function with given fields: ctx, fromDate, toDate, teamSlug
-func (_m *MockQuerier) DailyCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug) ([]*Cost, error) {
-	ret := _m.Called(ctx, fromDate, toDate, teamSlug)
+// DailyCostForTeam provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) DailyCostForTeam(ctx context.Context, arg DailyCostForTeamParams) ([]*Cost, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DailyCostForTeam")
@@ -1041,19 +1015,19 @@ func (_m *MockQuerier) DailyCostForTeam(ctx context.Context, fromDate pgtype.Dat
 
 	var r0 []*Cost
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Date, pgtype.Date, slug.Slug) ([]*Cost, error)); ok {
-		return rf(ctx, fromDate, toDate, teamSlug)
+	if rf, ok := ret.Get(0).(func(context.Context, DailyCostForTeamParams) ([]*Cost, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Date, pgtype.Date, slug.Slug) []*Cost); ok {
-		r0 = rf(ctx, fromDate, toDate, teamSlug)
+	if rf, ok := ret.Get(0).(func(context.Context, DailyCostForTeamParams) []*Cost); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*Cost)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, pgtype.Date, pgtype.Date, slug.Slug) error); ok {
-		r1 = rf(ctx, fromDate, toDate, teamSlug)
+	if rf, ok := ret.Get(1).(func(context.Context, DailyCostForTeamParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1068,16 +1042,14 @@ type MockQuerier_DailyCostForTeam_Call struct {
 
 // DailyCostForTeam is a helper method to define mock.On call
 //   - ctx context.Context
-//   - fromDate pgtype.Date
-//   - toDate pgtype.Date
-//   - teamSlug slug.Slug
-func (_e *MockQuerier_Expecter) DailyCostForTeam(ctx interface{}, fromDate interface{}, toDate interface{}, teamSlug interface{}) *MockQuerier_DailyCostForTeam_Call {
-	return &MockQuerier_DailyCostForTeam_Call{Call: _e.mock.On("DailyCostForTeam", ctx, fromDate, toDate, teamSlug)}
+//   - arg DailyCostForTeamParams
+func (_e *MockQuerier_Expecter) DailyCostForTeam(ctx interface{}, arg interface{}) *MockQuerier_DailyCostForTeam_Call {
+	return &MockQuerier_DailyCostForTeam_Call{Call: _e.mock.On("DailyCostForTeam", ctx, arg)}
 }
 
-func (_c *MockQuerier_DailyCostForTeam_Call) Run(run func(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug)) *MockQuerier_DailyCostForTeam_Call {
+func (_c *MockQuerier_DailyCostForTeam_Call) Run(run func(ctx context.Context, arg DailyCostForTeamParams)) *MockQuerier_DailyCostForTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(pgtype.Date), args[2].(pgtype.Date), args[3].(slug.Slug))
+		run(args[0].(context.Context), args[1].(DailyCostForTeamParams))
 	})
 	return _c
 }
@@ -1087,14 +1059,14 @@ func (_c *MockQuerier_DailyCostForTeam_Call) Return(_a0 []*Cost, _a1 error) *Moc
 	return _c
 }
 
-func (_c *MockQuerier_DailyCostForTeam_Call) RunAndReturn(run func(context.Context, pgtype.Date, pgtype.Date, slug.Slug) ([]*Cost, error)) *MockQuerier_DailyCostForTeam_Call {
+func (_c *MockQuerier_DailyCostForTeam_Call) RunAndReturn(run func(context.Context, DailyCostForTeamParams) ([]*Cost, error)) *MockQuerier_DailyCostForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// DailyEnvCostForTeam provides a mock function with given fields: ctx, fromDate, toDate, environment, teamSlug
-func (_m *MockQuerier) DailyEnvCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment *string, teamSlug slug.Slug) ([]*DailyEnvCostForTeamRow, error) {
-	ret := _m.Called(ctx, fromDate, toDate, environment, teamSlug)
+// DailyEnvCostForTeam provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) DailyEnvCostForTeam(ctx context.Context, arg DailyEnvCostForTeamParams) ([]*DailyEnvCostForTeamRow, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DailyEnvCostForTeam")
@@ -1102,19 +1074,19 @@ func (_m *MockQuerier) DailyEnvCostForTeam(ctx context.Context, fromDate pgtype.
 
 	var r0 []*DailyEnvCostForTeamRow
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Date, pgtype.Date, *string, slug.Slug) ([]*DailyEnvCostForTeamRow, error)); ok {
-		return rf(ctx, fromDate, toDate, environment, teamSlug)
+	if rf, ok := ret.Get(0).(func(context.Context, DailyEnvCostForTeamParams) ([]*DailyEnvCostForTeamRow, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Date, pgtype.Date, *string, slug.Slug) []*DailyEnvCostForTeamRow); ok {
-		r0 = rf(ctx, fromDate, toDate, environment, teamSlug)
+	if rf, ok := ret.Get(0).(func(context.Context, DailyEnvCostForTeamParams) []*DailyEnvCostForTeamRow); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*DailyEnvCostForTeamRow)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, pgtype.Date, pgtype.Date, *string, slug.Slug) error); ok {
-		r1 = rf(ctx, fromDate, toDate, environment, teamSlug)
+	if rf, ok := ret.Get(1).(func(context.Context, DailyEnvCostForTeamParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1129,17 +1101,14 @@ type MockQuerier_DailyEnvCostForTeam_Call struct {
 
 // DailyEnvCostForTeam is a helper method to define mock.On call
 //   - ctx context.Context
-//   - fromDate pgtype.Date
-//   - toDate pgtype.Date
-//   - environment *string
-//   - teamSlug slug.Slug
-func (_e *MockQuerier_Expecter) DailyEnvCostForTeam(ctx interface{}, fromDate interface{}, toDate interface{}, environment interface{}, teamSlug interface{}) *MockQuerier_DailyEnvCostForTeam_Call {
-	return &MockQuerier_DailyEnvCostForTeam_Call{Call: _e.mock.On("DailyEnvCostForTeam", ctx, fromDate, toDate, environment, teamSlug)}
+//   - arg DailyEnvCostForTeamParams
+func (_e *MockQuerier_Expecter) DailyEnvCostForTeam(ctx interface{}, arg interface{}) *MockQuerier_DailyEnvCostForTeam_Call {
+	return &MockQuerier_DailyEnvCostForTeam_Call{Call: _e.mock.On("DailyEnvCostForTeam", ctx, arg)}
 }
 
-func (_c *MockQuerier_DailyEnvCostForTeam_Call) Run(run func(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment *string, teamSlug slug.Slug)) *MockQuerier_DailyEnvCostForTeam_Call {
+func (_c *MockQuerier_DailyEnvCostForTeam_Call) Run(run func(ctx context.Context, arg DailyEnvCostForTeamParams)) *MockQuerier_DailyEnvCostForTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(pgtype.Date), args[2].(pgtype.Date), args[3].(*string), args[4].(slug.Slug))
+		run(args[0].(context.Context), args[1].(DailyEnvCostForTeamParams))
 	})
 	return _c
 }
@@ -1149,7 +1118,7 @@ func (_c *MockQuerier_DailyEnvCostForTeam_Call) Return(_a0 []*DailyEnvCostForTea
 	return _c
 }
 
-func (_c *MockQuerier_DailyEnvCostForTeam_Call) RunAndReturn(run func(context.Context, pgtype.Date, pgtype.Date, *string, slug.Slug) ([]*DailyEnvCostForTeamRow, error)) *MockQuerier_DailyEnvCostForTeam_Call {
+func (_c *MockQuerier_DailyEnvCostForTeam_Call) RunAndReturn(run func(context.Context, DailyEnvCostForTeamParams) ([]*DailyEnvCostForTeamRow, error)) *MockQuerier_DailyEnvCostForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1213,17 +1182,17 @@ func (_c *MockQuerier_DangerousGetReconcilerConfigValues_Call) RunAndReturn(run 
 	return _c
 }
 
-// DeleteReconcilerConfig provides a mock function with given fields: ctx, reconciler, keys
-func (_m *MockQuerier) DeleteReconcilerConfig(ctx context.Context, reconciler string, keys []string) error {
-	ret := _m.Called(ctx, reconciler, keys)
+// DeleteReconcilerConfig provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) DeleteReconcilerConfig(ctx context.Context, arg DeleteReconcilerConfigParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DeleteReconcilerConfig")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, []string) error); ok {
-		r0 = rf(ctx, reconciler, keys)
+	if rf, ok := ret.Get(0).(func(context.Context, DeleteReconcilerConfigParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -1238,15 +1207,14 @@ type MockQuerier_DeleteReconcilerConfig_Call struct {
 
 // DeleteReconcilerConfig is a helper method to define mock.On call
 //   - ctx context.Context
-//   - reconciler string
-//   - keys []string
-func (_e *MockQuerier_Expecter) DeleteReconcilerConfig(ctx interface{}, reconciler interface{}, keys interface{}) *MockQuerier_DeleteReconcilerConfig_Call {
-	return &MockQuerier_DeleteReconcilerConfig_Call{Call: _e.mock.On("DeleteReconcilerConfig", ctx, reconciler, keys)}
+//   - arg DeleteReconcilerConfigParams
+func (_e *MockQuerier_Expecter) DeleteReconcilerConfig(ctx interface{}, arg interface{}) *MockQuerier_DeleteReconcilerConfig_Call {
+	return &MockQuerier_DeleteReconcilerConfig_Call{Call: _e.mock.On("DeleteReconcilerConfig", ctx, arg)}
 }
 
-func (_c *MockQuerier_DeleteReconcilerConfig_Call) Run(run func(ctx context.Context, reconciler string, keys []string)) *MockQuerier_DeleteReconcilerConfig_Call {
+func (_c *MockQuerier_DeleteReconcilerConfig_Call) Run(run func(ctx context.Context, arg DeleteReconcilerConfigParams)) *MockQuerier_DeleteReconcilerConfig_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].([]string))
+		run(args[0].(context.Context), args[1].(DeleteReconcilerConfigParams))
 	})
 	return _c
 }
@@ -1256,7 +1224,7 @@ func (_c *MockQuerier_DeleteReconcilerConfig_Call) Return(_a0 error) *MockQuerie
 	return _c
 }
 
-func (_c *MockQuerier_DeleteReconcilerConfig_Call) RunAndReturn(run func(context.Context, string, []string) error) *MockQuerier_DeleteReconcilerConfig_Call {
+func (_c *MockQuerier_DeleteReconcilerConfig_Call) RunAndReturn(run func(context.Context, DeleteReconcilerConfigParams) error) *MockQuerier_DeleteReconcilerConfig_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1847,9 +1815,9 @@ func (_c *MockQuerier_GetAllUserRoles_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
-// GetAuditLogsForCorrelationID provides a mock function with given fields: ctx, correlationID, offset, limit
-func (_m *MockQuerier) GetAuditLogsForCorrelationID(ctx context.Context, correlationID uuid.UUID, offset int32, limit int32) ([]*AuditLog, error) {
-	ret := _m.Called(ctx, correlationID, offset, limit)
+// GetAuditLogsForCorrelationID provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetAuditLogsForCorrelationID(ctx context.Context, arg GetAuditLogsForCorrelationIDParams) ([]*AuditLog, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAuditLogsForCorrelationID")
@@ -1857,19 +1825,19 @@ func (_m *MockQuerier) GetAuditLogsForCorrelationID(ctx context.Context, correla
 
 	var r0 []*AuditLog
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, int32, int32) ([]*AuditLog, error)); ok {
-		return rf(ctx, correlationID, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetAuditLogsForCorrelationIDParams) ([]*AuditLog, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, int32, int32) []*AuditLog); ok {
-		r0 = rf(ctx, correlationID, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetAuditLogsForCorrelationIDParams) []*AuditLog); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*AuditLog)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, int32, int32) error); ok {
-		r1 = rf(ctx, correlationID, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, GetAuditLogsForCorrelationIDParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1884,16 +1852,14 @@ type MockQuerier_GetAuditLogsForCorrelationID_Call struct {
 
 // GetAuditLogsForCorrelationID is a helper method to define mock.On call
 //   - ctx context.Context
-//   - correlationID uuid.UUID
-//   - offset int32
-//   - limit int32
-func (_e *MockQuerier_Expecter) GetAuditLogsForCorrelationID(ctx interface{}, correlationID interface{}, offset interface{}, limit interface{}) *MockQuerier_GetAuditLogsForCorrelationID_Call {
-	return &MockQuerier_GetAuditLogsForCorrelationID_Call{Call: _e.mock.On("GetAuditLogsForCorrelationID", ctx, correlationID, offset, limit)}
+//   - arg GetAuditLogsForCorrelationIDParams
+func (_e *MockQuerier_Expecter) GetAuditLogsForCorrelationID(ctx interface{}, arg interface{}) *MockQuerier_GetAuditLogsForCorrelationID_Call {
+	return &MockQuerier_GetAuditLogsForCorrelationID_Call{Call: _e.mock.On("GetAuditLogsForCorrelationID", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetAuditLogsForCorrelationID_Call) Run(run func(ctx context.Context, correlationID uuid.UUID, offset int32, limit int32)) *MockQuerier_GetAuditLogsForCorrelationID_Call {
+func (_c *MockQuerier_GetAuditLogsForCorrelationID_Call) Run(run func(ctx context.Context, arg GetAuditLogsForCorrelationIDParams)) *MockQuerier_GetAuditLogsForCorrelationID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(int32), args[3].(int32))
+		run(args[0].(context.Context), args[1].(GetAuditLogsForCorrelationIDParams))
 	})
 	return _c
 }
@@ -1903,7 +1869,7 @@ func (_c *MockQuerier_GetAuditLogsForCorrelationID_Call) Return(_a0 []*AuditLog,
 	return _c
 }
 
-func (_c *MockQuerier_GetAuditLogsForCorrelationID_Call) RunAndReturn(run func(context.Context, uuid.UUID, int32, int32) ([]*AuditLog, error)) *MockQuerier_GetAuditLogsForCorrelationID_Call {
+func (_c *MockQuerier_GetAuditLogsForCorrelationID_Call) RunAndReturn(run func(context.Context, GetAuditLogsForCorrelationIDParams) ([]*AuditLog, error)) *MockQuerier_GetAuditLogsForCorrelationID_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1965,9 +1931,9 @@ func (_c *MockQuerier_GetAuditLogsForCorrelationIDCount_Call) RunAndReturn(run f
 	return _c
 }
 
-// GetAuditLogsForReconciler provides a mock function with given fields: ctx, targetIdentifier, offset, limit
-func (_m *MockQuerier) GetAuditLogsForReconciler(ctx context.Context, targetIdentifier string, offset int32, limit int32) ([]*AuditLog, error) {
-	ret := _m.Called(ctx, targetIdentifier, offset, limit)
+// GetAuditLogsForReconciler provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetAuditLogsForReconciler(ctx context.Context, arg GetAuditLogsForReconcilerParams) ([]*AuditLog, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAuditLogsForReconciler")
@@ -1975,19 +1941,19 @@ func (_m *MockQuerier) GetAuditLogsForReconciler(ctx context.Context, targetIden
 
 	var r0 []*AuditLog
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, int32, int32) ([]*AuditLog, error)); ok {
-		return rf(ctx, targetIdentifier, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetAuditLogsForReconcilerParams) ([]*AuditLog, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, int32, int32) []*AuditLog); ok {
-		r0 = rf(ctx, targetIdentifier, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetAuditLogsForReconcilerParams) []*AuditLog); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*AuditLog)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, int32, int32) error); ok {
-		r1 = rf(ctx, targetIdentifier, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, GetAuditLogsForReconcilerParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -2002,16 +1968,14 @@ type MockQuerier_GetAuditLogsForReconciler_Call struct {
 
 // GetAuditLogsForReconciler is a helper method to define mock.On call
 //   - ctx context.Context
-//   - targetIdentifier string
-//   - offset int32
-//   - limit int32
-func (_e *MockQuerier_Expecter) GetAuditLogsForReconciler(ctx interface{}, targetIdentifier interface{}, offset interface{}, limit interface{}) *MockQuerier_GetAuditLogsForReconciler_Call {
-	return &MockQuerier_GetAuditLogsForReconciler_Call{Call: _e.mock.On("GetAuditLogsForReconciler", ctx, targetIdentifier, offset, limit)}
+//   - arg GetAuditLogsForReconcilerParams
+func (_e *MockQuerier_Expecter) GetAuditLogsForReconciler(ctx interface{}, arg interface{}) *MockQuerier_GetAuditLogsForReconciler_Call {
+	return &MockQuerier_GetAuditLogsForReconciler_Call{Call: _e.mock.On("GetAuditLogsForReconciler", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetAuditLogsForReconciler_Call) Run(run func(ctx context.Context, targetIdentifier string, offset int32, limit int32)) *MockQuerier_GetAuditLogsForReconciler_Call {
+func (_c *MockQuerier_GetAuditLogsForReconciler_Call) Run(run func(ctx context.Context, arg GetAuditLogsForReconcilerParams)) *MockQuerier_GetAuditLogsForReconciler_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(int32), args[3].(int32))
+		run(args[0].(context.Context), args[1].(GetAuditLogsForReconcilerParams))
 	})
 	return _c
 }
@@ -2021,7 +1985,7 @@ func (_c *MockQuerier_GetAuditLogsForReconciler_Call) Return(_a0 []*AuditLog, _a
 	return _c
 }
 
-func (_c *MockQuerier_GetAuditLogsForReconciler_Call) RunAndReturn(run func(context.Context, string, int32, int32) ([]*AuditLog, error)) *MockQuerier_GetAuditLogsForReconciler_Call {
+func (_c *MockQuerier_GetAuditLogsForReconciler_Call) RunAndReturn(run func(context.Context, GetAuditLogsForReconcilerParams) ([]*AuditLog, error)) *MockQuerier_GetAuditLogsForReconciler_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2083,9 +2047,9 @@ func (_c *MockQuerier_GetAuditLogsForReconcilerCount_Call) RunAndReturn(run func
 	return _c
 }
 
-// GetAuditLogsForTeam provides a mock function with given fields: ctx, targetIdentifier, offset, limit
-func (_m *MockQuerier) GetAuditLogsForTeam(ctx context.Context, targetIdentifier string, offset int32, limit int32) ([]*AuditLog, error) {
-	ret := _m.Called(ctx, targetIdentifier, offset, limit)
+// GetAuditLogsForTeam provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetAuditLogsForTeam(ctx context.Context, arg GetAuditLogsForTeamParams) ([]*AuditLog, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAuditLogsForTeam")
@@ -2093,19 +2057,19 @@ func (_m *MockQuerier) GetAuditLogsForTeam(ctx context.Context, targetIdentifier
 
 	var r0 []*AuditLog
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, int32, int32) ([]*AuditLog, error)); ok {
-		return rf(ctx, targetIdentifier, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetAuditLogsForTeamParams) ([]*AuditLog, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, int32, int32) []*AuditLog); ok {
-		r0 = rf(ctx, targetIdentifier, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetAuditLogsForTeamParams) []*AuditLog); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*AuditLog)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, int32, int32) error); ok {
-		r1 = rf(ctx, targetIdentifier, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, GetAuditLogsForTeamParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -2120,16 +2084,14 @@ type MockQuerier_GetAuditLogsForTeam_Call struct {
 
 // GetAuditLogsForTeam is a helper method to define mock.On call
 //   - ctx context.Context
-//   - targetIdentifier string
-//   - offset int32
-//   - limit int32
-func (_e *MockQuerier_Expecter) GetAuditLogsForTeam(ctx interface{}, targetIdentifier interface{}, offset interface{}, limit interface{}) *MockQuerier_GetAuditLogsForTeam_Call {
-	return &MockQuerier_GetAuditLogsForTeam_Call{Call: _e.mock.On("GetAuditLogsForTeam", ctx, targetIdentifier, offset, limit)}
+//   - arg GetAuditLogsForTeamParams
+func (_e *MockQuerier_Expecter) GetAuditLogsForTeam(ctx interface{}, arg interface{}) *MockQuerier_GetAuditLogsForTeam_Call {
+	return &MockQuerier_GetAuditLogsForTeam_Call{Call: _e.mock.On("GetAuditLogsForTeam", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetAuditLogsForTeam_Call) Run(run func(ctx context.Context, targetIdentifier string, offset int32, limit int32)) *MockQuerier_GetAuditLogsForTeam_Call {
+func (_c *MockQuerier_GetAuditLogsForTeam_Call) Run(run func(ctx context.Context, arg GetAuditLogsForTeamParams)) *MockQuerier_GetAuditLogsForTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(int32), args[3].(int32))
+		run(args[0].(context.Context), args[1].(GetAuditLogsForTeamParams))
 	})
 	return _c
 }
@@ -2139,7 +2101,7 @@ func (_c *MockQuerier_GetAuditLogsForTeam_Call) Return(_a0 []*AuditLog, _a1 erro
 	return _c
 }
 
-func (_c *MockQuerier_GetAuditLogsForTeam_Call) RunAndReturn(run func(context.Context, string, int32, int32) ([]*AuditLog, error)) *MockQuerier_GetAuditLogsForTeam_Call {
+func (_c *MockQuerier_GetAuditLogsForTeam_Call) RunAndReturn(run func(context.Context, GetAuditLogsForTeamParams) ([]*AuditLog, error)) *MockQuerier_GetAuditLogsForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2377,9 +2339,9 @@ func (_c *MockQuerier_GetReconcilerConfig_Call) RunAndReturn(run func(context.Co
 	return _c
 }
 
-// GetReconcilerResourceByKey provides a mock function with given fields: ctx, reconcilerName, teamSlug, name, offset, limit
-func (_m *MockQuerier) GetReconcilerResourceByKey(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, offset int32, limit int32) ([]*ReconcilerResource, error) {
-	ret := _m.Called(ctx, reconcilerName, teamSlug, name, offset, limit)
+// GetReconcilerResourceByKey provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetReconcilerResourceByKey(ctx context.Context, arg GetReconcilerResourceByKeyParams) ([]*ReconcilerResource, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetReconcilerResourceByKey")
@@ -2387,19 +2349,19 @@ func (_m *MockQuerier) GetReconcilerResourceByKey(ctx context.Context, reconcile
 
 	var r0 []*ReconcilerResource
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, int32, int32) ([]*ReconcilerResource, error)); ok {
-		return rf(ctx, reconcilerName, teamSlug, name, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetReconcilerResourceByKeyParams) ([]*ReconcilerResource, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, int32, int32) []*ReconcilerResource); ok {
-		r0 = rf(ctx, reconcilerName, teamSlug, name, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetReconcilerResourceByKeyParams) []*ReconcilerResource); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*ReconcilerResource)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string, int32, int32) error); ok {
-		r1 = rf(ctx, reconcilerName, teamSlug, name, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, GetReconcilerResourceByKeyParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -2414,18 +2376,14 @@ type MockQuerier_GetReconcilerResourceByKey_Call struct {
 
 // GetReconcilerResourceByKey is a helper method to define mock.On call
 //   - ctx context.Context
-//   - reconcilerName string
-//   - teamSlug slug.Slug
-//   - name string
-//   - offset int32
-//   - limit int32
-func (_e *MockQuerier_Expecter) GetReconcilerResourceByKey(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, name interface{}, offset interface{}, limit interface{}) *MockQuerier_GetReconcilerResourceByKey_Call {
-	return &MockQuerier_GetReconcilerResourceByKey_Call{Call: _e.mock.On("GetReconcilerResourceByKey", ctx, reconcilerName, teamSlug, name, offset, limit)}
+//   - arg GetReconcilerResourceByKeyParams
+func (_e *MockQuerier_Expecter) GetReconcilerResourceByKey(ctx interface{}, arg interface{}) *MockQuerier_GetReconcilerResourceByKey_Call {
+	return &MockQuerier_GetReconcilerResourceByKey_Call{Call: _e.mock.On("GetReconcilerResourceByKey", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetReconcilerResourceByKey_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, offset int32, limit int32)) *MockQuerier_GetReconcilerResourceByKey_Call {
+func (_c *MockQuerier_GetReconcilerResourceByKey_Call) Run(run func(ctx context.Context, arg GetReconcilerResourceByKeyParams)) *MockQuerier_GetReconcilerResourceByKey_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].(int32), args[5].(int32))
+		run(args[0].(context.Context), args[1].(GetReconcilerResourceByKeyParams))
 	})
 	return _c
 }
@@ -2435,14 +2393,14 @@ func (_c *MockQuerier_GetReconcilerResourceByKey_Call) Return(_a0 []*ReconcilerR
 	return _c
 }
 
-func (_c *MockQuerier_GetReconcilerResourceByKey_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, int32, int32) ([]*ReconcilerResource, error)) *MockQuerier_GetReconcilerResourceByKey_Call {
+func (_c *MockQuerier_GetReconcilerResourceByKey_Call) RunAndReturn(run func(context.Context, GetReconcilerResourceByKeyParams) ([]*ReconcilerResource, error)) *MockQuerier_GetReconcilerResourceByKey_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetReconcilerResourceByKeyTotal provides a mock function with given fields: ctx, reconcilerName, teamSlug, name
-func (_m *MockQuerier) GetReconcilerResourceByKeyTotal(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string) (int64, error) {
-	ret := _m.Called(ctx, reconcilerName, teamSlug, name)
+// GetReconcilerResourceByKeyTotal provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetReconcilerResourceByKeyTotal(ctx context.Context, arg GetReconcilerResourceByKeyTotalParams) (int64, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetReconcilerResourceByKeyTotal")
@@ -2450,17 +2408,17 @@ func (_m *MockQuerier) GetReconcilerResourceByKeyTotal(ctx context.Context, reco
 
 	var r0 int64
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string) (int64, error)); ok {
-		return rf(ctx, reconcilerName, teamSlug, name)
+	if rf, ok := ret.Get(0).(func(context.Context, GetReconcilerResourceByKeyTotalParams) (int64, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string) int64); ok {
-		r0 = rf(ctx, reconcilerName, teamSlug, name)
+	if rf, ok := ret.Get(0).(func(context.Context, GetReconcilerResourceByKeyTotalParams) int64); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Get(0).(int64)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string) error); ok {
-		r1 = rf(ctx, reconcilerName, teamSlug, name)
+	if rf, ok := ret.Get(1).(func(context.Context, GetReconcilerResourceByKeyTotalParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -2475,16 +2433,14 @@ type MockQuerier_GetReconcilerResourceByKeyTotal_Call struct {
 
 // GetReconcilerResourceByKeyTotal is a helper method to define mock.On call
 //   - ctx context.Context
-//   - reconcilerName string
-//   - teamSlug slug.Slug
-//   - name string
-func (_e *MockQuerier_Expecter) GetReconcilerResourceByKeyTotal(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, name interface{}) *MockQuerier_GetReconcilerResourceByKeyTotal_Call {
-	return &MockQuerier_GetReconcilerResourceByKeyTotal_Call{Call: _e.mock.On("GetReconcilerResourceByKeyTotal", ctx, reconcilerName, teamSlug, name)}
+//   - arg GetReconcilerResourceByKeyTotalParams
+func (_e *MockQuerier_Expecter) GetReconcilerResourceByKeyTotal(ctx interface{}, arg interface{}) *MockQuerier_GetReconcilerResourceByKeyTotal_Call {
+	return &MockQuerier_GetReconcilerResourceByKeyTotal_Call{Call: _e.mock.On("GetReconcilerResourceByKeyTotal", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetReconcilerResourceByKeyTotal_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string)) *MockQuerier_GetReconcilerResourceByKeyTotal_Call {
+func (_c *MockQuerier_GetReconcilerResourceByKeyTotal_Call) Run(run func(ctx context.Context, arg GetReconcilerResourceByKeyTotalParams)) *MockQuerier_GetReconcilerResourceByKeyTotal_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string))
+		run(args[0].(context.Context), args[1].(GetReconcilerResourceByKeyTotalParams))
 	})
 	return _c
 }
@@ -2494,14 +2450,14 @@ func (_c *MockQuerier_GetReconcilerResourceByKeyTotal_Call) Return(_a0 int64, _a
 	return _c
 }
 
-func (_c *MockQuerier_GetReconcilerResourceByKeyTotal_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string) (int64, error)) *MockQuerier_GetReconcilerResourceByKeyTotal_Call {
+func (_c *MockQuerier_GetReconcilerResourceByKeyTotal_Call) RunAndReturn(run func(context.Context, GetReconcilerResourceByKeyTotalParams) (int64, error)) *MockQuerier_GetReconcilerResourceByKeyTotal_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetReconcilerResourcesForReconciler provides a mock function with given fields: ctx, reconcilerName, offset, limit
-func (_m *MockQuerier) GetReconcilerResourcesForReconciler(ctx context.Context, reconcilerName string, offset int32, limit int32) ([]*ReconcilerResource, error) {
-	ret := _m.Called(ctx, reconcilerName, offset, limit)
+// GetReconcilerResourcesForReconciler provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetReconcilerResourcesForReconciler(ctx context.Context, arg GetReconcilerResourcesForReconcilerParams) ([]*ReconcilerResource, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetReconcilerResourcesForReconciler")
@@ -2509,19 +2465,19 @@ func (_m *MockQuerier) GetReconcilerResourcesForReconciler(ctx context.Context, 
 
 	var r0 []*ReconcilerResource
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, int32, int32) ([]*ReconcilerResource, error)); ok {
-		return rf(ctx, reconcilerName, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetReconcilerResourcesForReconcilerParams) ([]*ReconcilerResource, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, int32, int32) []*ReconcilerResource); ok {
-		r0 = rf(ctx, reconcilerName, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetReconcilerResourcesForReconcilerParams) []*ReconcilerResource); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*ReconcilerResource)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, int32, int32) error); ok {
-		r1 = rf(ctx, reconcilerName, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, GetReconcilerResourcesForReconcilerParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -2536,16 +2492,14 @@ type MockQuerier_GetReconcilerResourcesForReconciler_Call struct {
 
 // GetReconcilerResourcesForReconciler is a helper method to define mock.On call
 //   - ctx context.Context
-//   - reconcilerName string
-//   - offset int32
-//   - limit int32
-func (_e *MockQuerier_Expecter) GetReconcilerResourcesForReconciler(ctx interface{}, reconcilerName interface{}, offset interface{}, limit interface{}) *MockQuerier_GetReconcilerResourcesForReconciler_Call {
-	return &MockQuerier_GetReconcilerResourcesForReconciler_Call{Call: _e.mock.On("GetReconcilerResourcesForReconciler", ctx, reconcilerName, offset, limit)}
+//   - arg GetReconcilerResourcesForReconcilerParams
+func (_e *MockQuerier_Expecter) GetReconcilerResourcesForReconciler(ctx interface{}, arg interface{}) *MockQuerier_GetReconcilerResourcesForReconciler_Call {
+	return &MockQuerier_GetReconcilerResourcesForReconciler_Call{Call: _e.mock.On("GetReconcilerResourcesForReconciler", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetReconcilerResourcesForReconciler_Call) Run(run func(ctx context.Context, reconcilerName string, offset int32, limit int32)) *MockQuerier_GetReconcilerResourcesForReconciler_Call {
+func (_c *MockQuerier_GetReconcilerResourcesForReconciler_Call) Run(run func(ctx context.Context, arg GetReconcilerResourcesForReconcilerParams)) *MockQuerier_GetReconcilerResourcesForReconciler_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(int32), args[3].(int32))
+		run(args[0].(context.Context), args[1].(GetReconcilerResourcesForReconcilerParams))
 	})
 	return _c
 }
@@ -2555,14 +2509,14 @@ func (_c *MockQuerier_GetReconcilerResourcesForReconciler_Call) Return(_a0 []*Re
 	return _c
 }
 
-func (_c *MockQuerier_GetReconcilerResourcesForReconciler_Call) RunAndReturn(run func(context.Context, string, int32, int32) ([]*ReconcilerResource, error)) *MockQuerier_GetReconcilerResourcesForReconciler_Call {
+func (_c *MockQuerier_GetReconcilerResourcesForReconciler_Call) RunAndReturn(run func(context.Context, GetReconcilerResourcesForReconcilerParams) ([]*ReconcilerResource, error)) *MockQuerier_GetReconcilerResourcesForReconciler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetReconcilerResourcesForReconcilerAndTeam provides a mock function with given fields: ctx, reconcilerName, teamSlug, offset, limit
-func (_m *MockQuerier) GetReconcilerResourcesForReconcilerAndTeam(ctx context.Context, reconcilerName string, teamSlug slug.Slug, offset int32, limit int32) ([]*ReconcilerResource, error) {
-	ret := _m.Called(ctx, reconcilerName, teamSlug, offset, limit)
+// GetReconcilerResourcesForReconcilerAndTeam provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetReconcilerResourcesForReconcilerAndTeam(ctx context.Context, arg GetReconcilerResourcesForReconcilerAndTeamParams) ([]*ReconcilerResource, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetReconcilerResourcesForReconcilerAndTeam")
@@ -2570,19 +2524,19 @@ func (_m *MockQuerier) GetReconcilerResourcesForReconcilerAndTeam(ctx context.Co
 
 	var r0 []*ReconcilerResource
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, int32, int32) ([]*ReconcilerResource, error)); ok {
-		return rf(ctx, reconcilerName, teamSlug, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetReconcilerResourcesForReconcilerAndTeamParams) ([]*ReconcilerResource, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, int32, int32) []*ReconcilerResource); ok {
-		r0 = rf(ctx, reconcilerName, teamSlug, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetReconcilerResourcesForReconcilerAndTeamParams) []*ReconcilerResource); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*ReconcilerResource)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, int32, int32) error); ok {
-		r1 = rf(ctx, reconcilerName, teamSlug, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, GetReconcilerResourcesForReconcilerAndTeamParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -2597,17 +2551,14 @@ type MockQuerier_GetReconcilerResourcesForReconcilerAndTeam_Call struct {
 
 // GetReconcilerResourcesForReconcilerAndTeam is a helper method to define mock.On call
 //   - ctx context.Context
-//   - reconcilerName string
-//   - teamSlug slug.Slug
-//   - offset int32
-//   - limit int32
-func (_e *MockQuerier_Expecter) GetReconcilerResourcesForReconcilerAndTeam(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, offset interface{}, limit interface{}) *MockQuerier_GetReconcilerResourcesForReconcilerAndTeam_Call {
-	return &MockQuerier_GetReconcilerResourcesForReconcilerAndTeam_Call{Call: _e.mock.On("GetReconcilerResourcesForReconcilerAndTeam", ctx, reconcilerName, teamSlug, offset, limit)}
+//   - arg GetReconcilerResourcesForReconcilerAndTeamParams
+func (_e *MockQuerier_Expecter) GetReconcilerResourcesForReconcilerAndTeam(ctx interface{}, arg interface{}) *MockQuerier_GetReconcilerResourcesForReconcilerAndTeam_Call {
+	return &MockQuerier_GetReconcilerResourcesForReconcilerAndTeam_Call{Call: _e.mock.On("GetReconcilerResourcesForReconcilerAndTeam", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetReconcilerResourcesForReconcilerAndTeam_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, offset int32, limit int32)) *MockQuerier_GetReconcilerResourcesForReconcilerAndTeam_Call {
+func (_c *MockQuerier_GetReconcilerResourcesForReconcilerAndTeam_Call) Run(run func(ctx context.Context, arg GetReconcilerResourcesForReconcilerAndTeamParams)) *MockQuerier_GetReconcilerResourcesForReconcilerAndTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(int32), args[4].(int32))
+		run(args[0].(context.Context), args[1].(GetReconcilerResourcesForReconcilerAndTeamParams))
 	})
 	return _c
 }
@@ -2617,14 +2568,14 @@ func (_c *MockQuerier_GetReconcilerResourcesForReconcilerAndTeam_Call) Return(_a
 	return _c
 }
 
-func (_c *MockQuerier_GetReconcilerResourcesForReconcilerAndTeam_Call) RunAndReturn(run func(context.Context, string, slug.Slug, int32, int32) ([]*ReconcilerResource, error)) *MockQuerier_GetReconcilerResourcesForReconcilerAndTeam_Call {
+func (_c *MockQuerier_GetReconcilerResourcesForReconcilerAndTeam_Call) RunAndReturn(run func(context.Context, GetReconcilerResourcesForReconcilerAndTeamParams) ([]*ReconcilerResource, error)) *MockQuerier_GetReconcilerResourcesForReconcilerAndTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetReconcilers provides a mock function with given fields: ctx, offset, limit
-func (_m *MockQuerier) GetReconcilers(ctx context.Context, offset int32, limit int32) ([]*Reconciler, error) {
-	ret := _m.Called(ctx, offset, limit)
+// GetReconcilers provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetReconcilers(ctx context.Context, arg GetReconcilersParams) ([]*Reconciler, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetReconcilers")
@@ -2632,19 +2583,19 @@ func (_m *MockQuerier) GetReconcilers(ctx context.Context, offset int32, limit i
 
 	var r0 []*Reconciler
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, int32, int32) ([]*Reconciler, error)); ok {
-		return rf(ctx, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetReconcilersParams) ([]*Reconciler, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, int32, int32) []*Reconciler); ok {
-		r0 = rf(ctx, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetReconcilersParams) []*Reconciler); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*Reconciler)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, int32, int32) error); ok {
-		r1 = rf(ctx, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, GetReconcilersParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -2659,15 +2610,14 @@ type MockQuerier_GetReconcilers_Call struct {
 
 // GetReconcilers is a helper method to define mock.On call
 //   - ctx context.Context
-//   - offset int32
-//   - limit int32
-func (_e *MockQuerier_Expecter) GetReconcilers(ctx interface{}, offset interface{}, limit interface{}) *MockQuerier_GetReconcilers_Call {
-	return &MockQuerier_GetReconcilers_Call{Call: _e.mock.On("GetReconcilers", ctx, offset, limit)}
+//   - arg GetReconcilersParams
+func (_e *MockQuerier_Expecter) GetReconcilers(ctx interface{}, arg interface{}) *MockQuerier_GetReconcilers_Call {
+	return &MockQuerier_GetReconcilers_Call{Call: _e.mock.On("GetReconcilers", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetReconcilers_Call) Run(run func(ctx context.Context, offset int32, limit int32)) *MockQuerier_GetReconcilers_Call {
+func (_c *MockQuerier_GetReconcilers_Call) Run(run func(ctx context.Context, arg GetReconcilersParams)) *MockQuerier_GetReconcilers_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(int32), args[2].(int32))
+		run(args[0].(context.Context), args[1].(GetReconcilersParams))
 	})
 	return _c
 }
@@ -2677,7 +2627,7 @@ func (_c *MockQuerier_GetReconcilers_Call) Return(_a0 []*Reconciler, _a1 error) 
 	return _c
 }
 
-func (_c *MockQuerier_GetReconcilers_Call) RunAndReturn(run func(context.Context, int32, int32) ([]*Reconciler, error)) *MockQuerier_GetReconcilers_Call {
+func (_c *MockQuerier_GetReconcilers_Call) RunAndReturn(run func(context.Context, GetReconcilersParams) ([]*Reconciler, error)) *MockQuerier_GetReconcilers_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2738,9 +2688,9 @@ func (_c *MockQuerier_GetReconcilersCount_Call) RunAndReturn(run func(context.Co
 	return _c
 }
 
-// GetRepositoryAuthorizations provides a mock function with given fields: ctx, teamSlug, githubRepository
-func (_m *MockQuerier) GetRepositoryAuthorizations(ctx context.Context, teamSlug slug.Slug, githubRepository string) ([]RepositoryAuthorizationEnum, error) {
-	ret := _m.Called(ctx, teamSlug, githubRepository)
+// GetRepositoryAuthorizations provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetRepositoryAuthorizations(ctx context.Context, arg GetRepositoryAuthorizationsParams) ([]RepositoryAuthorizationEnum, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetRepositoryAuthorizations")
@@ -2748,19 +2698,19 @@ func (_m *MockQuerier) GetRepositoryAuthorizations(ctx context.Context, teamSlug
 
 	var r0 []RepositoryAuthorizationEnum
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) ([]RepositoryAuthorizationEnum, error)); ok {
-		return rf(ctx, teamSlug, githubRepository)
+	if rf, ok := ret.Get(0).(func(context.Context, GetRepositoryAuthorizationsParams) ([]RepositoryAuthorizationEnum, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) []RepositoryAuthorizationEnum); ok {
-		r0 = rf(ctx, teamSlug, githubRepository)
+	if rf, ok := ret.Get(0).(func(context.Context, GetRepositoryAuthorizationsParams) []RepositoryAuthorizationEnum); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]RepositoryAuthorizationEnum)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, string) error); ok {
-		r1 = rf(ctx, teamSlug, githubRepository)
+	if rf, ok := ret.Get(1).(func(context.Context, GetRepositoryAuthorizationsParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -2775,15 +2725,14 @@ type MockQuerier_GetRepositoryAuthorizations_Call struct {
 
 // GetRepositoryAuthorizations is a helper method to define mock.On call
 //   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - githubRepository string
-func (_e *MockQuerier_Expecter) GetRepositoryAuthorizations(ctx interface{}, teamSlug interface{}, githubRepository interface{}) *MockQuerier_GetRepositoryAuthorizations_Call {
-	return &MockQuerier_GetRepositoryAuthorizations_Call{Call: _e.mock.On("GetRepositoryAuthorizations", ctx, teamSlug, githubRepository)}
+//   - arg GetRepositoryAuthorizationsParams
+func (_e *MockQuerier_Expecter) GetRepositoryAuthorizations(ctx interface{}, arg interface{}) *MockQuerier_GetRepositoryAuthorizations_Call {
+	return &MockQuerier_GetRepositoryAuthorizations_Call{Call: _e.mock.On("GetRepositoryAuthorizations", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetRepositoryAuthorizations_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, githubRepository string)) *MockQuerier_GetRepositoryAuthorizations_Call {
+func (_c *MockQuerier_GetRepositoryAuthorizations_Call) Run(run func(ctx context.Context, arg GetRepositoryAuthorizationsParams)) *MockQuerier_GetRepositoryAuthorizations_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string))
+		run(args[0].(context.Context), args[1].(GetRepositoryAuthorizationsParams))
 	})
 	return _c
 }
@@ -2793,7 +2742,7 @@ func (_c *MockQuerier_GetRepositoryAuthorizations_Call) Return(_a0 []RepositoryA
 	return _c
 }
 
-func (_c *MockQuerier_GetRepositoryAuthorizations_Call) RunAndReturn(run func(context.Context, slug.Slug, string) ([]RepositoryAuthorizationEnum, error)) *MockQuerier_GetRepositoryAuthorizations_Call {
+func (_c *MockQuerier_GetRepositoryAuthorizations_Call) RunAndReturn(run func(context.Context, GetRepositoryAuthorizationsParams) ([]RepositoryAuthorizationEnum, error)) *MockQuerier_GetRepositoryAuthorizations_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3269,9 +3218,9 @@ func (_c *MockQuerier_GetTeamDeleteKey_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
-// GetTeamEnvironments provides a mock function with given fields: ctx, teamSlug, offset, limit
-func (_m *MockQuerier) GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, offset int32, limit int32) ([]*TeamEnvironment, error) {
-	ret := _m.Called(ctx, teamSlug, offset, limit)
+// GetTeamEnvironments provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmentsParams) ([]*TeamEnvironment, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTeamEnvironments")
@@ -3279,19 +3228,19 @@ func (_m *MockQuerier) GetTeamEnvironments(ctx context.Context, teamSlug slug.Sl
 
 	var r0 []*TeamEnvironment
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, int32, int32) ([]*TeamEnvironment, error)); ok {
-		return rf(ctx, teamSlug, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamEnvironmentsParams) ([]*TeamEnvironment, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, int32, int32) []*TeamEnvironment); ok {
-		r0 = rf(ctx, teamSlug, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamEnvironmentsParams) []*TeamEnvironment); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*TeamEnvironment)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, int32, int32) error); ok {
-		r1 = rf(ctx, teamSlug, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, GetTeamEnvironmentsParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -3306,16 +3255,14 @@ type MockQuerier_GetTeamEnvironments_Call struct {
 
 // GetTeamEnvironments is a helper method to define mock.On call
 //   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - offset int32
-//   - limit int32
-func (_e *MockQuerier_Expecter) GetTeamEnvironments(ctx interface{}, teamSlug interface{}, offset interface{}, limit interface{}) *MockQuerier_GetTeamEnvironments_Call {
-	return &MockQuerier_GetTeamEnvironments_Call{Call: _e.mock.On("GetTeamEnvironments", ctx, teamSlug, offset, limit)}
+//   - arg GetTeamEnvironmentsParams
+func (_e *MockQuerier_Expecter) GetTeamEnvironments(ctx interface{}, arg interface{}) *MockQuerier_GetTeamEnvironments_Call {
+	return &MockQuerier_GetTeamEnvironments_Call{Call: _e.mock.On("GetTeamEnvironments", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetTeamEnvironments_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, offset int32, limit int32)) *MockQuerier_GetTeamEnvironments_Call {
+func (_c *MockQuerier_GetTeamEnvironments_Call) Run(run func(ctx context.Context, arg GetTeamEnvironmentsParams)) *MockQuerier_GetTeamEnvironments_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(int32), args[3].(int32))
+		run(args[0].(context.Context), args[1].(GetTeamEnvironmentsParams))
 	})
 	return _c
 }
@@ -3325,7 +3272,7 @@ func (_c *MockQuerier_GetTeamEnvironments_Call) Return(_a0 []*TeamEnvironment, _
 	return _c
 }
 
-func (_c *MockQuerier_GetTeamEnvironments_Call) RunAndReturn(run func(context.Context, slug.Slug, int32, int32) ([]*TeamEnvironment, error)) *MockQuerier_GetTeamEnvironments_Call {
+func (_c *MockQuerier_GetTeamEnvironments_Call) RunAndReturn(run func(context.Context, GetTeamEnvironmentsParams) ([]*TeamEnvironment, error)) *MockQuerier_GetTeamEnvironments_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3387,9 +3334,9 @@ func (_c *MockQuerier_GetTeamEnvironmentsCount_Call) RunAndReturn(run func(conte
 	return _c
 }
 
-// GetTeamMember provides a mock function with given fields: ctx, teamSlug, userID
-func (_m *MockQuerier) GetTeamMember(ctx context.Context, teamSlug *slug.Slug, userID uuid.UUID) (*User, error) {
-	ret := _m.Called(ctx, teamSlug, userID)
+// GetTeamMember provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetTeamMember(ctx context.Context, arg GetTeamMemberParams) (*User, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTeamMember")
@@ -3397,19 +3344,19 @@ func (_m *MockQuerier) GetTeamMember(ctx context.Context, teamSlug *slug.Slug, u
 
 	var r0 *User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *slug.Slug, uuid.UUID) (*User, error)); ok {
-		return rf(ctx, teamSlug, userID)
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamMemberParams) (*User, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *slug.Slug, uuid.UUID) *User); ok {
-		r0 = rf(ctx, teamSlug, userID)
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamMemberParams) *User); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *slug.Slug, uuid.UUID) error); ok {
-		r1 = rf(ctx, teamSlug, userID)
+	if rf, ok := ret.Get(1).(func(context.Context, GetTeamMemberParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -3424,15 +3371,14 @@ type MockQuerier_GetTeamMember_Call struct {
 
 // GetTeamMember is a helper method to define mock.On call
 //   - ctx context.Context
-//   - teamSlug *slug.Slug
-//   - userID uuid.UUID
-func (_e *MockQuerier_Expecter) GetTeamMember(ctx interface{}, teamSlug interface{}, userID interface{}) *MockQuerier_GetTeamMember_Call {
-	return &MockQuerier_GetTeamMember_Call{Call: _e.mock.On("GetTeamMember", ctx, teamSlug, userID)}
+//   - arg GetTeamMemberParams
+func (_e *MockQuerier_Expecter) GetTeamMember(ctx interface{}, arg interface{}) *MockQuerier_GetTeamMember_Call {
+	return &MockQuerier_GetTeamMember_Call{Call: _e.mock.On("GetTeamMember", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetTeamMember_Call) Run(run func(ctx context.Context, teamSlug *slug.Slug, userID uuid.UUID)) *MockQuerier_GetTeamMember_Call {
+func (_c *MockQuerier_GetTeamMember_Call) Run(run func(ctx context.Context, arg GetTeamMemberParams)) *MockQuerier_GetTeamMember_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*slug.Slug), args[2].(uuid.UUID))
+		run(args[0].(context.Context), args[1].(GetTeamMemberParams))
 	})
 	return _c
 }
@@ -3442,14 +3388,14 @@ func (_c *MockQuerier_GetTeamMember_Call) Return(_a0 *User, _a1 error) *MockQuer
 	return _c
 }
 
-func (_c *MockQuerier_GetTeamMember_Call) RunAndReturn(run func(context.Context, *slug.Slug, uuid.UUID) (*User, error)) *MockQuerier_GetTeamMember_Call {
+func (_c *MockQuerier_GetTeamMember_Call) RunAndReturn(run func(context.Context, GetTeamMemberParams) (*User, error)) *MockQuerier_GetTeamMember_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetTeamMemberOptOuts provides a mock function with given fields: ctx, userID, teamSlug
-func (_m *MockQuerier) GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*GetTeamMemberOptOutsRow, error) {
-	ret := _m.Called(ctx, userID, teamSlug)
+// GetTeamMemberOptOuts provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetTeamMemberOptOuts(ctx context.Context, arg GetTeamMemberOptOutsParams) ([]*GetTeamMemberOptOutsRow, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTeamMemberOptOuts")
@@ -3457,19 +3403,19 @@ func (_m *MockQuerier) GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUI
 
 	var r0 []*GetTeamMemberOptOutsRow
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, slug.Slug) ([]*GetTeamMemberOptOutsRow, error)); ok {
-		return rf(ctx, userID, teamSlug)
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamMemberOptOutsParams) ([]*GetTeamMemberOptOutsRow, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, slug.Slug) []*GetTeamMemberOptOutsRow); ok {
-		r0 = rf(ctx, userID, teamSlug)
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamMemberOptOutsParams) []*GetTeamMemberOptOutsRow); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*GetTeamMemberOptOutsRow)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, slug.Slug) error); ok {
-		r1 = rf(ctx, userID, teamSlug)
+	if rf, ok := ret.Get(1).(func(context.Context, GetTeamMemberOptOutsParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -3484,15 +3430,14 @@ type MockQuerier_GetTeamMemberOptOuts_Call struct {
 
 // GetTeamMemberOptOuts is a helper method to define mock.On call
 //   - ctx context.Context
-//   - userID uuid.UUID
-//   - teamSlug slug.Slug
-func (_e *MockQuerier_Expecter) GetTeamMemberOptOuts(ctx interface{}, userID interface{}, teamSlug interface{}) *MockQuerier_GetTeamMemberOptOuts_Call {
-	return &MockQuerier_GetTeamMemberOptOuts_Call{Call: _e.mock.On("GetTeamMemberOptOuts", ctx, userID, teamSlug)}
+//   - arg GetTeamMemberOptOutsParams
+func (_e *MockQuerier_Expecter) GetTeamMemberOptOuts(ctx interface{}, arg interface{}) *MockQuerier_GetTeamMemberOptOuts_Call {
+	return &MockQuerier_GetTeamMemberOptOuts_Call{Call: _e.mock.On("GetTeamMemberOptOuts", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetTeamMemberOptOuts_Call) Run(run func(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug)) *MockQuerier_GetTeamMemberOptOuts_Call {
+func (_c *MockQuerier_GetTeamMemberOptOuts_Call) Run(run func(ctx context.Context, arg GetTeamMemberOptOutsParams)) *MockQuerier_GetTeamMemberOptOuts_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(slug.Slug))
+		run(args[0].(context.Context), args[1].(GetTeamMemberOptOutsParams))
 	})
 	return _c
 }
@@ -3502,14 +3447,14 @@ func (_c *MockQuerier_GetTeamMemberOptOuts_Call) Return(_a0 []*GetTeamMemberOptO
 	return _c
 }
 
-func (_c *MockQuerier_GetTeamMemberOptOuts_Call) RunAndReturn(run func(context.Context, uuid.UUID, slug.Slug) ([]*GetTeamMemberOptOutsRow, error)) *MockQuerier_GetTeamMemberOptOuts_Call {
+func (_c *MockQuerier_GetTeamMemberOptOuts_Call) RunAndReturn(run func(context.Context, GetTeamMemberOptOutsParams) ([]*GetTeamMemberOptOutsRow, error)) *MockQuerier_GetTeamMemberOptOuts_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetTeamMembers provides a mock function with given fields: ctx, teamSlug, offset, limit
-func (_m *MockQuerier) GetTeamMembers(ctx context.Context, teamSlug *slug.Slug, offset int32, limit int32) ([]*User, error) {
-	ret := _m.Called(ctx, teamSlug, offset, limit)
+// GetTeamMembers provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) ([]*User, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTeamMembers")
@@ -3517,19 +3462,19 @@ func (_m *MockQuerier) GetTeamMembers(ctx context.Context, teamSlug *slug.Slug, 
 
 	var r0 []*User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *slug.Slug, int32, int32) ([]*User, error)); ok {
-		return rf(ctx, teamSlug, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamMembersParams) ([]*User, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *slug.Slug, int32, int32) []*User); ok {
-		r0 = rf(ctx, teamSlug, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamMembersParams) []*User); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *slug.Slug, int32, int32) error); ok {
-		r1 = rf(ctx, teamSlug, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, GetTeamMembersParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -3544,16 +3489,14 @@ type MockQuerier_GetTeamMembers_Call struct {
 
 // GetTeamMembers is a helper method to define mock.On call
 //   - ctx context.Context
-//   - teamSlug *slug.Slug
-//   - offset int32
-//   - limit int32
-func (_e *MockQuerier_Expecter) GetTeamMembers(ctx interface{}, teamSlug interface{}, offset interface{}, limit interface{}) *MockQuerier_GetTeamMembers_Call {
-	return &MockQuerier_GetTeamMembers_Call{Call: _e.mock.On("GetTeamMembers", ctx, teamSlug, offset, limit)}
+//   - arg GetTeamMembersParams
+func (_e *MockQuerier_Expecter) GetTeamMembers(ctx interface{}, arg interface{}) *MockQuerier_GetTeamMembers_Call {
+	return &MockQuerier_GetTeamMembers_Call{Call: _e.mock.On("GetTeamMembers", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetTeamMembers_Call) Run(run func(ctx context.Context, teamSlug *slug.Slug, offset int32, limit int32)) *MockQuerier_GetTeamMembers_Call {
+func (_c *MockQuerier_GetTeamMembers_Call) Run(run func(ctx context.Context, arg GetTeamMembersParams)) *MockQuerier_GetTeamMembers_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*slug.Slug), args[2].(int32), args[3].(int32))
+		run(args[0].(context.Context), args[1].(GetTeamMembersParams))
 	})
 	return _c
 }
@@ -3563,7 +3506,7 @@ func (_c *MockQuerier_GetTeamMembers_Call) Return(_a0 []*User, _a1 error) *MockQ
 	return _c
 }
 
-func (_c *MockQuerier_GetTeamMembers_Call) RunAndReturn(run func(context.Context, *slug.Slug, int32, int32) ([]*User, error)) *MockQuerier_GetTeamMembers_Call {
+func (_c *MockQuerier_GetTeamMembers_Call) RunAndReturn(run func(context.Context, GetTeamMembersParams) ([]*User, error)) *MockQuerier_GetTeamMembers_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3625,9 +3568,9 @@ func (_c *MockQuerier_GetTeamMembersCount_Call) RunAndReturn(run func(context.Co
 	return _c
 }
 
-// GetTeamMembersForReconciler provides a mock function with given fields: ctx, teamSlug, reconcilerName
-func (_m *MockQuerier) GetTeamMembersForReconciler(ctx context.Context, teamSlug *slug.Slug, reconcilerName string) ([]*User, error) {
-	ret := _m.Called(ctx, teamSlug, reconcilerName)
+// GetTeamMembersForReconciler provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetTeamMembersForReconciler(ctx context.Context, arg GetTeamMembersForReconcilerParams) ([]*User, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTeamMembersForReconciler")
@@ -3635,19 +3578,19 @@ func (_m *MockQuerier) GetTeamMembersForReconciler(ctx context.Context, teamSlug
 
 	var r0 []*User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *slug.Slug, string) ([]*User, error)); ok {
-		return rf(ctx, teamSlug, reconcilerName)
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamMembersForReconcilerParams) ([]*User, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *slug.Slug, string) []*User); ok {
-		r0 = rf(ctx, teamSlug, reconcilerName)
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamMembersForReconcilerParams) []*User); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *slug.Slug, string) error); ok {
-		r1 = rf(ctx, teamSlug, reconcilerName)
+	if rf, ok := ret.Get(1).(func(context.Context, GetTeamMembersForReconcilerParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -3662,15 +3605,14 @@ type MockQuerier_GetTeamMembersForReconciler_Call struct {
 
 // GetTeamMembersForReconciler is a helper method to define mock.On call
 //   - ctx context.Context
-//   - teamSlug *slug.Slug
-//   - reconcilerName string
-func (_e *MockQuerier_Expecter) GetTeamMembersForReconciler(ctx interface{}, teamSlug interface{}, reconcilerName interface{}) *MockQuerier_GetTeamMembersForReconciler_Call {
-	return &MockQuerier_GetTeamMembersForReconciler_Call{Call: _e.mock.On("GetTeamMembersForReconciler", ctx, teamSlug, reconcilerName)}
+//   - arg GetTeamMembersForReconcilerParams
+func (_e *MockQuerier_Expecter) GetTeamMembersForReconciler(ctx interface{}, arg interface{}) *MockQuerier_GetTeamMembersForReconciler_Call {
+	return &MockQuerier_GetTeamMembersForReconciler_Call{Call: _e.mock.On("GetTeamMembersForReconciler", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetTeamMembersForReconciler_Call) Run(run func(ctx context.Context, teamSlug *slug.Slug, reconcilerName string)) *MockQuerier_GetTeamMembersForReconciler_Call {
+func (_c *MockQuerier_GetTeamMembersForReconciler_Call) Run(run func(ctx context.Context, arg GetTeamMembersForReconcilerParams)) *MockQuerier_GetTeamMembersForReconciler_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*slug.Slug), args[2].(string))
+		run(args[0].(context.Context), args[1].(GetTeamMembersForReconcilerParams))
 	})
 	return _c
 }
@@ -3680,7 +3622,7 @@ func (_c *MockQuerier_GetTeamMembersForReconciler_Call) Return(_a0 []*User, _a1 
 	return _c
 }
 
-func (_c *MockQuerier_GetTeamMembersForReconciler_Call) RunAndReturn(run func(context.Context, *slug.Slug, string) ([]*User, error)) *MockQuerier_GetTeamMembersForReconciler_Call {
+func (_c *MockQuerier_GetTeamMembersForReconciler_Call) RunAndReturn(run func(context.Context, GetTeamMembersForReconcilerParams) ([]*User, error)) *MockQuerier_GetTeamMembersForReconciler_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3744,9 +3686,9 @@ func (_c *MockQuerier_GetTeamReconcilerErrors_Call) RunAndReturn(run func(contex
 	return _c
 }
 
-// GetTeams provides a mock function with given fields: ctx, offset, limit
-func (_m *MockQuerier) GetTeams(ctx context.Context, offset int32, limit int32) ([]*Team, error) {
-	ret := _m.Called(ctx, offset, limit)
+// GetTeams provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetTeams(ctx context.Context, arg GetTeamsParams) ([]*Team, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTeams")
@@ -3754,19 +3696,19 @@ func (_m *MockQuerier) GetTeams(ctx context.Context, offset int32, limit int32) 
 
 	var r0 []*Team
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, int32, int32) ([]*Team, error)); ok {
-		return rf(ctx, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamsParams) ([]*Team, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, int32, int32) []*Team); ok {
-		r0 = rf(ctx, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamsParams) []*Team); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*Team)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, int32, int32) error); ok {
-		r1 = rf(ctx, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, GetTeamsParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -3781,15 +3723,14 @@ type MockQuerier_GetTeams_Call struct {
 
 // GetTeams is a helper method to define mock.On call
 //   - ctx context.Context
-//   - offset int32
-//   - limit int32
-func (_e *MockQuerier_Expecter) GetTeams(ctx interface{}, offset interface{}, limit interface{}) *MockQuerier_GetTeams_Call {
-	return &MockQuerier_GetTeams_Call{Call: _e.mock.On("GetTeams", ctx, offset, limit)}
+//   - arg GetTeamsParams
+func (_e *MockQuerier_Expecter) GetTeams(ctx interface{}, arg interface{}) *MockQuerier_GetTeams_Call {
+	return &MockQuerier_GetTeams_Call{Call: _e.mock.On("GetTeams", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetTeams_Call) Run(run func(ctx context.Context, offset int32, limit int32)) *MockQuerier_GetTeams_Call {
+func (_c *MockQuerier_GetTeams_Call) Run(run func(ctx context.Context, arg GetTeamsParams)) *MockQuerier_GetTeams_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(int32), args[2].(int32))
+		run(args[0].(context.Context), args[1].(GetTeamsParams))
 	})
 	return _c
 }
@@ -3799,7 +3740,7 @@ func (_c *MockQuerier_GetTeams_Call) Return(_a0 []*Team, _a1 error) *MockQuerier
 	return _c
 }
 
-func (_c *MockQuerier_GetTeams_Call) RunAndReturn(run func(context.Context, int32, int32) ([]*Team, error)) *MockQuerier_GetTeams_Call {
+func (_c *MockQuerier_GetTeams_Call) RunAndReturn(run func(context.Context, GetTeamsParams) ([]*Team, error)) *MockQuerier_GetTeams_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4096,9 +4037,9 @@ func (_c *MockQuerier_GetUserRoles_Call) RunAndReturn(run func(context.Context, 
 	return _c
 }
 
-// GetUserTeams provides a mock function with given fields: ctx, userID, offset, limit
-func (_m *MockQuerier) GetUserTeams(ctx context.Context, userID uuid.UUID, offset int32, limit int32) ([]*GetUserTeamsRow, error) {
-	ret := _m.Called(ctx, userID, offset, limit)
+// GetUserTeams provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetUserTeams(ctx context.Context, arg GetUserTeamsParams) ([]*GetUserTeamsRow, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserTeams")
@@ -4106,19 +4047,19 @@ func (_m *MockQuerier) GetUserTeams(ctx context.Context, userID uuid.UUID, offse
 
 	var r0 []*GetUserTeamsRow
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, int32, int32) ([]*GetUserTeamsRow, error)); ok {
-		return rf(ctx, userID, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetUserTeamsParams) ([]*GetUserTeamsRow, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, int32, int32) []*GetUserTeamsRow); ok {
-		r0 = rf(ctx, userID, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetUserTeamsParams) []*GetUserTeamsRow); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*GetUserTeamsRow)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, int32, int32) error); ok {
-		r1 = rf(ctx, userID, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, GetUserTeamsParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -4133,16 +4074,14 @@ type MockQuerier_GetUserTeams_Call struct {
 
 // GetUserTeams is a helper method to define mock.On call
 //   - ctx context.Context
-//   - userID uuid.UUID
-//   - offset int32
-//   - limit int32
-func (_e *MockQuerier_Expecter) GetUserTeams(ctx interface{}, userID interface{}, offset interface{}, limit interface{}) *MockQuerier_GetUserTeams_Call {
-	return &MockQuerier_GetUserTeams_Call{Call: _e.mock.On("GetUserTeams", ctx, userID, offset, limit)}
+//   - arg GetUserTeamsParams
+func (_e *MockQuerier_Expecter) GetUserTeams(ctx interface{}, arg interface{}) *MockQuerier_GetUserTeams_Call {
+	return &MockQuerier_GetUserTeams_Call{Call: _e.mock.On("GetUserTeams", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetUserTeams_Call) Run(run func(ctx context.Context, userID uuid.UUID, offset int32, limit int32)) *MockQuerier_GetUserTeams_Call {
+func (_c *MockQuerier_GetUserTeams_Call) Run(run func(ctx context.Context, arg GetUserTeamsParams)) *MockQuerier_GetUserTeams_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(int32), args[3].(int32))
+		run(args[0].(context.Context), args[1].(GetUserTeamsParams))
 	})
 	return _c
 }
@@ -4152,7 +4091,7 @@ func (_c *MockQuerier_GetUserTeams_Call) Return(_a0 []*GetUserTeamsRow, _a1 erro
 	return _c
 }
 
-func (_c *MockQuerier_GetUserTeams_Call) RunAndReturn(run func(context.Context, uuid.UUID, int32, int32) ([]*GetUserTeamsRow, error)) *MockQuerier_GetUserTeams_Call {
+func (_c *MockQuerier_GetUserTeams_Call) RunAndReturn(run func(context.Context, GetUserTeamsParams) ([]*GetUserTeamsRow, error)) *MockQuerier_GetUserTeams_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4214,9 +4153,9 @@ func (_c *MockQuerier_GetUserTeamsCount_Call) RunAndReturn(run func(context.Cont
 	return _c
 }
 
-// GetUsers provides a mock function with given fields: ctx, offset, limit
-func (_m *MockQuerier) GetUsers(ctx context.Context, offset int32, limit int32) ([]*User, error) {
-	ret := _m.Called(ctx, offset, limit)
+// GetUsers provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetUsers(ctx context.Context, arg GetUsersParams) ([]*User, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUsers")
@@ -4224,19 +4163,19 @@ func (_m *MockQuerier) GetUsers(ctx context.Context, offset int32, limit int32) 
 
 	var r0 []*User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, int32, int32) ([]*User, error)); ok {
-		return rf(ctx, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetUsersParams) ([]*User, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, int32, int32) []*User); ok {
-		r0 = rf(ctx, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, GetUsersParams) []*User); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, int32, int32) error); ok {
-		r1 = rf(ctx, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, GetUsersParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -4251,15 +4190,14 @@ type MockQuerier_GetUsers_Call struct {
 
 // GetUsers is a helper method to define mock.On call
 //   - ctx context.Context
-//   - offset int32
-//   - limit int32
-func (_e *MockQuerier_Expecter) GetUsers(ctx interface{}, offset interface{}, limit interface{}) *MockQuerier_GetUsers_Call {
-	return &MockQuerier_GetUsers_Call{Call: _e.mock.On("GetUsers", ctx, offset, limit)}
+//   - arg GetUsersParams
+func (_e *MockQuerier_Expecter) GetUsers(ctx interface{}, arg interface{}) *MockQuerier_GetUsers_Call {
+	return &MockQuerier_GetUsers_Call{Call: _e.mock.On("GetUsers", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetUsers_Call) Run(run func(ctx context.Context, offset int32, limit int32)) *MockQuerier_GetUsers_Call {
+func (_c *MockQuerier_GetUsers_Call) Run(run func(ctx context.Context, arg GetUsersParams)) *MockQuerier_GetUsers_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(int32), args[2].(int32))
+		run(args[0].(context.Context), args[1].(GetUsersParams))
 	})
 	return _c
 }
@@ -4269,7 +4207,7 @@ func (_c *MockQuerier_GetUsers_Call) Return(_a0 []*User, _a1 error) *MockQuerier
 	return _c
 }
 
-func (_c *MockQuerier_GetUsers_Call) RunAndReturn(run func(context.Context, int32, int32) ([]*User, error)) *MockQuerier_GetUsers_Call {
+func (_c *MockQuerier_GetUsers_Call) RunAndReturn(run func(context.Context, GetUsersParams) ([]*User, error)) *MockQuerier_GetUsers_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4557,9 +4495,9 @@ func (_c *MockQuerier_MaxResourceUtilizationDate_Call) RunAndReturn(run func(con
 	return _c
 }
 
-// MonthlyCostForApp provides a mock function with given fields: ctx, teamSlug, app, environment
-func (_m *MockQuerier) MonthlyCostForApp(ctx context.Context, teamSlug slug.Slug, app string, environment string) ([]*MonthlyCostForAppRow, error) {
-	ret := _m.Called(ctx, teamSlug, app, environment)
+// MonthlyCostForApp provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) MonthlyCostForApp(ctx context.Context, arg MonthlyCostForAppParams) ([]*MonthlyCostForAppRow, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for MonthlyCostForApp")
@@ -4567,19 +4505,19 @@ func (_m *MockQuerier) MonthlyCostForApp(ctx context.Context, teamSlug slug.Slug
 
 	var r0 []*MonthlyCostForAppRow
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, string) ([]*MonthlyCostForAppRow, error)); ok {
-		return rf(ctx, teamSlug, app, environment)
+	if rf, ok := ret.Get(0).(func(context.Context, MonthlyCostForAppParams) ([]*MonthlyCostForAppRow, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, string) []*MonthlyCostForAppRow); ok {
-		r0 = rf(ctx, teamSlug, app, environment)
+	if rf, ok := ret.Get(0).(func(context.Context, MonthlyCostForAppParams) []*MonthlyCostForAppRow); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*MonthlyCostForAppRow)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, string, string) error); ok {
-		r1 = rf(ctx, teamSlug, app, environment)
+	if rf, ok := ret.Get(1).(func(context.Context, MonthlyCostForAppParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -4594,16 +4532,14 @@ type MockQuerier_MonthlyCostForApp_Call struct {
 
 // MonthlyCostForApp is a helper method to define mock.On call
 //   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - app string
-//   - environment string
-func (_e *MockQuerier_Expecter) MonthlyCostForApp(ctx interface{}, teamSlug interface{}, app interface{}, environment interface{}) *MockQuerier_MonthlyCostForApp_Call {
-	return &MockQuerier_MonthlyCostForApp_Call{Call: _e.mock.On("MonthlyCostForApp", ctx, teamSlug, app, environment)}
+//   - arg MonthlyCostForAppParams
+func (_e *MockQuerier_Expecter) MonthlyCostForApp(ctx interface{}, arg interface{}) *MockQuerier_MonthlyCostForApp_Call {
+	return &MockQuerier_MonthlyCostForApp_Call{Call: _e.mock.On("MonthlyCostForApp", ctx, arg)}
 }
 
-func (_c *MockQuerier_MonthlyCostForApp_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, app string, environment string)) *MockQuerier_MonthlyCostForApp_Call {
+func (_c *MockQuerier_MonthlyCostForApp_Call) Run(run func(ctx context.Context, arg MonthlyCostForAppParams)) *MockQuerier_MonthlyCostForApp_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string), args[3].(string))
+		run(args[0].(context.Context), args[1].(MonthlyCostForAppParams))
 	})
 	return _c
 }
@@ -4613,7 +4549,7 @@ func (_c *MockQuerier_MonthlyCostForApp_Call) Return(_a0 []*MonthlyCostForAppRow
 	return _c
 }
 
-func (_c *MockQuerier_MonthlyCostForApp_Call) RunAndReturn(run func(context.Context, slug.Slug, string, string) ([]*MonthlyCostForAppRow, error)) *MockQuerier_MonthlyCostForApp_Call {
+func (_c *MockQuerier_MonthlyCostForApp_Call) RunAndReturn(run func(context.Context, MonthlyCostForAppParams) ([]*MonthlyCostForAppRow, error)) *MockQuerier_MonthlyCostForApp_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4771,17 +4707,17 @@ func (_c *MockQuerier_RemoveApiKeysFromServiceAccount_Call) RunAndReturn(run fun
 	return _c
 }
 
-// RemoveReconcilerOptOut provides a mock function with given fields: ctx, teamSlug, userID, reconcilerName
-func (_m *MockQuerier) RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName string) error {
-	ret := _m.Called(ctx, teamSlug, userID, reconcilerName)
+// RemoveReconcilerOptOut provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) RemoveReconcilerOptOut(ctx context.Context, arg RemoveReconcilerOptOutParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RemoveReconcilerOptOut")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, uuid.UUID, string) error); ok {
-		r0 = rf(ctx, teamSlug, userID, reconcilerName)
+	if rf, ok := ret.Get(0).(func(context.Context, RemoveReconcilerOptOutParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -4796,16 +4732,14 @@ type MockQuerier_RemoveReconcilerOptOut_Call struct {
 
 // RemoveReconcilerOptOut is a helper method to define mock.On call
 //   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - userID uuid.UUID
-//   - reconcilerName string
-func (_e *MockQuerier_Expecter) RemoveReconcilerOptOut(ctx interface{}, teamSlug interface{}, userID interface{}, reconcilerName interface{}) *MockQuerier_RemoveReconcilerOptOut_Call {
-	return &MockQuerier_RemoveReconcilerOptOut_Call{Call: _e.mock.On("RemoveReconcilerOptOut", ctx, teamSlug, userID, reconcilerName)}
+//   - arg RemoveReconcilerOptOutParams
+func (_e *MockQuerier_Expecter) RemoveReconcilerOptOut(ctx interface{}, arg interface{}) *MockQuerier_RemoveReconcilerOptOut_Call {
+	return &MockQuerier_RemoveReconcilerOptOut_Call{Call: _e.mock.On("RemoveReconcilerOptOut", ctx, arg)}
 }
 
-func (_c *MockQuerier_RemoveReconcilerOptOut_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName string)) *MockQuerier_RemoveReconcilerOptOut_Call {
+func (_c *MockQuerier_RemoveReconcilerOptOut_Call) Run(run func(ctx context.Context, arg RemoveReconcilerOptOutParams)) *MockQuerier_RemoveReconcilerOptOut_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(uuid.UUID), args[3].(string))
+		run(args[0].(context.Context), args[1].(RemoveReconcilerOptOutParams))
 	})
 	return _c
 }
@@ -4815,22 +4749,22 @@ func (_c *MockQuerier_RemoveReconcilerOptOut_Call) Return(_a0 error) *MockQuerie
 	return _c
 }
 
-func (_c *MockQuerier_RemoveReconcilerOptOut_Call) RunAndReturn(run func(context.Context, slug.Slug, uuid.UUID, string) error) *MockQuerier_RemoveReconcilerOptOut_Call {
+func (_c *MockQuerier_RemoveReconcilerOptOut_Call) RunAndReturn(run func(context.Context, RemoveReconcilerOptOutParams) error) *MockQuerier_RemoveReconcilerOptOut_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// RemoveRepositoryAuthorization provides a mock function with given fields: ctx, teamSlug, githubRepository, repositoryAuthorization
-func (_m *MockQuerier) RemoveRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum) error {
-	ret := _m.Called(ctx, teamSlug, githubRepository, repositoryAuthorization)
+// RemoveRepositoryAuthorization provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) RemoveRepositoryAuthorization(ctx context.Context, arg RemoveRepositoryAuthorizationParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RemoveRepositoryAuthorization")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, RepositoryAuthorizationEnum) error); ok {
-		r0 = rf(ctx, teamSlug, githubRepository, repositoryAuthorization)
+	if rf, ok := ret.Get(0).(func(context.Context, RemoveRepositoryAuthorizationParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -4845,16 +4779,14 @@ type MockQuerier_RemoveRepositoryAuthorization_Call struct {
 
 // RemoveRepositoryAuthorization is a helper method to define mock.On call
 //   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - githubRepository string
-//   - repositoryAuthorization RepositoryAuthorizationEnum
-func (_e *MockQuerier_Expecter) RemoveRepositoryAuthorization(ctx interface{}, teamSlug interface{}, githubRepository interface{}, repositoryAuthorization interface{}) *MockQuerier_RemoveRepositoryAuthorization_Call {
-	return &MockQuerier_RemoveRepositoryAuthorization_Call{Call: _e.mock.On("RemoveRepositoryAuthorization", ctx, teamSlug, githubRepository, repositoryAuthorization)}
+//   - arg RemoveRepositoryAuthorizationParams
+func (_e *MockQuerier_Expecter) RemoveRepositoryAuthorization(ctx interface{}, arg interface{}) *MockQuerier_RemoveRepositoryAuthorization_Call {
+	return &MockQuerier_RemoveRepositoryAuthorization_Call{Call: _e.mock.On("RemoveRepositoryAuthorization", ctx, arg)}
 }
 
-func (_c *MockQuerier_RemoveRepositoryAuthorization_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum)) *MockQuerier_RemoveRepositoryAuthorization_Call {
+func (_c *MockQuerier_RemoveRepositoryAuthorization_Call) Run(run func(ctx context.Context, arg RemoveRepositoryAuthorizationParams)) *MockQuerier_RemoveRepositoryAuthorization_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string), args[3].(RepositoryAuthorizationEnum))
+		run(args[0].(context.Context), args[1].(RemoveRepositoryAuthorizationParams))
 	})
 	return _c
 }
@@ -4864,22 +4796,22 @@ func (_c *MockQuerier_RemoveRepositoryAuthorization_Call) Return(_a0 error) *Moc
 	return _c
 }
 
-func (_c *MockQuerier_RemoveRepositoryAuthorization_Call) RunAndReturn(run func(context.Context, slug.Slug, string, RepositoryAuthorizationEnum) error) *MockQuerier_RemoveRepositoryAuthorization_Call {
+func (_c *MockQuerier_RemoveRepositoryAuthorization_Call) RunAndReturn(run func(context.Context, RemoveRepositoryAuthorizationParams) error) *MockQuerier_RemoveRepositoryAuthorization_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// RemoveSlackAlertsChannel provides a mock function with given fields: ctx, teamSlug, environment
-func (_m *MockQuerier) RemoveSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string) error {
-	ret := _m.Called(ctx, teamSlug, environment)
+// RemoveSlackAlertsChannel provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) RemoveSlackAlertsChannel(ctx context.Context, arg RemoveSlackAlertsChannelParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RemoveSlackAlertsChannel")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) error); ok {
-		r0 = rf(ctx, teamSlug, environment)
+	if rf, ok := ret.Get(0).(func(context.Context, RemoveSlackAlertsChannelParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -4894,15 +4826,14 @@ type MockQuerier_RemoveSlackAlertsChannel_Call struct {
 
 // RemoveSlackAlertsChannel is a helper method to define mock.On call
 //   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - environment string
-func (_e *MockQuerier_Expecter) RemoveSlackAlertsChannel(ctx interface{}, teamSlug interface{}, environment interface{}) *MockQuerier_RemoveSlackAlertsChannel_Call {
-	return &MockQuerier_RemoveSlackAlertsChannel_Call{Call: _e.mock.On("RemoveSlackAlertsChannel", ctx, teamSlug, environment)}
+//   - arg RemoveSlackAlertsChannelParams
+func (_e *MockQuerier_Expecter) RemoveSlackAlertsChannel(ctx interface{}, arg interface{}) *MockQuerier_RemoveSlackAlertsChannel_Call {
+	return &MockQuerier_RemoveSlackAlertsChannel_Call{Call: _e.mock.On("RemoveSlackAlertsChannel", ctx, arg)}
 }
 
-func (_c *MockQuerier_RemoveSlackAlertsChannel_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, environment string)) *MockQuerier_RemoveSlackAlertsChannel_Call {
+func (_c *MockQuerier_RemoveSlackAlertsChannel_Call) Run(run func(ctx context.Context, arg RemoveSlackAlertsChannelParams)) *MockQuerier_RemoveSlackAlertsChannel_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string))
+		run(args[0].(context.Context), args[1].(RemoveSlackAlertsChannelParams))
 	})
 	return _c
 }
@@ -4912,22 +4843,22 @@ func (_c *MockQuerier_RemoveSlackAlertsChannel_Call) Return(_a0 error) *MockQuer
 	return _c
 }
 
-func (_c *MockQuerier_RemoveSlackAlertsChannel_Call) RunAndReturn(run func(context.Context, slug.Slug, string) error) *MockQuerier_RemoveSlackAlertsChannel_Call {
+func (_c *MockQuerier_RemoveSlackAlertsChannel_Call) RunAndReturn(run func(context.Context, RemoveSlackAlertsChannelParams) error) *MockQuerier_RemoveSlackAlertsChannel_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// RemoveUserFromTeam provides a mock function with given fields: ctx, userID, teamSlug
-func (_m *MockQuerier) RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug *slug.Slug) error {
-	ret := _m.Called(ctx, userID, teamSlug)
+// RemoveUserFromTeam provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) RemoveUserFromTeam(ctx context.Context, arg RemoveUserFromTeamParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RemoveUserFromTeam")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *slug.Slug) error); ok {
-		r0 = rf(ctx, userID, teamSlug)
+	if rf, ok := ret.Get(0).(func(context.Context, RemoveUserFromTeamParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -4942,15 +4873,14 @@ type MockQuerier_RemoveUserFromTeam_Call struct {
 
 // RemoveUserFromTeam is a helper method to define mock.On call
 //   - ctx context.Context
-//   - userID uuid.UUID
-//   - teamSlug *slug.Slug
-func (_e *MockQuerier_Expecter) RemoveUserFromTeam(ctx interface{}, userID interface{}, teamSlug interface{}) *MockQuerier_RemoveUserFromTeam_Call {
-	return &MockQuerier_RemoveUserFromTeam_Call{Call: _e.mock.On("RemoveUserFromTeam", ctx, userID, teamSlug)}
+//   - arg RemoveUserFromTeamParams
+func (_e *MockQuerier_Expecter) RemoveUserFromTeam(ctx interface{}, arg interface{}) *MockQuerier_RemoveUserFromTeam_Call {
+	return &MockQuerier_RemoveUserFromTeam_Call{Call: _e.mock.On("RemoveUserFromTeam", ctx, arg)}
 }
 
-func (_c *MockQuerier_RemoveUserFromTeam_Call) Run(run func(ctx context.Context, userID uuid.UUID, teamSlug *slug.Slug)) *MockQuerier_RemoveUserFromTeam_Call {
+func (_c *MockQuerier_RemoveUserFromTeam_Call) Run(run func(ctx context.Context, arg RemoveUserFromTeamParams)) *MockQuerier_RemoveUserFromTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(*slug.Slug))
+		run(args[0].(context.Context), args[1].(RemoveUserFromTeamParams))
 	})
 	return _c
 }
@@ -4960,7 +4890,7 @@ func (_c *MockQuerier_RemoveUserFromTeam_Call) Return(_a0 error) *MockQuerier_Re
 	return _c
 }
 
-func (_c *MockQuerier_RemoveUserFromTeam_Call) RunAndReturn(run func(context.Context, uuid.UUID, *slug.Slug) error) *MockQuerier_RemoveUserFromTeam_Call {
+func (_c *MockQuerier_RemoveUserFromTeam_Call) RunAndReturn(run func(context.Context, RemoveUserFromTeamParams) error) *MockQuerier_RemoveUserFromTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -5071,9 +5001,9 @@ func (_c *MockQuerier_ResourceUtilizationForApp_Call) RunAndReturn(run func(cont
 	return _c
 }
 
-// ResourceUtilizationForTeam provides a mock function with given fields: ctx, environment, teamSlug, resourceType, start, end
-func (_m *MockQuerier) ResourceUtilizationForTeam(ctx context.Context, environment string, teamSlug slug.Slug, resourceType ResourceType, start pgtype.Timestamptz, end pgtype.Timestamptz) ([]*ResourceUtilizationForTeamRow, error) {
-	ret := _m.Called(ctx, environment, teamSlug, resourceType, start, end)
+// ResourceUtilizationForTeam provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) ResourceUtilizationForTeam(ctx context.Context, arg ResourceUtilizationForTeamParams) ([]*ResourceUtilizationForTeamRow, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ResourceUtilizationForTeam")
@@ -5081,19 +5011,19 @@ func (_m *MockQuerier) ResourceUtilizationForTeam(ctx context.Context, environme
 
 	var r0 []*ResourceUtilizationForTeamRow
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, ResourceType, pgtype.Timestamptz, pgtype.Timestamptz) ([]*ResourceUtilizationForTeamRow, error)); ok {
-		return rf(ctx, environment, teamSlug, resourceType, start, end)
+	if rf, ok := ret.Get(0).(func(context.Context, ResourceUtilizationForTeamParams) ([]*ResourceUtilizationForTeamRow, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, ResourceType, pgtype.Timestamptz, pgtype.Timestamptz) []*ResourceUtilizationForTeamRow); ok {
-		r0 = rf(ctx, environment, teamSlug, resourceType, start, end)
+	if rf, ok := ret.Get(0).(func(context.Context, ResourceUtilizationForTeamParams) []*ResourceUtilizationForTeamRow); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*ResourceUtilizationForTeamRow)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, ResourceType, pgtype.Timestamptz, pgtype.Timestamptz) error); ok {
-		r1 = rf(ctx, environment, teamSlug, resourceType, start, end)
+	if rf, ok := ret.Get(1).(func(context.Context, ResourceUtilizationForTeamParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -5108,18 +5038,14 @@ type MockQuerier_ResourceUtilizationForTeam_Call struct {
 
 // ResourceUtilizationForTeam is a helper method to define mock.On call
 //   - ctx context.Context
-//   - environment string
-//   - teamSlug slug.Slug
-//   - resourceType ResourceType
-//   - start pgtype.Timestamptz
-//   - end pgtype.Timestamptz
-func (_e *MockQuerier_Expecter) ResourceUtilizationForTeam(ctx interface{}, environment interface{}, teamSlug interface{}, resourceType interface{}, start interface{}, end interface{}) *MockQuerier_ResourceUtilizationForTeam_Call {
-	return &MockQuerier_ResourceUtilizationForTeam_Call{Call: _e.mock.On("ResourceUtilizationForTeam", ctx, environment, teamSlug, resourceType, start, end)}
+//   - arg ResourceUtilizationForTeamParams
+func (_e *MockQuerier_Expecter) ResourceUtilizationForTeam(ctx interface{}, arg interface{}) *MockQuerier_ResourceUtilizationForTeam_Call {
+	return &MockQuerier_ResourceUtilizationForTeam_Call{Call: _e.mock.On("ResourceUtilizationForTeam", ctx, arg)}
 }
 
-func (_c *MockQuerier_ResourceUtilizationForTeam_Call) Run(run func(ctx context.Context, environment string, teamSlug slug.Slug, resourceType ResourceType, start pgtype.Timestamptz, end pgtype.Timestamptz)) *MockQuerier_ResourceUtilizationForTeam_Call {
+func (_c *MockQuerier_ResourceUtilizationForTeam_Call) Run(run func(ctx context.Context, arg ResourceUtilizationForTeamParams)) *MockQuerier_ResourceUtilizationForTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(ResourceType), args[4].(pgtype.Timestamptz), args[5].(pgtype.Timestamptz))
+		run(args[0].(context.Context), args[1].(ResourceUtilizationForTeamParams))
 	})
 	return _c
 }
@@ -5129,14 +5055,14 @@ func (_c *MockQuerier_ResourceUtilizationForTeam_Call) Return(_a0 []*ResourceUti
 	return _c
 }
 
-func (_c *MockQuerier_ResourceUtilizationForTeam_Call) RunAndReturn(run func(context.Context, string, slug.Slug, ResourceType, pgtype.Timestamptz, pgtype.Timestamptz) ([]*ResourceUtilizationForTeamRow, error)) *MockQuerier_ResourceUtilizationForTeam_Call {
+func (_c *MockQuerier_ResourceUtilizationForTeam_Call) RunAndReturn(run func(context.Context, ResourceUtilizationForTeamParams) ([]*ResourceUtilizationForTeamRow, error)) *MockQuerier_ResourceUtilizationForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// ResourceUtilizationOverageForTeam provides a mock function with given fields: ctx, teamSlug, timestamp, resourceType
-func (_m *MockQuerier) ResourceUtilizationOverageForTeam(ctx context.Context, teamSlug slug.Slug, timestamp pgtype.Timestamptz, resourceType ResourceType) ([]*ResourceUtilizationOverageForTeamRow, error) {
-	ret := _m.Called(ctx, teamSlug, timestamp, resourceType)
+// ResourceUtilizationOverageForTeam provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) ResourceUtilizationOverageForTeam(ctx context.Context, arg ResourceUtilizationOverageForTeamParams) ([]*ResourceUtilizationOverageForTeamRow, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ResourceUtilizationOverageForTeam")
@@ -5144,19 +5070,19 @@ func (_m *MockQuerier) ResourceUtilizationOverageForTeam(ctx context.Context, te
 
 	var r0 []*ResourceUtilizationOverageForTeamRow
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, pgtype.Timestamptz, ResourceType) ([]*ResourceUtilizationOverageForTeamRow, error)); ok {
-		return rf(ctx, teamSlug, timestamp, resourceType)
+	if rf, ok := ret.Get(0).(func(context.Context, ResourceUtilizationOverageForTeamParams) ([]*ResourceUtilizationOverageForTeamRow, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, pgtype.Timestamptz, ResourceType) []*ResourceUtilizationOverageForTeamRow); ok {
-		r0 = rf(ctx, teamSlug, timestamp, resourceType)
+	if rf, ok := ret.Get(0).(func(context.Context, ResourceUtilizationOverageForTeamParams) []*ResourceUtilizationOverageForTeamRow); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*ResourceUtilizationOverageForTeamRow)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, pgtype.Timestamptz, ResourceType) error); ok {
-		r1 = rf(ctx, teamSlug, timestamp, resourceType)
+	if rf, ok := ret.Get(1).(func(context.Context, ResourceUtilizationOverageForTeamParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -5171,16 +5097,14 @@ type MockQuerier_ResourceUtilizationOverageForTeam_Call struct {
 
 // ResourceUtilizationOverageForTeam is a helper method to define mock.On call
 //   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - timestamp pgtype.Timestamptz
-//   - resourceType ResourceType
-func (_e *MockQuerier_Expecter) ResourceUtilizationOverageForTeam(ctx interface{}, teamSlug interface{}, timestamp interface{}, resourceType interface{}) *MockQuerier_ResourceUtilizationOverageForTeam_Call {
-	return &MockQuerier_ResourceUtilizationOverageForTeam_Call{Call: _e.mock.On("ResourceUtilizationOverageForTeam", ctx, teamSlug, timestamp, resourceType)}
+//   - arg ResourceUtilizationOverageForTeamParams
+func (_e *MockQuerier_Expecter) ResourceUtilizationOverageForTeam(ctx interface{}, arg interface{}) *MockQuerier_ResourceUtilizationOverageForTeam_Call {
+	return &MockQuerier_ResourceUtilizationOverageForTeam_Call{Call: _e.mock.On("ResourceUtilizationOverageForTeam", ctx, arg)}
 }
 
-func (_c *MockQuerier_ResourceUtilizationOverageForTeam_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, timestamp pgtype.Timestamptz, resourceType ResourceType)) *MockQuerier_ResourceUtilizationOverageForTeam_Call {
+func (_c *MockQuerier_ResourceUtilizationOverageForTeam_Call) Run(run func(ctx context.Context, arg ResourceUtilizationOverageForTeamParams)) *MockQuerier_ResourceUtilizationOverageForTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(pgtype.Timestamptz), args[3].(ResourceType))
+		run(args[0].(context.Context), args[1].(ResourceUtilizationOverageForTeamParams))
 	})
 	return _c
 }
@@ -5190,14 +5114,14 @@ func (_c *MockQuerier_ResourceUtilizationOverageForTeam_Call) Return(_a0 []*Reso
 	return _c
 }
 
-func (_c *MockQuerier_ResourceUtilizationOverageForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug, pgtype.Timestamptz, ResourceType) ([]*ResourceUtilizationOverageForTeamRow, error)) *MockQuerier_ResourceUtilizationOverageForTeam_Call {
+func (_c *MockQuerier_ResourceUtilizationOverageForTeam_Call) RunAndReturn(run func(context.Context, ResourceUtilizationOverageForTeamParams) ([]*ResourceUtilizationOverageForTeamRow, error)) *MockQuerier_ResourceUtilizationOverageForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// ResourceUtilizationRangeForApp provides a mock function with given fields: ctx, environment, teamSlug, app
-func (_m *MockQuerier) ResourceUtilizationRangeForApp(ctx context.Context, environment string, teamSlug slug.Slug, app string) (*ResourceUtilizationRangeForAppRow, error) {
-	ret := _m.Called(ctx, environment, teamSlug, app)
+// ResourceUtilizationRangeForApp provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) ResourceUtilizationRangeForApp(ctx context.Context, arg ResourceUtilizationRangeForAppParams) (*ResourceUtilizationRangeForAppRow, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ResourceUtilizationRangeForApp")
@@ -5205,19 +5129,19 @@ func (_m *MockQuerier) ResourceUtilizationRangeForApp(ctx context.Context, envir
 
 	var r0 *ResourceUtilizationRangeForAppRow
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string) (*ResourceUtilizationRangeForAppRow, error)); ok {
-		return rf(ctx, environment, teamSlug, app)
+	if rf, ok := ret.Get(0).(func(context.Context, ResourceUtilizationRangeForAppParams) (*ResourceUtilizationRangeForAppRow, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string) *ResourceUtilizationRangeForAppRow); ok {
-		r0 = rf(ctx, environment, teamSlug, app)
+	if rf, ok := ret.Get(0).(func(context.Context, ResourceUtilizationRangeForAppParams) *ResourceUtilizationRangeForAppRow); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*ResourceUtilizationRangeForAppRow)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string) error); ok {
-		r1 = rf(ctx, environment, teamSlug, app)
+	if rf, ok := ret.Get(1).(func(context.Context, ResourceUtilizationRangeForAppParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -5232,16 +5156,14 @@ type MockQuerier_ResourceUtilizationRangeForApp_Call struct {
 
 // ResourceUtilizationRangeForApp is a helper method to define mock.On call
 //   - ctx context.Context
-//   - environment string
-//   - teamSlug slug.Slug
-//   - app string
-func (_e *MockQuerier_Expecter) ResourceUtilizationRangeForApp(ctx interface{}, environment interface{}, teamSlug interface{}, app interface{}) *MockQuerier_ResourceUtilizationRangeForApp_Call {
-	return &MockQuerier_ResourceUtilizationRangeForApp_Call{Call: _e.mock.On("ResourceUtilizationRangeForApp", ctx, environment, teamSlug, app)}
+//   - arg ResourceUtilizationRangeForAppParams
+func (_e *MockQuerier_Expecter) ResourceUtilizationRangeForApp(ctx interface{}, arg interface{}) *MockQuerier_ResourceUtilizationRangeForApp_Call {
+	return &MockQuerier_ResourceUtilizationRangeForApp_Call{Call: _e.mock.On("ResourceUtilizationRangeForApp", ctx, arg)}
 }
 
-func (_c *MockQuerier_ResourceUtilizationRangeForApp_Call) Run(run func(ctx context.Context, environment string, teamSlug slug.Slug, app string)) *MockQuerier_ResourceUtilizationRangeForApp_Call {
+func (_c *MockQuerier_ResourceUtilizationRangeForApp_Call) Run(run func(ctx context.Context, arg ResourceUtilizationRangeForAppParams)) *MockQuerier_ResourceUtilizationRangeForApp_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string))
+		run(args[0].(context.Context), args[1].(ResourceUtilizationRangeForAppParams))
 	})
 	return _c
 }
@@ -5251,7 +5173,7 @@ func (_c *MockQuerier_ResourceUtilizationRangeForApp_Call) Return(_a0 *ResourceU
 	return _c
 }
 
-func (_c *MockQuerier_ResourceUtilizationRangeForApp_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string) (*ResourceUtilizationRangeForAppRow, error)) *MockQuerier_ResourceUtilizationRangeForApp_Call {
+func (_c *MockQuerier_ResourceUtilizationRangeForApp_Call) RunAndReturn(run func(context.Context, ResourceUtilizationRangeForAppParams) (*ResourceUtilizationRangeForAppRow, error)) *MockQuerier_ResourceUtilizationRangeForApp_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -5364,17 +5286,17 @@ func (_c *MockQuerier_ResourceUtilizationUpsert_Call) RunAndReturn(run func(cont
 	return _c
 }
 
-// RevokeGlobalUserRole provides a mock function with given fields: ctx, userID, roleName
-func (_m *MockQuerier) RevokeGlobalUserRole(ctx context.Context, userID uuid.UUID, roleName RoleName) error {
-	ret := _m.Called(ctx, userID, roleName)
+// RevokeGlobalUserRole provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) RevokeGlobalUserRole(ctx context.Context, arg RevokeGlobalUserRoleParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RevokeGlobalUserRole")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, RoleName) error); ok {
-		r0 = rf(ctx, userID, roleName)
+	if rf, ok := ret.Get(0).(func(context.Context, RevokeGlobalUserRoleParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -5389,15 +5311,14 @@ type MockQuerier_RevokeGlobalUserRole_Call struct {
 
 // RevokeGlobalUserRole is a helper method to define mock.On call
 //   - ctx context.Context
-//   - userID uuid.UUID
-//   - roleName RoleName
-func (_e *MockQuerier_Expecter) RevokeGlobalUserRole(ctx interface{}, userID interface{}, roleName interface{}) *MockQuerier_RevokeGlobalUserRole_Call {
-	return &MockQuerier_RevokeGlobalUserRole_Call{Call: _e.mock.On("RevokeGlobalUserRole", ctx, userID, roleName)}
+//   - arg RevokeGlobalUserRoleParams
+func (_e *MockQuerier_Expecter) RevokeGlobalUserRole(ctx interface{}, arg interface{}) *MockQuerier_RevokeGlobalUserRole_Call {
+	return &MockQuerier_RevokeGlobalUserRole_Call{Call: _e.mock.On("RevokeGlobalUserRole", ctx, arg)}
 }
 
-func (_c *MockQuerier_RevokeGlobalUserRole_Call) Run(run func(ctx context.Context, userID uuid.UUID, roleName RoleName)) *MockQuerier_RevokeGlobalUserRole_Call {
+func (_c *MockQuerier_RevokeGlobalUserRole_Call) Run(run func(ctx context.Context, arg RevokeGlobalUserRoleParams)) *MockQuerier_RevokeGlobalUserRole_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(RoleName))
+		run(args[0].(context.Context), args[1].(RevokeGlobalUserRoleParams))
 	})
 	return _c
 }
@@ -5407,14 +5328,14 @@ func (_c *MockQuerier_RevokeGlobalUserRole_Call) Return(_a0 error) *MockQuerier_
 	return _c
 }
 
-func (_c *MockQuerier_RevokeGlobalUserRole_Call) RunAndReturn(run func(context.Context, uuid.UUID, RoleName) error) *MockQuerier_RevokeGlobalUserRole_Call {
+func (_c *MockQuerier_RevokeGlobalUserRole_Call) RunAndReturn(run func(context.Context, RevokeGlobalUserRoleParams) error) *MockQuerier_RevokeGlobalUserRole_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// SearchTeams provides a mock function with given fields: ctx, slugMatch, limit
-func (_m *MockQuerier) SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*Team, error) {
-	ret := _m.Called(ctx, slugMatch, limit)
+// SearchTeams provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) SearchTeams(ctx context.Context, arg SearchTeamsParams) ([]*Team, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SearchTeams")
@@ -5422,19 +5343,19 @@ func (_m *MockQuerier) SearchTeams(ctx context.Context, slugMatch string, limit 
 
 	var r0 []*Team
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, int32) ([]*Team, error)); ok {
-		return rf(ctx, slugMatch, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, SearchTeamsParams) ([]*Team, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, int32) []*Team); ok {
-		r0 = rf(ctx, slugMatch, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, SearchTeamsParams) []*Team); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*Team)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, int32) error); ok {
-		r1 = rf(ctx, slugMatch, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, SearchTeamsParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -5449,15 +5370,14 @@ type MockQuerier_SearchTeams_Call struct {
 
 // SearchTeams is a helper method to define mock.On call
 //   - ctx context.Context
-//   - slugMatch string
-//   - limit int32
-func (_e *MockQuerier_Expecter) SearchTeams(ctx interface{}, slugMatch interface{}, limit interface{}) *MockQuerier_SearchTeams_Call {
-	return &MockQuerier_SearchTeams_Call{Call: _e.mock.On("SearchTeams", ctx, slugMatch, limit)}
+//   - arg SearchTeamsParams
+func (_e *MockQuerier_Expecter) SearchTeams(ctx interface{}, arg interface{}) *MockQuerier_SearchTeams_Call {
+	return &MockQuerier_SearchTeams_Call{Call: _e.mock.On("SearchTeams", ctx, arg)}
 }
 
-func (_c *MockQuerier_SearchTeams_Call) Run(run func(ctx context.Context, slugMatch string, limit int32)) *MockQuerier_SearchTeams_Call {
+func (_c *MockQuerier_SearchTeams_Call) Run(run func(ctx context.Context, arg SearchTeamsParams)) *MockQuerier_SearchTeams_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(int32))
+		run(args[0].(context.Context), args[1].(SearchTeamsParams))
 	})
 	return _c
 }
@@ -5467,22 +5387,22 @@ func (_c *MockQuerier_SearchTeams_Call) Return(_a0 []*Team, _a1 error) *MockQuer
 	return _c
 }
 
-func (_c *MockQuerier_SearchTeams_Call) RunAndReturn(run func(context.Context, string, int32) ([]*Team, error)) *MockQuerier_SearchTeams_Call {
+func (_c *MockQuerier_SearchTeams_Call) RunAndReturn(run func(context.Context, SearchTeamsParams) ([]*Team, error)) *MockQuerier_SearchTeams_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// SetGoogleGroupEmailForTeam provides a mock function with given fields: ctx, googleGroupEmail, _a2
-func (_m *MockQuerier) SetGoogleGroupEmailForTeam(ctx context.Context, googleGroupEmail string, _a2 slug.Slug) error {
-	ret := _m.Called(ctx, googleGroupEmail, _a2)
+// SetGoogleGroupEmailForTeam provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) SetGoogleGroupEmailForTeam(ctx context.Context, arg SetGoogleGroupEmailForTeamParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SetGoogleGroupEmailForTeam")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug) error); ok {
-		r0 = rf(ctx, googleGroupEmail, _a2)
+	if rf, ok := ret.Get(0).(func(context.Context, SetGoogleGroupEmailForTeamParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -5497,15 +5417,14 @@ type MockQuerier_SetGoogleGroupEmailForTeam_Call struct {
 
 // SetGoogleGroupEmailForTeam is a helper method to define mock.On call
 //   - ctx context.Context
-//   - googleGroupEmail string
-//   - _a2 slug.Slug
-func (_e *MockQuerier_Expecter) SetGoogleGroupEmailForTeam(ctx interface{}, googleGroupEmail interface{}, _a2 interface{}) *MockQuerier_SetGoogleGroupEmailForTeam_Call {
-	return &MockQuerier_SetGoogleGroupEmailForTeam_Call{Call: _e.mock.On("SetGoogleGroupEmailForTeam", ctx, googleGroupEmail, _a2)}
+//   - arg SetGoogleGroupEmailForTeamParams
+func (_e *MockQuerier_Expecter) SetGoogleGroupEmailForTeam(ctx interface{}, arg interface{}) *MockQuerier_SetGoogleGroupEmailForTeam_Call {
+	return &MockQuerier_SetGoogleGroupEmailForTeam_Call{Call: _e.mock.On("SetGoogleGroupEmailForTeam", ctx, arg)}
 }
 
-func (_c *MockQuerier_SetGoogleGroupEmailForTeam_Call) Run(run func(ctx context.Context, googleGroupEmail string, _a2 slug.Slug)) *MockQuerier_SetGoogleGroupEmailForTeam_Call {
+func (_c *MockQuerier_SetGoogleGroupEmailForTeam_Call) Run(run func(ctx context.Context, arg SetGoogleGroupEmailForTeamParams)) *MockQuerier_SetGoogleGroupEmailForTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug))
+		run(args[0].(context.Context), args[1].(SetGoogleGroupEmailForTeamParams))
 	})
 	return _c
 }
@@ -5515,7 +5434,7 @@ func (_c *MockQuerier_SetGoogleGroupEmailForTeam_Call) Return(_a0 error) *MockQu
 	return _c
 }
 
-func (_c *MockQuerier_SetGoogleGroupEmailForTeam_Call) RunAndReturn(run func(context.Context, string, slug.Slug) error) *MockQuerier_SetGoogleGroupEmailForTeam_Call {
+func (_c *MockQuerier_SetGoogleGroupEmailForTeam_Call) RunAndReturn(run func(context.Context, SetGoogleGroupEmailForTeamParams) error) *MockQuerier_SetGoogleGroupEmailForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -5567,17 +5486,17 @@ func (_c *MockQuerier_SetLastSuccessfulSyncForTeam_Call) RunAndReturn(run func(c
 	return _c
 }
 
-// SetReconcilerErrorForTeam provides a mock function with given fields: ctx, correlationID, teamSlug, reconciler, errorMessage
-func (_m *MockQuerier) SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, teamSlug slug.Slug, reconciler string, errorMessage string) error {
-	ret := _m.Called(ctx, correlationID, teamSlug, reconciler, errorMessage)
+// SetReconcilerErrorForTeam provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) SetReconcilerErrorForTeam(ctx context.Context, arg SetReconcilerErrorForTeamParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SetReconcilerErrorForTeam")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, slug.Slug, string, string) error); ok {
-		r0 = rf(ctx, correlationID, teamSlug, reconciler, errorMessage)
+	if rf, ok := ret.Get(0).(func(context.Context, SetReconcilerErrorForTeamParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -5592,17 +5511,14 @@ type MockQuerier_SetReconcilerErrorForTeam_Call struct {
 
 // SetReconcilerErrorForTeam is a helper method to define mock.On call
 //   - ctx context.Context
-//   - correlationID uuid.UUID
-//   - teamSlug slug.Slug
-//   - reconciler string
-//   - errorMessage string
-func (_e *MockQuerier_Expecter) SetReconcilerErrorForTeam(ctx interface{}, correlationID interface{}, teamSlug interface{}, reconciler interface{}, errorMessage interface{}) *MockQuerier_SetReconcilerErrorForTeam_Call {
-	return &MockQuerier_SetReconcilerErrorForTeam_Call{Call: _e.mock.On("SetReconcilerErrorForTeam", ctx, correlationID, teamSlug, reconciler, errorMessage)}
+//   - arg SetReconcilerErrorForTeamParams
+func (_e *MockQuerier_Expecter) SetReconcilerErrorForTeam(ctx interface{}, arg interface{}) *MockQuerier_SetReconcilerErrorForTeam_Call {
+	return &MockQuerier_SetReconcilerErrorForTeam_Call{Call: _e.mock.On("SetReconcilerErrorForTeam", ctx, arg)}
 }
 
-func (_c *MockQuerier_SetReconcilerErrorForTeam_Call) Run(run func(ctx context.Context, correlationID uuid.UUID, teamSlug slug.Slug, reconciler string, errorMessage string)) *MockQuerier_SetReconcilerErrorForTeam_Call {
+func (_c *MockQuerier_SetReconcilerErrorForTeam_Call) Run(run func(ctx context.Context, arg SetReconcilerErrorForTeamParams)) *MockQuerier_SetReconcilerErrorForTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(slug.Slug), args[3].(string), args[4].(string))
+		run(args[0].(context.Context), args[1].(SetReconcilerErrorForTeamParams))
 	})
 	return _c
 }
@@ -5612,14 +5528,14 @@ func (_c *MockQuerier_SetReconcilerErrorForTeam_Call) Return(_a0 error) *MockQue
 	return _c
 }
 
-func (_c *MockQuerier_SetReconcilerErrorForTeam_Call) RunAndReturn(run func(context.Context, uuid.UUID, slug.Slug, string, string) error) *MockQuerier_SetReconcilerErrorForTeam_Call {
+func (_c *MockQuerier_SetReconcilerErrorForTeam_Call) RunAndReturn(run func(context.Context, SetReconcilerErrorForTeamParams) error) *MockQuerier_SetReconcilerErrorForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// SetSessionExpires provides a mock function with given fields: ctx, expires, iD
-func (_m *MockQuerier) SetSessionExpires(ctx context.Context, expires pgtype.Timestamptz, iD uuid.UUID) (*Session, error) {
-	ret := _m.Called(ctx, expires, iD)
+// SetSessionExpires provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) SetSessionExpires(ctx context.Context, arg SetSessionExpiresParams) (*Session, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SetSessionExpires")
@@ -5627,19 +5543,19 @@ func (_m *MockQuerier) SetSessionExpires(ctx context.Context, expires pgtype.Tim
 
 	var r0 *Session
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Timestamptz, uuid.UUID) (*Session, error)); ok {
-		return rf(ctx, expires, iD)
+	if rf, ok := ret.Get(0).(func(context.Context, SetSessionExpiresParams) (*Session, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Timestamptz, uuid.UUID) *Session); ok {
-		r0 = rf(ctx, expires, iD)
+	if rf, ok := ret.Get(0).(func(context.Context, SetSessionExpiresParams) *Session); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Session)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, pgtype.Timestamptz, uuid.UUID) error); ok {
-		r1 = rf(ctx, expires, iD)
+	if rf, ok := ret.Get(1).(func(context.Context, SetSessionExpiresParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -5654,15 +5570,14 @@ type MockQuerier_SetSessionExpires_Call struct {
 
 // SetSessionExpires is a helper method to define mock.On call
 //   - ctx context.Context
-//   - expires pgtype.Timestamptz
-//   - iD uuid.UUID
-func (_e *MockQuerier_Expecter) SetSessionExpires(ctx interface{}, expires interface{}, iD interface{}) *MockQuerier_SetSessionExpires_Call {
-	return &MockQuerier_SetSessionExpires_Call{Call: _e.mock.On("SetSessionExpires", ctx, expires, iD)}
+//   - arg SetSessionExpiresParams
+func (_e *MockQuerier_Expecter) SetSessionExpires(ctx interface{}, arg interface{}) *MockQuerier_SetSessionExpires_Call {
+	return &MockQuerier_SetSessionExpires_Call{Call: _e.mock.On("SetSessionExpires", ctx, arg)}
 }
 
-func (_c *MockQuerier_SetSessionExpires_Call) Run(run func(ctx context.Context, expires pgtype.Timestamptz, iD uuid.UUID)) *MockQuerier_SetSessionExpires_Call {
+func (_c *MockQuerier_SetSessionExpires_Call) Run(run func(ctx context.Context, arg SetSessionExpiresParams)) *MockQuerier_SetSessionExpires_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(pgtype.Timestamptz), args[2].(uuid.UUID))
+		run(args[0].(context.Context), args[1].(SetSessionExpiresParams))
 	})
 	return _c
 }
@@ -5672,22 +5587,22 @@ func (_c *MockQuerier_SetSessionExpires_Call) Return(_a0 *Session, _a1 error) *M
 	return _c
 }
 
-func (_c *MockQuerier_SetSessionExpires_Call) RunAndReturn(run func(context.Context, pgtype.Timestamptz, uuid.UUID) (*Session, error)) *MockQuerier_SetSessionExpires_Call {
+func (_c *MockQuerier_SetSessionExpires_Call) RunAndReturn(run func(context.Context, SetSessionExpiresParams) (*Session, error)) *MockQuerier_SetSessionExpires_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// SetSlackAlertsChannel provides a mock function with given fields: ctx, teamSlug, environment, channelName
-func (_m *MockQuerier) SetSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string, channelName string) error {
-	ret := _m.Called(ctx, teamSlug, environment, channelName)
+// SetSlackAlertsChannel provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) SetSlackAlertsChannel(ctx context.Context, arg SetSlackAlertsChannelParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SetSlackAlertsChannel")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, string) error); ok {
-		r0 = rf(ctx, teamSlug, environment, channelName)
+	if rf, ok := ret.Get(0).(func(context.Context, SetSlackAlertsChannelParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -5702,16 +5617,14 @@ type MockQuerier_SetSlackAlertsChannel_Call struct {
 
 // SetSlackAlertsChannel is a helper method to define mock.On call
 //   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - environment string
-//   - channelName string
-func (_e *MockQuerier_Expecter) SetSlackAlertsChannel(ctx interface{}, teamSlug interface{}, environment interface{}, channelName interface{}) *MockQuerier_SetSlackAlertsChannel_Call {
-	return &MockQuerier_SetSlackAlertsChannel_Call{Call: _e.mock.On("SetSlackAlertsChannel", ctx, teamSlug, environment, channelName)}
+//   - arg SetSlackAlertsChannelParams
+func (_e *MockQuerier_Expecter) SetSlackAlertsChannel(ctx interface{}, arg interface{}) *MockQuerier_SetSlackAlertsChannel_Call {
+	return &MockQuerier_SetSlackAlertsChannel_Call{Call: _e.mock.On("SetSlackAlertsChannel", ctx, arg)}
 }
 
-func (_c *MockQuerier_SetSlackAlertsChannel_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, environment string, channelName string)) *MockQuerier_SetSlackAlertsChannel_Call {
+func (_c *MockQuerier_SetSlackAlertsChannel_Call) Run(run func(ctx context.Context, arg SetSlackAlertsChannelParams)) *MockQuerier_SetSlackAlertsChannel_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string), args[3].(string))
+		run(args[0].(context.Context), args[1].(SetSlackAlertsChannelParams))
 	})
 	return _c
 }
@@ -5721,14 +5634,14 @@ func (_c *MockQuerier_SetSlackAlertsChannel_Call) Return(_a0 error) *MockQuerier
 	return _c
 }
 
-func (_c *MockQuerier_SetSlackAlertsChannel_Call) RunAndReturn(run func(context.Context, slug.Slug, string, string) error) *MockQuerier_SetSlackAlertsChannel_Call {
+func (_c *MockQuerier_SetSlackAlertsChannel_Call) RunAndReturn(run func(context.Context, SetSlackAlertsChannelParams) error) *MockQuerier_SetSlackAlertsChannel_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// SpecificResourceUtilizationForApp provides a mock function with given fields: ctx, environment, teamSlug, app, resourceType, timestamp
-func (_m *MockQuerier) SpecificResourceUtilizationForApp(ctx context.Context, environment string, teamSlug slug.Slug, app string, resourceType ResourceType, timestamp pgtype.Timestamptz) (*SpecificResourceUtilizationForAppRow, error) {
-	ret := _m.Called(ctx, environment, teamSlug, app, resourceType, timestamp)
+// SpecificResourceUtilizationForApp provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) SpecificResourceUtilizationForApp(ctx context.Context, arg SpecificResourceUtilizationForAppParams) (*SpecificResourceUtilizationForAppRow, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SpecificResourceUtilizationForApp")
@@ -5736,19 +5649,19 @@ func (_m *MockQuerier) SpecificResourceUtilizationForApp(ctx context.Context, en
 
 	var r0 *SpecificResourceUtilizationForAppRow
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, ResourceType, pgtype.Timestamptz) (*SpecificResourceUtilizationForAppRow, error)); ok {
-		return rf(ctx, environment, teamSlug, app, resourceType, timestamp)
+	if rf, ok := ret.Get(0).(func(context.Context, SpecificResourceUtilizationForAppParams) (*SpecificResourceUtilizationForAppRow, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, ResourceType, pgtype.Timestamptz) *SpecificResourceUtilizationForAppRow); ok {
-		r0 = rf(ctx, environment, teamSlug, app, resourceType, timestamp)
+	if rf, ok := ret.Get(0).(func(context.Context, SpecificResourceUtilizationForAppParams) *SpecificResourceUtilizationForAppRow); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*SpecificResourceUtilizationForAppRow)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string, ResourceType, pgtype.Timestamptz) error); ok {
-		r1 = rf(ctx, environment, teamSlug, app, resourceType, timestamp)
+	if rf, ok := ret.Get(1).(func(context.Context, SpecificResourceUtilizationForAppParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -5763,18 +5676,14 @@ type MockQuerier_SpecificResourceUtilizationForApp_Call struct {
 
 // SpecificResourceUtilizationForApp is a helper method to define mock.On call
 //   - ctx context.Context
-//   - environment string
-//   - teamSlug slug.Slug
-//   - app string
-//   - resourceType ResourceType
-//   - timestamp pgtype.Timestamptz
-func (_e *MockQuerier_Expecter) SpecificResourceUtilizationForApp(ctx interface{}, environment interface{}, teamSlug interface{}, app interface{}, resourceType interface{}, timestamp interface{}) *MockQuerier_SpecificResourceUtilizationForApp_Call {
-	return &MockQuerier_SpecificResourceUtilizationForApp_Call{Call: _e.mock.On("SpecificResourceUtilizationForApp", ctx, environment, teamSlug, app, resourceType, timestamp)}
+//   - arg SpecificResourceUtilizationForAppParams
+func (_e *MockQuerier_Expecter) SpecificResourceUtilizationForApp(ctx interface{}, arg interface{}) *MockQuerier_SpecificResourceUtilizationForApp_Call {
+	return &MockQuerier_SpecificResourceUtilizationForApp_Call{Call: _e.mock.On("SpecificResourceUtilizationForApp", ctx, arg)}
 }
 
-func (_c *MockQuerier_SpecificResourceUtilizationForApp_Call) Run(run func(ctx context.Context, environment string, teamSlug slug.Slug, app string, resourceType ResourceType, timestamp pgtype.Timestamptz)) *MockQuerier_SpecificResourceUtilizationForApp_Call {
+func (_c *MockQuerier_SpecificResourceUtilizationForApp_Call) Run(run func(ctx context.Context, arg SpecificResourceUtilizationForAppParams)) *MockQuerier_SpecificResourceUtilizationForApp_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].(ResourceType), args[5].(pgtype.Timestamptz))
+		run(args[0].(context.Context), args[1].(SpecificResourceUtilizationForAppParams))
 	})
 	return _c
 }
@@ -5784,14 +5693,14 @@ func (_c *MockQuerier_SpecificResourceUtilizationForApp_Call) Return(_a0 *Specif
 	return _c
 }
 
-func (_c *MockQuerier_SpecificResourceUtilizationForApp_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, ResourceType, pgtype.Timestamptz) (*SpecificResourceUtilizationForAppRow, error)) *MockQuerier_SpecificResourceUtilizationForApp_Call {
+func (_c *MockQuerier_SpecificResourceUtilizationForApp_Call) RunAndReturn(run func(context.Context, SpecificResourceUtilizationForAppParams) (*SpecificResourceUtilizationForAppRow, error)) *MockQuerier_SpecificResourceUtilizationForApp_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// SpecificResourceUtilizationForTeam provides a mock function with given fields: ctx, teamSlug, resourceType, timestamp
-func (_m *MockQuerier) SpecificResourceUtilizationForTeam(ctx context.Context, teamSlug slug.Slug, resourceType ResourceType, timestamp pgtype.Timestamptz) (*SpecificResourceUtilizationForTeamRow, error) {
-	ret := _m.Called(ctx, teamSlug, resourceType, timestamp)
+// SpecificResourceUtilizationForTeam provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) SpecificResourceUtilizationForTeam(ctx context.Context, arg SpecificResourceUtilizationForTeamParams) (*SpecificResourceUtilizationForTeamRow, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SpecificResourceUtilizationForTeam")
@@ -5799,19 +5708,19 @@ func (_m *MockQuerier) SpecificResourceUtilizationForTeam(ctx context.Context, t
 
 	var r0 *SpecificResourceUtilizationForTeamRow
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, ResourceType, pgtype.Timestamptz) (*SpecificResourceUtilizationForTeamRow, error)); ok {
-		return rf(ctx, teamSlug, resourceType, timestamp)
+	if rf, ok := ret.Get(0).(func(context.Context, SpecificResourceUtilizationForTeamParams) (*SpecificResourceUtilizationForTeamRow, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, ResourceType, pgtype.Timestamptz) *SpecificResourceUtilizationForTeamRow); ok {
-		r0 = rf(ctx, teamSlug, resourceType, timestamp)
+	if rf, ok := ret.Get(0).(func(context.Context, SpecificResourceUtilizationForTeamParams) *SpecificResourceUtilizationForTeamRow); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*SpecificResourceUtilizationForTeamRow)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, ResourceType, pgtype.Timestamptz) error); ok {
-		r1 = rf(ctx, teamSlug, resourceType, timestamp)
+	if rf, ok := ret.Get(1).(func(context.Context, SpecificResourceUtilizationForTeamParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -5826,16 +5735,14 @@ type MockQuerier_SpecificResourceUtilizationForTeam_Call struct {
 
 // SpecificResourceUtilizationForTeam is a helper method to define mock.On call
 //   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - resourceType ResourceType
-//   - timestamp pgtype.Timestamptz
-func (_e *MockQuerier_Expecter) SpecificResourceUtilizationForTeam(ctx interface{}, teamSlug interface{}, resourceType interface{}, timestamp interface{}) *MockQuerier_SpecificResourceUtilizationForTeam_Call {
-	return &MockQuerier_SpecificResourceUtilizationForTeam_Call{Call: _e.mock.On("SpecificResourceUtilizationForTeam", ctx, teamSlug, resourceType, timestamp)}
+//   - arg SpecificResourceUtilizationForTeamParams
+func (_e *MockQuerier_Expecter) SpecificResourceUtilizationForTeam(ctx interface{}, arg interface{}) *MockQuerier_SpecificResourceUtilizationForTeam_Call {
+	return &MockQuerier_SpecificResourceUtilizationForTeam_Call{Call: _e.mock.On("SpecificResourceUtilizationForTeam", ctx, arg)}
 }
 
-func (_c *MockQuerier_SpecificResourceUtilizationForTeam_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, resourceType ResourceType, timestamp pgtype.Timestamptz)) *MockQuerier_SpecificResourceUtilizationForTeam_Call {
+func (_c *MockQuerier_SpecificResourceUtilizationForTeam_Call) Run(run func(ctx context.Context, arg SpecificResourceUtilizationForTeamParams)) *MockQuerier_SpecificResourceUtilizationForTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(ResourceType), args[3].(pgtype.Timestamptz))
+		run(args[0].(context.Context), args[1].(SpecificResourceUtilizationForTeamParams))
 	})
 	return _c
 }
@@ -5845,7 +5752,7 @@ func (_c *MockQuerier_SpecificResourceUtilizationForTeam_Call) Return(_a0 *Speci
 	return _c
 }
 
-func (_c *MockQuerier_SpecificResourceUtilizationForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug, ResourceType, pgtype.Timestamptz) (*SpecificResourceUtilizationForTeamRow, error)) *MockQuerier_SpecificResourceUtilizationForTeam_Call {
+func (_c *MockQuerier_SpecificResourceUtilizationForTeam_Call) RunAndReturn(run func(context.Context, SpecificResourceUtilizationForTeamParams) (*SpecificResourceUtilizationForTeamRow, error)) *MockQuerier_SpecificResourceUtilizationForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -5907,9 +5814,9 @@ func (_c *MockQuerier_TeamExists_Call) RunAndReturn(run func(context.Context, sl
 	return _c
 }
 
-// UpdateTeam provides a mock function with given fields: ctx, purpose, slackChannel, _a3
-func (_m *MockQuerier) UpdateTeam(ctx context.Context, purpose *string, slackChannel *string, _a3 slug.Slug) (*Team, error) {
-	ret := _m.Called(ctx, purpose, slackChannel, _a3)
+// UpdateTeam provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) UpdateTeam(ctx context.Context, arg UpdateTeamParams) (*Team, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateTeam")
@@ -5917,19 +5824,19 @@ func (_m *MockQuerier) UpdateTeam(ctx context.Context, purpose *string, slackCha
 
 	var r0 *Team
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *string, *string, slug.Slug) (*Team, error)); ok {
-		return rf(ctx, purpose, slackChannel, _a3)
+	if rf, ok := ret.Get(0).(func(context.Context, UpdateTeamParams) (*Team, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *string, *string, slug.Slug) *Team); ok {
-		r0 = rf(ctx, purpose, slackChannel, _a3)
+	if rf, ok := ret.Get(0).(func(context.Context, UpdateTeamParams) *Team); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Team)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *string, *string, slug.Slug) error); ok {
-		r1 = rf(ctx, purpose, slackChannel, _a3)
+	if rf, ok := ret.Get(1).(func(context.Context, UpdateTeamParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -5944,16 +5851,14 @@ type MockQuerier_UpdateTeam_Call struct {
 
 // UpdateTeam is a helper method to define mock.On call
 //   - ctx context.Context
-//   - purpose *string
-//   - slackChannel *string
-//   - _a3 slug.Slug
-func (_e *MockQuerier_Expecter) UpdateTeam(ctx interface{}, purpose interface{}, slackChannel interface{}, _a3 interface{}) *MockQuerier_UpdateTeam_Call {
-	return &MockQuerier_UpdateTeam_Call{Call: _e.mock.On("UpdateTeam", ctx, purpose, slackChannel, _a3)}
+//   - arg UpdateTeamParams
+func (_e *MockQuerier_Expecter) UpdateTeam(ctx interface{}, arg interface{}) *MockQuerier_UpdateTeam_Call {
+	return &MockQuerier_UpdateTeam_Call{Call: _e.mock.On("UpdateTeam", ctx, arg)}
 }
 
-func (_c *MockQuerier_UpdateTeam_Call) Run(run func(ctx context.Context, purpose *string, slackChannel *string, _a3 slug.Slug)) *MockQuerier_UpdateTeam_Call {
+func (_c *MockQuerier_UpdateTeam_Call) Run(run func(ctx context.Context, arg UpdateTeamParams)) *MockQuerier_UpdateTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*string), args[2].(*string), args[3].(slug.Slug))
+		run(args[0].(context.Context), args[1].(UpdateTeamParams))
 	})
 	return _c
 }
@@ -5963,14 +5868,14 @@ func (_c *MockQuerier_UpdateTeam_Call) Return(_a0 *Team, _a1 error) *MockQuerier
 	return _c
 }
 
-func (_c *MockQuerier_UpdateTeam_Call) RunAndReturn(run func(context.Context, *string, *string, slug.Slug) (*Team, error)) *MockQuerier_UpdateTeam_Call {
+func (_c *MockQuerier_UpdateTeam_Call) RunAndReturn(run func(context.Context, UpdateTeamParams) (*Team, error)) *MockQuerier_UpdateTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// UpdateUser provides a mock function with given fields: ctx, name, email, externalID, iD
-func (_m *MockQuerier) UpdateUser(ctx context.Context, name string, email string, externalID string, iD uuid.UUID) (*User, error) {
-	ret := _m.Called(ctx, name, email, externalID, iD)
+// UpdateUser provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) UpdateUser(ctx context.Context, arg UpdateUserParams) (*User, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateUser")
@@ -5978,19 +5883,19 @@ func (_m *MockQuerier) UpdateUser(ctx context.Context, name string, email string
 
 	var r0 *User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, uuid.UUID) (*User, error)); ok {
-		return rf(ctx, name, email, externalID, iD)
+	if rf, ok := ret.Get(0).(func(context.Context, UpdateUserParams) (*User, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, uuid.UUID) *User); ok {
-		r0 = rf(ctx, name, email, externalID, iD)
+	if rf, ok := ret.Get(0).(func(context.Context, UpdateUserParams) *User); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, string, uuid.UUID) error); ok {
-		r1 = rf(ctx, name, email, externalID, iD)
+	if rf, ok := ret.Get(1).(func(context.Context, UpdateUserParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -6005,17 +5910,14 @@ type MockQuerier_UpdateUser_Call struct {
 
 // UpdateUser is a helper method to define mock.On call
 //   - ctx context.Context
-//   - name string
-//   - email string
-//   - externalID string
-//   - iD uuid.UUID
-func (_e *MockQuerier_Expecter) UpdateUser(ctx interface{}, name interface{}, email interface{}, externalID interface{}, iD interface{}) *MockQuerier_UpdateUser_Call {
-	return &MockQuerier_UpdateUser_Call{Call: _e.mock.On("UpdateUser", ctx, name, email, externalID, iD)}
+//   - arg UpdateUserParams
+func (_e *MockQuerier_Expecter) UpdateUser(ctx interface{}, arg interface{}) *MockQuerier_UpdateUser_Call {
+	return &MockQuerier_UpdateUser_Call{Call: _e.mock.On("UpdateUser", ctx, arg)}
 }
 
-func (_c *MockQuerier_UpdateUser_Call) Run(run func(ctx context.Context, name string, email string, externalID string, iD uuid.UUID)) *MockQuerier_UpdateUser_Call {
+func (_c *MockQuerier_UpdateUser_Call) Run(run func(ctx context.Context, arg UpdateUserParams)) *MockQuerier_UpdateUser_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string), args[4].(uuid.UUID))
+		run(args[0].(context.Context), args[1].(UpdateUserParams))
 	})
 	return _c
 }
@@ -6025,14 +5927,14 @@ func (_c *MockQuerier_UpdateUser_Call) Return(_a0 *User, _a1 error) *MockQuerier
 	return _c
 }
 
-func (_c *MockQuerier_UpdateUser_Call) RunAndReturn(run func(context.Context, string, string, string, uuid.UUID) (*User, error)) *MockQuerier_UpdateUser_Call {
+func (_c *MockQuerier_UpdateUser_Call) RunAndReturn(run func(context.Context, UpdateUserParams) (*User, error)) *MockQuerier_UpdateUser_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// UpsertReconciler provides a mock function with given fields: ctx, name, displayName, description, memberAware
-func (_m *MockQuerier) UpsertReconciler(ctx context.Context, name string, displayName string, description string, memberAware bool) (*Reconciler, error) {
-	ret := _m.Called(ctx, name, displayName, description, memberAware)
+// UpsertReconciler provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) UpsertReconciler(ctx context.Context, arg UpsertReconcilerParams) (*Reconciler, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpsertReconciler")
@@ -6040,19 +5942,19 @@ func (_m *MockQuerier) UpsertReconciler(ctx context.Context, name string, displa
 
 	var r0 *Reconciler
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, bool) (*Reconciler, error)); ok {
-		return rf(ctx, name, displayName, description, memberAware)
+	if rf, ok := ret.Get(0).(func(context.Context, UpsertReconcilerParams) (*Reconciler, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, bool) *Reconciler); ok {
-		r0 = rf(ctx, name, displayName, description, memberAware)
+	if rf, ok := ret.Get(0).(func(context.Context, UpsertReconcilerParams) *Reconciler); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Reconciler)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, string, bool) error); ok {
-		r1 = rf(ctx, name, displayName, description, memberAware)
+	if rf, ok := ret.Get(1).(func(context.Context, UpsertReconcilerParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -6067,17 +5969,14 @@ type MockQuerier_UpsertReconciler_Call struct {
 
 // UpsertReconciler is a helper method to define mock.On call
 //   - ctx context.Context
-//   - name string
-//   - displayName string
-//   - description string
-//   - memberAware bool
-func (_e *MockQuerier_Expecter) UpsertReconciler(ctx interface{}, name interface{}, displayName interface{}, description interface{}, memberAware interface{}) *MockQuerier_UpsertReconciler_Call {
-	return &MockQuerier_UpsertReconciler_Call{Call: _e.mock.On("UpsertReconciler", ctx, name, displayName, description, memberAware)}
+//   - arg UpsertReconcilerParams
+func (_e *MockQuerier_Expecter) UpsertReconciler(ctx interface{}, arg interface{}) *MockQuerier_UpsertReconciler_Call {
+	return &MockQuerier_UpsertReconciler_Call{Call: _e.mock.On("UpsertReconciler", ctx, arg)}
 }
 
-func (_c *MockQuerier_UpsertReconciler_Call) Run(run func(ctx context.Context, name string, displayName string, description string, memberAware bool)) *MockQuerier_UpsertReconciler_Call {
+func (_c *MockQuerier_UpsertReconciler_Call) Run(run func(ctx context.Context, arg UpsertReconcilerParams)) *MockQuerier_UpsertReconciler_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string), args[4].(bool))
+		run(args[0].(context.Context), args[1].(UpsertReconcilerParams))
 	})
 	return _c
 }
@@ -6087,22 +5986,22 @@ func (_c *MockQuerier_UpsertReconciler_Call) Return(_a0 *Reconciler, _a1 error) 
 	return _c
 }
 
-func (_c *MockQuerier_UpsertReconciler_Call) RunAndReturn(run func(context.Context, string, string, string, bool) (*Reconciler, error)) *MockQuerier_UpsertReconciler_Call {
+func (_c *MockQuerier_UpsertReconciler_Call) RunAndReturn(run func(context.Context, UpsertReconcilerParams) (*Reconciler, error)) *MockQuerier_UpsertReconciler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// UpsertReconcilerConfig provides a mock function with given fields: ctx, reconciler, key, displayName, description, secret
-func (_m *MockQuerier) UpsertReconcilerConfig(ctx context.Context, reconciler string, key string, displayName string, description string, secret bool) error {
-	ret := _m.Called(ctx, reconciler, key, displayName, description, secret)
+// UpsertReconcilerConfig provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) UpsertReconcilerConfig(ctx context.Context, arg UpsertReconcilerConfigParams) error {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpsertReconcilerConfig")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string, bool) error); ok {
-		r0 = rf(ctx, reconciler, key, displayName, description, secret)
+	if rf, ok := ret.Get(0).(func(context.Context, UpsertReconcilerConfigParams) error); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -6117,18 +6016,14 @@ type MockQuerier_UpsertReconcilerConfig_Call struct {
 
 // UpsertReconcilerConfig is a helper method to define mock.On call
 //   - ctx context.Context
-//   - reconciler string
-//   - key string
-//   - displayName string
-//   - description string
-//   - secret bool
-func (_e *MockQuerier_Expecter) UpsertReconcilerConfig(ctx interface{}, reconciler interface{}, key interface{}, displayName interface{}, description interface{}, secret interface{}) *MockQuerier_UpsertReconcilerConfig_Call {
-	return &MockQuerier_UpsertReconcilerConfig_Call{Call: _e.mock.On("UpsertReconcilerConfig", ctx, reconciler, key, displayName, description, secret)}
+//   - arg UpsertReconcilerConfigParams
+func (_e *MockQuerier_Expecter) UpsertReconcilerConfig(ctx interface{}, arg interface{}) *MockQuerier_UpsertReconcilerConfig_Call {
+	return &MockQuerier_UpsertReconcilerConfig_Call{Call: _e.mock.On("UpsertReconcilerConfig", ctx, arg)}
 }
 
-func (_c *MockQuerier_UpsertReconcilerConfig_Call) Run(run func(ctx context.Context, reconciler string, key string, displayName string, description string, secret bool)) *MockQuerier_UpsertReconcilerConfig_Call {
+func (_c *MockQuerier_UpsertReconcilerConfig_Call) Run(run func(ctx context.Context, arg UpsertReconcilerConfigParams)) *MockQuerier_UpsertReconcilerConfig_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string), args[4].(string), args[5].(bool))
+		run(args[0].(context.Context), args[1].(UpsertReconcilerConfigParams))
 	})
 	return _c
 }
@@ -6138,14 +6033,14 @@ func (_c *MockQuerier_UpsertReconcilerConfig_Call) Return(_a0 error) *MockQuerie
 	return _c
 }
 
-func (_c *MockQuerier_UpsertReconcilerConfig_Call) RunAndReturn(run func(context.Context, string, string, string, string, bool) error) *MockQuerier_UpsertReconcilerConfig_Call {
+func (_c *MockQuerier_UpsertReconcilerConfig_Call) RunAndReturn(run func(context.Context, UpsertReconcilerConfigParams) error) *MockQuerier_UpsertReconcilerConfig_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// UpsertReconcilerResource provides a mock function with given fields: ctx, reconcilerName, teamSlug, name, value, metadata
-func (_m *MockQuerier) UpsertReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, value string, metadata interface{}) (*ReconcilerResource, error) {
-	ret := _m.Called(ctx, reconcilerName, teamSlug, name, value, metadata)
+// UpsertReconcilerResource provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) UpsertReconcilerResource(ctx context.Context, arg UpsertReconcilerResourceParams) (*ReconcilerResource, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpsertReconcilerResource")
@@ -6153,19 +6048,19 @@ func (_m *MockQuerier) UpsertReconcilerResource(ctx context.Context, reconcilerN
 
 	var r0 *ReconcilerResource
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, string, interface{}) (*ReconcilerResource, error)); ok {
-		return rf(ctx, reconcilerName, teamSlug, name, value, metadata)
+	if rf, ok := ret.Get(0).(func(context.Context, UpsertReconcilerResourceParams) (*ReconcilerResource, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, string, interface{}) *ReconcilerResource); ok {
-		r0 = rf(ctx, reconcilerName, teamSlug, name, value, metadata)
+	if rf, ok := ret.Get(0).(func(context.Context, UpsertReconcilerResourceParams) *ReconcilerResource); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*ReconcilerResource)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string, string, interface{}) error); ok {
-		r1 = rf(ctx, reconcilerName, teamSlug, name, value, metadata)
+	if rf, ok := ret.Get(1).(func(context.Context, UpsertReconcilerResourceParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -6180,18 +6075,14 @@ type MockQuerier_UpsertReconcilerResource_Call struct {
 
 // UpsertReconcilerResource is a helper method to define mock.On call
 //   - ctx context.Context
-//   - reconcilerName string
-//   - teamSlug slug.Slug
-//   - name string
-//   - value string
-//   - metadata interface{}
-func (_e *MockQuerier_Expecter) UpsertReconcilerResource(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, name interface{}, value interface{}, metadata interface{}) *MockQuerier_UpsertReconcilerResource_Call {
-	return &MockQuerier_UpsertReconcilerResource_Call{Call: _e.mock.On("UpsertReconcilerResource", ctx, reconcilerName, teamSlug, name, value, metadata)}
+//   - arg UpsertReconcilerResourceParams
+func (_e *MockQuerier_Expecter) UpsertReconcilerResource(ctx interface{}, arg interface{}) *MockQuerier_UpsertReconcilerResource_Call {
+	return &MockQuerier_UpsertReconcilerResource_Call{Call: _e.mock.On("UpsertReconcilerResource", ctx, arg)}
 }
 
-func (_c *MockQuerier_UpsertReconcilerResource_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, name string, value string, metadata interface{})) *MockQuerier_UpsertReconcilerResource_Call {
+func (_c *MockQuerier_UpsertReconcilerResource_Call) Run(run func(ctx context.Context, arg UpsertReconcilerResourceParams)) *MockQuerier_UpsertReconcilerResource_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].(string), args[5].(interface{}))
+		run(args[0].(context.Context), args[1].(UpsertReconcilerResourceParams))
 	})
 	return _c
 }
@@ -6201,7 +6092,7 @@ func (_c *MockQuerier_UpsertReconcilerResource_Call) Return(_a0 *ReconcilerResou
 	return _c
 }
 
-func (_c *MockQuerier_UpsertReconcilerResource_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, string, interface{}) (*ReconcilerResource, error)) *MockQuerier_UpsertReconcilerResource_Call {
+func (_c *MockQuerier_UpsertReconcilerResource_Call) RunAndReturn(run func(context.Context, UpsertReconcilerResourceParams) (*ReconcilerResource, error)) *MockQuerier_UpsertReconcilerResource_Call {
 	_c.Call.Return(run)
 	return _c
 }

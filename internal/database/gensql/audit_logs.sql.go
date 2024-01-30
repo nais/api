@@ -46,8 +46,14 @@ ORDER BY created_at DESC
 LIMIT $3 OFFSET $2
 `
 
-func (q *Queries) GetAuditLogsForCorrelationID(ctx context.Context, correlationID uuid.UUID, offset int32, limit int32) ([]*AuditLog, error) {
-	rows, err := q.db.Query(ctx, getAuditLogsForCorrelationID, correlationID, offset, limit)
+type GetAuditLogsForCorrelationIDParams struct {
+	CorrelationID uuid.UUID
+	Offset        int32
+	Limit         int32
+}
+
+func (q *Queries) GetAuditLogsForCorrelationID(ctx context.Context, arg GetAuditLogsForCorrelationIDParams) ([]*AuditLog, error) {
+	rows, err := q.db.Query(ctx, getAuditLogsForCorrelationID, arg.CorrelationID, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -95,8 +101,14 @@ ORDER BY created_at DESC
 LIMIT $3 OFFSET $2
 `
 
-func (q *Queries) GetAuditLogsForReconciler(ctx context.Context, targetIdentifier string, offset int32, limit int32) ([]*AuditLog, error) {
-	rows, err := q.db.Query(ctx, getAuditLogsForReconciler, targetIdentifier, offset, limit)
+type GetAuditLogsForReconcilerParams struct {
+	TargetIdentifier string
+	Offset           int32
+	Limit            int32
+}
+
+func (q *Queries) GetAuditLogsForReconciler(ctx context.Context, arg GetAuditLogsForReconcilerParams) ([]*AuditLog, error) {
+	rows, err := q.db.Query(ctx, getAuditLogsForReconciler, arg.TargetIdentifier, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -144,8 +156,14 @@ ORDER BY created_at DESC
 LIMIT $3 OFFSET $2
 `
 
-func (q *Queries) GetAuditLogsForTeam(ctx context.Context, targetIdentifier string, offset int32, limit int32) ([]*AuditLog, error) {
-	rows, err := q.db.Query(ctx, getAuditLogsForTeam, targetIdentifier, offset, limit)
+type GetAuditLogsForTeamParams struct {
+	TargetIdentifier string
+	Offset           int32
+	Limit            int32
+}
+
+func (q *Queries) GetAuditLogsForTeam(ctx context.Context, arg GetAuditLogsForTeamParams) ([]*AuditLog, error) {
+	rows, err := q.db.Query(ctx, getAuditLogsForTeam, arg.TargetIdentifier, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

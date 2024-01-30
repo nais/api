@@ -23,15 +23,30 @@ func (d *database) CostUpsert(ctx context.Context, arg []gensql.CostUpsertParams
 }
 
 func (d *database) DailyCostForApp(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment string, teamSlug slug.Slug, app string) ([]*gensql.Cost, error) {
-	return d.querier.DailyCostForApp(ctx, fromDate, toDate, environment, teamSlug, app)
+	return d.querier.DailyCostForApp(ctx, gensql.DailyCostForAppParams{
+		FromDate:    fromDate,
+		ToDate:      toDate,
+		Environment: environment,
+		TeamSlug:    teamSlug,
+		App:         app,
+	})
 }
 
 func (d *database) DailyCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug) ([]*gensql.Cost, error) {
-	return d.querier.DailyCostForTeam(ctx, fromDate, toDate, teamSlug)
+	return d.querier.DailyCostForTeam(ctx, gensql.DailyCostForTeamParams{
+		FromDate: fromDate,
+		ToDate:   toDate,
+		TeamSlug: teamSlug,
+	})
 }
 
 func (d *database) DailyEnvCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment *string, teamSlug slug.Slug) ([]*gensql.DailyEnvCostForTeamRow, error) {
-	return d.querier.DailyEnvCostForTeam(ctx, fromDate, toDate, environment, teamSlug)
+	return d.querier.DailyEnvCostForTeam(ctx, gensql.DailyEnvCostForTeamParams{
+		FromDate:    fromDate,
+		ToDate:      toDate,
+		Environment: environment,
+		TeamSlug:    teamSlug,
+	})
 }
 
 func (d *database) LastCostDate(ctx context.Context) (pgtype.Date, error) {
@@ -39,7 +54,11 @@ func (d *database) LastCostDate(ctx context.Context) (pgtype.Date, error) {
 }
 
 func (d *database) MonthlyCostForApp(ctx context.Context, teamSlug slug.Slug, app string, environment string) ([]*gensql.MonthlyCostForAppRow, error) {
-	return d.querier.MonthlyCostForApp(ctx, teamSlug, app, environment)
+	return d.querier.MonthlyCostForApp(ctx, gensql.MonthlyCostForAppParams{
+		TeamSlug:    teamSlug,
+		App:         app,
+		Environment: environment,
+	})
 }
 
 func (d *database) MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*gensql.MonthlyCostForTeamRow, error) {

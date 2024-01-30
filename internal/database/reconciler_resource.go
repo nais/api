@@ -21,9 +21,18 @@ func (d *database) GetReconcilerResources(ctx context.Context, reconcilerName st
 	var res []*gensql.ReconcilerResource
 	var err error
 	if teamSlug != nil {
-		res, err = d.querier.GetReconcilerResourcesForReconcilerAndTeam(ctx, reconcilerName, *teamSlug, int32(offset), int32(limit))
+		res, err = d.querier.GetReconcilerResourcesForReconcilerAndTeam(ctx, gensql.GetReconcilerResourcesForReconcilerAndTeamParams{
+			ReconcilerName: reconcilerName,
+			TeamSlug:       *teamSlug,
+			Offset:         int32(offset),
+			Limit:          int32(limit),
+		})
 	} else {
-		res, err = d.querier.GetReconcilerResourcesForReconciler(ctx, reconcilerName, int32(offset), int32(limit))
+		res, err = d.querier.GetReconcilerResourcesForReconciler(ctx, gensql.GetReconcilerResourcesForReconcilerParams{
+			ReconcilerName: reconcilerName,
+			Offset:         int32(offset),
+			Limit:          int32(limit),
+		})
 	}
 	if err != nil {
 		return nil, err
@@ -38,7 +47,13 @@ func (d *database) GetReconcilerResources(ctx context.Context, reconcilerName st
 }
 
 func (d *database) UpsertReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key, value string, metadata []byte) (*ReconcilerResource, error) {
-	res, err := d.querier.UpsertReconcilerResource(ctx, reconcilerName, teamSlug, key, value, metadata)
+	res, err := d.querier.UpsertReconcilerResource(ctx, gensql.UpsertReconcilerResourceParams{
+		ReconcilerName: reconcilerName,
+		TeamSlug:       teamSlug,
+		Name:           key,
+		Value:          value,
+		Metadata:       metadata,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -47,12 +62,22 @@ func (d *database) UpsertReconcilerResource(ctx context.Context, reconcilerName 
 }
 
 func (d *database) GetReconcilerResourcesByKey(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, offset, limit int) ([]*ReconcilerResource, int, error) {
-	res, err := d.querier.GetReconcilerResourceByKey(ctx, reconcilerName, teamSlug, key, int32(offset), int32(limit))
+	res, err := d.querier.GetReconcilerResourceByKey(ctx, gensql.GetReconcilerResourceByKeyParams{
+		ReconcilerName: reconcilerName,
+		TeamSlug:       teamSlug,
+		Name:           key,
+		Offset:         int32(offset),
+		Limit:          int32(limit),
+	})
 	if err != nil {
 		return nil, 0, err
 	}
 
-	total, err := d.querier.GetReconcilerResourceByKeyTotal(ctx, reconcilerName, teamSlug, key)
+	total, err := d.querier.GetReconcilerResourceByKeyTotal(ctx, gensql.GetReconcilerResourceByKeyTotalParams{
+		ReconcilerName: reconcilerName,
+		TeamSlug:       teamSlug,
+		Name:           key,
+	})
 	if err != nil {
 		return nil, 0, err
 	}

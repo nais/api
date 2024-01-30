@@ -30,7 +30,11 @@ type UserTeam struct {
 }
 
 func (d *database) CreateUser(ctx context.Context, name, email, externalID string) (*User, error) {
-	user, err := d.querier.CreateUser(ctx, name, email, externalID)
+	user, err := d.querier.CreateUser(ctx, gensql.CreateUserParams{
+		Name:       name,
+		Email:      email,
+		ExternalID: externalID,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +74,12 @@ func (d *database) GetUserByExternalID(ctx context.Context, externalID string) (
 }
 
 func (d *database) UpdateUser(ctx context.Context, userID uuid.UUID, name, email, externalID string) (*User, error) {
-	user, err := d.querier.UpdateUser(ctx, name, email, externalID, userID)
+	user, err := d.querier.UpdateUser(ctx, gensql.UpdateUserParams{
+		Name:       name,
+		Email:      email,
+		ExternalID: externalID,
+		ID:         userID,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +90,10 @@ func (d *database) UpdateUser(ctx context.Context, userID uuid.UUID, name, email
 func (d *database) GetUsers(ctx context.Context, offset, limit int) ([]*User, int, error) {
 	var users []*gensql.User
 	var err error
-	users, err = d.querier.GetUsers(ctx, int32(offset), int32(limit))
+	users, err = d.querier.GetUsers(ctx, gensql.GetUsersParams{
+		Offset: int32(offset),
+		Limit:  int32(limit),
+	})
 	if err != nil {
 		return nil, 0, err
 	}

@@ -17,8 +17,14 @@ INSERT INTO reconciler_opt_outs (team_slug, user_id, reconciler_name)
 VALUES ($1, $2, $3) ON CONFLICT DO NOTHING
 `
 
-func (q *Queries) AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName string) error {
-	_, err := q.db.Exec(ctx, addReconcilerOptOut, teamSlug, userID, reconcilerName)
+type AddReconcilerOptOutParams struct {
+	TeamSlug       slug.Slug
+	UserID         uuid.UUID
+	ReconcilerName string
+}
+
+func (q *Queries) AddReconcilerOptOut(ctx context.Context, arg AddReconcilerOptOutParams) error {
+	_, err := q.db.Exec(ctx, addReconcilerOptOut, arg.TeamSlug, arg.UserID, arg.ReconcilerName)
 	return err
 }
 
@@ -28,8 +34,14 @@ SET value = $1::TEXT
 WHERE reconciler = $2 AND key = $3
 `
 
-func (q *Queries) ConfigureReconciler(ctx context.Context, value string, reconcilerName string, key string) error {
-	_, err := q.db.Exec(ctx, configureReconciler, value, reconcilerName, key)
+type ConfigureReconcilerParams struct {
+	Value          string
+	ReconcilerName string
+	Key            string
+}
+
+func (q *Queries) ConfigureReconciler(ctx context.Context, arg ConfigureReconcilerParams) error {
+	_, err := q.db.Exec(ctx, configureReconciler, arg.Value, arg.ReconcilerName, arg.Key)
 	return err
 }
 
@@ -70,8 +82,13 @@ DELETE FROM reconciler_config
 WHERE reconciler = $1 AND key = ANY($2::TEXT[])
 `
 
-func (q *Queries) DeleteReconcilerConfig(ctx context.Context, reconciler string, keys []string) error {
-	_, err := q.db.Exec(ctx, deleteReconcilerConfig, reconciler, keys)
+type DeleteReconcilerConfigParams struct {
+	Reconciler string
+	Keys       []string
+}
+
+func (q *Queries) DeleteReconcilerConfig(ctx context.Context, arg DeleteReconcilerConfigParams) error {
+	_, err := q.db.Exec(ctx, deleteReconcilerConfig, arg.Reconciler, arg.Keys)
 	return err
 }
 
@@ -223,8 +240,13 @@ SELECT name, display_name, description, enabled, member_aware FROM reconcilers
 ORDER BY display_name ASC LIMIT $2 OFFSET $1
 `
 
-func (q *Queries) GetReconcilers(ctx context.Context, offset int32, limit int32) ([]*Reconciler, error) {
-	rows, err := q.db.Query(ctx, getReconcilers, offset, limit)
+type GetReconcilersParams struct {
+	Offset int32
+	Limit  int32
+}
+
+func (q *Queries) GetReconcilers(ctx context.Context, arg GetReconcilersParams) ([]*Reconciler, error) {
+	rows, err := q.db.Query(ctx, getReconcilers, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -265,8 +287,14 @@ DELETE FROM reconciler_opt_outs
 WHERE team_slug = $1 AND user_id = $2 AND reconciler_name = $3
 `
 
-func (q *Queries) RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID, reconcilerName string) error {
-	_, err := q.db.Exec(ctx, removeReconcilerOptOut, teamSlug, userID, reconcilerName)
+type RemoveReconcilerOptOutParams struct {
+	TeamSlug       slug.Slug
+	UserID         uuid.UUID
+	ReconcilerName string
+}
+
+func (q *Queries) RemoveReconcilerOptOut(ctx context.Context, arg RemoveReconcilerOptOutParams) error {
+	_, err := q.db.Exec(ctx, removeReconcilerOptOut, arg.TeamSlug, arg.UserID, arg.ReconcilerName)
 	return err
 }
 
@@ -289,12 +317,19 @@ SET display_name = $2, description = $3, member_aware = $4
 RETURNING name, display_name, description, enabled, member_aware
 `
 
-func (q *Queries) UpsertReconciler(ctx context.Context, name string, displayName string, description string, memberAware bool) (*Reconciler, error) {
+type UpsertReconcilerParams struct {
+	Name        string
+	DisplayName string
+	Description string
+	MemberAware bool
+}
+
+func (q *Queries) UpsertReconciler(ctx context.Context, arg UpsertReconcilerParams) (*Reconciler, error) {
 	row := q.db.QueryRow(ctx, upsertReconciler,
-		name,
-		displayName,
-		description,
-		memberAware,
+		arg.Name,
+		arg.DisplayName,
+		arg.Description,
+		arg.MemberAware,
 	)
 	var i Reconciler
 	err := row.Scan(
@@ -314,13 +349,21 @@ ON CONFLICT (reconciler, key) DO UPDATE
 SET display_name = $3, description = $4, secret = $5
 `
 
-func (q *Queries) UpsertReconcilerConfig(ctx context.Context, reconciler string, key string, displayName string, description string, secret bool) error {
+type UpsertReconcilerConfigParams struct {
+	Reconciler  string
+	Key         string
+	DisplayName string
+	Description string
+	Secret      bool
+}
+
+func (q *Queries) UpsertReconcilerConfig(ctx context.Context, arg UpsertReconcilerConfigParams) error {
 	_, err := q.db.Exec(ctx, upsertReconcilerConfig,
-		reconciler,
-		key,
-		displayName,
-		description,
-		secret,
+		arg.Reconciler,
+		arg.Key,
+		arg.DisplayName,
+		arg.Description,
+		arg.Secret,
 	)
 	return err
 }

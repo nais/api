@@ -17,8 +17,14 @@ VALUES ($1, LOWER($2), $3)
 RETURNING id, email, name, external_id
 `
 
-func (q *Queries) CreateUser(ctx context.Context, name string, email string, externalID string) (*User, error) {
-	row := q.db.QueryRow(ctx, createUser, name, email, externalID)
+type CreateUserParams struct {
+	Name       string
+	Email      string
+	ExternalID string
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (*User, error) {
+	row := q.db.QueryRow(ctx, createUser, arg.Name, arg.Email, arg.ExternalID)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -98,13 +104,19 @@ ORDER BY teams.slug ASC
 LIMIT $3 OFFSET $2
 `
 
+type GetUserTeamsParams struct {
+	UserID uuid.UUID
+	Offset int32
+	Limit  int32
+}
+
 type GetUserTeamsRow struct {
 	Team     Team
 	RoleName RoleName
 }
 
-func (q *Queries) GetUserTeams(ctx context.Context, userID uuid.UUID, offset int32, limit int32) ([]*GetUserTeamsRow, error) {
-	rows, err := q.db.Query(ctx, getUserTeams, userID, offset, limit)
+func (q *Queries) GetUserTeams(ctx context.Context, arg GetUserTeamsParams) ([]*GetUserTeamsRow, error) {
+	rows, err := q.db.Query(ctx, getUserTeams, arg.UserID, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -149,8 +161,13 @@ ORDER BY name, email ASC
 LIMIT $2 OFFSET $1
 `
 
-func (q *Queries) GetUsers(ctx context.Context, offset int32, limit int32) ([]*User, error) {
-	rows, err := q.db.Query(ctx, getUsers, offset, limit)
+type GetUsersParams struct {
+	Offset int32
+	Limit  int32
+}
+
+func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]*User, error) {
+	rows, err := q.db.Query(ctx, getUsers, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -192,12 +209,19 @@ WHERE id = $4
 RETURNING id, email, name, external_id
 `
 
-func (q *Queries) UpdateUser(ctx context.Context, name string, email string, externalID string, iD uuid.UUID) (*User, error) {
+type UpdateUserParams struct {
+	Name       string
+	Email      string
+	ExternalID string
+	ID         uuid.UUID
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (*User, error) {
 	row := q.db.QueryRow(ctx, updateUser,
-		name,
-		email,
-		externalID,
-		iD,
+		arg.Name,
+		arg.Email,
+		arg.ExternalID,
+		arg.ID,
 	)
 	var i User
 	err := row.Scan(

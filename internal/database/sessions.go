@@ -23,7 +23,10 @@ type Session struct {
 }
 
 func (d *database) CreateSession(ctx context.Context, userID uuid.UUID) (*Session, error) {
-	session, err := d.querier.CreateSession(ctx, userID, pgtype.Timestamptz{Time: time.Now().Add(sessionLength), Valid: true})
+	session, err := d.querier.CreateSession(ctx, gensql.CreateSessionParams{
+		UserID:  userID,
+		Expires: pgtype.Timestamptz{Time: time.Now().Add(sessionLength), Valid: true},
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +48,10 @@ func (d *database) GetSessionByID(ctx context.Context, sessionID uuid.UUID) (*Se
 }
 
 func (d *database) ExtendSession(ctx context.Context, sessionID uuid.UUID) (*Session, error) {
-	session, err := d.querier.SetSessionExpires(ctx, pgtype.Timestamptz{Time: time.Now().Add(sessionLength), Valid: true}, sessionID)
+	session, err := d.querier.SetSessionExpires(ctx, gensql.SetSessionExpiresParams{
+		Expires: pgtype.Timestamptz{Time: time.Now().Add(sessionLength), Valid: true},
+		ID:      sessionID,
+	})
 	if err != nil {
 		return nil, err
 	}

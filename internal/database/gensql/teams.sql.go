@@ -29,8 +29,14 @@ VALUES ($1, $2, $3)
 RETURNING slug, purpose, last_successful_sync, slack_channel, google_group_email
 `
 
-func (q *Queries) CreateTeam(ctx context.Context, slug slug.Slug, purpose string, slackChannel string) (*Team, error) {
-	row := q.db.QueryRow(ctx, createTeam, slug, purpose, slackChannel)
+type CreateTeamParams struct {
+	Slug         slug.Slug
+	Purpose      string
+	SlackChannel string
+}
+
+func (q *Queries) CreateTeam(ctx context.Context, arg CreateTeamParams) (*Team, error) {
+	row := q.db.QueryRow(ctx, createTeam, arg.Slug, arg.Purpose, arg.SlackChannel)
 	var i Team
 	err := row.Scan(
 		&i.Slug,
@@ -48,8 +54,13 @@ VALUES($1, $2)
 RETURNING key, team_slug, created_at, created_by, confirmed_at
 `
 
-func (q *Queries) CreateTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, createdBy uuid.UUID) (*TeamDeleteKey, error) {
-	row := q.db.QueryRow(ctx, createTeamDeleteKey, teamSlug, createdBy)
+type CreateTeamDeleteKeyParams struct {
+	TeamSlug  slug.Slug
+	CreatedBy uuid.UUID
+}
+
+func (q *Queries) CreateTeamDeleteKey(ctx context.Context, arg CreateTeamDeleteKeyParams) (*TeamDeleteKey, error) {
+	row := q.db.QueryRow(ctx, createTeamDeleteKey, arg.TeamSlug, arg.CreatedBy)
 	var i TeamDeleteKey
 	err := row.Scan(
 		&i.Key,
@@ -238,8 +249,14 @@ ORDER BY team_environments.environment ASC
 LIMIT $3 OFFSET $2
 `
 
-func (q *Queries) GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, offset int32, limit int32) ([]*TeamEnvironment, error) {
-	rows, err := q.db.Query(ctx, getTeamEnvironments, teamSlug, offset, limit)
+type GetTeamEnvironmentsParams struct {
+	TeamSlug slug.Slug
+	Offset   int32
+	Limit    int32
+}
+
+func (q *Queries) GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmentsParams) ([]*TeamEnvironment, error) {
+	rows, err := q.db.Query(ctx, getTeamEnvironments, arg.TeamSlug, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -281,12 +298,17 @@ const getTeamMember = `-- name: GetTeamMember :one
 SELECT users.id, users.email, users.name, users.external_id FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 JOIN users ON users.id = user_roles.user_id
-WHERE user_roles.target_team_slug = $1 AND users.id = $2
+WHERE user_roles.target_team_slug = $1::slug AND users.id = $2
 ORDER BY users.name ASC
 `
 
-func (q *Queries) GetTeamMember(ctx context.Context, teamSlug *slug.Slug, userID uuid.UUID) (*User, error) {
-	row := q.db.QueryRow(ctx, getTeamMember, teamSlug, userID)
+type GetTeamMemberParams struct {
+	TeamSlug slug.Slug
+	UserID   uuid.UUID
+}
+
+func (q *Queries) GetTeamMember(ctx context.Context, arg GetTeamMemberParams) (*User, error) {
+	row := q.db.QueryRow(ctx, getTeamMember, arg.TeamSlug, arg.UserID)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -309,13 +331,18 @@ WHERE reconcilers.enabled = true
 ORDER BY reconcilers.name ASC
 `
 
+type GetTeamMemberOptOutsParams struct {
+	UserID   uuid.UUID
+	TeamSlug slug.Slug
+}
+
 type GetTeamMemberOptOutsRow struct {
 	Name    string
 	Enabled bool
 }
 
-func (q *Queries) GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*GetTeamMemberOptOutsRow, error) {
-	rows, err := q.db.Query(ctx, getTeamMemberOptOuts, userID, teamSlug)
+func (q *Queries) GetTeamMemberOptOuts(ctx context.Context, arg GetTeamMemberOptOutsParams) ([]*GetTeamMemberOptOutsRow, error) {
+	rows, err := q.db.Query(ctx, getTeamMemberOptOuts, arg.UserID, arg.TeamSlug)
 	if err != nil {
 		return nil, err
 	}
@@ -338,12 +365,18 @@ const getTeamMembers = `-- name: GetTeamMembers :many
 SELECT users.id, users.email, users.name, users.external_id FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 JOIN users ON users.id = user_roles.user_id
-WHERE user_roles.target_team_slug = $1
+WHERE user_roles.target_team_slug = $1::slug
 ORDER BY users.name ASC LIMIT $3 OFFSET $2
 `
 
-func (q *Queries) GetTeamMembers(ctx context.Context, teamSlug *slug.Slug, offset int32, limit int32) ([]*User, error) {
-	rows, err := q.db.Query(ctx, getTeamMembers, teamSlug, offset, limit)
+type GetTeamMembersParams struct {
+	TeamSlug slug.Slug
+	Offset   int32
+	Limit    int32
+}
+
+func (q *Queries) GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) ([]*User, error) {
+	rows, err := q.db.Query(ctx, getTeamMembers, arg.TeamSlug, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -384,7 +417,7 @@ SELECT users.id, users.email, users.name, users.external_id FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 JOIN users ON users.id = user_roles.user_id
 WHERE
-    user_roles.target_team_slug = $1
+    user_roles.target_team_slug = $1::slug
     AND NOT EXISTS (
         SELECT roo.user_id
         FROM reconciler_opt_outs AS roo
@@ -396,8 +429,13 @@ WHERE
 ORDER BY users.name ASC
 `
 
-func (q *Queries) GetTeamMembersForReconciler(ctx context.Context, teamSlug *slug.Slug, reconcilerName string) ([]*User, error) {
-	rows, err := q.db.Query(ctx, getTeamMembersForReconciler, teamSlug, reconcilerName)
+type GetTeamMembersForReconcilerParams struct {
+	TeamSlug       slug.Slug
+	ReconcilerName string
+}
+
+func (q *Queries) GetTeamMembersForReconciler(ctx context.Context, arg GetTeamMembersForReconcilerParams) ([]*User, error) {
+	rows, err := q.db.Query(ctx, getTeamMembersForReconciler, arg.TeamSlug, arg.ReconcilerName)
 	if err != nil {
 		return nil, err
 	}
@@ -427,8 +465,13 @@ ORDER BY teams.slug ASC
 LIMIT $2 OFFSET $1
 `
 
-func (q *Queries) GetTeams(ctx context.Context, offset int32, limit int32) ([]*Team, error) {
-	rows, err := q.db.Query(ctx, getTeams, offset, limit)
+type GetTeamsParams struct {
+	Offset int32
+	Limit  int32
+}
+
+func (q *Queries) GetTeams(ctx context.Context, arg GetTeamsParams) ([]*Team, error) {
+	rows, err := q.db.Query(ctx, getTeams, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -469,18 +512,28 @@ DELETE FROM slack_alerts_channels
 WHERE team_slug = $1 AND environment = $2
 `
 
-func (q *Queries) RemoveSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string) error {
-	_, err := q.db.Exec(ctx, removeSlackAlertsChannel, teamSlug, environment)
+type RemoveSlackAlertsChannelParams struct {
+	TeamSlug    slug.Slug
+	Environment string
+}
+
+func (q *Queries) RemoveSlackAlertsChannel(ctx context.Context, arg RemoveSlackAlertsChannelParams) error {
+	_, err := q.db.Exec(ctx, removeSlackAlertsChannel, arg.TeamSlug, arg.Environment)
 	return err
 }
 
 const removeUserFromTeam = `-- name: RemoveUserFromTeam :exec
 DELETE FROM user_roles
-WHERE user_id = $1 AND target_team_slug = $2
+WHERE user_id = $1 AND target_team_slug = $2::slug
 `
 
-func (q *Queries) RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug *slug.Slug) error {
-	_, err := q.db.Exec(ctx, removeUserFromTeam, userID, teamSlug)
+type RemoveUserFromTeamParams struct {
+	UserID   uuid.UUID
+	TeamSlug slug.Slug
+}
+
+func (q *Queries) RemoveUserFromTeam(ctx context.Context, arg RemoveUserFromTeamParams) error {
+	_, err := q.db.Exec(ctx, removeUserFromTeam, arg.UserID, arg.TeamSlug)
 	return err
 }
 
@@ -492,8 +545,13 @@ ORDER BY levenshtein($1::text, slug) ASC
 LIMIT $2
 `
 
-func (q *Queries) SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*Team, error) {
-	rows, err := q.db.Query(ctx, searchTeams, slugMatch, limit)
+type SearchTeamsParams struct {
+	SlugMatch string
+	Limit     int32
+}
+
+func (q *Queries) SearchTeams(ctx context.Context, arg SearchTeamsParams) ([]*Team, error) {
+	rows, err := q.db.Query(ctx, searchTeams, arg.SlugMatch, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -524,8 +582,13 @@ SET google_group_email = $1::text
 WHERE slug = $2
 `
 
-func (q *Queries) SetGoogleGroupEmailForTeam(ctx context.Context, googleGroupEmail string, slug slug.Slug) error {
-	_, err := q.db.Exec(ctx, setGoogleGroupEmailForTeam, googleGroupEmail, slug)
+type SetGoogleGroupEmailForTeamParams struct {
+	GoogleGroupEmail string
+	Slug             slug.Slug
+}
+
+func (q *Queries) SetGoogleGroupEmailForTeam(ctx context.Context, arg SetGoogleGroupEmailForTeamParams) error {
+	_, err := q.db.Exec(ctx, setGoogleGroupEmailForTeam, arg.GoogleGroupEmail, arg.Slug)
 	return err
 }
 
@@ -546,8 +609,14 @@ ON CONFLICT (team_slug, environment) DO
     UPDATE SET channel_name = $3
 `
 
-func (q *Queries) SetSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string, channelName string) error {
-	_, err := q.db.Exec(ctx, setSlackAlertsChannel, teamSlug, environment, channelName)
+type SetSlackAlertsChannelParams struct {
+	TeamSlug    slug.Slug
+	Environment string
+	ChannelName string
+}
+
+func (q *Queries) SetSlackAlertsChannel(ctx context.Context, arg SetSlackAlertsChannelParams) error {
+	_, err := q.db.Exec(ctx, setSlackAlertsChannel, arg.TeamSlug, arg.Environment, arg.ChannelName)
 	return err
 }
 
@@ -573,8 +642,14 @@ WHERE slug = $3
 RETURNING slug, purpose, last_successful_sync, slack_channel, google_group_email
 `
 
-func (q *Queries) UpdateTeam(ctx context.Context, purpose *string, slackChannel *string, slug slug.Slug) (*Team, error) {
-	row := q.db.QueryRow(ctx, updateTeam, purpose, slackChannel, slug)
+type UpdateTeamParams struct {
+	Purpose      *string
+	SlackChannel *string
+	Slug         slug.Slug
+}
+
+func (q *Queries) UpdateTeam(ctx context.Context, arg UpdateTeamParams) (*Team, error) {
+	row := q.db.QueryRow(ctx, updateTeam, arg.Purpose, arg.SlackChannel, arg.Slug)
 	var i Team
 	err := row.Scan(
 		&i.Slug,

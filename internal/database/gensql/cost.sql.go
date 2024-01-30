@@ -27,15 +27,23 @@ ORDER BY
     date, cost_type ASC
 `
 
+type DailyCostForAppParams struct {
+	FromDate    pgtype.Date
+	ToDate      pgtype.Date
+	Environment string
+	TeamSlug    slug.Slug
+	App         string
+}
+
 // DailyCostForApp will fetch the daily cost for a specific team app in a specific environment, across all cost types
 // in a date range.
-func (q *Queries) DailyCostForApp(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment string, teamSlug slug.Slug, app string) ([]*Cost, error) {
+func (q *Queries) DailyCostForApp(ctx context.Context, arg DailyCostForAppParams) ([]*Cost, error) {
 	rows, err := q.db.Query(ctx, dailyCostForApp,
-		fromDate,
-		toDate,
-		environment,
-		teamSlug,
-		app,
+		arg.FromDate,
+		arg.ToDate,
+		arg.Environment,
+		arg.TeamSlug,
+		arg.App,
 	)
 	if err != nil {
 		return nil, err
@@ -76,9 +84,15 @@ ORDER BY
     date, environment, app, cost_type ASC
 `
 
+type DailyCostForTeamParams struct {
+	FromDate pgtype.Date
+	ToDate   pgtype.Date
+	TeamSlug slug.Slug
+}
+
 // DailyCostForTeam will fetch the daily cost for a specific team across all apps and envs in a date range.
-func (q *Queries) DailyCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug) ([]*Cost, error) {
-	rows, err := q.db.Query(ctx, dailyCostForTeam, fromDate, toDate, teamSlug)
+func (q *Queries) DailyCostForTeam(ctx context.Context, arg DailyCostForTeamParams) ([]*Cost, error) {
+	rows, err := q.db.Query(ctx, dailyCostForTeam, arg.FromDate, arg.ToDate, arg.TeamSlug)
 	if err != nil {
 		return nil, err
 	}
@@ -124,6 +138,13 @@ ORDER BY
     date, app ASC
 `
 
+type DailyEnvCostForTeamParams struct {
+	FromDate    pgtype.Date
+	ToDate      pgtype.Date
+	Environment *string
+	TeamSlug    slug.Slug
+}
+
 type DailyEnvCostForTeamRow struct {
 	TeamSlug  *slug.Slug
 	App       string
@@ -132,12 +153,12 @@ type DailyEnvCostForTeamRow struct {
 }
 
 // DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
-func (q *Queries) DailyEnvCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment *string, teamSlug slug.Slug) ([]*DailyEnvCostForTeamRow, error) {
+func (q *Queries) DailyEnvCostForTeam(ctx context.Context, arg DailyEnvCostForTeamParams) ([]*DailyEnvCostForTeamRow, error) {
 	rows, err := q.db.Query(ctx, dailyEnvCostForTeam,
-		fromDate,
-		toDate,
-		environment,
-		teamSlug,
+		arg.FromDate,
+		arg.ToDate,
+		arg.Environment,
+		arg.TeamSlug,
 	)
 	if err != nil {
 		return nil, err
@@ -204,6 +225,12 @@ ORDER BY month DESC
 LIMIT 12
 `
 
+type MonthlyCostForAppParams struct {
+	TeamSlug    slug.Slug
+	App         string
+	Environment string
+}
+
 type MonthlyCostForAppRow struct {
 	TeamSlug         *slug.Slug
 	App              string
@@ -213,8 +240,8 @@ type MonthlyCostForAppRow struct {
 	DailyCost        float32
 }
 
-func (q *Queries) MonthlyCostForApp(ctx context.Context, teamSlug slug.Slug, app string, environment string) ([]*MonthlyCostForAppRow, error) {
-	rows, err := q.db.Query(ctx, monthlyCostForApp, teamSlug, app, environment)
+func (q *Queries) MonthlyCostForApp(ctx context.Context, arg MonthlyCostForAppParams) ([]*MonthlyCostForAppRow, error) {
+	rows, err := q.db.Query(ctx, monthlyCostForApp, arg.TeamSlug, arg.App, arg.Environment)
 	if err != nil {
 		return nil, err
 	}

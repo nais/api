@@ -105,7 +105,10 @@ func (d *database) GetServiceAccountRoles(ctx context.Context, serviceAccountID 
 }
 
 func (d *database) CreateAPIKey(ctx context.Context, apiKey string, serviceAccountID uuid.UUID) error {
-	return d.querier.CreateAPIKey(ctx, apiKey, serviceAccountID)
+	return d.querier.CreateAPIKey(ctx, gensql.CreateAPIKeyParams{
+		ApiKey:           apiKey,
+		ServiceAccountID: serviceAccountID,
+	})
 }
 
 func (d *database) RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error {

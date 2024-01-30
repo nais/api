@@ -16,8 +16,13 @@ INSERT INTO api_keys (api_key, service_account_id)
 VALUES ($1, $2)
 `
 
-func (q *Queries) CreateAPIKey(ctx context.Context, apiKey string, serviceAccountID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, createAPIKey, apiKey, serviceAccountID)
+type CreateAPIKeyParams struct {
+	ApiKey           string
+	ServiceAccountID uuid.UUID
+}
+
+func (q *Queries) CreateAPIKey(ctx context.Context, arg CreateAPIKeyParams) error {
+	_, err := q.db.Exec(ctx, createAPIKey, arg.ApiKey, arg.ServiceAccountID)
 	return err
 }
 
