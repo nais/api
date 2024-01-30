@@ -119,7 +119,7 @@ func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, 
 
 	nameErrs := validation.IsDNS1123Subdomain(name)
 	if len(nameErrs) > 0 {
-		return nil, fmt.Errorf(strings.Join(nameErrs, ", "))
+		return nil, fmt.Errorf("invalid name %q: %s", name, strings.Join(nameErrs, ", "))
 	}
 
 	err = validateSecretData(data)
