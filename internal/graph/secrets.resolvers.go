@@ -6,12 +6,14 @@ package graph
 
 import (
 	"context"
-	"github.com/nais/api/internal/graph/apierror"
 
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
 )
+
+// TODO: error handling; return more end-user friendly messages
 
 // CreateSecret is the resolver for the createSecret field.
 func (r *mutationResolver) CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {

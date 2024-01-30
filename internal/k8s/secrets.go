@@ -4,7 +4,6 @@ import (
 	"cmp"
 	"context"
 	"fmt"
-	"k8s.io/apimachinery/pkg/util/validation"
 	"slices"
 	"strings"
 	"time"
@@ -15,6 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/validation"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/model"
@@ -76,7 +76,6 @@ func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecre
 }
 
 func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env string) (*model.Secret, error) {
-
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
 	if err != nil {
 		return nil, c.error(ctx, err, "impersonation")
@@ -84,12 +83,12 @@ func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env st
 
 	clientSet, ok := impersonatedClients[env]
 	if !ok {
-		return nil, fmt.Errorf("impersonation")
+		return nil, fmt.Errorf("no client set for env %q", env)
 	}
+
 	namespace := team.String()
 	opts := metav1.GetOptions{}
-
-	kubeSecret, err := clientSet.CoreV1().Secrets(namespace).Get(ctx, name, opts)
+	secret, err := clientSet.CoreV1().Secrets(namespace).Get(ctx, name, opts)
 	if err != nil {
 		return nil, c.error(ctx, err, "listing secrets")
 	}
@@ -99,16 +98,16 @@ func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env st
 		return nil, c.error(ctx, err, "mapping apps to secrets")
 	}
 
-	if !secretIsManagedByConsole(*kubeSecret) {
-		return nil, fmt.Errorf("unmanaged secret")
+	if !secretIsManagedByConsole(*secret) {
+		return nil, fmt.Errorf("secret %q is not managed by console", secret.GetName())
 	}
 
-	apps, ok := appsForSecrets[kubeSecret.Name]
+	apps, ok := appsForSecrets[secret.Name]
 	if !ok {
 		apps = make([]string, 0)
 	}
 
-	return toGraphSecret(env, kubeSecret, apps), nil
+	return toGraphSecret(env, secret, apps), nil
 
 }
 
@@ -118,23 +117,20 @@ func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, 
 		return nil, c.error(ctx, err, "impersonation")
 	}
 
-	errorStrings := validation.IsDNS1123Subdomain(name)
-	if len(errorStrings) > 0 {
-		return nil, fmt.Errorf(strings.Join(errorStrings, ", "))
+	nameErrs := validation.IsDNS1123Subdomain(name)
+	if len(nameErrs) > 0 {
+		return nil, fmt.Errorf(strings.Join(nameErrs, ", "))
 	}
 
-	keyErrors := make([]string, 0)
-	for _, d := range data {
-		keyErrors = append(keyErrors, validation.IsConfigMapKey(d.Key)...)
-	}
-	if len(keyErrors) > 0 {
-		return nil, fmt.Errorf("invalid key: %s", strings.Join(keyErrors, ", "))
+	err = validateSecretData(data)
+	if err != nil {
+		return nil, err
 	}
 
 	namespace := team.String()
 	cli, ok := impersonatedClients[env]
 	if !ok {
-		return nil, fmt.Errorf("no clientset for env %q", env)
+		return nil, fmt.Errorf("no client set for env %q", env)
 	}
 
 	user := authz.ActorFromContext(ctx).User.Identity()
@@ -148,24 +144,20 @@ func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, 
 }
 
 func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
-	// TODO: validate data
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
 	if err != nil {
 		return nil, c.error(ctx, err, "impersonation")
 	}
 
-	keyErrors := make([]string, 0)
-	for _, d := range data {
-		keyErrors = append(keyErrors, validation.IsConfigMapKey(d.Key)...)
-	}
-	if len(keyErrors) > 0 {
-		return nil, fmt.Errorf("invalid key: %s", strings.Join(keyErrors, ", "))
+	err = validateSecretData(data)
+	if err != nil {
+		return nil, err
 	}
 
 	namespace := team.String()
 	cli, ok := impersonatedClients[env]
 	if !ok {
-		return nil, fmt.Errorf("no clientset for env %q", env)
+		return nil, fmt.Errorf("no client set for env %q", env)
 	}
 
 	existing, err := cli.CoreV1().Secrets(namespace).Get(ctx, name, metav1.GetOptions{})
@@ -328,4 +320,23 @@ func secretTupleToMap(data []*model.SecretTupleInput) map[string][]byte {
 
 func makeSecretIdent(env, namespace, name string) scalar.Ident {
 	return scalar.SecretIdent("secret_" + env + "_" + namespace + "_" + name)
+}
+
+func validateSecretData(data []*model.SecretTupleInput) error {
+	seen := make(map[string]bool)
+
+	for _, d := range data {
+		_, found := seen[d.Key]
+		if found {
+			return fmt.Errorf("duplicate key: %q", d.Key)
+		}
+
+		seen[d.Key] = true
+
+		if errs := validation.IsConfigMapKey(d.Key); len(errs) > 0 {
+			return fmt.Errorf("invalid key: %q: %s", d.Key, strings.Join(errs, ", "))
+		}
+	}
+
+	return nil
 }
