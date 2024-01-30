@@ -29,7 +29,7 @@ const LoaderNameUsers = "users"
 
 func (r *UserReader) load(ctx context.Context, keys []string) []*dataloader.Result[*model.User] {
 	// TODO (only fetch users requested by keys var)
-	users, _, err := r.db.GetUsers(ctx, 0, 10000)
+	users, err := getUsers(ctx, r.db)
 	if err != nil {
 		panic(err)
 	}
@@ -67,4 +67,25 @@ func GetUser(ctx context.Context, userID *uuid.UUID) (*model.User, error) {
 		return nil, err
 	}
 	return result, nil
+}
+
+func getUsers(ctx context.Context, database db.UserRepo) ([]*db.User, error) {
+	limit, offset := 100, 0
+	users := make([]*db.User, 0)
+	for {
+		page, _, err := database.GetUsers(ctx, db.Page{
+			Limit:  limit,
+			Offset: offset,
+		})
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, page...)
+		if len(page) < limit {
+			break
+		}
+		offset += limit
+
+	}
+	return users, nil
 }

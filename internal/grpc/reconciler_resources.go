@@ -55,7 +55,10 @@ func (r *ReconcilerResourcesServer) List(ctx context.Context, req *protoapi.List
 
 	limit, offset := pagination(req)
 	total := 0
-	res, err := r.db.GetReconcilerResources(ctx, req.ReconcilerName, teamSlug, offset, limit)
+	res, err := r.db.GetReconcilerResources(ctx, req.ReconcilerName, teamSlug, database.Page{
+		Limit:  limit,
+		Offset: offset,
+	})
 	if err != nil {
 		return nil, err
 	}

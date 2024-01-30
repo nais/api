@@ -392,10 +392,13 @@ func getAllPaginatedUsers(ctx context.Context, svc *admin_directory_v1.UsersServ
 }
 
 func getAllUsers(ctx context.Context, db database.UserRepo) ([]*database.User, error) {
-	offset, limit := 0, 100
+	limit, offset := 100, 0
 	users := make([]*database.User, 0)
 	for {
-		page, _, err := db.GetUsers(ctx, offset, limit)
+		page, _, err := db.GetUsers(ctx, database.Page{
+			Limit:  limit,
+			Offset: offset,
+		})
 		if err != nil {
 			return nil, err
 		}

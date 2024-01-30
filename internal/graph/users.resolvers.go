@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/dataloader"
@@ -55,7 +56,10 @@ func (r *queryResolver) Users(ctx context.Context, offset *int, limit *int) (*mo
 		return nil, err
 	}
 	p := model.NewPagination(offset, limit)
-	users, total, err := r.database.GetUsers(ctx, p.Offset, p.Limit)
+	users, total, err := r.database.GetUsers(ctx, database.Page{
+		Limit:  p.Limit,
+		Offset: p.Offset,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +126,10 @@ func (r *userResolver) Teams(ctx context.Context, obj *model.User, limit *int, o
 		return nil, err
 	}
 
-	userTeams, totalCount, err := r.database.GetUserTeams(ctx, uid, p.Offset, p.Limit)
+	userTeams, totalCount, err := r.database.GetUserTeams(ctx, uid, database.Page{
+		Limit:  p.Limit,
+		Offset: p.Offset,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -213,7 +220,10 @@ func (r *userResolver) IsAdmin(ctx context.Context, obj *model.User) (*bool, err
 // AuditLogs is the resolver for the auditLogs field.
 func (r *userSyncRunResolver) AuditLogs(ctx context.Context, obj *model.UserSyncRun, limit *int, offset *int) (*model.AuditLogList, error) {
 	p := model.NewPagination(offset, limit)
-	entries, total, err := r.database.GetAuditLogsForCorrelationID(ctx, obj.CorrelationID, p.Offset, p.Limit)
+	entries, total, err := r.database.GetAuditLogsForCorrelationID(ctx, obj.CorrelationID, database.Page{
+		Limit:  p.Limit,
+		Offset: p.Offset,
+	})
 	if err != nil {
 		return nil, err
 	}

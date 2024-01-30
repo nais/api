@@ -285,7 +285,10 @@ func (r *queryResolver) Reconcilers(ctx context.Context, offset *int, limit *int
 
 	p := model.NewPagination(offset, limit)
 
-	reconcilers, total, err := r.database.GetReconcilers(ctx, p.Offset, p.Limit)
+	reconcilers, total, err := r.database.GetReconcilers(ctx, db.Page{
+		Limit:  p.Limit,
+		Offset: p.Offset,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -347,7 +350,10 @@ func (r *reconcilerResolver) Configured(ctx context.Context, obj *model.Reconcil
 // AuditLogs is the resolver for the auditLogs field.
 func (r *reconcilerResolver) AuditLogs(ctx context.Context, obj *model.Reconciler, offset *int, limit *int) (*model.AuditLogList, error) {
 	p := model.NewPagination(offset, limit)
-	dbe, total, err := r.database.GetAuditLogsForReconciler(ctx, obj.Name, p.Offset, p.Limit)
+	dbe, total, err := r.database.GetAuditLogsForReconciler(ctx, obj.Name, db.Page{
+		Limit:  p.Limit,
+		Offset: p.Offset,
+	})
 	if err != nil {
 		return nil, err
 	}

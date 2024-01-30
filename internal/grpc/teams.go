@@ -28,7 +28,10 @@ func (t *TeamsServer) Get(ctx context.Context, r *protoapi.GetTeamRequest) (*pro
 
 func (t *TeamsServer) List(ctx context.Context, r *protoapi.ListTeamsRequest) (*protoapi.ListTeamsResponse, error) {
 	limit, offset := pagination(r)
-	teams, total, err := t.db.GetTeams(ctx, offset, limit)
+	teams, total, err := t.db.GetTeams(ctx, database.Page{
+		Limit:  limit,
+		Offset: offset,
+	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to list teams: %s", err)
 	}
@@ -45,7 +48,10 @@ func (t *TeamsServer) List(ctx context.Context, r *protoapi.ListTeamsRequest) (*
 
 func (t *TeamsServer) Members(ctx context.Context, r *protoapi.ListTeamMembersRequest) (*protoapi.ListTeamMembersResponse, error) {
 	limit, offset := pagination(r)
-	users, total, err := t.db.GetTeamMembers(ctx, slug.Slug(r.Slug), offset, limit)
+	users, total, err := t.db.GetTeamMembers(ctx, slug.Slug(r.Slug), database.Page{
+		Limit:  limit,
+		Offset: offset,
+	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to list team members: %s", err)
 	}
@@ -96,7 +102,10 @@ func (t *TeamsServer) SetGoogleGroupEmailForTeam(ctx context.Context, r *protoap
 
 func (t *TeamsServer) Environments(ctx context.Context, r *protoapi.ListTeamEnvironmentsRequest) (*protoapi.ListTeamEnvironmentsResponse, error) {
 	limit, offset := pagination(r)
-	environments, total, err := t.db.GetTeamEnvironments(ctx, slug.Slug(r.Slug), offset, limit)
+	environments, total, err := t.db.GetTeamEnvironments(ctx, slug.Slug(r.Slug), database.Page{
+		Limit:  limit,
+		Offset: offset,
+	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to list team environments: %s", err)
 	}

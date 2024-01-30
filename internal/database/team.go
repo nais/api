@@ -22,14 +22,14 @@ type TeamRepo interface {
 	GetSlackAlertsChannels(ctx context.Context, teamSlug slug.Slug) (map[string]string, error)
 	GetTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error)
 	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
-	GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, offset, limit int) ([]*TeamEnvironment, int, error)
+	GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, p Page) ([]*TeamEnvironment, int, error)
 	GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*User, error)
 	GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*gensql.GetTeamMemberOptOutsRow, error)
-	GetTeamMembers(ctx context.Context, teamSlug slug.Slug, offset, limit int) ([]*User, int, error)
+	GetTeamMembers(ctx context.Context, teamSlug slug.Slug, p Page) ([]*User, int, error)
 	GetTeamMembersForReconciler(ctx context.Context, teamSlug slug.Slug, reconcilerName string) ([]*User, error)
-	GetTeams(ctx context.Context, offset, limit int) ([]*Team, int, error)
-	GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string, offset, limit int) ([]*Team, int, error)
-	GetUserTeams(ctx context.Context, userID uuid.UUID, offset, limit int) ([]*UserTeam, int, error)
+	GetTeams(ctx context.Context, p Page) ([]*Team, int, error)
+	GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string, p Page) ([]*Team, int, error)
+	GetUserTeams(ctx context.Context, userID uuid.UUID, p Page) ([]*UserTeam, int, error)
 	RemoveSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string) error
 	RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error
 	SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*gensql.Team, error)
@@ -111,12 +111,12 @@ func (d *database) GetTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team
 	return &Team{Team: team}, nil
 }
 
-func (d *database) GetTeams(ctx context.Context, offset, limit int) ([]*Team, int, error) {
+func (d *database) GetTeams(ctx context.Context, p Page) ([]*Team, int, error) {
 	var teams []*gensql.Team
 	var err error
 	teams, err = d.querier.GetTeams(ctx, gensql.GetTeamsParams{
-		Offset: int32(offset),
-		Limit:  int32(limit),
+		Offset: int32(p.Offset),
+		Limit:  int32(p.Limit),
 	})
 	if err != nil {
 		return nil, 0, err
@@ -135,11 +135,11 @@ func (d *database) GetTeams(ctx context.Context, offset, limit int) ([]*Team, in
 	return collection, int(total), nil
 }
 
-func (d *database) GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, offset, limit int) ([]*TeamEnvironment, int, error) {
+func (d *database) GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, p Page) ([]*TeamEnvironment, int, error) {
 	rows, err := d.querier.GetTeamEnvironments(ctx, gensql.GetTeamEnvironmentsParams{
 		TeamSlug: teamSlug,
-		Offset:   int32(offset),
-		Limit:    int32(limit),
+		Offset:   int32(p.Offset),
+		Limit:    int32(p.Limit),
 	})
 	if err != nil {
 		return nil, 0, err
@@ -172,11 +172,11 @@ func (d *database) GetActiveTeams(ctx context.Context) ([]*Team, error) {
 	return collection, nil
 }
 
-func (d *database) GetUserTeams(ctx context.Context, userID uuid.UUID, offset, limit int) ([]*UserTeam, int, error) {
+func (d *database) GetUserTeams(ctx context.Context, userID uuid.UUID, p Page) ([]*UserTeam, int, error) {
 	rows, err := d.querier.GetUserTeams(ctx, gensql.GetUserTeamsParams{
 		UserID: userID,
-		Offset: int32(offset),
-		Limit:  int32(limit),
+		Offset: int32(p.Offset),
+		Limit:  int32(p.Limit),
 	})
 	if err != nil {
 		return nil, 0, err
@@ -211,13 +211,13 @@ func (d *database) GetAllTeamMembers(ctx context.Context, teamSlug slug.Slug) ([
 	return members, nil
 }
 
-func (d *database) GetTeamMembers(ctx context.Context, teamSlug slug.Slug, offset, limit int) ([]*User, int, error) {
+func (d *database) GetTeamMembers(ctx context.Context, teamSlug slug.Slug, p Page) ([]*User, int, error) {
 	var rows []*gensql.User
 	var err error
 	rows, err = d.querier.GetTeamMembers(ctx, gensql.GetTeamMembersParams{
 		TeamSlug: teamSlug,
-		Offset:   int32(offset),
-		Limit:    int32(limit),
+		Offset:   int32(p.Offset),
+		Limit:    int32(p.Limit),
 	})
 	if err != nil {
 		return nil, 0, err
@@ -331,7 +331,7 @@ func (d *database) GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, t
 	})
 }
 
-func (d *database) GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string, offset, limit int) ([]*Team, int, error) {
+func (d *database) GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string, p Page) ([]*Team, int, error) {
 	panic("not implemented")
 	// 	matcher, err := json.Marshal(map[string]interface{}{
 	// 		"repositories": []map[string]interface{}{

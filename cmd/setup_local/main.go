@@ -281,10 +281,13 @@ func fileToSlice(path string) ([]string, error) {
 }
 
 func getAllUsers(ctx context.Context, db database.UserRepo) ([]*database.User, error) {
-	offset, limit := 0, 100
+	limit, offset := 100, 0
 	users := make([]*database.User, 0)
 	for {
-		page, _, err := db.GetUsers(ctx, offset, limit)
+		page, _, err := db.GetUsers(ctx, database.Page{
+			Limit:  limit,
+			Offset: offset,
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -302,10 +305,13 @@ func getAllUsers(ctx context.Context, db database.UserRepo) ([]*database.User, e
 }
 
 func getAllTeams(ctx context.Context, db database.TeamRepo) ([]*database.Team, error) {
-	offset, limit := 0, 100
+	limit, offset := 100, 0
 	teams := make([]*database.Team, 0)
 	for {
-		page, _, err := db.GetTeams(ctx, offset, limit)
+		page, _, err := db.GetTeams(ctx, database.Page{
+			Limit:  limit,
+			Offset: offset,
+		})
 		if err != nil {
 			return nil, err
 		}

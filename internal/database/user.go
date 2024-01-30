@@ -15,8 +15,7 @@ type UserRepo interface {
 	GetUserByExternalID(ctx context.Context, externalID string) (*User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (*User, error)
 	GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*authz.Role, error)
-	// TODO: Fix issue with offset/limit being hard to check during compilation (Replace with custom types or struct)
-	GetUsers(ctx context.Context, offset, limit int) ([]*User, int, error)
+	GetUsers(ctx context.Context, p Page) ([]*User, int, error)
 	UpdateUser(ctx context.Context, userID uuid.UUID, name, email, externalID string) (*User, error)
 }
 
@@ -87,12 +86,12 @@ func (d *database) UpdateUser(ctx context.Context, userID uuid.UUID, name, email
 	return wrapUser(user), nil
 }
 
-func (d *database) GetUsers(ctx context.Context, offset, limit int) ([]*User, int, error) {
+func (d *database) GetUsers(ctx context.Context, p Page) ([]*User, int, error) {
 	var users []*gensql.User
 	var err error
 	users, err = d.querier.GetUsers(ctx, gensql.GetUsersParams{
-		Offset: int32(offset),
-		Limit:  int32(limit),
+		Offset: int32(p.Offset),
+		Limit:  int32(p.Limit),
 	})
 	if err != nil {
 		return nil, 0, err

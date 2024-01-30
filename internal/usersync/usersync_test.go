@@ -95,8 +95,13 @@ func TestSync(t *testing.T) {
 				Once()
 		}
 
+		p := database.Page{
+			Limit:  100,
+			Offset: 0,
+		}
+
 		dbtx.EXPECT().
-			GetUsers(txCtx, 0, 100).
+			GetUsers(txCtx, p).
 			Return([]*database.User{user1, user2}, 2, nil).
 			Once()
 		dbtx.EXPECT().
@@ -203,8 +208,13 @@ func TestSync(t *testing.T) {
 			}, nil).
 			Once()
 
+		p := database.Page{
+			Limit:  100,
+			Offset: 0,
+		}
+
 		dbtx.EXPECT().
-			GetUsers(txCtx, 0, 100).
+			GetUsers(txCtx, p).
 			Return([]*database.User{
 				localUserWithIncorrectName,
 				localUserWithIncorrectEmail,

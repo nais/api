@@ -34,10 +34,13 @@ func toGraphTeam(m *database.Team) *model.Team {
 
 func (r *TeamReader) load(ctx context.Context, keys []string) []*dataloader.Result[*model.Team] {
 	// TODO (only fetch teams requested by keys var)
-	offset, limit := 0, 100
+	limit, offset := 100, 0
 	teams := make([]*database.Team, 0)
 	for {
-		page, _, err := r.db.GetTeams(ctx, offset, limit)
+		page, _, err := r.db.GetTeams(ctx, database.Page{
+			Limit:  limit,
+			Offset: offset,
+		})
 		if err != nil {
 			panic(err)
 		}

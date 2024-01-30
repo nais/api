@@ -45,7 +45,10 @@ func (u *UsersServer) Get(ctx context.Context, r *protoapi.GetUserRequest) (*pro
 
 func (u *UsersServer) List(ctx context.Context, r *protoapi.ListUsersRequest) (*protoapi.ListUsersResponse, error) {
 	limit, offset := pagination(r)
-	users, total, err := u.db.GetUsers(ctx, offset, limit)
+	users, total, err := u.db.GetUsers(ctx, database.Page{
+		Limit:  limit,
+		Offset: offset,
+	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to list users: %s", err)
 	}

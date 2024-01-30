@@ -25,6 +25,11 @@ type (
 	DatabaseTransactionFunc func(ctx context.Context, dbtx Database) error
 )
 
+type Page struct {
+	Limit  int
+	Offset int
+}
+
 type Database interface {
 	AuditLogsRepo
 	CostRepo

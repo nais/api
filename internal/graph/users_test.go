@@ -46,11 +46,16 @@ func TestQueryResolver_Users(t *testing.T) {
 			},
 		})
 
+		p := database.Page{
+			Limit:  20,
+			Offset: 0,
+		}
 		db.EXPECT().
-			GetUsers(ctx, 0, 20).Return([]*database.User{
-			{User: &gensql.User{Email: "user1@example.com"}},
-			{User: &gensql.User{Email: "user2@example.com"}},
-		}, 2, nil)
+			GetUsers(ctx, p).
+			Return([]*database.User{
+				{User: &gensql.User{Email: "user1@example.com"}},
+				{User: &gensql.User{Email: "user2@example.com"}},
+			}, 2, nil)
 
 		userList, err := resolver.Users(ctx, nil, nil)
 		assert.NoError(t, err)

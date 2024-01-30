@@ -342,10 +342,13 @@ func (r *mutationResolver) SynchronizeAllTeams(ctx context.Context) (*model.Team
 
 	correlationID := uuid.New()
 
-	offset, limit := 0, 100
+	limit, offset := 100, 0
 	teams := make([]*db.Team, 0)
 	for {
-		page, _, err := r.database.GetTeams(ctx, offset, limit)
+		page, _, err := r.database.GetTeams(ctx, db.Page{
+			Limit:  limit,
+			Offset: offset,
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -847,10 +850,16 @@ func (r *queryResolver) Teams(ctx context.Context, offset *int, limit *int, filt
 
 	if filter != nil {
 		if filter.Github != nil {
-			teams, total, err = r.database.GetTeamsWithPermissionInGitHubRepo(ctx, filter.Github.RepoName, filter.Github.PermissionName, p.Offset, p.Limit)
+			teams, total, err = r.database.GetTeamsWithPermissionInGitHubRepo(ctx, filter.Github.RepoName, filter.Github.PermissionName, db.Page{
+				Limit:  p.Limit,
+				Offset: p.Offset,
+			})
 		}
 	} else {
-		teams, total, err = r.database.GetTeams(ctx, p.Offset, p.Limit)
+		teams, total, err = r.database.GetTeams(ctx, db.Page{
+			Limit:  p.Limit,
+			Offset: p.Offset,
+		})
 	}
 	if err != nil {
 		return nil, err
@@ -916,7 +925,10 @@ func (r *teamResolver) AuditLogs(ctx context.Context, obj *model.Team, offset *i
 	}
 
 	p := model.NewPagination(offset, limit)
-	entries, total, err := r.database.GetAuditLogsForTeam(ctx, obj.Slug, p.Offset, p.Limit)
+	entries, total, err := r.database.GetAuditLogsForTeam(ctx, obj.Slug, db.Page{
+		Limit:  p.Limit,
+		Offset: p.Offset,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -937,7 +949,10 @@ func (r *teamResolver) Members(ctx context.Context, obj *model.Team, offset *int
 
 	p := model.NewPagination(offset, limit)
 
-	users, total, err := r.database.GetTeamMembers(ctx, obj.Slug, p.Offset, p.Limit)
+	users, total, err := r.database.GetTeamMembers(ctx, obj.Slug, db.Page{
+		Limit:  p.Limit,
+		Offset: p.Offset,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -1008,7 +1023,10 @@ func (r *teamResolver) SyncErrors(ctx context.Context, obj *model.Team) ([]*mode
 // ReconcilerResource is the resolver for the reconcilerResource field.
 func (r *teamResolver) ReconcilerResources(ctx context.Context, obj *model.Team, reconciler string, key string, limit *int, offset *int) (*model.ReconcilerResourceList, error) {
 	pg := model.NewPagination(offset, limit)
-	res, total, err := r.database.GetReconcilerResourcesByKey(ctx, reconciler, obj.Slug, key, pg.Limit, pg.Offset)
+	res, total, err := r.database.GetReconcilerResourcesByKey(ctx, reconciler, obj.Slug, key, db.Page{
+		Limit:  pg.Limit,
+		Offset: pg.Offset,
+	})
 	if err != nil {
 		return nil, err
 	}

@@ -1872,9 +1872,9 @@ func (_c *MockDatabase_GetAllUserRoles_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
-// GetAuditLogsForCorrelationID provides a mock function with given fields: ctx, correlationID, offset, limit
-func (_m *MockDatabase) GetAuditLogsForCorrelationID(ctx context.Context, correlationID uuid.UUID, offset int, limit int) ([]*AuditLog, int, error) {
-	ret := _m.Called(ctx, correlationID, offset, limit)
+// GetAuditLogsForCorrelationID provides a mock function with given fields: ctx, correlationID, p
+func (_m *MockDatabase) GetAuditLogsForCorrelationID(ctx context.Context, correlationID uuid.UUID, p Page) ([]*AuditLog, int, error) {
+	ret := _m.Called(ctx, correlationID, p)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAuditLogsForCorrelationID")
@@ -1883,25 +1883,25 @@ func (_m *MockDatabase) GetAuditLogsForCorrelationID(ctx context.Context, correl
 	var r0 []*AuditLog
 	var r1 int
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, int, int) ([]*AuditLog, int, error)); ok {
-		return rf(ctx, correlationID, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, Page) ([]*AuditLog, int, error)); ok {
+		return rf(ctx, correlationID, p)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, int, int) []*AuditLog); ok {
-		r0 = rf(ctx, correlationID, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, Page) []*AuditLog); ok {
+		r0 = rf(ctx, correlationID, p)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*AuditLog)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, int, int) int); ok {
-		r1 = rf(ctx, correlationID, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, Page) int); ok {
+		r1 = rf(ctx, correlationID, p)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, uuid.UUID, int, int) error); ok {
-		r2 = rf(ctx, correlationID, offset, limit)
+	if rf, ok := ret.Get(2).(func(context.Context, uuid.UUID, Page) error); ok {
+		r2 = rf(ctx, correlationID, p)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -1917,15 +1917,14 @@ type MockDatabase_GetAuditLogsForCorrelationID_Call struct {
 // GetAuditLogsForCorrelationID is a helper method to define mock.On call
 //   - ctx context.Context
 //   - correlationID uuid.UUID
-//   - offset int
-//   - limit int
-func (_e *MockDatabase_Expecter) GetAuditLogsForCorrelationID(ctx interface{}, correlationID interface{}, offset interface{}, limit interface{}) *MockDatabase_GetAuditLogsForCorrelationID_Call {
-	return &MockDatabase_GetAuditLogsForCorrelationID_Call{Call: _e.mock.On("GetAuditLogsForCorrelationID", ctx, correlationID, offset, limit)}
+//   - p Page
+func (_e *MockDatabase_Expecter) GetAuditLogsForCorrelationID(ctx interface{}, correlationID interface{}, p interface{}) *MockDatabase_GetAuditLogsForCorrelationID_Call {
+	return &MockDatabase_GetAuditLogsForCorrelationID_Call{Call: _e.mock.On("GetAuditLogsForCorrelationID", ctx, correlationID, p)}
 }
 
-func (_c *MockDatabase_GetAuditLogsForCorrelationID_Call) Run(run func(ctx context.Context, correlationID uuid.UUID, offset int, limit int)) *MockDatabase_GetAuditLogsForCorrelationID_Call {
+func (_c *MockDatabase_GetAuditLogsForCorrelationID_Call) Run(run func(ctx context.Context, correlationID uuid.UUID, p Page)) *MockDatabase_GetAuditLogsForCorrelationID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(int), args[3].(int))
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(Page))
 	})
 	return _c
 }
@@ -1935,14 +1934,14 @@ func (_c *MockDatabase_GetAuditLogsForCorrelationID_Call) Return(_a0 []*AuditLog
 	return _c
 }
 
-func (_c *MockDatabase_GetAuditLogsForCorrelationID_Call) RunAndReturn(run func(context.Context, uuid.UUID, int, int) ([]*AuditLog, int, error)) *MockDatabase_GetAuditLogsForCorrelationID_Call {
+func (_c *MockDatabase_GetAuditLogsForCorrelationID_Call) RunAndReturn(run func(context.Context, uuid.UUID, Page) ([]*AuditLog, int, error)) *MockDatabase_GetAuditLogsForCorrelationID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetAuditLogsForReconciler provides a mock function with given fields: ctx, reconcilerName, offset, limit
-func (_m *MockDatabase) GetAuditLogsForReconciler(ctx context.Context, reconcilerName string, offset int, limit int) ([]*AuditLog, int, error) {
-	ret := _m.Called(ctx, reconcilerName, offset, limit)
+// GetAuditLogsForReconciler provides a mock function with given fields: ctx, reconcilerName, p
+func (_m *MockDatabase) GetAuditLogsForReconciler(ctx context.Context, reconcilerName string, p Page) ([]*AuditLog, int, error) {
+	ret := _m.Called(ctx, reconcilerName, p)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAuditLogsForReconciler")
@@ -1951,25 +1950,25 @@ func (_m *MockDatabase) GetAuditLogsForReconciler(ctx context.Context, reconcile
 	var r0 []*AuditLog
 	var r1 int
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, int, int) ([]*AuditLog, int, error)); ok {
-		return rf(ctx, reconcilerName, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, string, Page) ([]*AuditLog, int, error)); ok {
+		return rf(ctx, reconcilerName, p)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, int, int) []*AuditLog); ok {
-		r0 = rf(ctx, reconcilerName, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, string, Page) []*AuditLog); ok {
+		r0 = rf(ctx, reconcilerName, p)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*AuditLog)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, int, int) int); ok {
-		r1 = rf(ctx, reconcilerName, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, string, Page) int); ok {
+		r1 = rf(ctx, reconcilerName, p)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, string, int, int) error); ok {
-		r2 = rf(ctx, reconcilerName, offset, limit)
+	if rf, ok := ret.Get(2).(func(context.Context, string, Page) error); ok {
+		r2 = rf(ctx, reconcilerName, p)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -1985,15 +1984,14 @@ type MockDatabase_GetAuditLogsForReconciler_Call struct {
 // GetAuditLogsForReconciler is a helper method to define mock.On call
 //   - ctx context.Context
 //   - reconcilerName string
-//   - offset int
-//   - limit int
-func (_e *MockDatabase_Expecter) GetAuditLogsForReconciler(ctx interface{}, reconcilerName interface{}, offset interface{}, limit interface{}) *MockDatabase_GetAuditLogsForReconciler_Call {
-	return &MockDatabase_GetAuditLogsForReconciler_Call{Call: _e.mock.On("GetAuditLogsForReconciler", ctx, reconcilerName, offset, limit)}
+//   - p Page
+func (_e *MockDatabase_Expecter) GetAuditLogsForReconciler(ctx interface{}, reconcilerName interface{}, p interface{}) *MockDatabase_GetAuditLogsForReconciler_Call {
+	return &MockDatabase_GetAuditLogsForReconciler_Call{Call: _e.mock.On("GetAuditLogsForReconciler", ctx, reconcilerName, p)}
 }
 
-func (_c *MockDatabase_GetAuditLogsForReconciler_Call) Run(run func(ctx context.Context, reconcilerName string, offset int, limit int)) *MockDatabase_GetAuditLogsForReconciler_Call {
+func (_c *MockDatabase_GetAuditLogsForReconciler_Call) Run(run func(ctx context.Context, reconcilerName string, p Page)) *MockDatabase_GetAuditLogsForReconciler_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(int), args[3].(int))
+		run(args[0].(context.Context), args[1].(string), args[2].(Page))
 	})
 	return _c
 }
@@ -2003,14 +2001,14 @@ func (_c *MockDatabase_GetAuditLogsForReconciler_Call) Return(_a0 []*AuditLog, _
 	return _c
 }
 
-func (_c *MockDatabase_GetAuditLogsForReconciler_Call) RunAndReturn(run func(context.Context, string, int, int) ([]*AuditLog, int, error)) *MockDatabase_GetAuditLogsForReconciler_Call {
+func (_c *MockDatabase_GetAuditLogsForReconciler_Call) RunAndReturn(run func(context.Context, string, Page) ([]*AuditLog, int, error)) *MockDatabase_GetAuditLogsForReconciler_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetAuditLogsForTeam provides a mock function with given fields: ctx, teamSlug, offset, limit
-func (_m *MockDatabase) GetAuditLogsForTeam(ctx context.Context, teamSlug slug.Slug, offset int, limit int) ([]*AuditLog, int, error) {
-	ret := _m.Called(ctx, teamSlug, offset, limit)
+// GetAuditLogsForTeam provides a mock function with given fields: ctx, teamSlug, p
+func (_m *MockDatabase) GetAuditLogsForTeam(ctx context.Context, teamSlug slug.Slug, p Page) ([]*AuditLog, int, error) {
+	ret := _m.Called(ctx, teamSlug, p)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAuditLogsForTeam")
@@ -2019,25 +2017,25 @@ func (_m *MockDatabase) GetAuditLogsForTeam(ctx context.Context, teamSlug slug.S
 	var r0 []*AuditLog
 	var r1 int
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, int, int) ([]*AuditLog, int, error)); ok {
-		return rf(ctx, teamSlug, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, Page) ([]*AuditLog, int, error)); ok {
+		return rf(ctx, teamSlug, p)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, int, int) []*AuditLog); ok {
-		r0 = rf(ctx, teamSlug, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, Page) []*AuditLog); ok {
+		r0 = rf(ctx, teamSlug, p)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*AuditLog)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, int, int) int); ok {
-		r1 = rf(ctx, teamSlug, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, Page) int); ok {
+		r1 = rf(ctx, teamSlug, p)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, slug.Slug, int, int) error); ok {
-		r2 = rf(ctx, teamSlug, offset, limit)
+	if rf, ok := ret.Get(2).(func(context.Context, slug.Slug, Page) error); ok {
+		r2 = rf(ctx, teamSlug, p)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -2053,15 +2051,14 @@ type MockDatabase_GetAuditLogsForTeam_Call struct {
 // GetAuditLogsForTeam is a helper method to define mock.On call
 //   - ctx context.Context
 //   - teamSlug slug.Slug
-//   - offset int
-//   - limit int
-func (_e *MockDatabase_Expecter) GetAuditLogsForTeam(ctx interface{}, teamSlug interface{}, offset interface{}, limit interface{}) *MockDatabase_GetAuditLogsForTeam_Call {
-	return &MockDatabase_GetAuditLogsForTeam_Call{Call: _e.mock.On("GetAuditLogsForTeam", ctx, teamSlug, offset, limit)}
+//   - p Page
+func (_e *MockDatabase_Expecter) GetAuditLogsForTeam(ctx interface{}, teamSlug interface{}, p interface{}) *MockDatabase_GetAuditLogsForTeam_Call {
+	return &MockDatabase_GetAuditLogsForTeam_Call{Call: _e.mock.On("GetAuditLogsForTeam", ctx, teamSlug, p)}
 }
 
-func (_c *MockDatabase_GetAuditLogsForTeam_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, offset int, limit int)) *MockDatabase_GetAuditLogsForTeam_Call {
+func (_c *MockDatabase_GetAuditLogsForTeam_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, p Page)) *MockDatabase_GetAuditLogsForTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(int), args[3].(int))
+		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(Page))
 	})
 	return _c
 }
@@ -2071,7 +2068,7 @@ func (_c *MockDatabase_GetAuditLogsForTeam_Call) Return(_a0 []*AuditLog, _a1 int
 	return _c
 }
 
-func (_c *MockDatabase_GetAuditLogsForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug, int, int) ([]*AuditLog, int, error)) *MockDatabase_GetAuditLogsForTeam_Call {
+func (_c *MockDatabase_GetAuditLogsForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug, Page) ([]*AuditLog, int, error)) *MockDatabase_GetAuditLogsForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2252,9 +2249,9 @@ func (_c *MockDatabase_GetReconcilerConfig_Call) RunAndReturn(run func(context.C
 	return _c
 }
 
-// GetReconcilerResources provides a mock function with given fields: ctx, reconcilerName, teamSlug, offset, limit
-func (_m *MockDatabase) GetReconcilerResources(ctx context.Context, reconcilerName string, teamSlug *slug.Slug, offset int, limit int) ([]*ReconcilerResource, error) {
-	ret := _m.Called(ctx, reconcilerName, teamSlug, offset, limit)
+// GetReconcilerResources provides a mock function with given fields: ctx, reconcilerName, teamSlug, p
+func (_m *MockDatabase) GetReconcilerResources(ctx context.Context, reconcilerName string, teamSlug *slug.Slug, p Page) ([]*ReconcilerResource, error) {
+	ret := _m.Called(ctx, reconcilerName, teamSlug, p)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetReconcilerResources")
@@ -2262,19 +2259,19 @@ func (_m *MockDatabase) GetReconcilerResources(ctx context.Context, reconcilerNa
 
 	var r0 []*ReconcilerResource
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *slug.Slug, int, int) ([]*ReconcilerResource, error)); ok {
-		return rf(ctx, reconcilerName, teamSlug, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slug.Slug, Page) ([]*ReconcilerResource, error)); ok {
+		return rf(ctx, reconcilerName, teamSlug, p)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, *slug.Slug, int, int) []*ReconcilerResource); ok {
-		r0 = rf(ctx, reconcilerName, teamSlug, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, string, *slug.Slug, Page) []*ReconcilerResource); ok {
+		r0 = rf(ctx, reconcilerName, teamSlug, p)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*ReconcilerResource)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, *slug.Slug, int, int) error); ok {
-		r1 = rf(ctx, reconcilerName, teamSlug, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, string, *slug.Slug, Page) error); ok {
+		r1 = rf(ctx, reconcilerName, teamSlug, p)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -2291,15 +2288,14 @@ type MockDatabase_GetReconcilerResources_Call struct {
 //   - ctx context.Context
 //   - reconcilerName string
 //   - teamSlug *slug.Slug
-//   - offset int
-//   - limit int
-func (_e *MockDatabase_Expecter) GetReconcilerResources(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, offset interface{}, limit interface{}) *MockDatabase_GetReconcilerResources_Call {
-	return &MockDatabase_GetReconcilerResources_Call{Call: _e.mock.On("GetReconcilerResources", ctx, reconcilerName, teamSlug, offset, limit)}
+//   - p Page
+func (_e *MockDatabase_Expecter) GetReconcilerResources(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, p interface{}) *MockDatabase_GetReconcilerResources_Call {
+	return &MockDatabase_GetReconcilerResources_Call{Call: _e.mock.On("GetReconcilerResources", ctx, reconcilerName, teamSlug, p)}
 }
 
-func (_c *MockDatabase_GetReconcilerResources_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug *slug.Slug, offset int, limit int)) *MockDatabase_GetReconcilerResources_Call {
+func (_c *MockDatabase_GetReconcilerResources_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug *slug.Slug, p Page)) *MockDatabase_GetReconcilerResources_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(*slug.Slug), args[3].(int), args[4].(int))
+		run(args[0].(context.Context), args[1].(string), args[2].(*slug.Slug), args[3].(Page))
 	})
 	return _c
 }
@@ -2309,14 +2305,14 @@ func (_c *MockDatabase_GetReconcilerResources_Call) Return(_a0 []*ReconcilerReso
 	return _c
 }
 
-func (_c *MockDatabase_GetReconcilerResources_Call) RunAndReturn(run func(context.Context, string, *slug.Slug, int, int) ([]*ReconcilerResource, error)) *MockDatabase_GetReconcilerResources_Call {
+func (_c *MockDatabase_GetReconcilerResources_Call) RunAndReturn(run func(context.Context, string, *slug.Slug, Page) ([]*ReconcilerResource, error)) *MockDatabase_GetReconcilerResources_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetReconcilerResourcesByKey provides a mock function with given fields: ctx, reconcilerName, teamSlug, key, offset, limit
-func (_m *MockDatabase) GetReconcilerResourcesByKey(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, offset int, limit int) ([]*ReconcilerResource, int, error) {
-	ret := _m.Called(ctx, reconcilerName, teamSlug, key, offset, limit)
+// GetReconcilerResourcesByKey provides a mock function with given fields: ctx, reconcilerName, teamSlug, key, p
+func (_m *MockDatabase) GetReconcilerResourcesByKey(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, p Page) ([]*ReconcilerResource, int, error) {
+	ret := _m.Called(ctx, reconcilerName, teamSlug, key, p)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetReconcilerResourcesByKey")
@@ -2325,25 +2321,25 @@ func (_m *MockDatabase) GetReconcilerResourcesByKey(ctx context.Context, reconci
 	var r0 []*ReconcilerResource
 	var r1 int
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, int, int) ([]*ReconcilerResource, int, error)); ok {
-		return rf(ctx, reconcilerName, teamSlug, key, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, Page) ([]*ReconcilerResource, int, error)); ok {
+		return rf(ctx, reconcilerName, teamSlug, key, p)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, int, int) []*ReconcilerResource); ok {
-		r0 = rf(ctx, reconcilerName, teamSlug, key, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, Page) []*ReconcilerResource); ok {
+		r0 = rf(ctx, reconcilerName, teamSlug, key, p)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*ReconcilerResource)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string, int, int) int); ok {
-		r1 = rf(ctx, reconcilerName, teamSlug, key, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string, Page) int); ok {
+		r1 = rf(ctx, reconcilerName, teamSlug, key, p)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, string, slug.Slug, string, int, int) error); ok {
-		r2 = rf(ctx, reconcilerName, teamSlug, key, offset, limit)
+	if rf, ok := ret.Get(2).(func(context.Context, string, slug.Slug, string, Page) error); ok {
+		r2 = rf(ctx, reconcilerName, teamSlug, key, p)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -2361,15 +2357,14 @@ type MockDatabase_GetReconcilerResourcesByKey_Call struct {
 //   - reconcilerName string
 //   - teamSlug slug.Slug
 //   - key string
-//   - offset int
-//   - limit int
-func (_e *MockDatabase_Expecter) GetReconcilerResourcesByKey(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, key interface{}, offset interface{}, limit interface{}) *MockDatabase_GetReconcilerResourcesByKey_Call {
-	return &MockDatabase_GetReconcilerResourcesByKey_Call{Call: _e.mock.On("GetReconcilerResourcesByKey", ctx, reconcilerName, teamSlug, key, offset, limit)}
+//   - p Page
+func (_e *MockDatabase_Expecter) GetReconcilerResourcesByKey(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, key interface{}, p interface{}) *MockDatabase_GetReconcilerResourcesByKey_Call {
+	return &MockDatabase_GetReconcilerResourcesByKey_Call{Call: _e.mock.On("GetReconcilerResourcesByKey", ctx, reconcilerName, teamSlug, key, p)}
 }
 
-func (_c *MockDatabase_GetReconcilerResourcesByKey_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, offset int, limit int)) *MockDatabase_GetReconcilerResourcesByKey_Call {
+func (_c *MockDatabase_GetReconcilerResourcesByKey_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, p Page)) *MockDatabase_GetReconcilerResourcesByKey_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].(int), args[5].(int))
+		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].(Page))
 	})
 	return _c
 }
@@ -2379,14 +2374,14 @@ func (_c *MockDatabase_GetReconcilerResourcesByKey_Call) Return(ret []*Reconcile
 	return _c
 }
 
-func (_c *MockDatabase_GetReconcilerResourcesByKey_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, int, int) ([]*ReconcilerResource, int, error)) *MockDatabase_GetReconcilerResourcesByKey_Call {
+func (_c *MockDatabase_GetReconcilerResourcesByKey_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, Page) ([]*ReconcilerResource, int, error)) *MockDatabase_GetReconcilerResourcesByKey_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetReconcilers provides a mock function with given fields: ctx, offset, limit
-func (_m *MockDatabase) GetReconcilers(ctx context.Context, offset int, limit int) ([]*Reconciler, int, error) {
-	ret := _m.Called(ctx, offset, limit)
+// GetReconcilers provides a mock function with given fields: ctx, p
+func (_m *MockDatabase) GetReconcilers(ctx context.Context, p Page) ([]*Reconciler, int, error) {
+	ret := _m.Called(ctx, p)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetReconcilers")
@@ -2395,25 +2390,25 @@ func (_m *MockDatabase) GetReconcilers(ctx context.Context, offset int, limit in
 	var r0 []*Reconciler
 	var r1 int
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, int, int) ([]*Reconciler, int, error)); ok {
-		return rf(ctx, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, Page) ([]*Reconciler, int, error)); ok {
+		return rf(ctx, p)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, int, int) []*Reconciler); ok {
-		r0 = rf(ctx, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, Page) []*Reconciler); ok {
+		r0 = rf(ctx, p)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*Reconciler)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, int, int) int); ok {
-		r1 = rf(ctx, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, Page) int); ok {
+		r1 = rf(ctx, p)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, int, int) error); ok {
-		r2 = rf(ctx, offset, limit)
+	if rf, ok := ret.Get(2).(func(context.Context, Page) error); ok {
+		r2 = rf(ctx, p)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -2428,15 +2423,14 @@ type MockDatabase_GetReconcilers_Call struct {
 
 // GetReconcilers is a helper method to define mock.On call
 //   - ctx context.Context
-//   - offset int
-//   - limit int
-func (_e *MockDatabase_Expecter) GetReconcilers(ctx interface{}, offset interface{}, limit interface{}) *MockDatabase_GetReconcilers_Call {
-	return &MockDatabase_GetReconcilers_Call{Call: _e.mock.On("GetReconcilers", ctx, offset, limit)}
+//   - p Page
+func (_e *MockDatabase_Expecter) GetReconcilers(ctx interface{}, p interface{}) *MockDatabase_GetReconcilers_Call {
+	return &MockDatabase_GetReconcilers_Call{Call: _e.mock.On("GetReconcilers", ctx, p)}
 }
 
-func (_c *MockDatabase_GetReconcilers_Call) Run(run func(ctx context.Context, offset int, limit int)) *MockDatabase_GetReconcilers_Call {
+func (_c *MockDatabase_GetReconcilers_Call) Run(run func(ctx context.Context, p Page)) *MockDatabase_GetReconcilers_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(int), args[2].(int))
+		run(args[0].(context.Context), args[1].(Page))
 	})
 	return _c
 }
@@ -2446,7 +2440,7 @@ func (_c *MockDatabase_GetReconcilers_Call) Return(_a0 []*Reconciler, _a1 int, _
 	return _c
 }
 
-func (_c *MockDatabase_GetReconcilers_Call) RunAndReturn(run func(context.Context, int, int) ([]*Reconciler, int, error)) *MockDatabase_GetReconcilers_Call {
+func (_c *MockDatabase_GetReconcilers_Call) RunAndReturn(run func(context.Context, Page) ([]*Reconciler, int, error)) *MockDatabase_GetReconcilers_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2982,9 +2976,9 @@ func (_c *MockDatabase_GetTeamDeleteKey_Call) RunAndReturn(run func(context.Cont
 	return _c
 }
 
-// GetTeamEnvironments provides a mock function with given fields: ctx, teamSlug, offset, limit
-func (_m *MockDatabase) GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, offset int, limit int) ([]*TeamEnvironment, int, error) {
-	ret := _m.Called(ctx, teamSlug, offset, limit)
+// GetTeamEnvironments provides a mock function with given fields: ctx, teamSlug, p
+func (_m *MockDatabase) GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, p Page) ([]*TeamEnvironment, int, error) {
+	ret := _m.Called(ctx, teamSlug, p)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTeamEnvironments")
@@ -2993,25 +2987,25 @@ func (_m *MockDatabase) GetTeamEnvironments(ctx context.Context, teamSlug slug.S
 	var r0 []*TeamEnvironment
 	var r1 int
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, int, int) ([]*TeamEnvironment, int, error)); ok {
-		return rf(ctx, teamSlug, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, Page) ([]*TeamEnvironment, int, error)); ok {
+		return rf(ctx, teamSlug, p)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, int, int) []*TeamEnvironment); ok {
-		r0 = rf(ctx, teamSlug, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, Page) []*TeamEnvironment); ok {
+		r0 = rf(ctx, teamSlug, p)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*TeamEnvironment)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, int, int) int); ok {
-		r1 = rf(ctx, teamSlug, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, Page) int); ok {
+		r1 = rf(ctx, teamSlug, p)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, slug.Slug, int, int) error); ok {
-		r2 = rf(ctx, teamSlug, offset, limit)
+	if rf, ok := ret.Get(2).(func(context.Context, slug.Slug, Page) error); ok {
+		r2 = rf(ctx, teamSlug, p)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -3027,15 +3021,14 @@ type MockDatabase_GetTeamEnvironments_Call struct {
 // GetTeamEnvironments is a helper method to define mock.On call
 //   - ctx context.Context
 //   - teamSlug slug.Slug
-//   - offset int
-//   - limit int
-func (_e *MockDatabase_Expecter) GetTeamEnvironments(ctx interface{}, teamSlug interface{}, offset interface{}, limit interface{}) *MockDatabase_GetTeamEnvironments_Call {
-	return &MockDatabase_GetTeamEnvironments_Call{Call: _e.mock.On("GetTeamEnvironments", ctx, teamSlug, offset, limit)}
+//   - p Page
+func (_e *MockDatabase_Expecter) GetTeamEnvironments(ctx interface{}, teamSlug interface{}, p interface{}) *MockDatabase_GetTeamEnvironments_Call {
+	return &MockDatabase_GetTeamEnvironments_Call{Call: _e.mock.On("GetTeamEnvironments", ctx, teamSlug, p)}
 }
 
-func (_c *MockDatabase_GetTeamEnvironments_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, offset int, limit int)) *MockDatabase_GetTeamEnvironments_Call {
+func (_c *MockDatabase_GetTeamEnvironments_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, p Page)) *MockDatabase_GetTeamEnvironments_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(int), args[3].(int))
+		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(Page))
 	})
 	return _c
 }
@@ -3045,7 +3038,7 @@ func (_c *MockDatabase_GetTeamEnvironments_Call) Return(_a0 []*TeamEnvironment, 
 	return _c
 }
 
-func (_c *MockDatabase_GetTeamEnvironments_Call) RunAndReturn(run func(context.Context, slug.Slug, int, int) ([]*TeamEnvironment, int, error)) *MockDatabase_GetTeamEnvironments_Call {
+func (_c *MockDatabase_GetTeamEnvironments_Call) RunAndReturn(run func(context.Context, slug.Slug, Page) ([]*TeamEnvironment, int, error)) *MockDatabase_GetTeamEnvironments_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3170,9 +3163,9 @@ func (_c *MockDatabase_GetTeamMemberOptOuts_Call) RunAndReturn(run func(context.
 	return _c
 }
 
-// GetTeamMembers provides a mock function with given fields: ctx, teamSlug, offset, limit
-func (_m *MockDatabase) GetTeamMembers(ctx context.Context, teamSlug slug.Slug, offset int, limit int) ([]*User, int, error) {
-	ret := _m.Called(ctx, teamSlug, offset, limit)
+// GetTeamMembers provides a mock function with given fields: ctx, teamSlug, p
+func (_m *MockDatabase) GetTeamMembers(ctx context.Context, teamSlug slug.Slug, p Page) ([]*User, int, error) {
+	ret := _m.Called(ctx, teamSlug, p)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTeamMembers")
@@ -3181,25 +3174,25 @@ func (_m *MockDatabase) GetTeamMembers(ctx context.Context, teamSlug slug.Slug, 
 	var r0 []*User
 	var r1 int
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, int, int) ([]*User, int, error)); ok {
-		return rf(ctx, teamSlug, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, Page) ([]*User, int, error)); ok {
+		return rf(ctx, teamSlug, p)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, int, int) []*User); ok {
-		r0 = rf(ctx, teamSlug, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, Page) []*User); ok {
+		r0 = rf(ctx, teamSlug, p)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, int, int) int); ok {
-		r1 = rf(ctx, teamSlug, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, Page) int); ok {
+		r1 = rf(ctx, teamSlug, p)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, slug.Slug, int, int) error); ok {
-		r2 = rf(ctx, teamSlug, offset, limit)
+	if rf, ok := ret.Get(2).(func(context.Context, slug.Slug, Page) error); ok {
+		r2 = rf(ctx, teamSlug, p)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -3215,15 +3208,14 @@ type MockDatabase_GetTeamMembers_Call struct {
 // GetTeamMembers is a helper method to define mock.On call
 //   - ctx context.Context
 //   - teamSlug slug.Slug
-//   - offset int
-//   - limit int
-func (_e *MockDatabase_Expecter) GetTeamMembers(ctx interface{}, teamSlug interface{}, offset interface{}, limit interface{}) *MockDatabase_GetTeamMembers_Call {
-	return &MockDatabase_GetTeamMembers_Call{Call: _e.mock.On("GetTeamMembers", ctx, teamSlug, offset, limit)}
+//   - p Page
+func (_e *MockDatabase_Expecter) GetTeamMembers(ctx interface{}, teamSlug interface{}, p interface{}) *MockDatabase_GetTeamMembers_Call {
+	return &MockDatabase_GetTeamMembers_Call{Call: _e.mock.On("GetTeamMembers", ctx, teamSlug, p)}
 }
 
-func (_c *MockDatabase_GetTeamMembers_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, offset int, limit int)) *MockDatabase_GetTeamMembers_Call {
+func (_c *MockDatabase_GetTeamMembers_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, p Page)) *MockDatabase_GetTeamMembers_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(int), args[3].(int))
+		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(Page))
 	})
 	return _c
 }
@@ -3233,7 +3225,7 @@ func (_c *MockDatabase_GetTeamMembers_Call) Return(_a0 []*User, _a1 int, _a2 err
 	return _c
 }
 
-func (_c *MockDatabase_GetTeamMembers_Call) RunAndReturn(run func(context.Context, slug.Slug, int, int) ([]*User, int, error)) *MockDatabase_GetTeamMembers_Call {
+func (_c *MockDatabase_GetTeamMembers_Call) RunAndReturn(run func(context.Context, slug.Slug, Page) ([]*User, int, error)) *MockDatabase_GetTeamMembers_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3357,9 +3349,9 @@ func (_c *MockDatabase_GetTeamReconcilerErrors_Call) RunAndReturn(run func(conte
 	return _c
 }
 
-// GetTeams provides a mock function with given fields: ctx, offset, limit
-func (_m *MockDatabase) GetTeams(ctx context.Context, offset int, limit int) ([]*Team, int, error) {
-	ret := _m.Called(ctx, offset, limit)
+// GetTeams provides a mock function with given fields: ctx, p
+func (_m *MockDatabase) GetTeams(ctx context.Context, p Page) ([]*Team, int, error) {
+	ret := _m.Called(ctx, p)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTeams")
@@ -3368,25 +3360,25 @@ func (_m *MockDatabase) GetTeams(ctx context.Context, offset int, limit int) ([]
 	var r0 []*Team
 	var r1 int
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, int, int) ([]*Team, int, error)); ok {
-		return rf(ctx, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, Page) ([]*Team, int, error)); ok {
+		return rf(ctx, p)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, int, int) []*Team); ok {
-		r0 = rf(ctx, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, Page) []*Team); ok {
+		r0 = rf(ctx, p)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*Team)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, int, int) int); ok {
-		r1 = rf(ctx, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, Page) int); ok {
+		r1 = rf(ctx, p)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, int, int) error); ok {
-		r2 = rf(ctx, offset, limit)
+	if rf, ok := ret.Get(2).(func(context.Context, Page) error); ok {
+		r2 = rf(ctx, p)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -3401,15 +3393,14 @@ type MockDatabase_GetTeams_Call struct {
 
 // GetTeams is a helper method to define mock.On call
 //   - ctx context.Context
-//   - offset int
-//   - limit int
-func (_e *MockDatabase_Expecter) GetTeams(ctx interface{}, offset interface{}, limit interface{}) *MockDatabase_GetTeams_Call {
-	return &MockDatabase_GetTeams_Call{Call: _e.mock.On("GetTeams", ctx, offset, limit)}
+//   - p Page
+func (_e *MockDatabase_Expecter) GetTeams(ctx interface{}, p interface{}) *MockDatabase_GetTeams_Call {
+	return &MockDatabase_GetTeams_Call{Call: _e.mock.On("GetTeams", ctx, p)}
 }
 
-func (_c *MockDatabase_GetTeams_Call) Run(run func(ctx context.Context, offset int, limit int)) *MockDatabase_GetTeams_Call {
+func (_c *MockDatabase_GetTeams_Call) Run(run func(ctx context.Context, p Page)) *MockDatabase_GetTeams_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(int), args[2].(int))
+		run(args[0].(context.Context), args[1].(Page))
 	})
 	return _c
 }
@@ -3419,14 +3410,14 @@ func (_c *MockDatabase_GetTeams_Call) Return(_a0 []*Team, _a1 int, _a2 error) *M
 	return _c
 }
 
-func (_c *MockDatabase_GetTeams_Call) RunAndReturn(run func(context.Context, int, int) ([]*Team, int, error)) *MockDatabase_GetTeams_Call {
+func (_c *MockDatabase_GetTeams_Call) RunAndReturn(run func(context.Context, Page) ([]*Team, int, error)) *MockDatabase_GetTeams_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetTeamsWithPermissionInGitHubRepo provides a mock function with given fields: ctx, repoName, permission, offset, limit
-func (_m *MockDatabase) GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName string, permission string, offset int, limit int) ([]*Team, int, error) {
-	ret := _m.Called(ctx, repoName, permission, offset, limit)
+// GetTeamsWithPermissionInGitHubRepo provides a mock function with given fields: ctx, repoName, permission, p
+func (_m *MockDatabase) GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName string, permission string, p Page) ([]*Team, int, error) {
+	ret := _m.Called(ctx, repoName, permission, p)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTeamsWithPermissionInGitHubRepo")
@@ -3435,25 +3426,25 @@ func (_m *MockDatabase) GetTeamsWithPermissionInGitHubRepo(ctx context.Context, 
 	var r0 []*Team
 	var r1 int
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, int, int) ([]*Team, int, error)); ok {
-		return rf(ctx, repoName, permission, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, Page) ([]*Team, int, error)); ok {
+		return rf(ctx, repoName, permission, p)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, int, int) []*Team); ok {
-		r0 = rf(ctx, repoName, permission, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, Page) []*Team); ok {
+		r0 = rf(ctx, repoName, permission, p)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*Team)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, int, int) int); ok {
-		r1 = rf(ctx, repoName, permission, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, Page) int); ok {
+		r1 = rf(ctx, repoName, permission, p)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, string, string, int, int) error); ok {
-		r2 = rf(ctx, repoName, permission, offset, limit)
+	if rf, ok := ret.Get(2).(func(context.Context, string, string, Page) error); ok {
+		r2 = rf(ctx, repoName, permission, p)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -3470,15 +3461,14 @@ type MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call struct {
 //   - ctx context.Context
 //   - repoName string
 //   - permission string
-//   - offset int
-//   - limit int
-func (_e *MockDatabase_Expecter) GetTeamsWithPermissionInGitHubRepo(ctx interface{}, repoName interface{}, permission interface{}, offset interface{}, limit interface{}) *MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call {
-	return &MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call{Call: _e.mock.On("GetTeamsWithPermissionInGitHubRepo", ctx, repoName, permission, offset, limit)}
+//   - p Page
+func (_e *MockDatabase_Expecter) GetTeamsWithPermissionInGitHubRepo(ctx interface{}, repoName interface{}, permission interface{}, p interface{}) *MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call {
+	return &MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call{Call: _e.mock.On("GetTeamsWithPermissionInGitHubRepo", ctx, repoName, permission, p)}
 }
 
-func (_c *MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call) Run(run func(ctx context.Context, repoName string, permission string, offset int, limit int)) *MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call {
+func (_c *MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call) Run(run func(ctx context.Context, repoName string, permission string, p Page)) *MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(int), args[4].(int))
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(Page))
 	})
 	return _c
 }
@@ -3488,7 +3478,7 @@ func (_c *MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call) Return(_a0 []*Te
 	return _c
 }
 
-func (_c *MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call) RunAndReturn(run func(context.Context, string, string, int, int) ([]*Team, int, error)) *MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call {
+func (_c *MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call) RunAndReturn(run func(context.Context, string, string, Page) ([]*Team, int, error)) *MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3729,9 +3719,9 @@ func (_c *MockDatabase_GetUserRoles_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
-// GetUserTeams provides a mock function with given fields: ctx, userID, offset, limit
-func (_m *MockDatabase) GetUserTeams(ctx context.Context, userID uuid.UUID, offset int, limit int) ([]*UserTeam, int, error) {
-	ret := _m.Called(ctx, userID, offset, limit)
+// GetUserTeams provides a mock function with given fields: ctx, userID, p
+func (_m *MockDatabase) GetUserTeams(ctx context.Context, userID uuid.UUID, p Page) ([]*UserTeam, int, error) {
+	ret := _m.Called(ctx, userID, p)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserTeams")
@@ -3740,25 +3730,25 @@ func (_m *MockDatabase) GetUserTeams(ctx context.Context, userID uuid.UUID, offs
 	var r0 []*UserTeam
 	var r1 int
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, int, int) ([]*UserTeam, int, error)); ok {
-		return rf(ctx, userID, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, Page) ([]*UserTeam, int, error)); ok {
+		return rf(ctx, userID, p)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, int, int) []*UserTeam); ok {
-		r0 = rf(ctx, userID, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, Page) []*UserTeam); ok {
+		r0 = rf(ctx, userID, p)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*UserTeam)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, int, int) int); ok {
-		r1 = rf(ctx, userID, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, Page) int); ok {
+		r1 = rf(ctx, userID, p)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, uuid.UUID, int, int) error); ok {
-		r2 = rf(ctx, userID, offset, limit)
+	if rf, ok := ret.Get(2).(func(context.Context, uuid.UUID, Page) error); ok {
+		r2 = rf(ctx, userID, p)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -3774,15 +3764,14 @@ type MockDatabase_GetUserTeams_Call struct {
 // GetUserTeams is a helper method to define mock.On call
 //   - ctx context.Context
 //   - userID uuid.UUID
-//   - offset int
-//   - limit int
-func (_e *MockDatabase_Expecter) GetUserTeams(ctx interface{}, userID interface{}, offset interface{}, limit interface{}) *MockDatabase_GetUserTeams_Call {
-	return &MockDatabase_GetUserTeams_Call{Call: _e.mock.On("GetUserTeams", ctx, userID, offset, limit)}
+//   - p Page
+func (_e *MockDatabase_Expecter) GetUserTeams(ctx interface{}, userID interface{}, p interface{}) *MockDatabase_GetUserTeams_Call {
+	return &MockDatabase_GetUserTeams_Call{Call: _e.mock.On("GetUserTeams", ctx, userID, p)}
 }
 
-func (_c *MockDatabase_GetUserTeams_Call) Run(run func(ctx context.Context, userID uuid.UUID, offset int, limit int)) *MockDatabase_GetUserTeams_Call {
+func (_c *MockDatabase_GetUserTeams_Call) Run(run func(ctx context.Context, userID uuid.UUID, p Page)) *MockDatabase_GetUserTeams_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(int), args[3].(int))
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(Page))
 	})
 	return _c
 }
@@ -3792,14 +3781,14 @@ func (_c *MockDatabase_GetUserTeams_Call) Return(_a0 []*UserTeam, _a1 int, _a2 e
 	return _c
 }
 
-func (_c *MockDatabase_GetUserTeams_Call) RunAndReturn(run func(context.Context, uuid.UUID, int, int) ([]*UserTeam, int, error)) *MockDatabase_GetUserTeams_Call {
+func (_c *MockDatabase_GetUserTeams_Call) RunAndReturn(run func(context.Context, uuid.UUID, Page) ([]*UserTeam, int, error)) *MockDatabase_GetUserTeams_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetUsers provides a mock function with given fields: ctx, offset, limit
-func (_m *MockDatabase) GetUsers(ctx context.Context, offset int, limit int) ([]*User, int, error) {
-	ret := _m.Called(ctx, offset, limit)
+// GetUsers provides a mock function with given fields: ctx, p
+func (_m *MockDatabase) GetUsers(ctx context.Context, p Page) ([]*User, int, error) {
+	ret := _m.Called(ctx, p)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUsers")
@@ -3808,25 +3797,25 @@ func (_m *MockDatabase) GetUsers(ctx context.Context, offset int, limit int) ([]
 	var r0 []*User
 	var r1 int
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, int, int) ([]*User, int, error)); ok {
-		return rf(ctx, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, Page) ([]*User, int, error)); ok {
+		return rf(ctx, p)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, int, int) []*User); ok {
-		r0 = rf(ctx, offset, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, Page) []*User); ok {
+		r0 = rf(ctx, p)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, int, int) int); ok {
-		r1 = rf(ctx, offset, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, Page) int); ok {
+		r1 = rf(ctx, p)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, int, int) error); ok {
-		r2 = rf(ctx, offset, limit)
+	if rf, ok := ret.Get(2).(func(context.Context, Page) error); ok {
+		r2 = rf(ctx, p)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -3841,15 +3830,14 @@ type MockDatabase_GetUsers_Call struct {
 
 // GetUsers is a helper method to define mock.On call
 //   - ctx context.Context
-//   - offset int
-//   - limit int
-func (_e *MockDatabase_Expecter) GetUsers(ctx interface{}, offset interface{}, limit interface{}) *MockDatabase_GetUsers_Call {
-	return &MockDatabase_GetUsers_Call{Call: _e.mock.On("GetUsers", ctx, offset, limit)}
+//   - p Page
+func (_e *MockDatabase_Expecter) GetUsers(ctx interface{}, p interface{}) *MockDatabase_GetUsers_Call {
+	return &MockDatabase_GetUsers_Call{Call: _e.mock.On("GetUsers", ctx, p)}
 }
 
-func (_c *MockDatabase_GetUsers_Call) Run(run func(ctx context.Context, offset int, limit int)) *MockDatabase_GetUsers_Call {
+func (_c *MockDatabase_GetUsers_Call) Run(run func(ctx context.Context, p Page)) *MockDatabase_GetUsers_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(int), args[2].(int))
+		run(args[0].(context.Context), args[1].(Page))
 	})
 	return _c
 }
@@ -3859,7 +3847,7 @@ func (_c *MockDatabase_GetUsers_Call) Return(_a0 []*User, _a1 int, _a2 error) *M
 	return _c
 }
 
-func (_c *MockDatabase_GetUsers_Call) RunAndReturn(run func(context.Context, int, int) ([]*User, int, error)) *MockDatabase_GetUsers_Call {
+func (_c *MockDatabase_GetUsers_Call) RunAndReturn(run func(context.Context, Page) ([]*User, int, error)) *MockDatabase_GetUsers_Call {
 	_c.Call.Return(run)
 	return _c
 }

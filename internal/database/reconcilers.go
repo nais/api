@@ -19,7 +19,7 @@ type ReconcilerRepo interface {
 	GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error)
 	GetReconciler(ctx context.Context, reconcilerName string) (*Reconciler, error)
 	GetReconcilerConfig(ctx context.Context, reconcilerName string) ([]*ReconcilerConfig, error)
-	GetReconcilers(ctx context.Context, offset, limit int) ([]*Reconciler, int, error)
+	GetReconcilers(ctx context.Context, p Page) ([]*Reconciler, int, error)
 	RemoveReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string) error
 	ResetReconcilerConfig(ctx context.Context, reconcilerName string) (*Reconciler, error)
 	SyncReconcilerConfig(ctx context.Context, reconcilerName string, configs []*protoapi.ReconcilerConfigSpec) error
@@ -59,10 +59,10 @@ func (d *database) GetReconciler(ctx context.Context, reconcilerName string) (*R
 	return &Reconciler{Reconciler: reconciler}, nil
 }
 
-func (d *database) GetReconcilers(ctx context.Context, offset, limit int) ([]*Reconciler, int, error) {
+func (d *database) GetReconcilers(ctx context.Context, p Page) ([]*Reconciler, int, error) {
 	rows, err := d.querier.GetReconcilers(ctx, gensql.GetReconcilersParams{
-		Offset: int32(offset),
-		Limit:  int32(limit),
+		Offset: int32(p.Offset),
+		Limit:  int32(p.Limit),
 	})
 	if err != nil {
 		return nil, 0, err

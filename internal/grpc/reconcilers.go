@@ -40,7 +40,10 @@ func (r *ReconcilersServer) Get(ctx context.Context, req *protoapi.GetReconciler
 
 func (r *ReconcilersServer) List(ctx context.Context, req *protoapi.ListReconcilersRequest) (*protoapi.ListReconcilersResponse, error) {
 	limit, offset := pagination(req)
-	recs, total, err := r.db.GetReconcilers(ctx, offset, limit)
+	recs, total, err := r.db.GetReconcilers(ctx, database.Page{
+		Limit:  limit,
+		Offset: offset,
+	})
 	if err != nil {
 		return nil, err
 	}
