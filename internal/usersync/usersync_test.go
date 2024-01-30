@@ -10,7 +10,7 @@ import (
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/database"
-	gensql "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/test"
 	"github.com/nais/api/internal/usersync"
@@ -24,11 +24,11 @@ func TestSync(t *testing.T) {
 	const (
 		domain           = "example.com"
 		adminGroupPrefix = "console-admins"
-		numRunsToStore   = 5
+		numRunsToPersist = 5
 	)
 
 	correlationID := uuid.New()
-	syncRuns := usersync.NewRunsHandler(numRunsToStore)
+	syncRuns := usersync.NewRunsHandler(numRunsToPersist)
 
 	t.Run("No local users, no remote users", func(t *testing.T) {
 		ctx := context.Background()
@@ -75,17 +75,17 @@ func TestSync(t *testing.T) {
 			Return(nil).
 			Once()
 
-		user1 := &database.User{User: &gensql.User{ID: serialUuid(1), Email: "user1@example.com", ExternalID: "123", Name: "User 1"}}
-		user2 := &database.User{User: &gensql.User{ID: serialUuid(2), Email: "user2@example.com", ExternalID: "456", Name: "User 2"}}
+		user1 := &database.User{User: &gensql.User{ID: uuid.New(), Email: "user1@example.com", ExternalID: "123", Name: "User 1"}}
+		user2 := &database.User{User: &gensql.User{ID: uuid.New(), Email: "user2@example.com", ExternalID: "456", Name: "User 2"}}
 
 		for _, user := range []*database.User{user1, user2} {
-			var s *string
+			var actor *string
 			db.EXPECT().
 				CreateAuditLogEntry(
 					ctx,
 					mock.Anything,
 					logger.ComponentNameUsersync,
-					s,
+					actor,
 					audittype.AuditLogsTargetTypeUser,
 					user.Email,
 					audittype.AuditActionUsersyncDelete,
@@ -149,10 +149,10 @@ func TestSync(t *testing.T) {
 
 		numDefaultRoleNames := len(usersync.DefaultRoleNames)
 
-		localUserID1 := serialUuid(1)
-		localUserID2 := serialUuid(2)
-		localUserID3 := serialUuid(3)
-		localUserID4 := serialUuid(4)
+		localUserID1 := uuid.New()
+		localUserID2 := uuid.New()
+		localUserID3 := uuid.New()
+		localUserID4 := uuid.New()
 
 		localUserWithIncorrectName := &database.User{User: &gensql.User{ID: localUserID1, Email: "user1@example.com", ExternalID: "123", Name: "Incorrect Name"}}
 		localUserWithCorrectName := &database.User{User: &gensql.User{ID: localUserID1, Email: "user1@example.com", ExternalID: "123", Name: "Correct Name"}}
@@ -188,8 +188,8 @@ func TestSync(t *testing.T) {
 
 		db.EXPECT().
 			Transaction(mock.Anything, mock.Anything).
-			Run(func(ctx context.Context, fn database.DatabaseTransactionFunc) {
-				fn(txCtx, dbtx)
+			Run(func(_ context.Context, fn database.DatabaseTransactionFunc) {
+				_ = fn(txCtx, dbtx)
 			}).
 			Return(nil).
 			Once()
@@ -261,13 +261,13 @@ func TestSync(t *testing.T) {
 			Return(nil).
 			Once()
 
-		var s *string
+		var actor *string
 		db.EXPECT().
 			CreateAuditLogEntry(
 				ctx,
 				mock.Anything,
 				logger.ComponentNameUsersync,
-				s,
+				actor,
 				audittype.AuditLogsTargetTypeUser,
 				"user1@example.com",
 				audittype.AuditActionUsersyncUpdate,
@@ -280,7 +280,7 @@ func TestSync(t *testing.T) {
 				ctx,
 				mock.Anything,
 				logger.ComponentNameUsersync,
-				s,
+				actor,
 				audittype.AuditLogsTargetTypeUser,
 				"user2@example.com",
 				audittype.AuditActionUsersyncCreate,
@@ -293,11 +293,53 @@ func TestSync(t *testing.T) {
 				ctx,
 				mock.Anything,
 				logger.ComponentNameUsersync,
-				s,
+				actor,
 				audittype.AuditLogsTargetTypeUser,
 				"user3@example.com",
 				audittype.AuditActionUsersyncUpdate,
 				`Local user updated: "user3@example.com", external ID: "789"`,
+			).
+			Return(nil).
+			Once()
+
+		db.EXPECT().
+			CreateAuditLogEntry(
+				ctx,
+				mock.Anything,
+				logger.ComponentNameUsersync,
+				actor,
+				audittype.AuditLogsTargetTypeUser,
+				"delete-me@example.com",
+				audittype.AuditActionUsersyncDelete,
+				`Local user deleted: "delete-me@example.com", external ID: "321"`,
+			).
+			Return(nil).
+			Once()
+
+		db.EXPECT().
+			CreateAuditLogEntry(
+				ctx,
+				mock.Anything,
+				logger.ComponentNameUsersync,
+				actor,
+				audittype.AuditLogsTargetTypeUser,
+				"user2@example.com",
+				audittype.AuditActionUsersyncAssignAdminRole,
+				`Assign global admin role to user: "user2@example.com"`,
+			).
+			Return(nil).
+			Once()
+
+		db.EXPECT().
+			CreateAuditLogEntry(
+				ctx,
+				mock.Anything,
+				logger.ComponentNameUsersync,
+				actor,
+				audittype.AuditLogsTargetTypeUser,
+				"user1@example.com",
+				audittype.AuditActionUsersyncRevokeAdminRole,
+				`Revoke global admin role from user: "user1@example.com"`,
 			).
 			Return(nil).
 			Once()
@@ -309,14 +351,4 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
-}
-
-func targetIdentifier(identifier string) interface{} {
-	return mock.MatchedBy(func(t []auditlogger.Target) bool {
-		return t[0].Identifier == identifier
-	})
-}
-
-func serialUuid(serial byte) uuid.UUID {
-	return uuid.UUID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, serial}
 }
