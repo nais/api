@@ -1,14 +1,9 @@
 package graph
 
 import (
-	"strings"
-
-	"github.com/nais/api/internal/database/gensql"
-
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/slug"
-	"github.com/nais/teams-backend/pkg/helpers"
 )
 
 func toGraphTeam(m *database.Team) *model.Team {
@@ -50,15 +45,4 @@ func toGraphTeamDeleteKey(m *database.TeamDeleteKey) *model.TeamDeleteKey {
 		CreatedAt: m.CreatedAt.Time,
 		Expires:   m.Expires(),
 	}
-}
-
-// GetProjectDisplayName Get the display name of a project for a team in a given environment
-func GetProjectDisplayName(slug slug.Slug, environment string) string {
-	const GoogleProjectDisplayNameMaxLength = 30
-
-	suffix := "-" + environment
-	maxSlugLength := GoogleProjectDisplayNameMaxLength - len(suffix)
-	prefix := helpers.Truncate(string(slug), maxSlugLength)
-	prefix = strings.TrimSuffix(prefix, "-")
-	return prefix + suffix
 }
