@@ -20,11 +20,11 @@ type Builder struct {
 
 func New(googleManagementProjectID, tenantDomain string) (*Builder, error) {
 	if googleManagementProjectID == "" {
-		return nil, fmt.Errorf("missing required configuration: API_BACKEND_GOOGLE_MANAGEMENT_PROJECT_ID")
+		return nil, fmt.Errorf("empty googleManagementProjectID")
 	}
 
 	if tenantDomain == "" {
-		return nil, fmt.Errorf("missing required configuration: API_BACKEND_TENANT_DOMAIN")
+		return nil, fmt.Errorf("empty domain")
 	}
 
 	return &Builder{
