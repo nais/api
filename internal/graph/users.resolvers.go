@@ -191,7 +191,6 @@ func (r *userResolver) Roles(ctx context.Context, obj *model.User) ([]*model.Rol
 
 // IsAdmin is the resolver for the isAdmin field.
 func (r *userResolver) IsAdmin(ctx context.Context, obj *model.User) (*bool, error) {
-	// TODO: christer, is this correct?
 	uid, err := obj.ID.AsUUID()
 	if err != nil {
 		return nil, err
