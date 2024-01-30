@@ -240,7 +240,6 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 
 		return nil
 	})
-
 	if err != nil {
 		return err
 	}

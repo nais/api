@@ -199,7 +199,6 @@ func (s *UserSynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) er
 
 		return nil
 	})
-
 	if err != nil {
 		syncRun.FinishWithError(err)
 		return err
