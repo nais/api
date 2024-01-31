@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+
 	"github.com/nais/api/internal/auth/roles"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
@@ -122,7 +123,7 @@ func RequireTeamAuthorization(actor *Actor, requiredAuthzName roles.Authorizatio
 	return authorized(authorizations, requiredAuthzName)
 }
 
-func RequireTeamRole(actor *Actor, targetTeamSlug slug.Slug, requiredRoleName sqlc.RoleName) error {
+func RequireTeamRole(actor *Actor, targetTeamSlug slug.Slug, requiredRoleName gensql.RoleName) error {
 	if !actor.Authenticated() {
 		return ErrNotAuthenticated
 	}

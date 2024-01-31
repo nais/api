@@ -25,6 +25,7 @@ import (
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/slug"
@@ -117,8 +118,16 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 				return nil, err
 			}
 
-			groups := make([]string, 0)
+			memberOfTeams := make([]*gensql.Team, 0)
+			// filter out other roles (such as global roles)
 			for _, team := range teams {
+				if team.RoleName == gensql.RoleNameTeammember || team.RoleName == gensql.RoleNameTeamowner {
+					memberOfTeams = append(memberOfTeams, team.Team)
+				}
+			}
+
+			groups := make([]string, 0)
+			for _, team := range memberOfTeams {
 				groups = append(groups, *team.GoogleGroupEmail)
 			}
 

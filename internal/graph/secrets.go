@@ -6,7 +6,7 @@ import (
 	"slices"
 
 	"github.com/nais/api/internal/auth/authz"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
@@ -31,12 +31,12 @@ func requireTeamMemberOrOwner(ctx context.Context, team slug.Slug) error {
 	isMember := false
 	isOwner := false
 
-	err := authz.RequireTeamRole(actor, team, sqlc.RoleNameTeammember)
+	err := authz.RequireTeamRole(actor, team, gensql.RoleNameTeammember)
 	if err == nil {
 		isMember = true
 	}
 
-	err = authz.RequireTeamRole(actor, team, sqlc.RoleNameTeamowner)
+	err = authz.RequireTeamRole(actor, team, gensql.RoleNameTeamowner)
 	if err == nil {
 		isOwner = true
 	}
