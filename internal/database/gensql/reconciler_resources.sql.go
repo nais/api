@@ -59,6 +59,40 @@ func (q *Queries) GetReconcilerResourceByKey(ctx context.Context, arg GetReconci
 	return items, nil
 }
 
+const getReconcilerResourceByKeyAndValue = `-- name: GetReconcilerResourceByKeyAndValue :one
+SELECT id, reconciler_name, team_slug, name, value, metadata, created_at, updated_at
+FROM reconciler_resources
+WHERE reconciler_name = $1 AND team_slug = $2 AND name = $3 AND value = $4
+`
+
+type GetReconcilerResourceByKeyAndValueParams struct {
+	ReconcilerName string
+	TeamSlug       slug.Slug
+	Name           string
+	Value          string
+}
+
+func (q *Queries) GetReconcilerResourceByKeyAndValue(ctx context.Context, arg GetReconcilerResourceByKeyAndValueParams) (*ReconcilerResource, error) {
+	row := q.db.QueryRow(ctx, getReconcilerResourceByKeyAndValue,
+		arg.ReconcilerName,
+		arg.TeamSlug,
+		arg.Name,
+		arg.Value,
+	)
+	var i ReconcilerResource
+	err := row.Scan(
+		&i.ID,
+		&i.ReconcilerName,
+		&i.TeamSlug,
+		&i.Name,
+		&i.Value,
+		&i.Metadata,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
 const getReconcilerResourceByKeyTotal = `-- name: GetReconcilerResourceByKeyTotal :one
 SELECT COUNT(*)
 FROM reconciler_resources
@@ -184,8 +218,8 @@ INSERT INTO reconciler_resources (
   $4,
   COALESCE($5, '{}'::jsonb)
 )
-ON CONFLICT (reconciler_name, team_slug, name) DO
-UPDATE SET value = EXCLUDED.value, metadata = EXCLUDED.metadata
+ON CONFLICT (reconciler_name, team_slug, name, value) DO
+UPDATE SET metadata = EXCLUDED.metadata
 RETURNING id, reconciler_name, team_slug, name, value, metadata, created_at, updated_at
 `
 

@@ -757,14 +757,9 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, key string) 
 }
 
 // AuthorizeRepository is the resolver for the authorizeRepository field.
-func (r *mutationResolver) AuthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.Team, error) {
-	team, err := r.database.GetTeamBySlug(ctx, teamSlug)
-	if err != nil {
-		return nil, apierror.ErrTeamNotExist
-	}
-
+func (r *mutationResolver) AuthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.ReconcilerResource, error) {
 	actor := authz.ActorFromContext(ctx)
-	if _, err = r.database.GetTeamMember(ctx, teamSlug, actor.User.GetID()); errors.Is(err, pgx.ErrNoRows) {
+	if _, err := r.database.GetTeamMember(ctx, teamSlug, actor.User.GetID()); errors.Is(err, pgx.ErrNoRows) {
 		return nil, apierror.ErrUserIsNotTeamMember
 	} else if err != nil {
 		return nil, err
@@ -782,18 +777,18 @@ func (r *mutationResolver) AuthorizeRepository(ctx context.Context, authorizatio
 		return nil, err
 	}
 
-	return toGraphTeam(team), nil
+	ret, err := r.database.GetReconcilerResourcesByKeyAndValue(ctx, "github:team", teamSlug, "repo", repoName)
+	if err != nil {
+		return nil, err
+	}
+
+	return toGraphReconcilerResource(ret), nil
 }
 
 // DeauthorizeRepository is the resolver for the deauthorizeRepository field.
-func (r *mutationResolver) DeauthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.Team, error) {
-	team, err := r.database.GetTeamBySlug(ctx, teamSlug)
-	if err != nil {
-		return nil, apierror.ErrTeamNotExist
-	}
-
+func (r *mutationResolver) DeauthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.ReconcilerResource, error) {
 	actor := authz.ActorFromContext(ctx)
-	if _, err = r.database.GetTeamMember(ctx, teamSlug, actor.User.GetID()); errors.Is(err, pgx.ErrNoRows) {
+	if _, err := r.database.GetTeamMember(ctx, teamSlug, actor.User.GetID()); errors.Is(err, pgx.ErrNoRows) {
 		return nil, apierror.ErrUserIsNotTeamMember
 	} else if err != nil {
 		return nil, err
@@ -811,7 +806,12 @@ func (r *mutationResolver) DeauthorizeRepository(ctx context.Context, authorizat
 		return nil, err
 	}
 
-	return toGraphTeam(team), nil
+	ret, err := r.database.GetReconcilerResourcesByKeyAndValue(ctx, "github:team", teamSlug, "repo", repoName)
+	if err != nil {
+		return nil, err
+	}
+
+	return toGraphReconcilerResource(ret), nil
 }
 
 // ChangeDeployKey is the resolver for the changeDeployKey field.
@@ -909,6 +909,29 @@ func (r *queryResolver) TeamDeleteKey(ctx context.Context, key string) (*model.T
 	}
 
 	return toGraphTeamDeleteKey(deleteKey), nil
+}
+
+// Authorizations is the resolver for the authorizations field.
+func (r *reconcilerResourceResolver) Authorizations(ctx context.Context, obj *model.ReconcilerResource) ([]model.RepositoryAuthorization, error) {
+	if obj.Reconciler != "github:team" || obj.Key != "repo" {
+		return nil, nil
+	}
+
+	authorizations, err := r.database.GetRepositoryAuthorizations(ctx, obj.GQLVars.Team, obj.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := []model.RepositoryAuthorization{}
+	for _, auth := range authorizations {
+		switch auth {
+		case gensql.RepositoryAuthorizationEnumDeploy:
+			ret = append(ret, model.RepositoryAuthorizationDeploy)
+		default:
+		}
+	}
+
+	return ret, nil
 }
 
 // ID is the resolver for the id field.
@@ -1034,17 +1057,7 @@ func (r *teamResolver) ReconcilerResources(ctx context.Context, obj *model.Team,
 	ret := make([]*model.ReconcilerResource, 0, len(res))
 
 	for _, r := range res {
-		var metadata *string
-		if len(r.Metadata) > 0 {
-			metadata = ptr.To(string(r.Metadata))
-		}
-		ret = append(ret, &model.ReconcilerResource{
-			ID:         r.ID,
-			Reconciler: r.ReconcilerName,
-			Key:        r.Name,
-			Value:      r.Value,
-			Metadata:   metadata,
-		})
+		ret = append(ret, toGraphReconcilerResource(r))
 	}
 
 	return &model.ReconcilerResourceList{
@@ -1447,6 +1460,11 @@ func (r *teamMemberReconcilerResolver) Reconciler(ctx context.Context, obj *mode
 	return toGraphReconciler(reconciler), nil
 }
 
+// ReconcilerResource returns gengql.ReconcilerResourceResolver implementation.
+func (r *Resolver) ReconcilerResource() gengql.ReconcilerResourceResolver {
+	return &reconcilerResourceResolver{r}
+}
+
 // Team returns gengql.TeamResolver implementation.
 func (r *Resolver) Team() gengql.TeamResolver { return &teamResolver{r} }
 
@@ -1459,6 +1477,7 @@ func (r *Resolver) TeamMemberReconciler() gengql.TeamMemberReconcilerResolver {
 }
 
 type (
+	reconcilerResourceResolver   struct{ *Resolver }
 	teamResolver                 struct{ *Resolver }
 	teamMemberResolver           struct{ *Resolver }
 	teamMemberReconcilerResolver struct{ *Resolver }

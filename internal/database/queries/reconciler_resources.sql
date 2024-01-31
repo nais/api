@@ -36,6 +36,11 @@ FROM reconciler_resources
 WHERE reconciler_name = @reconciler_name AND team_slug = @team_slug AND name = @name
 ORDER BY value ASC LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
+-- name: GetReconcilerResourceByKeyAndValue :one
+SELECT *
+FROM reconciler_resources
+WHERE reconciler_name = @reconciler_name AND team_slug = @team_slug AND name = @name AND value = @value;
+
 -- name: GetReconcilerResourceByKeyTotal :one
 SELECT COUNT(*)
 FROM reconciler_resources

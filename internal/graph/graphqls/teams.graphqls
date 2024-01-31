@@ -197,7 +197,7 @@ extend type Mutation {
 
     "Name of the repository, with the org prefix, for instance 'org/repo'."
     repoName: String!
-  ): Team! @auth
+  ): ReconcilerResource! @auth
 
   "Deauthorize an action from a team."
   deauthorizeRepository(
@@ -209,7 +209,7 @@ extend type Mutation {
 
     "Name of the repository, with the org prefix, for instance 'org/repo'."
     repoName: String!
-  ): Team! @auth
+  ): ReconcilerResource! @auth
 
   "Update the deploy key of a team. Returns the updated deploy key."
   changeDeployKey(
@@ -440,6 +440,10 @@ type ReconcilerResource {
 
   "Metadata if any. JSON formatted."
   metadata: String
+
+  "Temporary workaround until repository is a first class citizen. Will only be populated for GitHub repos."
+  authorizations: [RepositoryAuthorization!]
+    @deprecated(reason: "Just a temporary workaround")
 }
 
 # TODO: FIX

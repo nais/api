@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/slug"
 )
 
 // Reconciler type.
@@ -29,4 +30,10 @@ type ReconcilerResource struct {
 	Value string `json:"value"`
 	// Metadata if any. JSON formatted.
 	Metadata *string `json:"metadata"`
+
+	GQLVars ReconcilerResourceGQLVars `json:"-"`
+}
+
+type ReconcilerResourceGQLVars struct {
+	Team slug.Slug
 }

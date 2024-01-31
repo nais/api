@@ -49,6 +49,7 @@ type ResolverRoot interface {
 	NaisJob() NaisJobResolver
 	Query() QueryResolver
 	Reconciler() ReconcilerResolver
+	ReconcilerResource() ReconcilerResourceResolver
 	ServiceAccount() ServiceAccountResolver
 	Subscription() SubscriptionResolver
 	Team() TeamResolver
@@ -604,11 +605,12 @@ type ComplexityRoot struct {
 	}
 
 	ReconcilerResource struct {
-		ID         func(childComplexity int) int
-		Key        func(childComplexity int) int
-		Metadata   func(childComplexity int) int
-		Reconciler func(childComplexity int) int
-		Value      func(childComplexity int) int
+		Authorizations func(childComplexity int) int
+		ID             func(childComplexity int) int
+		Key            func(childComplexity int) int
+		Metadata       func(childComplexity int) int
+		Reconciler     func(childComplexity int) int
+		Value          func(childComplexity int) int
 	}
 
 	ReconcilerResourceList struct {
@@ -910,8 +912,8 @@ type MutationResolver interface {
 	SetTeamMemberRole(ctx context.Context, slug slug.Slug, userID scalar.Ident, role model.TeamRole) (*model.Team, error)
 	RequestTeamDeletion(ctx context.Context, slug slug.Slug) (*model.TeamDeleteKey, error)
 	ConfirmTeamDeletion(ctx context.Context, key string) (bool, error)
-	AuthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.Team, error)
-	DeauthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.Team, error)
+	AuthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.ReconcilerResource, error)
+	DeauthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.ReconcilerResource, error)
 	ChangeDeployKey(ctx context.Context, team slug.Slug) (*model.DeploymentKey, error)
 	SynchronizeUsers(ctx context.Context) (string, error)
 }
@@ -951,6 +953,9 @@ type ReconcilerResolver interface {
 	Config(ctx context.Context, obj *model.Reconciler) ([]*model.ReconcilerConfig, error)
 	Configured(ctx context.Context, obj *model.Reconciler) (bool, error)
 	AuditLogs(ctx context.Context, obj *model.Reconciler, offset *int, limit *int) (*model.AuditLogList, error)
+}
+type ReconcilerResourceResolver interface {
+	Authorizations(ctx context.Context, obj *model.ReconcilerResource) ([]model.RepositoryAuthorization, error)
 }
 type ServiceAccountResolver interface {
 	Roles(ctx context.Context, obj *model.ServiceAccount) ([]*model.Role, error)
@@ -3416,6 +3421,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ReconcilerList.PageInfo(childComplexity), true
+
+	case "ReconcilerResource.authorizations":
+		if e.complexity.ReconcilerResource.Authorizations == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerResource.Authorizations(childComplexity), true
 
 	case "ReconcilerResource.id":
 		if e.complexity.ReconcilerResource.ID == nil {
@@ -6111,7 +6123,7 @@ extend type Mutation {
 
     "Name of the repository, with the org prefix, for instance 'org/repo'."
     repoName: String!
-  ): Team! @auth
+  ): ReconcilerResource! @auth
 
   "Deauthorize an action from a team."
   deauthorizeRepository(
@@ -6123,7 +6135,7 @@ extend type Mutation {
 
     "Name of the repository, with the org prefix, for instance 'org/repo'."
     repoName: String!
-  ): Team! @auth
+  ): ReconcilerResource! @auth
 
   "Update the deploy key of a team. Returns the updated deploy key."
   changeDeployKey(
@@ -6354,6 +6366,10 @@ type ReconcilerResource {
 
   "Metadata if any. JSON formatted."
   metadata: String
+
+  "Temporary workaround until repository is a first class citizen. Will only be populated for GitHub repos."
+  authorizations: [RepositoryAuthorization!]
+    @deprecated(reason: "Just a temporary workaround")
 }
 
 # TODO: FIX
@@ -19694,10 +19710,10 @@ func (ec *executionContext) _Mutation_authorizeRepository(ctx context.Context, f
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*model.Team); ok {
+		if data, ok := tmp.(*model.ReconcilerResource); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.Team`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.ReconcilerResource`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19709,9 +19725,9 @@ func (ec *executionContext) _Mutation_authorizeRepository(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Team)
+	res := resTmp.(*model.ReconcilerResource)
 	fc.Result = res
-	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
+	return ec.marshalNReconcilerResource2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerResource(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_authorizeRepository(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -19723,51 +19739,19 @@ func (ec *executionContext) fieldContext_Mutation_authorizeRepository(ctx contex
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "auditLogs":
-				return ec.fieldContext_Team_auditLogs(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
-			case "syncErrors":
-				return ec.fieldContext_Team_syncErrors(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "reconcilerResources":
-				return ec.fieldContext_Team_reconcilerResources(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "slackAlertsChannels":
-				return ec.fieldContext_Team_slackAlertsChannels(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "status":
-				return ec.fieldContext_Team_status(ctx, field)
-			case "apps":
-				return ec.fieldContext_Team_apps(ctx, field)
-			case "deployKey":
-				return ec.fieldContext_Team_deployKey(ctx, field)
-			case "naisjobs":
-				return ec.fieldContext_Team_naisjobs(ctx, field)
-			case "deployments":
-				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
-			case "vulnerabilitiesSummary":
-				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
+				return ec.fieldContext_ReconcilerResource_id(ctx, field)
+			case "reconciler":
+				return ec.fieldContext_ReconcilerResource_reconciler(ctx, field)
+			case "key":
+				return ec.fieldContext_ReconcilerResource_key(ctx, field)
+			case "value":
+				return ec.fieldContext_ReconcilerResource_value(ctx, field)
+			case "metadata":
+				return ec.fieldContext_ReconcilerResource_metadata(ctx, field)
+			case "authorizations":
+				return ec.fieldContext_ReconcilerResource_authorizations(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ReconcilerResource", field.Name)
 		},
 	}
 	defer func() {
@@ -19815,10 +19799,10 @@ func (ec *executionContext) _Mutation_deauthorizeRepository(ctx context.Context,
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*model.Team); ok {
+		if data, ok := tmp.(*model.ReconcilerResource); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.Team`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.ReconcilerResource`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19830,9 +19814,9 @@ func (ec *executionContext) _Mutation_deauthorizeRepository(ctx context.Context,
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Team)
+	res := resTmp.(*model.ReconcilerResource)
 	fc.Result = res
-	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
+	return ec.marshalNReconcilerResource2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerResource(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_deauthorizeRepository(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -19844,51 +19828,19 @@ func (ec *executionContext) fieldContext_Mutation_deauthorizeRepository(ctx cont
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "auditLogs":
-				return ec.fieldContext_Team_auditLogs(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
-			case "syncErrors":
-				return ec.fieldContext_Team_syncErrors(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "reconcilerResources":
-				return ec.fieldContext_Team_reconcilerResources(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "slackAlertsChannels":
-				return ec.fieldContext_Team_slackAlertsChannels(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "status":
-				return ec.fieldContext_Team_status(ctx, field)
-			case "apps":
-				return ec.fieldContext_Team_apps(ctx, field)
-			case "deployKey":
-				return ec.fieldContext_Team_deployKey(ctx, field)
-			case "naisjobs":
-				return ec.fieldContext_Team_naisjobs(ctx, field)
-			case "deployments":
-				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
-			case "vulnerabilitiesSummary":
-				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
+				return ec.fieldContext_ReconcilerResource_id(ctx, field)
+			case "reconciler":
+				return ec.fieldContext_ReconcilerResource_reconciler(ctx, field)
+			case "key":
+				return ec.fieldContext_ReconcilerResource_key(ctx, field)
+			case "value":
+				return ec.fieldContext_ReconcilerResource_value(ctx, field)
+			case "metadata":
+				return ec.fieldContext_ReconcilerResource_metadata(ctx, field)
+			case "authorizations":
+				return ec.fieldContext_ReconcilerResource_authorizations(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ReconcilerResource", field.Name)
 		},
 	}
 	defer func() {
@@ -24746,6 +24698,47 @@ func (ec *executionContext) fieldContext_ReconcilerResource_metadata(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _ReconcilerResource_authorizations(ctx context.Context, field graphql.CollectedField, obj *model.ReconcilerResource) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerResource_authorizations(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ReconcilerResource().Authorizations(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]model.RepositoryAuthorization)
+	fc.Result = res
+	return ec.marshalORepositoryAuthorization2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorizationᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerResource_authorizations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerResource",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type RepositoryAuthorization does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ReconcilerResourceList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.ReconcilerResourceList) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ReconcilerResourceList_nodes(ctx, field)
 	if err != nil {
@@ -24795,6 +24788,8 @@ func (ec *executionContext) fieldContext_ReconcilerResourceList_nodes(ctx contex
 				return ec.fieldContext_ReconcilerResource_value(ctx, field)
 			case "metadata":
 				return ec.fieldContext_ReconcilerResource_metadata(ctx, field)
+			case "authorizations":
+				return ec.fieldContext_ReconcilerResource_authorizations(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ReconcilerResource", field.Name)
 		},
@@ -39771,25 +39766,58 @@ func (ec *executionContext) _ReconcilerResource(ctx context.Context, sel ast.Sel
 		case "id":
 			out.Values[i] = ec._ReconcilerResource_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "reconciler":
 			out.Values[i] = ec._ReconcilerResource_reconciler(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "key":
 			out.Values[i] = ec._ReconcilerResource_key(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "value":
 			out.Values[i] = ec._ReconcilerResource_value(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "metadata":
 			out.Values[i] = ec._ReconcilerResource_metadata(ctx, field, obj)
+		case "authorizations":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ReconcilerResource_authorizations(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -44915,6 +44943,10 @@ func (ec *executionContext) marshalNReconcilerList2ᚖgithubᚗcomᚋnaisᚋapi�
 	return ec._ReconcilerList(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNReconcilerResource2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerResource(ctx context.Context, sel ast.SelectionSet, v model.ReconcilerResource) graphql.Marshaler {
+	return ec._ReconcilerResource(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNReconcilerResource2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerResourceᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ReconcilerResource) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -46718,6 +46750,73 @@ func (ec *executionContext) unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋint
 	}
 	res, err := ec.unmarshalInputOrderBy(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalORepositoryAuthorization2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorizationᚄ(ctx context.Context, v interface{}) ([]model.RepositoryAuthorization, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]model.RepositoryAuthorization, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNRepositoryAuthorization2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorization(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalORepositoryAuthorization2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorizationᚄ(ctx context.Context, sel ast.SelectionSet, v []model.RepositoryAuthorization) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRepositoryAuthorization2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorization(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalOResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResources(ctx context.Context, sel ast.SelectionSet, v *model.Resources) graphql.Marshaler {

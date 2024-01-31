@@ -61,6 +61,7 @@ type Querier interface {
 	GetReconciler(ctx context.Context, name string) (*Reconciler, error)
 	GetReconcilerConfig(ctx context.Context, reconcilerName string) ([]*GetReconcilerConfigRow, error)
 	GetReconcilerResourceByKey(ctx context.Context, arg GetReconcilerResourceByKeyParams) ([]*ReconcilerResource, error)
+	GetReconcilerResourceByKeyAndValue(ctx context.Context, arg GetReconcilerResourceByKeyAndValueParams) (*ReconcilerResource, error)
 	GetReconcilerResourceByKeyTotal(ctx context.Context, arg GetReconcilerResourceByKeyTotalParams) (int64, error)
 	GetReconcilerResourcesForReconciler(ctx context.Context, arg GetReconcilerResourcesForReconcilerParams) ([]*ReconcilerResource, error)
 	GetReconcilerResourcesForReconcilerAndTeam(ctx context.Context, arg GetReconcilerResourcesForReconcilerAndTeamParams) ([]*ReconcilerResource, error)

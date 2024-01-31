@@ -14,6 +14,7 @@ type ReconcilerResource struct {
 type ReconcilerResourceRepo interface {
 	UpsertReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key, value string, metadata []byte) (*ReconcilerResource, error)
 	GetReconcilerResourcesByKey(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, p Page) (ret []*ReconcilerResource, total int, err error)
+	GetReconcilerResourcesByKeyAndValue(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key, value string) (ret *ReconcilerResource, err error)
 	GetReconcilerResources(ctx context.Context, reconcilerName string, teamSlug *slug.Slug, p Page) ([]*ReconcilerResource, error)
 }
 
@@ -88,4 +89,18 @@ func (d *database) GetReconcilerResourcesByKey(ctx context.Context, reconcilerNa
 	}
 
 	return ret, int(total), nil
+}
+
+func (d *database) GetReconcilerResourcesByKeyAndValue(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key, value string) (*ReconcilerResource, error) {
+	res, err := d.querier.GetReconcilerResourceByKeyAndValue(ctx, gensql.GetReconcilerResourceByKeyAndValueParams{
+		ReconcilerName: reconcilerName,
+		TeamSlug:       teamSlug,
+		Name:           key,
+		Value:          value,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &ReconcilerResource{res}, nil
 }
