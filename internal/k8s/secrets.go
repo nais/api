@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"context"
 	"fmt"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -23,8 +24,8 @@ import (
 )
 
 const (
-	secretLabelKey = "nais.io/managed-by"
 	secretLabelVal = "console"
+	secretLabelKey = "nais.io/managed-by"
 )
 
 // Secrets lists all secrets for a given team in all environments
@@ -322,6 +323,10 @@ func makeSecretIdent(env, namespace, name string) scalar.Ident {
 	return scalar.SecretIdent("secret_" + env + "_" + namespace + "_" + name)
 }
 
+const envVarNameFmtErrMsg = "must consist of alphabetic characters, digits, '_', and must not start with a digit"
+
+var envVarNameRegexp = regexp.MustCompile("^[_a-zA-Z][_a-zA-Z0-9]*$")
+
 func validateSecretData(data []*model.SecretTupleInput) error {
 	seen := make(map[string]bool)
 
@@ -333,8 +338,12 @@ func validateSecretData(data []*model.SecretTupleInput) error {
 
 		seen[d.Key] = true
 
-		if errs := validation.IsConfigMapKey(d.Key); len(errs) > 0 {
-			return fmt.Errorf("invalid key: %q: %s", d.Key, strings.Join(errs, ", "))
+		if len(d.Key) > validation.DNS1123SubdomainMaxLength {
+			return fmt.Errorf("%q is too long: %d characters, max %d", d.Key, len(d.Key), validation.DNS1123SubdomainMaxLength)
+		}
+
+		if !envVarNameRegexp.MatchString(d.Key) {
+			return fmt.Errorf("%q is invalid: %s", d.Key, envVarNameFmtErrMsg)
 		}
 	}
 
