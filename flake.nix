@@ -2,9 +2,7 @@
   description = "Example Go development environment for Zero to Nix";
 
   # Flake inputs
-  inputs = {
-      nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.2311.554136.tar.gz";
-  };
+  inputs = { nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable"; };
 
   # Flake outputs
   outputs = { self, nixpkgs }:
@@ -30,6 +28,9 @@
             go
             gotools # Go tools like goimports, godoc, and others
             gopls
+            protoc-gen-go
+            protobuf
+            protoc-gen-go-grpc
           ];
         };
       });

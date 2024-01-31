@@ -2,16 +2,18 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1704874635,
-        "narHash": "sha256-YWuCrtsty5vVZvu+7BchAxmcYzTMfolSPP5io8+WYCg=",
-        "rev": "3dc440faeee9e889fe2d1b4d25ad0f430d449356",
-        "revCount": 554136,
-        "type": "tarball",
-        "url": "https://api.flakehub.com/f/pinned/NixOS/nixpkgs/0.2311.554136%2Brev-3dc440faeee9e889fe2d1b4d25ad0f430d449356/018cf594-fa9a-7d3b-b6c3-66caa2a2d65d/source.tar.gz"
+        "lastModified": 1706589919,
+        "narHash": "sha256-pNHnDITxSI3a17GOF1RUF3jBO1OiNYTRH2yV/cJG4m4=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "222c1940fafeda4dea161858ffe6ebfc853d3db5",
+        "type": "github"
       },
       "original": {
-        "type": "tarball",
-        "url": "https://flakehub.com/f/NixOS/nixpkgs/0.2311.554136.tar.gz"
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
       }
     },
     "root": {
