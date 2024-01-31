@@ -33,7 +33,6 @@ type Page struct {
 type Database interface {
 	AuditLogsRepo
 	CostRepo
-	FirstRunRepo
 	ReconcilerErrorRepo
 	ReconcilerRepo
 	ReconcilerResourceRepo

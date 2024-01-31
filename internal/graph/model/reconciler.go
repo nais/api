@@ -14,8 +14,8 @@ type Reconciler struct {
 	Description string `json:"description"`
 	// Whether or not the reconciler is enabled.
 	Enabled bool `json:"enabled"`
-	// The run order of the reconciler.
-	RunOrder int `json:"runOrder"`
+	// Whether or not the reconciler uses team memberships when syncing.
+	MemberAware bool `json:"memberAware"`
 }
 
 type ReconcilerResource struct {

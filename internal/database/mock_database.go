@@ -1592,52 +1592,6 @@ func (_c *MockDatabase_ExtendSession_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
-// FirstRunComplete provides a mock function with given fields: ctx
-func (_m *MockDatabase) FirstRunComplete(ctx context.Context) error {
-	ret := _m.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for FirstRunComplete")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = rf(ctx)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockDatabase_FirstRunComplete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FirstRunComplete'
-type MockDatabase_FirstRunComplete_Call struct {
-	*mock.Call
-}
-
-// FirstRunComplete is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *MockDatabase_Expecter) FirstRunComplete(ctx interface{}) *MockDatabase_FirstRunComplete_Call {
-	return &MockDatabase_FirstRunComplete_Call{Call: _e.mock.On("FirstRunComplete", ctx)}
-}
-
-func (_c *MockDatabase_FirstRunComplete_Call) Run(run func(ctx context.Context)) *MockDatabase_FirstRunComplete_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_FirstRunComplete_Call) Return(_a0 error) *MockDatabase_FirstRunComplete_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockDatabase_FirstRunComplete_Call) RunAndReturn(run func(context.Context) error) *MockDatabase_FirstRunComplete_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetActiveTeamBySlug provides a mock function with given fields: ctx, teamSlug
 func (_m *MockDatabase) GetActiveTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error) {
 	ret := _m.Called(ctx, teamSlug)
@@ -3907,62 +3861,6 @@ func (_c *MockDatabase_GetUsersWithGloballyAssignedRole_Call) Return(_a0 []*User
 }
 
 func (_c *MockDatabase_GetUsersWithGloballyAssignedRole_Call) RunAndReturn(run func(context.Context, gensql.RoleName) ([]*User, error)) *MockDatabase_GetUsersWithGloballyAssignedRole_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// IsFirstRun provides a mock function with given fields: ctx
-func (_m *MockDatabase) IsFirstRun(ctx context.Context) (bool, error) {
-	ret := _m.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for IsFirstRun")
-	}
-
-	var r0 bool
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (bool, error)); ok {
-		return rf(ctx)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context) bool); ok {
-		r0 = rf(ctx)
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_IsFirstRun_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsFirstRun'
-type MockDatabase_IsFirstRun_Call struct {
-	*mock.Call
-}
-
-// IsFirstRun is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *MockDatabase_Expecter) IsFirstRun(ctx interface{}) *MockDatabase_IsFirstRun_Call {
-	return &MockDatabase_IsFirstRun_Call{Call: _e.mock.On("IsFirstRun", ctx)}
-}
-
-func (_c *MockDatabase_IsFirstRun_Call) Run(run func(ctx context.Context)) *MockDatabase_IsFirstRun_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_IsFirstRun_Call) Return(_a0 bool, _a1 error) *MockDatabase_IsFirstRun_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockDatabase_IsFirstRun_Call) RunAndReturn(run func(context.Context) (bool, error)) *MockDatabase_IsFirstRun_Call {
 	_c.Call.Return(run)
 	return _c
 }

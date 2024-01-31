@@ -3,6 +3,11 @@
 -- extensions
 CREATE EXTENSION fuzzystrmatch;
 
+-- functions
+CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS
+$$ BEGIN NEW.updated_at = NOW(); RETURN NEW; END; $$
+    LANGUAGE plpgsql;
+
 -- types
 
 CREATE DOMAIN slug AS
@@ -64,10 +69,6 @@ CREATE TABLE cost (
     CONSTRAINT daily_cost_key UNIQUE (environment, team_slug, app, cost_type, date)
 );
 
-CREATE TABLE first_run (
-    first_run boolean NOT NULL
-);
-
 CREATE TABLE reconciler_errors (
     id BIGSERIAL,
     correlation_id uuid NOT NULL,
@@ -94,6 +95,18 @@ CREATE TABLE reconciler_opt_outs (
     user_id UUID NOT NULL,
     reconciler_name text NOT NULL,
     PRIMARY KEY(team_slug, user_id, reconciler_name)
+);
+
+CREATE TABLE reconciler_resources (
+  id UUID DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
+  reconciler_name text NOT NULL,
+  team_slug slug NOT NULL,
+  name TEXT NOT NULL,
+  value TEXT NOT NULL,
+  metadata JSONB DEFAULT '{}'::jsonb NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(reconciler_name, team_slug, name)
 );
 
 CREATE TABLE reconcilers (
@@ -221,6 +234,7 @@ CREATE INDEX ON resource_utilization_metrics (environment);
 CREATE INDEX ON resource_utilization_metrics (resource_type);
 CREATE INDEX ON resource_utilization_metrics (team_slug);
 CREATE INDEX ON resource_utilization_metrics (timestamp);
+CREATE INDEX ON reconciler_resources (reconciler_name, name, team_slug);
 CREATE UNIQUE INDEX ON service_account_roles USING btree (service_account_id, role_name) WHERE ((target_team_slug IS NULL) AND (target_service_account_id IS NULL));
 CREATE UNIQUE INDEX ON user_roles USING btree (user_id, role_name) WHERE ((target_team_slug IS NULL) AND (target_service_account_id IS NULL));
 CREATE UNIQUE INDEX ON service_account_roles USING btree (service_account_id, role_name, target_service_account_id) WHERE (target_service_account_id IS NOT NULL);
@@ -271,6 +285,13 @@ ADD FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 ALTER TABLE resource_utilization_metrics
 ADD FOREIGN KEY (team_slug) REFERENCES teams(slug) ON DELETE CASCADE;
 
--- data
+ALTER TABLE reconciler_resources
+ADD FOREIGN KEY (team_slug) REFERENCES teams(slug) ON DELETE CASCADE,
+ADD FOREIGN KEY (reconciler_name) REFERENCES reconcilers(name) ON DELETE CASCADE;
 
-INSERT INTO first_run VALUES(true);
+-- triggers
+CREATE TRIGGER reconciler_resources_set_updated
+    BEFORE UPDATE
+    ON reconciler_resources
+    FOR EACH ROW
+    EXECUTE PROCEDURE set_updated_at();

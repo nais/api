@@ -579,15 +579,14 @@ type ComplexityRoot struct {
 	}
 
 	Reconciler struct {
-		AuditLogs           func(childComplexity int, offset *int, limit *int) int
-		Config              func(childComplexity int) int
-		Configured          func(childComplexity int) int
-		Description         func(childComplexity int) int
-		DisplayName         func(childComplexity int) int
-		Enabled             func(childComplexity int) int
-		Name                func(childComplexity int) int
-		RunOrder            func(childComplexity int) int
-		UsesTeamMemberships func(childComplexity int) int
+		AuditLogs   func(childComplexity int, offset *int, limit *int) int
+		Config      func(childComplexity int) int
+		Configured  func(childComplexity int) int
+		Description func(childComplexity int) int
+		DisplayName func(childComplexity int) int
+		Enabled     func(childComplexity int) int
+		MemberAware func(childComplexity int) int
+		Name        func(childComplexity int) int
 	}
 
 	ReconcilerConfig struct {
@@ -949,10 +948,8 @@ type QueryResolver interface {
 	UserSync(ctx context.Context) ([]*model.UserSyncRun, error)
 }
 type ReconcilerResolver interface {
-	UsesTeamMemberships(ctx context.Context, obj *model.Reconciler) (bool, error)
 	Config(ctx context.Context, obj *model.Reconciler) ([]*model.ReconcilerConfig, error)
 	Configured(ctx context.Context, obj *model.Reconciler) (bool, error)
-
 	AuditLogs(ctx context.Context, obj *model.Reconciler, offset *int, limit *int) (*model.AuditLogList, error)
 }
 type ServiceAccountResolver interface {
@@ -3350,26 +3347,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Reconciler.Enabled(childComplexity), true
 
+	case "Reconciler.memberAware":
+		if e.complexity.Reconciler.MemberAware == nil {
+			break
+		}
+
+		return e.complexity.Reconciler.MemberAware(childComplexity), true
+
 	case "Reconciler.name":
 		if e.complexity.Reconciler.Name == nil {
 			break
 		}
 
 		return e.complexity.Reconciler.Name(childComplexity), true
-
-	case "Reconciler.runOrder":
-		if e.complexity.Reconciler.RunOrder == nil {
-			break
-		}
-
-		return e.complexity.Reconciler.RunOrder(childComplexity), true
-
-	case "Reconciler.usesTeamMemberships":
-		if e.complexity.Reconciler.UsesTeamMemberships == nil {
-			break
-		}
-
-		return e.complexity.Reconciler.UsesTeamMemberships(childComplexity), true
 
 	case "ReconcilerConfig.configured":
 		if e.complexity.ReconcilerConfig.Configured == nil {
@@ -5382,7 +5372,7 @@ type NaisJobList {
     name: String!
   ): Reconciler! @admin
 
-  "Add opt-out of a reconciler for a team member. Only reconcilers that uses team memberships can be opted out from."
+  "Add opt-out of a reconciler for a team member. Only reconcilers that are member aware can be opted out from."
   addReconcilerOptOut(
     "The team slug."
     teamSlug: Slug!
@@ -5409,10 +5399,7 @@ type NaisJobList {
 
 extend type Query {
   "Get a collection of reconcilers."
-  reconcilers(
-    offset: Int
-    limit: Int
-  ): ReconcilerList! @auth
+  reconcilers(offset: Int, limit: Int): ReconcilerList! @auth
 }
 
 "Paginated reconcilers type."
@@ -5439,16 +5426,13 @@ type Reconciler {
   enabled: Boolean!
 
   "Whether or not the reconciler uses team memberships when syncing."
-  usesTeamMemberships: Boolean!
+  memberAware: Boolean!
 
   "Reconciler configuration keys and descriptions."
   config: [ReconcilerConfig!]! @admin
 
   "Whether or not the reconciler is fully configured and ready to be enabled."
   configured: Boolean! @admin
-
-  "The run order of the reconciler."
-  runOrder: Int!
 
   "Audit logs for this reconciler."
   auditLogs(offset: Int, limit: Int): AuditLogList! @admin
@@ -17967,14 +17951,12 @@ func (ec *executionContext) fieldContext_Mutation_enableReconciler(ctx context.C
 				return ec.fieldContext_Reconciler_description(ctx, field)
 			case "enabled":
 				return ec.fieldContext_Reconciler_enabled(ctx, field)
-			case "usesTeamMemberships":
-				return ec.fieldContext_Reconciler_usesTeamMemberships(ctx, field)
+			case "memberAware":
+				return ec.fieldContext_Reconciler_memberAware(ctx, field)
 			case "config":
 				return ec.fieldContext_Reconciler_config(ctx, field)
 			case "configured":
 				return ec.fieldContext_Reconciler_configured(ctx, field)
-			case "runOrder":
-				return ec.fieldContext_Reconciler_runOrder(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Reconciler_auditLogs(ctx, field)
 			}
@@ -18062,14 +18044,12 @@ func (ec *executionContext) fieldContext_Mutation_disableReconciler(ctx context.
 				return ec.fieldContext_Reconciler_description(ctx, field)
 			case "enabled":
 				return ec.fieldContext_Reconciler_enabled(ctx, field)
-			case "usesTeamMemberships":
-				return ec.fieldContext_Reconciler_usesTeamMemberships(ctx, field)
+			case "memberAware":
+				return ec.fieldContext_Reconciler_memberAware(ctx, field)
 			case "config":
 				return ec.fieldContext_Reconciler_config(ctx, field)
 			case "configured":
 				return ec.fieldContext_Reconciler_configured(ctx, field)
-			case "runOrder":
-				return ec.fieldContext_Reconciler_runOrder(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Reconciler_auditLogs(ctx, field)
 			}
@@ -18157,14 +18137,12 @@ func (ec *executionContext) fieldContext_Mutation_configureReconciler(ctx contex
 				return ec.fieldContext_Reconciler_description(ctx, field)
 			case "enabled":
 				return ec.fieldContext_Reconciler_enabled(ctx, field)
-			case "usesTeamMemberships":
-				return ec.fieldContext_Reconciler_usesTeamMemberships(ctx, field)
+			case "memberAware":
+				return ec.fieldContext_Reconciler_memberAware(ctx, field)
 			case "config":
 				return ec.fieldContext_Reconciler_config(ctx, field)
 			case "configured":
 				return ec.fieldContext_Reconciler_configured(ctx, field)
-			case "runOrder":
-				return ec.fieldContext_Reconciler_runOrder(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Reconciler_auditLogs(ctx, field)
 			}
@@ -18252,14 +18230,12 @@ func (ec *executionContext) fieldContext_Mutation_resetReconciler(ctx context.Co
 				return ec.fieldContext_Reconciler_description(ctx, field)
 			case "enabled":
 				return ec.fieldContext_Reconciler_enabled(ctx, field)
-			case "usesTeamMemberships":
-				return ec.fieldContext_Reconciler_usesTeamMemberships(ctx, field)
+			case "memberAware":
+				return ec.fieldContext_Reconciler_memberAware(ctx, field)
 			case "config":
 				return ec.fieldContext_Reconciler_config(ctx, field)
 			case "configured":
 				return ec.fieldContext_Reconciler_configured(ctx, field)
-			case "runOrder":
-				return ec.fieldContext_Reconciler_runOrder(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Reconciler_auditLogs(ctx, field)
 			}
@@ -23911,8 +23887,8 @@ func (ec *executionContext) fieldContext_Reconciler_enabled(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Reconciler_usesTeamMemberships(ctx context.Context, field graphql.CollectedField, obj *model.Reconciler) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Reconciler_usesTeamMemberships(ctx, field)
+func (ec *executionContext) _Reconciler_memberAware(ctx context.Context, field graphql.CollectedField, obj *model.Reconciler) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Reconciler_memberAware(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -23925,7 +23901,7 @@ func (ec *executionContext) _Reconciler_usesTeamMemberships(ctx context.Context,
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Reconciler().UsesTeamMemberships(rctx, obj)
+		return obj.MemberAware, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23942,12 +23918,12 @@ func (ec *executionContext) _Reconciler_usesTeamMemberships(ctx context.Context,
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Reconciler_usesTeamMemberships(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Reconciler_memberAware(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Reconciler",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
 		},
@@ -24092,50 +24068,6 @@ func (ec *executionContext) fieldContext_Reconciler_configured(ctx context.Conte
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Reconciler_runOrder(ctx context.Context, field graphql.CollectedField, obj *model.Reconciler) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Reconciler_runOrder(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.RunOrder, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Reconciler_runOrder(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Reconciler",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -24530,14 +24462,12 @@ func (ec *executionContext) fieldContext_ReconcilerList_nodes(ctx context.Contex
 				return ec.fieldContext_Reconciler_description(ctx, field)
 			case "enabled":
 				return ec.fieldContext_Reconciler_enabled(ctx, field)
-			case "usesTeamMemberships":
-				return ec.fieldContext_Reconciler_usesTeamMemberships(ctx, field)
+			case "memberAware":
+				return ec.fieldContext_Reconciler_memberAware(ctx, field)
 			case "config":
 				return ec.fieldContext_Reconciler_config(ctx, field)
 			case "configured":
 				return ec.fieldContext_Reconciler_configured(ctx, field)
-			case "runOrder":
-				return ec.fieldContext_Reconciler_runOrder(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Reconciler_auditLogs(ctx, field)
 			}
@@ -30598,14 +30528,12 @@ func (ec *executionContext) fieldContext_TeamMemberReconciler_reconciler(ctx con
 				return ec.fieldContext_Reconciler_description(ctx, field)
 			case "enabled":
 				return ec.fieldContext_Reconciler_enabled(ctx, field)
-			case "usesTeamMemberships":
-				return ec.fieldContext_Reconciler_usesTeamMemberships(ctx, field)
+			case "memberAware":
+				return ec.fieldContext_Reconciler_memberAware(ctx, field)
 			case "config":
 				return ec.fieldContext_Reconciler_config(ctx, field)
 			case "configured":
 				return ec.fieldContext_Reconciler_configured(ctx, field)
-			case "runOrder":
-				return ec.fieldContext_Reconciler_runOrder(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Reconciler_auditLogs(ctx, field)
 			}
@@ -39588,42 +39516,11 @@ func (ec *executionContext) _Reconciler(ctx context.Context, sel ast.SelectionSe
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "usesTeamMemberships":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Reconciler_usesTeamMemberships(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+		case "memberAware":
+			out.Values[i] = ec._Reconciler_memberAware(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "config":
 			field := field
 
@@ -39696,11 +39593,6 @@ func (ec *executionContext) _Reconciler(ctx context.Context, sel ast.SelectionSe
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "runOrder":
-			out.Values[i] = ec._Reconciler_runOrder(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "auditLogs":
 			field := field
 

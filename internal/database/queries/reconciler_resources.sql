@@ -26,8 +26,8 @@ INSERT INTO reconciler_resources (
   @value,
   COALESCE(@metadata, '{}'::jsonb)
 )
-ON CONFLICT (reconciler_name, team_slug, name) DO
-UPDATE SET value = EXCLUDED.value, metadata = EXCLUDED.metadata
+ON CONFLICT (reconciler_name, team_slug, name, value) DO
+UPDATE SET metadata = EXCLUDED.metadata
 RETURNING *;
 
 -- name: GetReconcilerResourceByKey :many

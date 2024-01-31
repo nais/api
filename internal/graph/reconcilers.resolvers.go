@@ -304,11 +304,6 @@ func (r *queryResolver) Reconcilers(ctx context.Context, offset *int, limit *int
 	}, nil
 }
 
-// UsesTeamMemberships is the resolver for the usesTeamMemberships field.
-func (r *reconcilerResolver) UsesTeamMemberships(ctx context.Context, obj *model.Reconciler) (bool, error) {
-	panic(fmt.Errorf("not implemented: UsesTeamMemberships - usesTeamMemberships"))
-}
-
 // Config is the resolver for the config field.
 func (r *reconcilerResolver) Config(ctx context.Context, obj *model.Reconciler) ([]*model.ReconcilerConfig, error) {
 	config, err := r.database.GetReconcilerConfig(ctx, obj.Name)

@@ -61,7 +61,7 @@ helm-lint:
 	helm lint --strict ./charts
 
 setup-local:
-	GOOGLE_MANAGEMENT_PROJECT_ID=nais-local-dev go run ./cmd/setup_local -users 1000 -teams 100 -owners 2 -members 10
+	GOOGLE_MANAGEMENT_PROJECT_ID=nais-local-dev go run ./cmd/setup_local -users 40 -teams 10 -owners 2 -members 4
 
 stop-integration-test-db:
 	docker stop $(TEST_POSTGRES_CONTAINER_NAME) || true && docker rm $(TEST_POSTGRES_CONTAINER_NAME) || true
@@ -71,4 +71,3 @@ start-integration-test-db: stop-integration-test-db
 
 integration-test: start-integration-test-db
 	go test ./... -tags=db_integration_test
-

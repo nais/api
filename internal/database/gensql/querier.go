@@ -47,7 +47,6 @@ type Querier interface {
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	DisableReconciler(ctx context.Context, name string) (*Reconciler, error)
 	EnableReconciler(ctx context.Context, name string) (*Reconciler, error)
-	FirstRunComplete(ctx context.Context) error
 	GetActiveTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	GetActiveTeams(ctx context.Context) ([]*Team, error)
 	GetAllTeamMembers(ctx context.Context, teamSlug *slug.Slug) ([]*User, error)
@@ -95,7 +94,6 @@ type Querier interface {
 	GetUsers(ctx context.Context, arg GetUsersParams) ([]*User, error)
 	GetUsersCount(ctx context.Context) (int64, error)
 	GetUsersWithGloballyAssignedRole(ctx context.Context, roleName RoleName) ([]*User, error)
-	IsFirstRun(ctx context.Context) (bool, error)
 	// LastCostDate will return the last date that has a cost.
 	LastCostDate(ctx context.Context) (pgtype.Date, error)
 	// MaxResourceUtilizationDate will return the max date for resource utilization records.

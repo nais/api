@@ -1535,52 +1535,6 @@ func (_c *MockQuerier_EnableReconciler_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
-// FirstRunComplete provides a mock function with given fields: ctx
-func (_m *MockQuerier) FirstRunComplete(ctx context.Context) error {
-	ret := _m.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for FirstRunComplete")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = rf(ctx)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockQuerier_FirstRunComplete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FirstRunComplete'
-type MockQuerier_FirstRunComplete_Call struct {
-	*mock.Call
-}
-
-// FirstRunComplete is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *MockQuerier_Expecter) FirstRunComplete(ctx interface{}) *MockQuerier_FirstRunComplete_Call {
-	return &MockQuerier_FirstRunComplete_Call{Call: _e.mock.On("FirstRunComplete", ctx)}
-}
-
-func (_c *MockQuerier_FirstRunComplete_Call) Run(run func(ctx context.Context)) *MockQuerier_FirstRunComplete_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_FirstRunComplete_Call) Return(_a0 error) *MockQuerier_FirstRunComplete_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockQuerier_FirstRunComplete_Call) RunAndReturn(run func(context.Context) error) *MockQuerier_FirstRunComplete_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetActiveTeamBySlug provides a mock function with given fields: ctx, argSlug
 func (_m *MockQuerier) GetActiveTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error) {
 	ret := _m.Called(ctx, argSlug)
@@ -4323,62 +4277,6 @@ func (_c *MockQuerier_GetUsersWithGloballyAssignedRole_Call) Return(_a0 []*User,
 }
 
 func (_c *MockQuerier_GetUsersWithGloballyAssignedRole_Call) RunAndReturn(run func(context.Context, RoleName) ([]*User, error)) *MockQuerier_GetUsersWithGloballyAssignedRole_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// IsFirstRun provides a mock function with given fields: ctx
-func (_m *MockQuerier) IsFirstRun(ctx context.Context) (bool, error) {
-	ret := _m.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for IsFirstRun")
-	}
-
-	var r0 bool
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (bool, error)); ok {
-		return rf(ctx)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context) bool); ok {
-		r0 = rf(ctx)
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_IsFirstRun_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsFirstRun'
-type MockQuerier_IsFirstRun_Call struct {
-	*mock.Call
-}
-
-// IsFirstRun is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *MockQuerier_Expecter) IsFirstRun(ctx interface{}) *MockQuerier_IsFirstRun_Call {
-	return &MockQuerier_IsFirstRun_Call{Call: _e.mock.On("IsFirstRun", ctx)}
-}
-
-func (_c *MockQuerier_IsFirstRun_Call) Run(run func(ctx context.Context)) *MockQuerier_IsFirstRun_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_IsFirstRun_Call) Return(_a0 bool, _a1 error) *MockQuerier_IsFirstRun_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_IsFirstRun_Call) RunAndReturn(run func(context.Context) (bool, error)) *MockQuerier_IsFirstRun_Call {
 	_c.Call.Return(run)
 	return _c
 }

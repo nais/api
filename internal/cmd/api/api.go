@@ -105,9 +105,10 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 	defer closer()
 
-	if err := firstRun(ctx, db, cfg.FirstRunEnableReconcilers, log); err != nil {
-		return err
-	}
+	// TODO: Implement new first run logic
+	// if err := firstRun(ctx, db, cfg.FirstRunEnableReconcilers, log); err != nil {
+	// 	return err
+	// }
 
 	if err := fixtures.SetupStaticServiceAccounts(ctx, db, cfg.StaticServiceAccounts); err != nil {
 		return err
@@ -241,24 +242,24 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	return nil
 }
 
-func firstRun(ctx context.Context, db database.Database, enableReconcilers []string, log logrus.FieldLogger) error {
-	firstRun, err := db.IsFirstRun(ctx)
-	if err != nil {
-		return err
-	}
-	if firstRun {
-		log.Infof("first run detected ")
-		firstRunLogger := log.WithField("system", "first-run")
-		if err := fixtures.SetupDefaultReconcilers(ctx, firstRunLogger, enableReconcilers, db); err != nil {
-			return err
-		}
+// func firstRun(ctx context.Context, db database.Database, enableReconcilers []string, log logrus.FieldLogger) error {
+// 	firstRun, err := db.IsFirstRun(ctx)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	if firstRun {
+// 		log.Infof("first run detected ")
+// 		firstRunLogger := log.WithField("system", "first-run")
+// 		if err := fixtures.SetupDefaultReconcilers(ctx, firstRunLogger, enableReconcilers, db); err != nil {
+// 			return err
+// 		}
 
-		if err := db.FirstRunComplete(ctx); err != nil {
-			return err
-		}
-	}
-	return nil
-}
+// 		if err := db.FirstRunComplete(ctx); err != nil {
+// 			return err
+// 		}
+// 	}
+// 	return nil
+// }
 
 // loadEnvFile will load a .env file if it exists. This is useful for local development.
 func loadEnvFile() (fileLoaded bool, err error) {
