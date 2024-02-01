@@ -758,9 +758,11 @@ type ComplexityRoot struct {
 	Team struct {
 		Apps                   func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		AuditLogs              func(childComplexity int, offset *int, limit *int) int
+		AzureGroupID           func(childComplexity int) int
 		DeletionInProgress     func(childComplexity int) int
 		DeployKey              func(childComplexity int) int
 		Deployments            func(childComplexity int, offset *int, limit *int) int
+		GitHubTeamSlug         func(childComplexity int) int
 		GoogleGroupEmail       func(childComplexity int) int
 		ID                     func(childComplexity int) int
 		LastSuccessfulSync     func(childComplexity int) int
@@ -4067,6 +4069,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.AuditLogs(childComplexity, args["offset"].(*int), args["limit"].(*int)), true
 
+	case "Team.azureGroupID":
+		if e.complexity.Team.AzureGroupID == nil {
+			break
+		}
+
+		return e.complexity.Team.AzureGroupID(childComplexity), true
+
 	case "Team.deletionInProgress":
 		if e.complexity.Team.DeletionInProgress == nil {
 			break
@@ -4092,6 +4101,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Team.Deployments(childComplexity, args["offset"].(*int), args["limit"].(*int)), true
+
+	case "Team.gitHubTeamSlug":
+		if e.complexity.Team.GitHubTeamSlug == nil {
+			break
+		}
+
+		return e.complexity.Team.GitHubTeamSlug(childComplexity), true
 
 	case "Team.googleGroupEmail":
 		if e.complexity.Team.GoogleGroupEmail == nil {
@@ -6196,7 +6212,13 @@ type Team {
   "Purpose of the team."
   purpose: String!
 
-  "The email address of the Google Group for the team. This value is only available after the initial team synchronization."
+  "The ID of the Azure AD group for the team. This value is managed by the Azure AD reconciler."
+  azureGroupID: ID
+
+  "The slug of the GitHub team. This value is managed by the GitHub reconciler."
+  gitHubTeamSlug: String
+
+  "The email address of the Google group for the team. This value is managed by the Google Workspace reconciler."
   googleGroupEmail: String
 
   "Audit logs for this team."
@@ -9055,6 +9077,10 @@ func (ec *executionContext) fieldContext_App_team(ctx context.Context, field gra
 				return ec.fieldContext_Team_slug(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "auditLogs":
@@ -12579,6 +12605,10 @@ func (ec *executionContext) fieldContext_Deployment_team(ctx context.Context, fi
 				return ec.fieldContext_Team_slug(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "auditLogs":
@@ -18467,6 +18497,10 @@ func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context
 				return ec.fieldContext_Team_slug(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "auditLogs":
@@ -18588,6 +18622,10 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 				return ec.fieldContext_Team_slug(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "auditLogs":
@@ -18709,6 +18747,10 @@ func (ec *executionContext) fieldContext_Mutation_removeUsersFromTeam(ctx contex
 				return ec.fieldContext_Team_slug(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "auditLogs":
@@ -18830,6 +18872,10 @@ func (ec *executionContext) fieldContext_Mutation_removeUserFromTeam(ctx context
 				return ec.fieldContext_Team_slug(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "auditLogs":
@@ -19098,6 +19144,10 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMembers(ctx context.Con
 				return ec.fieldContext_Team_slug(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "auditLogs":
@@ -19219,6 +19269,10 @@ func (ec *executionContext) fieldContext_Mutation_addTeamOwners(ctx context.Cont
 				return ec.fieldContext_Team_slug(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "auditLogs":
@@ -19340,6 +19394,10 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 				return ec.fieldContext_Team_slug(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "auditLogs":
@@ -19461,6 +19519,10 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 				return ec.fieldContext_Team_slug(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "auditLogs":
@@ -20521,6 +20583,10 @@ func (ec *executionContext) fieldContext_NaisJob_team(ctx context.Context, field
 				return ec.fieldContext_Team_slug(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "auditLogs":
@@ -23141,6 +23207,10 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_slug(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "auditLogs":
@@ -28686,6 +28756,88 @@ func (ec *executionContext) fieldContext_Team_purpose(ctx context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_azureGroupID(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_azureGroupID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AzureGroupID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uuid.UUID)
+	fc.Result = res
+	return ec.marshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_azureGroupID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Team_gitHubTeamSlug(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GitHubTeamSlug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_gitHubTeamSlug(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_googleGroupEmail(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_googleGroupEmail(ctx, field)
 	if err != nil {
@@ -29939,6 +30091,10 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(ctx context.Context,
 				return ec.fieldContext_Team_slug(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "auditLogs":
@@ -30029,6 +30185,10 @@ func (ec *executionContext) fieldContext_TeamList_nodes(ctx context.Context, fie
 				return ec.fieldContext_Team_slug(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "auditLogs":
@@ -30171,6 +30331,10 @@ func (ec *executionContext) fieldContext_TeamMember_team(ctx context.Context, fi
 				return ec.fieldContext_Team_slug(ctx, field)
 			case "purpose":
 				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 			case "googleGroupEmail":
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "auditLogs":
@@ -40982,6 +41146,10 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "azureGroupID":
+			out.Values[i] = ec._Team_azureGroupID(ctx, field, obj)
+		case "gitHubTeamSlug":
+			out.Values[i] = ec._Team_gitHubTeamSlug(ctx, field, obj)
 		case "googleGroupEmail":
 			out.Values[i] = ec._Team_googleGroupEmail(ctx, field, obj)
 		case "auditLogs":
@@ -46695,6 +46863,22 @@ func (ec *executionContext) marshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 		return graphql.Null
 	}
 	return graphql.WrapContextMarshaler(ctx, v)
+}
+
+func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, v interface{}) (*uuid.UUID, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := scalar.UnmarshalUUID(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, sel ast.SelectionSet, v *uuid.UUID) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := scalar.MarshalUUID(*v)
+	return res
 }
 
 func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx context.Context, v interface{}) (*scalar.Ident, error) {

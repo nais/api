@@ -122,7 +122,6 @@ type Querier interface {
 	ResourceUtilizationUpsert(ctx context.Context, arg []ResourceUtilizationUpsertParams) *ResourceUtilizationUpsertBatchResults
 	RevokeGlobalUserRole(ctx context.Context, arg RevokeGlobalUserRoleParams) error
 	SearchTeams(ctx context.Context, arg SearchTeamsParams) ([]*Team, error)
-	SetGoogleGroupEmailForTeam(ctx context.Context, arg SetGoogleGroupEmailForTeamParams) error
 	SetLastSuccessfulSyncForTeam(ctx context.Context, argSlug slug.Slug) error
 	SetReconcilerErrorForTeam(ctx context.Context, arg SetReconcilerErrorForTeamParams) error
 	SetSessionExpires(ctx context.Context, arg SetSessionExpiresParams) (*Session, error)
@@ -134,6 +133,7 @@ type Querier interface {
 	SpecificResourceUtilizationForTeam(ctx context.Context, arg SpecificResourceUtilizationForTeamParams) (*SpecificResourceUtilizationForTeamRow, error)
 	TeamExists(ctx context.Context, argSlug slug.Slug) (bool, error)
 	UpdateTeam(ctx context.Context, arg UpdateTeamParams) (*Team, error)
+	UpdateTeamExternalReferences(ctx context.Context, arg UpdateTeamExternalReferencesParams) (*Team, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (*User, error)
 	UpsertReconciler(ctx context.Context, arg UpsertReconcilerParams) (*Reconciler, error)
 	UpsertReconcilerConfig(ctx context.Context, arg UpsertReconcilerConfigParams) error

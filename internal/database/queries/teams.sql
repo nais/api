@@ -98,10 +98,13 @@ SET purpose = COALESCE(sqlc.narg(purpose), purpose),
 WHERE slug = @slug
 RETURNING *;
 
--- name: SetGoogleGroupEmailForTeam :exec
+-- name: UpdateTeamExternalReferences :one
 UPDATE teams
-SET google_group_email = @google_group_email::text
-WHERE slug = @slug;
+SET google_group_email = COALESCE(@google_group_email, google_group_email),
+    azure_group_id =  COALESCE(@azure_group_id, azure_group_id),
+    github_team_slug = COALESCE(@github_team_slug, github_team_slug)
+WHERE slug = @slug
+RETURNING *;
 
 -- name: RemoveUserFromTeam :exec
 DELETE FROM user_roles

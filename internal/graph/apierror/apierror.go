@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/sirupsen/logrus"
@@ -71,7 +72,7 @@ func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
 		}
 
 		switch unwrappedError {
-		case sql.ErrNoRows:
+		case sql.ErrNoRows, pgx.ErrNoRows:
 			err.Message = "Object was not found in the database. This usually means you specified a non-existing team identifier or e-mail address."
 		case authz.ErrNotAuthenticated:
 			err.Message = "Valid user required. You are not logged in."

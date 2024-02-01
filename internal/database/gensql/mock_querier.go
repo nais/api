@@ -2352,6 +2352,65 @@ func (_c *MockQuerier_GetReconcilerResourceByKey_Call) RunAndReturn(run func(con
 	return _c
 }
 
+// GetReconcilerResourceByKeyAndValue provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetReconcilerResourceByKeyAndValue(ctx context.Context, arg GetReconcilerResourceByKeyAndValueParams) (*ReconcilerResource, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetReconcilerResourceByKeyAndValue")
+	}
+
+	var r0 *ReconcilerResource
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, GetReconcilerResourceByKeyAndValueParams) (*ReconcilerResource, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, GetReconcilerResourceByKeyAndValueParams) *ReconcilerResource); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*ReconcilerResource)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, GetReconcilerResourceByKeyAndValueParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetReconcilerResourceByKeyAndValue_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetReconcilerResourceByKeyAndValue'
+type MockQuerier_GetReconcilerResourceByKeyAndValue_Call struct {
+	*mock.Call
+}
+
+// GetReconcilerResourceByKeyAndValue is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg GetReconcilerResourceByKeyAndValueParams
+func (_e *MockQuerier_Expecter) GetReconcilerResourceByKeyAndValue(ctx interface{}, arg interface{}) *MockQuerier_GetReconcilerResourceByKeyAndValue_Call {
+	return &MockQuerier_GetReconcilerResourceByKeyAndValue_Call{Call: _e.mock.On("GetReconcilerResourceByKeyAndValue", ctx, arg)}
+}
+
+func (_c *MockQuerier_GetReconcilerResourceByKeyAndValue_Call) Run(run func(ctx context.Context, arg GetReconcilerResourceByKeyAndValueParams)) *MockQuerier_GetReconcilerResourceByKeyAndValue_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(GetReconcilerResourceByKeyAndValueParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetReconcilerResourceByKeyAndValue_Call) Return(_a0 *ReconcilerResource, _a1 error) *MockQuerier_GetReconcilerResourceByKeyAndValue_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetReconcilerResourceByKeyAndValue_Call) RunAndReturn(run func(context.Context, GetReconcilerResourceByKeyAndValueParams) (*ReconcilerResource, error)) *MockQuerier_GetReconcilerResourceByKeyAndValue_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetReconcilerResourceByKeyTotal provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) GetReconcilerResourceByKeyTotal(ctx context.Context, arg GetReconcilerResourceByKeyTotalParams) (int64, error) {
 	ret := _m.Called(ctx, arg)
@@ -5290,53 +5349,6 @@ func (_c *MockQuerier_SearchTeams_Call) RunAndReturn(run func(context.Context, S
 	return _c
 }
 
-// SetGoogleGroupEmailForTeam provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) SetGoogleGroupEmailForTeam(ctx context.Context, arg SetGoogleGroupEmailForTeamParams) error {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SetGoogleGroupEmailForTeam")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, SetGoogleGroupEmailForTeamParams) error); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockQuerier_SetGoogleGroupEmailForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetGoogleGroupEmailForTeam'
-type MockQuerier_SetGoogleGroupEmailForTeam_Call struct {
-	*mock.Call
-}
-
-// SetGoogleGroupEmailForTeam is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg SetGoogleGroupEmailForTeamParams
-func (_e *MockQuerier_Expecter) SetGoogleGroupEmailForTeam(ctx interface{}, arg interface{}) *MockQuerier_SetGoogleGroupEmailForTeam_Call {
-	return &MockQuerier_SetGoogleGroupEmailForTeam_Call{Call: _e.mock.On("SetGoogleGroupEmailForTeam", ctx, arg)}
-}
-
-func (_c *MockQuerier_SetGoogleGroupEmailForTeam_Call) Run(run func(ctx context.Context, arg SetGoogleGroupEmailForTeamParams)) *MockQuerier_SetGoogleGroupEmailForTeam_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(SetGoogleGroupEmailForTeamParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_SetGoogleGroupEmailForTeam_Call) Return(_a0 error) *MockQuerier_SetGoogleGroupEmailForTeam_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockQuerier_SetGoogleGroupEmailForTeam_Call) RunAndReturn(run func(context.Context, SetGoogleGroupEmailForTeamParams) error) *MockQuerier_SetGoogleGroupEmailForTeam_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // SetLastSuccessfulSyncForTeam provides a mock function with given fields: ctx, argSlug
 func (_m *MockQuerier) SetLastSuccessfulSyncForTeam(ctx context.Context, argSlug slug.Slug) error {
 	ret := _m.Called(ctx, argSlug)
@@ -5767,6 +5779,65 @@ func (_c *MockQuerier_UpdateTeam_Call) Return(_a0 *Team, _a1 error) *MockQuerier
 }
 
 func (_c *MockQuerier_UpdateTeam_Call) RunAndReturn(run func(context.Context, UpdateTeamParams) (*Team, error)) *MockQuerier_UpdateTeam_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateTeamExternalReferences provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) UpdateTeamExternalReferences(ctx context.Context, arg UpdateTeamExternalReferencesParams) (*Team, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateTeamExternalReferences")
+	}
+
+	var r0 *Team
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, UpdateTeamExternalReferencesParams) (*Team, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, UpdateTeamExternalReferencesParams) *Team); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Team)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, UpdateTeamExternalReferencesParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_UpdateTeamExternalReferences_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateTeamExternalReferences'
+type MockQuerier_UpdateTeamExternalReferences_Call struct {
+	*mock.Call
+}
+
+// UpdateTeamExternalReferences is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg UpdateTeamExternalReferencesParams
+func (_e *MockQuerier_Expecter) UpdateTeamExternalReferences(ctx interface{}, arg interface{}) *MockQuerier_UpdateTeamExternalReferences_Call {
+	return &MockQuerier_UpdateTeamExternalReferences_Call{Call: _e.mock.On("UpdateTeamExternalReferences", ctx, arg)}
+}
+
+func (_c *MockQuerier_UpdateTeamExternalReferences_Call) Run(run func(ctx context.Context, arg UpdateTeamExternalReferencesParams)) *MockQuerier_UpdateTeamExternalReferences_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(UpdateTeamExternalReferencesParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_UpdateTeamExternalReferences_Call) Return(_a0 *Team, _a1 error) *MockQuerier_UpdateTeamExternalReferences_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_UpdateTeamExternalReferences_Call) RunAndReturn(run func(context.Context, UpdateTeamExternalReferencesParams) (*Team, error)) *MockQuerier_UpdateTeamExternalReferences_Call {
 	_c.Call.Return(run)
 	return _c
 }

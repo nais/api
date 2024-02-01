@@ -19,12 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Teams_Get_FullMethodName                        = "/Teams/Get"
-	Teams_List_FullMethodName                       = "/Teams/List"
-	Teams_Members_FullMethodName                    = "/Teams/Members"
-	Teams_SlackAlertsChannels_FullMethodName        = "/Teams/SlackAlertsChannels"
-	Teams_SetGoogleGroupEmailForTeam_FullMethodName = "/Teams/SetGoogleGroupEmailForTeam"
-	Teams_Environments_FullMethodName               = "/Teams/Environments"
+	Teams_Get_FullMethodName                       = "/Teams/Get"
+	Teams_List_FullMethodName                      = "/Teams/List"
+	Teams_Members_FullMethodName                   = "/Teams/Members"
+	Teams_SlackAlertsChannels_FullMethodName       = "/Teams/SlackAlertsChannels"
+	Teams_Environments_FullMethodName              = "/Teams/Environments"
+	Teams_SetTeamExternalReferences_FullMethodName = "/Teams/SetTeamExternalReferences"
 )
 
 // TeamsClient is the client API for Teams service.
@@ -35,8 +35,8 @@ type TeamsClient interface {
 	List(ctx context.Context, in *ListTeamsRequest, opts ...grpc.CallOption) (*ListTeamsResponse, error)
 	Members(ctx context.Context, in *ListTeamMembersRequest, opts ...grpc.CallOption) (*ListTeamMembersResponse, error)
 	SlackAlertsChannels(ctx context.Context, in *SlackAlertsChannelsRequest, opts ...grpc.CallOption) (*SlackAlertsChannelsResponse, error)
-	SetGoogleGroupEmailForTeam(ctx context.Context, in *SetGoogleGroupEmailForTeamRequest, opts ...grpc.CallOption) (*SetGoogleGroupEmailForTeamResponse, error)
 	Environments(ctx context.Context, in *ListTeamEnvironmentsRequest, opts ...grpc.CallOption) (*ListTeamEnvironmentsResponse, error)
+	SetTeamExternalReferences(ctx context.Context, in *SetTeamExternalReferencesRequest, opts ...grpc.CallOption) (*SetTeamExternalReferencesResponse, error)
 }
 
 type teamsClient struct {
@@ -83,18 +83,18 @@ func (c *teamsClient) SlackAlertsChannels(ctx context.Context, in *SlackAlertsCh
 	return out, nil
 }
 
-func (c *teamsClient) SetGoogleGroupEmailForTeam(ctx context.Context, in *SetGoogleGroupEmailForTeamRequest, opts ...grpc.CallOption) (*SetGoogleGroupEmailForTeamResponse, error) {
-	out := new(SetGoogleGroupEmailForTeamResponse)
-	err := c.cc.Invoke(ctx, Teams_SetGoogleGroupEmailForTeam_FullMethodName, in, out, opts...)
+func (c *teamsClient) Environments(ctx context.Context, in *ListTeamEnvironmentsRequest, opts ...grpc.CallOption) (*ListTeamEnvironmentsResponse, error) {
+	out := new(ListTeamEnvironmentsResponse)
+	err := c.cc.Invoke(ctx, Teams_Environments_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *teamsClient) Environments(ctx context.Context, in *ListTeamEnvironmentsRequest, opts ...grpc.CallOption) (*ListTeamEnvironmentsResponse, error) {
-	out := new(ListTeamEnvironmentsResponse)
-	err := c.cc.Invoke(ctx, Teams_Environments_FullMethodName, in, out, opts...)
+func (c *teamsClient) SetTeamExternalReferences(ctx context.Context, in *SetTeamExternalReferencesRequest, opts ...grpc.CallOption) (*SetTeamExternalReferencesResponse, error) {
+	out := new(SetTeamExternalReferencesResponse)
+	err := c.cc.Invoke(ctx, Teams_SetTeamExternalReferences_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -109,8 +109,8 @@ type TeamsServer interface {
 	List(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error)
 	Members(context.Context, *ListTeamMembersRequest) (*ListTeamMembersResponse, error)
 	SlackAlertsChannels(context.Context, *SlackAlertsChannelsRequest) (*SlackAlertsChannelsResponse, error)
-	SetGoogleGroupEmailForTeam(context.Context, *SetGoogleGroupEmailForTeamRequest) (*SetGoogleGroupEmailForTeamResponse, error)
 	Environments(context.Context, *ListTeamEnvironmentsRequest) (*ListTeamEnvironmentsResponse, error)
+	SetTeamExternalReferences(context.Context, *SetTeamExternalReferencesRequest) (*SetTeamExternalReferencesResponse, error)
 	mustEmbedUnimplementedTeamsServer()
 }
 
@@ -130,11 +130,11 @@ func (UnimplementedTeamsServer) Members(context.Context, *ListTeamMembersRequest
 func (UnimplementedTeamsServer) SlackAlertsChannels(context.Context, *SlackAlertsChannelsRequest) (*SlackAlertsChannelsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SlackAlertsChannels not implemented")
 }
-func (UnimplementedTeamsServer) SetGoogleGroupEmailForTeam(context.Context, *SetGoogleGroupEmailForTeamRequest) (*SetGoogleGroupEmailForTeamResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetGoogleGroupEmailForTeam not implemented")
-}
 func (UnimplementedTeamsServer) Environments(context.Context, *ListTeamEnvironmentsRequest) (*ListTeamEnvironmentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Environments not implemented")
+}
+func (UnimplementedTeamsServer) SetTeamExternalReferences(context.Context, *SetTeamExternalReferencesRequest) (*SetTeamExternalReferencesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetTeamExternalReferences not implemented")
 }
 func (UnimplementedTeamsServer) mustEmbedUnimplementedTeamsServer() {}
 
@@ -221,24 +221,6 @@ func _Teams_SlackAlertsChannels_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Teams_SetGoogleGroupEmailForTeam_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetGoogleGroupEmailForTeamRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TeamsServer).SetGoogleGroupEmailForTeam(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Teams_SetGoogleGroupEmailForTeam_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TeamsServer).SetGoogleGroupEmailForTeam(ctx, req.(*SetGoogleGroupEmailForTeamRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Teams_Environments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListTeamEnvironmentsRequest)
 	if err := dec(in); err != nil {
@@ -253,6 +235,24 @@ func _Teams_Environments_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TeamsServer).Environments(ctx, req.(*ListTeamEnvironmentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Teams_SetTeamExternalReferences_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetTeamExternalReferencesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TeamsServer).SetTeamExternalReferences(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Teams_SetTeamExternalReferences_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TeamsServer).SetTeamExternalReferences(ctx, req.(*SetTeamExternalReferencesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -281,12 +281,12 @@ var Teams_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Teams_SlackAlertsChannels_Handler,
 		},
 		{
-			MethodName: "SetGoogleGroupEmailForTeam",
-			Handler:    _Teams_SetGoogleGroupEmailForTeam_Handler,
-		},
-		{
 			MethodName: "Environments",
 			Handler:    _Teams_Environments_Handler,
+		},
+		{
+			MethodName: "SetTeamExternalReferences",
+			Handler:    _Teams_SetTeamExternalReferences_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -2,10 +2,10 @@ package dataloader
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/graph-gophers/dataloader/v7"
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/metrics"
 	"github.com/nais/api/internal/slug"
@@ -17,12 +17,14 @@ type TeamReader struct {
 
 const LoaderNameTeams = "teams"
 
-// TODO: Deduplicate this with what's in graph pkg
-func toGraphTeam(m *database.Team) *model.Team {
+func ToGraphTeam(m *database.Team) *model.Team {
 	ret := &model.Team{
-		Slug:         m.Slug,
-		Purpose:      m.Purpose,
-		SlackChannel: m.SlackChannel,
+		Slug:             m.Slug,
+		Purpose:          m.Purpose,
+		SlackChannel:     m.SlackChannel,
+		GoogleGroupEmail: m.GoogleGroupEmail,
+		GitHubTeamSlug:   m.GithubTeamSlug,
+		AzureGroupID:     m.AzureGroupID,
 	}
 
 	if m.LastSuccessfulSync.Valid {
@@ -32,7 +34,7 @@ func toGraphTeam(m *database.Team) *model.Team {
 	return ret
 }
 
-func (r *TeamReader) load(ctx context.Context, keys []string) []*dataloader.Result[*model.Team] {
+func (r *TeamReader) load(ctx context.Context, keys []slug.Slug) []*dataloader.Result[*model.Team] {
 	// TODO (only fetch teams requested by keys var)
 	limit, offset := 100, 0
 	teams := make([]*database.Team, 0)
@@ -51,9 +53,9 @@ func (r *TeamReader) load(ctx context.Context, keys []string) []*dataloader.Resu
 		offset += limit
 	}
 
-	teamBySlug := map[string]*model.Team{}
+	teamBySlug := map[slug.Slug]*model.Team{}
 	for _, u := range teams {
-		teamBySlug[u.Slug.String()] = toGraphTeam(u)
+		teamBySlug[u.Slug] = ToGraphTeam(u)
 	}
 
 	output := make([]*dataloader.Result[*model.Team], len(keys))
@@ -62,8 +64,7 @@ func (r *TeamReader) load(ctx context.Context, keys []string) []*dataloader.Resu
 		if ok {
 			output[index] = &dataloader.Result[*model.Team]{Data: team, Error: nil}
 		} else {
-			err := fmt.Errorf("team not found %q", teamKey)
-			output[index] = &dataloader.Result[*model.Team]{Data: nil, Error: err}
+			output[index] = &dataloader.Result[*model.Team]{Data: nil, Error: apierror.ErrTeamNotExist}
 		}
 	}
 
@@ -71,14 +72,14 @@ func (r *TeamReader) load(ctx context.Context, keys []string) []*dataloader.Resu
 	return output
 }
 
-func (r *TeamReader) newCache() dataloader.Cache[string, *model.Team] {
-	return dataloader.NewCache[string, *model.Team]()
+func (r *TeamReader) newCache() dataloader.Cache[slug.Slug, *model.Team] {
+	return dataloader.NewCache[slug.Slug, *model.Team]()
 }
 
-func GetTeam(ctx context.Context, teamSlug *slug.Slug) (*model.Team, error) {
+func GetTeam(ctx context.Context, teamSlug slug.Slug) (*model.Team, error) {
 	metrics.IncDataloaderCalls(LoaderNameTeams)
 	loaders := For(ctx)
-	thunk := loaders.TeamsLoader.Load(ctx, teamSlug.String())
+	thunk := loaders.TeamsLoader.Load(ctx, teamSlug)
 	result, err := thunk()
 	if err != nil {
 		return nil, err

@@ -29,7 +29,7 @@ func (r *naisJobResolver) Manifest(ctx context.Context, obj *model.NaisJob) (str
 
 // Team is the resolver for the team field.
 func (r *naisJobResolver) Team(ctx context.Context, obj *model.NaisJob) (*model.Team, error) {
-	return dataloader.GetTeam(ctx, &obj.GQLVars.Team)
+	return dataloader.GetTeam(ctx, obj.GQLVars.Team)
 }
 
 // Naisjob is the resolver for the naisjob field.

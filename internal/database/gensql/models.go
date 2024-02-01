@@ -301,6 +301,8 @@ type Team struct {
 	LastSuccessfulSync pgtype.Timestamp
 	SlackChannel       string
 	GoogleGroupEmail   *string
+	AzureGroupID       *uuid.UUID
+	GithubTeamSlug     *string
 }
 
 type TeamDeleteKey struct {

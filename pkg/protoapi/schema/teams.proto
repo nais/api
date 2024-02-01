@@ -9,7 +9,9 @@ message Team {
   string slug = 1;
   string purpose = 2;
   string slack_channel = 3;
-  string google_group_email = 4;
+  string azure_group_id = 4;
+  string github_team_slug = 5;
+  string google_group_email = 6;
 }
 
 service Teams {
@@ -17,9 +19,18 @@ service Teams {
   rpc List(ListTeamsRequest) returns (ListTeamsResponse) {}
   rpc Members(ListTeamMembersRequest) returns (ListTeamMembersResponse) {}
   rpc SlackAlertsChannels(SlackAlertsChannelsRequest) returns (SlackAlertsChannelsResponse) {}
-  rpc SetGoogleGroupEmailForTeam(SetGoogleGroupEmailForTeamRequest) returns (SetGoogleGroupEmailForTeamResponse) {}
   rpc Environments(ListTeamEnvironmentsRequest) returns (ListTeamEnvironmentsResponse) {}
+  rpc SetTeamExternalReferences(SetTeamExternalReferencesRequest) returns (SetTeamExternalReferencesResponse) {}
 }
+
+message SetTeamExternalReferencesRequest {
+  string slug = 1;
+  optional string azure_group_id = 2;
+  optional string github_team_slug = 3;
+  optional string google_group_email = 4;
+}
+
+message SetTeamExternalReferencesResponse{}
 
 message ListTeamEnvironmentsRequest {
   int64 limit = 1;
@@ -39,13 +50,6 @@ message TeamEnvironment {
   optional string namespace = 4;
   optional string gcp_project_id = 5;
 }
-
-message SetGoogleGroupEmailForTeamRequest {
-  string slug = 1;
-  string google_group_email = 2;
-}
-
-message SetGoogleGroupEmailForTeamResponse{}
 
 message GetTeamResponse {
   Team team = 1;

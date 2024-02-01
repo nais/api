@@ -3,7 +3,9 @@ package grpc
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/pkg/protoapi"
 	"google.golang.org/grpc/codes"
@@ -84,20 +86,32 @@ func (t *TeamsServer) SlackAlertsChannels(ctx context.Context, r *protoapi.Slack
 	return resp, nil
 }
 
-func (t *TeamsServer) SetGoogleGroupEmailForTeam(ctx context.Context, r *protoapi.SetGoogleGroupEmailForTeamRequest) (*protoapi.SetGoogleGroupEmailForTeamResponse, error) {
+func (t *TeamsServer) SetTeamExternalReferences(ctx context.Context, r *protoapi.SetTeamExternalReferencesRequest) (*protoapi.SetTeamExternalReferencesResponse, error) {
 	if r.Slug == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "slug is required")
 	}
 
-	if r.GoogleGroupEmail == "" {
-		return nil, status.Errorf(codes.InvalidArgument, "google group email is required")
+	var aID *uuid.UUID
+	if r.AzureGroupId != nil {
+		id, err := uuid.Parse(*r.AzureGroupId)
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "azure group ID must be a valid UUID: %s", err)
+		}
+		aID = &id
 	}
 
-	if err := t.db.SetGoogleGroupEmailForTeam(ctx, slug.Slug(r.Slug), r.GoogleGroupEmail); err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to set google group email for team: %s", err)
+	_, err := t.db.UpdateTeamExternalReferences(ctx, gensql.UpdateTeamExternalReferencesParams{
+		Slug:             slug.Slug(r.Slug),
+		AzureGroupID:     aID,
+		GithubTeamSlug:   r.GithubTeamSlug,
+		GoogleGroupEmail: r.GoogleGroupEmail,
+	})
+
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to update external references for team: %s", err)
 	}
 
-	return &protoapi.SetGoogleGroupEmailForTeamResponse{}, nil
+	return &protoapi.SetTeamExternalReferencesResponse{}, nil
 }
 
 func (t *TeamsServer) Environments(ctx context.Context, r *protoapi.ListTeamEnvironmentsRequest) (*protoapi.ListTeamEnvironmentsResponse, error) {
@@ -125,10 +139,23 @@ func toProtoTeam(team *database.Team) *protoapi.Team {
 	if team.GoogleGroupEmail != nil {
 		gge = *team.GoogleGroupEmail
 	}
+
+	gts := ""
+	if team.GithubTeamSlug != nil {
+		gts = *team.GithubTeamSlug
+	}
+
+	aID := ""
+	if team.AzureGroupID != nil {
+		aID = team.AzureGroupID.String()
+	}
+
 	return &protoapi.Team{
 		Slug:             team.Slug.String(),
 		Purpose:          team.Purpose,
 		SlackChannel:     team.SlackChannel,
+		AzureGroupId:     aID,
+		GithubTeamSlug:   gts,
 		GoogleGroupEmail: gge,
 	}
 }

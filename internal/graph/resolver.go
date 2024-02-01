@@ -21,7 +21,6 @@ import (
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/search"
-	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/usersync"
@@ -150,15 +149,6 @@ func GetQueriedFields(ctx context.Context) map[string]bool {
 		fields[field] = true
 	}
 	return fields
-}
-
-func (r *Resolver) getTeamBySlug(ctx context.Context, slug slug.Slug) (*database.Team, error) {
-	team, err := r.database.GetTeamBySlug(ctx, slug)
-	if err != nil {
-		return nil, apierror.ErrTeamNotExist
-	}
-
-	return team, nil
 }
 
 func gensqlRoleFromTeamRole(teamRole model.TeamRole) (gensql.RoleName, error) {

@@ -33,11 +33,11 @@ type TeamRepo interface {
 	RemoveSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string) error
 	RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error
 	SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*gensql.Team, error)
-	SetGoogleGroupEmailForTeam(ctx context.Context, teamSlug slug.Slug, email string) error
 	SetLastSuccessfulSyncForTeam(ctx context.Context, teamSlug slug.Slug) error
 	SetSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment, channelName string) error
 	TeamExists(ctx context.Context, team slug.Slug) (bool, error)
 	UpdateTeam(ctx context.Context, teamSlug slug.Slug, purpose, slackChannel *string) (*Team, error)
+	UpdateTeamExternalReferences(ctx context.Context, params gensql.UpdateTeamExternalReferencesParams) (*Team, error)
 }
 
 type TeamEnvironment struct {
@@ -73,6 +73,15 @@ func (d *database) UpdateTeam(ctx context.Context, teamSlug slug.Slug, purpose, 
 		SlackChannel: slackChannel,
 		Slug:         teamSlug,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &Team{Team: team}, nil
+}
+
+func (d *database) UpdateTeamExternalReferences(ctx context.Context, params gensql.UpdateTeamExternalReferencesParams) (*Team, error) {
+	team, err := d.querier.UpdateTeamExternalReferences(ctx, params)
 	if err != nil {
 		return nil, err
 	}
@@ -377,11 +386,4 @@ func (d *database) SearchTeams(ctx context.Context, slugMatch string, limit int3
 
 func (d *database) TeamExists(ctx context.Context, team slug.Slug) (bool, error) {
 	return d.querier.TeamExists(ctx, team)
-}
-
-func (d *database) SetGoogleGroupEmailForTeam(ctx context.Context, teamSlug slug.Slug, email string) error {
-	return d.querier.SetGoogleGroupEmailForTeam(ctx, gensql.SetGoogleGroupEmailForTeamParams{
-		GoogleGroupEmail: email,
-		Slug:             teamSlug,
-	})
 }

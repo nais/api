@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/metrics"
+	"github.com/nais/api/internal/slug"
 	"go.opentelemetry.io/otel"
 )
 
@@ -19,7 +20,7 @@ const loadersKey = ctxKey("dataloaders")
 // Loaders wrap your data loaders to inject via middleware
 type Loaders struct {
 	UsersLoader     *dataloader.Loader[string, *model.User]
-	TeamsLoader     *dataloader.Loader[string, *model.Team]
+	TeamsLoader     *dataloader.Loader[slug.Slug, *model.Team]
 	UserRolesLoader *dataloader.Loader[string, []*database.UserRole]
 }
 
@@ -38,8 +39,8 @@ func NewLoaders(db database.Database) *Loaders {
 		),
 		TeamsLoader: dataloader.NewBatchedLoader(teamsReader.load,
 			dataloader.WithCache(teamsReader.newCache()),
-			dataloader.WithInputCapacity[string, *model.Team](500),
-			dataloader.WithTracer(dlotel.NewTracer[string, *model.Team](otel.Tracer("dataloader"))),
+			dataloader.WithInputCapacity[slug.Slug, *model.Team](500),
+			dataloader.WithTracer(dlotel.NewTracer[slug.Slug, *model.Team](otel.Tracer("dataloader"))),
 		),
 		UserRolesLoader: dataloader.NewBatchedLoader(userRolesReader.load,
 			dataloader.WithCache(userRolesReader.newCache()),

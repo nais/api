@@ -270,7 +270,13 @@ type Team {
   "Purpose of the team."
   purpose: String!
 
-  "The email address of the Google Group for the team. This value is only available after the initial team synchronization."
+  "The ID of the Azure AD group for the team. This value is managed by the Azure AD reconciler."
+  azureGroupID: ID
+
+  "The slug of the GitHub team. This value is managed by the GitHub reconciler."
+  gitHubTeamSlug: String
+
+  "The email address of the Google group for the team. This value is managed by the Google Workspace reconciler."
   googleGroupEmail: String
 
   "Audit logs for this team."

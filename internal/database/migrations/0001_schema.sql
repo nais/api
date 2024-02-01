@@ -187,6 +187,8 @@ CREATE TABLE teams (
     last_successful_sync timestamp without time zone,
     slack_channel text NOT NULL,
     google_group_email text,
+    azure_group_id uuid,
+    github_team_slug text,
     PRIMARY KEY(slug),
     CHECK ((TRIM(BOTH FROM purpose) <> ''::text)),
     CHECK ((slack_channel ~ '^#[a-z0-9æøå_-]{2,80}$'::text))
