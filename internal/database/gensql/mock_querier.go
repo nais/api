@@ -5724,6 +5724,63 @@ func (_c *MockQuerier_SpecificResourceUtilizationForTeam_Call) RunAndReturn(run 
 	return _c
 }
 
+// TeamExists provides a mock function with given fields: ctx, argSlug
+func (_m *MockQuerier) TeamExists(ctx context.Context, argSlug slug.Slug) (bool, error) {
+	ret := _m.Called(ctx, argSlug)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TeamExists")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (bool, error)); ok {
+		return rf(ctx, argSlug)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) bool); ok {
+		r0 = rf(ctx, argSlug)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
+		r1 = rf(ctx, argSlug)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_TeamExists_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TeamExists'
+type MockQuerier_TeamExists_Call struct {
+	*mock.Call
+}
+
+// TeamExists is a helper method to define mock.On call
+//   - ctx context.Context
+//   - argSlug slug.Slug
+func (_e *MockQuerier_Expecter) TeamExists(ctx interface{}, argSlug interface{}) *MockQuerier_TeamExists_Call {
+	return &MockQuerier_TeamExists_Call{Call: _e.mock.On("TeamExists", ctx, argSlug)}
+}
+
+func (_c *MockQuerier_TeamExists_Call) Run(run func(ctx context.Context, argSlug slug.Slug)) *MockQuerier_TeamExists_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(slug.Slug))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_TeamExists_Call) Return(_a0 bool, _a1 error) *MockQuerier_TeamExists_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_TeamExists_Call) RunAndReturn(run func(context.Context, slug.Slug) (bool, error)) *MockQuerier_TeamExists_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateTeam provides a mock function with given fields: ctx, purpose, slackChannel, _a3
 func (_m *MockQuerier) UpdateTeam(ctx context.Context, purpose *string, slackChannel *string, _a3 slug.Slug) (*Team, error) {
 	ret := _m.Called(ctx, purpose, slackChannel, _a3)
