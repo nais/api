@@ -33,8 +33,8 @@ func TestApiKeyAuthentication(t *testing.T) {
 
 	t.Run("Unknown API key in header", func(t *testing.T) {
 		db := database.NewMockDatabase(t)
-		db.
-			On("GetServiceAccountByApiKey", mock.Anything, "unknown").
+		db.EXPECT().
+			GetServiceAccountByApiKey(mock.Anything, "unknown").
 			Return(nil, errors.New("user not found")).
 			Once()
 		responseWriter := httptest.NewRecorder()
@@ -62,12 +62,12 @@ func TestApiKeyAuthentication(t *testing.T) {
 		}
 
 		db := database.NewMockDatabase(t)
-		db.
-			On("GetServiceAccountByApiKey", mock.Anything, "user1-key").
+		db.EXPECT().
+			GetServiceAccountByApiKey(mock.Anything, "user1-key").
 			Return(serviceAccount, nil).
 			Once()
-		db.
-			On("GetServiceAccountRoles", mock.Anything, serviceAccount.ID).
+		db.EXPECT().
+			GetServiceAccountRoles(mock.Anything, serviceAccount.ID).
 			Return(roles, nil).
 			Once()
 

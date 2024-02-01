@@ -90,13 +90,12 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 		}
 		txCtx := context.Background()
 		dbtx := database.NewMockDatabase(t)
-
-		dbtx.
-			On("CreateTeam", txCtx, teamSlug, "some purpose", slackChannel).
+		dbtx.EXPECT().
+			CreateTeam(txCtx, teamSlug, "some purpose", slackChannel).
 			Return(createdTeam, nil).
 			Once()
-		dbtx.
-			On("SetTeamMemberRole", txCtx, user.ID, createdTeam.Slug, gensql.RoleNameTeamowner).
+		dbtx.EXPECT().
+			SetTeamMemberRole(txCtx, user.ID, createdTeam.Slug, gensql.RoleNameTeamowner).
 			Return(nil).
 			Once()
 
@@ -141,13 +140,13 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 		txCtx := context.Background()
 		dbtx := database.NewMockDatabase(t)
 
-		dbtx.
-			On("CreateTeam", txCtx, teamSlug, "some purpose", slackChannel).
+		dbtx.EXPECT().
+			CreateTeam(txCtx, teamSlug, "some purpose", slackChannel).
 			Return(createdTeam, nil).
 			Once()
 
-		dbtx.
-			On("AssignTeamRoleToServiceAccount", txCtx, serviceAccount.GetID(), gensql.RoleNameTeamowner, teamSlug).
+		dbtx.EXPECT().
+			AssignTeamRoleToServiceAccount(txCtx, serviceAccount.GetID(), gensql.RoleNameTeamowner, teamSlug).
 			Return(nil).
 			Once()
 

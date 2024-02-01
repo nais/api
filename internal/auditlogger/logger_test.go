@@ -39,15 +39,6 @@ func Test_Logf(t *testing.T) {
 
 	t.Run("missing audit action", func(t *testing.T) {
 		testLogger, hook := test.NewNullLogger()
-		// log.
-		// 	On("WithComponent", componentName).
-		// 	Return(log).
-		// 	Once()
-		// log.
-		// 	On("Errorf", mock.MatchedBy(func(msg string) bool {
-		// 		return strings.Contains(msg, "missing or invalid audit action")
-		// 	})).
-		// 	Once()
 
 		auditlogger.
 			New(db, componentName, testLogger).
@@ -95,7 +86,7 @@ func Test_Logf(t *testing.T) {
 		}
 
 		authenticatedUser := authz.NewMockAuthenticatedUser(t)
-		authenticatedUser.On("Identity").Return(actorIdentity).Once()
+		authenticatedUser.EXPECT().Identity().Return(actorIdentity).Once()
 
 		fields := auditlogger.Fields{
 			Action: action,

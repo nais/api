@@ -66,8 +66,8 @@ func TestOauth2Authentication(t *testing.T) {
 			Value: sessionID.String(),
 		})
 		notFoundErr := errors.New("not found")
-		db.
-			On("GetSessionByID", ctx, sessionID).
+		db.EXPECT().
+			GetSessionByID(ctx, sessionID).
 			Return(nil, notFoundErr).
 			Once()
 		oauth2Auth := middleware.Oauth2Authentication(db, authnHandler)
@@ -108,23 +108,24 @@ func TestOauth2Authentication(t *testing.T) {
 		responseWriter := httptest.NewRecorder()
 
 		authnHandler := authn.NewMockHandler(t)
-		authnHandler.On("SetSessionCookie", responseWriter, extendedSession)
+		authnHandler.EXPECT().
+			SetSessionCookie(responseWriter, extendedSession)
 
 		db := database.NewMockDatabase(t)
-		db.
-			On("GetSessionByID", ctx, sessionID).
+		db.EXPECT().
+			GetSessionByID(ctx, sessionID).
 			Return(session, nil).
 			Once()
-		db.
-			On("GetUserByID", ctx, userID).
+		db.EXPECT().
+			GetUserByID(ctx, userID).
 			Return(user, nil).
 			Once()
-		db.
-			On("GetUserRoles", ctx, user.ID).
+		db.EXPECT().
+			GetUserRoles(ctx, user.ID).
 			Return(roles, nil).
 			Once()
-		db.
-			On("ExtendSession", ctx, sessionID).
+		db.EXPECT().
+			ExtendSession(ctx, sessionID).
 			Return(extendedSession, nil).
 			Once()
 
@@ -168,12 +169,12 @@ func TestOauth2Authentication(t *testing.T) {
 				Valid: true,
 			},
 		}}
-		db.
-			On("GetSessionByID", ctx, sessionID).
+		db.EXPECT().
+			GetSessionByID(ctx, sessionID).
 			Return(session, nil).
 			Once()
-		db.
-			On("DeleteSession", ctx, sessionID).
+		db.EXPECT().
+			DeleteSession(ctx, sessionID).
 			Return(nil).
 			Once()
 
@@ -205,16 +206,16 @@ func TestOauth2Authentication(t *testing.T) {
 				Valid: true,
 			},
 		}}
-		db.
-			On("GetSessionByID", ctx, sessionID).
+		db.EXPECT().
+			GetSessionByID(ctx, sessionID).
 			Return(session, nil).
 			Once()
-		db.
-			On("GetUserByID", ctx, userID).
+		db.EXPECT().
+			GetUserByID(ctx, userID).
 			Return(nil, errors.New("not found")).
 			Once()
-		db.
-			On("DeleteSession", ctx, sessionID).
+		db.EXPECT().
+			DeleteSession(ctx, sessionID).
 			Return(nil).
 			Once()
 
