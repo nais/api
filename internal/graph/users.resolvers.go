@@ -15,8 +15,8 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/apierror"
-	"github.com/nais/api/internal/graph/dataloader"
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/logger"
@@ -66,7 +66,7 @@ func (r *queryResolver) Users(ctx context.Context, offset *int, limit *int) (*mo
 
 	ret := make([]*model.User, 0, len(users))
 	for _, u := range users {
-		ret = append(ret, dataloader.ToGraphUser(u))
+		ret = append(ret, loader.ToGraphUser(u))
 	}
 
 	return &model.UserList{
@@ -89,14 +89,14 @@ func (r *queryResolver) User(ctx context.Context, id *scalar.Ident, email *strin
 		if err != nil {
 			return nil, err
 		}
-		return dataloader.GetUser(ctx, &uid)
+		return loader.GetUser(ctx, uid)
 	}
 	if email != nil {
 		u, err := r.database.GetUserByEmail(ctx, *email)
 		if err != nil {
 			return nil, err
 		}
-		return dataloader.ToGraphUser(u), nil
+		return loader.ToGraphUser(u), nil
 	}
 	return nil, apierror.Errorf("Either id or email must be specified")
 }
@@ -166,50 +166,22 @@ func (r *userResolver) Roles(ctx context.Context, obj *model.User) ([]*model.Rol
 		return nil, err
 	}
 
-	uid, err := obj.ID.AsUUID()
-	if err != nil {
+	if err != nil && actor.User.GetID() != obj.ID {
 		return nil, err
 	}
 
-	if err != nil && actor.User.GetID() != uid {
-		return nil, err
-	}
-
-	userRoles, err := dataloader.GetUserRoles(ctx, uid)
-	if err != nil {
-		return nil, err
-	}
-	ret := make([]*model.Role, 0)
-	for _, ur := range userRoles {
-		r := &model.Role{
-			Name:           string(ur.RoleName),
-			TargetTeamSlug: ur.TargetTeamSlug,
-		}
-
-		if ur.TargetServiceAccountID != nil {
-			r.TargetServiceAccountID = ptr.To(scalar.ServiceAccountIdent(*ur.TargetServiceAccountID))
-		}
-
-		ret = append(ret, r)
-	}
-
-	return ret, nil
+	return loader.GetUserRoles(ctx, obj.ID)
 }
 
 // IsAdmin is the resolver for the isAdmin field.
 func (r *userResolver) IsAdmin(ctx context.Context, obj *model.User) (*bool, error) {
-	uid, err := obj.ID.AsUUID()
-	if err != nil {
-		return nil, err
-	}
-
-	userRoles, err := dataloader.GetUserRoles(ctx, uid)
+	userRoles, err := loader.GetUserRoles(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, ur := range userRoles {
-		if ur.RoleName == gensql.RoleNameAdmin {
+		if ur.Name == string(gensql.RoleNameAdmin) {
 			return ptr.To(true), nil
 		}
 	}

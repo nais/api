@@ -15,6 +15,7 @@ type RoleRepo interface {
 	AssignGlobalRoleToUser(ctx context.Context, userID uuid.UUID, roleName gensql.RoleName) error
 	AssignTeamRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName gensql.RoleName, teamSlug slug.Slug) error
 	GetAllUserRoles(ctx context.Context) ([]*UserRole, error)
+	GetUserRolesForUsers(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]*authz.Role, error)
 	GetUsersWithGloballyAssignedRole(ctx context.Context, roleName gensql.RoleName) ([]*User, error)
 	RevokeGlobalUserRole(ctx context.Context, userID uuid.UUID, roleName gensql.RoleName) error
 	SetTeamMemberRole(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, roleName gensql.RoleName) error
@@ -91,6 +92,24 @@ func (d *database) GetAllUserRoles(ctx context.Context) ([]*UserRole, error) {
 	roles := make([]*UserRole, 0, len(userRoles))
 	for _, userRole := range userRoles {
 		roles = append(roles, &UserRole{userRole})
+	}
+
+	return roles, nil
+}
+
+func (d *database) GetUserRolesForUsers(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]*authz.Role, error) {
+	usersWithRoles, err := d.querier.GetUserRolesForUsers(ctx, userIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	roles := make(map[uuid.UUID][]*authz.Role)
+	for _, user := range usersWithRoles {
+		role, err := d.roleFromRoleBinding(ctx, user.RoleName, user.TargetServiceAccountID, user.TargetTeamSlug)
+		if err != nil {
+			continue
+		}
+		roles[user.UserID] = append(roles[user.UserID], role)
 	}
 
 	return roles, nil

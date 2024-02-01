@@ -13,7 +13,7 @@ import (
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/graph/dataloader"
+	"github.com/nais/api/internal/graph/loader"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
@@ -42,7 +42,6 @@ func runHttpServer(
 		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/query"), "playground")),
 	)
 
-	dataLoaders := dataloader.NewLoaders(db)
 	middlewares := []func(http.Handler) http.Handler{}
 
 	if insecureAuth {
@@ -60,7 +59,7 @@ func runHttpServer(
 
 		middleware.ApiKeyAuthentication(db),
 		middleware.Oauth2Authentication(db, authHandler),
-		dataloader.Middleware(dataLoaders),
+		loader.Middleware(db),
 	)
 	router.Route("/query", func(r chi.Router) {
 		r.Use(middlewares...)

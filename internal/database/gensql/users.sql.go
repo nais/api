@@ -191,6 +191,37 @@ func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]*User, er
 	return items, nil
 }
 
+const getUsersByIDs = `-- name: GetUsersByIDs :many
+SELECT id, email, name, external_id FROM users
+WHERE id = ANY($1::uuid[])
+ORDER BY name, email ASC
+`
+
+func (q *Queries) GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error) {
+	rows, err := q.db.Query(ctx, getUsersByIDs, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*User{}
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.Name,
+			&i.ExternalID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUsersCount = `-- name: GetUsersCount :one
 SELECT COUNT(*) FROM users
 `

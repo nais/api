@@ -9,8 +9,8 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/graph/apierror"
-	"github.com/nais/api/internal/graph/dataloader"
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
@@ -37,7 +37,7 @@ func (r *appResolver) Manifest(ctx context.Context, obj *model.App) (string, err
 
 // Team is the resolver for the team field.
 func (r *appResolver) Team(ctx context.Context, obj *model.App) (*model.Team, error) {
-	return dataloader.GetTeam(ctx, obj.GQLVars.Team)
+	return loader.GetTeam(ctx, obj.GQLVars.Team)
 }
 
 // Vulnerabilities is the resolver for the vulnerabilities field.

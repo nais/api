@@ -50,6 +50,11 @@ WHERE
 SELECT teams.* FROM teams
 WHERE teams.slug = @slug;
 
+-- name: GetTeamBySlugs :many
+SELECT * FROM teams
+WHERE slug = ANY(@slugs::slug[])
+ORDER BY slug ASC;
+
 -- name: GetAllTeamMembers :many
 SELECT users.* FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug

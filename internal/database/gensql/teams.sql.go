@@ -229,6 +229,38 @@ func (q *Queries) GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, 
 	return &i, err
 }
 
+const getTeamBySlugs = `-- name: GetTeamBySlugs :many
+SELECT slug, purpose, last_successful_sync, slack_channel, google_group_email FROM teams
+WHERE slug = ANY($1::slug[])
+ORDER BY slug ASC
+`
+
+func (q *Queries) GetTeamBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error) {
+	rows, err := q.db.Query(ctx, getTeamBySlugs, slugs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Team{}
+	for rows.Next() {
+		var i Team
+		if err := rows.Scan(
+			&i.Slug,
+			&i.Purpose,
+			&i.LastSuccessfulSync,
+			&i.SlackChannel,
+			&i.GoogleGroupEmail,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getTeamDeleteKey = `-- name: GetTeamDeleteKey :one
 SELECT key, team_slug, created_at, created_by, confirmed_at FROM team_delete_keys
 WHERE key = $1

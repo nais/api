@@ -3172,6 +3172,65 @@ func (_c *MockQuerier_GetTeamBySlug_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
+// GetTeamBySlugs provides a mock function with given fields: ctx, slugs
+func (_m *MockQuerier) GetTeamBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error) {
+	ret := _m.Called(ctx, slugs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTeamBySlugs")
+	}
+
+	var r0 []*Team
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []slug.Slug) ([]*Team, error)); ok {
+		return rf(ctx, slugs)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []slug.Slug) []*Team); ok {
+		r0 = rf(ctx, slugs)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*Team)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []slug.Slug) error); ok {
+		r1 = rf(ctx, slugs)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetTeamBySlugs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamBySlugs'
+type MockQuerier_GetTeamBySlugs_Call struct {
+	*mock.Call
+}
+
+// GetTeamBySlugs is a helper method to define mock.On call
+//   - ctx context.Context
+//   - slugs []slug.Slug
+func (_e *MockQuerier_Expecter) GetTeamBySlugs(ctx interface{}, slugs interface{}) *MockQuerier_GetTeamBySlugs_Call {
+	return &MockQuerier_GetTeamBySlugs_Call{Call: _e.mock.On("GetTeamBySlugs", ctx, slugs)}
+}
+
+func (_c *MockQuerier_GetTeamBySlugs_Call) Run(run func(ctx context.Context, slugs []slug.Slug)) *MockQuerier_GetTeamBySlugs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]slug.Slug))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetTeamBySlugs_Call) Return(_a0 []*Team, _a1 error) *MockQuerier_GetTeamBySlugs_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetTeamBySlugs_Call) RunAndReturn(run func(context.Context, []slug.Slug) ([]*Team, error)) *MockQuerier_GetTeamBySlugs_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetTeamDeleteKey provides a mock function with given fields: ctx, key
 func (_m *MockQuerier) GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error) {
 	ret := _m.Called(ctx, key)
@@ -4221,6 +4280,65 @@ func (_c *MockQuerier_GetUsers_Call) Return(_a0 []*User, _a1 error) *MockQuerier
 }
 
 func (_c *MockQuerier_GetUsers_Call) RunAndReturn(run func(context.Context, GetUsersParams) ([]*User, error)) *MockQuerier_GetUsers_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetUsersByIDs provides a mock function with given fields: ctx, ids
+func (_m *MockQuerier) GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error) {
+	ret := _m.Called(ctx, ids)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUsersByIDs")
+	}
+
+	var r0 []*User
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []uuid.UUID) ([]*User, error)); ok {
+		return rf(ctx, ids)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []uuid.UUID) []*User); ok {
+		r0 = rf(ctx, ids)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*User)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []uuid.UUID) error); ok {
+		r1 = rf(ctx, ids)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetUsersByIDs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUsersByIDs'
+type MockQuerier_GetUsersByIDs_Call struct {
+	*mock.Call
+}
+
+// GetUsersByIDs is a helper method to define mock.On call
+//   - ctx context.Context
+//   - ids []uuid.UUID
+func (_e *MockQuerier_Expecter) GetUsersByIDs(ctx interface{}, ids interface{}) *MockQuerier_GetUsersByIDs_Call {
+	return &MockQuerier_GetUsersByIDs_Call{Call: _e.mock.On("GetUsersByIDs", ctx, ids)}
+}
+
+func (_c *MockQuerier_GetUsersByIDs_Call) Run(run func(ctx context.Context, ids []uuid.UUID)) *MockQuerier_GetUsersByIDs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]uuid.UUID))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetUsersByIDs_Call) Return(_a0 []*User, _a1 error) *MockQuerier_GetUsersByIDs_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetUsersByIDs_Call) RunAndReturn(run func(context.Context, []uuid.UUID) ([]*User, error)) *MockQuerier_GetUsersByIDs_Call {
 	_c.Call.Return(run)
 	return _c
 }

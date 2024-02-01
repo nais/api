@@ -28,6 +28,7 @@ type TeamRepo interface {
 	GetTeamMembers(ctx context.Context, teamSlug slug.Slug, p Page) ([]*User, int, error)
 	GetTeamMembersForReconciler(ctx context.Context, teamSlug slug.Slug, reconcilerName string) ([]*User, error)
 	GetTeams(ctx context.Context, p Page) ([]*Team, int, error)
+	GetTeamsBySlugs(ctx context.Context, teamSlugs []slug.Slug) ([]*Team, error)
 	GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string, p Page) ([]*Team, int, error)
 	GetUserTeams(ctx context.Context, userID uuid.UUID, p Page) ([]*UserTeam, int, error)
 	RemoveSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string) error
@@ -39,6 +40,8 @@ type TeamRepo interface {
 	UpdateTeam(ctx context.Context, teamSlug slug.Slug, purpose, slackChannel *string) (*Team, error)
 	UpdateTeamExternalReferences(ctx context.Context, params gensql.UpdateTeamExternalReferencesParams) (*Team, error)
 }
+
+var _ TeamRepo = &database{}
 
 type TeamEnvironment struct {
 	*gensql.TeamEnvironment
@@ -142,6 +145,20 @@ func (d *database) GetTeams(ctx context.Context, p Page) ([]*Team, int, error) {
 	}
 
 	return collection, int(total), nil
+}
+
+func (d *database) GetTeamsBySlugs(ctx context.Context, teamSlugs []slug.Slug) ([]*Team, error) {
+	teams, err := d.querier.GetTeamBySlugs(ctx, teamSlugs)
+	if err != nil {
+		return nil, err
+	}
+
+	collection := make([]*Team, 0)
+	for _, team := range teams {
+		collection = append(collection, &Team{Team: team})
+	}
+
+	return collection, nil
 }
 
 func (d *database) GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, p Page) ([]*TeamEnvironment, int, error) {

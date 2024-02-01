@@ -7,6 +7,13 @@ ORDER BY role_name ASC;
 SELECT * FROM user_roles
 ORDER BY role_name ASC;
 
+-- name: GetUserRolesForUsers :many
+SELECT user_id, role_name, target_team_slug, target_service_account_id
+FROM user_roles
+WHERE user_id = ANY(@user_ids::uuid[])
+ORDER BY user_id
+;
+
 -- name: AssignGlobalRoleToUser :exec
 INSERT INTO user_roles (user_id, role_name)
 VALUES (@user_id, @role_name) ON CONFLICT DO NOTHING;

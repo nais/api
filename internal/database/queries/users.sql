@@ -15,6 +15,11 @@ LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 SELECT * FROM users
 WHERE id = @id;
 
+-- name: GetUsersByIDs :many
+SELECT * FROM users
+WHERE id = ANY(@ids::uuid[])
+ORDER BY name, email ASC;
+
 -- name: GetUserByExternalID :one
 SELECT * FROM users
 WHERE external_id = @external_id;

@@ -20,6 +20,7 @@ import (
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/dataloader"
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/model/vulnerabilities"
 	"github.com/nais/api/internal/graph/scalar"
@@ -1405,12 +1406,12 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 
 // Team is the resolver for the team field.
 func (r *teamMemberResolver) Team(ctx context.Context, obj *model.TeamMember) (*model.Team, error) {
-	return dataloader.GetTeam(ctx, obj.TeamSlug)
+	return loader.GetTeam(ctx, obj.TeamSlug)
 }
 
 // User is the resolver for the user field.
 func (r *teamMemberResolver) User(ctx context.Context, obj *model.TeamMember) (*model.User, error) {
-	return dataloader.GetUser(ctx, &obj.UserID)
+	return loader.GetUser(ctx, obj.UserID)
 }
 
 // Role is the resolver for the role field.

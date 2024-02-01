@@ -3431,6 +3431,65 @@ func (_c *MockDatabase_GetTeams_Call) RunAndReturn(run func(context.Context, Pag
 	return _c
 }
 
+// GetTeamsBySlugs provides a mock function with given fields: ctx, teamSlugs
+func (_m *MockDatabase) GetTeamsBySlugs(ctx context.Context, teamSlugs []slug.Slug) ([]*Team, error) {
+	ret := _m.Called(ctx, teamSlugs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTeamsBySlugs")
+	}
+
+	var r0 []*Team
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []slug.Slug) ([]*Team, error)); ok {
+		return rf(ctx, teamSlugs)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []slug.Slug) []*Team); ok {
+		r0 = rf(ctx, teamSlugs)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*Team)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []slug.Slug) error); ok {
+		r1 = rf(ctx, teamSlugs)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockDatabase_GetTeamsBySlugs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamsBySlugs'
+type MockDatabase_GetTeamsBySlugs_Call struct {
+	*mock.Call
+}
+
+// GetTeamsBySlugs is a helper method to define mock.On call
+//   - ctx context.Context
+//   - teamSlugs []slug.Slug
+func (_e *MockDatabase_Expecter) GetTeamsBySlugs(ctx interface{}, teamSlugs interface{}) *MockDatabase_GetTeamsBySlugs_Call {
+	return &MockDatabase_GetTeamsBySlugs_Call{Call: _e.mock.On("GetTeamsBySlugs", ctx, teamSlugs)}
+}
+
+func (_c *MockDatabase_GetTeamsBySlugs_Call) Run(run func(ctx context.Context, teamSlugs []slug.Slug)) *MockDatabase_GetTeamsBySlugs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]slug.Slug))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_GetTeamsBySlugs_Call) Return(_a0 []*Team, _a1 error) *MockDatabase_GetTeamsBySlugs_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockDatabase_GetTeamsBySlugs_Call) RunAndReturn(run func(context.Context, []slug.Slug) ([]*Team, error)) *MockDatabase_GetTeamsBySlugs_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetTeamsWithPermissionInGitHubRepo provides a mock function with given fields: ctx, repoName, permission, p
 func (_m *MockDatabase) GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName string, permission string, p Page) ([]*Team, int, error) {
 	ret := _m.Called(ctx, repoName, permission, p)
@@ -3864,6 +3923,65 @@ func (_c *MockDatabase_GetUsers_Call) Return(_a0 []*User, _a1 int, _a2 error) *M
 }
 
 func (_c *MockDatabase_GetUsers_Call) RunAndReturn(run func(context.Context, Page) ([]*User, int, error)) *MockDatabase_GetUsers_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetUsersByIDs provides a mock function with given fields: ctx, ids
+func (_m *MockDatabase) GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error) {
+	ret := _m.Called(ctx, ids)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUsersByIDs")
+	}
+
+	var r0 []*User
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []uuid.UUID) ([]*User, error)); ok {
+		return rf(ctx, ids)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []uuid.UUID) []*User); ok {
+		r0 = rf(ctx, ids)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*User)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []uuid.UUID) error); ok {
+		r1 = rf(ctx, ids)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockDatabase_GetUsersByIDs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUsersByIDs'
+type MockDatabase_GetUsersByIDs_Call struct {
+	*mock.Call
+}
+
+// GetUsersByIDs is a helper method to define mock.On call
+//   - ctx context.Context
+//   - ids []uuid.UUID
+func (_e *MockDatabase_Expecter) GetUsersByIDs(ctx interface{}, ids interface{}) *MockDatabase_GetUsersByIDs_Call {
+	return &MockDatabase_GetUsersByIDs_Call{Call: _e.mock.On("GetUsersByIDs", ctx, ids)}
+}
+
+func (_c *MockDatabase_GetUsersByIDs_Call) Run(run func(ctx context.Context, ids []uuid.UUID)) *MockDatabase_GetUsersByIDs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]uuid.UUID))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_GetUsersByIDs_Call) Return(_a0 []*User, _a1 error) *MockDatabase_GetUsersByIDs_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockDatabase_GetUsersByIDs_Call) RunAndReturn(run func(context.Context, []uuid.UUID) ([]*User, error)) *MockDatabase_GetUsersByIDs_Call {
 	_c.Call.Return(run)
 	return _c
 }

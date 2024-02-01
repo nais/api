@@ -16,6 +16,7 @@ type UserRepo interface {
 	GetUserByID(ctx context.Context, id uuid.UUID) (*User, error)
 	GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*authz.Role, error)
 	GetUsers(ctx context.Context, p Page) ([]*User, int, error)
+	GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error)
 	UpdateUser(ctx context.Context, userID uuid.UUID, name, email, externalID string) (*User, error)
 }
 
@@ -103,6 +104,15 @@ func (d *database) GetUsers(ctx context.Context, p Page) ([]*User, int, error) {
 	}
 
 	return wrapUsers(users), int(total), nil
+}
+
+func (d *database) GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error) {
+	users, err := d.querier.GetUsersByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	return wrapUsers(users), nil
 }
 
 func wrapUsers(users []*gensql.User) []*User {

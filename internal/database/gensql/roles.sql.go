@@ -135,6 +135,45 @@ func (q *Queries) GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*UserRo
 	return items, nil
 }
 
+const getUserRolesForUsers = `-- name: GetUserRolesForUsers :many
+SELECT user_id, role_name, target_team_slug, target_service_account_id
+FROM user_roles
+WHERE user_id = ANY($1::uuid[])
+ORDER BY user_id
+`
+
+type GetUserRolesForUsersRow struct {
+	UserID                 uuid.UUID
+	RoleName               RoleName
+	TargetTeamSlug         *slug.Slug
+	TargetServiceAccountID *uuid.UUID
+}
+
+func (q *Queries) GetUserRolesForUsers(ctx context.Context, userIds []uuid.UUID) ([]*GetUserRolesForUsersRow, error) {
+	rows, err := q.db.Query(ctx, getUserRolesForUsers, userIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*GetUserRolesForUsersRow{}
+	for rows.Next() {
+		var i GetUserRolesForUsersRow
+		if err := rows.Scan(
+			&i.UserID,
+			&i.RoleName,
+			&i.TargetTeamSlug,
+			&i.TargetServiceAccountID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUsersWithGloballyAssignedRole = `-- name: GetUsersWithGloballyAssignedRole :many
 SELECT users.id, users.email, users.name, users.external_id FROM users
 JOIN user_roles ON user_roles.user_id = users.id
