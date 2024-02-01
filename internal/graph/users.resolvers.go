@@ -121,12 +121,7 @@ func (r *userResolver) Teams(ctx context.Context, obj *model.User, limit *int, o
 	}
 	p := model.NewPagination(offset, limit)
 
-	uid, err := obj.ID.AsUUID()
-	if err != nil {
-		return nil, err
-	}
-
-	userTeams, totalCount, err := r.database.GetUserTeams(ctx, uid, database.Page{
+	userTeams, totalCount, err := r.database.GetUserTeams(ctx, obj.ID, database.Page{
 		Limit:  p.Limit,
 		Offset: p.Offset,
 	})
@@ -148,7 +143,7 @@ func (r *userResolver) Teams(ctx context.Context, obj *model.User, limit *int, o
 		teams = append(teams, &model.TeamMember{
 			TeamRole: teamRole,
 			TeamSlug: userTeam.Team.Slug,
-			UserID:   uid,
+			UserID:   obj.ID,
 		})
 	}
 

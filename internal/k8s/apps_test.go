@@ -1,7 +1,6 @@
 package k8s
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -146,7 +145,6 @@ func TestSetStatus(t *testing.T) {
 
 	for _, tc := range testCases {
 		app := &model.App{Image: tc.image, Ingresses: tc.ingresses, Env: model.Env{Name: "prod-gcp"}, AutoScaling: model.AutoScaling{Min: 1, Max: 2}}
-		fmt.Println(tc.name)
 		setStatus(app, []metav1.Condition{{Status: metav1.ConditionTrue, Reason: string(tc.appCondition)}}, asInstances(tc.instanceStates))
 
 		if app.AppState.State != tc.expectedState {

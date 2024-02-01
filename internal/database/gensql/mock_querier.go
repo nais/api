@@ -4109,6 +4109,65 @@ func (_c *MockQuerier_GetUserRoles_Call) RunAndReturn(run func(context.Context, 
 	return _c
 }
 
+// GetUserRolesForUsers provides a mock function with given fields: ctx, userIds
+func (_m *MockQuerier) GetUserRolesForUsers(ctx context.Context, userIds []uuid.UUID) ([]*GetUserRolesForUsersRow, error) {
+	ret := _m.Called(ctx, userIds)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUserRolesForUsers")
+	}
+
+	var r0 []*GetUserRolesForUsersRow
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []uuid.UUID) ([]*GetUserRolesForUsersRow, error)); ok {
+		return rf(ctx, userIds)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []uuid.UUID) []*GetUserRolesForUsersRow); ok {
+		r0 = rf(ctx, userIds)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*GetUserRolesForUsersRow)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []uuid.UUID) error); ok {
+		r1 = rf(ctx, userIds)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetUserRolesForUsers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUserRolesForUsers'
+type MockQuerier_GetUserRolesForUsers_Call struct {
+	*mock.Call
+}
+
+// GetUserRolesForUsers is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userIds []uuid.UUID
+func (_e *MockQuerier_Expecter) GetUserRolesForUsers(ctx interface{}, userIds interface{}) *MockQuerier_GetUserRolesForUsers_Call {
+	return &MockQuerier_GetUserRolesForUsers_Call{Call: _e.mock.On("GetUserRolesForUsers", ctx, userIds)}
+}
+
+func (_c *MockQuerier_GetUserRolesForUsers_Call) Run(run func(ctx context.Context, userIds []uuid.UUID)) *MockQuerier_GetUserRolesForUsers_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]uuid.UUID))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetUserRolesForUsers_Call) Return(_a0 []*GetUserRolesForUsersRow, _a1 error) *MockQuerier_GetUserRolesForUsers_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetUserRolesForUsers_Call) RunAndReturn(run func(context.Context, []uuid.UUID) ([]*GetUserRolesForUsersRow, error)) *MockQuerier_GetUserRolesForUsers_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetUserTeams provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) GetUserTeams(ctx context.Context, arg GetUserTeamsParams) ([]*GetUserTeamsRow, error) {
 	ret := _m.Called(ctx, arg)

@@ -18,7 +18,6 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/apierror"
-	"github.com/nais/api/internal/graph/dataloader"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
@@ -77,7 +76,7 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTea
 
 	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 
-	return dataloader.ToGraphTeam(team), nil
+	return loader.ToGraphTeam(team), nil
 }
 
 // UpdateTeam is the resolver for the updateTeam field.
@@ -88,7 +87,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 		return nil, err
 	}
 
-	if _, err := dataloader.GetTeam(ctx, slug); err != nil {
+	if _, err := loader.GetTeam(ctx, slug); err != nil {
 		return nil, err
 	}
 
@@ -146,7 +145,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 
 	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 
-	return dataloader.ToGraphTeam(team), nil
+	return loader.ToGraphTeam(team), nil
 }
 
 // RemoveUsersFromTeam is the resolver for the removeUsersFromTeam field.
@@ -157,7 +156,7 @@ func (r *mutationResolver) RemoveUsersFromTeam(ctx context.Context, slug slug.Sl
 		return nil, err
 	}
 
-	if _, err := dataloader.GetTeam(ctx, slug); err != nil {
+	if _, err := loader.GetTeam(ctx, slug); err != nil {
 		return nil, err
 	}
 
@@ -221,7 +220,7 @@ func (r *mutationResolver) RemoveUsersFromTeam(ctx context.Context, slug slug.Sl
 
 	r.triggerTeamUpdatedEvent(ctx, slug, correlationID)
 
-	return dataloader.ToGraphTeam(team), nil
+	return loader.ToGraphTeam(team), nil
 }
 
 // RemoveUserFromTeam is the resolver for the removeUserFromTeam field.
@@ -237,7 +236,7 @@ func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slu
 		return nil, err
 	}
 
-	team, err := dataloader.GetTeam(ctx, slug)
+	team, err := loader.GetTeam(ctx, slug)
 	if err != nil {
 		return nil, err
 	}
@@ -307,7 +306,7 @@ func (r *mutationResolver) SynchronizeTeam(ctx context.Context, slug slug.Slug) 
 		return nil, err
 	}
 
-	if _, err := dataloader.GetTeam(ctx, slug); err != nil {
+	if _, err := loader.GetTeam(ctx, slug); err != nil {
 		return nil, err
 	}
 
@@ -381,7 +380,7 @@ func (r *mutationResolver) AddTeamMembers(ctx context.Context, slug slug.Slug, u
 		return nil, err
 	}
 
-	team, err := dataloader.GetTeam(ctx, slug)
+	team, err := loader.GetTeam(ctx, slug)
 	if err != nil {
 		return nil, err
 	}
@@ -442,7 +441,7 @@ func (r *mutationResolver) AddTeamOwners(ctx context.Context, slug slug.Slug, us
 		return nil, err
 	}
 
-	team, err := dataloader.GetTeam(ctx, slug)
+	team, err := loader.GetTeam(ctx, slug)
 	if err != nil {
 		return nil, err
 	}
@@ -509,7 +508,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 		return nil, err
 	}
 
-	team, err := dataloader.GetTeam(ctx, slug)
+	team, err := loader.GetTeam(ctx, slug)
 	if err != nil {
 		return nil, err
 	}
@@ -602,7 +601,7 @@ func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug
 		return nil, err
 	}
 
-	team, err := dataloader.GetTeam(ctx, slug)
+	team, err := loader.GetTeam(ctx, slug)
 	if err != nil {
 		return nil, err
 	}
@@ -671,8 +670,11 @@ func (r *mutationResolver) RequestTeamDeletion(ctx context.Context, slug slug.Sl
 		return nil, err
 	}
 
-	team, err := dataloader.GetTeam(ctx, slug)
+	team, err := loader.GetTeam(ctx, slug)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, apierror.ErrTeamNotExist
+		}
 		return nil, err
 	}
 
@@ -875,7 +877,7 @@ func (r *queryResolver) Team(ctx context.Context, slug slug.Slug) (*model.Team, 
 		return nil, err
 	}
 
-	return dataloader.GetTeam(ctx, slug)
+	return loader.GetTeam(ctx, slug)
 }
 
 // TeamDeleteKey is the resolver for the teamDeleteKey field.

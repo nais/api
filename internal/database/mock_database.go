@@ -3794,6 +3794,65 @@ func (_c *MockDatabase_GetUserRoles_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
+// GetUserRolesForUsers provides a mock function with given fields: ctx, userIDs
+func (_m *MockDatabase) GetUserRolesForUsers(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]*authz.Role, error) {
+	ret := _m.Called(ctx, userIDs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUserRolesForUsers")
+	}
+
+	var r0 map[uuid.UUID][]*authz.Role
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []uuid.UUID) (map[uuid.UUID][]*authz.Role, error)); ok {
+		return rf(ctx, userIDs)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []uuid.UUID) map[uuid.UUID][]*authz.Role); ok {
+		r0 = rf(ctx, userIDs)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[uuid.UUID][]*authz.Role)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []uuid.UUID) error); ok {
+		r1 = rf(ctx, userIDs)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockDatabase_GetUserRolesForUsers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUserRolesForUsers'
+type MockDatabase_GetUserRolesForUsers_Call struct {
+	*mock.Call
+}
+
+// GetUserRolesForUsers is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userIDs []uuid.UUID
+func (_e *MockDatabase_Expecter) GetUserRolesForUsers(ctx interface{}, userIDs interface{}) *MockDatabase_GetUserRolesForUsers_Call {
+	return &MockDatabase_GetUserRolesForUsers_Call{Call: _e.mock.On("GetUserRolesForUsers", ctx, userIDs)}
+}
+
+func (_c *MockDatabase_GetUserRolesForUsers_Call) Run(run func(ctx context.Context, userIDs []uuid.UUID)) *MockDatabase_GetUserRolesForUsers_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]uuid.UUID))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_GetUserRolesForUsers_Call) Return(_a0 map[uuid.UUID][]*authz.Role, _a1 error) *MockDatabase_GetUserRolesForUsers_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockDatabase_GetUserRolesForUsers_Call) RunAndReturn(run func(context.Context, []uuid.UUID) (map[uuid.UUID][]*authz.Role, error)) *MockDatabase_GetUserRolesForUsers_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetUserTeams provides a mock function with given fields: ctx, userID, p
 func (_m *MockDatabase) GetUserTeams(ctx context.Context, userID uuid.UUID, p Page) ([]*UserTeam, int, error) {
 	ret := _m.Called(ctx, userID, p)

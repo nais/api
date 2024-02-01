@@ -2,7 +2,6 @@ package graph_test
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"os"
 	"testing"
@@ -19,6 +18,7 @@ import (
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/apierror"
+	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
@@ -251,16 +251,13 @@ func TestMutationResolver_RequestTeamDeletion(t *testing.T) {
 		})
 
 		db := database.NewMockDatabase(t)
-		db.
-			EXPECT().
-			GetTeamBySlug(ctx, teamSlug).
-			Return(nil, fmt.Errorf("some error")).
-			Once()
+		db.EXPECT().
+			GetTeamsBySlugs(mock.Anything, []slug.Slug{teamSlug}).Return(nil, nil).Once()
 
+		ctx = loader.NewLoaderContext(ctx, db)
 		resolver := graph.
 			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditlogger.NewAuditLoggerForTesting(), nil, userSyncRuns, nil, log).
 			Mutation()
-
 		key, err := resolver.RequestTeamDeletion(ctx, teamSlug)
 		assert.Nil(t, key)
 		assert.ErrorIs(t, err, apierror.ErrTeamNotExist)
@@ -303,14 +300,16 @@ func TestMutationResolver_RequestTeamDeletion(t *testing.T) {
 		db := database.NewMockDatabase(t)
 		db.
 			EXPECT().
-			GetTeamBySlug(ctx, teamSlug).
-			Return(team, nil).
+			GetTeamsBySlugs(mock.Anything, []slug.Slug{teamSlug}).
+			Return([]*database.Team{team}, nil).
 			Once()
 		db.
 			EXPECT().
-			CreateTeamDeleteKey(ctx, teamSlug, userID).
+			CreateTeamDeleteKey(mock.Anything, teamSlug, userID).
 			Return(key, nil).
 			Once()
+
+		ctx = loader.NewLoaderContext(ctx, db)
 
 		auditLogger := auditlogger.NewAuditLoggerForTesting()
 		resolver := graph.

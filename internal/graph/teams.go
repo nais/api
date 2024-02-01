@@ -3,7 +3,7 @@ package graph
 import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
-	"github.com/nais/api/internal/graph/dataloader"
+	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"k8s.io/utils/ptr"
 )
@@ -11,7 +11,7 @@ import (
 func toGraphTeams(m []*database.Team) []*model.Team {
 	ret := make([]*model.Team, 0)
 	for _, team := range m {
-		ret = append(ret, dataloader.ToGraphTeam(team))
+		ret = append(ret, loader.ToGraphTeam(team))
 	}
 	return ret
 }

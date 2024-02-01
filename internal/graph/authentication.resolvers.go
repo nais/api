@@ -21,7 +21,7 @@ func (r *queryResolver) Me(ctx context.Context) (model.AuthenticatedUser, error)
 	switch me := me.(type) {
 	case *database.User:
 		return &model.User{
-			ID:         scalar.UserIdent(me.ID),
+			ID:         me.ID,
 			Email:      me.Email,
 			Name:       me.Name,
 			ExternalID: me.ExternalID,
