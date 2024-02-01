@@ -2,14 +2,9 @@ package graph
 
 import (
 	"cmp"
-	"context"
 	"slices"
 
-	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/database/gensql"
-	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/slug"
 )
 
 func convertSecretDataToTuple(data map[string]string) []*model.SecretTuple {
@@ -24,26 +19,4 @@ func convertSecretDataToTuple(data map[string]string) []*model.SecretTuple {
 		return cmp.Compare(a.Key, b.Key)
 	})
 	return ret
-}
-
-func requireTeamMemberOrOwner(ctx context.Context, team slug.Slug) error {
-	actor := authz.ActorFromContext(ctx)
-	isMember := false
-	isOwner := false
-
-	err := authz.RequireTeamRole(actor, team, gensql.RoleNameTeammember)
-	if err == nil {
-		isMember = true
-	}
-
-	err = authz.RequireTeamRole(actor, team, gensql.RoleNameTeamowner)
-	if err == nil {
-		isOwner = true
-	}
-
-	if isMember || isOwner {
-		return nil
-	}
-
-	return apierror.Errorf("User is not a member or owner of %q", team)
 }

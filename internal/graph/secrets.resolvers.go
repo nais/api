@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
@@ -17,7 +18,8 @@ import (
 
 // CreateSecret is the resolver for the createSecret field.
 func (r *mutationResolver) CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
-	err := requireTeamMemberOrOwner(ctx, team)
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamMembership(actor, team)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +32,8 @@ func (r *mutationResolver) CreateSecret(ctx context.Context, name string, team s
 
 // UpdateSecret is the resolver for the updateSecret field.
 func (r *mutationResolver) UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
-	err := requireTeamMemberOrOwner(ctx, team)
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamMembership(actor, team)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +46,8 @@ func (r *mutationResolver) UpdateSecret(ctx context.Context, name string, team s
 
 // DeleteSecret is the resolver for the deleteSecret field.
 func (r *mutationResolver) DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) (bool, error) {
-	err := requireTeamMemberOrOwner(ctx, team)
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamMembership(actor, team)
 	if err != nil {
 		return false, err
 	}
@@ -52,7 +56,8 @@ func (r *mutationResolver) DeleteSecret(ctx context.Context, name string, team s
 
 // Secrets is the resolver for the secrets field.
 func (r *queryResolver) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecret, error) {
-	err := requireTeamMemberOrOwner(ctx, team)
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamMembership(actor, team)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +66,8 @@ func (r *queryResolver) Secrets(ctx context.Context, team slug.Slug) ([]*model.E
 
 // Secret is the resolver for the secret field.
 func (r *queryResolver) Secret(ctx context.Context, name string, team slug.Slug, env string) (*model.Secret, error) {
-	err := requireTeamMemberOrOwner(ctx, team)
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamMembership(actor, team)
 	if err != nil {
 		return nil, err
 	}

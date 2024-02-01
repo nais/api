@@ -123,6 +123,7 @@ func RequireTeamAuthorization(actor *Actor, requiredAuthzName roles.Authorizatio
 	return authorized(authorizations, requiredAuthzName)
 }
 
+// RequireTeamRole checks that the given actor has a required role for a specific team.
 func RequireTeamRole(actor *Actor, targetTeamSlug slug.Slug, requiredRoleName gensql.RoleName) error {
 	if !actor.Authenticated() {
 		return ErrNotAuthenticated
@@ -135,6 +136,27 @@ func RequireTeamRole(actor *Actor, targetTeamSlug slug.Slug, requiredRoleName ge
 	}
 
 	return ErrMissingRole{role: string(requiredRoleName)}
+}
+
+// RequireTeamMembership checks that the given actor is a member of a specific team.
+func RequireTeamMembership(actor *Actor, team slug.Slug) error {
+	if !actor.Authenticated() {
+		return ErrNotAuthenticated
+	}
+
+	err := RequireTeamRole(actor, team, gensql.RoleNameTeammember)
+	if err == nil {
+		return nil
+	}
+
+	// owners don't have the member role, so we need to check for that as well
+	err = RequireTeamRole(actor, team, gensql.RoleNameTeamowner)
+	if err == nil {
+		return nil
+	}
+
+	// if neither role is present, the error should reference the role with the least privileges
+	return ErrMissingRole{role: string(gensql.RoleNameTeammember)}
 }
 
 // authorized Check if one of the authorizations in the map matches the required authorization.
