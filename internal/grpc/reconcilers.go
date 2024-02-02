@@ -13,6 +13,14 @@ type ReconcilersServer struct {
 	protoapi.UnimplementedReconcilersServer
 }
 
+func (r *ReconcilersServer) SetReconcilerErrorForTeam(ctx context.Context, in *protoapi.SetReconcilerErrorForTeamRequest) (*protoapi.SetReconcilerErrorForTeamResponse, error) {
+	panic("not implemented")
+}
+
+func (r *ReconcilersServer) SuccessfulTeamSync(ctx context.Context, in *protoapi.SuccessfulTeamSyncRequest) (*protoapi.SuccessfulTeamSyncResponse, error) {
+	panic("not implemented")
+}
+
 func (r *ReconcilersServer) Register(ctx context.Context, req *protoapi.RegisterReconcilerRequest) (*protoapi.RegisterReconcilerResponse, error) {
 	for _, rec := range req.Reconcilers {
 		if _, err := r.db.UpsertReconciler(ctx, rec.Name, rec.DisplayName, rec.Description, rec.MemberAware, rec.EnableByDefault); err != nil {

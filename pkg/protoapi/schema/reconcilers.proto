@@ -4,6 +4,30 @@ import "pagination.proto";
 
 option go_package = "./pkg/protoapi";
 
+service Reconcilers {
+  rpc Register(RegisterReconcilerRequest) returns (RegisterReconcilerResponse) {}
+  rpc Get(GetReconcilerRequest) returns (GetReconcilerResponse) {}
+  rpc List(ListReconcilersRequest) returns (ListReconcilersResponse) {}
+  rpc Config(ConfigReconcilerRequest) returns (ConfigReconcilerResponse) {}
+  rpc SetReconcilerErrorForTeam(SetReconcilerErrorForTeamRequest) returns (SetReconcilerErrorForTeamResponse) {}
+  rpc SuccessfulTeamSync(SuccessfulTeamSyncRequest) returns (SuccessfulTeamSyncResponse) {}
+}
+
+message SuccessfulTeamSyncRequest {
+  string team_slug = 1;
+}
+
+message SuccessfulTeamSyncResponse {}
+
+message SetReconcilerErrorForTeamRequest {
+  string team_slug = 1;
+  string reconciler_name = 2;
+  string correlation_id = 3;
+  string error_message = 4;
+}
+
+message SetReconcilerErrorForTeamResponse {}
+
 message Reconciler {
   string name = 1;
   string display_name = 2;
@@ -34,13 +58,6 @@ message NewReconciler {
   bool member_aware = 4;
   repeated ReconcilerConfigSpec config = 5;
   bool enableByDefault = 6;
-}
-
-service Reconcilers {
-  rpc Register(RegisterReconcilerRequest) returns (RegisterReconcilerResponse) {}
-  rpc Get(GetReconcilerRequest) returns (GetReconcilerResponse) {}
-  rpc List(ListReconcilersRequest) returns (ListReconcilersResponse) {}
-  rpc Config(ConfigReconcilerRequest) returns (ConfigReconcilerResponse) {}
 }
 
 message RegisterReconcilerRequest {
