@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
-
 	"github.com/nais/api/internal/auth/roles"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"

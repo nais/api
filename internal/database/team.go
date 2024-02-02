@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 )

@@ -8,6 +8,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/search"
+	"github.com/nais/api/internal/slug"
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	naisv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
@@ -22,13 +28,6 @@ import (
 	corev1inf "k8s.io/client-go/informers/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-
-	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
-	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/search"
-	"github.com/nais/api/internal/slug"
 )
 
 type Database interface {

@@ -22,7 +22,8 @@ type App struct {
 	Authz        []Authz      `json:"authz"`
 	AppState     AppState     `json:"appState"`
 	Secrets      []string     `json:"secrets"`
-	GQLVars      AppGQLVars   `json:"-"`
+
+	GQLVars AppGQLVars `json:"-"`
 }
 
 func (App) IsSearchNode() {}

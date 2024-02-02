@@ -9,6 +9,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -16,11 +20,6 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/validation"
-
-	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/scalar"
-	"github.com/nais/api/internal/slug"
 )
 
 const (
