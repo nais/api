@@ -11,6 +11,7 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/exporters/prometheus"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -64,6 +65,10 @@ func newMeterProvider(ctx context.Context) (*metric.MeterProvider, promClient.Ga
 		)
 		otel.SetTracerProvider(tp)
 	}
+
+	tc := propagation.TraceContext{}
+	// Register the TraceContext propagator globally.
+	otel.SetTextMapPropagator(tc)
 
 	return meterProvider, reg, nil
 }

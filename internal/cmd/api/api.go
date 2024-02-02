@@ -176,6 +176,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		pubsubTopic,
 		log,
 	)
+
 	graphHandler, err := graph.NewHandler(gengql.Config{
 		Resolvers: resolver,
 		Directives: gengql.DirectiveRoot{
