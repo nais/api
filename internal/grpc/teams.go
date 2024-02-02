@@ -17,12 +17,20 @@ type TeamsServer struct {
 	protoapi.UnimplementedTeamsServer
 }
 
-func (t *TeamsServer) Delete(ctx context.Context, r *protoapi.DeleteTeamRequest) (*protoapi.DeleteTeamResponse, error) {
-	panic("not implemented")
+func (t *TeamsServer) Delete(ctx context.Context, req *protoapi.DeleteTeamRequest) (*protoapi.DeleteTeamResponse, error) {
+	if req.Slug == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "slug is required")
+	}
+
+	if err := t.db.DeleteTeam(ctx, slug.Slug(req.Slug)); err != nil {
+		return nil, status.Errorf(codes.Internal, "unable to delete team: %q", req.Slug)
+	}
+
+	return &protoapi.DeleteTeamResponse{}, nil
 }
 
-func (t *TeamsServer) Get(ctx context.Context, r *protoapi.GetTeamRequest) (*protoapi.GetTeamResponse, error) {
-	team, err := t.db.GetTeamBySlug(ctx, slug.Slug(r.Slug))
+func (t *TeamsServer) Get(ctx context.Context, req *protoapi.GetTeamRequest) (*protoapi.GetTeamResponse, error) {
+	team, err := t.db.GetTeamBySlug(ctx, slug.Slug(req.Slug))
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "team not found")
 	}
@@ -32,8 +40,8 @@ func (t *TeamsServer) Get(ctx context.Context, r *protoapi.GetTeamRequest) (*pro
 	}, nil
 }
 
-func (t *TeamsServer) List(ctx context.Context, r *protoapi.ListTeamsRequest) (*protoapi.ListTeamsResponse, error) {
-	limit, offset := pagination(r)
+func (t *TeamsServer) List(ctx context.Context, req *protoapi.ListTeamsRequest) (*protoapi.ListTeamsResponse, error) {
+	limit, offset := pagination(req)
 	teams, total, err := t.db.GetTeams(ctx, database.Page{
 		Limit:  limit,
 		Offset: offset,
@@ -43,7 +51,7 @@ func (t *TeamsServer) List(ctx context.Context, r *protoapi.ListTeamsRequest) (*
 	}
 
 	resp := &protoapi.ListTeamsResponse{
-		PageInfo: pageInfo(r, total),
+		PageInfo: pageInfo(req, total),
 	}
 	for _, team := range teams {
 		resp.Nodes = append(resp.Nodes, toProtoTeam(team))
@@ -52,9 +60,9 @@ func (t *TeamsServer) List(ctx context.Context, r *protoapi.ListTeamsRequest) (*
 	return resp, nil
 }
 
-func (t *TeamsServer) Members(ctx context.Context, r *protoapi.ListTeamMembersRequest) (*protoapi.ListTeamMembersResponse, error) {
-	limit, offset := pagination(r)
-	users, total, err := t.db.GetTeamMembers(ctx, slug.Slug(r.Slug), database.Page{
+func (t *TeamsServer) Members(ctx context.Context, req *protoapi.ListTeamMembersRequest) (*protoapi.ListTeamMembersResponse, error) {
+	limit, offset := pagination(req)
+	users, total, err := t.db.GetTeamMembers(ctx, slug.Slug(req.Slug), database.Page{
 		Limit:  limit,
 		Offset: offset,
 	})
@@ -63,7 +71,7 @@ func (t *TeamsServer) Members(ctx context.Context, r *protoapi.ListTeamMembersRe
 	}
 
 	resp := &protoapi.ListTeamMembersResponse{
-		PageInfo: pageInfo(r, total),
+		PageInfo: pageInfo(req, total),
 	}
 	for _, user := range users {
 		resp.Nodes = append(resp.Nodes, toProtoTeamMember(user))
@@ -72,9 +80,8 @@ func (t *TeamsServer) Members(ctx context.Context, r *protoapi.ListTeamMembersRe
 	return resp, nil
 }
 
-func (t *TeamsServer) SlackAlertsChannels(ctx context.Context, r *protoapi.SlackAlertsChannelsRequest) (*protoapi.SlackAlertsChannelsResponse, error) {
-	// TODO: Pagination?
-	channelMap, err := t.db.GetSlackAlertsChannels(ctx, slug.Slug(r.Slug))
+func (t *TeamsServer) SlackAlertsChannels(ctx context.Context, req *protoapi.SlackAlertsChannelsRequest) (*protoapi.SlackAlertsChannelsResponse, error) {
+	channelMap, err := t.db.GetSlackAlertsChannels(ctx, slug.Slug(req.Slug))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to list slack alerts channels: %s", err)
 	}
@@ -90,14 +97,14 @@ func (t *TeamsServer) SlackAlertsChannels(ctx context.Context, r *protoapi.Slack
 	return resp, nil
 }
 
-func (t *TeamsServer) SetTeamExternalReferences(ctx context.Context, r *protoapi.SetTeamExternalReferencesRequest) (*protoapi.SetTeamExternalReferencesResponse, error) {
-	if r.Slug == "" {
+func (t *TeamsServer) SetTeamExternalReferences(ctx context.Context, req *protoapi.SetTeamExternalReferencesRequest) (*protoapi.SetTeamExternalReferencesResponse, error) {
+	if req.Slug == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "slug is required")
 	}
 
 	var aID *uuid.UUID
-	if r.AzureGroupId != nil {
-		id, err := uuid.Parse(*r.AzureGroupId)
+	if req.AzureGroupId != nil {
+		id, err := uuid.Parse(*req.AzureGroupId)
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "azure group ID must be a valid UUID: %s", err)
 		}
@@ -105,10 +112,10 @@ func (t *TeamsServer) SetTeamExternalReferences(ctx context.Context, r *protoapi
 	}
 
 	_, err := t.db.UpdateTeamExternalReferences(ctx, gensql.UpdateTeamExternalReferencesParams{
-		Slug:             slug.Slug(r.Slug),
+		Slug:             slug.Slug(req.Slug),
 		AzureGroupID:     aID,
-		GithubTeamSlug:   r.GithubTeamSlug,
-		GoogleGroupEmail: r.GoogleGroupEmail,
+		GithubTeamSlug:   req.GithubTeamSlug,
+		GoogleGroupEmail: req.GoogleGroupEmail,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to update external references for team: %s", err)
@@ -117,9 +124,9 @@ func (t *TeamsServer) SetTeamExternalReferences(ctx context.Context, r *protoapi
 	return &protoapi.SetTeamExternalReferencesResponse{}, nil
 }
 
-func (t *TeamsServer) Environments(ctx context.Context, r *protoapi.ListTeamEnvironmentsRequest) (*protoapi.ListTeamEnvironmentsResponse, error) {
-	limit, offset := pagination(r)
-	environments, total, err := t.db.GetTeamEnvironments(ctx, slug.Slug(r.Slug), database.Page{
+func (t *TeamsServer) Environments(ctx context.Context, req *protoapi.ListTeamEnvironmentsRequest) (*protoapi.ListTeamEnvironmentsResponse, error) {
+	limit, offset := pagination(req)
+	environments, total, err := t.db.GetTeamEnvironments(ctx, slug.Slug(req.Slug), database.Page{
 		Limit:  limit,
 		Offset: offset,
 	})
@@ -128,7 +135,7 @@ func (t *TeamsServer) Environments(ctx context.Context, r *protoapi.ListTeamEnvi
 	}
 
 	resp := &protoapi.ListTeamEnvironmentsResponse{
-		PageInfo: pageInfo(r, total),
+		PageInfo: pageInfo(req, total),
 	}
 	for _, env := range environments {
 		resp.Nodes = append(resp.Nodes, toProtoTeamEnvironment(env))
