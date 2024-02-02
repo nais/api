@@ -150,7 +150,15 @@ WHERE key = @key;
 
 -- name: DeleteTeam :exec
 DELETE FROM teams
-WHERE slug = @slug;
+WHERE
+    teams.slug = @slug
+    AND EXISTS(
+        SELECT team_delete_keys.team_slug
+        FROM team_delete_keys
+        WHERE
+            team_delete_keys.team_slug = @slug
+            AND team_delete_keys.confirmed_at IS NOT NULL
+    );
 
 -- name: GetTeamMemberOptOuts :many
 SELECT

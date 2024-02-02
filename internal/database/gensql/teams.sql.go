@@ -74,7 +74,15 @@ func (q *Queries) CreateTeamDeleteKey(ctx context.Context, arg CreateTeamDeleteK
 
 const deleteTeam = `-- name: DeleteTeam :exec
 DELETE FROM teams
-WHERE slug = $1
+WHERE
+    teams.slug = $1
+    AND EXISTS(
+        SELECT team_delete_keys.team_slug
+        FROM team_delete_keys
+        WHERE
+            team_delete_keys.team_slug = $1
+            AND team_delete_keys.confirmed_at IS NOT NULL
+    )
 `
 
 func (q *Queries) DeleteTeam(ctx context.Context, argSlug slug.Slug) error {
