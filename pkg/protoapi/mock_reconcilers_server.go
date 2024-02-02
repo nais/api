@@ -257,6 +257,183 @@ func (_c *MockReconcilersServer_Register_Call) RunAndReturn(run func(context.Con
 	return _c
 }
 
+// RemoveReconcilerErrorForTeam provides a mock function with given fields: _a0, _a1
+func (_m *MockReconcilersServer) RemoveReconcilerErrorForTeam(_a0 context.Context, _a1 *RemoveReconcilerErrorForTeamRequest) (*RemoveReconcilerErrorForTeamResponse, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RemoveReconcilerErrorForTeam")
+	}
+
+	var r0 *RemoveReconcilerErrorForTeamResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *RemoveReconcilerErrorForTeamRequest) (*RemoveReconcilerErrorForTeamResponse, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *RemoveReconcilerErrorForTeamRequest) *RemoveReconcilerErrorForTeamResponse); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*RemoveReconcilerErrorForTeamResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *RemoveReconcilerErrorForTeamRequest) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockReconcilersServer_RemoveReconcilerErrorForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveReconcilerErrorForTeam'
+type MockReconcilersServer_RemoveReconcilerErrorForTeam_Call struct {
+	*mock.Call
+}
+
+// RemoveReconcilerErrorForTeam is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 *RemoveReconcilerErrorForTeamRequest
+func (_e *MockReconcilersServer_Expecter) RemoveReconcilerErrorForTeam(_a0 interface{}, _a1 interface{}) *MockReconcilersServer_RemoveReconcilerErrorForTeam_Call {
+	return &MockReconcilersServer_RemoveReconcilerErrorForTeam_Call{Call: _e.mock.On("RemoveReconcilerErrorForTeam", _a0, _a1)}
+}
+
+func (_c *MockReconcilersServer_RemoveReconcilerErrorForTeam_Call) Run(run func(_a0 context.Context, _a1 *RemoveReconcilerErrorForTeamRequest)) *MockReconcilersServer_RemoveReconcilerErrorForTeam_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*RemoveReconcilerErrorForTeamRequest))
+	})
+	return _c
+}
+
+func (_c *MockReconcilersServer_RemoveReconcilerErrorForTeam_Call) Return(_a0 *RemoveReconcilerErrorForTeamResponse, _a1 error) *MockReconcilersServer_RemoveReconcilerErrorForTeam_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockReconcilersServer_RemoveReconcilerErrorForTeam_Call) RunAndReturn(run func(context.Context, *RemoveReconcilerErrorForTeamRequest) (*RemoveReconcilerErrorForTeamResponse, error)) *MockReconcilersServer_RemoveReconcilerErrorForTeam_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SetReconcilerErrorForTeam provides a mock function with given fields: _a0, _a1
+func (_m *MockReconcilersServer) SetReconcilerErrorForTeam(_a0 context.Context, _a1 *SetReconcilerErrorForTeamRequest) (*SetReconcilerErrorForTeamResponse, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetReconcilerErrorForTeam")
+	}
+
+	var r0 *SetReconcilerErrorForTeamResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *SetReconcilerErrorForTeamRequest) (*SetReconcilerErrorForTeamResponse, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *SetReconcilerErrorForTeamRequest) *SetReconcilerErrorForTeamResponse); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*SetReconcilerErrorForTeamResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *SetReconcilerErrorForTeamRequest) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockReconcilersServer_SetReconcilerErrorForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetReconcilerErrorForTeam'
+type MockReconcilersServer_SetReconcilerErrorForTeam_Call struct {
+	*mock.Call
+}
+
+// SetReconcilerErrorForTeam is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 *SetReconcilerErrorForTeamRequest
+func (_e *MockReconcilersServer_Expecter) SetReconcilerErrorForTeam(_a0 interface{}, _a1 interface{}) *MockReconcilersServer_SetReconcilerErrorForTeam_Call {
+	return &MockReconcilersServer_SetReconcilerErrorForTeam_Call{Call: _e.mock.On("SetReconcilerErrorForTeam", _a0, _a1)}
+}
+
+func (_c *MockReconcilersServer_SetReconcilerErrorForTeam_Call) Run(run func(_a0 context.Context, _a1 *SetReconcilerErrorForTeamRequest)) *MockReconcilersServer_SetReconcilerErrorForTeam_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*SetReconcilerErrorForTeamRequest))
+	})
+	return _c
+}
+
+func (_c *MockReconcilersServer_SetReconcilerErrorForTeam_Call) Return(_a0 *SetReconcilerErrorForTeamResponse, _a1 error) *MockReconcilersServer_SetReconcilerErrorForTeam_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockReconcilersServer_SetReconcilerErrorForTeam_Call) RunAndReturn(run func(context.Context, *SetReconcilerErrorForTeamRequest) (*SetReconcilerErrorForTeamResponse, error)) *MockReconcilersServer_SetReconcilerErrorForTeam_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SuccessfulTeamSync provides a mock function with given fields: _a0, _a1
+func (_m *MockReconcilersServer) SuccessfulTeamSync(_a0 context.Context, _a1 *SuccessfulTeamSyncRequest) (*SuccessfulTeamSyncResponse, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SuccessfulTeamSync")
+	}
+
+	var r0 *SuccessfulTeamSyncResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *SuccessfulTeamSyncRequest) (*SuccessfulTeamSyncResponse, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *SuccessfulTeamSyncRequest) *SuccessfulTeamSyncResponse); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*SuccessfulTeamSyncResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *SuccessfulTeamSyncRequest) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockReconcilersServer_SuccessfulTeamSync_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SuccessfulTeamSync'
+type MockReconcilersServer_SuccessfulTeamSync_Call struct {
+	*mock.Call
+}
+
+// SuccessfulTeamSync is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 *SuccessfulTeamSyncRequest
+func (_e *MockReconcilersServer_Expecter) SuccessfulTeamSync(_a0 interface{}, _a1 interface{}) *MockReconcilersServer_SuccessfulTeamSync_Call {
+	return &MockReconcilersServer_SuccessfulTeamSync_Call{Call: _e.mock.On("SuccessfulTeamSync", _a0, _a1)}
+}
+
+func (_c *MockReconcilersServer_SuccessfulTeamSync_Call) Run(run func(_a0 context.Context, _a1 *SuccessfulTeamSyncRequest)) *MockReconcilersServer_SuccessfulTeamSync_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*SuccessfulTeamSyncRequest))
+	})
+	return _c
+}
+
+func (_c *MockReconcilersServer_SuccessfulTeamSync_Call) Return(_a0 *SuccessfulTeamSyncResponse, _a1 error) *MockReconcilersServer_SuccessfulTeamSync_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockReconcilersServer_SuccessfulTeamSync_Call) RunAndReturn(run func(context.Context, *SuccessfulTeamSyncRequest) (*SuccessfulTeamSyncResponse, error)) *MockReconcilersServer_SuccessfulTeamSync_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // mustEmbedUnimplementedReconcilersServer provides a mock function with given fields:
 func (_m *MockReconcilersServer) mustEmbedUnimplementedReconcilersServer() {
 	_m.Called()

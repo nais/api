@@ -21,6 +21,65 @@ func (_m *MockTeamsServer) EXPECT() *MockTeamsServer_Expecter {
 	return &MockTeamsServer_Expecter{mock: &_m.Mock}
 }
 
+// Delete provides a mock function with given fields: _a0, _a1
+func (_m *MockTeamsServer) Delete(_a0 context.Context, _a1 *DeleteTeamRequest) (*DeleteTeamResponse, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Delete")
+	}
+
+	var r0 *DeleteTeamResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *DeleteTeamRequest) (*DeleteTeamResponse, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *DeleteTeamRequest) *DeleteTeamResponse); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*DeleteTeamResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *DeleteTeamRequest) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockTeamsServer_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
+type MockTeamsServer_Delete_Call struct {
+	*mock.Call
+}
+
+// Delete is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 *DeleteTeamRequest
+func (_e *MockTeamsServer_Expecter) Delete(_a0 interface{}, _a1 interface{}) *MockTeamsServer_Delete_Call {
+	return &MockTeamsServer_Delete_Call{Call: _e.mock.On("Delete", _a0, _a1)}
+}
+
+func (_c *MockTeamsServer_Delete_Call) Run(run func(_a0 context.Context, _a1 *DeleteTeamRequest)) *MockTeamsServer_Delete_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*DeleteTeamRequest))
+	})
+	return _c
+}
+
+func (_c *MockTeamsServer_Delete_Call) Return(_a0 *DeleteTeamResponse, _a1 error) *MockTeamsServer_Delete_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockTeamsServer_Delete_Call) RunAndReturn(run func(context.Context, *DeleteTeamRequest) (*DeleteTeamResponse, error)) *MockTeamsServer_Delete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Environments provides a mock function with given fields: _a0, _a1
 func (_m *MockTeamsServer) Environments(_a0 context.Context, _a1 *ListTeamEnvironmentsRequest) (*ListTeamEnvironmentsResponse, error) {
 	ret := _m.Called(_a0, _a1)
