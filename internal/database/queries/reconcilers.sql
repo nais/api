@@ -65,8 +65,8 @@ DELETE FROM reconciler_opt_outs
 WHERE team_slug = @team_slug AND user_id = @user_id AND reconciler_name = @reconciler_name;
 
 -- name: UpsertReconciler :one
-INSERT INTO reconcilers (name, display_name, description, member_aware)
-VALUES (@name, @display_name, @description, @member_aware)
+INSERT INTO reconcilers (name, display_name, description, member_aware, enabled)
+VALUES (@name, @display_name, @description, @member_aware, @enabled_if_new)
 ON CONFLICT (name) DO UPDATE
 SET display_name = @display_name, description = @description, member_aware = @member_aware
 RETURNING *;

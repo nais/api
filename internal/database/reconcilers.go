@@ -23,7 +23,7 @@ type ReconcilerRepo interface {
 	RemoveReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string) error
 	ResetReconcilerConfig(ctx context.Context, reconcilerName string) (*Reconciler, error)
 	SyncReconcilerConfig(ctx context.Context, reconcilerName string, configs []*protoapi.ReconcilerConfigSpec) error
-	UpsertReconciler(ctx context.Context, name, displayName, description string, memberAware bool) (*Reconciler, error)
+	UpsertReconciler(ctx context.Context, name, displayName, description string, memberAware, enableIfNew bool) (*Reconciler, error)
 	UpsertReconcilerConfig(ctx context.Context, reconciler, key, displayName, description string, secret bool) error
 }
 
@@ -169,12 +169,13 @@ func (d *database) RemoveReconcilerOptOut(ctx context.Context, userID uuid.UUID,
 	})
 }
 
-func (d *database) UpsertReconciler(ctx context.Context, name, displayName, description string, memberAware bool) (*Reconciler, error) {
+func (d *database) UpsertReconciler(ctx context.Context, name, displayName, description string, memberAware, enableIfNew bool) (*Reconciler, error) {
 	reconciler, err := d.querier.UpsertReconciler(ctx, gensql.UpsertReconcilerParams{
-		Name:        name,
-		DisplayName: displayName,
-		Description: description,
-		MemberAware: memberAware,
+		Name:         name,
+		DisplayName:  displayName,
+		Description:  description,
+		MemberAware:  memberAware,
+		EnabledIfNew: enableIfNew,
 	})
 	if err != nil {
 		return nil, err

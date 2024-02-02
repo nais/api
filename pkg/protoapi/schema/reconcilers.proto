@@ -33,6 +33,7 @@ message NewReconciler {
   string description = 3;
   bool member_aware = 4;
   repeated ReconcilerConfigSpec config = 5;
+  bool enableByDefault = 6;
 }
 
 service Reconcilers {

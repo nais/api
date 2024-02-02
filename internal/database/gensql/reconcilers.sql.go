@@ -308,18 +308,19 @@ func (q *Queries) ResetReconcilerConfig(ctx context.Context, reconcilerName stri
 }
 
 const upsertReconciler = `-- name: UpsertReconciler :one
-INSERT INTO reconcilers (name, display_name, description, member_aware)
-VALUES ($1, $2, $3, $4)
+INSERT INTO reconcilers (name, display_name, description, member_aware, enabled)
+VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (name) DO UPDATE
 SET display_name = $2, description = $3, member_aware = $4
 RETURNING name, display_name, description, enabled, member_aware
 `
 
 type UpsertReconcilerParams struct {
-	Name        string
-	DisplayName string
-	Description string
-	MemberAware bool
+	Name         string
+	DisplayName  string
+	Description  string
+	MemberAware  bool
+	EnabledIfNew bool
 }
 
 func (q *Queries) UpsertReconciler(ctx context.Context, arg UpsertReconcilerParams) (*Reconciler, error) {
@@ -328,6 +329,7 @@ func (q *Queries) UpsertReconciler(ctx context.Context, arg UpsertReconcilerPara
 		arg.DisplayName,
 		arg.Description,
 		arg.MemberAware,
+		arg.EnabledIfNew,
 	)
 	var i Reconciler
 	err := row.Scan(

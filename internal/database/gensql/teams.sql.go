@@ -230,7 +230,7 @@ func (q *Queries) GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, 
 }
 
 const getTeamBySlugs = `-- name: GetTeamBySlugs :many
-SELECT slug, purpose, last_successful_sync, slack_channel, google_group_email FROM teams
+SELECT slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug FROM teams
 WHERE slug = ANY($1::slug[])
 ORDER BY slug ASC
 `
@@ -250,6 +250,8 @@ func (q *Queries) GetTeamBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Tea
 			&i.LastSuccessfulSync,
 			&i.SlackChannel,
 			&i.GoogleGroupEmail,
+			&i.AzureGroupID,
+			&i.GithubTeamSlug,
 		); err != nil {
 			return nil, err
 		}

@@ -15,7 +15,7 @@ type ReconcilersServer struct {
 
 func (r *ReconcilersServer) Register(ctx context.Context, req *protoapi.RegisterReconcilerRequest) (*protoapi.RegisterReconcilerResponse, error) {
 	for _, rec := range req.Reconcilers {
-		if _, err := r.db.UpsertReconciler(ctx, rec.Name, rec.DisplayName, rec.Description, rec.MemberAware); err != nil {
+		if _, err := r.db.UpsertReconciler(ctx, rec.Name, rec.DisplayName, rec.Description, rec.MemberAware, rec.EnableByDefault); err != nil {
 			return nil, err
 		}
 
