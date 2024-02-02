@@ -127,7 +127,9 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 
 			groups := make([]string, 0)
 			for _, team := range memberOfTeams {
-				groups = append(groups, *team.GoogleGroupEmail)
+				if team.GoogleGroupEmail != nil {
+					groups = append(groups, *team.GoogleGroupEmail)
+				}
 			}
 
 			clientSets := make(map[string]kubernetes.Interface)
