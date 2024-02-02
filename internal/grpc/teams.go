@@ -110,7 +110,6 @@ func (t *TeamsServer) SetTeamExternalReferences(ctx context.Context, r *protoapi
 		GithubTeamSlug:   r.GithubTeamSlug,
 		GoogleGroupEmail: r.GoogleGroupEmail,
 	})
-
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to update external references for team: %s", err)
 	}
