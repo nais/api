@@ -5796,9 +5796,9 @@ func (_c *MockDatabase_UpdateUser_Call) RunAndReturn(run func(context.Context, u
 	return _c
 }
 
-// UpsertReconciler provides a mock function with given fields: ctx, name, displayName, description, memberAware
-func (_m *MockDatabase) UpsertReconciler(ctx context.Context, name string, displayName string, description string, memberAware bool) (*Reconciler, error) {
-	ret := _m.Called(ctx, name, displayName, description, memberAware)
+// UpsertReconciler provides a mock function with given fields: ctx, name, displayName, description, memberAware, enableIfNew
+func (_m *MockDatabase) UpsertReconciler(ctx context.Context, name string, displayName string, description string, memberAware bool, enableIfNew bool) (*Reconciler, error) {
+	ret := _m.Called(ctx, name, displayName, description, memberAware, enableIfNew)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpsertReconciler")
@@ -5806,19 +5806,19 @@ func (_m *MockDatabase) UpsertReconciler(ctx context.Context, name string, displ
 
 	var r0 *Reconciler
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, bool) (*Reconciler, error)); ok {
-		return rf(ctx, name, displayName, description, memberAware)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, bool, bool) (*Reconciler, error)); ok {
+		return rf(ctx, name, displayName, description, memberAware, enableIfNew)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, bool) *Reconciler); ok {
-		r0 = rf(ctx, name, displayName, description, memberAware)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, bool, bool) *Reconciler); ok {
+		r0 = rf(ctx, name, displayName, description, memberAware, enableIfNew)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Reconciler)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, string, bool) error); ok {
-		r1 = rf(ctx, name, displayName, description, memberAware)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, string, bool, bool) error); ok {
+		r1 = rf(ctx, name, displayName, description, memberAware, enableIfNew)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -5837,13 +5837,14 @@ type MockDatabase_UpsertReconciler_Call struct {
 //   - displayName string
 //   - description string
 //   - memberAware bool
-func (_e *MockDatabase_Expecter) UpsertReconciler(ctx interface{}, name interface{}, displayName interface{}, description interface{}, memberAware interface{}) *MockDatabase_UpsertReconciler_Call {
-	return &MockDatabase_UpsertReconciler_Call{Call: _e.mock.On("UpsertReconciler", ctx, name, displayName, description, memberAware)}
+//   - enableIfNew bool
+func (_e *MockDatabase_Expecter) UpsertReconciler(ctx interface{}, name interface{}, displayName interface{}, description interface{}, memberAware interface{}, enableIfNew interface{}) *MockDatabase_UpsertReconciler_Call {
+	return &MockDatabase_UpsertReconciler_Call{Call: _e.mock.On("UpsertReconciler", ctx, name, displayName, description, memberAware, enableIfNew)}
 }
 
-func (_c *MockDatabase_UpsertReconciler_Call) Run(run func(ctx context.Context, name string, displayName string, description string, memberAware bool)) *MockDatabase_UpsertReconciler_Call {
+func (_c *MockDatabase_UpsertReconciler_Call) Run(run func(ctx context.Context, name string, displayName string, description string, memberAware bool, enableIfNew bool)) *MockDatabase_UpsertReconciler_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string), args[4].(bool))
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string), args[4].(bool), args[5].(bool))
 	})
 	return _c
 }
@@ -5853,7 +5854,7 @@ func (_c *MockDatabase_UpsertReconciler_Call) Return(_a0 *Reconciler, _a1 error)
 	return _c
 }
 
-func (_c *MockDatabase_UpsertReconciler_Call) RunAndReturn(run func(context.Context, string, string, string, bool) (*Reconciler, error)) *MockDatabase_UpsertReconciler_Call {
+func (_c *MockDatabase_UpsertReconciler_Call) RunAndReturn(run func(context.Context, string, string, string, bool, bool) (*Reconciler, error)) *MockDatabase_UpsertReconciler_Call {
 	_c.Call.Return(run)
 	return _c
 }
