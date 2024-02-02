@@ -25,6 +25,7 @@ const (
 	Teams_SlackAlertsChannels_FullMethodName       = "/Teams/SlackAlertsChannels"
 	Teams_Environments_FullMethodName              = "/Teams/Environments"
 	Teams_SetTeamExternalReferences_FullMethodName = "/Teams/SetTeamExternalReferences"
+	Teams_Delete_FullMethodName                    = "/Teams/Delete"
 )
 
 // TeamsClient is the client API for Teams service.
@@ -37,6 +38,7 @@ type TeamsClient interface {
 	SlackAlertsChannels(ctx context.Context, in *SlackAlertsChannelsRequest, opts ...grpc.CallOption) (*SlackAlertsChannelsResponse, error)
 	Environments(ctx context.Context, in *ListTeamEnvironmentsRequest, opts ...grpc.CallOption) (*ListTeamEnvironmentsResponse, error)
 	SetTeamExternalReferences(ctx context.Context, in *SetTeamExternalReferencesRequest, opts ...grpc.CallOption) (*SetTeamExternalReferencesResponse, error)
+	Delete(ctx context.Context, in *DeleteTeamRequest, opts ...grpc.CallOption) (*DeleteTeamResponse, error)
 }
 
 type teamsClient struct {
@@ -101,6 +103,15 @@ func (c *teamsClient) SetTeamExternalReferences(ctx context.Context, in *SetTeam
 	return out, nil
 }
 
+func (c *teamsClient) Delete(ctx context.Context, in *DeleteTeamRequest, opts ...grpc.CallOption) (*DeleteTeamResponse, error) {
+	out := new(DeleteTeamResponse)
+	err := c.cc.Invoke(ctx, Teams_Delete_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TeamsServer is the server API for Teams service.
 // All implementations must embed UnimplementedTeamsServer
 // for forward compatibility
@@ -111,6 +122,7 @@ type TeamsServer interface {
 	SlackAlertsChannels(context.Context, *SlackAlertsChannelsRequest) (*SlackAlertsChannelsResponse, error)
 	Environments(context.Context, *ListTeamEnvironmentsRequest) (*ListTeamEnvironmentsResponse, error)
 	SetTeamExternalReferences(context.Context, *SetTeamExternalReferencesRequest) (*SetTeamExternalReferencesResponse, error)
+	Delete(context.Context, *DeleteTeamRequest) (*DeleteTeamResponse, error)
 	mustEmbedUnimplementedTeamsServer()
 }
 
@@ -135,6 +147,9 @@ func (UnimplementedTeamsServer) Environments(context.Context, *ListTeamEnvironme
 }
 func (UnimplementedTeamsServer) SetTeamExternalReferences(context.Context, *SetTeamExternalReferencesRequest) (*SetTeamExternalReferencesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetTeamExternalReferences not implemented")
+}
+func (UnimplementedTeamsServer) Delete(context.Context, *DeleteTeamRequest) (*DeleteTeamResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 func (UnimplementedTeamsServer) mustEmbedUnimplementedTeamsServer() {}
 
@@ -257,6 +272,24 @@ func _Teams_SetTeamExternalReferences_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Teams_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteTeamRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TeamsServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Teams_Delete_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TeamsServer).Delete(ctx, req.(*DeleteTeamRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Teams_ServiceDesc is the grpc.ServiceDesc for Teams service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -287,6 +320,10 @@ var Teams_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetTeamExternalReferences",
 			Handler:    _Teams_SetTeamExternalReferences_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _Teams_Delete_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

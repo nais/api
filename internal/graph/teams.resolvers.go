@@ -738,9 +738,6 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, key string) 
 		return false, fmt.Errorf("confirm team delete key: %w", err)
 	}
 
-	// TODO: fix
-	// go r.teamSyncHandler.DeleteTeam(deleteKey.TeamSlug, correlationID)
-
 	targets := []auditlogger.Target{
 		auditlogger.TeamTarget(deleteKey.TeamSlug),
 	}
@@ -750,6 +747,8 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, key string) 
 		CorrelationID: correlationID,
 	}
 	r.auditLogger.Logf(ctx, targets, fields, "Delete team")
+
+	r.triggerTeamDeletedEvent(ctx, deleteKey.TeamSlug, correlationID)
 
 	return true, nil
 }

@@ -21,7 +21,14 @@ service Teams {
   rpc SlackAlertsChannels(SlackAlertsChannelsRequest) returns (SlackAlertsChannelsResponse) {}
   rpc Environments(ListTeamEnvironmentsRequest) returns (ListTeamEnvironmentsResponse) {}
   rpc SetTeamExternalReferences(SetTeamExternalReferencesRequest) returns (SetTeamExternalReferencesResponse) {}
+  rpc Delete(DeleteTeamRequest) returns (DeleteTeamResponse) {}
 }
+
+message DeleteTeamRequest {
+  string slug = 1;
+}
+
+message DeleteTeamResponse {}
 
 message SetTeamExternalReferencesRequest {
   string slug = 1;

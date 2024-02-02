@@ -17,6 +17,10 @@ type TeamsServer struct {
 	protoapi.UnimplementedTeamsServer
 }
 
+func (t *TeamsServer) Delete(ctx context.Context, r *protoapi.DeleteTeamRequest) (*protoapi.DeleteTeamResponse, error) {
+	panic("not implemented")
+}
+
 func (t *TeamsServer) Get(ctx context.Context, r *protoapi.GetTeamRequest) (*protoapi.GetTeamResponse, error) {
 	team, err := t.db.GetTeamBySlug(ctx, slug.Slug(r.Slug))
 	if err != nil {

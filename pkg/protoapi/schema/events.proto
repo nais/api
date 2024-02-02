@@ -8,9 +8,14 @@ enum EventTypes {
   EVENT_RECONCILER_DISABLED = 2;
   EVENT_RECONCILER_CONFIGURED = 3;
   EVENT_SYNC_ALL_TEAMS = 4;
+  EVENT_TEAM_DELETED = 5;
 }
 
 message EventTeamUpdated {
+  string slug = 1;
+}
+
+message EventTeamDeleted {
   string slug = 1;
 }
 
