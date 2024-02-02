@@ -58,12 +58,7 @@ func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecre
 				continue
 			}
 
-			apps, ok := appsForSecrets[secret.Name]
-			if !ok {
-				apps = make([]string, 0)
-			}
-
-			graphSecrets = append(graphSecrets, *toGraphSecret(env, &secret, apps))
+			graphSecrets = append(graphSecrets, *toGraphSecret(env, &secret, appsForSecrets[secret.Name]))
 		}
 		envSecrets = append(envSecrets, toGraphEnvSecret(env, team, graphSecrets...))
 	}
@@ -102,12 +97,7 @@ func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env st
 		return nil, fmt.Errorf("secret %q is not managed by console", secret.GetName())
 	}
 
-	apps, ok := appsForSecrets[secret.Name]
-	if !ok {
-		apps = make([]string, 0)
-	}
-
-	return toGraphSecret(env, secret, apps), nil
+	return toGraphSecret(env, secret, appsForSecrets[secret.Name]), nil
 
 }
 
@@ -140,7 +130,7 @@ func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, 
 		return nil, c.error(ctx, err, "creating secret")
 	}
 
-	return toGraphSecret(env, created, make([]string, 0)), nil
+	return toGraphSecret(env, created, nil), nil
 }
 
 func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
@@ -176,7 +166,7 @@ func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, 
 		return nil, c.error(ctx, err, "updating secret")
 	}
 
-	return toGraphSecret(env, updated, make([]string, 0)), nil
+	return toGraphSecret(env, updated, nil), nil
 }
 
 func (c *Client) DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) (bool, error) {
@@ -227,21 +217,11 @@ func (c *Client) mapAppsBySecret(ctx context.Context, team slug.Slug, env string
 		}
 
 		for _, secret := range app.Spec.EnvFrom {
-			as, ok := appsBySecret[secret.Secret]
-			if !ok {
-				appsBySecret[secret.Secret] = []string{app.Name}
-			} else {
-				appsBySecret[secret.Secret] = append(as, app.Name)
-			}
+			appsBySecret[secret.Secret] = append(appsBySecret[secret.Secret], app.Name)
 		}
 
 		for _, secret := range app.Spec.FilesFrom {
-			as, ok := appsBySecret[secret.Secret]
-			if !ok {
-				appsBySecret[secret.Secret] = []string{app.Name}
-			} else {
-				appsBySecret[secret.Secret] = append(as, app.Name)
-			}
+			appsBySecret[secret.Secret] = append(appsBySecret[secret.Secret], app.Name)
 		}
 	}
 
@@ -290,6 +270,10 @@ func toGraphEnvSecret(env string, team slug.Slug, secret ...model.Secret) *model
 // toGraphSecret accepts apps as an empty list for cases where only the secret is getting
 // updated
 func toGraphSecret(env string, obj *corev1.Secret, apps []string) *model.Secret {
+	if apps == nil {
+		apps = make([]string, 0)
+	}
+
 	// sort first as Compact only removes consecutive duplicates
 	slices.Sort(apps)
 	apps = slices.Compact(apps)
