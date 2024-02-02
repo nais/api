@@ -10,6 +10,7 @@ service Reconcilers {
   rpc List(ListReconcilersRequest) returns (ListReconcilersResponse) {}
   rpc Config(ConfigReconcilerRequest) returns (ConfigReconcilerResponse) {}
   rpc SetReconcilerErrorForTeam(SetReconcilerErrorForTeamRequest) returns (SetReconcilerErrorForTeamResponse) {}
+  rpc RemoveReconcilerErrorForTeam(RemoveReconcilerErrorForTeamRequest) returns (RemoveReconcilerErrorForTeamResponse) {}
   rpc SuccessfulTeamSync(SuccessfulTeamSyncRequest) returns (SuccessfulTeamSyncResponse) {}
 }
 
@@ -27,6 +28,13 @@ message SetReconcilerErrorForTeamRequest {
 }
 
 message SetReconcilerErrorForTeamResponse {}
+
+message RemoveReconcilerErrorForTeamRequest {
+  string team_slug = 1;
+  string reconciler_name = 2;
+}
+
+message RemoveReconcilerErrorForTeamResponse {}
 
 message Reconciler {
   string name = 1;

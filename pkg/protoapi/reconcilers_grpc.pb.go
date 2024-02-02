@@ -19,12 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Reconcilers_Register_FullMethodName                  = "/Reconcilers/Register"
-	Reconcilers_Get_FullMethodName                       = "/Reconcilers/Get"
-	Reconcilers_List_FullMethodName                      = "/Reconcilers/List"
-	Reconcilers_Config_FullMethodName                    = "/Reconcilers/Config"
-	Reconcilers_SetReconcilerErrorForTeam_FullMethodName = "/Reconcilers/SetReconcilerErrorForTeam"
-	Reconcilers_SuccessfulTeamSync_FullMethodName        = "/Reconcilers/SuccessfulTeamSync"
+	Reconcilers_Register_FullMethodName                     = "/Reconcilers/Register"
+	Reconcilers_Get_FullMethodName                          = "/Reconcilers/Get"
+	Reconcilers_List_FullMethodName                         = "/Reconcilers/List"
+	Reconcilers_Config_FullMethodName                       = "/Reconcilers/Config"
+	Reconcilers_SetReconcilerErrorForTeam_FullMethodName    = "/Reconcilers/SetReconcilerErrorForTeam"
+	Reconcilers_RemoveReconcilerErrorForTeam_FullMethodName = "/Reconcilers/RemoveReconcilerErrorForTeam"
+	Reconcilers_SuccessfulTeamSync_FullMethodName           = "/Reconcilers/SuccessfulTeamSync"
 )
 
 // ReconcilersClient is the client API for Reconcilers service.
@@ -36,6 +37,7 @@ type ReconcilersClient interface {
 	List(ctx context.Context, in *ListReconcilersRequest, opts ...grpc.CallOption) (*ListReconcilersResponse, error)
 	Config(ctx context.Context, in *ConfigReconcilerRequest, opts ...grpc.CallOption) (*ConfigReconcilerResponse, error)
 	SetReconcilerErrorForTeam(ctx context.Context, in *SetReconcilerErrorForTeamRequest, opts ...grpc.CallOption) (*SetReconcilerErrorForTeamResponse, error)
+	RemoveReconcilerErrorForTeam(ctx context.Context, in *RemoveReconcilerErrorForTeamRequest, opts ...grpc.CallOption) (*RemoveReconcilerErrorForTeamResponse, error)
 	SuccessfulTeamSync(ctx context.Context, in *SuccessfulTeamSyncRequest, opts ...grpc.CallOption) (*SuccessfulTeamSyncResponse, error)
 }
 
@@ -92,6 +94,15 @@ func (c *reconcilersClient) SetReconcilerErrorForTeam(ctx context.Context, in *S
 	return out, nil
 }
 
+func (c *reconcilersClient) RemoveReconcilerErrorForTeam(ctx context.Context, in *RemoveReconcilerErrorForTeamRequest, opts ...grpc.CallOption) (*RemoveReconcilerErrorForTeamResponse, error) {
+	out := new(RemoveReconcilerErrorForTeamResponse)
+	err := c.cc.Invoke(ctx, Reconcilers_RemoveReconcilerErrorForTeam_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *reconcilersClient) SuccessfulTeamSync(ctx context.Context, in *SuccessfulTeamSyncRequest, opts ...grpc.CallOption) (*SuccessfulTeamSyncResponse, error) {
 	out := new(SuccessfulTeamSyncResponse)
 	err := c.cc.Invoke(ctx, Reconcilers_SuccessfulTeamSync_FullMethodName, in, out, opts...)
@@ -110,6 +121,7 @@ type ReconcilersServer interface {
 	List(context.Context, *ListReconcilersRequest) (*ListReconcilersResponse, error)
 	Config(context.Context, *ConfigReconcilerRequest) (*ConfigReconcilerResponse, error)
 	SetReconcilerErrorForTeam(context.Context, *SetReconcilerErrorForTeamRequest) (*SetReconcilerErrorForTeamResponse, error)
+	RemoveReconcilerErrorForTeam(context.Context, *RemoveReconcilerErrorForTeamRequest) (*RemoveReconcilerErrorForTeamResponse, error)
 	SuccessfulTeamSync(context.Context, *SuccessfulTeamSyncRequest) (*SuccessfulTeamSyncResponse, error)
 	mustEmbedUnimplementedReconcilersServer()
 }
@@ -132,6 +144,9 @@ func (UnimplementedReconcilersServer) Config(context.Context, *ConfigReconcilerR
 }
 func (UnimplementedReconcilersServer) SetReconcilerErrorForTeam(context.Context, *SetReconcilerErrorForTeamRequest) (*SetReconcilerErrorForTeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetReconcilerErrorForTeam not implemented")
+}
+func (UnimplementedReconcilersServer) RemoveReconcilerErrorForTeam(context.Context, *RemoveReconcilerErrorForTeamRequest) (*RemoveReconcilerErrorForTeamResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveReconcilerErrorForTeam not implemented")
 }
 func (UnimplementedReconcilersServer) SuccessfulTeamSync(context.Context, *SuccessfulTeamSyncRequest) (*SuccessfulTeamSyncResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SuccessfulTeamSync not implemented")
@@ -239,6 +254,24 @@ func _Reconcilers_SetReconcilerErrorForTeam_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Reconcilers_RemoveReconcilerErrorForTeam_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveReconcilerErrorForTeamRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReconcilersServer).RemoveReconcilerErrorForTeam(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Reconcilers_RemoveReconcilerErrorForTeam_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReconcilersServer).RemoveReconcilerErrorForTeam(ctx, req.(*RemoveReconcilerErrorForTeamRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Reconcilers_SuccessfulTeamSync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SuccessfulTeamSyncRequest)
 	if err := dec(in); err != nil {
@@ -283,6 +316,10 @@ var Reconcilers_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetReconcilerErrorForTeam",
 			Handler:    _Reconcilers_SetReconcilerErrorForTeam_Handler,
+		},
+		{
+			MethodName: "RemoveReconcilerErrorForTeam",
+			Handler:    _Reconcilers_RemoveReconcilerErrorForTeam_Handler,
 		},
 		{
 			MethodName: "SuccessfulTeamSync",
