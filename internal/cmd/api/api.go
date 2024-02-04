@@ -207,6 +207,8 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return costUpdater(ctx, cfg, db, log)
 	})
 
+	wg.Go(func() error { return vulnerabilityMetricUpdater(ctx, cfg, db, k8sClient, dependencyTrackClient, log) })
+
 	authHandler, err := setupAuthHandler(cfg.OAuth, db, log)
 	if err != nil {
 		return err

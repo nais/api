@@ -28,6 +28,7 @@ type Querier interface {
 	CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults
 	CreateAPIKey(ctx context.Context, apiKey string, serviceAccountID uuid.UUID) error
 	CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) error
+	CreateDependencytrackProject(ctx context.Context, environment string, teamSlug slug.Slug, app string, projectid uuid.UUID) error
 	CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum) error
 	CreateServiceAccount(ctx context.Context, name string) (*ServiceAccount, error)
 	CreateSession(ctx context.Context, userID uuid.UUID, expires pgtype.Timestamptz) (*Session, error)
@@ -41,6 +42,7 @@ type Querier interface {
 	DailyCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug) ([]*Cost, error)
 	// DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
 	DailyEnvCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment *string, teamSlug slug.Slug) ([]*DailyEnvCostForTeamRow, error)
+	DailyVulnerabilityForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug) ([]*DailyVulnerabilityForTeamRow, error)
 	DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName ReconcilerName) ([]*DangerousGetReconcilerConfigValuesRow, error)
 	DeleteServiceAccount(ctx context.Context, id uuid.UUID) error
 	DeleteSession(ctx context.Context, id uuid.UUID) error
@@ -136,6 +138,7 @@ type Querier interface {
 	TeamExists(ctx context.Context, argSlug slug.Slug) (bool, error)
 	UpdateTeam(ctx context.Context, purpose *string, slackChannel *string, slug slug.Slug) (*Team, error)
 	UpdateUser(ctx context.Context, name string, externalID string, iD uuid.UUID, email string) (*User, error)
+	VulnerabilityMetricsUpsert(ctx context.Context, arg []VulnerabilityMetricsUpsertParams) *VulnerabilityMetricsUpsertBatchResults
 }
 
 var _ Querier = (*Queries)(nil)

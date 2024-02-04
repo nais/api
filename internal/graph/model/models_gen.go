@@ -942,6 +942,11 @@ type VulnerabilitySummary struct {
 	Unassigned int `json:"unassigned"`
 }
 
+type VulnerabilityMetrics struct {
+	ProjectId            string `json:"projectId"`
+	VulnerabilitySummary *VulnerabilitySummary
+}
+
 type ErrorLevel string
 
 const (
