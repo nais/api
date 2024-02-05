@@ -52,13 +52,13 @@ func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecre
 			return nil, c.error(ctx, err, "mapping apps to secrets")
 		}
 
-		graphSecrets := make([]model.Secret, 0)
+		graphSecrets := make([]*model.Secret, 0)
 		for _, secret := range kubeSecrets.Items {
 			if !secretIsManagedByConsole(secret) {
 				continue
 			}
 
-			graphSecrets = append(graphSecrets, *toGraphSecret(env, &secret, appsForSecrets[secret.Name]))
+			graphSecrets = append(graphSecrets, toGraphSecret(env, &secret, appsForSecrets[secret.Name]))
 		}
 		envSecrets = append(envSecrets, toGraphEnvSecret(env, team, graphSecrets...))
 	}
@@ -199,7 +199,7 @@ func (c *Client) DeleteSecret(ctx context.Context, name string, team slug.Slug, 
 }
 
 // mapAppsBySecret returns a map of secrets to a list of apps that references said secret
-func (c *Client) mapAppsBySecret(ctx context.Context, team slug.Slug, env string) (map[string][]string, error) {
+func (c *Client) mapAppsBySecret(ctx context.Context, team slug.Slug, env string) (map[string][]*model.App, error) {
 	// fetch apps to build map of apps that use each secret
 	apps, err := c.informers[env].AppInformer.Lister().ByNamespace(team.String()).List(labels.Everything())
 	if err != nil {
@@ -207,7 +207,7 @@ func (c *Client) mapAppsBySecret(ctx context.Context, team slug.Slug, env string
 	}
 
 	// we want a map: Secret -> [App]
-	appsBySecret := make(map[string][]string)
+	appsBySecret := make(map[string][]*model.App)
 	for _, obj := range apps {
 		u := obj.(*unstructured.Unstructured)
 		app := &naisv1alpha1.Application{}
@@ -216,12 +216,15 @@ func (c *Client) mapAppsBySecret(ctx context.Context, team slug.Slug, env string
 			return nil, fmt.Errorf("converting to application: %w", err)
 		}
 
+		// Todo: Unignore the error
+		modelApp, _ := c.App(ctx, app.Name, team.String(), env)
+
 		for _, secret := range app.Spec.EnvFrom {
-			appsBySecret[secret.Secret] = append(appsBySecret[secret.Secret], app.Name)
+			appsBySecret[secret.Secret] = append(appsBySecret[secret.Secret], modelApp)
 		}
 
 		for _, secret := range app.Spec.FilesFrom {
-			appsBySecret[secret.Secret] = append(appsBySecret[secret.Secret], app.Name)
+			appsBySecret[secret.Secret] = append(appsBySecret[secret.Secret], modelApp)
 		}
 	}
 
@@ -260,7 +263,7 @@ func kubeSecret(name, namespace, user string, data []*model.SecretTupleInput) *c
 	}
 }
 
-func toGraphEnvSecret(env string, team slug.Slug, secret ...model.Secret) *model.EnvSecret {
+func toGraphEnvSecret(env string, team slug.Slug, secret ...*model.Secret) *model.EnvSecret {
 	return &model.EnvSecret{
 		Env:     model.Env{Team: team.String(), Name: env},
 		Secrets: secret,
@@ -269,13 +272,17 @@ func toGraphEnvSecret(env string, team slug.Slug, secret ...model.Secret) *model
 
 // toGraphSecret accepts apps as an empty list for cases where only the secret is getting
 // updated
-func toGraphSecret(env string, obj *corev1.Secret, apps []string) *model.Secret {
+func toGraphSecret(env string, obj *corev1.Secret, apps []*model.App) *model.Secret {
 	if apps == nil {
-		apps = make([]string, 0)
+		apps = make([]*model.App, 0)
 	}
 
 	// sort first as Compact only removes consecutive duplicates
-	slices.Sort(apps)
+
+	slices.SortFunc(apps, func(a, b *model.App) int {
+		return cmp.Compare(a.Name, b.Name)
+	})
+
 	apps = slices.Compact(apps)
 
 	return &model.Secret{

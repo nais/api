@@ -1011,7 +1011,6 @@ type RoleResolver interface {
 type SecretResolver interface {
 	Env(ctx context.Context, obj *model.Secret) (*model.Env, error)
 	Data(ctx context.Context, obj *model.Secret) ([]*model.Variable, error)
-	Apps(ctx context.Context, obj *model.Secret) ([]*model.App, error)
 }
 type ServiceAccountResolver interface {
 	Roles(ctx context.Context, obj *model.ServiceAccount) ([]*model.Role, error)
@@ -14978,9 +14977,9 @@ func (ec *executionContext) _EnvSecret_secrets(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]model.Secret)
+	res := resTmp.([]*model.Secret)
 	fc.Result = res
-	return ec.marshalNSecret2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretᚄ(ctx, field.Selections, res)
+	return ec.marshalNSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_EnvSecret_secrets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -28359,7 +28358,7 @@ func (ec *executionContext) _Secret_apps(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Secret().Apps(rctx, obj)
+		return obj.Apps, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -28380,8 +28379,8 @@ func (ec *executionContext) fieldContext_Secret_apps(ctx context.Context, field 
 	fc = &graphql.FieldContext{
 		Object:     "Secret",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -43019,41 +43018,10 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "apps":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Secret_apps(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._Secret_apps(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -48335,50 +48303,6 @@ func (ec *executionContext) marshalNSearchNode2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 
 func (ec *executionContext) marshalNSecret2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecret(ctx context.Context, sel ast.SelectionSet, v model.Secret) graphql.Marshaler {
 	return ec._Secret(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNSecret2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretᚄ(ctx context.Context, sel ast.SelectionSet, v []model.Secret) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNSecret2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecret(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalNSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Secret) graphql.Marshaler {

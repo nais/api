@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
@@ -47,7 +48,18 @@ func (r *appResolver) Vulnerabilities(ctx context.Context, obj *model.App) (*mod
 
 // Secrets is the resolver for the secrets field.
 func (r *appResolver) Secrets(ctx context.Context, obj *model.App) ([]*model.Secret, error) {
-	panic(fmt.Errorf("not implemented: Secrets - secrets"))
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamMembership(actor, obj.GQLVars.Team)
+	if err != nil {
+		return nil, err
+	}
+	envSecrets, err := r.k8sClient.Secrets(ctx, obj.GQLVars.Team)
+	for _, es := range envSecrets {
+		if es.Env.Name == obj.Env.Name {
+			return es.Secrets, nil
+		}
+	}
+	return []*model.Secret{}, nil
 }
 
 // App is the resolver for the app field.
