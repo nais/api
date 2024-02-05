@@ -618,6 +618,56 @@ func (_c *MockQuerier_CreateAuditLog_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
+// CreateDependencytrackProject provides a mock function with given fields: ctx, environment, teamSlug, app, projectid
+func (_m *MockQuerier) CreateDependencytrackProject(ctx context.Context, environment string, teamSlug slug.Slug, app string, projectid uuid.UUID) error {
+	ret := _m.Called(ctx, environment, teamSlug, app, projectid)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateDependencytrackProject")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, uuid.UUID) error); ok {
+		r0 = rf(ctx, environment, teamSlug, app, projectid)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockQuerier_CreateDependencytrackProject_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateDependencytrackProject'
+type MockQuerier_CreateDependencytrackProject_Call struct {
+	*mock.Call
+}
+
+// CreateDependencytrackProject is a helper method to define mock.On call
+//   - ctx context.Context
+//   - environment string
+//   - teamSlug slug.Slug
+//   - app string
+//   - projectid uuid.UUID
+func (_e *MockQuerier_Expecter) CreateDependencytrackProject(ctx interface{}, environment interface{}, teamSlug interface{}, app interface{}, projectid interface{}) *MockQuerier_CreateDependencytrackProject_Call {
+	return &MockQuerier_CreateDependencytrackProject_Call{Call: _e.mock.On("CreateDependencytrackProject", ctx, environment, teamSlug, app, projectid)}
+}
+
+func (_c *MockQuerier_CreateDependencytrackProject_Call) Run(run func(ctx context.Context, environment string, teamSlug slug.Slug, app string, projectid uuid.UUID)) *MockQuerier_CreateDependencytrackProject_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].(uuid.UUID))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_CreateDependencytrackProject_Call) Return(_a0 error) *MockQuerier_CreateDependencytrackProject_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockQuerier_CreateDependencytrackProject_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, uuid.UUID) error) *MockQuerier_CreateDependencytrackProject_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateRepositoryAuthorization provides a mock function with given fields: ctx, teamSlug, githubRepository, repositoryAuthorization
 func (_m *MockQuerier) CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, githubRepository string, repositoryAuthorization RepositoryAuthorizationEnum) error {
 	ret := _m.Called(ctx, teamSlug, githubRepository, repositoryAuthorization)

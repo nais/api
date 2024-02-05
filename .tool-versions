@@ -1,5 +1,5 @@
 golang 1.21.5
 helm 3.13.1
-protoc-gen-go-grpc 1.2.0
+protoc-gen-go-grpc 1.3.0
 protoc-gen-go 1.32.0
 protoc 25.2

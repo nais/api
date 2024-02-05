@@ -932,6 +932,11 @@ type VulnerabilityList struct {
 	PageInfo PageInfo         `json:"pageInfo"`
 }
 
+type VulnerabilityMetrics struct {
+	ProjectID            string                `json:"projectId"`
+	VulnerabilitySummary *VulnerabilitySummary `json:"vulnerabilitySummary,omitempty"`
+}
+
 type VulnerabilitySummary struct {
 	Total      int `json:"total"`
 	RiskScore  int `json:"riskScore"`
@@ -940,11 +945,6 @@ type VulnerabilitySummary struct {
 	Medium     int `json:"medium"`
 	Low        int `json:"low"`
 	Unassigned int `json:"unassigned"`
-}
-
-type VulnerabilityMetrics struct {
-	ProjectId            string `json:"projectId"`
-	VulnerabilitySummary *VulnerabilitySummary
 }
 
 type ErrorLevel string
