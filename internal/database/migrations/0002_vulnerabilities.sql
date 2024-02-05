@@ -19,7 +19,6 @@ CREATE TABLE vulnerability_metrics(
     unassigned                 integer          NOT NULL,
     risk_score                 double precision NOT NULL,
     PRIMARY KEY (date, dependencytrack_project_id),
-    CONSTRAINT vulnerability_metrics UNIQUE (date, dependencytrack_project_id),
     CONSTRAINT fk_vulnerability_metrics_dependencytrack_project_id
         FOREIGN KEY (dependencytrack_project_id)
             REFERENCES dependencytrack_projects (id) ON DELETE CASCADE
