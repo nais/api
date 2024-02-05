@@ -45,6 +45,11 @@ func (r *appResolver) Vulnerabilities(ctx context.Context, obj *model.App) (*mod
 	return r.dependencyTrackClient.VulnerabilitySummary(ctx, &dependencytrack.AppInstance{Env: obj.Env.Name, Team: obj.GQLVars.Team.String(), App: obj.Name, Image: obj.Image})
 }
 
+// Secrets is the resolver for the secrets field.
+func (r *appResolver) Secrets(ctx context.Context, obj *model.App) ([]*model.Secret, error) {
+	panic(fmt.Errorf("not implemented: Secrets - secrets"))
+}
+
 // App is the resolver for the app field.
 func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, env string) (*model.App, error) {
 	app, err := r.k8sClient.App(ctx, name, team.String(), env)

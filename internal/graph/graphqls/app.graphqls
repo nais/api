@@ -30,7 +30,7 @@ type App {
   team: Team!
   appState: AppState!
   vulnerabilities: Vulnerability
-  secrets: [String!]!
+  secrets: [Secret!]!
 }
 
 type AppState {

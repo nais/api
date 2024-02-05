@@ -759,11 +759,6 @@ type SearchList struct {
 	Nodes    []SearchNode `json:"nodes"`
 }
 
-type SecretTuple struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-}
-
 type SecretTupleInput struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`

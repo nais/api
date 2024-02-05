@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
@@ -13,8 +14,6 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
 )
-
-// TODO: error handling; return more end-user friendly messages
 
 // CreateSecret is the resolver for the createSecret field.
 func (r *mutationResolver) CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
@@ -54,7 +53,32 @@ func (r *mutationResolver) DeleteSecret(ctx context.Context, name string, team s
 	return r.k8sClient.DeleteSecret(ctx, name, team, env)
 }
 
-// Secrets is the resolver for the secrets field.
+// Env is the resolver for the env field.
+func (r *secretResolver) Env(ctx context.Context, obj *model.Secret) (*model.Env, error) {
+	return &model.Env{Name: obj.GQLVars.Env}, nil
+}
+
+// Data is the resolver for the data field.
+func (r *secretResolver) Data(ctx context.Context, obj *model.Secret) ([]*model.Variable, error) {
+	return convertSecretDataToTuple(obj.Data), nil
+}
+
+// Apps is the resolver for the apps field.
+func (r *secretResolver) Apps(ctx context.Context, obj *model.Secret) ([]*model.App, error) {
+	panic(fmt.Errorf("not implemented: Apps - apps"))
+}
+
+// Secret returns gengql.SecretResolver implementation.
+func (r *Resolver) Secret() gengql.SecretResolver { return &secretResolver{r} }
+
+type secretResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
 func (r *queryResolver) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecret, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireTeamMembership(actor, team)
@@ -64,7 +88,6 @@ func (r *queryResolver) Secrets(ctx context.Context, team slug.Slug) ([]*model.E
 	return r.k8sClient.Secrets(ctx, team)
 }
 
-// Secret is the resolver for the secret field.
 func (r *queryResolver) Secret(ctx context.Context, name string, team slug.Slug, env string) (*model.Secret, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireTeamMembership(actor, team)
@@ -73,18 +96,3 @@ func (r *queryResolver) Secret(ctx context.Context, name string, team slug.Slug,
 	}
 	return r.k8sClient.Secret(ctx, name, team, env)
 }
-
-// Env is the resolver for the env field.
-func (r *secretResolver) Env(ctx context.Context, obj *model.Secret) (*model.Env, error) {
-	return &model.Env{Name: obj.GQLVars.Env}, nil
-}
-
-// Data is the resolver for the data field.
-func (r *secretResolver) Data(ctx context.Context, obj *model.Secret) ([]*model.SecretTuple, error) {
-	return convertSecretDataToTuple(obj.Data), nil
-}
-
-// Secret returns gengql.SecretResolver implementation.
-func (r *Resolver) Secret() gengql.SecretResolver { return &secretResolver{r} }
-
-type secretResolver struct{ *Resolver }

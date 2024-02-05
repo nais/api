@@ -1371,6 +1371,16 @@ func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team
 	}, nil
 }
 
+// Secrets is the resolver for the secrets field.
+func (r *teamResolver) Secrets(ctx context.Context, obj *model.Team) ([]*model.EnvSecret, error) {
+	panic(fmt.Errorf("not implemented: Secrets - secrets"))
+}
+
+// Secret is the resolver for the secret field.
+func (r *teamResolver) Secret(ctx context.Context, obj *model.Team, name string, env string) (*model.Secret, error) {
+	panic(fmt.Errorf("not implemented: Secret - secret"))
+}
+
 // Environments is the resolver for the environments field.
 func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error) {
 	// Env is a bit special, given that it will be created from k8s etc.
