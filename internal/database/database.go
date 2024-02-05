@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/exaring/otelpgx"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/nais/api/internal/database/gensql"
@@ -108,6 +109,21 @@ func New(ctx context.Context, dsn string, log logrus.FieldLogger) (db Database, 
 			return "unknown"
 		}),
 	)
+
+	config.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
+		t, err := conn.LoadType(ctx, "slug") // slug type
+		if err != nil {
+			return fmt.Errorf("failed to load type: %w", err)
+		}
+		conn.TypeMap().RegisterType(t)
+
+		t, err = conn.LoadType(ctx, "_slug") // array of slug type
+		if err != nil {
+			return fmt.Errorf("failed to load type: %w", err)
+		}
+		conn.TypeMap().RegisterType(t)
+		return nil
+	}
 
 	conn, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
