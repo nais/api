@@ -189,6 +189,13 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 				return err
 			}
 
+			for _, roleName := range usersync.DefaultRoleNames {
+				err = dbtx.AssignGlobalRoleToUser(ctx, user.ID, roleName)
+				if err != nil {
+					return fmt.Errorf("attach default role %q to user %q: %w", roleName, user.Email, err)
+				}
+			}
+
 			log.Infof("%d/%d users created", i, *cfg.NumUsers)
 			users = append(users, user)
 			emails[email] = struct{}{}

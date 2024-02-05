@@ -67,6 +67,12 @@ func runHttpServer(
 		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphHandler))
 	})
 
+	router.Route("/oauth2", func(r chi.Router) {
+		r.Get("/login", authHandler.Login)
+		r.Get("/logout", authHandler.Logout)
+		r.Get("/callback", authHandler.Callback)
+	})
+
 	srv := &http.Server{
 		Addr:    listenAddress,
 		Handler: router,
