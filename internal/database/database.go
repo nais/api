@@ -93,6 +93,10 @@ var regParseSQLName = regexp.MustCompile(`\-\-\s*name:\s+(\S+)`)
 // New connects to the database, runs migrations and returns a database instance. The caller must call the
 // returned closer function when the database connection is no longer needed
 func New(ctx context.Context, dsn string, log logrus.FieldLogger) (db Database, closer func(), err error) {
+	if err = migrateDatabaseSchema("pgx", dsn, log); err != nil {
+		return nil, nil, err
+	}
+
 	config, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to parse dsn config: %w", err)
@@ -143,10 +147,6 @@ func New(ctx context.Context, dsn string, log logrus.FieldLogger) (db Database, 
 
 	if !connected {
 		return nil, nil, fmt.Errorf("giving up connecting to the database after %d attempts: %w", databaseConnectRetries, err)
-	}
-
-	if err = migrateDatabaseSchema("pgx", dsn, log); err != nil {
-		return nil, nil, err
 	}
 
 	return &database{
