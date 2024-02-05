@@ -23,6 +23,7 @@ type TeamRepo interface {
 	GetTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error)
 	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
 	GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, p Page) ([]*TeamEnvironment, int, error)
+	GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, keys []EnvSlugName) ([]*TeamEnvironment, error)
 	GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*User, error)
 	GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*gensql.GetTeamMemberOptOutsRow, error)
 	GetTeamMembers(ctx context.Context, teamSlug slug.Slug, p Page) ([]*User, int, error)
@@ -42,6 +43,11 @@ type TeamRepo interface {
 }
 
 var _ TeamRepo = &database{}
+
+type EnvSlugName struct {
+	Slug    slug.Slug
+	EnvName string
+}
 
 type TeamEnvironment struct {
 	*gensql.TeamEnvironment
@@ -355,6 +361,30 @@ func (d *database) GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, t
 		UserID:   userID,
 		TeamSlug: teamSlug,
 	})
+}
+
+func (d *database) GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, keys []EnvSlugName) ([]*TeamEnvironment, error) {
+	teamSlugs := make([]slug.Slug, len(keys))
+	envNames := make([]string, len(keys))
+	for i, key := range keys {
+		teamSlugs[i] = key.Slug
+		envNames[i] = key.EnvName
+	}
+
+	ret, err := d.querier.GetTeamEnvironmentsBySlugsAndEnvNames(ctx, gensql.GetTeamEnvironmentsBySlugsAndEnvNamesParams{
+		TeamSlugs:    teamSlugs,
+		Environments: envNames,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	envs := make([]*TeamEnvironment, len(ret))
+	for i, row := range ret {
+		envs[i] = &TeamEnvironment{TeamEnvironment: row}
+	}
+
+	return envs, nil
 }
 
 func (d *database) GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string, p Page) ([]*Team, int, error) {

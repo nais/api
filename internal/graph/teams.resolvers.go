@@ -850,6 +850,20 @@ func (r *teamResolver) ID(ctx context.Context, obj *model.Team) (*scalar.Ident, 
 	return ptr.To(scalar.TeamIdent(obj.Slug)), nil
 }
 
+// GoogleArtifactRegistry is the resolver for the googleArtifactRegistry field.
+func (r *teamResolver) GoogleArtifactRegistry(ctx context.Context, obj *model.Team) (*string, error) {
+	rr, _, err := r.database.GetReconcilerResourcesByKey(ctx, "google:gcp:gar", obj.Slug, "repository_name", database.Page{Limit: 3})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(rr) == 0 {
+		return nil, nil
+	}
+
+	return &rr[0].Value, nil
+}
+
 // AuditLogs is the resolver for the auditLogs field.
 func (r *teamResolver) AuditLogs(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.AuditLogList, error) {
 	actor := authz.ActorFromContext(ctx)
@@ -1322,6 +1336,17 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		}
 	}
 	return retVal, nil
+}
+
+// Environments is the resolver for the environments field.
+func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error) {
+	environments := r.clusters.Names()
+	envs := make([]*model.Env, 0, len(environments))
+	for _, env := range environments {
+		envs = append(envs, &model.Env{Name: env, Team: obj.Slug.String()})
+	}
+
+	return envs, nil
 }
 
 // Team is the resolver for the team field.

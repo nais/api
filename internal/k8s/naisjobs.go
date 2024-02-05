@@ -520,8 +520,8 @@ func (c *Client) ToNaisJob(u *unstructured.Unstructured, env string) (*model.Nai
 	ret.ID = scalar.JobIdent("job_" + env + "_" + naisjob.GetNamespace() + "_" + naisjob.GetName())
 	ret.Name = naisjob.GetName()
 	ret.Env = model.Env{
+		Team: naisjob.GetNamespace(),
 		Name: env,
-		ID:   scalar.EnvIdent(env),
 	}
 
 	ret.DeployInfo = model.DeployInfo{

@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"
@@ -51,6 +52,25 @@ func (c ClusterList) GCPClusters() []string {
 		}
 	}
 
+	return ret
+}
+
+func (c ClusterList) Names() []string {
+	if c == nil {
+		return nil
+	}
+
+	var ret []string
+	for cluster := range c {
+		ret = append(ret, cluster)
+	}
+
+	slices.SortFunc(ret, func(i, j string) int {
+		if i < j {
+			return -1
+		}
+		return 1
+	})
 	return ret
 }
 

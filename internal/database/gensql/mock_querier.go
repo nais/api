@@ -3349,6 +3349,65 @@ func (_c *MockQuerier_GetTeamEnvironments_Call) RunAndReturn(run func(context.Co
 	return _c
 }
 
+// GetTeamEnvironmentsBySlugsAndEnvNames provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamEnvironment, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTeamEnvironmentsBySlugsAndEnvNames")
+	}
+
+	var r0 []*TeamEnvironment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamEnvironment, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamEnvironmentsBySlugsAndEnvNamesParams) []*TeamEnvironment); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*TeamEnvironment)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, GetTeamEnvironmentsBySlugsAndEnvNamesParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamEnvironmentsBySlugsAndEnvNames'
+type MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call struct {
+	*mock.Call
+}
+
+// GetTeamEnvironmentsBySlugsAndEnvNames is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg GetTeamEnvironmentsBySlugsAndEnvNamesParams
+func (_e *MockQuerier_Expecter) GetTeamEnvironmentsBySlugsAndEnvNames(ctx interface{}, arg interface{}) *MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call {
+	return &MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call{Call: _e.mock.On("GetTeamEnvironmentsBySlugsAndEnvNames", ctx, arg)}
+}
+
+func (_c *MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call) Run(run func(ctx context.Context, arg GetTeamEnvironmentsBySlugsAndEnvNamesParams)) *MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(GetTeamEnvironmentsBySlugsAndEnvNamesParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call) Return(_a0 []*TeamEnvironment, _a1 error) *MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call) RunAndReturn(run func(context.Context, GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamEnvironment, error)) *MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetTeamEnvironmentsCount provides a mock function with given fields: ctx, teamSlug
 func (_m *MockQuerier) GetTeamEnvironmentsCount(ctx context.Context, teamSlug slug.Slug) (int64, error) {
 	ret := _m.Called(ctx, teamSlug)

@@ -78,6 +78,8 @@ type Querier interface {
 	GetTeamBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)
 	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
 	GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmentsParams) ([]*TeamEnvironment, error)
+	// Input is two arrays of equal length, one for slugs and one for names
+	GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamEnvironment, error)
 	GetTeamEnvironmentsCount(ctx context.Context, teamSlug slug.Slug) (int64, error)
 	GetTeamMember(ctx context.Context, arg GetTeamMemberParams) (*User, error)
 	GetTeamMemberOptOuts(ctx context.Context, arg GetTeamMemberOptOutsParams) ([]*GetTeamMemberOptOutsRow, error)

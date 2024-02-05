@@ -246,6 +246,9 @@ type Team {
   "The email address of the Google group for the team. This value is managed by the Google Workspace reconciler."
   googleGroupEmail: String
 
+  "The Google artifact registry for the team."
+  googleArtifactRegistry: String
+
   "Audit logs for this team."
   auditLogs(
     "Offset to start listing audit log entries from. Default is 0."
@@ -349,6 +352,9 @@ type Team {
   ): VulnerabilityList!
 
   vulnerabilitiesSummary: VulnerabilitySummary!
+
+  "The environments available for the team."
+  environments: [Env!]!
 }
 
 "Slack alerts channel type."

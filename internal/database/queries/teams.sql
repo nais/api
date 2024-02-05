@@ -26,6 +26,20 @@ SELECT COUNT(*) as total
 FROM team_environments
 WHERE team_slug = @team_slug;
 
+-- name: GetTeamEnvironmentsBySlugsAndEnvNames :many
+-- Input is two arrays of equal length, one for slugs and one for names
+WITH input AS (
+    SELECT
+        unnest(@team_slugs::slug[]) AS team_slug,
+        unnest(@environments::text[]) AS environment
+)
+SELECT team_environments.*
+FROM team_environments
+JOIN input ON input.team_slug = team_environments.team_slug
+WHERE team_environments.environment = input.environment
+ORDER BY team_environments.environment ASC;
+;
+
 -- name: GetTeams :many
 SELECT teams.* FROM teams
 ORDER BY teams.slug ASC

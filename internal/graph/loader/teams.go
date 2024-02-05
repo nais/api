@@ -26,6 +26,8 @@ func ToGraphTeam(m *database.Team) *model.Team {
 		Slug:             m.Slug,
 		Purpose:          m.Purpose,
 		SlackChannel:     m.SlackChannel,
+		GitHubTeamSlug:   m.GithubTeamSlug,
+		AzureGroupID:     m.AzureGroupID,
 		GoogleGroupEmail: m.GoogleGroupEmail,
 	}
 

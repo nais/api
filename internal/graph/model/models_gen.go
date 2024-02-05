@@ -304,11 +304,6 @@ func (DeprecatedRegistryError) IsStateError()             {}
 func (this DeprecatedRegistryError) GetRevision() string  { return this.Revision }
 func (this DeprecatedRegistryError) GetLevel() ErrorLevel { return this.Level }
 
-type Env struct {
-	ID   scalar.Ident `json:"id"`
-	Name string       `json:"name"`
-}
-
 // Env cost type.
 type EnvCost struct {
 	// The name of the environment.

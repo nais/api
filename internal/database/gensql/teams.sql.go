@@ -329,6 +329,51 @@ func (q *Queries) GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmen
 	return items, nil
 }
 
+const getTeamEnvironmentsBySlugsAndEnvNames = `-- name: GetTeamEnvironmentsBySlugsAndEnvNames :many
+WITH input AS (
+    SELECT
+        unnest($1::slug[]) AS team_slug,
+        unnest($2::text[]) AS environment
+)
+SELECT team_environments.id, team_environments.team_slug, team_environments.environment, team_environments.namespace, team_environments.gcp_project_id
+FROM team_environments
+JOIN input ON input.team_slug = team_environments.team_slug
+WHERE team_environments.environment = input.environment
+ORDER BY team_environments.environment ASC
+`
+
+type GetTeamEnvironmentsBySlugsAndEnvNamesParams struct {
+	TeamSlugs    []slug.Slug
+	Environments []string
+}
+
+// Input is two arrays of equal length, one for slugs and one for names
+func (q *Queries) GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamEnvironment, error) {
+	rows, err := q.db.Query(ctx, getTeamEnvironmentsBySlugsAndEnvNames, arg.TeamSlugs, arg.Environments)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*TeamEnvironment{}
+	for rows.Next() {
+		var i TeamEnvironment
+		if err := rows.Scan(
+			&i.ID,
+			&i.TeamSlug,
+			&i.Environment,
+			&i.Namespace,
+			&i.GcpProjectID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getTeamEnvironmentsCount = `-- name: GetTeamEnvironmentsCount :one
 SELECT COUNT(*) as total
 FROM team_environments

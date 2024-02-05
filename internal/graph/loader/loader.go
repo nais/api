@@ -20,9 +20,10 @@ const loadersKey ctxKey = iota
 
 // Loaders wrap your data loaders to inject via middleware
 type Loaders struct {
-	UserLoader      *dataloadgen.Loader[uuid.UUID, *model.User]
-	TeamLoader      *dataloadgen.Loader[slug.Slug, *model.Team]
-	UserRolesLoader *dataloadgen.Loader[uuid.UUID, []*model.Role]
+	UserLoader            *dataloadgen.Loader[uuid.UUID, *model.User]
+	TeamLoader            *dataloadgen.Loader[slug.Slug, *model.Team]
+	UserRolesLoader       *dataloadgen.Loader[uuid.UUID, []*model.Role]
+	TeamEnvironmentLoader *dataloadgen.Loader[database.EnvSlugName, *model.Env]
 }
 
 // NewLoaders instantiates data loaders for the middleware
@@ -37,11 +38,13 @@ func NewLoaders(db database.Database) *Loaders {
 	ur := &userReader{db: db}
 	tr := &teamReader{db: db}
 	urr := &userRolesReader{db: db}
+	ter := &teamEnvironmentReader{db: db}
 
 	return &Loaders{
-		UserLoader:      dataloadgen.NewLoader(ur.getUsers, opts...),
-		TeamLoader:      dataloadgen.NewLoader(tr.getTeams, opts...),
-		UserRolesLoader: dataloadgen.NewLoader(urr.getUserRoles, opts...),
+		UserLoader:            dataloadgen.NewLoader(ur.getUsers, opts...),
+		TeamLoader:            dataloadgen.NewLoader(tr.getTeams, opts...),
+		UserRolesLoader:       dataloadgen.NewLoader(urr.getUserRoles, opts...),
+		TeamEnvironmentLoader: dataloadgen.NewLoader(ter.getEnvironments, opts...),
 	}
 }
 

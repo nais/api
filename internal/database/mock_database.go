@@ -3059,6 +3059,65 @@ func (_c *MockDatabase_GetTeamEnvironments_Call) RunAndReturn(run func(context.C
 	return _c
 }
 
+// GetTeamEnvironmentsBySlugsAndEnvNames provides a mock function with given fields: ctx, keys
+func (_m *MockDatabase) GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, keys []EnvSlugName) ([]*TeamEnvironment, error) {
+	ret := _m.Called(ctx, keys)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTeamEnvironmentsBySlugsAndEnvNames")
+	}
+
+	var r0 []*TeamEnvironment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []EnvSlugName) ([]*TeamEnvironment, error)); ok {
+		return rf(ctx, keys)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []EnvSlugName) []*TeamEnvironment); ok {
+		r0 = rf(ctx, keys)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*TeamEnvironment)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []EnvSlugName) error); ok {
+		r1 = rf(ctx, keys)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockDatabase_GetTeamEnvironmentsBySlugsAndEnvNames_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamEnvironmentsBySlugsAndEnvNames'
+type MockDatabase_GetTeamEnvironmentsBySlugsAndEnvNames_Call struct {
+	*mock.Call
+}
+
+// GetTeamEnvironmentsBySlugsAndEnvNames is a helper method to define mock.On call
+//   - ctx context.Context
+//   - keys []EnvSlugName
+func (_e *MockDatabase_Expecter) GetTeamEnvironmentsBySlugsAndEnvNames(ctx interface{}, keys interface{}) *MockDatabase_GetTeamEnvironmentsBySlugsAndEnvNames_Call {
+	return &MockDatabase_GetTeamEnvironmentsBySlugsAndEnvNames_Call{Call: _e.mock.On("GetTeamEnvironmentsBySlugsAndEnvNames", ctx, keys)}
+}
+
+func (_c *MockDatabase_GetTeamEnvironmentsBySlugsAndEnvNames_Call) Run(run func(ctx context.Context, keys []EnvSlugName)) *MockDatabase_GetTeamEnvironmentsBySlugsAndEnvNames_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]EnvSlugName))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_GetTeamEnvironmentsBySlugsAndEnvNames_Call) Return(_a0 []*TeamEnvironment, _a1 error) *MockDatabase_GetTeamEnvironmentsBySlugsAndEnvNames_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockDatabase_GetTeamEnvironmentsBySlugsAndEnvNames_Call) RunAndReturn(run func(context.Context, []EnvSlugName) ([]*TeamEnvironment, error)) *MockDatabase_GetTeamEnvironmentsBySlugsAndEnvNames_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetTeamMember provides a mock function with given fields: ctx, teamSlug, userID
 func (_m *MockDatabase) GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*User, error) {
 	ret := _m.Called(ctx, teamSlug, userID)
