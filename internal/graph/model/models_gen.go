@@ -381,20 +381,6 @@ type GitHubRepositoriesFilter struct {
 	IncludeArchivedRepositories bool `json:"includeArchivedRepositories"`
 }
 
-// GitHub repository type.
-type GitHubRepository struct {
-	// Name of the repository, with the org prefix.
-	Name string `json:"name"`
-	// A list of permissions given to the team for this repository.
-	Permissions []*GitHubRepositoryPermission `json:"permissions"`
-	// The name of the role the team has been granted in the repository.
-	RoleName string `json:"roleName"`
-	// Whether or not the repository is archived.
-	Archived bool `json:"archived"`
-	// A list of authorizations granted to the repository by the team.
-	Authorizations []RepositoryAuthorization `json:"authorizations"`
-}
-
 // Paginated GitHub repository type.
 type GitHubRepositoryList struct {
 	// The list of GitHub repositories.
@@ -657,14 +643,6 @@ type ReconcilerConfigInput struct {
 type ReconcilerList struct {
 	// The list of reconcilers.
 	Nodes []*Reconciler `json:"nodes"`
-	// Pagination information.
-	PageInfo PageInfo `json:"pageInfo"`
-}
-
-// Paginated GitHub repository type.
-type ReconcilerResourceList struct {
-	// The list of GitHub repositories.
-	Nodes []*ReconcilerResource `json:"nodes"`
 	// Pagination information.
 	PageInfo PageInfo `json:"pageInfo"`
 }

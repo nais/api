@@ -359,13 +359,7 @@ func (r *reconcilerResolver) AuditLogs(ctx context.Context, obj *model.Reconcile
 	}, nil
 }
 
-// Mutation returns gengql.MutationResolver implementation.
-func (r *Resolver) Mutation() gengql.MutationResolver { return &mutationResolver{r} }
-
 // Reconciler returns gengql.ReconcilerResolver implementation.
 func (r *Resolver) Reconciler() gengql.ReconcilerResolver { return &reconcilerResolver{r} }
 
-type (
-	mutationResolver   struct{ *Resolver }
-	reconcilerResolver struct{ *Resolver }
-)
+type reconcilerResolver struct{ *Resolver }

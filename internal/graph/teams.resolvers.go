@@ -753,64 +753,6 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, key string) 
 	return true, nil
 }
 
-// AuthorizeRepository is the resolver for the authorizeRepository field.
-func (r *mutationResolver) AuthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.ReconcilerResource, error) {
-	actor := authz.ActorFromContext(ctx)
-	if _, err := r.database.GetTeamMember(ctx, teamSlug, actor.User.GetID()); errors.Is(err, pgx.ErrNoRows) {
-		return nil, apierror.ErrUserIsNotTeamMember
-	} else if err != nil {
-		return nil, err
-	}
-
-	var repoAuthorization gensql.RepositoryAuthorizationEnum
-	switch authorization {
-	default:
-		return nil, fmt.Errorf("invalid authorization: %q", string(authorization))
-	case model.RepositoryAuthorizationDeploy:
-		repoAuthorization = gensql.RepositoryAuthorizationEnumDeploy
-	}
-
-	if err := r.database.CreateRepositoryAuthorization(ctx, teamSlug, repoName, repoAuthorization); err != nil {
-		return nil, err
-	}
-
-	ret, err := r.database.GetReconcilerResourcesByKeyAndValue(ctx, "github:team", teamSlug, "repo", repoName)
-	if err != nil {
-		return nil, err
-	}
-
-	return toGraphReconcilerResource(ret), nil
-}
-
-// DeauthorizeRepository is the resolver for the deauthorizeRepository field.
-func (r *mutationResolver) DeauthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.ReconcilerResource, error) {
-	actor := authz.ActorFromContext(ctx)
-	if _, err := r.database.GetTeamMember(ctx, teamSlug, actor.User.GetID()); errors.Is(err, pgx.ErrNoRows) {
-		return nil, apierror.ErrUserIsNotTeamMember
-	} else if err != nil {
-		return nil, err
-	}
-
-	var repoAuthorization gensql.RepositoryAuthorizationEnum
-	switch authorization {
-	default:
-		return nil, fmt.Errorf("invalid authorization: %q", string(authorization))
-	case model.RepositoryAuthorizationDeploy:
-		repoAuthorization = gensql.RepositoryAuthorizationEnumDeploy
-	}
-
-	if err := r.database.RemoveRepositoryAuthorization(ctx, teamSlug, repoName, repoAuthorization); err != nil {
-		return nil, err
-	}
-
-	ret, err := r.database.GetReconcilerResourcesByKeyAndValue(ctx, "github:team", teamSlug, "repo", repoName)
-	if err != nil {
-		return nil, err
-	}
-
-	return toGraphReconcilerResource(ret), nil
-}
-
 // ChangeDeployKey is the resolver for the changeDeployKey field.
 func (r *mutationResolver) ChangeDeployKey(ctx context.Context, team slug.Slug) (*model.DeploymentKey, error) {
 	actor := authz.ActorFromContext(ctx)
@@ -901,29 +843,6 @@ func (r *queryResolver) TeamDeleteKey(ctx context.Context, key string) (*model.T
 	}
 
 	return toGraphTeamDeleteKey(deleteKey), nil
-}
-
-// Authorizations is the resolver for the authorizations field.
-func (r *reconcilerResourceResolver) Authorizations(ctx context.Context, obj *model.ReconcilerResource) ([]model.RepositoryAuthorization, error) {
-	if obj.Reconciler != "github:team" || obj.Key != "repo" {
-		return nil, nil
-	}
-
-	authorizations, err := r.database.GetRepositoryAuthorizations(ctx, obj.GQLVars.Team, obj.Value)
-	if err != nil {
-		return nil, err
-	}
-
-	ret := []model.RepositoryAuthorization{}
-	for _, auth := range authorizations {
-		switch auth {
-		case gensql.RepositoryAuthorizationEnumDeploy:
-			ret = append(ret, model.RepositoryAuthorizationDeploy)
-		default:
-		}
-	}
-
-	return ret, nil
 }
 
 // ID is the resolver for the id field.
@@ -1035,26 +954,26 @@ func (r *teamResolver) SyncErrors(ctx context.Context, obj *model.Team) ([]*mode
 	return syncErrors, nil
 }
 
-// ReconcilerResource is the resolver for the reconcilerResource field.
-func (r *teamResolver) ReconcilerResources(ctx context.Context, obj *model.Team, reconciler string, key string, limit *int, offset *int) (*model.ReconcilerResourceList, error) {
-	pg := model.NewPagination(offset, limit)
-	res, total, err := r.database.GetReconcilerResourcesByKey(ctx, reconciler, obj.Slug, key, database.Page{
-		Limit:  pg.Limit,
-		Offset: pg.Offset,
-	})
+// GithubRepositories is the resolver for the githubRepositories field.
+func (r *teamResolver) GithubRepositories(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.GitHubRepositoryList, error) {
+	page := model.NewPagination(offset, limit)
+	res, total, err := r.database.GetReconcilerResourcesByKey(ctx, "github:team", obj.Slug, "repo", page.Page())
 	if err != nil {
 		return nil, err
 	}
 
-	ret := make([]*model.ReconcilerResource, 0, len(res))
-
+	repos := make([]*model.GitHubRepository, 0, len(res))
 	for _, r := range res {
-		ret = append(ret, toGraphReconcilerResource(r))
+		repo, err := toGraphGitHubRepository(r)
+		if err != nil {
+			return nil, err
+		}
+		repos = append(repos, repo)
 	}
 
-	return &model.ReconcilerResourceList{
-		Nodes:    ret,
-		PageInfo: model.NewPageInfo(pg, total),
+	return &model.GitHubRepositoryList{
+		Nodes:    repos,
+		PageInfo: model.NewPageInfo(page, total),
 	}, nil
 }
 
@@ -1452,11 +1371,6 @@ func (r *teamMemberReconcilerResolver) Reconciler(ctx context.Context, obj *mode
 	return toGraphReconciler(reconciler), nil
 }
 
-// ReconcilerResource returns gengql.ReconcilerResourceResolver implementation.
-func (r *Resolver) ReconcilerResource() gengql.ReconcilerResourceResolver {
-	return &reconcilerResourceResolver{r}
-}
-
 // Team returns gengql.TeamResolver implementation.
 func (r *Resolver) Team() gengql.TeamResolver { return &teamResolver{r} }
 
@@ -1469,45 +1383,7 @@ func (r *Resolver) TeamMemberReconciler() gengql.TeamMemberReconcilerResolver {
 }
 
 type (
-	reconcilerResourceResolver   struct{ *Resolver }
 	teamResolver                 struct{ *Resolver }
 	teamMemberResolver           struct{ *Resolver }
 	teamMemberReconcilerResolver struct{ *Resolver }
 )
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *teamResolver) GitHubRepositories(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.GitHubRepositoriesFilter) (*model.GitHubRepositoryList, error) {
-	panic("not implemented")
-	// state := GitHubState{}
-	// err := r.database.LoadReconcilerStateForTeam(ctx, gensql.ReconcilerNameGithubTeam, obj.Slug, state)
-	// if err != nil {
-	// 	return nil, apierror.Errorf("Unable to load the GitHub state for the team.")
-	// }
-
-	// if filter == nil {
-	// 	filter = &model.GitHubRepositoriesFilter{
-	// 		IncludeArchivedRepositories: false,
-	// 	}
-	// }
-
-	// repositories := make([]*model.GitHubRepository, 0)
-	// for _, repo := range state.Repositories {
-	// 	if repo.Archived && !filter.IncludeArchivedRepositories {
-	// 		continue
-	// 	}
-
-	// 	repo.TeamSlug = &obj.Slug
-	// 	repositories = append(repositories, toGraphGithubRepository(repo))
-	// }
-
-	// paginatedRepositories, pageInfo := model.PaginatedSlice(repositories, model.NewPagination(offset, limit))
-	// return &model.GitHubRepositoryList{
-	// 	Nodes:    paginatedRepositories,
-	// 	PageInfo: pageInfo,
-	// }, nil
-}

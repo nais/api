@@ -187,30 +187,6 @@ extend type Mutation {
     key: String!
   ): Boolean! @auth
 
-  "Authorize a team to perform an action from a GitHub repository."
-  authorizeRepository(
-    "The action to authorize."
-    authorization: RepositoryAuthorization!
-
-    "The slug of the team to authorize the action for."
-    teamSlug: Slug!
-
-    "Name of the repository, with the org prefix, for instance 'org/repo'."
-    repoName: String!
-  ): ReconcilerResource! @auth
-
-  "Deauthorize an action from a team."
-  deauthorizeRepository(
-    "The action to deauthorize."
-    authorization: RepositoryAuthorization!
-
-    "The slug of the team to deauthorize the action for."
-    teamSlug: Slug!
-
-    "Name of the repository, with the org prefix, for instance 'org/repo'."
-    repoName: String!
-  ): ReconcilerResource! @auth
-
   "Update the deploy key of a team. Returns the updated deploy key."
   changeDeployKey(
     "The name of the team to update the deploy key for."
@@ -240,15 +216,6 @@ type TeamDeleteKey {
 type TeamSync {
   "The correlation ID for the sync."
   correlationID: ID!
-}
-
-"Paginated GitHub repository type."
-type GitHubRepositoryList {
-  "The list of GitHub repositories."
-  nodes: [GitHubRepository!]!
-
-  "Pagination information."
-  pageInfo: PageInfo!
 }
 
 "Paginated teams type."
@@ -306,16 +273,14 @@ type Team {
   "Timestamp of the last successful synchronization of the team."
   lastSuccessfulSync: Time
 
-  "Get the state of the team as it is represented by the reconciler."
-  reconcilerResources(
-    "The name of the reconciler."
-    reconciler: String!
-    "Key to read"
-    key: String!
-
-    limit: Int
+  "The GitHub repositories that the team has access to."
+  githubRepositories(
+    "Offset to start listing repositories from. Default is 0."
     offset: Int
-  ): ReconcilerResourceList!
+
+    "Limit the number of repositories to return. Default is 20."
+    limit: Int
+  ): GitHubRepositoryList!
 
   "Slack channel for the team."
   slackChannel: String!
@@ -386,33 +351,6 @@ type Team {
   vulnerabilitiesSummary: VulnerabilitySummary!
 }
 
-"GitHub repository type."
-type GitHubRepository {
-  "Name of the repository, with the org prefix."
-  name: String!
-
-  "A list of permissions given to the team for this repository."
-  permissions: [GitHubRepositoryPermission!]!
-
-  "The name of the role the team has been granted in the repository."
-  roleName: String!
-
-  "Whether or not the repository is archived."
-  archived: Boolean!
-
-  "A list of authorizations granted to the repository by the team."
-  authorizations: [RepositoryAuthorization!]!
-}
-
-"GitHub repository permission type."
-type GitHubRepositoryPermission {
-  "Name of the permission."
-  name: String!
-
-  "Whether or not the permission is granted for the repository."
-  granted: Boolean!
-}
-
 "Slack alerts channel type."
 type SlackAlertsChannel {
   "The environment for the alerts sent to the channel."
@@ -421,61 +359,6 @@ type SlackAlertsChannel {
   "The name of the Slack channel."
   channelName: String!
 }
-
-"Paginated GitHub repository type."
-type ReconcilerResourceList {
-  "The list of GitHub repositories."
-  nodes: [ReconcilerResource!]!
-
-  "Pagination information."
-  pageInfo: PageInfo!
-}
-
-type ReconcilerResource {
-  "ID of the resource."
-  id: ID!
-
-  "The name of the reconciler."
-  reconciler: String!
-
-  "Key of the reconciler resource."
-  key: String!
-
-  "Value of the reconciler resource."
-  value: String!
-
-  "Metadata if any. JSON formatted."
-  metadata: String
-
-  "Temporary workaround until repository is a first class citizen. Will only be populated for GitHub repos."
-  authorizations: [RepositoryAuthorization!]
-    @deprecated(reason: "Just a temporary workaround")
-}
-
-# TODO: FIX
-# "Reconciler state type."
-# type ReconcilerState {
-#   "The GitHub team slug."
-#   gitHubTeamSlug: Slug
-
-#   "The Google Workspace group email."
-#   googleWorkspaceGroupEmail: String
-
-#   "The Azure AD group ID."
-#   azureADGroupId: ID
-
-#   "A list of GCP projects."
-#   gcpProjects: [GcpProject!]!
-
-#   "A list of NAIS namespaces."
-#   naisNamespaces: [NaisNamespace!]!
-
-#   "Timestamp of when the NAIS deploy key was provisioned."
-#   naisDeployKeyProvisioned: Time
-
-#   "Name of the GAR repository for the team."
-#   garRepositoryName: String
-# }
 
 "GCP project type."
 type GcpProject {
@@ -628,12 +511,6 @@ input TeamMemberInput {
 
   "Reconcilers to opt the team member out of."
   reconcilerOptOuts: [String!]
-}
-
-"Input for filtering GitHub repositories."
-input GitHubRepositoriesFilter {
-  "Include archived repositories or not. Default is false."
-  includeArchivedRepositories: Boolean!
 }
 
 "Available team roles."

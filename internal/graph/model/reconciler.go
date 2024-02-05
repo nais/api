@@ -1,10 +1,5 @@
 package model
 
-import (
-	"github.com/google/uuid"
-	"github.com/nais/api/internal/slug"
-)
-
 // Reconciler type.
 type Reconciler struct {
 	// The name of the reconciler.
@@ -17,23 +12,4 @@ type Reconciler struct {
 	Enabled bool `json:"enabled"`
 	// Whether or not the reconciler uses team memberships when syncing.
 	MemberAware bool `json:"memberAware"`
-}
-
-type ReconcilerResource struct {
-	// ID of the resource.
-	ID uuid.UUID `json:"id"`
-	// The name of the reconciler.
-	Reconciler string `json:"reconciler"`
-	// Key of the reconciler resource.
-	Key string `json:"key"`
-	// Value of the reconciler resource.
-	Value string `json:"value"`
-	// Metadata if any. JSON formatted.
-	Metadata *string `json:"metadata"`
-
-	GQLVars ReconcilerResourceGQLVars `json:"-"`
-}
-
-type ReconcilerResourceGQLVars struct {
-	Team slug.Slug
 }
