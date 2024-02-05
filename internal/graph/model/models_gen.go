@@ -821,6 +821,16 @@ type SyncError struct {
 	Error string `json:"error"`
 }
 
+type SynchronizationFailingError struct {
+	Revision string     `json:"revision"`
+	Level    ErrorLevel `json:"level"`
+	Detail   string     `json:"detail"`
+}
+
+func (SynchronizationFailingError) IsStateError()             {}
+func (this SynchronizationFailingError) GetRevision() string  { return this.Revision }
+func (this SynchronizationFailingError) GetLevel() ErrorLevel { return this.Level }
+
 // Team deletion key type.
 type TeamDeleteKey struct {
 	// The unique key used to confirm the deletion of a team.

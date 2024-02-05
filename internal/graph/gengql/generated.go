@@ -745,6 +745,12 @@ type ComplexityRoot struct {
 		Reconciler func(childComplexity int) int
 	}
 
+	SynchronizationFailingError struct {
+		Detail   func(childComplexity int) int
+		Level    func(childComplexity int) int
+		Revision func(childComplexity int) int
+	}
+
 	Team struct {
 		Apps                   func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		AuditLogs              func(childComplexity int, offset *int, limit *int) int
@@ -4010,6 +4016,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SyncError.Reconciler(childComplexity), true
 
+	case "SynchronizationFailingError.detail":
+		if e.complexity.SynchronizationFailingError.Detail == nil {
+			break
+		}
+
+		return e.complexity.SynchronizationFailingError.Detail(childComplexity), true
+
+	case "SynchronizationFailingError.level":
+		if e.complexity.SynchronizationFailingError.Level == nil {
+			break
+		}
+
+		return e.complexity.SynchronizationFailingError.Level(childComplexity), true
+
+	case "SynchronizationFailingError.revision":
+		if e.complexity.SynchronizationFailingError.Revision == nil {
+			break
+		}
+
+		return e.complexity.SynchronizationFailingError.Revision(childComplexity), true
+
 	case "Team.apps":
 		if e.complexity.Team.Apps == nil {
 			break
@@ -4861,6 +4888,12 @@ type NewInstancesFailingError implements StateError {
 }
 
 type InvalidNaisYamlError implements StateError {
+  revision: String!
+  level: ErrorLevel!
+  detail: String!
+}
+
+type SynchronizationFailingError implements StateError {
   revision: String!
   level: ErrorLevel!
   detail: String!
@@ -28357,6 +28390,138 @@ func (ec *executionContext) fieldContext_SyncError_error(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _SynchronizationFailingError_revision(ctx context.Context, field graphql.CollectedField, obj *model.SynchronizationFailingError) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SynchronizationFailingError_revision(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Revision, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SynchronizationFailingError_revision(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SynchronizationFailingError",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SynchronizationFailingError_level(ctx context.Context, field graphql.CollectedField, obj *model.SynchronizationFailingError) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SynchronizationFailingError_level(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Level, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.ErrorLevel)
+	fc.Result = res
+	return ec.marshalNErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐErrorLevel(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SynchronizationFailingError_level(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SynchronizationFailingError",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ErrorLevel does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SynchronizationFailingError_detail(ctx context.Context, field graphql.CollectedField, obj *model.SynchronizationFailingError) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SynchronizationFailingError_detail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Detail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SynchronizationFailingError_detail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SynchronizationFailingError",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_id(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_id(ctx, field)
 	if err != nil {
@@ -34778,6 +34943,13 @@ func (ec *executionContext) _StateError(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._InvalidNaisYamlError(ctx, sel, obj)
+	case model.SynchronizationFailingError:
+		return ec._SynchronizationFailingError(ctx, sel, &obj)
+	case *model.SynchronizationFailingError:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SynchronizationFailingError(ctx, sel, obj)
 	case model.InboundAccessError:
 		return ec._InboundAccessError(ctx, sel, &obj)
 	case *model.InboundAccessError:
@@ -40903,6 +41075,55 @@ func (ec *executionContext) _SyncError(ctx context.Context, sel ast.SelectionSet
 			}
 		case "error":
 			out.Values[i] = ec._SyncError_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var synchronizationFailingErrorImplementors = []string{"SynchronizationFailingError", "StateError"}
+
+func (ec *executionContext) _SynchronizationFailingError(ctx context.Context, sel ast.SelectionSet, obj *model.SynchronizationFailingError) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, synchronizationFailingErrorImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SynchronizationFailingError")
+		case "revision":
+			out.Values[i] = ec._SynchronizationFailingError_revision(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "level":
+			out.Values[i] = ec._SynchronizationFailingError_level(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "detail":
+			out.Values[i] = ec._SynchronizationFailingError_detail(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

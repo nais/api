@@ -7,10 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/scalar"
-	"github.com/nais/api/internal/slug"
 	naisv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+	sync_states "github.com/nais/liberator/pkg/events"
 	"gopkg.in/yaml.v2"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -19,6 +17,10 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/selection"
+
+	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 )
 
 func (c *Client) NaisJob(ctx context.Context, name, team, env string) (*model.NaisJob, error) {
@@ -196,20 +198,31 @@ func (c *Client) setJobHasMutualOnInbound(ctx context.Context, oApp, oTeam, oEnv
 }
 
 func setJobStatus(job *model.NaisJob, conditions []metav1.Condition, runs []*model.Run) {
-	currentCondition := getCurrentCondition(conditions)
+	currentCondition := synchronizationStateCondition(conditions)
 	jobState := model.JobState{
 		State:  model.StateNais,
 		Errors: []model.StateError{},
 	}
 
-	switch currentCondition {
-	case AppConditionFailedSynchronization:
-		jobState.Errors = append(jobState.Errors, &model.InvalidNaisYamlError{
-			Revision: job.DeployInfo.CommitSha,
-			Level:    model.ErrorLevelWarning,
-			Detail:   "Invalid nais.yaml",
-		})
-		jobState.State = model.StateNotnais
+	if currentCondition != nil {
+		switch currentCondition.Reason {
+		case sync_states.FailedPrepare:
+			jobState.Errors = append(jobState.Errors, &model.InvalidNaisYamlError{
+				Revision: job.DeployInfo.CommitSha,
+				Level:    model.ErrorLevelWarning,
+				Detail:   currentCondition.Message,
+			})
+			jobState.State = model.StateNotnais
+		case sync_states.Retrying:
+			fallthrough
+		case sync_states.FailedSynchronization:
+			jobState.Errors = append(jobState.Errors, &model.SynchronizationFailingError{
+				Revision: job.DeployInfo.CommitSha,
+				Level:    model.ErrorLevelError,
+				Detail:   currentCondition.Message,
+			})
+			jobState.State = model.StateNotnais
+		}
 	}
 
 	var tmpTime time.Time
