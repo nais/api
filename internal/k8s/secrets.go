@@ -319,7 +319,7 @@ func secretBytesToString(data map[string][]byte) map[string]string {
 func secretTupleToMap(data []*model.SecretTupleInput) map[string][]byte {
 	ret := make(map[string][]byte, len(data))
 	for _, tuple := range data {
-		ret[tuple.Key] = []byte(tuple.Value)
+		ret[tuple.Name] = []byte(tuple.Value)
 	}
 	return ret
 }
@@ -336,19 +336,19 @@ func validateSecretData(data []*model.SecretTupleInput) error {
 	seen := make(map[string]bool)
 
 	for _, d := range data {
-		_, found := seen[d.Key]
+		_, found := seen[d.Name]
 		if found {
-			return fmt.Errorf("duplicate key: %q", d.Key)
+			return fmt.Errorf("duplicate key: %q", d.Name)
 		}
 
-		seen[d.Key] = true
+		seen[d.Name] = true
 
-		if len(d.Key) > validation.DNS1123SubdomainMaxLength {
-			return fmt.Errorf("%q is too long: %d characters, max %d", d.Key, len(d.Key), validation.DNS1123SubdomainMaxLength)
+		if len(d.Name) > validation.DNS1123SubdomainMaxLength {
+			return fmt.Errorf("%q is too long: %d characters, max %d", d.Name, len(d.Name), validation.DNS1123SubdomainMaxLength)
 		}
 
-		if !envVarNameRegexp.MatchString(d.Key) {
-			return fmt.Errorf("%q is invalid: %s", d.Key, envVarNameFmtErrMsg)
+		if !envVarNameRegexp.MatchString(d.Name) {
+			return fmt.Errorf("%q is invalid: %s", d.Name, envVarNameFmtErrMsg)
 		}
 	}
 

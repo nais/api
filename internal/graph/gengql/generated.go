@@ -6199,7 +6199,7 @@ extend type Mutation {
 }
 
 input SecretTupleInput {
-    key: String!
+    name: String!
     value: String!
 }
 
@@ -36596,20 +36596,20 @@ func (ec *executionContext) unmarshalInputSecretTupleInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"key", "value"}
+	fieldsInOrder := [...]string{"name", "value"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "key":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Key = data
+			it.Name = data
 		case "value":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
 			data, err := ec.unmarshalNString2string(ctx, v)
