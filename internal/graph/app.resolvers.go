@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
@@ -53,13 +54,20 @@ func (r *appResolver) Secrets(ctx context.Context, obj *model.App) ([]*model.Sec
 	if err != nil {
 		return nil, err
 	}
-	envSecrets, err := r.k8sClient.Secrets(ctx, obj.GQLVars.Team)
-	for _, es := range envSecrets {
-		if es.Env.Name == obj.Env.Name {
-			return es.Secrets, nil
+
+	secrets, err := r.k8sClient.SecretsForEnv(ctx, obj.GQLVars.Team, obj.Env.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	secretsForApp := make([]*model.Secret, 0)
+	for _, secret := range secrets {
+		if slices.Contains(obj.GQLVars.Secrets, secret.Name) {
+			secretsForApp = append(secretsForApp, secret)
 		}
 	}
-	return []*model.Secret{}, nil
+
+	return secretsForApp, nil
 }
 
 // App is the resolver for the app field.

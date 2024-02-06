@@ -21,7 +21,6 @@ type App struct {
 	Variables    []*Variable  `json:"variables"`
 	Authz        []Authz      `json:"authz"`
 	AppState     AppState     `json:"appState"`
-	Secrets      []string     `json:"secrets"`
 
 	GQLVars AppGQLVars `json:"-"`
 }
@@ -41,7 +40,8 @@ type Instance struct {
 }
 
 type AppGQLVars struct {
-	Team slug.Slug
+	Secrets []string
+	Team    slug.Slug
 }
 
 type InstanceGQLVars struct {

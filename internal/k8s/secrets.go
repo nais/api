@@ -13,13 +13,12 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
-	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/validation"
+	"k8s.io/client-go/kubernetes"
 )
 
 const (
@@ -37,29 +36,11 @@ func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecre
 	}
 
 	for env, clientSet := range impersonatedClients {
-		namespace := team.String()
-		opts := metav1.ListOptions{
-			LabelSelector: fmt.Sprintf("%s=%s", secretLabelKey, secretLabelVal),
-		}
-
-		kubeSecrets, err := clientSet.CoreV1().Secrets(namespace).List(ctx, opts)
+		graphSecrets, err := c.listSecrets(ctx, team, env, clientSet)
 		if err != nil {
-			return nil, c.error(ctx, err, "listing secrets")
+			return nil, err
 		}
 
-		appsForSecrets, err := c.mapAppsBySecret(ctx, team, env)
-		if err != nil {
-			return nil, c.error(ctx, err, "mapping apps to secrets")
-		}
-
-		graphSecrets := make([]*model.Secret, 0)
-		for _, secret := range kubeSecrets.Items {
-			if !secretIsManagedByConsole(secret) {
-				continue
-			}
-
-			graphSecrets = append(graphSecrets, toGraphSecret(env, &secret, appsForSecrets[secret.Name]))
-		}
 		envSecrets = append(envSecrets, toGraphEnvSecret(env, team, graphSecrets...))
 	}
 
@@ -68,6 +49,49 @@ func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecre
 	})
 
 	return envSecrets, nil
+}
+
+// SecretsForEnv lists all secrets for a given team in a specific environment
+func (c *Client) SecretsForEnv(ctx context.Context, team slug.Slug, env string) ([]*model.Secret, error) {
+	impersonatedClients, err := c.impersonationClientCreator(ctx)
+	if err != nil {
+		return nil, c.error(ctx, err, "impersonation")
+	}
+
+	clientSet, ok := impersonatedClients[env]
+	if !ok {
+		return nil, fmt.Errorf("no client set for env %q", env)
+	}
+
+	return c.listSecrets(ctx, team, env, clientSet)
+}
+
+func (c *Client) listSecrets(ctx context.Context, team slug.Slug, env string, clientSet kubernetes.Interface) ([]*model.Secret, error) {
+	namespace := team.String()
+	opts := metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("%s=%s", secretLabelKey, secretLabelVal),
+	}
+
+	kubeSecrets, err := clientSet.CoreV1().Secrets(namespace).List(ctx, opts)
+	if err != nil {
+		return nil, c.error(ctx, err, "listing secrets")
+	}
+
+	appsForSecrets, err := c.mapAppsBySecret(ctx, team, env)
+	if err != nil {
+		return nil, c.error(ctx, err, "mapping apps to secrets")
+	}
+
+	graphSecrets := make([]*model.Secret, 0)
+	for _, secret := range kubeSecrets.Items {
+		if !secretIsManagedByConsole(secret) {
+			continue
+		}
+
+		graphSecrets = append(graphSecrets, toGraphSecret(env, &secret, appsForSecrets[secret.Name]))
+	}
+
+	return graphSecrets, nil
 }
 
 func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env string) (*model.Secret, error) {
@@ -85,7 +109,11 @@ func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env st
 	opts := metav1.GetOptions{}
 	secret, err := clientSet.CoreV1().Secrets(namespace).Get(ctx, name, opts)
 	if err != nil {
-		return nil, c.error(ctx, err, "listing secrets")
+		return nil, c.error(ctx, err, "getting secret")
+	}
+
+	if !secretIsManagedByConsole(*secret) {
+		return nil, fmt.Errorf("secret %q is not managed by console", secret.GetName())
 	}
 
 	appsForSecrets, err := c.mapAppsBySecret(ctx, team, env)
@@ -93,12 +121,7 @@ func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env st
 		return nil, c.error(ctx, err, "mapping apps to secrets")
 	}
 
-	if !secretIsManagedByConsole(*secret) {
-		return nil, fmt.Errorf("secret %q is not managed by console", secret.GetName())
-	}
-
 	return toGraphSecret(env, secret, appsForSecrets[secret.Name]), nil
-
 }
 
 func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
@@ -210,21 +233,13 @@ func (c *Client) mapAppsBySecret(ctx context.Context, team slug.Slug, env string
 	appsBySecret := make(map[string][]*model.App)
 	for _, obj := range apps {
 		u := obj.(*unstructured.Unstructured)
-		app := &naisv1alpha1.Application{}
-
-		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, app); err != nil {
-			return nil, fmt.Errorf("converting to application: %w", err)
+		app, err := c.App(ctx, u.GetName(), team.String(), env)
+		if err != nil {
+			return nil, err
 		}
 
-		// Todo: Unignore the error
-		modelApp, _ := c.App(ctx, app.Name, team.String(), env)
-
-		for _, secret := range app.Spec.EnvFrom {
-			appsBySecret[secret.Secret] = append(appsBySecret[secret.Secret], modelApp)
-		}
-
-		for _, secret := range app.Spec.FilesFrom {
-			appsBySecret[secret.Secret] = append(appsBySecret[secret.Secret], modelApp)
+		for _, secret := range app.GQLVars.Secrets {
+			appsBySecret[secret] = append(appsBySecret[secret], app)
 		}
 	}
 

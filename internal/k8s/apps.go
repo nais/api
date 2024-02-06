@@ -702,8 +702,11 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 	for _, secretName := range app.Spec.EnvFrom {
 		secrets = append(secrets, secretName.Secret)
 	}
+
+	slices.Sort(secrets)
 	secrets = slices.Compact(secrets)
-	ret.Secrets = secrets
+
+	ret.GQLVars.Secrets = secrets
 	return ret, nil
 }
 

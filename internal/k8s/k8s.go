@@ -133,12 +133,7 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 			}
 
 			clientSets := make(map[string]kubernetes.Interface)
-			for _, cluster := range clusters(cfg) {
-				restConfig, ok := restConfigs[cluster]
-				if !ok {
-					return nil, fmt.Errorf("invalid cluster name %w", ok)
-				}
-
+			for cluster, restConfig := range restConfigs {
 				restConfig.Impersonate = rest.ImpersonationConfig{
 					UserName: actor.User.Identity(),
 					Groups:   groups,
