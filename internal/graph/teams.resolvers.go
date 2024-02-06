@@ -1338,6 +1338,11 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 	return retVal, nil
 }
 
+// VulnerabilityMetrics is the resolver for the vulnerabilityMetrics field.
+func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team) ([]*model.VulnerabilityMetric, error) {
+	panic(fmt.Errorf("not implemented: VulnerabilityMetrics - vulnerabilityMetrics"))
+}
+
 // Environments is the resolver for the environments field.
 func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error) {
 	environments := r.clusters.Names()
@@ -1407,6 +1412,8 @@ func (r *Resolver) TeamMemberReconciler() gengql.TeamMemberReconcilerResolver {
 	return &teamMemberReconcilerResolver{r}
 }
 
-type teamResolver struct{ *Resolver }
-type teamMemberResolver struct{ *Resolver }
-type teamMemberReconcilerResolver struct{ *Resolver }
+type (
+	teamResolver                 struct{ *Resolver }
+	teamMemberResolver           struct{ *Resolver }
+	teamMemberReconcilerResolver struct{ *Resolver }
+)
