@@ -56,7 +56,7 @@ func (r *envResolver) SlackAlertsChannel(ctx context.Context, obj *model.Env) (s
 		obj = te
 	}
 
-	return *obj.DBType.SlackAlertsChannel, nil
+	return obj.DBType.SlackAlertsChannel, nil
 }
 
 // Env returns gengql.EnvResolver implementation.

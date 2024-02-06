@@ -264,13 +264,10 @@ func (q *Queries) GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDel
 }
 
 const getTeamEnvironments = `-- name: GetTeamEnvironments :many
-SELECT
-    team_environments.id, team_environments.team_slug, team_environments.environment, team_environments.slack_alerts_channel, team_environments.gcp_project_id,
-    COALESCE(team_environments.slack_alerts_channel, teams.slack_channel) as slack_alerts_channel
-FROM team_environments
-JOIN teams ON teams.slug = team_environments.team_slug
-WHERE team_environments.team_slug = $1
-ORDER BY team_environments.environment ASC
+SELECT team_slug, environment, gcp, gcp_project_id, id, slack_alerts_channel
+FROM team_all_environments
+WHERE team_slug = $1
+ORDER BY environment ASC
 LIMIT $3 OFFSET $2
 `
 
@@ -280,31 +277,22 @@ type GetTeamEnvironmentsParams struct {
 	Limit    int32
 }
 
-type GetTeamEnvironmentsRow struct {
-	ID                   uuid.UUID
-	TeamSlug             slug.Slug
-	Environment          string
-	SlackAlertsChannel   *string
-	GcpProjectID         *string
-	SlackAlertsChannel_2 string
-}
-
-func (q *Queries) GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmentsParams) ([]*GetTeamEnvironmentsRow, error) {
+func (q *Queries) GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmentsParams) ([]*TeamAllEnvironment, error) {
 	rows, err := q.db.Query(ctx, getTeamEnvironments, arg.TeamSlug, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*GetTeamEnvironmentsRow{}
+	items := []*TeamAllEnvironment{}
 	for rows.Next() {
-		var i GetTeamEnvironmentsRow
+		var i TeamAllEnvironment
 		if err := rows.Scan(
-			&i.ID,
 			&i.TeamSlug,
 			&i.Environment,
-			&i.SlackAlertsChannel,
+			&i.Gcp,
 			&i.GcpProjectID,
-			&i.SlackAlertsChannel_2,
+			&i.ID,
+			&i.SlackAlertsChannel,
 		); err != nil {
 			return nil, err
 		}
@@ -322,14 +310,12 @@ WITH input AS (
         unnest($1::slug[]) AS team_slug,
         unnest($2::text[]) AS environment
 )
-SELECT
-    team_environments.id, team_environments.team_slug, team_environments.environment, team_environments.slack_alerts_channel, team_environments.gcp_project_id,
-    COALESCE(team_environments.slack_alerts_channel, teams.slack_channel) as slack_alerts_channel
-FROM team_environments
-JOIN input ON input.team_slug = team_environments.team_slug
-JOIN teams ON teams.slug = team_environments.team_slug
-WHERE team_environments.environment = input.environment
-ORDER BY team_environments.environment ASC
+SELECT team_all_environments.team_slug, team_all_environments.environment, team_all_environments.gcp, team_all_environments.gcp_project_id, team_all_environments.id, team_all_environments.slack_alerts_channel
+FROM team_all_environments
+JOIN input ON input.team_slug = team_all_environments.team_slug
+JOIN teams ON teams.slug = team_all_environments.team_slug
+WHERE team_all_environments.environment = input.environment
+ORDER BY team_all_environments.environment ASC
 `
 
 type GetTeamEnvironmentsBySlugsAndEnvNamesParams struct {
@@ -337,32 +323,23 @@ type GetTeamEnvironmentsBySlugsAndEnvNamesParams struct {
 	Environments []string
 }
 
-type GetTeamEnvironmentsBySlugsAndEnvNamesRow struct {
-	ID                   uuid.UUID
-	TeamSlug             slug.Slug
-	Environment          string
-	SlackAlertsChannel   *string
-	GcpProjectID         *string
-	SlackAlertsChannel_2 string
-}
-
 // Input is two arrays of equal length, one for slugs and one for names
-func (q *Queries) GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*GetTeamEnvironmentsBySlugsAndEnvNamesRow, error) {
+func (q *Queries) GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamAllEnvironment, error) {
 	rows, err := q.db.Query(ctx, getTeamEnvironmentsBySlugsAndEnvNames, arg.TeamSlugs, arg.Environments)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*GetTeamEnvironmentsBySlugsAndEnvNamesRow{}
+	items := []*TeamAllEnvironment{}
 	for rows.Next() {
-		var i GetTeamEnvironmentsBySlugsAndEnvNamesRow
+		var i TeamAllEnvironment
 		if err := rows.Scan(
-			&i.ID,
 			&i.TeamSlug,
 			&i.Environment,
-			&i.SlackAlertsChannel,
+			&i.Gcp,
 			&i.GcpProjectID,
-			&i.SlackAlertsChannel_2,
+			&i.ID,
+			&i.SlackAlertsChannel,
 		); err != nil {
 			return nil, err
 		}
@@ -376,7 +353,7 @@ func (q *Queries) GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg
 
 const getTeamEnvironmentsCount = `-- name: GetTeamEnvironmentsCount :one
 SELECT COUNT(*) as total
-FROM team_environments
+FROM team_all_environments
 WHERE team_slug = $1
 `
 
@@ -748,8 +725,6 @@ func (q *Queries) UpdateTeamExternalReferences(ctx context.Context, arg UpdateTe
 }
 
 const upsertTeamEnvironment = `-- name: UpsertTeamEnvironment :one
-
-
 INSERT INTO team_environments (team_slug, environment, slack_alerts_channel, gcp_project_id)
 VALUES (
     $1,
@@ -777,12 +752,6 @@ type UpsertTeamEnvironmentParams struct {
 	GcpProjectID       *string
 }
 
-// -- name: SetTeamEnvironmentSlackAlertsChannel :one
-// INSERT INTO team_environments (team_slug, environment, slack_alerts_channel)
-// VALUES (@team_slug, @environment, @slack_alerts_channel)
-// ON CONFLICT (team_slug, environment) DO UPDATE
-// SET slack_alerts_channel = EXCLUDED.slack_alerts_channel
-// RETURNING *;
 func (q *Queries) UpsertTeamEnvironment(ctx context.Context, arg UpsertTeamEnvironmentParams) (*TeamEnvironment, error) {
 	row := q.db.QueryRow(ctx, upsertTeamEnvironment,
 		arg.TeamSlug,

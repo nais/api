@@ -10,7 +10,6 @@ import (
 	"github.com/nais/api/pkg/protoapi"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"k8s.io/utils/ptr"
 )
 
 type TeamsServer struct {
@@ -180,6 +179,6 @@ func toProtoTeamEnvironment(env *database.TeamEnvironment) *protoapi.TeamEnviron
 		Slug:               env.TeamSlug.String(),
 		EnvironmentName:    env.Environment,
 		GcpProjectId:       env.GcpProjectID,
-		SlackAlertsChannel: ptr.Deref(env.SlackAlertsChannel, "unexpected error"),
+		SlackAlertsChannel: env.SlackAlertsChannel,
 	}
 }

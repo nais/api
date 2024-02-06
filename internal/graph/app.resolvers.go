@@ -60,5 +60,7 @@ func (r *Resolver) App() gengql.AppResolver { return &appResolver{r} }
 // Query returns gengql.QueryResolver implementation.
 func (r *Resolver) Query() gengql.QueryResolver { return &queryResolver{r} }
 
-type appResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+type (
+	appResolver   struct{ *Resolver }
+	queryResolver struct{ *Resolver }
+)

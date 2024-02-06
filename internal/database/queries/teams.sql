@@ -15,18 +15,15 @@ WHERE NOT EXISTS (
 ORDER BY teams.slug ASC;
 
 -- name: GetTeamEnvironments :many
-SELECT
-    team_environments.*,
-    COALESCE(team_environments.slack_alerts_channel, teams.slack_channel) as slack_alerts_channel
-FROM team_environments
-JOIN teams ON teams.slug = team_environments.team_slug
-WHERE team_environments.team_slug = @team_slug
-ORDER BY team_environments.environment ASC
+SELECT *
+FROM team_all_environments
+WHERE team_slug = @team_slug
+ORDER BY environment ASC
 LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
 -- name: GetTeamEnvironmentsCount :one
 SELECT COUNT(*) as total
-FROM team_environments
+FROM team_all_environments
 WHERE team_slug = @team_slug;
 
 -- name: GetTeamEnvironmentsBySlugsAndEnvNames :many
@@ -36,23 +33,13 @@ WITH input AS (
         unnest(@team_slugs::slug[]) AS team_slug,
         unnest(@environments::text[]) AS environment
 )
-SELECT
-    team_environments.*,
-    COALESCE(team_environments.slack_alerts_channel, teams.slack_channel) as slack_alerts_channel
-FROM team_environments
-JOIN input ON input.team_slug = team_environments.team_slug
-JOIN teams ON teams.slug = team_environments.team_slug
-WHERE team_environments.environment = input.environment
-ORDER BY team_environments.environment ASC;
+SELECT team_all_environments.*
+FROM team_all_environments
+JOIN input ON input.team_slug = team_all_environments.team_slug
+JOIN teams ON teams.slug = team_all_environments.team_slug
+WHERE team_all_environments.environment = input.environment
+ORDER BY team_all_environments.environment ASC;
 ;
-
--- -- name: SetTeamEnvironmentSlackAlertsChannel :one
--- INSERT INTO team_environments (team_slug, environment, slack_alerts_channel)
--- VALUES (@team_slug, @environment, @slack_alerts_channel)
--- ON CONFLICT (team_slug, environment) DO UPDATE
--- SET slack_alerts_channel = EXCLUDED.slack_alerts_channel
--- RETURNING *;
-
 
 -- name: UpsertTeamEnvironment :one
 INSERT INTO team_environments (team_slug, environment, slack_alerts_channel, gcp_project_id)

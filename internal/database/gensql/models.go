@@ -299,6 +299,15 @@ type Team struct {
 	GithubTeamSlug     *string
 }
 
+type TeamAllEnvironment struct {
+	TeamSlug           slug.Slug
+	Environment        string
+	Gcp                bool
+	GcpProjectID       *string
+	ID                 uuid.UUID
+	SlackAlertsChannel string
+}
+
 type TeamDeleteKey struct {
 	Key         uuid.UUID
 	TeamSlug    slug.Slug

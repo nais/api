@@ -1321,21 +1321,9 @@ func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*mo
 	}
 
 	names := r.clusters.Names()
-	ret := make([]*model.Env, 0, len(names))
-	for _, env := range dbEnvs {
-		ret = append(ret, &model.Env{Name: env.Environment, Team: obj.Slug.String(), DBType: env})
-	}
-
-	if len(dbEnvs) < len(names) {
-	OUTER:
-		for _, env := range names {
-			for _, e := range dbEnvs {
-				if e.Environment == env {
-					continue OUTER
-				}
-			}
-			ret = append(ret, &model.Env{Name: env, Team: obj.Slug.String()})
-		}
+	ret := make([]*model.Env, len(names))
+	for i, env := range dbEnvs {
+		ret[i] = &model.Env{Name: env.Environment, Team: obj.Slug.String()}
 	}
 
 	return ret, nil
@@ -1399,6 +1387,8 @@ func (r *Resolver) TeamMemberReconciler() gengql.TeamMemberReconcilerResolver {
 	return &teamMemberReconcilerResolver{r}
 }
 
-type teamResolver struct{ *Resolver }
-type teamMemberResolver struct{ *Resolver }
-type teamMemberReconcilerResolver struct{ *Resolver }
+type (
+	teamResolver                 struct{ *Resolver }
+	teamMemberResolver           struct{ *Resolver }
+	teamMemberReconcilerResolver struct{ *Resolver }
+)

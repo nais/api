@@ -69,6 +69,13 @@ CREATE TABLE cost (
     CONSTRAINT daily_cost_key UNIQUE (environment, team_slug, app, cost_type, date)
 );
 
+CREATE TABLE environments (
+    name text NOT NULL PRIMARY KEY,
+    gcp boolean DEFAULT false NOT NULL
+);
+
+COMMENT ON TABLE environments IS 'This table is used to store the environments that are available in the system. It will be emptied and repopulated when the system starts.';
+
 CREATE TABLE reconciler_errors (
     id BIGSERIAL,
     correlation_id uuid NOT NULL,
@@ -214,6 +221,24 @@ CREATE TABLE users (
     PRIMARY KEY(id),
     UNIQUE(email),
     UNIQUE(external_id)
+);
+
+-- views
+
+CREATE VIEW team_all_environments AS (
+    SELECT
+        teams.slug as team_slug,
+        environments.name as environment,
+        environments.gcp as gcp,
+        team_environments.gcp_project_id,
+        COALESCE(team_environments.id, gen_random_uuid())::uuid as id,
+        COALESCE(team_environments.slack_alerts_channel, teams.slack_channel) as slack_alerts_channel
+    FROM teams
+    CROSS JOIN environments
+    LEFT JOIN team_environments ON
+        team_environments.team_slug = teams.slug
+        AND team_environments.environment = environments.name
+
 );
 
 -- additional indexes

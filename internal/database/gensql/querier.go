@@ -40,6 +40,7 @@ type Querier interface {
 	// DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
 	DailyEnvCostForTeam(ctx context.Context, arg DailyEnvCostForTeamParams) ([]*DailyEnvCostForTeamRow, error)
 	DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName string) ([]*DangerousGetReconcilerConfigValuesRow, error)
+	DeleteAllEnvironments(ctx context.Context) error
 	DeleteReconcilerConfig(ctx context.Context, arg DeleteReconcilerConfigParams) error
 	DeleteServiceAccount(ctx context.Context, id uuid.UUID) error
 	DeleteSession(ctx context.Context, id uuid.UUID) error
@@ -76,9 +77,9 @@ type Querier interface {
 	GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	GetTeamBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)
 	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
-	GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmentsParams) ([]*GetTeamEnvironmentsRow, error)
+	GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmentsParams) ([]*TeamAllEnvironment, error)
 	// Input is two arrays of equal length, one for slugs and one for names
-	GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*GetTeamEnvironmentsBySlugsAndEnvNamesRow, error)
+	GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamAllEnvironment, error)
 	GetTeamEnvironmentsCount(ctx context.Context, teamSlug slug.Slug) (int64, error)
 	GetTeamMember(ctx context.Context, arg GetTeamMemberParams) (*User, error)
 	GetTeamMemberOptOuts(ctx context.Context, arg GetTeamMemberOptOutsParams) ([]*GetTeamMemberOptOutsRow, error)
@@ -99,6 +100,7 @@ type Querier interface {
 	GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error)
 	GetUsersCount(ctx context.Context) (int64, error)
 	GetUsersWithGloballyAssignedRole(ctx context.Context, roleName RoleName) ([]*User, error)
+	InsertEnvironment(ctx context.Context, arg InsertEnvironmentParams) error
 	// LastCostDate will return the last date that has a cost.
 	LastCostDate(ctx context.Context) (pgtype.Date, error)
 	// MaxResourceUtilizationDate will return the max date for resource utilization records.
@@ -140,12 +142,6 @@ type Querier interface {
 	UpsertReconciler(ctx context.Context, arg UpsertReconcilerParams) (*Reconciler, error)
 	UpsertReconcilerConfig(ctx context.Context, arg UpsertReconcilerConfigParams) error
 	UpsertReconcilerResource(ctx context.Context, arg UpsertReconcilerResourceParams) (*ReconcilerResource, error)
-	// -- name: SetTeamEnvironmentSlackAlertsChannel :one
-	// INSERT INTO team_environments (team_slug, environment, slack_alerts_channel)
-	// VALUES (@team_slug, @environment, @slack_alerts_channel)
-	// ON CONFLICT (team_slug, environment) DO UPDATE
-	// SET slack_alerts_channel = EXCLUDED.slack_alerts_channel
-	// RETURNING *;
 	UpsertTeamEnvironment(ctx context.Context, arg UpsertTeamEnvironmentParams) (*TeamEnvironment, error)
 }
 

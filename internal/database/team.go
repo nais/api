@@ -48,7 +48,7 @@ type EnvSlugName struct {
 }
 
 type TeamEnvironment struct {
-	*gensql.TeamEnvironment
+	*gensql.TeamAllEnvironment
 }
 
 type TeamDeleteKey struct {
@@ -177,13 +177,7 @@ func (d *database) GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, 
 
 	envs := make([]*TeamEnvironment, len(rows))
 	for i, row := range rows {
-		envs[i] = &TeamEnvironment{TeamEnvironment: &gensql.TeamEnvironment{
-			ID:                 row.ID,
-			TeamSlug:           row.TeamSlug,
-			Environment:        row.Environment,
-			SlackAlertsChannel: row.SlackAlertsChannel,
-			GcpProjectID:       row.GcpProjectID,
-		}}
+		envs[i] = &TeamEnvironment{TeamAllEnvironment: row}
 	}
 
 	total, err := d.querier.GetTeamEnvironmentsCount(ctx, teamSlug)
@@ -356,13 +350,7 @@ func (d *database) GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, ke
 
 	envs := make([]*TeamEnvironment, len(ret))
 	for i, row := range ret {
-		envs[i] = &TeamEnvironment{TeamEnvironment: &gensql.TeamEnvironment{
-			ID:                 row.ID,
-			TeamSlug:           row.TeamSlug,
-			Environment:        row.Environment,
-			SlackAlertsChannel: row.SlackAlertsChannel,
-			GcpProjectID:       row.GcpProjectID,
-		}}
+		envs[i] = &TeamEnvironment{TeamAllEnvironment: row}
 	}
 
 	return envs, nil

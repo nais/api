@@ -1179,6 +1179,52 @@ func (_c *MockDatabase_DangerousGetReconcilerConfigValues_Call) RunAndReturn(run
 	return _c
 }
 
+// DeleteAllEnvironments provides a mock function with given fields: ctx
+func (_m *MockDatabase) DeleteAllEnvironments(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteAllEnvironments")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockDatabase_DeleteAllEnvironments_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteAllEnvironments'
+type MockDatabase_DeleteAllEnvironments_Call struct {
+	*mock.Call
+}
+
+// DeleteAllEnvironments is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockDatabase_Expecter) DeleteAllEnvironments(ctx interface{}) *MockDatabase_DeleteAllEnvironments_Call {
+	return &MockDatabase_DeleteAllEnvironments_Call{Call: _e.mock.On("DeleteAllEnvironments", ctx)}
+}
+
+func (_c *MockDatabase_DeleteAllEnvironments_Call) Run(run func(ctx context.Context)) *MockDatabase_DeleteAllEnvironments_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_DeleteAllEnvironments_Call) Return(_a0 error) *MockDatabase_DeleteAllEnvironments_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockDatabase_DeleteAllEnvironments_Call) RunAndReturn(run func(context.Context) error) *MockDatabase_DeleteAllEnvironments_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DeleteReconcilerConfig provides a mock function with given fields: ctx, reconcilerName, keysToDelete
 func (_m *MockDatabase) DeleteReconcilerConfig(ctx context.Context, reconcilerName string, keysToDelete []string) error {
 	ret := _m.Called(ctx, reconcilerName, keysToDelete)
@@ -4104,6 +4150,54 @@ func (_c *MockDatabase_GetUsersWithGloballyAssignedRole_Call) RunAndReturn(run f
 	return _c
 }
 
+// InsertEnvironment provides a mock function with given fields: ctx, name, gcp
+func (_m *MockDatabase) InsertEnvironment(ctx context.Context, name string, gcp bool) error {
+	ret := _m.Called(ctx, name, gcp)
+
+	if len(ret) == 0 {
+		panic("no return value specified for InsertEnvironment")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, bool) error); ok {
+		r0 = rf(ctx, name, gcp)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockDatabase_InsertEnvironment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'InsertEnvironment'
+type MockDatabase_InsertEnvironment_Call struct {
+	*mock.Call
+}
+
+// InsertEnvironment is a helper method to define mock.On call
+//   - ctx context.Context
+//   - name string
+//   - gcp bool
+func (_e *MockDatabase_Expecter) InsertEnvironment(ctx interface{}, name interface{}, gcp interface{}) *MockDatabase_InsertEnvironment_Call {
+	return &MockDatabase_InsertEnvironment_Call{Call: _e.mock.On("InsertEnvironment", ctx, name, gcp)}
+}
+
+func (_c *MockDatabase_InsertEnvironment_Call) Run(run func(ctx context.Context, name string, gcp bool)) *MockDatabase_InsertEnvironment_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(bool))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_InsertEnvironment_Call) Return(_a0 error) *MockDatabase_InsertEnvironment_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockDatabase_InsertEnvironment_Call) RunAndReturn(run func(context.Context, string, bool) error) *MockDatabase_InsertEnvironment_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // LastCostDate provides a mock function with given fields: ctx
 func (_m *MockDatabase) LastCostDate(ctx context.Context) (pgtype.Date, error) {
 	ret := _m.Called(ctx)
@@ -5361,6 +5455,53 @@ func (_c *MockDatabase_SpecificResourceUtilizationForTeam_Call) Return(_a0 *gens
 }
 
 func (_c *MockDatabase_SpecificResourceUtilizationForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug, gensql.ResourceType, pgtype.Timestamptz) (*gensql.SpecificResourceUtilizationForTeamRow, error)) *MockDatabase_SpecificResourceUtilizationForTeam_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SyncEnvironments provides a mock function with given fields: ctx, envs
+func (_m *MockDatabase) SyncEnvironments(ctx context.Context, envs []*Environment) error {
+	ret := _m.Called(ctx, envs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SyncEnvironments")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []*Environment) error); ok {
+		r0 = rf(ctx, envs)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockDatabase_SyncEnvironments_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SyncEnvironments'
+type MockDatabase_SyncEnvironments_Call struct {
+	*mock.Call
+}
+
+// SyncEnvironments is a helper method to define mock.On call
+//   - ctx context.Context
+//   - envs []*Environment
+func (_e *MockDatabase_Expecter) SyncEnvironments(ctx interface{}, envs interface{}) *MockDatabase_SyncEnvironments_Call {
+	return &MockDatabase_SyncEnvironments_Call{Call: _e.mock.On("SyncEnvironments", ctx, envs)}
+}
+
+func (_c *MockDatabase_SyncEnvironments_Call) Run(run func(ctx context.Context, envs []*Environment)) *MockDatabase_SyncEnvironments_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]*Environment))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_SyncEnvironments_Call) Return(_a0 error) *MockDatabase_SyncEnvironments_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockDatabase_SyncEnvironments_Call) RunAndReturn(run func(context.Context, []*Environment) error) *MockDatabase_SyncEnvironments_Call {
 	_c.Call.Return(run)
 	return _c
 }
