@@ -5278,7 +5278,6 @@ type CostEntry {
   SEVERITY_UNASSIGNED
 }
 
-
 type Vulnerability {
   id: ID!
   appName: String!
@@ -5299,7 +5298,7 @@ type VulnerabilitySummary {
 }
 
 type VulnerabilityMetrics {
-  projectId: String!
+  projectId: ID!
   vulnerabilitySummary: VulnerabilitySummary
 }
 `, BuiltIn: false},
@@ -32646,9 +32645,9 @@ func (ec *executionContext) _VulnerabilityMetrics_projectId(ctx context.Context,
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(scalar.Ident)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_VulnerabilityMetrics_projectId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -32658,7 +32657,7 @@ func (ec *executionContext) fieldContext_VulnerabilityMetrics_projectId(ctx cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil

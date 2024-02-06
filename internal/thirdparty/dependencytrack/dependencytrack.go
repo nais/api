@@ -89,7 +89,7 @@ func (c *Client) GetProjectMetrics(ctx context.Context, app *AppInstance) (*mode
 	}
 
 	return &model.VulnerabilityMetrics{
-		ProjectID: p.Uuid,
+		ProjectID: scalar.VulnerabilitiesIdent(p.Uuid),
 		VulnerabilitySummary: &model.VulnerabilitySummary{
 			Total:      metric.FindingsTotal,
 			RiskScore:  metric.InheritedRiskScore,

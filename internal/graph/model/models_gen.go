@@ -939,7 +939,7 @@ type VulnerabilityMetric struct {
 }
 
 type VulnerabilityMetrics struct {
-	ProjectID            string                `json:"projectId"`
+	ProjectID            scalar.Ident          `json:"projectId"`
 	VulnerabilitySummary *VulnerabilitySummary `json:"vulnerabilitySummary,omitempty"`
 }
 
