@@ -164,14 +164,6 @@ CREATE TABLE sessions (
     PRIMARY KEY(id)
 );
 
-CREATE TABLE slack_alerts_channels (
-    team_slug slug NOT NULL,
-    environment text NOT NULL,
-    channel_name text NOT NULL,
-    PRIMARY KEY (team_slug, environment),
-    CHECK ((channel_name ~ '^#[a-z0-9æøå_-]{2,80}$'::text))
-);
-
 CREATE TABLE team_delete_keys (
     key uuid DEFAULT gen_random_uuid() NOT NULL,
     team_slug slug NOT NULL,
@@ -199,8 +191,10 @@ CREATE TABLE team_environments (
     team_slug slug NOT NULL,
     environment text NOT NULL,
     namespace text,
+    slack_alerts_channel text,
     gcp_project_id text,
-    UNIQUE(team_slug, environment)
+    UNIQUE(team_slug, environment),
+    CHECK ((slack_alerts_channel IS NULL OR slack_alerts_channel ~ '^#[a-z0-9æøå_-]{2,80}$'::text))
 );
 
 CREATE TABLE user_roles (

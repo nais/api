@@ -2815,65 +2815,6 @@ func (_c *MockDatabase_GetSessionByID_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
-// GetSlackAlertsChannels provides a mock function with given fields: ctx, teamSlug
-func (_m *MockDatabase) GetSlackAlertsChannels(ctx context.Context, teamSlug slug.Slug) (map[string]string, error) {
-	ret := _m.Called(ctx, teamSlug)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetSlackAlertsChannels")
-	}
-
-	var r0 map[string]string
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (map[string]string, error)); ok {
-		return rf(ctx, teamSlug)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) map[string]string); ok {
-		r0 = rf(ctx, teamSlug)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[string]string)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
-		r1 = rf(ctx, teamSlug)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_GetSlackAlertsChannels_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSlackAlertsChannels'
-type MockDatabase_GetSlackAlertsChannels_Call struct {
-	*mock.Call
-}
-
-// GetSlackAlertsChannels is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-func (_e *MockDatabase_Expecter) GetSlackAlertsChannels(ctx interface{}, teamSlug interface{}) *MockDatabase_GetSlackAlertsChannels_Call {
-	return &MockDatabase_GetSlackAlertsChannels_Call{Call: _e.mock.On("GetSlackAlertsChannels", ctx, teamSlug)}
-}
-
-func (_c *MockDatabase_GetSlackAlertsChannels_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockDatabase_GetSlackAlertsChannels_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_GetSlackAlertsChannels_Call) Return(_a0 map[string]string, _a1 error) *MockDatabase_GetSlackAlertsChannels_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockDatabase_GetSlackAlertsChannels_Call) RunAndReturn(run func(context.Context, slug.Slug) (map[string]string, error)) *MockDatabase_GetSlackAlertsChannels_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetTeamBySlug provides a mock function with given fields: ctx, teamSlug
 func (_m *MockDatabase) GetTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error) {
 	ret := _m.Called(ctx, teamSlug)
@@ -4587,54 +4528,6 @@ func (_c *MockDatabase_RemoveRepositoryAuthorization_Call) RunAndReturn(run func
 	return _c
 }
 
-// RemoveSlackAlertsChannel provides a mock function with given fields: ctx, teamSlug, environment
-func (_m *MockDatabase) RemoveSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string) error {
-	ret := _m.Called(ctx, teamSlug, environment)
-
-	if len(ret) == 0 {
-		panic("no return value specified for RemoveSlackAlertsChannel")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) error); ok {
-		r0 = rf(ctx, teamSlug, environment)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockDatabase_RemoveSlackAlertsChannel_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveSlackAlertsChannel'
-type MockDatabase_RemoveSlackAlertsChannel_Call struct {
-	*mock.Call
-}
-
-// RemoveSlackAlertsChannel is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - environment string
-func (_e *MockDatabase_Expecter) RemoveSlackAlertsChannel(ctx interface{}, teamSlug interface{}, environment interface{}) *MockDatabase_RemoveSlackAlertsChannel_Call {
-	return &MockDatabase_RemoveSlackAlertsChannel_Call{Call: _e.mock.On("RemoveSlackAlertsChannel", ctx, teamSlug, environment)}
-}
-
-func (_c *MockDatabase_RemoveSlackAlertsChannel_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, environment string)) *MockDatabase_RemoveSlackAlertsChannel_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_RemoveSlackAlertsChannel_Call) Return(_a0 error) *MockDatabase_RemoveSlackAlertsChannel_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockDatabase_RemoveSlackAlertsChannel_Call) RunAndReturn(run func(context.Context, slug.Slug, string) error) *MockDatabase_RemoveSlackAlertsChannel_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // RemoveUserFromTeam provides a mock function with given fields: ctx, userID, teamSlug
 func (_m *MockDatabase) RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error {
 	ret := _m.Called(ctx, userID, teamSlug)
@@ -5299,17 +5192,17 @@ func (_c *MockDatabase_SetReconcilerErrorForTeam_Call) RunAndReturn(run func(con
 	return _c
 }
 
-// SetSlackAlertsChannel provides a mock function with given fields: ctx, teamSlug, environment, channelName
-func (_m *MockDatabase) SetSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string, channelName string) error {
-	ret := _m.Called(ctx, teamSlug, environment, channelName)
+// SetTeamEnvironmentSlackAlertsChannel provides a mock function with given fields: ctx, teamSlug, environment, slackChannel
+func (_m *MockDatabase) SetTeamEnvironmentSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel *string) error {
+	ret := _m.Called(ctx, teamSlug, environment, slackChannel)
 
 	if len(ret) == 0 {
-		panic("no return value specified for SetSlackAlertsChannel")
+		panic("no return value specified for SetTeamEnvironmentSlackAlertsChannel")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, string) error); ok {
-		r0 = rf(ctx, teamSlug, environment, channelName)
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, *string) error); ok {
+		r0 = rf(ctx, teamSlug, environment, slackChannel)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -5317,33 +5210,33 @@ func (_m *MockDatabase) SetSlackAlertsChannel(ctx context.Context, teamSlug slug
 	return r0
 }
 
-// MockDatabase_SetSlackAlertsChannel_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetSlackAlertsChannel'
-type MockDatabase_SetSlackAlertsChannel_Call struct {
+// MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetTeamEnvironmentSlackAlertsChannel'
+type MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call struct {
 	*mock.Call
 }
 
-// SetSlackAlertsChannel is a helper method to define mock.On call
+// SetTeamEnvironmentSlackAlertsChannel is a helper method to define mock.On call
 //   - ctx context.Context
 //   - teamSlug slug.Slug
 //   - environment string
-//   - channelName string
-func (_e *MockDatabase_Expecter) SetSlackAlertsChannel(ctx interface{}, teamSlug interface{}, environment interface{}, channelName interface{}) *MockDatabase_SetSlackAlertsChannel_Call {
-	return &MockDatabase_SetSlackAlertsChannel_Call{Call: _e.mock.On("SetSlackAlertsChannel", ctx, teamSlug, environment, channelName)}
+//   - slackChannel *string
+func (_e *MockDatabase_Expecter) SetTeamEnvironmentSlackAlertsChannel(ctx interface{}, teamSlug interface{}, environment interface{}, slackChannel interface{}) *MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call {
+	return &MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call{Call: _e.mock.On("SetTeamEnvironmentSlackAlertsChannel", ctx, teamSlug, environment, slackChannel)}
 }
 
-func (_c *MockDatabase_SetSlackAlertsChannel_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, environment string, channelName string)) *MockDatabase_SetSlackAlertsChannel_Call {
+func (_c *MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel *string)) *MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string), args[3].(string))
+		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string), args[3].(*string))
 	})
 	return _c
 }
 
-func (_c *MockDatabase_SetSlackAlertsChannel_Call) Return(_a0 error) *MockDatabase_SetSlackAlertsChannel_Call {
+func (_c *MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call) Return(_a0 error) *MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockDatabase_SetSlackAlertsChannel_Call) RunAndReturn(run func(context.Context, slug.Slug, string, string) error) *MockDatabase_SetSlackAlertsChannel_Call {
+func (_c *MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call) RunAndReturn(run func(context.Context, slug.Slug, string, *string) error) *MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call {
 	_c.Call.Return(run)
 	return _c
 }

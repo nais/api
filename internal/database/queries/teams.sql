@@ -15,8 +15,11 @@ WHERE NOT EXISTS (
 ORDER BY teams.slug ASC;
 
 -- name: GetTeamEnvironments :many
-SELECT team_environments.*
+SELECT
+    team_environments.*,
+    COALESCE(team_environments.slack_alerts_channel, teams.slack_channel, '') as slack_alerts_channel
 FROM team_environments
+JOIN teams ON teams.slug = team_environments.team_slug
 WHERE team_environments.team_slug = @team_slug
 ORDER BY team_environments.environment ASC
 LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
@@ -33,12 +36,22 @@ WITH input AS (
         unnest(@team_slugs::slug[]) AS team_slug,
         unnest(@environments::text[]) AS environment
 )
-SELECT team_environments.*
+SELECT
+    team_environments.*,
+    COALESCE(team_environments.slack_alerts_channel, teams.slack_channel, '') as slack_alerts_channel
 FROM team_environments
 JOIN input ON input.team_slug = team_environments.team_slug
+JOIN teams ON teams.slug = team_environments.team_slug
 WHERE team_environments.environment = input.environment
 ORDER BY team_environments.environment ASC;
 ;
+
+-- name: SetTeamEnvironmentSlackAlertsChannel :one
+INSERT INTO team_environments (team_slug, environment, slack_alerts_channel)
+VALUES (@team_slug, @environment, @slack_alerts_channel)
+ON CONFLICT (team_slug, environment) DO UPDATE
+SET slack_alerts_channel = EXCLUDED.slack_alerts_channel
+RETURNING *;
 
 -- name: GetTeams :many
 SELECT teams.* FROM teams
@@ -132,21 +145,6 @@ WHERE user_id = @user_id AND target_team_slug = @team_slug::slug;
 -- name: SetLastSuccessfulSyncForTeam :exec
 UPDATE teams SET last_successful_sync = NOW()
 WHERE slug = @slug;
-
--- name: GetSlackAlertsChannels :many
-SELECT * FROM slack_alerts_channels
-WHERE team_slug = @team_slug
-ORDER BY environment ASC;
-
--- name: SetSlackAlertsChannel :exec
-INSERT INTO slack_alerts_channels (team_slug, environment, channel_name)
-VALUES (@team_slug, @environment, @channel_name)
-ON CONFLICT (team_slug, environment) DO
-    UPDATE SET channel_name = @channel_name;
-
--- name: RemoveSlackAlertsChannel :exec
-DELETE FROM slack_alerts_channels
-WHERE team_slug = @team_slug AND environment = @environment;
 
 -- name: CreateTeamDeleteKey :one
 INSERT INTO team_delete_keys (team_slug, created_by)

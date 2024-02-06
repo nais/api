@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/pkg/protoapi"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"k8s.io/utils/ptr"
 )
 
 type TeamsServer struct {
@@ -75,23 +76,6 @@ func (t *TeamsServer) Members(ctx context.Context, req *protoapi.ListTeamMembers
 	}
 	for _, user := range users {
 		resp.Nodes = append(resp.Nodes, toProtoTeamMember(user))
-	}
-
-	return resp, nil
-}
-
-func (t *TeamsServer) SlackAlertsChannels(ctx context.Context, req *protoapi.SlackAlertsChannelsRequest) (*protoapi.SlackAlertsChannelsResponse, error) {
-	channelMap, err := t.db.GetSlackAlertsChannels(ctx, slug.Slug(req.Slug))
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to list slack alerts channels: %s", err)
-	}
-
-	resp := &protoapi.SlackAlertsChannelsResponse{}
-	for env, name := range channelMap {
-		resp.Channels = append(resp.Channels, &protoapi.SlackAlertsChannel{
-			Environment: env,
-			Channel:     name,
-		})
 	}
 
 	return resp, nil
@@ -179,10 +163,11 @@ func toProtoTeamMember(user *database.User) *protoapi.TeamMember {
 
 func toProtoTeamEnvironment(env *database.TeamEnvironment) *protoapi.TeamEnvironment {
 	return &protoapi.TeamEnvironment{
-		Id:              env.ID.String(),
-		Slug:            env.TeamSlug.String(),
-		EnvironmentName: env.Environment,
-		Namespace:       env.Namespace,
-		GcpProjectId:    env.GcpProjectID,
+		Id:                 env.ID.String(),
+		Slug:               env.TeamSlug.String(),
+		EnvironmentName:    env.Environment,
+		Namespace:          env.Namespace,
+		GcpProjectId:       env.GcpProjectID,
+		SlackAlertsChannel: ptr.Deref(env.SlackAlertsChannel, "unexpected error"),
 	}
 }

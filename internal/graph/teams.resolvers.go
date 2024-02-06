@@ -108,12 +108,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 
 		if len(input.SlackAlertsChannels) > 0 {
 			for _, slackAlertsChannel := range input.SlackAlertsChannels {
-				var err error
-				if slackAlertsChannel.ChannelName == nil {
-					err = dbtx.RemoveSlackAlertsChannel(ctx, slug, slackAlertsChannel.Environment)
-				} else {
-					err = dbtx.SetSlackAlertsChannel(ctx, slug, slackAlertsChannel.Environment, *slackAlertsChannel.ChannelName)
-				}
+				err := dbtx.SetTeamEnvironmentSlackAlertsChannel(ctx, slug, slackAlertsChannel.Environment, slackAlertsChannel.ChannelName)
 				if err != nil {
 					return err
 				}
@@ -991,29 +986,6 @@ func (r *teamResolver) GithubRepositories(ctx context.Context, obj *model.Team, 
 	}, nil
 }
 
-// SlackAlertsChannels is the resolver for the slackAlertsChannels field.
-func (r *teamResolver) SlackAlertsChannels(ctx context.Context, obj *model.Team) ([]*model.SlackAlertsChannel, error) {
-	channels := make([]*model.SlackAlertsChannel, 0, len(r.clusters.GCPClusters()))
-	existingChannels, err := r.database.GetSlackAlertsChannels(ctx, obj.Slug)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, environment := range r.clusters.GCPClusters() {
-		var channel string
-		if value, exists := existingChannels[environment]; exists {
-			channel = value
-		} else {
-			channel = obj.SlackChannel
-		}
-		channels = append(channels, &model.SlackAlertsChannel{
-			Environment: environment,
-			ChannelName: channel,
-		})
-	}
-	return channels, nil
-}
-
 // DeletionInProgress is the resolver for the deletionInProgress field.
 func (r *teamResolver) DeletionInProgress(ctx context.Context, obj *model.Team) (bool, error) {
 	_, err := r.database.GetActiveTeamBySlug(ctx, obj.Slug)
@@ -1340,13 +1312,33 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 
 // Environments is the resolver for the environments field.
 func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error) {
-	environments := r.clusters.Names()
-	envs := make([]*model.Env, 0, len(environments))
-	for _, env := range environments {
-		envs = append(envs, &model.Env{Name: env, Team: obj.Slug.String()})
+	// Env is a bit special, given that it will be created from k8s etc.
+	// All fields, except name and team, are resolved.
+
+	dbEnvs, _, err := r.database.GetTeamEnvironments(ctx, obj.Slug, database.Page{Limit: 50})
+	if err != nil {
+		return nil, err
 	}
 
-	return envs, nil
+	names := r.clusters.Names()
+	ret := make([]*model.Env, 0, len(names))
+	for _, env := range dbEnvs {
+		ret = append(ret, &model.Env{Name: env.Environment, Team: obj.Slug.String(), DBType: env})
+	}
+
+	if len(dbEnvs) < len(names) {
+	OUTER:
+		for _, env := range names {
+			for _, e := range dbEnvs {
+				if e.Environment == env {
+					continue OUTER
+				}
+			}
+			ret = append(ret, &model.Env{Name: env, Team: obj.Slug.String()})
+		}
+	}
+
+	return ret, nil
 }
 
 // Team is the resolver for the team field.

@@ -289,12 +289,6 @@ type Session struct {
 	Expires pgtype.Timestamptz
 }
 
-type SlackAlertsChannel struct {
-	TeamSlug    slug.Slug
-	Environment string
-	ChannelName string
-}
-
 type Team struct {
 	Slug               slug.Slug
 	Purpose            string
@@ -314,11 +308,12 @@ type TeamDeleteKey struct {
 }
 
 type TeamEnvironment struct {
-	ID           uuid.UUID
-	TeamSlug     slug.Slug
-	Environment  string
-	Namespace    *string
-	GcpProjectID *string
+	ID                 uuid.UUID
+	TeamSlug           slug.Slug
+	Environment        string
+	Namespace          *string
+	SlackAlertsChannel *string
+	GcpProjectID       *string
 }
 
 type User struct {

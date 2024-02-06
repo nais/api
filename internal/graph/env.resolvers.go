@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	pgx "github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/graph/gengql"
@@ -52,6 +53,26 @@ func (r *envResolver) GcpProjectID(ctx context.Context, obj *model.Env) (*string
 	}
 
 	return obj.DBType.GcpProjectID, nil
+}
+
+// SlackAlertsChannel is the resolver for the slackAlertsChannel field.
+func (r *envResolver) SlackAlertsChannel(ctx context.Context, obj *model.Env) (string, error) {
+	if obj.DBType == nil {
+		te, err := loader.GetTeamEnvironment(ctx, slug.Slug(obj.Team), obj.Name)
+		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				team, err := loader.GetTeam(ctx, slug.Slug(obj.Team))
+				if err != nil {
+					return "", fmt.Errorf("unable to load team: %w", err)
+				}
+				return team.SlackChannel, nil
+			}
+			return "", err
+		}
+		obj = te
+	}
+
+	return *obj.DBType.SlackAlertsChannel, nil
 }
 
 // Env returns gengql.EnvResolver implementation.

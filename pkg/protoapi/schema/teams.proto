@@ -18,7 +18,6 @@ service Teams {
   rpc Get(GetTeamRequest) returns (GetTeamResponse) {}
   rpc List(ListTeamsRequest) returns (ListTeamsResponse) {}
   rpc Members(ListTeamMembersRequest) returns (ListTeamMembersResponse) {}
-  rpc SlackAlertsChannels(SlackAlertsChannelsRequest) returns (SlackAlertsChannelsResponse) {}
   rpc Environments(ListTeamEnvironmentsRequest) returns (ListTeamEnvironmentsResponse) {}
   rpc SetTeamExternalReferences(SetTeamExternalReferencesRequest) returns (SetTeamExternalReferencesResponse) {}
   rpc Delete(DeleteTeamRequest) returns (DeleteTeamResponse) {}
@@ -56,6 +55,7 @@ message TeamEnvironment {
   string environment_name = 3;
   optional string namespace = 4;
   optional string gcp_project_id = 5;
+  string slack_alerts_channel = 6;
 }
 
 message GetTeamResponse {
@@ -85,19 +85,6 @@ message ListTeamMembersRequest {
 message ListTeamMembersResponse {
   repeated TeamMember nodes = 1;
   PageInfo page_info = 2;
-}
-
-message SlackAlertsChannelsRequest {
-  string slug = 3;
-}
-
-message SlackAlertsChannelsResponse {
-  repeated SlackAlertsChannel channels = 1;
-}
-
-message SlackAlertsChannel {
-  string environment = 1;
-  string channel = 2;
 }
 
 message TeamMember {

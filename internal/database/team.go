@@ -19,7 +19,6 @@ type TeamRepo interface {
 	GetActiveTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error)
 	GetActiveTeams(ctx context.Context) ([]*Team, error)
 	GetAllTeamMembers(ctx context.Context, teamSlug slug.Slug) ([]*User, error)
-	GetSlackAlertsChannels(ctx context.Context, teamSlug slug.Slug) (map[string]string, error)
 	GetTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error)
 	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
 	GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, p Page) ([]*TeamEnvironment, int, error)
@@ -32,11 +31,10 @@ type TeamRepo interface {
 	GetTeamsBySlugs(ctx context.Context, teamSlugs []slug.Slug) ([]*Team, error)
 	GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string, p Page) ([]*Team, int, error)
 	GetUserTeams(ctx context.Context, userID uuid.UUID, p Page) ([]*UserTeam, int, error)
-	RemoveSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string) error
 	RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error
 	SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*gensql.Team, error)
 	SetLastSuccessfulSyncForTeam(ctx context.Context, teamSlug slug.Slug) error
-	SetSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment, channelName string) error
+	SetTeamEnvironmentSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel *string) error
 	TeamExists(ctx context.Context, team slug.Slug) (bool, error)
 	UpdateTeam(ctx context.Context, teamSlug slug.Slug, purpose, slackChannel *string) (*Team, error)
 	UpdateTeamExternalReferences(ctx context.Context, params gensql.UpdateTeamExternalReferencesParams) (*Team, error)
@@ -179,7 +177,14 @@ func (d *database) GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, 
 
 	envs := make([]*TeamEnvironment, len(rows))
 	for i, row := range rows {
-		envs[i] = &TeamEnvironment{TeamEnvironment: row}
+		envs[i] = &TeamEnvironment{TeamEnvironment: &gensql.TeamEnvironment{
+			ID:                 row.ID,
+			TeamSlug:           row.TeamSlug,
+			Environment:        row.Environment,
+			Namespace:          row.Namespace,
+			SlackAlertsChannel: row.SlackAlertsChannel,
+			GcpProjectID:       row.GcpProjectID,
+		}}
 	}
 
 	total, err := d.querier.GetTeamEnvironmentsCount(ctx, teamSlug)
@@ -300,35 +305,6 @@ func (d *database) SetLastSuccessfulSyncForTeam(ctx context.Context, teamSlug sl
 	return d.querier.SetLastSuccessfulSyncForTeam(ctx, teamSlug)
 }
 
-func (d *database) GetSlackAlertsChannels(ctx context.Context, teamSlug slug.Slug) (map[string]string, error) {
-	channels := make(map[string]string)
-	rows, err := d.querier.GetSlackAlertsChannels(ctx, teamSlug)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, row := range rows {
-		channels[row.Environment] = row.ChannelName
-	}
-
-	return channels, nil
-}
-
-func (d *database) SetSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment, channelName string) error {
-	return d.querier.SetSlackAlertsChannel(ctx, gensql.SetSlackAlertsChannelParams{
-		TeamSlug:    teamSlug,
-		Environment: environment,
-		ChannelName: channelName,
-	})
-}
-
-func (d *database) RemoveSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string) error {
-	return d.querier.RemoveSlackAlertsChannel(ctx, gensql.RemoveSlackAlertsChannelParams{
-		TeamSlug:    teamSlug,
-		Environment: environment,
-	})
-}
-
 func (d *database) CreateTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*TeamDeleteKey, error) {
 	deleteKey, err := d.querier.CreateTeamDeleteKey(ctx, gensql.CreateTeamDeleteKeyParams{
 		TeamSlug:  teamSlug,
@@ -381,10 +357,27 @@ func (d *database) GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, ke
 
 	envs := make([]*TeamEnvironment, len(ret))
 	for i, row := range ret {
-		envs[i] = &TeamEnvironment{TeamEnvironment: row}
+		envs[i] = &TeamEnvironment{TeamEnvironment: &gensql.TeamEnvironment{
+			ID:                 row.ID,
+			TeamSlug:           row.TeamSlug,
+			Environment:        row.Environment,
+			Namespace:          row.Namespace,
+			SlackAlertsChannel: row.SlackAlertsChannel,
+			GcpProjectID:       row.GcpProjectID,
+		}}
 	}
 
 	return envs, nil
+}
+
+func (d *database) SetTeamEnvironmentSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel *string) error {
+	_, err := d.querier.SetTeamEnvironmentSlackAlertsChannel(ctx, gensql.SetTeamEnvironmentSlackAlertsChannelParams{
+		TeamSlug:           teamSlug,
+		Environment:        environment,
+		SlackAlertsChannel: slackChannel,
+	})
+
+	return err
 }
 
 func (d *database) GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string, p Page) ([]*Team, int, error) {
