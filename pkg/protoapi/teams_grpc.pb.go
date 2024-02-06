@@ -19,12 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Teams_Get_FullMethodName                       = "/Teams/Get"
-	Teams_List_FullMethodName                      = "/Teams/List"
-	Teams_Members_FullMethodName                   = "/Teams/Members"
-	Teams_Environments_FullMethodName              = "/Teams/Environments"
-	Teams_SetTeamExternalReferences_FullMethodName = "/Teams/SetTeamExternalReferences"
-	Teams_Delete_FullMethodName                    = "/Teams/Delete"
+	Teams_Get_FullMethodName                                  = "/Teams/Get"
+	Teams_List_FullMethodName                                 = "/Teams/List"
+	Teams_Members_FullMethodName                              = "/Teams/Members"
+	Teams_Environments_FullMethodName                         = "/Teams/Environments"
+	Teams_SetTeamExternalReferences_FullMethodName            = "/Teams/SetTeamExternalReferences"
+	Teams_SetTeamEnvironmentExternalReferences_FullMethodName = "/Teams/SetTeamEnvironmentExternalReferences"
+	Teams_Delete_FullMethodName                               = "/Teams/Delete"
 )
 
 // TeamsClient is the client API for Teams service.
@@ -36,6 +37,7 @@ type TeamsClient interface {
 	Members(ctx context.Context, in *ListTeamMembersRequest, opts ...grpc.CallOption) (*ListTeamMembersResponse, error)
 	Environments(ctx context.Context, in *ListTeamEnvironmentsRequest, opts ...grpc.CallOption) (*ListTeamEnvironmentsResponse, error)
 	SetTeamExternalReferences(ctx context.Context, in *SetTeamExternalReferencesRequest, opts ...grpc.CallOption) (*SetTeamExternalReferencesResponse, error)
+	SetTeamEnvironmentExternalReferences(ctx context.Context, in *SetTeamEnvironmentExternalReferencesRequest, opts ...grpc.CallOption) (*SetTeamEnvironmentExternalReferencesResponse, error)
 	Delete(ctx context.Context, in *DeleteTeamRequest, opts ...grpc.CallOption) (*DeleteTeamResponse, error)
 }
 
@@ -92,6 +94,15 @@ func (c *teamsClient) SetTeamExternalReferences(ctx context.Context, in *SetTeam
 	return out, nil
 }
 
+func (c *teamsClient) SetTeamEnvironmentExternalReferences(ctx context.Context, in *SetTeamEnvironmentExternalReferencesRequest, opts ...grpc.CallOption) (*SetTeamEnvironmentExternalReferencesResponse, error) {
+	out := new(SetTeamEnvironmentExternalReferencesResponse)
+	err := c.cc.Invoke(ctx, Teams_SetTeamEnvironmentExternalReferences_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *teamsClient) Delete(ctx context.Context, in *DeleteTeamRequest, opts ...grpc.CallOption) (*DeleteTeamResponse, error) {
 	out := new(DeleteTeamResponse)
 	err := c.cc.Invoke(ctx, Teams_Delete_FullMethodName, in, out, opts...)
@@ -110,6 +121,7 @@ type TeamsServer interface {
 	Members(context.Context, *ListTeamMembersRequest) (*ListTeamMembersResponse, error)
 	Environments(context.Context, *ListTeamEnvironmentsRequest) (*ListTeamEnvironmentsResponse, error)
 	SetTeamExternalReferences(context.Context, *SetTeamExternalReferencesRequest) (*SetTeamExternalReferencesResponse, error)
+	SetTeamEnvironmentExternalReferences(context.Context, *SetTeamEnvironmentExternalReferencesRequest) (*SetTeamEnvironmentExternalReferencesResponse, error)
 	Delete(context.Context, *DeleteTeamRequest) (*DeleteTeamResponse, error)
 	mustEmbedUnimplementedTeamsServer()
 }
@@ -132,6 +144,9 @@ func (UnimplementedTeamsServer) Environments(context.Context, *ListTeamEnvironme
 }
 func (UnimplementedTeamsServer) SetTeamExternalReferences(context.Context, *SetTeamExternalReferencesRequest) (*SetTeamExternalReferencesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetTeamExternalReferences not implemented")
+}
+func (UnimplementedTeamsServer) SetTeamEnvironmentExternalReferences(context.Context, *SetTeamEnvironmentExternalReferencesRequest) (*SetTeamEnvironmentExternalReferencesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetTeamEnvironmentExternalReferences not implemented")
 }
 func (UnimplementedTeamsServer) Delete(context.Context, *DeleteTeamRequest) (*DeleteTeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
@@ -239,6 +254,24 @@ func _Teams_SetTeamExternalReferences_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Teams_SetTeamEnvironmentExternalReferences_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetTeamEnvironmentExternalReferencesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TeamsServer).SetTeamEnvironmentExternalReferences(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Teams_SetTeamEnvironmentExternalReferences_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TeamsServer).SetTeamEnvironmentExternalReferences(ctx, req.(*SetTeamEnvironmentExternalReferencesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Teams_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteTeamRequest)
 	if err := dec(in); err != nil {
@@ -283,6 +316,10 @@ var Teams_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetTeamExternalReferences",
 			Handler:    _Teams_SetTeamExternalReferences_Handler,
+		},
+		{
+			MethodName: "SetTeamEnvironmentExternalReferences",
+			Handler:    _Teams_SetTeamEnvironmentExternalReferences_Handler,
 		},
 		{
 			MethodName: "Delete",

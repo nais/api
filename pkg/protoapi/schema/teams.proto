@@ -20,6 +20,7 @@ service Teams {
   rpc Members(ListTeamMembersRequest) returns (ListTeamMembersResponse) {}
   rpc Environments(ListTeamEnvironmentsRequest) returns (ListTeamEnvironmentsResponse) {}
   rpc SetTeamExternalReferences(SetTeamExternalReferencesRequest) returns (SetTeamExternalReferencesResponse) {}
+  rpc SetTeamEnvironmentExternalReferences(SetTeamEnvironmentExternalReferencesRequest) returns (SetTeamEnvironmentExternalReferencesResponse) {}
   rpc Delete(DeleteTeamRequest) returns (DeleteTeamResponse) {}
 }
 
@@ -38,6 +39,15 @@ message SetTeamExternalReferencesRequest {
 
 message SetTeamExternalReferencesResponse{}
 
+message SetTeamEnvironmentExternalReferencesRequest {
+  string slug = 1;
+  string environment_name = 2;
+  // GCP project ID. If not set, no changes will be made. Set to empty string to remove the project ID.
+  optional string gcp_project_id = 3;
+}
+
+message SetTeamEnvironmentExternalReferencesResponse{}
+
 message ListTeamEnvironmentsRequest {
   int64 limit = 1;
   int64 offset = 2;
@@ -53,9 +63,8 @@ message TeamEnvironment {
   string id = 1;
   string slug = 2;
   string environment_name = 3;
-  optional string namespace = 4;
-  optional string gcp_project_id = 5;
-  string slack_alerts_channel = 6;
+  optional string gcp_project_id = 4;
+  string slack_alerts_channel = 5;
 }
 
 message GetTeamResponse {

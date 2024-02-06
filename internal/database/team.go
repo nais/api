@@ -34,10 +34,10 @@ type TeamRepo interface {
 	RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error
 	SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*gensql.Team, error)
 	SetLastSuccessfulSyncForTeam(ctx context.Context, teamSlug slug.Slug) error
-	SetTeamEnvironmentSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel *string) error
 	TeamExists(ctx context.Context, team slug.Slug) (bool, error)
 	UpdateTeam(ctx context.Context, teamSlug slug.Slug, purpose, slackChannel *string) (*Team, error)
 	UpdateTeamExternalReferences(ctx context.Context, params gensql.UpdateTeamExternalReferencesParams) (*Team, error)
+	UpsertTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel, gcpProjectID *string) error
 }
 
 var _ TeamRepo = &database{}
@@ -181,7 +181,6 @@ func (d *database) GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, 
 			ID:                 row.ID,
 			TeamSlug:           row.TeamSlug,
 			Environment:        row.Environment,
-			Namespace:          row.Namespace,
 			SlackAlertsChannel: row.SlackAlertsChannel,
 			GcpProjectID:       row.GcpProjectID,
 		}}
@@ -361,7 +360,6 @@ func (d *database) GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, ke
 			ID:                 row.ID,
 			TeamSlug:           row.TeamSlug,
 			Environment:        row.Environment,
-			Namespace:          row.Namespace,
 			SlackAlertsChannel: row.SlackAlertsChannel,
 			GcpProjectID:       row.GcpProjectID,
 		}}
@@ -370,11 +368,12 @@ func (d *database) GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, ke
 	return envs, nil
 }
 
-func (d *database) SetTeamEnvironmentSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel *string) error {
-	_, err := d.querier.SetTeamEnvironmentSlackAlertsChannel(ctx, gensql.SetTeamEnvironmentSlackAlertsChannelParams{
+func (d *database) UpsertTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel, gcpProjectID *string) error {
+	_, err := d.querier.UpsertTeamEnvironment(ctx, gensql.UpsertTeamEnvironmentParams{
 		TeamSlug:           teamSlug,
 		Environment:        environment,
 		SlackAlertsChannel: slackChannel,
+		GcpProjectID:       gcpProjectID,
 	})
 
 	return err

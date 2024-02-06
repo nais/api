@@ -190,7 +190,6 @@ CREATE TABLE team_environments (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     team_slug slug NOT NULL,
     environment text NOT NULL,
-    namespace text,
     slack_alerts_channel text,
     gcp_project_id text,
     UNIQUE(team_slug, environment),

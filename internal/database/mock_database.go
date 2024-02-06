@@ -5192,55 +5192,6 @@ func (_c *MockDatabase_SetReconcilerErrorForTeam_Call) RunAndReturn(run func(con
 	return _c
 }
 
-// SetTeamEnvironmentSlackAlertsChannel provides a mock function with given fields: ctx, teamSlug, environment, slackChannel
-func (_m *MockDatabase) SetTeamEnvironmentSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel *string) error {
-	ret := _m.Called(ctx, teamSlug, environment, slackChannel)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SetTeamEnvironmentSlackAlertsChannel")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, *string) error); ok {
-		r0 = rf(ctx, teamSlug, environment, slackChannel)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetTeamEnvironmentSlackAlertsChannel'
-type MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call struct {
-	*mock.Call
-}
-
-// SetTeamEnvironmentSlackAlertsChannel is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - environment string
-//   - slackChannel *string
-func (_e *MockDatabase_Expecter) SetTeamEnvironmentSlackAlertsChannel(ctx interface{}, teamSlug interface{}, environment interface{}, slackChannel interface{}) *MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call {
-	return &MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call{Call: _e.mock.On("SetTeamEnvironmentSlackAlertsChannel", ctx, teamSlug, environment, slackChannel)}
-}
-
-func (_c *MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel *string)) *MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string), args[3].(*string))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call) Return(_a0 error) *MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call) RunAndReturn(run func(context.Context, slug.Slug, string, *string) error) *MockDatabase_SetTeamEnvironmentSlackAlertsChannel_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // SetTeamMemberRole provides a mock function with given fields: ctx, userID, teamSlug, roleName
 func (_m *MockDatabase) SetTeamMemberRole(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, roleName gensql.RoleName) error {
 	ret := _m.Called(ctx, userID, teamSlug, roleName)
@@ -5921,6 +5872,56 @@ func (_c *MockDatabase_UpsertReconcilerResource_Call) Return(_a0 *ReconcilerReso
 }
 
 func (_c *MockDatabase_UpsertReconcilerResource_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, string, []byte) (*ReconcilerResource, error)) *MockDatabase_UpsertReconcilerResource_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpsertTeamEnvironment provides a mock function with given fields: ctx, teamSlug, environment, slackChannel, gcpProjectID
+func (_m *MockDatabase) UpsertTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel *string, gcpProjectID *string) error {
+	ret := _m.Called(ctx, teamSlug, environment, slackChannel, gcpProjectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpsertTeamEnvironment")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, *string, *string) error); ok {
+		r0 = rf(ctx, teamSlug, environment, slackChannel, gcpProjectID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockDatabase_UpsertTeamEnvironment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpsertTeamEnvironment'
+type MockDatabase_UpsertTeamEnvironment_Call struct {
+	*mock.Call
+}
+
+// UpsertTeamEnvironment is a helper method to define mock.On call
+//   - ctx context.Context
+//   - teamSlug slug.Slug
+//   - environment string
+//   - slackChannel *string
+//   - gcpProjectID *string
+func (_e *MockDatabase_Expecter) UpsertTeamEnvironment(ctx interface{}, teamSlug interface{}, environment interface{}, slackChannel interface{}, gcpProjectID interface{}) *MockDatabase_UpsertTeamEnvironment_Call {
+	return &MockDatabase_UpsertTeamEnvironment_Call{Call: _e.mock.On("UpsertTeamEnvironment", ctx, teamSlug, environment, slackChannel, gcpProjectID)}
+}
+
+func (_c *MockDatabase_UpsertTeamEnvironment_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel *string, gcpProjectID *string)) *MockDatabase_UpsertTeamEnvironment_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string), args[3].(*string), args[4].(*string))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_UpsertTeamEnvironment_Call) Return(_a0 error) *MockDatabase_UpsertTeamEnvironment_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockDatabase_UpsertTeamEnvironment_Call) RunAndReturn(run func(context.Context, slug.Slug, string, *string, *string) error) *MockDatabase_UpsertTeamEnvironment_Call {
 	_c.Call.Return(run)
 	return _c
 }

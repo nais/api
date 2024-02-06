@@ -108,7 +108,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 
 		if len(input.SlackAlertsChannels) > 0 {
 			for _, slackAlertsChannel := range input.SlackAlertsChannels {
-				err := dbtx.SetTeamEnvironmentSlackAlertsChannel(ctx, slug, slackAlertsChannel.Environment, slackAlertsChannel.ChannelName)
+				err := dbtx.UpsertTeamEnvironment(ctx, slug, slackAlertsChannel.Environment, slackAlertsChannel.ChannelName, nil)
 				if err != nil {
 					return err
 				}
@@ -1399,8 +1399,6 @@ func (r *Resolver) TeamMemberReconciler() gengql.TeamMemberReconcilerResolver {
 	return &teamMemberReconcilerResolver{r}
 }
 
-type (
-	teamResolver                 struct{ *Resolver }
-	teamMemberResolver           struct{ *Resolver }
-	teamMemberReconcilerResolver struct{ *Resolver }
-)
+type teamResolver struct{ *Resolver }
+type teamMemberResolver struct{ *Resolver }
+type teamMemberReconcilerResolver struct{ *Resolver }

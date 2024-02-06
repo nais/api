@@ -311,7 +311,6 @@ type TeamEnvironment struct {
 	ID                 uuid.UUID
 	TeamSlug           slug.Slug
 	Environment        string
-	Namespace          *string
 	SlackAlertsChannel *string
 	GcpProjectID       *string
 }

@@ -17,7 +17,7 @@ ORDER BY teams.slug ASC;
 -- name: GetTeamEnvironments :many
 SELECT
     team_environments.*,
-    COALESCE(team_environments.slack_alerts_channel, teams.slack_channel, '') as slack_alerts_channel
+    COALESCE(team_environments.slack_alerts_channel, teams.slack_channel) as slack_alerts_channel
 FROM team_environments
 JOIN teams ON teams.slug = team_environments.team_slug
 WHERE team_environments.team_slug = @team_slug
@@ -38,7 +38,7 @@ WITH input AS (
 )
 SELECT
     team_environments.*,
-    COALESCE(team_environments.slack_alerts_channel, teams.slack_channel, '') as slack_alerts_channel
+    COALESCE(team_environments.slack_alerts_channel, teams.slack_channel) as slack_alerts_channel
 FROM team_environments
 JOIN input ON input.team_slug = team_environments.team_slug
 JOIN teams ON teams.slug = team_environments.team_slug
@@ -46,11 +46,32 @@ WHERE team_environments.environment = input.environment
 ORDER BY team_environments.environment ASC;
 ;
 
--- name: SetTeamEnvironmentSlackAlertsChannel :one
-INSERT INTO team_environments (team_slug, environment, slack_alerts_channel)
-VALUES (@team_slug, @environment, @slack_alerts_channel)
+-- -- name: SetTeamEnvironmentSlackAlertsChannel :one
+-- INSERT INTO team_environments (team_slug, environment, slack_alerts_channel)
+-- VALUES (@team_slug, @environment, @slack_alerts_channel)
+-- ON CONFLICT (team_slug, environment) DO UPDATE
+-- SET slack_alerts_channel = EXCLUDED.slack_alerts_channel
+-- RETURNING *;
+
+
+-- name: UpsertTeamEnvironment :one
+INSERT INTO team_environments (team_slug, environment, slack_alerts_channel, gcp_project_id)
+VALUES (
+    @team_slug,
+    @environment,
+    CASE sqlc.narg(slack_alerts_channel)::text
+        WHEN '' THEN NULL
+        ELSE COALESCE(@slack_alerts_channel, slack_alerts_channel)
+    END,
+    CASE sqlc.narg(gcp_project_id)::text
+        WHEN '' THEN NULL
+        ELSE COALESCE(@gcp_project_id, gcp_project_id)
+    END
+)
 ON CONFLICT (team_slug, environment) DO UPDATE
-SET slack_alerts_channel = EXCLUDED.slack_alerts_channel
+SET
+    slack_alerts_channel = EXCLUDED.slack_alerts_channel,
+    gcp_project_id = EXCLUDED.gcp_project_id
 RETURNING *;
 
 -- name: GetTeams :many

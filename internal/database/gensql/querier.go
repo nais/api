@@ -128,7 +128,6 @@ type Querier interface {
 	SetLastSuccessfulSyncForTeam(ctx context.Context, argSlug slug.Slug) error
 	SetReconcilerErrorForTeam(ctx context.Context, arg SetReconcilerErrorForTeamParams) error
 	SetSessionExpires(ctx context.Context, arg SetSessionExpiresParams) (*Session, error)
-	SetTeamEnvironmentSlackAlertsChannel(ctx context.Context, arg SetTeamEnvironmentSlackAlertsChannelParams) (*TeamEnvironment, error)
 	// SpecificResourceUtilizationForApp will return resource utilization for an app at a specific timestamp.
 	SpecificResourceUtilizationForApp(ctx context.Context, arg SpecificResourceUtilizationForAppParams) (*SpecificResourceUtilizationForAppRow, error)
 	// SpecificResourceUtilizationForTeam will return resource utilization for a team at a specific timestamp. Applications
@@ -141,6 +140,13 @@ type Querier interface {
 	UpsertReconciler(ctx context.Context, arg UpsertReconcilerParams) (*Reconciler, error)
 	UpsertReconcilerConfig(ctx context.Context, arg UpsertReconcilerConfigParams) error
 	UpsertReconcilerResource(ctx context.Context, arg UpsertReconcilerResourceParams) (*ReconcilerResource, error)
+	// -- name: SetTeamEnvironmentSlackAlertsChannel :one
+	// INSERT INTO team_environments (team_slug, environment, slack_alerts_channel)
+	// VALUES (@team_slug, @environment, @slack_alerts_channel)
+	// ON CONFLICT (team_slug, environment) DO UPDATE
+	// SET slack_alerts_channel = EXCLUDED.slack_alerts_channel
+	// RETURNING *;
+	UpsertTeamEnvironment(ctx context.Context, arg UpsertTeamEnvironmentParams) (*TeamEnvironment, error)
 }
 
 var _ Querier = (*Queries)(nil)

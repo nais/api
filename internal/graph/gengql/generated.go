@@ -291,7 +291,6 @@ type ComplexityRoot struct {
 		GcpProjectID       func(childComplexity int) int
 		ID                 func(childComplexity int) int
 		Name               func(childComplexity int) int
-		Namespace          func(childComplexity int) int
 		SlackAlertsChannel func(childComplexity int) int
 	}
 
@@ -890,7 +889,6 @@ type DeployInfoResolver interface {
 type EnvResolver interface {
 	ID(ctx context.Context, obj *model.Env) (*scalar.Ident, error)
 
-	Namespace(ctx context.Context, obj *model.Env) (*string, error)
 	GcpProjectID(ctx context.Context, obj *model.Env) (*string, error)
 	SlackAlertsChannel(ctx context.Context, obj *model.Env) (string, error)
 }
@@ -1927,13 +1925,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Env.Name(childComplexity), true
-
-	case "Env.namespace":
-		if e.complexity.Env.Namespace == nil {
-			break
-		}
-
-		return e.complexity.Env.Namespace(childComplexity), true
 
 	case "Env.slackAlertsChannel":
 		if e.complexity.Env.SlackAlertsChannel == nil {
@@ -5265,7 +5256,6 @@ directive @admin on FIELD_DEFINITION
 	{Name: "../graphqls/env.graphqls", Input: `type Env {
   id: ID!
   name: String!
-  namespace: String
   gcpProjectID: String
   slackAlertsChannel: String!
 }
@@ -8500,8 +8490,6 @@ func (ec *executionContext) fieldContext_App_env(ctx context.Context, field grap
 				return ec.fieldContext_Env_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Env_name(ctx, field)
-			case "namespace":
-				return ec.fieldContext_Env_namespace(ctx, field)
 			case "gcpProjectID":
 				return ec.fieldContext_Env_gcpProjectID(ctx, field)
 			case "slackAlertsChannel":
@@ -14025,47 +14013,6 @@ func (ec *executionContext) fieldContext_Env_name(ctx context.Context, field gra
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Env_namespace(ctx context.Context, field graphql.CollectedField, obj *model.Env) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Env_namespace(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Env().Namespace(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Env_namespace(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Env",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -20354,8 +20301,6 @@ func (ec *executionContext) fieldContext_NaisJob_env(ctx context.Context, field 
 				return ec.fieldContext_Env_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Env_name(ctx, field)
-			case "namespace":
-				return ec.fieldContext_Env_namespace(ctx, field)
 			case "gcpProjectID":
 				return ec.fieldContext_Env_gcpProjectID(ctx, field)
 			case "slackAlertsChannel":
@@ -29643,8 +29588,6 @@ func (ec *executionContext) fieldContext_Team_environments(ctx context.Context, 
 				return ec.fieldContext_Env_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Env_name(ctx, field)
-			case "namespace":
-				return ec.fieldContext_Env_namespace(ctx, field)
 			case "gcpProjectID":
 				return ec.fieldContext_Env_gcpProjectID(ctx, field)
 			case "slackAlertsChannel":
@@ -36736,39 +36679,6 @@ func (ec *executionContext) _Env(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "namespace":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Env_namespace(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "gcpProjectID":
 			field := field
 

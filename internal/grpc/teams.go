@@ -108,6 +108,19 @@ func (t *TeamsServer) SetTeamExternalReferences(ctx context.Context, req *protoa
 	return &protoapi.SetTeamExternalReferencesResponse{}, nil
 }
 
+func (t *TeamsServer) SetTeamEnvironmentExternalReferences(ctx context.Context, req *protoapi.SetTeamEnvironmentExternalReferencesRequest) (*protoapi.SetTeamEnvironmentExternalReferencesResponse, error) {
+	if req.Slug == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "slug is required")
+	}
+
+	err := t.db.UpsertTeamEnvironment(ctx, slug.Slug(req.Slug), req.EnvironmentName, nil, req.GcpProjectId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to update external references for team: %s", err)
+	}
+
+	return &protoapi.SetTeamEnvironmentExternalReferencesResponse{}, nil
+}
+
 func (t *TeamsServer) Environments(ctx context.Context, req *protoapi.ListTeamEnvironmentsRequest) (*protoapi.ListTeamEnvironmentsResponse, error) {
 	limit, offset := pagination(req)
 	environments, total, err := t.db.GetTeamEnvironments(ctx, slug.Slug(req.Slug), database.Page{
@@ -166,7 +179,6 @@ func toProtoTeamEnvironment(env *database.TeamEnvironment) *protoapi.TeamEnviron
 		Id:                 env.ID.String(),
 		Slug:               env.TeamSlug.String(),
 		EnvironmentName:    env.Environment,
-		Namespace:          env.Namespace,
 		GcpProjectId:       env.GcpProjectID,
 		SlackAlertsChannel: ptr.Deref(env.SlackAlertsChannel, "unexpected error"),
 	}

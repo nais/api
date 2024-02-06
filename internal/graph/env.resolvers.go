@@ -23,22 +23,6 @@ func (r *envResolver) ID(ctx context.Context, obj *model.Env) (*scalar.Ident, er
 	return &id, nil
 }
 
-// Namespace is the resolver for the namespace field.
-func (r *envResolver) Namespace(ctx context.Context, obj *model.Env) (*string, error) {
-	if obj.DBType == nil {
-		te, err := loader.GetTeamEnvironment(ctx, slug.Slug(obj.Team), obj.Name)
-		if err != nil {
-			if errors.Is(err, pgx.ErrNoRows) {
-				return nil, nil
-			}
-			return nil, err
-		}
-		obj = te
-	}
-
-	return obj.DBType.Namespace, nil
-}
-
 // GcpProjectID is the resolver for the gcpProjectID field.
 func (r *envResolver) GcpProjectID(ctx context.Context, obj *model.Env) (*string, error) {
 	if obj.DBType == nil {
