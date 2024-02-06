@@ -62,9 +62,10 @@ message ListTeamEnvironmentsResponse {
 message TeamEnvironment {
   string id = 1;
   string slug = 2;
-  string environment_name = 3;
-  optional string gcp_project_id = 4;
-  string slack_alerts_channel = 5;
+  bool gcp = 3;
+  string environment_name = 4;
+  optional string gcp_project_id = 5;
+  string slack_alerts_channel = 6;
 }
 
 message GetTeamResponse {
