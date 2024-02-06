@@ -1,17 +1,65 @@
 syntax = "proto3";
 
 import "pagination.proto";
+import "users.proto";
 
 option go_package = "./pkg/protoapi";
 
 message Team {
   string slug = 1;
   string purpose = 2;
+  string slack_channel = 3;
+  string azure_group_id = 4;
+  string github_team_slug = 5;
+  string google_group_email = 6;
 }
 
 service Teams {
-  rpc Get(GetTeamRequest) returns (Team) {}
+  rpc Get(GetTeamRequest) returns (GetTeamResponse) {}
   rpc List(ListTeamsRequest) returns (ListTeamsResponse) {}
+  rpc Members(ListTeamMembersRequest) returns (ListTeamMembersResponse) {}
+  rpc SlackAlertsChannels(SlackAlertsChannelsRequest) returns (SlackAlertsChannelsResponse) {}
+  rpc Environments(ListTeamEnvironmentsRequest) returns (ListTeamEnvironmentsResponse) {}
+  rpc SetTeamExternalReferences(SetTeamExternalReferencesRequest) returns (SetTeamExternalReferencesResponse) {}
+  rpc Delete(DeleteTeamRequest) returns (DeleteTeamResponse) {}
+}
+
+message DeleteTeamRequest {
+  string slug = 1;
+}
+
+message DeleteTeamResponse {}
+
+message SetTeamExternalReferencesRequest {
+  string slug = 1;
+  optional string azure_group_id = 2;
+  optional string github_team_slug = 3;
+  optional string google_group_email = 4;
+}
+
+message SetTeamExternalReferencesResponse{}
+
+message ListTeamEnvironmentsRequest {
+  int64 limit = 1;
+  int64 offset = 2;
+  string slug = 3;
+}
+
+message ListTeamEnvironmentsResponse {
+  repeated TeamEnvironment nodes = 1;
+  PageInfo page_info = 2;
+}
+
+message TeamEnvironment {
+  string id = 1;
+  string slug = 2;
+  string environment_name = 3;
+  optional string namespace = 4;
+  optional string gcp_project_id = 5;
+}
+
+message GetTeamResponse {
+  Team team = 1;
 }
 
 message GetTeamRequest {
@@ -26,4 +74,39 @@ message ListTeamsRequest {
 message ListTeamsResponse {
   repeated Team nodes = 1;
   PageInfo page_info = 2;
+}
+
+message ListTeamMembersRequest {
+  int64 limit = 1;
+  int64 offset = 2;
+  string slug = 3;
+}
+
+message ListTeamMembersResponse {
+  repeated TeamMember nodes = 1;
+  PageInfo page_info = 2;
+}
+
+message SlackAlertsChannelsRequest {
+  string slug = 3;
+}
+
+message SlackAlertsChannelsResponse {
+  repeated SlackAlertsChannel channels = 1;
+}
+
+message SlackAlertsChannel {
+  string environment = 1;
+  string channel = 2;
+}
+
+message TeamMember {
+  User user = 1;
+  TeamMemberRole role = 2;
+}
+
+enum TeamMemberRole {
+  UNDEFINED = 0;
+  MEMBER = 1;
+  OWNER = 2;
 }

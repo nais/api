@@ -20,13 +20,66 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type TeamMemberRole int32
+
+const (
+	TeamMemberRole_UNDEFINED TeamMemberRole = 0
+	TeamMemberRole_MEMBER    TeamMemberRole = 1
+	TeamMemberRole_OWNER     TeamMemberRole = 2
+)
+
+// Enum value maps for TeamMemberRole.
+var (
+	TeamMemberRole_name = map[int32]string{
+		0: "UNDEFINED",
+		1: "MEMBER",
+		2: "OWNER",
+	}
+	TeamMemberRole_value = map[string]int32{
+		"UNDEFINED": 0,
+		"MEMBER":    1,
+		"OWNER":     2,
+	}
+)
+
+func (x TeamMemberRole) Enum() *TeamMemberRole {
+	p := new(TeamMemberRole)
+	*p = x
+	return p
+}
+
+func (x TeamMemberRole) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (TeamMemberRole) Descriptor() protoreflect.EnumDescriptor {
+	return file_teams_proto_enumTypes[0].Descriptor()
+}
+
+func (TeamMemberRole) Type() protoreflect.EnumType {
+	return &file_teams_proto_enumTypes[0]
+}
+
+func (x TeamMemberRole) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use TeamMemberRole.Descriptor instead.
+func (TeamMemberRole) EnumDescriptor() ([]byte, []int) {
+	return file_teams_proto_rawDescGZIP(), []int{0}
+}
+
 type Team struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Slug    string `protobuf:"bytes,1,opt,name=slug,proto3" json:"slug,omitempty"`
-	Purpose string `protobuf:"bytes,2,opt,name=purpose,proto3" json:"purpose,omitempty"`
+	Slug             string `protobuf:"bytes,1,opt,name=slug,proto3" json:"slug,omitempty"`
+	Purpose          string `protobuf:"bytes,2,opt,name=purpose,proto3" json:"purpose,omitempty"`
+	SlackChannel     string `protobuf:"bytes,3,opt,name=slack_channel,json=slackChannel,proto3" json:"slack_channel,omitempty"`
+	AzureGroupId     string `protobuf:"bytes,4,opt,name=azure_group_id,json=azureGroupId,proto3" json:"azure_group_id,omitempty"`
+	GithubTeamSlug   string `protobuf:"bytes,5,opt,name=github_team_slug,json=githubTeamSlug,proto3" json:"github_team_slug,omitempty"`
+	GoogleGroupEmail string `protobuf:"bytes,6,opt,name=google_group_email,json=googleGroupEmail,proto3" json:"google_group_email,omitempty"`
 }
 
 func (x *Team) Reset() {
@@ -75,6 +128,472 @@ func (x *Team) GetPurpose() string {
 	return ""
 }
 
+func (x *Team) GetSlackChannel() string {
+	if x != nil {
+		return x.SlackChannel
+	}
+	return ""
+}
+
+func (x *Team) GetAzureGroupId() string {
+	if x != nil {
+		return x.AzureGroupId
+	}
+	return ""
+}
+
+func (x *Team) GetGithubTeamSlug() string {
+	if x != nil {
+		return x.GithubTeamSlug
+	}
+	return ""
+}
+
+func (x *Team) GetGoogleGroupEmail() string {
+	if x != nil {
+		return x.GoogleGroupEmail
+	}
+	return ""
+}
+
+type DeleteTeamRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Slug string `protobuf:"bytes,1,opt,name=slug,proto3" json:"slug,omitempty"`
+}
+
+func (x *DeleteTeamRequest) Reset() {
+	*x = DeleteTeamRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_teams_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeleteTeamRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteTeamRequest) ProtoMessage() {}
+
+func (x *DeleteTeamRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_teams_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteTeamRequest.ProtoReflect.Descriptor instead.
+func (*DeleteTeamRequest) Descriptor() ([]byte, []int) {
+	return file_teams_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *DeleteTeamRequest) GetSlug() string {
+	if x != nil {
+		return x.Slug
+	}
+	return ""
+}
+
+type DeleteTeamResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *DeleteTeamResponse) Reset() {
+	*x = DeleteTeamResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_teams_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeleteTeamResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteTeamResponse) ProtoMessage() {}
+
+func (x *DeleteTeamResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_teams_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteTeamResponse.ProtoReflect.Descriptor instead.
+func (*DeleteTeamResponse) Descriptor() ([]byte, []int) {
+	return file_teams_proto_rawDescGZIP(), []int{2}
+}
+
+type SetTeamExternalReferencesRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Slug             string  `protobuf:"bytes,1,opt,name=slug,proto3" json:"slug,omitempty"`
+	AzureGroupId     *string `protobuf:"bytes,2,opt,name=azure_group_id,json=azureGroupId,proto3,oneof" json:"azure_group_id,omitempty"`
+	GithubTeamSlug   *string `protobuf:"bytes,3,opt,name=github_team_slug,json=githubTeamSlug,proto3,oneof" json:"github_team_slug,omitempty"`
+	GoogleGroupEmail *string `protobuf:"bytes,4,opt,name=google_group_email,json=googleGroupEmail,proto3,oneof" json:"google_group_email,omitempty"`
+}
+
+func (x *SetTeamExternalReferencesRequest) Reset() {
+	*x = SetTeamExternalReferencesRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_teams_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SetTeamExternalReferencesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetTeamExternalReferencesRequest) ProtoMessage() {}
+
+func (x *SetTeamExternalReferencesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_teams_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetTeamExternalReferencesRequest.ProtoReflect.Descriptor instead.
+func (*SetTeamExternalReferencesRequest) Descriptor() ([]byte, []int) {
+	return file_teams_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *SetTeamExternalReferencesRequest) GetSlug() string {
+	if x != nil {
+		return x.Slug
+	}
+	return ""
+}
+
+func (x *SetTeamExternalReferencesRequest) GetAzureGroupId() string {
+	if x != nil && x.AzureGroupId != nil {
+		return *x.AzureGroupId
+	}
+	return ""
+}
+
+func (x *SetTeamExternalReferencesRequest) GetGithubTeamSlug() string {
+	if x != nil && x.GithubTeamSlug != nil {
+		return *x.GithubTeamSlug
+	}
+	return ""
+}
+
+func (x *SetTeamExternalReferencesRequest) GetGoogleGroupEmail() string {
+	if x != nil && x.GoogleGroupEmail != nil {
+		return *x.GoogleGroupEmail
+	}
+	return ""
+}
+
+type SetTeamExternalReferencesResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *SetTeamExternalReferencesResponse) Reset() {
+	*x = SetTeamExternalReferencesResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_teams_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SetTeamExternalReferencesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetTeamExternalReferencesResponse) ProtoMessage() {}
+
+func (x *SetTeamExternalReferencesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_teams_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetTeamExternalReferencesResponse.ProtoReflect.Descriptor instead.
+func (*SetTeamExternalReferencesResponse) Descriptor() ([]byte, []int) {
+	return file_teams_proto_rawDescGZIP(), []int{4}
+}
+
+type ListTeamEnvironmentsRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Limit  int64  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset int64  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	Slug   string `protobuf:"bytes,3,opt,name=slug,proto3" json:"slug,omitempty"`
+}
+
+func (x *ListTeamEnvironmentsRequest) Reset() {
+	*x = ListTeamEnvironmentsRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_teams_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ListTeamEnvironmentsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListTeamEnvironmentsRequest) ProtoMessage() {}
+
+func (x *ListTeamEnvironmentsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_teams_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListTeamEnvironmentsRequest.ProtoReflect.Descriptor instead.
+func (*ListTeamEnvironmentsRequest) Descriptor() ([]byte, []int) {
+	return file_teams_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ListTeamEnvironmentsRequest) GetLimit() int64 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListTeamEnvironmentsRequest) GetOffset() int64 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *ListTeamEnvironmentsRequest) GetSlug() string {
+	if x != nil {
+		return x.Slug
+	}
+	return ""
+}
+
+type ListTeamEnvironmentsResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Nodes    []*TeamEnvironment `protobuf:"bytes,1,rep,name=nodes,proto3" json:"nodes,omitempty"`
+	PageInfo *PageInfo          `protobuf:"bytes,2,opt,name=page_info,json=pageInfo,proto3" json:"page_info,omitempty"`
+}
+
+func (x *ListTeamEnvironmentsResponse) Reset() {
+	*x = ListTeamEnvironmentsResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_teams_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ListTeamEnvironmentsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListTeamEnvironmentsResponse) ProtoMessage() {}
+
+func (x *ListTeamEnvironmentsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_teams_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListTeamEnvironmentsResponse.ProtoReflect.Descriptor instead.
+func (*ListTeamEnvironmentsResponse) Descriptor() ([]byte, []int) {
+	return file_teams_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ListTeamEnvironmentsResponse) GetNodes() []*TeamEnvironment {
+	if x != nil {
+		return x.Nodes
+	}
+	return nil
+}
+
+func (x *ListTeamEnvironmentsResponse) GetPageInfo() *PageInfo {
+	if x != nil {
+		return x.PageInfo
+	}
+	return nil
+}
+
+type TeamEnvironment struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id              string  `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Slug            string  `protobuf:"bytes,2,opt,name=slug,proto3" json:"slug,omitempty"`
+	EnvironmentName string  `protobuf:"bytes,3,opt,name=environment_name,json=environmentName,proto3" json:"environment_name,omitempty"`
+	Namespace       *string `protobuf:"bytes,4,opt,name=namespace,proto3,oneof" json:"namespace,omitempty"`
+	GcpProjectId    *string `protobuf:"bytes,5,opt,name=gcp_project_id,json=gcpProjectId,proto3,oneof" json:"gcp_project_id,omitempty"`
+}
+
+func (x *TeamEnvironment) Reset() {
+	*x = TeamEnvironment{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_teams_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TeamEnvironment) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TeamEnvironment) ProtoMessage() {}
+
+func (x *TeamEnvironment) ProtoReflect() protoreflect.Message {
+	mi := &file_teams_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TeamEnvironment.ProtoReflect.Descriptor instead.
+func (*TeamEnvironment) Descriptor() ([]byte, []int) {
+	return file_teams_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *TeamEnvironment) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *TeamEnvironment) GetSlug() string {
+	if x != nil {
+		return x.Slug
+	}
+	return ""
+}
+
+func (x *TeamEnvironment) GetEnvironmentName() string {
+	if x != nil {
+		return x.EnvironmentName
+	}
+	return ""
+}
+
+func (x *TeamEnvironment) GetNamespace() string {
+	if x != nil && x.Namespace != nil {
+		return *x.Namespace
+	}
+	return ""
+}
+
+func (x *TeamEnvironment) GetGcpProjectId() string {
+	if x != nil && x.GcpProjectId != nil {
+		return *x.GcpProjectId
+	}
+	return ""
+}
+
+type GetTeamResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Team *Team `protobuf:"bytes,1,opt,name=team,proto3" json:"team,omitempty"`
+}
+
+func (x *GetTeamResponse) Reset() {
+	*x = GetTeamResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_teams_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetTeamResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTeamResponse) ProtoMessage() {}
+
+func (x *GetTeamResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_teams_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTeamResponse.ProtoReflect.Descriptor instead.
+func (*GetTeamResponse) Descriptor() ([]byte, []int) {
+	return file_teams_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetTeamResponse) GetTeam() *Team {
+	if x != nil {
+		return x.Team
+	}
+	return nil
+}
+
 type GetTeamRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -86,7 +605,7 @@ type GetTeamRequest struct {
 func (x *GetTeamRequest) Reset() {
 	*x = GetTeamRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_teams_proto_msgTypes[1]
+		mi := &file_teams_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -99,7 +618,7 @@ func (x *GetTeamRequest) String() string {
 func (*GetTeamRequest) ProtoMessage() {}
 
 func (x *GetTeamRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_teams_proto_msgTypes[1]
+	mi := &file_teams_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -112,7 +631,7 @@ func (x *GetTeamRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTeamRequest.ProtoReflect.Descriptor instead.
 func (*GetTeamRequest) Descriptor() ([]byte, []int) {
-	return file_teams_proto_rawDescGZIP(), []int{1}
+	return file_teams_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetTeamRequest) GetSlug() string {
@@ -134,7 +653,7 @@ type ListTeamsRequest struct {
 func (x *ListTeamsRequest) Reset() {
 	*x = ListTeamsRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_teams_proto_msgTypes[2]
+		mi := &file_teams_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -147,7 +666,7 @@ func (x *ListTeamsRequest) String() string {
 func (*ListTeamsRequest) ProtoMessage() {}
 
 func (x *ListTeamsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_teams_proto_msgTypes[2]
+	mi := &file_teams_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -160,7 +679,7 @@ func (x *ListTeamsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTeamsRequest.ProtoReflect.Descriptor instead.
 func (*ListTeamsRequest) Descriptor() ([]byte, []int) {
-	return file_teams_proto_rawDescGZIP(), []int{2}
+	return file_teams_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListTeamsRequest) GetLimit() int64 {
@@ -189,7 +708,7 @@ type ListTeamsResponse struct {
 func (x *ListTeamsResponse) Reset() {
 	*x = ListTeamsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_teams_proto_msgTypes[3]
+		mi := &file_teams_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -202,7 +721,7 @@ func (x *ListTeamsResponse) String() string {
 func (*ListTeamsResponse) ProtoMessage() {}
 
 func (x *ListTeamsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_teams_proto_msgTypes[3]
+	mi := &file_teams_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -215,7 +734,7 @@ func (x *ListTeamsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTeamsResponse.ProtoReflect.Descriptor instead.
 func (*ListTeamsResponse) Descriptor() ([]byte, []int) {
-	return file_teams_proto_rawDescGZIP(), []int{3}
+	return file_teams_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ListTeamsResponse) GetNodes() []*Team {
@@ -232,34 +751,477 @@ func (x *ListTeamsResponse) GetPageInfo() *PageInfo {
 	return nil
 }
 
+type ListTeamMembersRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Limit  int64  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset int64  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	Slug   string `protobuf:"bytes,3,opt,name=slug,proto3" json:"slug,omitempty"`
+}
+
+func (x *ListTeamMembersRequest) Reset() {
+	*x = ListTeamMembersRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_teams_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ListTeamMembersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListTeamMembersRequest) ProtoMessage() {}
+
+func (x *ListTeamMembersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_teams_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListTeamMembersRequest.ProtoReflect.Descriptor instead.
+func (*ListTeamMembersRequest) Descriptor() ([]byte, []int) {
+	return file_teams_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ListTeamMembersRequest) GetLimit() int64 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListTeamMembersRequest) GetOffset() int64 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *ListTeamMembersRequest) GetSlug() string {
+	if x != nil {
+		return x.Slug
+	}
+	return ""
+}
+
+type ListTeamMembersResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Nodes    []*TeamMember `protobuf:"bytes,1,rep,name=nodes,proto3" json:"nodes,omitempty"`
+	PageInfo *PageInfo     `protobuf:"bytes,2,opt,name=page_info,json=pageInfo,proto3" json:"page_info,omitempty"`
+}
+
+func (x *ListTeamMembersResponse) Reset() {
+	*x = ListTeamMembersResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_teams_proto_msgTypes[13]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ListTeamMembersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListTeamMembersResponse) ProtoMessage() {}
+
+func (x *ListTeamMembersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_teams_proto_msgTypes[13]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListTeamMembersResponse.ProtoReflect.Descriptor instead.
+func (*ListTeamMembersResponse) Descriptor() ([]byte, []int) {
+	return file_teams_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ListTeamMembersResponse) GetNodes() []*TeamMember {
+	if x != nil {
+		return x.Nodes
+	}
+	return nil
+}
+
+func (x *ListTeamMembersResponse) GetPageInfo() *PageInfo {
+	if x != nil {
+		return x.PageInfo
+	}
+	return nil
+}
+
+type SlackAlertsChannelsRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Slug string `protobuf:"bytes,3,opt,name=slug,proto3" json:"slug,omitempty"`
+}
+
+func (x *SlackAlertsChannelsRequest) Reset() {
+	*x = SlackAlertsChannelsRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_teams_proto_msgTypes[14]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SlackAlertsChannelsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SlackAlertsChannelsRequest) ProtoMessage() {}
+
+func (x *SlackAlertsChannelsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_teams_proto_msgTypes[14]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SlackAlertsChannelsRequest.ProtoReflect.Descriptor instead.
+func (*SlackAlertsChannelsRequest) Descriptor() ([]byte, []int) {
+	return file_teams_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *SlackAlertsChannelsRequest) GetSlug() string {
+	if x != nil {
+		return x.Slug
+	}
+	return ""
+}
+
+type SlackAlertsChannelsResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Channels []*SlackAlertsChannel `protobuf:"bytes,1,rep,name=channels,proto3" json:"channels,omitempty"`
+}
+
+func (x *SlackAlertsChannelsResponse) Reset() {
+	*x = SlackAlertsChannelsResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_teams_proto_msgTypes[15]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SlackAlertsChannelsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SlackAlertsChannelsResponse) ProtoMessage() {}
+
+func (x *SlackAlertsChannelsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_teams_proto_msgTypes[15]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SlackAlertsChannelsResponse.ProtoReflect.Descriptor instead.
+func (*SlackAlertsChannelsResponse) Descriptor() ([]byte, []int) {
+	return file_teams_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *SlackAlertsChannelsResponse) GetChannels() []*SlackAlertsChannel {
+	if x != nil {
+		return x.Channels
+	}
+	return nil
+}
+
+type SlackAlertsChannel struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Environment string `protobuf:"bytes,1,opt,name=environment,proto3" json:"environment,omitempty"`
+	Channel     string `protobuf:"bytes,2,opt,name=channel,proto3" json:"channel,omitempty"`
+}
+
+func (x *SlackAlertsChannel) Reset() {
+	*x = SlackAlertsChannel{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_teams_proto_msgTypes[16]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SlackAlertsChannel) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SlackAlertsChannel) ProtoMessage() {}
+
+func (x *SlackAlertsChannel) ProtoReflect() protoreflect.Message {
+	mi := &file_teams_proto_msgTypes[16]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SlackAlertsChannel.ProtoReflect.Descriptor instead.
+func (*SlackAlertsChannel) Descriptor() ([]byte, []int) {
+	return file_teams_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *SlackAlertsChannel) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
+func (x *SlackAlertsChannel) GetChannel() string {
+	if x != nil {
+		return x.Channel
+	}
+	return ""
+}
+
+type TeamMember struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	User *User          `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	Role TeamMemberRole `protobuf:"varint,2,opt,name=role,proto3,enum=TeamMemberRole" json:"role,omitempty"`
+}
+
+func (x *TeamMember) Reset() {
+	*x = TeamMember{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_teams_proto_msgTypes[17]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TeamMember) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TeamMember) ProtoMessage() {}
+
+func (x *TeamMember) ProtoReflect() protoreflect.Message {
+	mi := &file_teams_proto_msgTypes[17]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TeamMember.ProtoReflect.Descriptor instead.
+func (*TeamMember) Descriptor() ([]byte, []int) {
+	return file_teams_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *TeamMember) GetUser() *User {
+	if x != nil {
+		return x.User
+	}
+	return nil
+}
+
+func (x *TeamMember) GetRole() TeamMemberRole {
+	if x != nil {
+		return x.Role
+	}
+	return TeamMemberRole_UNDEFINED
+}
+
 var File_teams_proto protoreflect.FileDescriptor
 
 var file_teams_proto_rawDesc = []byte{
 	0x0a, 0x0b, 0x74, 0x65, 0x61, 0x6d, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x10, 0x70,
-	0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22,
-	0x34, 0x0a, 0x04, 0x54, 0x65, 0x61, 0x6d, 0x12, 0x12, 0x0a, 0x04, 0x73, 0x6c, 0x75, 0x67, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x73, 0x6c, 0x75, 0x67, 0x12, 0x18, 0x0a, 0x07, 0x70,
-	0x75, 0x72, 0x70, 0x6f, 0x73, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x70, 0x75,
-	0x72, 0x70, 0x6f, 0x73, 0x65, 0x22, 0x24, 0x0a, 0x0e, 0x47, 0x65, 0x74, 0x54, 0x65, 0x61, 0x6d,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x73, 0x6c, 0x75, 0x67, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x73, 0x6c, 0x75, 0x67, 0x22, 0x40, 0x0a, 0x10, 0x4c,
-	0x69, 0x73, 0x74, 0x54, 0x65, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
-	0x14, 0x0a, 0x05, 0x6c, 0x69, 0x6d, 0x69, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05,
-	0x6c, 0x69, 0x6d, 0x69, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x6f, 0x66, 0x66, 0x73, 0x65, 0x74, 0x18,
-	0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x6f, 0x66, 0x66, 0x73, 0x65, 0x74, 0x22, 0x58, 0x0a,
-	0x11, 0x4c, 0x69, 0x73, 0x74, 0x54, 0x65, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x12, 0x1b, 0x0a, 0x05, 0x6e, 0x6f, 0x64, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28,
-	0x0b, 0x32, 0x05, 0x2e, 0x54, 0x65, 0x61, 0x6d, 0x52, 0x05, 0x6e, 0x6f, 0x64, 0x65, 0x73, 0x12,
-	0x26, 0x0a, 0x09, 0x70, 0x61, 0x67, 0x65, 0x5f, 0x69, 0x6e, 0x66, 0x6f, 0x18, 0x02, 0x20, 0x01,
-	0x28, 0x0b, 0x32, 0x09, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x08, 0x70,
-	0x61, 0x67, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x32, 0x59, 0x0a, 0x05, 0x54, 0x65, 0x61, 0x6d, 0x73,
-	0x12, 0x1f, 0x0a, 0x03, 0x47, 0x65, 0x74, 0x12, 0x0f, 0x2e, 0x47, 0x65, 0x74, 0x54, 0x65, 0x61,
-	0x6d, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x05, 0x2e, 0x54, 0x65, 0x61, 0x6d, 0x22,
-	0x00, 0x12, 0x2f, 0x0a, 0x04, 0x4c, 0x69, 0x73, 0x74, 0x12, 0x11, 0x2e, 0x4c, 0x69, 0x73, 0x74,
-	0x54, 0x65, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x12, 0x2e, 0x4c,
-	0x69, 0x73, 0x74, 0x54, 0x65, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x22, 0x00, 0x42, 0x10, 0x5a, 0x0e, 0x2e, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x61, 0x70, 0x69, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a,
+	0x0b, 0x75, 0x73, 0x65, 0x72, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xd7, 0x01, 0x0a,
+	0x04, 0x54, 0x65, 0x61, 0x6d, 0x12, 0x12, 0x0a, 0x04, 0x73, 0x6c, 0x75, 0x67, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x04, 0x73, 0x6c, 0x75, 0x67, 0x12, 0x18, 0x0a, 0x07, 0x70, 0x75, 0x72,
+	0x70, 0x6f, 0x73, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x70, 0x75, 0x72, 0x70,
+	0x6f, 0x73, 0x65, 0x12, 0x23, 0x0a, 0x0d, 0x73, 0x6c, 0x61, 0x63, 0x6b, 0x5f, 0x63, 0x68, 0x61,
+	0x6e, 0x6e, 0x65, 0x6c, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0c, 0x73, 0x6c, 0x61, 0x63,
+	0x6b, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x24, 0x0a, 0x0e, 0x61, 0x7a, 0x75, 0x72,
+	0x65, 0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x69, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x0c, 0x61, 0x7a, 0x75, 0x72, 0x65, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x64, 0x12, 0x28,
+	0x0a, 0x10, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x5f, 0x74, 0x65, 0x61, 0x6d, 0x5f, 0x73, 0x6c,
+	0x75, 0x67, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0e, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62,
+	0x54, 0x65, 0x61, 0x6d, 0x53, 0x6c, 0x75, 0x67, 0x12, 0x2c, 0x0a, 0x12, 0x67, 0x6f, 0x6f, 0x67,
+	0x6c, 0x65, 0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x18, 0x06,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x10, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x47, 0x72, 0x6f, 0x75,
+	0x70, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x22, 0x27, 0x0a, 0x11, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65,
+	0x54, 0x65, 0x61, 0x6d, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x73,
+	0x6c, 0x75, 0x67, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x73, 0x6c, 0x75, 0x67, 0x22,
+	0x14, 0x0a, 0x12, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x54, 0x65, 0x61, 0x6d, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x82, 0x02, 0x0a, 0x20, 0x53, 0x65, 0x74, 0x54, 0x65, 0x61,
+	0x6d, 0x45, 0x78, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e,
+	0x63, 0x65, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x73, 0x6c,
+	0x75, 0x67, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x73, 0x6c, 0x75, 0x67, 0x12, 0x29,
+	0x0a, 0x0e, 0x61, 0x7a, 0x75, 0x72, 0x65, 0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x69, 0x64,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x0c, 0x61, 0x7a, 0x75, 0x72, 0x65, 0x47,
+	0x72, 0x6f, 0x75, 0x70, 0x49, 0x64, 0x88, 0x01, 0x01, 0x12, 0x2d, 0x0a, 0x10, 0x67, 0x69, 0x74,
+	0x68, 0x75, 0x62, 0x5f, 0x74, 0x65, 0x61, 0x6d, 0x5f, 0x73, 0x6c, 0x75, 0x67, 0x18, 0x03, 0x20,
+	0x01, 0x28, 0x09, 0x48, 0x01, 0x52, 0x0e, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x54, 0x65, 0x61,
+	0x6d, 0x53, 0x6c, 0x75, 0x67, 0x88, 0x01, 0x01, 0x12, 0x31, 0x0a, 0x12, 0x67, 0x6f, 0x6f, 0x67,
+	0x6c, 0x65, 0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x18, 0x04,
+	0x20, 0x01, 0x28, 0x09, 0x48, 0x02, 0x52, 0x10, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x47, 0x72,
+	0x6f, 0x75, 0x70, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x88, 0x01, 0x01, 0x42, 0x11, 0x0a, 0x0f, 0x5f,
+	0x61, 0x7a, 0x75, 0x72, 0x65, 0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x69, 0x64, 0x42, 0x13,
+	0x0a, 0x11, 0x5f, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x5f, 0x74, 0x65, 0x61, 0x6d, 0x5f, 0x73,
+	0x6c, 0x75, 0x67, 0x42, 0x15, 0x0a, 0x13, 0x5f, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x5f, 0x67,
+	0x72, 0x6f, 0x75, 0x70, 0x5f, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x22, 0x23, 0x0a, 0x21, 0x53, 0x65,
+	0x74, 0x54, 0x65, 0x61, 0x6d, 0x45, 0x78, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x52, 0x65, 0x66,
+	0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
+	0x5f, 0x0a, 0x1b, 0x4c, 0x69, 0x73, 0x74, 0x54, 0x65, 0x61, 0x6d, 0x45, 0x6e, 0x76, 0x69, 0x72,
+	0x6f, 0x6e, 0x6d, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x14,
+	0x0a, 0x05, 0x6c, 0x69, 0x6d, 0x69, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x6c,
+	0x69, 0x6d, 0x69, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x6f, 0x66, 0x66, 0x73, 0x65, 0x74, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x6f, 0x66, 0x66, 0x73, 0x65, 0x74, 0x12, 0x12, 0x0a, 0x04,
+	0x73, 0x6c, 0x75, 0x67, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x73, 0x6c, 0x75, 0x67,
+	0x22, 0x6e, 0x0a, 0x1c, 0x4c, 0x69, 0x73, 0x74, 0x54, 0x65, 0x61, 0x6d, 0x45, 0x6e, 0x76, 0x69,
+	0x72, 0x6f, 0x6e, 0x6d, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x26, 0x0a, 0x05, 0x6e, 0x6f, 0x64, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32,
+	0x10, 0x2e, 0x54, 0x65, 0x61, 0x6d, 0x45, 0x6e, 0x76, 0x69, 0x72, 0x6f, 0x6e, 0x6d, 0x65, 0x6e,
+	0x74, 0x52, 0x05, 0x6e, 0x6f, 0x64, 0x65, 0x73, 0x12, 0x26, 0x0a, 0x09, 0x70, 0x61, 0x67, 0x65,
+	0x5f, 0x69, 0x6e, 0x66, 0x6f, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x09, 0x2e, 0x50, 0x61,
+	0x67, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x08, 0x70, 0x61, 0x67, 0x65, 0x49, 0x6e, 0x66, 0x6f,
+	0x22, 0xcf, 0x01, 0x0a, 0x0f, 0x54, 0x65, 0x61, 0x6d, 0x45, 0x6e, 0x76, 0x69, 0x72, 0x6f, 0x6e,
+	0x6d, 0x65, 0x6e, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x02, 0x69, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x73, 0x6c, 0x75, 0x67, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x04, 0x73, 0x6c, 0x75, 0x67, 0x12, 0x29, 0x0a, 0x10, 0x65, 0x6e, 0x76, 0x69,
+	0x72, 0x6f, 0x6e, 0x6d, 0x65, 0x6e, 0x74, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x03, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x0f, 0x65, 0x6e, 0x76, 0x69, 0x72, 0x6f, 0x6e, 0x6d, 0x65, 0x6e, 0x74, 0x4e,
+	0x61, 0x6d, 0x65, 0x12, 0x21, 0x0a, 0x09, 0x6e, 0x61, 0x6d, 0x65, 0x73, 0x70, 0x61, 0x63, 0x65,
+	0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x09, 0x6e, 0x61, 0x6d, 0x65, 0x73, 0x70,
+	0x61, 0x63, 0x65, 0x88, 0x01, 0x01, 0x12, 0x29, 0x0a, 0x0e, 0x67, 0x63, 0x70, 0x5f, 0x70, 0x72,
+	0x6f, 0x6a, 0x65, 0x63, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x48, 0x01,
+	0x52, 0x0c, 0x67, 0x63, 0x70, 0x50, 0x72, 0x6f, 0x6a, 0x65, 0x63, 0x74, 0x49, 0x64, 0x88, 0x01,
+	0x01, 0x42, 0x0c, 0x0a, 0x0a, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x73, 0x70, 0x61, 0x63, 0x65, 0x42,
+	0x11, 0x0a, 0x0f, 0x5f, 0x67, 0x63, 0x70, 0x5f, 0x70, 0x72, 0x6f, 0x6a, 0x65, 0x63, 0x74, 0x5f,
+	0x69, 0x64, 0x22, 0x2c, 0x0a, 0x0f, 0x47, 0x65, 0x74, 0x54, 0x65, 0x61, 0x6d, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x19, 0x0a, 0x04, 0x74, 0x65, 0x61, 0x6d, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x05, 0x2e, 0x54, 0x65, 0x61, 0x6d, 0x52, 0x04, 0x74, 0x65, 0x61, 0x6d,
+	0x22, 0x24, 0x0a, 0x0e, 0x47, 0x65, 0x74, 0x54, 0x65, 0x61, 0x6d, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x73, 0x6c, 0x75, 0x67, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x04, 0x73, 0x6c, 0x75, 0x67, 0x22, 0x40, 0x0a, 0x10, 0x4c, 0x69, 0x73, 0x74, 0x54, 0x65,
+	0x61, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x6c, 0x69,
+	0x6d, 0x69, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x6c, 0x69, 0x6d, 0x69, 0x74,
+	0x12, 0x16, 0x0a, 0x06, 0x6f, 0x66, 0x66, 0x73, 0x65, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03,
+	0x52, 0x06, 0x6f, 0x66, 0x66, 0x73, 0x65, 0x74, 0x22, 0x58, 0x0a, 0x11, 0x4c, 0x69, 0x73, 0x74,
+	0x54, 0x65, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1b, 0x0a,
+	0x05, 0x6e, 0x6f, 0x64, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x05, 0x2e, 0x54,
+	0x65, 0x61, 0x6d, 0x52, 0x05, 0x6e, 0x6f, 0x64, 0x65, 0x73, 0x12, 0x26, 0x0a, 0x09, 0x70, 0x61,
+	0x67, 0x65, 0x5f, 0x69, 0x6e, 0x66, 0x6f, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x09, 0x2e,
+	0x50, 0x61, 0x67, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x08, 0x70, 0x61, 0x67, 0x65, 0x49, 0x6e,
+	0x66, 0x6f, 0x22, 0x5a, 0x0a, 0x16, 0x4c, 0x69, 0x73, 0x74, 0x54, 0x65, 0x61, 0x6d, 0x4d, 0x65,
+	0x6d, 0x62, 0x65, 0x72, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x14, 0x0a, 0x05,
+	0x6c, 0x69, 0x6d, 0x69, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x6c, 0x69, 0x6d,
+	0x69, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x6f, 0x66, 0x66, 0x73, 0x65, 0x74, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x03, 0x52, 0x06, 0x6f, 0x66, 0x66, 0x73, 0x65, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x73, 0x6c,
+	0x75, 0x67, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x73, 0x6c, 0x75, 0x67, 0x22, 0x64,
+	0x0a, 0x17, 0x4c, 0x69, 0x73, 0x74, 0x54, 0x65, 0x61, 0x6d, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72,
+	0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x21, 0x0a, 0x05, 0x6e, 0x6f, 0x64,
+	0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0b, 0x2e, 0x54, 0x65, 0x61, 0x6d, 0x4d,
+	0x65, 0x6d, 0x62, 0x65, 0x72, 0x52, 0x05, 0x6e, 0x6f, 0x64, 0x65, 0x73, 0x12, 0x26, 0x0a, 0x09,
+	0x70, 0x61, 0x67, 0x65, 0x5f, 0x69, 0x6e, 0x66, 0x6f, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x09, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x08, 0x70, 0x61, 0x67, 0x65,
+	0x49, 0x6e, 0x66, 0x6f, 0x22, 0x30, 0x0a, 0x1a, 0x53, 0x6c, 0x61, 0x63, 0x6b, 0x41, 0x6c, 0x65,
+	0x72, 0x74, 0x73, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x73, 0x6c, 0x75, 0x67, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x04, 0x73, 0x6c, 0x75, 0x67, 0x22, 0x4e, 0x0a, 0x1b, 0x53, 0x6c, 0x61, 0x63, 0x6b, 0x41,
+	0x6c, 0x65, 0x72, 0x74, 0x73, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2f, 0x0a, 0x08, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c,
+	0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x13, 0x2e, 0x53, 0x6c, 0x61, 0x63, 0x6b, 0x41,
+	0x6c, 0x65, 0x72, 0x74, 0x73, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x08, 0x63, 0x68,
+	0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x22, 0x50, 0x0a, 0x12, 0x53, 0x6c, 0x61, 0x63, 0x6b, 0x41,
+	0x6c, 0x65, 0x72, 0x74, 0x73, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x20, 0x0a, 0x0b,
+	0x65, 0x6e, 0x76, 0x69, 0x72, 0x6f, 0x6e, 0x6d, 0x65, 0x6e, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x0b, 0x65, 0x6e, 0x76, 0x69, 0x72, 0x6f, 0x6e, 0x6d, 0x65, 0x6e, 0x74, 0x12, 0x18,
+	0x0a, 0x07, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x07, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x22, 0x4c, 0x0a, 0x0a, 0x54, 0x65, 0x61, 0x6d,
+	0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x12, 0x19, 0x0a, 0x04, 0x75, 0x73, 0x65, 0x72, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x05, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x52, 0x04, 0x75, 0x73, 0x65,
+	0x72, 0x12, 0x23, 0x0a, 0x04, 0x72, 0x6f, 0x6c, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0e, 0x32,
+	0x0f, 0x2e, 0x54, 0x65, 0x61, 0x6d, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x52, 0x6f, 0x6c, 0x65,
+	0x52, 0x04, 0x72, 0x6f, 0x6c, 0x65, 0x2a, 0x36, 0x0a, 0x0e, 0x54, 0x65, 0x61, 0x6d, 0x4d, 0x65,
+	0x6d, 0x62, 0x65, 0x72, 0x52, 0x6f, 0x6c, 0x65, 0x12, 0x0d, 0x0a, 0x09, 0x55, 0x4e, 0x44, 0x45,
+	0x46, 0x49, 0x4e, 0x45, 0x44, 0x10, 0x00, 0x12, 0x0a, 0x0a, 0x06, 0x4d, 0x45, 0x4d, 0x42, 0x45,
+	0x52, 0x10, 0x01, 0x12, 0x09, 0x0a, 0x05, 0x4f, 0x57, 0x4e, 0x45, 0x52, 0x10, 0x02, 0x32, 0xe2,
+	0x03, 0x0a, 0x05, 0x54, 0x65, 0x61, 0x6d, 0x73, 0x12, 0x2a, 0x0a, 0x03, 0x47, 0x65, 0x74, 0x12,
+	0x0f, 0x2e, 0x47, 0x65, 0x74, 0x54, 0x65, 0x61, 0x6d, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x1a, 0x10, 0x2e, 0x47, 0x65, 0x74, 0x54, 0x65, 0x61, 0x6d, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x00, 0x12, 0x2f, 0x0a, 0x04, 0x4c, 0x69, 0x73, 0x74, 0x12, 0x11, 0x2e, 0x4c,
+	0x69, 0x73, 0x74, 0x54, 0x65, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
+	0x12, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x54, 0x65, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x3e, 0x0a, 0x07, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73,
+	0x12, 0x17, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x54, 0x65, 0x61, 0x6d, 0x4d, 0x65, 0x6d, 0x62, 0x65,
+	0x72, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x18, 0x2e, 0x4c, 0x69, 0x73, 0x74,
+	0x54, 0x65, 0x61, 0x6d, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x52, 0x0a, 0x13, 0x53, 0x6c, 0x61, 0x63, 0x6b, 0x41, 0x6c,
+	0x65, 0x72, 0x74, 0x73, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x12, 0x1b, 0x2e, 0x53,
+	0x6c, 0x61, 0x63, 0x6b, 0x41, 0x6c, 0x65, 0x72, 0x74, 0x73, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65,
+	0x6c, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x53, 0x6c, 0x61, 0x63,
+	0x6b, 0x41, 0x6c, 0x65, 0x72, 0x74, 0x73, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x4d, 0x0a, 0x0c, 0x45, 0x6e, 0x76,
+	0x69, 0x72, 0x6f, 0x6e, 0x6d, 0x65, 0x6e, 0x74, 0x73, 0x12, 0x1c, 0x2e, 0x4c, 0x69, 0x73, 0x74,
+	0x54, 0x65, 0x61, 0x6d, 0x45, 0x6e, 0x76, 0x69, 0x72, 0x6f, 0x6e, 0x6d, 0x65, 0x6e, 0x74, 0x73,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1d, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x54, 0x65,
+	0x61, 0x6d, 0x45, 0x6e, 0x76, 0x69, 0x72, 0x6f, 0x6e, 0x6d, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x64, 0x0a, 0x19, 0x53, 0x65, 0x74, 0x54,
+	0x65, 0x61, 0x6d, 0x45, 0x78, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x52, 0x65, 0x66, 0x65, 0x72,
+	0x65, 0x6e, 0x63, 0x65, 0x73, 0x12, 0x21, 0x2e, 0x53, 0x65, 0x74, 0x54, 0x65, 0x61, 0x6d, 0x45,
+	0x78, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65,
+	0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x22, 0x2e, 0x53, 0x65, 0x74, 0x54, 0x65,
+	0x61, 0x6d, 0x45, 0x78, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65,
+	0x6e, 0x63, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x33,
+	0x0a, 0x06, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x12, 0x12, 0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74,
+	0x65, 0x54, 0x65, 0x61, 0x6d, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x13, 0x2e, 0x44,
+	0x65, 0x6c, 0x65, 0x74, 0x65, 0x54, 0x65, 0x61, 0x6d, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x22, 0x00, 0x42, 0x10, 0x5a, 0x0e, 0x2e, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x61, 0x70, 0x69, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -274,26 +1236,61 @@ func file_teams_proto_rawDescGZIP() []byte {
 	return file_teams_proto_rawDescData
 }
 
-var file_teams_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_teams_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_teams_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_teams_proto_goTypes = []interface{}{
-	(*Team)(nil),              // 0: Team
-	(*GetTeamRequest)(nil),    // 1: GetTeamRequest
-	(*ListTeamsRequest)(nil),  // 2: ListTeamsRequest
-	(*ListTeamsResponse)(nil), // 3: ListTeamsResponse
-	(*PageInfo)(nil),          // 4: PageInfo
+	(TeamMemberRole)(0),                       // 0: TeamMemberRole
+	(*Team)(nil),                              // 1: Team
+	(*DeleteTeamRequest)(nil),                 // 2: DeleteTeamRequest
+	(*DeleteTeamResponse)(nil),                // 3: DeleteTeamResponse
+	(*SetTeamExternalReferencesRequest)(nil),  // 4: SetTeamExternalReferencesRequest
+	(*SetTeamExternalReferencesResponse)(nil), // 5: SetTeamExternalReferencesResponse
+	(*ListTeamEnvironmentsRequest)(nil),       // 6: ListTeamEnvironmentsRequest
+	(*ListTeamEnvironmentsResponse)(nil),      // 7: ListTeamEnvironmentsResponse
+	(*TeamEnvironment)(nil),                   // 8: TeamEnvironment
+	(*GetTeamResponse)(nil),                   // 9: GetTeamResponse
+	(*GetTeamRequest)(nil),                    // 10: GetTeamRequest
+	(*ListTeamsRequest)(nil),                  // 11: ListTeamsRequest
+	(*ListTeamsResponse)(nil),                 // 12: ListTeamsResponse
+	(*ListTeamMembersRequest)(nil),            // 13: ListTeamMembersRequest
+	(*ListTeamMembersResponse)(nil),           // 14: ListTeamMembersResponse
+	(*SlackAlertsChannelsRequest)(nil),        // 15: SlackAlertsChannelsRequest
+	(*SlackAlertsChannelsResponse)(nil),       // 16: SlackAlertsChannelsResponse
+	(*SlackAlertsChannel)(nil),                // 17: SlackAlertsChannel
+	(*TeamMember)(nil),                        // 18: TeamMember
+	(*PageInfo)(nil),                          // 19: PageInfo
+	(*User)(nil),                              // 20: User
 }
 var file_teams_proto_depIdxs = []int32{
-	0, // 0: ListTeamsResponse.nodes:type_name -> Team
-	4, // 1: ListTeamsResponse.page_info:type_name -> PageInfo
-	1, // 2: Teams.Get:input_type -> GetTeamRequest
-	2, // 3: Teams.List:input_type -> ListTeamsRequest
-	0, // 4: Teams.Get:output_type -> Team
-	3, // 5: Teams.List:output_type -> ListTeamsResponse
-	4, // [4:6] is the sub-list for method output_type
-	2, // [2:4] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	8,  // 0: ListTeamEnvironmentsResponse.nodes:type_name -> TeamEnvironment
+	19, // 1: ListTeamEnvironmentsResponse.page_info:type_name -> PageInfo
+	1,  // 2: GetTeamResponse.team:type_name -> Team
+	1,  // 3: ListTeamsResponse.nodes:type_name -> Team
+	19, // 4: ListTeamsResponse.page_info:type_name -> PageInfo
+	18, // 5: ListTeamMembersResponse.nodes:type_name -> TeamMember
+	19, // 6: ListTeamMembersResponse.page_info:type_name -> PageInfo
+	17, // 7: SlackAlertsChannelsResponse.channels:type_name -> SlackAlertsChannel
+	20, // 8: TeamMember.user:type_name -> User
+	0,  // 9: TeamMember.role:type_name -> TeamMemberRole
+	10, // 10: Teams.Get:input_type -> GetTeamRequest
+	11, // 11: Teams.List:input_type -> ListTeamsRequest
+	13, // 12: Teams.Members:input_type -> ListTeamMembersRequest
+	15, // 13: Teams.SlackAlertsChannels:input_type -> SlackAlertsChannelsRequest
+	6,  // 14: Teams.Environments:input_type -> ListTeamEnvironmentsRequest
+	4,  // 15: Teams.SetTeamExternalReferences:input_type -> SetTeamExternalReferencesRequest
+	2,  // 16: Teams.Delete:input_type -> DeleteTeamRequest
+	9,  // 17: Teams.Get:output_type -> GetTeamResponse
+	12, // 18: Teams.List:output_type -> ListTeamsResponse
+	14, // 19: Teams.Members:output_type -> ListTeamMembersResponse
+	16, // 20: Teams.SlackAlertsChannels:output_type -> SlackAlertsChannelsResponse
+	7,  // 21: Teams.Environments:output_type -> ListTeamEnvironmentsResponse
+	5,  // 22: Teams.SetTeamExternalReferences:output_type -> SetTeamExternalReferencesResponse
+	3,  // 23: Teams.Delete:output_type -> DeleteTeamResponse
+	17, // [17:24] is the sub-list for method output_type
+	10, // [10:17] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_teams_proto_init() }
@@ -302,6 +1299,7 @@ func file_teams_proto_init() {
 		return
 	}
 	file_pagination_proto_init()
+	file_users_proto_init()
 	if !protoimpl.UnsafeEnabled {
 		file_teams_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Team); i {
@@ -316,7 +1314,7 @@ func file_teams_proto_init() {
 			}
 		}
 		file_teams_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetTeamRequest); i {
+			switch v := v.(*DeleteTeamRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -328,7 +1326,7 @@ func file_teams_proto_init() {
 			}
 		}
 		file_teams_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ListTeamsRequest); i {
+			switch v := v.(*DeleteTeamResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -340,6 +1338,102 @@ func file_teams_proto_init() {
 			}
 		}
 		file_teams_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SetTeamExternalReferencesRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_teams_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SetTeamExternalReferencesResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_teams_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ListTeamEnvironmentsRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_teams_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ListTeamEnvironmentsResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_teams_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TeamEnvironment); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_teams_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetTeamResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_teams_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetTeamRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_teams_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ListTeamsRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_teams_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ListTeamsResponse); i {
 			case 0:
 				return &v.state
@@ -351,19 +1445,94 @@ func file_teams_proto_init() {
 				return nil
 			}
 		}
+		file_teams_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ListTeamMembersRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_teams_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ListTeamMembersResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_teams_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SlackAlertsChannelsRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_teams_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SlackAlertsChannelsResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_teams_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SlackAlertsChannel); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_teams_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TeamMember); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
+	file_teams_proto_msgTypes[3].OneofWrappers = []interface{}{}
+	file_teams_proto_msgTypes[7].OneofWrappers = []interface{}{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_teams_proto_rawDesc,
-			NumEnums:      0,
-			NumMessages:   4,
+			NumEnums:      1,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_teams_proto_goTypes,
 		DependencyIndexes: file_teams_proto_depIdxs,
+		EnumInfos:         file_teams_proto_enumTypes,
 		MessageInfos:      file_teams_proto_msgTypes,
 	}.Build()
 	File_teams_proto = out.File

@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/sirupsen/logrus"
@@ -14,16 +15,9 @@ import (
 )
 
 var (
-	ErrInternal         = Errorf("The server errored out while processing your request, and we didn't write a suitable error message. You might consider that a bug on our side. Please try again, and if the error persists, contact the NAIS team.")
-	ErrDatabase         = Errorf("The database encountered an error while processing your request. This is probably a transient error, please try again. If the error persists, contact the NAIS team.")
-	ErrAppNotFound      = Errorf("We were unable to find the app you were looking for.")
-	ErrAppTeamNotFound  = Errorf("NAIS Teams could not find the team which owns the application.")
-	ErrTeamNotFound     = Errorf("We were unable to find the team you were looking for.")
-	ErrNoEmailInSession = Errorf("No email address found in the session. This is most likely a bug in the backend. Please try again, and if the error persists, contact the NAIS team.")
-	ErrUserNotFound     = func(email string) Error {
-		return Errorf("We were unable to find a user with the email address you are currently signed in with: %q", email)
-	}
-
+	ErrInternal            = Errorf("The server errored out while processing your request, and we didn't write a suitable error message. You might consider that a bug on our side. Please try again, and if the error persists, contact the NAIS team.")
+	ErrDatabase            = Errorf("The database encountered an error while processing your request. This is probably a transient error, please try again. If the error persists, contact the NAIS team.")
+	ErrAppNotFound         = Errorf("We were unable to find the app you were looking for.")
 	ErrUserNotExists       = Errorf("The user does not exist.")
 	ErrTeamSlug            = Errorf("Your team identifier does not fit our requirements. Team identifiers must contain only lowercase alphanumeric characters or hyphens, contain at least 3 characters and at most 30 characters, start with an alphabetic character, end with an alphanumeric character, and not contain two hyphens in a row.")
 	ErrTeamPurpose         = Errorf("You must specify the purpose for your team. This is a human-readable string which is used in external systems, and is important because other people might need to to understand what your team is all about.")
@@ -71,27 +65,27 @@ func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
 			return err
 		case *pgconn.PgError:
 			err.Message = ErrDatabase.Error()
-			log.Errorf("database error %s: %s (%s)", originalError.Code, originalError.Message, originalError.Detail)
+			log.WithError(originalError).Errorf("database error %s: %s (%s)", originalError.Code, originalError.Message, originalError.Detail)
 			return err
 		default:
 			break
 		}
 
 		switch unwrappedError {
-		case sql.ErrNoRows:
+		case sql.ErrNoRows, pgx.ErrNoRows:
 			err.Message = "Object was not found in the database. This usually means you specified a non-existing team identifier or e-mail address."
 		case authz.ErrNotAuthenticated:
 			err.Message = "Valid user required. You are not logged in."
 		case context.Canceled:
 			// This won't make it back to the caller if they have cancelled the request on their end
-			err.Message = "Request cancelled"
+			err.Message = "Request canceled"
 		default:
 			identity := "<unknown>"
 			actor := authz.ActorFromContext(ctx)
 			if actor != nil {
 				identity = actor.User.Identity()
 			}
-			log.WithField("actor", identity).Errorf("unhandled error: %q", err)
+			log.WithError(err).WithField("actor", identity).Errorf("unhandled error: %q", err)
 			err.Message = ErrInternal.Error()
 		}
 

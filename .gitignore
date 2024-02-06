@@ -7,3 +7,4 @@ values.json
 .vscode/
 .DS_Store
 .direnv
+__debug_bin*

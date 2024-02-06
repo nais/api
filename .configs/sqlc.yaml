@@ -17,7 +17,7 @@ sql:
         emit_empty_slices: true
         json_tags_id_uppercase: true
         omit_unused_structs: true
-        query_parameter_limit: 5 # Let's try to avoid params structs.
+        omit_sqlc_version: true
         overrides:
           - db_type: "slug"
             go_type: "*github.com/nais/api/internal/slug.Slug"

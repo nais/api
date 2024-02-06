@@ -8,25 +8,23 @@ import (
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
-	db "github.com/nais/api/internal/database"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph"
-	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/usersync"
+	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestQueryResolver_Users(t *testing.T) {
 	ctx := context.Background()
-	database := db.NewMockDatabase(t)
-	auditLogger := auditlogger.NewMockAuditLogger(t)
-	gcpEnvironments := []string{"env"}
-	log, err := logger.GetLogger("text", "info")
-	assert.NoError(t, err)
+	db := database.NewMockDatabase(t)
+	auditLogger := auditlogger.NewAuditLoggerForTesting()
+	log, _ := test.NewNullLogger()
 	userSync := make(chan<- uuid.UUID)
 	userSyncRuns := usersync.NewRunsHandler(5)
 	resolver := graph.
-		NewResolver(nil, database, "example.com", userSync, auditLogger, gcpEnvironments, log, userSyncRuns, nil).
+		NewResolver(nil, nil, nil, nil, db, "example.com", userSync, auditLogger, nil, userSyncRuns, nil, log).
 		Query()
 
 	t.Run("unauthenticated user", func(t *testing.T) {
@@ -36,22 +34,28 @@ func TestQueryResolver_Users(t *testing.T) {
 	})
 
 	t.Run("user with authorization", func(t *testing.T) {
-		user := &db.User{
-			User: &sqlc.User{
+		user := &database.User{
+			User: &gensql.User{
 				Email: "user@example.com",
 				Name:  "User Name",
 			},
 		}
-		ctx := authz.ContextWithActor(ctx, user, []*db.Role{
+		ctx := authz.ContextWithActor(ctx, user, []*authz.Role{
 			{
 				Authorizations: []roles.Authorization{roles.AuthorizationUsersList},
 			},
 		})
 
-		database.On("GetUsers", ctx, 0, 20).Return([]*db.User{
-			{User: &sqlc.User{Email: "user1@example.com"}},
-			{User: &sqlc.User{Email: "user2@example.com"}},
-		}, 2, nil)
+		p := database.Page{
+			Limit:  20,
+			Offset: 0,
+		}
+		db.EXPECT().
+			GetUsers(ctx, p).
+			Return([]*database.User{
+				{User: &gensql.User{Email: "user1@example.com"}},
+				{User: &gensql.User{Email: "user2@example.com"}},
+			}, 2, nil)
 
 		userList, err := resolver.Users(ctx, nil, nil)
 		assert.NoError(t, err)

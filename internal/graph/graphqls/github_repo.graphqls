@@ -1,0 +1,70 @@
+extend type Mutation {
+  "Authorize a team to perform an action from a GitHub repository."
+  authorizeRepository(
+    "The action to authorize."
+    authorization: RepositoryAuthorization!
+
+    "The slug of the team to authorize the action for."
+    teamSlug: Slug!
+
+    "Name of the repository, with the org prefix, for instance 'org/repo'."
+    repoName: String!
+  ): GitHubRepository! @auth
+
+  "Deauthorize an action from a team."
+  deauthorizeRepository(
+    "The action to deauthorize."
+    authorization: RepositoryAuthorization!
+
+    "The slug of the team to deauthorize the action for."
+    teamSlug: Slug!
+
+    "Name of the repository, with the org prefix, for instance 'org/repo'."
+    repoName: String!
+  ): GitHubRepository! @auth
+}
+
+"GitHub repository type."
+type GitHubRepository {
+  "ID of the repository."
+  id: ID!
+
+  "Name of the repository, with the org prefix."
+  name: String!
+
+  "A list of permissions given to the team for this repository."
+  permissions: [GitHubRepositoryPermission!]!
+
+  "The name of the role the team has been granted in the repository."
+  roleName: String!
+
+  "Whether or not the repository is archived."
+  archived: Boolean!
+
+  "A list of authorizations granted to the repository by the team."
+  authorizations: [RepositoryAuthorization!]!
+}
+
+"Paginated GitHub repository type."
+type GitHubRepositoryList {
+  "The list of GitHub repositories."
+  nodes: [GitHubRepository!]!
+
+  "Pagination information."
+  pageInfo: PageInfo!
+}
+
+"GitHub repository permission type."
+type GitHubRepositoryPermission {
+  "Name of the permission."
+  name: String!
+
+  "Whether or not the permission is granted for the repository."
+  granted: Boolean!
+}
+
+"Input for filtering GitHub repositories."
+input GitHubRepositoriesFilter {
+  "Include archived repositories or not. Default is false."
+  includeArchivedRepositories: Boolean!
+}

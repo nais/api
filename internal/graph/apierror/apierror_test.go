@@ -36,11 +36,13 @@ func TestError(t *testing.T) {
 		databaseError := &pgconn.PgError{Message: "some database error"}
 		err := testWithError(databaseError)
 		assert.ErrorContains(t, err, apierror.ErrDatabase.Error())
+
 		assert.Equal(t, 1, len(hook.Entries))
 		assert.Equal(t, logrus.ErrorLevel, hook.LastEntry().Level)
-		assert.Equal(t, "database error", hook.LastEntry().Message)
+		assert.Contains(t, hook.LastEntry().Message, "some database error")
 
-		fieldData, exists := hook.LastEntry().Data[logrus.ErrorKey]
+		e := hook.LastEntry()
+		fieldData, exists := e.Data[logrus.ErrorKey]
 		assert.True(t, exists)
 
 		attachedErr, ok := fieldData.(error)
@@ -71,7 +73,7 @@ func TestError(t *testing.T) {
 		assert.ErrorContains(t, err, apierror.ErrInternal.Error())
 		assert.Equal(t, 1, len(hook.Entries))
 		assert.Equal(t, logrus.ErrorLevel, hook.LastEntry().Level)
-		assert.Equal(t, "unhandled error in the GraphQL error presenter", hook.LastEntry().Message)
+		assert.Contains(t, hook.LastEntry().Message, "some unhandled error")
 
 		fieldData, exists := hook.LastEntry().Data[logrus.ErrorKey]
 		assert.True(t, exists)

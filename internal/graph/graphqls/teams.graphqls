@@ -187,30 +187,6 @@ extend type Mutation {
     key: String!
   ): Boolean! @auth
 
-  "Authorize a team to perform an action from a GitHub repository."
-  authorizeRepository(
-    "The action to authorize."
-    authorization: RepositoryAuthorization!
-
-    "The slug of the team to authorize the action for."
-    teamSlug: Slug!
-
-    "Name of the repository, with the org prefix, for instance 'org/repo'."
-    repoName: String!
-  ): Team! @auth
-
-  "Deauthorize an action from a team."
-  deauthorizeRepository(
-    "The action to deauthorize."
-    authorization: RepositoryAuthorization!
-
-    "The slug of the team to deauthorize the action for."
-    teamSlug: Slug!
-
-    "Name of the repository, with the org prefix, for instance 'org/repo'."
-    repoName: String!
-  ): Team! @auth
-
   "Update the deploy key of a team. Returns the updated deploy key."
   changeDeployKey(
     "The name of the team to update the deploy key for."
@@ -242,15 +218,6 @@ type TeamSync {
   correlationID: ID!
 }
 
-"Paginated GitHub repository type."
-type GitHubRepositoryList {
-  "The list of GitHub repositories."
-  nodes: [GitHubRepository!]!
-
-  "Pagination information."
-  pageInfo: PageInfo!
-}
-
 "Paginated teams type."
 type TeamList {
   "The list of teams."
@@ -269,6 +236,18 @@ type Team {
 
   "Purpose of the team."
   purpose: String!
+
+  "The ID of the Azure AD group for the team. This value is managed by the Azure AD reconciler."
+  azureGroupID: ID
+
+  "The slug of the GitHub team. This value is managed by the GitHub reconciler."
+  gitHubTeamSlug: String
+
+  "The email address of the Google group for the team. This value is managed by the Google Workspace reconciler."
+  googleGroupEmail: String
+
+  "The Google artifact registry for the team."
+  googleArtifactRegistry: String
 
   "Audit logs for this team."
   auditLogs(
@@ -297,26 +276,20 @@ type Team {
   "Timestamp of the last successful synchronization of the team."
   lastSuccessfulSync: Time
 
-  "Current reconciler state for the team."
-  reconcilerState: ReconcilerState!
+  "The GitHub repositories that the team has access to."
+  githubRepositories(
+    "Offset to start listing repositories from. Default is 0."
+    offset: Int
+
+    "Limit the number of repositories to return. Default is 20."
+    limit: Int
+  ): GitHubRepositoryList!
 
   "Slack channel for the team."
   slackChannel: String!
 
   "A list of Slack channels for NAIS alerts. If no channel is specified for a given environment, NAIS will fallback to the slackChannel value."
   slackAlertsChannels: [SlackAlertsChannel!]!
-
-  "A list of GitHub repositories for the team."
-  gitHubRepositories(
-    "Offset to start listing repositories from. Default is 0."
-    offset: Int
-
-    "Limit the number of repositories to return. Default is 20."
-    limit: Int
-
-    "Filter teams by GitHub repository permissions."
-    filter: GitHubRepositoriesFilter
-  ): GitHubRepositoryList!
 
   "Whether or not the team is currently being deleted."
   deletionInProgress: Boolean!
@@ -379,33 +352,9 @@ type Team {
   ): VulnerabilityList!
 
   vulnerabilitiesSummary: VulnerabilitySummary!
-}
 
-"GitHub repository type."
-type GitHubRepository {
-  "Name of the repository, with the org prefix."
-  name: String!
-
-  "A list of permissions given to the team for this repository."
-  permissions: [GitHubRepositoryPermission!]!
-
-  "The name of the role the team has been granted in the repository."
-  roleName: String!
-
-  "Whether or not the repository is archived."
-  archived: Boolean!
-
-  "A list of authorizations granted to the repository by the team."
-  authorizations: [RepositoryAuthorization!]!
-}
-
-"GitHub repository permission type."
-type GitHubRepositoryPermission {
-  "Name of the permission."
-  name: String!
-
-  "Whether or not the permission is granted for the repository."
-  granted: Boolean!
+  "The environments available for the team."
+  environments: [Env!]!
 }
 
 "Slack alerts channel type."
@@ -415,30 +364,6 @@ type SlackAlertsChannel {
 
   "The name of the Slack channel."
   channelName: String!
-}
-
-"Reconciler state type."
-type ReconcilerState {
-  "The GitHub team slug."
-  gitHubTeamSlug: Slug
-
-  "The Google Workspace group email."
-  googleWorkspaceGroupEmail: String
-
-  "The Azure AD group ID."
-  azureADGroupId: ID
-
-  "A list of GCP projects."
-  gcpProjects: [GcpProject!]!
-
-  "A list of NAIS namespaces."
-  naisNamespaces: [NaisNamespace!]!
-
-  "Timestamp of when the NAIS deploy key was provisioned."
-  naisDeployKeyProvisioned: Time
-
-  "Name of the GAR repository for the team."
-  garRepositoryName: String
 }
 
 "GCP project type."
@@ -592,12 +517,6 @@ input TeamMemberInput {
 
   "Reconcilers to opt the team member out of."
   reconcilerOptOuts: [String!]
-}
-
-"Input for filtering GitHub repositories."
-input GitHubRepositoriesFilter {
-  "Include archived repositories or not. Default is false."
-  includeArchivedRepositories: Boolean!
 }
 
 "Available team roles."

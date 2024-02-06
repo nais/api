@@ -13,6 +13,7 @@ import (
 
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 type Client interface {
@@ -107,8 +108,10 @@ func New(endpoint, psk string, log logrus.FieldLogger) Client {
 	return &client{
 		endpoint: endpoint,
 		httpClient: &httpClient{
-			client: &http.Client{},
-			psk:    psk,
+			client: &http.Client{
+				Transport: otelhttp.NewTransport(http.DefaultTransport),
+			},
+			psk: psk,
 		},
 		log: log,
 	}

@@ -3,24 +3,35 @@ package database
 import (
 	"context"
 
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 )
 
 type RepositoryAuthorizationRepo interface {
-	CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization sqlc.RepositoryAuthorizationEnum) error
-	GetRepositoryAuthorizations(ctx context.Context, teamSlug slug.Slug, repo string) ([]sqlc.RepositoryAuthorizationEnum, error)
-	RemoveRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization sqlc.RepositoryAuthorizationEnum) error
+	CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization gensql.RepositoryAuthorizationEnum) error
+	GetRepositoryAuthorizations(ctx context.Context, teamSlug slug.Slug, repoName string) ([]gensql.RepositoryAuthorizationEnum, error)
+	RemoveRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization gensql.RepositoryAuthorizationEnum) error
 }
 
-func (d *database) CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization sqlc.RepositoryAuthorizationEnum) error {
-	return d.querier.CreateRepositoryAuthorization(ctx, teamSlug, repoName, authorization)
+func (d *database) CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization gensql.RepositoryAuthorizationEnum) error {
+	return d.querier.CreateRepositoryAuthorization(ctx, gensql.CreateRepositoryAuthorizationParams{
+		TeamSlug:                teamSlug,
+		GithubRepository:        repoName,
+		RepositoryAuthorization: authorization,
+	})
 }
 
-func (d *database) RemoveRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization sqlc.RepositoryAuthorizationEnum) error {
-	return d.querier.RemoveRepositoryAuthorization(ctx, teamSlug, repoName, authorization)
+func (d *database) RemoveRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization gensql.RepositoryAuthorizationEnum) error {
+	return d.querier.RemoveRepositoryAuthorization(ctx, gensql.RemoveRepositoryAuthorizationParams{
+		TeamSlug:                teamSlug,
+		GithubRepository:        repoName,
+		RepositoryAuthorization: authorization,
+	})
 }
 
-func (d *database) GetRepositoryAuthorizations(ctx context.Context, teamSlug slug.Slug, repo string) ([]sqlc.RepositoryAuthorizationEnum, error) {
-	return d.querier.GetRepositoryAuthorizations(ctx, teamSlug, repo)
+func (d *database) GetRepositoryAuthorizations(ctx context.Context, teamSlug slug.Slug, repoName string) ([]gensql.RepositoryAuthorizationEnum, error) {
+	return d.querier.GetRepositoryAuthorizations(ctx, gensql.GetRepositoryAuthorizationsParams{
+		TeamSlug:         teamSlug,
+		GithubRepository: repoName,
+	})
 }

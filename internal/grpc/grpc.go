@@ -6,25 +6,32 @@ import (
 	"net"
 	"time"
 
+	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/pkg/protoapi"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 )
 
-func Run(ctx context.Context, listenAddress string, repo database.Database, log logrus.FieldLogger) error {
+func Run(ctx context.Context, listenAddress string, repo database.Database, auditlog auditlogger.AuditLogger, log logrus.FieldLogger) error {
 	log.Info("GRPC serving on ", listenAddress)
 	lis, err := net.Listen("tcp", listenAddress)
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
 
-	opts := []grpc.ServerOption{}
+	opts := []grpc.ServerOption{
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
+	}
 	s := grpc.NewServer(opts...)
 
 	protoapi.RegisterTeamsServer(s, &TeamsServer{db: repo})
 	protoapi.RegisterUsersServer(s, &UsersServer{db: repo})
+	protoapi.RegisterReconcilersServer(s, &ReconcilersServer{db: repo})
+	protoapi.RegisterReconcilerResourcesServer(s, &ReconcilerResourcesServer{db: repo})
+	protoapi.RegisterAuditLogsServer(s, &AuditLogsServer{db: repo, auditlog: auditlog})
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error { return s.Serve(lis) })

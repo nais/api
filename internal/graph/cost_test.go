@@ -1,4 +1,4 @@
-package graph
+package graph_test
 
 import (
 	"testing"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/stretchr/testify/assert"
 )
@@ -18,7 +19,7 @@ func TestDailyCostsFromDatabaseRows(t *testing.T) {
 
 	t.Run("no cost types present", func(t *testing.T) {
 		existingCosts := make([]*gensql.Cost, 0)
-		costs, sum := DailyCostsFromDatabaseRows(from, to, existingCosts)
+		costs, sum := graph.DailyCostsFromDatabaseRows(from, to, existingCosts)
 		assert.Len(t, costs, 0)
 		assert.Equal(t, 0.0, sum)
 	})
@@ -59,7 +60,7 @@ func TestDailyCostsFromDatabaseRows(t *testing.T) {
 				DailyCost: float32(3.2),
 			},
 		}
-		costs, sum := DailyCostsFromDatabaseRows(from, to, existingCosts2)
+		costs, sum := graph.DailyCostsFromDatabaseRows(from, to, existingCosts2)
 		assert.Len(t, costs, 2)
 		assert.InDelta(t, 19.79999, sum, 0.1)
 
@@ -93,18 +94,18 @@ func TestValidateDateInterval(t *testing.T) {
 	t.Run("valid", func(t *testing.T) {
 		from := time.Date(2020, time.April, 1, 0, 0, 0, 0, time.UTC)
 		to := time.Date(2020, time.May, 1, 0, 0, 0, 0, time.UTC)
-		assert.NoError(t, ValidateDateInterval(scalar.NewDate(from), scalar.NewDate(to)))
+		assert.NoError(t, graph.ValidateDateInterval(scalar.NewDate(from), scalar.NewDate(to)))
 	})
 
 	t.Run("from date after to date", func(t *testing.T) {
 		from := time.Date(2020, time.May, 1, 0, 0, 0, 0, time.UTC)
 		to := time.Date(2020, time.April, 1, 0, 0, 0, 0, time.UTC)
-		assert.EqualError(t, ValidateDateInterval(scalar.NewDate(from), scalar.NewDate(to)), "from date cannot be after to date")
+		assert.EqualError(t, graph.ValidateDateInterval(scalar.NewDate(from), scalar.NewDate(to)), "from date cannot be after to date")
 	})
 
 	t.Run("to date in the future", func(t *testing.T) {
 		from := time.Date(2020, time.April, 1, 0, 0, 0, 0, time.UTC)
 		to := time.Now().AddDate(0, 0, 1)
-		assert.EqualError(t, ValidateDateInterval(scalar.NewDate(from), scalar.NewDate(to)), "to date cannot be in the future")
+		assert.EqualError(t, graph.ValidateDateInterval(scalar.NewDate(from), scalar.NewDate(to)), "to date cannot be in the future")
 	})
 }

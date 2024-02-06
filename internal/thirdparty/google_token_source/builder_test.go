@@ -3,24 +3,29 @@ package google_token_source_test
 import (
 	"testing"
 
-	"github.com/nais/teams-backend/pkg/config"
-	"github.com/nais/teams-backend/pkg/google_token_source"
-	"github.com/stretchr/testify/assert"
+	"github.com/nais/api/internal/thirdparty/google_token_source"
 )
 
-func TestNewFromConfig(t *testing.T) {
-	t.Run("Missing API_BACKEND_GOOGLE_MANAGEMENT_PROJECT_ID", func(t *testing.T) {
-		cfg := &config.Config{}
-		builder, err := google_token_source.NewFromConfig(cfg)
-		assert.Nil(t, builder)
-		assert.ErrorContains(t, err, "API_BACKEND_GOOGLE_MANAGEMENT_PROJECT_ID")
+func TestNew(t *testing.T) {
+	t.Run("empty project ID", func(t *testing.T) {
+		builder, err := google_token_source.New("", "domain")
+		if builder != nil {
+			t.Errorf("expected builder to be nil")
+		}
+
+		if err == nil || err.Error() != "empty googleManagementProjectID" {
+			t.Errorf("incorrect error returned")
+		}
 	})
 
-	t.Run("Missing API_BACKEND_TENANT_DOMAIN", func(t *testing.T) {
-		cfg := &config.Config{}
-		cfg.GoogleManagementProjectID = "some-project-id"
-		builder, err := google_token_source.NewFromConfig(cfg)
-		assert.Nil(t, builder)
-		assert.ErrorContains(t, err, "API_BACKEND_TENANT_DOMAIN")
+	t.Run("empty domain", func(t *testing.T) {
+		builder, err := google_token_source.New("project-id", "")
+		if builder != nil {
+			t.Errorf("expected builder to be nil")
+		}
+
+		if err == nil || err.Error() != "empty domain" {
+			t.Errorf("incorrect error returned")
+		}
 	})
 }

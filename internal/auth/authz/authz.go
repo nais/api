@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/roles"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -20,7 +20,7 @@ type AuthenticatedUser interface {
 
 type Role struct {
 	Authorizations         []roles.Authorization
-	RoleName               sqlc.RoleName
+	RoleName               gensql.RoleName
 	TargetServiceAccountID *uuid.UUID
 	TargetTeamSlug         *slug.Slug
 }
@@ -66,7 +66,7 @@ func ContextWithActor(ctx context.Context, user AuthenticatedUser, roles []*Role
 }
 
 // RequireRole Check if an actor has a required role
-func RequireRole(actor *Actor, requiredRoleName sqlc.RoleName) error {
+func RequireRole(actor *Actor, requiredRoleName gensql.RoleName) error {
 	for _, role := range actor.Roles {
 		if role.RoleName == requiredRoleName {
 			return nil

@@ -5,7 +5,7 @@ package authn
 import (
 	http "net/http"
 
-	db "github.com/nais/api/internal/database"
+	database "github.com/nais/api/internal/database"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -160,7 +160,7 @@ func (_c *MockHandler_Logout_Call) RunAndReturn(run func(http.ResponseWriter, *h
 }
 
 // SetSessionCookie provides a mock function with given fields: w, session
-func (_m *MockHandler) SetSessionCookie(w http.ResponseWriter, session *db.Session) {
+func (_m *MockHandler) SetSessionCookie(w http.ResponseWriter, session *database.Session) {
 	_m.Called(w, session)
 }
 
@@ -171,14 +171,14 @@ type MockHandler_SetSessionCookie_Call struct {
 
 // SetSessionCookie is a helper method to define mock.On call
 //   - w http.ResponseWriter
-//   - session *db.Session
+//   - session *database.Session
 func (_e *MockHandler_Expecter) SetSessionCookie(w interface{}, session interface{}) *MockHandler_SetSessionCookie_Call {
 	return &MockHandler_SetSessionCookie_Call{Call: _e.mock.On("SetSessionCookie", w, session)}
 }
 
-func (_c *MockHandler_SetSessionCookie_Call) Run(run func(w http.ResponseWriter, session *db.Session)) *MockHandler_SetSessionCookie_Call {
+func (_c *MockHandler_SetSessionCookie_Call) Run(run func(w http.ResponseWriter, session *database.Session)) *MockHandler_SetSessionCookie_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(http.ResponseWriter), args[1].(*db.Session))
+		run(args[0].(http.ResponseWriter), args[1].(*database.Session))
 	})
 	return _c
 }
@@ -188,7 +188,7 @@ func (_c *MockHandler_SetSessionCookie_Call) Return() *MockHandler_SetSessionCoo
 	return _c
 }
 
-func (_c *MockHandler_SetSessionCookie_Call) RunAndReturn(run func(http.ResponseWriter, *db.Session)) *MockHandler_SetSessionCookie_Call {
+func (_c *MockHandler_SetSessionCookie_Call) RunAndReturn(run func(http.ResponseWriter, *database.Session)) *MockHandler_SetSessionCookie_Call {
 	_c.Call.Return(run)
 	return _c
 }

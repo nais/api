@@ -3,39 +3,31 @@ package hookd_test
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
 	httptest "github.com/nais/api/internal/test"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
-	"go.opentelemetry.io/otel/exporters/prometheus"
-	met "go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/sdk/metric"
 )
-
-const token = "token"
 
 func TestClient(t *testing.T) {
 	ctx := context.Background()
-
 	logger, _ := test.NewNullLogger()
-	meter, err := getMetricMeter()
-	assert.NoError(t, err)
-
-	counter, err := meter.Int64Counter("errors")
-	assert.NoError(t, err)
-
-	psk := token
+	psk := "psk"
 
 	t.Run("empty response when fetching deployments", func(t *testing.T) {
 		hookdServer := httptest.NewHttpServerWithHandlers(t, []http.HandlerFunc{
 			func(w http.ResponseWriter, r *http.Request) {
-				assert.Equal(t, token, r.Header.Get("X-PSK"))
+				if r.Header.Get("X-PSK") != psk {
+					t.Fatalf("expected token to be %q, got %q", psk, r.Header.Get("X-PSK"))
+				}
 				resp, _ := json.Marshal(hookd.DeploymentsResponse{
 					Deployments: []hookd.Deploy{},
 				})
@@ -44,17 +36,23 @@ func TestClient(t *testing.T) {
 		})
 
 		endpoint := hookdServer.URL
-		client := hookd.New(endpoint, psk, counter, logger)
+		client := hookd.New(endpoint, psk, logger)
 
 		deployments, err := client.Deployments(ctx)
-		assert.NoError(t, err)
-		assert.Empty(t, deployments)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(deployments) != 0 {
+			t.Fatalf("expected no deployments, got %v", len(deployments))
+		}
 	})
 
 	t.Run("fetch deployment with request options", func(t *testing.T) {
 		hookdServer := httptest.NewHttpServerWithHandlers(t, []http.HandlerFunc{
 			func(w http.ResponseWriter, r *http.Request) {
-				assert.Equal(t, "team", r.URL.Query().Get("team"))
+				if r.URL.Query().Get("team") != "team" {
+					t.Fatalf("expected team to be %q, got %q", "team", r.URL.Query().Get("team"))
+				}
 				resp, _ := json.Marshal(hookd.DeploymentsResponse{
 					Deployments: []hookd.Deploy{},
 				})
@@ -63,35 +61,39 @@ func TestClient(t *testing.T) {
 		})
 
 		endpoint := hookdServer.URL
-		client := hookd.New(endpoint, psk, counter, logger)
+		client := hookd.New(endpoint, psk, logger)
 
 		deployments, err := client.Deployments(ctx, hookd.WithTeam("team"))
-		assert.NoError(t, err)
-		assert.Empty(t, deployments)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(deployments) != 0 {
+			t.Fatalf("expected no deployments, got %v", len(deployments))
+		}
 	})
 
 	t.Run("fetch deployments", func(t *testing.T) {
+		now := time.Date(2023, 1, 1, 12, 0, 0, 0, time.UTC)
 		hookdServer := httptest.NewHttpServerWithHandlers(t, []http.HandlerFunc{
 			func(w http.ResponseWriter, r *http.Request) {
-				d := time.Date(2023, 1, 1, 12, 0, 0, 0, time.UTC)
 				resp, _ := json.Marshal(hookd.DeploymentsResponse{
 					Deployments: []hookd.Deploy{
 						{
 							DeploymentInfo: hookd.DeploymentInfo{
 								ID:      "1",
-								Created: d,
+								Created: now,
 							},
 						},
 						{
 							DeploymentInfo: hookd.DeploymentInfo{
 								ID:      "2",
-								Created: d.AddDate(0, 1, 0),
+								Created: now.AddDate(0, 1, 0),
 							},
 						},
 						{
 							DeploymentInfo: hookd.DeploymentInfo{
 								ID:      "3",
-								Created: d.AddDate(0, 2, 0),
+								Created: now.AddDate(0, 2, 0),
 							},
 						},
 					},
@@ -101,14 +103,37 @@ func TestClient(t *testing.T) {
 		})
 
 		endpoint := hookdServer.URL
-		client := hookd.New(endpoint, psk, counter, logger)
+		client := hookd.New(endpoint, psk, logger)
 
 		deployments, err := client.Deployments(ctx, hookd.WithTeam("team"))
-		assert.NoError(t, err)
-		assert.Len(t, deployments, 3)
-		assert.Equal(t, "3", deployments[0].DeploymentInfo.ID)
-		assert.Equal(t, "2", deployments[1].DeploymentInfo.ID)
-		assert.Equal(t, "1", deployments[2].DeploymentInfo.ID)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		want := []hookd.Deploy{
+			{
+				DeploymentInfo: hookd.DeploymentInfo{
+					ID:      "3",
+					Created: now.AddDate(0, 2, 0),
+				},
+			},
+			{
+				DeploymentInfo: hookd.DeploymentInfo{
+					ID:      "2",
+					Created: now.AddDate(0, 1, 0),
+				},
+			},
+			{
+				DeploymentInfo: hookd.DeploymentInfo{
+					ID:      "1",
+					Created: now,
+				},
+			},
+		}
+
+		if diff := cmp.Diff(want, deployments); diff != "" {
+			t.Errorf("diff: -want +got\n%s", diff)
+		}
 	})
 
 	t.Run("get deploykey errors when error is returned from backend", func(t *testing.T) {
@@ -119,11 +144,15 @@ func TestClient(t *testing.T) {
 		})
 
 		endpoint := hookdServer.URL
-		client := hookd.New(endpoint, psk, counter, logger)
+		client := hookd.New(endpoint, psk, logger)
 
-		deployments, err := client.DeployKey(ctx, "team")
-		assert.Nil(t, deployments)
-		assert.ErrorContains(t, err, "Internal Server Error")
+		deployKey, err := client.DeployKey(ctx, "team")
+		if deployKey != nil {
+			t.Fatalf("expected deployKey to be nil, got %v", deployKey)
+		}
+		if !strings.Contains(err.Error(), "Internal Server Error") {
+			t.Fatalf("expected error to be %q, got %q", "Internal Server Error", err.Error())
+		}
 	})
 
 	t.Run("get deploykey errors when response from server is invalid", func(t *testing.T) {
@@ -134,11 +163,12 @@ func TestClient(t *testing.T) {
 		})
 
 		endpoint := hookdServer.URL
-		client := hookd.New(endpoint, psk, counter, logger)
+		client := hookd.New(endpoint, psk, logger)
 
-		key, err := client.DeployKey(ctx, "team")
-		assert.Nil(t, key)
-		assert.ErrorContains(t, err, "invalid reply from server")
+		_, err := client.DeployKey(ctx, "team")
+		if !strings.Contains(err.Error(), "invalid reply from server:") {
+			t.Fatalf("expected error to be %q, got %q", "invalid reply from server:", err.Error())
+		}
 	})
 
 	t.Run("get deploykey", func(t *testing.T) {
@@ -149,12 +179,19 @@ func TestClient(t *testing.T) {
 		})
 
 		endpoint := hookdServer.URL
-		client := hookd.New(endpoint, psk, counter, logger)
+		client := hookd.New(endpoint, psk, logger)
 
 		key, err := client.DeployKey(ctx, "team")
-		assert.NoError(t, err)
-		assert.Equal(t, "some-team", key.Team)
-		assert.Equal(t, "some-key", key.Key)
+		if err != nil {
+			t.Fatal(err)
+		}
+		want := &hookd.DeployKey{
+			Team: "some-team",
+			Key:  "some-key",
+		}
+		if diff := cmp.Diff(want, key); diff != "" {
+			t.Errorf("diff: -want +got\n%s", diff)
+		}
 	})
 }
 
@@ -172,18 +209,13 @@ func TestRequestOptions(t *testing.T) {
 	hookd.WithLimit(limit)(r)
 	hookd.WithIgnoreTeams(ignoreTeams...)(r)
 
-	assert.Equal(t, team, r.URL.Query().Get("team"))
-	assert.Equal(t, cluster, r.URL.Query().Get("cluster"))
-	assert.Equal(t, strconv.FormatInt(limit, 10), r.URL.Query().Get("limit"))
-	assert.Equal(t, "team1,team2", r.URL.Query().Get("ignoreTeam"))
-}
-
-func getMetricMeter() (met.Meter, error) {
-	exporter, err := prometheus.New()
-	if err != nil {
-		return nil, fmt.Errorf("create prometheus exporter: %w", err)
+	want := url.Values{
+		"team":       []string{team},
+		"cluster":    []string{cluster},
+		"limit":      []string{strconv.Itoa(limit)},
+		"ignoreTeam": []string{strings.Join(ignoreTeams, ",")},
 	}
-
-	provider := metric.NewMeterProvider(metric.WithReader(exporter))
-	return provider.Meter("hookd_test"), nil
+	if diff := cmp.Diff(want, r.URL.Query()); diff != "" {
+		t.Errorf("diff: -want +got\n%s", diff)
+	}
 }

@@ -26,7 +26,11 @@ func (d *database) ResourceUtilizationUpsert(ctx context.Context, arg []gensql.R
 }
 
 func (d *database) AverageResourceUtilizationForTeam(ctx context.Context, teamSlug slug.Slug, resourceType gensql.ResourceType, timestamp pgtype.Timestamptz) (*gensql.AverageResourceUtilizationForTeamRow, error) {
-	return d.querier.AverageResourceUtilizationForTeam(ctx, teamSlug, resourceType, timestamp)
+	return d.querier.AverageResourceUtilizationForTeam(ctx, gensql.AverageResourceUtilizationForTeamParams{
+		TeamSlug:     teamSlug,
+		ResourceType: resourceType,
+		Timestamp:    timestamp,
+	})
 }
 
 func (d *database) MaxResourceUtilizationDate(ctx context.Context) (pgtype.Timestamptz, error) {
@@ -37,16 +41,30 @@ func (d *database) ResourceUtilizationForApp(ctx context.Context, arg gensql.Res
 	return d.querier.ResourceUtilizationForApp(ctx, arg)
 }
 
-func (d *database) ResourceUtilizationForTeam(ctx context.Context, environment string, teamSlug slug.Slug, resourceType gensql.ResourceType, start pgtype.Timestamptz, end pgtype.Timestamptz) ([]*gensql.ResourceUtilizationForTeamRow, error) {
-	return d.querier.ResourceUtilizationForTeam(ctx, environment, teamSlug, resourceType, start, end)
+func (d *database) ResourceUtilizationForTeam(ctx context.Context, environment string, teamSlug slug.Slug, resourceType gensql.ResourceType, start, end pgtype.Timestamptz) ([]*gensql.ResourceUtilizationForTeamRow, error) {
+	return d.querier.ResourceUtilizationForTeam(ctx, gensql.ResourceUtilizationForTeamParams{
+		Environment:  environment,
+		TeamSlug:     teamSlug,
+		ResourceType: resourceType,
+		Start:        start,
+		End:          end,
+	})
 }
 
 func (d *database) ResourceUtilizationOverageForTeam(ctx context.Context, teamSlug slug.Slug, timestamp pgtype.Timestamptz, resourceType gensql.ResourceType) ([]*gensql.ResourceUtilizationOverageForTeamRow, error) {
-	return d.querier.ResourceUtilizationOverageForTeam(ctx, teamSlug, timestamp, resourceType)
+	return d.querier.ResourceUtilizationOverageForTeam(ctx, gensql.ResourceUtilizationOverageForTeamParams{
+		TeamSlug:     teamSlug,
+		Timestamp:    timestamp,
+		ResourceType: resourceType,
+	})
 }
 
 func (d *database) ResourceUtilizationRangeForApp(ctx context.Context, environment string, teamSlug slug.Slug, app string) (*gensql.ResourceUtilizationRangeForAppRow, error) {
-	return d.querier.ResourceUtilizationRangeForApp(ctx, environment, teamSlug, app)
+	return d.querier.ResourceUtilizationRangeForApp(ctx, gensql.ResourceUtilizationRangeForAppParams{
+		Environment: environment,
+		TeamSlug:    teamSlug,
+		App:         app,
+	})
 }
 
 func (d *database) ResourceUtilizationRangeForTeam(ctx context.Context, teamSlug slug.Slug) (*gensql.ResourceUtilizationRangeForTeamRow, error) {
@@ -54,9 +72,19 @@ func (d *database) ResourceUtilizationRangeForTeam(ctx context.Context, teamSlug
 }
 
 func (d *database) SpecificResourceUtilizationForApp(ctx context.Context, environment string, teamSlug slug.Slug, app string, resourceType gensql.ResourceType, timestamp pgtype.Timestamptz) (*gensql.SpecificResourceUtilizationForAppRow, error) {
-	return d.querier.SpecificResourceUtilizationForApp(ctx, environment, teamSlug, app, resourceType, timestamp)
+	return d.querier.SpecificResourceUtilizationForApp(ctx, gensql.SpecificResourceUtilizationForAppParams{
+		Environment:  environment,
+		TeamSlug:     teamSlug,
+		App:          app,
+		ResourceType: resourceType,
+		Timestamp:    timestamp,
+	})
 }
 
 func (d *database) SpecificResourceUtilizationForTeam(ctx context.Context, teamSlug slug.Slug, resourceType gensql.ResourceType, timestamp pgtype.Timestamptz) (*gensql.SpecificResourceUtilizationForTeamRow, error) {
-	return d.querier.SpecificResourceUtilizationForTeam(ctx, teamSlug, resourceType, timestamp)
+	return d.querier.SpecificResourceUtilizationForTeam(ctx, gensql.SpecificResourceUtilizationForTeamParams{
+		TeamSlug:     teamSlug,
+		ResourceType: resourceType,
+		Timestamp:    timestamp,
+	})
 }

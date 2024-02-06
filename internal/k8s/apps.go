@@ -623,8 +623,8 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 	ret.Name = app.GetName()
 
 	ret.Env = model.Env{
+		Team: app.GetNamespace(),
 		Name: env,
-		ID:   scalar.EnvIdent(env),
 	}
 
 	appSynchState := app.GetStatus().SynchronizationState

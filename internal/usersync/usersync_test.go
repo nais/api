@@ -2,17 +2,19 @@ package usersync_test
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auditlogger"
-	db "github.com/nais/api/internal/database"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/auditlogger/audittype"
+	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/test"
 	"github.com/nais/api/internal/usersync"
-	"github.com/stretchr/testify/assert"
+	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/mock"
 	admin_directory_v1 "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/option"
@@ -22,93 +24,100 @@ func TestSync(t *testing.T) {
 	const (
 		domain           = "example.com"
 		adminGroupPrefix = "console-admins"
-		numRunsToStore   = 5
+		numRunsToPersist = 5
 	)
 
 	correlationID := uuid.New()
-	syncRuns := usersync.NewRunsHandler(numRunsToStore)
+	syncRuns := usersync.NewRunsHandler(numRunsToPersist)
 
 	t.Run("No local users, no remote users", func(t *testing.T) {
 		ctx := context.Background()
 
-		auditLogger := auditlogger.NewMockAuditLogger(t)
-		database := db.NewMockDatabase(t)
-		log := logger.NewMockLogger(t)
-		log.
-			On("WithCorrelationID", correlationID).
-			Return(log).
-			Once()
+		log, _ := logrustest.NewNullLogger()
+		db := database.NewMockDatabase(t)
 
-		database.
-			On("Transaction", mock.Anything, mock.Anything).
+		db.EXPECT().
+			Transaction(ctx, mock.Anything).
 			Return(nil).
 			Once()
 
+		auditLogger := auditlogger.New(db, logger.ComponentNameUsersync, log)
 		httpClient := test.NewTestHttpClient(func(req *http.Request) *http.Response {
 			return test.Response("200 OK", `{"users":[]}`)
 		})
 		svc, err := admin_directory_v1.NewService(ctx, option.WithHTTPClient(httpClient))
-		assert.NoError(t, err)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		err = usersync.
-			New(database, auditLogger, adminGroupPrefix, domain, svc, log, syncRuns).
+			New(db, auditLogger, adminGroupPrefix, domain, svc, log, syncRuns).
 			Sync(ctx, correlationID)
-		assert.NoError(t, err)
+		if err != nil {
+			t.Fatal(err)
+		}
 	})
 
 	t.Run("Local users, no remote users", func(t *testing.T) {
 		ctx := context.Background()
 		txCtx := context.Background()
 
-		log := logger.NewMockLogger(t)
-		auditLogger := auditlogger.NewMockAuditLogger(t)
-		database := db.NewMockDatabase(t)
-		dbtx := db.NewMockDatabase(t)
+		log, _ := logrustest.NewNullLogger()
+		db := database.NewMockDatabase(t)
+		auditLogger := auditlogger.New(db, logger.ComponentNameUsersync, log)
+		dbtx := database.NewMockDatabase(t)
 
-		log.
-			On("WithCorrelationID", correlationID).
-			Return(log).
-			Once()
-
-		database.
-			On("Transaction", ctx, mock.Anything).
-			Run(func(args mock.Arguments) {
-				fn := args.Get(1).(db.DatabaseTransactionFunc)
+		db.EXPECT().
+			Transaction(ctx, mock.Anything).
+			Run(func(ctx context.Context, fn database.DatabaseTransactionFunc) {
 				_ = fn(txCtx, dbtx)
 			}).
 			Return(nil).
 			Once()
 
-		user1 := &db.User{User: &sqlc.User{ID: serialUuid(1), Email: "user1@example.com", ExternalID: "123", Name: "User 1"}}
-		user2 := &db.User{User: &sqlc.User{ID: serialUuid(2), Email: "user2@example.com", ExternalID: "456", Name: "User 2"}}
+		user1 := &database.User{User: &gensql.User{ID: uuid.New(), Email: "user1@example.com", ExternalID: "123", Name: "User 1"}}
+		user2 := &database.User{User: &gensql.User{ID: uuid.New(), Email: "user2@example.com", ExternalID: "456", Name: "User 2"}}
 
-		dbtx.
-			On("GetAllUsers", txCtx, mock.Anything, mock.Anything).
-			Return([]*db.User{user1, user2}, nil).
+		for _, user := range []*database.User{user1, user2} {
+			var actor *string
+			db.EXPECT().
+				CreateAuditLogEntry(
+					ctx,
+					mock.Anything,
+					logger.ComponentNameUsersync,
+					actor,
+					audittype.AuditLogsTargetTypeUser,
+					user.Email,
+					audittype.AuditActionUsersyncDelete,
+					fmt.Sprintf("Local user deleted: %q, external ID: %q", user.Email, user.ExternalID),
+				).
+				Return(nil).
+				Once()
+		}
+
+		p := database.Page{
+			Limit:  100,
+			Offset: 0,
+		}
+
+		dbtx.EXPECT().
+			GetUsers(txCtx, p).
+			Return([]*database.User{user1, user2}, 2, nil).
 			Once()
-		dbtx.
-			On("GetAllUserRoles", txCtx).
-			Return([]*db.UserRole{
-				{UserRole: &sqlc.UserRole{UserID: user1.ID, RoleName: sqlc.RoleNameTeamcreator}},
-				{UserRole: &sqlc.UserRole{UserID: user2.ID, RoleName: sqlc.RoleNameAdmin}},
+		dbtx.EXPECT().
+			GetAllUserRoles(txCtx).
+			Return([]*database.UserRole{
+				{UserRole: &gensql.UserRole{UserID: user1.ID, RoleName: gensql.RoleNameTeamcreator}},
+				{UserRole: &gensql.UserRole{UserID: user2.ID, RoleName: gensql.RoleNameAdmin}},
 			}, nil).
 			Once()
-		dbtx.
-			On("DeleteUser", txCtx, user1.ID).
+		dbtx.EXPECT().
+			DeleteUser(txCtx, user1.ID).
 			Return(nil).
 			Once()
-		dbtx.
-			On("DeleteUser", txCtx, user2.ID).
+		dbtx.EXPECT().
+			DeleteUser(txCtx, user2.ID).
 			Return(nil).
-			Once()
-
-		auditLogger.EXPECT().
-			Logf(ctx, targetIdentifier(user1.Email), auditAction(types.AuditActionUsersyncDelete), `Local user deleted: "user1@example.com", external ID: "123"`).
-			Return().
-			Once()
-		auditLogger.EXPECT().
-			Logf(ctx, targetIdentifier(user2.Email), auditAction(types.AuditActionUsersyncDelete), `Local user deleted: "user2@example.com", external ID: "456"`).
-			Return().
 			Once()
 
 		httpClient := test.NewTestHttpClient(
@@ -122,47 +131,43 @@ func TestSync(t *testing.T) {
 			},
 		)
 		svc, err := admin_directory_v1.NewService(ctx, option.WithHTTPClient(httpClient))
-		assert.NoError(t, err)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		err = usersync.
-			New(database, auditLogger, adminGroupPrefix, domain, svc, log, syncRuns).
+			New(db, auditLogger, adminGroupPrefix, domain, svc, log, syncRuns).
 			Sync(ctx, correlationID)
-		assert.NoError(t, err)
+		if err != nil {
+			t.Fatal(err)
+		}
 	})
 
 	t.Run("Create, update and delete users", func(t *testing.T) {
 		ctx := context.Background()
 		txCtx := context.Background()
 
-		auditLogger := auditlogger.NewMockAuditLogger(t)
-		database := db.NewMockDatabase(t)
-		dbtx := db.NewMockDatabase(t)
-		log := logger.NewMockLogger(t)
-		log.
-			On("WithCorrelationID", correlationID).
-			Return(log).
-			Once()
-		log.
-			On("Errorf", mock.AnythingOfType("string"), "unknown-admin@example.com").
-			Return(nil).
-			Once()
+		log, _ := logrustest.NewNullLogger()
+		db := database.NewMockDatabase(t)
+		auditLogger := auditlogger.New(db, logger.ComponentNameUsersync, log)
+		dbtx := database.NewMockDatabase(t)
 
 		numDefaultRoleNames := len(usersync.DefaultRoleNames)
 
-		localUserID1 := serialUuid(1)
-		localUserID2 := serialUuid(2)
-		localUserID3 := serialUuid(3)
-		localUserID4 := serialUuid(4)
+		localUserID1 := uuid.New()
+		localUserID2 := uuid.New()
+		localUserID3 := uuid.New()
+		localUserID4 := uuid.New()
 
-		localUserWithIncorrectName := &db.User{User: &sqlc.User{ID: localUserID1, Email: "user1@example.com", ExternalID: "123", Name: "Incorrect Name"}}
-		localUserWithCorrectName := &db.User{User: &sqlc.User{ID: localUserID1, Email: "user1@example.com", ExternalID: "123", Name: "Correct Name"}}
+		localUserWithIncorrectName := &database.User{User: &gensql.User{ID: localUserID1, Email: "user1@example.com", ExternalID: "123", Name: "Incorrect Name"}}
+		localUserWithCorrectName := &database.User{User: &gensql.User{ID: localUserID1, Email: "user1@example.com", ExternalID: "123", Name: "Correct Name"}}
 
-		localUserWithIncorrectEmail := &db.User{User: &sqlc.User{ID: localUserID2, Email: "user-123@example.com", ExternalID: "789", Name: "Some Name"}}
-		localUserWithCorrectEmail := &db.User{User: &sqlc.User{ID: localUserID2, Email: "user3@example.com", ExternalID: "789", Name: "Some Name"}}
+		localUserWithIncorrectEmail := &database.User{User: &gensql.User{ID: localUserID2, Email: "user-123@example.com", ExternalID: "789", Name: "Some Name"}}
+		localUserWithCorrectEmail := &database.User{User: &gensql.User{ID: localUserID2, Email: "user3@example.com", ExternalID: "789", Name: "Some Name"}}
 
-		localUserThatWillBeDeleted := &db.User{User: &sqlc.User{ID: localUserID3, Email: "delete-me@example.com", ExternalID: "321", Name: "Delete Me"}}
+		localUserThatWillBeDeleted := &database.User{User: &gensql.User{ID: localUserID3, Email: "delete-me@example.com", ExternalID: "321", Name: "Delete Me"}}
 
-		createdLocalUser := &db.User{User: &sqlc.User{ID: localUserID4, Email: "user2@example.com", ExternalID: "456", Name: "Create Me"}}
+		createdLocalUser := &database.User{User: &gensql.User{ID: localUserID4, Email: "user2@example.com", ExternalID: "456", Name: "Create Me"}}
 
 		httpClient := test.NewTestHttpClient(
 			// org users
@@ -182,128 +187,178 @@ func TestSync(t *testing.T) {
 			},
 		)
 		svc, err := admin_directory_v1.NewService(ctx, option.WithHTTPClient(httpClient))
-		assert.NoError(t, err)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-		database.
-			On("Transaction", mock.Anything, mock.Anything).
-			Run(func(args mock.Arguments) {
-				fn := args.Get(1).(db.DatabaseTransactionFunc)
+		db.EXPECT().
+			Transaction(mock.Anything, mock.Anything).
+			Run(func(_ context.Context, fn database.DatabaseTransactionFunc) {
 				_ = fn(txCtx, dbtx)
 			}).
 			Return(nil).
 			Once()
 
-		dbtx.
-			On("GetAllUserRoles", txCtx).
-			Return([]*db.UserRole{
-				{UserRole: &sqlc.UserRole{UserID: localUserID1, RoleName: sqlc.RoleNameTeamcreator}},
-				{UserRole: &sqlc.UserRole{UserID: localUserID1, RoleName: sqlc.RoleNameAdmin}},
-				{UserRole: &sqlc.UserRole{UserID: localUserID2, RoleName: sqlc.RoleNameTeamviewer}},
+		dbtx.EXPECT().
+			GetAllUserRoles(txCtx).
+			Return([]*database.UserRole{
+				{UserRole: &gensql.UserRole{UserID: localUserID1, RoleName: gensql.RoleNameTeamcreator}},
+				{UserRole: &gensql.UserRole{UserID: localUserID1, RoleName: gensql.RoleNameAdmin}},
+				{UserRole: &gensql.UserRole{UserID: localUserID2, RoleName: gensql.RoleNameTeamviewer}},
 			}, nil).
 			Once()
 
-		dbtx.
-			On("GetAllUsers", txCtx, mock.Anything, mock.Anything).
-			Return([]*db.User{
+		p := database.Page{
+			Limit:  100,
+			Offset: 0,
+		}
+
+		dbtx.EXPECT().
+			GetUsers(txCtx, p).
+			Return([]*database.User{
 				localUserWithIncorrectName,
 				localUserWithIncorrectEmail,
 				localUserThatWillBeDeleted,
-			}, nil).
+			}, 3, nil).
 			Once()
 
 		// user1@example.com
-		dbtx.
-			On("UpdateUser", txCtx, localUserWithIncorrectName.ID, "Correct Name", "user1@example.com", "123").
+		dbtx.EXPECT().
+			UpdateUser(txCtx, localUserWithIncorrectName.ID, "Correct Name", "user1@example.com", "123").
 			Return(localUserWithCorrectName, nil).
 			Once()
-		dbtx.
-			On("AssignGlobalRoleToUser", txCtx, localUserWithCorrectName.ID, mock.MatchedBy(func(roleName sqlc.RoleName) bool {
-				return roleName != sqlc.RoleNameTeamcreator
+		dbtx.EXPECT().
+			AssignGlobalRoleToUser(txCtx, localUserWithCorrectName.ID, mock.MatchedBy(func(roleName gensql.RoleName) bool {
+				return roleName != gensql.RoleNameTeamcreator
 			})).
 			Return(nil).
 			Times(numDefaultRoleNames - 1)
 
 		// user2@example.com
-		dbtx.
-			On("CreateUser", txCtx, "Create Me", "user2@example.com", "456").
+		dbtx.EXPECT().
+			CreateUser(txCtx, "Create Me", "user2@example.com", "456").
 			Return(createdLocalUser, nil).
 			Once()
-		dbtx.
-			On("AssignGlobalRoleToUser", txCtx, createdLocalUser.ID, mock.AnythingOfType("sqlc.RoleName")).
+		dbtx.EXPECT().
+			AssignGlobalRoleToUser(txCtx, createdLocalUser.ID, mock.AnythingOfType("gensql.RoleName")).
 			Return(nil).
 			Times(numDefaultRoleNames)
 
 		// user3@example.com
-		dbtx.
-			On("UpdateUser", txCtx, localUserWithIncorrectEmail.ID, "Some Name", "user3@example.com", "789").
+		dbtx.EXPECT().
+			UpdateUser(txCtx, localUserWithIncorrectEmail.ID, "Some Name", "user3@example.com", "789").
 			Return(localUserWithCorrectEmail, nil).
 			Once()
-		dbtx.
-			On("AssignGlobalRoleToUser", txCtx, localUserWithCorrectEmail.ID, mock.MatchedBy(func(roleName sqlc.RoleName) bool {
-				return roleName != sqlc.RoleNameTeamviewer
+		dbtx.EXPECT().
+			AssignGlobalRoleToUser(txCtx, localUserWithCorrectEmail.ID, mock.MatchedBy(func(roleName gensql.RoleName) bool {
+				return roleName != gensql.RoleNameTeamviewer
 			})).
 			Return(nil).
 			Times(numDefaultRoleNames - 1)
 
-		dbtx.
-			On("DeleteUser", txCtx, localUserThatWillBeDeleted.ID).
+		dbtx.EXPECT().
+			DeleteUser(txCtx, localUserThatWillBeDeleted.ID).
 			Return(nil).
 			Once()
 
-		dbtx.
-			On("AssignGlobalRoleToUser", txCtx, createdLocalUser.ID, sqlc.RoleNameAdmin).
+		dbtx.EXPECT().
+			AssignGlobalRoleToUser(txCtx, createdLocalUser.ID, gensql.RoleNameAdmin).
 			Return(nil).
 			Once()
 
-		dbtx.
-			On("RevokeGlobalUserRole", txCtx, localUserID1, sqlc.RoleNameAdmin).
+		dbtx.EXPECT().
+			RevokeGlobalUserRole(txCtx, localUserID1, gensql.RoleNameAdmin).
 			Return(nil).
 			Once()
 
-		auditLogger.EXPECT().
-			Logf(ctx, targetIdentifier("user1@example.com"), auditAction(types.AuditActionUsersyncUpdate), `Local user updated: "user1@example.com", external ID: "123"`).
-			Return().
+		var actor *string
+		db.EXPECT().
+			CreateAuditLogEntry(
+				ctx,
+				mock.Anything,
+				logger.ComponentNameUsersync,
+				actor,
+				audittype.AuditLogsTargetTypeUser,
+				"user1@example.com",
+				audittype.AuditActionUsersyncUpdate,
+				`Local user updated: "user1@example.com", external ID: "123"`,
+			).
+			Return(nil).
 			Once()
-		auditLogger.EXPECT().
-			Logf(ctx, targetIdentifier("user2@example.com"), auditAction(types.AuditActionUsersyncCreate), `Local user created: "user2@example.com", external ID: "456"`).
-			Return().
+		db.EXPECT().
+			CreateAuditLogEntry(
+				ctx,
+				mock.Anything,
+				logger.ComponentNameUsersync,
+				actor,
+				audittype.AuditLogsTargetTypeUser,
+				"user2@example.com",
+				audittype.AuditActionUsersyncCreate,
+				`Local user created: "user2@example.com", external ID: "456"`,
+			).
+			Return(nil).
 			Once()
-		auditLogger.EXPECT().
-			Logf(ctx, targetIdentifier("user3@example.com"), auditAction(types.AuditActionUsersyncUpdate), `Local user updated: "user3@example.com", external ID: "789"`).
-			Return().
+		db.EXPECT().
+			CreateAuditLogEntry(
+				ctx,
+				mock.Anything,
+				logger.ComponentNameUsersync,
+				actor,
+				audittype.AuditLogsTargetTypeUser,
+				"user3@example.com",
+				audittype.AuditActionUsersyncUpdate,
+				`Local user updated: "user3@example.com", external ID: "789"`,
+			).
+			Return(nil).
 			Once()
-		auditLogger.EXPECT().
-			Logf(ctx, targetIdentifier("delete-me@example.com"), auditAction(types.AuditActionUsersyncDelete), `Local user deleted: "delete-me@example.com", external ID: "321"`).
-			Return().
+
+		db.EXPECT().
+			CreateAuditLogEntry(
+				ctx,
+				mock.Anything,
+				logger.ComponentNameUsersync,
+				actor,
+				audittype.AuditLogsTargetTypeUser,
+				"delete-me@example.com",
+				audittype.AuditActionUsersyncDelete,
+				`Local user deleted: "delete-me@example.com", external ID: "321"`,
+			).
+			Return(nil).
 			Once()
-		auditLogger.EXPECT().
-			Logf(ctx, targetIdentifier("user2@example.com"), auditAction(types.AuditActionUsersyncAssignAdminRole), `Assign global admin role to user: "user2@example.com"`).
-			Return().
+
+		db.EXPECT().
+			CreateAuditLogEntry(
+				ctx,
+				mock.Anything,
+				logger.ComponentNameUsersync,
+				actor,
+				audittype.AuditLogsTargetTypeUser,
+				"user2@example.com",
+				audittype.AuditActionUsersyncAssignAdminRole,
+				`Assign global admin role to user: "user2@example.com"`,
+			).
+			Return(nil).
 			Once()
-		auditLogger.EXPECT().
-			Logf(ctx, targetIdentifier("user1@example.com"), auditAction(types.AuditActionUsersyncRevokeAdminRole), `Revoke global admin role from user: "user1@example.com"`).
-			Return().
+
+		db.EXPECT().
+			CreateAuditLogEntry(
+				ctx,
+				mock.Anything,
+				logger.ComponentNameUsersync,
+				actor,
+				audittype.AuditLogsTargetTypeUser,
+				"user1@example.com",
+				audittype.AuditActionUsersyncRevokeAdminRole,
+				`Revoke global admin role from user: "user1@example.com"`,
+			).
+			Return(nil).
 			Once()
 
 		err = usersync.
-			New(database, auditLogger, adminGroupPrefix, domain, svc, log, syncRuns).
+			New(db, auditLogger, adminGroupPrefix, domain, svc, log, syncRuns).
 			Sync(ctx, correlationID)
-		assert.NoError(t, err)
+		if err != nil {
+			t.Fatal(err)
+		}
 	})
-}
-
-func targetIdentifier(identifier string) interface{} {
-	return mock.MatchedBy(func(t []auditlogger.Target) bool {
-		return t[0].Identifier == identifier
-	})
-}
-
-func auditAction(action types.AuditAction) interface{} {
-	return mock.MatchedBy(func(f auditlogger.Fields) bool {
-		return f.Action == action
-	})
-}
-
-func serialUuid(serial byte) uuid.UUID {
-	return uuid.UUID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, serial}
 }

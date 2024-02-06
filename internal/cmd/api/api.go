@@ -32,9 +32,6 @@ import (
 	"github.com/nais/api/internal/usersync"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/otel/exporters/prometheus"
-	met "go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/sdk/metric"
 	"golang.org/x/oauth2/google"
 	"golang.org/x/sync/errgroup"
 )
@@ -96,7 +93,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		log.Warn("using fake clients")
 	}
 
-	meter, err := getMetricMeter()
+	_, promReg, err := newMeterProvider(ctx)
 	if err != nil {
 		return fmt.Errorf("create metric meter: %w", err)
 	}
@@ -108,9 +105,10 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 	defer closer()
 
-	if err := firstRun(ctx, db, cfg.FirstRunEnableReconcilers, log); err != nil {
-		return err
-	}
+	// TODO: Implement new first run logic
+	// if err := firstRun(ctx, db, cfg.FirstRunEnableReconcilers, log); err != nil {
+	// 	return err
+	// }
 
 	if err := fixtures.SetupStaticServiceAccounts(ctx, db, cfg.StaticServiceAccounts); err != nil {
 		return err
@@ -178,13 +176,14 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		pubsubTopic,
 		log,
 	)
+
 	graphHandler, err := graph.NewHandler(gengql.Config{
 		Resolvers: resolver,
 		Directives: gengql.DirectiveRoot{
 			Admin: directives.Admin(),
 			Auth:  directives.Auth(),
 		},
-	}, meter, log)
+	}, log)
 	if err != nil {
 		return fmt.Errorf("create graph handler: %w", err)
 	}
@@ -216,11 +215,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	// HTTP server
 	wg.Go(func() error {
-		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, db, authHandler, graphHandler, log)
+		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, db, authHandler, graphHandler, promReg, log)
 	})
 
 	wg.Go(func() error {
-		if err := grpc.Run(ctx, cfg.GRPCListenAddress, db, log); err != nil {
+		if err := grpc.Run(ctx, cfg.GRPCListenAddress, db, auditLogger, log); err != nil {
 			log.WithError(err).Errorf("error in GRPC server")
 			return err
 		}
@@ -246,35 +245,24 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	return nil
 }
 
-func firstRun(ctx context.Context, db database.Database, enableReconcilers []fixtures.EnableableReconciler, log logrus.FieldLogger) error {
-	firstRun, err := db.IsFirstRun(ctx)
-	if err != nil {
-		return err
-	}
-	if firstRun {
-		log.Infof("first run detected ")
-		firstRunLogger := log.WithField("system", "first-run")
-		if err := fixtures.SetupDefaultReconcilers(ctx, firstRunLogger, enableReconcilers, db); err != nil {
-			return err
-		}
+// func firstRun(ctx context.Context, db database.Database, enableReconcilers []string, log logrus.FieldLogger) error {
+// 	firstRun, err := db.IsFirstRun(ctx)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	if firstRun {
+// 		log.Infof("first run detected ")
+// 		firstRunLogger := log.WithField("system", "first-run")
+// 		if err := fixtures.SetupDefaultReconcilers(ctx, firstRunLogger, enableReconcilers, db); err != nil {
+// 			return err
+// 		}
 
-		if err := db.FirstRunComplete(ctx); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// getMetricMeter will return a new metric meter that uses a Prometheus exporter
-func getMetricMeter() (met.Meter, error) {
-	exporter, err := prometheus.New()
-	if err != nil {
-		return nil, fmt.Errorf("create prometheus exporter: %w", err)
-	}
-
-	provider := metric.NewMeterProvider(metric.WithReader(exporter))
-	return provider.Meter("github.com/nais/api"), nil
-}
+// 		if err := db.FirstRunComplete(ctx); err != nil {
+// 			return err
+// 		}
+// 	}
+// 	return nil
+// }
 
 // loadEnvFile will load a .env file if it exists. This is useful for local development.
 func loadEnvFile() (fileLoaded bool, err error) {

@@ -3,6 +3,7 @@ package dependencytrack
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 	"sync"
@@ -13,6 +14,7 @@ import (
 	dependencytrack "github.com/nais/dependencytrack/pkg/client"
 	"github.com/patrickmn/go-cache"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 type AppInstance struct {
@@ -41,6 +43,7 @@ func New(endpoint, username, password, frontend string, log *logrus.Entry) *Clie
 		password,
 		dependencytrack.WithApiKeySource("Administrators"),
 		dependencytrack.WithLogger(log),
+		dependencytrack.WithHttpClient(&http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}),
 	)
 
 	ch := cache.New(5*time.Minute, 10*time.Minute)

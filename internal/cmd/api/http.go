@@ -13,10 +13,14 @@ import (
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/graph/dataloader"
+	"github.com/nais/api/internal/graph/loader"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
+	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -28,14 +32,16 @@ func runHttpServer(
 	db database.Database,
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
+	reg prometheus.Gatherer,
 	log logrus.FieldLogger,
 ) error {
 	router := chi.NewRouter()
-	router.Handle("/metrics", promhttp.Handler())
+	router.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
 	router.Get("/healthz", func(_ http.ResponseWriter, _ *http.Request) {})
-	router.Get("/", playground.Handler("GraphQL playground", "/query"))
+	router.Method("GET", "/",
+		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/query"), "playground")),
+	)
 
-	dataLoaders := dataloader.NewLoaders(db)
 	middlewares := []func(http.Handler) http.Handler{}
 
 	if insecureAuth {
@@ -53,11 +59,18 @@ func runHttpServer(
 
 		middleware.ApiKeyAuthentication(db),
 		middleware.Oauth2Authentication(db, authHandler),
-		dataloader.Middleware(dataLoaders),
+		loader.Middleware(db),
 	)
 	router.Route("/query", func(r chi.Router) {
 		r.Use(middlewares...)
-		r.Post("/", graphHandler.ServeHTTP)
+		r.Use(otelhttp.NewMiddleware("graphql", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))
+		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphHandler))
+	})
+
+	router.Route("/oauth2", func(r chi.Router) {
+		r.Get("/login", authHandler.Login)
+		r.Get("/logout", authHandler.Logout)
+		r.Get("/callback", authHandler.Callback)
 	})
 
 	srv := &http.Server{

@@ -8,7 +8,6 @@ import (
 	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
-	sqlc "github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
@@ -144,7 +143,7 @@ func TeamTarget(slug slug.Slug) Target {
 	return Target{Type: audittype.AuditLogsTargetTypeTeam, Identifier: string(slug)}
 }
 
-func ReconcilerTarget(name sqlc.ReconcilerName) Target {
+func ReconcilerTarget(name string) Target {
 	return Target{Type: audittype.AuditLogsTargetTypeReconciler, Identifier: string(name)}
 }
 

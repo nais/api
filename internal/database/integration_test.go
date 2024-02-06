@@ -9,9 +9,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jackc/pgx/v4"
-
-	db "github.com/nais/api/internal/database"
+	"github.com/jackc/pgx/v5"
+	"github.com/nais/api/internal/database"
+	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,10 +25,12 @@ const (
 
 func TestUsers(t *testing.T) {
 	ctx := context.Background()
-	database, err := setupTestDatabase(ctx)
+	log, _ := test.NewNullLogger()
+	db, closer, err := setupTestDatabase(ctx, log)
 	if err != nil {
 		t.Fatalf("Unable to setup database for integration tests: %v", err)
 	}
+	defer closer()
 
 	t.Run("Create and get user", func(t *testing.T) {
 		const (
@@ -36,25 +39,25 @@ func TestUsers(t *testing.T) {
 			externalID = "external-id-123"
 		)
 
-		user, err := database.CreateUser(ctx, name, email, externalID)
+		user, err := db.CreateUser(ctx, name, email, externalID)
 		assert.NoError(t, err)
 		assert.Equal(t, name, user.Name)
 		assert.Equal(t, email, user.Email)
 		assert.Equal(t, externalID, user.ExternalID)
 
-		user, err = database.GetUserByID(ctx, user.ID)
+		user, err = db.GetUserByID(ctx, user.ID)
 		assert.NoError(t, err)
 		assert.Equal(t, name, user.Name)
 		assert.Equal(t, email, user.Email)
 		assert.Equal(t, externalID, user.ExternalID)
 
-		user, err = database.GetUserByEmail(ctx, email)
+		user, err = db.GetUserByEmail(ctx, email)
 		assert.NoError(t, err)
 		assert.Equal(t, name, user.Name)
 		assert.Equal(t, email, user.Email)
 		assert.Equal(t, externalID, user.ExternalID)
 
-		user, err = database.GetUserByExternalID(ctx, externalID)
+		user, err = db.GetUserByExternalID(ctx, externalID)
 		assert.NoError(t, err)
 		assert.Equal(t, name, user.Name)
 		assert.Equal(t, email, user.Email)
@@ -62,11 +65,11 @@ func TestUsers(t *testing.T) {
 	})
 }
 
-func setupTestDatabase(ctx context.Context) (db.Database, error) {
+func setupTestDatabase(ctx context.Context, log logrus.FieldLogger) (database.Database, func(), error) {
 	if err := createEmptyTestDatabase(ctx); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return db.New(ctx, connStringWithDb)
+	return database.New(ctx, connStringWithDb, log)
 }
 
 func createEmptyTestDatabase(ctx context.Context) error {

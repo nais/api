@@ -2,20 +2,18 @@ package main
 
 import (
 	"bufio"
-	"cloud.google.com/go/pubsub"
 	"context"
 	"flag"
 	"fmt"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"math/rand"
 	"os"
 	"strings"
 	"unicode"
 
+	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/database"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/usersync"
@@ -24,6 +22,8 @@ import (
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type seedConfig struct {
@@ -117,15 +117,15 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 	slugs := map[string]struct{}{}
 
 	if !*cfg.ForceSeed {
-		if existingUsers, err := db.GetAllUsers(ctx); len(existingUsers) != 0 || err != nil {
+		if existingUsers, err := getAllUsers(ctx, db); len(existingUsers) != 0 || err != nil {
 			return fmt.Errorf("database already has users, abort")
 		}
 
-		if existingTeams, err := db.GetAllTeams(ctx); len(existingTeams) != 0 || err != nil {
+		if existingTeams, err := getAllTeams(ctx, db); len(existingTeams) != 0 || err != nil {
 			return fmt.Errorf("database already has teams, abort")
 		}
 	} else {
-		users, err := db.GetAllUsers(ctx)
+		users, err := getAllUsers(ctx, db)
 		if err != nil {
 			return err
 		}
@@ -133,7 +133,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			emails[user.Email] = struct{}{}
 		}
 
-		teams, err := db.GetAllTeams(ctx)
+		teams, err := getAllTeams(ctx, db)
 		if err != nil {
 			return err
 		}
@@ -165,7 +165,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 		if err != nil {
 			return err
 		}
-		if err = dbtx.AssignGlobalRoleToUser(ctx, adminUser.ID, sqlc.RoleNameAdmin); err != nil {
+		if err = dbtx.AssignGlobalRoleToUser(ctx, adminUser.ID, gensql.RoleNameAdmin); err != nil {
 			return err
 		}
 		for _, roleName := range usersync.DefaultRoleNames {
@@ -189,6 +189,13 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 				return err
 			}
 
+			for _, roleName := range usersync.DefaultRoleNames {
+				err = dbtx.AssignGlobalRoleToUser(ctx, user.ID, roleName)
+				if err != nil {
+					return fmt.Errorf("attach default role %q to user %q: %w", roleName, user.Email, err)
+				}
+			}
+
 			log.Infof("%d/%d users created", i, *cfg.NumUsers)
 			users = append(users, user)
 			emails[email] = struct{}{}
@@ -204,7 +211,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			}
 		}
 
-		err = dbtx.SetTeamMemberRole(ctx, devUser.ID, devteam.Slug, sqlc.RoleNameTeamowner)
+		err = dbtx.SetTeamMemberRole(ctx, devUser.ID, devteam.Slug, gensql.RoleNameTeamowner)
 		if err != nil {
 			return err
 		}
@@ -221,14 +228,14 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			}
 
 			for o := 0; o < *cfg.NumOwnersPerTeam; o++ {
-				err = dbtx.SetTeamMemberRole(ctx, users[rand.Intn(usersCreated)].ID, team.Slug, sqlc.RoleNameTeamowner)
+				err = dbtx.SetTeamMemberRole(ctx, users[rand.Intn(usersCreated)].ID, team.Slug, gensql.RoleNameTeamowner)
 				if err != nil {
 					return err
 				}
 			}
 
 			for o := 0; o < *cfg.NumMembersPerTeam; o++ {
-				err = dbtx.SetTeamMemberRole(ctx, users[rand.Intn(usersCreated)].ID, team.Slug, sqlc.RoleNameTeammember)
+				err = dbtx.SetTeamMemberRole(ctx, users[rand.Intn(usersCreated)].ID, team.Slug, gensql.RoleNameTeammember)
 				if err != nil {
 					return err
 				}
@@ -240,7 +247,6 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 
 		return nil
 	})
-
 	if err != nil {
 		return err
 	}
@@ -279,4 +285,52 @@ func fileToSlice(path string) ([]string, error) {
 	}
 
 	return lines, nil
+}
+
+func getAllUsers(ctx context.Context, db database.UserRepo) ([]*database.User, error) {
+	limit, offset := 100, 0
+	users := make([]*database.User, 0)
+	for {
+		page, _, err := db.GetUsers(ctx, database.Page{
+			Limit:  limit,
+			Offset: offset,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, page...)
+
+		if len(page) < limit {
+			break
+		}
+
+		offset += limit
+	}
+
+	return users, nil
+}
+
+func getAllTeams(ctx context.Context, db database.TeamRepo) ([]*database.Team, error) {
+	limit, offset := 100, 0
+	teams := make([]*database.Team, 0)
+	for {
+		page, _, err := db.GetTeams(ctx, database.Page{
+			Limit:  limit,
+			Offset: offset,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		teams = append(teams, page...)
+
+		if len(page) < limit {
+			break
+		}
+
+		offset += limit
+	}
+
+	return teams, nil
 }

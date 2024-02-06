@@ -4,48 +4,53 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/pkg/protoapi"
 )
 
 type ReconcilerRepo interface {
-	AddReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName sqlc.ReconcilerName) error
-	ConfigureReconciler(ctx context.Context, reconcilerName sqlc.ReconcilerName, key sqlc.ReconcilerConfigKey, value string) error
-	DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName sqlc.ReconcilerName) (*ReconcilerConfigValues, error)
-	DisableReconciler(ctx context.Context, reconcilerName sqlc.ReconcilerName) (*Reconciler, error)
-	EnableReconciler(ctx context.Context, reconcilerName sqlc.ReconcilerName) (*Reconciler, error)
+	AddReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string) error
+	ConfigureReconciler(ctx context.Context, reconcilerName string, key string, value string) error
+	DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName string) (*ReconcilerConfigValues, error)
+	DeleteReconcilerConfig(ctx context.Context, reconcilerName string, keysToDelete []string) error
+	DisableReconciler(ctx context.Context, reconcilerName string) (*Reconciler, error)
+	EnableReconciler(ctx context.Context, reconcilerName string) (*Reconciler, error)
 	GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error)
-	GetReconciler(ctx context.Context, reconcilerName sqlc.ReconcilerName) (*Reconciler, error)
-	GetReconcilerConfig(ctx context.Context, reconcilerName sqlc.ReconcilerName) ([]*ReconcilerConfig, error)
-	GetReconcilers(ctx context.Context) ([]*Reconciler, error)
-	RemoveReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName sqlc.ReconcilerName) error
-	ResetReconcilerConfig(ctx context.Context, reconcilerName sqlc.ReconcilerName) (*Reconciler, error)
+	GetReconciler(ctx context.Context, reconcilerName string) (*Reconciler, error)
+	GetReconcilerConfig(ctx context.Context, reconcilerName string) ([]*ReconcilerConfig, error)
+	GetReconcilers(ctx context.Context, p Page) ([]*Reconciler, int, error)
+	RemoveReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string) error
+	ResetReconcilerConfig(ctx context.Context, reconcilerName string) (*Reconciler, error)
+	SyncReconcilerConfig(ctx context.Context, reconcilerName string, configs []*protoapi.ReconcilerConfigSpec) error
+	UpsertReconciler(ctx context.Context, name, displayName, description string, memberAware, enableIfNew bool) (*Reconciler, error)
+	UpsertReconcilerConfig(ctx context.Context, reconciler, key, displayName, description string, secret bool) error
 }
 
 type Reconciler struct {
-	*sqlc.Reconciler
+	*gensql.Reconciler
 }
 
 type ReconcilerConfig struct {
-	*sqlc.GetReconcilerConfigRow
+	*gensql.GetReconcilerConfigRow
 }
 
 type ReconcilerError struct {
-	*sqlc.ReconcilerError
+	*gensql.ReconcilerError
 }
 
 type ReconcilerConfigValues struct {
-	values map[sqlc.ReconcilerConfigKey]string
+	values map[string]string
 }
 
-func (v ReconcilerConfigValues) GetValue(s sqlc.ReconcilerConfigKey) string {
+func (v ReconcilerConfigValues) GetValue(s string) string {
 	if v, exists := v.values[s]; exists {
 		return v
 	}
 	return ""
 }
 
-func (d *database) GetReconciler(ctx context.Context, reconcilerName sqlc.ReconcilerName) (*Reconciler, error) {
+func (d *database) GetReconciler(ctx context.Context, reconcilerName string) (*Reconciler, error) {
 	reconciler, err := d.querier.GetReconciler(ctx, reconcilerName)
 	if err != nil {
 		return nil, err
@@ -54,13 +59,21 @@ func (d *database) GetReconciler(ctx context.Context, reconcilerName sqlc.Reconc
 	return &Reconciler{Reconciler: reconciler}, nil
 }
 
-func (d *database) GetReconcilers(ctx context.Context) ([]*Reconciler, error) {
-	rows, err := d.querier.GetReconcilers(ctx)
+func (d *database) GetReconcilers(ctx context.Context, p Page) ([]*Reconciler, int, error) {
+	rows, err := d.querier.GetReconcilers(ctx, gensql.GetReconcilersParams{
+		Offset: int32(p.Offset),
+		Limit:  int32(p.Limit),
+	})
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return wrapReconcilers(rows), nil
+	total, err := d.querier.GetReconcilersCount(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return wrapReconcilers(rows), int(total), nil
 }
 
 func (d *database) GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error) {
@@ -72,11 +85,15 @@ func (d *database) GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, er
 	return wrapReconcilers(rows), nil
 }
 
-func (d *database) ConfigureReconciler(ctx context.Context, reconcilerName sqlc.ReconcilerName, key sqlc.ReconcilerConfigKey, value string) error {
-	return d.querier.ConfigureReconciler(ctx, value, reconcilerName, key)
+func (d *database) ConfigureReconciler(ctx context.Context, reconcilerName string, key string, value string) error {
+	return d.querier.ConfigureReconciler(ctx, gensql.ConfigureReconcilerParams{
+		Value:          value,
+		ReconcilerName: reconcilerName,
+		Key:            key,
+	})
 }
 
-func (d *database) GetReconcilerConfig(ctx context.Context, reconcilerName sqlc.ReconcilerName) ([]*ReconcilerConfig, error) {
+func (d *database) GetReconcilerConfig(ctx context.Context, reconcilerName string) ([]*ReconcilerConfig, error) {
 	rows, err := d.querier.GetReconcilerConfig(ctx, reconcilerName)
 	if err != nil {
 		return nil, err
@@ -90,7 +107,7 @@ func (d *database) GetReconcilerConfig(ctx context.Context, reconcilerName sqlc.
 	return config, nil
 }
 
-func (d *database) ResetReconcilerConfig(ctx context.Context, reconcilerName sqlc.ReconcilerName) (*Reconciler, error) {
+func (d *database) ResetReconcilerConfig(ctx context.Context, reconcilerName string) (*Reconciler, error) {
 	reconciler, err := d.querier.GetReconciler(ctx, reconcilerName)
 	if err != nil {
 		return nil, err
@@ -104,7 +121,7 @@ func (d *database) ResetReconcilerConfig(ctx context.Context, reconcilerName sql
 	return &Reconciler{Reconciler: reconciler}, nil
 }
 
-func (d *database) EnableReconciler(ctx context.Context, reconcilerName sqlc.ReconcilerName) (*Reconciler, error) {
+func (d *database) EnableReconciler(ctx context.Context, reconcilerName string) (*Reconciler, error) {
 	reconciler, err := d.querier.EnableReconciler(ctx, reconcilerName)
 	if err != nil {
 		return nil, err
@@ -113,7 +130,7 @@ func (d *database) EnableReconciler(ctx context.Context, reconcilerName sqlc.Rec
 	return &Reconciler{Reconciler: reconciler}, nil
 }
 
-func (d *database) DisableReconciler(ctx context.Context, reconcilerName sqlc.ReconcilerName) (*Reconciler, error) {
+func (d *database) DisableReconciler(ctx context.Context, reconcilerName string) (*Reconciler, error) {
 	reconciler, err := d.querier.DisableReconciler(ctx, reconcilerName)
 	if err != nil {
 		return nil, err
@@ -122,13 +139,13 @@ func (d *database) DisableReconciler(ctx context.Context, reconcilerName sqlc.Re
 	return &Reconciler{Reconciler: reconciler}, nil
 }
 
-func (d *database) DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName sqlc.ReconcilerName) (*ReconcilerConfigValues, error) {
+func (d *database) DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName string) (*ReconcilerConfigValues, error) {
 	rows, err := d.querier.DangerousGetReconcilerConfigValues(ctx, reconcilerName)
 	if err != nil {
 		return nil, err
 	}
 
-	values := make(map[sqlc.ReconcilerConfigKey]string)
+	values := make(map[string]string)
 	for _, row := range rows {
 		values[row.Key] = row.Value
 	}
@@ -136,15 +153,81 @@ func (d *database) DangerousGetReconcilerConfigValues(ctx context.Context, recon
 	return &ReconcilerConfigValues{values: values}, nil
 }
 
-func (d *database) AddReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName sqlc.ReconcilerName) error {
-	return d.querier.AddReconcilerOptOut(ctx, teamSlug, userID, reconcilerName)
+func (d *database) AddReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string) error {
+	return d.querier.AddReconcilerOptOut(ctx, gensql.AddReconcilerOptOutParams{
+		TeamSlug:       teamSlug,
+		UserID:         userID,
+		ReconcilerName: reconcilerName,
+	})
 }
 
-func (d *database) RemoveReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName sqlc.ReconcilerName) error {
-	return d.querier.RemoveReconcilerOptOut(ctx, teamSlug, userID, reconcilerName)
+func (d *database) RemoveReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string) error {
+	return d.querier.RemoveReconcilerOptOut(ctx, gensql.RemoveReconcilerOptOutParams{
+		TeamSlug:       teamSlug,
+		UserID:         userID,
+		ReconcilerName: reconcilerName,
+	})
 }
 
-func wrapReconcilers(rows []*sqlc.Reconciler) []*Reconciler {
+func (d *database) UpsertReconciler(ctx context.Context, name, displayName, description string, memberAware, enableIfNew bool) (*Reconciler, error) {
+	reconciler, err := d.querier.UpsertReconciler(ctx, gensql.UpsertReconcilerParams{
+		Name:         name,
+		DisplayName:  displayName,
+		Description:  description,
+		MemberAware:  memberAware,
+		EnabledIfNew: enableIfNew,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &Reconciler{Reconciler: reconciler}, nil
+}
+
+func (d *database) UpsertReconcilerConfig(ctx context.Context, reconcilerName, key, displayName, description string, secret bool) error {
+	return d.querier.UpsertReconcilerConfig(ctx, gensql.UpsertReconcilerConfigParams{
+		Reconciler:  reconcilerName,
+		Key:         key,
+		DisplayName: displayName,
+		Description: description,
+		Secret:      secret,
+	})
+}
+
+func (d *database) DeleteReconcilerConfig(ctx context.Context, reconcilerName string, keysToDelete []string) error {
+	return d.querier.DeleteReconcilerConfig(ctx, gensql.DeleteReconcilerConfigParams{
+		Reconciler: reconcilerName,
+		Keys:       keysToDelete,
+	})
+}
+
+func (d *database) SyncReconcilerConfig(ctx context.Context, reconcilerName string, configs []*protoapi.ReconcilerConfigSpec) error {
+	cfg, err := d.GetReconcilerConfig(ctx, reconcilerName)
+	if err != nil {
+		return err
+	}
+
+	existing := make(map[string]struct{})
+	for _, c := range cfg {
+		existing[c.Key] = struct{}{}
+	}
+
+	return d.Transaction(ctx, func(ctx context.Context, dbtx Database) error {
+		for _, c := range configs {
+			dbtx.UpsertReconcilerConfig(ctx, reconcilerName, c.Key, c.DisplayName, c.Description, c.Secret)
+			delete(existing, c.Key)
+		}
+
+		toDelete := []string{}
+		for k := range existing {
+			toDelete = append(toDelete, k)
+		}
+
+		return dbtx.DeleteReconcilerConfig(ctx, reconcilerName, toDelete)
+	})
+}
+
+func wrapReconcilers(rows []*gensql.Reconciler) []*Reconciler {
 	reconcilers := make([]*Reconciler, 0, len(rows))
 	for _, row := range rows {
 		reconcilers = append(reconcilers, &Reconciler{Reconciler: row})

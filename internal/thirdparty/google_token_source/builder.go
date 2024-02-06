@@ -3,11 +3,14 @@ package google_token_source
 import (
 	"context"
 	"fmt"
+	"net/http"
 
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
 	admin_directory "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/cloudresourcemanager/v3"
 	"google.golang.org/api/impersonate"
+	"google.golang.org/api/option"
 )
 
 type Builder struct {
@@ -17,11 +20,11 @@ type Builder struct {
 
 func New(googleManagementProjectID, tenantDomain string) (*Builder, error) {
 	if googleManagementProjectID == "" {
-		return nil, fmt.Errorf("missing required configuration: API_BACKEND_GOOGLE_MANAGEMENT_PROJECT_ID")
+		return nil, fmt.Errorf("empty googleManagementProjectID")
 	}
 
 	if tenantDomain == "" {
-		return nil, fmt.Errorf("missing required configuration: API_BACKEND_TENANT_DOMAIN")
+		return nil, fmt.Errorf("empty domain")
 	}
 
 	return &Builder{
@@ -39,7 +42,9 @@ func (g Builder) impersonateTokenSource(ctx context.Context, delegate bool, scop
 		impersonateConfig.Subject = g.subjectEmail
 	}
 
-	return impersonate.CredentialsTokenSource(ctx, impersonateConfig)
+	return impersonate.CredentialsTokenSource(ctx, impersonateConfig, option.WithHTTPClient(
+		&http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)},
+	))
 }
 
 func (g Builder) Admin(ctx context.Context) (oauth2.TokenSource, error) {

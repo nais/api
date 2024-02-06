@@ -3,6 +3,7 @@ package usersync
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/google/uuid"
@@ -13,6 +14,7 @@ import (
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/thirdparty/google_token_source"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	admin_directory_v1 "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/option"
@@ -81,7 +83,7 @@ func NewFromConfig(googleManagementProjectID, tenantDomain, adminGroupPrefix str
 		return nil, fmt.Errorf("create token source: %w", err)
 	}
 
-	srv, err := admin_directory_v1.NewService(ctx, option.WithTokenSource(ts))
+	srv, err := admin_directory_v1.NewService(ctx, option.WithTokenSource(ts), option.WithHTTPClient(&http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}))
 	if err != nil {
 		return nil, fmt.Errorf("retrieve directory client: %w", err)
 	}
@@ -106,7 +108,7 @@ func (s *UserSynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) er
 
 	auditLogEntries := make([]auditLogEntry, 0)
 	err = s.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
-		allUsersRows, err := dbtx.GetAllUsers(ctx)
+		allUsersRows, err := getAllUsers(ctx, dbtx)
 		if err != nil {
 			return fmt.Errorf("get existing users: %w", err)
 		}
@@ -197,7 +199,6 @@ func (s *UserSynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) er
 
 		return nil
 	})
-
 	if err != nil {
 		syncRun.FinishWithError(err)
 		return err
@@ -388,4 +389,28 @@ func getAllPaginatedUsers(ctx context.Context, svc *admin_directory_v1.UsersServ
 		Pages(ctx, callback)
 
 	return users, err
+}
+
+func getAllUsers(ctx context.Context, db database.UserRepo) ([]*database.User, error) {
+	limit, offset := 100, 0
+	users := make([]*database.User, 0)
+	for {
+		page, _, err := db.GetUsers(ctx, database.Page{
+			Limit:  limit,
+			Offset: offset,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, page...)
+
+		if len(page) < limit {
+			break
+		}
+
+		offset += limit
+	}
+
+	return users, nil
 }

@@ -4,16 +4,20 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"strings"
 	"testing"
 	"time"
 
 	"cloud.google.com/go/bigquery"
+	"github.com/google/go-cmp/cmp"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/cost"
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/slug"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
-	"github.com/stretchr/testify/assert"
 	"google.golang.org/api/option"
+	"k8s.io/utils/ptr"
 )
 
 const (
@@ -31,13 +35,13 @@ var costUpdaterOpts = []cost.Option{
 }
 
 func TestUpdater_FetchBigQueryData(t *testing.T) {
-	_, err := net.DialTimeout("tcp", bigQueryHost, 10*time.Millisecond)
+	_, err := net.DialTimeout("tcp", bigQueryHost, 100*time.Millisecond)
 	if err != nil {
 		t.Skipf("BigQuery is not available on "+bigQueryHost+" (%s), skipping test. You can start the service with `docker compose up -d`", err)
 	}
 
 	ctx := context.Background()
-	querier := gensql.NewMockQuerier(t)
+	querier := database.NewMockDatabase(t)
 	logger, _ := logrustest.NewNullLogger()
 	bigQueryClient, err := bigquery.NewClient(
 		ctx,
@@ -45,7 +49,9 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 		option.WithEndpoint(bigQueryUrl),
 		option.WithoutAuthentication(),
 	)
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 	bigQueryClient.Location = "EU"
 
 	t.Run("unable to get iterator", func(t *testing.T) {
@@ -58,7 +64,9 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 			logger,
 			append(costUpdaterOpts, cost.WithBigQueryTable("invalid-table"))...,
 		).FetchBigQueryData(ctx, ch)
-		assert.ErrorContains(t, err, "Table not found")
+		if !strings.Contains(err.Error(), "Table not found") {
+			t.Error("expected error to contain 'Table not found'")
+		}
 	})
 
 	t.Run("get data from BigQuery", func(t *testing.T) {
@@ -72,36 +80,58 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 			logger,
 			costUpdaterOpts...,
 		).FetchBigQueryData(ctx, ch)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-		assert.NoError(t, err)
-		assert.Len(t, ch, 100)
+		if len(ch) != 100 {
+			t.Errorf("expected channel to contain 100 items, got %d", len(ch))
+		}
 
 		var row gensql.CostUpsertParams
 		var ok bool
 
 		row, ok = <-ch
-		assert.True(t, ok)
-		assert.Equal(t, "dev", *row.Env)
-		assert.Equal(t, "team-1-app-1", row.App)
-		assert.Equal(t, "team-1", *row.Team)
-		assert.Equal(t, "Cloud SQL", row.CostType)
-		assert.Equal(t, "2023-08-31", row.Date.Time.Format(YYYYMMDD))
-		assert.Equal(t, float32(0.204017), row.DailyCost)
+		if !ok {
+			t.Fatal("expected channel to contain 100 items")
+		}
+
+		want1 := gensql.CostUpsertParams{
+			Environment: ptr.To("dev"),
+			App:         "team-1-app-1",
+			TeamSlug:    ptr.To(slug.Slug("team-1")),
+			CostType:    "Cloud SQL",
+			Date:        pgtype.Date{Time: time.Date(2023, 8, 31, 0, 0, 0, 0, time.UTC), Valid: true},
+			DailyCost:   0.204017,
+		}
+		if diff := cmp.Diff(want1, row); diff != "" {
+			t.Errorf("diff: -want +got\n%s", diff)
+		}
 
 		// jump ahead some results
 		for i := 0; i < 42; i++ {
 			_, ok = <-ch
-			assert.True(t, ok)
+			if !ok {
+				t.Fatal("expected channel to contain more items")
+			}
 		}
 
 		row, ok = <-ch
-		assert.True(t, ok)
-		assert.Equal(t, "dev", *row.Env)
-		assert.Equal(t, "team-2-app-1", row.App)
-		assert.Equal(t, "team-2", *row.Team)
-		assert.Equal(t, "Cloud SQL", row.CostType)
-		assert.Equal(t, "2023-09-01", row.Date.Time.Format(YYYYMMDD))
-		assert.Equal(t, float32(0.288296), row.DailyCost)
+		if !ok {
+			t.Fatal("expected channel to contain 43 items")
+		}
+		want2 := gensql.CostUpsertParams{
+			Environment: ptr.To("dev"),
+			App:         "team-2-app-1",
+			TeamSlug:    ptr.To(slug.Slug("team-2")),
+			CostType:    "Cloud SQL",
+			Date:        pgtype.Date{Time: time.Date(2023, 9, 1, 0, 0, 0, 0, time.UTC), Valid: true},
+			DailyCost:   0.288296,
+		}
+
+		if diff := cmp.Diff(want2, row); diff != "" {
+			t.Errorf("diff: -want +got\n%s", diff)
+		}
 	})
 }
 
@@ -109,10 +139,12 @@ func TestUpdater_ShouldUpdateCosts(t *testing.T) {
 	ctx := context.Background()
 	logger, _ := logrustest.NewNullLogger()
 	bigQueryClient, err := bigquery.NewClient(ctx, projectID, option.WithoutAuthentication())
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	t.Run("error when fetching last date", func(t *testing.T) {
-		querier := gensql.NewMockQuerier(t)
+		querier := database.NewMockDatabase(t)
 		querier.EXPECT().LastCostDate(ctx).Return(date(time.Now()), fmt.Errorf("some error from the database"))
 
 		shouldUpdate, err := cost.NewCostUpdater(
@@ -122,12 +154,16 @@ func TestUpdater_ShouldUpdateCosts(t *testing.T) {
 			logger,
 			costUpdaterOpts...,
 		).ShouldUpdateCosts(ctx)
-		assert.False(t, shouldUpdate)
-		assert.EqualError(t, err, "some error from the database")
+		if shouldUpdate {
+			t.Error("expected shouldUpdate to be false")
+		}
+		if err.Error() != "some error from the database" {
+			t.Errorf("expected error to be 'some error from the database', got %s", err.Error())
+		}
 	})
 
 	t.Run("last date is current day", func(t *testing.T) {
-		querier := gensql.NewMockQuerier(t)
+		querier := database.NewMockDatabase(t)
 		querier.EXPECT().LastCostDate(ctx).Return(date(time.Now()), nil)
 
 		shouldUpdate, err := cost.NewCostUpdater(
@@ -137,8 +173,12 @@ func TestUpdater_ShouldUpdateCosts(t *testing.T) {
 			logger,
 			costUpdaterOpts...,
 		).ShouldUpdateCosts(ctx)
-		assert.False(t, shouldUpdate)
-		assert.NoError(t, err)
+		if shouldUpdate {
+			t.Error("expected shouldUpdate to be false")
+		}
+		if err != nil {
+			t.Errorf("expected error to be nil, got %s", err.Error())
+		}
 	})
 }
 

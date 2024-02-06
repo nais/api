@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"
@@ -21,12 +22,12 @@ import (
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/search"
-	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/usersync"
+	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel"
 )
 
 // This file will not be regenerated automatically.
@@ -51,6 +52,25 @@ func (c ClusterList) GCPClusters() []string {
 		}
 	}
 
+	return ret
+}
+
+func (c ClusterList) Names() []string {
+	if c == nil {
+		return nil
+	}
+
+	var ret []string
+	for cluster := range c {
+		ret = append(ret, cluster)
+	}
+
+	slices.SortFunc(ret, func(i, j string) int {
+		if i < j {
+			return -1
+		}
+		return 1
+	})
 	return ret
 }
 
@@ -115,7 +135,8 @@ func NewResolver(
 }
 
 // NewHandler creates and returns a new GraphQL handler with the given configuration
-func NewHandler(config gengql.Config, meter metric.Meter, log logrus.FieldLogger) (*handler.Server, error) {
+func NewHandler(config gengql.Config, log logrus.FieldLogger) (*handler.Server, error) {
+	meter := otel.Meter("graph")
 	metricsMiddleware, err := NewMetrics(meter)
 	if err != nil {
 		return nil, fmt.Errorf("create metrics middleware: %w", err)
@@ -133,6 +154,12 @@ func NewHandler(config gengql.Config, meter metric.Meter, log logrus.FieldLogger
 		Cache: lru.New(100),
 	})
 	graphHandler.SetErrorPresenter(apierror.GetErrorPresenter(log))
+	graphHandler.Use(otelgqlgen.Middleware(
+		otelgqlgen.WithoutVariables(),
+		otelgqlgen.WithCreateSpanFromFields(func(ctx *graphql.FieldContext) bool {
+			return ctx.IsResolver
+		}),
+	))
 	return graphHandler, nil
 }
 
@@ -145,16 +172,7 @@ func GetQueriedFields(ctx context.Context) map[string]bool {
 	return fields
 }
 
-func (r *Resolver) getTeamBySlug(ctx context.Context, slug slug.Slug) (*database.Team, error) {
-	team, err := r.database.GetTeamBySlug(ctx, slug)
-	if err != nil {
-		return nil, apierror.ErrTeamNotExist
-	}
-
-	return team, nil
-}
-
-func sqlcRoleFromTeamRole(teamRole model.TeamRole) (gensql.RoleName, error) {
+func gensqlRoleFromTeamRole(teamRole model.TeamRole) (gensql.RoleName, error) {
 	switch teamRole {
 	case model.TeamRoleMember:
 		return gensql.RoleNameTeammember, nil

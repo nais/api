@@ -1,5 +1,7 @@
 package model
 
+import "github.com/nais/api/internal/database"
+
 type Pagination struct {
 	Offset int
 	Limit  int
@@ -18,6 +20,13 @@ func NewPagination(offset, limit *int) *Pagination {
 	return &Pagination{
 		Offset: off,
 		Limit:  lim,
+	}
+}
+
+func (p *Pagination) Page() database.Page {
+	return database.Page{
+		Offset: p.Offset,
+		Limit:  p.Limit,
 	}
 }
 

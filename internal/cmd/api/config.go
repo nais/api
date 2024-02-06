@@ -127,7 +127,7 @@ type Config struct {
 	//
 	// Example: google:gcp:project,nais:namespace
 	// Valid: [google:gcp:project|google:workspace-admin|nais:namespace|nais:deploy]
-	FirstRunEnableReconcilers []fixtures.EnableableReconciler `env:"FIRST_RUN_ENABLE_RECONCILERS"`
+	FirstRunEnableReconcilers []string `env:"FIRST_RUN_ENABLE_RECONCILERS"`
 
 	// StaticServiceAccounts A JSON-encoded value describing a set of service accounts to be created when the
 	// application starts. Refer to the README for the format.
@@ -159,7 +159,10 @@ type Config struct {
 // NewConfig creates a new configuration instance from environment variables
 func NewConfig(ctx context.Context, lookuper envconfig.Lookuper) (*Config, error) {
 	cfg := &Config{}
-	err := envconfig.ProcessWith(ctx, cfg, lookuper)
+	err := envconfig.ProcessWith(ctx, &envconfig.Config{
+		Target:   cfg,
+		Lookuper: lookuper,
+	})
 	if err != nil {
 		return nil, err
 	}

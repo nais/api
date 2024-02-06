@@ -14,16 +14,39 @@ WHERE NOT EXISTS (
 )
 ORDER BY teams.slug ASC;
 
+-- name: GetTeamEnvironments :many
+SELECT team_environments.*
+FROM team_environments
+WHERE team_environments.team_slug = @team_slug
+ORDER BY team_environments.environment ASC
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
+-- name: GetTeamEnvironmentsCount :one
+SELECT COUNT(*) as total
+FROM team_environments
+WHERE team_slug = @team_slug;
+
+-- name: GetTeamEnvironmentsBySlugsAndEnvNames :many
+-- Input is two arrays of equal length, one for slugs and one for names
+WITH input AS (
+    SELECT
+        unnest(@team_slugs::slug[]) AS team_slug,
+        unnest(@environments::text[]) AS environment
+)
+SELECT team_environments.*
+FROM team_environments
+JOIN input ON input.team_slug = team_environments.team_slug
+WHERE team_environments.environment = input.environment
+ORDER BY team_environments.environment ASC;
+;
+
 -- name: GetTeams :many
 SELECT teams.* FROM teams
-ORDER BY teams.slug ASC;
+ORDER BY teams.slug ASC
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
 -- name: GetTeamsCount :one
 SELECT COUNT(*) as total FROM teams;
-
--- name: GetTeamsPaginated :many
-SELECT teams.* FROM teams
-ORDER BY teams.slug ASC LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
 -- name: GetActiveTeamBySlug :one
 SELECT teams.* FROM teams
@@ -41,6 +64,11 @@ WHERE
 SELECT teams.* FROM teams
 WHERE teams.slug = @slug;
 
+-- name: GetTeamBySlugs :many
+SELECT * FROM teams
+WHERE slug = ANY(@slugs::slug[])
+ORDER BY slug ASC;
+
 -- name: GetAllTeamMembers :many
 SELECT users.* FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
@@ -52,18 +80,18 @@ ORDER BY users.name ASC;
 SELECT users.* FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 JOIN users ON users.id = user_roles.user_id
-WHERE user_roles.target_team_slug = @team_slug
+WHERE user_roles.target_team_slug = @team_slug::slug
 ORDER BY users.name ASC LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
 -- name: GetTeamMembersCount :one
-SELECT COUNT (*) FROM user_roles
+SELECT COUNT(*) FROM user_roles
 WHERE user_roles.target_team_slug = @team_slug;
 
 -- name: GetTeamMember :one
 SELECT users.* FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 JOIN users ON users.id = user_roles.user_id
-WHERE user_roles.target_team_slug = @team_slug AND users.id = @user_id
+WHERE user_roles.target_team_slug = @team_slug::slug AND users.id = @user_id
 ORDER BY users.name ASC;
 
 -- name: GetTeamMembersForReconciler :many
@@ -71,7 +99,7 @@ SELECT users.* FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 JOIN users ON users.id = user_roles.user_id
 WHERE
-    user_roles.target_team_slug = @team_slug
+    user_roles.target_team_slug = @team_slug::slug
     AND NOT EXISTS (
         SELECT roo.user_id
         FROM reconciler_opt_outs AS roo
@@ -89,9 +117,17 @@ SET purpose = COALESCE(sqlc.narg(purpose), purpose),
 WHERE slug = @slug
 RETURNING *;
 
+-- name: UpdateTeamExternalReferences :one
+UPDATE teams
+SET google_group_email = COALESCE(@google_group_email, google_group_email),
+    azure_group_id =  COALESCE(@azure_group_id, azure_group_id),
+    github_team_slug = COALESCE(@github_team_slug, github_team_slug)
+WHERE slug = @slug
+RETURNING *;
+
 -- name: RemoveUserFromTeam :exec
 DELETE FROM user_roles
-WHERE user_id = @user_id AND target_team_slug = @team_slug;
+WHERE user_id = @user_id AND target_team_slug = @team_slug::slug;
 
 -- name: SetLastSuccessfulSyncForTeam :exec
 UPDATE teams SET last_successful_sync = NOW()
@@ -128,7 +164,15 @@ WHERE key = @key;
 
 -- name: DeleteTeam :exec
 DELETE FROM teams
-WHERE slug = @slug;
+WHERE
+    teams.slug = @slug
+    AND EXISTS(
+        SELECT team_delete_keys.team_slug
+        FROM team_delete_keys
+        WHERE
+            team_delete_keys.team_slug = @slug
+            AND team_delete_keys.confirmed_at IS NOT NULL
+    );
 
 -- name: GetTeamMemberOptOuts :many
 SELECT

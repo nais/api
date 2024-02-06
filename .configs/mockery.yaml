@@ -16,3 +16,16 @@ packages:
   github.com/nais/api/internal/thirdparty/dependencytrack:
     interfaces:
       InternalClient:
+  github.com/nais/api/internal/database:
+    interfaces:
+      Database:
+  github.com/nais/api/internal/auth/authn:
+    interfaces:
+      Handler:
+  github.com/nais/api/internal/auth/authz:
+    interfaces:
+      AuthenticatedUser:
+  github.com/nais/api/pkg/protoapi:
+    config:
+      include-regex: ".*Server"
+      exclude-regex: "Unsafe.*"

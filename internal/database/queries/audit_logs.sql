@@ -19,8 +19,8 @@ ORDER BY created_at DESC
 LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
 -- name: GetAuditLogsForCorrelationIDCount :one
-select COUNT(*) from audit_logs
-where correlation_id = @correlation_id;
+SELECT COUNT(*) FROM audit_logs
+WHERE correlation_id = @correlation_id;
 
 -- name: GetAuditLogsForReconciler :many
 SELECT * FROM audit_logs

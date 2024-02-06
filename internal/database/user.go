@@ -5,35 +5,36 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database/gensql"
 )
 
 type UserRepo interface {
 	CreateUser(ctx context.Context, name, email, externalID string) (*User, error)
 	DeleteUser(ctx context.Context, userID uuid.UUID) error
-	// TODO: Remove GetAllUsers
-	// deprecated: Use GetUsers instead
-	GetAllUsers(ctx context.Context) ([]*User, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserByExternalID(ctx context.Context, externalID string) (*User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (*User, error)
 	GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*authz.Role, error)
-	// TODO: Fix issue with offset/limit being hard to check during compilation (Replace with custom types or struct)
-	GetUsers(ctx context.Context, offset, limit int) ([]*User, int, error)
+	GetUsers(ctx context.Context, p Page) ([]*User, int, error)
+	GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error)
 	UpdateUser(ctx context.Context, userID uuid.UUID, name, email, externalID string) (*User, error)
 }
 
 type UserRole struct {
-	*sqlc.UserRole
+	*gensql.UserRole
 }
 
 type UserTeam struct {
-	*sqlc.Team
-	RoleName sqlc.RoleName
+	*gensql.Team
+	RoleName gensql.RoleName
 }
 
 func (d *database) CreateUser(ctx context.Context, name, email, externalID string) (*User, error) {
-	user, err := d.querier.CreateUser(ctx, name, email, externalID)
+	user, err := d.querier.CreateUser(ctx, gensql.CreateUserParams{
+		Name:       name,
+		Email:      email,
+		ExternalID: externalID,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +74,12 @@ func (d *database) GetUserByExternalID(ctx context.Context, externalID string) (
 }
 
 func (d *database) UpdateUser(ctx context.Context, userID uuid.UUID, name, email, externalID string) (*User, error) {
-	user, err := d.querier.UpdateUser(ctx, name, externalID, userID, email)
+	user, err := d.querier.UpdateUser(ctx, gensql.UpdateUserParams{
+		Name:       name,
+		Email:      email,
+		ExternalID: externalID,
+		ID:         userID,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -81,10 +87,13 @@ func (d *database) UpdateUser(ctx context.Context, userID uuid.UUID, name, email
 	return wrapUser(user), nil
 }
 
-func (d *database) GetUsers(ctx context.Context, offset, limit int) ([]*User, int, error) {
-	var users []*sqlc.User
+func (d *database) GetUsers(ctx context.Context, p Page) ([]*User, int, error) {
+	var users []*gensql.User
 	var err error
-	users, err = d.querier.GetUsers(ctx, int32(limit), int32(offset))
+	users, err = d.querier.GetUsers(ctx, gensql.GetUsersParams{
+		Offset: int32(p.Offset),
+		Limit:  int32(p.Limit),
+	})
 	if err != nil {
 		return nil, 0, err
 	}
@@ -97,10 +106,8 @@ func (d *database) GetUsers(ctx context.Context, offset, limit int) ([]*User, in
 	return wrapUsers(users), int(total), nil
 }
 
-func (d *database) GetAllUsers(ctx context.Context) ([]*User, error) {
-	var users []*sqlc.User
-	var err error
-	users, err = d.querier.GetAllUsers(ctx)
+func (d *database) GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error) {
+	users, err := d.querier.GetUsersByIDs(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +115,7 @@ func (d *database) GetAllUsers(ctx context.Context) ([]*User, error) {
 	return wrapUsers(users), nil
 }
 
-func wrapUsers(users []*sqlc.User) []*User {
+func wrapUsers(users []*gensql.User) []*User {
 	result := make([]*User, 0)
 	for _, user := range users {
 		result = append(result, wrapUser(user))
@@ -117,7 +124,7 @@ func wrapUsers(users []*sqlc.User) []*User {
 	return result
 }
 
-func wrapUser(user *sqlc.User) *User {
+func wrapUser(user *gensql.User) *User {
 	return &User{User: user}
 }
 
@@ -141,7 +148,7 @@ func (d *database) GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*authz
 }
 
 type User struct {
-	*sqlc.User
+	*gensql.User
 	IsAdmin *bool
 }
 

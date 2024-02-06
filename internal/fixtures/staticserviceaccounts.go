@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/auth/authz"
-	db "github.com/nais/api/internal/database"
-	sqlc "github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database/gensql"
 )
 
 type ServiceAccount struct {
@@ -19,7 +19,7 @@ type ServiceAccount struct {
 }
 
 type ServiceAccountRole struct {
-	Name sqlc.RoleName `json:"name"`
+	Name gensql.RoleName `json:"name"`
 }
 
 const NaisServiceAccountPrefix = "nais-"
@@ -62,8 +62,8 @@ func (s *ServiceAccounts) UnmarshalJSON(value []byte) error {
 }
 
 // SetupStaticServiceAccounts Create a set of service accounts with roles and API keys
-func SetupStaticServiceAccounts(ctx context.Context, database db.Database, serviceAccounts ServiceAccounts) error {
-	return database.Transaction(ctx, func(ctx context.Context, dbtx db.Database) error {
+func SetupStaticServiceAccounts(ctx context.Context, db database.Database, serviceAccounts ServiceAccounts) error {
+	return db.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		serviceAccountNames := make(map[string]struct{})
 		for _, serviceAccountFromInput := range serviceAccounts {
 			serviceAccountNames[serviceAccountFromInput.Name] = struct{}{}
@@ -126,7 +126,7 @@ func SetupStaticServiceAccounts(ctx context.Context, database db.Database, servi
 	})
 }
 
-func hasGlobalRoleRole(roleName sqlc.RoleName, existingRoles []*authz.Role) bool {
+func hasGlobalRoleRole(roleName gensql.RoleName, existingRoles []*authz.Role) bool {
 	for _, r := range existingRoles {
 		if r.TargetTeamSlug != nil {
 			continue

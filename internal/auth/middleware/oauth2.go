@@ -7,12 +7,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/authz"
-	db "github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/database"
 )
 
 // Oauth2Authentication If the request has a session cookie, look up the session from the store, and if it exists, try
 // to load the user with the email address stored in the session.
-func Oauth2Authentication(database db.Database, authHandler authn.Handler) func(next http.Handler) http.Handler {
+func Oauth2Authentication(db database.Database, authHandler authn.Handler) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			cookie, err := r.Cookie(authn.SessionCookieName)
@@ -28,35 +28,35 @@ func Oauth2Authentication(database db.Database, authHandler authn.Handler) func(
 			}
 
 			ctx := r.Context()
-			session, err := database.GetSessionByID(ctx, sessionID)
+			session, err := db.GetSessionByID(ctx, sessionID)
 			if err != nil {
 				next.ServeHTTP(w, r)
 				return
 			}
 
 			if !session.Expires.Valid || session.Expires.Time.Before(time.Now()) {
-				_ = database.DeleteSession(ctx, sessionID)
+				_ = db.DeleteSession(ctx, sessionID)
 				next.ServeHTTP(w, r)
 				return
 			}
 
-			user, err := database.GetUserByID(ctx, session.UserID)
+			user, err := db.GetUserByID(ctx, session.UserID)
 			if err != nil {
-				_ = database.DeleteSession(ctx, sessionID)
+				_ = db.DeleteSession(ctx, sessionID)
 				next.ServeHTTP(w, r)
 				return
 			}
 
-			roles, err := database.GetUserRoles(ctx, user.ID)
+			roles, err := db.GetUserRoles(ctx, user.ID)
 			if err != nil {
 				next.ServeHTTP(w, r)
 				return
 			}
 
 			// extend the session every time the user does something
-			session, err = database.ExtendSession(ctx, sessionID)
+			session, err = db.ExtendSession(ctx, sessionID)
 			if err != nil {
-				_ = database.DeleteSession(ctx, sessionID)
+				_ = db.DeleteSession(ctx, sessionID)
 				next.ServeHTTP(w, r)
 				return
 			}

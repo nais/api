@@ -4,11 +4,6 @@ type PageInfo {
   hasPreviousPage: Boolean!
 }
 
-type Env {
-  id: ID!
-  name: String!
-}
-
 input OrderBy {
   "Order direction"
   direction: SortOrder!

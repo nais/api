@@ -304,11 +304,6 @@ func (DeprecatedRegistryError) IsStateError()             {}
 func (this DeprecatedRegistryError) GetRevision() string  { return this.Revision }
 func (this DeprecatedRegistryError) GetLevel() ErrorLevel { return this.Level }
 
-type Env struct {
-	ID   scalar.Ident `json:"id"`
-	Name string       `json:"name"`
-}
-
 // Env cost type.
 type EnvCost struct {
 	// The name of the environment.
@@ -379,20 +374,6 @@ type GcpProject struct {
 type GitHubRepositoriesFilter struct {
 	// Include archived repositories or not. Default is false.
 	IncludeArchivedRepositories bool `json:"includeArchivedRepositories"`
-}
-
-// GitHub repository type.
-type GitHubRepository struct {
-	// Name of the repository, with the org prefix.
-	Name string `json:"name"`
-	// A list of permissions given to the team for this repository.
-	Permissions []*GitHubRepositoryPermission `json:"permissions"`
-	// The name of the role the team has been granted in the repository.
-	RoleName string `json:"roleName"`
-	// Whether or not the repository is archived.
-	Archived bool `json:"archived"`
-	// A list of authorizations granted to the repository by the team.
-	Authorizations []RepositoryAuthorization `json:"authorizations"`
 }
 
 // Paginated GitHub repository type.
@@ -651,6 +632,14 @@ type ReconcilerConfigInput struct {
 	Key string `json:"key"`
 	// Configuration value.
 	Value string `json:"value"`
+}
+
+// Paginated reconcilers type.
+type ReconcilerList struct {
+	// The list of reconcilers.
+	Nodes []*Reconciler `json:"nodes"`
+	// Pagination information.
+	PageInfo PageInfo `json:"pageInfo"`
 }
 
 type Redis struct {

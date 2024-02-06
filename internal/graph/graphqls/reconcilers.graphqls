@@ -34,7 +34,7 @@ extend type Mutation {
     name: String!
   ): Reconciler! @admin
 
-  "Add opt-out of a reconciler for a team member. Only reconcilers that uses team memberships can be opted out from."
+  "Add opt-out of a reconciler for a team member. Only reconcilers that are member aware can be opted out from."
   addReconcilerOptOut(
     "The team slug."
     teamSlug: Slug!
@@ -61,7 +61,16 @@ extend type Mutation {
 
 extend type Query {
   "Get a collection of reconcilers."
-  reconcilers: [Reconciler!]! @auth
+  reconcilers(offset: Int, limit: Int): ReconcilerList! @auth
+}
+
+"Paginated reconcilers type."
+type ReconcilerList {
+  "The list of reconcilers."
+  nodes: [Reconciler!]!
+
+  "Pagination information."
+  pageInfo: PageInfo!
 }
 
 "Reconciler type."
@@ -79,16 +88,13 @@ type Reconciler {
   enabled: Boolean!
 
   "Whether or not the reconciler uses team memberships when syncing."
-  usesTeamMemberships: Boolean!
+  memberAware: Boolean!
 
   "Reconciler configuration keys and descriptions."
   config: [ReconcilerConfig!]! @admin
 
   "Whether or not the reconciler is fully configured and ready to be enabled."
   configured: Boolean! @admin
-
-  "The run order of the reconciler."
-  runOrder: Int!
 
   "Audit logs for this reconciler."
   auditLogs(offset: Int, limit: Int): AuditLogList! @admin
