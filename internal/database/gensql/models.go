@@ -297,6 +297,7 @@ type Team struct {
 	GoogleGroupEmail   *string
 	AzureGroupID       *uuid.UUID
 	GithubTeamSlug     *string
+	GarRepository      *string
 }
 
 type TeamAllEnvironment struct {

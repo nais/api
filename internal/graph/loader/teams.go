@@ -23,12 +23,13 @@ func GetTeam(ctx context.Context, teamSlug slug.Slug) (*model.Team, error) {
 
 func ToGraphTeam(m *database.Team) *model.Team {
 	ret := &model.Team{
-		Slug:             m.Slug,
-		Purpose:          m.Purpose,
-		SlackChannel:     m.SlackChannel,
-		GitHubTeamSlug:   m.GithubTeamSlug,
-		AzureGroupID:     m.AzureGroupID,
-		GoogleGroupEmail: m.GoogleGroupEmail,
+		Slug:                   m.Slug,
+		Purpose:                m.Purpose,
+		SlackChannel:           m.SlackChannel,
+		GitHubTeamSlug:         m.GithubTeamSlug,
+		AzureGroupID:           m.AzureGroupID,
+		GoogleGroupEmail:       m.GoogleGroupEmail,
+		GoogleArtifactRegistry: m.GarRepository,
 	}
 
 	if m.LastSuccessfulSync.Valid {

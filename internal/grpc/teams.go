@@ -99,6 +99,7 @@ func (t *TeamsServer) SetTeamExternalReferences(ctx context.Context, req *protoa
 		AzureGroupID:     aID,
 		GithubTeamSlug:   req.GithubTeamSlug,
 		GoogleGroupEmail: req.GoogleGroupEmail,
+		GarRepository:    req.GarRepository,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to update external references for team: %s", err)
@@ -141,6 +142,7 @@ func (t *TeamsServer) Environments(ctx context.Context, req *protoapi.ListTeamEn
 }
 
 func toProtoTeam(team *database.Team) *protoapi.Team {
+	// TODO(thokra): Should we make these fields optional
 	gge := ""
 	if team.GoogleGroupEmail != nil {
 		gge = *team.GoogleGroupEmail
@@ -156,6 +158,11 @@ func toProtoTeam(team *database.Team) *protoapi.Team {
 		aID = team.AzureGroupID.String()
 	}
 
+	gar := ""
+	if team.GarRepository != nil {
+		gar = *team.GarRepository
+	}
+
 	return &protoapi.Team{
 		Slug:             team.Slug.String(),
 		Purpose:          team.Purpose,
@@ -163,6 +170,7 @@ func toProtoTeam(team *database.Team) *protoapi.Team {
 		AzureGroupId:     aID,
 		GithubTeamSlug:   gts,
 		GoogleGroupEmail: gge,
+		GarRepository:    gar,
 	}
 }
 

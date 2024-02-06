@@ -12,6 +12,7 @@ message Team {
   string azure_group_id = 4;
   string github_team_slug = 5;
   string google_group_email = 6;
+  string gar_repository = 7;
 }
 
 service Teams {
@@ -35,6 +36,7 @@ message SetTeamExternalReferencesRequest {
   optional string azure_group_id = 2;
   optional string github_team_slug = 3;
   optional string google_group_email = 4;
+  optional string gar_repository = 5;
 }
 
 message SetTeamExternalReferencesResponse{}

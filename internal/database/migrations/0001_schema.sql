@@ -188,6 +188,7 @@ CREATE TABLE teams (
     google_group_email text,
     azure_group_id uuid,
     github_team_slug text,
+    gar_repository text,
     PRIMARY KEY(slug),
     CHECK ((TRIM(BOTH FROM purpose) <> ''::text)),
     CHECK ((slack_channel ~ '^#[a-z0-9æøå_-]{2,80}$'::text))
