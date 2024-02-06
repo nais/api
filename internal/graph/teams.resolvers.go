@@ -1339,8 +1339,42 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 }
 
 // VulnerabilityMetrics is the resolver for the vulnerabilityMetrics field.
-func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team) ([]*model.VulnerabilityMetric, error) {
-	panic(fmt.Errorf("not implemented: VulnerabilityMetrics - vulnerabilityMetrics"))
+func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team, from scalar.Date, to scalar.Date) ([]*model.VulnerabilityMetric, error) {
+	var metrics []*model.VulnerabilityMetric
+
+	err := ValidateDateInterval(from, to)
+	if err != nil {
+		return nil, err
+	}
+
+	fromDate, err := from.PgDate()
+	if err != nil {
+		return nil, err
+	}
+
+	toDate, err := to.PgDate()
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := r.database.DailyVulnerabilityForTeam(ctx, fromDate, toDate, obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, row := range rows {
+		metrics = append(metrics, &model.VulnerabilityMetric{
+			Date:       row.Date.Time,
+			Critical:   int(row.Critical),
+			High:       int(row.High),
+			Medium:     int(row.Medium),
+			Low:        int(row.Low),
+			Unassigned: int(row.Unassigned),
+			RiskScore:  int(row.RiskScore),
+		})
+	}
+
+	return metrics, nil
 }
 
 // Environments is the resolver for the environments field.
