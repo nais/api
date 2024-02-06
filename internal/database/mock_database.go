@@ -1167,29 +1167,29 @@ func (_c *MockDatabase_DailyEnvCostForTeam_Call) RunAndReturn(run func(context.C
 	return _c
 }
 
-// DailyVulnerabilityForTeam provides a mock function with given fields: ctx, fromDate, toDate, environment, teamSlug
-func (_m *MockDatabase) DailyVulnerabilityForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment *string, teamSlug slug.Slug) ([]*gensql.DailyEnvCostForTeamRow, error) {
-	ret := _m.Called(ctx, fromDate, toDate, environment, teamSlug)
+// DailyVulnerabilityForTeam provides a mock function with given fields: ctx, fromDate, toDate, teamSlug
+func (_m *MockDatabase) DailyVulnerabilityForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug) ([]*gensql.DailyVulnerabilityForTeamRow, error) {
+	ret := _m.Called(ctx, fromDate, toDate, teamSlug)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DailyVulnerabilityForTeam")
 	}
 
-	var r0 []*gensql.DailyEnvCostForTeamRow
+	var r0 []*gensql.DailyVulnerabilityForTeamRow
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Date, pgtype.Date, *string, slug.Slug) ([]*gensql.DailyEnvCostForTeamRow, error)); ok {
-		return rf(ctx, fromDate, toDate, environment, teamSlug)
+	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Date, pgtype.Date, slug.Slug) ([]*gensql.DailyVulnerabilityForTeamRow, error)); ok {
+		return rf(ctx, fromDate, toDate, teamSlug)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Date, pgtype.Date, *string, slug.Slug) []*gensql.DailyEnvCostForTeamRow); ok {
-		r0 = rf(ctx, fromDate, toDate, environment, teamSlug)
+	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Date, pgtype.Date, slug.Slug) []*gensql.DailyVulnerabilityForTeamRow); ok {
+		r0 = rf(ctx, fromDate, toDate, teamSlug)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*gensql.DailyEnvCostForTeamRow)
+			r0 = ret.Get(0).([]*gensql.DailyVulnerabilityForTeamRow)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, pgtype.Date, pgtype.Date, *string, slug.Slug) error); ok {
-		r1 = rf(ctx, fromDate, toDate, environment, teamSlug)
+	if rf, ok := ret.Get(1).(func(context.Context, pgtype.Date, pgtype.Date, slug.Slug) error); ok {
+		r1 = rf(ctx, fromDate, toDate, teamSlug)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1206,25 +1206,24 @@ type MockDatabase_DailyVulnerabilityForTeam_Call struct {
 //   - ctx context.Context
 //   - fromDate pgtype.Date
 //   - toDate pgtype.Date
-//   - environment *string
 //   - teamSlug slug.Slug
-func (_e *MockDatabase_Expecter) DailyVulnerabilityForTeam(ctx interface{}, fromDate interface{}, toDate interface{}, environment interface{}, teamSlug interface{}) *MockDatabase_DailyVulnerabilityForTeam_Call {
-	return &MockDatabase_DailyVulnerabilityForTeam_Call{Call: _e.mock.On("DailyVulnerabilityForTeam", ctx, fromDate, toDate, environment, teamSlug)}
+func (_e *MockDatabase_Expecter) DailyVulnerabilityForTeam(ctx interface{}, fromDate interface{}, toDate interface{}, teamSlug interface{}) *MockDatabase_DailyVulnerabilityForTeam_Call {
+	return &MockDatabase_DailyVulnerabilityForTeam_Call{Call: _e.mock.On("DailyVulnerabilityForTeam", ctx, fromDate, toDate, teamSlug)}
 }
 
-func (_c *MockDatabase_DailyVulnerabilityForTeam_Call) Run(run func(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment *string, teamSlug slug.Slug)) *MockDatabase_DailyVulnerabilityForTeam_Call {
+func (_c *MockDatabase_DailyVulnerabilityForTeam_Call) Run(run func(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug)) *MockDatabase_DailyVulnerabilityForTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(pgtype.Date), args[2].(pgtype.Date), args[3].(*string), args[4].(slug.Slug))
+		run(args[0].(context.Context), args[1].(pgtype.Date), args[2].(pgtype.Date), args[3].(slug.Slug))
 	})
 	return _c
 }
 
-func (_c *MockDatabase_DailyVulnerabilityForTeam_Call) Return(_a0 []*gensql.DailyEnvCostForTeamRow, _a1 error) *MockDatabase_DailyVulnerabilityForTeam_Call {
+func (_c *MockDatabase_DailyVulnerabilityForTeam_Call) Return(_a0 []*gensql.DailyVulnerabilityForTeamRow, _a1 error) *MockDatabase_DailyVulnerabilityForTeam_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockDatabase_DailyVulnerabilityForTeam_Call) RunAndReturn(run func(context.Context, pgtype.Date, pgtype.Date, *string, slug.Slug) ([]*gensql.DailyEnvCostForTeamRow, error)) *MockDatabase_DailyVulnerabilityForTeam_Call {
+func (_c *MockDatabase_DailyVulnerabilityForTeam_Call) RunAndReturn(run func(context.Context, pgtype.Date, pgtype.Date, slug.Slug) ([]*gensql.DailyVulnerabilityForTeamRow, error)) *MockDatabase_DailyVulnerabilityForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
