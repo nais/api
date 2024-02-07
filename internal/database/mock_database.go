@@ -6199,7 +6199,7 @@ func (_c *MockDatabase_UserIsTeamOwner_Call) RunAndReturn(run func(context.Conte
 }
 
 // VulnerabilityMetricsUpsert provides a mock function with given fields: ctx, arg
-func (_m *MockDatabase) VulnerabilityMetricsUpsert(ctx context.Context, arg []gensql.VulnerabilityMetricsUpsertParams) (*gensql.VulnerabilityMetricsUpsertBatchResults, error) {
+func (_m *MockDatabase) VulnerabilityMetricsUpsert(ctx context.Context, arg []gensql.VulnerabilityMetricsUpsertParams) *gensql.VulnerabilityMetricsUpsertBatchResults {
 	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
@@ -6207,10 +6207,6 @@ func (_m *MockDatabase) VulnerabilityMetricsUpsert(ctx context.Context, arg []ge
 	}
 
 	var r0 *gensql.VulnerabilityMetricsUpsertBatchResults
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []gensql.VulnerabilityMetricsUpsertParams) (*gensql.VulnerabilityMetricsUpsertBatchResults, error)); ok {
-		return rf(ctx, arg)
-	}
 	if rf, ok := ret.Get(0).(func(context.Context, []gensql.VulnerabilityMetricsUpsertParams) *gensql.VulnerabilityMetricsUpsertBatchResults); ok {
 		r0 = rf(ctx, arg)
 	} else {
@@ -6219,13 +6215,7 @@ func (_m *MockDatabase) VulnerabilityMetricsUpsert(ctx context.Context, arg []ge
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, []gensql.VulnerabilityMetricsUpsertParams) error); ok {
-		r1 = rf(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 // MockDatabase_VulnerabilityMetricsUpsert_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VulnerabilityMetricsUpsert'
@@ -6247,12 +6237,12 @@ func (_c *MockDatabase_VulnerabilityMetricsUpsert_Call) Run(run func(ctx context
 	return _c
 }
 
-func (_c *MockDatabase_VulnerabilityMetricsUpsert_Call) Return(_a0 *gensql.VulnerabilityMetricsUpsertBatchResults, _a1 error) *MockDatabase_VulnerabilityMetricsUpsert_Call {
-	_c.Call.Return(_a0, _a1)
+func (_c *MockDatabase_VulnerabilityMetricsUpsert_Call) Return(_a0 *gensql.VulnerabilityMetricsUpsertBatchResults) *MockDatabase_VulnerabilityMetricsUpsert_Call {
+	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockDatabase_VulnerabilityMetricsUpsert_Call) RunAndReturn(run func(context.Context, []gensql.VulnerabilityMetricsUpsertParams) (*gensql.VulnerabilityMetricsUpsertBatchResults, error)) *MockDatabase_VulnerabilityMetricsUpsert_Call {
+func (_c *MockDatabase_VulnerabilityMetricsUpsert_Call) RunAndReturn(run func(context.Context, []gensql.VulnerabilityMetricsUpsertParams) *gensql.VulnerabilityMetricsUpsertBatchResults) *MockDatabase_VulnerabilityMetricsUpsert_Call {
 	_c.Call.Return(run)
 	return _c
 }

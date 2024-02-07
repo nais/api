@@ -13,6 +13,7 @@ CREATE TABLE dependencytrack_projects(
 );
 
 CREATE TABLE vulnerability_metrics(
+    id                         uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
     date                       date             NOT NULL,
     dependencytrack_project_id uuid             NOT NULL,
     critical                   integer          NOT NULL,
@@ -21,8 +22,8 @@ CREATE TABLE vulnerability_metrics(
     low                        integer          NOT NULL,
     unassigned                 integer          NOT NULL,
     risk_score                 double precision NOT NULL,
-    PRIMARY KEY (dependencytrack_project_id),
     CONSTRAINT vulnerability_metric UNIQUE (date, dependencytrack_project_id)
+
 );
 
 ALTER TABLE vulnerability_metrics
