@@ -84,6 +84,12 @@ type InvalidNaisYamlError implements StateError {
   detail: String!
 }
 
+type SynchronizationFailingError implements StateError {
+  revision: String!
+  level: ErrorLevel!
+  detail: String!
+}
+
 type InboundAccessError implements StateError {
   revision: String!
   level: ErrorLevel!
