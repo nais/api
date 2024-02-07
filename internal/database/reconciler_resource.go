@@ -12,10 +12,11 @@ type ReconcilerResource struct {
 }
 
 type ReconcilerResourceRepo interface {
-	UpsertReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value []byte, metadata []byte) (*ReconcilerResource, error)
+	DeleteAllReconcilerResources(ctx context.Context, reconcilerName string, teamSlug slug.Slug) error
+	GetReconcilerResources(ctx context.Context, reconcilerName string, teamSlug *slug.Slug, p Page) ([]*ReconcilerResource, error)
 	GetReconcilerResourcesByKey(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, p Page) (ret []*ReconcilerResource, total int, err error)
 	GetReconcilerResourcesByKeyAndValue(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value []byte) (ret *ReconcilerResource, err error)
-	GetReconcilerResources(ctx context.Context, reconcilerName string, teamSlug *slug.Slug, p Page) ([]*ReconcilerResource, error)
+	UpsertReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value []byte, metadata []byte) (*ReconcilerResource, error)
 }
 
 func (d *database) GetReconcilerResources(ctx context.Context, reconcilerName string, teamSlug *slug.Slug, p Page) ([]*ReconcilerResource, error) {
@@ -103,4 +104,11 @@ func (d *database) GetReconcilerResourcesByKeyAndValue(ctx context.Context, reco
 	}
 
 	return &ReconcilerResource{res}, nil
+}
+
+func (d *database) DeleteAllReconcilerResources(ctx context.Context, reconcilerName string, teamSlug slug.Slug) error {
+	return d.querier.DeleteAllReconcilerResources(ctx, gensql.DeleteAllReconcilerResourcesParams{
+		ReconcilerName: reconcilerName,
+		TeamSlug:       teamSlug,
+	})
 }

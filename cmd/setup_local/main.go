@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"os"
 	"strings"
+	"time"
 	"unicode"
 
 	"cloud.google.com/go/pubsub"
@@ -90,6 +91,15 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 	}
 
 	if _, err := client.CreateTopic(ctx, "nais-api"); err != nil {
+		if s, ok := status.FromError(err); !ok || s.Code() != codes.AlreadyExists {
+			return err
+		}
+	}
+
+	if _, err := client.CreateSubscription(ctx, "api-reconcilers-api-events", pubsub.SubscriptionConfig{
+		Topic:             client.Topic("nais-api"),
+		RetentionDuration: 1 * time.Hour,
+	}); err != nil {
 		if s, ok := status.FromError(err); !ok || s.Code() != codes.AlreadyExists {
 			return err
 		}
