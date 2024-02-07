@@ -1225,6 +1225,54 @@ func (_c *MockDatabase_DeleteAllEnvironments_Call) RunAndReturn(run func(context
 	return _c
 }
 
+// DeleteAllReconcilerResources provides a mock function with given fields: ctx, reconcilerName, teamSlug
+func (_m *MockDatabase) DeleteAllReconcilerResources(ctx context.Context, reconcilerName string, teamSlug slug.Slug) error {
+	ret := _m.Called(ctx, reconcilerName, teamSlug)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteAllReconcilerResources")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug) error); ok {
+		r0 = rf(ctx, reconcilerName, teamSlug)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockDatabase_DeleteAllReconcilerResources_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteAllReconcilerResources'
+type MockDatabase_DeleteAllReconcilerResources_Call struct {
+	*mock.Call
+}
+
+// DeleteAllReconcilerResources is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reconcilerName string
+//   - teamSlug slug.Slug
+func (_e *MockDatabase_Expecter) DeleteAllReconcilerResources(ctx interface{}, reconcilerName interface{}, teamSlug interface{}) *MockDatabase_DeleteAllReconcilerResources_Call {
+	return &MockDatabase_DeleteAllReconcilerResources_Call{Call: _e.mock.On("DeleteAllReconcilerResources", ctx, reconcilerName, teamSlug)}
+}
+
+func (_c *MockDatabase_DeleteAllReconcilerResources_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug)) *MockDatabase_DeleteAllReconcilerResources_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_DeleteAllReconcilerResources_Call) Return(_a0 error) *MockDatabase_DeleteAllReconcilerResources_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockDatabase_DeleteAllReconcilerResources_Call) RunAndReturn(run func(context.Context, string, slug.Slug) error) *MockDatabase_DeleteAllReconcilerResources_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DeleteReconcilerConfig provides a mock function with given fields: ctx, reconcilerName, keysToDelete
 func (_m *MockDatabase) DeleteReconcilerConfig(ctx context.Context, reconcilerName string, keysToDelete []string) error {
 	ret := _m.Called(ctx, reconcilerName, keysToDelete)
