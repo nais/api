@@ -28,8 +28,6 @@ message SaveReconcilerResourceRequest {
   repeated NewReconcilerResource resources = 1;
   string reconciler_name = 2;
   string team_slug = 3;
-  // If true, delete all resources that are not in the request for the team.
-  bool delete_undefined = 4;
 }
 
 message DeleteReconcilerResourcesRequest {
