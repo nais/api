@@ -2,12 +2,10 @@ package graph_test
 
 import (
 	"context"
-	"net"
-	"os"
 	"testing"
-	"time"
 
 	"cloud.google.com/go/pubsub"
+	"cloud.google.com/go/pubsub/pstest"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/auditlogger"
@@ -26,6 +24,9 @@ import (
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"google.golang.org/api/option"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func TestMutationResolver_CreateTeam(t *testing.T) {
@@ -108,14 +109,14 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 			Return(nil).
 			Once()
 
-		pubsubClient, err := getPubsubClient(ctx, t)
-		if err != nil {
-			t.Fatal("unexpected error when creating pubsub client")
-		}
+		_, psClient, closer := getPubsubServerAndClient(ctx, "some-id", "topic-id")
+		defer closer()
+
+		// TODO: check message sent to the pubsub topic
 
 		auditLogger := auditlogger.NewAuditLoggerForTesting()
 		returnedTeam, err := graph.
-			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditLogger, nil, userSyncRuns, pubsubClient.Topic("topic-id"), log).
+			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditLogger, nil, userSyncRuns, psClient.Topic("topic-id"), log).
 			Mutation().
 			CreateTeam(ctx, model.CreateTeamInput{
 				Slug:         teamSlug,
@@ -159,14 +160,14 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 			Return(nil).
 			Once()
 
-		pubsubClient, err := getPubsubClient(ctx, t)
-		if err != nil {
-			t.Fatal("unexpected error when creating pubsub client")
-		}
+		_, psClient, closer := getPubsubServerAndClient(ctx, "some-id", "topic-id")
+		defer closer()
+
+		// TODO: check message sent to the pubsub topic
 
 		auditLogger := auditlogger.NewAuditLoggerForTesting()
 		returnedTeam, err := graph.
-			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditLogger, nil, userSyncRuns, pubsubClient.Topic("topic-id"), log).
+			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditLogger, nil, userSyncRuns, psClient.Topic("topic-id"), log).
 			Mutation().CreateTeam(saCtx, model.CreateTeamInput{
 			Slug:         teamSlug,
 			Purpose:      " some purpose ",
@@ -350,13 +351,22 @@ func TestMutationResolver_RequestTeamDeletion(t *testing.T) {
 	})
 }
 
-func getPubsubClient(ctx context.Context, t *testing.T) (*pubsub.Client, error) {
-	host, port := "localhost", "3004"
-	if err := os.Setenv("PUBSUB_EMULATOR_HOST", host+":"+port); err != nil {
-		t.Fatal("unable to set env var for pubsub emulator")
-	} else if _, err := net.DialTimeout("tcp", net.JoinHostPort(host, port), time.Second); err != nil {
-		t.Fatal("unable to connect to pubsub emulator, start it with docker compose up -d")
+func getPubsubServerAndClient(ctx context.Context, projectID string, topics ...string) (*pstest.Server, *pubsub.Client, func()) {
+	srv := pstest.NewServer()
+	client, _ := pubsub.NewClient(
+		ctx,
+		projectID,
+		option.WithEndpoint(srv.Addr),
+		option.WithoutAuthentication(),
+		option.WithGRPCDialOption(grpc.WithTransportCredentials(insecure.NewCredentials())),
+	)
+
+	for _, topic := range topics {
+		_, _ = client.CreateTopic(ctx, topic)
 	}
 
-	return pubsub.NewClient(ctx, "some-id")
+	return srv, client, func() {
+		_ = srv.Close()
+		_ = client.Close()
+	}
 }

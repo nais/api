@@ -6,13 +6,18 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: ${{ needs.go_version.outputs.go_version }}
       - uses: asdf-vm/actions/install@v3
+        with:
+          before_install: |
+            asdf install golang latest
+            asdf global golang latest
+
       - run: go test ./...
       - run: helm lint --strict ./charts
-      - run: make check
+      - run: make staticcheck
+      - run: make vulncheck
+      - run: make deadcode
       - run: |
+          make fmt
           make generate
           git diff --exit-code --name-only
