@@ -43,7 +43,8 @@ jobs:
       # - run: helm lint --strict ./charts
       - run: make staticcheck
       - run: make vulncheck
-      - run: |
+      - name: Check code format and run code generators
+        run: |
           make fmt
           make generate
           git diff --exit-code --name-only
