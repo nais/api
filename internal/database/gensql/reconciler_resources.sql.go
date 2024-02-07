@@ -69,7 +69,7 @@ type GetReconcilerResourceByKeyAndValueParams struct {
 	ReconcilerName string
 	TeamSlug       slug.Slug
 	Name           string
-	Value          string
+	Value          []byte
 }
 
 func (q *Queries) GetReconcilerResourceByKeyAndValue(ctx context.Context, arg GetReconcilerResourceByKeyAndValueParams) (*ReconcilerResource, error) {
@@ -227,7 +227,7 @@ type UpsertReconcilerResourceParams struct {
 	ReconcilerName string
 	TeamSlug       slug.Slug
 	Name           string
-	Value          string
+	Value          []byte
 	Metadata       interface{}
 }
 

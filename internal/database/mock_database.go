@@ -2380,7 +2380,7 @@ func (_c *MockDatabase_GetReconcilerResourcesByKey_Call) RunAndReturn(run func(c
 }
 
 // GetReconcilerResourcesByKeyAndValue provides a mock function with given fields: ctx, reconcilerName, teamSlug, key, value
-func (_m *MockDatabase) GetReconcilerResourcesByKeyAndValue(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value string) (*ReconcilerResource, error) {
+func (_m *MockDatabase) GetReconcilerResourcesByKeyAndValue(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value []byte) (*ReconcilerResource, error) {
 	ret := _m.Called(ctx, reconcilerName, teamSlug, key, value)
 
 	if len(ret) == 0 {
@@ -2389,10 +2389,10 @@ func (_m *MockDatabase) GetReconcilerResourcesByKeyAndValue(ctx context.Context,
 
 	var r0 *ReconcilerResource
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, string) (*ReconcilerResource, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, []byte) (*ReconcilerResource, error)); ok {
 		return rf(ctx, reconcilerName, teamSlug, key, value)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, string) *ReconcilerResource); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, []byte) *ReconcilerResource); ok {
 		r0 = rf(ctx, reconcilerName, teamSlug, key, value)
 	} else {
 		if ret.Get(0) != nil {
@@ -2400,7 +2400,7 @@ func (_m *MockDatabase) GetReconcilerResourcesByKeyAndValue(ctx context.Context,
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string, string) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string, []byte) error); ok {
 		r1 = rf(ctx, reconcilerName, teamSlug, key, value)
 	} else {
 		r1 = ret.Error(1)
@@ -2419,14 +2419,14 @@ type MockDatabase_GetReconcilerResourcesByKeyAndValue_Call struct {
 //   - reconcilerName string
 //   - teamSlug slug.Slug
 //   - key string
-//   - value string
+//   - value []byte
 func (_e *MockDatabase_Expecter) GetReconcilerResourcesByKeyAndValue(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, key interface{}, value interface{}) *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call {
 	return &MockDatabase_GetReconcilerResourcesByKeyAndValue_Call{Call: _e.mock.On("GetReconcilerResourcesByKeyAndValue", ctx, reconcilerName, teamSlug, key, value)}
 }
 
-func (_c *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value string)) *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call {
+func (_c *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value []byte)) *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].(string))
+		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].([]byte))
 	})
 	return _c
 }
@@ -2436,7 +2436,7 @@ func (_c *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call) Return(ret *Rec
 	return _c
 }
 
-func (_c *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, string) (*ReconcilerResource, error)) *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call {
+func (_c *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, []byte) (*ReconcilerResource, error)) *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -5955,7 +5955,7 @@ func (_c *MockDatabase_UpsertReconcilerConfig_Call) RunAndReturn(run func(contex
 }
 
 // UpsertReconcilerResource provides a mock function with given fields: ctx, reconcilerName, teamSlug, key, value, metadata
-func (_m *MockDatabase) UpsertReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value string, metadata []byte) (*ReconcilerResource, error) {
+func (_m *MockDatabase) UpsertReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value []byte, metadata []byte) (*ReconcilerResource, error) {
 	ret := _m.Called(ctx, reconcilerName, teamSlug, key, value, metadata)
 
 	if len(ret) == 0 {
@@ -5964,10 +5964,10 @@ func (_m *MockDatabase) UpsertReconcilerResource(ctx context.Context, reconciler
 
 	var r0 *ReconcilerResource
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, string, []byte) (*ReconcilerResource, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, []byte, []byte) (*ReconcilerResource, error)); ok {
 		return rf(ctx, reconcilerName, teamSlug, key, value, metadata)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, string, []byte) *ReconcilerResource); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, []byte, []byte) *ReconcilerResource); ok {
 		r0 = rf(ctx, reconcilerName, teamSlug, key, value, metadata)
 	} else {
 		if ret.Get(0) != nil {
@@ -5975,7 +5975,7 @@ func (_m *MockDatabase) UpsertReconcilerResource(ctx context.Context, reconciler
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string, string, []byte) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string, []byte, []byte) error); ok {
 		r1 = rf(ctx, reconcilerName, teamSlug, key, value, metadata)
 	} else {
 		r1 = ret.Error(1)
@@ -5994,15 +5994,15 @@ type MockDatabase_UpsertReconcilerResource_Call struct {
 //   - reconcilerName string
 //   - teamSlug slug.Slug
 //   - key string
-//   - value string
+//   - value []byte
 //   - metadata []byte
 func (_e *MockDatabase_Expecter) UpsertReconcilerResource(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, key interface{}, value interface{}, metadata interface{}) *MockDatabase_UpsertReconcilerResource_Call {
 	return &MockDatabase_UpsertReconcilerResource_Call{Call: _e.mock.On("UpsertReconcilerResource", ctx, reconcilerName, teamSlug, key, value, metadata)}
 }
 
-func (_c *MockDatabase_UpsertReconcilerResource_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value string, metadata []byte)) *MockDatabase_UpsertReconcilerResource_Call {
+func (_c *MockDatabase_UpsertReconcilerResource_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value []byte, metadata []byte)) *MockDatabase_UpsertReconcilerResource_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].(string), args[5].([]byte))
+		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].([]byte), args[5].([]byte))
 	})
 	return _c
 }
@@ -6012,7 +6012,7 @@ func (_c *MockDatabase_UpsertReconcilerResource_Call) Return(_a0 *ReconcilerReso
 	return _c
 }
 
-func (_c *MockDatabase_UpsertReconcilerResource_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, string, []byte) (*ReconcilerResource, error)) *MockDatabase_UpsertReconcilerResource_Call {
+func (_c *MockDatabase_UpsertReconcilerResource_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, []byte, []byte) (*ReconcilerResource, error)) *MockDatabase_UpsertReconcilerResource_Call {
 	_c.Call.Return(run)
 	return _c
 }

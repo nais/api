@@ -10,7 +10,7 @@ message ReconcilerResource {
   string reconciler_name = 2;
   string team_slug = 3;
   string name = 4;
-  string value = 5;
+  bytes value = 5;
   bytes metadata = 6;
   google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp updated_at = 8;
@@ -41,7 +41,7 @@ message DeleteReconcilerResourcesResponse {}
 
 message NewReconcilerResource {
   string name = 1;
-  string value = 2;
+  bytes value = 2;
   bytes metadata = 3;
 }
 

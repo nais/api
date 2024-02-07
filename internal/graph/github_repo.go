@@ -34,7 +34,7 @@ func toGraphGitHubRepository(r *database.ReconcilerResource) (*model.GitHubRepos
 	}
 	return &model.GitHubRepository{
 		ID:       r.ID,
-		Name:     r.Value,
+		Name:     string(r.Value),
 		RoleName: meta.RoleName,
 		Archived: meta.Archived,
 		Permissions: func() []*model.GitHubRepositoryPermission {

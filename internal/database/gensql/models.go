@@ -253,7 +253,7 @@ type ReconcilerResource struct {
 	ReconcilerName string
 	TeamSlug       slug.Slug
 	Name           string
-	Value          string
+	Value          []byte
 	Metadata       []byte
 	CreatedAt      pgtype.Timestamptz
 	UpdatedAt      pgtype.Timestamptz
