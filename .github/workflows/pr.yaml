@@ -6,6 +6,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+      - uses: asdf-vm/actions/setup@v3
       - id: asdf-cache
         uses: actions/cache@v4
         with:
@@ -20,6 +21,7 @@ jobs:
       - name: Find go cache dir
         id: go-cache
         run: |
+          go version
           # Clear cache dirs to avoid error when restoring
           go clean -cache -modcache
           echo "gocache=$(go env GOCACHE)" >> $GITHUB_OUTPUT
@@ -35,7 +37,8 @@ jobs:
       - run: helm lint --strict ./charts
       - run: make staticcheck
       - run: make vulncheck
-      - run: |
+      - name: Check code format and run code generators
+        run: |
           make fmt
           make generate
           git diff --exit-code --name-only
