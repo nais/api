@@ -28,6 +28,7 @@ jobs:
       - name: Find go cache dir
         id: go-cache
         run: |
+          go version
           # Clear cache dirs to avoid error when restoring
           go clean -cache -modcache
           echo "gocache=$(go env GOCACHE)" >> $GITHUB_OUTPUT
