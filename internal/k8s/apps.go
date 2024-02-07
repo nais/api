@@ -650,9 +650,14 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 	ret.Ingresses = ingresses
 
 	if app.Spec.Replicas != nil {
+		//lint:ignore SA1019 we need to fallback to this value
+		cpuThreshold := app.Spec.Replicas.CpuThresholdPercentage
+		if app.Spec.Replicas.ScalingStrategy != nil && app.Spec.Replicas.ScalingStrategy.Cpu != nil && app.Spec.Replicas.ScalingStrategy.Cpu.ThresholdPercentage > 0 {
+			cpuThreshold = app.Spec.Replicas.ScalingStrategy.Cpu.ThresholdPercentage
+		}
 		ret.AutoScaling = model.AutoScaling{
 			Disabled:     app.Spec.Replicas.DisableAutoScaling,
-			CPUThreshold: app.Spec.Replicas.CpuThresholdPercentage,
+			CPUThreshold: cpuThreshold,
 		}
 		if app.Spec.Replicas.Min != nil {
 			ret.AutoScaling.Min = *app.Spec.Replicas.Min
