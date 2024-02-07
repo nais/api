@@ -1334,6 +1334,53 @@ func (_c *MockQuerier_DeleteAllEnvironments_Call) RunAndReturn(run func(context.
 	return _c
 }
 
+// DeleteAllReconcilerResources provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) DeleteAllReconcilerResources(ctx context.Context, arg DeleteAllReconcilerResourcesParams) error {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteAllReconcilerResources")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, DeleteAllReconcilerResourcesParams) error); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockQuerier_DeleteAllReconcilerResources_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteAllReconcilerResources'
+type MockQuerier_DeleteAllReconcilerResources_Call struct {
+	*mock.Call
+}
+
+// DeleteAllReconcilerResources is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg DeleteAllReconcilerResourcesParams
+func (_e *MockQuerier_Expecter) DeleteAllReconcilerResources(ctx interface{}, arg interface{}) *MockQuerier_DeleteAllReconcilerResources_Call {
+	return &MockQuerier_DeleteAllReconcilerResources_Call{Call: _e.mock.On("DeleteAllReconcilerResources", ctx, arg)}
+}
+
+func (_c *MockQuerier_DeleteAllReconcilerResources_Call) Run(run func(ctx context.Context, arg DeleteAllReconcilerResourcesParams)) *MockQuerier_DeleteAllReconcilerResources_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(DeleteAllReconcilerResourcesParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_DeleteAllReconcilerResources_Call) Return(_a0 error) *MockQuerier_DeleteAllReconcilerResources_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockQuerier_DeleteAllReconcilerResources_Call) RunAndReturn(run func(context.Context, DeleteAllReconcilerResourcesParams) error) *MockQuerier_DeleteAllReconcilerResources_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DeleteReconcilerConfig provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) DeleteReconcilerConfig(ctx context.Context, arg DeleteReconcilerConfigParams) error {
 	ret := _m.Called(ctx, arg)
