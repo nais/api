@@ -144,7 +144,7 @@ func (b *ResourceUtilizationUpsertBatchResults) Close() error {
 const vulnerabilityMetricsUpsert = `-- name: VulnerabilityMetricsUpsert :batchexec
 INSERT INTO vulnerability_metrics (date, dependencytrack_project_id, critical, high, medium, low, unassigned, risk_score)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-    ON CONFLICT ON CONSTRAINT vulnerability_metrics DO NOTHING
+    ON CONFLICT ON CONSTRAINT vulnerability_metric DO NOTHING
 `
 
 type VulnerabilityMetricsUpsertBatchResults struct {

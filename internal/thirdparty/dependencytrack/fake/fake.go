@@ -2,6 +2,7 @@ package fake
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"math/rand"
 
 	"github.com/nais/api/internal/graph/model"
@@ -14,6 +15,8 @@ type FakeDependencytrackClient struct{}
 func New() *FakeDependencytrackClient {
 	return &FakeDependencytrackClient{}
 }
+
+var mapOfApps = map[string]uuid.UUID{}
 
 func (f *FakeDependencytrackClient) VulnerabilitySummary(ctx context.Context, app *dependencytrack.AppInstance) (*model.Vulnerability, error) {
 	critical := rand.Intn(10)
@@ -55,8 +58,16 @@ func (f *FakeDependencytrackClient) GetProjectMetrics(ctx context.Context, app *
 	low := rand.Intn(10)
 	unassigned := rand.Intn(10)
 
+	var uuId uuid.UUID
+	if mapOfApps[app.ID()] == uuid.Nil {
+		uuId = uuid.New()
+		mapOfApps[app.ID()] = uuId
+	} else {
+		uuId = mapOfApps[app.ID()]
+	}
+
 	return &model.VulnerabilityMetrics{
-		ProjectID: scalar.VulnerabilitiesIdent(app.ID()),
+		ProjectID: scalar.VulnerabilitiesIdent(uuId.String()),
 		VulnerabilitySummary: &model.VulnerabilitySummary{
 			Total:      critical + high + medium + low + unassigned,
 			RiskScore:  ((critical * 10) + (high * 5) + (medium * 3) + (low * 1) + (unassigned * 5)),
