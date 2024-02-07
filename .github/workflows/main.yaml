@@ -5,8 +5,6 @@ on:
       - main
 jobs:
   build_push:
-    needs:
-      - go_version
     outputs:
       version: ${{ steps.build-push-sign.outputs.version }}
     permissions:
