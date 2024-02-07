@@ -1,0 +1,28 @@
+name: Build and push image and chart
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build_push:
+    needs:
+      - go_version
+    outputs:
+      version: ${{ steps.build-push-sign.outputs.version }}
+    permissions:
+      contents: read
+      id-token: write
+    name: Build and push
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ needs.go_version.outputs.go_version }}
+      - uses: asdf-vm/actions/install@v3
+      - run: go test ./...
+      - run: helm lint --strict ./charts
+      - run: make check
+      - run: |
+          make generate
+          git diff --exit-code --name-only

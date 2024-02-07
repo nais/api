@@ -1,0 +1,18 @@
+name: Check pull request
+on: pull_request
+jobs:
+  test:
+    name: Check pull request
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ needs.go_version.outputs.go_version }}
+      - uses: asdf-vm/actions/install@v3
+      - run: go test ./...
+      - run: helm lint --strict ./charts
+      - run: make check
+      - run: |
+          make generate
+          git diff --exit-code --name-only
