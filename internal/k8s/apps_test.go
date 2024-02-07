@@ -53,7 +53,7 @@ func TestSetStatus(t *testing.T) {
 			ingresses:      []string{"myapp.nav.cloud.nais.io"},
 			expectedState:  model.StateNotnais,
 			expectedErrors: []model.StateError{
-				&model.InvalidNaisYamlError{
+				&model.SynchronizationFailingError{
 					Revision: "1",
 					Level:    model.ErrorLevelError,
 				},
@@ -70,7 +70,7 @@ func TestSetStatus(t *testing.T) {
 				&model.NoRunningInstancesError{
 					Revision: "1",
 					Level:    model.ErrorLevelError,
-				}, &model.InvalidNaisYamlError{
+				}, &model.SynchronizationFailingError{
 					Revision: "1",
 					Level:    model.ErrorLevelError,
 				},
@@ -146,15 +146,17 @@ func TestSetStatus(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		app := &model.App{Image: tc.image, Ingresses: tc.ingresses, Env: model.Env{Name: "prod-gcp"}, AutoScaling: model.AutoScaling{Min: 1, Max: 2}}
-		setStatus(app, []metav1.Condition{{Status: metav1.ConditionTrue, Reason: string(tc.appCondition)}}, asInstances(tc.instanceStates))
+		t.Run(tc.name, func(t *testing.T) {
+			app := &model.App{Image: tc.image, Ingresses: tc.ingresses, Env: model.Env{Name: "prod-gcp"}, AutoScaling: model.AutoScaling{Min: 1, Max: 2}}
+			setStatus(app, []metav1.Condition{{Status: metav1.ConditionTrue, Reason: tc.appCondition, Type: "SynchronizationState"}}, asInstances(tc.instanceStates))
 
-		if app.AppState.State != tc.expectedState {
-			t.Errorf("%s\ngot state: %v, want: %v", tc.name, app.AppState.State, tc.expectedState)
-		}
-		if !hasError(app.AppState.Errors, tc.expectedErrors) {
-			t.Errorf("%s\ngot error: %v, want: %v", tc.name, app.AppState.Errors, tc.expectedErrors)
-		}
+			if app.AppState.State != tc.expectedState {
+				t.Errorf("%s\ngot state: %v, want: %v", tc.name, app.AppState.State, tc.expectedState)
+			}
+			if !hasError(app.AppState.Errors, tc.expectedErrors) {
+				t.Errorf("%s\ngot error: %v, want: %v", tc.name, app.AppState.Errors, tc.expectedErrors)
+			}
+		})
 	}
 }
 
