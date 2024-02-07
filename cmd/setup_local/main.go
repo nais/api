@@ -5,12 +5,13 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/jackc/pgx/v5/pgtype"
 	"math/rand"
 	"os"
 	"strings"
 	"time"
 	"unicode"
+
+	"github.com/jackc/pgx/v5/pgtype"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
@@ -92,7 +93,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	if false {
+	if *cfg.ProvisionPubSub {
 		if err := os.Setenv("PUBSUB_EMULATOR_HOST", "localhost:3004"); err != nil {
 			return err
 		}
