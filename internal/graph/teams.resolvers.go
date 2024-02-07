@@ -718,7 +718,7 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, key string) 
 		return false, apierror.Errorf("You cannot confirm your own delete key.")
 	}
 
-	if !deleteKey.ConfirmedAt.Valid {
+	if deleteKey.ConfirmedAt.Valid {
 		return false, apierror.Errorf("Key has already been confirmed, team is currently being deleted.")
 	}
 

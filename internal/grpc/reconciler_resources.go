@@ -72,6 +72,23 @@ func (r *ReconcilerResourcesServer) List(ctx context.Context, req *protoapi.List
 	return resp, nil
 }
 
+func (r *ReconcilerResourcesServer) Delete(ctx context.Context, req *protoapi.DeleteReconcilerResourcesRequest) (*protoapi.DeleteReconcilerResourcesResponse, error) {
+	if req.ReconcilerName == "" {
+		return nil, status.Error(400, "reconcilerName is required")
+	}
+
+	if req.TeamSlug == "" {
+		return nil, status.Error(400, "teamSlug is required")
+	}
+
+	teamSlug := slug.Slug(req.TeamSlug)
+	if err := r.db.DeleteAllReconcilerResources(ctx, req.ReconcilerName, teamSlug); err != nil {
+		return nil, err
+	}
+
+	return &protoapi.DeleteReconcilerResourcesResponse{}, nil
+}
+
 func toProtoReconcilerResource(res *database.ReconcilerResource) *protoapi.ReconcilerResource {
 	return &protoapi.ReconcilerResource{
 		Id:             res.ID.String(),
