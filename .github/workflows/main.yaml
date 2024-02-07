@@ -22,7 +22,10 @@ jobs:
       # go-version: ${{ steps.go_version.outputs.GO_VERSION }}
       - uses: asdf-vm/actions/install@v3
         with:
-          before_install: asdf install golang latest
+          before_install: |
+            asdf install golang latest
+            asdf global golang latest
+
       - run: go test ./...
       - run: helm lint --strict ./charts
       - run: make check
