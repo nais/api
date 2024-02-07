@@ -953,6 +953,11 @@ type VulnerabilityMetrics struct {
 	VulnerabilitySummary *VulnerabilitySummary `json:"vulnerabilitySummary,omitempty"`
 }
 
+type VulnerabilityMetricsDateRange struct {
+	From time.Time `json:"from"`
+	To   time.Time `json:"to"`
+}
+
 type VulnerabilitySummary struct {
 	Total      int `json:"total"`
 	RiskScore  int `json:"riskScore"`

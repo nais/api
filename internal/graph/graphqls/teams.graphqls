@@ -353,8 +353,16 @@ type Team {
   "The vulnerabilities for the team's applications over time."
   vulnerabilityMetrics(from: Date!, to: Date!): [VulnerabilityMetric!]!
 
+  "Get the date range for vulnerability metrics."
+  vulnerabilityMetricsDateRangeForTeam: VulnerabilityMetricsDateRange!
+
   "The environments available for the team."
   environments: [Env!]!
+}
+
+type VulnerabilityMetricsDateRange {
+  from: Time!
+  to: Time!
 }
 
 type VulnerabilityMetric {

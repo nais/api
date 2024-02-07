@@ -1335,6 +1335,18 @@ func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team
 	return metrics, nil
 }
 
+// VulnerabilityMetricsDateRangeForTeam is the resolver for the vulnerabilityMetricsDateRangeForTeam field.
+func (r *teamResolver) VulnerabilityMetricsDateRangeForTeam(ctx context.Context, obj *model.Team) (*model.VulnerabilityMetricsDateRange, error) {
+	fromAndTo, err := r.database.VulnerabilityMetricsDateRangeForTeam(ctx, obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+	return &model.VulnerabilityMetricsDateRange{
+		From: fromAndTo.FromDate.Time,
+		To:   fromAndTo.ToDate.Time,
+	}, nil
+}
+
 // Environments is the resolver for the environments field.
 func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error) {
 	// Env is a bit special, given that it will be created from k8s etc.

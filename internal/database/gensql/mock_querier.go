@@ -6454,6 +6454,65 @@ func (_c *MockQuerier_UpsertTeamEnvironment_Call) RunAndReturn(run func(context.
 	return _c
 }
 
+// VulnerabilityMetricsDateRangeForTeam provides a mock function with given fields: ctx, teamSlug
+func (_m *MockQuerier) VulnerabilityMetricsDateRangeForTeam(ctx context.Context, teamSlug slug.Slug) (*VulnerabilityMetricsDateRangeForTeamRow, error) {
+	ret := _m.Called(ctx, teamSlug)
+
+	if len(ret) == 0 {
+		panic("no return value specified for VulnerabilityMetricsDateRangeForTeam")
+	}
+
+	var r0 *VulnerabilityMetricsDateRangeForTeamRow
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (*VulnerabilityMetricsDateRangeForTeamRow, error)); ok {
+		return rf(ctx, teamSlug)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) *VulnerabilityMetricsDateRangeForTeamRow); ok {
+		r0 = rf(ctx, teamSlug)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*VulnerabilityMetricsDateRangeForTeamRow)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
+		r1 = rf(ctx, teamSlug)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VulnerabilityMetricsDateRangeForTeam'
+type MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call struct {
+	*mock.Call
+}
+
+// VulnerabilityMetricsDateRangeForTeam is a helper method to define mock.On call
+//   - ctx context.Context
+//   - teamSlug slug.Slug
+func (_e *MockQuerier_Expecter) VulnerabilityMetricsDateRangeForTeam(ctx interface{}, teamSlug interface{}) *MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call {
+	return &MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call{Call: _e.mock.On("VulnerabilityMetricsDateRangeForTeam", ctx, teamSlug)}
+}
+
+func (_c *MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(slug.Slug))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call) Return(_a0 *VulnerabilityMetricsDateRangeForTeamRow, _a1 error) *MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug) (*VulnerabilityMetricsDateRangeForTeamRow, error)) *MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // VulnerabilityMetricsUpsert provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) VulnerabilityMetricsUpsert(ctx context.Context, arg []VulnerabilityMetricsUpsertParams) *VulnerabilityMetricsUpsertBatchResults {
 	ret := _m.Called(ctx, arg)

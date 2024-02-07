@@ -6281,6 +6281,65 @@ func (_c *MockDatabase_UserIsTeamOwner_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
+// VulnerabilityMetricsDateRangeForTeam provides a mock function with given fields: ctx, teamSlug
+func (_m *MockDatabase) VulnerabilityMetricsDateRangeForTeam(ctx context.Context, teamSlug slug.Slug) (*gensql.VulnerabilityMetricsDateRangeForTeamRow, error) {
+	ret := _m.Called(ctx, teamSlug)
+
+	if len(ret) == 0 {
+		panic("no return value specified for VulnerabilityMetricsDateRangeForTeam")
+	}
+
+	var r0 *gensql.VulnerabilityMetricsDateRangeForTeamRow
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (*gensql.VulnerabilityMetricsDateRangeForTeamRow, error)); ok {
+		return rf(ctx, teamSlug)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) *gensql.VulnerabilityMetricsDateRangeForTeamRow); ok {
+		r0 = rf(ctx, teamSlug)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*gensql.VulnerabilityMetricsDateRangeForTeamRow)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
+		r1 = rf(ctx, teamSlug)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VulnerabilityMetricsDateRangeForTeam'
+type MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call struct {
+	*mock.Call
+}
+
+// VulnerabilityMetricsDateRangeForTeam is a helper method to define mock.On call
+//   - ctx context.Context
+//   - teamSlug slug.Slug
+func (_e *MockDatabase_Expecter) VulnerabilityMetricsDateRangeForTeam(ctx interface{}, teamSlug interface{}) *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call {
+	return &MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call{Call: _e.mock.On("VulnerabilityMetricsDateRangeForTeam", ctx, teamSlug)}
+}
+
+func (_c *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(slug.Slug))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call) Return(_a0 *gensql.VulnerabilityMetricsDateRangeForTeamRow, _a1 error) *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug) (*gensql.VulnerabilityMetricsDateRangeForTeamRow, error)) *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // VulnerabilityMetricsUpsert provides a mock function with given fields: ctx, arg
 func (_m *MockDatabase) VulnerabilityMetricsUpsert(ctx context.Context, arg []gensql.VulnerabilityMetricsUpsertParams) *gensql.VulnerabilityMetricsUpsertBatchResults {
 	ret := _m.Called(ctx, arg)
