@@ -37,6 +37,7 @@ type seedConfig struct {
 	NumOwnersPerTeam  *int
 	NumMembersPerTeam *int
 	ForceSeed         *bool
+	ProvisionPubSub   *bool
 }
 
 func newSeedConfig(ctx context.Context) (*seedConfig, error) {
@@ -51,6 +52,7 @@ func newSeedConfig(ctx context.Context) (*seedConfig, error) {
 	cfg.NumOwnersPerTeam = flag.Int("owners", 3, "number of owners per team")
 	cfg.NumMembersPerTeam = flag.Int("members", 10, "number of members per team")
 	cfg.ForceSeed = flag.Bool("force", false, "seed regardless of existing database content")
+	cfg.ProvisionPubSub = flag.Bool("provision_pub_sub", true, "set up pubsub credentials")
 	flag.Parse()
 
 	return cfg, nil
@@ -81,27 +83,29 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	if err := os.Setenv("PUBSUB_EMULATOR_HOST", "localhost:3004"); err != nil {
-		return err
-	}
-
-	client, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
-	if err != nil {
-		return err
-	}
-
-	if _, err := client.CreateTopic(ctx, "nais-api"); err != nil {
-		if s, ok := status.FromError(err); !ok || s.Code() != codes.AlreadyExists {
+	if false {
+		if err := os.Setenv("PUBSUB_EMULATOR_HOST", "localhost:3004"); err != nil {
 			return err
 		}
-	}
 
-	if _, err := client.CreateSubscription(ctx, "api-reconcilers-api-events", pubsub.SubscriptionConfig{
-		Topic:             client.Topic("nais-api"),
-		RetentionDuration: 1 * time.Hour,
-	}); err != nil {
-		if s, ok := status.FromError(err); !ok || s.Code() != codes.AlreadyExists {
+		client, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
+		if err != nil {
 			return err
+		}
+
+		if _, err := client.CreateTopic(ctx, "nais-api"); err != nil {
+			if s, ok := status.FromError(err); !ok || s.Code() != codes.AlreadyExists {
+				return err
+			}
+		}
+
+		if _, err := client.CreateSubscription(ctx, "api-reconcilers-api-events", pubsub.SubscriptionConfig{
+			Topic:             client.Topic("nais-api"),
+			RetentionDuration: 1 * time.Hour,
+		}); err != nil {
+			if s, ok := status.FromError(err); !ok || s.Code() != codes.AlreadyExists {
+				return err
+			}
 		}
 	}
 
