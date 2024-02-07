@@ -69,6 +69,13 @@ CREATE TABLE cost (
     CONSTRAINT daily_cost_key UNIQUE (environment, team_slug, app, cost_type, date)
 );
 
+CREATE TABLE environments (
+    name text NOT NULL PRIMARY KEY,
+    gcp boolean DEFAULT false NOT NULL
+);
+
+COMMENT ON TABLE environments IS 'This table is used to store the environments that are available in the system. It will be emptied and repopulated when the system starts.';
+
 CREATE TABLE reconciler_errors (
     id BIGSERIAL,
     correlation_id uuid NOT NULL,
@@ -102,7 +109,7 @@ CREATE TABLE reconciler_resources (
   reconciler_name text NOT NULL,
   team_slug slug NOT NULL,
   name TEXT NOT NULL,
-  value TEXT NOT NULL,
+  value bytea NOT NULL,
   metadata JSONB DEFAULT '{}'::jsonb NOT NULL,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -164,14 +171,6 @@ CREATE TABLE sessions (
     PRIMARY KEY(id)
 );
 
-CREATE TABLE slack_alerts_channels (
-    team_slug slug NOT NULL,
-    environment text NOT NULL,
-    channel_name text NOT NULL,
-    PRIMARY KEY (team_slug, environment),
-    CHECK ((channel_name ~ '^#[a-z0-9æøå_-]{2,80}$'::text))
-);
-
 CREATE TABLE team_delete_keys (
     key uuid DEFAULT gen_random_uuid() NOT NULL,
     team_slug slug NOT NULL,
@@ -189,6 +188,7 @@ CREATE TABLE teams (
     google_group_email text,
     azure_group_id uuid,
     github_team_slug text,
+    gar_repository text,
     PRIMARY KEY(slug),
     CHECK ((TRIM(BOTH FROM purpose) <> ''::text)),
     CHECK ((slack_channel ~ '^#[a-z0-9æøå_-]{2,80}$'::text))
@@ -198,9 +198,10 @@ CREATE TABLE team_environments (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     team_slug slug NOT NULL,
     environment text NOT NULL,
-    namespace text,
+    slack_alerts_channel text,
     gcp_project_id text,
-    UNIQUE(team_slug, environment)
+    UNIQUE(team_slug, environment),
+    CHECK ((slack_alerts_channel IS NULL OR slack_alerts_channel ~ '^#[a-z0-9æøå_-]{2,80}$'::text))
 );
 
 CREATE TABLE user_roles (
@@ -221,6 +222,24 @@ CREATE TABLE users (
     PRIMARY KEY(id),
     UNIQUE(email),
     UNIQUE(external_id)
+);
+
+-- views
+
+CREATE VIEW team_all_environments AS (
+    SELECT
+        teams.slug as team_slug,
+        environments.name as environment,
+        environments.gcp as gcp,
+        team_environments.gcp_project_id,
+        COALESCE(team_environments.id, gen_random_uuid())::uuid as id,
+        COALESCE(team_environments.slack_alerts_channel, teams.slack_channel) as slack_alerts_channel
+    FROM teams
+    CROSS JOIN environments
+    LEFT JOIN team_environments ON
+        team_environments.team_slug = teams.slug
+        AND team_environments.environment = environments.name
+
 );
 
 -- additional indexes

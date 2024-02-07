@@ -15,15 +15,15 @@ WHERE NOT EXISTS (
 ORDER BY teams.slug ASC;
 
 -- name: GetTeamEnvironments :many
-SELECT team_environments.*
-FROM team_environments
-WHERE team_environments.team_slug = @team_slug
-ORDER BY team_environments.environment ASC
+SELECT *
+FROM team_all_environments
+WHERE team_slug = @team_slug
+ORDER BY environment ASC
 LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
 -- name: GetTeamEnvironmentsCount :one
 SELECT COUNT(*) as total
-FROM team_environments
+FROM team_all_environments
 WHERE team_slug = @team_slug;
 
 -- name: GetTeamEnvironmentsBySlugsAndEnvNames :many
@@ -33,12 +33,33 @@ WITH input AS (
         unnest(@team_slugs::slug[]) AS team_slug,
         unnest(@environments::text[]) AS environment
 )
-SELECT team_environments.*
-FROM team_environments
-JOIN input ON input.team_slug = team_environments.team_slug
-WHERE team_environments.environment = input.environment
-ORDER BY team_environments.environment ASC;
+SELECT team_all_environments.*
+FROM team_all_environments
+JOIN input ON input.team_slug = team_all_environments.team_slug
+JOIN teams ON teams.slug = team_all_environments.team_slug
+WHERE team_all_environments.environment = input.environment
+ORDER BY team_all_environments.environment ASC;
 ;
+
+-- name: UpsertTeamEnvironment :one
+INSERT INTO team_environments (team_slug, environment, slack_alerts_channel, gcp_project_id)
+VALUES (
+    @team_slug,
+    @environment,
+    CASE sqlc.narg(slack_alerts_channel)::text
+        WHEN '' THEN NULL
+        ELSE COALESCE(@slack_alerts_channel, slack_alerts_channel)
+    END,
+    CASE sqlc.narg(gcp_project_id)::text
+        WHEN '' THEN NULL
+        ELSE COALESCE(@gcp_project_id, gcp_project_id)
+    END
+)
+ON CONFLICT (team_slug, environment) DO UPDATE
+SET
+    slack_alerts_channel = EXCLUDED.slack_alerts_channel,
+    gcp_project_id = EXCLUDED.gcp_project_id
+RETURNING *;
 
 -- name: GetTeams :many
 SELECT teams.* FROM teams
@@ -121,7 +142,8 @@ RETURNING *;
 UPDATE teams
 SET google_group_email = COALESCE(@google_group_email, google_group_email),
     azure_group_id =  COALESCE(@azure_group_id, azure_group_id),
-    github_team_slug = COALESCE(@github_team_slug, github_team_slug)
+    github_team_slug = COALESCE(@github_team_slug, github_team_slug),
+    gar_repository = COALESCE(@gar_repository, gar_repository)
 WHERE slug = @slug
 RETURNING *;
 
@@ -132,21 +154,6 @@ WHERE user_id = @user_id AND target_team_slug = @team_slug::slug;
 -- name: SetLastSuccessfulSyncForTeam :exec
 UPDATE teams SET last_successful_sync = NOW()
 WHERE slug = @slug;
-
--- name: GetSlackAlertsChannels :many
-SELECT * FROM slack_alerts_channels
-WHERE team_slug = @team_slug
-ORDER BY environment ASC;
-
--- name: SetSlackAlertsChannel :exec
-INSERT INTO slack_alerts_channels (team_slug, environment, channel_name)
-VALUES (@team_slug, @environment, @channel_name)
-ON CONFLICT (team_slug, environment) DO
-    UPDATE SET channel_name = @channel_name;
-
--- name: RemoveSlackAlertsChannel :exec
-DELETE FROM slack_alerts_channels
-WHERE team_slug = @team_slug AND environment = @environment;
 
 -- name: CreateTeamDeleteKey :one
 INSERT INTO team_delete_keys (team_slug, created_by)

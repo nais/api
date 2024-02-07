@@ -45,3 +45,7 @@ WHERE reconciler_name = @reconciler_name AND team_slug = @team_slug AND name = @
 SELECT COUNT(*)
 FROM reconciler_resources
 WHERE reconciler_name = @reconciler_name AND team_slug = @team_slug AND name = @name;
+
+-- name: DeleteAllReconcilerResources :exec
+DELETE FROM reconciler_resources
+WHERE reconciler_name = @reconciler_name AND team_slug = @team_slug;

@@ -33,7 +33,7 @@ func (r *ReconcilerResourcesServer) Save(ctx context.Context, in *protoapi.SaveR
 		switch {
 		case rr.Name == "":
 			return nil, status.Error(400, "name is required")
-		case rr.Value == "":
+		case len(rr.Value) == 0:
 			return nil, status.Error(400, "value is required")
 		}
 		_, err := r.db.UpsertReconcilerResource(ctx, rn, slg, rr.Name, rr.Value, rr.Metadata)
@@ -70,6 +70,23 @@ func (r *ReconcilerResourcesServer) List(ctx context.Context, req *protoapi.List
 		resp.Nodes = append(resp.Nodes, toProtoReconcilerResource(rr))
 	}
 	return resp, nil
+}
+
+func (r *ReconcilerResourcesServer) Delete(ctx context.Context, req *protoapi.DeleteReconcilerResourcesRequest) (*protoapi.DeleteReconcilerResourcesResponse, error) {
+	if req.ReconcilerName == "" {
+		return nil, status.Error(400, "reconcilerName is required")
+	}
+
+	if req.TeamSlug == "" {
+		return nil, status.Error(400, "teamSlug is required")
+	}
+
+	teamSlug := slug.Slug(req.TeamSlug)
+	if err := r.db.DeleteAllReconcilerResources(ctx, req.ReconcilerName, teamSlug); err != nil {
+		return nil, err
+	}
+
+	return &protoapi.DeleteReconcilerResourcesResponse{}, nil
 }
 
 func toProtoReconcilerResource(res *database.ReconcilerResource) *protoapi.ReconcilerResource {
