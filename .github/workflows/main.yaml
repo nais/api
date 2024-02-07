@@ -50,3 +50,14 @@ jobs:
           make fmt
           make generate
           git diff --exit-code --name-only
+      - id: go_version
+        run: echo "go_version=$(asdf current golang | awk '{print $2}')" >> $GITHUB_OUTPUT
+      - uses: nais/platform-build-push-sign@main
+        id: build-push-sign
+        with:
+          name: api
+          build_args: |
+            GO_VERSION=${{ steps.go_version.outputs.go_version }}-
+          google_service_account: gh-api
+          workload_identity_provider: ${{ secrets.NAIS_IO_WORKLOAD_IDENTITY_PROVIDER }}
+          push: true
