@@ -6444,7 +6444,7 @@ type Team {
   vulnerabilitiesSummary: VulnerabilitySummary!
 
   "The vulnerabilities for the team's applications over time."
-  vulnerabilityMetrics(from: Date!, to: Date!): [VulnerabilityMetric]!
+  vulnerabilityMetrics(from: Date!, to: Date!): [VulnerabilityMetric!]!
 
   "The environments available for the team."
   environments: [Env!]!
@@ -29826,7 +29826,7 @@ func (ec *executionContext) _Team_vulnerabilityMetrics(ctx context.Context, fiel
 	}
 	res := resTmp.([]*model.VulnerabilityMetric)
 	fc.Result = res
-	return ec.marshalNVulnerabilityMetric2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityMetric(ctx, field.Selections, res)
+	return ec.marshalNVulnerabilityMetric2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityMetricᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Team_vulnerabilityMetrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -47260,7 +47260,7 @@ func (ec *executionContext) marshalNVulnerabilityList2ᚖgithubᚗcomᚋnaisᚋa
 	return ec._VulnerabilityList(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNVulnerabilityMetric2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityMetric(ctx context.Context, sel ast.SelectionSet, v []*model.VulnerabilityMetric) graphql.Marshaler {
+func (ec *executionContext) marshalNVulnerabilityMetric2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityMetricᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.VulnerabilityMetric) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -47284,7 +47284,7 @@ func (ec *executionContext) marshalNVulnerabilityMetric2ᚕᚖgithubᚗcomᚋnai
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOVulnerabilityMetric2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityMetric(ctx, sel, v[i])
+			ret[i] = ec.marshalNVulnerabilityMetric2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityMetric(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -47295,7 +47295,23 @@ func (ec *executionContext) marshalNVulnerabilityMetric2ᚕᚖgithubᚗcomᚋnai
 	}
 	wg.Wait()
 
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
 	return ret
+}
+
+func (ec *executionContext) marshalNVulnerabilityMetric2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityMetric(ctx context.Context, sel ast.SelectionSet, v *model.VulnerabilityMetric) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._VulnerabilityMetric(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNVulnerabilitySummary2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilitySummary(ctx context.Context, sel ast.SelectionSet, v model.VulnerabilitySummary) graphql.Marshaler {
@@ -47882,13 +47898,6 @@ func (ec *executionContext) marshalOVulnerability2ᚖgithubᚗcomᚋnaisᚋapi�
 		return graphql.Null
 	}
 	return ec._Vulnerability(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOVulnerabilityMetric2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityMetric(ctx context.Context, sel ast.SelectionSet, v *model.VulnerabilityMetric) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._VulnerabilityMetric(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOVulnerabilitySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilitySummary(ctx context.Context, sel ast.SelectionSet, v *model.VulnerabilitySummary) graphql.Marshaler {

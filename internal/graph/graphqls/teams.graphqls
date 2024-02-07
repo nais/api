@@ -354,7 +354,7 @@ type Team {
   vulnerabilitiesSummary: VulnerabilitySummary!
 
   "The vulnerabilities for the team's applications over time."
-  vulnerabilityMetrics(from: Date!, to: Date!): [VulnerabilityMetric]!
+  vulnerabilityMetrics(from: Date!, to: Date!): [VulnerabilityMetric!]!
 
   "The environments available for the team."
   environments: [Env!]!
