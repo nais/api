@@ -42,6 +42,8 @@ type Querier interface {
 	DailyEnvCostForTeam(ctx context.Context, arg DailyEnvCostForTeamParams) ([]*DailyEnvCostForTeamRow, error)
 	DailyVulnerabilityForTeam(ctx context.Context, arg DailyVulnerabilityForTeamParams) ([]*DailyVulnerabilityForTeamRow, error)
 	DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName string) ([]*DangerousGetReconcilerConfigValuesRow, error)
+	DeleteAllEnvironments(ctx context.Context) error
+	DeleteAllReconcilerResources(ctx context.Context, arg DeleteAllReconcilerResourcesParams) error
 	DeleteReconcilerConfig(ctx context.Context, arg DeleteReconcilerConfigParams) error
 	DeleteServiceAccount(ctx context.Context, id uuid.UUID) error
 	DeleteSession(ctx context.Context, id uuid.UUID) error
@@ -75,13 +77,12 @@ type Querier interface {
 	GetServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) ([]*ServiceAccountRole, error)
 	GetServiceAccounts(ctx context.Context) ([]*ServiceAccount, error)
 	GetSessionByID(ctx context.Context, id uuid.UUID) (*Session, error)
-	GetSlackAlertsChannels(ctx context.Context, teamSlug slug.Slug) ([]*SlackAlertsChannel, error)
 	GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	GetTeamBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)
 	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
-	GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmentsParams) ([]*TeamEnvironment, error)
+	GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmentsParams) ([]*TeamAllEnvironment, error)
 	// Input is two arrays of equal length, one for slugs and one for names
-	GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamEnvironment, error)
+	GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamAllEnvironment, error)
 	GetTeamEnvironmentsCount(ctx context.Context, teamSlug slug.Slug) (int64, error)
 	GetTeamMember(ctx context.Context, arg GetTeamMemberParams) (*User, error)
 	GetTeamMemberOptOuts(ctx context.Context, arg GetTeamMemberOptOutsParams) ([]*GetTeamMemberOptOutsRow, error)
@@ -102,6 +103,7 @@ type Querier interface {
 	GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error)
 	GetUsersCount(ctx context.Context) (int64, error)
 	GetUsersWithGloballyAssignedRole(ctx context.Context, roleName RoleName) ([]*User, error)
+	InsertEnvironment(ctx context.Context, arg InsertEnvironmentParams) error
 	// LastCostDate will return the last date that has a cost.
 	LastCostDate(ctx context.Context) (pgtype.Date, error)
 	// MaxResourceUtilizationDate will return the max date for resource utilization records.
@@ -112,7 +114,6 @@ type Querier interface {
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveReconcilerOptOut(ctx context.Context, arg RemoveReconcilerOptOutParams) error
 	RemoveRepositoryAuthorization(ctx context.Context, arg RemoveRepositoryAuthorizationParams) error
-	RemoveSlackAlertsChannel(ctx context.Context, arg RemoveSlackAlertsChannelParams) error
 	RemoveUserFromTeam(ctx context.Context, arg RemoveUserFromTeamParams) error
 	ResetReconcilerConfig(ctx context.Context, reconcilerName string) error
 	// ResourceUtilizationForApp will return resource utilization records for a given app.
@@ -132,7 +133,6 @@ type Querier interface {
 	SetLastSuccessfulSyncForTeam(ctx context.Context, argSlug slug.Slug) error
 	SetReconcilerErrorForTeam(ctx context.Context, arg SetReconcilerErrorForTeamParams) error
 	SetSessionExpires(ctx context.Context, arg SetSessionExpiresParams) (*Session, error)
-	SetSlackAlertsChannel(ctx context.Context, arg SetSlackAlertsChannelParams) error
 	// SpecificResourceUtilizationForApp will return resource utilization for an app at a specific timestamp.
 	SpecificResourceUtilizationForApp(ctx context.Context, arg SpecificResourceUtilizationForAppParams) (*SpecificResourceUtilizationForAppRow, error)
 	// SpecificResourceUtilizationForTeam will return resource utilization for a team at a specific timestamp. Applications
@@ -145,6 +145,7 @@ type Querier interface {
 	UpsertReconciler(ctx context.Context, arg UpsertReconcilerParams) (*Reconciler, error)
 	UpsertReconcilerConfig(ctx context.Context, arg UpsertReconcilerConfigParams) error
 	UpsertReconcilerResource(ctx context.Context, arg UpsertReconcilerResourceParams) (*ReconcilerResource, error)
+	UpsertTeamEnvironment(ctx context.Context, arg UpsertTeamEnvironmentParams) (*TeamEnvironment, error)
 	VulnerabilityMetricsUpsert(ctx context.Context, arg []VulnerabilityMetricsUpsertParams) *VulnerabilityMetricsUpsertBatchResults
 }
 

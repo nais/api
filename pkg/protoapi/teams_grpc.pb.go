@@ -19,13 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Teams_Get_FullMethodName                       = "/Teams/Get"
-	Teams_List_FullMethodName                      = "/Teams/List"
-	Teams_Members_FullMethodName                   = "/Teams/Members"
-	Teams_SlackAlertsChannels_FullMethodName       = "/Teams/SlackAlertsChannels"
-	Teams_Environments_FullMethodName              = "/Teams/Environments"
-	Teams_SetTeamExternalReferences_FullMethodName = "/Teams/SetTeamExternalReferences"
-	Teams_Delete_FullMethodName                    = "/Teams/Delete"
+	Teams_Get_FullMethodName                                  = "/Teams/Get"
+	Teams_List_FullMethodName                                 = "/Teams/List"
+	Teams_Members_FullMethodName                              = "/Teams/Members"
+	Teams_Environments_FullMethodName                         = "/Teams/Environments"
+	Teams_SetTeamExternalReferences_FullMethodName            = "/Teams/SetTeamExternalReferences"
+	Teams_SetTeamEnvironmentExternalReferences_FullMethodName = "/Teams/SetTeamEnvironmentExternalReferences"
+	Teams_Delete_FullMethodName                               = "/Teams/Delete"
 )
 
 // TeamsClient is the client API for Teams service.
@@ -35,9 +35,9 @@ type TeamsClient interface {
 	Get(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
 	List(ctx context.Context, in *ListTeamsRequest, opts ...grpc.CallOption) (*ListTeamsResponse, error)
 	Members(ctx context.Context, in *ListTeamMembersRequest, opts ...grpc.CallOption) (*ListTeamMembersResponse, error)
-	SlackAlertsChannels(ctx context.Context, in *SlackAlertsChannelsRequest, opts ...grpc.CallOption) (*SlackAlertsChannelsResponse, error)
 	Environments(ctx context.Context, in *ListTeamEnvironmentsRequest, opts ...grpc.CallOption) (*ListTeamEnvironmentsResponse, error)
 	SetTeamExternalReferences(ctx context.Context, in *SetTeamExternalReferencesRequest, opts ...grpc.CallOption) (*SetTeamExternalReferencesResponse, error)
+	SetTeamEnvironmentExternalReferences(ctx context.Context, in *SetTeamEnvironmentExternalReferencesRequest, opts ...grpc.CallOption) (*SetTeamEnvironmentExternalReferencesResponse, error)
 	Delete(ctx context.Context, in *DeleteTeamRequest, opts ...grpc.CallOption) (*DeleteTeamResponse, error)
 }
 
@@ -76,15 +76,6 @@ func (c *teamsClient) Members(ctx context.Context, in *ListTeamMembersRequest, o
 	return out, nil
 }
 
-func (c *teamsClient) SlackAlertsChannels(ctx context.Context, in *SlackAlertsChannelsRequest, opts ...grpc.CallOption) (*SlackAlertsChannelsResponse, error) {
-	out := new(SlackAlertsChannelsResponse)
-	err := c.cc.Invoke(ctx, Teams_SlackAlertsChannels_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *teamsClient) Environments(ctx context.Context, in *ListTeamEnvironmentsRequest, opts ...grpc.CallOption) (*ListTeamEnvironmentsResponse, error) {
 	out := new(ListTeamEnvironmentsResponse)
 	err := c.cc.Invoke(ctx, Teams_Environments_FullMethodName, in, out, opts...)
@@ -97,6 +88,15 @@ func (c *teamsClient) Environments(ctx context.Context, in *ListTeamEnvironments
 func (c *teamsClient) SetTeamExternalReferences(ctx context.Context, in *SetTeamExternalReferencesRequest, opts ...grpc.CallOption) (*SetTeamExternalReferencesResponse, error) {
 	out := new(SetTeamExternalReferencesResponse)
 	err := c.cc.Invoke(ctx, Teams_SetTeamExternalReferences_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *teamsClient) SetTeamEnvironmentExternalReferences(ctx context.Context, in *SetTeamEnvironmentExternalReferencesRequest, opts ...grpc.CallOption) (*SetTeamEnvironmentExternalReferencesResponse, error) {
+	out := new(SetTeamEnvironmentExternalReferencesResponse)
+	err := c.cc.Invoke(ctx, Teams_SetTeamEnvironmentExternalReferences_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -119,9 +119,9 @@ type TeamsServer interface {
 	Get(context.Context, *GetTeamRequest) (*GetTeamResponse, error)
 	List(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error)
 	Members(context.Context, *ListTeamMembersRequest) (*ListTeamMembersResponse, error)
-	SlackAlertsChannels(context.Context, *SlackAlertsChannelsRequest) (*SlackAlertsChannelsResponse, error)
 	Environments(context.Context, *ListTeamEnvironmentsRequest) (*ListTeamEnvironmentsResponse, error)
 	SetTeamExternalReferences(context.Context, *SetTeamExternalReferencesRequest) (*SetTeamExternalReferencesResponse, error)
+	SetTeamEnvironmentExternalReferences(context.Context, *SetTeamEnvironmentExternalReferencesRequest) (*SetTeamEnvironmentExternalReferencesResponse, error)
 	Delete(context.Context, *DeleteTeamRequest) (*DeleteTeamResponse, error)
 	mustEmbedUnimplementedTeamsServer()
 }
@@ -139,14 +139,14 @@ func (UnimplementedTeamsServer) List(context.Context, *ListTeamsRequest) (*ListT
 func (UnimplementedTeamsServer) Members(context.Context, *ListTeamMembersRequest) (*ListTeamMembersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Members not implemented")
 }
-func (UnimplementedTeamsServer) SlackAlertsChannels(context.Context, *SlackAlertsChannelsRequest) (*SlackAlertsChannelsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SlackAlertsChannels not implemented")
-}
 func (UnimplementedTeamsServer) Environments(context.Context, *ListTeamEnvironmentsRequest) (*ListTeamEnvironmentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Environments not implemented")
 }
 func (UnimplementedTeamsServer) SetTeamExternalReferences(context.Context, *SetTeamExternalReferencesRequest) (*SetTeamExternalReferencesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetTeamExternalReferences not implemented")
+}
+func (UnimplementedTeamsServer) SetTeamEnvironmentExternalReferences(context.Context, *SetTeamEnvironmentExternalReferencesRequest) (*SetTeamEnvironmentExternalReferencesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetTeamEnvironmentExternalReferences not implemented")
 }
 func (UnimplementedTeamsServer) Delete(context.Context, *DeleteTeamRequest) (*DeleteTeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
@@ -218,24 +218,6 @@ func _Teams_Members_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Teams_SlackAlertsChannels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SlackAlertsChannelsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TeamsServer).SlackAlertsChannels(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Teams_SlackAlertsChannels_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TeamsServer).SlackAlertsChannels(ctx, req.(*SlackAlertsChannelsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Teams_Environments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListTeamEnvironmentsRequest)
 	if err := dec(in); err != nil {
@@ -268,6 +250,24 @@ func _Teams_SetTeamExternalReferences_Handler(srv interface{}, ctx context.Conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TeamsServer).SetTeamExternalReferences(ctx, req.(*SetTeamExternalReferencesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Teams_SetTeamEnvironmentExternalReferences_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetTeamEnvironmentExternalReferencesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TeamsServer).SetTeamEnvironmentExternalReferences(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Teams_SetTeamEnvironmentExternalReferences_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TeamsServer).SetTeamEnvironmentExternalReferences(ctx, req.(*SetTeamEnvironmentExternalReferencesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -310,16 +310,16 @@ var Teams_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Teams_Members_Handler,
 		},
 		{
-			MethodName: "SlackAlertsChannels",
-			Handler:    _Teams_SlackAlertsChannels_Handler,
-		},
-		{
 			MethodName: "Environments",
 			Handler:    _Teams_Environments_Handler,
 		},
 		{
 			MethodName: "SetTeamExternalReferences",
 			Handler:    _Teams_SetTeamExternalReferences_Handler,
+		},
+		{
+			MethodName: "SetTeamEnvironmentExternalReferences",
+			Handler:    _Teams_SetTeamEnvironmentExternalReferences_Handler,
 		},
 		{
 			MethodName: "Delete",

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"net"
-	"sync"
 	"testing"
 
 	"github.com/nais/api/pkg/protoapi"
@@ -16,37 +15,46 @@ import (
 )
 
 type TestingHelpers struct {
-	t     testing.TB
-	conns map[*context.CancelFunc]struct{}
-	buf   bytes.Buffer
-
-	lock      sync.Mutex
-	hasFailed bool
+	testing.TB
+	cancels  map[*context.CancelFunc]struct{}
+	buf      bytes.Buffer
+	shutdown func()
 }
 
-func (t *TestingHelpers) Cleanup(f func()) {
-	t.t.Cleanup(f)
-}
+func (t *TestingHelpers) printBuffer() {
+	if t.buf.Len() > 0 && t.Failed() {
+		fmt.Println(t.Name())
+		fmt.Println(t.buf.String())
+	}
 
-func (t *TestingHelpers) Logf(format string, args ...interface{}) {
-	fmt.Fprintf(&t.buf, format, args...)
+	for conn := range t.cancels {
+		(*conn)()
+	}
 }
 
 func (t *TestingHelpers) Errorf(format string, args ...interface{}) {
-	fmt.Fprintf(&t.buf, format, args...)
+	fmt.Fprintf(&t.buf, format+"\n", args...)
+	t.TB.Errorf(format, args...)
+}
+
+func (t *TestingHelpers) Logf(format string, args ...interface{}) {
+	fmt.Fprintf(&t.buf, format+"\n", args...)
+	t.TB.Logf(format, args...)
+}
+
+func (t *TestingHelpers) Fail() {
+	t.TB.Fail()
+	t.shutdown()
 }
 
 func (t *TestingHelpers) FailNow() {
-	t.lock.Lock()
-	defer t.lock.Unlock()
-	if t.hasFailed {
-		return
+	if t.buf.Len() > 0 {
+		fmt.Print("Fail in the following test:", t.Name())
+		fmt.Println(t.buf.String())
 	}
-
-	for conn := range t.conns {
-		(*conn)()
-	}
-	fmt.Println(t.buf.String())
+	t.buf.Reset()
+	t.shutdown()
+	t.Fail()
 	panic("")
 }
 
@@ -63,11 +71,14 @@ func NewMockClient(t testing.TB) (*APIClient, *MockServers) {
 
 	s := grpc.NewServer()
 
+	ctx, shutdown := context.WithCancel(context.Background())
 	th := &TestingHelpers{
-		t:     t,
-		conns: map[*context.CancelFunc]struct{}{},
-		buf:   bytes.Buffer{},
+		TB:       t,
+		cancels:  map[*context.CancelFunc]struct{}{},
+		buf:      bytes.Buffer{},
+		shutdown: shutdown,
 	}
+	th.Cleanup(th.printBuffer)
 	mockServers := &MockServers{
 		AuditLogs:           protoapi.NewMockAuditLogsServer(th),
 		Reconcilers:         protoapi.NewMockReconcilersServer(th),
@@ -83,9 +94,7 @@ func NewMockClient(t testing.TB) (*APIClient, *MockServers) {
 	protoapi.RegisterUsersServer(s, mockServers.Users)
 
 	listener := bufconn.Listen(1024 * 1024)
-	dialer := func(ctx context.Context, s string) (net.Conn, error) {
-		ctx, cancel := context.WithCancel(ctx)
-		th.conns[&cancel] = struct{}{}
+	dialer := func(_ context.Context, s string) (net.Conn, error) {
 		return listener.DialContext(ctx)
 	}
 
@@ -93,6 +102,11 @@ func NewMockClient(t testing.TB) (*APIClient, *MockServers) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	go func() {
+		<-ctx.Done()
+		s.Stop()
+	}()
 
 	go func() {
 		if err := s.Serve(listener); err != nil {
@@ -108,10 +122,8 @@ func NewMockClient(t testing.TB) (*APIClient, *MockServers) {
 	}()
 
 	t.Cleanup(func() {
-		s.GracefulStop()
+		s.Stop()
 	})
 
 	return client, mockServers
 }
-
-type mockDialer struct{}

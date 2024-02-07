@@ -9,6 +9,21 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
+const deleteAllReconcilerResources = `-- name: DeleteAllReconcilerResources :exec
+DELETE FROM reconciler_resources
+WHERE reconciler_name = $1 AND team_slug = $2
+`
+
+type DeleteAllReconcilerResourcesParams struct {
+	ReconcilerName string
+	TeamSlug       slug.Slug
+}
+
+func (q *Queries) DeleteAllReconcilerResources(ctx context.Context, arg DeleteAllReconcilerResourcesParams) error {
+	_, err := q.db.Exec(ctx, deleteAllReconcilerResources, arg.ReconcilerName, arg.TeamSlug)
+	return err
+}
+
 const getReconcilerResourceByKey = `-- name: GetReconcilerResourceByKey :many
 SELECT id, reconciler_name, team_slug, name, value, metadata, created_at, updated_at
 FROM reconciler_resources
@@ -69,7 +84,7 @@ type GetReconcilerResourceByKeyAndValueParams struct {
 	ReconcilerName string
 	TeamSlug       slug.Slug
 	Name           string
-	Value          string
+	Value          []byte
 }
 
 func (q *Queries) GetReconcilerResourceByKeyAndValue(ctx context.Context, arg GetReconcilerResourceByKeyAndValueParams) (*ReconcilerResource, error) {
@@ -227,7 +242,7 @@ type UpsertReconcilerResourceParams struct {
 	ReconcilerName string
 	TeamSlug       slug.Slug
 	Name           string
-	Value          string
+	Value          []byte
 	Metadata       interface{}
 }
 

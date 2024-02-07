@@ -34,6 +34,7 @@ type Page struct {
 type Database interface {
 	AuditLogsRepo
 	CostRepo
+	EnvironmentRepo
 	ReconcilerErrorRepo
 	ReconcilerRepo
 	ReconcilerResourceRepo

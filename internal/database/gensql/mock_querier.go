@@ -1288,6 +1288,52 @@ func (_c *MockQuerier_DangerousGetReconcilerConfigValues_Call) RunAndReturn(run 
 	return _c
 }
 
+// DeleteAllEnvironments provides a mock function with given fields: ctx
+func (_m *MockQuerier) DeleteAllEnvironments(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteAllEnvironments")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockQuerier_DeleteAllEnvironments_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteAllEnvironments'
+type MockQuerier_DeleteAllEnvironments_Call struct {
+	*mock.Call
+}
+
+// DeleteAllEnvironments is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockQuerier_Expecter) DeleteAllEnvironments(ctx interface{}) *MockQuerier_DeleteAllEnvironments_Call {
+	return &MockQuerier_DeleteAllEnvironments_Call{Call: _e.mock.On("DeleteAllEnvironments", ctx)}
+}
+
+func (_c *MockQuerier_DeleteAllEnvironments_Call) Run(run func(ctx context.Context)) *MockQuerier_DeleteAllEnvironments_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_DeleteAllEnvironments_Call) Return(_a0 error) *MockQuerier_DeleteAllEnvironments_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockQuerier_DeleteAllEnvironments_Call) RunAndReturn(run func(context.Context) error) *MockQuerier_DeleteAllEnvironments_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DeleteReconcilerConfig provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) DeleteReconcilerConfig(ctx context.Context, arg DeleteReconcilerConfigParams) error {
 	ret := _m.Called(ctx, arg)
@@ -3160,65 +3206,6 @@ func (_c *MockQuerier_GetSessionByID_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
-// GetSlackAlertsChannels provides a mock function with given fields: ctx, teamSlug
-func (_m *MockQuerier) GetSlackAlertsChannels(ctx context.Context, teamSlug slug.Slug) ([]*SlackAlertsChannel, error) {
-	ret := _m.Called(ctx, teamSlug)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetSlackAlertsChannels")
-	}
-
-	var r0 []*SlackAlertsChannel
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) ([]*SlackAlertsChannel, error)); ok {
-		return rf(ctx, teamSlug)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) []*SlackAlertsChannel); ok {
-		r0 = rf(ctx, teamSlug)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*SlackAlertsChannel)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
-		r1 = rf(ctx, teamSlug)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_GetSlackAlertsChannels_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSlackAlertsChannels'
-type MockQuerier_GetSlackAlertsChannels_Call struct {
-	*mock.Call
-}
-
-// GetSlackAlertsChannels is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-func (_e *MockQuerier_Expecter) GetSlackAlertsChannels(ctx interface{}, teamSlug interface{}) *MockQuerier_GetSlackAlertsChannels_Call {
-	return &MockQuerier_GetSlackAlertsChannels_Call{Call: _e.mock.On("GetSlackAlertsChannels", ctx, teamSlug)}
-}
-
-func (_c *MockQuerier_GetSlackAlertsChannels_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockQuerier_GetSlackAlertsChannels_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_GetSlackAlertsChannels_Call) Return(_a0 []*SlackAlertsChannel, _a1 error) *MockQuerier_GetSlackAlertsChannels_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_GetSlackAlertsChannels_Call) RunAndReturn(run func(context.Context, slug.Slug) ([]*SlackAlertsChannel, error)) *MockQuerier_GetSlackAlertsChannels_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetTeamBySlug provides a mock function with given fields: ctx, argSlug
 func (_m *MockQuerier) GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error) {
 	ret := _m.Called(ctx, argSlug)
@@ -3397,23 +3384,23 @@ func (_c *MockQuerier_GetTeamDeleteKey_Call) RunAndReturn(run func(context.Conte
 }
 
 // GetTeamEnvironments provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmentsParams) ([]*TeamEnvironment, error) {
+func (_m *MockQuerier) GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmentsParams) ([]*TeamAllEnvironment, error) {
 	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTeamEnvironments")
 	}
 
-	var r0 []*TeamEnvironment
+	var r0 []*TeamAllEnvironment
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, GetTeamEnvironmentsParams) ([]*TeamEnvironment, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamEnvironmentsParams) ([]*TeamAllEnvironment, error)); ok {
 		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, GetTeamEnvironmentsParams) []*TeamEnvironment); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamEnvironmentsParams) []*TeamAllEnvironment); ok {
 		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*TeamEnvironment)
+			r0 = ret.Get(0).([]*TeamAllEnvironment)
 		}
 	}
 
@@ -3445,34 +3432,34 @@ func (_c *MockQuerier_GetTeamEnvironments_Call) Run(run func(ctx context.Context
 	return _c
 }
 
-func (_c *MockQuerier_GetTeamEnvironments_Call) Return(_a0 []*TeamEnvironment, _a1 error) *MockQuerier_GetTeamEnvironments_Call {
+func (_c *MockQuerier_GetTeamEnvironments_Call) Return(_a0 []*TeamAllEnvironment, _a1 error) *MockQuerier_GetTeamEnvironments_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockQuerier_GetTeamEnvironments_Call) RunAndReturn(run func(context.Context, GetTeamEnvironmentsParams) ([]*TeamEnvironment, error)) *MockQuerier_GetTeamEnvironments_Call {
+func (_c *MockQuerier_GetTeamEnvironments_Call) RunAndReturn(run func(context.Context, GetTeamEnvironmentsParams) ([]*TeamAllEnvironment, error)) *MockQuerier_GetTeamEnvironments_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetTeamEnvironmentsBySlugsAndEnvNames provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamEnvironment, error) {
+func (_m *MockQuerier) GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamAllEnvironment, error) {
 	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTeamEnvironmentsBySlugsAndEnvNames")
 	}
 
-	var r0 []*TeamEnvironment
+	var r0 []*TeamAllEnvironment
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamEnvironment, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamAllEnvironment, error)); ok {
 		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, GetTeamEnvironmentsBySlugsAndEnvNamesParams) []*TeamEnvironment); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamEnvironmentsBySlugsAndEnvNamesParams) []*TeamAllEnvironment); ok {
 		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*TeamEnvironment)
+			r0 = ret.Get(0).([]*TeamAllEnvironment)
 		}
 	}
 
@@ -3504,12 +3491,12 @@ func (_c *MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call) Run(run func(c
 	return _c
 }
 
-func (_c *MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call) Return(_a0 []*TeamEnvironment, _a1 error) *MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call {
+func (_c *MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call) Return(_a0 []*TeamAllEnvironment, _a1 error) *MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call) RunAndReturn(run func(context.Context, GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamEnvironment, error)) *MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call {
+func (_c *MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call) RunAndReturn(run func(context.Context, GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamAllEnvironment, error)) *MockQuerier_GetTeamEnvironmentsBySlugsAndEnvNames_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4682,6 +4669,53 @@ func (_c *MockQuerier_GetUsersWithGloballyAssignedRole_Call) RunAndReturn(run fu
 	return _c
 }
 
+// InsertEnvironment provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) InsertEnvironment(ctx context.Context, arg InsertEnvironmentParams) error {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for InsertEnvironment")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, InsertEnvironmentParams) error); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockQuerier_InsertEnvironment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'InsertEnvironment'
+type MockQuerier_InsertEnvironment_Call struct {
+	*mock.Call
+}
+
+// InsertEnvironment is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg InsertEnvironmentParams
+func (_e *MockQuerier_Expecter) InsertEnvironment(ctx interface{}, arg interface{}) *MockQuerier_InsertEnvironment_Call {
+	return &MockQuerier_InsertEnvironment_Call{Call: _e.mock.On("InsertEnvironment", ctx, arg)}
+}
+
+func (_c *MockQuerier_InsertEnvironment_Call) Run(run func(ctx context.Context, arg InsertEnvironmentParams)) *MockQuerier_InsertEnvironment_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(InsertEnvironmentParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_InsertEnvironment_Call) Return(_a0 error) *MockQuerier_InsertEnvironment_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockQuerier_InsertEnvironment_Call) RunAndReturn(run func(context.Context, InsertEnvironmentParams) error) *MockQuerier_InsertEnvironment_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // LastCostDate provides a mock function with given fields: ctx
 func (_m *MockQuerier) LastCostDate(ctx context.Context) (pgtype.Date, error) {
 	ret := _m.Called(ctx)
@@ -5096,53 +5130,6 @@ func (_c *MockQuerier_RemoveRepositoryAuthorization_Call) Return(_a0 error) *Moc
 }
 
 func (_c *MockQuerier_RemoveRepositoryAuthorization_Call) RunAndReturn(run func(context.Context, RemoveRepositoryAuthorizationParams) error) *MockQuerier_RemoveRepositoryAuthorization_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// RemoveSlackAlertsChannel provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) RemoveSlackAlertsChannel(ctx context.Context, arg RemoveSlackAlertsChannelParams) error {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for RemoveSlackAlertsChannel")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, RemoveSlackAlertsChannelParams) error); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockQuerier_RemoveSlackAlertsChannel_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveSlackAlertsChannel'
-type MockQuerier_RemoveSlackAlertsChannel_Call struct {
-	*mock.Call
-}
-
-// RemoveSlackAlertsChannel is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg RemoveSlackAlertsChannelParams
-func (_e *MockQuerier_Expecter) RemoveSlackAlertsChannel(ctx interface{}, arg interface{}) *MockQuerier_RemoveSlackAlertsChannel_Call {
-	return &MockQuerier_RemoveSlackAlertsChannel_Call{Call: _e.mock.On("RemoveSlackAlertsChannel", ctx, arg)}
-}
-
-func (_c *MockQuerier_RemoveSlackAlertsChannel_Call) Run(run func(ctx context.Context, arg RemoveSlackAlertsChannelParams)) *MockQuerier_RemoveSlackAlertsChannel_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(RemoveSlackAlertsChannelParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_RemoveSlackAlertsChannel_Call) Return(_a0 error) *MockQuerier_RemoveSlackAlertsChannel_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockQuerier_RemoveSlackAlertsChannel_Call) RunAndReturn(run func(context.Context, RemoveSlackAlertsChannelParams) error) *MockQuerier_RemoveSlackAlertsChannel_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -5844,53 +5831,6 @@ func (_c *MockQuerier_SetSessionExpires_Call) RunAndReturn(run func(context.Cont
 	return _c
 }
 
-// SetSlackAlertsChannel provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) SetSlackAlertsChannel(ctx context.Context, arg SetSlackAlertsChannelParams) error {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SetSlackAlertsChannel")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, SetSlackAlertsChannelParams) error); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockQuerier_SetSlackAlertsChannel_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetSlackAlertsChannel'
-type MockQuerier_SetSlackAlertsChannel_Call struct {
-	*mock.Call
-}
-
-// SetSlackAlertsChannel is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg SetSlackAlertsChannelParams
-func (_e *MockQuerier_Expecter) SetSlackAlertsChannel(ctx interface{}, arg interface{}) *MockQuerier_SetSlackAlertsChannel_Call {
-	return &MockQuerier_SetSlackAlertsChannel_Call{Call: _e.mock.On("SetSlackAlertsChannel", ctx, arg)}
-}
-
-func (_c *MockQuerier_SetSlackAlertsChannel_Call) Run(run func(ctx context.Context, arg SetSlackAlertsChannelParams)) *MockQuerier_SetSlackAlertsChannel_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(SetSlackAlertsChannelParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_SetSlackAlertsChannel_Call) Return(_a0 error) *MockQuerier_SetSlackAlertsChannel_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockQuerier_SetSlackAlertsChannel_Call) RunAndReturn(run func(context.Context, SetSlackAlertsChannelParams) error) *MockQuerier_SetSlackAlertsChannel_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // SpecificResourceUtilizationForApp provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) SpecificResourceUtilizationForApp(ctx context.Context, arg SpecificResourceUtilizationForAppParams) (*SpecificResourceUtilizationForAppRow, error) {
 	ret := _m.Called(ctx, arg)
@@ -6404,6 +6344,65 @@ func (_c *MockQuerier_UpsertReconcilerResource_Call) Return(_a0 *ReconcilerResou
 }
 
 func (_c *MockQuerier_UpsertReconcilerResource_Call) RunAndReturn(run func(context.Context, UpsertReconcilerResourceParams) (*ReconcilerResource, error)) *MockQuerier_UpsertReconcilerResource_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpsertTeamEnvironment provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) UpsertTeamEnvironment(ctx context.Context, arg UpsertTeamEnvironmentParams) (*TeamEnvironment, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpsertTeamEnvironment")
+	}
+
+	var r0 *TeamEnvironment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, UpsertTeamEnvironmentParams) (*TeamEnvironment, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, UpsertTeamEnvironmentParams) *TeamEnvironment); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*TeamEnvironment)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, UpsertTeamEnvironmentParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_UpsertTeamEnvironment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpsertTeamEnvironment'
+type MockQuerier_UpsertTeamEnvironment_Call struct {
+	*mock.Call
+}
+
+// UpsertTeamEnvironment is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg UpsertTeamEnvironmentParams
+func (_e *MockQuerier_Expecter) UpsertTeamEnvironment(ctx interface{}, arg interface{}) *MockQuerier_UpsertTeamEnvironment_Call {
+	return &MockQuerier_UpsertTeamEnvironment_Call{Call: _e.mock.On("UpsertTeamEnvironment", ctx, arg)}
+}
+
+func (_c *MockQuerier_UpsertTeamEnvironment_Call) Run(run func(ctx context.Context, arg UpsertTeamEnvironmentParams)) *MockQuerier_UpsertTeamEnvironment_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(UpsertTeamEnvironmentParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_UpsertTeamEnvironment_Call) Return(_a0 *TeamEnvironment, _a1 error) *MockQuerier_UpsertTeamEnvironment_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_UpsertTeamEnvironment_Call) RunAndReturn(run func(context.Context, UpsertTeamEnvironmentParams) (*TeamEnvironment, error)) *MockQuerier_UpsertTeamEnvironment_Call {
 	_c.Call.Return(run)
 	return _c
 }
