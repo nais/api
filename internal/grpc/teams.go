@@ -80,23 +80,6 @@ func (t *TeamsServer) Members(ctx context.Context, req *protoapi.ListTeamMembers
 	return resp, nil
 }
 
-func (t *TeamsServer) SlackAlertsChannels(ctx context.Context, req *protoapi.SlackAlertsChannelsRequest) (*protoapi.SlackAlertsChannelsResponse, error) {
-	channelMap, err := t.db.GetSlackAlertsChannels(ctx, slug.Slug(req.Slug))
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to list slack alerts channels: %s", err)
-	}
-
-	resp := &protoapi.SlackAlertsChannelsResponse{}
-	for env, name := range channelMap {
-		resp.Channels = append(resp.Channels, &protoapi.SlackAlertsChannel{
-			Environment: env,
-			Channel:     name,
-		})
-	}
-
-	return resp, nil
-}
-
 func (t *TeamsServer) SetTeamExternalReferences(ctx context.Context, req *protoapi.SetTeamExternalReferencesRequest) (*protoapi.SetTeamExternalReferencesResponse, error) {
 	if req.Slug == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "slug is required")
@@ -116,12 +99,26 @@ func (t *TeamsServer) SetTeamExternalReferences(ctx context.Context, req *protoa
 		AzureGroupID:     aID,
 		GithubTeamSlug:   req.GithubTeamSlug,
 		GoogleGroupEmail: req.GoogleGroupEmail,
+		GarRepository:    req.GarRepository,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to update external references for team: %s", err)
 	}
 
 	return &protoapi.SetTeamExternalReferencesResponse{}, nil
+}
+
+func (t *TeamsServer) SetTeamEnvironmentExternalReferences(ctx context.Context, req *protoapi.SetTeamEnvironmentExternalReferencesRequest) (*protoapi.SetTeamEnvironmentExternalReferencesResponse, error) {
+	if req.Slug == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "slug is required")
+	}
+
+	err := t.db.UpsertTeamEnvironment(ctx, slug.Slug(req.Slug), req.EnvironmentName, nil, req.GcpProjectId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to update external references for team: %s", err)
+	}
+
+	return &protoapi.SetTeamEnvironmentExternalReferencesResponse{}, nil
 }
 
 func (t *TeamsServer) Environments(ctx context.Context, req *protoapi.ListTeamEnvironmentsRequest) (*protoapi.ListTeamEnvironmentsResponse, error) {
@@ -145,6 +142,7 @@ func (t *TeamsServer) Environments(ctx context.Context, req *protoapi.ListTeamEn
 }
 
 func toProtoTeam(team *database.Team) *protoapi.Team {
+	// TODO(thokra): Should we make these fields optional
 	gge := ""
 	if team.GoogleGroupEmail != nil {
 		gge = *team.GoogleGroupEmail
@@ -160,6 +158,11 @@ func toProtoTeam(team *database.Team) *protoapi.Team {
 		aID = team.AzureGroupID.String()
 	}
 
+	gar := ""
+	if team.GarRepository != nil {
+		gar = *team.GarRepository
+	}
+
 	return &protoapi.Team{
 		Slug:             team.Slug.String(),
 		Purpose:          team.Purpose,
@@ -167,6 +170,7 @@ func toProtoTeam(team *database.Team) *protoapi.Team {
 		AzureGroupId:     aID,
 		GithubTeamSlug:   gts,
 		GoogleGroupEmail: gge,
+		GarRepository:    gar,
 	}
 }
 
@@ -179,10 +183,10 @@ func toProtoTeamMember(user *database.User) *protoapi.TeamMember {
 
 func toProtoTeamEnvironment(env *database.TeamEnvironment) *protoapi.TeamEnvironment {
 	return &protoapi.TeamEnvironment{
-		Id:              env.ID.String(),
-		Slug:            env.TeamSlug.String(),
-		EnvironmentName: env.Environment,
-		Namespace:       env.Namespace,
-		GcpProjectId:    env.GcpProjectID,
+		Id:                 env.ID.String(),
+		Slug:               env.TeamSlug.String(),
+		EnvironmentName:    env.Environment,
+		GcpProjectId:       env.GcpProjectID,
+		SlackAlertsChannel: env.SlackAlertsChannel,
 	}
 }
