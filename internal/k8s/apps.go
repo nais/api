@@ -8,9 +8,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
-	sync_states "github.com/nais/liberator/pkg/events"
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -19,10 +21,15 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/selection"
+)
 
-	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/scalar"
-	"github.com/nais/api/internal/slug"
+type AppCondition string
+
+const (
+	AppConditionRolloutComplete       AppCondition = "RolloutComplete"
+	AppConditionFailedSynchronization AppCondition = "FailedSynchronization"
+	AppConditionSynchronized          AppCondition = "Synchronized"
+	AppConditionUnknown               AppCondition = "Unknown"
 )
 
 func getDeprecatedIngresses(cluster string) []string {
@@ -623,10 +630,10 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 	appSynchState := app.GetStatus().SynchronizationState
 
 	switch appSynchState {
-	case sync_states.RolloutComplete:
+	case "RolloutComplete":
 		timestamp := time.Unix(0, app.GetStatus().RolloutCompleteTime)
 		ret.DeployInfo.Timestamp = &timestamp
-	case sync_states.Synchronized:
+	case "Synchronized":
 		timestamp := time.Unix(0, app.GetStatus().SynchronizationTime)
 		ret.DeployInfo.Timestamp = &timestamp
 	default:
@@ -720,47 +727,36 @@ func toTopic(u *unstructured.Unstructured, name, team string) (*model.Topic, err
 }
 
 func setStatus(app *model.App, conditions []metav1.Condition, instances []*model.Instance) {
-	currentCondition := synchronizationStateCondition(conditions)
+	currentCondition := getCurrentCondition(conditions)
 	failing := failing(instances)
 	appState := model.AppState{
 		State:  model.StateNais,
 		Errors: []model.StateError{},
 	}
-
-	if currentCondition != nil {
-		switch currentCondition.Reason {
-		case sync_states.FailedPrepare:
-			appState.Errors = append(appState.Errors, &model.InvalidNaisYamlError{
-				Revision: app.DeployInfo.CommitSha,
-				Level:    model.ErrorLevelError,
-				Detail:   currentCondition.Message,
-			})
-			appState.State = model.StateNotnais
-		case sync_states.Retrying:
-			fallthrough
-		case sync_states.FailedSynchronization:
-			appState.Errors = append(appState.Errors, &model.SynchronizationFailingError{
-				Revision: app.DeployInfo.CommitSha,
-				Level:    model.ErrorLevelError,
-				Detail:   currentCondition.Message,
-			})
-			appState.State = model.StateNotnais
-		case sync_states.Synchronized:
-			appState.Errors = append(appState.Errors, &model.NewInstancesFailingError{
-				Revision: app.DeployInfo.CommitSha,
-				Level:    model.ErrorLevelWarning,
-				FailingInstances: func() []string {
-					ret := make([]string, 0)
-					for _, instance := range instances {
-						if instance.State == model.InstanceStateFailing {
-							ret = append(ret, instance.Name)
-						}
+	switch currentCondition {
+	case AppConditionFailedSynchronization:
+		appState.Errors = append(appState.Errors, &model.InvalidNaisYamlError{
+			Revision: app.DeployInfo.CommitSha,
+			Level:    model.ErrorLevelError,
+			Detail:   "Invalid nais.yaml",
+		})
+		appState.State = model.StateNotnais
+	case AppConditionSynchronized:
+		appState.Errors = append(appState.Errors, &model.NewInstancesFailingError{
+			Revision: app.DeployInfo.CommitSha,
+			Level:    model.ErrorLevelWarning,
+			FailingInstances: func() []string {
+				ret := make([]string, 0)
+				for _, instance := range instances {
+					if instance.State == model.InstanceStateFailing {
+						ret = append(ret, instance.Name)
 					}
-					return ret
-				}(),
-			})
-			appState.State = model.StateNotnais
-		}
+				}
+				return ret
+			}(),
+		})
+		appState.State = model.StateNotnais
+
 	}
 
 	if (len(instances) == 0 || failing == len(instances)) && app.AutoScaling.Min > 0 && app.AutoScaling.Max > 0 {
@@ -784,7 +780,6 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 		if len(parts) > 2 {
 			repository = strings.Join(parts[1:len(parts)-1], "/")
 		} else {
-			// fixme: wtf does this mean?
 			repository = "confusus"
 		}
 		appState.Errors = append(appState.Errors, &model.DeprecatedRegistryError{
@@ -818,7 +813,7 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 	}
 
 	// Fjerne denna?
-	if currentCondition != nil && currentCondition.Reason == sync_states.RolloutComplete && failing == 0 {
+	if currentCondition == AppConditionRolloutComplete && failing == 0 {
 		if appState.State != model.StateFailing && appState.State != model.StateNotnais {
 			appState.State = model.StateNais
 		}
@@ -863,13 +858,20 @@ func failing(instances []*model.Instance) int {
 	return ret
 }
 
-func synchronizationStateCondition(conditions []metav1.Condition) *metav1.Condition {
+func getCurrentCondition(conditions []metav1.Condition) AppCondition {
 	for _, condition := range conditions {
-		if condition.Type == "SynchronizationState" {
-			return &condition
+		if condition.Status == metav1.ConditionTrue {
+			switch condition.Reason {
+			case "RolloutComplete":
+				return AppConditionRolloutComplete
+			case "FailedSynchronization":
+				return AppConditionFailedSynchronization
+			case "Synchronized":
+				return AppConditionSynchronized
+			}
 		}
 	}
-	return nil
+	return AppConditionUnknown
 }
 
 func appStorage(u *unstructured.Unstructured, topics []*model.Topic) ([]model.Storage, error) {

@@ -253,7 +253,7 @@ type ReconcilerResource struct {
 	ReconcilerName string
 	TeamSlug       slug.Slug
 	Name           string
-	Value          []byte
+	Value          string
 	Metadata       []byte
 	CreatedAt      pgtype.Timestamptz
 	UpdatedAt      pgtype.Timestamptz
@@ -289,6 +289,12 @@ type Session struct {
 	Expires pgtype.Timestamptz
 }
 
+type SlackAlertsChannel struct {
+	TeamSlug    slug.Slug
+	Environment string
+	ChannelName string
+}
+
 type Team struct {
 	Slug               slug.Slug
 	Purpose            string
@@ -297,16 +303,6 @@ type Team struct {
 	GoogleGroupEmail   *string
 	AzureGroupID       *uuid.UUID
 	GithubTeamSlug     *string
-	GarRepository      *string
-}
-
-type TeamAllEnvironment struct {
-	TeamSlug           slug.Slug
-	Environment        string
-	Gcp                bool
-	GcpProjectID       *string
-	ID                 uuid.UUID
-	SlackAlertsChannel string
 }
 
 type TeamDeleteKey struct {
@@ -318,11 +314,11 @@ type TeamDeleteKey struct {
 }
 
 type TeamEnvironment struct {
-	ID                 uuid.UUID
-	TeamSlug           slug.Slug
-	Environment        string
-	SlackAlertsChannel *string
-	GcpProjectID       *string
+	ID           uuid.UUID
+	TeamSlug     slug.Slug
+	Environment  string
+	Namespace    *string
+	GcpProjectID *string
 }
 
 type User struct {

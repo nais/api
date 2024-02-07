@@ -105,19 +105,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 	defer closer()
 
-	// Sync environments to database
-	syncEnvs := []*database.Environment{}
-	for name, env := range cfg.K8s.GraphClusterList() {
-		syncEnvs = append(syncEnvs, &database.Environment{
-			Name: name,
-			GCP:  env.GCP,
-		})
-	}
-
-	if err := db.SyncEnvironments(ctx, syncEnvs); err != nil {
-		return fmt.Errorf("sync environments to database: %w", err)
-	}
-
 	// TODO: Implement new first run logic
 	// if err := firstRun(ctx, db, cfg.FirstRunEnableReconcilers, log); err != nil {
 	// 	return err

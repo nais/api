@@ -12,16 +12,15 @@ message Team {
   string azure_group_id = 4;
   string github_team_slug = 5;
   string google_group_email = 6;
-  string gar_repository = 7;
 }
 
 service Teams {
   rpc Get(GetTeamRequest) returns (GetTeamResponse) {}
   rpc List(ListTeamsRequest) returns (ListTeamsResponse) {}
   rpc Members(ListTeamMembersRequest) returns (ListTeamMembersResponse) {}
+  rpc SlackAlertsChannels(SlackAlertsChannelsRequest) returns (SlackAlertsChannelsResponse) {}
   rpc Environments(ListTeamEnvironmentsRequest) returns (ListTeamEnvironmentsResponse) {}
   rpc SetTeamExternalReferences(SetTeamExternalReferencesRequest) returns (SetTeamExternalReferencesResponse) {}
-  rpc SetTeamEnvironmentExternalReferences(SetTeamEnvironmentExternalReferencesRequest) returns (SetTeamEnvironmentExternalReferencesResponse) {}
   rpc Delete(DeleteTeamRequest) returns (DeleteTeamResponse) {}
 }
 
@@ -36,19 +35,9 @@ message SetTeamExternalReferencesRequest {
   optional string azure_group_id = 2;
   optional string github_team_slug = 3;
   optional string google_group_email = 4;
-  optional string gar_repository = 5;
 }
 
 message SetTeamExternalReferencesResponse{}
-
-message SetTeamEnvironmentExternalReferencesRequest {
-  string slug = 1;
-  string environment_name = 2;
-  // GCP project ID. If not set, no changes will be made. Set to empty string to remove the project ID.
-  optional string gcp_project_id = 3;
-}
-
-message SetTeamEnvironmentExternalReferencesResponse{}
 
 message ListTeamEnvironmentsRequest {
   int64 limit = 1;
@@ -64,10 +53,9 @@ message ListTeamEnvironmentsResponse {
 message TeamEnvironment {
   string id = 1;
   string slug = 2;
-  bool gcp = 3;
-  string environment_name = 4;
+  string environment_name = 3;
+  optional string namespace = 4;
   optional string gcp_project_id = 5;
-  string slack_alerts_channel = 6;
 }
 
 message GetTeamResponse {
@@ -97,6 +85,19 @@ message ListTeamMembersRequest {
 message ListTeamMembersResponse {
   repeated TeamMember nodes = 1;
   PageInfo page_info = 2;
+}
+
+message SlackAlertsChannelsRequest {
+  string slug = 3;
+}
+
+message SlackAlertsChannelsResponse {
+  repeated SlackAlertsChannel channels = 1;
+}
+
+message SlackAlertsChannel {
+  string environment = 1;
+  string channel = 2;
 }
 
 message TeamMember {

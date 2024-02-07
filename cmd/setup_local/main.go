@@ -39,7 +39,6 @@ type seedConfig struct {
 	NumMembersPerTeam *int
 	VulnSeed          *VulnSeed
 	ForceSeed         *bool
-	ProvisionPubSub   *bool
 }
 
 type VulnSeed struct {
@@ -59,7 +58,6 @@ func newSeedConfig(ctx context.Context) (*seedConfig, error) {
 	cfg.NumOwnersPerTeam = flag.Int("owners", 3, "number of owners per team")
 	cfg.NumMembersPerTeam = flag.Int("members", 10, "number of members per team")
 	cfg.ForceSeed = flag.Bool("force", false, "seed regardless of existing database content")
-	cfg.ProvisionPubSub = flag.Bool("provision_pub_sub", true, "set up pubsub credentials")
 	cfg.VulnSeed.NumVulnAppsForTeam = flag.Int("vuln-apps", 5, "number of vulnerable apps per team")
 	cfg.VulnSeed.NumVulnPerApp = flag.Int("vuln-per-app", 10, "number of vulnerabilities per app")
 	flag.Parse()
@@ -92,29 +90,18 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	if false {
-		if err := os.Setenv("PUBSUB_EMULATOR_HOST", "localhost:3004"); err != nil {
+	if err := os.Setenv("PUBSUB_EMULATOR_HOST", "localhost:3004"); err != nil {
+		return err
+	}
+
+	client, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
+	if err != nil {
+		return err
+	}
+
+	if _, err := client.CreateTopic(ctx, "nais-api"); err != nil {
+		if s, ok := status.FromError(err); !ok || s.Code() != codes.AlreadyExists {
 			return err
-		}
-
-		client, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
-		if err != nil {
-			return err
-		}
-
-		if _, err := client.CreateTopic(ctx, "nais-api"); err != nil {
-			if s, ok := status.FromError(err); !ok || s.Code() != codes.AlreadyExists {
-				return err
-			}
-		}
-
-		if _, err := client.CreateSubscription(ctx, "api-reconcilers-api-events", pubsub.SubscriptionConfig{
-			Topic:             client.Topic("nais-api"),
-			RetentionDuration: 1 * time.Hour,
-		}); err != nil {
-			if s, ok := status.FromError(err); !ok || s.Code() != codes.AlreadyExists {
-				return err
-			}
 		}
 	}
 

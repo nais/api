@@ -1287,52 +1287,6 @@ func (_c *MockDatabase_DangerousGetReconcilerConfigValues_Call) RunAndReturn(run
 	return _c
 }
 
-// DeleteAllEnvironments provides a mock function with given fields: ctx
-func (_m *MockDatabase) DeleteAllEnvironments(ctx context.Context) error {
-	ret := _m.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for DeleteAllEnvironments")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = rf(ctx)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockDatabase_DeleteAllEnvironments_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteAllEnvironments'
-type MockDatabase_DeleteAllEnvironments_Call struct {
-	*mock.Call
-}
-
-// DeleteAllEnvironments is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *MockDatabase_Expecter) DeleteAllEnvironments(ctx interface{}) *MockDatabase_DeleteAllEnvironments_Call {
-	return &MockDatabase_DeleteAllEnvironments_Call{Call: _e.mock.On("DeleteAllEnvironments", ctx)}
-}
-
-func (_c *MockDatabase_DeleteAllEnvironments_Call) Run(run func(ctx context.Context)) *MockDatabase_DeleteAllEnvironments_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_DeleteAllEnvironments_Call) Return(_a0 error) *MockDatabase_DeleteAllEnvironments_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockDatabase_DeleteAllEnvironments_Call) RunAndReturn(run func(context.Context) error) *MockDatabase_DeleteAllEnvironments_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // DeleteReconcilerConfig provides a mock function with given fields: ctx, reconcilerName, keysToDelete
 func (_m *MockDatabase) DeleteReconcilerConfig(ctx context.Context, reconcilerName string, keysToDelete []string) error {
 	ret := _m.Called(ctx, reconcilerName, keysToDelete)
@@ -2488,7 +2442,7 @@ func (_c *MockDatabase_GetReconcilerResourcesByKey_Call) RunAndReturn(run func(c
 }
 
 // GetReconcilerResourcesByKeyAndValue provides a mock function with given fields: ctx, reconcilerName, teamSlug, key, value
-func (_m *MockDatabase) GetReconcilerResourcesByKeyAndValue(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value []byte) (*ReconcilerResource, error) {
+func (_m *MockDatabase) GetReconcilerResourcesByKeyAndValue(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value string) (*ReconcilerResource, error) {
 	ret := _m.Called(ctx, reconcilerName, teamSlug, key, value)
 
 	if len(ret) == 0 {
@@ -2497,10 +2451,10 @@ func (_m *MockDatabase) GetReconcilerResourcesByKeyAndValue(ctx context.Context,
 
 	var r0 *ReconcilerResource
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, []byte) (*ReconcilerResource, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, string) (*ReconcilerResource, error)); ok {
 		return rf(ctx, reconcilerName, teamSlug, key, value)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, []byte) *ReconcilerResource); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, string) *ReconcilerResource); ok {
 		r0 = rf(ctx, reconcilerName, teamSlug, key, value)
 	} else {
 		if ret.Get(0) != nil {
@@ -2508,7 +2462,7 @@ func (_m *MockDatabase) GetReconcilerResourcesByKeyAndValue(ctx context.Context,
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string, []byte) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string, string) error); ok {
 		r1 = rf(ctx, reconcilerName, teamSlug, key, value)
 	} else {
 		r1 = ret.Error(1)
@@ -2527,14 +2481,14 @@ type MockDatabase_GetReconcilerResourcesByKeyAndValue_Call struct {
 //   - reconcilerName string
 //   - teamSlug slug.Slug
 //   - key string
-//   - value []byte
+//   - value string
 func (_e *MockDatabase_Expecter) GetReconcilerResourcesByKeyAndValue(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, key interface{}, value interface{}) *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call {
 	return &MockDatabase_GetReconcilerResourcesByKeyAndValue_Call{Call: _e.mock.On("GetReconcilerResourcesByKeyAndValue", ctx, reconcilerName, teamSlug, key, value)}
 }
 
-func (_c *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value []byte)) *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call {
+func (_c *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value string)) *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].([]byte))
+		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].(string))
 	})
 	return _c
 }
@@ -2544,7 +2498,7 @@ func (_c *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call) Return(ret *Rec
 	return _c
 }
 
-func (_c *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, []byte) (*ReconcilerResource, error)) *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call {
+func (_c *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, string) (*ReconcilerResource, error)) *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2965,6 +2919,65 @@ func (_c *MockDatabase_GetSessionByID_Call) Return(_a0 *Session, _a1 error) *Moc
 }
 
 func (_c *MockDatabase_GetSessionByID_Call) RunAndReturn(run func(context.Context, uuid.UUID) (*Session, error)) *MockDatabase_GetSessionByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetSlackAlertsChannels provides a mock function with given fields: ctx, teamSlug
+func (_m *MockDatabase) GetSlackAlertsChannels(ctx context.Context, teamSlug slug.Slug) (map[string]string, error) {
+	ret := _m.Called(ctx, teamSlug)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetSlackAlertsChannels")
+	}
+
+	var r0 map[string]string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (map[string]string, error)); ok {
+		return rf(ctx, teamSlug)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) map[string]string); ok {
+		r0 = rf(ctx, teamSlug)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[string]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
+		r1 = rf(ctx, teamSlug)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockDatabase_GetSlackAlertsChannels_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSlackAlertsChannels'
+type MockDatabase_GetSlackAlertsChannels_Call struct {
+	*mock.Call
+}
+
+// GetSlackAlertsChannels is a helper method to define mock.On call
+//   - ctx context.Context
+//   - teamSlug slug.Slug
+func (_e *MockDatabase_Expecter) GetSlackAlertsChannels(ctx interface{}, teamSlug interface{}) *MockDatabase_GetSlackAlertsChannels_Call {
+	return &MockDatabase_GetSlackAlertsChannels_Call{Call: _e.mock.On("GetSlackAlertsChannels", ctx, teamSlug)}
+}
+
+func (_c *MockDatabase_GetSlackAlertsChannels_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockDatabase_GetSlackAlertsChannels_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(slug.Slug))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_GetSlackAlertsChannels_Call) Return(_a0 map[string]string, _a1 error) *MockDatabase_GetSlackAlertsChannels_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockDatabase_GetSlackAlertsChannels_Call) RunAndReturn(run func(context.Context, slug.Slug) (map[string]string, error)) *MockDatabase_GetSlackAlertsChannels_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4258,54 +4271,6 @@ func (_c *MockDatabase_GetUsersWithGloballyAssignedRole_Call) RunAndReturn(run f
 	return _c
 }
 
-// InsertEnvironment provides a mock function with given fields: ctx, name, gcp
-func (_m *MockDatabase) InsertEnvironment(ctx context.Context, name string, gcp bool) error {
-	ret := _m.Called(ctx, name, gcp)
-
-	if len(ret) == 0 {
-		panic("no return value specified for InsertEnvironment")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, bool) error); ok {
-		r0 = rf(ctx, name, gcp)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockDatabase_InsertEnvironment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'InsertEnvironment'
-type MockDatabase_InsertEnvironment_Call struct {
-	*mock.Call
-}
-
-// InsertEnvironment is a helper method to define mock.On call
-//   - ctx context.Context
-//   - name string
-//   - gcp bool
-func (_e *MockDatabase_Expecter) InsertEnvironment(ctx interface{}, name interface{}, gcp interface{}) *MockDatabase_InsertEnvironment_Call {
-	return &MockDatabase_InsertEnvironment_Call{Call: _e.mock.On("InsertEnvironment", ctx, name, gcp)}
-}
-
-func (_c *MockDatabase_InsertEnvironment_Call) Run(run func(ctx context.Context, name string, gcp bool)) *MockDatabase_InsertEnvironment_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(bool))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_InsertEnvironment_Call) Return(_a0 error) *MockDatabase_InsertEnvironment_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockDatabase_InsertEnvironment_Call) RunAndReturn(run func(context.Context, string, bool) error) *MockDatabase_InsertEnvironment_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // LastCostDate provides a mock function with given fields: ctx
 func (_m *MockDatabase) LastCostDate(ctx context.Context) (pgtype.Date, error) {
 	ret := _m.Called(ctx)
@@ -4726,6 +4691,54 @@ func (_c *MockDatabase_RemoveRepositoryAuthorization_Call) Return(_a0 error) *Mo
 }
 
 func (_c *MockDatabase_RemoveRepositoryAuthorization_Call) RunAndReturn(run func(context.Context, slug.Slug, string, gensql.RepositoryAuthorizationEnum) error) *MockDatabase_RemoveRepositoryAuthorization_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RemoveSlackAlertsChannel provides a mock function with given fields: ctx, teamSlug, environment
+func (_m *MockDatabase) RemoveSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string) error {
+	ret := _m.Called(ctx, teamSlug, environment)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RemoveSlackAlertsChannel")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) error); ok {
+		r0 = rf(ctx, teamSlug, environment)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockDatabase_RemoveSlackAlertsChannel_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveSlackAlertsChannel'
+type MockDatabase_RemoveSlackAlertsChannel_Call struct {
+	*mock.Call
+}
+
+// RemoveSlackAlertsChannel is a helper method to define mock.On call
+//   - ctx context.Context
+//   - teamSlug slug.Slug
+//   - environment string
+func (_e *MockDatabase_Expecter) RemoveSlackAlertsChannel(ctx interface{}, teamSlug interface{}, environment interface{}) *MockDatabase_RemoveSlackAlertsChannel_Call {
+	return &MockDatabase_RemoveSlackAlertsChannel_Call{Call: _e.mock.On("RemoveSlackAlertsChannel", ctx, teamSlug, environment)}
+}
+
+func (_c *MockDatabase_RemoveSlackAlertsChannel_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, environment string)) *MockDatabase_RemoveSlackAlertsChannel_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_RemoveSlackAlertsChannel_Call) Return(_a0 error) *MockDatabase_RemoveSlackAlertsChannel_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockDatabase_RemoveSlackAlertsChannel_Call) RunAndReturn(run func(context.Context, slug.Slug, string) error) *MockDatabase_RemoveSlackAlertsChannel_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -5394,6 +5407,55 @@ func (_c *MockDatabase_SetReconcilerErrorForTeam_Call) RunAndReturn(run func(con
 	return _c
 }
 
+// SetSlackAlertsChannel provides a mock function with given fields: ctx, teamSlug, environment, channelName
+func (_m *MockDatabase) SetSlackAlertsChannel(ctx context.Context, teamSlug slug.Slug, environment string, channelName string) error {
+	ret := _m.Called(ctx, teamSlug, environment, channelName)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetSlackAlertsChannel")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, string) error); ok {
+		r0 = rf(ctx, teamSlug, environment, channelName)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockDatabase_SetSlackAlertsChannel_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetSlackAlertsChannel'
+type MockDatabase_SetSlackAlertsChannel_Call struct {
+	*mock.Call
+}
+
+// SetSlackAlertsChannel is a helper method to define mock.On call
+//   - ctx context.Context
+//   - teamSlug slug.Slug
+//   - environment string
+//   - channelName string
+func (_e *MockDatabase_Expecter) SetSlackAlertsChannel(ctx interface{}, teamSlug interface{}, environment interface{}, channelName interface{}) *MockDatabase_SetSlackAlertsChannel_Call {
+	return &MockDatabase_SetSlackAlertsChannel_Call{Call: _e.mock.On("SetSlackAlertsChannel", ctx, teamSlug, environment, channelName)}
+}
+
+func (_c *MockDatabase_SetSlackAlertsChannel_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, environment string, channelName string)) *MockDatabase_SetSlackAlertsChannel_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string), args[3].(string))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_SetSlackAlertsChannel_Call) Return(_a0 error) *MockDatabase_SetSlackAlertsChannel_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockDatabase_SetSlackAlertsChannel_Call) RunAndReturn(run func(context.Context, slug.Slug, string, string) error) *MockDatabase_SetSlackAlertsChannel_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SetTeamMemberRole provides a mock function with given fields: ctx, userID, teamSlug, roleName
 func (_m *MockDatabase) SetTeamMemberRole(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, roleName gensql.RoleName) error {
 	ret := _m.Called(ctx, userID, teamSlug, roleName)
@@ -5563,53 +5625,6 @@ func (_c *MockDatabase_SpecificResourceUtilizationForTeam_Call) Return(_a0 *gens
 }
 
 func (_c *MockDatabase_SpecificResourceUtilizationForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug, gensql.ResourceType, pgtype.Timestamptz) (*gensql.SpecificResourceUtilizationForTeamRow, error)) *MockDatabase_SpecificResourceUtilizationForTeam_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// SyncEnvironments provides a mock function with given fields: ctx, envs
-func (_m *MockDatabase) SyncEnvironments(ctx context.Context, envs []*Environment) error {
-	ret := _m.Called(ctx, envs)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SyncEnvironments")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, []*Environment) error); ok {
-		r0 = rf(ctx, envs)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockDatabase_SyncEnvironments_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SyncEnvironments'
-type MockDatabase_SyncEnvironments_Call struct {
-	*mock.Call
-}
-
-// SyncEnvironments is a helper method to define mock.On call
-//   - ctx context.Context
-//   - envs []*Environment
-func (_e *MockDatabase_Expecter) SyncEnvironments(ctx interface{}, envs interface{}) *MockDatabase_SyncEnvironments_Call {
-	return &MockDatabase_SyncEnvironments_Call{Call: _e.mock.On("SyncEnvironments", ctx, envs)}
-}
-
-func (_c *MockDatabase_SyncEnvironments_Call) Run(run func(ctx context.Context, envs []*Environment)) *MockDatabase_SyncEnvironments_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].([]*Environment))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_SyncEnvironments_Call) Return(_a0 error) *MockDatabase_SyncEnvironments_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockDatabase_SyncEnvironments_Call) RunAndReturn(run func(context.Context, []*Environment) error) *MockDatabase_SyncEnvironments_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -6063,7 +6078,7 @@ func (_c *MockDatabase_UpsertReconcilerConfig_Call) RunAndReturn(run func(contex
 }
 
 // UpsertReconcilerResource provides a mock function with given fields: ctx, reconcilerName, teamSlug, key, value, metadata
-func (_m *MockDatabase) UpsertReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value []byte, metadata []byte) (*ReconcilerResource, error) {
+func (_m *MockDatabase) UpsertReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value string, metadata []byte) (*ReconcilerResource, error) {
 	ret := _m.Called(ctx, reconcilerName, teamSlug, key, value, metadata)
 
 	if len(ret) == 0 {
@@ -6072,10 +6087,10 @@ func (_m *MockDatabase) UpsertReconcilerResource(ctx context.Context, reconciler
 
 	var r0 *ReconcilerResource
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, []byte, []byte) (*ReconcilerResource, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, string, []byte) (*ReconcilerResource, error)); ok {
 		return rf(ctx, reconcilerName, teamSlug, key, value, metadata)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, []byte, []byte) *ReconcilerResource); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, string, []byte) *ReconcilerResource); ok {
 		r0 = rf(ctx, reconcilerName, teamSlug, key, value, metadata)
 	} else {
 		if ret.Get(0) != nil {
@@ -6083,7 +6098,7 @@ func (_m *MockDatabase) UpsertReconcilerResource(ctx context.Context, reconciler
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string, []byte, []byte) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string, string, []byte) error); ok {
 		r1 = rf(ctx, reconcilerName, teamSlug, key, value, metadata)
 	} else {
 		r1 = ret.Error(1)
@@ -6102,15 +6117,15 @@ type MockDatabase_UpsertReconcilerResource_Call struct {
 //   - reconcilerName string
 //   - teamSlug slug.Slug
 //   - key string
-//   - value []byte
+//   - value string
 //   - metadata []byte
 func (_e *MockDatabase_Expecter) UpsertReconcilerResource(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, key interface{}, value interface{}, metadata interface{}) *MockDatabase_UpsertReconcilerResource_Call {
 	return &MockDatabase_UpsertReconcilerResource_Call{Call: _e.mock.On("UpsertReconcilerResource", ctx, reconcilerName, teamSlug, key, value, metadata)}
 }
 
-func (_c *MockDatabase_UpsertReconcilerResource_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value []byte, metadata []byte)) *MockDatabase_UpsertReconcilerResource_Call {
+func (_c *MockDatabase_UpsertReconcilerResource_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value string, metadata []byte)) *MockDatabase_UpsertReconcilerResource_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].([]byte), args[5].([]byte))
+		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].(string), args[5].([]byte))
 	})
 	return _c
 }
@@ -6120,57 +6135,7 @@ func (_c *MockDatabase_UpsertReconcilerResource_Call) Return(_a0 *ReconcilerReso
 	return _c
 }
 
-func (_c *MockDatabase_UpsertReconcilerResource_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, []byte, []byte) (*ReconcilerResource, error)) *MockDatabase_UpsertReconcilerResource_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpsertTeamEnvironment provides a mock function with given fields: ctx, teamSlug, environment, slackChannel, gcpProjectID
-func (_m *MockDatabase) UpsertTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel *string, gcpProjectID *string) error {
-	ret := _m.Called(ctx, teamSlug, environment, slackChannel, gcpProjectID)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpsertTeamEnvironment")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, *string, *string) error); ok {
-		r0 = rf(ctx, teamSlug, environment, slackChannel, gcpProjectID)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockDatabase_UpsertTeamEnvironment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpsertTeamEnvironment'
-type MockDatabase_UpsertTeamEnvironment_Call struct {
-	*mock.Call
-}
-
-// UpsertTeamEnvironment is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - environment string
-//   - slackChannel *string
-//   - gcpProjectID *string
-func (_e *MockDatabase_Expecter) UpsertTeamEnvironment(ctx interface{}, teamSlug interface{}, environment interface{}, slackChannel interface{}, gcpProjectID interface{}) *MockDatabase_UpsertTeamEnvironment_Call {
-	return &MockDatabase_UpsertTeamEnvironment_Call{Call: _e.mock.On("UpsertTeamEnvironment", ctx, teamSlug, environment, slackChannel, gcpProjectID)}
-}
-
-func (_c *MockDatabase_UpsertTeamEnvironment_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel *string, gcpProjectID *string)) *MockDatabase_UpsertTeamEnvironment_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string), args[3].(*string), args[4].(*string))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_UpsertTeamEnvironment_Call) Return(_a0 error) *MockDatabase_UpsertTeamEnvironment_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockDatabase_UpsertTeamEnvironment_Call) RunAndReturn(run func(context.Context, slug.Slug, string, *string, *string) error) *MockDatabase_UpsertTeamEnvironment_Call {
+func (_c *MockDatabase_UpsertReconcilerResource_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, string, []byte) (*ReconcilerResource, error)) *MockDatabase_UpsertReconcilerResource_Call {
 	_c.Call.Return(run)
 	return _c
 }

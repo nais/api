@@ -32,7 +32,13 @@ build:
 	go build -o bin/setup_local ./cmd/setup_local
 
 local:
-	env bash -c 'source local.env; go run ./cmd/api'
+	PUBSUB_EMULATOR_HOST="localhost:3004" \
+	KUBERNETES_CLUSTERS="superprod,dev" \
+	LOG_FORMAT="text" \
+	LOG_LEVEL="debug" \
+	WITH_FAKE_CLIENTS="true" \
+	GOOGLE_MANAGEMENT_PROJECT_ID="nais-local-dev" \
+	go run ./cmd/api
 
 test:
 	go test ./...

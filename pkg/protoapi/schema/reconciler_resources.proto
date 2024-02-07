@@ -10,7 +10,7 @@ message ReconcilerResource {
   string reconciler_name = 2;
   string team_slug = 3;
   string name = 4;
-  bytes value = 5;
+  string value = 5;
   bytes metadata = 6;
   google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp updated_at = 8;
@@ -28,6 +28,8 @@ message SaveReconcilerResourceRequest {
   repeated NewReconcilerResource resources = 1;
   string reconciler_name = 2;
   string team_slug = 3;
+  // If true, delete all resources that are not in the request for the team.
+  bool delete_undefined = 4;
 }
 
 message DeleteReconcilerResourcesRequest {
@@ -39,7 +41,7 @@ message DeleteReconcilerResourcesResponse {}
 
 message NewReconcilerResource {
   string name = 1;
-  bytes value = 2;
+  string value = 2;
   bytes metadata = 3;
 }
 

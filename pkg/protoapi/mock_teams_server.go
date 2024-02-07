@@ -316,65 +316,6 @@ func (_c *MockTeamsServer_Members_Call) RunAndReturn(run func(context.Context, *
 	return _c
 }
 
-// SetTeamEnvironmentExternalReferences provides a mock function with given fields: _a0, _a1
-func (_m *MockTeamsServer) SetTeamEnvironmentExternalReferences(_a0 context.Context, _a1 *SetTeamEnvironmentExternalReferencesRequest) (*SetTeamEnvironmentExternalReferencesResponse, error) {
-	ret := _m.Called(_a0, _a1)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SetTeamEnvironmentExternalReferences")
-	}
-
-	var r0 *SetTeamEnvironmentExternalReferencesResponse
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *SetTeamEnvironmentExternalReferencesRequest) (*SetTeamEnvironmentExternalReferencesResponse, error)); ok {
-		return rf(_a0, _a1)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, *SetTeamEnvironmentExternalReferencesRequest) *SetTeamEnvironmentExternalReferencesResponse); ok {
-		r0 = rf(_a0, _a1)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*SetTeamEnvironmentExternalReferencesResponse)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, *SetTeamEnvironmentExternalReferencesRequest) error); ok {
-		r1 = rf(_a0, _a1)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockTeamsServer_SetTeamEnvironmentExternalReferences_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetTeamEnvironmentExternalReferences'
-type MockTeamsServer_SetTeamEnvironmentExternalReferences_Call struct {
-	*mock.Call
-}
-
-// SetTeamEnvironmentExternalReferences is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 *SetTeamEnvironmentExternalReferencesRequest
-func (_e *MockTeamsServer_Expecter) SetTeamEnvironmentExternalReferences(_a0 interface{}, _a1 interface{}) *MockTeamsServer_SetTeamEnvironmentExternalReferences_Call {
-	return &MockTeamsServer_SetTeamEnvironmentExternalReferences_Call{Call: _e.mock.On("SetTeamEnvironmentExternalReferences", _a0, _a1)}
-}
-
-func (_c *MockTeamsServer_SetTeamEnvironmentExternalReferences_Call) Run(run func(_a0 context.Context, _a1 *SetTeamEnvironmentExternalReferencesRequest)) *MockTeamsServer_SetTeamEnvironmentExternalReferences_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*SetTeamEnvironmentExternalReferencesRequest))
-	})
-	return _c
-}
-
-func (_c *MockTeamsServer_SetTeamEnvironmentExternalReferences_Call) Return(_a0 *SetTeamEnvironmentExternalReferencesResponse, _a1 error) *MockTeamsServer_SetTeamEnvironmentExternalReferences_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockTeamsServer_SetTeamEnvironmentExternalReferences_Call) RunAndReturn(run func(context.Context, *SetTeamEnvironmentExternalReferencesRequest) (*SetTeamEnvironmentExternalReferencesResponse, error)) *MockTeamsServer_SetTeamEnvironmentExternalReferences_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // SetTeamExternalReferences provides a mock function with given fields: _a0, _a1
 func (_m *MockTeamsServer) SetTeamExternalReferences(_a0 context.Context, _a1 *SetTeamExternalReferencesRequest) (*SetTeamExternalReferencesResponse, error) {
 	ret := _m.Called(_a0, _a1)
@@ -430,6 +371,65 @@ func (_c *MockTeamsServer_SetTeamExternalReferences_Call) Return(_a0 *SetTeamExt
 }
 
 func (_c *MockTeamsServer_SetTeamExternalReferences_Call) RunAndReturn(run func(context.Context, *SetTeamExternalReferencesRequest) (*SetTeamExternalReferencesResponse, error)) *MockTeamsServer_SetTeamExternalReferences_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SlackAlertsChannels provides a mock function with given fields: _a0, _a1
+func (_m *MockTeamsServer) SlackAlertsChannels(_a0 context.Context, _a1 *SlackAlertsChannelsRequest) (*SlackAlertsChannelsResponse, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SlackAlertsChannels")
+	}
+
+	var r0 *SlackAlertsChannelsResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *SlackAlertsChannelsRequest) (*SlackAlertsChannelsResponse, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *SlackAlertsChannelsRequest) *SlackAlertsChannelsResponse); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*SlackAlertsChannelsResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *SlackAlertsChannelsRequest) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockTeamsServer_SlackAlertsChannels_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SlackAlertsChannels'
+type MockTeamsServer_SlackAlertsChannels_Call struct {
+	*mock.Call
+}
+
+// SlackAlertsChannels is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 *SlackAlertsChannelsRequest
+func (_e *MockTeamsServer_Expecter) SlackAlertsChannels(_a0 interface{}, _a1 interface{}) *MockTeamsServer_SlackAlertsChannels_Call {
+	return &MockTeamsServer_SlackAlertsChannels_Call{Call: _e.mock.On("SlackAlertsChannels", _a0, _a1)}
+}
+
+func (_c *MockTeamsServer_SlackAlertsChannels_Call) Run(run func(_a0 context.Context, _a1 *SlackAlertsChannelsRequest)) *MockTeamsServer_SlackAlertsChannels_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*SlackAlertsChannelsRequest))
+	})
+	return _c
+}
+
+func (_c *MockTeamsServer_SlackAlertsChannels_Call) Return(_a0 *SlackAlertsChannelsResponse, _a1 error) *MockTeamsServer_SlackAlertsChannels_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockTeamsServer_SlackAlertsChannels_Call) RunAndReturn(run func(context.Context, *SlackAlertsChannelsRequest) (*SlackAlertsChannelsResponse, error)) *MockTeamsServer_SlackAlertsChannels_Call {
 	_c.Call.Return(run)
 	return _c
 }

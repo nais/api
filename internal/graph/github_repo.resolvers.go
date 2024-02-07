@@ -59,7 +59,7 @@ func (r *mutationResolver) AuthorizeRepository(ctx context.Context, authorizatio
 		return nil, err
 	}
 
-	ret, err := r.database.GetReconcilerResourcesByKeyAndValue(ctx, "github:team", teamSlug, "repo", []byte(repoName))
+	ret, err := r.database.GetReconcilerResourcesByKeyAndValue(ctx, "github:team", teamSlug, "repo", repoName)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (r *mutationResolver) DeauthorizeRepository(ctx context.Context, authorizat
 		return nil, err
 	}
 
-	ret, err := r.database.GetReconcilerResourcesByKeyAndValue(ctx, "github:team", teamSlug, "repo", []byte(repoName))
+	ret, err := r.database.GetReconcilerResourcesByKeyAndValue(ctx, "github:team", teamSlug, "repo", repoName)
 	if err != nil {
 		return nil, err
 	}

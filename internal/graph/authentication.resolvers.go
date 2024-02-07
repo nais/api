@@ -7,15 +7,18 @@ package graph
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 )
 
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (model.AuthenticatedUser, error) {
+	r.triggerTeamUpdatedEvent(ctx, slug.Slug("asdf"), uuid.New())
 	me := authz.ActorFromContext(ctx).User
 
 	switch me := me.(type) {
