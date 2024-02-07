@@ -127,5 +127,3 @@ func NewMockClient(t testing.TB) (*APIClient, *MockServers) {
 
 	return client, mockServers
 }
-
-type mockDialer struct{}
