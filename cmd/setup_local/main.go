@@ -5,9 +5,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/jackc/pgx/v5/pgtype"
 	"math/rand"
 	"os"
 	"strings"
+	"time"
 	"unicode"
 
 	"cloud.google.com/go/pubsub"
@@ -31,11 +33,13 @@ type seedConfig struct {
 	Domain                    string `env:"TENANT_DOMAIN,default=example.com"`
 	GoogleManagementProjectID string `env:"GOOGLE_MANAGEMENT_PROJECT_ID"`
 
-	NumUsers          *int
-	NumTeams          *int
-	NumOwnersPerTeam  *int
-	NumMembersPerTeam *int
-	ForceSeed         *bool
+	NumUsers           *int
+	NumTeams           *int
+	NumOwnersPerTeam   *int
+	NumMembersPerTeam  *int
+	NumVulnAppsForTeam *int
+	NumVulnPerApp      *int
+	ForceSeed          *bool
 }
 
 func newSeedConfig(ctx context.Context) (*seedConfig, error) {
@@ -50,6 +54,8 @@ func newSeedConfig(ctx context.Context) (*seedConfig, error) {
 	cfg.NumOwnersPerTeam = flag.Int("owners", 3, "number of owners per team")
 	cfg.NumMembersPerTeam = flag.Int("members", 10, "number of members per team")
 	cfg.ForceSeed = flag.Bool("force", false, "seed regardless of existing database content")
+	cfg.NumVulnAppsForTeam = flag.Int("vuln-apps", 5, "number of vulnerable apps per team")
+	cfg.NumVulnPerApp = flag.Int("vuln-per-app", 10, "number of vulnerabilities per app")
 	flag.Parse()
 
 	return cfg, nil
@@ -211,6 +217,11 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			}
 		}
 
+		err = seedVulnerabilities(ctx, *cfg, dbtx, devteam, log)
+		if err != nil {
+			return err
+		}
+
 		err = dbtx.SetTeamMemberRole(ctx, devUser.ID, devteam.Slug, gensql.RoleNameTeamowner)
 		if err != nil {
 			return err
@@ -252,6 +263,62 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 	}
 
 	log.Infof("done")
+	return nil
+}
+
+func seedVulnerabilities(ctx context.Context, cfg seedConfig, dbtx database.Database, team *database.Team, log logrus.FieldLogger) error {
+	var numbOfErrors = 0
+	var upsertError error
+	for j := 0; j < *cfg.NumVulnAppsForTeam; j++ {
+		appName := fmt.Sprintf("app-%d", j)
+		projectId := uuid.New()
+		err := dbtx.CreateDependencytrackProject(ctx, gensql.CreateDependencytrackProjectParams{
+			Environment: "dev",
+			TeamSlug:    team.Slug,
+			App:         appName,
+			Projectid:   projectId,
+		})
+		if err != nil {
+			return err
+		}
+
+		var vulnbBatch []gensql.VulnerabilityMetricsUpsertParams
+		var date = time.Now()
+		var critical int
+		var high int
+		var medium int
+		var low int
+		var unassigned int
+		for k := 0; k < *cfg.NumVulnPerApp; k++ {
+			critical = rand.Intn(10)
+			high = rand.Intn(10)
+			medium = rand.Intn(10)
+			low = rand.Intn(10)
+			unassigned = rand.Intn(10)
+			vulnbBatch = append(vulnbBatch, gensql.VulnerabilityMetricsUpsertParams{
+				Date:                     pgtype.Date{Time: date.AddDate(0, 0, -k).UTC(), Valid: true},
+				DependencytrackProjectID: projectId,
+				RiskScore:                float64((critical * 10) + (high * 5) + (medium * 3) + (low * 1) + (unassigned * 5)),
+				Critical:                 int32(critical),
+				High:                     int32(high),
+				Medium:                   int32(medium),
+				Low:                      int32(low),
+				Unassigned:               int32(unassigned),
+			})
+		}
+
+		dbtx.VulnerabilityMetricsUpsert(ctx, vulnbBatch).Exec(func(i int, err error) {
+			if err != nil {
+				upsertError = err
+				log.Errorf("error updating vulnerability metrics for team %s: %v", team.Slug, err)
+				numbOfErrors++
+			}
+		})
+	}
+	if numbOfErrors > 0 {
+		return upsertError
+	}
+	log.Infof("vulnerability metrics for team %s seeded", team.Slug)
 	return nil
 }
 
