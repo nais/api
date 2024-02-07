@@ -33,13 +33,17 @@ type seedConfig struct {
 	Domain                    string `env:"TENANT_DOMAIN,default=example.com"`
 	GoogleManagementProjectID string `env:"GOOGLE_MANAGEMENT_PROJECT_ID"`
 
-	NumUsers           *int
-	NumTeams           *int
-	NumOwnersPerTeam   *int
-	NumMembersPerTeam  *int
+	NumUsers          *int
+	NumTeams          *int
+	NumOwnersPerTeam  *int
+	NumMembersPerTeam *int
+	VulnSeed          *VulnSeed
+	ForceSeed         *bool
+}
+
+type VulnSeed struct {
 	NumVulnAppsForTeam *int
 	NumVulnPerApp      *int
-	ForceSeed          *bool
 }
 
 func newSeedConfig(ctx context.Context) (*seedConfig, error) {
@@ -54,8 +58,8 @@ func newSeedConfig(ctx context.Context) (*seedConfig, error) {
 	cfg.NumOwnersPerTeam = flag.Int("owners", 3, "number of owners per team")
 	cfg.NumMembersPerTeam = flag.Int("members", 10, "number of members per team")
 	cfg.ForceSeed = flag.Bool("force", false, "seed regardless of existing database content")
-	cfg.NumVulnAppsForTeam = flag.Int("vuln-apps", 5, "number of vulnerable apps per team")
-	cfg.NumVulnPerApp = flag.Int("vuln-per-app", 10, "number of vulnerabilities per app")
+	cfg.VulnSeed.NumVulnAppsForTeam = flag.Int("vuln-apps", 5, "number of vulnerable apps per team")
+	cfg.VulnSeed.NumVulnPerApp = flag.Int("vuln-per-app", 10, "number of vulnerabilities per app")
 	flag.Parse()
 
 	return cfg, nil
@@ -268,8 +272,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 
 func seedVulnerabilities(ctx context.Context, cfg seedConfig, dbtx database.Database, team *database.Team, log logrus.FieldLogger) error {
 	var numbOfErrors = 0
-	var upsertError error
-	for j := 0; j < *cfg.NumVulnAppsForTeam; j++ {
+	for j := 0; j < *cfg.VulnSeed.NumVulnAppsForTeam; j++ {
 		appName := fmt.Sprintf("app-%d", j)
 		projectId := uuid.New()
 		err := dbtx.CreateDependencytrackProject(ctx, gensql.CreateDependencytrackProjectParams{
@@ -289,7 +292,7 @@ func seedVulnerabilities(ctx context.Context, cfg seedConfig, dbtx database.Data
 		var medium int
 		var low int
 		var unassigned int
-		for k := 0; k < *cfg.NumVulnPerApp; k++ {
+		for k := 0; k < *cfg.VulnSeed.NumVulnPerApp; k++ {
 			critical = rand.Intn(10)
 			high = rand.Intn(10)
 			medium = rand.Intn(10)
@@ -309,14 +312,10 @@ func seedVulnerabilities(ctx context.Context, cfg seedConfig, dbtx database.Data
 
 		dbtx.VulnerabilityMetricsUpsert(ctx, vulnbBatch).Exec(func(i int, err error) {
 			if err != nil {
-				upsertError = err
 				log.Errorf("error updating vulnerability metrics for team %s: %v", team.Slug, err)
 				numbOfErrors++
 			}
 		})
-	}
-	if numbOfErrors > 0 {
-		return upsertError
 	}
 	log.Infof("vulnerability metrics for team %s seeded", team.Slug)
 	return nil
