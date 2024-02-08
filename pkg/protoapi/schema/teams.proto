@@ -9,10 +9,10 @@ message Team {
   string slug = 1;
   string purpose = 2;
   string slack_channel = 3;
-  string azure_group_id = 4;
-  string github_team_slug = 5;
-  string google_group_email = 6;
-  string gar_repository = 7;
+  optional string azure_group_id = 4;
+  optional string github_team_slug = 5;
+  optional string google_group_email = 6;
+  optional string gar_repository = 7;
 }
 
 service Teams {
