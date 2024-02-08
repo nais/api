@@ -6572,6 +6572,62 @@ func (_c *MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call) RunAndReturn(ru
 	return _c
 }
 
+// VulnerabilityMetricsMaxDate provides a mock function with given fields: ctx
+func (_m *MockQuerier) VulnerabilityMetricsMaxDate(ctx context.Context) (pgtype.Date, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for VulnerabilityMetricsMaxDate")
+	}
+
+	var r0 pgtype.Date
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (pgtype.Date, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) pgtype.Date); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Get(0).(pgtype.Date)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_VulnerabilityMetricsMaxDate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VulnerabilityMetricsMaxDate'
+type MockQuerier_VulnerabilityMetricsMaxDate_Call struct {
+	*mock.Call
+}
+
+// VulnerabilityMetricsMaxDate is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockQuerier_Expecter) VulnerabilityMetricsMaxDate(ctx interface{}) *MockQuerier_VulnerabilityMetricsMaxDate_Call {
+	return &MockQuerier_VulnerabilityMetricsMaxDate_Call{Call: _e.mock.On("VulnerabilityMetricsMaxDate", ctx)}
+}
+
+func (_c *MockQuerier_VulnerabilityMetricsMaxDate_Call) Run(run func(ctx context.Context)) *MockQuerier_VulnerabilityMetricsMaxDate_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_VulnerabilityMetricsMaxDate_Call) Return(_a0 pgtype.Date, _a1 error) *MockQuerier_VulnerabilityMetricsMaxDate_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_VulnerabilityMetricsMaxDate_Call) RunAndReturn(run func(context.Context) (pgtype.Date, error)) *MockQuerier_VulnerabilityMetricsMaxDate_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // VulnerabilityMetricsUpsert provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) VulnerabilityMetricsUpsert(ctx context.Context, arg []VulnerabilityMetricsUpsertParams) *VulnerabilityMetricsUpsertBatchResults {
 	ret := _m.Called(ctx, arg)
