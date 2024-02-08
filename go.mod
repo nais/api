@@ -17,7 +17,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/lithammer/fuzzysearch v1.1.8
 	github.com/nais/dependencytrack v0.0.0-20240105130454-8d1aff26806c
-	github.com/nais/liberator v0.0.0-20231218082427-a2e184ecc6a0
+	github.com/nais/liberator v0.0.0-20240208114703-a4ddc1dd2ffa
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.17.0
 	github.com/prometheus/client_golang v1.18.0
