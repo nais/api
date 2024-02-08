@@ -1,12 +1,12 @@
 package model
 
-import "github.com/nais/api/internal/graph/scalar"
+import (
+	"github.com/google/uuid"
+)
 
 type ServiceAccount struct {
-	// Unique ID of the service account.
-	ID scalar.Ident `json:"id"`
-	// The name of the service account.
-	Name string `json:"name"`
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
 }
 
 func (ServiceAccount) IsAuthenticatedUser() {}

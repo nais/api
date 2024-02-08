@@ -160,7 +160,6 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 		msg := psMessages[0]
 		if msg.Attributes["EventType"] != protoapi.EventTypes_EVENT_TEAM_UPDATED.String() {
 			t.Errorf("expected event type %s, got %s", protoapi.EventTypes_EVENT_TEAM_UPDATED.String(), msg.Attributes["EventType"])
-
 		}
 	})
 
@@ -201,7 +200,6 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 			Purpose:      " some purpose ",
 			SlackChannel: slackChannel,
 		})
-
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}

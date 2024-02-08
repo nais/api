@@ -734,18 +734,6 @@ type Resources struct {
 	Requests Requests `json:"requests"`
 }
 
-// Role binding type.
-type Role struct {
-	// Name of the role.
-	Name string `json:"name"`
-	// Whether or not the role is global.
-	IsGlobal bool `json:"isGlobal"`
-	// Optional service account ID if the role binding targets a service account. TODO: Make these resolvers returning service account and team, not IDs
-	TargetServiceAccountID *scalar.Ident `json:"targetServiceAccountID,omitempty"`
-	// Optional team slug if the role binding targets a team. TODO: Make these resolvers returning service account and team, not IDs
-	TargetTeamSlug *slug.Slug `json:"targetTeamSlug,omitempty"`
-}
-
 type Rule struct {
 	Application       string `json:"application"`
 	Namespace         string `json:"namespace"`

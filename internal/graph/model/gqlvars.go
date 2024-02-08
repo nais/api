@@ -1,6 +1,9 @@
 package model
 
-import "github.com/nais/api/internal/slug"
+import (
+	"github.com/google/uuid"
+	"github.com/nais/api/internal/slug"
+)
 
 type (
 	AppGQLVars struct {
@@ -22,6 +25,11 @@ type (
 
 	NaisJobGQLVars struct {
 		Team slug.Slug
+	}
+
+	RoleGQLVars struct {
+		TargetServiceAccountID uuid.UUID
+		TargetTeamSlug         *slug.Slug
 	}
 
 	RunGQLVars struct {

@@ -12,7 +12,6 @@ import (
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/usersync"
 	"github.com/sirupsen/logrus/hooks/test"
 )
@@ -55,17 +54,12 @@ func TestMutationResolver_Roles(t *testing.T) {
 			Return([]*authz.Role{role}, nil)
 
 		r, err := resolver.Roles(ctx, &model.ServiceAccount{
-			ID: scalar.ServiceAccountIdent(serviceAccount.ID),
+			ID: serviceAccount.ID,
 		})
 		if err != nil {
 			t.Fatal("unexpected error")
 		}
-		expectedID, err := r[0].TargetServiceAccountID.AsUUID()
-		if err != nil {
-			t.Fatal("unexpected error")
-		}
-
-		if expectedID != *role.TargetServiceAccountID {
+		if r[0].GQLVars.TargetServiceAccountID != *role.TargetServiceAccountID {
 			t.Fatal("unexpected target service account id")
 		}
 	})

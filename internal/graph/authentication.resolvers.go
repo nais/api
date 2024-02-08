@@ -11,7 +11,6 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/scalar"
 )
 
 // Me is the resolver for the me field.
@@ -28,7 +27,7 @@ func (r *queryResolver) Me(ctx context.Context) (model.AuthenticatedUser, error)
 		}, nil
 	case *database.ServiceAccount:
 		return &model.ServiceAccount{
-			ID:   scalar.ServiceAccountIdent(me.ID),
+			ID:   me.ID,
 			Name: me.Name,
 		}, nil
 	default:

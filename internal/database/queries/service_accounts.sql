@@ -24,3 +24,8 @@ WHERE id = @id;
 SELECT * FROM service_account_roles
 WHERE service_account_id = @service_account_id
 ORDER BY role_name ASC;
+
+-- name: GetServiceAccountsByIDs :many
+SELECT * FROM service_accounts
+WHERE id = ANY(@ids::uuid[])
+ORDER BY name ASC;

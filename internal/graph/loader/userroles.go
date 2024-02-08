@@ -8,8 +8,6 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/scalar"
-	"k8s.io/utils/ptr"
 )
 
 type userRolesReader struct {
@@ -40,17 +38,19 @@ func GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*model.Role, error) 
 }
 
 func ToGraphUserRoles(m *authz.Role) *model.Role {
-	ret := &model.Role{
-		Name:           string(m.RoleName),
-		IsGlobal:       m.IsGlobal(),
-		TargetTeamSlug: m.TargetTeamSlug,
-	}
-
+	var saID uuid.UUID
 	if m.TargetServiceAccountID != nil {
-		ret.TargetServiceAccountID = ptr.To(scalar.ServiceAccountIdent(*m.TargetServiceAccountID))
+		saID = *m.TargetServiceAccountID
 	}
 
-	return ret
+	return &model.Role{
+		Name:     string(m.RoleName),
+		IsGlobal: m.IsGlobal(),
+		GQLVars: model.RoleGQLVars{
+			TargetServiceAccountID: saID,
+			TargetTeamSlug:         m.TargetTeamSlug,
+		},
+	}
 }
 
 func toGraphUserRoleList(m []*authz.Role) []*model.Role {

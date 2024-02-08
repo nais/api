@@ -17,6 +17,7 @@ type ServiceAccountRepo interface {
 	GetServiceAccountByName(ctx context.Context, name string) (*ServiceAccount, error)
 	GetServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) ([]*authz.Role, error)
 	GetServiceAccounts(ctx context.Context) ([]*ServiceAccount, error)
+	GetServiceAccountsByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccount, error)
 	RemoveAllServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
 }
@@ -66,6 +67,20 @@ func (d *database) GetServiceAccountByApiKey(ctx context.Context, apiKey string)
 
 func (d *database) GetServiceAccounts(ctx context.Context) ([]*ServiceAccount, error) {
 	rows, err := d.querier.GetServiceAccounts(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	serviceAccounts := make([]*ServiceAccount, 0)
+	for _, row := range rows {
+		serviceAccounts = append(serviceAccounts, &ServiceAccount{ServiceAccount: row})
+	}
+
+	return serviceAccounts, nil
+}
+
+func (d *database) GetServiceAccountsByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccount, error) {
+	rows, err := d.querier.GetServiceAccountsByIDs(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
