@@ -83,7 +83,6 @@ type HookdClient interface {
 type DependencytrackClient interface {
 	VulnerabilitySummary(ctx context.Context, app *dependencytrack.AppInstance) (*model.Vulnerability, error)
 	GetVulnerabilities(ctx context.Context, apps []*dependencytrack.AppInstance) ([]*model.Vulnerability, error)
-	GetProjectMetrics(ctx context.Context, app *dependencytrack.AppInstance) (*model.VulnerabilityMetricsWithProjectID, error)
 }
 
 type Resolver struct {

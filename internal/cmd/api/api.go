@@ -30,6 +30,7 @@ import (
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/usersync"
+	"github.com/nais/api/internal/vulnerability"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2/google"
@@ -158,7 +159,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	pubsubTopic := pubsubClient.Topic("nais-api")
 
 	var hookdClient graph.HookdClient
-	var dependencyTrackClient graph.DependencytrackClient
+	var dependencyTrackClient vulnerability.DependencytrackClient
 	if cfg.WithFakeClients {
 		hookdClient = fakehookd.New()
 		dependencyTrackClient = faketrack.New()

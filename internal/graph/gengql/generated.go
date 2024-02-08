@@ -887,11 +887,6 @@ type ComplexityRoot struct {
 		MinDate func(childComplexity int) int
 	}
 
-	VulnerabilityMetricsWithProjectId struct {
-		ProjectID            func(childComplexity int) int
-		VulnerabilitySummary func(childComplexity int) int
-	}
-
 	VulnerabilitySummary struct {
 		Critical   func(childComplexity int) int
 		High       func(childComplexity int) int
@@ -4686,20 +4681,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.VulnerabilityMetrics.MinDate(childComplexity), true
 
-	case "VulnerabilityMetricsWithProjectId.projectId":
-		if e.complexity.VulnerabilityMetricsWithProjectId.ProjectID == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilityMetricsWithProjectId.ProjectID(childComplexity), true
-
-	case "VulnerabilityMetricsWithProjectId.vulnerabilitySummary":
-		if e.complexity.VulnerabilityMetricsWithProjectId.VulnerabilitySummary == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilityMetricsWithProjectId.VulnerabilitySummary(childComplexity), true
-
 	case "VulnerabilitySummary.critical":
 		if e.complexity.VulnerabilitySummary.Critical == nil {
 			break
@@ -5345,13 +5326,7 @@ type VulnerabilitySummary {
   medium: Int!
   low: Int!
   unassigned: Int!
-}
-
-type VulnerabilityMetricsWithProjectId {
-  projectId: ID!
-  vulnerabilitySummary: VulnerabilitySummary
-}
-`, BuiltIn: false},
+}`, BuiltIn: false},
 	{Name: "../graphqls/deploy.graphqls", Input: `extend type Query {
   "Get a list of deployments."
   deployments(offset: Int, limit: Int): DeploymentList!
@@ -32870,107 +32845,6 @@ func (ec *executionContext) fieldContext_VulnerabilityMetrics_data(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _VulnerabilityMetricsWithProjectId_projectId(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityMetricsWithProjectID) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityMetricsWithProjectId_projectId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ProjectID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(scalar.Ident)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilityMetricsWithProjectId_projectId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityMetricsWithProjectId",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilityMetricsWithProjectId_vulnerabilitySummary(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityMetricsWithProjectID) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityMetricsWithProjectId_vulnerabilitySummary(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.VulnerabilitySummary, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.VulnerabilitySummary)
-	fc.Result = res
-	return ec.marshalOVulnerabilitySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilitySummary(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilityMetricsWithProjectId_vulnerabilitySummary(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityMetricsWithProjectId",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "total":
-				return ec.fieldContext_VulnerabilitySummary_total(ctx, field)
-			case "riskScore":
-				return ec.fieldContext_VulnerabilitySummary_riskScore(ctx, field)
-			case "critical":
-				return ec.fieldContext_VulnerabilitySummary_critical(ctx, field)
-			case "high":
-				return ec.fieldContext_VulnerabilitySummary_high(ctx, field)
-			case "medium":
-				return ec.fieldContext_VulnerabilitySummary_medium(ctx, field)
-			case "low":
-				return ec.fieldContext_VulnerabilitySummary_low(ctx, field)
-			case "unassigned":
-				return ec.fieldContext_VulnerabilitySummary_unassigned(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type VulnerabilitySummary", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _VulnerabilitySummary_total(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilitySummary) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_VulnerabilitySummary_total(ctx, field)
 	if err != nil {
@@ -43766,47 +43640,6 @@ func (ec *executionContext) _VulnerabilityMetrics(ctx context.Context, sel ast.S
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var vulnerabilityMetricsWithProjectIdImplementors = []string{"VulnerabilityMetricsWithProjectId"}
-
-func (ec *executionContext) _VulnerabilityMetricsWithProjectId(ctx context.Context, sel ast.SelectionSet, obj *model.VulnerabilityMetricsWithProjectID) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, vulnerabilityMetricsWithProjectIdImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("VulnerabilityMetricsWithProjectId")
-		case "projectId":
-			out.Values[i] = ec._VulnerabilityMetricsWithProjectId_projectId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "vulnerabilitySummary":
-			out.Values[i] = ec._VulnerabilityMetricsWithProjectId_vulnerabilitySummary(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

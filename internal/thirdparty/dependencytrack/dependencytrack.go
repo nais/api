@@ -29,6 +29,11 @@ func (a *AppInstance) ProjectName() string {
 	return fmt.Sprintf("%s:%s:%s", a.Env, a.Team, a.App)
 }
 
+type ProjectMetric struct {
+	ProjectID            scalar.Ident
+	VulnerabilitySummary *model.VulnerabilitySummary
+}
+
 type Client struct {
 	client      dependencytrack.Client
 	frontendUrl string
@@ -69,7 +74,7 @@ func (c *Client) WithClient(client dependencytrack.Client) *Client {
 	return c
 }
 
-func (c *Client) GetProjectMetrics(ctx context.Context, app *AppInstance) (*model.VulnerabilityMetricsWithProjectID, error) {
+func (c *Client) GetProjectMetric(ctx context.Context, app *AppInstance) (*ProjectMetric, error) {
 	p, err := c.retrieveProject(ctx, app)
 	if err != nil {
 		return nil, fmt.Errorf("getting project by app %s: %w", app.ID(), err)
@@ -88,7 +93,7 @@ func (c *Client) GetProjectMetrics(ctx context.Context, app *AppInstance) (*mode
 		return nil, nil
 	}
 
-	return &model.VulnerabilityMetricsWithProjectID{
+	return &ProjectMetric{
 		ProjectID: scalar.VulnerabilitiesIdent(p.Uuid),
 		VulnerabilitySummary: &model.VulnerabilitySummary{
 			Total:      metric.FindingsTotal,

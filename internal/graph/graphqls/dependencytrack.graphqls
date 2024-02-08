@@ -35,8 +35,3 @@ type VulnerabilitySummary {
   low: Int!
   unassigned: Int!
 }
-
-type VulnerabilityMetricsWithProjectId {
-  projectId: ID!
-  vulnerabilitySummary: VulnerabilitySummary
-}

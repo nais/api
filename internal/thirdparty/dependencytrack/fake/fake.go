@@ -52,7 +52,7 @@ func (f *FakeDependencytrackClient) GetVulnerabilities(ctx context.Context, apps
 	return ret, nil
 }
 
-func (f *FakeDependencytrackClient) GetProjectMetrics(ctx context.Context, app *dependencytrack.AppInstance) (*model.VulnerabilityMetricsWithProjectID, error) {
+func (f *FakeDependencytrackClient) GetProjectMetric(ctx context.Context, app *dependencytrack.AppInstance) (*dependencytrack.ProjectMetric, error) {
 	critical := rand.Intn(10)
 	high := rand.Intn(10)
 	medium := rand.Intn(10)
@@ -67,7 +67,7 @@ func (f *FakeDependencytrackClient) GetProjectMetrics(ctx context.Context, app *
 		uuId = mapOfApps[app.ID()]
 	}
 
-	return &model.VulnerabilityMetricsWithProjectID{
+	return &dependencytrack.ProjectMetric{
 		ProjectID: scalar.VulnerabilitiesIdent(uuId.String()),
 		VulnerabilitySummary: &model.VulnerabilitySummary{
 			Total:      critical + high + medium + low + unassigned,

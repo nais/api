@@ -957,11 +957,6 @@ type VulnerabilityMetrics struct {
 	Data []*VulnerabilityMetric `json:"data"`
 }
 
-type VulnerabilityMetricsWithProjectID struct {
-	ProjectID            scalar.Ident          `json:"projectId"`
-	VulnerabilitySummary *VulnerabilitySummary `json:"vulnerabilitySummary,omitempty"`
-}
-
 type VulnerabilitySummary struct {
 	Total      int `json:"total"`
 	RiskScore  int `json:"riskScore"`
