@@ -53,6 +53,11 @@ func (r *secretResolver) Data(ctx context.Context, obj *model.Secret) ([]*model.
 	return convertSecretDataToTuple(obj.Data), nil
 }
 
+// LastModifiedBy is the resolver for the lastModifiedBy field.
+func (r *secretResolver) LastModifiedBy(ctx context.Context, obj *model.Secret) (*model.User, error) {
+	return r.Query().User(ctx, nil, &obj.GQLVars.LastModifiedBy)
+}
+
 // Secret returns gengql.SecretResolver implementation.
 func (r *Resolver) Secret() gengql.SecretResolver { return &secretResolver{r} }
 

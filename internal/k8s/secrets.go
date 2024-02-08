@@ -22,8 +22,10 @@ import (
 )
 
 const (
-	secretLabelVal = "console"
-	secretLabelKey = "nais.io/managed-by"
+	secretLabelManagedByKey        = "nais.io/managed-by"
+	secretLabelManagedByVal        = "console"
+	secretAnnotationLastModifiedAt = "console.nais.io/last-modified-at"
+	secretAnnotationLastModifiedBy = "console.nais.io/last-modified-by"
 )
 
 // Secrets lists all secrets for a given team in all environments
@@ -69,7 +71,7 @@ func (c *Client) SecretsForEnv(ctx context.Context, team slug.Slug, env string) 
 func (c *Client) listSecrets(ctx context.Context, team slug.Slug, env string, clientSet kubernetes.Interface) ([]*model.Secret, error) {
 	namespace := team.String()
 	opts := metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("%s=%s", secretLabelKey, secretLabelVal),
+		LabelSelector: fmt.Sprintf("%s=%s", secretLabelManagedByKey, secretLabelManagedByVal),
 	}
 
 	kubeSecrets, err := clientSet.CoreV1().Secrets(namespace).List(ctx, opts)
@@ -140,14 +142,14 @@ func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, 
 		return nil, err
 	}
 
-	namespace := team.String()
 	cli, ok := impersonatedClients[env]
 	if !ok {
 		return nil, fmt.Errorf("no client set for env %q", env)
 	}
 
-	user := authz.ActorFromContext(ctx).User.Identity()
-	secret := kubeSecret(name, namespace, user, data)
+	actor := authz.ActorFromContext(ctx)
+	secret := kubeSecret(name, team, actor, data)
+	namespace := team.String()
 	created, err := cli.CoreV1().Secrets(namespace).Create(ctx, secret, metav1.CreateOptions{})
 	if err != nil {
 		return nil, c.error(ctx, err, "creating secret")
@@ -182,8 +184,8 @@ func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, 
 		return nil, fmt.Errorf("secret %q is not managed by console", existing.GetName())
 	}
 
-	user := authz.ActorFromContext(ctx).User.Identity()
-	secret := kubeSecret(name, namespace, user, data)
+	actor := authz.ActorFromContext(ctx)
+	secret := kubeSecret(name, team, actor, data)
 	updated, err := cli.CoreV1().Secrets(namespace).Update(ctx, secret, metav1.UpdateOptions{})
 	if err != nil {
 		return nil, c.error(ctx, err, "updating secret")
@@ -247,8 +249,8 @@ func (c *Client) mapAppsBySecret(ctx context.Context, team slug.Slug, env string
 }
 
 func secretIsManagedByConsole(secret corev1.Secret) bool {
-	secretLabel, ok := secret.GetLabels()[secretLabelKey]
-	hasConsoleLabel := ok && secretLabel == secretLabelVal
+	secretLabel, ok := secret.GetLabels()[secretLabelManagedByKey]
+	hasConsoleLabel := ok && secretLabel == secretLabelManagedByVal
 
 	isOpaque := secret.Type == corev1.SecretTypeOpaque || secret.Type == "kubernetes.io/Opaque"
 	hasOwnerReferences := len(secret.GetOwnerReferences()) > 0
@@ -260,17 +262,21 @@ func secretIsManagedByConsole(secret corev1.Secret) bool {
 	return hasConsoleLabel && isOpaque && !hasOwnerReferences && !hasFinalizers && !isJwker
 }
 
-func kubeSecret(name, namespace, user string, data []*model.SecretTupleInput) *corev1.Secret {
+func kubeSecret(name string, team slug.Slug, actor *authz.Actor, data []*model.SecretTupleInput) *corev1.Secret {
+	namespace := team.String()
+	user := actor.User.Identity()
+
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 			Annotations: map[string]string{
-				"console.nais.io/last-modified-by": user,
-				"console.nais.io/last-modified-at": time.Now().Format(time.RFC3339),
+				secretAnnotationLastModifiedBy: user,
+				secretAnnotationLastModifiedAt: time.Now().Format(time.RFC3339),
+				"reloader.stakater.com/match":  "true",
 			},
 			Labels: map[string]string{
-				secretLabelKey: secretLabelVal,
+				secretLabelManagedByKey: secretLabelManagedByVal,
 			},
 		},
 		Data: secretTupleToMap(data),
@@ -278,10 +284,10 @@ func kubeSecret(name, namespace, user string, data []*model.SecretTupleInput) *c
 	}
 }
 
-func toGraphEnvSecret(env string, team slug.Slug, secret ...*model.Secret) *model.EnvSecret {
+func toGraphEnvSecret(env string, team slug.Slug, secrets ...*model.Secret) *model.EnvSecret {
 	return &model.EnvSecret{
 		Env:     model.Env{Team: team.String(), Name: env},
-		Secrets: secret,
+		Secrets: secrets,
 	}
 }
 
@@ -293,19 +299,32 @@ func toGraphSecret(env string, obj *corev1.Secret, apps []*model.App) *model.Sec
 	}
 
 	// sort first as Compact only removes consecutive duplicates
-
 	slices.SortFunc(apps, func(a, b *model.App) int {
 		return cmp.Compare(a.Name, b.Name)
 	})
 
 	apps = slices.Compact(apps)
 
-	return &model.Secret{
+	secret := &model.Secret{
 		ID:   makeSecretIdent(env, obj.GetNamespace(), obj.GetName()),
 		Name: obj.Name,
 		Data: secretBytesToString(obj.Data),
 		Apps: apps,
 	}
+
+	annotations := obj.GetAnnotations()
+	modifiedBy, ok := annotations[secretAnnotationLastModifiedBy]
+	if ok {
+		secret.GQLVars.LastModifiedBy = modifiedBy
+	}
+
+	modifiedAt := annotations[secretAnnotationLastModifiedAt]
+	modifiedAtTime, err := time.Parse(time.RFC3339, modifiedAt)
+	if err == nil {
+		secret.LastModifiedAt = &modifiedAtTime
+	}
+
+	return secret
 }
 
 func secretBytesToString(data map[string][]byte) map[string]string {

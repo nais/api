@@ -711,11 +711,13 @@ type ComplexityRoot struct {
 	}
 
 	Secret struct {
-		Apps func(childComplexity int) int
-		Data func(childComplexity int) int
-		Env  func(childComplexity int) int
-		ID   func(childComplexity int) int
-		Name func(childComplexity int) int
+		Apps           func(childComplexity int) int
+		Data           func(childComplexity int) int
+		Env            func(childComplexity int) int
+		ID             func(childComplexity int) int
+		LastModifiedAt func(childComplexity int) int
+		LastModifiedBy func(childComplexity int) int
+		Name           func(childComplexity int) int
 	}
 
 	ServiceAccount struct {
@@ -1011,6 +1013,8 @@ type RoleResolver interface {
 type SecretResolver interface {
 	Env(ctx context.Context, obj *model.Secret) (*model.Env, error)
 	Data(ctx context.Context, obj *model.Secret) ([]*model.Variable, error)
+
+	LastModifiedBy(ctx context.Context, obj *model.Secret) (*model.User, error)
 }
 type ServiceAccountResolver interface {
 	Roles(ctx context.Context, obj *model.ServiceAccount) ([]*model.Role, error)
@@ -3950,6 +3954,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Secret.ID(childComplexity), true
 
+	case "Secret.lastModifiedAt":
+		if e.complexity.Secret.LastModifiedAt == nil {
+			break
+		}
+
+		return e.complexity.Secret.LastModifiedAt(childComplexity), true
+
+	case "Secret.lastModifiedBy":
+		if e.complexity.Secret.LastModifiedBy == nil {
+			break
+		}
+
+		return e.complexity.Secret.LastModifiedBy(childComplexity), true
+
 	case "Secret.name":
 		if e.complexity.Secret.Name == nil {
 			break
@@ -6209,6 +6227,8 @@ type Secret {
     env: Env!
     data: [Variable!]!
     apps: [App!]!
+    lastModifiedAt: Time
+    lastModifiedBy: User
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/serviceAccounts.graphqls", Input: `"Service account type."
@@ -9779,6 +9799,10 @@ func (ec *executionContext) fieldContext_App_secrets(ctx context.Context, field 
 				return ec.fieldContext_Secret_data(ctx, field)
 			case "apps":
 				return ec.fieldContext_Secret_apps(ctx, field)
+			case "lastModifiedAt":
+				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+			case "lastModifiedBy":
+				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},
@@ -15000,6 +15024,10 @@ func (ec *executionContext) fieldContext_EnvSecret_secrets(ctx context.Context, 
 				return ec.fieldContext_Secret_data(ctx, field)
 			case "apps":
 				return ec.fieldContext_Secret_apps(ctx, field)
+			case "lastModifiedAt":
+				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+			case "lastModifiedBy":
+				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},
@@ -19485,6 +19513,10 @@ func (ec *executionContext) fieldContext_Mutation_createSecret(ctx context.Conte
 				return ec.fieldContext_Secret_data(ctx, field)
 			case "apps":
 				return ec.fieldContext_Secret_apps(ctx, field)
+			case "lastModifiedAt":
+				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+			case "lastModifiedBy":
+				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},
@@ -19572,6 +19604,10 @@ func (ec *executionContext) fieldContext_Mutation_updateSecret(ctx context.Conte
 				return ec.fieldContext_Secret_data(ctx, field)
 			case "apps":
 				return ec.fieldContext_Secret_apps(ctx, field)
+			case "lastModifiedAt":
+				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+			case "lastModifiedBy":
+				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},
@@ -28426,6 +28462,104 @@ func (ec *executionContext) fieldContext_Secret_apps(ctx context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Secret_lastModifiedAt(ctx context.Context, field graphql.CollectedField, obj *model.Secret) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LastModifiedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Secret_lastModifiedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Secret",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Secret_lastModifiedBy(ctx context.Context, field graphql.CollectedField, obj *model.Secret) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Secret().LastModifiedBy(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Secret_lastModifiedBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Secret",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "teams":
+				return ec.fieldContext_User_teams(ctx, field)
+			case "roles":
+				return ec.fieldContext_User_roles(ctx, field)
+			case "externalId":
+				return ec.fieldContext_User_externalId(ctx, field)
+			case "isAdmin":
+				return ec.fieldContext_User_isAdmin(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ServiceAccount_id(ctx context.Context, field graphql.CollectedField, obj *model.ServiceAccount) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ServiceAccount_id(ctx, field)
 	if err != nil {
@@ -31292,6 +31426,10 @@ func (ec *executionContext) fieldContext_Team_secret(ctx context.Context, field 
 				return ec.fieldContext_Secret_data(ctx, field)
 			case "apps":
 				return ec.fieldContext_Secret_apps(ctx, field)
+			case "lastModifiedAt":
+				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+			case "lastModifiedBy":
+				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},
@@ -43022,6 +43160,41 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "lastModifiedAt":
+			out.Values[i] = ec._Secret_lastModifiedAt(ctx, field, obj)
+		case "lastModifiedBy":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Secret_lastModifiedBy(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -49855,6 +50028,13 @@ func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel
 	}
 	res := graphql.MarshalTime(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._User(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOVulnerability2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerability(ctx context.Context, sel ast.SelectionSet, v *model.Vulnerability) graphql.Marshaler {
