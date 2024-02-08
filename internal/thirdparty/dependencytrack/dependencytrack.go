@@ -97,7 +97,7 @@ func (c *Client) GetProjectMetric(ctx context.Context, app *AppInstance) (*Proje
 		ProjectID: scalar.VulnerabilitiesIdent(p.Uuid),
 		VulnerabilitySummary: &model.VulnerabilitySummary{
 			Total:      metric.FindingsTotal,
-			RiskScore:  metric.InheritedRiskScore,
+			RiskScore:  int(metric.InheritedRiskScore),
 			Critical:   metric.Critical,
 			High:       metric.High,
 			Medium:     metric.Medium,
