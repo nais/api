@@ -119,11 +119,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("sync environments to database: %w", err)
 	}
 
-	// TODO: Implement new first run logic
-	// if err := firstRun(ctx, db, cfg.FirstRunEnableReconcilers, log); err != nil {
-	// 	return err
-	// }
-
 	if err := fixtures.SetupStaticServiceAccounts(ctx, db, cfg.StaticServiceAccounts); err != nil {
 		return err
 	}
