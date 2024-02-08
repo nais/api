@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/pkg/protoapi"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"k8s.io/utils/ptr"
 )
 
 type TeamsServer struct {
@@ -142,25 +143,9 @@ func (t *TeamsServer) Environments(ctx context.Context, req *protoapi.ListTeamEn
 }
 
 func toProtoTeam(team *database.Team) *protoapi.Team {
-	// TODO(thokra): Should we make these fields optional
-	gge := ""
-	if team.GoogleGroupEmail != nil {
-		gge = *team.GoogleGroupEmail
-	}
-
-	gts := ""
-	if team.GithubTeamSlug != nil {
-		gts = *team.GithubTeamSlug
-	}
-
-	aID := ""
+	var aID *string
 	if team.AzureGroupID != nil {
-		aID = team.AzureGroupID.String()
-	}
-
-	gar := ""
-	if team.GarRepository != nil {
-		gar = *team.GarRepository
+		aID = ptr.To(team.AzureGroupID.String())
 	}
 
 	return &protoapi.Team{
@@ -168,9 +153,9 @@ func toProtoTeam(team *database.Team) *protoapi.Team {
 		Purpose:          team.Purpose,
 		SlackChannel:     team.SlackChannel,
 		AzureGroupId:     aID,
-		GithubTeamSlug:   gts,
-		GoogleGroupEmail: gge,
-		GarRepository:    gar,
+		GithubTeamSlug:   team.GithubTeamSlug,
+		GoogleGroupEmail: team.GoogleGroupEmail,
+		GarRepository:    team.GarRepository,
 	}
 }
 
