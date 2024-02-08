@@ -21,6 +21,7 @@ import (
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/usersync"
+	"github.com/nais/api/pkg/protoapi"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -109,10 +110,8 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 			Return(nil).
 			Once()
 
-		_, psClient, closer := getPubsubServerAndClient(ctx, "some-id", "topic-id")
+		psServer, psClient, closer := getPubsubServerAndClient(ctx, "some-id", "topic-id")
 		defer closer()
-
-		// TODO: check message sent to the pubsub topic
 
 		auditLogger := auditlogger.NewAuditLoggerForTesting()
 		returnedTeam, err := graph.
@@ -123,15 +122,46 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 				Purpose:      " some purpose ",
 				SlackChannel: slackChannel,
 			})
-		assert.NoError(t, err)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
 
-		assert.Equal(t, createdTeam.Slug, returnedTeam.Slug)
-		assert.Len(t, auditLogger.Entries(), 1)
+		if createdTeam.Slug != returnedTeam.Slug {
+			t.Errorf("expected team slug %q, got %q", createdTeam.Slug, returnedTeam.Slug)
+		}
+
+		if len(auditLogger.Entries()) != 1 {
+			t.Fatalf("expected 1 audit log entry, got %d", len(auditLogger.Entries()))
+		}
+
 		entry := auditLogger.Entries()[0]
-		assert.Equal(t, ctx, entry.Context)
-		assert.Equal(t, string(createdTeam.Slug), entry.Targets[0].Identifier)
-		assert.Equal(t, user, entry.Fields.Actor.User)
-		assert.Equal(t, "Team created", entry.Message)
+
+		if ctx != entry.Context {
+			t.Errorf("incorrect context in audit log entry")
+		}
+
+		if string(createdTeam.Slug) != entry.Targets[0].Identifier {
+			t.Errorf("expected team slug %q, got %q", createdTeam.Slug, entry.Targets[0].Identifier)
+		}
+
+		if user != entry.Fields.Actor.User {
+			t.Errorf("incorrect actor in audit log entry")
+		}
+
+		if expected := "Team created"; entry.Message != expected {
+			t.Errorf("expected message %q, got %q", expected, entry.Message)
+		}
+
+		psMessages := psServer.Messages()
+		if len(psMessages) != 1 {
+			t.Fatalf("expected 1 message, got %d", len(psMessages))
+		}
+
+		msg := psMessages[0]
+		if msg.Attributes["EventType"] != protoapi.EventTypes_EVENT_TEAM_UPDATED.String() {
+			t.Errorf("expected event type %s, got %s", protoapi.EventTypes_EVENT_TEAM_UPDATED.String(), msg.Attributes["EventType"])
+
+		}
 	})
 
 	t.Run("calling with SA, adds sa as team owner", func(t *testing.T) {
@@ -160,10 +190,8 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 			Return(nil).
 			Once()
 
-		_, psClient, closer := getPubsubServerAndClient(ctx, "some-id", "topic-id")
+		psServer, psClient, closer := getPubsubServerAndClient(ctx, "some-id", "topic-id")
 		defer closer()
-
-		// TODO: check message sent to the pubsub topic
 
 		auditLogger := auditlogger.NewAuditLoggerForTesting()
 		returnedTeam, err := graph.
@@ -174,14 +202,39 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 			SlackChannel: slackChannel,
 		})
 
-		assert.NoError(t, err)
-		assert.Equal(t, createdTeam.Slug, returnedTeam.Slug)
-		assert.Len(t, auditLogger.Entries(), 1)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		if createdTeam.Slug != returnedTeam.Slug {
+			t.Errorf("expected team slug %q, got %q", createdTeam.Slug, returnedTeam.Slug)
+		}
+
+		if len(auditLogger.Entries()) != 1 {
+			t.Fatalf("expected 1 audit log entry, got %d", len(auditLogger.Entries()))
+		}
+
 		entry := auditLogger.Entries()[0]
-		assert.Equal(t, saCtx, entry.Context)
-		assert.Equal(t, string(createdTeam.Slug), entry.Targets[0].Identifier)
-		assert.Equal(t, serviceAccount, entry.Fields.Actor.User)
-		assert.Equal(t, "Team created", entry.Message)
+		if saCtx != entry.Context {
+			t.Errorf("incorrect context in audit log entry")
+		}
+
+		if string(createdTeam.Slug) != entry.Targets[0].Identifier {
+			t.Errorf("expected team slug %q, got %q", createdTeam.Slug, entry.Targets[0].Identifier)
+		}
+
+		if serviceAccount != entry.Fields.Actor.User {
+			t.Errorf("incorrect actor in audit log entry")
+		}
+
+		if expected := "Team created"; entry.Message != expected {
+			t.Errorf("expected message %q, got %q", expected, entry.Message)
+		}
+
+		psMessages := psServer.Messages()
+		if len(psMessages) != 1 {
+			t.Fatalf("expected 1 message, got %d", len(psMessages))
+		}
 	})
 }
 
