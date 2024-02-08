@@ -51,6 +51,7 @@ type ResolverRoot interface {
 	NaisJob() NaisJobResolver
 	Query() QueryResolver
 	Reconciler() ReconcilerResolver
+	Role() RoleResolver
 	ServiceAccount() ServiceAccountResolver
 	Subscription() SubscriptionResolver
 	Team() TeamResolver
@@ -667,10 +668,10 @@ type ComplexityRoot struct {
 	}
 
 	Role struct {
-		IsGlobal               func(childComplexity int) int
-		Name                   func(childComplexity int) int
-		TargetServiceAccountID func(childComplexity int) int
-		TargetTeamSlug         func(childComplexity int) int
+		IsGlobal             func(childComplexity int) int
+		Name                 func(childComplexity int) int
+		TargetServiceAccount func(childComplexity int) int
+		TargetTeam           func(childComplexity int) int
 	}
 
 	Rule struct {
@@ -961,6 +962,10 @@ type ReconcilerResolver interface {
 	Config(ctx context.Context, obj *model.Reconciler) ([]*model.ReconcilerConfig, error)
 	Configured(ctx context.Context, obj *model.Reconciler) (bool, error)
 	AuditLogs(ctx context.Context, obj *model.Reconciler, offset *int, limit *int) (*model.AuditLogList, error)
+}
+type RoleResolver interface {
+	TargetServiceAccount(ctx context.Context, obj *model.Role) (*model.ServiceAccount, error)
+	TargetTeam(ctx context.Context, obj *model.Role) (*model.Team, error)
 }
 type ServiceAccountResolver interface {
 	Roles(ctx context.Context, obj *model.ServiceAccount) ([]*model.Role, error)
@@ -3679,19 +3684,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Role.Name(childComplexity), true
 
-	case "Role.targetServiceAccountID":
-		if e.complexity.Role.TargetServiceAccountID == nil {
+	case "Role.targetServiceAccount":
+		if e.complexity.Role.TargetServiceAccount == nil {
 			break
 		}
 
-		return e.complexity.Role.TargetServiceAccountID(childComplexity), true
+		return e.complexity.Role.TargetServiceAccount(childComplexity), true
 
-	case "Role.targetTeamSlug":
-		if e.complexity.Role.TargetTeamSlug == nil {
+	case "Role.targetTeam":
+		if e.complexity.Role.TargetTeam == nil {
 			break
 		}
 
-		return e.complexity.Role.TargetTeamSlug(childComplexity), true
+		return e.complexity.Role.TargetTeam(childComplexity), true
 
 	case "Rule.application":
 		if e.complexity.Rule.Application == nil {
@@ -5906,11 +5911,11 @@ type Role {
   "Whether or not the role is global."
   isGlobal: Boolean!
 
-  "Optional service account ID if the role binding targets a service account. TODO: Make these resolvers returning service account and team, not IDs"
-  targetServiceAccountID: ID
+  "Optional service account if the role binding targets a service account."
+  targetServiceAccount: ServiceAccount
 
-  "Optional team slug if the role binding targets a team. TODO: Make these resolvers returning service account and team, not IDs"
-  targetTeamSlug: Slug
+  "Optional team if the role binding targets a team."
+  targetTeam: Team
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/storage.graphqls", Input: `interface Storage {
@@ -26213,8 +26218,8 @@ func (ec *executionContext) fieldContext_Role_isGlobal(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Role_targetServiceAccountID(ctx context.Context, field graphql.CollectedField, obj *model.Role) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Role_targetServiceAccountID(ctx, field)
+func (ec *executionContext) _Role_targetServiceAccount(ctx context.Context, field graphql.CollectedField, obj *model.Role) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Role_targetServiceAccount(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -26227,7 +26232,7 @@ func (ec *executionContext) _Role_targetServiceAccountID(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.TargetServiceAccountID, nil
+		return ec.resolvers.Role().TargetServiceAccount(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -26236,26 +26241,34 @@ func (ec *executionContext) _Role_targetServiceAccountID(ctx context.Context, fi
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*scalar.Ident)
+	res := resTmp.(*model.ServiceAccount)
 	fc.Result = res
-	return ec.marshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+	return ec.marshalOServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐServiceAccount(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Role_targetServiceAccountID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Role_targetServiceAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Role",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ServiceAccount_id(ctx, field)
+			case "name":
+				return ec.fieldContext_ServiceAccount_name(ctx, field)
+			case "roles":
+				return ec.fieldContext_ServiceAccount_roles(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ServiceAccount", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Role_targetTeamSlug(ctx context.Context, field graphql.CollectedField, obj *model.Role) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Role_targetTeamSlug(ctx, field)
+func (ec *executionContext) _Role_targetTeam(ctx context.Context, field graphql.CollectedField, obj *model.Role) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Role_targetTeam(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -26268,7 +26281,7 @@ func (ec *executionContext) _Role_targetTeamSlug(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.TargetTeamSlug, nil
+		return ec.resolvers.Role().TargetTeam(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -26277,19 +26290,71 @@ func (ec *executionContext) _Role_targetTeamSlug(ctx context.Context, field grap
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*slug.Slug)
+	res := resTmp.(*model.Team)
 	fc.Result = res
-	return ec.marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+	return ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Role_targetTeamSlug(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Role_targetTeam(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Role",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "auditLogs":
+				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
+			case "syncErrors":
+				return ec.fieldContext_Team_syncErrors(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "githubRepositories":
+				return ec.fieldContext_Team_githubRepositories(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "status":
+				return ec.fieldContext_Team_status(ctx, field)
+			case "apps":
+				return ec.fieldContext_Team_apps(ctx, field)
+			case "deployKey":
+				return ec.fieldContext_Team_deployKey(ctx, field)
+			case "naisjobs":
+				return ec.fieldContext_Team_naisjobs(ctx, field)
+			case "deployments":
+				return ec.fieldContext_Team_deployments(ctx, field)
+			case "vulnerabilities":
+				return ec.fieldContext_Team_vulnerabilities(ctx, field)
+			case "vulnerabilitiesSummary":
+				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
 	}
 	return fc, nil
@@ -27071,9 +27136,9 @@ func (ec *executionContext) _ServiceAccount_id(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(scalar.Ident)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ServiceAccount_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -27176,10 +27241,10 @@ func (ec *executionContext) fieldContext_ServiceAccount_roles(ctx context.Contex
 				return ec.fieldContext_Role_name(ctx, field)
 			case "isGlobal":
 				return ec.fieldContext_Role_isGlobal(ctx, field)
-			case "targetServiceAccountID":
-				return ec.fieldContext_Role_targetServiceAccountID(ctx, field)
-			case "targetTeamSlug":
-				return ec.fieldContext_Role_targetTeamSlug(ctx, field)
+			case "targetServiceAccount":
+				return ec.fieldContext_Role_targetServiceAccount(ctx, field)
+			case "targetTeam":
+				return ec.fieldContext_Role_targetTeam(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Role", field.Name)
 		},
@@ -31181,10 +31246,10 @@ func (ec *executionContext) fieldContext_User_roles(ctx context.Context, field g
 				return ec.fieldContext_Role_name(ctx, field)
 			case "isGlobal":
 				return ec.fieldContext_Role_isGlobal(ctx, field)
-			case "targetServiceAccountID":
-				return ec.fieldContext_Role_targetServiceAccountID(ctx, field)
-			case "targetTeamSlug":
-				return ec.fieldContext_Role_targetTeamSlug(ctx, field)
+			case "targetServiceAccount":
+				return ec.fieldContext_Role_targetServiceAccount(ctx, field)
+			case "targetTeam":
+				return ec.fieldContext_Role_targetTeam(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Role", field.Name)
 		},
@@ -40443,17 +40508,79 @@ func (ec *executionContext) _Role(ctx context.Context, sel ast.SelectionSet, obj
 		case "name":
 			out.Values[i] = ec._Role_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "isGlobal":
 			out.Values[i] = ec._Role_isGlobal(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "targetServiceAccountID":
-			out.Values[i] = ec._Role_targetServiceAccountID(ctx, field, obj)
-		case "targetTeamSlug":
-			out.Values[i] = ec._Role_targetTeamSlug(ctx, field, obj)
+		case "targetServiceAccount":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Role_targetServiceAccount(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "targetTeam":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Role_targetTeam(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -46889,6 +47016,13 @@ func (ec *executionContext) marshalOSearchType2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 	return v
 }
 
+func (ec *executionContext) marshalOServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐServiceAccount(ctx context.Context, sel ast.SelectionSet, v *model.ServiceAccount) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ServiceAccount(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOSidecar2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSidecar(ctx context.Context, sel ast.SelectionSet, v *model.Sidecar) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -46914,22 +47048,6 @@ func (ec *executionContext) unmarshalOSlackAlertsChannelInput2ᚕᚖgithubᚗcom
 		}
 	}
 	return res, nil
-}
-
-func (ec *executionContext) unmarshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, v interface{}) (*slug.Slug, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(slug.Slug)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, sel ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
 }
 
 func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
@@ -47016,6 +47134,13 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx context.Context, sel ast.SelectionSet, v *model.Team) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Team(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOTeamsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamsFilter(ctx context.Context, v interface{}) (*model.TeamsFilter, error) {

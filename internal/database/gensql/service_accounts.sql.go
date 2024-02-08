@@ -113,3 +113,29 @@ func (q *Queries) GetServiceAccounts(ctx context.Context) ([]*ServiceAccount, er
 	}
 	return items, nil
 }
+
+const getServiceAccountsByIDs = `-- name: GetServiceAccountsByIDs :many
+SELECT id, name FROM service_accounts
+WHERE id = ANY($1::uuid[])
+ORDER BY name ASC
+`
+
+func (q *Queries) GetServiceAccountsByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccount, error) {
+	rows, err := q.db.Query(ctx, getServiceAccountsByIDs, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ServiceAccount{}
+	for rows.Next() {
+		var i ServiceAccount
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

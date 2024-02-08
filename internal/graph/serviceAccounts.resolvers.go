@@ -7,26 +7,39 @@ package graph
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 )
+
+// TargetServiceAccount is the resolver for the targetServiceAccount field.
+func (r *roleResolver) TargetServiceAccount(ctx context.Context, obj *model.Role) (*model.ServiceAccount, error) {
+	if obj.GQLVars.TargetServiceAccountID == uuid.Nil {
+		return nil, nil
+	}
+	return loader.GetServiceAccount(ctx, obj.GQLVars.TargetServiceAccountID)
+}
+
+// TargetTeam is the resolver for the targetTeam field.
+func (r *roleResolver) TargetTeam(ctx context.Context, obj *model.Role) (*model.Team, error) {
+	if obj.GQLVars.TargetTeamSlug == nil {
+		return nil, nil
+	}
+	return loader.GetTeam(ctx, *obj.GQLVars.TargetTeamSlug)
+}
 
 // Roles is the resolver for the roles field.
 func (r *serviceAccountResolver) Roles(ctx context.Context, obj *model.ServiceAccount) ([]*model.Role, error) {
 	actor := authz.ActorFromContext(ctx)
-	said, err := obj.ID.AsUUID()
-	if err != nil {
+	err := authz.RequireRole(actor, gensql.RoleNameAdmin)
+	if err != nil && actor.User.GetID() != obj.ID {
 		return nil, err
 	}
 
-	err = authz.RequireRole(actor, gensql.RoleNameAdmin)
-	if err != nil && actor.User.GetID() != said {
-		return nil, err
-	}
-
-	roles, err := r.database.GetServiceAccountRoles(ctx, said)
+	roles, err := r.database.GetServiceAccountRoles(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +47,13 @@ func (r *serviceAccountResolver) Roles(ctx context.Context, obj *model.ServiceAc
 	return toGraphRoles(roles), nil
 }
 
+// Role returns gengql.RoleResolver implementation.
+func (r *Resolver) Role() gengql.RoleResolver { return &roleResolver{r} }
+
 // ServiceAccount returns gengql.ServiceAccountResolver implementation.
 func (r *Resolver) ServiceAccount() gengql.ServiceAccountResolver { return &serviceAccountResolver{r} }
 
-type serviceAccountResolver struct{ *Resolver }
+type (
+	roleResolver           struct{ *Resolver }
+	serviceAccountResolver struct{ *Resolver }
+)

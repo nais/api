@@ -74,6 +74,7 @@ type Querier interface {
 	GetServiceAccountByName(ctx context.Context, name string) (*ServiceAccount, error)
 	GetServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) ([]*ServiceAccountRole, error)
 	GetServiceAccounts(ctx context.Context) ([]*ServiceAccount, error)
+	GetServiceAccountsByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccount, error)
 	GetSessionByID(ctx context.Context, id uuid.UUID) (*Session, error)
 	GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	GetTeamBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)

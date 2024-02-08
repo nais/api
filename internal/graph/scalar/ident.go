@@ -26,9 +26,7 @@ const (
 	IdentTypeEnv                IdentType = "env"
 	IdentTypeJob                IdentType = "job"
 	IdentTypePod                IdentType = "pod"
-	IdentTypeServiceAccount     IdentType = "serviceAccount"
 	IdentTypeTeam               IdentType = "team"
-	IdentTypeUser               IdentType = "user"
 	IdentTypeVulnerabilities    IdentType = "vulnerabilities"
 )
 
@@ -120,14 +118,6 @@ func AuditLogIdent(id uuid.UUID) Ident {
 
 func CorrelationID(id uuid.UUID) Ident {
 	return newIdent(id.String(), IdentTypeCorrelationID)
-}
-
-func ServiceAccountIdent(id uuid.UUID) Ident {
-	return newIdent(id.String(), IdentTypeServiceAccount)
-}
-
-func UserIdent(id uuid.UUID) Ident {
-	return newIdent(id.String(), IdentTypeUser)
 }
 
 func newIdent(id string, t IdentType) Ident {

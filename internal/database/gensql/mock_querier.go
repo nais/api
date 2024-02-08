@@ -3088,6 +3088,65 @@ func (_c *MockQuerier_GetServiceAccounts_Call) RunAndReturn(run func(context.Con
 	return _c
 }
 
+// GetServiceAccountsByIDs provides a mock function with given fields: ctx, ids
+func (_m *MockQuerier) GetServiceAccountsByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccount, error) {
+	ret := _m.Called(ctx, ids)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetServiceAccountsByIDs")
+	}
+
+	var r0 []*ServiceAccount
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []uuid.UUID) ([]*ServiceAccount, error)); ok {
+		return rf(ctx, ids)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []uuid.UUID) []*ServiceAccount); ok {
+		r0 = rf(ctx, ids)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*ServiceAccount)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []uuid.UUID) error); ok {
+		r1 = rf(ctx, ids)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetServiceAccountsByIDs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetServiceAccountsByIDs'
+type MockQuerier_GetServiceAccountsByIDs_Call struct {
+	*mock.Call
+}
+
+// GetServiceAccountsByIDs is a helper method to define mock.On call
+//   - ctx context.Context
+//   - ids []uuid.UUID
+func (_e *MockQuerier_Expecter) GetServiceAccountsByIDs(ctx interface{}, ids interface{}) *MockQuerier_GetServiceAccountsByIDs_Call {
+	return &MockQuerier_GetServiceAccountsByIDs_Call{Call: _e.mock.On("GetServiceAccountsByIDs", ctx, ids)}
+}
+
+func (_c *MockQuerier_GetServiceAccountsByIDs_Call) Run(run func(ctx context.Context, ids []uuid.UUID)) *MockQuerier_GetServiceAccountsByIDs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]uuid.UUID))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetServiceAccountsByIDs_Call) Return(_a0 []*ServiceAccount, _a1 error) *MockQuerier_GetServiceAccountsByIDs_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetServiceAccountsByIDs_Call) RunAndReturn(run func(context.Context, []uuid.UUID) ([]*ServiceAccount, error)) *MockQuerier_GetServiceAccountsByIDs_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetSessionByID provides a mock function with given fields: ctx, id
 func (_m *MockQuerier) GetSessionByID(ctx context.Context, id uuid.UUID) (*Session, error) {
 	ret := _m.Called(ctx, id)
