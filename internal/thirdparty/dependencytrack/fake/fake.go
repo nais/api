@@ -2,8 +2,9 @@ package fake
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"math/rand"
+
+	"github.com/google/uuid"
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
@@ -51,7 +52,7 @@ func (f *FakeDependencytrackClient) GetVulnerabilities(ctx context.Context, apps
 	return ret, nil
 }
 
-func (f *FakeDependencytrackClient) GetProjectMetrics(ctx context.Context, app *dependencytrack.AppInstance) (*model.VulnerabilityMetrics, error) {
+func (f *FakeDependencytrackClient) GetProjectMetrics(ctx context.Context, app *dependencytrack.AppInstance) (*model.VulnerabilityMetricsWithProjectID, error) {
 	critical := rand.Intn(10)
 	high := rand.Intn(10)
 	medium := rand.Intn(10)
@@ -66,7 +67,7 @@ func (f *FakeDependencytrackClient) GetProjectMetrics(ctx context.Context, app *
 		uuId = mapOfApps[app.ID()]
 	}
 
-	return &model.VulnerabilityMetrics{
+	return &model.VulnerabilityMetricsWithProjectID{
 		ProjectID: scalar.VulnerabilitiesIdent(uuId.String()),
 		VulnerabilitySummary: &model.VulnerabilitySummary{
 			Total:      critical + high + medium + low + unassigned,

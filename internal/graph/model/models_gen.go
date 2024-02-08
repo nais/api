@@ -949,13 +949,17 @@ type VulnerabilityMetric struct {
 }
 
 type VulnerabilityMetrics struct {
-	ProjectID            scalar.Ident          `json:"projectId"`
-	VulnerabilitySummary *VulnerabilitySummary `json:"vulnerabilitySummary,omitempty"`
+	// The minimum date for the metrics available in the database.
+	MinDate time.Time `json:"minDate"`
+	// The maximum date for the metrics available in the database.
+	MaxDate time.Time `json:"maxDate"`
+	// The metrics for the team's applications.
+	Data []*VulnerabilityMetric `json:"data"`
 }
 
-type VulnerabilityMetricsDateRange struct {
-	From time.Time `json:"from"`
-	To   time.Time `json:"to"`
+type VulnerabilityMetricsWithProjectID struct {
+	ProjectID            scalar.Ident          `json:"projectId"`
+	VulnerabilitySummary *VulnerabilitySummary `json:"vulnerabilitySummary,omitempty"`
 }
 
 type VulnerabilitySummary struct {

@@ -1297,10 +1297,10 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 }
 
 // VulnerabilityMetrics is the resolver for the vulnerabilityMetrics field.
-func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team, from scalar.Date, to scalar.Date) ([]*model.VulnerabilityMetric, error) {
+func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team, from *scalar.Date, to *scalar.Date) (*model.VulnerabilityMetrics, error) {
 	var metrics []*model.VulnerabilityMetric
 
-	err := ValidateDateInterval(from, to)
+	err := ValidateDateInterval(*from, *to)
 	if err != nil {
 		return nil, err
 	}
@@ -1320,6 +1320,11 @@ func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team
 		return nil, err
 	}
 
+	dateRange, err := r.database.VulnerabilityMetricsDateRangeForTeam(ctx, obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
 	for _, row := range rows {
 		metrics = append(metrics, &model.VulnerabilityMetric{
 			Date:       row.Date.Time,
@@ -1332,19 +1337,13 @@ func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team
 		})
 	}
 
-	return metrics, nil
-}
-
-// VulnerabilityMetricsDateRangeForTeam is the resolver for the vulnerabilityMetricsDateRangeForTeam field.
-func (r *teamResolver) VulnerabilityMetricsDateRangeForTeam(ctx context.Context, obj *model.Team) (*model.VulnerabilityMetricsDateRange, error) {
-	fromAndTo, err := r.database.VulnerabilityMetricsDateRangeForTeam(ctx, obj.Slug)
-	if err != nil {
-		return nil, err
+	ret := model.VulnerabilityMetrics{
+		MinDate: dateRange.FromDate.Time,
+		MaxDate: dateRange.ToDate.Time,
+		Data:    metrics,
 	}
-	return &model.VulnerabilityMetricsDateRange{
-		From: fromAndTo.FromDate.Time,
-		To:   fromAndTo.ToDate.Time,
-	}, nil
+
+	return &ret, nil
 }
 
 // Environments is the resolver for the environments field.

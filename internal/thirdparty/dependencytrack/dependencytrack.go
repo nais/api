@@ -69,7 +69,7 @@ func (c *Client) WithClient(client dependencytrack.Client) *Client {
 	return c
 }
 
-func (c *Client) GetProjectMetrics(ctx context.Context, app *AppInstance) (*model.VulnerabilityMetrics, error) {
+func (c *Client) GetProjectMetrics(ctx context.Context, app *AppInstance) (*model.VulnerabilityMetricsWithProjectID, error) {
 	p, err := c.retrieveProject(ctx, app)
 	if err != nil {
 		return nil, fmt.Errorf("getting project by app %s: %w", app.ID(), err)
@@ -88,7 +88,7 @@ func (c *Client) GetProjectMetrics(ctx context.Context, app *AppInstance) (*mode
 		return nil, nil
 	}
 
-	return &model.VulnerabilityMetrics{
+	return &model.VulnerabilityMetricsWithProjectID{
 		ProjectID: scalar.VulnerabilitiesIdent(p.Uuid),
 		VulnerabilitySummary: &model.VulnerabilitySummary{
 			Total:      metric.FindingsTotal,
