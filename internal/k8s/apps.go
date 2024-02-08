@@ -726,7 +726,7 @@ func toTopic(u *unstructured.Unstructured, name, team string) (*model.Topic, err
 
 func setStatus(app *model.App, conditions []metav1.Condition, instances []*model.Instance) {
 	currentCondition := synchronizationStateCondition(conditions)
-	failing := failing(instances)
+	numFailing := failing(instances)
 	appState := model.AppState{
 		State:  model.StateNais,
 		Errors: []model.StateError{},
@@ -734,13 +734,19 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 
 	if currentCondition != nil {
 		switch currentCondition.Reason {
-		case sync_states.FailedPrepare:
+
+		// A FailedGenerate error is almost always the user's fault.
+		case sync_states.FailedGenerate:
 			appState.Errors = append(appState.Errors, &model.InvalidNaisYamlError{
 				Revision: app.DeployInfo.CommitSha,
 				Level:    model.ErrorLevelError,
 				Detail:   currentCondition.Message,
 			})
 			appState.State = model.StateNotnais
+
+		// All these states can be considered transient, and indicate that there might be some internal errors going on.
+		case sync_states.FailedPrepare:
+			fallthrough
 		case sync_states.Retrying:
 			fallthrough
 		case sync_states.FailedSynchronization:
@@ -750,6 +756,7 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 				Detail:   currentCondition.Message,
 			})
 			appState.State = model.StateNotnais
+
 		case sync_states.Synchronized:
 			appState.Errors = append(appState.Errors, &model.NewInstancesFailingError{
 				Revision: app.DeployInfo.CommitSha,
@@ -768,7 +775,7 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 		}
 	}
 
-	if (len(instances) == 0 || failing == len(instances)) && app.AutoScaling.Min > 0 && app.AutoScaling.Max > 0 {
+	if (len(instances) == 0 || numFailing == len(instances)) && app.AutoScaling.Min > 0 && app.AutoScaling.Max > 0 {
 		appState.Errors = append(appState.Errors, &model.NoRunningInstancesError{
 			Revision: app.DeployInfo.CommitSha,
 			Level:    model.ErrorLevelError,
@@ -823,7 +830,7 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 	}
 
 	// Fjerne denna?
-	if currentCondition != nil && currentCondition.Reason == sync_states.RolloutComplete && failing == 0 {
+	if currentCondition != nil && currentCondition.Reason == sync_states.RolloutComplete && numFailing == 0 {
 		if appState.State != model.StateFailing && appState.State != model.StateNotnais {
 			appState.State = model.StateNais
 		}
