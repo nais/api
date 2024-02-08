@@ -907,6 +907,65 @@ func (_c *MockInternalClient_GetConfigProperties_Call) RunAndReturn(run func(con
 	return _c
 }
 
+// GetCurrentProjectMetric provides a mock function with given fields: ctx, projectUuid
+func (_m *MockInternalClient) GetCurrentProjectMetric(ctx context.Context, projectUuid string) (*client.ProjectMetric, error) {
+	ret := _m.Called(ctx, projectUuid)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetCurrentProjectMetric")
+	}
+
+	var r0 *client.ProjectMetric
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*client.ProjectMetric, error)); ok {
+		return rf(ctx, projectUuid)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *client.ProjectMetric); ok {
+		r0 = rf(ctx, projectUuid)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*client.ProjectMetric)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, projectUuid)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockInternalClient_GetCurrentProjectMetric_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCurrentProjectMetric'
+type MockInternalClient_GetCurrentProjectMetric_Call struct {
+	*mock.Call
+}
+
+// GetCurrentProjectMetric is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectUuid string
+func (_e *MockInternalClient_Expecter) GetCurrentProjectMetric(ctx interface{}, projectUuid interface{}) *MockInternalClient_GetCurrentProjectMetric_Call {
+	return &MockInternalClient_GetCurrentProjectMetric_Call{Call: _e.mock.On("GetCurrentProjectMetric", ctx, projectUuid)}
+}
+
+func (_c *MockInternalClient_GetCurrentProjectMetric_Call) Run(run func(ctx context.Context, projectUuid string)) *MockInternalClient_GetCurrentProjectMetric_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockInternalClient_GetCurrentProjectMetric_Call) Return(_a0 *client.ProjectMetric, _a1 error) *MockInternalClient_GetCurrentProjectMetric_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockInternalClient_GetCurrentProjectMetric_Call) RunAndReturn(run func(context.Context, string) (*client.ProjectMetric, error)) *MockInternalClient_GetCurrentProjectMetric_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetEcosystems provides a mock function with given fields: ctx
 func (_m *MockInternalClient) GetEcosystems(ctx context.Context) ([]string, error) {
 	ret := _m.Called(ctx)
@@ -1138,6 +1197,66 @@ func (_c *MockInternalClient_GetProject_Call) Return(_a0 *client.Project, _a1 er
 }
 
 func (_c *MockInternalClient_GetProject_Call) RunAndReturn(run func(context.Context, string, string) (*client.Project, error)) *MockInternalClient_GetProject_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetProjectMetricsByDate provides a mock function with given fields: ctx, projectUuid, date
+func (_m *MockInternalClient) GetProjectMetricsByDate(ctx context.Context, projectUuid string, date string) ([]*client.ProjectMetric, error) {
+	ret := _m.Called(ctx, projectUuid, date)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetProjectMetricsByDate")
+	}
+
+	var r0 []*client.ProjectMetric
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) ([]*client.ProjectMetric, error)); ok {
+		return rf(ctx, projectUuid, date)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) []*client.ProjectMetric); ok {
+		r0 = rf(ctx, projectUuid, date)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*client.ProjectMetric)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, projectUuid, date)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockInternalClient_GetProjectMetricsByDate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetProjectMetricsByDate'
+type MockInternalClient_GetProjectMetricsByDate_Call struct {
+	*mock.Call
+}
+
+// GetProjectMetricsByDate is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectUuid string
+//   - date string
+func (_e *MockInternalClient_Expecter) GetProjectMetricsByDate(ctx interface{}, projectUuid interface{}, date interface{}) *MockInternalClient_GetProjectMetricsByDate_Call {
+	return &MockInternalClient_GetProjectMetricsByDate_Call{Call: _e.mock.On("GetProjectMetricsByDate", ctx, projectUuid, date)}
+}
+
+func (_c *MockInternalClient_GetProjectMetricsByDate_Call) Run(run func(ctx context.Context, projectUuid string, date string)) *MockInternalClient_GetProjectMetricsByDate_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *MockInternalClient_GetProjectMetricsByDate_Call) Return(_a0 []*client.ProjectMetric, _a1 error) *MockInternalClient_GetProjectMetricsByDate_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockInternalClient_GetProjectMetricsByDate_Call) RunAndReturn(run func(context.Context, string, string) ([]*client.ProjectMetric, error)) *MockInternalClient_GetProjectMetricsByDate_Call {
 	_c.Call.Return(run)
 	return _c
 }
