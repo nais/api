@@ -6399,9 +6399,9 @@ func (_c *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call) RunAndReturn(r
 	return _c
 }
 
-// VulnerabilityMetricsMaxDate provides a mock function with given fields: ctx, dependencytrackProjectID
-func (_m *MockDatabase) VulnerabilityMetricsMaxDate(ctx context.Context, dependencytrackProjectID uuid.UUID) (pgtype.Date, error) {
-	ret := _m.Called(ctx, dependencytrackProjectID)
+// VulnerabilityMetricsMaxDate provides a mock function with given fields: ctx, environment, app, teamSlug
+func (_m *MockDatabase) VulnerabilityMetricsMaxDate(ctx context.Context, environment string, app string, teamSlug slug.Slug) (pgtype.Date, error) {
+	ret := _m.Called(ctx, environment, app, teamSlug)
 
 	if len(ret) == 0 {
 		panic("no return value specified for VulnerabilityMetricsMaxDate")
@@ -6409,17 +6409,17 @@ func (_m *MockDatabase) VulnerabilityMetricsMaxDate(ctx context.Context, depende
 
 	var r0 pgtype.Date
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (pgtype.Date, error)); ok {
-		return rf(ctx, dependencytrackProjectID)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, slug.Slug) (pgtype.Date, error)); ok {
+		return rf(ctx, environment, app, teamSlug)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) pgtype.Date); ok {
-		r0 = rf(ctx, dependencytrackProjectID)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, slug.Slug) pgtype.Date); ok {
+		r0 = rf(ctx, environment, app, teamSlug)
 	} else {
 		r0 = ret.Get(0).(pgtype.Date)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = rf(ctx, dependencytrackProjectID)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, slug.Slug) error); ok {
+		r1 = rf(ctx, environment, app, teamSlug)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -6434,14 +6434,16 @@ type MockDatabase_VulnerabilityMetricsMaxDate_Call struct {
 
 // VulnerabilityMetricsMaxDate is a helper method to define mock.On call
 //   - ctx context.Context
-//   - dependencytrackProjectID uuid.UUID
-func (_e *MockDatabase_Expecter) VulnerabilityMetricsMaxDate(ctx interface{}, dependencytrackProjectID interface{}) *MockDatabase_VulnerabilityMetricsMaxDate_Call {
-	return &MockDatabase_VulnerabilityMetricsMaxDate_Call{Call: _e.mock.On("VulnerabilityMetricsMaxDate", ctx, dependencytrackProjectID)}
+//   - environment string
+//   - app string
+//   - teamSlug slug.Slug
+func (_e *MockDatabase_Expecter) VulnerabilityMetricsMaxDate(ctx interface{}, environment interface{}, app interface{}, teamSlug interface{}) *MockDatabase_VulnerabilityMetricsMaxDate_Call {
+	return &MockDatabase_VulnerabilityMetricsMaxDate_Call{Call: _e.mock.On("VulnerabilityMetricsMaxDate", ctx, environment, app, teamSlug)}
 }
 
-func (_c *MockDatabase_VulnerabilityMetricsMaxDate_Call) Run(run func(ctx context.Context, dependencytrackProjectID uuid.UUID)) *MockDatabase_VulnerabilityMetricsMaxDate_Call {
+func (_c *MockDatabase_VulnerabilityMetricsMaxDate_Call) Run(run func(ctx context.Context, environment string, app string, teamSlug slug.Slug)) *MockDatabase_VulnerabilityMetricsMaxDate_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID))
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(slug.Slug))
 	})
 	return _c
 }
@@ -6451,7 +6453,7 @@ func (_c *MockDatabase_VulnerabilityMetricsMaxDate_Call) Return(_a0 pgtype.Date,
 	return _c
 }
 
-func (_c *MockDatabase_VulnerabilityMetricsMaxDate_Call) RunAndReturn(run func(context.Context, uuid.UUID) (pgtype.Date, error)) *MockDatabase_VulnerabilityMetricsMaxDate_Call {
+func (_c *MockDatabase_VulnerabilityMetricsMaxDate_Call) RunAndReturn(run func(context.Context, string, string, slug.Slug) (pgtype.Date, error)) *MockDatabase_VulnerabilityMetricsMaxDate_Call {
 	_c.Call.Return(run)
 	return _c
 }
