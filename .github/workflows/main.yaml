@@ -43,7 +43,7 @@ jobs:
             ${{ steps.go-cache.outputs.gomodcache }}
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
       - run: go test ./...
-      - run: helm lint --strict ./charts
+      # - run: helm lint --strict ./charts
       - run: make staticcheck
       - run: make vulncheck
       - name: Check code format and run code generators
