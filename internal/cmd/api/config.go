@@ -69,7 +69,7 @@ type userSyncConfig struct {
 
 	// AdminGroupPrefix The prefix of the admin group email address.
 	// TODO: change default value to nais-admins (or something similar) and rename existing groups
-	AdminGroupPrefix string `env:"USERSYNC_ADMIN_GROUP_PREFIX,default=console-admins"`
+	AdminGroupPrefix string `env:"USERSYNC_ADMIN_GROUP_PREFIX,default=nais-admins"`
 }
 
 // costConfig is the configuration for the cost service

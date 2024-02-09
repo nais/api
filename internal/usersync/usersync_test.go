@@ -23,7 +23,7 @@ import (
 func TestSync(t *testing.T) {
 	const (
 		domain           = "example.com"
-		adminGroupPrefix = "console-admins"
+		adminGroupPrefix = "nais-admins"
 		numRunsToPersist = 5
 	)
 
