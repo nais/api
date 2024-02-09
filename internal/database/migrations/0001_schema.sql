@@ -1,5 +1,19 @@
 -- +goose Up
 
+-- Grant permissions in GCP if the role cloudsqlsuperuser exists
+-- +goose StatementBegin
+DO
+$$
+BEGIN
+   IF EXISTS (
+      SELECT FROM pg_catalog.pg_roles
+      WHERE  rolname = 'cloudsqlsuperuser') THEN
+        GRANT ALL ON SCHEMA public TO cloudsqlsuperuser;
+   END IF;
+END
+$$;
+-- +goose StatementEnd
+
 -- extensions
 CREATE EXTENSION fuzzystrmatch;
 
