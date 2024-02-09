@@ -6,6 +6,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+      - run: docker compose up bigquery -d
       - uses: asdf-vm/actions/setup@v3
       - id: asdf-cache
         uses: actions/cache@v4
