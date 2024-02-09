@@ -1,0 +1,11 @@
+---
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: aura
+spec:
+  acl:
+    - access: read
+      team: aura
+      application: aura
+  pool: aiven
