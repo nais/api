@@ -28,8 +28,8 @@ func New(googleManagementProjectID, tenantDomain string) (*Builder, error) {
 	}
 
 	return &Builder{
-		serviceAccountEmail: fmt.Sprintf("console@%s.iam.gserviceaccount.com", googleManagementProjectID),
-		subjectEmail:        "nais-console@" + tenantDomain,
+		serviceAccountEmail: fmt.Sprintf("nais-api@%s.iam.gserviceaccount.com", googleManagementProjectID),
+		subjectEmail:        "nais-admin@" + tenantDomain,
 	}, nil
 }
 
