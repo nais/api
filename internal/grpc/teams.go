@@ -162,7 +162,6 @@ func toProtoTeam(team *database.Team) *protoapi.Team {
 func toProtoTeamMember(user *database.User) *protoapi.TeamMember {
 	return &protoapi.TeamMember{
 		User: toProtoUser(user),
-		// TODO: Role:   ...,
 	}
 }
 
