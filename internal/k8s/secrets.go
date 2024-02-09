@@ -15,8 +15,6 @@ import (
 	"github.com/nais/api/internal/slug"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/client-go/kubernetes"
 )
@@ -79,18 +77,13 @@ func (c *Client) listSecrets(ctx context.Context, team slug.Slug, env string, cl
 		return nil, c.error(ctx, err, "listing secrets")
 	}
 
-	appsForSecrets, err := c.mapAppsBySecret(ctx, team, env)
-	if err != nil {
-		return nil, c.error(ctx, err, "mapping apps to secrets")
-	}
-
 	graphSecrets := make([]*model.Secret, 0)
 	for _, secret := range kubeSecrets.Items {
 		if !secretIsManagedByConsole(secret) {
 			continue
 		}
 
-		graphSecrets = append(graphSecrets, toGraphSecret(env, &secret, appsForSecrets[secret.Name]))
+		graphSecrets = append(graphSecrets, toGraphSecret(env, team, &secret))
 	}
 
 	return graphSecrets, nil
@@ -118,12 +111,35 @@ func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env st
 		return nil, fmt.Errorf("secret %q is not managed by console", secret.GetName())
 	}
 
-	appsForSecrets, err := c.mapAppsBySecret(ctx, team, env)
+	return toGraphSecret(env, team, secret), nil
+}
+
+func (c *Client) AppsUsingSecret(ctx context.Context, obj *model.Secret) ([]*model.App, error) {
+	apps, err := c.Apps(ctx, obj.GQLVars.Team.String())
 	if err != nil {
-		return nil, c.error(ctx, err, "mapping apps to secrets")
+		return nil, fmt.Errorf("fetching apps: %w", err)
 	}
 
-	return toGraphSecret(env, secret, appsForSecrets[secret.Name]), nil
+	matches := make([]*model.App, 0)
+
+	for _, app := range apps {
+		if app.Env.Name != obj.GQLVars.Env {
+			continue
+		}
+
+		for _, secret := range app.GQLVars.Secrets {
+			if secret == obj.Name {
+				matches = append(matches, app)
+				break
+			}
+		}
+	}
+
+	// sort first as Compact only removes consecutive duplicates
+	slices.SortFunc(matches, func(a, b *model.App) int {
+		return cmp.Compare(a.Name, b.Name)
+	})
+	return slices.Compact(matches), nil
 }
 
 func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
@@ -155,7 +171,7 @@ func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, 
 		return nil, c.error(ctx, err, "creating secret")
 	}
 
-	return toGraphSecret(env, created, nil), nil
+	return toGraphSecret(env, team, created), nil
 }
 
 func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
@@ -191,7 +207,7 @@ func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, 
 		return nil, c.error(ctx, err, "updating secret")
 	}
 
-	return toGraphSecret(env, updated, nil), nil
+	return toGraphSecret(env, team, updated), nil
 }
 
 func (c *Client) DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) (bool, error) {
@@ -221,31 +237,6 @@ func (c *Client) DeleteSecret(ctx context.Context, name string, team slug.Slug, 
 	}
 
 	return true, nil
-}
-
-// mapAppsBySecret returns a map of secrets to a list of apps that references said secret
-func (c *Client) mapAppsBySecret(ctx context.Context, team slug.Slug, env string) (map[string][]*model.App, error) {
-	// fetch apps to build map of apps that use each secret
-	apps, err := c.informers[env].AppInformer.Lister().ByNamespace(team.String()).List(labels.Everything())
-	if err != nil {
-		return nil, c.error(ctx, err, fmt.Sprintf("listing applications for %q in %q", team, env))
-	}
-
-	// we want a map: Secret -> [App]
-	appsBySecret := make(map[string][]*model.App)
-	for _, obj := range apps {
-		u := obj.(*unstructured.Unstructured)
-		app, err := c.App(ctx, u.GetName(), team.String(), env)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, secret := range app.GQLVars.Secrets {
-			appsBySecret[secret] = append(appsBySecret[secret], app)
-		}
-	}
-
-	return appsBySecret, nil
 }
 
 func secretIsManagedByConsole(secret corev1.Secret) bool {
@@ -291,25 +282,15 @@ func toGraphEnvSecret(env string, team slug.Slug, secrets ...*model.Secret) *mod
 	}
 }
 
-// toGraphSecret accepts apps as an empty list for cases where only the secret is getting
-// updated
-func toGraphSecret(env string, obj *corev1.Secret, apps []*model.App) *model.Secret {
-	if apps == nil {
-		apps = make([]*model.App, 0)
-	}
-
-	// sort first as Compact only removes consecutive duplicates
-	slices.SortFunc(apps, func(a, b *model.App) int {
-		return cmp.Compare(a.Name, b.Name)
-	})
-
-	apps = slices.Compact(apps)
-
+func toGraphSecret(env string, team slug.Slug, obj *corev1.Secret) *model.Secret {
 	secret := &model.Secret{
 		ID:   makeSecretIdent(env, obj.GetNamespace(), obj.GetName()),
 		Name: obj.Name,
 		Data: secretBytesToString(obj.Data),
-		Apps: apps,
+		GQLVars: model.SecretGQLVars{
+			Env:  env,
+			Team: team,
+		},
 	}
 
 	annotations := obj.GetAnnotations()

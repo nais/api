@@ -9,6 +9,7 @@ import (
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
 )
@@ -45,12 +46,22 @@ func (r *mutationResolver) DeleteSecret(ctx context.Context, name string, team s
 
 // Env is the resolver for the env field.
 func (r *secretResolver) Env(ctx context.Context, obj *model.Secret) (*model.Env, error) {
-	return &model.Env{Name: obj.GQLVars.Env}, nil
+	return &model.Env{Name: obj.GQLVars.Env, Team: obj.GQLVars.Team.String()}, nil
+}
+
+// Team is the resolver for the team field.
+func (r *secretResolver) Team(ctx context.Context, obj *model.Secret) (*model.Team, error) {
+	return loader.GetTeam(ctx, obj.GQLVars.Team)
 }
 
 // Data is the resolver for the data field.
 func (r *secretResolver) Data(ctx context.Context, obj *model.Secret) ([]*model.Variable, error) {
 	return convertSecretDataToTuple(obj.Data), nil
+}
+
+// Apps is the resolver for the apps field.
+func (r *secretResolver) Apps(ctx context.Context, obj *model.Secret) ([]*model.App, error) {
+	return r.k8sClient.AppsUsingSecret(ctx, obj)
 }
 
 // LastModifiedBy is the resolver for the lastModifiedBy field.
