@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/davecgh/go-spew/spew"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
 	admin_directory "google.golang.org/api/admin/directory/v1"
@@ -41,6 +42,8 @@ func (g Builder) impersonateTokenSource(ctx context.Context, delegate bool, scop
 	if delegate {
 		impersonateConfig.Subject = g.subjectEmail
 	}
+
+	spew.Dump(impersonateConfig)
 
 	return impersonate.CredentialsTokenSource(ctx, impersonateConfig, option.WithHTTPClient(
 		&http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)},
