@@ -32,10 +32,6 @@ func (a *APIClient) Teams() protoapi.TeamsClient {
 	return protoapi.NewTeamsClient(a.conn)
 }
 
-func (a *APIClient) ReconcilerResources() protoapi.ReconcilerResourcesClient {
-	return protoapi.NewReconcilerResourcesClient(a.conn)
-}
-
 func (a *APIClient) AuditLogs() protoapi.AuditLogsClient {
 	return protoapi.NewAuditLogsClient(a.conn)
 }

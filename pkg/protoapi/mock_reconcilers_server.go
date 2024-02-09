@@ -80,6 +80,65 @@ func (_c *MockReconcilersServer_Config_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
+// DeleteResources provides a mock function with given fields: _a0, _a1
+func (_m *MockReconcilersServer) DeleteResources(_a0 context.Context, _a1 *DeleteReconcilerResourcesRequest) (*DeleteReconcilerResourcesResponse, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteResources")
+	}
+
+	var r0 *DeleteReconcilerResourcesResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *DeleteReconcilerResourcesRequest) (*DeleteReconcilerResourcesResponse, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *DeleteReconcilerResourcesRequest) *DeleteReconcilerResourcesResponse); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*DeleteReconcilerResourcesResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *DeleteReconcilerResourcesRequest) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockReconcilersServer_DeleteResources_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteResources'
+type MockReconcilersServer_DeleteResources_Call struct {
+	*mock.Call
+}
+
+// DeleteResources is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 *DeleteReconcilerResourcesRequest
+func (_e *MockReconcilersServer_Expecter) DeleteResources(_a0 interface{}, _a1 interface{}) *MockReconcilersServer_DeleteResources_Call {
+	return &MockReconcilersServer_DeleteResources_Call{Call: _e.mock.On("DeleteResources", _a0, _a1)}
+}
+
+func (_c *MockReconcilersServer_DeleteResources_Call) Run(run func(_a0 context.Context, _a1 *DeleteReconcilerResourcesRequest)) *MockReconcilersServer_DeleteResources_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*DeleteReconcilerResourcesRequest))
+	})
+	return _c
+}
+
+func (_c *MockReconcilersServer_DeleteResources_Call) Return(_a0 *DeleteReconcilerResourcesResponse, _a1 error) *MockReconcilersServer_DeleteResources_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockReconcilersServer_DeleteResources_Call) RunAndReturn(run func(context.Context, *DeleteReconcilerResourcesRequest) (*DeleteReconcilerResourcesResponse, error)) *MockReconcilersServer_DeleteResources_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Get provides a mock function with given fields: _a0, _a1
 func (_m *MockReconcilersServer) Get(_a0 context.Context, _a1 *GetReconcilerRequest) (*GetReconcilerResponse, error) {
 	ret := _m.Called(_a0, _a1)
@@ -312,6 +371,124 @@ func (_c *MockReconcilersServer_RemoveReconcilerErrorForTeam_Call) Return(_a0 *R
 }
 
 func (_c *MockReconcilersServer_RemoveReconcilerErrorForTeam_Call) RunAndReturn(run func(context.Context, *RemoveReconcilerErrorForTeamRequest) (*RemoveReconcilerErrorForTeamResponse, error)) *MockReconcilersServer_RemoveReconcilerErrorForTeam_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Resources provides a mock function with given fields: _a0, _a1
+func (_m *MockReconcilersServer) Resources(_a0 context.Context, _a1 *ListReconcilerResourcesRequest) (*ListReconcilerResourcesResponse, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Resources")
+	}
+
+	var r0 *ListReconcilerResourcesResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *ListReconcilerResourcesRequest) (*ListReconcilerResourcesResponse, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *ListReconcilerResourcesRequest) *ListReconcilerResourcesResponse); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*ListReconcilerResourcesResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *ListReconcilerResourcesRequest) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockReconcilersServer_Resources_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Resources'
+type MockReconcilersServer_Resources_Call struct {
+	*mock.Call
+}
+
+// Resources is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 *ListReconcilerResourcesRequest
+func (_e *MockReconcilersServer_Expecter) Resources(_a0 interface{}, _a1 interface{}) *MockReconcilersServer_Resources_Call {
+	return &MockReconcilersServer_Resources_Call{Call: _e.mock.On("Resources", _a0, _a1)}
+}
+
+func (_c *MockReconcilersServer_Resources_Call) Run(run func(_a0 context.Context, _a1 *ListReconcilerResourcesRequest)) *MockReconcilersServer_Resources_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*ListReconcilerResourcesRequest))
+	})
+	return _c
+}
+
+func (_c *MockReconcilersServer_Resources_Call) Return(_a0 *ListReconcilerResourcesResponse, _a1 error) *MockReconcilersServer_Resources_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockReconcilersServer_Resources_Call) RunAndReturn(run func(context.Context, *ListReconcilerResourcesRequest) (*ListReconcilerResourcesResponse, error)) *MockReconcilersServer_Resources_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SaveResources provides a mock function with given fields: _a0, _a1
+func (_m *MockReconcilersServer) SaveResources(_a0 context.Context, _a1 *SaveReconcilerResourceRequest) (*SaveReconcilerResourceResponse, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SaveResources")
+	}
+
+	var r0 *SaveReconcilerResourceResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *SaveReconcilerResourceRequest) (*SaveReconcilerResourceResponse, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *SaveReconcilerResourceRequest) *SaveReconcilerResourceResponse); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*SaveReconcilerResourceResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *SaveReconcilerResourceRequest) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockReconcilersServer_SaveResources_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SaveResources'
+type MockReconcilersServer_SaveResources_Call struct {
+	*mock.Call
+}
+
+// SaveResources is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 *SaveReconcilerResourceRequest
+func (_e *MockReconcilersServer_Expecter) SaveResources(_a0 interface{}, _a1 interface{}) *MockReconcilersServer_SaveResources_Call {
+	return &MockReconcilersServer_SaveResources_Call{Call: _e.mock.On("SaveResources", _a0, _a1)}
+}
+
+func (_c *MockReconcilersServer_SaveResources_Call) Run(run func(_a0 context.Context, _a1 *SaveReconcilerResourceRequest)) *MockReconcilersServer_SaveResources_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*SaveReconcilerResourceRequest))
+	})
+	return _c
+}
+
+func (_c *MockReconcilersServer_SaveResources_Call) Return(_a0 *SaveReconcilerResourceResponse, _a1 error) *MockReconcilersServer_SaveResources_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockReconcilersServer_SaveResources_Call) RunAndReturn(run func(context.Context, *SaveReconcilerResourceRequest) (*SaveReconcilerResourceResponse, error)) *MockReconcilersServer_SaveResources_Call {
 	_c.Call.Return(run)
 	return _c
 }

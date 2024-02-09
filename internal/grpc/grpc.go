@@ -30,7 +30,6 @@ func Run(ctx context.Context, listenAddress string, repo database.Database, audi
 	protoapi.RegisterTeamsServer(s, &TeamsServer{db: repo})
 	protoapi.RegisterUsersServer(s, &UsersServer{db: repo})
 	protoapi.RegisterReconcilersServer(s, &ReconcilersServer{db: repo})
-	protoapi.RegisterReconcilerResourcesServer(s, &ReconcilerResourcesServer{db: repo})
 	protoapi.RegisterAuditLogsServer(s, &AuditLogsServer{db: repo, auditlog: auditlog})
 
 	g, ctx := errgroup.WithContext(ctx)

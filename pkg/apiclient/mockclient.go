@@ -59,11 +59,10 @@ func (t *TestingHelpers) FailNow() {
 }
 
 type MockServers struct {
-	AuditLogs           *protoapi.MockAuditLogsServer
-	Reconcilers         *protoapi.MockReconcilersServer
-	ReconcilerResources *protoapi.MockReconcilerResourcesServer
-	Teams               *protoapi.MockTeamsServer
-	Users               *protoapi.MockUsersServer
+	AuditLogs   *protoapi.MockAuditLogsServer
+	Reconcilers *protoapi.MockReconcilersServer
+	Teams       *protoapi.MockTeamsServer
+	Users       *protoapi.MockUsersServer
 }
 
 func NewMockClient(t testing.TB) (*APIClient, *MockServers) {
@@ -80,16 +79,14 @@ func NewMockClient(t testing.TB) (*APIClient, *MockServers) {
 	}
 	th.Cleanup(th.printBuffer)
 	mockServers := &MockServers{
-		AuditLogs:           protoapi.NewMockAuditLogsServer(th),
-		Reconcilers:         protoapi.NewMockReconcilersServer(th),
-		ReconcilerResources: protoapi.NewMockReconcilerResourcesServer(th),
-		Teams:               protoapi.NewMockTeamsServer(th),
-		Users:               protoapi.NewMockUsersServer(th),
+		AuditLogs:   protoapi.NewMockAuditLogsServer(th),
+		Reconcilers: protoapi.NewMockReconcilersServer(th),
+		Teams:       protoapi.NewMockTeamsServer(th),
+		Users:       protoapi.NewMockUsersServer(th),
 	}
 
 	protoapi.RegisterAuditLogsServer(s, mockServers.AuditLogs)
 	protoapi.RegisterReconcilersServer(s, mockServers.Reconcilers)
-	protoapi.RegisterReconcilerResourcesServer(s, mockServers.ReconcilerResources)
 	protoapi.RegisterTeamsServer(s, mockServers.Teams)
 	protoapi.RegisterUsersServer(s, mockServers.Users)
 

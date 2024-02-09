@@ -26,6 +26,9 @@ const (
 	Reconcilers_SetReconcilerErrorForTeam_FullMethodName    = "/Reconcilers/SetReconcilerErrorForTeam"
 	Reconcilers_RemoveReconcilerErrorForTeam_FullMethodName = "/Reconcilers/RemoveReconcilerErrorForTeam"
 	Reconcilers_SuccessfulTeamSync_FullMethodName           = "/Reconcilers/SuccessfulTeamSync"
+	Reconcilers_DeleteResources_FullMethodName              = "/Reconcilers/DeleteResources"
+	Reconcilers_SaveResources_FullMethodName                = "/Reconcilers/SaveResources"
+	Reconcilers_Resources_FullMethodName                    = "/Reconcilers/Resources"
 )
 
 // ReconcilersClient is the client API for Reconcilers service.
@@ -39,6 +42,9 @@ type ReconcilersClient interface {
 	SetReconcilerErrorForTeam(ctx context.Context, in *SetReconcilerErrorForTeamRequest, opts ...grpc.CallOption) (*SetReconcilerErrorForTeamResponse, error)
 	RemoveReconcilerErrorForTeam(ctx context.Context, in *RemoveReconcilerErrorForTeamRequest, opts ...grpc.CallOption) (*RemoveReconcilerErrorForTeamResponse, error)
 	SuccessfulTeamSync(ctx context.Context, in *SuccessfulTeamSyncRequest, opts ...grpc.CallOption) (*SuccessfulTeamSyncResponse, error)
+	DeleteResources(ctx context.Context, in *DeleteReconcilerResourcesRequest, opts ...grpc.CallOption) (*DeleteReconcilerResourcesResponse, error)
+	SaveResources(ctx context.Context, in *SaveReconcilerResourceRequest, opts ...grpc.CallOption) (*SaveReconcilerResourceResponse, error)
+	Resources(ctx context.Context, in *ListReconcilerResourcesRequest, opts ...grpc.CallOption) (*ListReconcilerResourcesResponse, error)
 }
 
 type reconcilersClient struct {
@@ -112,6 +118,33 @@ func (c *reconcilersClient) SuccessfulTeamSync(ctx context.Context, in *Successf
 	return out, nil
 }
 
+func (c *reconcilersClient) DeleteResources(ctx context.Context, in *DeleteReconcilerResourcesRequest, opts ...grpc.CallOption) (*DeleteReconcilerResourcesResponse, error) {
+	out := new(DeleteReconcilerResourcesResponse)
+	err := c.cc.Invoke(ctx, Reconcilers_DeleteResources_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reconcilersClient) SaveResources(ctx context.Context, in *SaveReconcilerResourceRequest, opts ...grpc.CallOption) (*SaveReconcilerResourceResponse, error) {
+	out := new(SaveReconcilerResourceResponse)
+	err := c.cc.Invoke(ctx, Reconcilers_SaveResources_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reconcilersClient) Resources(ctx context.Context, in *ListReconcilerResourcesRequest, opts ...grpc.CallOption) (*ListReconcilerResourcesResponse, error) {
+	out := new(ListReconcilerResourcesResponse)
+	err := c.cc.Invoke(ctx, Reconcilers_Resources_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ReconcilersServer is the server API for Reconcilers service.
 // All implementations must embed UnimplementedReconcilersServer
 // for forward compatibility
@@ -123,6 +156,9 @@ type ReconcilersServer interface {
 	SetReconcilerErrorForTeam(context.Context, *SetReconcilerErrorForTeamRequest) (*SetReconcilerErrorForTeamResponse, error)
 	RemoveReconcilerErrorForTeam(context.Context, *RemoveReconcilerErrorForTeamRequest) (*RemoveReconcilerErrorForTeamResponse, error)
 	SuccessfulTeamSync(context.Context, *SuccessfulTeamSyncRequest) (*SuccessfulTeamSyncResponse, error)
+	DeleteResources(context.Context, *DeleteReconcilerResourcesRequest) (*DeleteReconcilerResourcesResponse, error)
+	SaveResources(context.Context, *SaveReconcilerResourceRequest) (*SaveReconcilerResourceResponse, error)
+	Resources(context.Context, *ListReconcilerResourcesRequest) (*ListReconcilerResourcesResponse, error)
 	mustEmbedUnimplementedReconcilersServer()
 }
 
@@ -150,6 +186,15 @@ func (UnimplementedReconcilersServer) RemoveReconcilerErrorForTeam(context.Conte
 }
 func (UnimplementedReconcilersServer) SuccessfulTeamSync(context.Context, *SuccessfulTeamSyncRequest) (*SuccessfulTeamSyncResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SuccessfulTeamSync not implemented")
+}
+func (UnimplementedReconcilersServer) DeleteResources(context.Context, *DeleteReconcilerResourcesRequest) (*DeleteReconcilerResourcesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteResources not implemented")
+}
+func (UnimplementedReconcilersServer) SaveResources(context.Context, *SaveReconcilerResourceRequest) (*SaveReconcilerResourceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveResources not implemented")
+}
+func (UnimplementedReconcilersServer) Resources(context.Context, *ListReconcilerResourcesRequest) (*ListReconcilerResourcesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Resources not implemented")
 }
 func (UnimplementedReconcilersServer) mustEmbedUnimplementedReconcilersServer() {}
 
@@ -290,6 +335,60 @@ func _Reconcilers_SuccessfulTeamSync_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Reconcilers_DeleteResources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteReconcilerResourcesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReconcilersServer).DeleteResources(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Reconcilers_DeleteResources_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReconcilersServer).DeleteResources(ctx, req.(*DeleteReconcilerResourcesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Reconcilers_SaveResources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SaveReconcilerResourceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReconcilersServer).SaveResources(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Reconcilers_SaveResources_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReconcilersServer).SaveResources(ctx, req.(*SaveReconcilerResourceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Reconcilers_Resources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListReconcilerResourcesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReconcilersServer).Resources(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Reconcilers_Resources_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReconcilersServer).Resources(ctx, req.(*ListReconcilerResourcesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Reconcilers_ServiceDesc is the grpc.ServiceDesc for Reconcilers service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -324,6 +423,18 @@ var Reconcilers_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SuccessfulTeamSync",
 			Handler:    _Reconcilers_SuccessfulTeamSync_Handler,
+		},
+		{
+			MethodName: "DeleteResources",
+			Handler:    _Reconcilers_DeleteResources_Handler,
+		},
+		{
+			MethodName: "SaveResources",
+			Handler:    _Reconcilers_SaveResources_Handler,
+		},
+		{
+			MethodName: "Resources",
+			Handler:    _Reconcilers_Resources_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
