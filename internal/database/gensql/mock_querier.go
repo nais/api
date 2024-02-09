@@ -6572,9 +6572,9 @@ func (_c *MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call) RunAndReturn(ru
 	return _c
 }
 
-// VulnerabilityMetricsMaxDate provides a mock function with given fields: ctx
-func (_m *MockQuerier) VulnerabilityMetricsMaxDate(ctx context.Context) (pgtype.Date, error) {
-	ret := _m.Called(ctx)
+// VulnerabilityMetricsMaxDate provides a mock function with given fields: ctx, teamSlug
+func (_m *MockQuerier) VulnerabilityMetricsMaxDate(ctx context.Context, teamSlug slug.Slug) (pgtype.Date, error) {
+	ret := _m.Called(ctx, teamSlug)
 
 	if len(ret) == 0 {
 		panic("no return value specified for VulnerabilityMetricsMaxDate")
@@ -6582,17 +6582,17 @@ func (_m *MockQuerier) VulnerabilityMetricsMaxDate(ctx context.Context) (pgtype.
 
 	var r0 pgtype.Date
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (pgtype.Date, error)); ok {
-		return rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (pgtype.Date, error)); ok {
+		return rf(ctx, teamSlug)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) pgtype.Date); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) pgtype.Date); ok {
+		r0 = rf(ctx, teamSlug)
 	} else {
 		r0 = ret.Get(0).(pgtype.Date)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
+		r1 = rf(ctx, teamSlug)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -6607,13 +6607,14 @@ type MockQuerier_VulnerabilityMetricsMaxDate_Call struct {
 
 // VulnerabilityMetricsMaxDate is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *MockQuerier_Expecter) VulnerabilityMetricsMaxDate(ctx interface{}) *MockQuerier_VulnerabilityMetricsMaxDate_Call {
-	return &MockQuerier_VulnerabilityMetricsMaxDate_Call{Call: _e.mock.On("VulnerabilityMetricsMaxDate", ctx)}
+//   - teamSlug slug.Slug
+func (_e *MockQuerier_Expecter) VulnerabilityMetricsMaxDate(ctx interface{}, teamSlug interface{}) *MockQuerier_VulnerabilityMetricsMaxDate_Call {
+	return &MockQuerier_VulnerabilityMetricsMaxDate_Call{Call: _e.mock.On("VulnerabilityMetricsMaxDate", ctx, teamSlug)}
 }
 
-func (_c *MockQuerier_VulnerabilityMetricsMaxDate_Call) Run(run func(ctx context.Context)) *MockQuerier_VulnerabilityMetricsMaxDate_Call {
+func (_c *MockQuerier_VulnerabilityMetricsMaxDate_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockQuerier_VulnerabilityMetricsMaxDate_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
+		run(args[0].(context.Context), args[1].(slug.Slug))
 	})
 	return _c
 }
@@ -6623,7 +6624,7 @@ func (_c *MockQuerier_VulnerabilityMetricsMaxDate_Call) Return(_a0 pgtype.Date, 
 	return _c
 }
 
-func (_c *MockQuerier_VulnerabilityMetricsMaxDate_Call) RunAndReturn(run func(context.Context) (pgtype.Date, error)) *MockQuerier_VulnerabilityMetricsMaxDate_Call {
+func (_c *MockQuerier_VulnerabilityMetricsMaxDate_Call) RunAndReturn(run func(context.Context, slug.Slug) (pgtype.Date, error)) *MockQuerier_VulnerabilityMetricsMaxDate_Call {
 	_c.Call.Return(run)
 	return _c
 }
