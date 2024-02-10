@@ -52,13 +52,7 @@ func (f *FakeDependencytrackClient) GetVulnerabilities(ctx context.Context, apps
 	return ret, nil
 }
 
-func (f *FakeDependencytrackClient) GetProjectMetric(ctx context.Context, app *dependencytrack.AppInstance) (*dependencytrack.ProjectMetric, error) {
-	critical := rand.Intn(10)
-	high := rand.Intn(10)
-	medium := rand.Intn(10)
-	low := rand.Intn(10)
-	unassigned := rand.Intn(10)
-
+func (f *FakeDependencytrackClient) GetProjectMetrics(ctx context.Context, app *dependencytrack.AppInstance, date string) (*dependencytrack.ProjectMetric, error) {
 	var uuId uuid.UUID
 	if mapOfApps[app.ID()] == uuid.Nil {
 		uuId = uuid.New()
@@ -67,16 +61,25 @@ func (f *FakeDependencytrackClient) GetProjectMetric(ctx context.Context, app *d
 		uuId = mapOfApps[app.ID()]
 	}
 
+	var vulnMetrics = make([]*dependencytrack.VulnerabilityMetrics, 0)
+	critical := rand.Intn(10)
+	high := rand.Intn(10)
+	medium := rand.Intn(10)
+	low := rand.Intn(10)
+	unassigned := rand.Intn(10)
+	vulnMetrics = append(vulnMetrics, &dependencytrack.VulnerabilityMetrics{
+		Total:           critical + high + medium + low + unassigned,
+		RiskScore:       ((critical * 10) + (high * 5) + (medium * 3) + (low * 1) + (unassigned * 5)),
+		Critical:        critical,
+		High:            high,
+		Medium:          medium,
+		Low:             low,
+		Unassigned:      unassigned,
+		FirstOccurrence: 1705413522933,
+		LastOccurrence:  1707463343762,
+	})
 	return &dependencytrack.ProjectMetric{
-		ProjectID: scalar.VulnerabilitiesIdent(uuId.String()),
-		VulnerabilitySummary: &model.VulnerabilitySummary{
-			Total:      critical + high + medium + low + unassigned,
-			RiskScore:  ((critical * 10) + (high * 5) + (medium * 3) + (low * 1) + (unassigned * 5)),
-			Critical:   critical,
-			High:       high,
-			Medium:     medium,
-			Low:        low,
-			Unassigned: unassigned,
-		},
+		ProjectID:            uuId,
+		VulnerabilityMetrics: vulnMetrics,
 	}, nil
 }

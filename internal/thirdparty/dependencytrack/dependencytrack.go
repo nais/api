@@ -3,6 +3,7 @@ package dependencytrack
 import (
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 	"net/http"
 	"net/url"
 	"strings"
@@ -30,8 +31,20 @@ func (a *AppInstance) ProjectName() string {
 }
 
 type ProjectMetric struct {
-	ProjectID            scalar.Ident
-	VulnerabilitySummary *model.VulnerabilitySummary
+	ProjectID            uuid.UUID
+	VulnerabilityMetrics []*VulnerabilityMetrics
+}
+
+type VulnerabilityMetrics struct {
+	Total           int   `json:"total"`
+	RiskScore       int   `json:"riskScore"`
+	Critical        int   `json:"critical"`
+	High            int   `json:"high"`
+	Medium          int   `json:"medium"`
+	Low             int   `json:"low"`
+	Unassigned      int   `json:"unassigned"`
+	FirstOccurrence int64 `json:"firstOccurrence"`
+	LastOccurrence  int64 `json:"lastOccurrence"`
 }
 
 type Client struct {
@@ -74,7 +87,7 @@ func (c *Client) WithClient(client dependencytrack.Client) *Client {
 	return c
 }
 
-func (c *Client) GetProjectMetric(ctx context.Context, app *AppInstance) (*ProjectMetric, error) {
+func (c *Client) GetProjectMetrics(ctx context.Context, app *AppInstance, date string) (*ProjectMetric, error) {
 	p, err := c.retrieveProject(ctx, app)
 	if err != nil {
 		return nil, fmt.Errorf("getting project by app %s: %w", app.ID(), err)
@@ -82,28 +95,40 @@ func (c *Client) GetProjectMetric(ctx context.Context, app *AppInstance) (*Proje
 	if p == nil {
 		return nil, nil
 	}
-	metric, err := c.client.GetCurrentProjectMetric(ctx, p.Uuid)
+	metrics, err := c.client.GetProjectMetricsByDate(ctx, p.Uuid, date)
 	if err != nil {
 		if dependencytrack.IsNotFound(err) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("getting current project metric: %w", err)
 	}
-	if metric == nil {
+	if metrics == nil {
 		return nil, nil
 	}
 
+	vulnMetrics := make([]*VulnerabilityMetrics, 0)
+	for _, metric := range metrics {
+		vulnMetrics = append(vulnMetrics, &VulnerabilityMetrics{
+			Total:           metric.FindingsTotal,
+			RiskScore:       int(metric.InheritedRiskScore),
+			Critical:        metric.Critical,
+			High:            metric.High,
+			Medium:          metric.Medium,
+			Low:             metric.Low,
+			Unassigned:      metric.Unassigned,
+			FirstOccurrence: metric.FirstOccurrence,
+			LastOccurrence:  metric.LastOccurrence,
+		})
+	}
+
+	uuId, err := uuid.Parse(p.Uuid)
+	if err != nil {
+		return nil, fmt.Errorf("parsing project uuid: %w", err)
+	}
+
 	return &ProjectMetric{
-		ProjectID: scalar.VulnerabilitiesIdent(p.Uuid),
-		VulnerabilitySummary: &model.VulnerabilitySummary{
-			Total:      metric.FindingsTotal,
-			RiskScore:  int(metric.InheritedRiskScore),
-			Critical:   metric.Critical,
-			High:       metric.High,
-			Medium:     metric.Medium,
-			Low:        metric.Low,
-			Unassigned: metric.Unassigned,
-		},
+		ProjectID:            uuId,
+		VulnerabilityMetrics: vulnMetrics,
 	}, nil
 }
 
