@@ -1,0 +1,44 @@
+apiVersion: networking.gke.io/v1alpha3
+kind: FQDNNetworkPolicy
+metadata:
+  name: "{{ .Release.Name }}-fqdn"
+  labels:
+    app: "{{ .Release.Name }}"
+spec:
+  egress:
+  - ports:
+    - port: 80
+      protocol: TCP
+    to:
+    - fqdns:
+      - metadata.google.internal
+  - ports:
+    - port: 443
+      protocol: TCP
+    to:
+    - fqdns:
+      - private.googleapis.com
+{{- $root := . }}
+{{- range split "," .Values.kubernetes.clusters }}
+  - ports:
+    - port: 443
+      protocol: TCP
+    to:
+    - fqdns:
+      - "apiserver.{{ . }}.{{ $root.Values.fasit.tenant.name }}.cloud.nais.io"
+{{- end }}
+{{- if .Values.kubernetes.static }}
+{{- range split "," .Values.kubernetes.static }}
+  - ports:
+    - port: 443
+      protocol: TCP
+    to:
+    - fqdns:
+      - {{ (split "|" .)._1  }}
+{{- end }}
+{{- end }}
+  podSelector:
+    matchLabels:
+      app: "{{ .Release.Name }}"
+  policyTypes:
+  - Egress

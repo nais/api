@@ -27,7 +27,6 @@ const (
 	tenant       = "test"
 	daysToFetch  = 3650
 	chanSize     = 1000
-	YYYYMMDD     = "2006-01-02"
 )
 
 var costUpdaterOpts = []cost.Option{
@@ -37,7 +36,7 @@ var costUpdaterOpts = []cost.Option{
 func TestUpdater_FetchBigQueryData(t *testing.T) {
 	_, err := net.DialTimeout("tcp", bigQueryHost, 100*time.Millisecond)
 	if err != nil {
-		t.Skipf("BigQuery is not available on "+bigQueryHost+" (%s), skipping test. You can start the service with `docker compose up -d`", err)
+		t.Skipf("BigQuery is not available on "+bigQueryHost+" (%s), skipping test. You can start the service with `docker compose up bigquery -d`", err)
 	}
 
 	ctx := context.Background()

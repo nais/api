@@ -69,7 +69,7 @@ type userSyncConfig struct {
 
 	// AdminGroupPrefix The prefix of the admin group email address.
 	// TODO: change default value to nais-admins (or something similar) and rename existing groups
-	AdminGroupPrefix string `env:"USERSYNC_ADMIN_GROUP_PREFIX,default=console-admins"`
+	AdminGroupPrefix string `env:"USERSYNC_ADMIN_GROUP_PREFIX,default=nais-admins"`
 }
 
 // costConfig is the configuration for the cost service
@@ -104,6 +104,7 @@ type oAuthConfig struct {
 	RedirectURL string `env:"OAUTH_REDIRECT_URL"`
 
 	// FrontendURL The URL of the frontend application.
+	// TODO: This should be removed as we are always on the same domain
 	FrontendURL string `env:"OAUTH_FRONTEND_URL"`
 }
 
@@ -122,12 +123,6 @@ type Config struct {
 
 	LogFormat string `env:"LOG_FORMAT,default=json"`
 	LogLevel  string `env:"LOG_LEVEL,default=info"`
-
-	// Names of reconcilers to enable on first run of api
-	//
-	// Example: google:gcp:project,nais:namespace
-	// Valid: [google:gcp:project|google:workspace-admin|nais:namespace|nais:deploy]
-	FirstRunEnableReconcilers []string `env:"FIRST_RUN_ENABLE_RECONCILERS"`
 
 	// StaticServiceAccounts A JSON-encoded value describing a set of service accounts to be created when the
 	// application starts. Refer to the README for the format.

@@ -3,14 +3,11 @@ package google_token_source
 import (
 	"context"
 	"fmt"
-	"net/http"
 
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"github.com/davecgh/go-spew/spew"
 	"golang.org/x/oauth2"
 	admin_directory "google.golang.org/api/admin/directory/v1"
-	"google.golang.org/api/cloudresourcemanager/v3"
 	"google.golang.org/api/impersonate"
-	"google.golang.org/api/option"
 )
 
 type Builder struct {
@@ -28,8 +25,8 @@ func New(googleManagementProjectID, tenantDomain string) (*Builder, error) {
 	}
 
 	return &Builder{
-		serviceAccountEmail: fmt.Sprintf("console@%s.iam.gserviceaccount.com", googleManagementProjectID),
-		subjectEmail:        "nais-console@" + tenantDomain,
+		serviceAccountEmail: fmt.Sprintf("nais-api@%s.iam.gserviceaccount.com", googleManagementProjectID),
+		subjectEmail:        "nais-admin@" + tenantDomain,
 	}, nil
 }
 
@@ -42,20 +39,15 @@ func (g Builder) impersonateTokenSource(ctx context.Context, delegate bool, scop
 		impersonateConfig.Subject = g.subjectEmail
 	}
 
-	return impersonate.CredentialsTokenSource(ctx, impersonateConfig, option.WithHTTPClient(
-		&http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)},
-	))
+	spew.Dump(impersonateConfig)
+
+	// Otel transport is added by the library
+	return impersonate.CredentialsTokenSource(ctx, impersonateConfig)
 }
 
 func (g Builder) Admin(ctx context.Context) (oauth2.TokenSource, error) {
 	return g.impersonateTokenSource(ctx, true, []string{
 		admin_directory.AdminDirectoryUserReadonlyScope,
 		admin_directory.AdminDirectoryGroupScope,
-	})
-}
-
-func (g Builder) GCP(ctx context.Context) (oauth2.TokenSource, error) {
-	return g.impersonateTokenSource(ctx, false, []string{
-		cloudresourcemanager.CloudPlatformScope,
 	})
 }

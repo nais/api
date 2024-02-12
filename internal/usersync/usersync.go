@@ -3,7 +3,6 @@ package usersync
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"strings"
 
 	"github.com/google/uuid"
@@ -14,7 +13,6 @@ import (
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/thirdparty/google_token_source"
 	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	admin_directory_v1 "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/option"
@@ -83,7 +81,7 @@ func NewFromConfig(googleManagementProjectID, tenantDomain, adminGroupPrefix str
 		return nil, fmt.Errorf("create token source: %w", err)
 	}
 
-	srv, err := admin_directory_v1.NewService(ctx, option.WithTokenSource(ts), option.WithHTTPClient(&http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}))
+	srv, err := admin_directory_v1.NewService(ctx, option.WithTokenSource(ts))
 	if err != nil {
 		return nil, fmt.Errorf("retrieve directory client: %w", err)
 	}

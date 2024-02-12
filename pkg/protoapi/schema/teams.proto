@@ -101,11 +101,4 @@ message ListTeamMembersResponse {
 
 message TeamMember {
   User user = 1;
-  TeamMemberRole role = 2;
-}
-
-enum TeamMemberRole {
-  UNDEFINED = 0;
-  MEMBER = 1;
-  OWNER = 2;
 }
