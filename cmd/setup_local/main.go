@@ -285,7 +285,7 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 }
 
 func seedVulnerabilities(ctx context.Context, cfg seedConfig, dbtx database.Database, team *database.Team, log logrus.FieldLogger) error {
-	var numbOfErrors = 0
+	numbOfErrors := 0
 	for j := 0; j < *cfg.VulnSeed.NumVulnAppsForTeam; j++ {
 		appName := fmt.Sprintf("app-%d", j)
 		projectId := uuid.New()
@@ -300,7 +300,7 @@ func seedVulnerabilities(ctx context.Context, cfg seedConfig, dbtx database.Data
 		}
 
 		var vulnbBatch []gensql.VulnerabilityMetricsUpsertParams
-		var date = time.Now()
+		date := time.Now()
 		var critical int
 		var high int
 		var medium int
