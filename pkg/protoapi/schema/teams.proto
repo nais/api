@@ -15,7 +15,16 @@ message Team {
   optional string gar_repository = 7;
 }
 
+message ListAuthorizedRepositoriesRequest {
+  string slug = 1;
+}
+
+message ListAuthorizedRepositoriesResponse {
+  repeated string github_repository = 1;
+}
+
 service Teams {
+  rpc ListAuthorizedRepositories(ListAuthorizedRepositoriesRequest) returns (ListAuthorizedRepositoriesResponse) {}
   rpc Get(GetTeamRequest) returns (GetTeamResponse) {}
   rpc List(ListTeamsRequest) returns (ListTeamsResponse) {}
   rpc Members(ListTeamMembersRequest) returns (ListTeamMembersResponse) {}
