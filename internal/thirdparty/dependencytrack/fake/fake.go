@@ -61,7 +61,7 @@ func (f *FakeDependencytrackClient) GetProjectMetrics(ctx context.Context, app *
 		uuId = mapOfApps[app.ID()]
 	}
 
-	var vulnMetrics = make([]*dependencytrack.VulnerabilityMetrics, 0)
+	vulnMetrics := make([]*dependencytrack.VulnerabilityMetrics, 0)
 	critical := rand.Intn(10)
 	high := rand.Intn(10)
 	medium := rand.Intn(10)
