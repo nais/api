@@ -3,12 +3,13 @@ package dependencytrack
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
