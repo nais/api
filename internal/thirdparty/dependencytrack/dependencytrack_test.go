@@ -3,7 +3,6 @@ package dependencytrack
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/url"
 	"os"
 	"testing"
@@ -221,7 +220,6 @@ func TestClient_CreateSummary(t *testing.T) {
 	assert.Equal(t, 24, sum.Medium)
 	assert.Equal(t, 4, sum.Low)
 	assert.Equal(t, 159, sum.Unassigned)
-	fmt.Printf("%+v\n", sum)
 
 	s, err = os.ReadFile("testdata/sms-manager.json")
 	assert.NoError(t, err)
@@ -234,7 +232,6 @@ func TestClient_CreateSummary(t *testing.T) {
 	assert.Equal(t, 0, sum.Medium)
 	assert.Equal(t, 2, sum.Low)
 	assert.Equal(t, 66, sum.Unassigned)
-	fmt.Printf("%+v\n", sum)
 
 	s, err = os.ReadFile("testdata/tpsws.json")
 	assert.NoError(t, err)
@@ -247,7 +244,6 @@ func TestClient_CreateSummary(t *testing.T) {
 	assert.Equal(t, 53, sum.Medium)
 	assert.Equal(t, 7, sum.Low)
 	assert.Equal(t, 0, sum.Unassigned)
-	fmt.Printf("%+v\n", sum)
 
 	s, err = os.ReadFile("testdata/dp-oppslag-vedtak.json")
 	assert.NoError(t, err)
@@ -260,7 +256,6 @@ func TestClient_CreateSummary(t *testing.T) {
 	assert.Equal(t, 20, sum.Medium)
 	assert.Equal(t, 4, sum.Low)
 	assert.Equal(t, 0, sum.Unassigned)
-	fmt.Printf("%+v\n", sum)
 }
 
 func app(env, team, app, image string) *AppInstance {
