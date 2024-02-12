@@ -35,7 +35,7 @@ local:
 	env bash -c 'source local.env; go run ./cmd/api'
 
 test:
-	go test ./...
+	go test -cover ./...
 
 check: staticcheck vulncheck deadcode
 
