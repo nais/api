@@ -3,14 +3,11 @@ package google_token_source
 import (
 	"context"
 	"fmt"
-	"net/http"
 
 	"github.com/davecgh/go-spew/spew"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
 	admin_directory "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/impersonate"
-	"google.golang.org/api/option"
 )
 
 type Builder struct {
@@ -44,9 +41,8 @@ func (g Builder) impersonateTokenSource(ctx context.Context, delegate bool, scop
 
 	spew.Dump(impersonateConfig)
 
-	return impersonate.CredentialsTokenSource(ctx, impersonateConfig, option.WithHTTPClient(
-		&http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)},
-	))
+	// Otel transport is added by the library
+	return impersonate.CredentialsTokenSource(ctx, impersonateConfig)
 }
 
 func (g Builder) Admin(ctx context.Context) (oauth2.TokenSource, error) {
