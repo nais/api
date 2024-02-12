@@ -1372,7 +1372,7 @@ func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team
 }
 
 // Secrets is the resolver for the secrets field.
-func (r *teamResolver) Secrets(ctx context.Context, obj *model.Team) ([]*model.EnvSecret, error) {
+func (r *teamResolver) Secrets(ctx context.Context, obj *model.Team) ([]*model.Secret, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireTeamMembership(actor, obj.Slug)
 	if err != nil {

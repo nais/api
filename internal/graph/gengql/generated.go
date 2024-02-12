@@ -303,11 +303,6 @@ type ComplexityRoot struct {
 		Sum  func(childComplexity int) int
 	}
 
-	EnvSecret struct {
-		Env     func(childComplexity int) int
-		Secrets func(childComplexity int) int
-	}
-
 	Error struct {
 		Message func(childComplexity int) int
 	}
@@ -1046,7 +1041,7 @@ type TeamResolver interface {
 	Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.VulnerabilityList, error)
 	VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummary, error)
 	VulnerabilityMetrics(ctx context.Context, obj *model.Team, from scalar.Date, to scalar.Date, environment *string) (*model.VulnerabilityMetrics, error)
-	Secrets(ctx context.Context, obj *model.Team) ([]*model.EnvSecret, error)
+	Secrets(ctx context.Context, obj *model.Team) ([]*model.Secret, error)
 	Secret(ctx context.Context, obj *model.Team, name string, env string) (*model.Secret, error)
 	Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error)
 }
@@ -2025,20 +2020,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.EnvCost.Sum(childComplexity), true
-
-	case "EnvSecret.env":
-		if e.complexity.EnvSecret.Env == nil {
-			break
-		}
-
-		return e.complexity.EnvSecret.Env(childComplexity), true
-
-	case "EnvSecret.secrets":
-		if e.complexity.EnvSecret.Secrets == nil {
-			break
-		}
-
-		return e.complexity.EnvSecret.Secrets(childComplexity), true
 
 	case "Error.message":
 		if e.complexity.Error.Message == nil {
@@ -6177,12 +6158,7 @@ enum SearchType {
   NAISJOB
 }
 `, BuiltIn: false},
-	{Name: "../graphqls/secrets.graphqls", Input: `type EnvSecret {
-    env: Env!
-    secrets: [Secret!]!
-}
-
-extend type Mutation {
+	{Name: "../graphqls/secrets.graphqls", Input: `extend type Mutation {
     "Create a new secret for a team and env."
     createSecret(
         "The name of the secret."
@@ -6731,7 +6707,7 @@ type Team {
   ): VulnerabilityMetrics!
 
   "Get all secrets for the team."
-  secrets: [EnvSecret!]! @auth
+  secrets: [Secret!]! @auth
 
   "Get the team's secret by name, and env."
   secret(
@@ -14929,122 +14905,6 @@ func (ec *executionContext) fieldContext_EnvCost_apps(ctx context.Context, field
 				return ec.fieldContext_AppCost_cost(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AppCost", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _EnvSecret_env(ctx context.Context, field graphql.CollectedField, obj *model.EnvSecret) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_EnvSecret_env(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Env, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.Env)
-	fc.Result = res
-	return ec.marshalNEnv2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnv(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_EnvSecret_env(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "EnvSecret",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Env_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Env_name(ctx, field)
-			case "gcpProjectID":
-				return ec.fieldContext_Env_gcpProjectID(ctx, field)
-			case "slackAlertsChannel":
-				return ec.fieldContext_Env_slackAlertsChannel(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Env", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _EnvSecret_secrets(ctx context.Context, field graphql.CollectedField, obj *model.EnvSecret) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_EnvSecret_secrets(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Secrets, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Secret)
-	fc.Result = res
-	return ec.marshalNSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_EnvSecret_secrets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "EnvSecret",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Secret_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Secret_name(ctx, field)
-			case "env":
-				return ec.fieldContext_Secret_env(ctx, field)
-			case "team":
-				return ec.fieldContext_Secret_team(ctx, field)
-			case "data":
-				return ec.fieldContext_Secret_data(ctx, field)
-			case "apps":
-				return ec.fieldContext_Secret_apps(ctx, field)
-			case "lastModifiedAt":
-				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
-			case "lastModifiedBy":
-				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},
 	}
 	return fc, nil
@@ -28436,6 +28296,8 @@ func (ec *executionContext) fieldContext_Secret_team(ctx context.Context, field 
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
+			case "vulnerabilityMetrics":
+				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -31437,10 +31299,10 @@ func (ec *executionContext) _Team_secrets(ctx context.Context, field graphql.Col
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.([]*model.EnvSecret); ok {
+		if data, ok := tmp.([]*model.Secret); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/nais/api/internal/graph/model.EnvSecret`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/nais/api/internal/graph/model.Secret`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -31452,9 +31314,9 @@ func (ec *executionContext) _Team_secrets(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.EnvSecret)
+	res := resTmp.([]*model.Secret)
 	fc.Result = res
-	return ec.marshalNEnvSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnvSecretᚄ(ctx, field.Selections, res)
+	return ec.marshalNSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Team_secrets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -31465,12 +31327,24 @@ func (ec *executionContext) fieldContext_Team_secrets(ctx context.Context, field
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_Secret_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Secret_name(ctx, field)
 			case "env":
-				return ec.fieldContext_EnvSecret_env(ctx, field)
-			case "secrets":
-				return ec.fieldContext_EnvSecret_secrets(ctx, field)
+				return ec.fieldContext_Secret_env(ctx, field)
+			case "team":
+				return ec.fieldContext_Secret_team(ctx, field)
+			case "data":
+				return ec.fieldContext_Secret_data(ctx, field)
+			case "apps":
+				return ec.fieldContext_Secret_apps(ctx, field)
+			case "lastModifiedAt":
+				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+			case "lastModifiedBy":
+				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type EnvSecret", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},
 	}
 	return fc, nil
@@ -39389,50 +39263,6 @@ func (ec *executionContext) _EnvCost(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
-var envSecretImplementors = []string{"EnvSecret"}
-
-func (ec *executionContext) _EnvSecret(ctx context.Context, sel ast.SelectionSet, obj *model.EnvSecret) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, envSecretImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("EnvSecret")
-		case "env":
-			out.Values[i] = ec._EnvSecret_env(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "secrets":
-			out.Values[i] = ec._EnvSecret_secrets(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var errorImplementors = []string{"Error", "DeploymentResponse"}
 
 func (ec *executionContext) _Error(ctx context.Context, sel ast.SelectionSet, obj *model.Error) graphql.Marshaler {
@@ -47253,60 +47083,6 @@ func (ec *executionContext) marshalNEnvCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinter
 func (ec *executionContext) unmarshalNEnvCostFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnvCostFilter(ctx context.Context, v interface{}) (model.EnvCostFilter, error) {
 	res, err := ec.unmarshalInputEnvCostFilter(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNEnvSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnvSecretᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.EnvSecret) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNEnvSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnvSecret(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNEnvSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnvSecret(ctx context.Context, sel ast.SelectionSet, v *model.EnvSecret) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._EnvSecret(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐErrorLevel(ctx context.Context, v interface{}) (model.ErrorLevel, error) {

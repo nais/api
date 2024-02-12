@@ -27,8 +27,8 @@ const (
 )
 
 // Secrets lists all secrets for a given team in all environments
-func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecret, error) {
-	envSecrets := make([]*model.EnvSecret, 0)
+func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.Secret, error) {
+	secrets := make([]*model.Secret, 0)
 
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
 	if err != nil {
@@ -36,19 +36,15 @@ func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.EnvSecre
 	}
 
 	for env, clientSet := range impersonatedClients {
-		graphSecrets, err := c.listSecrets(ctx, team, env, clientSet)
+		envSecrets, err := c.listSecrets(ctx, team, env, clientSet)
 		if err != nil {
 			return nil, err
 		}
 
-		envSecrets = append(envSecrets, toGraphEnvSecret(env, team, graphSecrets...))
+		secrets = slices.Concat(secrets, envSecrets)
 	}
 
-	slices.SortFunc(envSecrets, func(a, b *model.EnvSecret) int {
-		return cmp.Compare(a.Env.Name, b.Env.Name)
-	})
-
-	return envSecrets, nil
+	return secrets, nil
 }
 
 // SecretsForEnv lists all secrets for a given team in a specific environment
@@ -272,13 +268,6 @@ func kubeSecret(name string, team slug.Slug, actor *authz.Actor, data []*model.S
 		},
 		Data: secretTupleToMap(data),
 		Type: corev1.SecretTypeOpaque,
-	}
-}
-
-func toGraphEnvSecret(env string, team slug.Slug, secrets ...*model.Secret) *model.EnvSecret {
-	return &model.EnvSecret{
-		Env:     model.Env{Team: team.String(), Name: env},
-		Secrets: secrets,
 	}
 }
 

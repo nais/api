@@ -16,13 +16,8 @@ type Secret struct {
 	GQLVars SecretGQLVars `json:"-"` // Internal context for custom resolvers
 }
 
-type EnvSecret struct {
-	Env     Env       `json:"env"`
-	Secrets []*Secret `json:"secrets"`
-}
-
 type SecretGQLVars struct {
-	Env  string
-	Team slug.Slug
+	Env            string
+	Team           slug.Slug
 	LastModifiedBy string
 }

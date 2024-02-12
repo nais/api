@@ -358,7 +358,7 @@ type Team {
   ): VulnerabilityMetrics!
 
   "Get all secrets for the team."
-  secrets: [EnvSecret!]! @auth
+  secrets: [Secret!]! @auth
 
   "Get the team's secret by name, and env."
   secret(
