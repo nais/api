@@ -401,8 +401,8 @@ github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 h1:C3w9PqII01/Oq
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822/go.mod h1:+n7T8mK8HuQTcFwEeznm/DIxMOiR9yIdICNftLE1DvQ=
 github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f h1:KUppIJq7/+SVif2QVs3tOP0zanoHgBEVAwHxUSIzRqU=
 github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
-github.com/nais/dependencytrack v0.0.0-20240131225920-a6a8df4c0ad2 h1:4LNq0LISYLyJSC3hAxNCe1YM0QU7y5QiAbLIMeXVZ7o=
-github.com/nais/dependencytrack v0.0.0-20240131225920-a6a8df4c0ad2/go.mod h1:zC59yj0La1TS291o/9XSVZ0XAY9UlJS6pUFD3ouHmjU=
+github.com/nais/dependencytrack v0.0.0-20240208124913-513b3ad1d961 h1:FtfEwEQq2hWEZFmg3F8Ix9vq6x8o0PF4bEvCn7qwCxw=
+github.com/nais/dependencytrack v0.0.0-20240208124913-513b3ad1d961/go.mod h1:zC59yj0La1TS291o/9XSVZ0XAY9UlJS6pUFD3ouHmjU=
 github.com/nais/liberator v0.0.0-20240208114703-a4ddc1dd2ffa h1:AkBC8XlZH+VvZRrHHnjiaTl/mkDRYNMRq6qpfZslUlk=
 github.com/nais/liberator v0.0.0-20240208114703-a4ddc1dd2ffa/go.mod h1:cWThp1WBBbkRFhMI2DQMvBTTEN+6GPzmmh+Xjv8vffE=
 github.com/onsi/ginkgo/v2 v2.14.0 h1:vSmGj2Z5YPb9JwCWT6z6ihcUvDhuXLc3sJiqd3jMKAY=
