@@ -1,0 +1,32 @@
+{{ if .Values.alerts.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: "{{ .Release.Name }}"
+  labels:
+    app: "{{ .Release.Name }}"
+spec:
+  groups:
+    - name: "{{ .Release.Name }}-alerts"
+      rules:
+        - alert: Hookd requests failing
+          expr: increase(errors_total{job="{{ .Release.Name }}", component="hookd-client"}[2m]) > 0
+          for: 5m
+          labels:
+            namespace: nais-system
+            severity: critical
+            ping: nais-vakt
+          annotations:
+            consequence: Users may not be able to see deployments in console.
+            action: "Check logs in {{ .Release.Name }} and hookd"
+        - alert: Kubernetes API server requests failing
+          expr: increase(errors_total{job="{{ .Release.Name }}", component="k8s-client"}[2m]) > 0
+          for: 5m
+          labels:
+            namespace: nais-system
+            severity: critical
+            ping: nais-vakt
+          annotations:
+            consequence: Users may not be able to see workload information in console.
+            action: "Check logs in {{ .Release.Name }}"
+{{- end }}

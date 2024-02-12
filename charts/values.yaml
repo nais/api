@@ -1,0 +1,52 @@
+database: # mapped in fasit
+  instance:
+  name:
+  user:
+  password:
+
+ingressClassName: nais-ingress
+
+image:
+  repository: europe-north1-docker.pkg.dev/nais-io/nais/images
+  name: nais-api
+
+  cloudsql_proxy: gcr.io/cloudsql-docker/gce-proxy:1.33.16
+
+host: ""
+
+hookd:
+  psk: ""
+
+dependencytrack:
+  frontend: ""
+  password: ""
+
+serviceaccount:
+  email: ""
+
+fasit:
+  tenant:
+    name: "dev-nais"
+
+kubernetes:
+  clusters: "dev,prod"
+  static: ""
+
+resources:
+  cpu: 300m
+  memory: 512Mi
+
+alerts:
+  enabled: true
+
+tenant:
+  domain: example.com
+
+google:
+  managementProjectID: "" # mapped in fasit
+
+oauth: # mapped in fasit
+  clientID: ""
+  clientSecret: ""
+
+staticServiceAccounts: "" # mapped in fasit

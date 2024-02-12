@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: "{{ .Release.Name }}"
+  namespace: nais-system
+  labels:
+    app: "{{ .Release.Name }}"
+spec:
+  endpoints:
+    - interval: 1m
+      port: http
+      scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+      - nais-system
+  selector:
+    matchLabels:
+      app: "{{ .Release.Name }}"

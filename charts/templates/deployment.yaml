@@ -1,0 +1,122 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ .Release.Name }}"
+  labels:
+    app: "{{ .Release.Name }}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "{{ .Release.Name }}"
+  template:
+    metadata:
+      annotations:
+        prometheus.io/path: "/metrics"
+        kubectl.kubernetes.io/default-container: "{{ .Chart.Name }}"
+      labels:
+        app: "{{ .Release.Name }}"
+    spec:
+      serviceAccountName: "{{ .Release.Name }}"
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: cloud-sql-proxy
+          image: {{ .Values.image.cloudsql_proxy }}
+          command:
+            - "/cloud_sql_proxy"
+            - "-log_debug_stdout"
+            - "-instances={{ .Values.database.instance }}=tcp:5432"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "0.22"
+        - name: "{{ .Chart.Name }}"
+          env:
+            - name: KUBERNETES_CLUSTERS
+              value: "{{ .Values.kubernetes.clusters }}"
+            {{- if .Values.kubernetes.static }}
+            - name: KUBERNETES_CLUSTERS_STATIC
+              value: "{{ .Values.kubernetes.static }}"
+            {{- end }}
+            - name: TENANT
+              value: "{{ .Values.fasit.tenant.name }}"
+            - name: TENANT_DOMAIN
+              value: "{{ .Values.tenant.domain }}"
+            - name: GOOGLE_MANAGEMENT_PROJECT_ID
+              value: "{{ .Values.google.managementProjectID }}"
+            - name: COST_DATA_IMPORT_ENABLED
+              value: "true"
+            - name: RESOURCE_UTILIZATION_IMPORT_ENABLED
+              value: "true"
+            - name: DEPENDENCYTRACK_FRONTEND
+              value: "{{ .Values.dependencytrack.frontend }}"
+            - name: USERSYNC_ENABLED
+              value: "true"
+            - name: OAUTH_CLIENT_ID
+              value: "{{ .Values.oauth.clientID }}"
+            - name: OAUTH_REDIRECT_URL
+              value: "https://{{ .Values.host }}/oauth2/callback"
+            - name: OAUTH_FRONTEND_URL
+              value: "https://{{ .Values.host }}"
+            - name: LISTEN_ADDRESS
+              value: ":3000"
+            - name: GRPC_LISTEN_ADDRESS
+              value: ":3001"
+          envFrom:
+            - secretRef:
+                name: "{{ .Release.Name }}"
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1069
+            allowPrivilegeEscalation: false
+          image: "{{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Chart.Version }}"
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+            - name: grpc
+              containerPort: 3001
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 2
+            failureThreshold: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            failureThreshold: 3
+          resources:
+            limits:
+              memory: "{{ .Values.resources.memory }}"
+            requests:
+              cpu: "{{ .Values.resources.cpu }}"
+              memory: "{{ .Values.resources.memory }}"
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0

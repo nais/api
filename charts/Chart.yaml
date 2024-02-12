@@ -1,0 +1,7 @@
+apiVersion: v2
+name: nais-api
+description: The all mighty NAIS API
+type: application
+version: 0.1.0
+sources:
+  - https://github.com/nais/api/tree/main/charts
