@@ -1297,7 +1297,7 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 }
 
 // VulnerabilityMetrics is the resolver for the vulnerabilityMetrics field.
-func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team, from *scalar.Date, to *scalar.Date) (*model.VulnerabilityMetrics, error) {
+func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team, from *scalar.Date, to *scalar.Date, environment *string) (*model.VulnerabilityMetrics, error) {
 	var metrics []*model.VulnerabilityMetric
 
 	err := ValidateDateInterval(*from, *to)
@@ -1315,26 +1315,45 @@ func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team
 		return nil, err
 	}
 
-	rows, err := r.database.DailyVulnerabilityForTeam(ctx, fromDate, toDate, obj.Slug)
-	if err != nil {
-		return nil, err
-	}
-
 	dateRange, err := r.database.VulnerabilityMetricsDateRangeForTeam(ctx, obj.Slug)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, row := range rows {
-		metrics = append(metrics, &model.VulnerabilityMetric{
-			Date:       row.Date.Time,
-			Critical:   int(row.Critical),
-			High:       int(row.High),
-			Medium:     int(row.Medium),
-			Low:        int(row.Low),
-			Unassigned: int(row.Unassigned),
-			RiskScore:  int(row.RiskScore),
-		})
+	if environment != nil {
+		rows, err := r.database.VulnerabilityMetricsDateRangeForTeamAndEnvironment(ctx, fromDate, toDate, obj.Slug, *environment)
+		if err != nil {
+			return nil, err
+		}
+		for _, row := range rows {
+			metrics = append(metrics, &model.VulnerabilityMetric{
+				Date:       row.Date.Time,
+				Critical:   int(row.Critical),
+				High:       int(row.High),
+				Medium:     int(row.Medium),
+				Low:        int(row.Low),
+				Unassigned: int(row.Unassigned),
+				RiskScore:  int(row.RiskScore),
+			})
+		}
+	} else {
+		rows, err := r.database.DailyVulnerabilityForTeam(ctx, fromDate, toDate, obj.Slug)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, row := range rows {
+			metrics = append(metrics, &model.VulnerabilityMetric{
+				Date:       row.Date.Time,
+				Critical:   int(row.Critical),
+				High:       int(row.High),
+				Medium:     int(row.Medium),
+				Low:        int(row.Low),
+				Unassigned: int(row.Unassigned),
+				RiskScore:  int(row.RiskScore),
+			})
+		}
+
 	}
 
 	ret := model.VulnerabilityMetrics{

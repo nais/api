@@ -778,7 +778,7 @@ type ComplexityRoot struct {
 		ViewerIsOwner          func(childComplexity int) int
 		Vulnerabilities        func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		VulnerabilitiesSummary func(childComplexity int) int
-		VulnerabilityMetrics   func(childComplexity int, from *scalar.Date, to *scalar.Date) int
+		VulnerabilityMetrics   func(childComplexity int, from *scalar.Date, to *scalar.Date, environment *string) int
 	}
 
 	TeamDeleteKey struct {
@@ -1010,7 +1010,7 @@ type TeamResolver interface {
 	Deployments(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.DeploymentList, error)
 	Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.VulnerabilityList, error)
 	VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummary, error)
-	VulnerabilityMetrics(ctx context.Context, obj *model.Team, from *scalar.Date, to *scalar.Date) (*model.VulnerabilityMetrics, error)
+	VulnerabilityMetrics(ctx context.Context, obj *model.Team, from *scalar.Date, to *scalar.Date, environment *string) (*model.VulnerabilityMetrics, error)
 	Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error)
 }
 type TeamMemberResolver interface {
@@ -4282,7 +4282,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Team.VulnerabilityMetrics(childComplexity, args["from"].(*scalar.Date), args["to"].(*scalar.Date)), true
+		return e.complexity.Team.VulnerabilityMetrics(childComplexity, args["from"].(*scalar.Date), args["to"].(*scalar.Date), args["environment"].(*string)), true
 
 	case "TeamDeleteKey.createdAt":
 		if e.complexity.TeamDeleteKey.CreatedAt == nil {
@@ -6471,7 +6471,11 @@ type Team {
   vulnerabilitiesSummary: VulnerabilitySummary!
 
   "The vulnerabilities for the team's applications over time."
-  vulnerabilityMetrics(from: Date, to: Date): VulnerabilityMetrics!
+  vulnerabilityMetrics(
+    from: Date
+    to: Date
+    environment: String
+  ): VulnerabilityMetrics!
 
   "The environments available for the team."
   environments: [Env!]!
@@ -8134,6 +8138,15 @@ func (ec *executionContext) field_Team_vulnerabilityMetrics_args(ctx context.Con
 		}
 	}
 	args["to"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["environment"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["environment"] = arg2
 	return args, nil
 }
 
@@ -29971,7 +29984,7 @@ func (ec *executionContext) _Team_vulnerabilityMetrics(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().VulnerabilityMetrics(rctx, obj, fc.Args["from"].(*scalar.Date), fc.Args["to"].(*scalar.Date))
+		return ec.resolvers.Team().VulnerabilityMetrics(rctx, obj, fc.Args["from"].(*scalar.Date), fc.Args["to"].(*scalar.Date), fc.Args["environment"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
