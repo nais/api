@@ -9,7 +9,6 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
 	admin_directory "google.golang.org/api/admin/directory/v1"
-	"google.golang.org/api/cloudresourcemanager/v3"
 	"google.golang.org/api/impersonate"
 	"google.golang.org/api/option"
 )
@@ -54,11 +53,5 @@ func (g Builder) Admin(ctx context.Context) (oauth2.TokenSource, error) {
 	return g.impersonateTokenSource(ctx, true, []string{
 		admin_directory.AdminDirectoryUserReadonlyScope,
 		admin_directory.AdminDirectoryGroupScope,
-	})
-}
-
-func (g Builder) GCP(ctx context.Context) (oauth2.TokenSource, error) {
-	return g.impersonateTokenSource(ctx, false, []string{
-		cloudresourcemanager.CloudPlatformScope,
 	})
 }
