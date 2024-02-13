@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	dependencytrack "github.com/nais/dependencytrack/pkg/client"
@@ -107,9 +106,9 @@ func (c *Client) GetProjectMetrics(ctx context.Context, app *AppInstance, date s
 		return nil, nil
 	}
 
-	vulnMetrics := make([]*VulnerabilityMetrics, 0)
-	for _, metric := range metrics {
-		vulnMetrics = append(vulnMetrics, &VulnerabilityMetrics{
+	vulnMetrics := make([]*VulnerabilityMetrics, len(metrics))
+	for i, metric := range metrics {
+		vulnMetrics[i] = &VulnerabilityMetrics{
 			Total:           metric.FindingsTotal,
 			RiskScore:       int(metric.InheritedRiskScore),
 			Critical:        metric.Critical,
@@ -119,7 +118,7 @@ func (c *Client) GetProjectMetrics(ctx context.Context, app *AppInstance, date s
 			Unassigned:      metric.Unassigned,
 			FirstOccurrence: metric.FirstOccurrence,
 			LastOccurrence:  metric.LastOccurrence,
-		})
+		}
 	}
 
 	id, err := uuid.Parse(p.Uuid)

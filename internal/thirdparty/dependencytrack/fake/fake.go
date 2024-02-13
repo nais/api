@@ -5,7 +5,6 @@ import (
 	"math/rand"
 
 	"github.com/google/uuid"
-
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
@@ -33,7 +32,7 @@ func (f *FakeDependencytrackClient) VulnerabilitySummary(ctx context.Context, ap
 		FindingsLink: "https://dependencytrack.example.com",
 		Summary: &model.VulnerabilitySummary{
 			Total:      critical + high + medium + low + unassigned,
-			RiskScore:  ((critical * 10) + (high * 5) + (medium * 3) + (low * 1) + (unassigned * 5)),
+			RiskScore:  (critical * 10) + (high * 5) + (medium * 3) + (low * 1) + (unassigned * 5),
 			Critical:   critical,
 			High:       high,
 			Medium:     medium,

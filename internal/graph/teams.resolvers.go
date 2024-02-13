@@ -1300,8 +1300,7 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team, from scalar.Date, to scalar.Date, environment *string) (*model.VulnerabilityMetrics, error) {
 	var metrics []*model.VulnerabilityMetric
 
-	err := ValidateDateInterval(from, to)
-	if err != nil {
+	if err := ValidateDateInterval(from, to); err != nil {
 		return nil, err
 	}
 
@@ -1311,11 +1310,6 @@ func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team
 	}
 
 	toDate, err := to.PgDate()
-	if err != nil {
-		return nil, err
-	}
-
-	dateRange, err := r.database.VulnerabilityMetricsDateRangeForTeam(ctx, obj.Slug)
 	if err != nil {
 		return nil, err
 	}
@@ -1356,13 +1350,16 @@ func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team
 
 	}
 
-	ret := model.VulnerabilityMetrics{
+	dateRange, err := r.database.VulnerabilityMetricsDateRangeForTeam(ctx, obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.VulnerabilityMetrics{
 		MinDate: dateRange.FromDate.Time,
 		MaxDate: dateRange.ToDate.Time,
 		Data:    metrics,
-	}
-
-	return &ret, nil
+	}, nil
 }
 
 // Environments is the resolver for the environments field.

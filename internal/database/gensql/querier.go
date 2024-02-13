@@ -40,7 +40,7 @@ type Querier interface {
 	DailyCostForTeam(ctx context.Context, arg DailyCostForTeamParams) ([]*Cost, error)
 	// DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
 	DailyEnvCostForTeam(ctx context.Context, arg DailyEnvCostForTeamParams) ([]*DailyEnvCostForTeamRow, error)
-	// DailyVulnerabilityForTeamAndEnvironment will return the metrics for the given team from first to last date.
+	// DailyVulnerabilityForTeam will return the metrics for the given team from first to last date.
 	DailyVulnerabilityForTeam(ctx context.Context, arg DailyVulnerabilityForTeamParams) ([]*DailyVulnerabilityForTeamRow, error)
 	// DailyVulnerabilityForTeamAndEnvironment will return the metrics for the given team and environment from first to last date.
 	DailyVulnerabilityForTeamAndEnvironment(ctx context.Context, arg DailyVulnerabilityForTeamAndEnvironmentParams) ([]*DailyVulnerabilityForTeamAndEnvironmentRow, error)

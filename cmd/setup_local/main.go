@@ -11,10 +11,9 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/jackc/pgx/v5/pgtype"
-
 	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"

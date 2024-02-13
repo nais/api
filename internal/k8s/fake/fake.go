@@ -32,6 +32,7 @@ func Clients(dir fs.FS) func(cluster string) (kubernetes.Interface, dynamic.Inte
 	scheme := newScheme()
 
 	resources := make(map[string][]runtime.Object)
+	// TODO: use yaml file in the data dir on root?
 	fs.WalkDir(dir, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
