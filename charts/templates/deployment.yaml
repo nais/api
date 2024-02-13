@@ -14,6 +14,7 @@ spec:
       annotations:
         prometheus.io/path: "/metrics"
         kubectl.kubernetes.io/default-container: "{{ .Chart.Name }}"
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
       labels:
         app: "{{ .Release.Name }}"
     spec:
