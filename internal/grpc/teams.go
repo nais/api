@@ -13,8 +13,15 @@ import (
 	"k8s.io/utils/ptr"
 )
 
+type repo interface {
+	database.TeamRepo
+	database.ReconcilerResourceRepo
+	database.RepositoryAuthorizationRepo
+}
+
 type TeamsServer struct {
-	db database.TeamRepo
+	db repo
+
 	protoapi.UnimplementedTeamsServer
 }
 
@@ -140,6 +147,40 @@ func (t *TeamsServer) Environments(ctx context.Context, req *protoapi.ListTeamEn
 	}
 
 	return resp, nil
+}
+
+func (t *TeamsServer) ListAuthorizedRepositories(ctx context.Context, req *protoapi.ListAuthorizedRepositoriesRequest) (*protoapi.ListAuthorizedRepositoriesResponse, error) {
+	teamSlug := slug.Slug(req.Slug)
+
+	// get all repositories for team
+	limit, offset := pagination(req)
+	res, total, err := t.db.GetReconcilerResourcesByKey(ctx, "github:team", teamSlug, "repo", database.Page{
+		Limit:  limit,
+		Offset: offset,
+	})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "fetching github repositories for team: %s", err)
+	}
+
+	// filter out repositories without authorizations
+	filtered := make([]string, 0)
+	for _, r := range res {
+		repoName := string(r.Value)
+
+		authorizations, err := t.db.GetRepositoryAuthorizations(ctx, teamSlug, repoName)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "fetching authorization for repository: %s", err)
+		}
+
+		if len(authorizations) > 0 {
+			filtered = append(filtered, repoName)
+		}
+	}
+
+	return &protoapi.ListAuthorizedRepositoriesResponse{
+		GithubRepositories: filtered,
+		PageInfo:           pageInfo(req, total),
+	}, nil
 }
 
 func toProtoTeam(team *database.Team) *protoapi.Team {
