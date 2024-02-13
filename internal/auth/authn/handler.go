@@ -19,7 +19,7 @@ import (
 const (
 	RedirectURICookie = "redirecturi"
 	OAuthStateCookie  = "oauthstate"
-	SessionCookieName = "teams_backend_session_id"
+	SessionCookieName = "session_id"
 	IDTokenKey        = "id_token"
 )
 
