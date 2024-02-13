@@ -288,12 +288,12 @@ func seedVulnerabilities(ctx context.Context, cfg seedConfig, dbtx database.Data
 	numbOfErrors := 0
 	for j := 0; j < *cfg.VulnSeed.NumVulnAppsForTeam; j++ {
 		appName := fmt.Sprintf("app-%d", j)
-		projectId := uuid.New()
+		id := uuid.New()
 		err := dbtx.CreateDependencytrackProject(ctx, gensql.CreateDependencytrackProjectParams{
 			Environment: "dev",
 			TeamSlug:    team.Slug,
 			App:         appName,
-			Projectid:   projectId,
+			ID:          id,
 		})
 		if err != nil {
 			return err
@@ -314,7 +314,7 @@ func seedVulnerabilities(ctx context.Context, cfg seedConfig, dbtx database.Data
 			unassigned = rand.Intn(10)
 			vulnbBatch = append(vulnbBatch, gensql.VulnerabilityMetricsUpsertParams{
 				Date:                     pgtype.Date{Time: date.AddDate(0, 0, -k).UTC(), Valid: true},
-				DependencytrackProjectID: projectId,
+				DependencytrackProjectID: id,
 				RiskScore:                float64((critical * 10) + (high * 5) + (medium * 3) + (low * 1) + (unassigned * 5)),
 				Critical:                 int32(critical),
 				High:                     int32(high),

@@ -1297,10 +1297,10 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 }
 
 // VulnerabilityMetrics is the resolver for the vulnerabilityMetrics field.
-func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team, from *scalar.Date, to *scalar.Date, environment *string) (*model.VulnerabilityMetrics, error) {
+func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team, from scalar.Date, to scalar.Date, environment *string) (*model.VulnerabilityMetrics, error) {
 	var metrics []*model.VulnerabilityMetric
 
-	err := ValidateDateInterval(*from, *to)
+	err := ValidateDateInterval(from, to)
 	if err != nil {
 		return nil, err
 	}

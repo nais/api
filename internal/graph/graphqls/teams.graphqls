@@ -352,8 +352,8 @@ type Team {
 
   "The vulnerabilities for the team's applications over time."
   vulnerabilityMetrics(
-    from: Date
-    to: Date
+    from: Date!
+    to: Date!
     environment: String
   ): VulnerabilityMetrics!
 

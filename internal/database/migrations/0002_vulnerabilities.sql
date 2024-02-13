@@ -1,15 +1,12 @@
 -- +goose Up
 
 CREATE TABLE dependencytrack_projects(
-    id          uuid DEFAULT gen_random_uuid() NOT NULL,
+    id          uuid PRIMARY KEY,
     environment text NOT NULL,
-    team_slug   slug NOT NULL,
+    team_slug   slug NOT NULL REFERENCES teams(slug),
     app         text NOT NULL,
-    projectId   uuid NOT NULL,
     created_at  timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    PRIMARY KEY (id),
-    UNIQUE(projectId),
-    CONSTRAINT dependencytrack_projects_key UNIQUE (environment, team_slug, app, projectId)
+    CONSTRAINT dependencytrack_projects_key UNIQUE (id)
 );
 
 CREATE TABLE vulnerability_metrics(
@@ -23,13 +20,7 @@ CREATE TABLE vulnerability_metrics(
     unassigned                 integer          NOT NULL,
     risk_score                 double precision NOT NULL,
     CONSTRAINT vulnerability_metric UNIQUE (date, dependencytrack_project_id)
-
 );
 
 ALTER TABLE vulnerability_metrics
-ADD FOREIGN KEY (dependencytrack_project_id) REFERENCES dependencytrack_projects(projectId) ON DELETE CASCADE;
-
-CREATE INDEX ON dependencytrack_projects (projectId);
-CREATE INDEX ON dependencytrack_projects (environment);
-CREATE INDEX ON dependencytrack_projects (team_slug);
-CREATE INDEX ON dependencytrack_projects (app);
+ADD FOREIGN KEY (dependencytrack_project_id) REFERENCES dependencytrack_projects(id) ON DELETE CASCADE;
