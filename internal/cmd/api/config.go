@@ -85,6 +85,8 @@ type dependencyTrackConfig struct {
 	// TODO: change default value to something other than console
 	Username string `env:"DEPENDENCYTRACK_USERNAME,default=console"`
 	Password string `env:"DEPENDENCYTRACK_PASSWORD"`
+	// VulnerabilityMetricsImportEnabled is the configuration for the vulnerability metrics service
+	VulnerabilityMetricsImportEnabled bool `env:"VULNERABILITY_METRICS_IMPORT_ENABLED"`
 }
 
 // hookdConfig is the configuration for the hookd service

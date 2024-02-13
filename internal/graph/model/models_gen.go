@@ -919,6 +919,32 @@ type VulnerabilityList struct {
 	PageInfo PageInfo         `json:"pageInfo"`
 }
 
+type VulnerabilityMetric struct {
+	// The date of the metric.
+	Date time.Time `json:"date"`
+	// The number of critical vulnerabilities.
+	Critical int `json:"critical"`
+	// The number of high vulnerabilities.
+	High int `json:"high"`
+	// The number of medium vulnerabilities.
+	Medium int `json:"medium"`
+	// The number of low vulnerabilities.
+	Low int `json:"low"`
+	// The number of unassigned vulnerabilities.
+	Unassigned int `json:"unassigned"`
+	// The weighted severity score calculated from the number of vulnerabilities.
+	RiskScore int `json:"riskScore"`
+}
+
+type VulnerabilityMetrics struct {
+	// The minimum date for the metrics available in the database.
+	MinDate time.Time `json:"minDate"`
+	// The maximum date for the metrics available in the database.
+	MaxDate time.Time `json:"maxDate"`
+	// The metrics for the team's applications.
+	Data []*VulnerabilityMetric `json:"data"`
+}
+
 type VulnerabilitySummary struct {
 	Total      int `json:"total"`
 	RiskScore  int `json:"riskScore"`

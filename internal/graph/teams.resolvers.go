@@ -1296,6 +1296,72 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 	return retVal, nil
 }
 
+// VulnerabilityMetrics is the resolver for the vulnerabilityMetrics field.
+func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team, from scalar.Date, to scalar.Date, environment *string) (*model.VulnerabilityMetrics, error) {
+	var metrics []*model.VulnerabilityMetric
+
+	if err := ValidateDateInterval(from, to); err != nil {
+		return nil, err
+	}
+
+	fromDate, err := from.PgDate()
+	if err != nil {
+		return nil, err
+	}
+
+	toDate, err := to.PgDate()
+	if err != nil {
+		return nil, err
+	}
+
+	if environment != nil {
+		rows, err := r.database.VulnerabilityMetricsDateRangeForTeamAndEnvironment(ctx, fromDate, toDate, obj.Slug, *environment)
+		if err != nil {
+			return nil, err
+		}
+		for _, row := range rows {
+			metrics = append(metrics, &model.VulnerabilityMetric{
+				Date:       row.Date.Time,
+				Critical:   int(row.Critical),
+				High:       int(row.High),
+				Medium:     int(row.Medium),
+				Low:        int(row.Low),
+				Unassigned: int(row.Unassigned),
+				RiskScore:  int(row.RiskScore),
+			})
+		}
+	} else {
+		rows, err := r.database.DailyVulnerabilityForTeam(ctx, fromDate, toDate, obj.Slug)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, row := range rows {
+			metrics = append(metrics, &model.VulnerabilityMetric{
+				Date:       row.Date.Time,
+				Critical:   int(row.Critical),
+				High:       int(row.High),
+				Medium:     int(row.Medium),
+				Low:        int(row.Low),
+				Unassigned: int(row.Unassigned),
+				RiskScore:  int(row.RiskScore),
+			})
+		}
+
+	}
+
+	dateRange, err := r.database.VulnerabilityMetricsDateRangeForTeam(ctx, obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.VulnerabilityMetrics{
+		MinDate: dateRange.FromDate.Time,
+		MaxDate: dateRange.ToDate.Time,
+		Data:    metrics,
+	}, nil
+}
+
 // Environments is the resolver for the environments field.
 func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error) {
 	// Env is a bit special, given that it will be created from k8s etc.

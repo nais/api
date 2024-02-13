@@ -2,7 +2,9 @@ package dependencytrack
 
 import (
 	"context"
+	"encoding/json"
 	"net/url"
+	"os"
 	"testing"
 
 	"github.com/nais/api/internal/graph/model"
@@ -199,6 +201,61 @@ func TestClient_VulnerabilitySummary(t *testing.T) {
 		v, err := c.VulnerabilitySummary(ctx, tc.input)
 		tc.assert(t, v, err)
 	}
+}
+
+func TestClient_CreateSummary(t *testing.T) {
+	log := logrus.New().WithField("test", "dependencytrack")
+	mock := NewMockInternalClient(t)
+	c := New("endpoint", "username", "password", "frontend", log).WithClient(mock)
+
+	s, err := os.ReadFile("testdata/ka-farsken.json")
+	assert.NoError(t, err)
+	var f []*dependencytrack.Finding
+	err = json.Unmarshal(s, &f)
+	sum := c.createSummary(f, true)
+	assert.NoError(t, err)
+	assert.Equal(t, 227, sum.Total)
+	assert.Equal(t, 7, sum.Critical)
+	assert.Equal(t, 33, sum.High)
+	assert.Equal(t, 24, sum.Medium)
+	assert.Equal(t, 4, sum.Low)
+	assert.Equal(t, 159, sum.Unassigned)
+
+	s, err = os.ReadFile("testdata/sms-manager.json")
+	assert.NoError(t, err)
+	err = json.Unmarshal(s, &f)
+	assert.NoError(t, err)
+	sum = c.createSummary(f, true)
+	assert.Equal(t, 69, sum.Total)
+	assert.Equal(t, 0, sum.Critical)
+	assert.Equal(t, 1, sum.High)
+	assert.Equal(t, 0, sum.Medium)
+	assert.Equal(t, 2, sum.Low)
+	assert.Equal(t, 66, sum.Unassigned)
+
+	s, err = os.ReadFile("testdata/tpsws.json")
+	assert.NoError(t, err)
+	err = json.Unmarshal(s, &f)
+	assert.NoError(t, err)
+	sum = c.createSummary(f, true)
+	assert.Equal(t, 203, sum.Total)
+	assert.Equal(t, 41, sum.Critical)
+	assert.Equal(t, 102, sum.High)
+	assert.Equal(t, 53, sum.Medium)
+	assert.Equal(t, 7, sum.Low)
+	assert.Equal(t, 0, sum.Unassigned)
+
+	s, err = os.ReadFile("testdata/dp-oppslag-vedtak.json")
+	assert.NoError(t, err)
+	err = json.Unmarshal(s, &f)
+	assert.NoError(t, err)
+	sum = c.createSummary(f, true)
+	assert.Equal(t, 93, sum.Total)
+	assert.Equal(t, 20, sum.Critical)
+	assert.Equal(t, 49, sum.High)
+	assert.Equal(t, 20, sum.Medium)
+	assert.Equal(t, 4, sum.Low)
+	assert.Equal(t, 0, sum.Unassigned)
 }
 
 func app(env, team, app, image string) *AppInstance {

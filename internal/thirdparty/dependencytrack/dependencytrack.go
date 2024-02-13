@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	dependencytrack "github.com/nais/dependencytrack/pkg/client"
@@ -27,6 +28,23 @@ func (a *AppInstance) ID() string {
 
 func (a *AppInstance) ProjectName() string {
 	return fmt.Sprintf("%s:%s:%s", a.Env, a.Team, a.App)
+}
+
+type ProjectMetric struct {
+	ProjectID            uuid.UUID
+	VulnerabilityMetrics []*VulnerabilityMetrics
+}
+
+type VulnerabilityMetrics struct {
+	Total           int   `json:"total"`
+	RiskScore       int   `json:"riskScore"`
+	Critical        int   `json:"critical"`
+	High            int   `json:"high"`
+	Medium          int   `json:"medium"`
+	Low             int   `json:"low"`
+	Unassigned      int   `json:"unassigned"`
+	FirstOccurrence int64 `json:"firstOccurrence"`
+	LastOccurrence  int64 `json:"lastOccurrence"`
 }
 
 type Client struct {
@@ -67,6 +85,51 @@ func (c *Client) Init(ctx context.Context) error {
 func (c *Client) WithClient(client dependencytrack.Client) *Client {
 	c.client = client
 	return c
+}
+
+func (c *Client) GetProjectMetrics(ctx context.Context, app *AppInstance, date string) (*ProjectMetric, error) {
+	p, err := c.retrieveProject(ctx, app)
+	if err != nil {
+		return nil, fmt.Errorf("getting project by app %s: %w", app.ID(), err)
+	}
+	if p == nil {
+		return nil, nil
+	}
+	metrics, err := c.client.GetProjectMetricsByDate(ctx, p.Uuid, date)
+	if err != nil {
+		if dependencytrack.IsNotFound(err) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("getting current project metric: %w", err)
+	}
+	if metrics == nil {
+		return nil, nil
+	}
+
+	vulnMetrics := make([]*VulnerabilityMetrics, len(metrics))
+	for i, metric := range metrics {
+		vulnMetrics[i] = &VulnerabilityMetrics{
+			Total:           metric.FindingsTotal,
+			RiskScore:       int(metric.InheritedRiskScore),
+			Critical:        metric.Critical,
+			High:            metric.High,
+			Medium:          metric.Medium,
+			Low:             metric.Low,
+			Unassigned:      metric.Unassigned,
+			FirstOccurrence: metric.FirstOccurrence,
+			LastOccurrence:  metric.LastOccurrence,
+		}
+	}
+
+	id, err := uuid.Parse(p.Uuid)
+	if err != nil {
+		return nil, fmt.Errorf("parsing project uuid: %w", err)
+	}
+
+	return &ProjectMetric{
+		ProjectID:            id,
+		VulnerabilityMetrics: vulnMetrics,
+	}, nil
 }
 
 func (c *Client) VulnerabilitySummary(ctx context.Context, app *AppInstance) (*model.Vulnerability, error) {
@@ -153,7 +216,6 @@ func (c *Client) retrieveFindings(ctx context.Context, uuid string) ([]*dependen
 }
 
 func (c *Client) createSummary(findings []*dependencytrack.Finding, hasBom bool) *model.VulnerabilitySummary {
-	var low, medium, high, critical, unassigned int
 	if !hasBom {
 		return &model.VulnerabilitySummary{
 			RiskScore:  -1,
@@ -166,32 +228,49 @@ func (c *Client) createSummary(findings []*dependencytrack.Finding, hasBom bool)
 		}
 	}
 
+	cves := make(map[string]*dependencytrack.Finding)
 	for _, finding := range findings {
-		switch finding.Vulnerability.Severity {
-		case "LOW":
-			low += 1
-		case "MEDIUM":
-			medium += 1
-		case "HIGH":
-			high += 1
-		case "CRITICAL":
-			critical += 1
-		case "UNASSIGNED":
-			unassigned += 1
+		cves[finding.Vulnerability.VulnId+":"+finding.Component.UUID] = finding
+	}
+
+	severities := map[string]int{}
+	total := 0
+	for _, finding := range findings {
+
+		if finding.Vulnerability.Source == "NVD" {
+			severities[finding.Vulnerability.Severity] += 1
+			total++
+			continue
+		}
+
+		if len(finding.Vulnerability.Aliases) == 0 {
+			severities[finding.Vulnerability.Severity] += 1
+			total++
+		}
+
+		for _, cve := range finding.Vulnerability.Aliases {
+			nvdId := cve.CveId + ":" + finding.Component.UUID
+			if _, found := cves[nvdId]; !found {
+				severities[finding.Vulnerability.Severity] += 1
+				total++
+			}
 		}
 	}
-	// algorithm: https://github.com/DependencyTrack/dependency-track/blob/41e2ba8afb15477ff2b7b53bd9c19130ba1053c0/src/main/java/org/dependencytrack/metrics/Metrics.java#L31-L33
-	riskScore := (critical * 10) + (high * 5) + (medium * 3) + (low * 1) + (unassigned * 5)
 
 	return &model.VulnerabilitySummary{
-		Total:      len(findings),
-		RiskScore:  riskScore,
-		Critical:   critical,
-		High:       high,
-		Medium:     medium,
-		Low:        low,
-		Unassigned: unassigned,
+		Total:      total,
+		RiskScore:  calcRiskScore(severities),
+		Critical:   severities["CRITICAL"],
+		High:       severities["HIGH"],
+		Medium:     severities["MEDIUM"],
+		Low:        severities["LOW"],
+		Unassigned: severities["UNASSIGNED"],
 	}
+}
+
+func calcRiskScore(severities map[string]int) int {
+	// algorithm: https://github.com/DependencyTrack/dependency-track/blob/41e2ba8afb15477ff2b7b53bd9c19130ba1053c0/src/main/java/org/dependencytrack/metrics/Metrics.java#L31-L33
+	return (severities["CRITICAL"] * 10) + (severities["HIGH"] * 5) + (severities["MEDIUM"] * 3) + (severities["LOW"] * 1) + (severities["UNASSIGNED"] * 5)
 }
 
 func (c *Client) retrieveProject(ctx context.Context, app *AppInstance) (*dependencytrack.Project, error) {
