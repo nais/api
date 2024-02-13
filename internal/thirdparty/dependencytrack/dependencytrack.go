@@ -122,13 +122,13 @@ func (c *Client) GetProjectMetrics(ctx context.Context, app *AppInstance, date s
 		})
 	}
 
-	uuId, err := uuid.Parse(p.Uuid)
+	id, err := uuid.Parse(p.Uuid)
 	if err != nil {
 		return nil, fmt.Errorf("parsing project uuid: %w", err)
 	}
 
 	return &ProjectMetric{
-		ProjectID:            uuId,
+		ProjectID:            id,
 		VulnerabilityMetrics: vulnMetrics,
 	}, nil
 }

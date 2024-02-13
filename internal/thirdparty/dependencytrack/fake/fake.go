@@ -53,12 +53,10 @@ func (f *FakeDependencytrackClient) GetVulnerabilities(ctx context.Context, apps
 }
 
 func (f *FakeDependencytrackClient) GetProjectMetrics(ctx context.Context, app *dependencytrack.AppInstance, date string) (*dependencytrack.ProjectMetric, error) {
-	var uuId uuid.UUID
-	if mapOfApps[app.ID()] == uuid.Nil {
-		uuId = uuid.New()
-		mapOfApps[app.ID()] = uuId
-	} else {
-		uuId = mapOfApps[app.ID()]
+	id, ok := mapOfApps[app.ID()]
+	if !ok {
+		id = uuid.New()
+		mapOfApps[app.ID()] = id
 	}
 
 	vulnMetrics := make([]*dependencytrack.VulnerabilityMetrics, 0)
@@ -79,7 +77,7 @@ func (f *FakeDependencytrackClient) GetProjectMetrics(ctx context.Context, app *
 		LastOccurrence:  1707463343762,
 	})
 	return &dependencytrack.ProjectMetric{
-		ProjectID:            uuId,
+		ProjectID:            id,
 		VulnerabilityMetrics: vulnMetrics,
 	}, nil
 }
