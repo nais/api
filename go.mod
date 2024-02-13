@@ -27,6 +27,7 @@ require (
 	github.com/rs/cors v1.10.1
 	github.com/sethvargo/go-envconfig v1.0.0
 	github.com/sirupsen/logrus v1.9.3
+	github.com/sourcegraph/conc v0.3.0
 	github.com/sqlc-dev/sqlc v1.25.0
 	github.com/stretchr/testify v1.8.4
 	github.com/vektah/gqlparser/v2 v2.5.11
@@ -156,7 +157,6 @@ require (
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/sethvargo/go-retry v0.2.4 // indirect
 	github.com/sosodev/duration v1.2.0 // indirect
-	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.10.0 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/cobra v1.8.0 // indirect
