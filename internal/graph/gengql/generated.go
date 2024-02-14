@@ -6483,9 +6483,9 @@ type Team {
 
 type VulnerabilityMetrics {
   "The minimum date for the metrics available in the database."
-  minDate: Time!
+  minDate: Date
   "The maximum date for the metrics available in the database."
-  maxDate: Time!
+  maxDate: Date
   "The metrics for the team's applications."
   data: [VulnerabilityMetric!]!
 }
@@ -32798,14 +32798,11 @@ func (ec *executionContext) _VulnerabilityMetrics_minDate(ctx context.Context, f
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(time.Time)
+	res := resTmp.(*scalar.Date)
 	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+	return ec.marshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_VulnerabilityMetrics_minDate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -32815,7 +32812,7 @@ func (ec *executionContext) fieldContext_VulnerabilityMetrics_minDate(ctx contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
+			return nil, errors.New("field of type Date does not have child fields")
 		},
 	}
 	return fc, nil
@@ -32842,14 +32839,11 @@ func (ec *executionContext) _VulnerabilityMetrics_maxDate(ctx context.Context, f
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(time.Time)
+	res := resTmp.(*scalar.Date)
 	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+	return ec.marshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_VulnerabilityMetrics_maxDate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -32859,7 +32853,7 @@ func (ec *executionContext) fieldContext_VulnerabilityMetrics_maxDate(ctx contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
+			return nil, errors.New("field of type Date does not have child fields")
 		},
 	}
 	return fc, nil
@@ -43769,14 +43763,8 @@ func (ec *executionContext) _VulnerabilityMetrics(ctx context.Context, sel ast.S
 			out.Values[i] = graphql.MarshalString("VulnerabilityMetrics")
 		case "minDate":
 			out.Values[i] = ec._VulnerabilityMetrics_minDate(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "maxDate":
 			out.Values[i] = ec._VulnerabilityMetrics_maxDate(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "data":
 			out.Values[i] = ec._VulnerabilityMetrics_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

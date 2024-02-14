@@ -1350,14 +1350,18 @@ func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team
 
 	}
 
+	if len(metrics) == 0 {
+		return &model.VulnerabilityMetrics{}, nil
+	}
+
 	dateRange, err := r.database.VulnerabilityMetricsDateRangeForTeam(ctx, obj.Slug)
 	if err != nil {
 		return nil, err
 	}
 
 	return &model.VulnerabilityMetrics{
-		MinDate: dateRange.FromDate.Time,
-		MaxDate: dateRange.ToDate.Time,
+		MinDate: ptr.To(scalar.NewDate(dateRange.FromDate.Time)),
+		MaxDate: ptr.To(scalar.NewDate(dateRange.ToDate.Time)),
 		Data:    metrics,
 	}, nil
 }

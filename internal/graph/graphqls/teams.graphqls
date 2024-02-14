@@ -363,9 +363,9 @@ type Team {
 
 type VulnerabilityMetrics {
   "The minimum date for the metrics available in the database."
-  minDate: Time!
+  minDate: Date
   "The maximum date for the metrics available in the database."
-  maxDate: Time!
+  maxDate: Date
   "The metrics for the team's applications."
   data: [VulnerabilityMetric!]!
 }
