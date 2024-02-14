@@ -941,7 +941,7 @@ func (r *teamResolver) SyncErrors(ctx context.Context, obj *model.Team) ([]*mode
 	for _, row := range rows {
 		syncErrors = append(syncErrors, &model.SyncError{
 			CreatedAt:  row.CreatedAt.Time,
-			Reconciler: string(row.Reconciler),
+			Reconciler: row.Reconciler,
 			Error:      row.ErrorMessage,
 		})
 	}
@@ -952,22 +952,27 @@ func (r *teamResolver) SyncErrors(ctx context.Context, obj *model.Team) ([]*mode
 // GithubRepositories is the resolver for the githubRepositories field.
 func (r *teamResolver) GithubRepositories(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.GitHubRepositoryList, error) {
 	page := model.NewPagination(offset, limit)
-	res, total, err := r.database.GetReconcilerResourcesByKey(ctx, "github:team", obj.Slug, "repo", page.Page())
+
+	state, err := r.database.GetReconcilerStateForTeam(ctx, "github:team", obj.Slug)
 	if err != nil {
 		return nil, err
 	}
 
-	repos := make([]*model.GitHubRepository, 0, len(res))
-	for _, r := range res {
-		repo, err := toGraphGitHubRepository(r)
-		if err != nil {
-			return nil, err
-		}
-		repos = append(repos, repo)
+	repos, err := toGraphGitHubRepositories(state)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: to paginate or not to paginate?
+	start := page.Offset
+	end := start + page.Limit
+	total := len(repos)
+	if end > total {
+		end = total
 	}
 
 	return &model.GitHubRepositoryList{
-		Nodes:    repos,
+		Nodes:    repos[start:end],
 		PageInfo: model.NewPageInfo(page, total),
 	}, nil
 }

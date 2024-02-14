@@ -248,13 +248,11 @@ type ReconcilerError struct {
 	TeamSlug      slug.Slug
 }
 
-type ReconcilerResource struct {
+type ReconcilerState struct {
 	ID             uuid.UUID
 	ReconcilerName string
 	TeamSlug       slug.Slug
-	Name           string
 	Value          []byte
-	Metadata       []byte
 	CreatedAt      pgtype.Timestamptz
 	UpdatedAt      pgtype.Timestamptz
 }

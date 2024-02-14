@@ -37,7 +37,7 @@ type Database interface {
 	EnvironmentRepo
 	ReconcilerErrorRepo
 	ReconcilerRepo
-	ReconcilerResourceRepo
+	ReconcilerStateRepo
 	RepositoryAuthorizationRepo
 	ResourceUtilizationRepo
 	RoleRepo

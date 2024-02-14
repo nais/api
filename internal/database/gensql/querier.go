@@ -46,8 +46,8 @@ type Querier interface {
 	DailyVulnerabilityForTeamAndEnvironment(ctx context.Context, arg DailyVulnerabilityForTeamAndEnvironmentParams) ([]*DailyVulnerabilityForTeamAndEnvironmentRow, error)
 	DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName string) ([]*DangerousGetReconcilerConfigValuesRow, error)
 	DeleteAllEnvironments(ctx context.Context) error
-	DeleteAllReconcilerResources(ctx context.Context, arg DeleteAllReconcilerResourcesParams) error
 	DeleteReconcilerConfig(ctx context.Context, arg DeleteReconcilerConfigParams) error
+	DeleteReconcilerStateForTeam(ctx context.Context, arg DeleteReconcilerStateForTeamParams) error
 	DeleteServiceAccount(ctx context.Context, id uuid.UUID) error
 	DeleteSession(ctx context.Context, id uuid.UUID) error
 	DeleteTeam(ctx context.Context, argSlug slug.Slug) error
@@ -67,11 +67,7 @@ type Querier interface {
 	GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error)
 	GetReconciler(ctx context.Context, name string) (*Reconciler, error)
 	GetReconcilerConfig(ctx context.Context, reconcilerName string) ([]*GetReconcilerConfigRow, error)
-	GetReconcilerResourceByKey(ctx context.Context, arg GetReconcilerResourceByKeyParams) ([]*ReconcilerResource, error)
-	GetReconcilerResourceByKeyAndValue(ctx context.Context, arg GetReconcilerResourceByKeyAndValueParams) (*ReconcilerResource, error)
-	GetReconcilerResourceByKeyTotal(ctx context.Context, arg GetReconcilerResourceByKeyTotalParams) (int64, error)
-	GetReconcilerResourcesForReconciler(ctx context.Context, arg GetReconcilerResourcesForReconcilerParams) ([]*ReconcilerResource, error)
-	GetReconcilerResourcesForReconcilerAndTeam(ctx context.Context, arg GetReconcilerResourcesForReconcilerAndTeamParams) ([]*ReconcilerResource, error)
+	GetReconcilerStateForTeam(ctx context.Context, arg GetReconcilerStateForTeamParams) (*ReconcilerState, error)
 	GetReconcilers(ctx context.Context, arg GetReconcilersParams) ([]*Reconciler, error)
 	GetReconcilersCount(ctx context.Context) (int64, error)
 	GetRepositoryAuthorizations(ctx context.Context, arg GetRepositoryAuthorizationsParams) ([]RepositoryAuthorizationEnum, error)
@@ -148,7 +144,7 @@ type Querier interface {
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (*User, error)
 	UpsertReconciler(ctx context.Context, arg UpsertReconcilerParams) (*Reconciler, error)
 	UpsertReconcilerConfig(ctx context.Context, arg UpsertReconcilerConfigParams) error
-	UpsertReconcilerResource(ctx context.Context, arg UpsertReconcilerResourceParams) (*ReconcilerResource, error)
+	UpsertReconcilerState(ctx context.Context, arg UpsertReconcilerStateParams) (*ReconcilerState, error)
 	UpsertTeamEnvironment(ctx context.Context, arg UpsertTeamEnvironmentParams) (*TeamEnvironment, error)
 	// VulnerabilityMetricsDateRangeForTeam will return the first and last date that has a metrics.
 	VulnerabilityMetricsDateRangeForTeam(ctx context.Context, teamSlug slug.Slug) (*VulnerabilityMetricsDateRangeForTeamRow, error)

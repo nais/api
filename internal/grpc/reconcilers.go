@@ -18,7 +18,7 @@ type ReconcilersServer struct {
 	db interface {
 		database.ReconcilerRepo
 		database.ReconcilerErrorRepo
-		database.ReconcilerResourceRepo
+		database.ReconcilerStateRepo
 		database.TeamRepo
 	}
 	protoapi.UnimplementedReconcilersServer
@@ -149,61 +149,35 @@ func (s *ReconcilersServer) Config(ctx context.Context, req *protoapi.ConfigReco
 	}, nil
 }
 
-func (s *ReconcilersServer) SaveResources(ctx context.Context, in *protoapi.SaveReconcilerResourceRequest) (*protoapi.SaveReconcilerResourceResponse, error) {
+func (s *ReconcilersServer) SaveState(ctx context.Context, in *protoapi.SaveReconcilerStateRequest) (*protoapi.SaveReconcilerStateResponse, error) {
 	switch {
 	case in.ReconcilerName == "":
 		return nil, status.Error(400, "reconcilerName is required")
 	case in.TeamSlug == "":
 		return nil, status.Error(400, "teamSlug is required")
+	case len(in.Value) == 0:
+		return nil, status.Error(400, "state is required")
 	}
 
-	slg := slug.Slug(in.TeamSlug)
-	rn := in.ReconcilerName
-
-	for _, rr := range in.Resources {
-		switch {
-		case rr.Name == "":
-			return nil, status.Error(400, "name is required")
-		case len(rr.Value) == 0:
-			return nil, status.Error(400, "value is required")
-		}
-		_, err := s.db.UpsertReconcilerResource(ctx, rn, slg, rr.Name, rr.Value, rr.Metadata)
-		if err != nil {
-			return nil, err
-		}
+	if _, err := s.db.UpsertReconcilerState(ctx, in.ReconcilerName, slug.Slug(in.TeamSlug), in.Value); err != nil {
+		return nil, err
 	}
 
-	return &protoapi.SaveReconcilerResourceResponse{}, nil
+	return &protoapi.SaveReconcilerStateResponse{}, nil
 }
 
-func (s *ReconcilersServer) Resources(ctx context.Context, req *protoapi.ListReconcilerResourcesRequest) (*protoapi.ListReconcilerResourcesResponse, error) {
-	var teamSlug *slug.Slug
-
-	if req.TeamSlug != "" {
-		slg := slug.Slug(req.TeamSlug)
-		teamSlug = &slg
-	}
-
-	limit, offset := pagination(req)
-	total := 0
-	res, err := s.db.GetReconcilerResources(ctx, req.ReconcilerName, teamSlug, database.Page{
-		Limit:  limit,
-		Offset: offset,
-	})
+func (s *ReconcilersServer) State(ctx context.Context, req *protoapi.GetReconcilerStateRequest) (*protoapi.GetReconcilerStateResponse, error) {
+	row, err := s.db.GetReconcilerStateForTeam(ctx, req.ReconcilerName, slug.Slug(req.TeamSlug))
 	if err != nil {
 		return nil, err
 	}
 
-	resp := &protoapi.ListReconcilerResourcesResponse{
-		PageInfo: pageInfo(req, total),
-	}
-	for _, rr := range res {
-		resp.Nodes = append(resp.Nodes, toProtoReconcilerResource(rr))
-	}
-	return resp, nil
+	return &protoapi.GetReconcilerStateResponse{
+		State: toProtoReconcilerState(row),
+	}, nil
 }
 
-func (s *ReconcilersServer) DeleteResources(ctx context.Context, req *protoapi.DeleteReconcilerResourcesRequest) (*protoapi.DeleteReconcilerResourcesResponse, error) {
+func (s *ReconcilersServer) DeleteState(ctx context.Context, req *protoapi.DeleteReconcilerStateRequest) (*protoapi.DeleteReconcilerStateResponse, error) {
 	if req.ReconcilerName == "" {
 		return nil, status.Error(400, "reconcilerName is required")
 	}
@@ -212,22 +186,19 @@ func (s *ReconcilersServer) DeleteResources(ctx context.Context, req *protoapi.D
 		return nil, status.Error(400, "teamSlug is required")
 	}
 
-	teamSlug := slug.Slug(req.TeamSlug)
-	if err := s.db.DeleteAllReconcilerResources(ctx, req.ReconcilerName, teamSlug); err != nil {
+	if err := s.db.DeleteReconcilerStateForTeam(ctx, req.ReconcilerName, slug.Slug(req.TeamSlug)); err != nil {
 		return nil, err
 	}
 
-	return &protoapi.DeleteReconcilerResourcesResponse{}, nil
+	return &protoapi.DeleteReconcilerStateResponse{}, nil
 }
 
-func toProtoReconcilerResource(res *database.ReconcilerResource) *protoapi.ReconcilerResource {
-	return &protoapi.ReconcilerResource{
+func toProtoReconcilerState(res *database.ReconcilerState) *protoapi.ReconcilerState {
+	return &protoapi.ReconcilerState{
 		Id:             res.ID.String(),
 		ReconcilerName: res.ReconcilerName,
 		TeamSlug:       string(res.TeamSlug),
-		Name:           res.Name,
 		Value:          res.Value,
-		Metadata:       res.Metadata,
 		CreatedAt:      timestamppb.New(res.CreatedAt.Time),
 		UpdatedAt:      timestamppb.New(res.UpdatedAt.Time),
 	}

@@ -1333,54 +1333,6 @@ func (_c *MockDatabase_DeleteAllEnvironments_Call) RunAndReturn(run func(context
 	return _c
 }
 
-// DeleteAllReconcilerResources provides a mock function with given fields: ctx, reconcilerName, teamSlug
-func (_m *MockDatabase) DeleteAllReconcilerResources(ctx context.Context, reconcilerName string, teamSlug slug.Slug) error {
-	ret := _m.Called(ctx, reconcilerName, teamSlug)
-
-	if len(ret) == 0 {
-		panic("no return value specified for DeleteAllReconcilerResources")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug) error); ok {
-		r0 = rf(ctx, reconcilerName, teamSlug)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockDatabase_DeleteAllReconcilerResources_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteAllReconcilerResources'
-type MockDatabase_DeleteAllReconcilerResources_Call struct {
-	*mock.Call
-}
-
-// DeleteAllReconcilerResources is a helper method to define mock.On call
-//   - ctx context.Context
-//   - reconcilerName string
-//   - teamSlug slug.Slug
-func (_e *MockDatabase_Expecter) DeleteAllReconcilerResources(ctx interface{}, reconcilerName interface{}, teamSlug interface{}) *MockDatabase_DeleteAllReconcilerResources_Call {
-	return &MockDatabase_DeleteAllReconcilerResources_Call{Call: _e.mock.On("DeleteAllReconcilerResources", ctx, reconcilerName, teamSlug)}
-}
-
-func (_c *MockDatabase_DeleteAllReconcilerResources_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug)) *MockDatabase_DeleteAllReconcilerResources_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_DeleteAllReconcilerResources_Call) Return(_a0 error) *MockDatabase_DeleteAllReconcilerResources_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockDatabase_DeleteAllReconcilerResources_Call) RunAndReturn(run func(context.Context, string, slug.Slug) error) *MockDatabase_DeleteAllReconcilerResources_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // DeleteReconcilerConfig provides a mock function with given fields: ctx, reconcilerName, keysToDelete
 func (_m *MockDatabase) DeleteReconcilerConfig(ctx context.Context, reconcilerName string, keysToDelete []string) error {
 	ret := _m.Called(ctx, reconcilerName, keysToDelete)
@@ -1425,6 +1377,54 @@ func (_c *MockDatabase_DeleteReconcilerConfig_Call) Return(_a0 error) *MockDatab
 }
 
 func (_c *MockDatabase_DeleteReconcilerConfig_Call) RunAndReturn(run func(context.Context, string, []string) error) *MockDatabase_DeleteReconcilerConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// DeleteReconcilerStateForTeam provides a mock function with given fields: ctx, reconcilerName, teamSlug
+func (_m *MockDatabase) DeleteReconcilerStateForTeam(ctx context.Context, reconcilerName string, teamSlug slug.Slug) error {
+	ret := _m.Called(ctx, reconcilerName, teamSlug)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteReconcilerStateForTeam")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug) error); ok {
+		r0 = rf(ctx, reconcilerName, teamSlug)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockDatabase_DeleteReconcilerStateForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteReconcilerStateForTeam'
+type MockDatabase_DeleteReconcilerStateForTeam_Call struct {
+	*mock.Call
+}
+
+// DeleteReconcilerStateForTeam is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reconcilerName string
+//   - teamSlug slug.Slug
+func (_e *MockDatabase_Expecter) DeleteReconcilerStateForTeam(ctx interface{}, reconcilerName interface{}, teamSlug interface{}) *MockDatabase_DeleteReconcilerStateForTeam_Call {
+	return &MockDatabase_DeleteReconcilerStateForTeam_Call{Call: _e.mock.On("DeleteReconcilerStateForTeam", ctx, reconcilerName, teamSlug)}
+}
+
+func (_c *MockDatabase_DeleteReconcilerStateForTeam_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug)) *MockDatabase_DeleteReconcilerStateForTeam_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_DeleteReconcilerStateForTeam_Call) Return(_a0 error) *MockDatabase_DeleteReconcilerStateForTeam_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockDatabase_DeleteReconcilerStateForTeam_Call) RunAndReturn(run func(context.Context, string, slug.Slug) error) *MockDatabase_DeleteReconcilerStateForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2405,29 +2405,29 @@ func (_c *MockDatabase_GetReconcilerConfig_Call) RunAndReturn(run func(context.C
 	return _c
 }
 
-// GetReconcilerResources provides a mock function with given fields: ctx, reconcilerName, teamSlug, p
-func (_m *MockDatabase) GetReconcilerResources(ctx context.Context, reconcilerName string, teamSlug *slug.Slug, p Page) ([]*ReconcilerResource, error) {
-	ret := _m.Called(ctx, reconcilerName, teamSlug, p)
+// GetReconcilerStateForTeam provides a mock function with given fields: ctx, reconcilerName, teamSlug
+func (_m *MockDatabase) GetReconcilerStateForTeam(ctx context.Context, reconcilerName string, teamSlug slug.Slug) (*ReconcilerState, error) {
+	ret := _m.Called(ctx, reconcilerName, teamSlug)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetReconcilerResources")
+		panic("no return value specified for GetReconcilerStateForTeam")
 	}
 
-	var r0 []*ReconcilerResource
+	var r0 *ReconcilerState
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *slug.Slug, Page) ([]*ReconcilerResource, error)); ok {
-		return rf(ctx, reconcilerName, teamSlug, p)
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug) (*ReconcilerState, error)); ok {
+		return rf(ctx, reconcilerName, teamSlug)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, *slug.Slug, Page) []*ReconcilerResource); ok {
-		r0 = rf(ctx, reconcilerName, teamSlug, p)
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug) *ReconcilerState); ok {
+		r0 = rf(ctx, reconcilerName, teamSlug)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*ReconcilerResource)
+			r0 = ret.Get(0).(*ReconcilerState)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, *slug.Slug, Page) error); ok {
-		r1 = rf(ctx, reconcilerName, teamSlug, p)
+	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug) error); ok {
+		r1 = rf(ctx, reconcilerName, teamSlug)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -2435,164 +2435,32 @@ func (_m *MockDatabase) GetReconcilerResources(ctx context.Context, reconcilerNa
 	return r0, r1
 }
 
-// MockDatabase_GetReconcilerResources_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetReconcilerResources'
-type MockDatabase_GetReconcilerResources_Call struct {
+// MockDatabase_GetReconcilerStateForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetReconcilerStateForTeam'
+type MockDatabase_GetReconcilerStateForTeam_Call struct {
 	*mock.Call
 }
 
-// GetReconcilerResources is a helper method to define mock.On call
+// GetReconcilerStateForTeam is a helper method to define mock.On call
 //   - ctx context.Context
 //   - reconcilerName string
-//   - teamSlug *slug.Slug
-//   - p Page
-func (_e *MockDatabase_Expecter) GetReconcilerResources(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, p interface{}) *MockDatabase_GetReconcilerResources_Call {
-	return &MockDatabase_GetReconcilerResources_Call{Call: _e.mock.On("GetReconcilerResources", ctx, reconcilerName, teamSlug, p)}
+//   - teamSlug slug.Slug
+func (_e *MockDatabase_Expecter) GetReconcilerStateForTeam(ctx interface{}, reconcilerName interface{}, teamSlug interface{}) *MockDatabase_GetReconcilerStateForTeam_Call {
+	return &MockDatabase_GetReconcilerStateForTeam_Call{Call: _e.mock.On("GetReconcilerStateForTeam", ctx, reconcilerName, teamSlug)}
 }
 
-func (_c *MockDatabase_GetReconcilerResources_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug *slug.Slug, p Page)) *MockDatabase_GetReconcilerResources_Call {
+func (_c *MockDatabase_GetReconcilerStateForTeam_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug)) *MockDatabase_GetReconcilerStateForTeam_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(*slug.Slug), args[3].(Page))
+		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug))
 	})
 	return _c
 }
 
-func (_c *MockDatabase_GetReconcilerResources_Call) Return(_a0 []*ReconcilerResource, _a1 error) *MockDatabase_GetReconcilerResources_Call {
+func (_c *MockDatabase_GetReconcilerStateForTeam_Call) Return(_a0 *ReconcilerState, _a1 error) *MockDatabase_GetReconcilerStateForTeam_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockDatabase_GetReconcilerResources_Call) RunAndReturn(run func(context.Context, string, *slug.Slug, Page) ([]*ReconcilerResource, error)) *MockDatabase_GetReconcilerResources_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetReconcilerResourcesByKey provides a mock function with given fields: ctx, reconcilerName, teamSlug, key, p
-func (_m *MockDatabase) GetReconcilerResourcesByKey(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, p Page) ([]*ReconcilerResource, int, error) {
-	ret := _m.Called(ctx, reconcilerName, teamSlug, key, p)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetReconcilerResourcesByKey")
-	}
-
-	var r0 []*ReconcilerResource
-	var r1 int
-	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, Page) ([]*ReconcilerResource, int, error)); ok {
-		return rf(ctx, reconcilerName, teamSlug, key, p)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, Page) []*ReconcilerResource); ok {
-		r0 = rf(ctx, reconcilerName, teamSlug, key, p)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*ReconcilerResource)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string, Page) int); ok {
-		r1 = rf(ctx, reconcilerName, teamSlug, key, p)
-	} else {
-		r1 = ret.Get(1).(int)
-	}
-
-	if rf, ok := ret.Get(2).(func(context.Context, string, slug.Slug, string, Page) error); ok {
-		r2 = rf(ctx, reconcilerName, teamSlug, key, p)
-	} else {
-		r2 = ret.Error(2)
-	}
-
-	return r0, r1, r2
-}
-
-// MockDatabase_GetReconcilerResourcesByKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetReconcilerResourcesByKey'
-type MockDatabase_GetReconcilerResourcesByKey_Call struct {
-	*mock.Call
-}
-
-// GetReconcilerResourcesByKey is a helper method to define mock.On call
-//   - ctx context.Context
-//   - reconcilerName string
-//   - teamSlug slug.Slug
-//   - key string
-//   - p Page
-func (_e *MockDatabase_Expecter) GetReconcilerResourcesByKey(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, key interface{}, p interface{}) *MockDatabase_GetReconcilerResourcesByKey_Call {
-	return &MockDatabase_GetReconcilerResourcesByKey_Call{Call: _e.mock.On("GetReconcilerResourcesByKey", ctx, reconcilerName, teamSlug, key, p)}
-}
-
-func (_c *MockDatabase_GetReconcilerResourcesByKey_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, p Page)) *MockDatabase_GetReconcilerResourcesByKey_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].(Page))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_GetReconcilerResourcesByKey_Call) Return(ret []*ReconcilerResource, total int, err error) *MockDatabase_GetReconcilerResourcesByKey_Call {
-	_c.Call.Return(ret, total, err)
-	return _c
-}
-
-func (_c *MockDatabase_GetReconcilerResourcesByKey_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, Page) ([]*ReconcilerResource, int, error)) *MockDatabase_GetReconcilerResourcesByKey_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetReconcilerResourcesByKeyAndValue provides a mock function with given fields: ctx, reconcilerName, teamSlug, key, value
-func (_m *MockDatabase) GetReconcilerResourcesByKeyAndValue(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value []byte) (*ReconcilerResource, error) {
-	ret := _m.Called(ctx, reconcilerName, teamSlug, key, value)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetReconcilerResourcesByKeyAndValue")
-	}
-
-	var r0 *ReconcilerResource
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, []byte) (*ReconcilerResource, error)); ok {
-		return rf(ctx, reconcilerName, teamSlug, key, value)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, []byte) *ReconcilerResource); ok {
-		r0 = rf(ctx, reconcilerName, teamSlug, key, value)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*ReconcilerResource)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string, []byte) error); ok {
-		r1 = rf(ctx, reconcilerName, teamSlug, key, value)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_GetReconcilerResourcesByKeyAndValue_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetReconcilerResourcesByKeyAndValue'
-type MockDatabase_GetReconcilerResourcesByKeyAndValue_Call struct {
-	*mock.Call
-}
-
-// GetReconcilerResourcesByKeyAndValue is a helper method to define mock.On call
-//   - ctx context.Context
-//   - reconcilerName string
-//   - teamSlug slug.Slug
-//   - key string
-//   - value []byte
-func (_e *MockDatabase_Expecter) GetReconcilerResourcesByKeyAndValue(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, key interface{}, value interface{}) *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call {
-	return &MockDatabase_GetReconcilerResourcesByKeyAndValue_Call{Call: _e.mock.On("GetReconcilerResourcesByKeyAndValue", ctx, reconcilerName, teamSlug, key, value)}
-}
-
-func (_c *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value []byte)) *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].([]byte))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call) Return(ret *ReconcilerResource, err error) *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call {
-	_c.Call.Return(ret, err)
-	return _c
-}
-
-func (_c *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, []byte) (*ReconcilerResource, error)) *MockDatabase_GetReconcilerResourcesByKeyAndValue_Call {
+func (_c *MockDatabase_GetReconcilerStateForTeam_Call) RunAndReturn(run func(context.Context, string, slug.Slug) (*ReconcilerState, error)) *MockDatabase_GetReconcilerStateForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -6169,29 +6037,29 @@ func (_c *MockDatabase_UpsertReconcilerConfig_Call) RunAndReturn(run func(contex
 	return _c
 }
 
-// UpsertReconcilerResource provides a mock function with given fields: ctx, reconcilerName, teamSlug, key, value, metadata
-func (_m *MockDatabase) UpsertReconcilerResource(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value []byte, metadata []byte) (*ReconcilerResource, error) {
-	ret := _m.Called(ctx, reconcilerName, teamSlug, key, value, metadata)
+// UpsertReconcilerState provides a mock function with given fields: ctx, reconcilerName, teamSlug, value
+func (_m *MockDatabase) UpsertReconcilerState(ctx context.Context, reconcilerName string, teamSlug slug.Slug, value []byte) (*ReconcilerState, error) {
+	ret := _m.Called(ctx, reconcilerName, teamSlug, value)
 
 	if len(ret) == 0 {
-		panic("no return value specified for UpsertReconcilerResource")
+		panic("no return value specified for UpsertReconcilerState")
 	}
 
-	var r0 *ReconcilerResource
+	var r0 *ReconcilerState
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, []byte, []byte) (*ReconcilerResource, error)); ok {
-		return rf(ctx, reconcilerName, teamSlug, key, value, metadata)
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, []byte) (*ReconcilerState, error)); ok {
+		return rf(ctx, reconcilerName, teamSlug, value)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, string, []byte, []byte) *ReconcilerResource); ok {
-		r0 = rf(ctx, reconcilerName, teamSlug, key, value, metadata)
+	if rf, ok := ret.Get(0).(func(context.Context, string, slug.Slug, []byte) *ReconcilerState); ok {
+		r0 = rf(ctx, reconcilerName, teamSlug, value)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*ReconcilerResource)
+			r0 = ret.Get(0).(*ReconcilerState)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, string, []byte, []byte) error); ok {
-		r1 = rf(ctx, reconcilerName, teamSlug, key, value, metadata)
+	if rf, ok := ret.Get(1).(func(context.Context, string, slug.Slug, []byte) error); ok {
+		r1 = rf(ctx, reconcilerName, teamSlug, value)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -6199,35 +6067,33 @@ func (_m *MockDatabase) UpsertReconcilerResource(ctx context.Context, reconciler
 	return r0, r1
 }
 
-// MockDatabase_UpsertReconcilerResource_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpsertReconcilerResource'
-type MockDatabase_UpsertReconcilerResource_Call struct {
+// MockDatabase_UpsertReconcilerState_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpsertReconcilerState'
+type MockDatabase_UpsertReconcilerState_Call struct {
 	*mock.Call
 }
 
-// UpsertReconcilerResource is a helper method to define mock.On call
+// UpsertReconcilerState is a helper method to define mock.On call
 //   - ctx context.Context
 //   - reconcilerName string
 //   - teamSlug slug.Slug
-//   - key string
 //   - value []byte
-//   - metadata []byte
-func (_e *MockDatabase_Expecter) UpsertReconcilerResource(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, key interface{}, value interface{}, metadata interface{}) *MockDatabase_UpsertReconcilerResource_Call {
-	return &MockDatabase_UpsertReconcilerResource_Call{Call: _e.mock.On("UpsertReconcilerResource", ctx, reconcilerName, teamSlug, key, value, metadata)}
+func (_e *MockDatabase_Expecter) UpsertReconcilerState(ctx interface{}, reconcilerName interface{}, teamSlug interface{}, value interface{}) *MockDatabase_UpsertReconcilerState_Call {
+	return &MockDatabase_UpsertReconcilerState_Call{Call: _e.mock.On("UpsertReconcilerState", ctx, reconcilerName, teamSlug, value)}
 }
 
-func (_c *MockDatabase_UpsertReconcilerResource_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, key string, value []byte, metadata []byte)) *MockDatabase_UpsertReconcilerResource_Call {
+func (_c *MockDatabase_UpsertReconcilerState_Call) Run(run func(ctx context.Context, reconcilerName string, teamSlug slug.Slug, value []byte)) *MockDatabase_UpsertReconcilerState_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].(string), args[4].([]byte), args[5].([]byte))
+		run(args[0].(context.Context), args[1].(string), args[2].(slug.Slug), args[3].([]byte))
 	})
 	return _c
 }
 
-func (_c *MockDatabase_UpsertReconcilerResource_Call) Return(_a0 *ReconcilerResource, _a1 error) *MockDatabase_UpsertReconcilerResource_Call {
+func (_c *MockDatabase_UpsertReconcilerState_Call) Return(_a0 *ReconcilerState, _a1 error) *MockDatabase_UpsertReconcilerState_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockDatabase_UpsertReconcilerResource_Call) RunAndReturn(run func(context.Context, string, slug.Slug, string, []byte, []byte) (*ReconcilerResource, error)) *MockDatabase_UpsertReconcilerResource_Call {
+func (_c *MockDatabase_UpsertReconcilerState_Call) RunAndReturn(run func(context.Context, string, slug.Slug, []byte) (*ReconcilerState, error)) *MockDatabase_UpsertReconcilerState_Call {
 	_c.Call.Return(run)
 	return _c
 }

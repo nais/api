@@ -13,9 +13,9 @@ service Reconcilers {
   rpc SetReconcilerErrorForTeam(SetReconcilerErrorForTeamRequest) returns (SetReconcilerErrorForTeamResponse) {}
   rpc RemoveReconcilerErrorForTeam(RemoveReconcilerErrorForTeamRequest) returns (RemoveReconcilerErrorForTeamResponse) {}
   rpc SuccessfulTeamSync(SuccessfulTeamSyncRequest) returns (SuccessfulTeamSyncResponse) {}
-  rpc DeleteResources(DeleteReconcilerResourcesRequest) returns (DeleteReconcilerResourcesResponse) {}
-  rpc SaveResources(SaveReconcilerResourceRequest) returns (SaveReconcilerResourceResponse) {}
-  rpc Resources(ListReconcilerResourcesRequest) returns (ListReconcilerResourcesResponse) {}
+  rpc SaveState(SaveReconcilerStateRequest) returns (SaveReconcilerStateResponse) {}
+  rpc State(GetReconcilerStateRequest) returns (GetReconcilerStateResponse) {}
+  rpc DeleteState(DeleteReconcilerStateRequest) returns (DeleteReconcilerStateResponse) {}
 }
 
 message SuccessfulTeamSyncRequest {
@@ -107,46 +107,35 @@ message ConfigReconcilerResponse {
   PageInfo page_info = 2;
 }
 
-message ReconcilerResource {
+message ReconcilerState {
   string id = 1;
   string reconciler_name = 2;
   string team_slug = 3;
-  string name = 4;
-  bytes value = 5;
-  bytes metadata = 6;
-  google.protobuf.Timestamp created_at = 7;
-  google.protobuf.Timestamp updated_at = 8;
+  bytes value = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
 }
 
-message SaveReconcilerResourceResponse {}
+message SaveReconcilerStateResponse {}
 
-message SaveReconcilerResourceRequest {
-  repeated NewReconcilerResource resources = 1;
-  string reconciler_name = 2;
-  string team_slug = 3;
+message SaveReconcilerStateRequest {
+  string reconciler_name = 1;
+  string team_slug = 2;
+  bytes value = 3;
 }
 
-message DeleteReconcilerResourcesRequest {
+message DeleteReconcilerStateRequest {
   string reconciler_name = 1;
   string team_slug = 2;
 }
 
-message DeleteReconcilerResourcesResponse {}
+message DeleteReconcilerStateResponse {}
 
-message NewReconcilerResource {
-  string name = 1;
-  bytes value = 2;
-  bytes metadata = 3;
-}
-
-message ListReconcilerResourcesRequest {
-  int64 limit = 1;
-  int64 offset = 2;
+message GetReconcilerStateRequest {
   string reconciler_name = 3;
   string team_slug = 4;
 }
 
-message ListReconcilerResourcesResponse {
-  repeated ReconcilerResource nodes = 1;
-  PageInfo page_info = 2;
+message GetReconcilerStateResponse {
+  ReconcilerState state = 1;
 }

@@ -55,16 +55,32 @@ func (r *mutationResolver) AuthorizeRepository(ctx context.Context, authorizatio
 		repoAuthorization = gensql.RepositoryAuthorizationEnumDeploy
 	}
 
-	if err := r.database.CreateRepositoryAuthorization(ctx, teamSlug, repoName, repoAuthorization); err != nil {
-		return nil, err
-	}
-
-	ret, err := r.database.GetReconcilerResourcesByKeyAndValue(ctx, "github:team", teamSlug, "repo", []byte(repoName))
+	state, err := r.database.GetReconcilerStateForTeam(ctx, "github:team", teamSlug)
 	if err != nil {
 		return nil, err
 	}
 
-	return toGraphGitHubRepository(ret)
+	var repo *model.GitHubRepository
+	repos, err := getGitHubRepos(state.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, r := range repos {
+		if r.Name == repoName {
+			repo = toGraphGitHubRepository(r)
+			break
+		}
+	}
+	if repo == nil {
+		return nil, apierror.Errorf("Repository %q not present in the team state", repoName)
+	}
+
+	if err := r.database.CreateRepositoryAuthorization(ctx, teamSlug, repoName, repoAuthorization); err != nil {
+		return nil, err
+	}
+
+	return repo, nil
 }
 
 // DeauthorizeRepository is the resolver for the deauthorizeRepository field.
@@ -84,16 +100,32 @@ func (r *mutationResolver) DeauthorizeRepository(ctx context.Context, authorizat
 		repoAuthorization = gensql.RepositoryAuthorizationEnumDeploy
 	}
 
-	if err := r.database.RemoveRepositoryAuthorization(ctx, teamSlug, repoName, repoAuthorization); err != nil {
-		return nil, err
-	}
-
-	ret, err := r.database.GetReconcilerResourcesByKeyAndValue(ctx, "github:team", teamSlug, "repo", []byte(repoName))
+	state, err := r.database.GetReconcilerStateForTeam(ctx, "github:team", teamSlug)
 	if err != nil {
 		return nil, err
 	}
 
-	return toGraphGitHubRepository(ret)
+	var repo *model.GitHubRepository
+	repos, err := getGitHubRepos(state.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, r := range repos {
+		if r.Name == repoName {
+			repo = toGraphGitHubRepository(r)
+			break
+		}
+	}
+	if repo == nil {
+		return nil, apierror.Errorf("Repository %q not present in the team state", repoName)
+	}
+
+	if err := r.database.RemoveRepositoryAuthorization(ctx, teamSlug, repoName, repoAuthorization); err != nil {
+		return nil, err
+	}
+
+	return repo, nil
 }
 
 // GitHubRepository returns gengql.GitHubRepositoryResolver implementation.
