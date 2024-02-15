@@ -28,9 +28,7 @@
             go
             gotools # Go tools like goimports, godoc, and others
             gopls
-            protoc-gen-go
-            protobuf
-            protoc-gen-go-grpc
+            asdf
           ];
         };
       });
