@@ -13,6 +13,17 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  gammel:
+    image: postgres:14-alpine
+    command:
+      ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
+    ports:
+      - "3009:5432"
+    environment:
+      POSTGRES_USER: gammel
+      POSTGRES_PASSWORD: gammel
+      POSTGRES_DB: gammel
+
   adminer:
     depends_on:
       - postgres

@@ -95,13 +95,18 @@ var regParseSQLName = regexp.MustCompile(`\-\-\s*name:\s+(\S+)`)
 // New connects to the database, runs migrations and returns a database instance. The caller must call the
 // returned closer function when the database connection is no longer needed
 func New(ctx context.Context, dsn string, log logrus.FieldLogger) (db Database, closer func(), err error) {
+	db, closer, _, err = NewWithRaw(ctx, dsn, log)
+	return db, closer, err
+}
+
+func NewWithRaw(ctx context.Context, dsn string, log logrus.FieldLogger) (db Database, closer func(), pool *pgxpool.Pool, err error) {
 	if err = migrateDatabaseSchema("pgx", dsn, log); err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	config, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to parse dsn config: %w", err)
+		return nil, nil, nil, fmt.Errorf("failed to parse dsn config: %w", err)
 	}
 
 	config.ConnConfig.Tracer = otelpgx.NewTracer(
@@ -133,7 +138,7 @@ func New(ctx context.Context, dsn string, log logrus.FieldLogger) (db Database, 
 
 	conn, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to connect: %w", err)
+		return nil, nil, nil, fmt.Errorf("failed to connect: %w", err)
 	}
 
 	connected := false
@@ -148,7 +153,7 @@ func New(ctx context.Context, dsn string, log logrus.FieldLogger) (db Database, 
 	}
 
 	if !connected {
-		return nil, nil, fmt.Errorf("giving up connecting to the database after %d attempts: %w", databaseConnectRetries, err)
+		return nil, nil, nil, fmt.Errorf("giving up connecting to the database after %d attempts: %w", databaseConnectRetries, err)
 	}
 
 	return &database{
@@ -156,7 +161,7 @@ func New(ctx context.Context, dsn string, log logrus.FieldLogger) (db Database, 
 			Queries:  gensql.New(conn),
 			connPool: conn,
 		},
-	}, conn.Close, nil
+	}, conn.Close, conn, nil
 }
 
 // migrateDatabaseSchema runs database migrations
