@@ -48,9 +48,9 @@ func runTeams(ctx context.Context, db *pgxpool.Pool) {
 	}
 
 	// TODO
-	// if err := moveReconcilerStates(ctx, db, old); err != nil {
-	// 	log.Fatalf("failed to move reconciler states: %s", err)
-	// }
+	if err := moveReconcilerStates(ctx, db, teams); err != nil {
+		log.Fatalf("failed to move reconciler states: %s", err)
+	}
 
 	if err := moveReconcilerOptOuts(ctx, db, teams); err != nil {
 		log.Fatalf("failed to move reconciler opt outs: %s", err)
@@ -58,6 +58,14 @@ func runTeams(ctx context.Context, db *pgxpool.Pool) {
 
 	if err := moveReconcilerConfig(ctx, db, teams); err != nil {
 		log.Fatalf("failed to move reconciler config: %s", err)
+	}
+
+	if err := moveAPIKeys(ctx, db, teams); err != nil {
+		log.Fatalf("failed to move api keys: %s", err)
+	}
+
+	if err := createTeamEnvironments(ctx, db, teams); err != nil {
+		log.Fatalf("failed to create environments: %s", err)
 	}
 
 	if err := moveAuditLogs(ctx, db, teams); err != nil {
@@ -128,11 +136,13 @@ func moveTeams(ctx context.Context, db *pgxpool.Pool, old *pgx.Conn) error {
 		teams.slack_channel,
 		gar.state->>'repopsitoryName' AS gar_repository,
 		gh.state->>'slug' AS github_team_slug,
-		gge.state->>'groupEmail' AS google_group_email
+		gge.state->>'groupEmail' AS google_group_email,
+		ag.state->>'groupId' AS azure_group_id
 	FROM teams
 	LEFT JOIN reconciler_states gar ON teams.slug = gar.team_slug AND gar.reconciler = 'google:gcp:gar'
 	LEFT JOIN reconciler_states gh ON teams.slug = gh.team_slug AND gh.reconciler = 'github:team'
 	LEFT JOIN reconciler_states gge ON teams.slug = gge.team_slug AND gge.reconciler = 'google:workspace-admin'
+	LEFT JOIN reconciler_states ag ON teams.slug = ag.team_slug AND ag.reconciler = 'azure:group'
 	`)
 	if err != nil {
 		return err
@@ -153,17 +163,18 @@ func moveTeams(ctx context.Context, db *pgxpool.Pool, old *pgx.Conn) error {
 			garRepository      *string
 			githubTeamSlug     *string
 			googleGroupEmail   *string
+			azureGroupID       *string
 		)
 
-		if err := rows.Scan(&slug, &purpose, &lastSuccessfulSync, &slackChannel, &garRepository, &githubTeamSlug, &googleGroupEmail); err != nil {
+		if err := rows.Scan(&slug, &purpose, &lastSuccessfulSync, &slackChannel, &garRepository, &githubTeamSlug, &googleGroupEmail, &azureGroupID); err != nil {
 			return err
 		}
 
 		_, err := conn.Exec(ctx, `
-		INSERT INTO teams (slug, purpose, last_successful_sync, slack_channel, gar_repository, github_team_slug, google_group_email)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO teams (slug, purpose, last_successful_sync, slack_channel, gar_repository, github_team_slug, google_group_email, azure_group_id)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		ON CONFLICT (slug) DO NOTHING
-		`, slug, purpose, lastSuccessfulSync, slackChannel, garRepository, githubTeamSlug, googleGroupEmail)
+		`, slug, purpose, lastSuccessfulSync, slackChannel, garRepository, githubTeamSlug, googleGroupEmail, azureGroupID)
 		if err != nil {
 			return err
 		}
@@ -548,6 +559,198 @@ func moveAuditLogs(ctx context.Context, db *pgxpool.Pool, old *pgx.Conn) error {
 			return fmt.Errorf("inserting audit log, with fields %+v: %w", args, err)
 		}
 
+	}
+
+	return nil
+}
+
+func moveAPIKeys(ctx context.Context, db *pgxpool.Pool, old *pgx.Conn) error {
+	start := time.Now()
+	fmt.Println("Moving API keys")
+	defer func() {
+		fmt.Println("  Done moving API keys in", time.Since(start))
+	}()
+
+	rows, err := old.Query(ctx, `
+	SELECT
+		api_key, service_account_id
+	FROM api_keys`)
+	if err != nil {
+		return err
+	}
+
+	conn, err := db.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
+	for rows.Next() {
+		var (
+			apiKey           string
+			serviceACcountID uuid.UUID
+		)
+
+		if err := rows.Scan(&apiKey, &serviceACcountID); err != nil {
+			return err
+		}
+
+		args := []any{apiKey, serviceACcountID}
+		_, err := conn.Exec(ctx, `
+		INSERT INTO api_keys (api_key, service_account_id)
+		VALUES ($1, $2)
+		ON CONFLICT DO NOTHING
+		`, args...)
+		if err != nil {
+			return fmt.Errorf("inserting API key, with fields %+v: %w", args, err)
+		}
+	}
+
+	return nil
+}
+
+func createTeamEnvironments(ctx context.Context, db *pgxpool.Pool, old *pgx.Conn) error {
+	start := time.Now()
+	fmt.Println("Creating environments")
+	defer func() {
+		fmt.Println("  Done creating environments in", time.Since(start))
+	}()
+
+	conn, err := db.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
+	rows, err := old.Query(ctx, `
+	WITH envs AS (
+		SELECT unnest($1::text[]) AS env
+	)
+	SELECT
+		env,
+		teams.slug,
+		sac.channel_name,
+		rs.state->'projects'->env->>'projectId' AS project_id
+	FROM envs
+	JOIN teams ON true
+	LEFT JOIN slack_alerts_channels sac ON teams.slug = sac.team_slug AND env = sac.environment
+	LEFT JOIN reconciler_states rs ON teams.slug = rs.team_slug AND rs.reconciler = 'google:gcp:project'
+	`, environments)
+	if err != nil {
+		return err
+	}
+
+	for rows.Next() {
+		var (
+			env       string
+			slug      slug.Slug
+			channel   *string
+			projectID *string
+		)
+		if err := rows.Scan(&env, &slug, &channel, &projectID); err != nil {
+			return err
+		}
+
+		_, err := conn.Exec(ctx, `
+		INSERT INTO team_environments (team_slug, environment, slack_alerts_channel, gcp_project_id)
+		VALUES ($1, $2, $3, $4)
+		ON CONFLICT DO NOTHING
+		`, slug, env, channel, projectID)
+		if err != nil {
+			return err
+		}
+
+		// fmt.Println("env", env, slug, ptr.Deref(channel, "<nil>"), ptr.Deref(projectID, "<nil>"))
+	}
+
+	return nil
+}
+
+func moveReconcilerStates(ctx context.Context, db *pgxpool.Pool, old *pgx.Conn) error {
+	if err := moveDependencytrackStates(ctx, db, old); err != nil {
+		return err
+	}
+
+	if err := moveGitHubStates(ctx, db, old); err != nil {
+		return err
+	}
+
+	if err := moveNamespaceStates(ctx, db, old); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func moveDependencytrackStates(ctx context.Context, db *pgxpool.Pool, old *pgx.Conn) error {
+	q := `
+	SELECT
+		team_slug, reconciler, state
+	FROM reconciler_states
+	WHERE reconciler = 'nais:dependencytrack'
+	`
+
+	return moveGenericState(ctx, db, old, q)
+}
+
+func moveGitHubStates(ctx context.Context, db *pgxpool.Pool, old *pgx.Conn) error {
+	q := `
+	SELECT
+		team_slug, reconciler, (state - 'slug') AS state
+	FROM reconciler_states
+	WHERE reconciler = 'github:team'
+	`
+
+	return moveGenericState(ctx, db, old, q)
+}
+
+func moveNamespaceStates(ctx context.Context, db *pgxpool.Pool, old *pgx.Conn) error {
+	q := `
+	SELECT
+		team_slug, reconciler,
+		(
+			SELECT json_object_agg(ns, 0)
+			FROM jsonb_object_keys((state->'namespaces')::jsonb) AS ns
+		) AS state
+	FROM reconciler_states
+	WHERE reconciler = 'nais:namespace'
+	`
+
+	return moveGenericState(ctx, db, old, q)
+}
+
+func moveGenericState(ctx context.Context, db *pgxpool.Pool, old *pgx.Conn, q string) error {
+	rows, err := old.Query(ctx, q)
+	if err != nil {
+		return err
+	}
+
+	conn, err := db.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
+	for rows.Next() {
+		var (
+			teamSlug   slug.Slug
+			reconciler string
+			state      string
+		)
+
+		if err := rows.Scan(&teamSlug, &reconciler, &state); err != nil {
+			return err
+		}
+
+		args := []any{teamSlug, reconciler, state}
+		_, err := conn.Exec(ctx, `
+		INSERT INTO reconciler_states (team_slug, reconciler_name, value)
+		VALUES ($1, $2, $3)
+		ON CONFLICT DO NOTHING
+		`, args...)
+		if err != nil {
+			return fmt.Errorf("inserting reconciler state, with fields %+v: %w", args, err)
+		}
 	}
 
 	return nil
