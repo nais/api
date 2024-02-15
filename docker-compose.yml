@@ -23,6 +23,8 @@ services:
       POSTGRES_USER: gammel
       POSTGRES_PASSWORD: gammel
       POSTGRES_DB: gammel
+    volumes:
+      - gammel:/var/lib/postgresql/data
 
   adminer:
     depends_on:
@@ -75,3 +77,4 @@ services:
 
 volumes:
   pgdata:
+  gammel:
