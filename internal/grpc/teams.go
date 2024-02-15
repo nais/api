@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/database"
@@ -15,7 +16,7 @@ import (
 
 type repo interface {
 	database.TeamRepo
-	database.ReconcilerResourceRepo
+	database.ReconcilerStateRepo
 	database.RepositoryAuthorizationRepo
 }
 
@@ -153,33 +154,37 @@ func (t *TeamsServer) ListAuthorizedRepositories(ctx context.Context, req *proto
 	teamSlug := slug.Slug(req.Slug)
 
 	// get all repositories for team
-	limit, offset := pagination(req)
-	res, total, err := t.db.GetReconcilerResourcesByKey(ctx, "github:team", teamSlug, "repo", database.Page{
-		Limit:  limit,
-		Offset: offset,
-	})
+	res, err := t.db.GetReconcilerStateForTeam(ctx, "github:team", teamSlug)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "fetching github repositories for team: %s", err)
 	}
 
+	var state struct {
+		Repos []struct {
+			Name string `json:"name"`
+		} `json:"repositories"`
+	}
+
+	err = json.Unmarshal(res.Value, &state)
+	if err != nil {
+		return nil, err
+	}
+
 	// filter out repositories without authorizations
 	filtered := make([]string, 0)
-	for _, r := range res {
-		repoName := string(r.Value)
-
-		authorizations, err := t.db.GetRepositoryAuthorizations(ctx, teamSlug, repoName)
+	for _, repo := range state.Repos {
+		authorizations, err := t.db.GetRepositoryAuthorizations(ctx, teamSlug, repo.Name)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "fetching authorization for repository: %s", err)
 		}
 
 		if len(authorizations) > 0 {
-			filtered = append(filtered, repoName)
+			filtered = append(filtered, repo.Name)
 		}
 	}
 
 	return &protoapi.ListAuthorizedRepositoriesResponse{
 		GithubRepositories: filtered,
-		PageInfo:           pageInfo(req, total),
 	}, nil
 }
 
