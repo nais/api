@@ -1288,65 +1288,6 @@ func (_c *MockQuerier_DailyVulnerabilityForTeamAndEnvironment_Call) RunAndReturn
 	return _c
 }
 
-// DangerousGetReconcilerConfigValues provides a mock function with given fields: ctx, reconcilerName
-func (_m *MockQuerier) DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName string) ([]*DangerousGetReconcilerConfigValuesRow, error) {
-	ret := _m.Called(ctx, reconcilerName)
-
-	if len(ret) == 0 {
-		panic("no return value specified for DangerousGetReconcilerConfigValues")
-	}
-
-	var r0 []*DangerousGetReconcilerConfigValuesRow
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) ([]*DangerousGetReconcilerConfigValuesRow, error)); ok {
-		return rf(ctx, reconcilerName)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) []*DangerousGetReconcilerConfigValuesRow); ok {
-		r0 = rf(ctx, reconcilerName)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*DangerousGetReconcilerConfigValuesRow)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, reconcilerName)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_DangerousGetReconcilerConfigValues_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DangerousGetReconcilerConfigValues'
-type MockQuerier_DangerousGetReconcilerConfigValues_Call struct {
-	*mock.Call
-}
-
-// DangerousGetReconcilerConfigValues is a helper method to define mock.On call
-//   - ctx context.Context
-//   - reconcilerName string
-func (_e *MockQuerier_Expecter) DangerousGetReconcilerConfigValues(ctx interface{}, reconcilerName interface{}) *MockQuerier_DangerousGetReconcilerConfigValues_Call {
-	return &MockQuerier_DangerousGetReconcilerConfigValues_Call{Call: _e.mock.On("DangerousGetReconcilerConfigValues", ctx, reconcilerName)}
-}
-
-func (_c *MockQuerier_DangerousGetReconcilerConfigValues_Call) Run(run func(ctx context.Context, reconcilerName string)) *MockQuerier_DangerousGetReconcilerConfigValues_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_DangerousGetReconcilerConfigValues_Call) Return(_a0 []*DangerousGetReconcilerConfigValuesRow, _a1 error) *MockQuerier_DangerousGetReconcilerConfigValues_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_DangerousGetReconcilerConfigValues_Call) RunAndReturn(run func(context.Context, string) ([]*DangerousGetReconcilerConfigValuesRow, error)) *MockQuerier_DangerousGetReconcilerConfigValues_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // DeleteAllEnvironments provides a mock function with given fields: ctx
 func (_m *MockQuerier) DeleteAllEnvironments(ctx context.Context) error {
 	ret := _m.Called(ctx)
@@ -2492,9 +2433,9 @@ func (_c *MockQuerier_GetReconciler_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
-// GetReconcilerConfig provides a mock function with given fields: ctx, reconcilerName
-func (_m *MockQuerier) GetReconcilerConfig(ctx context.Context, reconcilerName string) ([]*GetReconcilerConfigRow, error) {
-	ret := _m.Called(ctx, reconcilerName)
+// GetReconcilerConfig provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetReconcilerConfig(ctx context.Context, arg GetReconcilerConfigParams) ([]*GetReconcilerConfigRow, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetReconcilerConfig")
@@ -2502,19 +2443,19 @@ func (_m *MockQuerier) GetReconcilerConfig(ctx context.Context, reconcilerName s
 
 	var r0 []*GetReconcilerConfigRow
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) ([]*GetReconcilerConfigRow, error)); ok {
-		return rf(ctx, reconcilerName)
+	if rf, ok := ret.Get(0).(func(context.Context, GetReconcilerConfigParams) ([]*GetReconcilerConfigRow, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) []*GetReconcilerConfigRow); ok {
-		r0 = rf(ctx, reconcilerName)
+	if rf, ok := ret.Get(0).(func(context.Context, GetReconcilerConfigParams) []*GetReconcilerConfigRow); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*GetReconcilerConfigRow)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, reconcilerName)
+	if rf, ok := ret.Get(1).(func(context.Context, GetReconcilerConfigParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -2529,14 +2470,14 @@ type MockQuerier_GetReconcilerConfig_Call struct {
 
 // GetReconcilerConfig is a helper method to define mock.On call
 //   - ctx context.Context
-//   - reconcilerName string
-func (_e *MockQuerier_Expecter) GetReconcilerConfig(ctx interface{}, reconcilerName interface{}) *MockQuerier_GetReconcilerConfig_Call {
-	return &MockQuerier_GetReconcilerConfig_Call{Call: _e.mock.On("GetReconcilerConfig", ctx, reconcilerName)}
+//   - arg GetReconcilerConfigParams
+func (_e *MockQuerier_Expecter) GetReconcilerConfig(ctx interface{}, arg interface{}) *MockQuerier_GetReconcilerConfig_Call {
+	return &MockQuerier_GetReconcilerConfig_Call{Call: _e.mock.On("GetReconcilerConfig", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetReconcilerConfig_Call) Run(run func(ctx context.Context, reconcilerName string)) *MockQuerier_GetReconcilerConfig_Call {
+func (_c *MockQuerier_GetReconcilerConfig_Call) Run(run func(ctx context.Context, arg GetReconcilerConfigParams)) *MockQuerier_GetReconcilerConfig_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string))
+		run(args[0].(context.Context), args[1].(GetReconcilerConfigParams))
 	})
 	return _c
 }
@@ -2546,7 +2487,7 @@ func (_c *MockQuerier_GetReconcilerConfig_Call) Return(_a0 []*GetReconcilerConfi
 	return _c
 }
 
-func (_c *MockQuerier_GetReconcilerConfig_Call) RunAndReturn(run func(context.Context, string) ([]*GetReconcilerConfigRow, error)) *MockQuerier_GetReconcilerConfig_Call {
+func (_c *MockQuerier_GetReconcilerConfig_Call) RunAndReturn(run func(context.Context, GetReconcilerConfigParams) ([]*GetReconcilerConfigRow, error)) *MockQuerier_GetReconcilerConfig_Call {
 	_c.Call.Return(run)
 	return _c
 }

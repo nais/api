@@ -32,7 +32,7 @@ func (r *mutationResolver) EnableReconciler(ctx context.Context, name string) (*
 		return nil, apierror.Errorf("Unable to get reconciler: %q", name)
 	}
 
-	configs, err := r.database.GetReconcilerConfig(ctx, name)
+	configs, err := r.database.GetReconcilerConfig(ctx, name, false)
 	if err != nil {
 		r.log.WithError(err).Errorf("unable to get reconciler config")
 		return nil, apierror.Errorf("Unable to get reconciler config")
@@ -117,7 +117,7 @@ func (r *mutationResolver) ConfigureReconciler(ctx context.Context, name string,
 	}
 
 	err := r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
-		rows, err := dbtx.GetReconcilerConfig(ctx, name)
+		rows, err := dbtx.GetReconcilerConfig(ctx, name, false)
 		if err != nil {
 			return err
 		}
@@ -131,7 +131,7 @@ func (r *mutationResolver) ConfigureReconciler(ctx context.Context, name string,
 			if _, exists := validOptions[key]; !exists {
 				keys := make([]string, 0, len(validOptions))
 				for key := range validOptions {
-					keys = append(keys, string(key))
+					keys = append(keys, key)
 				}
 				return fmt.Errorf("unknown configuration option %q for reconciler %q. Valid options: %s", key, name, strings.Join(keys, ", "))
 			}
@@ -306,7 +306,7 @@ func (r *queryResolver) Reconcilers(ctx context.Context, offset *int, limit *int
 
 // Config is the resolver for the config field.
 func (r *reconcilerResolver) Config(ctx context.Context, obj *model.Reconciler) ([]*model.ReconcilerConfig, error) {
-	config, err := r.database.GetReconcilerConfig(ctx, obj.Name)
+	config, err := r.database.GetReconcilerConfig(ctx, obj.Name, false)
 	if err != nil {
 		return nil, err
 	}
@@ -314,7 +314,7 @@ func (r *reconcilerResolver) Config(ctx context.Context, obj *model.Reconciler) 
 	graphConfig := make([]*model.ReconcilerConfig, 0, len(config))
 	for _, entry := range config {
 		graphConfig = append(graphConfig, &model.ReconcilerConfig{
-			Key:         string(entry.Key),
+			Key:         entry.Key,
 			Value:       entry.Value,
 			Configured:  entry.Configured,
 			DisplayName: entry.DisplayName,
@@ -328,7 +328,7 @@ func (r *reconcilerResolver) Config(ctx context.Context, obj *model.Reconciler) 
 
 // Configured is the resolver for the configured field.
 func (r *reconcilerResolver) Configured(ctx context.Context, obj *model.Reconciler) (bool, error) {
-	configs, err := r.database.GetReconcilerConfig(ctx, obj.Name)
+	configs, err := r.database.GetReconcilerConfig(ctx, obj.Name, false)
 	if err != nil {
 		return false, err
 	}

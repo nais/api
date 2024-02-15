@@ -128,7 +128,7 @@ func (s *ReconcilersServer) List(ctx context.Context, req *protoapi.ListReconcil
 }
 
 func (s *ReconcilersServer) Config(ctx context.Context, req *protoapi.ConfigReconcilerRequest) (*protoapi.ConfigReconcilerResponse, error) {
-	cfg, err := s.db.GetReconcilerConfig(ctx, req.ReconcilerName)
+	cfg, err := s.db.GetReconcilerConfig(ctx, req.ReconcilerName, true)
 	if err != nil {
 		return nil, err
 	}

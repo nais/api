@@ -12,13 +12,12 @@ import (
 type ReconcilerRepo interface {
 	AddReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string) error
 	ConfigureReconciler(ctx context.Context, reconcilerName string, key string, value string) error
-	DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName string) (*ReconcilerConfigValues, error)
 	DeleteReconcilerConfig(ctx context.Context, reconcilerName string, keysToDelete []string) error
 	DisableReconciler(ctx context.Context, reconcilerName string) (*Reconciler, error)
 	EnableReconciler(ctx context.Context, reconcilerName string) (*Reconciler, error)
 	GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error)
 	GetReconciler(ctx context.Context, reconcilerName string) (*Reconciler, error)
-	GetReconcilerConfig(ctx context.Context, reconcilerName string) ([]*ReconcilerConfig, error)
+	GetReconcilerConfig(ctx context.Context, reconcilerName string, includeSecrets bool) ([]*ReconcilerConfig, error)
 	GetReconcilers(ctx context.Context, p Page) ([]*Reconciler, int, error)
 	RemoveReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string) error
 	ResetReconcilerConfig(ctx context.Context, reconcilerName string) (*Reconciler, error)
@@ -93,15 +92,18 @@ func (d *database) ConfigureReconciler(ctx context.Context, reconcilerName strin
 	})
 }
 
-func (d *database) GetReconcilerConfig(ctx context.Context, reconcilerName string) ([]*ReconcilerConfig, error) {
-	rows, err := d.querier.GetReconcilerConfig(ctx, reconcilerName)
+func (d *database) GetReconcilerConfig(ctx context.Context, reconcilerName string, includeSecrets bool) ([]*ReconcilerConfig, error) {
+	rows, err := d.querier.GetReconcilerConfig(ctx, gensql.GetReconcilerConfigParams{
+		IncludeSecret:  includeSecrets,
+		ReconcilerName: reconcilerName,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	config := make([]*ReconcilerConfig, 0, len(rows))
-	for _, row := range rows {
-		config = append(config, &ReconcilerConfig{GetReconcilerConfigRow: row})
+	config := make([]*ReconcilerConfig, len(rows))
+	for i, row := range rows {
+		config[i] = &ReconcilerConfig{GetReconcilerConfigRow: row}
 	}
 
 	return config, nil
@@ -137,20 +139,6 @@ func (d *database) DisableReconciler(ctx context.Context, reconcilerName string)
 	}
 
 	return &Reconciler{Reconciler: reconciler}, nil
-}
-
-func (d *database) DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName string) (*ReconcilerConfigValues, error) {
-	rows, err := d.querier.DangerousGetReconcilerConfigValues(ctx, reconcilerName)
-	if err != nil {
-		return nil, err
-	}
-
-	values := make(map[string]string)
-	for _, row := range rows {
-		values[row.Key] = row.Value
-	}
-
-	return &ReconcilerConfigValues{values: values}, nil
 }
 
 func (d *database) AddReconcilerOptOut(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, reconcilerName string) error {
@@ -202,7 +190,7 @@ func (d *database) DeleteReconcilerConfig(ctx context.Context, reconcilerName st
 }
 
 func (d *database) SyncReconcilerConfig(ctx context.Context, reconcilerName string, configs []*protoapi.ReconcilerConfigSpec) error {
-	cfg, err := d.GetReconcilerConfig(ctx, reconcilerName)
+	cfg, err := d.GetReconcilerConfig(ctx, reconcilerName, false)
 	if err != nil {
 		return err
 	}

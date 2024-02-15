@@ -43,38 +43,6 @@ func (q *Queries) ConfigureReconciler(ctx context.Context, arg ConfigureReconcil
 	return err
 }
 
-const dangerousGetReconcilerConfigValues = `-- name: DangerousGetReconcilerConfigValues :many
-SELECT key, value::TEXT
-FROM reconciler_config
-WHERE reconciler = $1
-ORDER BY key ASC
-`
-
-type DangerousGetReconcilerConfigValuesRow struct {
-	Key   string
-	Value string
-}
-
-func (q *Queries) DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName string) ([]*DangerousGetReconcilerConfigValuesRow, error) {
-	rows, err := q.db.Query(ctx, dangerousGetReconcilerConfigValues, reconcilerName)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*DangerousGetReconcilerConfigValuesRow{}
-	for rows.Next() {
-		var i DangerousGetReconcilerConfigValuesRow
-		if err := rows.Scan(&i.Key, &i.Value); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const deleteReconcilerConfig = `-- name: DeleteReconcilerConfig :exec
 DELETE FROM reconciler_config
 WHERE reconciler = $1 AND key = ANY($2::TEXT[])
@@ -190,10 +158,15 @@ SELECT
     rc2.value,
     rc.secret
 FROM reconciler_config rc
-LEFT JOIN reconciler_config rc2 ON rc2.reconciler = rc.reconciler AND rc2.key = rc.key AND rc2.secret = false
-WHERE rc.reconciler = $1
+LEFT JOIN reconciler_config rc2 ON rc2.reconciler = rc.reconciler AND rc2.key = rc.key AND (rc2.secret = false OR $1::bool = true)
+WHERE rc.reconciler = $2
 ORDER BY rc.display_name ASC
 `
+
+type GetReconcilerConfigParams struct {
+	IncludeSecret  bool
+	ReconcilerName string
+}
 
 type GetReconcilerConfigRow struct {
 	Reconciler  string
@@ -205,8 +178,8 @@ type GetReconcilerConfigRow struct {
 	Secret      bool
 }
 
-func (q *Queries) GetReconcilerConfig(ctx context.Context, reconcilerName string) ([]*GetReconcilerConfigRow, error) {
-	rows, err := q.db.Query(ctx, getReconcilerConfig, reconcilerName)
+func (q *Queries) GetReconcilerConfig(ctx context.Context, arg GetReconcilerConfigParams) ([]*GetReconcilerConfigRow, error) {
+	rows, err := q.db.Query(ctx, getReconcilerConfig, arg.IncludeSecret, arg.ReconcilerName)
 	if err != nil {
 		return nil, err
 	}

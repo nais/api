@@ -44,7 +44,6 @@ type Querier interface {
 	DailyVulnerabilityForTeam(ctx context.Context, arg DailyVulnerabilityForTeamParams) ([]*DailyVulnerabilityForTeamRow, error)
 	// DailyVulnerabilityForTeamAndEnvironment will return the metrics for the given team and environment from first to last date.
 	DailyVulnerabilityForTeamAndEnvironment(ctx context.Context, arg DailyVulnerabilityForTeamAndEnvironmentParams) ([]*DailyVulnerabilityForTeamAndEnvironmentRow, error)
-	DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName string) ([]*DangerousGetReconcilerConfigValuesRow, error)
 	DeleteAllEnvironments(ctx context.Context) error
 	DeleteReconcilerConfig(ctx context.Context, arg DeleteReconcilerConfigParams) error
 	DeleteReconcilerStateForTeam(ctx context.Context, arg DeleteReconcilerStateForTeamParams) error
@@ -66,7 +65,7 @@ type Querier interface {
 	GetAuditLogsForTeamCount(ctx context.Context, targetIdentifier string) (int64, error)
 	GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error)
 	GetReconciler(ctx context.Context, name string) (*Reconciler, error)
-	GetReconcilerConfig(ctx context.Context, reconcilerName string) ([]*GetReconcilerConfigRow, error)
+	GetReconcilerConfig(ctx context.Context, arg GetReconcilerConfigParams) ([]*GetReconcilerConfigRow, error)
 	GetReconcilerStateForTeam(ctx context.Context, arg GetReconcilerStateForTeamParams) (*ReconcilerState, error)
 	GetReconcilers(ctx context.Context, arg GetReconcilersParams) ([]*Reconciler, error)
 	GetReconcilersCount(ctx context.Context) (int64, error)

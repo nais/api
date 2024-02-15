@@ -46,15 +46,9 @@ SELECT
     rc2.value,
     rc.secret
 FROM reconciler_config rc
-LEFT JOIN reconciler_config rc2 ON rc2.reconciler = rc.reconciler AND rc2.key = rc.key AND rc2.secret = false
+LEFT JOIN reconciler_config rc2 ON rc2.reconciler = rc.reconciler AND rc2.key = rc.key AND (rc2.secret = false OR @include_secret::bool = true)
 WHERE rc.reconciler = @reconciler_name
 ORDER BY rc.display_name ASC;
-
--- name: DangerousGetReconcilerConfigValues :many
-SELECT key, value::TEXT
-FROM reconciler_config
-WHERE reconciler = @reconciler_name
-ORDER BY key ASC;
 
 -- name: AddReconcilerOptOut :exec
 INSERT INTO reconciler_opt_outs (team_slug, user_id, reconciler_name)

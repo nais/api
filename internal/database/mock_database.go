@@ -1228,65 +1228,6 @@ func (_c *MockDatabase_DailyVulnerabilityForTeam_Call) RunAndReturn(run func(con
 	return _c
 }
 
-// DangerousGetReconcilerConfigValues provides a mock function with given fields: ctx, reconcilerName
-func (_m *MockDatabase) DangerousGetReconcilerConfigValues(ctx context.Context, reconcilerName string) (*ReconcilerConfigValues, error) {
-	ret := _m.Called(ctx, reconcilerName)
-
-	if len(ret) == 0 {
-		panic("no return value specified for DangerousGetReconcilerConfigValues")
-	}
-
-	var r0 *ReconcilerConfigValues
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*ReconcilerConfigValues, error)); ok {
-		return rf(ctx, reconcilerName)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *ReconcilerConfigValues); ok {
-		r0 = rf(ctx, reconcilerName)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*ReconcilerConfigValues)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, reconcilerName)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_DangerousGetReconcilerConfigValues_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DangerousGetReconcilerConfigValues'
-type MockDatabase_DangerousGetReconcilerConfigValues_Call struct {
-	*mock.Call
-}
-
-// DangerousGetReconcilerConfigValues is a helper method to define mock.On call
-//   - ctx context.Context
-//   - reconcilerName string
-func (_e *MockDatabase_Expecter) DangerousGetReconcilerConfigValues(ctx interface{}, reconcilerName interface{}) *MockDatabase_DangerousGetReconcilerConfigValues_Call {
-	return &MockDatabase_DangerousGetReconcilerConfigValues_Call{Call: _e.mock.On("DangerousGetReconcilerConfigValues", ctx, reconcilerName)}
-}
-
-func (_c *MockDatabase_DangerousGetReconcilerConfigValues_Call) Run(run func(ctx context.Context, reconcilerName string)) *MockDatabase_DangerousGetReconcilerConfigValues_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_DangerousGetReconcilerConfigValues_Call) Return(_a0 *ReconcilerConfigValues, _a1 error) *MockDatabase_DangerousGetReconcilerConfigValues_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockDatabase_DangerousGetReconcilerConfigValues_Call) RunAndReturn(run func(context.Context, string) (*ReconcilerConfigValues, error)) *MockDatabase_DangerousGetReconcilerConfigValues_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // DeleteAllEnvironments provides a mock function with given fields: ctx
 func (_m *MockDatabase) DeleteAllEnvironments(ctx context.Context) error {
 	ret := _m.Called(ctx)
@@ -2346,9 +2287,9 @@ func (_c *MockDatabase_GetReconciler_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
-// GetReconcilerConfig provides a mock function with given fields: ctx, reconcilerName
-func (_m *MockDatabase) GetReconcilerConfig(ctx context.Context, reconcilerName string) ([]*ReconcilerConfig, error) {
-	ret := _m.Called(ctx, reconcilerName)
+// GetReconcilerConfig provides a mock function with given fields: ctx, reconcilerName, includeSecrets
+func (_m *MockDatabase) GetReconcilerConfig(ctx context.Context, reconcilerName string, includeSecrets bool) ([]*ReconcilerConfig, error) {
+	ret := _m.Called(ctx, reconcilerName, includeSecrets)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetReconcilerConfig")
@@ -2356,19 +2297,19 @@ func (_m *MockDatabase) GetReconcilerConfig(ctx context.Context, reconcilerName 
 
 	var r0 []*ReconcilerConfig
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) ([]*ReconcilerConfig, error)); ok {
-		return rf(ctx, reconcilerName)
+	if rf, ok := ret.Get(0).(func(context.Context, string, bool) ([]*ReconcilerConfig, error)); ok {
+		return rf(ctx, reconcilerName, includeSecrets)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) []*ReconcilerConfig); ok {
-		r0 = rf(ctx, reconcilerName)
+	if rf, ok := ret.Get(0).(func(context.Context, string, bool) []*ReconcilerConfig); ok {
+		r0 = rf(ctx, reconcilerName, includeSecrets)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*ReconcilerConfig)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, reconcilerName)
+	if rf, ok := ret.Get(1).(func(context.Context, string, bool) error); ok {
+		r1 = rf(ctx, reconcilerName, includeSecrets)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -2384,13 +2325,14 @@ type MockDatabase_GetReconcilerConfig_Call struct {
 // GetReconcilerConfig is a helper method to define mock.On call
 //   - ctx context.Context
 //   - reconcilerName string
-func (_e *MockDatabase_Expecter) GetReconcilerConfig(ctx interface{}, reconcilerName interface{}) *MockDatabase_GetReconcilerConfig_Call {
-	return &MockDatabase_GetReconcilerConfig_Call{Call: _e.mock.On("GetReconcilerConfig", ctx, reconcilerName)}
+//   - includeSecrets bool
+func (_e *MockDatabase_Expecter) GetReconcilerConfig(ctx interface{}, reconcilerName interface{}, includeSecrets interface{}) *MockDatabase_GetReconcilerConfig_Call {
+	return &MockDatabase_GetReconcilerConfig_Call{Call: _e.mock.On("GetReconcilerConfig", ctx, reconcilerName, includeSecrets)}
 }
 
-func (_c *MockDatabase_GetReconcilerConfig_Call) Run(run func(ctx context.Context, reconcilerName string)) *MockDatabase_GetReconcilerConfig_Call {
+func (_c *MockDatabase_GetReconcilerConfig_Call) Run(run func(ctx context.Context, reconcilerName string, includeSecrets bool)) *MockDatabase_GetReconcilerConfig_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string))
+		run(args[0].(context.Context), args[1].(string), args[2].(bool))
 	})
 	return _c
 }
@@ -2400,7 +2342,7 @@ func (_c *MockDatabase_GetReconcilerConfig_Call) Return(_a0 []*ReconcilerConfig,
 	return _c
 }
 
-func (_c *MockDatabase_GetReconcilerConfig_Call) RunAndReturn(run func(context.Context, string) ([]*ReconcilerConfig, error)) *MockDatabase_GetReconcilerConfig_Call {
+func (_c *MockDatabase_GetReconcilerConfig_Call) RunAndReturn(run func(context.Context, string, bool) ([]*ReconcilerConfig, error)) *MockDatabase_GetReconcilerConfig_Call {
 	_c.Call.Return(run)
 	return _c
 }
