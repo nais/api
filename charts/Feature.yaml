@@ -12,7 +12,7 @@ values:
     displayName: Ingress hostname
     computed:
       template: |
-        {{ subdomain . "console" }}"
+        {{ subdomain . "console" }}
 
   hookd.psk:
     description: The pre-shared key used to authenticate against hookd
