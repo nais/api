@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/pkg/protoapi"
@@ -152,11 +153,11 @@ func (s *ReconcilersServer) Config(ctx context.Context, req *protoapi.ConfigReco
 func (s *ReconcilersServer) SaveState(ctx context.Context, in *protoapi.SaveReconcilerStateRequest) (*protoapi.SaveReconcilerStateResponse, error) {
 	switch {
 	case in.ReconcilerName == "":
-		return nil, status.Error(400, "reconcilerName is required")
+		return nil, status.Error(codes.InvalidArgument, "reconcilerName is required")
 	case in.TeamSlug == "":
-		return nil, status.Error(400, "teamSlug is required")
+		return nil, status.Error(codes.InvalidArgument, "teamSlug is required")
 	case len(in.Value) == 0:
-		return nil, status.Error(400, "state is required")
+		return nil, status.Error(codes.InvalidArgument, "state is required")
 	}
 
 	if _, err := s.db.UpsertReconcilerState(ctx, in.ReconcilerName, slug.Slug(in.TeamSlug), in.Value); err != nil {
@@ -168,7 +169,9 @@ func (s *ReconcilersServer) SaveState(ctx context.Context, in *protoapi.SaveReco
 
 func (s *ReconcilersServer) State(ctx context.Context, req *protoapi.GetReconcilerStateRequest) (*protoapi.GetReconcilerStateResponse, error) {
 	row, err := s.db.GetReconcilerStateForTeam(ctx, req.ReconcilerName, slug.Slug(req.TeamSlug))
-	if err != nil {
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, status.Error(codes.NotFound, "state not found")
+	} else if err != nil {
 		return nil, err
 	}
 
@@ -179,11 +182,11 @@ func (s *ReconcilersServer) State(ctx context.Context, req *protoapi.GetReconcil
 
 func (s *ReconcilersServer) DeleteState(ctx context.Context, req *protoapi.DeleteReconcilerStateRequest) (*protoapi.DeleteReconcilerStateResponse, error) {
 	if req.ReconcilerName == "" {
-		return nil, status.Error(400, "reconcilerName is required")
+		return nil, status.Error(codes.InvalidArgument, "reconcilerName is required")
 	}
 
 	if req.TeamSlug == "" {
-		return nil, status.Error(400, "teamSlug is required")
+		return nil, status.Error(codes.InvalidArgument, "teamSlug is required")
 	}
 
 	if err := s.db.DeleteReconcilerStateForTeam(ctx, req.ReconcilerName, slug.Slug(req.TeamSlug)); err != nil {
