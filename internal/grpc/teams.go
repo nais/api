@@ -14,14 +14,11 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-type repo interface {
-	database.TeamRepo
-	database.ReconcilerStateRepo
-	database.RepositoryAuthorizationRepo
-}
-
 type TeamsServer struct {
-	db repo
+	db interface {
+		database.TeamRepo
+		database.RepositoryAuthorizationRepo
+	}
 
 	protoapi.UnimplementedTeamsServer
 }
