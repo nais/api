@@ -62,14 +62,14 @@ WHERE team_slug = @team_slug AND user_id = @user_id AND reconciler_name = @recon
 INSERT INTO reconcilers (name, display_name, description, member_aware, enabled)
 VALUES (@name, @display_name, @description, @member_aware, @enabled_if_new)
 ON CONFLICT (name) DO UPDATE
-SET display_name = @display_name, description = @description, member_aware = @member_aware
+SET display_name = EXCLUDED.display_name, description = EXCLUDED.description, member_aware = EXCLUDED.member_aware
 RETURNING *;
 
 -- name: UpsertReconcilerConfig :exec
 INSERT INTO reconciler_config (reconciler, key, display_name, description, secret)
 VALUES (@reconciler, @key, @display_name, @description, @secret)
 ON CONFLICT (reconciler, key) DO UPDATE
-SET display_name = @display_name, description = @description, secret = @secret;
+SET display_name = EXCLUDED.display_name, description = EXCLUDED.description, secret = EXCLUDED.secret;
 
 -- name: DeleteReconcilerConfig :exec
 DELETE FROM reconciler_config

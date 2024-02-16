@@ -62,7 +62,7 @@ const setReconcilerErrorForTeam = `-- name: SetReconcilerErrorForTeam :exec
 INSERT INTO reconciler_errors (correlation_id, team_slug, reconciler, error_message)
 VALUES ($1, $2, $3, $4)
 ON CONFLICT(team_slug, reconciler) DO
-    UPDATE SET correlation_id = $1, created_at = NOW(), error_message = $4
+    UPDATE SET correlation_id = EXCLUDED.correlation_id, created_at = NOW(), error_message = EXCLUDED.error_message
 `
 
 type SetReconcilerErrorForTeamParams struct {

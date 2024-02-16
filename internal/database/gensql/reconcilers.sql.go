@@ -284,7 +284,7 @@ const upsertReconciler = `-- name: UpsertReconciler :one
 INSERT INTO reconcilers (name, display_name, description, member_aware, enabled)
 VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (name) DO UPDATE
-SET display_name = $2, description = $3, member_aware = $4
+SET display_name = EXCLUDED.display_name, description = EXCLUDED.description, member_aware = EXCLUDED.member_aware
 RETURNING name, display_name, description, enabled, member_aware
 `
 
@@ -319,7 +319,7 @@ const upsertReconcilerConfig = `-- name: UpsertReconcilerConfig :exec
 INSERT INTO reconciler_config (reconciler, key, display_name, description, secret)
 VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (reconciler, key) DO UPDATE
-SET display_name = $3, description = $4, secret = $5
+SET display_name = EXCLUDED.display_name, description = EXCLUDED.description, secret = EXCLUDED.secret
 `
 
 type UpsertReconcilerConfigParams struct {
