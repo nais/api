@@ -26,6 +26,8 @@ const NaisServiceAccountPrefix = "nais-"
 
 type ServiceAccounts []ServiceAccount
 
+var _ json.Unmarshaler = (*ServiceAccounts)(nil)
+
 func (s *ServiceAccounts) UnmarshalJSON(value []byte) error {
 	if len(value) == 0 {
 		return nil
