@@ -59,7 +59,7 @@ jobs:
       - uses: nais/platform-build-push-sign@main
         id: build-push-sign
         with:
-          name: api
+          name: nais-api
           build_args: |
             GO_VERSION=${{ steps.go_version.outputs.go_version }}-
           google_service_account: gh-api
