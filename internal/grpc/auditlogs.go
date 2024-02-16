@@ -2,8 +2,10 @@ package grpc
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/database"
@@ -20,8 +22,10 @@ type AuditLogsServer struct {
 }
 
 func (a *AuditLogsServer) Create(ctx context.Context, r *protoapi.CreateAuditLogsRequest) (*protoapi.CreateAuditLogsResponse, error) {
-	if _, err := a.db.GetReconciler(ctx, r.ReconcilerName); err != nil {
+	if _, err := a.db.GetReconciler(ctx, r.ReconcilerName); errors.Is(err, pgx.ErrNoRows) {
 		return nil, status.Error(codes.NotFound, "reconciler not found")
+	} else if err != nil {
+		return nil, status.Error(codes.Internal, "failed to get reconciler")
 	}
 
 	targets := []auditlogger.Target{

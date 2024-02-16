@@ -50,7 +50,7 @@ func (u *UsersServer) List(ctx context.Context, r *protoapi.ListUsersRequest) (*
 		Offset: offset,
 	})
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to list users: %s", err)
+		return nil, status.Errorf(codes.Internal, "failed to list users")
 	}
 
 	resp := &protoapi.ListUsersResponse{

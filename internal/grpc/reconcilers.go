@@ -26,19 +26,14 @@ type ReconcilersServer struct {
 }
 
 func (s *ReconcilersServer) SetReconcilerErrorForTeam(ctx context.Context, req *protoapi.SetReconcilerErrorForTeamRequest) (*protoapi.SetReconcilerErrorForTeamResponse, error) {
-	if req.TeamSlug == "" {
+	switch {
+	case req.TeamSlug == "":
 		return nil, status.Errorf(codes.InvalidArgument, "team slug is required")
-	}
-
-	if req.ReconcilerName == "" {
+	case req.ReconcilerName == "":
 		return nil, status.Errorf(codes.InvalidArgument, "reconciler name is required")
-	}
-
-	if req.ErrorMessage == "" {
+	case req.ErrorMessage == "":
 		return nil, status.Errorf(codes.InvalidArgument, "error message is required")
-	}
-
-	if req.CorrelationId == "" {
+	case req.CorrelationId == "":
 		return nil, status.Errorf(codes.InvalidArgument, "correlation id is required")
 	}
 
@@ -55,11 +50,10 @@ func (s *ReconcilersServer) SetReconcilerErrorForTeam(ctx context.Context, req *
 }
 
 func (s *ReconcilersServer) RemoveReconcilerErrorForTeam(ctx context.Context, req *protoapi.RemoveReconcilerErrorForTeamRequest) (*protoapi.RemoveReconcilerErrorForTeamResponse, error) {
-	if req.TeamSlug == "" {
+	switch {
+	case req.TeamSlug == "":
 		return nil, status.Errorf(codes.InvalidArgument, "team slug is required")
-	}
-
-	if req.ReconcilerName == "" {
+	case req.ReconcilerName == "":
 		return nil, status.Errorf(codes.InvalidArgument, "reconciler name is required")
 	}
 
@@ -85,11 +79,11 @@ func (s *ReconcilersServer) SuccessfulTeamSync(ctx context.Context, req *protoap
 func (s *ReconcilersServer) Register(ctx context.Context, req *protoapi.RegisterReconcilerRequest) (*protoapi.RegisterReconcilerResponse, error) {
 	for _, rec := range req.Reconcilers {
 		if _, err := s.db.UpsertReconciler(ctx, rec.Name, rec.DisplayName, rec.Description, rec.MemberAware, rec.EnableByDefault); err != nil {
-			return nil, err
+			return nil, status.Errorf(codes.Internal, "failed to register reconciler")
 		}
 
 		if err := s.db.SyncReconcilerConfig(ctx, rec.Name, rec.Config); err != nil {
-			return nil, err
+			return nil, status.Errorf(codes.Internal, "failed to sync reconciler config")
 		}
 	}
 
@@ -98,8 +92,10 @@ func (s *ReconcilersServer) Register(ctx context.Context, req *protoapi.Register
 
 func (s *ReconcilersServer) Get(ctx context.Context, req *protoapi.GetReconcilerRequest) (*protoapi.GetReconcilerResponse, error) {
 	rec, err := s.db.GetReconciler(ctx, req.Name)
-	if err != nil {
-		return nil, err
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, status.Errorf(codes.NotFound, "reconciler not found")
+	} else if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get reconciler")
 	}
 
 	return &protoapi.GetReconcilerResponse{
@@ -114,7 +110,7 @@ func (s *ReconcilersServer) List(ctx context.Context, req *protoapi.ListReconcil
 		Offset: offset,
 	})
 	if err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "failed to get reconcilers")
 	}
 
 	ret := make([]*protoapi.Reconciler, len(recs))
@@ -131,7 +127,7 @@ func (s *ReconcilersServer) List(ctx context.Context, req *protoapi.ListReconcil
 func (s *ReconcilersServer) Config(ctx context.Context, req *protoapi.ConfigReconcilerRequest) (*protoapi.ConfigReconcilerResponse, error) {
 	cfg, err := s.db.GetReconcilerConfig(ctx, req.ReconcilerName, true)
 	if err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "failed to get reconciler config")
 	}
 
 	ret := make([]*protoapi.ReconcilerConfig, len(cfg))
@@ -150,18 +146,18 @@ func (s *ReconcilersServer) Config(ctx context.Context, req *protoapi.ConfigReco
 	}, nil
 }
 
-func (s *ReconcilersServer) SaveState(ctx context.Context, in *protoapi.SaveReconcilerStateRequest) (*protoapi.SaveReconcilerStateResponse, error) {
+func (s *ReconcilersServer) SaveState(ctx context.Context, req *protoapi.SaveReconcilerStateRequest) (*protoapi.SaveReconcilerStateResponse, error) {
 	switch {
-	case in.ReconcilerName == "":
-		return nil, status.Error(codes.InvalidArgument, "reconcilerName is required")
-	case in.TeamSlug == "":
-		return nil, status.Error(codes.InvalidArgument, "teamSlug is required")
-	case len(in.Value) == 0:
-		return nil, status.Error(codes.InvalidArgument, "state is required")
+	case req.ReconcilerName == "":
+		return nil, status.Errorf(codes.InvalidArgument, "reconcilerName is required")
+	case req.TeamSlug == "":
+		return nil, status.Errorf(codes.InvalidArgument, "teamSlug is required")
+	case len(req.Value) == 0:
+		return nil, status.Errorf(codes.InvalidArgument, "state is required")
 	}
 
-	if _, err := s.db.UpsertReconcilerState(ctx, in.ReconcilerName, slug.Slug(in.TeamSlug), in.Value); err != nil {
-		return nil, err
+	if _, err := s.db.UpsertReconcilerState(ctx, req.ReconcilerName, slug.Slug(req.TeamSlug), req.Value); err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to save reconciler state")
 	}
 
 	return &protoapi.SaveReconcilerStateResponse{}, nil
@@ -170,9 +166,9 @@ func (s *ReconcilersServer) SaveState(ctx context.Context, in *protoapi.SaveReco
 func (s *ReconcilersServer) State(ctx context.Context, req *protoapi.GetReconcilerStateRequest) (*protoapi.GetReconcilerStateResponse, error) {
 	row, err := s.db.GetReconcilerStateForTeam(ctx, req.ReconcilerName, slug.Slug(req.TeamSlug))
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, status.Error(codes.NotFound, "state not found")
+		return nil, status.Errorf(codes.NotFound, "state not found")
 	} else if err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "failed to get reconciler state")
 	}
 
 	return &protoapi.GetReconcilerStateResponse{
@@ -182,15 +178,15 @@ func (s *ReconcilersServer) State(ctx context.Context, req *protoapi.GetReconcil
 
 func (s *ReconcilersServer) DeleteState(ctx context.Context, req *protoapi.DeleteReconcilerStateRequest) (*protoapi.DeleteReconcilerStateResponse, error) {
 	if req.ReconcilerName == "" {
-		return nil, status.Error(codes.InvalidArgument, "reconcilerName is required")
+		return nil, status.Errorf(codes.InvalidArgument, "reconcilerName is required")
 	}
 
 	if req.TeamSlug == "" {
-		return nil, status.Error(codes.InvalidArgument, "teamSlug is required")
+		return nil, status.Errorf(codes.InvalidArgument, "teamSlug is required")
 	}
 
 	if err := s.db.DeleteReconcilerStateForTeam(ctx, req.ReconcilerName, slug.Slug(req.TeamSlug)); err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "failed to delete reconciler state for team")
 	}
 
 	return &protoapi.DeleteReconcilerStateResponse{}, nil

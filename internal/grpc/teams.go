@@ -2,9 +2,10 @@ package grpc
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
@@ -37,8 +38,10 @@ func (t *TeamsServer) Delete(ctx context.Context, req *protoapi.DeleteTeamReques
 
 func (t *TeamsServer) Get(ctx context.Context, req *protoapi.GetTeamRequest) (*protoapi.GetTeamResponse, error) {
 	team, err := t.db.GetTeamBySlug(ctx, slug.Slug(req.Slug))
-	if err != nil {
+	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, status.Errorf(codes.NotFound, "team not found")
+	} else if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get team")
 	}
 
 	return &protoapi.GetTeamResponse{
@@ -151,7 +154,7 @@ func (t *TeamsServer) ListAuthorizedRepositories(ctx context.Context, req *proto
 	teamSlug := slug.Slug(req.TeamSlug)
 	repositories, err := t.db.ListRepositoriesByAuthorization(ctx, teamSlug, gensql.RepositoryAuthorizationEnumDeploy)
 	if err != nil {
-		return nil, fmt.Errorf("list repositories by authorization: %w", err)
+		return nil, status.Errorf(codes.Internal, "failed to list repositories")
 	}
 
 	return &protoapi.ListAuthorizedRepositoriesResponse{
