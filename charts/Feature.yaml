@@ -109,3 +109,31 @@ values:
     description: JSON-encoded list of static service accounts
     computed:
       template: "{{.Management.teams_static_service_accounts | quote}}"
+
+  database.instance:
+    displayName: Cloud SQL instance name
+    description: The name of the Cloud SQL instance
+    computed:
+      template: |
+        {{ .Env.nais_api_db_instance | quote }}
+
+  database.name:
+    displayName: Database name
+    description: The name of the database
+    computed:
+      template: |
+        {{ .Env.nais_api_db_name | quote }}
+
+  database.user:
+    displayName: Database username
+    description: The username for the database
+    computed:
+      template: |
+        {{ .Env.nais_api_db_user | quote }}
+
+  database.password:
+    displayName: Database password
+    description: The password for the database
+    computed:
+      template: |
+        {{ .Env.nais_api_db_password | quote }}
