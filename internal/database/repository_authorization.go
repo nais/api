@@ -11,6 +11,7 @@ type RepositoryAuthorizationRepo interface {
 	CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization gensql.RepositoryAuthorizationEnum) error
 	GetRepositoryAuthorizations(ctx context.Context, teamSlug slug.Slug, repoName string) ([]gensql.RepositoryAuthorizationEnum, error)
 	RemoveRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization gensql.RepositoryAuthorizationEnum) error
+	ListRepositoriesByAuthorization(ctx context.Context, teamSlug slug.Slug, authorization gensql.RepositoryAuthorizationEnum) ([]string, error)
 }
 
 func (d *database) CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization gensql.RepositoryAuthorizationEnum) error {
@@ -33,5 +34,12 @@ func (d *database) GetRepositoryAuthorizations(ctx context.Context, teamSlug slu
 	return d.querier.GetRepositoryAuthorizations(ctx, gensql.GetRepositoryAuthorizationsParams{
 		TeamSlug:         teamSlug,
 		GithubRepository: repoName,
+	})
+}
+
+func (d *database) ListRepositoriesByAuthorization(ctx context.Context, teamSlug slug.Slug, authorization gensql.RepositoryAuthorizationEnum) ([]string, error) {
+	return d.querier.ListRepositoriesByAuthorization(ctx, gensql.ListRepositoriesByAuthorizationParams{
+		TeamSlug:                teamSlug,
+		RepositoryAuthorization: authorization,
 	})
 }

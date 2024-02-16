@@ -257,6 +257,65 @@ func (_c *MockTeamsServer_List_Call) RunAndReturn(run func(context.Context, *Lis
 	return _c
 }
 
+// ListAuthorizedRepositories provides a mock function with given fields: _a0, _a1
+func (_m *MockTeamsServer) ListAuthorizedRepositories(_a0 context.Context, _a1 *ListAuthorizedRepositoriesRequest) (*ListAuthorizedRepositoriesResponse, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListAuthorizedRepositories")
+	}
+
+	var r0 *ListAuthorizedRepositoriesResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *ListAuthorizedRepositoriesRequest) (*ListAuthorizedRepositoriesResponse, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *ListAuthorizedRepositoriesRequest) *ListAuthorizedRepositoriesResponse); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*ListAuthorizedRepositoriesResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *ListAuthorizedRepositoriesRequest) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockTeamsServer_ListAuthorizedRepositories_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListAuthorizedRepositories'
+type MockTeamsServer_ListAuthorizedRepositories_Call struct {
+	*mock.Call
+}
+
+// ListAuthorizedRepositories is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 *ListAuthorizedRepositoriesRequest
+func (_e *MockTeamsServer_Expecter) ListAuthorizedRepositories(_a0 interface{}, _a1 interface{}) *MockTeamsServer_ListAuthorizedRepositories_Call {
+	return &MockTeamsServer_ListAuthorizedRepositories_Call{Call: _e.mock.On("ListAuthorizedRepositories", _a0, _a1)}
+}
+
+func (_c *MockTeamsServer_ListAuthorizedRepositories_Call) Run(run func(_a0 context.Context, _a1 *ListAuthorizedRepositoriesRequest)) *MockTeamsServer_ListAuthorizedRepositories_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*ListAuthorizedRepositoriesRequest))
+	})
+	return _c
+}
+
+func (_c *MockTeamsServer_ListAuthorizedRepositories_Call) Return(_a0 *ListAuthorizedRepositoriesResponse, _a1 error) *MockTeamsServer_ListAuthorizedRepositories_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockTeamsServer_ListAuthorizedRepositories_Call) RunAndReturn(run func(context.Context, *ListAuthorizedRepositoriesRequest) (*ListAuthorizedRepositoriesResponse, error)) *MockTeamsServer_ListAuthorizedRepositories_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Members provides a mock function with given fields: _a0, _a1
 func (_m *MockTeamsServer) Members(_a0 context.Context, _a1 *ListTeamMembersRequest) (*ListTeamMembersResponse, error) {
 	ret := _m.Called(_a0, _a1)

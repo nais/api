@@ -19,6 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
+	Teams_ListAuthorizedRepositories_FullMethodName           = "/Teams/ListAuthorizedRepositories"
 	Teams_Get_FullMethodName                                  = "/Teams/Get"
 	Teams_List_FullMethodName                                 = "/Teams/List"
 	Teams_Members_FullMethodName                              = "/Teams/Members"
@@ -32,6 +33,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TeamsClient interface {
+	ListAuthorizedRepositories(ctx context.Context, in *ListAuthorizedRepositoriesRequest, opts ...grpc.CallOption) (*ListAuthorizedRepositoriesResponse, error)
 	Get(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
 	List(ctx context.Context, in *ListTeamsRequest, opts ...grpc.CallOption) (*ListTeamsResponse, error)
 	Members(ctx context.Context, in *ListTeamMembersRequest, opts ...grpc.CallOption) (*ListTeamMembersResponse, error)
@@ -47,6 +49,15 @@ type teamsClient struct {
 
 func NewTeamsClient(cc grpc.ClientConnInterface) TeamsClient {
 	return &teamsClient{cc}
+}
+
+func (c *teamsClient) ListAuthorizedRepositories(ctx context.Context, in *ListAuthorizedRepositoriesRequest, opts ...grpc.CallOption) (*ListAuthorizedRepositoriesResponse, error) {
+	out := new(ListAuthorizedRepositoriesResponse)
+	err := c.cc.Invoke(ctx, Teams_ListAuthorizedRepositories_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *teamsClient) Get(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error) {
@@ -116,6 +127,7 @@ func (c *teamsClient) Delete(ctx context.Context, in *DeleteTeamRequest, opts ..
 // All implementations must embed UnimplementedTeamsServer
 // for forward compatibility
 type TeamsServer interface {
+	ListAuthorizedRepositories(context.Context, *ListAuthorizedRepositoriesRequest) (*ListAuthorizedRepositoriesResponse, error)
 	Get(context.Context, *GetTeamRequest) (*GetTeamResponse, error)
 	List(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error)
 	Members(context.Context, *ListTeamMembersRequest) (*ListTeamMembersResponse, error)
@@ -130,6 +142,9 @@ type TeamsServer interface {
 type UnimplementedTeamsServer struct {
 }
 
+func (UnimplementedTeamsServer) ListAuthorizedRepositories(context.Context, *ListAuthorizedRepositoriesRequest) (*ListAuthorizedRepositoriesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListAuthorizedRepositories not implemented")
+}
 func (UnimplementedTeamsServer) Get(context.Context, *GetTeamRequest) (*GetTeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
@@ -162,6 +177,24 @@ type UnsafeTeamsServer interface {
 
 func RegisterTeamsServer(s grpc.ServiceRegistrar, srv TeamsServer) {
 	s.RegisterService(&Teams_ServiceDesc, srv)
+}
+
+func _Teams_ListAuthorizedRepositories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAuthorizedRepositoriesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TeamsServer).ListAuthorizedRepositories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Teams_ListAuthorizedRepositories_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TeamsServer).ListAuthorizedRepositories(ctx, req.(*ListAuthorizedRepositoriesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Teams_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -297,6 +330,10 @@ var Teams_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "Teams",
 	HandlerType: (*TeamsServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListAuthorizedRepositories",
+			Handler:    _Teams_ListAuthorizedRepositories_Handler,
+		},
 		{
 			MethodName: "Get",
 			Handler:    _Teams_Get_Handler,

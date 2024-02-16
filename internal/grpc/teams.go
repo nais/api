@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/database"
@@ -14,7 +15,11 @@ import (
 )
 
 type TeamsServer struct {
-	db database.TeamRepo
+	db interface {
+		database.TeamRepo
+		database.RepositoryAuthorizationRepo
+	}
+
 	protoapi.UnimplementedTeamsServer
 }
 
@@ -140,6 +145,18 @@ func (t *TeamsServer) Environments(ctx context.Context, req *protoapi.ListTeamEn
 	}
 
 	return resp, nil
+}
+
+func (t *TeamsServer) ListAuthorizedRepositories(ctx context.Context, req *protoapi.ListAuthorizedRepositoriesRequest) (*protoapi.ListAuthorizedRepositoriesResponse, error) {
+	teamSlug := slug.Slug(req.TeamSlug)
+	repositories, err := t.db.ListRepositoriesByAuthorization(ctx, teamSlug, gensql.RepositoryAuthorizationEnumDeploy)
+	if err != nil {
+		return nil, fmt.Errorf("list repositories by authorization: %w", err)
+	}
+
+	return &protoapi.ListAuthorizedRepositoriesResponse{
+		GithubRepositories: repositories,
+	}, nil
 }
 
 func toProtoTeam(team *database.Team) *protoapi.Team {

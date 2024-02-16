@@ -4279,6 +4279,66 @@ func (_c *MockDatabase_LastCostDate_Call) RunAndReturn(run func(context.Context)
 	return _c
 }
 
+// ListRepositoriesByAuthorization provides a mock function with given fields: ctx, teamSlug, authorization
+func (_m *MockDatabase) ListRepositoriesByAuthorization(ctx context.Context, teamSlug slug.Slug, authorization gensql.RepositoryAuthorizationEnum) ([]string, error) {
+	ret := _m.Called(ctx, teamSlug, authorization)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListRepositoriesByAuthorization")
+	}
+
+	var r0 []string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, gensql.RepositoryAuthorizationEnum) ([]string, error)); ok {
+		return rf(ctx, teamSlug, authorization)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, gensql.RepositoryAuthorizationEnum) []string); ok {
+		r0 = rf(ctx, teamSlug, authorization)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, gensql.RepositoryAuthorizationEnum) error); ok {
+		r1 = rf(ctx, teamSlug, authorization)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockDatabase_ListRepositoriesByAuthorization_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListRepositoriesByAuthorization'
+type MockDatabase_ListRepositoriesByAuthorization_Call struct {
+	*mock.Call
+}
+
+// ListRepositoriesByAuthorization is a helper method to define mock.On call
+//   - ctx context.Context
+//   - teamSlug slug.Slug
+//   - authorization gensql.RepositoryAuthorizationEnum
+func (_e *MockDatabase_Expecter) ListRepositoriesByAuthorization(ctx interface{}, teamSlug interface{}, authorization interface{}) *MockDatabase_ListRepositoriesByAuthorization_Call {
+	return &MockDatabase_ListRepositoriesByAuthorization_Call{Call: _e.mock.On("ListRepositoriesByAuthorization", ctx, teamSlug, authorization)}
+}
+
+func (_c *MockDatabase_ListRepositoriesByAuthorization_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, authorization gensql.RepositoryAuthorizationEnum)) *MockDatabase_ListRepositoriesByAuthorization_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(gensql.RepositoryAuthorizationEnum))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_ListRepositoriesByAuthorization_Call) Return(_a0 []string, _a1 error) *MockDatabase_ListRepositoriesByAuthorization_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockDatabase_ListRepositoriesByAuthorization_Call) RunAndReturn(run func(context.Context, slug.Slug, gensql.RepositoryAuthorizationEnum) ([]string, error)) *MockDatabase_ListRepositoriesByAuthorization_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // MaxResourceUtilizationDate provides a mock function with given fields: ctx
 func (_m *MockDatabase) MaxResourceUtilizationDate(ctx context.Context) (pgtype.Timestamptz, error) {
 	ret := _m.Called(ctx)

@@ -19,3 +19,15 @@ WHERE
     AND github_repository = @github_repository
 ORDER BY
     repository_authorization;
+
+
+-- name: ListRepositoriesByAuthorization :many
+SELECT
+    github_repository
+FROM
+    repository_authorizations
+WHERE
+    team_slug = @team_slug
+    AND repository_authorization = @repository_authorization
+ORDER BY -- The linter requires order by to be upper cased, lol
+    github_repository;
