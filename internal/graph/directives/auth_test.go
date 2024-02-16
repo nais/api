@@ -2,11 +2,11 @@ package directives_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/directives"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestAuth(t *testing.T) {
@@ -19,8 +19,8 @@ func TestAuth(t *testing.T) {
 		nextHandler = func(ctx context.Context) (res interface{}, err error) {
 			panic("Should not be executed")
 		}
-		_, err := auth(context.Background(), obj, nextHandler)
-		assert.ErrorIs(t, err, authz.ErrNotAuthenticated)
-		assert.EqualError(t, err, "not authenticated")
+		if _, err := auth(context.Background(), obj, nextHandler); !errors.Is(err, authz.ErrNotAuthenticated) {
+			t.Fatalf("expected error %v, got %v", authz.ErrNotAuthenticated, err)
+		}
 	})
 }

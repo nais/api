@@ -31,9 +31,8 @@ func TestAdmin(t *testing.T) {
 		user := &database.User{}
 		ctx := authz.ContextWithActor(context.Background(), user, []*authz.Role{{RoleName: gensql.RoleNameTeamcreator}})
 		_, err := directives.Admin()(ctx, obj, nextHandler)
-		// assert.EqualError(t, err, "required role: \"Admin\"")
-		if err.Error() != "required role: \"Admin\"" {
-			t.Errorf("expected error to be 'required role: \"Admin\"', got %q", err)
+		if expected := "required role: \"Admin\""; err.Error() != expected {
+			t.Errorf("expected error to be %q, got %q", expected, err)
 		}
 	})
 

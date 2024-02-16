@@ -2,6 +2,7 @@ package graph_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/google/uuid"
@@ -13,7 +14,6 @@ import (
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/usersync"
 	"github.com/sirupsen/logrus/hooks/test"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestQueryResolver_Users(t *testing.T) {
@@ -29,8 +29,12 @@ func TestQueryResolver_Users(t *testing.T) {
 
 	t.Run("unauthenticated user", func(t *testing.T) {
 		users, err := resolver.Users(ctx, nil, nil)
-		assert.Nil(t, users)
-		assert.ErrorIs(t, err, authz.ErrNotAuthenticated)
+		if users != nil {
+			t.Fatalf("expected users to be nil, got %v", users)
+		}
+		if !errors.Is(err, authz.ErrNotAuthenticated) {
+			t.Fatalf("expected error to be %v, got %v", authz.ErrNotAuthenticated, err)
+		}
 	})
 
 	t.Run("user with authorization", func(t *testing.T) {
@@ -58,7 +62,12 @@ func TestQueryResolver_Users(t *testing.T) {
 			}, 2, nil)
 
 		userList, err := resolver.Users(ctx, nil, nil)
-		assert.NoError(t, err)
-		assert.Len(t, userList.Nodes, 2)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		if len(userList.Nodes) != 2 {
+			t.Fatalf("expected 2 users, got %v", userList.Nodes)
+		}
 	})
 }

@@ -15,7 +15,6 @@ import (
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestOauth2Authentication(t *testing.T) {
@@ -24,8 +23,9 @@ func TestOauth2Authentication(t *testing.T) {
 		authnHandler := authn.NewMockHandler(t)
 		responseWriter := httptest.NewRecorder()
 		next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			actor := authz.ActorFromContext(r.Context())
-			assert.Nil(t, actor)
+			if actor := authz.ActorFromContext(r.Context()); actor != nil {
+				t.Errorf("unexpected actor: %v", actor)
+			}
 		})
 		req := getRequest(context.Background())
 		oauth2Auth := middleware.Oauth2Authentication(db, authnHandler)
@@ -38,8 +38,9 @@ func TestOauth2Authentication(t *testing.T) {
 		authnHandler := authn.NewMockHandler(t)
 		responseWriter := httptest.NewRecorder()
 		next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			actor := authz.ActorFromContext(r.Context())
-			assert.Nil(t, actor)
+			if actor := authz.ActorFromContext(r.Context()); actor != nil {
+				t.Errorf("unexpected actor: %v", actor)
+			}
 		})
 		req := getRequest(ctx)
 		req.AddCookie(&http.Cookie{
@@ -56,8 +57,9 @@ func TestOauth2Authentication(t *testing.T) {
 		authnHandler := authn.NewMockHandler(t)
 		responseWriter := httptest.NewRecorder()
 		next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			actor := authz.ActorFromContext(r.Context())
-			assert.Nil(t, actor)
+			if actor := authz.ActorFromContext(r.Context()); actor != nil {
+				t.Errorf("unexpected actor: %v", actor)
+			}
 		})
 		req := getRequest(ctx)
 		sessionID := uuid.New()
@@ -131,9 +133,17 @@ func TestOauth2Authentication(t *testing.T) {
 
 		next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			actor := authz.ActorFromContext(r.Context())
-			assert.NotNil(t, actor)
-			assert.Equal(t, user, actor.User)
-			assert.Equal(t, roles, actor.Roles)
+			if actor == nil {
+				t.Fatalf("expected actor, got nil")
+			}
+
+			if actor.User != user {
+				t.Errorf("expected user %v, got %v", user, actor.User)
+			}
+
+			if len(actor.Roles) != 1 || actor.Roles[0] != roles[0] {
+				t.Errorf("expected roles %v, got %v", roles, actor.Roles)
+			}
 		})
 		req := getRequest(ctx)
 		req.AddCookie(&http.Cookie{
@@ -153,8 +163,9 @@ func TestOauth2Authentication(t *testing.T) {
 		authnHandler := authn.NewMockHandler(t)
 		responseWriter := httptest.NewRecorder()
 		next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			actor := authz.ActorFromContext(r.Context())
-			assert.Nil(t, actor)
+			if actor := authz.ActorFromContext(r.Context()); actor != nil {
+				t.Errorf("unexpected actor: %v", actor)
+			}
 		})
 		req := getRequest(ctx)
 		req.AddCookie(&http.Cookie{
@@ -190,8 +201,9 @@ func TestOauth2Authentication(t *testing.T) {
 		authnHandler := authn.NewMockHandler(t)
 		responseWriter := httptest.NewRecorder()
 		next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			actor := authz.ActorFromContext(r.Context())
-			assert.Nil(t, actor)
+			if actor := authz.ActorFromContext(r.Context()); actor != nil {
+				t.Errorf("unexpected actor: %v", actor)
+			}
 		})
 		req := getRequest(ctx)
 		req.AddCookie(&http.Cookie{

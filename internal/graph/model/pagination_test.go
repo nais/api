@@ -4,23 +4,29 @@ import (
 	"testing"
 
 	"github.com/nais/api/internal/graph/model"
-	"github.com/stretchr/testify/assert"
+	"k8s.io/utils/ptr"
 )
 
 func Test_NewPagination(t *testing.T) {
 	t.Run("no pagination", func(t *testing.T) {
 		pagination := model.NewPagination(nil, nil)
-		assert.Equal(t, 0, pagination.Offset)
-		assert.Equal(t, 20, pagination.Limit)
+		if pagination.Offset != 0 {
+			t.Errorf("expected 0, got %d", pagination.Offset)
+		}
+
+		if pagination.Limit != 20 {
+			t.Errorf("expected 20, got %d", pagination.Limit)
+		}
 	})
 
 	t.Run("pagination with values", func(t *testing.T) {
-		pagination := model.NewPagination(intP(42), intP(1337))
-		assert.Equal(t, 42, pagination.Offset)
-		assert.Equal(t, 1337, pagination.Limit)
-	})
-}
+		pagination := model.NewPagination(ptr.To(42), ptr.To(1337))
+		if pagination.Offset != 42 {
+			t.Errorf("expected 42, got %d", pagination.Offset)
+		}
 
-func intP(i int) *int {
-	return &i
+		if pagination.Limit != 1337 {
+			t.Errorf("expected 1337, got %d", pagination.Limit)
+		}
+	})
 }

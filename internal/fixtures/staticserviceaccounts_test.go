@@ -86,8 +86,6 @@ func TestSetupStaticServiceAccounts(t *testing.T) {
 			"apiKey": "some key",
 			"roles": [{"name":"role"}]
 		}]`))
-		// assert.EqualError(t, err, `invalid role name: "role" for service account "nais-service-account"`)
-		// assert.Len(t, serviceAccounts, 0)
 		if err.Error() != `invalid role name: "role" for service account "nais-service-account"` {
 			t.Errorf("expected error to contain 'invalid role name: \"role\" for service account \"nais-service-account\"', got %q", err)
 		}

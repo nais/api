@@ -14,7 +14,6 @@ import (
 	httptest "github.com/nais/api/internal/test"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/sirupsen/logrus/hooks/test"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestClient(t *testing.T) {
@@ -202,7 +201,9 @@ func TestRequestOptions(t *testing.T) {
 	ignoreTeams := []string{"team1", "team2"}
 
 	r, err := http.NewRequest(http.MethodGet, "http://localhost", nil)
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatalf("unexpected error %v", err)
+	}
 
 	hookd.WithTeam(team)(r)
 	hookd.WithCluster(cluster)(r)

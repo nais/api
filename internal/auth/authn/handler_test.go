@@ -3,13 +3,13 @@ package authn
 import (
 	"net/url"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestRedirectURI(t *testing.T) {
 	baseUrl, err := url.Parse("https://teams.test/")
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	t.Run("test values", func(t *testing.T) {
 		tests := []struct {
@@ -36,8 +36,13 @@ func TestRedirectURI(t *testing.T) {
 		for _, tt := range tests {
 			baseUrlCopy := baseUrl
 			updateRedirectURL(baseUrlCopy, tt.raw)
-			assert.Equal(t, baseUrlCopy.Path, tt.path)
-			assert.Equal(t, baseUrlCopy.RawQuery, tt.query)
+			if baseUrlCopy.Path != tt.path {
+				t.Errorf("expected %q, got %q", tt.path, baseUrlCopy.Path)
+			}
+
+			if baseUrlCopy.RawQuery != tt.query {
+				t.Errorf("expected %q, got %q", tt.query, baseUrlCopy.RawQuery)
+			}
 		}
 	})
 }

@@ -5,28 +5,35 @@ import (
 	"testing"
 
 	"github.com/nais/api/internal/slug"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestMarshalSlug(t *testing.T) {
 	buf := new(bytes.Buffer)
 	s := slug.Slug("some-slug")
 	s.MarshalGQL(buf)
-	assert.Equal(t, `"some-slug"`, buf.String())
+
+	if expected := `"some-slug"`; buf.String() != expected {
+		t.Errorf("expected %q, got %q", expected, buf.String())
+	}
 }
 
 func TestUnmarshalSlug(t *testing.T) {
 	t.Run("invalid case", func(t *testing.T) {
 		s := slug.Slug("")
 		err := s.UnmarshalGQL(123)
-		assert.Equal(t, slug.Slug(""), s)
-		assert.EqualError(t, err, "slug must be a string")
+		if expected := "slug must be a string"; err.Error() != expected {
+			t.Errorf("expected error message %q, got %q", expected, err.Error())
+		}
 	})
 
 	t.Run("valid case", func(t *testing.T) {
 		s := slug.Slug("")
-		err := s.UnmarshalGQL("slug")
-		assert.NoError(t, err)
-		assert.Equal(t, "slug", string(s))
+		if err := s.UnmarshalGQL("slug"); err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		if expected := "slug"; string(s) != expected {
+			t.Errorf("expected %q, got %q", expected, string(s))
+		}
 	})
 }

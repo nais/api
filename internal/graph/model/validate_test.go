@@ -1,18 +1,15 @@
 package model_test
 
 import (
+	"errors"
+	"strings"
 	"testing"
 
 	"github.com/nais/api/internal/graph/apierror"
-
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
-	"github.com/stretchr/testify/assert"
+	"k8s.io/utils/ptr"
 )
-
-func ptr[T any](value T) *T {
-	return &value
-}
 
 func TestCreateTeamInput_Validate_SlackChannel(t *testing.T) {
 	tpl := model.CreateTeamInput{
@@ -37,12 +34,16 @@ func TestCreateTeamInput_Validate_SlackChannel(t *testing.T) {
 
 	for _, s := range validChannels {
 		tpl.SlackChannel = s
-		assert.NoError(t, tpl.Validate(), "Slack channel %q should pass validation, but didn't", tpl.SlackChannel)
+		if err := tpl.Validate(); err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
 	}
 
 	for _, s := range invalidChannels {
 		tpl.SlackChannel = s
-		assert.Error(t, tpl.Validate(), "Slack channel %q passed validation even if it should not", tpl.SlackChannel)
+		if err := tpl.Validate(); err == nil {
+			t.Errorf("expected error, but got nil")
+		}
 	}
 }
 
@@ -89,70 +90,89 @@ func TestCreateTeamInput_Validate_Slug(t *testing.T) {
 
 	for _, s := range validSlugs {
 		tpl.Slug = slug.Slug(s)
-		assert.NoError(t, tpl.Validate(), "Slug %q should pass validation, but didn't", tpl.Slug)
+		if err := tpl.Validate(); err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
 	}
 
 	for _, s := range invalidSlugs {
 		tpl.Slug = slug.Slug(s)
-		assert.Error(t, tpl.Validate(), "Slug %q passed validation even if it should not", tpl.Slug)
+		if err := tpl.Validate(); err == nil {
+			t.Errorf("expected error, but got nil")
+		}
 	}
 }
 
 func TestUpdateTeamInput_Validate(t *testing.T) {
 	t.Run("valid data", func(t *testing.T) {
 		input := model.UpdateTeamInput{
-			Purpose:      ptr("valid purpose"),
-			SlackChannel: ptr("#valid-channel"),
+			Purpose:      ptr.To("valid purpose"),
+			SlackChannel: ptr.To("#valid-channel"),
 			SlackAlertsChannels: []*model.SlackAlertsChannelInput{
 				{
 					Environment: "prod",
-					ChannelName: ptr("#name"),
+					ChannelName: ptr.To("#name"),
 				},
 			},
 		}
-		assert.Nil(t, input.Validate([]string{"prod"}))
+
+		if err := input.Validate([]string{"prod"}); err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
 	})
 
 	t.Run("invalid purpose", func(t *testing.T) {
 		input := model.UpdateTeamInput{
-			Purpose: ptr(""),
+			Purpose: ptr.To(""),
 		}
-		assert.Error(t, apierror.ErrTeamPurpose, input.Validate([]string{"prod"}))
+
+		if !errors.Is(input.Validate([]string{"prod"}), apierror.ErrTeamPurpose) {
+			t.Fatalf("expected error %v, got %v", apierror.ErrTeamPurpose, input.Validate([]string{"prod"}))
+		}
 	})
 
 	t.Run("invalid slack channel", func(t *testing.T) {
 		input := model.UpdateTeamInput{
-			Purpose:      ptr("purpose"),
-			SlackChannel: ptr("#a"),
+			Purpose:      ptr.To("purpose"),
+			SlackChannel: ptr.To("#a"),
 		}
-		assert.ErrorContains(t, input.Validate([]string{"prod"}), "The Slack channel does not fit the requirements")
+		err := input.Validate([]string{"prod"})
+		if contains := "The Slack channel does not fit the requirements"; !strings.Contains(err.Error(), contains) {
+			t.Errorf("expected error to contain %q, got %q", contains, err)
+		}
 	})
 
 	t.Run("slack alerts channel with invalid environment", func(t *testing.T) {
 		input := model.UpdateTeamInput{
-			Purpose:      ptr("purpose"),
-			SlackChannel: ptr("#channel"),
+			Purpose:      ptr.To("purpose"),
+			SlackChannel: ptr.To("#channel"),
 			SlackAlertsChannels: []*model.SlackAlertsChannelInput{
 				{
 					Environment: "invalid",
-					ChannelName: ptr("#channel"),
+					ChannelName: ptr.To("#channel"),
 				},
 			},
 		}
-		assert.ErrorContains(t, input.Validate([]string{"prod"}), "The specified environment is not valid")
+		err := input.Validate([]string{"prod"})
+		if contains := "The specified environment is not valid"; !strings.Contains(err.Error(), contains) {
+			t.Errorf("expected error to contain %q, got %q", contains, err)
+		}
 	})
 
 	t.Run("slack alerts channel with invalid name", func(t *testing.T) {
 		input := model.UpdateTeamInput{
-			Purpose:      ptr("purpose"),
-			SlackChannel: ptr("#channel"),
+			Purpose:      ptr.To("purpose"),
+			SlackChannel: ptr.To("#channel"),
 			SlackAlertsChannels: []*model.SlackAlertsChannelInput{
 				{
 					Environment: "prod",
-					ChannelName: ptr("#a"),
+					ChannelName: ptr.To("#a"),
 				},
 			},
 		}
-		assert.ErrorContains(t, input.Validate([]string{"prod"}), "The Slack channel does not fit the requirements")
+		err := input.Validate([]string{"prod"})
+		if contains := "The Slack channel does not fit the requirements"; !strings.Contains(err.Error(), contains) {
+			t.Errorf("expected error to contain %q, got %q", contains, err)
+		}
 	})
 }

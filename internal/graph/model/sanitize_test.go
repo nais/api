@@ -3,9 +3,9 @@ package model_test
 import (
 	"testing"
 
-	"github.com/nais/api/internal/graph/model"
+	"k8s.io/utils/ptr"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/nais/api/internal/graph/model"
 )
 
 func TestCreateTeamInput_Sanitize(t *testing.T) {
@@ -14,25 +14,35 @@ func TestCreateTeamInput_Sanitize(t *testing.T) {
 		SlackChannel: " #some-channel ",
 	}
 	sanitized := input.Sanitize()
-	assert.Equal(t, "some purpose", sanitized.Purpose)
-	assert.Equal(t, "#some-channel", sanitized.SlackChannel)
+	if expected := "some purpose"; sanitized.Purpose != expected {
+		t.Errorf("expected %q, got %q", expected, sanitized.Purpose)
+	}
 
-	assert.Equal(t, " some purpose ", input.Purpose)
-	assert.Equal(t, " #some-channel ", input.SlackChannel)
+	if expected := "#some-channel"; sanitized.SlackChannel != expected {
+		t.Errorf("expected %q, got %q", expected, sanitized.SlackChannel)
+	}
+
+	if expected := " some purpose "; input.Purpose != expected {
+		t.Errorf("expected %q, got %q", expected, input.Purpose)
+	}
+
+	if expected := " #some-channel "; input.SlackChannel != expected {
+		t.Errorf("expected %q, got %q", expected, input.SlackChannel)
+	}
 }
 
 func TestUdateTeamInput_Sanitize(t *testing.T) {
 	input := model.UpdateTeamInput{
-		Purpose:      ptr(" some purpose "),
-		SlackChannel: ptr(" #some-channel "),
+		Purpose:      ptr.To(" some purpose "),
+		SlackChannel: ptr.To(" #some-channel "),
 		SlackAlertsChannels: []*model.SlackAlertsChannelInput{
 			{
 				Environment: " foo ",
-				ChannelName: ptr(" #foo "),
+				ChannelName: ptr.To(" #foo "),
 			},
 			{
 				Environment: " bar ",
-				ChannelName: ptr(" #bar "),
+				ChannelName: ptr.To(" #bar "),
 			},
 			{
 				Environment: " baz ",
@@ -40,21 +50,68 @@ func TestUdateTeamInput_Sanitize(t *testing.T) {
 		},
 	}
 	sanitized := input.Sanitize()
-	assert.Equal(t, "some purpose", *sanitized.Purpose)
-	assert.Equal(t, "#some-channel", *sanitized.SlackChannel)
-	assert.Equal(t, "foo", sanitized.SlackAlertsChannels[0].Environment)
-	assert.Equal(t, "#foo", *sanitized.SlackAlertsChannels[0].ChannelName)
-	assert.Equal(t, "bar", sanitized.SlackAlertsChannels[1].Environment)
-	assert.Equal(t, "#bar", *sanitized.SlackAlertsChannels[1].ChannelName)
-	assert.Equal(t, "baz", sanitized.SlackAlertsChannels[2].Environment)
-	assert.Nil(t, sanitized.SlackAlertsChannels[2].ChannelName)
 
-	assert.Equal(t, " some purpose ", *input.Purpose)
-	assert.Equal(t, " #some-channel ", *input.SlackChannel)
-	assert.Equal(t, " foo ", input.SlackAlertsChannels[0].Environment)
-	assert.Equal(t, " #foo ", *input.SlackAlertsChannels[0].ChannelName)
-	assert.Equal(t, " bar ", input.SlackAlertsChannels[1].Environment)
-	assert.Equal(t, " #bar ", *input.SlackAlertsChannels[1].ChannelName)
-	assert.Equal(t, " baz ", input.SlackAlertsChannels[2].Environment)
-	assert.Nil(t, input.SlackAlertsChannels[2].ChannelName)
+	if expected := "some purpose"; *sanitized.Purpose != expected {
+		t.Errorf("expected %q, got %q", expected, *sanitized.Purpose)
+	}
+
+	if expected := "#some-channel"; *sanitized.SlackChannel != expected {
+		t.Errorf("expected %q, got %q", expected, *sanitized.SlackChannel)
+	}
+
+	if expected := "foo"; sanitized.SlackAlertsChannels[0].Environment != expected {
+		t.Errorf("expected %q, got %q", expected, sanitized.SlackAlertsChannels[0].Environment)
+	}
+
+	if expected := "#foo"; *sanitized.SlackAlertsChannels[0].ChannelName != expected {
+		t.Errorf("expected %q, got %q", expected, *sanitized.SlackAlertsChannels[0].ChannelName)
+	}
+
+	if expected := "bar"; sanitized.SlackAlertsChannels[1].Environment != expected {
+		t.Errorf("expected %q, got %q", expected, sanitized.SlackAlertsChannels[1].Environment)
+	}
+
+	if expected := "#bar"; *sanitized.SlackAlertsChannels[1].ChannelName != expected {
+		t.Errorf("expected %q, got %q", expected, *sanitized.SlackAlertsChannels[1].ChannelName)
+	}
+
+	if expected := "baz"; sanitized.SlackAlertsChannels[2].Environment != expected {
+		t.Errorf("expected %q, got %q", expected, sanitized.SlackAlertsChannels[2].Environment)
+	}
+
+	if sanitized.SlackAlertsChannels[2].ChannelName != nil {
+		t.Errorf("expected nil, got %q", *sanitized.SlackAlertsChannels[2].ChannelName)
+	}
+
+	if expected := " some purpose "; *input.Purpose != expected {
+		t.Errorf("expected %q, got %q", expected, *input.Purpose)
+	}
+
+	if expected := " #some-channel "; *input.SlackChannel != expected {
+		t.Errorf("expected %q, got %q", expected, *input.SlackChannel)
+	}
+
+	if expected := " foo "; input.SlackAlertsChannels[0].Environment != expected {
+		t.Errorf("expected %q, got %q", expected, input.SlackAlertsChannels[0].Environment)
+	}
+
+	if expected := " #foo "; *input.SlackAlertsChannels[0].ChannelName != expected {
+		t.Errorf("expected %q, got %q", expected, *input.SlackAlertsChannels[0].ChannelName)
+	}
+
+	if expected := " bar "; input.SlackAlertsChannels[1].Environment != expected {
+		t.Errorf("expected %q, got %q", expected, input.SlackAlertsChannels[1].Environment)
+	}
+
+	if expected := " #bar "; *input.SlackAlertsChannels[1].ChannelName != expected {
+		t.Errorf("expected %q, got %q", expected, *input.SlackAlertsChannels[1].ChannelName)
+	}
+
+	if expected := " baz "; input.SlackAlertsChannels[2].Environment != expected {
+		t.Errorf("expected %q, got %q", expected, input.SlackAlertsChannels[2].Environment)
+	}
+
+	if input.SlackAlertsChannels[2].ChannelName != nil {
+		t.Errorf("expected nil, got %q", *input.SlackAlertsChannels[2].ChannelName)
+	}
 }
