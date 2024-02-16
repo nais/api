@@ -1,0 +1,106 @@
+environmentKinds:
+  - management
+
+dependencies:
+  - allOf:
+      - monitoring-crds
+      - fqdn-policy
+      - loadbalancer-internal
+
+values:
+  host:
+    displayName: Ingress hostname
+    computed:
+      template: |
+        {{ subdomain . "console" }}"
+
+  hookd.psk:
+    description: The pre-shared key used to authenticate against hookd
+    displayName: hookd pre-shared key
+    computed:
+      template: |
+        {{ .Env.hookd_frontend_pre_shared_key | quote }}
+
+  dependencytrack.frontend:
+    description: The baseurl of the frontend for dependencytrack (used to generate links)
+    displayName: DependencyTrack frontend URL
+    computed:
+      template: |
+        https://{{ subdomain . "salsa" }}
+
+  dependencytrack.password:
+    description: The password for the dependencytrack console user
+    displayName: dependencytrack console password
+    computed:
+      template: |
+        {{ .Env.console_dependencytrack_password | quote}}
+
+  serviceaccount.email:
+    displayName: GCP SA email
+    description: nais-api service account email
+    computed:
+      template: |
+        {{.Env.nais_api_serviceaccount_email | quote}}
+
+  kubernetes.static:
+    displayName: Static Kubernetes clusters
+    description: Comma-separated list of clusters with static credentials on the format 'name|apiserverHost|token'
+    config:
+      type: string
+      secret: true
+
+  kubernetes.clusters:
+    displayName: GKE clusters
+    description: Comma-separated list of static resources to monitor
+    config:
+      type: string
+    computed:
+      template: |
+        {{- $tenantEnvs := filter "kind" "tenant" .Envs -}}
+        {{ eachOf $tenantEnvs "name" | sortAlpha | join "," }}
+
+  resources.cpu:
+    displayName: CPU request
+    description: The expected amount of CPU the container can use
+    config:
+      type: string
+
+  resources.memory:
+    displayName: Memory request & limit
+    description: The maximum amount of memory the container can use
+    config:
+      type: string
+
+  tenant.domain:
+    displayName: Tenant domain
+    computed:
+      template: |
+        {{ .Env.tenant_domain }}
+
+  google.managementProjectID:
+    displayName: Management project ID
+    description: The project ID of the management project
+    computed:
+      template: |
+        {{ .Env.project_id | quote }}
+
+  oauth.clientID:
+    displayName: OAuth client ID
+    description: The client ID for the OAuth client
+    config:
+      type: string
+    required: true
+
+  oauth.clientSecret:
+    displayName: OAuth client secret
+    description: The client secret for the OAuth client
+    config:
+      type: string
+      secret: true
+    required: true
+
+  staticServiceAccounts:
+    displayName: Static nais-api service accounts
+    description: JSON-encoded list of static service accounts
+    computed:
+      template: "{{.Management.teams_static_service_accounts | quote}}"
