@@ -741,19 +741,13 @@ INSERT INTO team_environments (team_slug, environment, slack_alerts_channel, gcp
 VALUES (
     $1,
     $2,
-    CASE $3::text
-        WHEN '' THEN NULL
-        ELSE COALESCE($3, slack_alerts_channel)
-    END,
-    CASE $4::text
-        WHEN '' THEN NULL
-        ELSE COALESCE($4, gcp_project_id)
-    END
+    $3,
+    $4
 )
 ON CONFLICT (team_slug, environment) DO UPDATE
 SET
-    slack_alerts_channel = EXCLUDED.slack_alerts_channel,
-    gcp_project_id = EXCLUDED.gcp_project_id
+    slack_alerts_channel = COALESCE(EXCLUDED.slack_alerts_channel, team_environments.slack_alerts_channel),
+    gcp_project_id = COALESCE(EXCLUDED.gcp_project_id, team_environments.gcp_project_id)
 RETURNING id, team_slug, environment, slack_alerts_channel, gcp_project_id
 `
 

@@ -46,19 +46,13 @@ INSERT INTO team_environments (team_slug, environment, slack_alerts_channel, gcp
 VALUES (
     @team_slug,
     @environment,
-    CASE sqlc.narg(slack_alerts_channel)::text
-        WHEN '' THEN NULL
-        ELSE COALESCE(@slack_alerts_channel, slack_alerts_channel)
-    END,
-    CASE sqlc.narg(gcp_project_id)::text
-        WHEN '' THEN NULL
-        ELSE COALESCE(@gcp_project_id, gcp_project_id)
-    END
+    @slack_alerts_channel,
+    @gcp_project_id
 )
 ON CONFLICT (team_slug, environment) DO UPDATE
 SET
-    slack_alerts_channel = EXCLUDED.slack_alerts_channel,
-    gcp_project_id = EXCLUDED.gcp_project_id
+    slack_alerts_channel = COALESCE(EXCLUDED.slack_alerts_channel, team_environments.slack_alerts_channel),
+    gcp_project_id = COALESCE(EXCLUDED.gcp_project_id, team_environments.gcp_project_id)
 RETURNING *;
 
 -- name: GetTeams :many
