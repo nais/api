@@ -56,8 +56,13 @@ values:
       type: string
     computed:
       template: |
+        {{ if (eq .Tenant.Name "nav") }}
+        {{- $tenantEnvs := filter "kind" "legacy" .Envs -}}
+        {{ eachOf $tenantEnvs "name" | sortAlpha | join "," }}
+        {{ else }}
         {{- $tenantEnvs := filter "kind" "tenant" .Envs -}}
         {{ eachOf $tenantEnvs "name" | sortAlpha | join "," }}
+        {{ end }}
 
   resources.cpu:
     displayName: CPU request
