@@ -187,6 +187,7 @@ func toProtoTeamEnvironment(env *database.TeamEnvironment) *protoapi.TeamEnviron
 		Id:                 env.ID.String(),
 		Slug:               env.TeamSlug.String(),
 		EnvironmentName:    env.Environment,
+		Gcp:                env.Gcp,
 		GcpProjectId:       env.GcpProjectID,
 		SlackAlertsChannel: env.SlackAlertsChannel,
 	}
