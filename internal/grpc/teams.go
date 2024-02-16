@@ -2,7 +2,7 @@ package grpc
 
 import (
 	"context"
-	"encoding/json"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/database"
@@ -151,40 +151,14 @@ func (t *TeamsServer) Environments(ctx context.Context, req *protoapi.ListTeamEn
 }
 
 func (t *TeamsServer) ListAuthorizedRepositories(ctx context.Context, req *protoapi.ListAuthorizedRepositoriesRequest) (*protoapi.ListAuthorizedRepositoriesResponse, error) {
-	teamSlug := slug.Slug(req.Slug)
-
-	// get all repositories for team
-	res, err := t.db.GetReconcilerStateForTeam(ctx, "github:team", teamSlug)
+	teamSlug := slug.Slug(req.TeamSlug)
+	repositories, err := t.db.ListRepositoriesByAuthorization(ctx, teamSlug, gensql.RepositoryAuthorizationEnumDeploy)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "fetching github repositories for team: %s", err)
-	}
-
-	var state struct {
-		Repos []struct {
-			Name string `json:"name"`
-		} `json:"repositories"`
-	}
-
-	err = json.Unmarshal(res.Value, &state)
-	if err != nil {
-		return nil, err
-	}
-
-	// filter out repositories without authorizations
-	filtered := make([]string, 0)
-	for _, repo := range state.Repos {
-		authorizations, err := t.db.GetRepositoryAuthorizations(ctx, teamSlug, repo.Name)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "fetching authorization for repository: %s", err)
-		}
-
-		if len(authorizations) > 0 {
-			filtered = append(filtered, repo.Name)
-		}
+		return nil, fmt.Errorf("list repositories by authorization: %w", err)
 	}
 
 	return &protoapi.ListAuthorizedRepositoriesResponse{
-		GithubRepositories: filtered,
+		GithubRepositories: repositories,
 	}, nil
 }
 

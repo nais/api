@@ -16,7 +16,7 @@ message Team {
 }
 
 message ListAuthorizedRepositoriesRequest {
-  string slug = 1;
+  string teamSlug = 1;
 }
 
 message ListAuthorizedRepositoriesResponse {

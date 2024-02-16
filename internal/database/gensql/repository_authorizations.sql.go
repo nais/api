@@ -62,6 +62,43 @@ func (q *Queries) GetRepositoryAuthorizations(ctx context.Context, arg GetReposi
 	return items, nil
 }
 
+const listRepositoriesByAuthorization = `-- name: ListRepositoriesByAuthorization :many
+SELECT
+    github_repository
+FROM
+    repository_authorizations
+WHERE
+    team_slug = $1
+    AND repository_authorization = $2
+ORDER BY -- The linter requires order by to be upper cased, lol
+    github_repository
+`
+
+type ListRepositoriesByAuthorizationParams struct {
+	TeamSlug                slug.Slug
+	RepositoryAuthorization RepositoryAuthorizationEnum
+}
+
+func (q *Queries) ListRepositoriesByAuthorization(ctx context.Context, arg ListRepositoriesByAuthorizationParams) ([]string, error) {
+	rows, err := q.db.Query(ctx, listRepositoriesByAuthorization, arg.TeamSlug, arg.RepositoryAuthorization)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []string{}
+	for rows.Next() {
+		var github_repository string
+		if err := rows.Scan(&github_repository); err != nil {
+			return nil, err
+		}
+		items = append(items, github_repository)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const removeRepositoryAuthorization = `-- name: RemoveRepositoryAuthorization :exec
 DELETE FROM repository_authorizations
 WHERE
