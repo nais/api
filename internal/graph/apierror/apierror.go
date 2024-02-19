@@ -47,8 +47,6 @@ func Errorf(format string, args ...any) Error {
 // GetErrorPresenter returns a GraphQL error presenter that filters out error messages not intended for end users.
 // All filtered errors are logged.
 func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
-	// log = log.WithComponent(types.ComponentNameGraphqlApi)
-
 	return func(ctx context.Context, e error) *gqlerror.Error {
 		err := graphql.DefaultErrorPresenter(ctx, e)
 		unwrappedError := errors.Unwrap(e)

@@ -35,7 +35,7 @@ func Test_Logf(t *testing.T) {
 	ctx := context.Background()
 	db := database.NewMockDatabase(t)
 	msg := "some message"
-	componentName := logger.ComponentNameConsole
+	componentName := logger.ComponentNameGraphqlApi
 
 	t.Run("missing audit action", func(t *testing.T) {
 		testLogger, hook := test.NewNullLogger()
