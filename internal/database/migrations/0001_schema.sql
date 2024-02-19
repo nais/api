@@ -74,7 +74,7 @@ CREATE TABLE audit_logs (
 CREATE TABLE cost (
     id serial PRIMARY KEY,
     environment text,
-    team_slug slug,
+    team_slug slug REFERENCES teams(slug) ON DELETE CASCADE,
     app text NOT NULL,
     cost_type text NOT NULL,
     date date NOT NULL,
