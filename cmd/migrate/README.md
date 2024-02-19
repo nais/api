@@ -5,33 +5,32 @@
 To connect and authenticate to the correct databases, you'll need to download the service accounts for both apps.
 
 ```bash
-export PROJECT_ID=nais-management-233d
+export PROJECT_ID=MANAGEMENT_ID
 gcloud auth login
 mkdir -p scratchpad
 echo '*' > scratchpad/.gitignore
-cd scratchpad
-gcloud iam service-accounts keys create console-backend.json --iam-account console-backend@$PROJECT_ID.iam.gserviceaccount.com
-gcloud iam service-accounts keys create teams-backend.json --iam-account console@$PROJECT_ID.iam.gserviceaccount.com
-cd ..
+gcloud iam service-accounts keys create scratchpad/console-backend.json --iam-account console-backend@$PROJECT_ID.iam.gserviceaccount.com
+gcloud iam service-accounts keys create scratchpad/teams-backend.json --iam-account console@$PROJECT_ID.iam.gserviceaccount.com
 
 # Create a list of all database instances to know the random part of the instance name
 gcloud sql instances list --project $PROJECT_ID --format="value(name)"
 
 # Start a SQL proxy to the api database.
-cloud_sql_proxy $PROJECT_ID:europe-north1:nais-api-[random-part]
+cloud_sql_proxy "${PROJECT_ID}:europe-north1:$(gcloud sql instances list --project $PROJECT_ID --format="value(name)" | grep nais-api)"
 ```
 
-## To migrate Teams-backend
+## To migrate both backends to new api
 
 You'll need both apps GCP service accounts to do the following:
 
-Open a SQL proxy to both teams-backend and the new api database:
+Open a SQL proxy to both teams-backend (database `console-[random-part]`) and console-backend database (database `console-backend-[random-part]`):
 
 ```bash
-cloud_sql_proxy --credentials-file ./scratchpad/api.json -i $PROJECT_ID:europe-north1:console-backend-[random-part]
+cloud_sql_proxy --port 6000 --credentials-file ./scratchpad/teams-backend.json -i "${PROJECT_ID}:europe-north1:$(gcloud sql instances list --project $PROJECT_ID --format="value(name)" | grep console | grep -v backend)"
+cloud_sql_proxy --port 7000 --credentials-file ./scratchpad/console-backend.json -i "${PROJECT_ID}:europe-north1:$(gcloud sql instances list --project $PROJECT_ID --format="value(name)" | grep console-backend)"
 ```
 
-Update the consts in `cmd/migrate/main.go` to point to the correct databases.
+Update the consts in `cmd/migrate/main.go` to point to the correct databases, as well as the list of environments.
 
 Run the migration script:
 
@@ -39,41 +38,11 @@ Run the migration script:
 go run ./cmd/migrate
 ```
 
-## To migrate console-backend
-
-You'll need both apps GCP service accounts to do the following:
-
-Open a SQL proxy to both console-backend and the new api database:
-
-```bash
-cloud_sql_proxy --credentials-file ~/Downloads/nais-management-233d-a47334b216f8.json -i nais-management-233d:europe-north1:console-backend-e36c4211-thomas
-```
-
-Dump the console-backend database:
-
-```bash
-pg_dump --host 127.0.0.1 --username console-backend@nais-management-233d.iam -Ox -n public -t resource_utilization_metrics --data-only console_backend > console-backend.sql
-```
-
-(This will dump data from the `resource_utilization_metrics` table)
-
-Update column names in `console-backend.sql` to match the new schema.
-
-```bash
-sed -i 's/COPY public\.resource_utilization_metrics.*/COPY public.resource_utilization_metrics (id, "timestamp", environment, team_slug, app, resource_type, usage, request) FROM stdin;/g' console-backend.sql
-```
-
-Run psql:
-
-```bash
-psql --host 127.0.0.1 --port 3002 --username console-backend@nais-management-233d.iam -f console-backend.sql api
-```
+Close the SQL proxies.
 
 ## Delete service account keys
 
 ```bash
-cd scratchpad
-gcloud iam service-accounts keys delete $(jq -r '.private_key_id' ./scratchpad/api.json) --iam-account nais-api@$PROJECT_ID.iam.gserviceaccount.com && rm ./scratchpad/api.json
 gcloud iam service-accounts keys delete $(jq -r '.private_key_id' ./scratchpad/console-backend.json) --iam-account console-backend@$PROJECT_ID.iam.gserviceaccount.com && rm ./scratchpad/console-backend.json
 gcloud iam service-accounts keys delete $(jq -r '.private_key_id' ./scratchpad/teams-backend.json) --iam-account console@$PROJECT_ID.iam.gserviceaccount.com && rm ./scratchpad/teams-backend.json
 ```

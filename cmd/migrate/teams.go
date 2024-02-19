@@ -13,12 +13,7 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-func runTeams(ctx context.Context, db *pgxpool.Pool) {
-	teams, err := pgx.Connect(ctx, teamsConnString)
-	if err != nil {
-		log.Fatalf("failed to connect to old database: %s", err)
-	}
-
+func runTeams(ctx context.Context, db *pgxpool.Pool, teams *pgx.Conn) {
 	if err := moveUsers(ctx, db, teams); err != nil {
 		log.Fatalf("failed to move users: %s", err)
 	}
@@ -532,6 +527,7 @@ func moveAuditLogs(ctx context.Context, db *pgxpool.Pool, old *pgx.Conn) error {
 	}
 	defer conn.Release()
 
+	qs := &pgx.Batch{}
 	for rows.Next() {
 		var (
 			id               uuid.UUID
@@ -550,15 +546,35 @@ func moveAuditLogs(ctx context.Context, db *pgxpool.Pool, old *pgx.Conn) error {
 		}
 
 		args := []any{id, createdAt, correlationID, componentName, actor, action, message, targetType, targetIdentifier}
-		_, err := conn.Exec(ctx, `
-		INSERT INTO audit_logs (id, created_at, correlation_id, component_name, actor, action, message, target_type, target_identifier)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-		ON CONFLICT DO NOTHING
+		// _, err := conn.Exec(ctx, `
+		// INSERT INTO audit_logs (id, created_at, correlation_id, component_name, actor, action, message, target_type, target_identifier)
+		// VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+		// ON CONFLICT DO NOTHING
+		// `, args...)
+		// if err != nil {
+		// 	return fmt.Errorf("inserting audit log, with fields %+v: %w", args, err)
+		// }
+		qs.Queue(`
+		 INSERT INTO audit_logs (id, created_at, correlation_id, component_name, actor, action, message, target_type, target_identifier)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+		 ON CONFLICT DO NOTHING
 		`, args...)
-		if err != nil {
-			return fmt.Errorf("inserting audit log, with fields %+v: %w", args, err)
-		}
 
+		if qs.Len() > 1500 {
+			err := conn.SendBatch(ctx, qs).Close()
+			if err != nil {
+				fmt.Println("Error sending batch", err)
+			}
+
+			qs = &pgx.Batch{}
+		}
+	}
+
+	if qs.Len() > 0 {
+		err := conn.SendBatch(ctx, qs).Close()
+		if err != nil {
+			fmt.Println("Error finalizing batch", err)
+		}
 	}
 
 	return nil
