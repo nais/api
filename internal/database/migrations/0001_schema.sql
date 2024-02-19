@@ -74,7 +74,7 @@ CREATE TABLE audit_logs (
 CREATE TABLE cost (
     id serial PRIMARY KEY,
     environment text,
-    team_slug slug REFERENCES teams(slug) ON DELETE CASCADE,
+    team_slug slug,
     app text NOT NULL,
     cost_type text NOT NULL,
     date date NOT NULL,
@@ -336,6 +336,9 @@ ALTER TABLE user_roles
 
 ALTER TABLE vulnerability_metrics
     ADD FOREIGN KEY (dependencytrack_project_id) REFERENCES dependencytrack_projects(id) ON DELETE CASCADE;
+
+ALTER TABLE cost
+    ADD FOREIGN KEY (team_slug) REFERENCES teams(slug) ON DELETE CASCADE;
 
 -- triggers
 CREATE TRIGGER reconciler_states_set_updated BEFORE
