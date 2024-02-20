@@ -116,9 +116,9 @@ func (d *database) GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]*User,
 }
 
 func wrapUsers(users []*gensql.User) []*User {
-	result := make([]*User, 0)
-	for _, user := range users {
-		result = append(result, wrapUser(user))
+	result := make([]*User, len(users))
+	for i, user := range users {
+		result[i] = wrapUser(user)
 	}
 
 	return result
@@ -134,14 +134,14 @@ func (d *database) GetUserRoles(ctx context.Context, userID uuid.UUID) ([]*authz
 		return nil, err
 	}
 
-	roles := make([]*authz.Role, 0, len(userRoles))
-	for _, userRole := range userRoles {
+	roles := make([]*authz.Role, len(userRoles))
+	for i, userRole := range userRoles {
 		role, err := d.roleFromRoleBinding(ctx, userRole.RoleName, userRole.TargetServiceAccountID, userRole.TargetTeamSlug)
 		if err != nil {
 			return nil, err
 		}
 
-		roles = append(roles, role)
+		roles[i] = role
 	}
 
 	return roles, nil

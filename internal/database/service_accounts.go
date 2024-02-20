@@ -71,9 +71,9 @@ func (d *database) GetServiceAccounts(ctx context.Context) ([]*ServiceAccount, e
 		return nil, err
 	}
 
-	serviceAccounts := make([]*ServiceAccount, 0)
-	for _, row := range rows {
-		serviceAccounts = append(serviceAccounts, &ServiceAccount{ServiceAccount: row})
+	serviceAccounts := make([]*ServiceAccount, len(rows))
+	for i, row := range rows {
+		serviceAccounts[i] = &ServiceAccount{ServiceAccount: row}
 	}
 
 	return serviceAccounts, nil
@@ -85,9 +85,9 @@ func (d *database) GetServiceAccountsByIDs(ctx context.Context, ids []uuid.UUID)
 		return nil, err
 	}
 
-	serviceAccounts := make([]*ServiceAccount, 0)
-	for _, row := range rows {
-		serviceAccounts = append(serviceAccounts, &ServiceAccount{ServiceAccount: row})
+	serviceAccounts := make([]*ServiceAccount, len(rows))
+	for i, row := range rows {
+		serviceAccounts[i] = &ServiceAccount{ServiceAccount: row}
 	}
 
 	return serviceAccounts, nil
@@ -107,13 +107,13 @@ func (d *database) GetServiceAccountRoles(ctx context.Context, serviceAccountID 
 		return nil, err
 	}
 
-	roles := make([]*authz.Role, 0, len(serviceAccountRoles))
-	for _, serviceAccountRole := range serviceAccountRoles {
+	roles := make([]*authz.Role, len(serviceAccountRoles))
+	for i, serviceAccountRole := range serviceAccountRoles {
 		role, err := d.roleFromRoleBinding(ctx, serviceAccountRole.RoleName, serviceAccountRole.TargetServiceAccountID, serviceAccountRole.TargetTeamSlug)
 		if err != nil {
 			return nil, err
 		}
-		roles = append(roles, role)
+		roles[i] = role
 	}
 
 	return roles, nil

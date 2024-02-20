@@ -31,9 +31,9 @@ func (d *database) GetAuditLogsForTeam(ctx context.Context, teamSlug slug.Slug, 
 		return nil, 0, err
 	}
 
-	entries := make([]*AuditLog, 0, len(rows))
-	for _, row := range rows {
-		entries = append(entries, &AuditLog{AuditLog: row})
+	entries := make([]*AuditLog, len(rows))
+	for i, row := range rows {
+		entries[i] = &AuditLog{AuditLog: row}
 	}
 
 	total, err := d.querier.GetAuditLogsForTeamCount(ctx, string(teamSlug))
@@ -54,9 +54,9 @@ func (d *database) GetAuditLogsForReconciler(ctx context.Context, reconcilerName
 		return nil, 0, err
 	}
 
-	entries := make([]*AuditLog, 0, len(rows))
-	for _, row := range rows {
-		entries = append(entries, &AuditLog{AuditLog: row})
+	entries := make([]*AuditLog, len(rows))
+	for i, row := range rows {
+		entries[i] = &AuditLog{AuditLog: row}
 	}
 
 	total, err := d.querier.GetAuditLogsForReconcilerCount(ctx, reconcilerName)

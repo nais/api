@@ -202,11 +202,13 @@ func (d *database) SyncReconcilerConfig(ctx context.Context, reconcilerName stri
 
 	return d.Transaction(ctx, func(ctx context.Context, dbtx Database) error {
 		for _, c := range configs {
-			dbtx.UpsertReconcilerConfig(ctx, reconcilerName, c.Key, c.DisplayName, c.Description, c.Secret)
+			if err := dbtx.UpsertReconcilerConfig(ctx, reconcilerName, c.Key, c.DisplayName, c.Description, c.Secret); err != nil {
+				return err
+			}
 			delete(existing, c.Key)
 		}
 
-		toDelete := []string{}
+		toDelete := make([]string, len(existing))
 		for k := range existing {
 			toDelete = append(toDelete, k)
 		}
@@ -216,9 +218,9 @@ func (d *database) SyncReconcilerConfig(ctx context.Context, reconcilerName stri
 }
 
 func wrapReconcilers(rows []*gensql.Reconciler) []*Reconciler {
-	reconcilers := make([]*Reconciler, 0, len(rows))
-	for _, row := range rows {
-		reconcilers = append(reconcilers, &Reconciler{Reconciler: row})
+	reconcilers := make([]*Reconciler, len(rows))
+	for i, row := range rows {
+		reconcilers[i] = &Reconciler{Reconciler: row}
 	}
 	return reconcilers
 }

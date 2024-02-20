@@ -156,9 +156,9 @@ func (d *database) GetTeams(ctx context.Context, p Page) ([]*Team, int, error) {
 		return nil, 0, err
 	}
 
-	collection := make([]*Team, 0)
-	for _, team := range teams {
-		collection = append(collection, &Team{Team: team})
+	collection := make([]*Team, len(teams))
+	for i, team := range teams {
+		collection[i] = &Team{Team: team}
 	}
 
 	total, err := d.querier.GetTeamsCount(ctx)
@@ -175,9 +175,9 @@ func (d *database) GetTeamsBySlugs(ctx context.Context, teamSlugs []slug.Slug) (
 		return nil, err
 	}
 
-	collection := make([]*Team, 0)
-	for _, team := range teams {
-		collection = append(collection, &Team{Team: team})
+	collection := make([]*Team, len(teams))
+	for i, team := range teams {
+		collection[i] = &Team{Team: team}
 	}
 
 	return collection, nil
@@ -212,9 +212,9 @@ func (d *database) GetActiveTeams(ctx context.Context) ([]*Team, error) {
 		return nil, err
 	}
 
-	collection := make([]*Team, 0)
-	for _, team := range teams {
-		collection = append(collection, &Team{Team: team})
+	collection := make([]*Team, len(teams))
+	for i, team := range teams {
+		collection[i] = &Team{Team: team}
 	}
 
 	return collection, nil
@@ -235,9 +235,9 @@ func (d *database) GetUserTeams(ctx context.Context, userID uuid.UUID, p Page) (
 		return nil, 0, err
 	}
 
-	teams := make([]*UserTeam, 0)
-	for _, row := range rows {
-		teams = append(teams, &UserTeam{Team: &row.Team, RoleName: row.RoleName})
+	teams := make([]*UserTeam, len(rows))
+	for i, row := range rows {
+		teams[i] = &UserTeam{Team: &row.Team, RoleName: row.RoleName}
 	}
 
 	return teams, int(totalCount), nil
@@ -251,9 +251,9 @@ func (d *database) GetAllTeamMembers(ctx context.Context, teamSlug slug.Slug) ([
 		return nil, err
 	}
 
-	members := make([]*User, 0)
-	for _, row := range rows {
-		members = append(members, &User{User: row})
+	members := make([]*User, len(rows))
+	for i, row := range rows {
+		members[i] = &User{User: row}
 	}
 
 	return members, nil
@@ -271,9 +271,9 @@ func (d *database) GetTeamMembers(ctx context.Context, teamSlug slug.Slug, p Pag
 		return nil, 0, err
 	}
 
-	members := make([]*User, 0)
-	for _, row := range rows {
-		members = append(members, &User{User: row})
+	members := make([]*User, len(rows))
+	for i, row := range rows {
+		members[i] = &User{User: row}
 	}
 	total, err := d.querier.GetTeamMembersCount(ctx, &teamSlug)
 	if err != nil {
@@ -304,9 +304,9 @@ func (d *database) GetTeamMembersForReconciler(ctx context.Context, teamSlug slu
 		return nil, err
 	}
 
-	members := make([]*User, 0)
-	for _, row := range rows {
-		members = append(members, &User{User: row})
+	members := make([]*User, len(rows))
+	for i, row := range rows {
+		members[i] = &User{User: row}
 	}
 
 	return members, nil

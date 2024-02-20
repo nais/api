@@ -89,12 +89,12 @@ func (d *database) GetAllUserRoles(ctx context.Context) ([]*UserRole, error) {
 		return nil, err
 	}
 
-	roles := make([]*UserRole, 0, len(userRoles))
-	for _, userRole := range userRoles {
-		roles = append(roles, &UserRole{userRole})
+	ret := make([]*UserRole, len(userRoles))
+	for i, userRole := range userRoles {
+		ret[i] = &UserRole{userRole}
 	}
 
-	return roles, nil
+	return ret, nil
 }
 
 func (d *database) GetUserRolesForUsers(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]*authz.Role, error) {
@@ -103,16 +103,16 @@ func (d *database) GetUserRolesForUsers(ctx context.Context, userIDs []uuid.UUID
 		return nil, err
 	}
 
-	roles := make(map[uuid.UUID][]*authz.Role)
+	ret := make(map[uuid.UUID][]*authz.Role)
 	for _, user := range usersWithRoles {
 		role, err := d.roleFromRoleBinding(ctx, user.RoleName, user.TargetServiceAccountID, user.TargetTeamSlug)
 		if err != nil {
 			continue
 		}
-		roles[user.UserID] = append(roles[user.UserID], role)
+		ret[user.UserID] = append(ret[user.UserID], role)
 	}
 
-	return roles, nil
+	return ret, nil
 }
 
 func (d *database) roleFromRoleBinding(_ context.Context, roleName gensql.RoleName, targetServiceAccountID *uuid.UUID, targetTeamSlug *slug.Slug) (*authz.Role, error) {

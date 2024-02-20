@@ -29,12 +29,12 @@ func (d *database) GetTeamReconcilerErrors(ctx context.Context, teamSlug slug.Sl
 		return nil, err
 	}
 
-	errors := make([]*ReconcilerError, 0)
-	for _, row := range rows {
-		errors = append(errors, &ReconcilerError{ReconcilerError: row})
+	ret := make([]*ReconcilerError, len(rows))
+	for i, row := range rows {
+		ret[i] = &ReconcilerError{ReconcilerError: row}
 	}
 
-	return errors, nil
+	return ret, nil
 }
 
 func (d *database) ClearReconcilerErrorsForTeam(ctx context.Context, teamSlug slug.Slug, reconcilerName string) error {
