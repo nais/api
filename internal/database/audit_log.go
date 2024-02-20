@@ -17,6 +17,8 @@ type AuditLogsRepo interface {
 	GetAuditLogsForTeam(ctx context.Context, teamSlug slug.Slug, p Page) ([]*AuditLog, int, error)
 }
 
+var _ AuditLogsRepo = (*database)(nil)
+
 type AuditLog struct {
 	*gensql.AuditLog
 }

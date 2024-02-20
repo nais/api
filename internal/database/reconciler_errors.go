@@ -14,6 +14,8 @@ type ReconcilerErrorRepo interface {
 	SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, teamSlug slug.Slug, reconcilerName string, err error) error
 }
 
+var _ ReconcilerErrorRepo = (*database)(nil)
+
 func (d *database) SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, teamSlug slug.Slug, reconcilerName string, err error) error {
 	return d.querier.SetReconcilerErrorForTeam(ctx, gensql.SetReconcilerErrorForTeamParams{
 		CorrelationID: correlationID,

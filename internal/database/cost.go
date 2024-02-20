@@ -18,6 +18,8 @@ type CostRepo interface {
 	MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*gensql.MonthlyCostForTeamRow, error)
 }
 
+var _ CostRepo = (*database)(nil)
+
 func (d *database) CostUpsert(ctx context.Context, arg []gensql.CostUpsertParams) *gensql.CostUpsertBatchResults {
 	return d.querier.CostUpsert(ctx, arg)
 }

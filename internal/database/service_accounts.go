@@ -22,6 +22,8 @@ type ServiceAccountRepo interface {
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
 }
 
+var _ ServiceAccountRepo = (*database)(nil)
+
 type ServiceAccount struct {
 	*gensql.ServiceAccount
 }

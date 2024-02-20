@@ -26,6 +26,8 @@ type ReconcilerRepo interface {
 	UpsertReconcilerConfig(ctx context.Context, reconciler, key, displayName, description string, secret bool) error
 }
 
+var _ ReconcilerRepo = (*database)(nil)
+
 type Reconciler struct {
 	*gensql.Reconciler
 }

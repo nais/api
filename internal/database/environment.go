@@ -17,6 +17,8 @@ type EnvironmentRepo interface {
 	SyncEnvironments(ctx context.Context, envs []*Environment) error
 }
 
+var _ EnvironmentRepo = (*database)(nil)
+
 func (d *database) SyncEnvironments(ctx context.Context, envs []*Environment) error {
 	return d.Transaction(ctx, func(ctx context.Context, dbtx Database) error {
 		if err := dbtx.DeleteAllEnvironments(ctx); err != nil {

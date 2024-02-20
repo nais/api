@@ -18,6 +18,8 @@ type SessionRepo interface {
 	GetSessionByID(ctx context.Context, sessionID uuid.UUID) (*Session, error)
 }
 
+var _ SessionRepo = (*database)(nil)
+
 type Session struct {
 	*gensql.Session
 }

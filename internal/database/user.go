@@ -20,6 +20,8 @@ type UserRepo interface {
 	UpdateUser(ctx context.Context, userID uuid.UUID, name, email, externalID string) (*User, error)
 }
 
+var _ UserRepo = (*database)(nil)
+
 type UserRole struct {
 	*gensql.UserRole
 }

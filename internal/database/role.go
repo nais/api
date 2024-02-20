@@ -22,6 +22,8 @@ type RoleRepo interface {
 	UserIsTeamOwner(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) (bool, error)
 }
 
+var _ RoleRepo = (*database)(nil)
+
 func (d *database) AssignGlobalRoleToUser(ctx context.Context, userID uuid.UUID, roleName gensql.RoleName) error {
 	return d.querier.AssignGlobalRoleToUser(ctx, gensql.AssignGlobalRoleToUserParams{
 		UserID:   userID,

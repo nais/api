@@ -21,6 +21,8 @@ type ResourceUtilizationRepo interface {
 	SpecificResourceUtilizationForTeam(ctx context.Context, teamSlug slug.Slug, resourceType gensql.ResourceType, timestamp pgtype.Timestamptz) (*gensql.SpecificResourceUtilizationForTeamRow, error)
 }
 
+var _ ResourceUtilizationRepo = (*database)(nil)
+
 func (d *database) ResourceUtilizationUpsert(ctx context.Context, arg []gensql.ResourceUtilizationUpsertParams) *gensql.ResourceUtilizationUpsertBatchResults {
 	return d.querier.ResourceUtilizationUpsert(ctx, arg)
 }

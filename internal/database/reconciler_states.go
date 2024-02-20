@@ -23,6 +23,8 @@ type ReconcilerStateRepo interface {
 	DeleteReconcilerStateForTeam(ctx context.Context, reconcilerName string, teamSlug slug.Slug) error
 }
 
+var _ ReconcilerStateRepo = (*database)(nil)
+
 func (d *database) GetReconcilerState(ctx context.Context, reconcilerName string) ([]*ReconcilerStateWithTeam, error) {
 	rows, err := d.querier.GetReconcilerState(ctx, reconcilerName)
 	if err != nil {

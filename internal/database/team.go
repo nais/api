@@ -58,7 +58,7 @@ type TeamRepo interface {
 	UpsertTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel, gcpProjectID *string) error
 }
 
-var _ TeamRepo = &database{}
+var _ TeamRepo = (*database)(nil)
 
 type EnvSlugName struct {
 	Slug    slug.Slug

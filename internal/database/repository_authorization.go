@@ -14,6 +14,8 @@ type RepositoryAuthorizationRepo interface {
 	ListRepositoriesByAuthorization(ctx context.Context, teamSlug slug.Slug, authorization gensql.RepositoryAuthorizationEnum) ([]string, error)
 }
 
+var _ RepositoryAuthorizationRepo = (*database)(nil)
+
 func (d *database) CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization gensql.RepositoryAuthorizationEnum) error {
 	return d.querier.CreateRepositoryAuthorization(ctx, gensql.CreateRepositoryAuthorizationParams{
 		TeamSlug:                teamSlug,
