@@ -532,6 +532,7 @@ type MonthlyCostFilter struct {
 	Env string `json:"env"`
 }
 
+// The root query for implementing GraphQL mutations.
 type Mutation struct {
 }
 
@@ -577,9 +578,10 @@ func (OpenSearch) IsStorage()           {}
 func (this OpenSearch) GetName() string { return this.Name }
 
 type OrderBy struct {
-	// Order direction
-	Direction SortOrder    `json:"direction"`
-	Field     OrderByField `json:"field"`
+	// Order direction.
+	Direction SortOrder `json:"direction"`
+	// The field to order by.
+	Field OrderByField `json:"field"`
 }
 
 type Outbound struct {
@@ -597,9 +599,13 @@ func (OutboundAccessError) IsStateError()             {}
 func (this OutboundAccessError) GetRevision() string  { return this.Revision }
 func (this OutboundAccessError) GetLevel() ErrorLevel { return this.Level }
 
+// Pagination information.
 type PageInfo struct {
-	TotalCount      int  `json:"totalCount"`
-	HasNextPage     bool `json:"hasNextPage"`
+	// The total amount if items accessible.
+	TotalCount int `json:"totalCount"`
+	// Whether or not there exists a next page in the data set.
+	HasNextPage bool `json:"hasNextPage"`
+	// Whether or not there exists a previous page in the data set.
 	HasPreviousPage bool `json:"hasPreviousPage"`
 }
 
@@ -607,6 +613,7 @@ type Port struct {
 	Port int `json:"port"`
 }
 
+// The query root for the NAIS GraphQL API.
 type Query struct {
 }
 

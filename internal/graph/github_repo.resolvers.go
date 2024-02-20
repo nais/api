@@ -134,10 +134,4 @@ func (r *Resolver) GitHubRepository() gengql.GitHubRepositoryResolver {
 	return &gitHubRepositoryResolver{r}
 }
 
-// Mutation returns gengql.MutationResolver implementation.
-func (r *Resolver) Mutation() gengql.MutationResolver { return &mutationResolver{r} }
-
-type (
-	gitHubRepositoryResolver struct{ *Resolver }
-	mutationResolver         struct{ *Resolver }
-)
+type gitHubRepositoryResolver struct{ *Resolver }

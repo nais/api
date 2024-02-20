@@ -57,10 +57,4 @@ func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, en
 // App returns gengql.AppResolver implementation.
 func (r *Resolver) App() gengql.AppResolver { return &appResolver{r} }
 
-// Query returns gengql.QueryResolver implementation.
-func (r *Resolver) Query() gengql.QueryResolver { return &queryResolver{r} }
-
-type (
-	appResolver   struct{ *Resolver }
-	queryResolver struct{ *Resolver }
-)
+type appResolver struct{ *Resolver }
