@@ -255,25 +255,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	return nil
 }
 
-// func firstRun(ctx context.Context, db database.Database, enableReconcilers []string, log logrus.FieldLogger) error {
-// 	firstRun, err := db.IsFirstRun(ctx)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if firstRun {
-// 		log.Infof("first run detected ")
-// 		firstRunLogger := log.WithField("system", "first-run")
-// 		if err := fixtures.SetupDefaultReconcilers(ctx, firstRunLogger, enableReconcilers, db); err != nil {
-// 			return err
-// 		}
-
-// 		if err := db.FirstRunComplete(ctx); err != nil {
-// 			return err
-// 		}
-// 	}
-// 	return nil
-// }
-
 // loadEnvFile will load a .env file if it exists. This is useful for local development.
 func loadEnvFile() (fileLoaded bool, err error) {
 	if _, err = os.Stat(".env"); errors.Is(err, os.ErrNotExist) {
