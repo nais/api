@@ -107,7 +107,7 @@ INSERT INTO reconciler_states (
     $2,
     $3
 )
-ON CONFLICT DO
+ON CONFLICT (reconciler_name, team_slug) DO
 UPDATE SET value = EXCLUDED.value
 RETURNING id, reconciler_name, team_slug, value, created_at, updated_at
 `

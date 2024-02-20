@@ -20,7 +20,7 @@ INSERT INTO reconciler_states (
     @team_slug,
     @value
 )
-ON CONFLICT DO
+ON CONFLICT (reconciler_name, team_slug) DO
 UPDATE SET value = EXCLUDED.value
 RETURNING *;
 
