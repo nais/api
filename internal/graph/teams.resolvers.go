@@ -958,7 +958,7 @@ func (r *teamResolver) GithubRepositories(ctx context.Context, obj *model.Team, 
 		return nil, err
 	}
 
-	repos, err := toGraphGitHubRepositories(state)
+	repos, err := toGraphGitHubRepositories(obj.Slug, state)
 	if err != nil {
 		return nil, err
 	}

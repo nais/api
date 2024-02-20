@@ -4,9 +4,10 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 )
 
-func toGraphGitHubRepositories(r *database.ReconcilerState) ([]*model.GitHubRepository, error) {
+func toGraphGitHubRepositories(teamSlug slug.Slug, r *database.ReconcilerState) ([]*model.GitHubRepository, error) {
 	repos, err := database.GetGitHubRepos(r.Value)
 	if err != nil {
 		return nil, err
@@ -14,13 +15,13 @@ func toGraphGitHubRepositories(r *database.ReconcilerState) ([]*model.GitHubRepo
 
 	ret := make([]*model.GitHubRepository, len(repos))
 	for i, repo := range repos {
-		ret[i] = toGraphGitHubRepository(repo)
+		ret[i] = toGraphGitHubRepository(teamSlug, repo)
 	}
 
 	return ret, nil
 }
 
-func toGraphGitHubRepository(repo *database.GitHubRepository) *model.GitHubRepository {
+func toGraphGitHubRepository(teamSlug slug.Slug, repo *database.GitHubRepository) *model.GitHubRepository {
 	return &model.GitHubRepository{
 		ID:       scalar.GitHubRepository(repo.Name),
 		Name:     repo.Name,
@@ -36,5 +37,8 @@ func toGraphGitHubRepository(repo *database.GitHubRepository) *model.GitHubRepos
 			}
 			return ret
 		}(repo.Permissions),
+		GQLVars: model.GitHubRepositoryGQLVars{
+			TeamSlug: teamSlug,
+		},
 	}
 }

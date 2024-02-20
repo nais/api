@@ -69,7 +69,7 @@ func (r *mutationResolver) AuthorizeRepository(ctx context.Context, authorizatio
 
 	for _, r := range repos {
 		if r.Name == repoName {
-			repo = toGraphGitHubRepository(r)
+			repo = toGraphGitHubRepository(teamSlug, r)
 			break
 		}
 	}
@@ -114,7 +114,7 @@ func (r *mutationResolver) DeauthorizeRepository(ctx context.Context, authorizat
 
 	for _, r := range repos {
 		if r.Name == repoName {
-			repo = toGraphGitHubRepository(r)
+			repo = toGraphGitHubRepository(teamSlug, r)
 			break
 		}
 	}
