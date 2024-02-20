@@ -149,3 +149,9 @@ values:
     description: The email address of the user to sync from GSuite
     config:
       type: string
+
+  usersync.adminGroupPrefix:
+    displayName: Admin group prefix for user sync
+    description: The prefix of the admin group in GSuite
+    config:
+      type: string
