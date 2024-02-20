@@ -55,11 +55,9 @@ const (
 func Run(ctx context.Context) {
 	log := logrus.StandardLogger()
 
-	if fileLoaded, err := loadEnvFile(); err != nil {
-		log.WithError(err).Errorf("error when loading .env file")
+	if err := loadEnvFile(log); err != nil {
+		log.WithError(err).Errorf("error loading .env file")
 		os.Exit(exitCodeEnvFileError)
-	} else if fileLoaded {
-		log.Infof("loaded .env file")
 	}
 
 	cfg, err := NewConfig(ctx, envconfig.OsLookuper())
@@ -256,16 +254,18 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 }
 
 // loadEnvFile will load a .env file if it exists. This is useful for local development.
-func loadEnvFile() (fileLoaded bool, err error) {
-	if _, err = os.Stat(".env"); errors.Is(err, os.ErrNotExist) {
-		return false, nil
+func loadEnvFile(log logrus.FieldLogger) error {
+	if _, err := os.Stat(".env"); errors.Is(err, os.ErrNotExist) {
+		log.Infof("no .env file found")
+		return nil
 	}
 
-	if err = godotenv.Load(".env"); err != nil {
-		return false, err
+	if err := godotenv.Load(".env"); err != nil {
+		return err
 	}
 
-	return true, nil
+	log.Infof("loaded .env file")
+	return nil
 }
 
 func setupAuthHandler(cfg oAuthConfig, db database.Database, log logrus.FieldLogger) (authn.Handler, error) {
