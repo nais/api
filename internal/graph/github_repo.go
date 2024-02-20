@@ -3,6 +3,7 @@ package graph
 import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/scalar"
 )
 
 func toGraphGitHubRepositories(r *database.ReconcilerState) ([]*model.GitHubRepository, error) {
@@ -21,6 +22,7 @@ func toGraphGitHubRepositories(r *database.ReconcilerState) ([]*model.GitHubRepo
 
 func toGraphGitHubRepository(repo *database.GitHubRepository) *model.GitHubRepository {
 	return &model.GitHubRepository{
+		ID:       scalar.GitHubRepository(repo.Name),
 		Name:     repo.Name,
 		RoleName: repo.RoleName,
 		Archived: repo.Archived,

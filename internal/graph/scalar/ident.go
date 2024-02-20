@@ -28,6 +28,7 @@ const (
 	IdentTypePod                IdentType = "pod"
 	IdentTypeTeam               IdentType = "team"
 	IdentTypeVulnerabilities    IdentType = "vulnerabilities"
+	IdentTypeGitHubRepo         IdentType = "githubRepo"
 )
 
 type Ident struct {
@@ -118,6 +119,10 @@ func AuditLogIdent(id uuid.UUID) Ident {
 
 func CorrelationID(id uuid.UUID) Ident {
 	return newIdent(id.String(), IdentTypeCorrelationID)
+}
+
+func GitHubRepository(name string) Ident {
+	return newIdent(name, IdentTypeGitHubRepo)
 }
 
 func newIdent(id string, t IdentType) Ident {

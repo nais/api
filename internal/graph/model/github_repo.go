@@ -1,12 +1,12 @@
 package model
 
 import (
-	"github.com/google/uuid"
+	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
 )
 
 type GitHubRepository struct {
-	ID          uuid.UUID                     `json:"id"`
+	ID          scalar.Ident                  `json:"id"`
 	Name        string                        `json:"name"`
 	Permissions []*GitHubRepositoryPermission `json:"permissions"`
 	RoleName    string                        `json:"roleName"`
