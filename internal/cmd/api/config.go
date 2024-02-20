@@ -69,6 +69,13 @@ type userSyncConfig struct {
 
 	// AdminGroupPrefix The prefix of the admin group email address.
 	AdminGroupPrefix string `env:"USERSYNC_ADMIN_GROUP_PREFIX,default=nais-admins"`
+
+	// Service account to impersonate during user sync
+	ServiceAccount string `env:"USERSYNC_SERVICE_ACCOUNT"`
+
+	// SubjectEmail The email address to impersonate during user sync. This is an email address of a user
+	// with the necessary permissions to read the Google organization.
+	SubjectEmail string `env:"USERSYNC_SUBJECT_EMAIL"`
 }
 
 // costConfig is the configuration for the cost service

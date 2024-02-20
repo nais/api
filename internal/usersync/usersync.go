@@ -11,7 +11,6 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"
-	"github.com/nais/api/internal/thirdparty/google_token_source"
 	"github.com/sirupsen/logrus"
 	admin_directory_v1 "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/googleapi"
@@ -67,11 +66,11 @@ func New(dbc database.Database, auditLogger auditlogger.AuditLogger, adminGroupP
 	}
 }
 
-func NewFromConfig(googleManagementProjectID, tenantDomain, adminGroupPrefix string, db database.Database, log logrus.FieldLogger, syncRuns *RunsHandler) (*UserSynchronizer, error) {
+func NewFromConfig(serviceAccount, subjectEmail, tenantDomain, adminGroupPrefix string, db database.Database, log logrus.FieldLogger, syncRuns *RunsHandler) (*UserSynchronizer, error) {
 	log = log.WithField("component", logger.ComponentNameUsersync)
 	ctx := context.Background()
 
-	builder, err := google_token_source.New(googleManagementProjectID, tenantDomain)
+	builder, err := newTokenSource(serviceAccount, subjectEmail)
 	if err != nil {
 		return nil, err
 	}

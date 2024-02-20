@@ -24,7 +24,7 @@ func runUserSync(ctx context.Context, cfg *Config, db database.Database, log log
 		}
 	}
 
-	userSyncer, err := usersync.NewFromConfig(cfg.GoogleManagementProjectID, cfg.TenantDomain, cfg.UserSync.AdminGroupPrefix, db, log, userSyncRuns)
+	userSyncer, err := usersync.NewFromConfig(cfg.UserSync.ServiceAccount, cfg.UserSync.SubjectEmail, cfg.TenantDomain, cfg.UserSync.AdminGroupPrefix, db, log, userSyncRuns)
 	if err != nil {
 		log.WithError(err).Errorf("unable to set up user syncer")
 		return err
