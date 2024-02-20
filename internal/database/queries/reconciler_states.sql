@@ -1,3 +1,10 @@
+-- name: GetReconcilerState :many
+SELECT sqlc.embed(teams), sqlc.embed(reconciler_states)
+FROM reconciler_states
+JOIN teams ON teams.slug = reconciler_states.team_slug
+WHERE reconciler_name = @reconciler_name
+ORDER BY team_slug ASC;
+
 -- name: GetReconcilerStateForTeam :one
 SELECT *
 FROM reconciler_states

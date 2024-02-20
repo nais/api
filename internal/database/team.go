@@ -2,6 +2,8 @@ package database
 
 import (
 	"context"
+	"encoding/json"
+	"sort"
 	"time"
 
 	"github.com/google/uuid"
@@ -10,6 +12,22 @@ import (
 )
 
 const teamDeleteKeyLifetime = time.Hour * 1
+
+type gitHubState struct {
+	Repositories []*GitHubRepository `json:"repositories"`
+}
+
+type GitHubRepository struct {
+	Name        string                        `json:"name"`
+	Permissions []*GitHubRepositoryPermission `json:"permissions"`
+	Archived    bool                          `json:"archived"`
+	RoleName    string                        `json:"roleName"`
+}
+
+type GitHubRepositoryPermission struct {
+	Name    string `json:"name"`
+	Granted bool   `json:"granted"`
+}
 
 type TeamRepo interface {
 	ConfirmTeamDeleteKey(ctx context.Context, key uuid.UUID) error
@@ -368,40 +386,28 @@ func (d *database) UpsertTeamEnvironment(ctx context.Context, teamSlug slug.Slug
 }
 
 func (d *database) GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string, p Page) ([]*Team, int, error) {
-	panic("not implemented")
-	// 	matcher, err := json.Marshal(map[string]interface{}{
-	// 		"repositories": []map[string]interface{}{
-	// 			{
-	// 				"name": repoName,
-	// 				"permissions": []map[string]interface{}{
-	// 					{
-	// 						"name":    permission,
-	// 						"granted": true,
-	// 					},
-	// 				},
-	// 			},
-	// 		},
-	// 	})
-	// 	if err != nil {
-	// 		return nil, 0, err
-	// 	}
+	// TODO: this should be refactored once we have a better model for the github reconciler state
 
-	// 	rows, err := d.querier.GetTeamsWithPermissionInGitHubRepo(ctx, matcher, int32(offset), int32(limit))
-	// 	if err != nil {
-	// 		return nil, 0, err
-	// 	}
+	states, err := d.GetReconcilerState(ctx, "github:team")
+	if err != nil {
+		return nil, 0, err
+	}
 
-	// 	teams := make([]*Team, 0)
-	// 	for _, row := range rows {
-	// 		teams = append(teams, &Team{Team: row})
-	// 	}
+	teams := make([]*Team, 0)
+	for _, state := range states {
+		if hasRepoWithPermission(state.ReconcilerState.Value, repoName, permission) {
+			teams = append(teams, state.Team)
+		}
+	}
 
-	// 	total, err := d.querier.GetTeamsWithPermissionInGitHubRepoCount(ctx, matcher)
-	// 	if err != nil {
-	// 		return nil, 0, err
-	// 	}
+	start := p.Offset
+	end := start + p.Limit
+	total := len(teams)
+	if end > total {
+		end = total
+	}
 
-	// return teams, int(total), nil
+	return teams[start:end], total, nil
 }
 
 func (d *database) SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*gensql.Team, error) {
@@ -413,4 +419,37 @@ func (d *database) SearchTeams(ctx context.Context, slugMatch string, limit int3
 
 func (d *database) TeamExists(ctx context.Context, team slug.Slug) (bool, error) {
 	return d.querier.TeamExists(ctx, team)
+}
+
+func GetGitHubRepos(b []byte) ([]*GitHubRepository, error) {
+	var state gitHubState
+	err := json.Unmarshal(b, &state)
+	if err != nil {
+		return nil, err
+	}
+	sort.SliceStable(state.Repositories, func(i, j int) bool {
+		return state.Repositories[i].Name < state.Repositories[j].Name
+	})
+	return state.Repositories, nil
+}
+
+func hasRepoWithPermission(b []byte, repoName, permission string) bool {
+	repos, err := GetGitHubRepos(b)
+	if err != nil {
+		return false
+	}
+
+	for _, repo := range repos {
+		if repo.Name != repoName {
+			continue
+		}
+
+		for _, perm := range repo.Permissions {
+			if perm.Name == permission && perm.Granted {
+				return true
+			}
+		}
+	}
+
+	return false
 }

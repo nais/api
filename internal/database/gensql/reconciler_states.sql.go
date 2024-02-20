@@ -24,6 +24,54 @@ func (q *Queries) DeleteReconcilerStateForTeam(ctx context.Context, arg DeleteRe
 	return err
 }
 
+const getReconcilerState = `-- name: GetReconcilerState :many
+SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, reconciler_states.id, reconciler_states.reconciler_name, reconciler_states.team_slug, reconciler_states.value, reconciler_states.created_at, reconciler_states.updated_at
+FROM reconciler_states
+JOIN teams ON teams.slug = reconciler_states.team_slug
+WHERE reconciler_name = $1
+ORDER BY team_slug ASC
+`
+
+type GetReconcilerStateRow struct {
+	Team            Team
+	ReconcilerState ReconcilerState
+}
+
+func (q *Queries) GetReconcilerState(ctx context.Context, reconcilerName string) ([]*GetReconcilerStateRow, error) {
+	rows, err := q.db.Query(ctx, getReconcilerState, reconcilerName)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*GetReconcilerStateRow{}
+	for rows.Next() {
+		var i GetReconcilerStateRow
+		if err := rows.Scan(
+			&i.Team.Slug,
+			&i.Team.Purpose,
+			&i.Team.LastSuccessfulSync,
+			&i.Team.SlackChannel,
+			&i.Team.GoogleGroupEmail,
+			&i.Team.AzureGroupID,
+			&i.Team.GithubTeamSlug,
+			&i.Team.GarRepository,
+			&i.ReconcilerState.ID,
+			&i.ReconcilerState.ReconcilerName,
+			&i.ReconcilerState.TeamSlug,
+			&i.ReconcilerState.Value,
+			&i.ReconcilerState.CreatedAt,
+			&i.ReconcilerState.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getReconcilerStateForTeam = `-- name: GetReconcilerStateForTeam :one
 SELECT id, reconciler_name, team_slug, value, created_at, updated_at
 FROM reconciler_states

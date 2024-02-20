@@ -66,6 +66,7 @@ type Querier interface {
 	GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error)
 	GetReconciler(ctx context.Context, name string) (*Reconciler, error)
 	GetReconcilerConfig(ctx context.Context, arg GetReconcilerConfigParams) ([]*GetReconcilerConfigRow, error)
+	GetReconcilerState(ctx context.Context, reconcilerName string) ([]*GetReconcilerStateRow, error)
 	GetReconcilerStateForTeam(ctx context.Context, arg GetReconcilerStateForTeamParams) (*ReconcilerState, error)
 	GetReconcilers(ctx context.Context, arg GetReconcilersParams) ([]*Reconciler, error)
 	GetReconcilersCount(ctx context.Context) (int64, error)

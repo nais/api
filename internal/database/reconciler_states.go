@@ -11,10 +11,31 @@ type ReconcilerState struct {
 	*gensql.ReconcilerState
 }
 
+type ReconcilerStateWithTeam struct {
+	*Team
+	*gensql.ReconcilerState
+}
+
 type ReconcilerStateRepo interface {
+	GetReconcilerState(ctx context.Context, reconcilerName string) ([]*ReconcilerStateWithTeam, error)
 	GetReconcilerStateForTeam(ctx context.Context, reconcilerName string, teamSlug slug.Slug) (*ReconcilerState, error)
 	UpsertReconcilerState(ctx context.Context, reconcilerName string, teamSlug slug.Slug, value []byte) (*ReconcilerState, error)
 	DeleteReconcilerStateForTeam(ctx context.Context, reconcilerName string, teamSlug slug.Slug) error
+}
+
+func (d *database) GetReconcilerState(ctx context.Context, reconcilerName string) ([]*ReconcilerStateWithTeam, error) {
+	rows, err := d.querier.GetReconcilerState(ctx, reconcilerName)
+	if err != nil {
+		return nil, err
+	}
+	state := make([]*ReconcilerStateWithTeam, len(rows))
+	for i, row := range rows {
+		state[i] = &ReconcilerStateWithTeam{
+			ReconcilerState: &row.ReconcilerState,
+			Team:            &Team{&row.Team},
+		}
+	}
+	return state, nil
 }
 
 func (d *database) GetReconcilerStateForTeam(ctx context.Context, reconcilerName string, teamSlug slug.Slug) (*ReconcilerState, error) {

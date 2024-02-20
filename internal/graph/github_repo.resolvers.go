@@ -11,6 +11,7 @@ import (
 
 	pgx "github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
@@ -61,7 +62,7 @@ func (r *mutationResolver) AuthorizeRepository(ctx context.Context, authorizatio
 	}
 
 	var repo *model.GitHubRepository
-	repos, err := getGitHubRepos(state.Value)
+	repos, err := database.GetGitHubRepos(state.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +107,7 @@ func (r *mutationResolver) DeauthorizeRepository(ctx context.Context, authorizat
 	}
 
 	var repo *model.GitHubRepository
-	repos, err := getGitHubRepos(state.Value)
+	repos, err := database.GetGitHubRepos(state.Value)
 	if err != nil {
 		return nil, err
 	}
