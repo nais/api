@@ -68,7 +68,6 @@ type userSyncConfig struct {
 	RunsToPersist int `env:"USERSYNC_RUNS_TO_PERSIST,default=5"`
 
 	// AdminGroupPrefix The prefix of the admin group email address.
-	// TODO: change default value to nais-admins (or something similar) and rename existing groups
 	AdminGroupPrefix string `env:"USERSYNC_ADMIN_GROUP_PREFIX,default=nais-admins"`
 }
 
