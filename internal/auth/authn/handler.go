@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
@@ -56,14 +57,16 @@ type claims struct {
 
 func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 	redirectURI := r.URL.Query().Get("redirect_uri")
-	http.SetCookie(w, &http.Cookie{
-		Name:     RedirectURICookie,
-		Value:    redirectURI,
-		Path:     "/",
-		Expires:  time.Now().Add(30 * time.Minute),
-		Secure:   true,
-		HttpOnly: true,
-	})
+	if len(redirectURI) > 0 && strings.HasPrefix(redirectURI, "/") {
+		http.SetCookie(w, &http.Cookie{
+			Name:     RedirectURICookie,
+			Value:    redirectURI,
+			Path:     "/",
+			Expires:  time.Now().Add(30 * time.Minute),
+			Secure:   true,
+			HttpOnly: true,
+		})
+	}
 
 	oauthState := uuid.New().String()
 	http.SetCookie(w, &http.Cookie{
