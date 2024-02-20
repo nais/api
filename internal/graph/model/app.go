@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 )
 
 type App struct {
@@ -20,8 +21,7 @@ type App struct {
 	Variables    []*Variable  `json:"variables"`
 	Authz        []Authz      `json:"authz"`
 	AppState     AppState     `json:"appState"`
-
-	GQLVars AppGQLVars `json:"-"`
+	GQLVars      AppGQLVars   `json:"-"`
 }
 
 func (App) IsSearchNode() {}
@@ -36,4 +36,14 @@ type Instance struct {
 	Created  time.Time     `json:"created"`
 
 	GQLVars InstanceGQLVars `json:"-"`
+}
+
+type AppGQLVars struct {
+	Team slug.Slug
+}
+
+type InstanceGQLVars struct {
+	Env     string
+	Team    slug.Slug
+	AppName string
 }

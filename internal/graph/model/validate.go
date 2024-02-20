@@ -26,10 +26,6 @@ var (
 	}
 )
 
-func ptr[T any](value T) *T {
-	return &value
-}
-
 func (input CreateTeamInput) Validate() error {
 	if !teamSlugRegex.MatchString(string(input.Slug)) || len(input.Slug) < 3 || len(input.Slug) > 30 {
 		return apierror.ErrTeamSlug

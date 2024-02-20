@@ -3,9 +3,8 @@ package model_test
 import (
 	"testing"
 
-	"k8s.io/utils/ptr"
-
 	"github.com/nais/api/internal/graph/model"
+	"k8s.io/utils/ptr"
 )
 
 func TestCreateTeamInput_Sanitize(t *testing.T) {

@@ -5,20 +5,13 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-// GitHub repository type.
 type GitHubRepository struct {
-	// ID of the repository.
-	ID uuid.UUID `json:"id"`
-	// Name of the repository, with the org prefix.
-	Name string `json:"name"`
-	// A list of permissions given to the team for this repository.
+	ID          uuid.UUID                     `json:"id"`
+	Name        string                        `json:"name"`
 	Permissions []*GitHubRepositoryPermission `json:"permissions"`
-	// The name of the role the team has been granted in the repository.
-	RoleName string `json:"roleName"`
-	// Whether or not the repository is archived.
-	Archived bool `json:"archived"`
-
-	GQLVars GitHubRepositoryGQLVars `json:"-"`
+	RoleName    string                        `json:"roleName"`
+	Archived    bool                          `json:"archived"`
+	GQLVars     GitHubRepositoryGQLVars       `json:"-"`
 }
 
 type GitHubRepositoryGQLVars struct {

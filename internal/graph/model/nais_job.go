@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 )
 
 type NaisJob struct {
@@ -37,4 +38,14 @@ type Run struct {
 	Message        string       `json:"message"`
 	Failed         bool         `json:"failed"`
 	GQLVars        RunGQLVars   `json:"-"`
+}
+
+type NaisJobGQLVars struct {
+	Team slug.Slug
+}
+
+type RunGQLVars struct {
+	Env     string
+	Team    slug.Slug
+	NaisJob string
 }
