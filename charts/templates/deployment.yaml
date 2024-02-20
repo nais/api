@@ -78,6 +78,10 @@ spec:
               value: {{ .Values.usersync.serviceAccount | default (printf "nais-api@%s.iam.gserviceaccount.com" .Values.google.managementProjectID) | quote }}
             - name: USERSYNC_SUBJECT_EMAIL
               value: {{ .Values.usersync.subjectEmail | default (printf "nais-admin@%s" .Values.tenant.domain) | quote }}
+            {{- if .Values.usersync.adminGroupPrefix }}
+            - name: USERSYNC_ADMIN_GROUP_PREFIX
+              value: "{{ .Values.usersync.adminGroupPrefix }}"
+            {{- end }}
           envFrom:
             - secretRef:
                 name: "{{ .Release.Name }}"
