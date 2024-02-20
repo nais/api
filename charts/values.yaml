@@ -50,3 +50,7 @@ oauth: # mapped in fasit
   clientSecret: ""
 
 staticServiceAccounts: "" # mapped in fasit
+
+usersync:
+  serviceAccount: null # Config in fasit
+  subjectEmail: null # Config in fasit

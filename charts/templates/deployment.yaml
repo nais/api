@@ -74,6 +74,10 @@ spec:
               value: ":3000"
             - name: GRPC_LISTEN_ADDRESS
               value: ":3001"
+            - name: USERSYNC_SERVICE_ACCOUNT
+              value: {{ .Values.usersync.serviceAccount | default (printf "nais-api@%s.iam.gserviceaccount.com" .Values.google.managementProjectID) | quote }}
+            - name: USERSYNC_SUBJECT_EMAIL
+              value: {{ .Values.usersync.subjectEmail | default (printf "nais-admin@%s" .Values.tenant.domain) | quote }}
           envFrom:
             - secretRef:
                 name: "{{ .Release.Name }}"
