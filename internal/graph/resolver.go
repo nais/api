@@ -162,15 +162,6 @@ func NewHandler(config gengql.Config, log logrus.FieldLogger) (*handler.Server, 
 	return graphHandler, nil
 }
 
-// GetQueriedFields Get a map of queried fields for the given context with the field names as keys
-func GetQueriedFields(ctx context.Context) map[string]bool {
-	fields := make(map[string]bool)
-	for _, field := range graphql.CollectAllFields(ctx) {
-		fields[field] = true
-	}
-	return fields
-}
-
 func gensqlRoleFromTeamRole(teamRole model.TeamRole) (gensql.RoleName, error) {
 	switch teamRole {
 	case model.TeamRoleMember:

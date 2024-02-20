@@ -10,14 +10,14 @@ import (
 )
 
 type (
-	dailyCosts       map[string]map[scalar.Date]float64
-	sortedDailyCosts map[string][]*model.CostEntry
+	DailyCosts       map[string]map[scalar.Date]float64
+	SortedDailyCosts map[string][]*model.CostEntry
 )
 
-// DailyCostsFromDatabaseRows will convert a slice of cost rows from the database to a sortedDailyCosts map.
-func DailyCostsFromDatabaseRows(from, to scalar.Date, rows []*gensql.Cost) (sortedDailyCosts, float64) {
+// DailyCostsFromDatabaseRows will convert a slice of cost rows from the database to a SortedDailyCosts map.
+func DailyCostsFromDatabaseRows(from, to scalar.Date, rows []*gensql.Cost) (SortedDailyCosts, float64) {
 	sum := 0.0
-	daily := dailyCosts{}
+	daily := DailyCosts{}
 	for _, row := range rows {
 		if _, exists := daily[row.CostType]; !exists {
 			daily[row.CostType] = make(map[scalar.Date]float64)
@@ -29,9 +29,9 @@ func DailyCostsFromDatabaseRows(from, to scalar.Date, rows []*gensql.Cost) (sort
 	return normalizeDailyCosts(from, to, daily), sum
 }
 
-func DailyCostsForTeamFromDatabaseRows(from, to scalar.Date, rows []*gensql.Cost) (sortedDailyCosts, float64) {
+func DailyCostsForTeamFromDatabaseRows(from, to scalar.Date, rows []*gensql.Cost) (SortedDailyCosts, float64) {
 	sum := 0.0
-	daily := dailyCosts{}
+	daily := DailyCosts{}
 	for _, row := range rows {
 		if _, exists := daily[row.CostType]; !exists {
 			daily[row.CostType] = make(map[scalar.Date]float64)
@@ -48,9 +48,9 @@ func DailyCostsForTeamFromDatabaseRows(from, to scalar.Date, rows []*gensql.Cost
 	return normalizeDailyCosts(from, to, daily), sum
 }
 
-func DailyCostsForTeamPerEnvFromDatabaseRows(from, to scalar.Date, rows []*gensql.DailyEnvCostForTeamRow) (sortedDailyCosts, float64) {
+func DailyCostsForTeamPerEnvFromDatabaseRows(from, to scalar.Date, rows []*gensql.DailyEnvCostForTeamRow) (SortedDailyCosts, float64) {
 	sum := 0.0
-	daily := dailyCosts{}
+	daily := DailyCosts{}
 	for _, row := range rows {
 		if row.App == "" {
 			continue
@@ -67,10 +67,10 @@ func DailyCostsForTeamPerEnvFromDatabaseRows(from, to scalar.Date, rows []*gensq
 
 // normalizeDailyCosts will make sure all dates in the "from -> to" range are present in the returned map for all cost
 // types. The dates will also be sorted in ascending order.
-func normalizeDailyCosts(from, to scalar.Date, costs dailyCosts) sortedDailyCosts {
+func normalizeDailyCosts(from, to scalar.Date, costs DailyCosts) SortedDailyCosts {
 	start, _ := from.Time()
 	end, _ := to.Time()
-	sortedDailyCost := make(sortedDailyCosts)
+	sortedDailyCost := make(SortedDailyCosts)
 	for k, daysInSeries := range costs {
 		data := make([]*model.CostEntry, 0)
 		for day := start; !day.After(end); day = day.AddDate(0, 0, 1) {

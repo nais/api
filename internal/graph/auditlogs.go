@@ -7,9 +7,9 @@ import (
 )
 
 func toGraphAuditLogs(logs []*database.AuditLog) []*model.AuditLog {
-	graphLogs := make([]*model.AuditLog, 0, len(logs))
-	for _, log := range logs {
-		graphLogs = append(graphLogs, &model.AuditLog{
+	graphLogs := make([]*model.AuditLog, len(logs))
+	for i, log := range logs {
+		graphLogs[i] = &model.AuditLog{
 			ID:               scalar.AuditLogIdent(log.ID),
 			Action:           log.Action,
 			Actor:            log.Actor,
@@ -19,7 +19,7 @@ func toGraphAuditLogs(logs []*database.AuditLog) []*model.AuditLog {
 			TargetIdentifier: log.TargetIdentifier,
 			Message:          log.Message,
 			CreatedAt:        log.CreatedAt.Time,
-		})
+		}
 	}
 	return graphLogs
 }

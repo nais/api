@@ -14,7 +14,6 @@ import (
 func (r *queryResolver) Search(ctx context.Context, query string, filter *model.SearchFilter, offset *int, limit *int) (*model.SearchList, error) {
 	results := r.searcher.Search(ctx, query, filter)
 	pagination := model.NewPagination(offset, limit)
-
 	nodes, pi := model.PaginatedSlice(results, pagination)
 
 	ret := &model.SearchList{

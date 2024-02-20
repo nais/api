@@ -7,13 +7,13 @@ import (
 )
 
 func toGraphRoles(roles []*authz.Role) []*model.Role {
-	ret := make([]*model.Role, 0, len(roles))
-	for _, role := range roles {
+	ret := make([]*model.Role, len(roles))
+	for i, role := range roles {
 		var saID uuid.UUID
 		if role.TargetServiceAccountID != nil {
 			saID = *role.TargetServiceAccountID
 		}
-		a := &model.Role{
+		ret[i] = &model.Role{
 			Name:     string(role.RoleName),
 			IsGlobal: role.IsGlobal(),
 			GQLVars: model.RoleGQLVars{
@@ -21,8 +21,6 @@ func toGraphRoles(roles []*authz.Role) []*model.Role {
 				TargetTeamSlug:         role.TargetTeamSlug,
 			},
 		}
-
-		ret = append(ret, a)
 	}
 
 	return ret

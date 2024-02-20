@@ -8,19 +8,19 @@ import (
 )
 
 func toGraphTeams(m []*database.Team) []*model.Team {
-	ret := make([]*model.Team, 0)
-	for _, team := range m {
-		ret = append(ret, loader.ToGraphTeam(team))
+	ret := make([]*model.Team, len(m))
+	for i, team := range m {
+		ret[i] = loader.ToGraphTeam(team)
 	}
 	return ret
 }
 
 func toGraphTeamMemberReconcilers(tmoors []*gensql.GetTeamMemberOptOutsRow) []*model.TeamMemberReconciler {
-	ret := make([]*model.TeamMemberReconciler, 0)
-	for _, tmoor := range tmoors {
-		ret = append(ret, &model.TeamMemberReconciler{
+	ret := make([]*model.TeamMemberReconciler, len(tmoors))
+	for i, tmoor := range tmoors {
+		ret[i] = &model.TeamMemberReconciler{
 			Enabled: tmoor.Enabled,
-		})
+		}
 	}
 	return ret
 }
