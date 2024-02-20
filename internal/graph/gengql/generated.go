@@ -15284,9 +15284,9 @@ func (ec *executionContext) _GitHubRepository_id(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(uuid.UUID)
+	res := resTmp.(scalar.Ident)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_GitHubRepository_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
