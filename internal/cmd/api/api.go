@@ -269,7 +269,10 @@ func loadEnvFile() (fileLoaded bool, err error) {
 }
 
 func setupAuthHandler(cfg oAuthConfig, db database.Database, log logrus.FieldLogger) (authn.Handler, error) {
-	cf := authn.NewGoogle(cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL)
+	cf, err := authn.NewGoogle(cfg.ClientID, cfg.ClientSecret, cfg.RedirectURL)
+	if err != nil {
+		return nil, err
+	}
 	frontendURL, err := url.Parse(cfg.FrontendURL)
 	if err != nil {
 		return nil, err

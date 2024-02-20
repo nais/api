@@ -17,10 +17,10 @@ type Google struct {
 	provider *oidc.Provider
 }
 
-func NewGoogle(clientID, clientSecret, redirectURL string) *Google {
+func NewGoogle(clientID, clientSecret, redirectURL string) (*Google, error) {
 	provider, err := oidc.NewProvider(context.Background(), "https://accounts.google.com")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	g := &Google{
@@ -30,7 +30,7 @@ func NewGoogle(clientID, clientSecret, redirectURL string) *Google {
 		provider:     provider,
 	}
 	g.setupOAuth2()
-	return g
+	return g, nil
 }
 
 func (g *Google) setupOAuth2() {
