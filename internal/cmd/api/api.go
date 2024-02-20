@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -273,10 +272,6 @@ func setupAuthHandler(cfg oAuthConfig, db database.Database, log logrus.FieldLog
 	if err != nil {
 		return nil, err
 	}
-	frontendURL, err := url.Parse(cfg.FrontendURL)
-	if err != nil {
-		return nil, err
-	}
-	handler := authn.New(cf, db, *frontendURL, log)
+	handler := authn.New(cf, db, log)
 	return handler, nil
 }

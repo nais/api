@@ -103,10 +103,6 @@ type oAuthConfig struct {
 
 	// RedirectURL The URL that Google will redirect back to after performing authentication.
 	RedirectURL string `env:"OAUTH_REDIRECT_URL"`
-
-	// FrontendURL The URL of the frontend application.
-	// TODO: This should be removed as we are always on the same domain
-	FrontendURL string `env:"OAUTH_FRONTEND_URL"`
 }
 
 type Config struct {
