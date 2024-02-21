@@ -40,17 +40,6 @@ type ReconcilerError struct {
 	*gensql.ReconcilerError
 }
 
-type ReconcilerConfigValues struct {
-	values map[string]string
-}
-
-func (v ReconcilerConfigValues) GetValue(s string) string {
-	if v, exists := v.values[s]; exists {
-		return v
-	}
-	return ""
-}
-
 func (d *database) GetReconciler(ctx context.Context, reconcilerName string) (*Reconciler, error) {
 	reconciler, err := d.querier.GetReconciler(ctx, reconcilerName)
 	if err != nil {
