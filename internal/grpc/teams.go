@@ -15,13 +15,18 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-type TeamsServer struct {
-	db interface {
-		database.TeamRepo
-		database.RepositoryAuthorizationRepo
-	}
+type repo interface {
+	database.TeamRepo
+	database.RepositoryAuthorizationRepo
+}
 
+type TeamsServer struct {
+	db repo
 	protoapi.UnimplementedTeamsServer
+}
+
+func NewTeamsServer(db repo) *TeamsServer {
+	return &TeamsServer{db: db}
 }
 
 func (t *TeamsServer) Delete(ctx context.Context, req *protoapi.DeleteTeamRequest) (*protoapi.DeleteTeamResponse, error) {

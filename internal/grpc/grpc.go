@@ -27,7 +27,7 @@ func Run(ctx context.Context, listenAddress string, repo database.Database, audi
 	}
 	s := grpc.NewServer(opts...)
 
-	protoapi.RegisterTeamsServer(s, &TeamsServer{db: repo})
+	protoapi.RegisterTeamsServer(s, NewTeamsServer(repo))
 	protoapi.RegisterUsersServer(s, &UsersServer{db: repo})
 	protoapi.RegisterReconcilersServer(s, &ReconcilersServer{db: repo})
 	protoapi.RegisterAuditLogsServer(s, &AuditLogsServer{db: repo, auditlog: auditlog})
