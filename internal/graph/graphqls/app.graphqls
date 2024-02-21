@@ -38,11 +38,6 @@ type AppState {
   errors: [StateError!]!
 }
 
-type Variable {
-  name: String!
-  value: String!
-}
-
 type AutoScaling {
   disabled: Boolean!
   """

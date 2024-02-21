@@ -15,7 +15,7 @@ import (
 )
 
 // CreateSecret is the resolver for the createSecret field.
-func (r *mutationResolver) CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
+func (r *mutationResolver) CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.VariableInput) (*model.Secret, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireTeamMembership(actor, team)
 	if err != nil {
@@ -25,7 +25,7 @@ func (r *mutationResolver) CreateSecret(ctx context.Context, name string, team s
 }
 
 // UpdateSecret is the resolver for the updateSecret field.
-func (r *mutationResolver) UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
+func (r *mutationResolver) UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.VariableInput) (*model.Secret, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireTeamMembership(actor, team)
 	if err != nil {

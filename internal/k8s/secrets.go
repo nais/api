@@ -138,7 +138,7 @@ func (c *Client) AppsUsingSecret(ctx context.Context, obj *model.Secret) ([]*mod
 	return slices.Compact(matches), nil
 }
 
-func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
+func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.VariableInput) (*model.Secret, error) {
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
 	if err != nil {
 		return nil, c.error(ctx, err, "impersonation")
@@ -170,7 +170,7 @@ func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, 
 	return toGraphSecret(env, team, created), nil
 }
 
-func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.SecretTupleInput) (*model.Secret, error) {
+func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.VariableInput) (*model.Secret, error) {
 	impersonatedClients, err := c.impersonationClientCreator(ctx)
 	if err != nil {
 		return nil, c.error(ctx, err, "impersonation")
@@ -249,7 +249,7 @@ func secretIsManagedByConsole(secret corev1.Secret) bool {
 	return hasConsoleLabel && isOpaque && !hasOwnerReferences && !hasFinalizers && !isJwker
 }
 
-func kubeSecret(name string, team slug.Slug, actor *authz.Actor, data []*model.SecretTupleInput) *corev1.Secret {
+func kubeSecret(name string, team slug.Slug, actor *authz.Actor, data []*model.VariableInput) *corev1.Secret {
 	namespace := team.String()
 	user := actor.User.Identity()
 
@@ -305,7 +305,7 @@ func secretBytesToString(data map[string][]byte) map[string]string {
 	return ret
 }
 
-func secretTupleToMap(data []*model.SecretTupleInput) map[string][]byte {
+func secretTupleToMap(data []*model.VariableInput) map[string][]byte {
 	ret := make(map[string][]byte, len(data))
 	for _, tuple := range data {
 		ret[tuple.Name] = []byte(tuple.Value)
@@ -321,7 +321,7 @@ const envVarNameFmtErrMsg = "must consist of alphabetic characters, digits, '_',
 
 var envVarNameRegexp = regexp.MustCompile("^[_a-zA-Z][_a-zA-Z0-9]*$")
 
-func validateSecretData(data []*model.SecretTupleInput) error {
+func validateSecretData(data []*model.VariableInput) error {
 	seen := make(map[string]bool)
 
 	for _, d := range data {

@@ -759,11 +759,6 @@ type SearchList struct {
 	Nodes    []SearchNode `json:"nodes"`
 }
 
-type SecretTupleInput struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
 type Sidecar struct {
 	AutoLogin            bool      `json:"autoLogin"`
 	AutoLoginIgnorePaths []string  `json:"autoLoginIgnorePaths"`
@@ -913,6 +908,11 @@ type UserList struct {
 }
 
 type Variable struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+type VariableInput struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
