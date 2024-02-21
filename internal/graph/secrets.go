@@ -7,7 +7,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 )
 
-func convertSecretDataToTuple(data map[string]string) []*model.Variable {
+func convertSecretDataToVariables(data map[string]string) []*model.Variable {
 	ret := make([]*model.Variable, 0, len(data))
 	for key, value := range data {
 		ret = append(ret, &model.Variable{

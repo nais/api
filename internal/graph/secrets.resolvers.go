@@ -56,7 +56,7 @@ func (r *secretResolver) Team(ctx context.Context, obj *model.Secret) (*model.Te
 
 // Data is the resolver for the data field.
 func (r *secretResolver) Data(ctx context.Context, obj *model.Secret) ([]*model.Variable, error) {
-	return convertSecretDataToTuple(obj.Data), nil
+	return convertSecretDataToVariables(obj.Data), nil
 }
 
 // Apps is the resolver for the apps field.

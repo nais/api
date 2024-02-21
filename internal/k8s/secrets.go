@@ -236,14 +236,19 @@ func (c *Client) DeleteSecret(ctx context.Context, name string, team slug.Slug, 
 }
 
 func secretIsManagedByConsole(secret corev1.Secret) bool {
-	secretLabel, ok := secret.GetLabels()[secretLabelManagedByKey]
+	labels := secret.GetLabels()
+	if labels == nil {
+		labels = make(map[string]string)
+	}
+
+	secretLabel, ok := labels[secretLabelManagedByKey]
 	hasConsoleLabel := ok && secretLabel == secretLabelManagedByVal
 
 	isOpaque := secret.Type == corev1.SecretTypeOpaque || secret.Type == "kubernetes.io/Opaque"
 	hasOwnerReferences := len(secret.GetOwnerReferences()) > 0
 	hasFinalizers := len(secret.GetFinalizers()) > 0
 
-	typeLabel, ok := secret.GetLabels()["type"]
+	typeLabel, ok := labels["type"]
 	isJwker := ok && typeLabel == "jwker.nais.io"
 
 	return hasConsoleLabel && isOpaque && !hasOwnerReferences && !hasFinalizers && !isJwker
@@ -317,11 +322,11 @@ func makeSecretIdent(env, namespace, name string) scalar.Ident {
 	return scalar.SecretIdent("secret_" + env + "_" + namespace + "_" + name)
 }
 
-const envVarNameFmtErrMsg = "must consist of alphabetic characters, digits, '_', and must not start with a digit"
-
 var envVarNameRegexp = regexp.MustCompile("^[_a-zA-Z][_a-zA-Z0-9]*$")
 
 func validateSecretData(data []*model.VariableInput) error {
+	const envVarNameFmtErrMsg = "must consist of alphabetic characters, digits, '_', and must not start with a digit"
+
 	seen := make(map[string]bool)
 
 	for _, d := range data {
