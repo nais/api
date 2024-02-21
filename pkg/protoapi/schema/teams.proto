@@ -32,6 +32,7 @@ service Teams {
   rpc SetTeamExternalReferences(SetTeamExternalReferencesRequest) returns (SetTeamExternalReferencesResponse) {}
   rpc SetTeamEnvironmentExternalReferences(SetTeamEnvironmentExternalReferencesRequest) returns (SetTeamEnvironmentExternalReferencesResponse) {}
   rpc Delete(DeleteTeamRequest) returns (DeleteTeamResponse) {}
+  rpc IsRepositoryAuthorized(IsRepositoryAuthorizedRequest) returns (IsRepositoryAuthorizedResponse) {}
 }
 
 message DeleteTeamRequest {
@@ -110,4 +111,19 @@ message ListTeamMembersResponse {
 
 message TeamMember {
   User user = 1;
+}
+
+enum RepositoryAuthorization {
+  UNKNOWN = 0;
+  DEPLOY = 1;
+}
+
+message IsRepositoryAuthorizedRequest {
+  string team_slug = 1;
+  string repository = 2;
+  RepositoryAuthorization authorization = 3;
+}
+
+message IsRepositoryAuthorizedResponse {
+  bool is_authorized = 1;
 }

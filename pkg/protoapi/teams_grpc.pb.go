@@ -27,6 +27,7 @@ const (
 	Teams_SetTeamExternalReferences_FullMethodName            = "/Teams/SetTeamExternalReferences"
 	Teams_SetTeamEnvironmentExternalReferences_FullMethodName = "/Teams/SetTeamEnvironmentExternalReferences"
 	Teams_Delete_FullMethodName                               = "/Teams/Delete"
+	Teams_IsRepositoryAuthorized_FullMethodName               = "/Teams/IsRepositoryAuthorized"
 )
 
 // TeamsClient is the client API for Teams service.
@@ -41,6 +42,7 @@ type TeamsClient interface {
 	SetTeamExternalReferences(ctx context.Context, in *SetTeamExternalReferencesRequest, opts ...grpc.CallOption) (*SetTeamExternalReferencesResponse, error)
 	SetTeamEnvironmentExternalReferences(ctx context.Context, in *SetTeamEnvironmentExternalReferencesRequest, opts ...grpc.CallOption) (*SetTeamEnvironmentExternalReferencesResponse, error)
 	Delete(ctx context.Context, in *DeleteTeamRequest, opts ...grpc.CallOption) (*DeleteTeamResponse, error)
+	IsRepositoryAuthorized(ctx context.Context, in *IsRepositoryAuthorizedRequest, opts ...grpc.CallOption) (*IsRepositoryAuthorizedResponse, error)
 }
 
 type teamsClient struct {
@@ -123,6 +125,15 @@ func (c *teamsClient) Delete(ctx context.Context, in *DeleteTeamRequest, opts ..
 	return out, nil
 }
 
+func (c *teamsClient) IsRepositoryAuthorized(ctx context.Context, in *IsRepositoryAuthorizedRequest, opts ...grpc.CallOption) (*IsRepositoryAuthorizedResponse, error) {
+	out := new(IsRepositoryAuthorizedResponse)
+	err := c.cc.Invoke(ctx, Teams_IsRepositoryAuthorized_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TeamsServer is the server API for Teams service.
 // All implementations must embed UnimplementedTeamsServer
 // for forward compatibility
@@ -135,6 +146,7 @@ type TeamsServer interface {
 	SetTeamExternalReferences(context.Context, *SetTeamExternalReferencesRequest) (*SetTeamExternalReferencesResponse, error)
 	SetTeamEnvironmentExternalReferences(context.Context, *SetTeamEnvironmentExternalReferencesRequest) (*SetTeamEnvironmentExternalReferencesResponse, error)
 	Delete(context.Context, *DeleteTeamRequest) (*DeleteTeamResponse, error)
+	IsRepositoryAuthorized(context.Context, *IsRepositoryAuthorizedRequest) (*IsRepositoryAuthorizedResponse, error)
 	mustEmbedUnimplementedTeamsServer()
 }
 
@@ -165,6 +177,9 @@ func (UnimplementedTeamsServer) SetTeamEnvironmentExternalReferences(context.Con
 }
 func (UnimplementedTeamsServer) Delete(context.Context, *DeleteTeamRequest) (*DeleteTeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedTeamsServer) IsRepositoryAuthorized(context.Context, *IsRepositoryAuthorizedRequest) (*IsRepositoryAuthorizedResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method IsRepositoryAuthorized not implemented")
 }
 func (UnimplementedTeamsServer) mustEmbedUnimplementedTeamsServer() {}
 
@@ -323,6 +338,24 @@ func _Teams_Delete_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Teams_IsRepositoryAuthorized_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IsRepositoryAuthorizedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TeamsServer).IsRepositoryAuthorized(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Teams_IsRepositoryAuthorized_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TeamsServer).IsRepositoryAuthorized(ctx, req.(*IsRepositoryAuthorizedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Teams_ServiceDesc is the grpc.ServiceDesc for Teams service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -361,6 +394,10 @@ var Teams_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Delete",
 			Handler:    _Teams_Delete_Handler,
+		},
+		{
+			MethodName: "IsRepositoryAuthorized",
+			Handler:    _Teams_IsRepositoryAuthorized_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

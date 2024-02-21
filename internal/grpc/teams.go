@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"errors"
+	"slices"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -165,6 +166,28 @@ func (t *TeamsServer) ListAuthorizedRepositories(ctx context.Context, req *proto
 	return &protoapi.ListAuthorizedRepositoriesResponse{
 		GithubRepositories: repositories,
 	}, nil
+}
+
+func (t *TeamsServer) IsRepositoryAuthorized(ctx context.Context, req *protoapi.IsRepositoryAuthorizedRequest) (*protoapi.IsRepositoryAuthorizedResponse, error) {
+	teamSlug := slug.Slug(req.TeamSlug)
+	auths, err := t.db.GetRepositoryAuthorizations(ctx, teamSlug, req.Repository)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get repository authorizations")
+	}
+
+	var authorization gensql.RepositoryAuthorizationEnum
+	switch req.Authorization {
+	case protoapi.RepositoryAuthorization_DEPLOY:
+		authorization = gensql.RepositoryAuthorizationEnumDeploy
+	default:
+		return nil, status.Errorf(codes.InvalidArgument, "invalid authorization: %s", req.Authorization)
+	}
+
+	if slices.Contains(auths, authorization) {
+		return &protoapi.IsRepositoryAuthorizedResponse{IsAuthorized: true}, nil
+	}
+
+	return &protoapi.IsRepositoryAuthorizedResponse{IsAuthorized: false}, nil
 }
 
 func toProtoTeam(team *database.Team) *protoapi.Team {
