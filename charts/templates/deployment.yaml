@@ -60,6 +60,8 @@ spec:
               value: "true"
             - name: RESOURCE_UTILIZATION_IMPORT_ENABLED
               value: "true"
+            - name: VULNERABILITY_METRICS_IMPORT_ENABLED
+              value: "true"
             - name: DEPENDENCYTRACK_FRONTEND
               value: "{{ .Values.dependencytrack.frontend }}"
             - name: USERSYNC_ENABLED
