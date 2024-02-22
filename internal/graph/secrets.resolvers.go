@@ -66,6 +66,10 @@ func (r *secretResolver) Apps(ctx context.Context, obj *model.Secret) ([]*model.
 
 // LastModifiedBy is the resolver for the lastModifiedBy field.
 func (r *secretResolver) LastModifiedBy(ctx context.Context, obj *model.Secret) (*model.User, error) {
+	if obj.GQLVars.LastModifiedBy == "" {
+		return nil, nil
+	}
+
 	return r.Query().User(ctx, nil, &obj.GQLVars.LastModifiedBy)
 }
 
