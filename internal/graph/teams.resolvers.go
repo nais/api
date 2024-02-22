@@ -963,17 +963,10 @@ func (r *teamResolver) GithubRepositories(ctx context.Context, obj *model.Team, 
 		return nil, err
 	}
 
-	// TODO: to paginate or not to paginate?
-	start := page.Offset
-	end := start + page.Limit
-	total := len(repos)
-	if end > total {
-		end = total
-	}
-
+	nodes, pageInfo := model.PaginatedSlice(repos, page)
 	return &model.GitHubRepositoryList{
-		Nodes:    repos[start:end],
-		PageInfo: model.NewPageInfo(page, total),
+		Nodes:    nodes,
+		PageInfo: pageInfo,
 	}, nil
 }
 
