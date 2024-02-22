@@ -39,3 +39,13 @@ type Env struct {
 	Name   string                    `json:"name"`
 	DBType *database.TeamEnvironment `json:"-"`
 }
+
+// Team member input.
+type TeamMemberInput struct {
+	// The ID of user.
+	UserID uuid.UUID `json:"userId"`
+	// The role that the user will receive.
+	Role TeamRole `json:"role"`
+	// Reconcilers to opt the team member out of.
+	ReconcilerOptOuts []string `json:"reconcilerOptOuts,omitempty"`
+}

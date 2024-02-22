@@ -497,18 +497,12 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 	if err != nil {
 		return nil, err
 	}
-
-	mid, err := member.UserID.AsUUID()
-	if err != nil {
-		return nil, err
-	}
-
 	team, err := loader.GetTeam(ctx, slug)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.database.GetUserByID(ctx, mid)
+	user, err := r.database.GetUserByID(ctx, member.UserID)
 	if err != nil {
 		return nil, apierror.ErrUserNotExists
 	}
@@ -517,7 +511,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 
 	auditLogEntries := make([]auditlogger.Entry, 0)
 	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
-		teamMember, _ := dbtx.GetTeamMember(ctx, slug, mid)
+		teamMember, _ := dbtx.GetTeamMember(ctx, slug, member.UserID)
 		if teamMember != nil {
 			return apierror.Errorf("User is already a member of the team.")
 		}
@@ -527,13 +521,13 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 			return err
 		}
 
-		err = dbtx.SetTeamMemberRole(ctx, mid, team.Slug, role)
+		err = dbtx.SetTeamMemberRole(ctx, member.UserID, team.Slug, role)
 		if err != nil {
 			return err
 		}
 
 		for _, reconcilerName := range member.ReconcilerOptOuts {
-			err = dbtx.AddReconcilerOptOut(ctx, mid, team.Slug, reconcilerName)
+			err = dbtx.AddReconcilerOptOut(ctx, member.UserID, team.Slug, reconcilerName)
 			if err != nil {
 				return err
 			}
