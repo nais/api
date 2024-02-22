@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/scalar"
 )
 
 type userReader struct {
@@ -13,7 +14,7 @@ type userReader struct {
 }
 
 func (u userReader) getUsers(ctx context.Context, userIDs []uuid.UUID) ([]*model.User, []error) {
-	getID := func(obj *model.User) uuid.UUID { return obj.ID }
+	getID := func(obj *model.User) uuid.UUID { id, _ := obj.ID.AsUUID(); return id }
 	return loadModels(ctx, userIDs, u.db.GetUsersByIDs, ToGraphUser, getID)
 }
 
@@ -23,7 +24,7 @@ func GetUser(ctx context.Context, userID uuid.UUID) (*model.User, error) {
 
 func ToGraphUser(u *database.User) *model.User {
 	return &model.User{
-		ID:         u.ID,
+		ID:         scalar.UserIdent(u.ID),
 		Email:      u.Email,
 		Name:       u.Name,
 		ExternalID: u.ExternalID,

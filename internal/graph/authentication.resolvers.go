@@ -11,6 +11,7 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/scalar"
 )
 
 // Me is the resolver for the me field.
@@ -20,7 +21,7 @@ func (r *queryResolver) Me(ctx context.Context) (model.AuthenticatedUser, error)
 	switch me := me.(type) {
 	case *database.User:
 		return &model.User{
-			ID:         me.ID,
+			ID:         scalar.UserIdent(me.ID),
 			Email:      me.Email,
 			Name:       me.Name,
 			ExternalID: me.ExternalID,

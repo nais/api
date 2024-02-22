@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/scalar"
 	"github.com/stretchr/testify/mock"
 	"github.com/vikstrous/dataloadgen"
 )
@@ -46,7 +47,7 @@ func TestGenericLoaders(t *testing.T) {
 			},
 			dbErr:    nil,
 			ids:      []uuid.UUID{ids[0]},
-			want:     []*model.User{{ID: ids[0]}},
+			want:     []*model.User{{ID: scalar.UserIdent(ids[0])}},
 			wantErrs: []error{nil},
 		},
 		"five users": {
@@ -66,7 +67,7 @@ func TestGenericLoaders(t *testing.T) {
 			want: func() []*model.User {
 				ret := make([]*model.User, 5)
 				for i := range ret {
-					ret[i] = &model.User{ID: ids[i]}
+					ret[i] = &model.User{ID: scalar.UserIdent(ids[i])}
 				}
 				return ret
 			}(),
@@ -90,7 +91,7 @@ func TestGenericLoaders(t *testing.T) {
 				ret := make([]*model.User, 5)
 				for i := range ret {
 					if i < 4 {
-						ret[i] = &model.User{ID: ids[i]}
+						ret[i] = &model.User{ID: scalar.UserIdent(ids[i])}
 					}
 				}
 				return ret

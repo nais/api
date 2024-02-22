@@ -126,6 +126,10 @@ func CorrelationID(id uuid.UUID) Ident {
 	return newIdent(id.String(), IdentTypeCorrelationID)
 }
 
+func UserIdent(id uuid.UUID) Ident {
+	return newIdent(id.String(), "user")
+}
+
 func GitHubRepository(name string) Ident {
 	return newIdent(name, IdentTypeGitHubRepo)
 }

@@ -883,7 +883,7 @@ func (r *teamResolver) Members(ctx context.Context, obj *model.Team, offset *int
 	members := make([]*model.TeamMember, len(users))
 	for idx, user := range users {
 		members[idx] = &model.TeamMember{
-			UserID:   user.ID,
+			UserID:   scalar.UserIdent(user.ID),
 			TeamSlug: obj.Slug,
 		}
 	}
@@ -913,7 +913,7 @@ func (r *teamResolver) Member(ctx context.Context, obj *model.Team, userID scala
 	}
 
 	return &model.TeamMember{
-		UserID:   user.ID,
+		UserID:   scalar.UserIdent(user.ID),
 		TeamSlug: obj.Slug,
 	}, nil
 }
@@ -1404,7 +1404,11 @@ func (r *teamMemberResolver) Team(ctx context.Context, obj *model.TeamMember) (*
 
 // User is the resolver for the user field.
 func (r *teamMemberResolver) User(ctx context.Context, obj *model.TeamMember) (*model.User, error) {
-	return loader.GetUser(ctx, obj.UserID)
+	uid, err := obj.UserID.AsUUID()
+	if err != nil {
+		return nil, err
+	}
+	return loader.GetUser(ctx, uid)
 }
 
 // Role is the resolver for the role field.
@@ -1412,7 +1416,12 @@ func (r *teamMemberResolver) Role(ctx context.Context, obj *model.TeamMember) (m
 	if obj.TeamRole != "" {
 		return obj.TeamRole, nil
 	}
-	isOwner, err := r.database.UserIsTeamOwner(ctx, obj.UserID, obj.TeamSlug)
+	uid, err := obj.UserID.AsUUID()
+	if err != nil {
+		return "", err
+	}
+
+	isOwner, err := r.database.UserIsTeamOwner(ctx, uid, obj.TeamSlug)
 	if err != nil {
 		return "", err
 	}
@@ -1427,7 +1436,12 @@ func (r *teamMemberResolver) Role(ctx context.Context, obj *model.TeamMember) (m
 
 // Reconcilers is the resolver for the reconcilers field.
 func (r *teamMemberResolver) Reconcilers(ctx context.Context, obj *model.TeamMember) ([]*model.TeamMemberReconciler, error) {
-	rows, err := r.database.GetTeamMemberOptOuts(ctx, obj.UserID, obj.TeamSlug)
+	uid, err := obj.UserID.AsUUID()
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := r.database.GetTeamMemberOptOuts(ctx, uid, obj.TeamSlug)
 	if err != nil {
 		return nil, err
 	}

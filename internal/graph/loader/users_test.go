@@ -42,7 +42,11 @@ func TestGetUser(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 			}
-			if user.ID != id {
+			uid, err := user.ID.AsUUID()
+			if err != nil {
+				t.Error(err)
+			}
+			if uid != id {
 				t.Errorf("expected id %s, got %s", id, user.ID)
 			}
 		}(id)
@@ -99,8 +103,14 @@ func TestGetUser_WithMissing(t *testing.T) {
 				if user != nil {
 					t.Errorf("expected nil user, got %v", user)
 				}
-			} else if user.ID != id {
-				t.Errorf("expected id %s, got %s", id, user.ID)
+			} else {
+				uid, err := user.ID.AsUUID()
+				if err != nil {
+					t.Error(err)
+				}
+				if uid != id {
+					t.Errorf("expected id %s, got %s", id, user.ID)
+				}
 			}
 		}(tc.id, tc.err)
 	}

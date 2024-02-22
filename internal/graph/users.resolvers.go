@@ -120,7 +120,12 @@ func (r *userResolver) Teams(ctx context.Context, obj *model.User, limit *int, o
 		return nil, err
 	}
 	p := model.NewPagination(offset, limit)
-	userTeams, totalCount, err := r.database.GetUserTeamsPaginated(ctx, obj.ID, database.Page{
+	uid, err := obj.ID.AsUUID()
+	if err != nil {
+		return nil, err
+	}
+
+	userTeams, totalCount, err := r.database.GetUserTeamsPaginated(ctx, uid, database.Page{
 		Limit:  p.Limit,
 		Offset: p.Offset,
 	})
@@ -160,16 +165,26 @@ func (r *userResolver) Roles(ctx context.Context, obj *model.User) ([]*model.Rol
 		return nil, err
 	}
 
-	if err != nil && actor.User.GetID() != obj.ID {
+	uid, err := obj.ID.AsUUID()
+	if err != nil {
 		return nil, err
 	}
 
-	return loader.GetUserRoles(ctx, obj.ID)
+	if err != nil && actor.User.GetID() != uid {
+		return nil, err
+	}
+
+	return loader.GetUserRoles(ctx, uid)
 }
 
 // IsAdmin is the resolver for the isAdmin field.
 func (r *userResolver) IsAdmin(ctx context.Context, obj *model.User) (*bool, error) {
-	userRoles, err := loader.GetUserRoles(ctx, obj.ID)
+	uid, err := obj.ID.AsUUID()
+	if err != nil {
+		return nil, err
+	}
+
+	userRoles, err := loader.GetUserRoles(ctx, uid)
 	if err != nil {
 		return nil, err
 	}

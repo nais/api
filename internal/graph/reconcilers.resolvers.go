@@ -238,7 +238,7 @@ func (r *mutationResolver) AddReconcilerOptOut(ctx context.Context, teamSlug slu
 
 	return &model.TeamMember{
 		TeamSlug: team.Slug,
-		UserID:   user.ID,
+		UserID:   scalar.UserIdent(user.ID),
 	}, nil
 }
 
@@ -271,7 +271,7 @@ func (r *mutationResolver) RemoveReconcilerOptOut(ctx context.Context, teamSlug 
 
 	return &model.TeamMember{
 		TeamSlug: team.Slug,
-		UserID:   user.ID,
+		UserID:   scalar.UserIdent(user.ID),
 	}, nil
 }
 
