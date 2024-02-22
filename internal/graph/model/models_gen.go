@@ -912,6 +912,11 @@ type Variable struct {
 	Value string `json:"value"`
 }
 
+type VariableInput struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
 type Vulnerability struct {
 	ID           scalar.Ident          `json:"id"`
 	AppName      string                `json:"appName"`

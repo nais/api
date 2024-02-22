@@ -21,7 +21,8 @@ type App struct {
 	Variables    []*Variable  `json:"variables"`
 	Authz        []Authz      `json:"authz"`
 	AppState     AppState     `json:"appState"`
-	GQLVars      AppGQLVars   `json:"-"`
+
+	GQLVars AppGQLVars `json:"-"`
 }
 
 func (App) IsSearchNode() {}
@@ -39,7 +40,8 @@ type Instance struct {
 }
 
 type AppGQLVars struct {
-	Team slug.Slug
+	Secrets []string
+	Team    slug.Slug
 }
 
 type InstanceGQLVars struct {

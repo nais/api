@@ -13,6 +13,83 @@ metadata:
   resourceVersion: "3701834314"
   uid: 91ba6c9d-0199-4123-aff6-aa27ce5d2056
 spec:
+  envFrom:
+    - secret: my-secret
+    - secret: other-secret
+    - configMap: my-config-map
+  filesFrom:
+    - secret: my-secret
+      mountPath: /var/secret
+  env:
+    - name: DEPLOY_START
+      value: "1704981602000000000"
+  image: ghcr.io/nais/testapp/testapp:2020-02-25-f61e7b7
+  liveness:
+    path: /ping
+  port: 8080
+  prometheus:
+    enabled: true
+    path: /metrics
+  readiness:
+    path: /ping
+  replicas:
+    max: 1
+    min: 1
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  skipCaBundle: true
+status:
+  conditions:
+    - lastTransitionTime: "2024-01-11T14:00:04Z"
+      message: complete
+      reason: RolloutComplete
+      status: "True"
+      type: Ready
+    - lastTransitionTime: "2024-01-11T14:00:04Z"
+      message: complete
+      reason: RolloutComplete
+      status: "False"
+      type: Stalled
+    - lastTransitionTime: "2024-01-11T14:00:04Z"
+      message: complete
+      reason: RolloutComplete
+      status: "False"
+      type: Reconciling
+  correlationID: f8c04f82-6a84-4a8e-9f8b-563b5894d0cf
+  deploymentRolloutStatus: complete
+  rolloutCompleteTime: 1704981612597504354
+  synchronizationHash: 7fc5fa83f2ae4eaa
+  synchronizationState: RolloutComplete
+  synchronizationTime: 1704981603962494011
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    deploy.nais.io/client-version: 2023-01-23-7071cd7
+    nais.io/deploymentCorrelationID: f8c04f82-6a84-4a8e-9f8b-563b5894d0cf
+    nais.io/skipDeploymentMessage: "true"
+  creationTimestamp: "2023-01-20T10:51:47Z"
+  finalizers:
+    - naiserator.nais.io/finalizer
+  generation: 407981
+  name: nais-deploy-chicken
+  resourceVersion: "3701834314"
+  uid: 91ba6c9d-0199-4123-aff6-aa27ce5d2056
+spec:
+  envFrom:
+    - secret: my-secret
+    - secret: other-secret
+    - configMap: my-config-map
+
+  filesFrom:
+    - secret: my-secret
+      mountPath: /var/secret
   env:
     - name: DEPLOY_START
       value: "1704981602000000000"

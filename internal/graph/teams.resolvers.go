@@ -1364,6 +1364,26 @@ func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team
 	}, nil
 }
 
+// Secrets is the resolver for the secrets field.
+func (r *teamResolver) Secrets(ctx context.Context, obj *model.Team) ([]*model.Secret, error) {
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamMembership(actor, obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+	return r.k8sClient.Secrets(ctx, obj.Slug)
+}
+
+// Secret is the resolver for the secret field.
+func (r *teamResolver) Secret(ctx context.Context, obj *model.Team, name string, env string) (*model.Secret, error) {
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamMembership(actor, obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+	return r.k8sClient.Secret(ctx, name, obj.Slug, env)
+}
+
 // Environments is the resolver for the environments field.
 func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error) {
 	// Env is a bit special, given that it will be created from k8s etc.

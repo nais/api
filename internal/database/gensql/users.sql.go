@@ -99,22 +99,15 @@ SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channe
 JOIN teams ON teams.slug = user_roles.target_team_slug
 WHERE user_roles.user_id = $1
 ORDER BY teams.slug ASC
-LIMIT $3 OFFSET $2
 `
-
-type GetUserTeamsParams struct {
-	UserID uuid.UUID
-	Offset int32
-	Limit  int32
-}
 
 type GetUserTeamsRow struct {
 	Team     Team
 	RoleName RoleName
 }
 
-func (q *Queries) GetUserTeams(ctx context.Context, arg GetUserTeamsParams) ([]*GetUserTeamsRow, error) {
-	rows, err := q.db.Query(ctx, getUserTeams, arg.UserID, arg.Offset, arg.Limit)
+func (q *Queries) GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*GetUserTeamsRow, error) {
+	rows, err := q.db.Query(ctx, getUserTeams, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -154,6 +147,55 @@ func (q *Queries) GetUserTeamsCount(ctx context.Context, userID uuid.UUID) (int6
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const getUserTeamsPaginated = `-- name: GetUserTeamsPaginated :many
+SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, user_roles.role_name FROM user_roles
+JOIN teams ON teams.slug = user_roles.target_team_slug
+WHERE user_roles.user_id = $1
+ORDER BY teams.slug ASC
+LIMIT $3 OFFSET $2
+`
+
+type GetUserTeamsPaginatedParams struct {
+	UserID uuid.UUID
+	Offset int32
+	Limit  int32
+}
+
+type GetUserTeamsPaginatedRow struct {
+	Team     Team
+	RoleName RoleName
+}
+
+func (q *Queries) GetUserTeamsPaginated(ctx context.Context, arg GetUserTeamsPaginatedParams) ([]*GetUserTeamsPaginatedRow, error) {
+	rows, err := q.db.Query(ctx, getUserTeamsPaginated, arg.UserID, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*GetUserTeamsPaginatedRow{}
+	for rows.Next() {
+		var i GetUserTeamsPaginatedRow
+		if err := rows.Scan(
+			&i.Team.Slug,
+			&i.Team.Purpose,
+			&i.Team.LastSuccessfulSync,
+			&i.Team.SlackChannel,
+			&i.Team.GoogleGroupEmail,
+			&i.Team.AzureGroupID,
+			&i.Team.GithubTeamSlug,
+			&i.Team.GarRepository,
+			&i.RoleName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getUsers = `-- name: GetUsers :many

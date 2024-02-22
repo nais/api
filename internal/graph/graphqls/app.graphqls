@@ -30,16 +30,12 @@ type App {
   team: Team!
   appState: AppState!
   vulnerabilities: Vulnerability
+  secrets: [Secret!]!
 }
 
 type AppState {
   state: State!
   errors: [StateError!]!
-}
-
-type Variable {
-  name: String!
-  value: String!
 }
 
 type AutoScaling {

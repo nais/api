@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -694,6 +695,18 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 		ret.Variables = append(ret.Variables, m)
 	}
 
+	secrets := make([]string, 0)
+	for _, filesFrom := range app.Spec.FilesFrom {
+		secrets = append(secrets, filesFrom.Secret)
+	}
+	for _, secretName := range app.Spec.EnvFrom {
+		secrets = append(secrets, secretName.Secret)
+	}
+
+	slices.Sort(secrets)
+	secrets = slices.Compact(secrets)
+
+	ret.GQLVars.Secrets = secrets
 	return ret, nil
 }
 

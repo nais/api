@@ -8,3 +8,4 @@ values.json
 .DS_Store
 .direnv
 __debug_bin*
+.envrc

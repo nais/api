@@ -7,7 +7,9 @@ package graph
 import (
 	"context"
 	"fmt"
+	"slices"
 
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
@@ -43,6 +45,29 @@ func (r *appResolver) Team(ctx context.Context, obj *model.App) (*model.Team, er
 // Vulnerabilities is the resolver for the vulnerabilities field.
 func (r *appResolver) Vulnerabilities(ctx context.Context, obj *model.App) (*model.Vulnerability, error) {
 	return r.dependencyTrackClient.VulnerabilitySummary(ctx, &dependencytrack.AppInstance{Env: obj.Env.Name, Team: obj.GQLVars.Team.String(), App: obj.Name, Image: obj.Image})
+}
+
+// Secrets is the resolver for the secrets field.
+func (r *appResolver) Secrets(ctx context.Context, obj *model.App) ([]*model.Secret, error) {
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamMembership(actor, obj.GQLVars.Team)
+	if err != nil {
+		return nil, err
+	}
+
+	secrets, err := r.k8sClient.SecretsForEnv(ctx, obj.GQLVars.Team, obj.Env.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	secretsForApp := make([]*model.Secret, 0)
+	for _, secret := range secrets {
+		if slices.Contains(obj.GQLVars.Secrets, secret.Name) {
+			secretsForApp = append(secretsForApp, secret)
+		}
+	}
+
+	return secretsForApp, nil
 }
 
 // App is the resolver for the app field.

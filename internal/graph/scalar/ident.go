@@ -26,6 +26,7 @@ const (
 	IdentTypeEnv                IdentType = "env"
 	IdentTypeJob                IdentType = "job"
 	IdentTypePod                IdentType = "pod"
+	IdentTypeSecret             IdentType = "secret"
 	IdentTypeTeam               IdentType = "team"
 	IdentTypeVulnerabilities    IdentType = "vulnerabilities"
 	IdentTypeGitHubRepo         IdentType = "githubRepo"
@@ -111,6 +112,10 @@ func DeploymentStatusIdent(id string) Ident {
 
 func VulnerabilitiesIdent(id string) Ident {
 	return newIdent(id, IdentTypeVulnerabilities)
+}
+
+func SecretIdent(id string) Ident {
+	return newIdent(id, IdentTypeSecret)
 }
 
 func AuditLogIdent(id uuid.UUID) Ident {

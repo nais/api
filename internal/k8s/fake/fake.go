@@ -11,6 +11,7 @@ import (
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/dynamic"
@@ -75,7 +76,7 @@ func newScheme() *runtime.Scheme {
 	nais_io_v1.AddToScheme(scheme)
 	nais_io_v1alpha1.AddToScheme(scheme)
 	kafka_nais_io_v1.AddToScheme(scheme)
-
+	corev1.AddToScheme(scheme)
 	return scheme
 }
 
@@ -95,6 +96,7 @@ func parseResources(dir fs.FS, path string) []runtime.Object {
 	}
 
 	parts := bytes.Split(b, []byte("\n---"))
+	ns := strings.Trim(filepath.Base(filepath.Dir(path)), string(filepath.Separator))
 
 	ret := make([]runtime.Object, 0, len(parts))
 	for _, p := range parts {
@@ -102,12 +104,20 @@ func parseResources(dir fs.FS, path string) []runtime.Object {
 			continue
 		}
 
+		if strings.HasSuffix(path, "/nais/secrets.yaml") {
+			secret, err := parseSecret(p, ns)
+			if err != nil {
+				panic(err)
+			}
+
+			ret = append(ret, secret)
+			continue
+		}
+
 		r := &unstructured.Unstructured{}
 		if err := yaml.Unmarshal(p, &r); err != nil {
 			panic(err)
 		}
-
-		ns := strings.Trim(filepath.Base(filepath.Dir(path)), string(filepath.Separator))
 
 		r.SetNamespace(ns)
 		lbls := r.GetLabels()
@@ -120,4 +130,20 @@ func parseResources(dir fs.FS, path string) []runtime.Object {
 	}
 
 	return ret
+}
+
+func parseSecret(part []byte, ns string) (*corev1.Secret, error) {
+	secret := &corev1.Secret{}
+	if err := yaml.Unmarshal(part, secret); err != nil {
+		return nil, err
+	}
+
+	secret.SetNamespace(ns)
+	lbls := secret.GetLabels()
+	if lbls == nil {
+		lbls = make(map[string]string)
+	}
+	lbls["team"] = ns
+	secret.SetLabels(lbls)
+	return secret, nil
 }

@@ -52,6 +52,7 @@ type ResolverRoot interface {
 	Query() QueryResolver
 	Reconciler() ReconcilerResolver
 	Role() RoleResolver
+	Secret() SecretResolver
 	ServiceAccount() ServiceAccountResolver
 	Subscription() SubscriptionResolver
 	Team() TeamResolver
@@ -92,6 +93,7 @@ type ComplexityRoot struct {
 		Manifest        func(childComplexity int) int
 		Name            func(childComplexity int) int
 		Resources       func(childComplexity int) int
+		Secrets         func(childComplexity int) int
 		Storage         func(childComplexity int) int
 		Team            func(childComplexity int) int
 		Variables       func(childComplexity int) int
@@ -474,8 +476,10 @@ type ComplexityRoot struct {
 		ChangeDeployKey        func(childComplexity int, team slug.Slug) int
 		ConfigureReconciler    func(childComplexity int, name string, config []*model.ReconcilerConfigInput) int
 		ConfirmTeamDeletion    func(childComplexity int, key string) int
+		CreateSecret           func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
 		CreateTeam             func(childComplexity int, input model.CreateTeamInput) int
 		DeauthorizeRepository  func(childComplexity int, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) int
+		DeleteSecret           func(childComplexity int, name string, team slug.Slug, env string) int
 		DisableReconciler      func(childComplexity int, name string) int
 		EnableReconciler       func(childComplexity int, name string) int
 		RemoveReconcilerOptOut func(childComplexity int, teamSlug slug.Slug, userID scalar.Ident, reconciler string) int
@@ -487,6 +491,7 @@ type ComplexityRoot struct {
 		SynchronizeAllTeams    func(childComplexity int) int
 		SynchronizeTeam        func(childComplexity int, slug slug.Slug) int
 		SynchronizeUsers       func(childComplexity int) int
+		UpdateSecret           func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
 		UpdateTeam             func(childComplexity int, slug slug.Slug, input model.UpdateTeamInput) int
 	}
 
@@ -700,6 +705,17 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
+	Secret struct {
+		Apps           func(childComplexity int) int
+		Data           func(childComplexity int) int
+		Env            func(childComplexity int) int
+		ID             func(childComplexity int) int
+		LastModifiedAt func(childComplexity int) int
+		LastModifiedBy func(childComplexity int) int
+		Name           func(childComplexity int) int
+		Team           func(childComplexity int) int
+	}
+
 	ServiceAccount struct {
 		ID    func(childComplexity int) int
 		Name  func(childComplexity int) int
@@ -770,6 +786,8 @@ type ComplexityRoot struct {
 		Members                func(childComplexity int, offset *int, limit *int) int
 		Naisjobs               func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		Purpose                func(childComplexity int) int
+		Secret                 func(childComplexity int, name string, env string) int
+		Secrets                func(childComplexity int) int
 		SlackChannel           func(childComplexity int) int
 		Slug                   func(childComplexity int) int
 		Status                 func(childComplexity int) int
@@ -906,6 +924,7 @@ type AppResolver interface {
 	Team(ctx context.Context, obj *model.App) (*model.Team, error)
 
 	Vulnerabilities(ctx context.Context, obj *model.App) (*model.Vulnerability, error)
+	Secrets(ctx context.Context, obj *model.App) ([]*model.Secret, error)
 }
 type DeployInfoResolver interface {
 	History(ctx context.Context, obj *model.DeployInfo, offset *int, limit *int) (model.DeploymentResponse, error)
@@ -928,6 +947,9 @@ type MutationResolver interface {
 	ResetReconciler(ctx context.Context, name string) (*model.Reconciler, error)
 	AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler string) (*model.TeamMember, error)
 	RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler string) (*model.TeamMember, error)
+	CreateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.VariableInput) (*model.Secret, error)
+	UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.VariableInput) (*model.Secret, error)
+	DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) (bool, error)
 	CreateTeam(ctx context.Context, input model.CreateTeamInput) (*model.Team, error)
 	UpdateTeam(ctx context.Context, slug slug.Slug, input model.UpdateTeamInput) (*model.Team, error)
 	RemoveUsersFromTeam(ctx context.Context, slug slug.Slug, userIds []*scalar.Ident) (*model.Team, error)
@@ -984,6 +1006,14 @@ type RoleResolver interface {
 	TargetServiceAccount(ctx context.Context, obj *model.Role) (*model.ServiceAccount, error)
 	TargetTeam(ctx context.Context, obj *model.Role) (*model.Team, error)
 }
+type SecretResolver interface {
+	Env(ctx context.Context, obj *model.Secret) (*model.Env, error)
+	Team(ctx context.Context, obj *model.Secret) (*model.Team, error)
+	Data(ctx context.Context, obj *model.Secret) ([]*model.Variable, error)
+	Apps(ctx context.Context, obj *model.Secret) ([]*model.App, error)
+
+	LastModifiedBy(ctx context.Context, obj *model.Secret) (*model.User, error)
+}
 type ServiceAccountResolver interface {
 	Roles(ctx context.Context, obj *model.ServiceAccount) ([]*model.Role, error)
 }
@@ -1011,6 +1041,8 @@ type TeamResolver interface {
 	Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.VulnerabilityList, error)
 	VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummary, error)
 	VulnerabilityMetrics(ctx context.Context, obj *model.Team, from scalar.Date, to scalar.Date, environment *string) (*model.VulnerabilityMetrics, error)
+	Secrets(ctx context.Context, obj *model.Team) ([]*model.Secret, error)
+	Secret(ctx context.Context, obj *model.Team, name string, env string) (*model.Secret, error)
 	Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error)
 }
 type TeamMemberResolver interface {
@@ -1178,6 +1210,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.App.Resources(childComplexity), true
+
+	case "App.secrets":
+		if e.complexity.App.Secrets == nil {
+			break
+		}
+
+		return e.complexity.App.Secrets(childComplexity), true
 
 	case "App.storage":
 		if e.complexity.App.Storage == nil {
@@ -2659,6 +2698,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.ConfirmTeamDeletion(childComplexity, args["key"].(string)), true
 
+	case "Mutation.createSecret":
+		if e.complexity.Mutation.CreateSecret == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createSecret_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateSecret(childComplexity, args["name"].(string), args["team"].(slug.Slug), args["env"].(string), args["data"].([]*model.VariableInput)), true
+
 	case "Mutation.createTeam":
 		if e.complexity.Mutation.CreateTeam == nil {
 			break
@@ -2682,6 +2733,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeauthorizeRepository(childComplexity, args["authorization"].(model.RepositoryAuthorization), args["teamSlug"].(slug.Slug), args["repoName"].(string)), true
+
+	case "Mutation.deleteSecret":
+		if e.complexity.Mutation.DeleteSecret == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteSecret_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteSecret(childComplexity, args["name"].(string), args["team"].(slug.Slug), args["env"].(string)), true
 
 	case "Mutation.disableReconciler":
 		if e.complexity.Mutation.DisableReconciler == nil {
@@ -2804,6 +2867,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SynchronizeUsers(childComplexity), true
+
+	case "Mutation.updateSecret":
+		if e.complexity.Mutation.UpdateSecret == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateSecret_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateSecret(childComplexity, args["name"].(string), args["team"].(slug.Slug), args["env"].(string), args["data"].([]*model.VariableInput)), true
 
 	case "Mutation.updateTeam":
 		if e.complexity.Mutation.UpdateTeam == nil {
@@ -3835,6 +3910,62 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SearchList.PageInfo(childComplexity), true
 
+	case "Secret.apps":
+		if e.complexity.Secret.Apps == nil {
+			break
+		}
+
+		return e.complexity.Secret.Apps(childComplexity), true
+
+	case "Secret.data":
+		if e.complexity.Secret.Data == nil {
+			break
+		}
+
+		return e.complexity.Secret.Data(childComplexity), true
+
+	case "Secret.env":
+		if e.complexity.Secret.Env == nil {
+			break
+		}
+
+		return e.complexity.Secret.Env(childComplexity), true
+
+	case "Secret.id":
+		if e.complexity.Secret.ID == nil {
+			break
+		}
+
+		return e.complexity.Secret.ID(childComplexity), true
+
+	case "Secret.lastModifiedAt":
+		if e.complexity.Secret.LastModifiedAt == nil {
+			break
+		}
+
+		return e.complexity.Secret.LastModifiedAt(childComplexity), true
+
+	case "Secret.lastModifiedBy":
+		if e.complexity.Secret.LastModifiedBy == nil {
+			break
+		}
+
+		return e.complexity.Secret.LastModifiedBy(childComplexity), true
+
+	case "Secret.name":
+		if e.complexity.Secret.Name == nil {
+			break
+		}
+
+		return e.complexity.Secret.Name(childComplexity), true
+
+	case "Secret.team":
+		if e.complexity.Secret.Team == nil {
+			break
+		}
+
+		return e.complexity.Secret.Team(childComplexity), true
+
 	case "ServiceAccount.id":
 		if e.complexity.ServiceAccount.ID == nil {
 			break
@@ -4210,6 +4341,25 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Team.Purpose(childComplexity), true
+
+	case "Team.secret":
+		if e.complexity.Team.Secret == nil {
+			break
+		}
+
+		args, err := ec.field_Team_secret_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Team.Secret(childComplexity, args["name"].(string), args["env"].(string)), true
+
+	case "Team.secrets":
+		if e.complexity.Team.Secrets == nil {
+			break
+		}
+
+		return e.complexity.Team.Secrets(childComplexity), true
 
 	case "Team.slackChannel":
 		if e.complexity.Team.SlackChannel == nil {
@@ -4756,6 +4906,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTeamsFilter,
 		ec.unmarshalInputTeamsFilterGitHub,
 		ec.unmarshalInputUpdateTeamInput,
+		ec.unmarshalInputVariableInput,
 	)
 	first := true
 
@@ -4934,16 +5085,12 @@ type App {
   team: Team!
   appState: AppState!
   vulnerabilities: Vulnerability
+  secrets: [Secret!]!
 }
 
 type AppState {
   state: State!
   errors: [StateError!]!
-}
-
-type Variable {
-  name: String!
-  value: String!
 }
 
 type AutoScaling {
@@ -6006,6 +6153,61 @@ enum SearchType {
   NAISJOB
 }
 `, BuiltIn: false},
+	{Name: "../graphqls/secrets.graphqls", Input: `extend type Mutation {
+    "Create a new secret for a team and env."
+    createSecret(
+        "The name of the secret."
+        name: String!
+
+        "The name of the team who owns the secret."
+        team: Slug!
+
+        "The environment the secret is deployed to."
+        env: String!
+
+        "The secret data."
+        data: [VariableInput!]!
+    ): Secret! @auth
+
+    "Update an existing secret for a team and env."
+    updateSecret(
+        "The name of the secret."
+        name: String!
+
+        "The name of the team who owns the secret."
+        team: Slug!
+
+        "The environment the secret is deployed to."
+        env: String!
+
+        "The secret data."
+        data: [VariableInput!]!
+    ): Secret! @auth
+
+    "Delete an existing secret for a team and env."
+    deleteSecret(
+        "The name of the secret."
+        name: String!
+
+        "The name of the team who owns the secret."
+        team: Slug!
+
+        "The environment the secret is deployed to."
+        env: String!
+    ): Boolean! @auth
+}
+
+type Secret {
+    id: ID!
+    name: String!
+    env: Env!
+    team: Team!
+    data: [Variable!]!
+    apps: [App!]!
+    lastModifiedAt: Time
+    lastModifiedBy: User
+}
+`, BuiltIn: false},
 	{Name: "../graphqls/serviceAccounts.graphqls", Input: `"Service account type."
 type ServiceAccount {
   "Unique ID of the service account."
@@ -6494,6 +6696,18 @@ type Team {
     environment: String
   ): VulnerabilityMetrics!
 
+  "Get all secrets for the team."
+  secrets: [Secret!]! @auth
+
+  "Get the team's secret by name, and env."
+  secret(
+    "The name of the secret."
+    name: String!
+
+    "The environment the secret is deployed to."
+    env: String!
+  ): Secret! @auth
+
   "The environments available for the team."
   environments: [Env!]!
 }
@@ -6795,6 +7009,16 @@ type TeamMemberList {
   pageInfo: PageInfo!
 }
 `, BuiltIn: false},
+	{Name: "../graphqls/variables.graphqls", Input: `type Variable {
+  name: String!
+  value: String!
+}
+
+input VariableInput {
+  name: String!
+  value: String!
+}
+`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -7018,6 +7242,48 @@ func (ec *executionContext) field_Mutation_confirmTeamDeletion_args(ctx context.
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_createSecret_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["name"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["name"] = arg0
+	var arg1 slug.Slug
+	if tmp, ok := rawArgs["team"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
+		arg1, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["team"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["env"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("env"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["env"] = arg2
+	var arg3 []*model.VariableInput
+	if tmp, ok := rawArgs["data"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
+		arg3, err = ec.unmarshalNVariableInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVariableInputᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["data"] = arg3
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_createTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -7063,6 +7329,39 @@ func (ec *executionContext) field_Mutation_deauthorizeRepository_args(ctx contex
 		}
 	}
 	args["repoName"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteSecret_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["name"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["name"] = arg0
+	var arg1 slug.Slug
+	if tmp, ok := rawArgs["team"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
+		arg1, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["team"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["env"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("env"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["env"] = arg2
 	return args, nil
 }
 
@@ -7252,6 +7551,48 @@ func (ec *executionContext) field_Mutation_synchronizeTeam_args(ctx context.Cont
 		}
 	}
 	args["slug"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateSecret_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["name"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["name"] = arg0
+	var arg1 slug.Slug
+	if tmp, ok := rawArgs["team"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
+		arg1, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["team"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["env"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("env"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["env"] = arg2
+	var arg3 []*model.VariableInput
+	if tmp, ok := rawArgs["data"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
+		arg3, err = ec.unmarshalNVariableInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVariableInputᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["data"] = arg3
 	return args, nil
 }
 
@@ -8098,6 +8439,30 @@ func (ec *executionContext) field_Team_naisjobs_args(ctx context.Context, rawArg
 		}
 	}
 	args["orderBy"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Team_secret_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["name"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["name"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["env"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("env"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["env"] = arg1
 	return args, nil
 }
 
@@ -9254,6 +9619,10 @@ func (ec *executionContext) fieldContext_App_team(ctx context.Context, field gra
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
 			case "vulnerabilityMetrics":
 				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -9363,6 +9732,68 @@ func (ec *executionContext) fieldContext_App_vulnerabilities(ctx context.Context
 				return ec.fieldContext_Vulnerability_hasBom(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Vulnerability", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _App_secrets(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_App_secrets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.App().Secrets(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Secret)
+	fc.Result = res
+	return ec.marshalNSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_App_secrets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "App",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Secret_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Secret_name(ctx, field)
+			case "env":
+				return ec.fieldContext_Secret_env(ctx, field)
+			case "team":
+				return ec.fieldContext_Secret_team(ctx, field)
+			case "data":
+				return ec.fieldContext_Secret_data(ctx, field)
+			case "apps":
+				return ec.fieldContext_Secret_apps(ctx, field)
+			case "lastModifiedAt":
+				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+			case "lastModifiedBy":
+				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},
 	}
 	return fc, nil
@@ -9579,6 +10010,8 @@ func (ec *executionContext) fieldContext_AppList_nodes(ctx context.Context, fiel
 				return ec.fieldContext_App_appState(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_App_vulnerabilities(ctx, field)
+			case "secrets":
+				return ec.fieldContext_App_secrets(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type App", field.Name)
 		},
@@ -12786,6 +13219,10 @@ func (ec *executionContext) fieldContext_Deployment_team(ctx context.Context, fi
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
 			case "vulnerabilityMetrics":
 				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -18882,6 +19319,267 @@ func (ec *executionContext) fieldContext_Mutation_removeReconcilerOptOut(ctx con
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_createSecret(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createSecret(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateSecret(rctx, fc.Args["name"].(string), fc.Args["team"].(slug.Slug), fc.Args["env"].(string), fc.Args["data"].([]*model.VariableInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Secret); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.Secret`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Secret)
+	fc.Result = res
+	return ec.marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecret(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createSecret(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Secret_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Secret_name(ctx, field)
+			case "env":
+				return ec.fieldContext_Secret_env(ctx, field)
+			case "team":
+				return ec.fieldContext_Secret_team(ctx, field)
+			case "data":
+				return ec.fieldContext_Secret_data(ctx, field)
+			case "apps":
+				return ec.fieldContext_Secret_apps(ctx, field)
+			case "lastModifiedAt":
+				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+			case "lastModifiedBy":
+				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createSecret_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateSecret(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateSecret(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateSecret(rctx, fc.Args["name"].(string), fc.Args["team"].(slug.Slug), fc.Args["env"].(string), fc.Args["data"].([]*model.VariableInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Secret); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.Secret`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Secret)
+	fc.Result = res
+	return ec.marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecret(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateSecret(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Secret_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Secret_name(ctx, field)
+			case "env":
+				return ec.fieldContext_Secret_env(ctx, field)
+			case "team":
+				return ec.fieldContext_Secret_team(ctx, field)
+			case "data":
+				return ec.fieldContext_Secret_data(ctx, field)
+			case "apps":
+				return ec.fieldContext_Secret_apps(ctx, field)
+			case "lastModifiedAt":
+				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+			case "lastModifiedBy":
+				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateSecret_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteSecret(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteSecret(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteSecret(rctx, fc.Args["name"].(string), fc.Args["team"].(slug.Slug), fc.Args["env"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteSecret(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteSecret_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createTeam(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createTeam(ctx, field)
 	if err != nil {
@@ -18991,6 +19689,10 @@ func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
 			case "vulnerabilityMetrics":
 				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -19120,6 +19822,10 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
 			case "vulnerabilityMetrics":
 				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -19249,6 +19955,10 @@ func (ec *executionContext) fieldContext_Mutation_removeUsersFromTeam(ctx contex
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
 			case "vulnerabilityMetrics":
 				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -19378,6 +20088,10 @@ func (ec *executionContext) fieldContext_Mutation_removeUserFromTeam(ctx context
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
 			case "vulnerabilityMetrics":
 				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -19654,6 +20368,10 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMembers(ctx context.Con
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
 			case "vulnerabilityMetrics":
 				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -19783,6 +20501,10 @@ func (ec *executionContext) fieldContext_Mutation_addTeamOwners(ctx context.Cont
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
 			case "vulnerabilityMetrics":
 				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -19912,6 +20634,10 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
 			case "vulnerabilityMetrics":
 				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -20041,6 +20767,10 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
 			case "vulnerabilityMetrics":
 				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -20935,6 +21665,10 @@ func (ec *executionContext) fieldContext_NaisJob_team(ctx context.Context, field
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
 			case "vulnerabilityMetrics":
 				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -22245,6 +22979,8 @@ func (ec *executionContext) fieldContext_Query_app(ctx context.Context, field gr
 				return ec.fieldContext_App_appState(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_App_vulnerabilities(ctx, field)
+			case "secrets":
+				return ec.fieldContext_App_secrets(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type App", field.Name)
 		},
@@ -23563,6 +24299,10 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
 			case "vulnerabilityMetrics":
 				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -26564,6 +27304,10 @@ func (ec *executionContext) fieldContext_Role_targetTeam(ctx context.Context, fi
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
 			case "vulnerabilityMetrics":
 				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -27318,6 +28062,480 @@ func (ec *executionContext) fieldContext_SearchList_nodes(ctx context.Context, f
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type SearchNode does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Secret_id(ctx context.Context, field graphql.CollectedField, obj *model.Secret) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Secret_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Secret_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Secret",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Secret_name(ctx context.Context, field graphql.CollectedField, obj *model.Secret) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Secret_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Secret_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Secret",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Secret_env(ctx context.Context, field graphql.CollectedField, obj *model.Secret) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Secret_env(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Secret().Env(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Env)
+	fc.Result = res
+	return ec.marshalNEnv2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnv(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Secret_env(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Secret",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Env_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Env_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_Env_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_Env_slackAlertsChannel(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Env", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Secret_team(ctx context.Context, field graphql.CollectedField, obj *model.Secret) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Secret_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Secret().Team(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Team)
+	fc.Result = res
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Secret_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Secret",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "auditLogs":
+				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
+			case "syncErrors":
+				return ec.fieldContext_Team_syncErrors(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "githubRepositories":
+				return ec.fieldContext_Team_githubRepositories(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "status":
+				return ec.fieldContext_Team_status(ctx, field)
+			case "apps":
+				return ec.fieldContext_Team_apps(ctx, field)
+			case "deployKey":
+				return ec.fieldContext_Team_deployKey(ctx, field)
+			case "naisjobs":
+				return ec.fieldContext_Team_naisjobs(ctx, field)
+			case "deployments":
+				return ec.fieldContext_Team_deployments(ctx, field)
+			case "vulnerabilities":
+				return ec.fieldContext_Team_vulnerabilities(ctx, field)
+			case "vulnerabilitiesSummary":
+				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
+			case "vulnerabilityMetrics":
+				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Secret_data(ctx context.Context, field graphql.CollectedField, obj *model.Secret) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Secret_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Secret().Data(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Variable)
+	fc.Result = res
+	return ec.marshalNVariable2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVariableᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Secret_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Secret",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_Variable_name(ctx, field)
+			case "value":
+				return ec.fieldContext_Variable_value(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Variable", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Secret_apps(ctx context.Context, field graphql.CollectedField, obj *model.Secret) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Secret_apps(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Secret().Apps(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.App)
+	fc.Result = res
+	return ec.marshalNApp2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAppᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Secret_apps(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Secret",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_App_id(ctx, field)
+			case "name":
+				return ec.fieldContext_App_name(ctx, field)
+			case "image":
+				return ec.fieldContext_App_image(ctx, field)
+			case "deployInfo":
+				return ec.fieldContext_App_deployInfo(ctx, field)
+			case "env":
+				return ec.fieldContext_App_env(ctx, field)
+			case "ingresses":
+				return ec.fieldContext_App_ingresses(ctx, field)
+			case "instances":
+				return ec.fieldContext_App_instances(ctx, field)
+			case "accessPolicy":
+				return ec.fieldContext_App_accessPolicy(ctx, field)
+			case "resources":
+				return ec.fieldContext_App_resources(ctx, field)
+			case "autoScaling":
+				return ec.fieldContext_App_autoScaling(ctx, field)
+			case "storage":
+				return ec.fieldContext_App_storage(ctx, field)
+			case "variables":
+				return ec.fieldContext_App_variables(ctx, field)
+			case "authz":
+				return ec.fieldContext_App_authz(ctx, field)
+			case "manifest":
+				return ec.fieldContext_App_manifest(ctx, field)
+			case "team":
+				return ec.fieldContext_App_team(ctx, field)
+			case "appState":
+				return ec.fieldContext_App_appState(ctx, field)
+			case "vulnerabilities":
+				return ec.fieldContext_App_vulnerabilities(ctx, field)
+			case "secrets":
+				return ec.fieldContext_App_secrets(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type App", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Secret_lastModifiedAt(ctx context.Context, field graphql.CollectedField, obj *model.Secret) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LastModifiedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Secret_lastModifiedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Secret",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Secret_lastModifiedBy(ctx context.Context, field graphql.CollectedField, obj *model.Secret) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Secret().LastModifiedBy(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Secret_lastModifiedBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Secret",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "teams":
+				return ec.fieldContext_User_teams(ctx, field)
+			case "roles":
+				return ec.fieldContext_User_roles(ctx, field)
+			case "externalId":
+				return ec.fieldContext_User_externalId(ctx, field)
+			case "isAdmin":
+				return ec.fieldContext_User_isAdmin(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
 	}
 	return fc, nil
@@ -30050,6 +31268,181 @@ func (ec *executionContext) fieldContext_Team_vulnerabilityMetrics(ctx context.C
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_secrets(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_secrets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Team().Secrets(rctx, obj)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, obj, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Secret); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/nais/api/internal/graph/model.Secret`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Secret)
+	fc.Result = res
+	return ec.marshalNSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_secrets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Secret_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Secret_name(ctx, field)
+			case "env":
+				return ec.fieldContext_Secret_env(ctx, field)
+			case "team":
+				return ec.fieldContext_Secret_team(ctx, field)
+			case "data":
+				return ec.fieldContext_Secret_data(ctx, field)
+			case "apps":
+				return ec.fieldContext_Secret_apps(ctx, field)
+			case "lastModifiedAt":
+				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+			case "lastModifiedBy":
+				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Team_secret(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_secret(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Team().Secret(rctx, obj, fc.Args["name"].(string), fc.Args["env"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, obj, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Secret); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.Secret`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Secret)
+	fc.Result = res
+	return ec.marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecret(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_secret(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Secret_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Secret_name(ctx, field)
+			case "env":
+				return ec.fieldContext_Secret_env(ctx, field)
+			case "team":
+				return ec.fieldContext_Secret_team(ctx, field)
+			case "data":
+				return ec.fieldContext_Secret_data(ctx, field)
+			case "apps":
+				return ec.fieldContext_Secret_apps(ctx, field)
+			case "lastModifiedAt":
+				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+			case "lastModifiedBy":
+				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Team_secret_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_environments(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_environments(ctx, field)
 	if err != nil {
@@ -30385,6 +31778,10 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(ctx context.Context,
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
 			case "vulnerabilityMetrics":
 				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -30483,6 +31880,10 @@ func (ec *executionContext) fieldContext_TeamList_nodes(ctx context.Context, fie
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
 			case "vulnerabilityMetrics":
 				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -30633,6 +32034,10 @@ func (ec *executionContext) fieldContext_TeamMember_team(ctx context.Context, fi
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
 			case "vulnerabilityMetrics":
 				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
 			}
@@ -35494,6 +36899,40 @@ func (ec *executionContext) unmarshalInputUpdateTeamInput(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputVariableInput(ctx context.Context, obj interface{}) (model.VariableInput, error) {
+	var it model.VariableInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "value"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "value":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Value = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -36032,6 +37471,42 @@ func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj 
 					}
 				}()
 				res = ec._App_vulnerabilities(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "secrets":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._App_secrets(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -39182,6 +40657,27 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "createSecret":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createSecret(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateSecret":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateSecret(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteSecret":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteSecret(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createTeam":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createTeam(ctx, field)
@@ -41517,6 +43013,229 @@ func (ec *executionContext) _SearchList(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
+var secretImplementors = []string{"Secret"}
+
+func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, obj *model.Secret) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, secretImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Secret")
+		case "id":
+			out.Values[i] = ec._Secret_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "name":
+			out.Values[i] = ec._Secret_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "env":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Secret_env(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Secret_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "data":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Secret_data(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "apps":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Secret_apps(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "lastModifiedAt":
+			out.Values[i] = ec._Secret_lastModifiedAt(ctx, field, obj)
+		case "lastModifiedBy":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Secret_lastModifiedBy(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var serviceAccountImplementors = []string{"ServiceAccount", "AuthenticatedUser"}
 
 func (ec *executionContext) _ServiceAccount(ctx context.Context, sel ast.SelectionSet, obj *model.ServiceAccount) graphql.Marshaler {
@@ -42544,6 +44263,78 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Team_vulnerabilityMetrics(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "secrets":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_secrets(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "secret":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_secret(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -46647,6 +48438,64 @@ func (ec *executionContext) marshalNSearchNode2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 	return ret
 }
 
+func (ec *executionContext) marshalNSecret2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecret(ctx context.Context, sel ast.SelectionSet, v model.Secret) graphql.Marshaler {
+	return ec._Secret(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Secret) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecret(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecret(ctx context.Context, sel ast.SelectionSet, v *model.Secret) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Secret(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNSlackAlertsChannelInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSlackAlertsChannelInput(ctx context.Context, v interface{}) (*model.SlackAlertsChannelInput, error) {
 	res, err := ec.unmarshalInputSlackAlertsChannelInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
@@ -47410,6 +49259,28 @@ func (ec *executionContext) marshalNVariable2ᚖgithubᚗcomᚋnaisᚋapiᚋinte
 	return ec._Variable(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNVariableInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVariableInputᚄ(ctx context.Context, v interface{}) ([]*model.VariableInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.VariableInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNVariableInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVariableInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNVariableInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVariableInput(ctx context.Context, v interface{}) (*model.VariableInput, error) {
+	res, err := ec.unmarshalInputVariableInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNVulnerability2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Vulnerability) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -48121,6 +49992,13 @@ func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel
 	}
 	res := graphql.MarshalTime(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._User(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOVulnerability2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerability(ctx context.Context, sel ast.SelectionSet, v *model.Vulnerability) graphql.Marshaler {
