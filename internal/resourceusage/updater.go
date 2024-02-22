@@ -44,7 +44,6 @@ var (
 		"kube-system",
 		"kyverno",
 		"linkerd",
-		"nais",
 		"nais-system",
 	}
 
