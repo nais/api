@@ -19,7 +19,7 @@ import (
 
 func TestTeamsServer_Get(t *testing.T) {
 	ctx := context.Background()
-	t.Run("team not found", func(t1 *testing.T) {
+	t.Run("team not found", func(t *testing.T) {
 		db := database.NewMockDatabase(t)
 		db.EXPECT().
 			GetTeamBySlug(ctx, slug.Slug("team-not-found")).
@@ -36,7 +36,7 @@ func TestTeamsServer_Get(t *testing.T) {
 		}
 	})
 
-	t.Run("database error", func(t1 *testing.T) {
+	t.Run("database error", func(t *testing.T) {
 		db := database.NewMockDatabase(t)
 		db.EXPECT().
 			GetTeamBySlug(ctx, slug.Slug("team-not-found")).
@@ -53,7 +53,7 @@ func TestTeamsServer_Get(t *testing.T) {
 		}
 	})
 
-	t.Run("get team", func(t1 *testing.T) {
+	t.Run("get team", func(t *testing.T) {
 		const (
 			teamSlug         = "team"
 			purpose          = "purpose"
@@ -120,7 +120,7 @@ func TestTeamsServer_Get(t *testing.T) {
 
 func TestTeamsServer_Delete(t *testing.T) {
 	ctx := context.Background()
-	t.Run("missing slug", func(t1 *testing.T) {
+	t.Run("missing slug", func(t *testing.T) {
 		db := database.NewMockDatabase(t)
 		resp, err := grpc.NewTeamsServer(db).Delete(ctx, &protoapi.DeleteTeamRequest{})
 		if resp != nil {
@@ -132,7 +132,7 @@ func TestTeamsServer_Delete(t *testing.T) {
 		}
 	})
 
-	t.Run("delete team", func(t1 *testing.T) {
+	t.Run("delete team", func(t *testing.T) {
 		const teamSlug = "team-slug"
 		db := database.NewMockDatabase(t)
 		db.EXPECT().
@@ -152,7 +152,7 @@ func TestTeamsServer_Delete(t *testing.T) {
 
 func TestTeamsServer_List(t *testing.T) {
 	ctx := context.Background()
-	t.Run("error when fetching teams from database", func(t1 *testing.T) {
+	t.Run("error when fetching teams from database", func(t *testing.T) {
 		db := database.NewMockDatabase(t)
 		db.EXPECT().
 			GetTeams(ctx, database.Page{Limit: 123, Offset: 2}).
@@ -171,7 +171,7 @@ func TestTeamsServer_List(t *testing.T) {
 		}
 	})
 
-	t.Run("fetch teams", func(t1 *testing.T) {
+	t.Run("fetch teams", func(t *testing.T) {
 		teamsFromDatabase := []*database.Team{
 			{Team: &gensql.Team{Slug: "team1"}},
 			{Team: &gensql.Team{Slug: "team2"}},
@@ -199,6 +199,114 @@ func TestTeamsServer_List(t *testing.T) {
 
 		if expected := "team2"; resp.Nodes[1].Slug != expected {
 			t.Errorf("expected first team to be %q, got %q", expected, resp.Nodes[1].Slug)
+		}
+	})
+}
+
+func TestTeamsServer_IsRepositoryAuthorized(t *testing.T) {
+	ctx := context.Background()
+	t.Run("error when fetching authorizations from database", func(t *testing.T) {
+		const (
+			teamSlug = "team-slug"
+			repoName = "repo-name"
+		)
+		db := database.NewMockDatabase(t)
+		db.EXPECT().
+			GetRepositoryAuthorizations(ctx, slug.Slug(teamSlug), repoName).
+			Return(nil, fmt.Errorf("some error")).
+			Once()
+		resp, err := grpc.NewTeamsServer(db).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
+			TeamSlug:   teamSlug,
+			Repository: repoName,
+		})
+		if resp != nil {
+			t.Error("expected response to be nil")
+		}
+
+		if s, ok := status.FromError(err); !ok || s.Code() != codes.Internal {
+			t.Errorf("expected status code %v, got %v", codes.Internal, err)
+		}
+	})
+
+	t.Run("invalid authorization", func(t *testing.T) {
+		const (
+			teamSlug = "team-slug"
+			repoName = "repo-name"
+		)
+		db := database.NewMockDatabase(t)
+		db.EXPECT().
+			GetRepositoryAuthorizations(ctx, slug.Slug(teamSlug), repoName).
+			Return([]gensql.RepositoryAuthorizationEnum{}, nil).
+			Once()
+		resp, err := grpc.NewTeamsServer(db).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
+			TeamSlug:      teamSlug,
+			Repository:    repoName,
+			Authorization: protoapi.RepositoryAuthorization_UNKNOWN,
+		})
+		if resp != nil {
+			t.Error("expected response to be nil")
+		}
+
+		if s, ok := status.FromError(err); !ok || s.Code() != codes.InvalidArgument {
+			t.Errorf("expected status code %v, got %v", codes.InvalidArgument, err)
+		}
+	})
+
+	t.Run("repo is authorized", func(t *testing.T) {
+		const (
+			teamSlug = "team-slug"
+			repoName = "repo-name"
+		)
+		db := database.NewMockDatabase(t)
+		db.EXPECT().
+			GetRepositoryAuthorizations(ctx, slug.Slug(teamSlug), repoName).
+			Return([]gensql.RepositoryAuthorizationEnum{
+				gensql.RepositoryAuthorizationEnumDeploy,
+			}, nil).
+			Once()
+		resp, err := grpc.NewTeamsServer(db).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
+			TeamSlug:      teamSlug,
+			Repository:    repoName,
+			Authorization: protoapi.RepositoryAuthorization_DEPLOY,
+		})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		if resp == nil {
+			t.Fatalf("expected response to be non nil")
+		}
+
+		if !resp.IsAuthorized {
+			t.Errorf("expected repository to be authorized")
+		}
+	})
+
+	t.Run("repo is not authorized", func(t *testing.T) {
+		const (
+			teamSlug = "team-slug"
+			repoName = "repo-name"
+		)
+		db := database.NewMockDatabase(t)
+		db.EXPECT().
+			GetRepositoryAuthorizations(ctx, slug.Slug(teamSlug), repoName).
+			Return([]gensql.RepositoryAuthorizationEnum{}, nil).
+			Once()
+		resp, err := grpc.NewTeamsServer(db).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
+			TeamSlug:      teamSlug,
+			Repository:    repoName,
+			Authorization: protoapi.RepositoryAuthorization_DEPLOY,
+		})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		if resp == nil {
+			t.Fatalf("expected response to be non nil")
+		}
+
+		if resp.IsAuthorized {
+			t.Errorf("did not expect repository to be authorized")
 		}
 	})
 }
