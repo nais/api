@@ -177,7 +177,7 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 
 		clientSets[cluster] = clientSet
 
-		if clientSet, ok := clientSet.(*kubernetes.Clientset); ok {
+		if clientSet, ok := clientSet.(*kubernetes.Clientset); ok || false {
 			resources, err := discovery.NewDiscoveryClient(clientSet.RESTClient()).ServerResourcesForGroupVersion(kafka_nais_io_v1.GroupVersion.String())
 			if err != nil && !strings.Contains(err.Error(), "the server could not find the requested resource") {
 				return nil, fmt.Errorf("get server resources for group version: %w", err)
