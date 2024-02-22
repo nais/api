@@ -269,13 +269,18 @@ func (q *Queries) ResourceUtilizationRangeForApp(ctx context.Context, arg Resour
 }
 
 const resourceUtilizationRangeForTeam = `-- name: ResourceUtilizationRangeForTeam :one
+WITH team_range AS (
+    SELECT timestamp
+    FROM
+        resource_utilization_metrics
+    WHERE
+        team_slug = $1
+)
 SELECT
     MIN(timestamp)::timestamptz AS "from",
     MAX(timestamp)::timestamptz AS "to"
 FROM
-    resource_utilization_metrics
-WHERE
-    team_slug = $1
+    team_range
 `
 
 type ResourceUtilizationRangeForTeamRow struct {

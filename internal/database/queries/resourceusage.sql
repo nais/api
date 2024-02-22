@@ -1,12 +1,17 @@
 -- ResourceUtilizationRangeForTeam will return the min and max timestamps for a specific team.
 -- name: ResourceUtilizationRangeForTeam :one
+WITH team_range AS (
+    SELECT timestamp
+    FROM
+        resource_utilization_metrics
+    WHERE
+        team_slug = @team_slug
+)
 SELECT
     MIN(timestamp)::timestamptz AS "from",
     MAX(timestamp)::timestamptz AS "to"
 FROM
-    resource_utilization_metrics
-WHERE
-    team_slug = @team_slug;
+    team_range;
 
 -- ResourceUtilizationRangeForApp will return the min and max timestamps for a specific app.
 -- name: ResourceUtilizationRangeForApp :one
