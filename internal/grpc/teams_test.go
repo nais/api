@@ -28,11 +28,11 @@ func TestTeamsServer_Get(t *testing.T) {
 
 		resp, err := grpc.NewTeamsServer(db).Get(ctx, &protoapi.GetTeamRequest{Slug: "team-not-found"})
 		if resp != nil {
-			t.Error("expected team to be nil")
+			t.Error("expected response to be nil")
 		}
 
 		if s, ok := status.FromError(err); !ok || s.Code() != codes.NotFound {
-			t.Errorf("expected status.NotFound, got %v", err)
+			t.Errorf("expected status code %v, got %v", codes.NotFound, err)
 		}
 	})
 
@@ -45,11 +45,11 @@ func TestTeamsServer_Get(t *testing.T) {
 
 		resp, err := grpc.NewTeamsServer(db).Get(ctx, &protoapi.GetTeamRequest{Slug: "team-not-found"})
 		if resp != nil {
-			t.Error("expected team to be nil")
+			t.Error("expected response to be nil")
 		}
 
 		if s, ok := status.FromError(err); !ok || s.Code() != codes.Internal {
-			t.Errorf("expected status.NotFound, got %v", err)
+			t.Errorf("expected status code %v, got %v", codes.Internal, err)
 		}
 	})
 
@@ -85,7 +85,7 @@ func TestTeamsServer_Get(t *testing.T) {
 		}
 
 		if resp.Team == nil {
-			t.Error("expected team to be non-nil")
+			t.Error("expected response to be non-nil")
 		}
 
 		if resp.Team.Slug != teamSlug {
@@ -114,6 +114,91 @@ func TestTeamsServer_Get(t *testing.T) {
 
 		if *resp.Team.GarRepository != garRepository {
 			t.Errorf("expected GAR repository to be %q, got %q", garRepository, *resp.Team.GarRepository)
+		}
+	})
+}
+
+func TestTeamsServer_Delete(t *testing.T) {
+	ctx := context.Background()
+	t.Run("missing slug", func(t1 *testing.T) {
+		db := database.NewMockDatabase(t)
+		resp, err := grpc.NewTeamsServer(db).Delete(ctx, &protoapi.DeleteTeamRequest{})
+		if resp != nil {
+			t.Error("expected response to be nil")
+		}
+
+		if s, ok := status.FromError(err); !ok || s.Code() != codes.InvalidArgument {
+			t.Errorf("expected status code %v, got %v", codes.InvalidArgument, err)
+		}
+	})
+
+	t.Run("delete team", func(t1 *testing.T) {
+		const teamSlug = "team-slug"
+		db := database.NewMockDatabase(t)
+		db.EXPECT().
+			DeleteTeam(ctx, slug.Slug(teamSlug)).
+			Return(nil).
+			Once()
+		resp, err := grpc.NewTeamsServer(db).Delete(ctx, &protoapi.DeleteTeamRequest{Slug: teamSlug})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		if resp == nil {
+			t.Error("expected response to be non-nil")
+		}
+	})
+}
+
+func TestTeamsServer_List(t *testing.T) {
+	ctx := context.Background()
+	t.Run("error when fetching teams from database", func(t1 *testing.T) {
+		db := database.NewMockDatabase(t)
+		db.EXPECT().
+			GetTeams(ctx, database.Page{Limit: 123, Offset: 2}).
+			Return(nil, 0, fmt.Errorf("some error")).
+			Once()
+		resp, err := grpc.NewTeamsServer(db).List(ctx, &protoapi.ListTeamsRequest{
+			Limit:  123,
+			Offset: 2,
+		})
+		if resp != nil {
+			t.Error("expected response to be nil")
+		}
+
+		if s, ok := status.FromError(err); !ok || s.Code() != codes.Internal {
+			t.Errorf("expected status code %v, got %v", codes.Internal, err)
+		}
+	})
+
+	t.Run("fetch teams", func(t1 *testing.T) {
+		teamsFromDatabase := []*database.Team{
+			{Team: &gensql.Team{Slug: "team1"}},
+			{Team: &gensql.Team{Slug: "team2"}},
+		}
+		db := database.NewMockDatabase(t)
+		db.EXPECT().
+			GetTeams(ctx, database.Page{Limit: 2, Offset: 0}).
+			Return(teamsFromDatabase, 2, nil).
+			Once()
+		resp, err := grpc.NewTeamsServer(db).List(ctx, &protoapi.ListTeamsRequest{
+			Limit:  2,
+			Offset: 0,
+		})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		if len(resp.Nodes) != 2 {
+			t.Errorf("expected 2 teams, got %v", resp.Nodes)
+		}
+
+		if expected := "team1"; resp.Nodes[0].Slug != expected {
+			t.Errorf("expected first team to be %q, got %q", expected, resp.Nodes[0].Slug)
+		}
+
+		if expected := "team2"; resp.Nodes[1].Slug != expected {
+			t.Errorf("expected first team to be %q, got %q", expected, resp.Nodes[1].Slug)
 		}
 	})
 }
