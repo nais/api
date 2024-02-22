@@ -15,14 +15,17 @@ func toGraphTeams(m []*database.Team) []*model.Team {
 	return ret
 }
 
-func toGraphTeamMemberReconcilers(tmoors []*gensql.GetTeamMemberOptOutsRow) []*model.TeamMemberReconciler {
-	ret := make([]*model.TeamMemberReconciler, len(tmoors))
-	for i, tmoor := range tmoors {
-		ret[i] = &model.TeamMemberReconciler{
-			Enabled: tmoor.Enabled,
+func toGraphTeamMemberReconcilers(rs []*gensql.GetTeamMemberOptOutsRow) []*model.TeamMemberReconciler {
+	rt := make([]*model.TeamMemberReconciler, len(rs))
+	for i, r := range rs {
+		rt[i] = &model.TeamMemberReconciler{
+			Enabled: r.Enabled,
+			GQLVars: model.TeamMemberReconcilerGQLVars{
+				Name: r.Name,
+			},
 		}
 	}
-	return ret
+	return rt
 }
 
 func toGraphTeamDeleteKey(m *database.TeamDeleteKey) *model.TeamDeleteKey {
