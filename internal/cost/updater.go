@@ -166,7 +166,7 @@ func (c *Updater) UpdateCosts(ctx context.Context, ch <-chan gensql.CostUpsertPa
 
 	c.log.WithFields(logrus.Fields{
 		"duration":   time.Since(start),
-		"num_rows":   numUpserted - numErrors,
+		"num_rows":   numUpserted,
 		"num_errors": numErrors,
 	}).Infof("cost data has been updated")
 	return nil
@@ -181,6 +181,7 @@ func (c *Updater) upsertBatch(ctx context.Context, batch []gensql.CostUpsertPara
 	start := time.Now()
 	c.db.CostUpsert(ctx, batch).Exec(func(i int, err error) {
 		if err != nil {
+			c.log.WithError(err).Debug("upserted row failed")
 			errors++
 		}
 	})
