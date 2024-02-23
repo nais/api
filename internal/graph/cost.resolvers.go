@@ -164,7 +164,7 @@ func (r *queryResolver) EnvCost(ctx context.Context, filter model.EnvCostFilter)
 		return nil, err
 	}
 
-	ret := make([]*model.EnvCost, len(r.clusters))
+	ret := []*model.EnvCost{}
 	for clusterName, cluster := range r.clusters {
 		if !cluster.GCP {
 			continue
