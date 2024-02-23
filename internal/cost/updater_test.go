@@ -40,7 +40,6 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	querier := database.NewMockDatabase(t)
 	logger, _ := logrustest.NewNullLogger()
 	bigQueryClient, err := bigquery.NewClient(
 		ctx,
@@ -53,7 +52,32 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 	}
 	bigQueryClient.Location = "EU"
 
+	t.Run("no teams in database", func(t *testing.T) {
+		querier := database.NewMockDatabase(t)
+		querier.EXPECT().
+			GetAllTeamSlugs(ctx).
+			Return([]slug.Slug{}, nil).
+			Once()
+		ch := make(chan gensql.CostUpsertParams, chanSize)
+		defer close(ch)
+		err := cost.NewCostUpdater(
+			bigQueryClient,
+			querier,
+			tenant,
+			logger,
+			append(costUpdaterOpts, cost.WithBigQueryTable("invalid-table"))...,
+		).FetchBigQueryData(ctx, ch)
+		if contains := "no team slugs"; !strings.Contains(err.Error(), contains) {
+			t.Errorf("expected error to contain %q", contains)
+		}
+	})
+
 	t.Run("unable to get iterator", func(t *testing.T) {
+		querier := database.NewMockDatabase(t)
+		querier.EXPECT().
+			GetAllTeamSlugs(ctx).
+			Return([]slug.Slug{"team"}, nil).
+			Once()
 		ch := make(chan gensql.CostUpsertParams, chanSize)
 		defer close(ch)
 		err := cost.NewCostUpdater(
@@ -69,6 +93,16 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 	})
 
 	t.Run("get data from BigQuery", func(t *testing.T) {
+		slugs := []slug.Slug{}
+		for i := range 14 {
+			slugs = append(slugs, slug.Slug(fmt.Sprintf("team-%d", i+1)))
+		}
+		querier := database.NewMockDatabase(t)
+		querier.EXPECT().
+			GetAllTeamSlugs(ctx).
+			Return(slugs, nil).
+			Once()
+
 		ch := make(chan gensql.CostUpsertParams, chanSize)
 		defer close(ch)
 
@@ -83,8 +117,8 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if len(ch) != 100 {
-			t.Errorf("expected channel to contain 100 items, got %d", len(ch))
+		if len(ch) != 97 {
+			t.Errorf("expected channel to contain 97 items, got %d", len(ch))
 		}
 
 		var row gensql.CostUpsertParams
@@ -98,7 +132,7 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 		want1 := gensql.CostUpsertParams{
 			Environment: ptr.To("dev"),
 			App:         "team-1-app-1",
-			TeamSlug:    ptr.To(slug.Slug("team-1")),
+			TeamSlug:    slug.Slug("team-1"),
 			CostType:    "Cloud SQL",
 			Date:        pgtype.Date{Time: time.Date(2023, 8, 31, 0, 0, 0, 0, time.UTC), Valid: true},
 			DailyCost:   0.204017,
@@ -122,7 +156,7 @@ func TestUpdater_FetchBigQueryData(t *testing.T) {
 		want2 := gensql.CostUpsertParams{
 			Environment: ptr.To("dev"),
 			App:         "team-2-app-1",
-			TeamSlug:    ptr.To(slug.Slug("team-2")),
+			TeamSlug:    slug.Slug("team-2"),
 			CostType:    "Cloud SQL",
 			Date:        pgtype.Date{Time: time.Date(2023, 9, 1, 0, 0, 0, 0, time.UTC), Valid: true},
 			DailyCost:   0.288296,

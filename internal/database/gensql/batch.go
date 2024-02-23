@@ -32,7 +32,7 @@ type CostUpsertBatchResults struct {
 
 type CostUpsertParams struct {
 	Environment *string
-	TeamSlug    *slug.Slug
+	TeamSlug    slug.Slug
 	App         string
 	CostType    string
 	Date        pgtype.Date

@@ -14,7 +14,6 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/iterator"
-	"k8s.io/utils/ptr"
 )
 
 const (
@@ -99,9 +98,18 @@ func (c *Updater) ShouldUpdateCosts(ctx context.Context) (bool, error) {
 
 // FetchBigQueryData fetches cost data from BigQuery and sends it to the provided channel
 func (c *Updater) FetchBigQueryData(ctx context.Context, ch chan<- gensql.CostUpsertParams) error {
+	teamSlugs, err := c.db.GetAllTeamSlugs(ctx)
+	if err != nil {
+		return err
+	}
+
+	if len(teamSlugs) == 0 {
+		return fmt.Errorf("no team slugs found in database")
+	}
+
 	start := time.Now()
 	numRows := 0
-	it, err := c.getBigQueryIterator(ctx)
+	it, err := c.getBigQueryIterator(ctx, teamSlugs)
 	if err != nil {
 		return err
 	}
@@ -127,7 +135,7 @@ func (c *Updater) FetchBigQueryData(ctx context.Context, ch chan<- gensql.CostUp
 			return ctx.Err()
 		case ch <- gensql.CostUpsertParams{
 			Environment: nullToStringPointer(row.Env),
-			TeamSlug:    nullToSlugPointer(row.Team),
+			TeamSlug:    slug.Slug(row.Team.StringVal),
 			App:         row.App.StringVal,
 			CostType:    row.CostType,
 			Date:        pgtype.Date{Time: row.Date.In(time.UTC), Valid: true},
@@ -179,15 +187,16 @@ func (c *Updater) upsertBatch(ctx context.Context, batch []gensql.CostUpsertPara
 	}
 
 	start := time.Now()
+	var batchErr error
 	c.db.CostUpsert(ctx, batch).Exec(func(i int, err error) {
 		if err != nil {
-			c.log.WithError(err).Debug("upserted row failed")
+			batchErr = err
 			errors++
 		}
 	})
 
 	upserted += len(batch) - errors
-	c.log.WithFields(logrus.Fields{
+	c.log.WithError(batchErr).WithFields(logrus.Fields{
 		"duration":   time.Since(start),
 		"num_rows":   upserted,
 		"num_errors": errors,
@@ -196,15 +205,22 @@ func (c *Updater) upsertBatch(ctx context.Context, batch []gensql.CostUpsertPara
 }
 
 // getBigQueryIterator will return an iterator for the resultset of the cost query
-func (c *Updater) getBigQueryIterator(ctx context.Context) (*bigquery.RowIterator, error) {
+func (c *Updater) getBigQueryIterator(ctx context.Context, teamSlugs []slug.Slug) (*bigquery.RowIterator, error) {
 	sql := fmt.Sprintf(
-		"SELECT * FROM `%s` WHERE `date` >= TIMESTAMP_SUB(CURRENT_DATE(), INTERVAL %d DAY)",
+		"SELECT * FROM `%s` WHERE `team` IN UNNEST (@team_slugs) AND `date` >= TIMESTAMP_SUB(CURRENT_DATE(), INTERVAL %d DAY)",
 		c.bigQueryTable,
 		c.daysToFetch,
 	)
 
 	c.log.WithField("query", sql).Infof("fetch data from bigquery")
-	return c.bigQueryClient.Query(sql).Read(ctx)
+	query := c.bigQueryClient.Query(sql)
+	query.Parameters = []bigquery.QueryParameter{
+		{
+			Name:  "team_slugs",
+			Value: teamSlugs,
+		},
+	}
+	return query.Read(ctx)
 }
 
 // getBatch will return a batch of rows from the provided channel
@@ -231,14 +247,6 @@ func (c *Updater) getBatch(ctx context.Context, ch <-chan gensql.CostUpsertParam
 func nullToStringPointer(s bigquery.NullString) *string {
 	if s.Valid {
 		return &s.StringVal
-	}
-	return nil
-}
-
-// nullToStringPointer converts a bigquery.NullString to a *string
-func nullToSlugPointer(s bigquery.NullString) *slug.Slug {
-	if s.Valid {
-		return ptr.To(slug.Slug(s.StringVal))
 	}
 	return nil
 }

@@ -144,7 +144,7 @@ type DailyEnvCostForTeamParams struct {
 }
 
 type DailyEnvCostForTeamRow struct {
-	TeamSlug  *slug.Slug
+	TeamSlug  slug.Slug
 	App       string
 	Date      pgtype.Date
 	DailyCost float32
@@ -230,7 +230,7 @@ type MonthlyCostForAppParams struct {
 }
 
 type MonthlyCostForAppRow struct {
-	TeamSlug         *slug.Slug
+	TeamSlug         slug.Slug
 	App              string
 	Environment      *string
 	Month            pgtype.Date
@@ -289,7 +289,7 @@ LIMIT 12
 `
 
 type MonthlyCostForTeamRow struct {
-	TeamSlug         *slug.Slug
+	TeamSlug         slug.Slug
 	Month            pgtype.Date
 	LastRecordedDate pgtype.Date
 	DailyCost        float32

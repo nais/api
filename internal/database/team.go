@@ -37,6 +37,7 @@ type TeamRepo interface {
 	GetActiveTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error)
 	GetActiveTeams(ctx context.Context) ([]*Team, error)
 	GetAllTeamMembers(ctx context.Context, teamSlug slug.Slug) ([]*User, error)
+	GetAllTeamSlugs(ctx context.Context) ([]slug.Slug, error)
 	GetTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error)
 	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
 	GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, p Page) ([]*TeamEnvironment, int, error)
@@ -434,6 +435,10 @@ func (d *database) SearchTeams(ctx context.Context, slugMatch string, limit int3
 
 func (d *database) TeamExists(ctx context.Context, team slug.Slug) (bool, error) {
 	return d.querier.TeamExists(ctx, team)
+}
+
+func (d *database) GetAllTeamSlugs(ctx context.Context) ([]slug.Slug, error) {
+	return d.querier.GetAllTeamSlugs(ctx)
 }
 
 func GetGitHubRepos(b []byte) ([]*GitHubRepository, error) {

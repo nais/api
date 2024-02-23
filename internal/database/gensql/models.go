@@ -224,7 +224,7 @@ type AuditLog struct {
 type Cost struct {
 	ID          int32
 	Environment *string
-	TeamSlug    *slug.Slug
+	TeamSlug    slug.Slug
 	App         string
 	CostType    string
 	Date        pgtype.Date

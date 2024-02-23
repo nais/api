@@ -194,6 +194,31 @@ func (q *Queries) GetAllTeamMembers(ctx context.Context, teamSlug *slug.Slug) ([
 	return items, nil
 }
 
+const getAllTeamSlugs = `-- name: GetAllTeamSlugs :many
+SELECT teams.slug FROM teams
+ORDER BY teams.slug ASC
+`
+
+func (q *Queries) GetAllTeamSlugs(ctx context.Context) ([]slug.Slug, error) {
+	rows, err := q.db.Query(ctx, getAllTeamSlugs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []slug.Slug{}
+	for rows.Next() {
+		var slug slug.Slug
+		if err := rows.Scan(&slug); err != nil {
+			return nil, err
+		}
+		items = append(items, slug)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getTeamBySlug = `-- name: GetTeamBySlug :one
 SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository FROM teams
 WHERE teams.slug = $1

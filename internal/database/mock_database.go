@@ -1911,6 +1911,64 @@ func (_c *MockDatabase_GetAllTeamMembers_Call) RunAndReturn(run func(context.Con
 	return _c
 }
 
+// GetAllTeamSlugs provides a mock function with given fields: ctx
+func (_m *MockDatabase) GetAllTeamSlugs(ctx context.Context) ([]slug.Slug, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAllTeamSlugs")
+	}
+
+	var r0 []slug.Slug
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]slug.Slug, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []slug.Slug); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]slug.Slug)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockDatabase_GetAllTeamSlugs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAllTeamSlugs'
+type MockDatabase_GetAllTeamSlugs_Call struct {
+	*mock.Call
+}
+
+// GetAllTeamSlugs is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockDatabase_Expecter) GetAllTeamSlugs(ctx interface{}) *MockDatabase_GetAllTeamSlugs_Call {
+	return &MockDatabase_GetAllTeamSlugs_Call{Call: _e.mock.On("GetAllTeamSlugs", ctx)}
+}
+
+func (_c *MockDatabase_GetAllTeamSlugs_Call) Run(run func(ctx context.Context)) *MockDatabase_GetAllTeamSlugs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_GetAllTeamSlugs_Call) Return(_a0 []slug.Slug, _a1 error) *MockDatabase_GetAllTeamSlugs_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockDatabase_GetAllTeamSlugs_Call) RunAndReturn(run func(context.Context) ([]slug.Slug, error)) *MockDatabase_GetAllTeamSlugs_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetAllUserRoles provides a mock function with given fields: ctx
 func (_m *MockDatabase) GetAllUserRoles(ctx context.Context) ([]*UserRole, error) {
 	ret := _m.Called(ctx)

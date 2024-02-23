@@ -55,6 +55,10 @@ SET
     gcp_project_id = COALESCE(EXCLUDED.gcp_project_id, team_environments.gcp_project_id)
 RETURNING *;
 
+-- name: GetAllTeamSlugs :many
+SELECT teams.slug FROM teams
+ORDER BY teams.slug ASC;
+
 -- name: GetTeams :many
 SELECT teams.* FROM teams
 ORDER BY teams.slug ASC
