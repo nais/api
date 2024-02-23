@@ -165,11 +165,12 @@ func (r *queryResolver) EnvCost(ctx context.Context, filter model.EnvCostFilter)
 	}
 
 	ret := make([]*model.EnvCost, len(r.clusters))
-	idx := -1
-	for cluster := range r.clusters {
-		idx++
+	for clusterName, cluster := range r.clusters {
+		if !cluster.GCP {
+			continue
+		}
 		appsCost := make([]*model.AppCost, 0)
-		rows, err := r.database.DailyEnvCostForTeam(ctx, fromDate, toDate, &cluster, filter.Team)
+		rows, err := r.database.DailyEnvCostForTeam(ctx, fromDate, toDate, &clusterName, filter.Team)
 		if err != nil {
 			return nil, fmt.Errorf("cost query: %w", err)
 		}
@@ -192,11 +193,11 @@ func (r *queryResolver) EnvCost(ctx context.Context, filter model.EnvCostFilter)
 			return appsCost[i].Sum < appsCost[j].Sum
 		})
 
-		ret[idx] = &model.EnvCost{
-			Env:  cluster,
+		ret = append(ret, &model.EnvCost{
+			Env:  clusterName,
 			Apps: appsCost,
 			Sum:  sum,
-		}
+		})
 	}
 
 	slices.SortFunc(ret, func(a, b *model.EnvCost) int {
