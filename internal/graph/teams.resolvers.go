@@ -1102,9 +1102,11 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 // DeployKey is the resolver for the deployKey field.
 func (r *teamResolver) DeployKey(ctx context.Context, obj *model.Team) (*model.DeploymentKey, error) {
 	actor := authz.ActorFromContext(ctx)
-	if _, err := r.database.GetTeamMember(ctx, obj.Slug, actor.User.GetID()); errors.Is(err, pgx.ErrNoRows) {
-		return nil, apierror.ErrUserIsNotTeamMember
-	} else if err != nil {
+	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationDeployKeyView, obj.Slug)
+	if err != nil {
+		if actor.User.IsServiceAccount() {
+			return nil, apierror.ErrUserIsNotTeamMember
+		}
 		return nil, err
 	}
 
