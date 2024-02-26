@@ -20,6 +20,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/selection"
+	"k8s.io/utils/ptr"
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
@@ -500,7 +501,7 @@ func (c *Client) Apps(ctx context.Context, team string) ([]*model.App, error) {
 				return nil, fmt.Errorf("converting to application: %w", err)
 			}
 
-			setStatus(app, *tmpApp.Status.Conditions, instances)
+			setStatus(app, ptr.Deref(tmpApp.Status.Conditions, nil), instances)
 			ret = append(ret, app)
 		}
 	}
