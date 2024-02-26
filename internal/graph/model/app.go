@@ -40,8 +40,8 @@ type Instance struct {
 }
 
 type AppGQLVars struct {
-	Secrets []string
-	Team    slug.Slug
+	SecretNames []string
+	Team        slug.Slug
 }
 
 type InstanceGQLVars struct {

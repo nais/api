@@ -54,6 +54,7 @@ type NaisJob {
   parallelism: Int!
   retries: Int!
   jobState: JobState!
+  secrets: [Secret!]!
 }
 
 type NaisJobList {

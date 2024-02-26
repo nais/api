@@ -511,6 +511,7 @@ type ComplexityRoot struct {
 		Retries      func(childComplexity int) int
 		Runs         func(childComplexity int) int
 		Schedule     func(childComplexity int) int
+		Secrets      func(childComplexity int) int
 		Storage      func(childComplexity int) int
 		Team         func(childComplexity int) int
 	}
@@ -710,6 +711,7 @@ type ComplexityRoot struct {
 		Data           func(childComplexity int) int
 		Env            func(childComplexity int) int
 		ID             func(childComplexity int) int
+		Jobs           func(childComplexity int) int
 		LastModifiedAt func(childComplexity int) int
 		LastModifiedBy func(childComplexity int) int
 		Name           func(childComplexity int) int
@@ -970,6 +972,8 @@ type NaisJobResolver interface {
 	Manifest(ctx context.Context, obj *model.NaisJob) (string, error)
 
 	Team(ctx context.Context, obj *model.NaisJob) (*model.Team, error)
+
+	Secrets(ctx context.Context, obj *model.NaisJob) ([]*model.Secret, error)
 }
 type QueryResolver interface {
 	App(ctx context.Context, name string, team slug.Slug, env string) (*model.App, error)
@@ -1011,6 +1015,7 @@ type SecretResolver interface {
 	Team(ctx context.Context, obj *model.Secret) (*model.Team, error)
 	Data(ctx context.Context, obj *model.Secret) ([]*model.Variable, error)
 	Apps(ctx context.Context, obj *model.Secret) ([]*model.App, error)
+	Jobs(ctx context.Context, obj *model.Secret) ([]*model.NaisJob, error)
 
 	LastModifiedBy(ctx context.Context, obj *model.Secret) (*model.User, error)
 }
@@ -2997,6 +3002,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.NaisJob.Schedule(childComplexity), true
 
+	case "NaisJob.secrets":
+		if e.complexity.NaisJob.Secrets == nil {
+			break
+		}
+
+		return e.complexity.NaisJob.Secrets(childComplexity), true
+
 	case "NaisJob.storage":
 		if e.complexity.NaisJob.Storage == nil {
 			break
@@ -3937,6 +3949,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Secret.ID(childComplexity), true
+
+	case "Secret.jobs":
+		if e.complexity.Secret.Jobs == nil {
+			break
+		}
+
+		return e.complexity.Secret.Jobs(childComplexity), true
 
 	case "Secret.lastModifiedAt":
 		if e.complexity.Secret.LastModifiedAt == nil {
@@ -5687,6 +5706,7 @@ type NaisJob {
   parallelism: Int!
   retries: Int!
   jobState: JobState!
+  secrets: [Secret!]!
 }
 
 type NaisJobList {
@@ -6204,6 +6224,7 @@ type Secret {
     team: Team!
     data: [Variable!]!
     apps: [App!]!
+    jobs: [NaisJob!]!
     lastModifiedAt: Time
     lastModifiedBy: User
 }
@@ -9788,6 +9809,8 @@ func (ec *executionContext) fieldContext_App_secrets(ctx context.Context, field 
 				return ec.fieldContext_Secret_data(ctx, field)
 			case "apps":
 				return ec.fieldContext_Secret_apps(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Secret_jobs(ctx, field)
 			case "lastModifiedAt":
 				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 			case "lastModifiedBy":
@@ -19390,6 +19413,8 @@ func (ec *executionContext) fieldContext_Mutation_createSecret(ctx context.Conte
 				return ec.fieldContext_Secret_data(ctx, field)
 			case "apps":
 				return ec.fieldContext_Secret_apps(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Secret_jobs(ctx, field)
 			case "lastModifiedAt":
 				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 			case "lastModifiedBy":
@@ -19483,6 +19508,8 @@ func (ec *executionContext) fieldContext_Mutation_updateSecret(ctx context.Conte
 				return ec.fieldContext_Secret_data(ctx, field)
 			case "apps":
 				return ec.fieldContext_Secret_apps(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Secret_jobs(ctx, field)
 			case "lastModifiedAt":
 				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 			case "lastModifiedBy":
@@ -21948,6 +21975,70 @@ func (ec *executionContext) fieldContext_NaisJob_jobState(ctx context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _NaisJob_secrets(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NaisJob_secrets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.NaisJob().Secrets(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Secret)
+	fc.Result = res
+	return ec.marshalNSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NaisJob_secrets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NaisJob",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Secret_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Secret_name(ctx, field)
+			case "env":
+				return ec.fieldContext_Secret_env(ctx, field)
+			case "team":
+				return ec.fieldContext_Secret_team(ctx, field)
+			case "data":
+				return ec.fieldContext_Secret_data(ctx, field)
+			case "apps":
+				return ec.fieldContext_Secret_apps(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Secret_jobs(ctx, field)
+			case "lastModifiedAt":
+				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+			case "lastModifiedBy":
+				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _NaisJobList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.NaisJobList) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_NaisJobList_nodes(ctx, field)
 	if err != nil {
@@ -22021,6 +22112,8 @@ func (ec *executionContext) fieldContext_NaisJobList_nodes(ctx context.Context, 
 				return ec.fieldContext_NaisJob_retries(ctx, field)
 			case "jobState":
 				return ec.fieldContext_NaisJob_jobState(ctx, field)
+			case "secrets":
+				return ec.fieldContext_NaisJob_secrets(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type NaisJob", field.Name)
 		},
@@ -23443,6 +23536,8 @@ func (ec *executionContext) fieldContext_Query_naisjob(ctx context.Context, fiel
 				return ec.fieldContext_NaisJob_retries(ctx, field)
 			case "jobState":
 				return ec.fieldContext_NaisJob_jobState(ctx, field)
+			case "secrets":
+				return ec.fieldContext_NaisJob_secrets(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type NaisJob", field.Name)
 		},
@@ -28443,6 +28538,88 @@ func (ec *executionContext) fieldContext_Secret_apps(ctx context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Secret_jobs(ctx context.Context, field graphql.CollectedField, obj *model.Secret) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Secret_jobs(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Secret().Jobs(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.NaisJob)
+	fc.Result = res
+	return ec.marshalNNaisJob2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐNaisJobᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Secret_jobs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Secret",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_NaisJob_id(ctx, field)
+			case "accessPolicy":
+				return ec.fieldContext_NaisJob_accessPolicy(ctx, field)
+			case "deployInfo":
+				return ec.fieldContext_NaisJob_deployInfo(ctx, field)
+			case "env":
+				return ec.fieldContext_NaisJob_env(ctx, field)
+			case "image":
+				return ec.fieldContext_NaisJob_image(ctx, field)
+			case "runs":
+				return ec.fieldContext_NaisJob_runs(ctx, field)
+			case "manifest":
+				return ec.fieldContext_NaisJob_manifest(ctx, field)
+			case "name":
+				return ec.fieldContext_NaisJob_name(ctx, field)
+			case "resources":
+				return ec.fieldContext_NaisJob_resources(ctx, field)
+			case "schedule":
+				return ec.fieldContext_NaisJob_schedule(ctx, field)
+			case "team":
+				return ec.fieldContext_NaisJob_team(ctx, field)
+			case "storage":
+				return ec.fieldContext_NaisJob_storage(ctx, field)
+			case "authz":
+				return ec.fieldContext_NaisJob_authz(ctx, field)
+			case "completions":
+				return ec.fieldContext_NaisJob_completions(ctx, field)
+			case "parallelism":
+				return ec.fieldContext_NaisJob_parallelism(ctx, field)
+			case "retries":
+				return ec.fieldContext_NaisJob_retries(ctx, field)
+			case "jobState":
+				return ec.fieldContext_NaisJob_jobState(ctx, field)
+			case "secrets":
+				return ec.fieldContext_NaisJob_secrets(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type NaisJob", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Secret_lastModifiedAt(ctx context.Context, field graphql.CollectedField, obj *model.Secret) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 	if err != nil {
@@ -31339,6 +31516,8 @@ func (ec *executionContext) fieldContext_Team_secrets(ctx context.Context, field
 				return ec.fieldContext_Secret_data(ctx, field)
 			case "apps":
 				return ec.fieldContext_Secret_apps(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Secret_jobs(ctx, field)
 			case "lastModifiedAt":
 				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 			case "lastModifiedBy":
@@ -31421,6 +31600,8 @@ func (ec *executionContext) fieldContext_Team_secret(ctx context.Context, field 
 				return ec.fieldContext_Secret_data(ctx, field)
 			case "apps":
 				return ec.fieldContext_Secret_apps(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Secret_jobs(ctx, field)
 			case "lastModifiedAt":
 				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
 			case "lastModifiedBy":
@@ -40988,6 +41169,42 @@ func (ec *executionContext) _NaisJob(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "secrets":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._NaisJob_secrets(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -43152,6 +43369,42 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 					}
 				}()
 				res = ec._Secret_apps(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "jobs":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Secret_jobs(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

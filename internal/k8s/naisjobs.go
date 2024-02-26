@@ -3,6 +3,7 @@ package k8s
 import (
 	"context"
 	"fmt"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -582,6 +583,17 @@ func (c *Client) ToNaisJob(u *unstructured.Unstructured, env string) (*model.Nai
 	}
 
 	ret.Authz = authz
+
+	secrets := make([]string, 0)
+	for _, filesFrom := range naisjob.Spec.FilesFrom {
+		secrets = append(secrets, filesFrom.Secret)
+	}
+	for _, secretName := range naisjob.Spec.EnvFrom {
+		secrets = append(secrets, secretName.Secret)
+	}
+
+	slices.Sort(secrets)
+	ret.GQLVars.SecretNames = slices.Compact(secrets)
 
 	return ret, nil
 }

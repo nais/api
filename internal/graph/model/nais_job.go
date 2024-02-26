@@ -41,7 +41,8 @@ type Run struct {
 }
 
 type NaisJobGQLVars struct {
-	Team slug.Slug
+	SecretNames []string
+	Team        slug.Slug
 }
 
 type RunGQLVars struct {

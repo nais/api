@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
@@ -30,6 +31,17 @@ func (r *naisJobResolver) Manifest(ctx context.Context, obj *model.NaisJob) (str
 // Team is the resolver for the team field.
 func (r *naisJobResolver) Team(ctx context.Context, obj *model.NaisJob) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.GQLVars.Team)
+}
+
+// Secrets is the resolver for the secrets field.
+func (r *naisJobResolver) Secrets(ctx context.Context, obj *model.NaisJob) ([]*model.Secret, error) {
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamMembership(actor, obj.GQLVars.Team)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.k8sClient.SecretsForNaisJob(ctx, obj)
 }
 
 // Naisjob is the resolver for the naisjob field.

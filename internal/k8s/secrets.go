@@ -62,6 +62,38 @@ func (c *Client) SecretsForEnv(ctx context.Context, team slug.Slug, env string) 
 	return c.listSecrets(ctx, team, env, clientSet)
 }
 
+func (c *Client) SecretsForApp(ctx context.Context, obj *model.App) ([]*model.Secret, error) {
+	secrets, err := c.SecretsForEnv(ctx, obj.GQLVars.Team, obj.Env.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := make([]*model.Secret, 0)
+	for _, secret := range secrets {
+		if slices.Contains(obj.GQLVars.SecretNames, secret.Name) {
+			ret = append(ret, secret)
+		}
+	}
+
+	return ret, nil
+}
+
+func (c *Client) SecretsForNaisJob(ctx context.Context, obj *model.NaisJob) ([]*model.Secret, error) {
+	secrets, err := c.SecretsForEnv(ctx, obj.GQLVars.Team, obj.Env.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := make([]*model.Secret, 0)
+	for _, secret := range secrets {
+		if slices.Contains(obj.GQLVars.SecretNames, secret.Name) {
+			ret = append(ret, secret)
+		}
+	}
+
+	return ret, nil
+}
+
 func (c *Client) listSecrets(ctx context.Context, team slug.Slug, env string, clientSet kubernetes.Interface) ([]*model.Secret, error) {
 	namespace := team.String()
 	opts := metav1.ListOptions{
@@ -123,7 +155,7 @@ func (c *Client) AppsUsingSecret(ctx context.Context, obj *model.Secret) ([]*mod
 			continue
 		}
 
-		for _, secret := range app.GQLVars.Secrets {
+		for _, secret := range app.GQLVars.SecretNames {
 			if secret == obj.Name {
 				matches = append(matches, app)
 				break
@@ -133,6 +165,34 @@ func (c *Client) AppsUsingSecret(ctx context.Context, obj *model.Secret) ([]*mod
 
 	// sort first as Compact only removes consecutive duplicates
 	slices.SortFunc(matches, func(a, b *model.App) int {
+		return cmp.Compare(a.Name, b.Name)
+	})
+	return slices.Compact(matches), nil
+}
+
+func (c *Client) NaisJobsUsingSecret(ctx context.Context, obj *model.Secret) ([]*model.NaisJob, error) {
+	naisjobs, err := c.NaisJobs(ctx, obj.GQLVars.Team.String())
+	if err != nil {
+		return nil, fmt.Errorf("fetching naisjobs: %w", err)
+	}
+
+	matches := make([]*model.NaisJob, 0)
+
+	for _, job := range naisjobs {
+		if job.Env.Name != obj.GQLVars.Env {
+			continue
+		}
+
+		for _, secret := range job.GQLVars.SecretNames {
+			if secret == obj.Name {
+				matches = append(matches, job)
+				break
+			}
+		}
+	}
+
+	// sort first as Compact only removes consecutive duplicates
+	slices.SortFunc(matches, func(a, b *model.NaisJob) int {
 		return cmp.Compare(a.Name, b.Name)
 	})
 	return slices.Compact(matches), nil

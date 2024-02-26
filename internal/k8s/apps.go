@@ -704,9 +704,8 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 	}
 
 	slices.Sort(secrets)
-	secrets = slices.Compact(secrets)
+	ret.GQLVars.SecretNames = slices.Compact(secrets)
 
-	ret.GQLVars.Secrets = secrets
 	return ret, nil
 }
 

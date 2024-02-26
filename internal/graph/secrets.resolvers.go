@@ -64,6 +64,11 @@ func (r *secretResolver) Apps(ctx context.Context, obj *model.Secret) ([]*model.
 	return r.k8sClient.AppsUsingSecret(ctx, obj)
 }
 
+// Jobs is the resolver for the jobs field.
+func (r *secretResolver) Jobs(ctx context.Context, obj *model.Secret) ([]*model.NaisJob, error) {
+	return r.k8sClient.NaisJobsUsingSecret(ctx, obj)
+}
+
 // LastModifiedBy is the resolver for the lastModifiedBy field.
 func (r *secretResolver) LastModifiedBy(ctx context.Context, obj *model.Secret) (*model.User, error) {
 	if obj.GQLVars.LastModifiedBy == "" {
