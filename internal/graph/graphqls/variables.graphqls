@@ -1,9 +1,0 @@
-type Variable {
-  name: String!
-  value: String!
-}
-
-input VariableInput {
-  name: String!
-  value: String!
-}
