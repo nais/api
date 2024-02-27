@@ -25,6 +25,7 @@ var (
 	ErrTeamPrefixRedundant = Errorf("The name prefix 'team' is redundant. When you create a team, it is by definition a team. Try again with a different name, perhaps just removing the prefix?")
 	ErrTeamSlugReserved    = Errorf("The specified slug is reserved by the platform.")
 	ErrUserIsNotTeamMember = Errorf("The user is not a member of the team.")
+	ErrSecretUnmanaged     = Errorf("The secret name conflicts with a secret managed by another service. Please try again with a different name.")
 )
 
 // Error is an error that can be presented to end-users

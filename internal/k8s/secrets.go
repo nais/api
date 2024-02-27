@@ -3,6 +3,7 @@ package k8s
 import (
 	"cmp"
 	"context"
+	"errors"
 	"fmt"
 	"regexp"
 	"slices"
@@ -14,6 +15,7 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
 	corev1 "k8s.io/api/core/v1"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/client-go/kubernetes"
@@ -24,6 +26,10 @@ const (
 	secretLabelManagedByVal        = "console"
 	secretAnnotationLastModifiedAt = "console.nais.io/last-modified-at"
 	secretAnnotationLastModifiedBy = "console.nais.io/last-modified-by"
+)
+
+var (
+	ErrSecretUnmanaged = errors.New("secret is not managed by console")
 )
 
 // Secrets lists all secrets for a given team in all environments
@@ -136,7 +142,7 @@ func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env st
 	}
 
 	if !secretIsManagedByConsole(*secret) {
-		return nil, fmt.Errorf("secret %q is not managed by console", secret.GetName())
+		return nil, fmt.Errorf("%q: %w", secret.GetName(), ErrSecretUnmanaged)
 	}
 
 	return toGraphSecret(env, team, secret), nil
@@ -224,6 +230,9 @@ func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, 
 	namespace := team.String()
 	created, err := cli.CoreV1().Secrets(namespace).Create(ctx, secret, metav1.CreateOptions{})
 	if err != nil {
+		if k8serrors.IsAlreadyExists(err) {
+			return nil, fmt.Errorf("%q: %w", name, ErrSecretUnmanaged)
+		}
 		return nil, c.error(ctx, err, "creating secret")
 	}
 
@@ -253,7 +262,7 @@ func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, 
 	}
 
 	if !secretIsManagedByConsole(*existing) {
-		return nil, fmt.Errorf("secret %q is not managed by console", existing.GetName())
+		return nil, fmt.Errorf("%q: %w", existing.GetName(), ErrSecretUnmanaged)
 	}
 
 	actor := authz.ActorFromContext(ctx)
@@ -284,7 +293,7 @@ func (c *Client) DeleteSecret(ctx context.Context, name string, team slug.Slug, 
 	}
 
 	if !secretIsManagedByConsole(*existing) {
-		return false, fmt.Errorf("secret %q is not managed by console", existing.GetName())
+		return false, fmt.Errorf("%q: %w", existing.GetName(), ErrSecretUnmanaged)
 	}
 
 	err = cli.CoreV1().Secrets(namespace).Delete(ctx, name, metav1.DeleteOptions{})

@@ -6,11 +6,14 @@ package graph
 
 import (
 	"context"
+	"errors"
 
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -21,7 +24,12 @@ func (r *mutationResolver) CreateSecret(ctx context.Context, name string, team s
 	if err != nil {
 		return nil, err
 	}
-	return r.k8sClient.CreateSecret(ctx, name, team, env, data)
+
+	ret, err := r.k8sClient.CreateSecret(ctx, name, team, env, data)
+	if errors.Is(err, k8s.ErrSecretUnmanaged) {
+		return nil, apierror.ErrSecretUnmanaged
+	}
+	return ret, err
 }
 
 // UpdateSecret is the resolver for the updateSecret field.
@@ -31,7 +39,13 @@ func (r *mutationResolver) UpdateSecret(ctx context.Context, name string, team s
 	if err != nil {
 		return nil, err
 	}
-	return r.k8sClient.UpdateSecret(ctx, name, team, env, data)
+
+	ret, err := r.k8sClient.UpdateSecret(ctx, name, team, env, data)
+	if errors.Is(err, k8s.ErrSecretUnmanaged) {
+		return nil, apierror.ErrSecretUnmanaged
+	}
+
+	return ret, err
 }
 
 // DeleteSecret is the resolver for the deleteSecret field.
@@ -41,7 +55,12 @@ func (r *mutationResolver) DeleteSecret(ctx context.Context, name string, team s
 	if err != nil {
 		return false, err
 	}
-	return r.k8sClient.DeleteSecret(ctx, name, team, env)
+	deleted, err := r.k8sClient.DeleteSecret(ctx, name, team, env)
+	if errors.Is(err, k8s.ErrSecretUnmanaged) {
+		return false, apierror.ErrSecretUnmanaged
+	}
+
+	return deleted, err
 }
 
 // Env is the resolver for the env field.
