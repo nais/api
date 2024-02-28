@@ -10,14 +10,13 @@ import (
 )
 
 const createAuditLog = `-- name: CreateAuditLog :exec
-INSERT INTO audit_logs (correlation_id, actor, component_name, target_type, target_identifier, action, message)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+INSERT INTO audit_logs (correlation_id, actor, target_type, target_identifier, action, message)
+VALUES ($1, $2, $3, $4, $5, $6)
 `
 
 type CreateAuditLogParams struct {
 	CorrelationID    uuid.UUID
 	Actor            *string
-	ComponentName    string
 	TargetType       string
 	TargetIdentifier string
 	Action           string
@@ -28,7 +27,6 @@ func (q *Queries) CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) 
 	_, err := q.db.Exec(ctx, createAuditLog,
 		arg.CorrelationID,
 		arg.Actor,
-		arg.ComponentName,
 		arg.TargetType,
 		arg.TargetIdentifier,
 		arg.Action,
@@ -38,7 +36,7 @@ func (q *Queries) CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) 
 }
 
 const getAuditLogsForCorrelationID = `-- name: GetAuditLogsForCorrelationID :many
-SELECT id, created_at, correlation_id, component_name, actor, action, message, target_type, target_identifier FROM audit_logs
+SELECT id, created_at, correlation_id, actor, action, message, target_type, target_identifier FROM audit_logs
 WHERE correlation_id = $1
 ORDER BY created_at DESC
 LIMIT $3 OFFSET $2
@@ -63,7 +61,6 @@ func (q *Queries) GetAuditLogsForCorrelationID(ctx context.Context, arg GetAudit
 			&i.ID,
 			&i.CreatedAt,
 			&i.CorrelationID,
-			&i.ComponentName,
 			&i.Actor,
 			&i.Action,
 			&i.Message,
@@ -93,7 +90,7 @@ func (q *Queries) GetAuditLogsForCorrelationIDCount(ctx context.Context, correla
 }
 
 const getAuditLogsForReconciler = `-- name: GetAuditLogsForReconciler :many
-SELECT id, created_at, correlation_id, component_name, actor, action, message, target_type, target_identifier FROM audit_logs
+SELECT id, created_at, correlation_id, actor, action, message, target_type, target_identifier FROM audit_logs
 WHERE target_type = 'reconciler' AND target_identifier = $1
 ORDER BY created_at DESC
 LIMIT $3 OFFSET $2
@@ -118,7 +115,6 @@ func (q *Queries) GetAuditLogsForReconciler(ctx context.Context, arg GetAuditLog
 			&i.ID,
 			&i.CreatedAt,
 			&i.CorrelationID,
-			&i.ComponentName,
 			&i.Actor,
 			&i.Action,
 			&i.Message,
@@ -148,7 +144,7 @@ func (q *Queries) GetAuditLogsForReconcilerCount(ctx context.Context, targetIden
 }
 
 const getAuditLogsForTeam = `-- name: GetAuditLogsForTeam :many
-SELECT id, created_at, correlation_id, component_name, actor, action, message, target_type, target_identifier FROM audit_logs
+SELECT id, created_at, correlation_id, actor, action, message, target_type, target_identifier FROM audit_logs
 WHERE target_type = 'team' AND target_identifier = $1
 ORDER BY created_at DESC
 LIMIT $3 OFFSET $2
@@ -173,7 +169,6 @@ func (q *Queries) GetAuditLogsForTeam(ctx context.Context, arg GetAuditLogsForTe
 			&i.ID,
 			&i.CreatedAt,
 			&i.CorrelationID,
-			&i.ComponentName,
 			&i.Actor,
 			&i.Action,
 			&i.Message,

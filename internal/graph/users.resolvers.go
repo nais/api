@@ -19,7 +19,6 @@ import (
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
-	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/usersync"
 	"k8s.io/utils/ptr"
 )
@@ -35,7 +34,7 @@ func (r *mutationResolver) SynchronizeUsers(ctx context.Context) (string, error)
 	correlationID := uuid.New()
 
 	targets := []auditlogger.Target{
-		auditlogger.ComponentTarget(logger.ComponentNameUsersync),
+		auditlogger.SystemTarget("usersync"),
 	}
 	fields := auditlogger.Fields{
 		Action:        audittype.AuditActionGraphqlApiUsersSync,

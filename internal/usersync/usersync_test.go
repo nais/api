@@ -11,7 +11,6 @@ import (
 	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
-	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/test"
 	"github.com/nais/api/internal/usersync"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
@@ -41,7 +40,7 @@ func TestSync(t *testing.T) {
 			Return(nil).
 			Once()
 
-		auditLogger := auditlogger.New(db, logger.ComponentNameUsersync, log)
+		auditLogger := auditlogger.New(db, log)
 		httpClient := test.NewTestHttpClient(func(req *http.Request) *http.Response {
 			return test.Response("200 OK", `{"users":[]}`)
 		})
@@ -64,7 +63,7 @@ func TestSync(t *testing.T) {
 
 		log, _ := logrustest.NewNullLogger()
 		db := database.NewMockDatabase(t)
-		auditLogger := auditlogger.New(db, logger.ComponentNameUsersync, log)
+		auditLogger := auditlogger.New(db, log)
 		dbtx := database.NewMockDatabase(t)
 
 		db.EXPECT().
@@ -84,7 +83,6 @@ func TestSync(t *testing.T) {
 				CreateAuditLogEntry(
 					ctx,
 					mock.Anything,
-					logger.ComponentNameUsersync,
 					actor,
 					audittype.AuditLogsTargetTypeUser,
 					user.Email,
@@ -149,7 +147,7 @@ func TestSync(t *testing.T) {
 
 		log, _ := logrustest.NewNullLogger()
 		db := database.NewMockDatabase(t)
-		auditLogger := auditlogger.New(db, logger.ComponentNameUsersync, log)
+		auditLogger := auditlogger.New(db, log)
 		dbtx := database.NewMockDatabase(t)
 
 		numDefaultRoleNames := len(usersync.DefaultRoleNames)
@@ -276,7 +274,6 @@ func TestSync(t *testing.T) {
 			CreateAuditLogEntry(
 				ctx,
 				mock.Anything,
-				logger.ComponentNameUsersync,
 				actor,
 				audittype.AuditLogsTargetTypeUser,
 				"user1@example.com",
@@ -289,7 +286,6 @@ func TestSync(t *testing.T) {
 			CreateAuditLogEntry(
 				ctx,
 				mock.Anything,
-				logger.ComponentNameUsersync,
 				actor,
 				audittype.AuditLogsTargetTypeUser,
 				"user2@example.com",
@@ -302,7 +298,6 @@ func TestSync(t *testing.T) {
 			CreateAuditLogEntry(
 				ctx,
 				mock.Anything,
-				logger.ComponentNameUsersync,
 				actor,
 				audittype.AuditLogsTargetTypeUser,
 				"user3@example.com",
@@ -316,7 +311,6 @@ func TestSync(t *testing.T) {
 			CreateAuditLogEntry(
 				ctx,
 				mock.Anything,
-				logger.ComponentNameUsersync,
 				actor,
 				audittype.AuditLogsTargetTypeUser,
 				"delete-me@example.com",
@@ -330,7 +324,6 @@ func TestSync(t *testing.T) {
 			CreateAuditLogEntry(
 				ctx,
 				mock.Anything,
-				logger.ComponentNameUsersync,
 				actor,
 				audittype.AuditLogsTargetTypeUser,
 				"user2@example.com",
@@ -344,7 +337,6 @@ func TestSync(t *testing.T) {
 			CreateAuditLogEntry(
 				ctx,
 				mock.Anything,
-				logger.ComponentNameUsersync,
 				actor,
 				audittype.AuditLogsTargetTypeUser,
 				"user1@example.com",

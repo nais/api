@@ -10,7 +10,6 @@ import (
 	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
-	"github.com/nais/api/internal/logger"
 	"github.com/sirupsen/logrus"
 	admin_directory_v1 "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/googleapi"
@@ -67,7 +66,6 @@ func New(dbc database.Database, auditLogger auditlogger.AuditLogger, adminGroupP
 }
 
 func NewFromConfig(serviceAccount, subjectEmail, tenantDomain, adminGroupPrefix string, db database.Database, log logrus.FieldLogger, syncRuns *RunsHandler) (*UserSynchronizer, error) {
-	log = log.WithField("component", logger.ComponentNameUsersync)
 	ctx := context.Background()
 
 	builder, err := newTokenSource(serviceAccount, subjectEmail)
@@ -85,7 +83,7 @@ func NewFromConfig(serviceAccount, subjectEmail, tenantDomain, adminGroupPrefix 
 		return nil, fmt.Errorf("retrieve directory client: %w", err)
 	}
 
-	return New(db, auditlogger.New(db, logger.ComponentNameUsersync, log), adminGroupPrefix, tenantDomain, srv, log, syncRuns), nil
+	return New(db, auditlogger.New(db, log), adminGroupPrefix, tenantDomain, srv, log, syncRuns), nil
 }
 
 // Sync Fetch all users from the tenant and add them as local users in api. If a user already exists in

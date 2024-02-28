@@ -134,7 +134,6 @@ type ComplexityRoot struct {
 	AuditLog struct {
 		Action           func(childComplexity int) int
 		Actor            func(childComplexity int) int
-		ComponentName    func(childComplexity int) int
 		CorrelationID    func(childComplexity int) int
 		CreatedAt        func(childComplexity int) int
 		ID               func(childComplexity int) int
@@ -1376,13 +1375,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AuditLog.Actor(childComplexity), true
-
-	case "AuditLog.componentName":
-		if e.complexity.AuditLog.ComponentName == nil {
-			break
-		}
-
-		return e.complexity.AuditLog.ComponentName(childComplexity), true
 
 	case "AuditLog.correlationID":
 		if e.complexity.AuditLog.CorrelationID == nil {
@@ -5218,9 +5210,6 @@ type AuditLog {
 
   "String representation of the action performed."
   action: String!
-
-  "The related component."
-  componentName: String!
 
   "The related correlation ID."
   correlationID: String!
@@ -10666,50 +10655,6 @@ func (ec *executionContext) fieldContext_AuditLog_action(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditLog_componentName(ctx context.Context, field graphql.CollectedField, obj *model.AuditLog) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditLog_componentName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ComponentName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AuditLog_componentName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AuditLog",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _AuditLog_correlationID(ctx context.Context, field graphql.CollectedField, obj *model.AuditLog) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuditLog_correlationID(ctx, field)
 	if err != nil {
@@ -11014,8 +10959,6 @@ func (ec *executionContext) fieldContext_AuditLogList_nodes(ctx context.Context,
 				return ec.fieldContext_AuditLog_id(ctx, field)
 			case "action":
 				return ec.fieldContext_AuditLog_action(ctx, field)
-			case "componentName":
-				return ec.fieldContext_AuditLog_componentName(ctx, field)
 			case "correlationID":
 				return ec.fieldContext_AuditLog_correlationID(ctx, field)
 			case "actor":
@@ -38002,11 +37945,6 @@ func (ec *executionContext) _AuditLog(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "action":
 			out.Values[i] = ec._AuditLog_action(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "componentName":
-			out.Values[i] = ec._AuditLog_componentName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

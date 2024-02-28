@@ -101,8 +101,6 @@ type AuditLog struct {
 	ID scalar.Ident `json:"id"`
 	// String representation of the action performed.
 	Action string `json:"action"`
-	// The related component.
-	ComponentName string `json:"componentName"`
 	// The related correlation ID.
 	CorrelationID string `json:"correlationID"`
 	// The identity of the actor who performed the action. When this field is empty it means that some backend process performed the action. The value, when present, is either the name of a service account, or the email address of a user.

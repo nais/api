@@ -1,6 +1,6 @@
 -- name: CreateAuditLog :exec
-INSERT INTO audit_logs (correlation_id, actor, component_name, target_type, target_identifier, action, message)
-VALUES (@correlation_id, @actor, @component_name, @target_type, @target_identifier, @action, @message);
+INSERT INTO audit_logs (correlation_id, actor, target_type, target_identifier, action, message)
+VALUES (@correlation_id, @actor, @target_type, @target_identifier, @action, @message);
 
 -- name: GetAuditLogsForTeam :many
 SELECT * FROM audit_logs

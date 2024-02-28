@@ -213,7 +213,6 @@ type AuditLog struct {
 	ID               uuid.UUID
 	CreatedAt        pgtype.Timestamptz
 	CorrelationID    uuid.UUID
-	ComponentName    string
 	Actor            *string
 	Action           string
 	Message          string
