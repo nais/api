@@ -6,12 +6,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/database/gensql"
-	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
 )
 
 type AuditLogsRepo interface {
-	CreateAuditLogEntry(ctx context.Context, correlationID uuid.UUID, componentName logger.ComponentName, actor *string, targetType audittype.AuditLogsTargetType, targetIdentifier string, action audittype.AuditAction, message string) error
+	CreateAuditLogEntry(ctx context.Context, correlationID uuid.UUID, actor *string, targetType audittype.AuditLogsTargetType, targetIdentifier string, action audittype.AuditAction, message string) error
 	GetAuditLogsForCorrelationID(ctx context.Context, correlationID uuid.UUID, p Page) ([]*AuditLog, int, error)
 	GetAuditLogsForReconciler(ctx context.Context, reconcilerName string, p Page) ([]*AuditLog, int, error)
 	GetAuditLogsForTeam(ctx context.Context, teamSlug slug.Slug, p Page) ([]*AuditLog, int, error)
@@ -69,11 +68,10 @@ func (d *database) GetAuditLogsForReconciler(ctx context.Context, reconcilerName
 	return entries, int(total), nil
 }
 
-func (d *database) CreateAuditLogEntry(ctx context.Context, correlationID uuid.UUID, componentName logger.ComponentName, actor *string, targetType audittype.AuditLogsTargetType, targetIdentifier string, action audittype.AuditAction, message string) error {
+func (d *database) CreateAuditLogEntry(ctx context.Context, correlationID uuid.UUID, actor *string, targetType audittype.AuditLogsTargetType, targetIdentifier string, action audittype.AuditAction, message string) error {
 	return d.querier.CreateAuditLog(ctx, gensql.CreateAuditLogParams{
 		CorrelationID:    correlationID,
 		Actor:            actor,
-		ComponentName:    string(componentName),
 		TargetType:       string(targetType),
 		TargetIdentifier: targetIdentifier,
 		Action:           string(action),

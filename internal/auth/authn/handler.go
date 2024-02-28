@@ -11,7 +11,6 @@ import (
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/logger"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
@@ -47,7 +46,7 @@ func New(oauth2Config OAuth2, db database.Database, log logrus.FieldLogger) Hand
 	return &handler{
 		db:           db,
 		oauth2Config: oauth2Config,
-		log:          log.WithField("component", logger.ComponentNameAuthn),
+		log:          log,
 	}
 }
 

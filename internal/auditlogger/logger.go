@@ -8,7 +8,6 @@ import (
 	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
 	"k8s.io/utils/ptr"
@@ -19,9 +18,8 @@ type AuditLogger interface {
 }
 
 type auditLogger struct {
-	componentName logger.ComponentName
-	db            database.Database
-	log           logrus.FieldLogger
+	db  database.Database
+	log logrus.FieldLogger
 }
 
 type auditLoggerForTesting struct {
@@ -46,11 +44,10 @@ type Entry struct {
 	Message string
 }
 
-func New(db database.Database, componentName logger.ComponentName, log logrus.FieldLogger) AuditLogger {
+func New(db database.Database, log logrus.FieldLogger) AuditLogger {
 	return &auditLogger{
-		componentName: componentName,
-		db:            db,
-		log:           log.WithField("component", componentName),
+		db:  db,
+		log: log,
 	}
 }
 
@@ -96,7 +93,6 @@ func (l *auditLogger) Logf(ctx context.Context, targets []Target, fields Fields,
 		err := l.db.CreateAuditLogEntry(
 			ctx,
 			fields.CorrelationID,
-			l.componentName,
 			actor,
 			target.Type,
 			target.Identifier,
@@ -135,6 +131,10 @@ func (l *auditLogger) Logf(ctx context.Context, targets []Target, fields Fields,
 	}
 }
 
+func SystemTarget(systemName string) Target {
+	return Target{Type: audittype.AuditLogsTargetTypeSystem, Identifier: systemName}
+}
+
 func UserTarget(email string) Target {
 	return Target{Type: audittype.AuditLogsTargetTypeUser, Identifier: email}
 }
@@ -144,9 +144,5 @@ func TeamTarget(slug slug.Slug) Target {
 }
 
 func ReconcilerTarget(name string) Target {
-	return Target{Type: audittype.AuditLogsTargetTypeReconciler, Identifier: string(name)}
-}
-
-func ComponentTarget(name logger.ComponentName) Target {
-	return Target{Type: audittype.AuditLogsTargetTypeSystem, Identifier: string(name)}
+	return Target{Type: audittype.AuditLogsTargetTypeReconciler, Identifier: name}
 }

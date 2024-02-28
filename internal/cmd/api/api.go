@@ -140,7 +140,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("unable to create k8s client: %w", err)
 	}
 
-	auditLogger := auditlogger.New(db, logger.ComponentNameGraphqlApi, log)
+	auditLogger := auditlogger.New(db, log)
 	userSync := make(chan uuid.UUID, 1)
 
 	pubsubClient, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)

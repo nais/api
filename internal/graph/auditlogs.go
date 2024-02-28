@@ -13,7 +13,6 @@ func toGraphAuditLogs(logs []*database.AuditLog) []*model.AuditLog {
 			ID:               scalar.AuditLogIdent(log.ID),
 			Action:           log.Action,
 			Actor:            log.Actor,
-			ComponentName:    log.ComponentName,
 			TargetType:       log.TargetType,
 			CorrelationID:    log.CorrelationID.String(),
 			TargetIdentifier: log.TargetIdentifier,

@@ -10,8 +10,6 @@ import (
 
 	gensql "github.com/nais/api/internal/database/gensql"
 
-	logger "github.com/nais/api/internal/logger"
-
 	mock "github.com/stretchr/testify/mock"
 
 	pgtype "github.com/jackc/pgx/v5/pgtype"
@@ -532,17 +530,17 @@ func (_c *MockDatabase_CreateAPIKey_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
-// CreateAuditLogEntry provides a mock function with given fields: ctx, correlationID, componentName, actor, targetType, targetIdentifier, action, message
-func (_m *MockDatabase) CreateAuditLogEntry(ctx context.Context, correlationID uuid.UUID, componentName logger.ComponentName, actor *string, targetType audittype.AuditLogsTargetType, targetIdentifier string, action audittype.AuditAction, message string) error {
-	ret := _m.Called(ctx, correlationID, componentName, actor, targetType, targetIdentifier, action, message)
+// CreateAuditLogEntry provides a mock function with given fields: ctx, correlationID, actor, targetType, targetIdentifier, action, message
+func (_m *MockDatabase) CreateAuditLogEntry(ctx context.Context, correlationID uuid.UUID, actor *string, targetType audittype.AuditLogsTargetType, targetIdentifier string, action audittype.AuditAction, message string) error {
+	ret := _m.Called(ctx, correlationID, actor, targetType, targetIdentifier, action, message)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateAuditLogEntry")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, logger.ComponentName, *string, audittype.AuditLogsTargetType, string, audittype.AuditAction, string) error); ok {
-		r0 = rf(ctx, correlationID, componentName, actor, targetType, targetIdentifier, action, message)
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *string, audittype.AuditLogsTargetType, string, audittype.AuditAction, string) error); ok {
+		r0 = rf(ctx, correlationID, actor, targetType, targetIdentifier, action, message)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -558,19 +556,18 @@ type MockDatabase_CreateAuditLogEntry_Call struct {
 // CreateAuditLogEntry is a helper method to define mock.On call
 //   - ctx context.Context
 //   - correlationID uuid.UUID
-//   - componentName logger.ComponentName
 //   - actor *string
 //   - targetType audittype.AuditLogsTargetType
 //   - targetIdentifier string
 //   - action audittype.AuditAction
 //   - message string
-func (_e *MockDatabase_Expecter) CreateAuditLogEntry(ctx interface{}, correlationID interface{}, componentName interface{}, actor interface{}, targetType interface{}, targetIdentifier interface{}, action interface{}, message interface{}) *MockDatabase_CreateAuditLogEntry_Call {
-	return &MockDatabase_CreateAuditLogEntry_Call{Call: _e.mock.On("CreateAuditLogEntry", ctx, correlationID, componentName, actor, targetType, targetIdentifier, action, message)}
+func (_e *MockDatabase_Expecter) CreateAuditLogEntry(ctx interface{}, correlationID interface{}, actor interface{}, targetType interface{}, targetIdentifier interface{}, action interface{}, message interface{}) *MockDatabase_CreateAuditLogEntry_Call {
+	return &MockDatabase_CreateAuditLogEntry_Call{Call: _e.mock.On("CreateAuditLogEntry", ctx, correlationID, actor, targetType, targetIdentifier, action, message)}
 }
 
-func (_c *MockDatabase_CreateAuditLogEntry_Call) Run(run func(ctx context.Context, correlationID uuid.UUID, componentName logger.ComponentName, actor *string, targetType audittype.AuditLogsTargetType, targetIdentifier string, action audittype.AuditAction, message string)) *MockDatabase_CreateAuditLogEntry_Call {
+func (_c *MockDatabase_CreateAuditLogEntry_Call) Run(run func(ctx context.Context, correlationID uuid.UUID, actor *string, targetType audittype.AuditLogsTargetType, targetIdentifier string, action audittype.AuditAction, message string)) *MockDatabase_CreateAuditLogEntry_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(logger.ComponentName), args[3].(*string), args[4].(audittype.AuditLogsTargetType), args[5].(string), args[6].(audittype.AuditAction), args[7].(string))
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(*string), args[3].(audittype.AuditLogsTargetType), args[4].(string), args[5].(audittype.AuditAction), args[6].(string))
 	})
 	return _c
 }
@@ -580,7 +577,7 @@ func (_c *MockDatabase_CreateAuditLogEntry_Call) Return(_a0 error) *MockDatabase
 	return _c
 }
 
-func (_c *MockDatabase_CreateAuditLogEntry_Call) RunAndReturn(run func(context.Context, uuid.UUID, logger.ComponentName, *string, audittype.AuditLogsTargetType, string, audittype.AuditAction, string) error) *MockDatabase_CreateAuditLogEntry_Call {
+func (_c *MockDatabase_CreateAuditLogEntry_Call) RunAndReturn(run func(context.Context, uuid.UUID, *string, audittype.AuditLogsTargetType, string, audittype.AuditAction, string) error) *MockDatabase_CreateAuditLogEntry_Call {
 	_c.Call.Return(run)
 	return _c
 }
