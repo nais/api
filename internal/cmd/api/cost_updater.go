@@ -12,6 +12,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	costUpdateSchedule = time.Hour
+)
+
 func costUpdater(ctx context.Context, cfg *Config, db database.Database, log logrus.FieldLogger) error {
 	if !cfg.Cost.ImportEnabled {
 		log.Warningf(`cost import is not enabled. Enable by setting the "COST_DATA_IMPORT_ENABLED" environment variable to "true".`)

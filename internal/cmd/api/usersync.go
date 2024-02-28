@@ -10,6 +10,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	userSyncInterval = time.Minute * 15
+	userSyncTimeout  = time.Second * 30
+)
+
 func runUserSync(ctx context.Context, cfg *Config, db database.Database, log logrus.FieldLogger, userSync chan uuid.UUID, userSyncRuns *usersync.RunsHandler) error {
 	if !cfg.UserSync.Enabled {
 		log.Infof("user sync is disabled")

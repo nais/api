@@ -44,13 +44,6 @@ const (
 	exitCodeEnvFileError
 )
 
-const (
-	costUpdateSchedule     = time.Hour
-	resourceUpdateSchedule = time.Hour
-	userSyncInterval       = time.Minute * 15
-	userSyncTimeout        = time.Second * 30
-)
-
 func Run(ctx context.Context) {
 	log := logrus.StandardLogger()
 

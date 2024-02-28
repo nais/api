@@ -13,6 +13,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	resourceUpdateSchedule = time.Hour
+)
+
 func resourceUsageUpdater(ctx context.Context, cfg *Config, db database.Database, k8sClient *k8s.Client, log logrus.FieldLogger) error {
 	if !cfg.ResourceUtilizationImportEnabled {
 		log.Warningf(`resource utilization import is not enabled. Enable by setting the "RESOURCE_UTILIZATION_IMPORT_ENABLED" environment variable to "true"`)
