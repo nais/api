@@ -13,6 +13,7 @@ import (
 	"github.com/sirupsen/logrus"
 	admin_directory_v1 "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/googleapi"
+	"google.golang.org/api/impersonate"
 	"google.golang.org/api/option"
 )
 
@@ -65,15 +66,15 @@ func New(dbc database.Database, auditLogger auditlogger.AuditLogger, adminGroupP
 	}
 }
 
-func NewFromConfig(serviceAccount, subjectEmail, tenantDomain, adminGroupPrefix string, db database.Database, log logrus.FieldLogger, syncRuns *RunsHandler) (*UserSynchronizer, error) {
-	ctx := context.Background()
-
-	builder, err := newTokenSource(serviceAccount, subjectEmail)
-	if err != nil {
-		return nil, err
-	}
-
-	ts, err := builder.Admin(ctx)
+func NewFromConfig(ctx context.Context, serviceAccount, subjectEmail, tenantDomain, adminGroupPrefix string, db database.Database, log logrus.FieldLogger, syncRuns *RunsHandler) (*UserSynchronizer, error) {
+	ts, err := impersonate.CredentialsTokenSource(ctx, impersonate.CredentialsConfig{
+		Scopes: []string{
+			admin_directory_v1.AdminDirectoryUserReadonlyScope,
+			admin_directory_v1.AdminDirectoryGroupScope,
+		},
+		Subject:         subjectEmail,
+		TargetPrincipal: serviceAccount,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("create token source: %w", err)
 	}
