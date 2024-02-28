@@ -28,9 +28,7 @@ const (
 	secretAnnotationLastModifiedBy = "console.nais.io/last-modified-by"
 )
 
-var (
-	ErrSecretUnmanaged = errors.New("secret is not managed by console")
-)
+var ErrSecretUnmanaged = errors.New("secret is not managed by console")
 
 // Secrets lists all secrets for a given team in all environments
 func (c *Client) Secrets(ctx context.Context, team slug.Slug) ([]*model.Secret, error) {

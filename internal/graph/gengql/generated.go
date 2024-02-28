@@ -6135,6 +6135,16 @@ enum SortOrder {
   "Descending sort order."
   DESC
 }
+
+type Variable {
+  name: String!
+  value: String!
+}
+
+input VariableInput {
+  name: String!
+  value: String!
+}
 `, BuiltIn: false},
 	{Name: "../graphqls/search.graphqls", Input: `extend type Query {
   search(
@@ -7017,16 +7027,6 @@ type UserList {
 type TeamMemberList {
   nodes: [TeamMember!]!
   pageInfo: PageInfo!
-}
-`, BuiltIn: false},
-	{Name: "../graphqls/variables.graphqls", Input: `type Variable {
-  name: String!
-  value: String!
-}
-
-input VariableInput {
-  name: String!
-  value: String!
 }
 `, BuiltIn: false},
 }
