@@ -169,7 +169,7 @@ func (r *userResolver) Roles(ctx context.Context, obj *model.User) ([]*model.Rol
 		return nil, err
 	}
 
-	if err != nil && actor.User.GetID() != uid {
+	if actor.User.GetID() != uid {
 		return nil, err
 	}
 

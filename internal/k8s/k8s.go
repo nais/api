@@ -298,7 +298,7 @@ func convert(m any, target any) error {
 	return nil
 }
 
-func (c *Client) error(ctx context.Context, err error, msg string) error {
+func (c *Client) error(_ context.Context, err error, msg string) error {
 	c.log.WithError(err).Error(msg)
 	return fmt.Errorf("%s: %w", msg, err)
 }
