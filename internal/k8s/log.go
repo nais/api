@@ -24,7 +24,7 @@ func (c *Client) LogStream(ctx context.Context, cluster, namespace, selector, co
 	}
 
 	for _, p := range pods.Items {
-		if p.Labels["logs.nais.io/flow-secure-logs"] == "true" {
+		if p.Labels["logs.nais.io/flow-secure_logs"] == "true" {
 			return nil, apierror.Errorf("Logs are secure, cannot be streamed")
 		}
 	}
