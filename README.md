@@ -35,10 +35,14 @@ graph TD
   API --> Postgres[(psql)]
   Service[NAIS Service] --> |GRPC|API
   Clients[External Clients] --> |GraphQL|API
-  API --> K8s([Kubernetes])
-
   API -.-> PubSub{PubSub}
-  PubSub -.-> Service
+
+  subgraph ext [External data]
+    API --> K8s([Kubernetes])
+    API --> Prom([Prometheus])
+    API --> GA([Google Admin])
+    API --> BQ([BigQuery])
+  end
 ```
 
 | Component        | Description                                                                                |
@@ -49,3 +53,6 @@ graph TD
 | External Clients | External clients that communicates with the API. E.g. Browsers and NADA                    |
 | Kubernetes       | The Kubernetes clusters of the tenant                                                      |
 | PubSub           | The PubSub topic used for communication between the API and the NAIS Service               |
+| Prometheus       | We collect historic data from the tenants prometheus                                       |
+| Google Admin     | We use the Google Admin API to manage a list of users                                      |
+| BigQuery         | We collect historic cost data from BigQuery                                                |
