@@ -3,11 +3,11 @@ package k8s
 import (
 	"bufio"
 	"context"
-	"fmt"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/model"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -25,7 +25,7 @@ func (c *Client) LogStream(ctx context.Context, cluster, namespace, selector, co
 
 	for _, p := range pods.Items {
 		if p.Labels["logs.nais.io/flow-secure-logs"] == "true" {
-			return nil, fmt.Errorf("Logs are secure, cannot be streamed")
+			return nil, apierror.Errorf("Logs are secure, cannot be streamed")
 		}
 	}
 
