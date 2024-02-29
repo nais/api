@@ -3,6 +3,7 @@ package k8s
 import (
 	"bufio"
 	"context"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -20,6 +21,12 @@ func (c *Client) LogStream(ctx context.Context, cluster, namespace, selector, co
 	})
 	if err != nil {
 		return nil, err
+	}
+
+	for _, p := range pods.Items {
+		if p.Labels["logs.nais.io/flow-secure-logs"] == "true" {
+			return nil, fmt.Errorf("Logs are secure, cannot be streamed")
+		}
 	}
 
 	wg := &sync.WaitGroup{}
