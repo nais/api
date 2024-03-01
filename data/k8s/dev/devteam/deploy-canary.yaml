@@ -86,7 +86,8 @@ spec:
     - secret: my-secret
     - secret: other-secret
     - configMap: my-config-map
-
+  ingresses:
+    - "chicken.deprecated.adeo.no"
   filesFrom:
     - secret: my-secret
       mountPath: /var/secret
