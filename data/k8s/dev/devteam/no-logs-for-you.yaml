@@ -92,7 +92,7 @@ metadata:
     linkerd.io/workload-ns: nais-verification
     pod-template-hash: 868cdf6698
     team: nais-verification
-    logs.nais.io/flow-secure-logs: “true”
+    logs.nais.io/flow-secure_logs: "true"
   name: no-logs-for-you-868cdf6698-fr4pt
   namespace: nais-verification
   ownerReferences:

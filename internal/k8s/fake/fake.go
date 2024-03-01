@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
@@ -26,13 +27,23 @@ type clients struct {
 	Dynamic   dynamic.Interface
 }
 
+type clusterResources struct {
+	core    []runtime.Object
+	dynamic []runtime.Object
+}
+
+func (c *clusterResources) append(o clusterResources) {
+	c.core = append(c.core, o.core...)
+	c.dynamic = append(c.dynamic, o.dynamic...)
+}
+
 // Clients returns a new fake kubernetes clientset for each directory at root in the given directory.
 // Each yaml file in the directory will be created as a resource, where resources in a "teams" directory
 // will be created in a namespace with the same name as the file.
 func Clients(dir fs.FS) func(cluster string) (kubernetes.Interface, dynamic.Interface, error) {
 	scheme := newScheme()
 
-	resources := make(map[string][]runtime.Object)
+	resources := make(map[string]*clusterResources)
 	// TODO: use yaml file in the data dir on root?
 	fs.WalkDir(dir, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -48,7 +59,10 @@ func Clients(dir fs.FS) func(cluster string) (kubernetes.Interface, dynamic.Inte
 			return nil
 		}
 
-		resources[cluster] = append(resources[cluster], parseResources(dir, path)...)
+		if resources[cluster] == nil {
+			resources[cluster] = &clusterResources{}
+		}
+		resources[cluster].append(parseResources(scheme, dir, path))
 
 		return nil
 	})
@@ -56,8 +70,8 @@ func Clients(dir fs.FS) func(cluster string) (kubernetes.Interface, dynamic.Inte
 	ret := make(map[string]clients)
 	for cluster, objs := range resources {
 		ret[cluster] = clients{
-			ClientSet: fake.NewSimpleClientset(objs...),
-			Dynamic:   dynfake.NewSimpleDynamicClient(scheme, objs...),
+			ClientSet: fake.NewSimpleClientset(objs.core...),
+			Dynamic:   dynfake.NewSimpleDynamicClient(scheme, objs.dynamic...),
 		}
 	}
 
@@ -89,34 +103,29 @@ func parseCluster(path string) string {
 	return p[0]
 }
 
-func parseResources(dir fs.FS, path string) []runtime.Object {
+func parseResources(scheme *runtime.Scheme, dir fs.FS, path string) clusterResources {
 	b, err := fs.ReadFile(dir, path)
 	if err != nil {
-		return nil
+		return clusterResources{}
 	}
 
 	parts := bytes.Split(b, []byte("\n---"))
 	ns := strings.Trim(filepath.Base(filepath.Dir(path)), string(filepath.Separator))
 
-	ret := make([]runtime.Object, 0, len(parts))
+	ret := clusterResources{}
 	for _, p := range parts {
 		if len(bytes.TrimSpace(p)) == 0 {
-			continue
-		}
-
-		if strings.HasSuffix(path, "/nais/secrets.yaml") {
-			secret, err := parseSecret(p, ns)
-			if err != nil {
-				panic(err)
-			}
-
-			ret = append(ret, secret)
 			continue
 		}
 
 		r := &unstructured.Unstructured{}
 		if err := yaml.Unmarshal(p, &r); err != nil {
 			panic(err)
+		}
+
+		kt := scheme.KnownTypes(r.GetObjectKind().GroupVersionKind().GroupVersion())
+		if kt == nil {
+			panic(fmt.Errorf("unknown group version: %q", r.GetObjectKind().GroupVersionKind().GroupVersion()))
 		}
 
 		r.SetNamespace(ns)
@@ -126,24 +135,26 @@ func parseResources(dir fs.FS, path string) []runtime.Object {
 		}
 		lbls["team"] = ns
 		r.SetLabels(lbls)
-		ret = append(ret, r)
+
+		var v runtime.Object
+		if t, ok := kt[r.GetObjectKind().GroupVersionKind().Kind]; ok {
+			v = reflect.New(t).Interface().(runtime.Object)
+			if err := scheme.Convert(r, v, nil); err != nil {
+				panic(err)
+			}
+			v.GetObjectKind().SetGroupVersionKind(r.GetObjectKind().GroupVersionKind())
+
+		} else {
+			panic(fmt.Errorf("unknown kind: %q", r.GetObjectKind().GroupVersionKind()))
+		}
+
+		switch v.GetObjectKind().GroupVersionKind().GroupVersion() {
+		case corev1.SchemeGroupVersion:
+			ret.core = append(ret.core, v)
+		default:
+			ret.dynamic = append(ret.dynamic, v)
+		}
 	}
 
 	return ret
-}
-
-func parseSecret(part []byte, ns string) (*corev1.Secret, error) {
-	secret := &corev1.Secret{}
-	if err := yaml.Unmarshal(part, secret); err != nil {
-		return nil, err
-	}
-
-	secret.SetNamespace(ns)
-	lbls := secret.GetLabels()
-	if lbls == nil {
-		lbls = make(map[string]string)
-	}
-	lbls["team"] = ns
-	secret.SetLabels(lbls)
-	return secret, nil
 }
