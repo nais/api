@@ -968,20 +968,20 @@ type VulnerabilitySummary struct {
 type ErrorLevel string
 
 const (
-	ErrorLevelInfo    ErrorLevel = "INFO"
+	ErrorLevelTodo    ErrorLevel = "TODO"
 	ErrorLevelWarning ErrorLevel = "WARNING"
 	ErrorLevelError   ErrorLevel = "ERROR"
 )
 
 var AllErrorLevel = []ErrorLevel{
-	ErrorLevelInfo,
+	ErrorLevelTodo,
 	ErrorLevelWarning,
 	ErrorLevelError,
 }
 
 func (e ErrorLevel) IsValid() bool {
 	switch e {
-	case ErrorLevelInfo, ErrorLevelWarning, ErrorLevelError:
+	case ErrorLevelTodo, ErrorLevelWarning, ErrorLevelError:
 		return true
 	}
 	return false
