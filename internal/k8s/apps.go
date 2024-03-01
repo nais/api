@@ -814,15 +814,15 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 		}
 		appState.Errors = append(appState.Errors, &model.DeprecatedRegistryError{
 			Revision:   app.DeployInfo.CommitSha,
-			Level:      model.ErrorLevelWarning,
+			Level:      model.ErrorLevelTodo,
 			Registry:   registry,
 			Name:       name,
 			Tag:        tag,
 			Repository: repository,
 		})
-		if appState.State != model.StateFailing {
+		/*if appState.State != model.StateFailing {
 			appState.State = model.StateNotnais
-		}
+		}*/
 	}
 
 	deprecatedIngresses := getDeprecatedIngresses(app.Env.Name)
@@ -832,12 +832,12 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 			if i == deprecatedIngress {
 				appState.Errors = append(appState.Errors, &model.DeprecatedIngressError{
 					Revision: app.DeployInfo.CommitSha,
-					Level:    model.ErrorLevelWarning,
+					Level:    model.ErrorLevelTodo,
 					Ingress:  ingress,
 				})
-				if appState.State != model.StateFailing {
+				/*if appState.State != model.StateFailing {
 					appState.State = model.StateNotnais
-				}
+				}*/
 			}
 		}
 	}

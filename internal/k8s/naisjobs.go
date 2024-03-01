@@ -266,15 +266,15 @@ func setJobStatus(job *model.NaisJob, conditions []metav1.Condition, runs []*mod
 		}
 		jobState.Errors = append(jobState.Errors, &model.DeprecatedRegistryError{
 			Revision:   job.DeployInfo.CommitSha,
-			Level:      model.ErrorLevelWarning,
+			Level:      model.ErrorLevelTodo,
 			Registry:   registry,
 			Name:       name,
 			Tag:        tag,
 			Repository: repository,
 		})
-		if jobState.State != model.StateFailing {
+		/*if jobState.State != model.StateFailing {
 			jobState.State = model.StateNotnais
-		}
+		}*/
 	}
 
 	for _, rule := range job.AccessPolicy.Inbound.Rules {
