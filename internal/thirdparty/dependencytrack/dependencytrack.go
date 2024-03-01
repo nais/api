@@ -3,11 +3,12 @@ package dependencytrack
 import (
 	"context"
 	"fmt"
-	"github.com/sourcegraph/conc/pool"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/sourcegraph/conc/pool"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graph/model"
