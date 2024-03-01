@@ -125,10 +125,10 @@ func TestSetStatus(t *testing.T) {
 			instanceStates: []model.InstanceState{model.InstanceStateRunning, model.InstanceStateRunning},
 			image:          "docker.pkg.github.com/nais/myapp/myapp:1.0.0",
 			ingresses:      []string{"myapp.nav.cloud.nais.io"},
-			expectedState:  model.StateNotnais,
+			expectedState:  model.StateNais,
 			expectedErrors: []model.StateError{&model.DeprecatedRegistryError{
 				Revision: "1",
-				Level:    model.ErrorLevelWarning,
+				Level:    model.ErrorLevelTodo,
 			}},
 		},
 		{
@@ -137,10 +137,10 @@ func TestSetStatus(t *testing.T) {
 			instanceStates: []model.InstanceState{model.InstanceStateRunning, model.InstanceStateRunning},
 			image:          "europe-north1-docker.pkg.dev/nais-io/nais/images/myapp:1.0.0",
 			ingresses:      []string{"myapp.prod-gcp.nais.io"},
-			expectedState:  model.StateNotnais,
+			expectedState:  model.StateNais,
 			expectedErrors: []model.StateError{&model.DeprecatedIngressError{
 				Revision: "1",
-				Level:    model.ErrorLevelWarning,
+				Level:    model.ErrorLevelTodo,
 			}},
 		},
 	}
