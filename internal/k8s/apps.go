@@ -506,6 +506,9 @@ func (c *Client) Apps(ctx context.Context, team string) ([]*model.App, error) {
 		}
 	}
 	sort.Slice(ret, func(i, j int) bool {
+		if ret[i].Name == ret[j].Name {
+			return ret[i].Env.Name < ret[j].Env.Name
+		}
 		return ret[i].Name < ret[j].Name
 	})
 
