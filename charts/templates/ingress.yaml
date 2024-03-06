@@ -5,8 +5,8 @@ metadata:
   labels:
     app: "{{ .Release.Name }}"
   annotations:
-    nginx.ingress.kubernetes.io/proxy-read-timeout: 600
-    nginx.ingress.kubernetes.io/proxy-send-timeout: 600
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
 spec:
   ingressClassName: "{{ .Values.ingressClassName }}"
   rules:
