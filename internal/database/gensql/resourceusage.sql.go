@@ -12,10 +12,10 @@ import (
 
 const averageResourceUtilizationForTeam = `-- name: AverageResourceUtilizationForTeam :one
 SELECT
-    (SUM(usage) / 24 / 7)::double precision AS usage,
-    (SUM(request) / 24 / 7)::double precision AS request
+    (SUM(usage)::double precision / 24 / 7)::double precision AS usage,
+    (SUM(request)::double precision / 24 / 7)::double precision AS request
 FROM
-    resource_utilization_metrics
+    resource_utilization_team
 WHERE
     team_slug = $1
     AND resource_type = $2
@@ -119,19 +119,17 @@ func (q *Queries) ResourceUtilizationForApp(ctx context.Context, arg ResourceUti
 
 const resourceUtilizationForTeam = `-- name: ResourceUtilizationForTeam :many
 SELECT
-    SUM(usage)::double precision AS usage,
-    SUM(request)::double precision AS request,
+    usage,
+    request,
     timestamp
 FROM
-    resource_utilization_metrics
+    resource_utilization_team
 WHERE
     environment = $1
     AND team_slug = $2
     AND resource_type = $3
     AND timestamp >= $4::timestamptz
     AND timestamp < $5::timestamptz
-GROUP BY
-    timestamp
 ORDER BY
     timestamp ASC
 `
@@ -239,10 +237,10 @@ func (q *Queries) ResourceUtilizationOverageForTeam(ctx context.Context, arg Res
 
 const resourceUtilizationRangeForApp = `-- name: ResourceUtilizationRangeForApp :one
 SELECT
-    MIN(timestamp)::timestamptz AS "from",
-    MAX(timestamp)::timestamptz AS "to"
+    "from",
+    "to"
 FROM
-    resource_utilization_metrics
+    resource_app_range
 WHERE
     environment = $1
     AND team_slug = $2
@@ -269,18 +267,13 @@ func (q *Queries) ResourceUtilizationRangeForApp(ctx context.Context, arg Resour
 }
 
 const resourceUtilizationRangeForTeam = `-- name: ResourceUtilizationRangeForTeam :one
-WITH team_range AS (
-    SELECT timestamp
-    FROM
-        resource_utilization_metrics
-    WHERE
-        team_slug = $1
-)
 SELECT
-    MIN(timestamp)::timestamptz AS "from",
-    MAX(timestamp)::timestamptz AS "to"
+    "from",
+    "to"
 FROM
-    team_range
+    resource_team_range
+WHERE
+    team_slug = $1
 `
 
 type ResourceUtilizationRangeForTeamRow struct {
@@ -345,7 +338,7 @@ SELECT
     SUM(request)::double precision AS request,
     timestamp
 FROM
-    resource_utilization_metrics
+    resource_utilization_team
 WHERE
     team_slug = $1
     AND resource_type = $2

@@ -1103,23 +1103,23 @@ func (_c *MockDatabase_DailyCostForTeam_Call) RunAndReturn(run func(context.Cont
 }
 
 // DailyEnvCostForTeam provides a mock function with given fields: ctx, fromDate, toDate, environment, teamSlug
-func (_m *MockDatabase) DailyEnvCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment *string, teamSlug slug.Slug) ([]*gensql.DailyEnvCostForTeamRow, error) {
+func (_m *MockDatabase) DailyEnvCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment *string, teamSlug slug.Slug) ([]*gensql.CostDailyTeam, error) {
 	ret := _m.Called(ctx, fromDate, toDate, environment, teamSlug)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DailyEnvCostForTeam")
 	}
 
-	var r0 []*gensql.DailyEnvCostForTeamRow
+	var r0 []*gensql.CostDailyTeam
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Date, pgtype.Date, *string, slug.Slug) ([]*gensql.DailyEnvCostForTeamRow, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Date, pgtype.Date, *string, slug.Slug) ([]*gensql.CostDailyTeam, error)); ok {
 		return rf(ctx, fromDate, toDate, environment, teamSlug)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Date, pgtype.Date, *string, slug.Slug) []*gensql.DailyEnvCostForTeamRow); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Date, pgtype.Date, *string, slug.Slug) []*gensql.CostDailyTeam); ok {
 		r0 = rf(ctx, fromDate, toDate, environment, teamSlug)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*gensql.DailyEnvCostForTeamRow)
+			r0 = ret.Get(0).([]*gensql.CostDailyTeam)
 		}
 	}
 
@@ -1154,12 +1154,12 @@ func (_c *MockDatabase_DailyEnvCostForTeam_Call) Run(run func(ctx context.Contex
 	return _c
 }
 
-func (_c *MockDatabase_DailyEnvCostForTeam_Call) Return(_a0 []*gensql.DailyEnvCostForTeamRow, _a1 error) *MockDatabase_DailyEnvCostForTeam_Call {
+func (_c *MockDatabase_DailyEnvCostForTeam_Call) Return(_a0 []*gensql.CostDailyTeam, _a1 error) *MockDatabase_DailyEnvCostForTeam_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockDatabase_DailyEnvCostForTeam_Call) RunAndReturn(run func(context.Context, pgtype.Date, pgtype.Date, *string, slug.Slug) ([]*gensql.DailyEnvCostForTeamRow, error)) *MockDatabase_DailyEnvCostForTeam_Call {
+func (_c *MockDatabase_DailyEnvCostForTeam_Call) RunAndReturn(run func(context.Context, pgtype.Date, pgtype.Date, *string, slug.Slug) ([]*gensql.CostDailyTeam, error)) *MockDatabase_DailyEnvCostForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4569,23 +4569,23 @@ func (_c *MockDatabase_MaxResourceUtilizationDate_Call) RunAndReturn(run func(co
 }
 
 // MonthlyCostForApp provides a mock function with given fields: ctx, teamSlug, app, environment
-func (_m *MockDatabase) MonthlyCostForApp(ctx context.Context, teamSlug slug.Slug, app string, environment string) ([]*gensql.MonthlyCostForAppRow, error) {
+func (_m *MockDatabase) MonthlyCostForApp(ctx context.Context, teamSlug slug.Slug, app string, environment string) ([]*gensql.CostMonthlyApp, error) {
 	ret := _m.Called(ctx, teamSlug, app, environment)
 
 	if len(ret) == 0 {
 		panic("no return value specified for MonthlyCostForApp")
 	}
 
-	var r0 []*gensql.MonthlyCostForAppRow
+	var r0 []*gensql.CostMonthlyApp
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, string) ([]*gensql.MonthlyCostForAppRow, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, string) ([]*gensql.CostMonthlyApp, error)); ok {
 		return rf(ctx, teamSlug, app, environment)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, string) []*gensql.MonthlyCostForAppRow); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, string) []*gensql.CostMonthlyApp); ok {
 		r0 = rf(ctx, teamSlug, app, environment)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*gensql.MonthlyCostForAppRow)
+			r0 = ret.Get(0).([]*gensql.CostMonthlyApp)
 		}
 	}
 
@@ -4619,34 +4619,34 @@ func (_c *MockDatabase_MonthlyCostForApp_Call) Run(run func(ctx context.Context,
 	return _c
 }
 
-func (_c *MockDatabase_MonthlyCostForApp_Call) Return(_a0 []*gensql.MonthlyCostForAppRow, _a1 error) *MockDatabase_MonthlyCostForApp_Call {
+func (_c *MockDatabase_MonthlyCostForApp_Call) Return(_a0 []*gensql.CostMonthlyApp, _a1 error) *MockDatabase_MonthlyCostForApp_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockDatabase_MonthlyCostForApp_Call) RunAndReturn(run func(context.Context, slug.Slug, string, string) ([]*gensql.MonthlyCostForAppRow, error)) *MockDatabase_MonthlyCostForApp_Call {
+func (_c *MockDatabase_MonthlyCostForApp_Call) RunAndReturn(run func(context.Context, slug.Slug, string, string) ([]*gensql.CostMonthlyApp, error)) *MockDatabase_MonthlyCostForApp_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // MonthlyCostForTeam provides a mock function with given fields: ctx, teamSlug
-func (_m *MockDatabase) MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*gensql.MonthlyCostForTeamRow, error) {
+func (_m *MockDatabase) MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*gensql.CostMonthlyTeam, error) {
 	ret := _m.Called(ctx, teamSlug)
 
 	if len(ret) == 0 {
 		panic("no return value specified for MonthlyCostForTeam")
 	}
 
-	var r0 []*gensql.MonthlyCostForTeamRow
+	var r0 []*gensql.CostMonthlyTeam
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) ([]*gensql.MonthlyCostForTeamRow, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) ([]*gensql.CostMonthlyTeam, error)); ok {
 		return rf(ctx, teamSlug)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) []*gensql.MonthlyCostForTeamRow); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) []*gensql.CostMonthlyTeam); ok {
 		r0 = rf(ctx, teamSlug)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*gensql.MonthlyCostForTeamRow)
+			r0 = ret.Get(0).([]*gensql.CostMonthlyTeam)
 		}
 	}
 
@@ -4678,12 +4678,12 @@ func (_c *MockDatabase_MonthlyCostForTeam_Call) Run(run func(ctx context.Context
 	return _c
 }
 
-func (_c *MockDatabase_MonthlyCostForTeam_Call) Return(_a0 []*gensql.MonthlyCostForTeamRow, _a1 error) *MockDatabase_MonthlyCostForTeam_Call {
+func (_c *MockDatabase_MonthlyCostForTeam_Call) Return(_a0 []*gensql.CostMonthlyTeam, _a1 error) *MockDatabase_MonthlyCostForTeam_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockDatabase_MonthlyCostForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug) ([]*gensql.MonthlyCostForTeamRow, error)) *MockDatabase_MonthlyCostForTeam_Call {
+func (_c *MockDatabase_MonthlyCostForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug) ([]*gensql.CostMonthlyTeam, error)) *MockDatabase_MonthlyCostForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }

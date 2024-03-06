@@ -1112,23 +1112,23 @@ func (_c *MockQuerier_DailyCostForTeam_Call) RunAndReturn(run func(context.Conte
 }
 
 // DailyEnvCostForTeam provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) DailyEnvCostForTeam(ctx context.Context, arg DailyEnvCostForTeamParams) ([]*DailyEnvCostForTeamRow, error) {
+func (_m *MockQuerier) DailyEnvCostForTeam(ctx context.Context, arg DailyEnvCostForTeamParams) ([]*CostDailyTeam, error) {
 	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DailyEnvCostForTeam")
 	}
 
-	var r0 []*DailyEnvCostForTeamRow
+	var r0 []*CostDailyTeam
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, DailyEnvCostForTeamParams) ([]*DailyEnvCostForTeamRow, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, DailyEnvCostForTeamParams) ([]*CostDailyTeam, error)); ok {
 		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, DailyEnvCostForTeamParams) []*DailyEnvCostForTeamRow); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, DailyEnvCostForTeamParams) []*CostDailyTeam); ok {
 		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*DailyEnvCostForTeamRow)
+			r0 = ret.Get(0).([]*CostDailyTeam)
 		}
 	}
 
@@ -1160,12 +1160,12 @@ func (_c *MockQuerier_DailyEnvCostForTeam_Call) Run(run func(ctx context.Context
 	return _c
 }
 
-func (_c *MockQuerier_DailyEnvCostForTeam_Call) Return(_a0 []*DailyEnvCostForTeamRow, _a1 error) *MockQuerier_DailyEnvCostForTeam_Call {
+func (_c *MockQuerier_DailyEnvCostForTeam_Call) Return(_a0 []*CostDailyTeam, _a1 error) *MockQuerier_DailyEnvCostForTeam_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockQuerier_DailyEnvCostForTeam_Call) RunAndReturn(run func(context.Context, DailyEnvCostForTeamParams) ([]*DailyEnvCostForTeamRow, error)) *MockQuerier_DailyEnvCostForTeam_Call {
+func (_c *MockQuerier_DailyEnvCostForTeam_Call) RunAndReturn(run func(context.Context, DailyEnvCostForTeamParams) ([]*CostDailyTeam, error)) *MockQuerier_DailyEnvCostForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4936,23 +4936,23 @@ func (_c *MockQuerier_MaxResourceUtilizationDate_Call) RunAndReturn(run func(con
 }
 
 // MonthlyCostForApp provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) MonthlyCostForApp(ctx context.Context, arg MonthlyCostForAppParams) ([]*MonthlyCostForAppRow, error) {
+func (_m *MockQuerier) MonthlyCostForApp(ctx context.Context, arg MonthlyCostForAppParams) ([]*CostMonthlyApp, error) {
 	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for MonthlyCostForApp")
 	}
 
-	var r0 []*MonthlyCostForAppRow
+	var r0 []*CostMonthlyApp
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, MonthlyCostForAppParams) ([]*MonthlyCostForAppRow, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, MonthlyCostForAppParams) ([]*CostMonthlyApp, error)); ok {
 		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, MonthlyCostForAppParams) []*MonthlyCostForAppRow); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, MonthlyCostForAppParams) []*CostMonthlyApp); ok {
 		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*MonthlyCostForAppRow)
+			r0 = ret.Get(0).([]*CostMonthlyApp)
 		}
 	}
 
@@ -4984,34 +4984,34 @@ func (_c *MockQuerier_MonthlyCostForApp_Call) Run(run func(ctx context.Context, 
 	return _c
 }
 
-func (_c *MockQuerier_MonthlyCostForApp_Call) Return(_a0 []*MonthlyCostForAppRow, _a1 error) *MockQuerier_MonthlyCostForApp_Call {
+func (_c *MockQuerier_MonthlyCostForApp_Call) Return(_a0 []*CostMonthlyApp, _a1 error) *MockQuerier_MonthlyCostForApp_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockQuerier_MonthlyCostForApp_Call) RunAndReturn(run func(context.Context, MonthlyCostForAppParams) ([]*MonthlyCostForAppRow, error)) *MockQuerier_MonthlyCostForApp_Call {
+func (_c *MockQuerier_MonthlyCostForApp_Call) RunAndReturn(run func(context.Context, MonthlyCostForAppParams) ([]*CostMonthlyApp, error)) *MockQuerier_MonthlyCostForApp_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // MonthlyCostForTeam provides a mock function with given fields: ctx, teamSlug
-func (_m *MockQuerier) MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*MonthlyCostForTeamRow, error) {
+func (_m *MockQuerier) MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*CostMonthlyTeam, error) {
 	ret := _m.Called(ctx, teamSlug)
 
 	if len(ret) == 0 {
 		panic("no return value specified for MonthlyCostForTeam")
 	}
 
-	var r0 []*MonthlyCostForTeamRow
+	var r0 []*CostMonthlyTeam
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) ([]*MonthlyCostForTeamRow, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) ([]*CostMonthlyTeam, error)); ok {
 		return rf(ctx, teamSlug)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) []*MonthlyCostForTeamRow); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) []*CostMonthlyTeam); ok {
 		r0 = rf(ctx, teamSlug)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*MonthlyCostForTeamRow)
+			r0 = ret.Get(0).([]*CostMonthlyTeam)
 		}
 	}
 
@@ -5043,12 +5043,12 @@ func (_c *MockQuerier_MonthlyCostForTeam_Call) Run(run func(ctx context.Context,
 	return _c
 }
 
-func (_c *MockQuerier_MonthlyCostForTeam_Call) Return(_a0 []*MonthlyCostForTeamRow, _a1 error) *MockQuerier_MonthlyCostForTeam_Call {
+func (_c *MockQuerier_MonthlyCostForTeam_Call) Return(_a0 []*CostMonthlyTeam, _a1 error) *MockQuerier_MonthlyCostForTeam_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockQuerier_MonthlyCostForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug) ([]*MonthlyCostForTeamRow, error)) *MockQuerier_MonthlyCostForTeam_Call {
+func (_c *MockQuerier_MonthlyCostForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug) ([]*CostMonthlyTeam, error)) *MockQuerier_MonthlyCostForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -1,25 +1,20 @@
 -- ResourceUtilizationRangeForTeam will return the min and max timestamps for a specific team.
 -- name: ResourceUtilizationRangeForTeam :one
-WITH team_range AS (
-    SELECT timestamp
-    FROM
-        resource_utilization_metrics
-    WHERE
-        team_slug = @team_slug
-)
 SELECT
-    MIN(timestamp)::timestamptz AS "from",
-    MAX(timestamp)::timestamptz AS "to"
+    "from",
+    "to"
 FROM
-    team_range;
+    resource_team_range
+WHERE
+    team_slug = @team_slug;
 
 -- ResourceUtilizationRangeForApp will return the min and max timestamps for a specific app.
 -- name: ResourceUtilizationRangeForApp :one
 SELECT
-    MIN(timestamp)::timestamptz AS "from",
-    MAX(timestamp)::timestamptz AS "to"
+    "from",
+    "to"
 FROM
-    resource_utilization_metrics
+    resource_app_range
 WHERE
     environment = @environment
     AND team_slug = @team_slug
@@ -73,19 +68,17 @@ ORDER BY
 -- ResourceUtilizationForTeam will return resource utilization records for a given team.
 -- name: ResourceUtilizationForTeam :many
 SELECT
-    SUM(usage)::double precision AS usage,
-    SUM(request)::double precision AS request,
+    usage,
+    request,
     timestamp
 FROM
-    resource_utilization_metrics
+    resource_utilization_team
 WHERE
     environment = @environment
     AND team_slug = @team_slug
     AND resource_type = @resource_type
     AND timestamp >= @start::timestamptz
     AND timestamp < sqlc.arg('end')::timestamptz
-GROUP BY
-    timestamp
 ORDER BY
     timestamp ASC;
 
@@ -112,7 +105,7 @@ SELECT
     SUM(request)::double precision AS request,
     timestamp
 FROM
-    resource_utilization_metrics
+    resource_utilization_team
 WHERE
     team_slug = @team_slug
     AND resource_type = @resource_type
@@ -124,10 +117,10 @@ GROUP BY
 -- AverageResourceUtilizationForTeam will return the average resource utilization for a team for a week.
 -- name: AverageResourceUtilizationForTeam :one
 SELECT
-    (SUM(usage) / 24 / 7)::double precision AS usage,
-    (SUM(request) / 24 / 7)::double precision AS request
+    (SUM(usage)::double precision / 24 / 7)::double precision AS usage,
+    (SUM(request)::double precision / 24 / 7)::double precision AS request
 FROM
-    resource_utilization_metrics
+    resource_utilization_team
 WHERE
     team_slug = @team_slug
     AND resource_type = @resource_type
