@@ -144,7 +144,7 @@ func NewHandler(config gengql.Config, log logrus.FieldLogger) (*handler.Server, 
 	schema := gengql.NewExecutableSchema(config)
 	graphHandler := handler.New(schema)
 	graphHandler.Use(metricsMiddleware)
-	graphHandler.AddTransport(transport.SSE{}) // Support subscriptions
+	graphHandler.AddTransport(SSE{}) // Support subscriptions
 	graphHandler.AddTransport(transport.Options{})
 	graphHandler.AddTransport(transport.POST{})
 	graphHandler.SetQueryCache(lru.New(1000))
