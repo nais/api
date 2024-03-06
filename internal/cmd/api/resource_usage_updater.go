@@ -30,10 +30,6 @@ func resourceUsageUpdater(ctx context.Context, cfg *Config, db database.Database
 	}
 
 	resourceUsageUpdater := resourceusage.NewUpdater(k8sClient, promClients, db, log)
-	if err != nil {
-		log.WithError(err).Errorf("create resource usage updater")
-		return err
-	}
 
 	if err := runResourceUsageUpdater(ctx, resourceUsageUpdater, log.WithField("task", "resource_updater")); err != nil {
 		log.WithError(err).Errorf("error in resource usage updater")
