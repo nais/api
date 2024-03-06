@@ -86,7 +86,7 @@ func (c *Client) LogStream(ctx context.Context, cluster, namespace, selector, co
 	}
 	go func() {
 		wg.Wait()
-		c.log.Info("closing subscription with explicit message")
+		c.log.Infof("closing subscription for [%s:%s:%s] logs with explicit message", cluster, namespace, container)
 		ch <- &model.LogLine{
 			Time:     time.Now(),
 			Message:  "Subscription closed.",
