@@ -361,8 +361,8 @@ github.com/lestrrat-go/httprc v1.0.4 h1:bAZymwoZQb+Oq8MEbyipag7iSq6YIga8Wj6GOiJG
 github.com/lestrrat-go/httprc v1.0.4/go.mod h1:mwwz3JMTPBjHUkkDv/IGJ39aALInZLrhBp0X7KGUZlo=
 github.com/lestrrat-go/iter v1.0.2 h1:gMXo1q4c2pHmC3dn8LzRhJfP1ceCbgSiT9lUydIzltI=
 github.com/lestrrat-go/iter v1.0.2/go.mod h1:Momfcq3AnRlRjI5b5O8/G5/BvpzrhoFTZcn06fEOPt4=
-github.com/lestrrat-go/jwx/v2 v2.0.19 h1:ekv1qEZE6BVct89QA+pRF6+4pCpfVrOnEJnTnT4RXoY=
-github.com/lestrrat-go/jwx/v2 v2.0.19/go.mod h1:l3im3coce1lL2cDeAjqmaR+Awx+X8Ih+2k8BuHNJ4CU=
+github.com/lestrrat-go/jwx/v2 v2.0.20 h1:sAgXuWS/t8ykxS9Bi2Qtn5Qhpakw1wrcjxChudjolCc=
+github.com/lestrrat-go/jwx/v2 v2.0.20/go.mod h1:UlCSmKqw+agm5BsOBfEAbTvKsEApaGNqHAEUTv5PJC4=
 github.com/lestrrat-go/option v1.0.1 h1:oAzP2fvZGQKWkvHa1/SAcFolBEca1oN+mQ7eooNBEYU=
 github.com/lestrrat-go/option v1.0.1/go.mod h1:5ZHFbivi4xwXxhxY9XHDe2FHo6/Z7WWmtT7T5nBBp3I=
 github.com/libsql/sqlite-antlr4-parser v0.0.0-20230802215326-5cb5bb604475 h1:6PfEMwfInASh9hkN83aR0j4W/eKaAZt/AURtXAXlas0=
@@ -401,8 +401,8 @@ github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 h1:C3w9PqII01/Oq
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822/go.mod h1:+n7T8mK8HuQTcFwEeznm/DIxMOiR9yIdICNftLE1DvQ=
 github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f h1:KUppIJq7/+SVif2QVs3tOP0zanoHgBEVAwHxUSIzRqU=
 github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
-github.com/nais/dependencytrack v0.0.0-20240208124913-513b3ad1d961 h1:FtfEwEQq2hWEZFmg3F8Ix9vq6x8o0PF4bEvCn7qwCxw=
-github.com/nais/dependencytrack v0.0.0-20240208124913-513b3ad1d961/go.mod h1:zC59yj0La1TS291o/9XSVZ0XAY9UlJS6pUFD3ouHmjU=
+github.com/nais/dependencytrack v0.0.0-20240301095153-b46382e6a8be h1:Ri7fb/vmxJySaIxDO1dL9PQIIA4rN1Mtrt2vfD3+Nyo=
+github.com/nais/dependencytrack v0.0.0-20240301095153-b46382e6a8be/go.mod h1:kgE6W/n/1C1k+09xVbf7VD8J5J7v0ueHSY9E9vRCM1Y=
 github.com/nais/liberator v0.0.0-20240223134957-13b72a76ba9d h1:NA//xj14122osF306Q19oARHyg9JW7g4qJReFO1O3Ds=
 github.com/nais/liberator v0.0.0-20240223134957-13b72a76ba9d/go.mod h1:cWThp1WBBbkRFhMI2DQMvBTTEN+6GPzmmh+Xjv8vffE=
 github.com/onsi/ginkgo/v2 v2.14.0 h1:vSmGj2Z5YPb9JwCWT6z6ihcUvDhuXLc3sJiqd3jMKAY=

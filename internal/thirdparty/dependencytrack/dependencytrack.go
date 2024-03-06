@@ -6,8 +6,9 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"sync"
 	"time"
+
+	"github.com/sourcegraph/conc/pool"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graph/model"
@@ -137,28 +138,24 @@ func (c *Client) VulnerabilitySummary(ctx context.Context, app *AppInstance) (*m
 }
 
 func (c *Client) GetVulnerabilities(ctx context.Context, apps []*AppInstance) ([]*model.Vulnerability, error) {
-	var wg sync.WaitGroup
 	now := time.Now()
-
 	nodes := make([]*model.Vulnerability, 0)
-	for _, a := range apps {
-		wg.Add(1)
-		go func(app *AppInstance) {
-			defer wg.Done()
-			v, err := c.findingsForApp(ctx, app)
+	p := pool.New().WithMaxGoroutines(10)
+	for _, app := range apps {
+		p.Go(func() {
+			appVulnNode, err := c.findingsForApp(ctx, app)
 			if err != nil {
 				c.log.Errorf("retrieveFindings for app %q: %v", app.ID(), err)
 				return
 			}
-			if v == nil {
+			if appVulnNode == nil {
 				c.log.Debugf("no findings found in DependencyTrack for app %q", app.ID())
 				return
 			}
-			nodes = append(nodes, v)
-		}(a)
+			nodes = append(nodes, appVulnNode)
+		})
 	}
-	wg.Wait()
-
+	p.Wait()
 	c.log.Debugf("DependencyTrack fetch: %v\n", time.Since(now))
 	return nodes, nil
 }
@@ -186,7 +183,7 @@ func (c *Client) findingsForApp(ctx context.Context, app *AppInstance) (*model.V
 	findingsLink := fmt.Sprintf("%s/projects/%s/findings", u, p.Uuid)
 
 	v.FindingsLink = findingsLink
-	v.HasBom = p.LastBomImportFormat != ""
+	v.HasBom = hasBom(p)
 
 	if !v.HasBom {
 		c.log.Debugf("no bom found in DependencyTrack for project %s", p.Name)
@@ -204,6 +201,13 @@ func (c *Client) findingsForApp(ctx context.Context, app *AppInstance) (*model.V
 
 	c.cache.Set(app.ID(), v, cache.DefaultExpiration)
 	return v, nil
+}
+
+// Due to the nature of the DependencyTrack API, the 'LastBomImportFormat' is not reliable to determine if a project has a BOM.
+// The 'LastBomImportFormat' can be empty even if the project has a BOM.
+// As a fallback, we can check if projects has registered any components, then we assume that if a project has components, it has a BOM.
+func hasBom(p *dependencytrack.Project) bool {
+	return p.LastBomImportFormat != "" || p.Metrics != nil && p.Metrics.Components > 0
 }
 
 func (c *Client) retrieveFindings(ctx context.Context, uuid string) ([]*dependencytrack.Finding, error) {
