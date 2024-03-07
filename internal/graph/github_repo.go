@@ -7,15 +7,20 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-func toGraphGitHubRepositories(teamSlug slug.Slug, r *database.ReconcilerState) ([]*model.GitHubRepository, error) {
-	repos, err := database.GetGitHubRepos(r.Value)
+func toGraphGitHubRepositories(teamSlug slug.Slug, state *database.ReconcilerState, filter *model.GitHubRepositoriesFilter) ([]*model.GitHubRepository, error) {
+	repos, err := database.GetGitHubRepos(state.Value)
 	if err != nil {
 		return nil, err
 	}
 
-	ret := make([]*model.GitHubRepository, len(repos))
-	for i, repo := range repos {
-		ret[i] = toGraphGitHubRepository(teamSlug, repo)
+	excludeArchived := filter == nil || filter.IncludeArchivedRepositories == nil || !*filter.IncludeArchivedRepositories
+
+	ret := make([]*model.GitHubRepository, 0)
+	for _, repo := range repos {
+		if repo.Archived && excludeArchived {
+			continue
+		}
+		ret = append(ret, toGraphGitHubRepository(teamSlug, repo))
 	}
 
 	return ret, nil

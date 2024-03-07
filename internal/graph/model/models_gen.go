@@ -370,8 +370,8 @@ type GcpProject struct {
 
 // Input for filtering GitHub repositories.
 type GitHubRepositoriesFilter struct {
-	// Include archived repositories or not. Default is false.
-	IncludeArchivedRepositories bool `json:"includeArchivedRepositories"`
+	// Whether or not to include archived repositories. Defaults to false.
+	IncludeArchivedRepositories *bool `json:"includeArchivedRepositories,omitempty"`
 }
 
 // Paginated GitHub repository type.

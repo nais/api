@@ -778,7 +778,7 @@ type ComplexityRoot struct {
 		Deployments            func(childComplexity int, offset *int, limit *int) int
 		Environments           func(childComplexity int) int
 		GitHubTeamSlug         func(childComplexity int) int
-		GithubRepositories     func(childComplexity int, offset *int, limit *int) int
+		GithubRepositories     func(childComplexity int, offset *int, limit *int, filter *model.GitHubRepositoriesFilter) int
 		GoogleArtifactRegistry func(childComplexity int) int
 		GoogleGroupEmail       func(childComplexity int) int
 		ID                     func(childComplexity int) int
@@ -1032,7 +1032,7 @@ type TeamResolver interface {
 	Member(ctx context.Context, obj *model.Team, userID scalar.Ident) (*model.TeamMember, error)
 	SyncErrors(ctx context.Context, obj *model.Team) ([]*model.SyncError, error)
 
-	GithubRepositories(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.GitHubRepositoryList, error)
+	GithubRepositories(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.GitHubRepositoriesFilter) (*model.GitHubRepositoryList, error)
 
 	DeletionInProgress(ctx context.Context, obj *model.Team) (bool, error)
 	ViewerIsOwner(ctx context.Context, obj *model.Team) (bool, error)
@@ -4280,7 +4280,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Team.GithubRepositories(childComplexity, args["offset"].(*int), args["limit"].(*int)), true
+		return e.complexity.Team.GithubRepositories(childComplexity, args["offset"].(*int), args["limit"].(*int), args["filter"].(*model.GitHubRepositoriesFilter)), true
 
 	case "Team.googleArtifactRegistry":
 		if e.complexity.Team.GoogleArtifactRegistry == nil {
@@ -5617,8 +5617,8 @@ type GitHubRepositoryPermission {
 
 "Input for filtering GitHub repositories."
 input GitHubRepositoriesFilter {
-  "Include archived repositories or not. Default is false."
-  includeArchivedRepositories: Boolean!
+  "Whether or not to include archived repositories. Defaults to false."
+  includeArchivedRepositories: Boolean
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/log.graphqls", Input: `type Subscription {
@@ -6366,7 +6366,7 @@ type SqlInstance implements Storage {
     "Limit the number of teams to return. Default is 20."
     limit: Int
 
-    "Filter teams by GitHub repository permissions."
+    "Filter teams."
     filter: TeamsFilter
   ): TeamList! @auth
 
@@ -6642,6 +6642,9 @@ type Team {
 
     "Limit the number of repositories to return. Default is 20."
     limit: Int
+
+    "Filter the repositories."
+    filter: GitHubRepositoriesFilter
   ): GitHubRepositoryList!
 
   "Slack channel for the team."
@@ -8377,6 +8380,15 @@ func (ec *executionContext) field_Team_githubRepositories_args(ctx context.Conte
 		}
 	}
 	args["limit"] = arg1
+	var arg2 *model.GitHubRepositoriesFilter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg2, err = ec.unmarshalOGitHubRepositoriesFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐGitHubRepositoriesFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg2
 	return args, nil
 }
 
@@ -30694,7 +30706,7 @@ func (ec *executionContext) _Team_githubRepositories(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().GithubRepositories(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int))
+		return ec.resolvers.Team().GithubRepositories(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["filter"].(*model.GitHubRepositoriesFilter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -36644,7 +36656,7 @@ func (ec *executionContext) unmarshalInputGitHubRepositoriesFilter(ctx context.C
 		switch k {
 		case "includeArchivedRepositories":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeArchivedRepositories"))
-			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -49922,6 +49934,14 @@ func (ec *executionContext) marshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 		return graphql.Null
 	}
 	return graphql.WrapContextMarshaler(ctx, v)
+}
+
+func (ec *executionContext) unmarshalOGitHubRepositoriesFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐGitHubRepositoriesFilter(ctx context.Context, v interface{}) (*model.GitHubRepositoriesFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputGitHubRepositoriesFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, v interface{}) (*uuid.UUID, error) {

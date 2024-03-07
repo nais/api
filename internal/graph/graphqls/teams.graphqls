@@ -7,7 +7,7 @@ extend type Query {
     "Limit the number of teams to return. Default is 20."
     limit: Int
 
-    "Filter teams by GitHub repository permissions."
+    "Filter teams."
     filter: TeamsFilter
   ): TeamList! @auth
 
@@ -283,6 +283,9 @@ type Team {
 
     "Limit the number of repositories to return. Default is 20."
     limit: Int
+
+    "Filter the repositories."
+    filter: GitHubRepositoriesFilter
   ): GitHubRepositoryList!
 
   "Slack channel for the team."

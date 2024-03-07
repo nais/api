@@ -949,7 +949,7 @@ func (r *teamResolver) SyncErrors(ctx context.Context, obj *model.Team) ([]*mode
 }
 
 // GithubRepositories is the resolver for the githubRepositories field.
-func (r *teamResolver) GithubRepositories(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.GitHubRepositoryList, error) {
+func (r *teamResolver) GithubRepositories(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.GitHubRepositoriesFilter) (*model.GitHubRepositoryList, error) {
 	page := model.NewPagination(offset, limit)
 
 	state, err := r.database.GetReconcilerStateForTeam(ctx, "github:team", obj.Slug)
@@ -957,7 +957,7 @@ func (r *teamResolver) GithubRepositories(ctx context.Context, obj *model.Team, 
 		return nil, err
 	}
 
-	repos, err := toGraphGitHubRepositories(obj.Slug, state)
+	repos, err := toGraphGitHubRepositories(obj.Slug, state, filter)
 	if err != nil {
 		return nil, err
 	}
