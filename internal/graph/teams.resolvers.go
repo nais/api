@@ -1291,6 +1291,10 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		if n.Summary.Total > 0 {
 			retVal.Total += n.Summary.Total
 		}
+		if n.HasBom {
+			retVal.BomCount += 1
+		}
+
 	}
 	return retVal, nil
 }
