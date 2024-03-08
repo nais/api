@@ -954,7 +954,9 @@ func (r *teamResolver) GithubRepositories(ctx context.Context, obj *model.Team, 
 
 	state, err := r.database.GetReconcilerStateForTeam(ctx, "github:team", obj.Slug)
 	if err != nil {
-		return nil, err
+		return &model.GitHubRepositoryList{
+			Nodes: []*model.GitHubRepository{},
+		}, nil
 	}
 
 	repos, err := toGraphGitHubRepositories(obj.Slug, state, filter)
