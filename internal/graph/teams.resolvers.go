@@ -23,6 +23,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/model/vulnerabilities"
 	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
@@ -1211,8 +1212,13 @@ func (r *teamResolver) Deployments(ctx context.Context, obj *model.Team, offset 
 }
 
 // Vulnerabilities is the resolver for the vulnerabilities field.
-func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.VulnerabilityList, error) {
-	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
+func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy, filter *model.VulnerabilityFilter) (*model.VulnerabilityList, error) {
+	var envFilter []k8s.EnvFilter
+	if filter != nil && len(filter.Envs) > 0 {
+		envFilter = append(envFilter, k8s.WithEnvs(filter.Envs...))
+	}
+
+	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String(), envFilter...)
 	if err != nil {
 		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
 	}
@@ -1227,7 +1233,12 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 		})
 	}
 
-	nodes, err := r.dependencyTrackClient.GetVulnerabilities(ctx, instances)
+	requireSbom := make([]dependencytrack.Filter, 0)
+	if filter != nil && filter.RequireSbom != nil && *filter.RequireSbom {
+		requireSbom = append(requireSbom, dependencytrack.RequireSbom())
+	}
+
+	nodes, err := r.dependencyTrackClient.GetVulnerabilities(ctx, instances, requireSbom...)
 	if err != nil {
 		return nil, fmt.Errorf("getting vulnerabilities from DependencyTrack: %w", err)
 	}

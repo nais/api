@@ -916,6 +916,13 @@ type Vulnerability struct {
 	HasBom       bool                  `json:"hasBom"`
 }
 
+type VulnerabilityFilter struct {
+	// Filter by environment
+	Envs []string `json:"envs,omitempty"`
+	// Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report.
+	RequireSbom *bool `json:"requireSbom,omitempty"`
+}
+
 type VulnerabilityList struct {
 	Nodes    []*Vulnerability `json:"nodes"`
 	PageInfo PageInfo         `json:"pageInfo"`

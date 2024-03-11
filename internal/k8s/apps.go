@@ -460,10 +460,37 @@ func (c *Client) Manifest(ctx context.Context, name, team, env string) (string, 
 	return string(b), nil
 }
 
-func (c *Client) Apps(ctx context.Context, team string) ([]*model.App, error) {
+type EnvFilter = func(string) bool
+
+func WithEnvs(envs ...string) EnvFilter {
+	return func(env string) bool {
+		for _, e := range envs {
+			if e == env {
+				return true
+			}
+		}
+		return false
+	}
+}
+
+func filterEnvs(env string, filters ...EnvFilter) bool {
+	found := 0
+	for _, f := range filters {
+		if f(env) {
+			found++
+		}
+	}
+	return found == len(filters)
+}
+
+func (c *Client) Apps(ctx context.Context, team string, filter ...EnvFilter) ([]*model.App, error) {
 	ret := make([]*model.App, 0)
 
 	for env, infs := range c.informers {
+		if !filterEnvs(env, filter...) {
+			continue
+		}
+
 		objs, err := infs.AppInformer.Lister().ByNamespace(team).List(labels.Everything())
 		if err != nil {
 			return nil, c.error(ctx, err, "listing applications")

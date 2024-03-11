@@ -802,7 +802,7 @@ type ComplexityRoot struct {
 		SyncErrors             func(childComplexity int) int
 		ViewerIsMember         func(childComplexity int) int
 		ViewerIsOwner          func(childComplexity int) int
-		Vulnerabilities        func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
+		Vulnerabilities        func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy, filter *model.VulnerabilityFilter) int
 		VulnerabilitiesSummary func(childComplexity int) int
 		VulnerabilityMetrics   func(childComplexity int, from scalar.Date, to scalar.Date, environment *string) int
 	}
@@ -1051,7 +1051,7 @@ type TeamResolver interface {
 	DeployKey(ctx context.Context, obj *model.Team) (*model.DeploymentKey, error)
 	Naisjobs(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.NaisJobList, error)
 	Deployments(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.DeploymentList, error)
-	Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.VulnerabilityList, error)
+	Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy, filter *model.VulnerabilityFilter) (*model.VulnerabilityList, error)
 	VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummary, error)
 	VulnerabilityMetrics(ctx context.Context, obj *model.Team, from scalar.Date, to scalar.Date, environment *string) (*model.VulnerabilityMetrics, error)
 	Secrets(ctx context.Context, obj *model.Team) ([]*model.Secret, error)
@@ -4463,7 +4463,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Team.Vulnerabilities(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy)), true
+		return e.complexity.Team.Vulnerabilities(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy), args["filter"].(*model.VulnerabilityFilter)), true
 
 	case "Team.vulnerabilitiesSummary":
 		if e.complexity.Team.VulnerabilitiesSummary == nil {
@@ -4964,6 +4964,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTeamsFilterGitHub,
 		ec.unmarshalInputUpdateTeamInput,
 		ec.unmarshalInputVariableInput,
+		ec.unmarshalInputVulnerabilityFilter,
 	)
 	first := true
 
@@ -6775,6 +6776,8 @@ type Team {
 
     "Order apps by"
     orderBy: OrderBy
+
+    filter : VulnerabilityFilter
   ): VulnerabilityList!
 
   vulnerabilitiesSummary: VulnerabilitySummary!
@@ -6800,6 +6803,14 @@ type Team {
 
   "The environments available for the team."
   environments: [Env!]!
+}
+
+input VulnerabilityFilter {
+  "Filter by environment"
+  envs: [String!]
+
+  "Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report."
+  requireSbom: Boolean
 }
 
 type VulnerabilityMetrics {
@@ -8618,6 +8629,15 @@ func (ec *executionContext) field_Team_vulnerabilities_args(ctx context.Context,
 		}
 	}
 	args["orderBy"] = arg2
+	var arg3 *model.VulnerabilityFilter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg3, err = ec.unmarshalOVulnerabilityFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg3
 	return args, nil
 }
 
@@ -31476,7 +31496,7 @@ func (ec *executionContext) _Team_vulnerabilities(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().Vulnerabilities(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["orderBy"].(*model.OrderBy))
+		return ec.resolvers.Team().Vulnerabilities(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["orderBy"].(*model.OrderBy), fc.Args["filter"].(*model.VulnerabilityFilter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -37357,6 +37377,40 @@ func (ec *executionContext) unmarshalInputVariableInput(ctx context.Context, obj
 				return it, err
 			}
 			it.Value = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputVulnerabilityFilter(ctx context.Context, obj interface{}) (model.VulnerabilityFilter, error) {
+	var it model.VulnerabilityFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"envs", "requireSbom"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "envs":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("envs"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Envs = data
+		case "requireSbom":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requireSbom"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RequireSbom = data
 		}
 	}
 
@@ -50640,6 +50694,14 @@ func (ec *executionContext) marshalOVulnerability2ᚖgithubᚗcomᚋnaisᚋapi�
 		return graphql.Null
 	}
 	return ec._Vulnerability(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOVulnerabilityFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityFilter(ctx context.Context, v interface{}) (*model.VulnerabilityFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputVulnerabilityFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOVulnerabilitySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilitySummary(ctx context.Context, sel ast.SelectionSet, v *model.VulnerabilitySummary) graphql.Marshaler {

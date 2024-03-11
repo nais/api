@@ -147,7 +147,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	var dependencyTrackClient vulnerability.DependencytrackClient
 	if cfg.WithFakeClients {
 		hookdClient = fakehookd.New()
-		dependencyTrackClient = faketrack.New()
+		dependencyTrackClient = faketrack.New(log)
 	} else {
 		hookdClient = hookd.New(cfg.Hookd.Endpoint, cfg.Hookd.PSK, log.WithField("client", "hookd"))
 		dependencyTrackClient = dependencytrack.New(

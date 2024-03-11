@@ -88,6 +88,11 @@ func (c *Client) WithClient(client dependencytrack.Client) *Client {
 	return c
 }
 
+func (c *Client) WithCache(cache *cache.Cache) *Client {
+	c.cache = cache
+	return c
+}
+
 func (c *Client) GetProjectMetrics(ctx context.Context, app *AppInstance, date string) (*ProjectMetric, error) {
 	p, err := c.retrieveProject(ctx, app)
 	if err != nil {
@@ -137,7 +142,15 @@ func (c *Client) VulnerabilitySummary(ctx context.Context, app *AppInstance) (*m
 	return c.findingsForApp(ctx, app)
 }
 
-func (c *Client) GetVulnerabilities(ctx context.Context, apps []*AppInstance) ([]*model.Vulnerability, error) {
+type Filter = func(vulnerability *model.Vulnerability) bool
+
+func RequireSbom() Filter {
+	return func(vulnerability *model.Vulnerability) bool {
+		return vulnerability.HasBom
+	}
+}
+
+func (c *Client) GetVulnerabilities(ctx context.Context, apps []*AppInstance, filters ...Filter) ([]*model.Vulnerability, error) {
 	now := time.Now()
 	nodes := make([]*model.Vulnerability, 0)
 	p := pool.New().WithMaxGoroutines(10)
@@ -151,6 +164,11 @@ func (c *Client) GetVulnerabilities(ctx context.Context, apps []*AppInstance) ([
 			if appVulnNode == nil {
 				c.log.Debugf("no findings found in DependencyTrack for app %q", app.ID())
 				return
+			}
+			for _, f := range filters {
+				if !f(appVulnNode) {
+					return
+				}
 			}
 			nodes = append(nodes, appVulnNode)
 		})

@@ -349,6 +349,8 @@ type Team {
 
     "Order apps by"
     orderBy: OrderBy
+
+    filter : VulnerabilityFilter
   ): VulnerabilityList!
 
   vulnerabilitiesSummary: VulnerabilitySummary!
@@ -374,6 +376,14 @@ type Team {
 
   "The environments available for the team."
   environments: [Env!]!
+}
+
+input VulnerabilityFilter {
+  "Filter by environment"
+  envs: [String!]
+
+  "Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report."
+  requireSbom: Boolean
 }
 
 type VulnerabilityMetrics {
