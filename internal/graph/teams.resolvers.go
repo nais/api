@@ -1410,6 +1410,16 @@ func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*mo
 	return ret, nil
 }
 
+// CreatedBy is the resolver for the createdBy field.
+func (r *teamDeleteKeyResolver) CreatedBy(ctx context.Context, obj *model.TeamDeleteKey) (*model.User, error) {
+	return loader.GetUser(ctx, obj.GQLVars.UserID)
+}
+
+// Team is the resolver for the team field.
+func (r *teamDeleteKeyResolver) Team(ctx context.Context, obj *model.TeamDeleteKey) (*model.Team, error) {
+	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
+}
+
 // Team is the resolver for the team field.
 func (r *teamMemberResolver) Team(ctx context.Context, obj *model.TeamMember) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.TeamSlug)
@@ -1474,6 +1484,9 @@ func (r *teamMemberReconcilerResolver) Reconciler(ctx context.Context, obj *mode
 // Team returns gengql.TeamResolver implementation.
 func (r *Resolver) Team() gengql.TeamResolver { return &teamResolver{r} }
 
+// TeamDeleteKey returns gengql.TeamDeleteKeyResolver implementation.
+func (r *Resolver) TeamDeleteKey() gengql.TeamDeleteKeyResolver { return &teamDeleteKeyResolver{r} }
+
 // TeamMember returns gengql.TeamMemberResolver implementation.
 func (r *Resolver) TeamMember() gengql.TeamMemberResolver { return &teamMemberResolver{r} }
 
@@ -1484,6 +1497,7 @@ func (r *Resolver) TeamMemberReconciler() gengql.TeamMemberReconcilerResolver {
 
 type (
 	teamResolver                 struct{ *Resolver }
+	teamDeleteKeyResolver        struct{ *Resolver }
 	teamMemberResolver           struct{ *Resolver }
 	teamMemberReconcilerResolver struct{ *Resolver }
 )

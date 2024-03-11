@@ -33,5 +33,9 @@ func toGraphTeamDeleteKey(m *database.TeamDeleteKey) *model.TeamDeleteKey {
 		Key:       m.Key.String(),
 		CreatedAt: m.CreatedAt.Time,
 		Expires:   m.Expires(),
+		GQLVars: model.TeamDeleteKeyGQLVars{
+			TeamSlug: m.TeamSlug,
+			UserID:   m.CreatedBy,
+		},
 	}
 }

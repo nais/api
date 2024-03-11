@@ -39,3 +39,15 @@ type Env struct {
 	Name   string                    `json:"name"`
 	DBType *database.TeamEnvironment `json:"-"`
 }
+
+type TeamDeleteKey struct {
+	Key       string               `json:"key"`
+	CreatedAt time.Time            `json:"createdAt"`
+	Expires   time.Time            `json:"expires"`
+	GQLVars   TeamDeleteKeyGQLVars `json:"-"`
+}
+
+type TeamDeleteKeyGQLVars struct {
+	TeamSlug slug.Slug
+	UserID   uuid.UUID
+}

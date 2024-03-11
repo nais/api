@@ -824,20 +824,6 @@ func (SynchronizationFailingError) IsStateError()             {}
 func (this SynchronizationFailingError) GetRevision() string  { return this.Revision }
 func (this SynchronizationFailingError) GetLevel() ErrorLevel { return this.Level }
 
-// Team deletion key type.
-type TeamDeleteKey struct {
-	// The unique key used to confirm the deletion of a team.
-	Key string `json:"key"`
-	// The creation timestamp of the key.
-	CreatedAt time.Time `json:"createdAt"`
-	// Expiration timestamp of the key.
-	Expires time.Time `json:"expires"`
-	// The user who created the key.
-	CreatedBy User `json:"createdBy"`
-	// The team the delete key is for.
-	Team Team `json:"team"`
-}
-
 // Paginated teams type.
 type TeamList struct {
 	// The list of teams.
