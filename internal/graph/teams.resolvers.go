@@ -92,7 +92,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 	}
 
 	input = input.Sanitize()
-	err = input.Validate(r.clusters.GCPClusters())
+	err = input.Validate(r.clusters.Names())
 	if err != nil {
 		return nil, err
 	}
