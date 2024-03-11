@@ -39,22 +39,6 @@ type Querier interface {
 	// DailyCostForTeam will fetch the daily cost for a specific team across all apps and envs in a date range.
 	DailyCostForTeam(ctx context.Context, arg DailyCostForTeamParams) ([]*Cost, error)
 	// DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
-	// SELECT
-	//     team_slug,
-	//     app,
-	//     date,
-	//     SUM(daily_cost)::real AS daily_cost
-	// FROM
-	//     cost
-	// WHERE
-	//     date >= @from_date::date
-	//     AND date <= @to_date::date
-	//     AND environment = @environment
-	//     AND team_slug = @team_slug::slug
-	// GROUP BY
-	//     team_slug, app, date
-	// ORDER BY
-	//     date, app ASC;
 	DailyEnvCostForTeam(ctx context.Context, arg DailyEnvCostForTeamParams) ([]*CostDailyTeam, error)
 	// DailyVulnerabilityForTeam will return the metrics for the given team from first to last date.
 	DailyVulnerabilityForTeam(ctx context.Context, arg DailyVulnerabilityForTeamParams) ([]*DailyVulnerabilityForTeamRow, error)
@@ -127,51 +111,7 @@ type Querier interface {
 	ListRepositoriesByAuthorization(ctx context.Context, arg ListRepositoriesByAuthorizationParams) ([]string, error)
 	// MaxResourceUtilizationDate will return the max date for resource utilization records.
 	MaxResourceUtilizationDate(ctx context.Context) (pgtype.Timestamptz, error)
-	// WITH last_run AS (
-	//     SELECT MAX(date)::date AS "last_run"
-	//     FROM cost
-	// )
-	// SELECT
-	//     team_slug,
-	//     app,
-	//     environment,
-	//     date_trunc('month', date)::date AS month,
-	//     -- Extract last day of known cost samples for the month, or the last recorded date
-	//     -- This helps with estimation etc
-	//     MAX(CASE
-	//         WHEN date_trunc('month', date) < date_trunc('month', last_run) THEN date_trunc('month', date) + interval '1 month' - interval '1 day'
-	//         ELSE date_trunc('day', last_run)
-	//     END)::date AS last_recorded_date,
-	//     SUM(daily_cost)::real AS daily_cost
-	// FROM cost c
-	// LEFT JOIN last_run ON true
-	// WHERE c.team_slug = @team_slug::slug
-	// AND c.app = @app
-	// AND c.environment = @environment::text
-	// GROUP BY team_slug, app, environment, month
-	// ORDER BY month DESC
-	// LIMIT 12;
 	MonthlyCostForApp(ctx context.Context, arg MonthlyCostForAppParams) ([]*CostMonthlyApp, error)
-	// WITH last_run AS (
-	//     SELECT MAX(date)::date AS "last_run"
-	//     FROM cost
-	// )
-	// SELECT
-	//     team_slug,
-	//     date_trunc('month', date)::date AS month,
-	//     -- Extract last day of known cost samples for the month, or the last recorded date
-	//     -- This helps with estimation etc
-	//     MAX(CASE
-	//         WHEN date_trunc('month', date) < date_trunc('month', last_run) THEN date_trunc('month', date) + interval '1 month' - interval '1 day'
-	//         ELSE date_trunc('day', last_run)
-	//     END)::date AS last_recorded_date,
-	//     SUM(daily_cost)::real AS daily_cost
-	// FROM cost c
-	// LEFT JOIN last_run ON true
-	// WHERE c.team_slug = @team_slug::slug
-	// GROUP BY team_slug, month
-	// ORDER BY month DESC
-	// LIMIT 12;
 	MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*CostMonthlyTeam, error)
 	RemoveAllServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error

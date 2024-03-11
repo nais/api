@@ -137,31 +137,6 @@ type DailyEnvCostForTeamParams struct {
 }
 
 // DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
-// SELECT
-//
-//	team_slug,
-//	app,
-//	date,
-//	SUM(daily_cost)::real AS daily_cost
-//
-// FROM
-//
-//	cost
-//
-// WHERE
-//
-//	date >= @from_date::date
-//	AND date <= @to_date::date
-//	AND environment = @environment
-//	AND team_slug = @team_slug::slug
-//
-// GROUP BY
-//
-//	team_slug, app, date
-//
-// ORDER BY
-//
-//	date, app ASC;
 func (q *Queries) DailyEnvCostForTeam(ctx context.Context, arg DailyEnvCostForTeamParams) ([]*CostDailyTeam, error) {
 	rows, err := q.db.Query(ctx, dailyEnvCostForTeam,
 		arg.FromDate,
@@ -224,34 +199,6 @@ type MonthlyCostForAppParams struct {
 	Environment string
 }
 
-// WITH last_run AS (
-//
-//	SELECT MAX(date)::date AS "last_run"
-//	FROM cost
-//
-// )
-// SELECT
-//
-//	team_slug,
-//	app,
-//	environment,
-//	date_trunc('month', date)::date AS month,
-//	-- Extract last day of known cost samples for the month, or the last recorded date
-//	-- This helps with estimation etc
-//	MAX(CASE
-//	    WHEN date_trunc('month', date) < date_trunc('month', last_run) THEN date_trunc('month', date) + interval '1 month' - interval '1 day'
-//	    ELSE date_trunc('day', last_run)
-//	END)::date AS last_recorded_date,
-//	SUM(daily_cost)::real AS daily_cost
-//
-// FROM cost c
-// LEFT JOIN last_run ON true
-// WHERE c.team_slug = @team_slug::slug
-// AND c.app = @app
-// AND c.environment = @environment::text
-// GROUP BY team_slug, app, environment, month
-// ORDER BY month DESC
-// LIMIT 12;
 func (q *Queries) MonthlyCostForApp(ctx context.Context, arg MonthlyCostForAppParams) ([]*CostMonthlyApp, error) {
 	rows, err := q.db.Query(ctx, monthlyCostForApp, arg.TeamSlug, arg.App, arg.Environment)
 	if err != nil {
@@ -287,30 +234,6 @@ ORDER BY month DESC
 LIMIT 12
 `
 
-// WITH last_run AS (
-//
-//	SELECT MAX(date)::date AS "last_run"
-//	FROM cost
-//
-// )
-// SELECT
-//
-//	team_slug,
-//	date_trunc('month', date)::date AS month,
-//	-- Extract last day of known cost samples for the month, or the last recorded date
-//	-- This helps with estimation etc
-//	MAX(CASE
-//	    WHEN date_trunc('month', date) < date_trunc('month', last_run) THEN date_trunc('month', date) + interval '1 month' - interval '1 day'
-//	    ELSE date_trunc('day', last_run)
-//	END)::date AS last_recorded_date,
-//	SUM(daily_cost)::real AS daily_cost
-//
-// FROM cost c
-// LEFT JOIN last_run ON true
-// WHERE c.team_slug = @team_slug::slug
-// GROUP BY team_slug, month
-// ORDER BY month DESC
-// LIMIT 12;
 func (q *Queries) MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*CostMonthlyTeam, error) {
 	rows, err := q.db.Query(ctx, monthlyCostForTeam, teamSlug)
 	if err != nil {

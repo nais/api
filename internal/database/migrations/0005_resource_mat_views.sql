@@ -1,6 +1,7 @@
 -- +goose Up
 
 -- Team range for resource utilization
+DROP MATERIALIZED VIEW IF EXISTS resource_team_range;
 CREATE MATERIALIZED VIEW resource_team_range AS
 SELECT
   team_slug,
@@ -14,6 +15,7 @@ GROUP BY
 CREATE INDEX ON resource_team_range (team_slug);
 
 -- App range for resource utilization
+DROP MATERIALIZED VIEW IF EXISTS resource_app_range;
 CREATE MATERIALIZED VIEW resource_app_range AS
 SELECT
   team_slug,
@@ -26,10 +28,11 @@ FROM
 GROUP BY
   team_slug, app, environment;
 
-CREATE INDEX ON resource_app_range (team_slug, app, environment);
+CREATE INDEX ON resource_app_range (environment, team_slug, app);
 
 -- Resource utilization for team
 
+DROP MATERIALIZED VIEW IF EXISTS resource_utilization_team;
 CREATE MATERIALIZED VIEW resource_utilization_team AS
 SELECT
   team_slug,
@@ -43,4 +46,4 @@ FROM
 GROUP BY
   team_slug, environment, resource_type, timestamp;
 
-CREATE INDEX ON resource_utilization_team (team_slug, environment, resource_type, timestamp);
+CREATE INDEX ON resource_utilization_team (timestamp DESC, team_slug, environment, resource_type);

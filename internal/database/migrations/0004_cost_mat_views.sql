@@ -24,7 +24,7 @@ GROUP BY team_slug, month
 ORDER BY month DESC
 ;
 
-CREATE INDEX ON cost_monthly_team (team_slug, month);
+CREATE INDEX ON cost_monthly_team (month DESC, team_slug);
 
 -- Monthly per app
 
@@ -52,7 +52,7 @@ GROUP BY team_slug, app, environment, month
 ORDER BY month DESC
 ;
 
-CREATE INDEX ON cost_monthly_app (team_slug, app, environment, month);
+CREATE INDEX ON cost_monthly_app (environment, team_slug, app, month DESC);
 
 -- Daily per team
 
