@@ -910,6 +910,12 @@ type Vulnerability struct {
 	HasBom       bool                  `json:"hasBom"`
 }
 
+type VulnerabilityFilter struct {
+	// Filter by environment
+	Envs        []string `json:"envs"`
+	RequireSbom *bool    `json:"requireSbom,omitempty"`
+}
+
 type VulnerabilityList struct {
 	Nodes    []*Vulnerability `json:"nodes"`
 	PageInfo PageInfo         `json:"pageInfo"`

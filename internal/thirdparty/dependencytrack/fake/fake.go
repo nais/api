@@ -43,7 +43,7 @@ func (f *FakeDependencytrackClient) VulnerabilitySummary(ctx context.Context, ap
 	}, nil
 }
 
-func (f *FakeDependencytrackClient) GetVulnerabilities(ctx context.Context, apps []*dependencytrack.AppInstance) ([]*model.Vulnerability, error) {
+func (f *FakeDependencytrackClient) GetVulnerabilities(ctx context.Context, apps []*dependencytrack.AppInstance, filters ...dependencytrack.Filter) ([]*model.Vulnerability, error) {
 	ret := make([]*model.Vulnerability, len(apps))
 	for i, app := range apps {
 		ret[i], _ = f.VulnerabilitySummary(ctx, app)
