@@ -1214,7 +1214,7 @@ func (r *teamResolver) Deployments(ctx context.Context, obj *model.Team, offset 
 // Vulnerabilities is the resolver for the vulnerabilities field.
 func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy, filter *model.VulnerabilityFilter) (*model.VulnerabilityList, error) {
 	var envFilter []k8s.EnvFilter
-	if filter != nil {
+	if filter != nil && len(filter.Envs) > 0 {
 		envFilter = append(envFilter, k8s.WithEnvs(filter.Envs...))
 	}
 
