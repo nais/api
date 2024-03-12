@@ -74,18 +74,35 @@ func (f *FakeDependencytrackClient) GetProjectMetrics(ctx context.Context, app *
 }
 
 func (f *FakeDependencytrackClient) setCacheEntryForApp(app *dependencytrack.AppInstance) {
-	critical := rand.Intn(10)
-	high := rand.Intn(10)
-	medium := rand.Intn(10)
-	low := rand.Intn(10)
-	unassigned := rand.Intn(10)
-
-	f.cache.Set(app.ID(), &model.Vulnerability{
+	v := &model.Vulnerability{
 		ID:           scalar.VulnerabilitiesIdent(app.ID()),
 		AppName:      app.App,
 		Env:          app.Env,
 		FindingsLink: "https://dependencytrack.example.com",
-		Summary: &model.VulnerabilitySummary{
+	}
+
+	switch rand.Intn(4) {
+	case 0:
+		v.HasBom = false
+	case 1:
+		v.HasBom = false
+		v.Summary = &model.VulnerabilitySummary{
+			RiskScore:  -1,
+			Total:      -1,
+			Critical:   -1,
+			High:       -1,
+			Medium:     -1,
+			Low:        -1,
+			Unassigned: -1,
+		}
+	default:
+		critical := rand.Intn(10)
+		high := rand.Intn(10)
+		medium := rand.Intn(10)
+		low := rand.Intn(10)
+		unassigned := rand.Intn(10)
+
+		v.Summary = &model.VulnerabilitySummary{
 			Total:      critical + high + medium + low + unassigned,
 			RiskScore:  (critical * 10) + (high * 5) + (medium * 3) + (low * 1) + (unassigned * 5),
 			Critical:   critical,
@@ -93,7 +110,8 @@ func (f *FakeDependencytrackClient) setCacheEntryForApp(app *dependencytrack.App
 			Medium:     medium,
 			Low:        low,
 			Unassigned: unassigned,
-		},
-		HasBom: rand.Intn(4) != 0,
-	}, 24*time.Hour)
+		}
+		v.HasBom = true
+	}
+	f.cache.Set(app.ID(), v, 24*time.Hour)
 }
