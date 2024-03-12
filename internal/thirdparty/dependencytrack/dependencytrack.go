@@ -88,6 +88,11 @@ func (c *Client) WithClient(client dependencytrack.Client) *Client {
 	return c
 }
 
+func (c *Client) WithCache(cache *cache.Cache) *Client {
+	c.cache = cache
+	return c
+}
+
 func (c *Client) GetProjectMetrics(ctx context.Context, app *AppInstance, date string) (*ProjectMetric, error) {
 	p, err := c.retrieveProject(ctx, app)
 	if err != nil {

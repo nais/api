@@ -380,7 +380,9 @@ type Team {
 
 input VulnerabilityFilter {
   "Filter by environment"
-  envs: [String!]!
+  envs: [String!]
+
+  "Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report."
   requireSbom: Boolean
 }
 

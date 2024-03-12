@@ -6754,8 +6754,10 @@ type Team {
 }
 
 input VulnerabilityFilter {
-    "Filter by environment"
-  envs: [String!]!
+  "Filter by environment"
+  envs: [String!]
+
+  "Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report."
   requireSbom: Boolean
 }
 
@@ -37166,7 +37168,7 @@ func (ec *executionContext) unmarshalInputVulnerabilityFilter(ctx context.Contex
 		switch k {
 		case "envs":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("envs"))
-			data, err := ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
