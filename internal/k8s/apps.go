@@ -1018,3 +1018,22 @@ func notFoundError(err error) bool {
 	var statusError *k8serrors.StatusError
 	return errors.As(err, &statusError) && statusError.ErrStatus.Reason == metav1.StatusReasonNotFound
 }
+
+func (c *Client) DeleteApp(ctx context.Context, name, team, env string) error {
+	impersonatedClients, err := c.impersonationClientCreator(ctx)
+	if err != nil {
+		return c.error(ctx, err, "impersonation")
+	}
+
+	cli, ok := impersonatedClients[env]
+	if !ok {
+		return c.error(ctx, fmt.Errorf("no client set for env %q", env), "getting client")
+	}
+
+	app := cli.dynamicClient.Resource(naisv1alpha1.GroupVersion.WithResource("applications")).Namespace(string(team))
+	if err := app.Delete(ctx, name, metav1.DeleteOptions{}); err != nil {
+		return c.error(ctx, err, "deleting application")
+	}
+
+	return nil
+}

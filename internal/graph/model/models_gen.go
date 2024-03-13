@@ -234,6 +234,12 @@ type DatabaseUser struct {
 	Name string `json:"name"`
 }
 
+type DeleteAppResult struct {
+	// Whether the app was deleted or not.
+	Deleted bool    `json:"deleted"`
+	Error   *string `json:"error,omitempty"`
+}
+
 type Deployment struct {
 	ID         scalar.Ident          `json:"id"`
 	Team       Team                  `json:"team"`

@@ -18,7 +18,6 @@ import (
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/validation"
-	"k8s.io/client-go/kubernetes"
 )
 
 const (
@@ -98,13 +97,13 @@ func (c *Client) SecretsForNaisJob(ctx context.Context, obj *model.NaisJob) ([]*
 	return ret, nil
 }
 
-func (c *Client) listSecrets(ctx context.Context, team slug.Slug, env string, clientSet kubernetes.Interface) ([]*model.Secret, error) {
+func (c *Client) listSecrets(ctx context.Context, team slug.Slug, env string, clientSet clients) ([]*model.Secret, error) {
 	namespace := team.String()
 	opts := metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%s=%s", secretLabelManagedByKey, secretLabelManagedByVal),
 	}
 
-	kubeSecrets, err := clientSet.CoreV1().Secrets(namespace).List(ctx, opts)
+	kubeSecrets, err := clientSet.client.CoreV1().Secrets(namespace).List(ctx, opts)
 	if err != nil {
 		return nil, c.error(ctx, err, "listing secrets")
 	}
@@ -134,7 +133,7 @@ func (c *Client) Secret(ctx context.Context, name string, team slug.Slug, env st
 
 	namespace := team.String()
 	opts := metav1.GetOptions{}
-	secret, err := clientSet.CoreV1().Secrets(namespace).Get(ctx, name, opts)
+	secret, err := clientSet.client.CoreV1().Secrets(namespace).Get(ctx, name, opts)
 	if err != nil {
 		return nil, c.error(ctx, err, "getting secret")
 	}
@@ -226,7 +225,7 @@ func (c *Client) CreateSecret(ctx context.Context, name string, team slug.Slug, 
 	actor := authz.ActorFromContext(ctx)
 	secret := kubeSecret(name, team, actor, data)
 	namespace := team.String()
-	created, err := cli.CoreV1().Secrets(namespace).Create(ctx, secret, metav1.CreateOptions{})
+	created, err := cli.client.CoreV1().Secrets(namespace).Create(ctx, secret, metav1.CreateOptions{})
 	if err != nil {
 		if k8serrors.IsAlreadyExists(err) {
 			return nil, fmt.Errorf("%q: %w", name, ErrSecretUnmanaged)
@@ -254,7 +253,7 @@ func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, 
 		return nil, fmt.Errorf("no client set for env %q", env)
 	}
 
-	existing, err := cli.CoreV1().Secrets(namespace).Get(ctx, name, metav1.GetOptions{})
+	existing, err := cli.client.CoreV1().Secrets(namespace).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
 		return nil, c.error(ctx, err, "getting existing secret")
 	}
@@ -265,7 +264,7 @@ func (c *Client) UpdateSecret(ctx context.Context, name string, team slug.Slug, 
 
 	actor := authz.ActorFromContext(ctx)
 	secret := kubeSecret(name, team, actor, data)
-	updated, err := cli.CoreV1().Secrets(namespace).Update(ctx, secret, metav1.UpdateOptions{})
+	updated, err := cli.client.CoreV1().Secrets(namespace).Update(ctx, secret, metav1.UpdateOptions{})
 	if err != nil {
 		return nil, c.error(ctx, err, "updating secret")
 	}
@@ -285,7 +284,7 @@ func (c *Client) DeleteSecret(ctx context.Context, name string, team slug.Slug, 
 		return false, fmt.Errorf("no clientset for env %q", env)
 	}
 
-	existing, err := cli.CoreV1().Secrets(namespace).Get(ctx, name, metav1.GetOptions{})
+	existing, err := cli.client.CoreV1().Secrets(namespace).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
 		return false, c.error(ctx, err, "getting existing secret")
 	}
@@ -294,7 +293,7 @@ func (c *Client) DeleteSecret(ctx context.Context, name string, team slug.Slug, 
 		return false, fmt.Errorf("%q: %w", existing.GetName(), ErrSecretUnmanaged)
 	}
 
-	err = cli.CoreV1().Secrets(namespace).Delete(ctx, name, metav1.DeleteOptions{})
+	err = cli.client.CoreV1().Secrets(namespace).Delete(ctx, name, metav1.DeleteOptions{})
 	if err != nil {
 		return false, c.error(ctx, err, "deleting secret")
 	}

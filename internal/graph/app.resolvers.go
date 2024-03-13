@@ -15,6 +15,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
+	"k8s.io/utils/ptr"
 )
 
 // Instances is the resolver for the instances field.
@@ -55,6 +56,26 @@ func (r *appResolver) Secrets(ctx context.Context, obj *model.App) ([]*model.Sec
 	}
 
 	return r.k8sClient.SecretsForApp(ctx, obj)
+}
+
+// DeleteApp is the resolver for the deleteApp field.
+func (r *mutationResolver) DeleteApp(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteAppResult, error) {
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamMembership(actor, team)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := r.k8sClient.DeleteApp(ctx, name, team.String(), env); err != nil {
+		return &model.DeleteAppResult{
+			Deleted: false,
+			Error:   ptr.To(err.Error()),
+		}, nil
+	}
+
+	return &model.DeleteAppResult{
+		Deleted: true,
+	}, nil
 }
 
 // App is the resolver for the app field.

@@ -16,7 +16,7 @@ import (
 )
 
 func (c *Client) LogStream(ctx context.Context, cluster, namespace, selector, container string, instances []string) (<-chan *model.LogLine, error) {
-	pods, err := c.clientSets[cluster].CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
+	pods, err := c.clientSets[cluster].client.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
 		LabelSelector: selector,
 	})
 	if err != nil {
@@ -39,7 +39,7 @@ func (c *Client) LogStream(ctx context.Context, cluster, namespace, selector, co
 		wg.Add(1)
 		go func(wg *sync.WaitGroup) {
 			defer wg.Done()
-			logs, err := c.clientSets[cluster].CoreV1().Pods(namespace).GetLogs(pod.Name, &corev1.PodLogOptions{
+			logs, err := c.clientSets[cluster].client.CoreV1().Pods(namespace).GetLogs(pod.Name, &corev1.PodLogOptions{
 				Container:  container,
 				Follow:     true,
 				Timestamps: true,
@@ -98,7 +98,7 @@ func (c *Client) LogStream(ctx context.Context, cluster, namespace, selector, co
 }
 
 func (c *Client) Log(ctx context.Context, cluster, namespace, pod, container string, tailLines int64) ([]*model.LogLine, error) {
-	logs, err := c.clientSets[cluster].CoreV1().Pods(namespace).GetLogs(pod, &corev1.PodLogOptions{
+	logs, err := c.clientSets[cluster].client.CoreV1().Pods(namespace).GetLogs(pod, &corev1.PodLogOptions{
 		TailLines:  &tailLines,
 		Container:  container,
 		Follow:     false,

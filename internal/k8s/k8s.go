@@ -66,7 +66,7 @@ func (c ClusterInformers) Start(ctx context.Context, log logrus.FieldLogger) err
 
 type Client struct {
 	informers                  ClusterInformers
-	clientSets                 map[string]kubernetes.Interface
+	clientSets                 map[string]clients
 	log                        logrus.FieldLogger
 	database                   Database
 	impersonationClientCreator impersonationClientCreator
@@ -93,7 +93,12 @@ func WithClientsCreator(f func(cluster string) (kubernetes.Interface, dynamic.In
 	}
 }
 
-type impersonationClientCreator = func(context.Context) (map[string]kubernetes.Interface, error)
+type clients struct {
+	client        kubernetes.Interface
+	dynamicClient dynamic.Interface
+}
+
+type impersonationClientCreator = func(context.Context) (map[string]clients, error)
 
 func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ...Opt) (*Client, error) {
 	s := &settings{}
@@ -109,7 +114,7 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 			return nil, fmt.Errorf("create kubeconfig: %w", err)
 		}
 
-		impersonationClientCreator = func(ctx context.Context) (map[string]kubernetes.Interface, error) {
+		impersonationClientCreator = func(ctx context.Context) (map[string]clients, error) {
 			actor := authz.ActorFromContext(ctx)
 			teams, err := db.GetUserTeams(ctx, actor.User.GetID())
 			if err != nil {
@@ -123,7 +128,7 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 				}
 			}
 
-			clientSets := make(map[string]kubernetes.Interface)
+			clientSets := make(map[string]clients)
 			for cluster, restConfig := range restConfigs {
 				restConfig.Impersonate = rest.ImpersonationConfig{
 					UserName: actor.User.Identity(),
@@ -132,9 +137,18 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 
 				clientSet, err := kubernetes.NewForConfig(&restConfig)
 				if err != nil {
-					return nil, fmt.Errorf("create clientsets: %w", err)
+					return nil, fmt.Errorf("create impersonated client: %w", err)
 				}
-				clientSets[cluster] = clientSet
+
+				dynamicClient, err := dynamic.NewForConfig(&restConfig)
+				if err != nil {
+					return nil, fmt.Errorf("create impersonated dynamic client: %w", err)
+				}
+
+				clientSets[cluster] = clients{
+					client:        clientSet,
+					dynamicClient: dynamicClient,
+				}
 			}
 
 			return clientSets, nil
@@ -157,7 +171,7 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 	}
 
 	infs := map[string]*Informers{}
-	clientSets := map[string]kubernetes.Interface{}
+	clientSets := map[string]clients{}
 	for _, cluster := range clusters(cfg) {
 		infs[cluster] = &Informers{}
 
@@ -175,7 +189,10 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 		infs[cluster].NaisjobInformer = dinf.ForResource(naisv1.GroupVersion.WithResource("naisjobs"))
 		infs[cluster].JobInformer = inf.Batch().V1().Jobs()
 
-		clientSets[cluster] = clientSet
+		clientSets[cluster] = clients{
+			client:        clientSet,
+			dynamicClient: dynamicClient,
+		}
 
 		if clientSet, ok := clientSet.(*kubernetes.Clientset); ok {
 			resources, err := discovery.NewDiscoveryClient(clientSet.RESTClient()).ServerResourcesForGroupVersion(kafka_nais_io_v1.GroupVersion.String())
@@ -194,7 +211,7 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 
 	if impersonationClientCreator == nil {
 		log.Warnf("impersonation not configured; using default clientSets")
-		impersonationClientCreator = func(ctx context.Context) (map[string]kubernetes.Interface, error) {
+		impersonationClientCreator = func(ctx context.Context) (map[string]clients, error) {
 			return clientSets, nil
 		}
 	}
