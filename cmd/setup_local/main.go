@@ -16,7 +16,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/usersync"
@@ -27,11 +26,6 @@ import (
 	"golang.org/x/text/unicode/norm"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-)
-
-type (
-	// utilizationMapForEnv is a map of team -> app -> time.Time -> *model.ResourceUtilization
-	utilizationMapForEnv map[slug.Slug]map[string]map[time.Time]*model.ResourceUtilization
 )
 
 type seedConfig struct {
