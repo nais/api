@@ -16,6 +16,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/usersync"
@@ -26,6 +27,11 @@ import (
 	"golang.org/x/text/unicode/norm"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+)
+
+type (
+	// utilizationMapForEnv is a map of team -> app -> time.Time -> *model.ResourceUtilization
+	utilizationMapForEnv map[slug.Slug]map[string]map[time.Time]*model.ResourceUtilization
 )
 
 type seedConfig struct {
@@ -233,6 +239,11 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 				return err
 			}
 		}
+		dbtx.ResourceUtilizationUpsert(ctx, generateUtilizationData("dev", "devteam", "devapp", time.Now().Add(-24*time.Hour*7), time.Now())).Exec(func(i int, err error) {
+			if err != nil {
+				log.Errorf("error updating resource utilization for team %s: %v", devteam.Slug, err)
+			}
+		})
 
 		err = seedVulnerabilities(ctx, *cfg, dbtx, devteam, log)
 		if err != nil {
@@ -281,6 +292,37 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 
 	log.Infof("done")
 	return nil
+}
+
+func generateUtilizationData(env, team, app string, start, end time.Time) []gensql.ResourceUtilizationUpsertParams {
+	ret := make([]gensql.ResourceUtilizationUpsertParams, 0)
+	current := start
+	for current.Before(end) {
+
+		pgTs := &pgtype.Timestamptz{}
+		_ = pgTs.Scan(current)
+
+		ret = append(ret, gensql.ResourceUtilizationUpsertParams{
+			Timestamp:    *pgTs,
+			Environment:  env,
+			TeamSlug:     slug.Slug(team),
+			App:          app,
+			ResourceType: gensql.ResourceTypeCpu,
+			Usage:        rand.Float64() * 100,
+			Request:      50.0,
+		})
+		ret = append(ret, gensql.ResourceUtilizationUpsertParams{
+			Timestamp:    *pgTs,
+			Environment:  env,
+			TeamSlug:     slug.Slug(team),
+			App:          app,
+			ResourceType: gensql.ResourceTypeMemory,
+			Usage:        rand.Float64() * 10,
+			Request:      5.0,
+		})
+		current = current.Add(time.Hour)
+	}
+	return ret
 }
 
 func seedVulnerabilities(ctx context.Context, cfg seedConfig, dbtx database.Database, team *database.Team, log logrus.FieldLogger) error {
