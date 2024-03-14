@@ -99,4 +99,16 @@ type SqlInstance implements Storage {
   retainedBackups: Int!
   tier: String!
   type: String!
+  status: SqlInstanceStatus!
+}
+
+type SqlInstanceStatus {
+  conditions: [SqlInstanceCondition!]!
+}
+
+type SqlInstanceCondition {
+  message: String!
+  reason: String!
+  status: String!
+  type: String!
 }
