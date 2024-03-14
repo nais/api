@@ -59,9 +59,9 @@ status:
   conditions:
   - lastTransitionTime: "2024-01-23T09:30:20Z"
     message: The resource is up to date
-    reason: UpToDate
+    reason: Provisioning
     status: "True"
-    type: Ready
+    type: NotReady
   connectionName: nais-dev-123:europe-north1:contests
   firstIpAddress: 1.2.3.4
   instanceType: CLOUD_SQL_INSTANCE
