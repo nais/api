@@ -1010,22 +1010,32 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 	if err != nil {
 		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
 	}
-
-	jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
-	if err != nil {
-		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
-	}
-
 	failingApps := 0
 	for _, app := range apps {
 		if app.AppState.State == model.StateFailing {
 			failingApps++
 		}
 	}
+
+	jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
+	if err != nil {
+		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
+	}
 	failingJobs := 0
 	for _, job := range jobs {
 		if job.JobState.State == model.StateFailing {
 			failingJobs++
+		}
+	}
+
+	sqlInstances, err := r.k8sClient.SqlInstances(ctx, obj.Slug.String())
+	if err != nil {
+		return nil, fmt.Errorf("getting SQL instances from Kubernetes: %w", err)
+	}
+	failingSqlInstances := 0
+	for _, sqlInstance := range sqlInstances {
+		if !sqlInstance.IsHealthy() {
+			failingSqlInstances++
 		}
 	}
 
@@ -1037,6 +1047,10 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 		Jobs: model.JobsStatus{
 			Total:   len(jobs),
 			Failing: failingJobs,
+		},
+		SQLInstances: model.SQLInstancesStatus{
+			Total:   len(sqlInstances),
+			Failing: failingSqlInstances,
 		},
 	}, nil
 }
@@ -1422,22 +1436,6 @@ func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*mo
 	}
 
 	return ret, nil
-}
-
-// Inventory is the resolver for the inventory field.
-func (r *teamResolver) Inventory(ctx context.Context, obj *model.Team) (*model.TeamInventory, error) {
-	sqlInstances, err := r.k8sClient.SqlInstances(ctx, obj.Slug.String())
-	if err != nil {
-		return nil, fmt.Errorf("getting SQL instances from Kubernetes: %w", err)
-	}
-
-	inv := &model.TeamInventory{}
-
-	for _, instance := range sqlInstances {
-		inv.SQLInstances = append(inv.SQLInstances, instance)
-	}
-
-	return inv, nil
 }
 
 // CreatedBy is the resolver for the createdBy field.

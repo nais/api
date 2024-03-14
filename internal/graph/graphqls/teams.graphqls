@@ -376,13 +376,11 @@ type Team {
 
   "The environments available for the team."
   environments: [Env!]!
-
-  "The teams inventory."
-  inventory: TeamInventory!
 }
 
-type TeamInventory {
-  sqlInstances: [SqlInstance!]!
+type SqlInstancesStatus {
+	total: Int!
+	failing: Int!
 }
 
 input VulnerabilityFilter {
@@ -495,6 +493,7 @@ type TeamMemberReconciler {
 type TeamStatus {
   apps: AppsStatus!
   jobs: JobsStatus!
+  sqlInstances: SqlInstancesStatus!
 }
 
 "Team status for apps."

@@ -806,6 +806,11 @@ type SQLInstanceStatus struct {
 	Conditions []*SQLInstanceCondition `json:"conditions"`
 }
 
+type SQLInstancesStatus struct {
+	Total   int `json:"total"`
+	Failing int `json:"failing"`
+}
+
 type Subscription struct {
 }
 
@@ -854,8 +859,9 @@ type TeamMemberList struct {
 
 // Team status.
 type TeamStatus struct {
-	Apps AppsStatus `json:"apps"`
-	Jobs JobsStatus `json:"jobs"`
+	Apps         AppsStatus         `json:"apps"`
+	Jobs         JobsStatus         `json:"jobs"`
+	SQLInstances SQLInstancesStatus `json:"sqlInstances"`
 }
 
 // Input for filtering teams.

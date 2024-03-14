@@ -21,5 +21,13 @@ type SQLInstance struct {
 	Status              SQLInstanceStatus `json:"status"`
 }
 
-func (SQLInstance) IsStorage()           {}
-func (this SQLInstance) GetName() string { return this.Name }
+func (SQLInstance) IsStorage()        {}
+func (i SQLInstance) GetName() string { return i.Name }
+func (i *SQLInstance) IsHealthy() bool {
+	for _, cond := range i.Status.Conditions {
+		if cond.Type == "Ready" && cond.Reason == "UpToDate" {
+			return true
+		}
+	}
+	return false
+}
