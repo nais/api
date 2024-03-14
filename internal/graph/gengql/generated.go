@@ -761,6 +761,7 @@ type ComplexityRoot struct {
 		DiskAutoresize      func(childComplexity int) int
 		DiskSize            func(childComplexity int) int
 		DiskType            func(childComplexity int) int
+		Environment         func(childComplexity int) int
 		Flags               func(childComplexity int) int
 		HighAvailability    func(childComplexity int) int
 		Insights            func(childComplexity int) int
@@ -801,6 +802,7 @@ type ComplexityRoot struct {
 		GoogleArtifactRegistry func(childComplexity int) int
 		GoogleGroupEmail       func(childComplexity int) int
 		ID                     func(childComplexity int) int
+		Inventory              func(childComplexity int) int
 		LastSuccessfulSync     func(childComplexity int) int
 		Member                 func(childComplexity int, userID scalar.Ident) int
 		Members                func(childComplexity int, offset *int, limit *int) int
@@ -825,6 +827,10 @@ type ComplexityRoot struct {
 		Expires   func(childComplexity int) int
 		Key       func(childComplexity int) int
 		Team      func(childComplexity int) int
+	}
+
+	TeamInventory struct {
+		SQLInstances func(childComplexity int) int
 	}
 
 	TeamList struct {
@@ -1072,6 +1078,7 @@ type TeamResolver interface {
 	Secrets(ctx context.Context, obj *model.Team) ([]*model.Secret, error)
 	Secret(ctx context.Context, obj *model.Team, name string, env string) (*model.Secret, error)
 	Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error)
+	Inventory(ctx context.Context, obj *model.Team) (*model.TeamInventory, error)
 }
 type TeamDeleteKeyResolver interface {
 	CreatedBy(ctx context.Context, obj *model.TeamDeleteKey) (*model.User, error)
@@ -4188,6 +4195,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.DiskType(childComplexity), true
 
+	case "SqlInstance.environment":
+		if e.complexity.SqlInstance.Environment == nil {
+			break
+		}
+
+		return e.complexity.SqlInstance.Environment(childComplexity), true
+
 	case "SqlInstance.flags":
 		if e.complexity.SqlInstance.Flags == nil {
 			break
@@ -4409,6 +4423,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.ID(childComplexity), true
 
+	case "Team.inventory":
+		if e.complexity.Team.Inventory == nil {
+			break
+		}
+
+		return e.complexity.Team.Inventory(childComplexity), true
+
 	case "Team.lastSuccessfulSync":
 		if e.complexity.Team.LastSuccessfulSync == nil {
 			break
@@ -4585,6 +4606,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamDeleteKey.Team(childComplexity), true
+
+	case "TeamInventory.sqlInstances":
+		if e.complexity.TeamInventory.SQLInstances == nil {
+			break
+		}
+
+		return e.complexity.TeamInventory.SQLInstances(childComplexity), true
 
 	case "TeamList.nodes":
 		if e.complexity.TeamList.Nodes == nil {
@@ -6512,6 +6540,7 @@ type SqlInstance implements Storage {
   diskAutoresize: Boolean!
   diskSize: Int!
   diskType: String!
+  environment: String!
   flags: [Flag!]!
   highAvailability: Boolean!
   insights: Insights!
@@ -6901,6 +6930,13 @@ type Team {
 
   "The environments available for the team."
   environments: [Env!]!
+
+  "The teams inventory."
+  inventory: TeamInventory!
+}
+
+type TeamInventory {
+  sqlInstances: [SqlInstance!]!
 }
 
 input VulnerabilityFilter {
@@ -9933,6 +9969,8 @@ func (ec *executionContext) fieldContext_App_team(ctx context.Context, field gra
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "inventory":
+				return ec.fieldContext_Team_inventory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -13659,6 +13697,8 @@ func (ec *executionContext) fieldContext_Deployment_team(ctx context.Context, fi
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "inventory":
+				return ec.fieldContext_Team_inventory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -20398,6 +20438,8 @@ func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "inventory":
+				return ec.fieldContext_Team_inventory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -20531,6 +20573,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "inventory":
+				return ec.fieldContext_Team_inventory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -20664,6 +20708,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUsersFromTeam(ctx contex
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "inventory":
+				return ec.fieldContext_Team_inventory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -20797,6 +20843,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUserFromTeam(ctx context
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "inventory":
+				return ec.fieldContext_Team_inventory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -21077,6 +21125,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMembers(ctx context.Con
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "inventory":
+				return ec.fieldContext_Team_inventory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -21210,6 +21260,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamOwners(ctx context.Cont
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "inventory":
+				return ec.fieldContext_Team_inventory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -21343,6 +21395,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "inventory":
+				return ec.fieldContext_Team_inventory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -21476,6 +21530,8 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "inventory":
+				return ec.fieldContext_Team_inventory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -22376,6 +22432,8 @@ func (ec *executionContext) fieldContext_NaisJob_team(ctx context.Context, field
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "inventory":
+				return ec.fieldContext_Team_inventory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -25078,6 +25136,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "inventory":
+				return ec.fieldContext_Team_inventory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -28124,6 +28184,8 @@ func (ec *executionContext) fieldContext_Role_targetTeam(ctx context.Context, fi
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "inventory":
+				return ec.fieldContext_Team_inventory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -29120,6 +29182,8 @@ func (ec *executionContext) fieldContext_Secret_team(ctx context.Context, field 
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "inventory":
+				return ec.fieldContext_Team_inventory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -30111,6 +30175,50 @@ func (ec *executionContext) _SqlInstance_diskType(ctx context.Context, field gra
 }
 
 func (ec *executionContext) fieldContext_SqlInstance_diskType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstance_environment(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_environment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Environment, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstance_environment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
@@ -32403,6 +32511,54 @@ func (ec *executionContext) fieldContext_Team_environments(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_inventory(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_inventory(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().Inventory(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.TeamInventory)
+	fc.Result = res
+	return ec.marshalNTeamInventory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamInventory(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_inventory(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "sqlInstances":
+				return ec.fieldContext_TeamInventory_sqlInstances(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamInventory", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamDeleteKey_key(ctx context.Context, field graphql.CollectedField, obj *model.TeamDeleteKey) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamDeleteKey_key(ctx, field)
 	if err != nil {
@@ -32690,8 +32846,90 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(ctx context.Context,
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "inventory":
+				return ec.fieldContext_Team_inventory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamInventory_sqlInstances(ctx context.Context, field graphql.CollectedField, obj *model.TeamInventory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamInventory_sqlInstances(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SQLInstances, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.SQLInstance)
+	fc.Result = res
+	return ec.marshalNSqlInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstanceᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamInventory_sqlInstances(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamInventory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "autoBackupHour":
+				return ec.fieldContext_SqlInstance_autoBackupHour(ctx, field)
+			case "cascadingDelete":
+				return ec.fieldContext_SqlInstance_cascadingDelete(ctx, field)
+			case "collation":
+				return ec.fieldContext_SqlInstance_collation(ctx, field)
+			case "databases":
+				return ec.fieldContext_SqlInstance_databases(ctx, field)
+			case "diskAutoresize":
+				return ec.fieldContext_SqlInstance_diskAutoresize(ctx, field)
+			case "diskSize":
+				return ec.fieldContext_SqlInstance_diskSize(ctx, field)
+			case "diskType":
+				return ec.fieldContext_SqlInstance_diskType(ctx, field)
+			case "environment":
+				return ec.fieldContext_SqlInstance_environment(ctx, field)
+			case "flags":
+				return ec.fieldContext_SqlInstance_flags(ctx, field)
+			case "highAvailability":
+				return ec.fieldContext_SqlInstance_highAvailability(ctx, field)
+			case "insights":
+				return ec.fieldContext_SqlInstance_insights(ctx, field)
+			case "maintenance":
+				return ec.fieldContext_SqlInstance_maintenance(ctx, field)
+			case "name":
+				return ec.fieldContext_SqlInstance_name(ctx, field)
+			case "pointInTimeRecovery":
+				return ec.fieldContext_SqlInstance_pointInTimeRecovery(ctx, field)
+			case "retainedBackups":
+				return ec.fieldContext_SqlInstance_retainedBackups(ctx, field)
+			case "tier":
+				return ec.fieldContext_SqlInstance_tier(ctx, field)
+			case "type":
+				return ec.fieldContext_SqlInstance_type(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SqlInstance", field.Name)
 		},
 	}
 	return fc, nil
@@ -32792,6 +33030,8 @@ func (ec *executionContext) fieldContext_TeamList_nodes(ctx context.Context, fie
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "inventory":
+				return ec.fieldContext_Team_inventory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -32946,6 +33186,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(ctx context.Context, fi
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "inventory":
+				return ec.fieldContext_Team_inventory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -44683,6 +44925,11 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "environment":
+			out.Values[i] = ec._SqlInstance_environment(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "flags":
 			out.Values[i] = ec._SqlInstance_flags(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -45625,6 +45872,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "inventory":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_inventory(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -45746,6 +46029,45 @@ func (ec *executionContext) _TeamDeleteKey(ctx context.Context, sel ast.Selectio
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamInventoryImplementors = []string{"TeamInventory"}
+
+func (ec *executionContext) _TeamInventory(ctx context.Context, sel ast.SelectionSet, obj *model.TeamInventory) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamInventory")
+		case "sqlInstances":
+			out.Values[i] = ec._TeamInventory_sqlInstances(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -49858,6 +50180,60 @@ func (ec *executionContext) marshalNSortOrder2githubᚗcomᚋnaisᚋapiᚋintern
 	return v
 }
 
+func (ec *executionContext) marshalNSqlInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.SQLInstance) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstance(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstance(ctx context.Context, sel ast.SelectionSet, v *model.SQLInstance) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SqlInstance(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNState2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐState(ctx context.Context, v interface{}) (model.State, error) {
 	var res model.State
 	err := res.UnmarshalGQL(v)
@@ -50147,6 +50523,20 @@ func (ec *executionContext) marshalNTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapi�
 		return graphql.Null
 	}
 	return ec._TeamDeleteKey(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamInventory2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamInventory(ctx context.Context, sel ast.SelectionSet, v model.TeamInventory) graphql.Marshaler {
+	return ec._TeamInventory(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamInventory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamInventory(ctx context.Context, sel ast.SelectionSet, v *model.TeamInventory) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamInventory(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTeamList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamList(ctx context.Context, sel ast.SelectionSet, v model.TeamList) graphql.Marshaler {
