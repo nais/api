@@ -944,6 +944,8 @@ func appStorage(u *unstructured.Unstructured, topics []*model.Topic) ([]model.St
 			}
 			ret = append(ret, bucket)
 		}
+
+		// TODO: Use SqlInstance informer for this instead?
 		for _, v := range app.Spec.GCP.SqlInstances {
 			sqlInstance := model.SQLInstance{}
 			if err := convert(v, &sqlInstance); err != nil {

@@ -376,6 +376,13 @@ type Team {
 
   "The environments available for the team."
   environments: [Env!]!
+
+  "The teams inventory."
+  inventory: TeamInventory!
+}
+
+type TeamInventory {
+  sqlInstances: [SqlInstance!]!
 }
 
 input VulnerabilityFilter {

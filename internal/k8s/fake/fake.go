@@ -12,6 +12,7 @@ import (
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	sql_cnrm_cloud_google_com_v1beta1 "github.com/nais/liberator/pkg/apis/sql.cnrm.cloud.google.com/v1beta1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -93,6 +94,7 @@ func newScheme() *runtime.Scheme {
 	kafka_nais_io_v1.AddToScheme(scheme)
 	corev1.AddToScheme(scheme)
 	appsv1.AddToScheme(scheme)
+	sql_cnrm_cloud_google_com_v1beta1.AddToScheme(scheme)
 	return scheme
 }
 

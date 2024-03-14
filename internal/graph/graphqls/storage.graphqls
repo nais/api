@@ -89,6 +89,7 @@ type SqlInstance implements Storage {
   diskAutoresize: Boolean!
   diskSize: Int!
   diskType: String!
+  environment: String!
   flags: [Flag!]!
   highAvailability: Boolean!
   insights: Insights!

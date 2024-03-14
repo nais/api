@@ -16,6 +16,7 @@ import (
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	naisv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	sql_cnrm_cloud_google_com_v1beta1 "github.com/nais/liberator/pkg/apis/sql.cnrm.cloud.google.com/v1beta1"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
@@ -43,6 +44,7 @@ func (c ClusterInformers) Start(ctx context.Context, log logrus.FieldLogger) err
 		go informer.AppInformer.Informer().Run(ctx.Done())
 		go informer.NaisjobInformer.Informer().Run(ctx.Done())
 		go informer.JobInformer.Informer().Run(ctx.Done())
+		go informer.SqlInstanceInformer.Informer().Run(ctx.Done())
 		if informer.TopicInformer != nil {
 			go informer.TopicInformer.Informer().Run(ctx.Done())
 		}
@@ -73,12 +75,13 @@ type Client struct {
 }
 
 type Informers struct {
-	AppInformer     informers.GenericInformer
-	EventInformer   corev1inf.EventInformer
-	JobInformer     batchv1inf.JobInformer
-	NaisjobInformer informers.GenericInformer
-	PodInformer     corev1inf.PodInformer
-	TopicInformer   informers.GenericInformer
+	AppInformer         informers.GenericInformer
+	EventInformer       corev1inf.EventInformer
+	JobInformer         batchv1inf.JobInformer
+	NaisjobInformer     informers.GenericInformer
+	PodInformer         corev1inf.PodInformer
+	TopicInformer       informers.GenericInformer
+	SqlInstanceInformer informers.GenericInformer
 }
 
 type settings struct {
@@ -188,6 +191,7 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 		infs[cluster].AppInformer = dinf.ForResource(naisv1alpha1.GroupVersion.WithResource("applications"))
 		infs[cluster].NaisjobInformer = dinf.ForResource(naisv1.GroupVersion.WithResource("naisjobs"))
 		infs[cluster].JobInformer = inf.Batch().V1().Jobs()
+		infs[cluster].SqlInstanceInformer = dinf.ForResource(sql_cnrm_cloud_google_com_v1beta1.GroupVersion.WithResource("sqlinstances"))
 
 		clientSets[cluster] = clients{
 			client:        clientSet,
@@ -237,6 +241,8 @@ func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilte
 	ret := []*search.Result{}
 
 	for env, infs := range c.informers {
+		// TODO: search sql instances
+
 		if isFilterNaisjobOrNoFilter(filter) {
 			jobs, err := infs.NaisjobInformer.Lister().List(labels.Everything())
 			if err != nil {

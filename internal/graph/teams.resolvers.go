@@ -1424,6 +1424,22 @@ func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*mo
 	return ret, nil
 }
 
+// Inventory is the resolver for the inventory field.
+func (r *teamResolver) Inventory(ctx context.Context, obj *model.Team) (*model.TeamInventory, error) {
+	sqlInstances, err := r.k8sClient.SqlInstances(ctx, obj.Slug.String())
+	if err != nil {
+		return nil, fmt.Errorf("getting SQL instances from Kubernetes: %w", err)
+	}
+
+	inv := &model.TeamInventory{}
+
+	for _, instance := range sqlInstances {
+		inv.SQLInstances = append(inv.SQLInstances, instance)
+	}
+
+	return inv, nil
+}
+
 // CreatedBy is the resolver for the createdBy field.
 func (r *teamDeleteKeyResolver) CreatedBy(ctx context.Context, obj *model.TeamDeleteKey) (*model.User, error) {
 	return loader.GetUser(ctx, obj.GQLVars.UserID)
