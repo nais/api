@@ -795,6 +795,17 @@ type SlackAlertsChannelInput struct {
 	ChannelName *string `json:"channelName,omitempty"`
 }
 
+type SQLInstanceCondition struct {
+	Message string `json:"message"`
+	Reason  string `json:"reason"`
+	Status  string `json:"status"`
+	Type    string `json:"type"`
+}
+
+type SQLInstanceStatus struct {
+	Conditions []*SQLInstanceCondition `json:"conditions"`
+}
+
 type Subscription struct {
 }
 

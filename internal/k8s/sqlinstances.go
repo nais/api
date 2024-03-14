@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"sort"
 
+	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
 	"github.com/nais/api/internal/graph/model"
-	sql_cnrm_cloud_google_com_v1beta1 "github.com/nais/liberator/pkg/apis/sql.cnrm.cloud.google.com/v1beta1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -46,5 +46,19 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 	return &model.SQLInstance{
 		Name:        sqlInstance.Name,
 		Environment: env,
+		Status: model.SQLInstanceStatus{
+			Conditions: func() []*model.SQLInstanceCondition {
+				ret := make([]*model.SQLInstanceCondition, 0)
+				for _, condition := range sqlInstance.Status.Conditions {
+					ret = append(ret, &model.SQLInstanceCondition{
+						Type:    condition.Type,
+						Status:  string(condition.Status),
+						Reason:  condition.Reason,
+						Message: condition.Message,
+					})
+				}
+				return ret
+			}(),
+		},
 	}, nil
 }
