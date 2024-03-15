@@ -1,0 +1,39 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-w-all-storage
+  namespace: dev
+  labels:
+    team: devteam
+
+spec:
+  image: navikt/app-w-all-storage:latest
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_15
+        cascadingDelete: true
+        name: deleteme
+      - type: POSTGRES_15
+        name: donotdelete
+    bigQueryDatasets:
+      - name: deleteme_bq
+        permission: READWRITE
+        cascadingDelete: true
+      - name: donotdelete_bq
+        permission: READWRITE
+    buckets:
+      - name: deleteme_bucket
+        cascadingDelete: true
+      - name: donotdelete_bucket
+  kafka:
+    pool: team-a
+  influx:
+    instance: influxdb
+  redis:
+    - name: redis
+      size: 100Mi
+      instance: redis
+  openSearch:
+    instance: opensearch
+  filesFrom:
+    - persistentVolumeClaim: asdf
