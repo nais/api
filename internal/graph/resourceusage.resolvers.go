@@ -21,6 +21,11 @@ func (r *queryResolver) ResourceUtilizationTrendForTeam(ctx context.Context, tea
 	if err != nil {
 		return nil, err
 	}
+
+	if trend == nil {
+		return &model.ResourceUtilizationTrend{}, nil
+	}
+
 	return trend, nil
 }
 
@@ -44,7 +49,11 @@ func (r *queryResolver) CurrentResourceUtilizationForApp(ctx context.Context, en
 // CurrentResourceUtilizationForTeam is the resolver for the currentResourceUtilizationForTeam field.
 func (r *queryResolver) CurrentResourceUtilizationForTeam(ctx context.Context, team slug.Slug) (*model.CurrentResourceUtilization, error) {
 	resp, err := r.resourceUsageClient.CurrentResourceUtilizationForTeam(ctx, team)
-	if errors.Is(err, pgx.ErrNoRows) {
+	if err != nil {
+		return nil, err
+	}
+
+	if resp == nil {
 		m := model.ResourceUtilization{
 			Timestamp: time.Now(),
 		}
@@ -52,9 +61,8 @@ func (r *queryResolver) CurrentResourceUtilizationForTeam(ctx context.Context, t
 			CPU:    m,
 			Memory: m,
 		}, nil
-	} else if err != nil {
-		return nil, err
 	}
+
 	return resp, nil
 }
 

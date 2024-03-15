@@ -175,7 +175,7 @@ func (c *client) CurrentResourceUtilizationForTeam(ctx context.Context, team slu
 	}
 
 	if timeRange.To.Time.Before(time.Now().UTC().Add(-3 * time.Hour)) {
-		return nil, fmt.Errorf("no current data available for team %q", team)
+		return nil, nil
 	}
 
 	ts := pgtype.Timestamptz{}
@@ -205,6 +205,10 @@ func (c *client) ResourceUtilizationTrendForTeam(ctx context.Context, team slug.
 	current, err := c.CurrentResourceUtilizationForTeam(ctx, team)
 	if err != nil {
 		return nil, err
+	}
+
+	if current == nil {
+		return nil, nil
 	}
 
 	ts := pgtype.Timestamptz{}
