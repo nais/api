@@ -745,6 +745,10 @@ type Resources struct {
 	Requests Requests `json:"requests"`
 }
 
+type RestartAppResult struct {
+	Error *string `json:"error,omitempty"`
+}
+
 type Rule struct {
 	Application       string `json:"application"`
 	Namespace         string `json:"namespace"`

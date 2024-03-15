@@ -20,6 +20,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/selection"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
 
 	"github.com/nais/api/internal/graph/model"
@@ -1057,9 +1058,29 @@ func (c *Client) DeleteApp(ctx context.Context, name, team, env string) error {
 		return c.error(ctx, fmt.Errorf("no client set for env %q", env), "getting client")
 	}
 
-	app := cli.dynamicClient.Resource(naisv1alpha1.GroupVersion.WithResource("applications")).Namespace(string(team))
+	app := cli.dynamicClient.Resource(naisv1alpha1.GroupVersion.WithResource("applications")).Namespace(team)
 	if err := app.Delete(ctx, name, metav1.DeleteOptions{}); err != nil {
 		return c.error(ctx, err, "deleting application")
+	}
+
+	return nil
+}
+
+func (c *Client) RestartApp(ctx context.Context, name, team, env string) error {
+	impersonatedClients, err := c.impersonationClientCreator(ctx)
+	if err != nil {
+		return c.error(ctx, err, "impersonation")
+	}
+
+	cli, ok := impersonatedClients[env]
+	if !ok {
+		return c.error(ctx, fmt.Errorf("no client set for env %q", env), "getting client")
+	}
+
+	b := []byte(fmt.Sprintf(`{"spec": {"template": {"metadata": {"annotations": {"kubectl.kubernetes.io/restartedAt": "%s"}}}}}`, time.Now().Format(time.RFC3339)))
+	app := cli.client.AppsV1().Deployments(team)
+	if _, err := app.Patch(ctx, name, types.StrategicMergePatchType, b, metav1.PatchOptions{}); err != nil {
+		return c.error(ctx, err, "restarting application")
 	}
 
 	return nil

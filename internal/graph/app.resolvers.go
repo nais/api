@@ -78,6 +78,22 @@ func (r *mutationResolver) DeleteApp(ctx context.Context, name string, team slug
 	}, nil
 }
 
+// RestartApp is the resolver for the restartApp field.
+func (r *mutationResolver) RestartApp(ctx context.Context, name string, team slug.Slug, env string) (*model.RestartAppResult, error) {
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamMembership(actor, team)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := r.k8sClient.RestartApp(ctx, name, team.String(), env); err != nil {
+		return &model.RestartAppResult{
+			Error: ptr.To(err.Error()),
+		}, nil
+	}
+	return &model.RestartAppResult{}, nil
+}
+
 // App is the resolver for the app field.
 func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, env string) (*model.App, error) {
 	app, err := r.k8sClient.App(ctx, name, team.String(), env)

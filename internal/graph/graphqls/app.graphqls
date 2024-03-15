@@ -1,20 +1,33 @@
 extend type Mutation {
-	deleteApp(
-		"The name of the application."
-		name: String!
+  deleteApp(
+    "The name of the application."
+    name: String!
 
-		"The name of the team who owns the application."
-		team: Slug!
+    "The name of the team who owns the application."
+    team: Slug!
 
-		"The environment the application is deployed to."
-		env: String!
-	): DeleteAppResult!
+    "The environment the application is deployed to."
+    env: String!
+  ): DeleteAppResult!
+  restartApp(
+    "The name of the application."
+    name: String!
+
+    "The name of the team who owns the application."
+    team: Slug!
+
+    "The environment the application is deployed to."
+    env: String!
+  ): RestartAppResult!
 }
 
 type DeleteAppResult {
-	"Whether the app was deleted or not."
-	deleted: Boolean!
-	error: String
+  "Whether the app was deleted or not."
+  deleted: Boolean!
+  error: String
+}
+type RestartAppResult {
+  error: String
 }
 
 extend type Query {

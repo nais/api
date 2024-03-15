@@ -12,6 +12,7 @@ import (
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -91,6 +92,7 @@ func newScheme() *runtime.Scheme {
 	nais_io_v1alpha1.AddToScheme(scheme)
 	kafka_nais_io_v1.AddToScheme(scheme)
 	corev1.AddToScheme(scheme)
+	appsv1.AddToScheme(scheme)
 	return scheme
 }
 
@@ -149,7 +151,7 @@ func parseResources(scheme *runtime.Scheme, dir fs.FS, path string) clusterResou
 		}
 
 		switch v.GetObjectKind().GroupVersionKind().GroupVersion() {
-		case corev1.SchemeGroupVersion:
+		case corev1.SchemeGroupVersion, appsv1.SchemeGroupVersion:
 			ret.core = append(ret.core, v)
 		default:
 			ret.dynamic = append(ret.dynamic, v)

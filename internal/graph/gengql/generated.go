@@ -493,6 +493,7 @@ type ComplexityRoot struct {
 		RemoveUsersFromTeam    func(childComplexity int, slug slug.Slug, userIds []*scalar.Ident) int
 		RequestTeamDeletion    func(childComplexity int, slug slug.Slug) int
 		ResetReconciler        func(childComplexity int, name string) int
+		RestartApp             func(childComplexity int, name string, team slug.Slug, env string) int
 		SetTeamMemberRole      func(childComplexity int, slug slug.Slug, userID scalar.Ident, role model.TeamRole) int
 		SynchronizeAllTeams    func(childComplexity int) int
 		SynchronizeTeam        func(childComplexity int, slug slug.Slug) int
@@ -677,6 +678,10 @@ type ComplexityRoot struct {
 	Resources struct {
 		Limits   func(childComplexity int) int
 		Requests func(childComplexity int) int
+	}
+
+	RestartAppResult struct {
+		Error func(childComplexity int) int
 	}
 
 	Role struct {
@@ -949,6 +954,7 @@ type GitHubRepositoryResolver interface {
 }
 type MutationResolver interface {
 	DeleteApp(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteAppResult, error)
+	RestartApp(ctx context.Context, name string, team slug.Slug, env string) (*model.RestartAppResult, error)
 	AuthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.GitHubRepository, error)
 	DeauthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.GitHubRepository, error)
 	EnableReconciler(ctx context.Context, name string) (*model.Reconciler, error)
@@ -2866,6 +2872,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.ResetReconciler(childComplexity, args["name"].(string)), true
 
+	case "Mutation.restartApp":
+		if e.complexity.Mutation.RestartApp == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_restartApp_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RestartApp(childComplexity, args["name"].(string), args["team"].(slug.Slug), args["env"].(string)), true
+
 	case "Mutation.setTeamMemberRole":
 		if e.complexity.Mutation.SetTeamMemberRole == nil {
 			break
@@ -3805,6 +3823,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Resources.Requests(childComplexity), true
+
+	case "RestartAppResult.error":
+		if e.complexity.RestartAppResult.Error == nil {
+			break
+		}
+
+		return e.complexity.RestartAppResult.Error(childComplexity), true
 
 	case "Role.isGlobal":
 		if e.complexity.Role.IsGlobal == nil {
@@ -5112,22 +5137,35 @@ type AccessPolicy {
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/app.graphqls", Input: `extend type Mutation {
-	deleteApp(
-		"The name of the application."
-		name: String!
+  deleteApp(
+    "The name of the application."
+    name: String!
 
-		"The name of the team who owns the application."
-		team: Slug!
+    "The name of the team who owns the application."
+    team: Slug!
 
-		"The environment the application is deployed to."
-		env: String!
-	): DeleteAppResult!
+    "The environment the application is deployed to."
+    env: String!
+  ): DeleteAppResult!
+  restartApp(
+    "The name of the application."
+    name: String!
+
+    "The name of the team who owns the application."
+    team: Slug!
+
+    "The environment the application is deployed to."
+    env: String!
+  ): RestartAppResult!
 }
 
 type DeleteAppResult {
-	"Whether the app was deleted or not."
-	deleted: Boolean!
-	error: String
+  "Whether the app was deleted or not."
+  deleted: Boolean!
+  error: String
+}
+type RestartAppResult {
+  error: String
 }
 
 extend type Query {
@@ -7627,6 +7665,39 @@ func (ec *executionContext) field_Mutation_resetReconciler_args(ctx context.Cont
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_restartApp_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["name"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["name"] = arg0
+	var arg1 slug.Slug
+	if tmp, ok := rawArgs["team"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
+		arg1, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["team"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["env"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("env"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["env"] = arg2
 	return args, nil
 }
 
@@ -18883,6 +18954,65 @@ func (ec *executionContext) fieldContext_Mutation_deleteApp(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_restartApp(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_restartApp(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RestartApp(rctx, fc.Args["name"].(string), fc.Args["team"].(slug.Slug), fc.Args["env"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.RestartAppResult)
+	fc.Result = res
+	return ec.marshalNRestartAppResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRestartAppResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_restartApp(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "error":
+				return ec.fieldContext_RestartAppResult_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RestartAppResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_restartApp_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_authorizeRepository(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_authorizeRepository(ctx, field)
 	if err != nil {
@@ -27392,6 +27522,47 @@ func (ec *executionContext) fieldContext_Resources_requests(ctx context.Context,
 				return ec.fieldContext_Requests_memory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Requests", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RestartAppResult_error(ctx context.Context, field graphql.CollectedField, obj *model.RestartAppResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RestartAppResult_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RestartAppResult_error(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RestartAppResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -41128,6 +41299,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "restartApp":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_restartApp(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "authorizeRepository":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_authorizeRepository(ctx, field)
@@ -43262,6 +43440,42 @@ func (ec *executionContext) _Resources(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var restartAppResultImplementors = []string{"RestartAppResult"}
+
+func (ec *executionContext) _RestartAppResult(ctx context.Context, sel ast.SelectionSet, obj *model.RestartAppResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, restartAppResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RestartAppResult")
+		case "error":
+			out.Values[i] = ec._RestartAppResult_error(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -48882,6 +49096,20 @@ func (ec *executionContext) marshalNResourceUtilizationTrend2ᚖgithubᚗcomᚋn
 
 func (ec *executionContext) marshalNResources2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResources(ctx context.Context, sel ast.SelectionSet, v model.Resources) graphql.Marshaler {
 	return ec._Resources(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRestartAppResult2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRestartAppResult(ctx context.Context, sel ast.SelectionSet, v model.RestartAppResult) graphql.Marshaler {
+	return ec._RestartAppResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRestartAppResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRestartAppResult(ctx context.Context, sel ast.SelectionSet, v *model.RestartAppResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RestartAppResult(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNRole2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRoleᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Role) graphql.Marshaler {
