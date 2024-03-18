@@ -7,6 +7,7 @@ import (
 
 	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/scalar"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -44,6 +45,7 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 	}
 
 	return &model.SQLInstance{
+		ID:          scalar.SqlInstanceIdent("sqlInstance_" + env + "_" + sqlInstance.GetNamespace() + "_" + sqlInstance.GetName()),
 		Name:        sqlInstance.Name,
 		Environment: env,
 		Status: model.SQLInstanceStatus{

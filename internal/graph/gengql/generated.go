@@ -764,6 +764,7 @@ type ComplexityRoot struct {
 		Environment         func(childComplexity int) int
 		Flags               func(childComplexity int) int
 		HighAvailability    func(childComplexity int) int
+		ID                  func(childComplexity int) int
 		Insights            func(childComplexity int) int
 		Maintenance         func(childComplexity int) int
 		Name                func(childComplexity int) int
@@ -783,6 +784,11 @@ type ComplexityRoot struct {
 
 	SqlInstanceStatus struct {
 		Conditions func(childComplexity int) int
+	}
+
+	SqlInstancesList struct {
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
 	}
 
 	SqlInstancesStatus struct {
@@ -824,6 +830,7 @@ type ComplexityRoot struct {
 		Members                func(childComplexity int, offset *int, limit *int) int
 		Naisjobs               func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		Purpose                func(childComplexity int) int
+		SQLInstances           func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		Secret                 func(childComplexity int, name string, env string) int
 		Secrets                func(childComplexity int) int
 		SlackChannel           func(childComplexity int) int
@@ -1081,6 +1088,7 @@ type TeamResolver interface {
 	ViewerIsOwner(ctx context.Context, obj *model.Team) (bool, error)
 	ViewerIsMember(ctx context.Context, obj *model.Team) (bool, error)
 	Status(ctx context.Context, obj *model.Team) (*model.TeamStatus, error)
+	SQLInstances(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.SQLInstancesList, error)
 	Apps(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.AppList, error)
 	DeployKey(ctx context.Context, obj *model.Team) (*model.DeploymentKey, error)
 	Naisjobs(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.NaisJobList, error)
@@ -4228,6 +4236,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.HighAvailability(childComplexity), true
 
+	case "SqlInstance.id":
+		if e.complexity.SqlInstance.ID == nil {
+			break
+		}
+
+		return e.complexity.SqlInstance.ID(childComplexity), true
+
 	case "SqlInstance.insights":
 		if e.complexity.SqlInstance.Insights == nil {
 			break
@@ -4318,6 +4333,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SqlInstanceStatus.Conditions(childComplexity), true
+
+	case "SqlInstancesList.nodes":
+		if e.complexity.SqlInstancesList.Nodes == nil {
+			break
+		}
+
+		return e.complexity.SqlInstancesList.Nodes(childComplexity), true
+
+	case "SqlInstancesList.pageInfo":
+		if e.complexity.SqlInstancesList.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.SqlInstancesList.PageInfo(childComplexity), true
 
 	case "SqlInstancesStatus.failing":
 		if e.complexity.SqlInstancesStatus.Failing == nil {
@@ -4540,6 +4569,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Team.Purpose(childComplexity), true
+
+	case "Team.sqlInstances":
+		if e.complexity.Team.SQLInstances == nil {
+			break
+		}
+
+		args, err := ec.field_Team_sqlInstances_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Team.SQLInstances(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy)), true
 
 	case "Team.secret":
 		if e.complexity.Team.Secret == nil {
@@ -6593,7 +6634,13 @@ type DatabaseUser {
   name: String!
 }
 
+type SqlInstancesList {
+  nodes: [SqlInstance!]!
+  pageInfo: PageInfo!
+}
+
 type SqlInstance implements Storage {
+  id: ID!
   autoBackupHour: Int!
   cascadingDelete: Boolean!
   collation: String!
@@ -6601,7 +6648,7 @@ type SqlInstance implements Storage {
   diskAutoresize: Boolean!
   diskSize: Int!
   diskType: String!
-  environment: String!
+  environment: String! # TODO: Change to Env type
   flags: [Flag!]!
   highAvailability: Boolean!
   insights: Insights!
@@ -6929,6 +6976,17 @@ type Team {
 
   "The status of the team."
   status: TeamStatus!
+
+	sqlInstances(
+		"Returns the first n entries from the list."
+		offset: Int
+
+		"Returns the last n entries from the list."
+		limit: Int
+
+		"Order SQL instances by"
+		orderBy: OrderBy
+	): SqlInstancesList!
 
   "The NAIS applications owned by the team."
   apps(
@@ -8871,6 +8929,39 @@ func (ec *executionContext) field_Team_secret_args(ctx context.Context, rawArgs 
 	return args, nil
 }
 
+func (ec *executionContext) field_Team_sqlInstances_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	var arg2 *model.OrderBy
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg2, err = ec.unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderBy(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_Team_vulnerabilities_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -10021,6 +10112,8 @@ func (ec *executionContext) fieldContext_App_team(ctx context.Context, field gra
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -13747,6 +13840,8 @@ func (ec *executionContext) fieldContext_Deployment_team(ctx context.Context, fi
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -20486,6 +20581,8 @@ func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -20619,6 +20716,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -20752,6 +20851,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUsersFromTeam(ctx contex
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -20885,6 +20986,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUserFromTeam(ctx context
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -21165,6 +21268,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMembers(ctx context.Con
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -21298,6 +21403,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamOwners(ctx context.Cont
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -21431,6 +21538,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -21564,6 +21673,8 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -22464,6 +22575,8 @@ func (ec *executionContext) fieldContext_NaisJob_team(ctx context.Context, field
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -25166,6 +25279,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -28212,6 +28327,8 @@ func (ec *executionContext) fieldContext_Role_targetTeam(ctx context.Context, fi
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -29208,6 +29325,8 @@ func (ec *executionContext) fieldContext_Secret_team(ctx context.Context, field 
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -29910,6 +30029,50 @@ func (ec *executionContext) fieldContext_SlackAlertsChannel_channelName(ctx cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstance_id(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstance_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -30966,6 +31129,142 @@ func (ec *executionContext) fieldContext_SqlInstanceStatus_conditions(ctx contex
 				return ec.fieldContext_SqlInstanceCondition_type(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SqlInstanceCondition", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstancesList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstancesList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstancesList_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.SQLInstance)
+	fc.Result = res
+	return ec.marshalNSqlInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstanceᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstancesList_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstancesList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_SqlInstance_id(ctx, field)
+			case "autoBackupHour":
+				return ec.fieldContext_SqlInstance_autoBackupHour(ctx, field)
+			case "cascadingDelete":
+				return ec.fieldContext_SqlInstance_cascadingDelete(ctx, field)
+			case "collation":
+				return ec.fieldContext_SqlInstance_collation(ctx, field)
+			case "databases":
+				return ec.fieldContext_SqlInstance_databases(ctx, field)
+			case "diskAutoresize":
+				return ec.fieldContext_SqlInstance_diskAutoresize(ctx, field)
+			case "diskSize":
+				return ec.fieldContext_SqlInstance_diskSize(ctx, field)
+			case "diskType":
+				return ec.fieldContext_SqlInstance_diskType(ctx, field)
+			case "environment":
+				return ec.fieldContext_SqlInstance_environment(ctx, field)
+			case "flags":
+				return ec.fieldContext_SqlInstance_flags(ctx, field)
+			case "highAvailability":
+				return ec.fieldContext_SqlInstance_highAvailability(ctx, field)
+			case "insights":
+				return ec.fieldContext_SqlInstance_insights(ctx, field)
+			case "maintenance":
+				return ec.fieldContext_SqlInstance_maintenance(ctx, field)
+			case "name":
+				return ec.fieldContext_SqlInstance_name(ctx, field)
+			case "pointInTimeRecovery":
+				return ec.fieldContext_SqlInstance_pointInTimeRecovery(ctx, field)
+			case "retainedBackups":
+				return ec.fieldContext_SqlInstance_retainedBackups(ctx, field)
+			case "tier":
+				return ec.fieldContext_SqlInstance_tier(ctx, field)
+			case "type":
+				return ec.fieldContext_SqlInstance_type(ctx, field)
+			case "status":
+				return ec.fieldContext_SqlInstance_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SqlInstance", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstancesList_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstancesList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstancesList_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstancesList_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstancesList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
 	}
 	return fc, nil
@@ -32265,6 +32564,67 @@ func (ec *executionContext) fieldContext_Team_status(ctx context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_sqlInstances(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_sqlInstances(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().SQLInstances(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["orderBy"].(*model.OrderBy))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.SQLInstancesList)
+	fc.Result = res
+	return ec.marshalNSqlInstancesList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstancesList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_sqlInstances(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "nodes":
+				return ec.fieldContext_SqlInstancesList_nodes(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_SqlInstancesList_pageInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SqlInstancesList", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Team_sqlInstances_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_apps(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_apps(ctx, field)
 	if err != nil {
@@ -33190,6 +33550,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(ctx context.Context,
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -33292,6 +33654,8 @@ func (ec *executionContext) fieldContext_TeamList_nodes(ctx context.Context, fie
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -33446,6 +33810,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(ctx context.Context, fi
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -45218,6 +45584,11 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SqlInstance")
+		case "id":
+			out.Values[i] = ec._SqlInstance_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "autoBackupHour":
 			out.Values[i] = ec._SqlInstance_autoBackupHour(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -45398,6 +45769,50 @@ func (ec *executionContext) _SqlInstanceStatus(ctx context.Context, sel ast.Sele
 			out.Values[i] = graphql.MarshalString("SqlInstanceStatus")
 		case "conditions":
 			out.Values[i] = ec._SqlInstanceStatus_conditions(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var sqlInstancesListImplementors = []string{"SqlInstancesList"}
+
+func (ec *executionContext) _SqlInstancesList(ctx context.Context, sel ast.SelectionSet, obj *model.SQLInstancesList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstancesListImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SqlInstancesList")
+		case "nodes":
+			out.Values[i] = ec._SqlInstancesList_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pageInfo":
+			out.Values[i] = ec._SqlInstancesList_pageInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -45956,6 +46371,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Team_status(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "sqlInstances":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_sqlInstances(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -50580,6 +51031,60 @@ func (ec *executionContext) marshalNSortOrder2githubᚗcomᚋnaisᚋapiᚋintern
 	return v
 }
 
+func (ec *executionContext) marshalNSqlInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.SQLInstance) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstance(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstance(ctx context.Context, sel ast.SelectionSet, v *model.SQLInstance) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SqlInstance(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNSqlInstanceCondition2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstanceConditionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.SQLInstanceCondition) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -50636,6 +51141,20 @@ func (ec *executionContext) marshalNSqlInstanceCondition2ᚖgithubᚗcomᚋnais�
 
 func (ec *executionContext) marshalNSqlInstanceStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstanceStatus(ctx context.Context, sel ast.SelectionSet, v model.SQLInstanceStatus) graphql.Marshaler {
 	return ec._SqlInstanceStatus(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSqlInstancesList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstancesList(ctx context.Context, sel ast.SelectionSet, v model.SQLInstancesList) graphql.Marshaler {
+	return ec._SqlInstancesList(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSqlInstancesList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstancesList(ctx context.Context, sel ast.SelectionSet, v *model.SQLInstancesList) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SqlInstancesList(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNSqlInstancesStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstancesStatus(ctx context.Context, sel ast.SelectionSet, v model.SQLInstancesStatus) graphql.Marshaler {

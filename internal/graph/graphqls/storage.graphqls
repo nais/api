@@ -81,7 +81,13 @@ type DatabaseUser {
   name: String!
 }
 
+type SqlInstancesList {
+  nodes: [SqlInstance!]!
+  pageInfo: PageInfo!
+}
+
 type SqlInstance implements Storage {
+  id: ID!
   autoBackupHour: Int!
   cascadingDelete: Boolean!
   collation: String!
@@ -89,7 +95,7 @@ type SqlInstance implements Storage {
   diskAutoresize: Boolean!
   diskSize: Int!
   diskType: String!
-  environment: String!
+  environment: String! # TODO: Change to Env type
   flags: [Flag!]!
   highAvailability: Boolean!
   insights: Insights!

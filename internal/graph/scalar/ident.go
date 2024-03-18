@@ -27,6 +27,7 @@ const (
 	IdentTypeJob                IdentType = "job"
 	IdentTypePod                IdentType = "pod"
 	IdentTypeSecret             IdentType = "secret"
+	IdentTypeSqlInstance        IdentType = "sqlInstance"
 	IdentTypeTeam               IdentType = "team"
 	IdentTypeVulnerabilities    IdentType = "vulnerabilities"
 	IdentTypeGitHubRepo         IdentType = "githubRepo"
@@ -132,6 +133,10 @@ func UserIdent(id uuid.UUID) Ident {
 
 func GitHubRepository(name string) Ident {
 	return newIdent(name, IdentTypeGitHubRepo)
+}
+
+func SqlInstanceIdent(id string) Ident {
+	return newIdent(id, IdentTypeSqlInstance)
 }
 
 func newIdent(id string, t IdentType) Ident {

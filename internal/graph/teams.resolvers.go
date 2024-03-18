@@ -1055,6 +1055,33 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 	}, nil
 }
 
+// SQLInstances is the resolver for the sqlInstances field.
+func (r *teamResolver) SQLInstances(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.SQLInstancesList, error) {
+	sqlInstances, err := r.k8sClient.SqlInstances(ctx, obj.Slug.String())
+	if err != nil {
+		return nil, fmt.Errorf("getting SQL instances from Kubernetes: %w", err)
+	}
+	if orderBy != nil {
+		switch orderBy.Field {
+		case "NAME":
+			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
+				return model.Compare(a.Name, b.Name, orderBy.Direction)
+			})
+		case "ENV":
+			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
+				return model.Compare(a.Environment, b.Environment, orderBy.Direction)
+			})
+		}
+	}
+	pagination := model.NewPagination(offset, limit)
+	sqlInstances, pageInfo := model.PaginatedSlice(sqlInstances, pagination)
+
+	return &model.SQLInstancesList{
+		Nodes:    sqlInstances,
+		PageInfo: pageInfo,
+	}, nil
+}
+
 // Apps is the resolver for the apps field.
 func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.AppList, error) {
 	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
