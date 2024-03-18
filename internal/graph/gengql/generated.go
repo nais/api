@@ -54,6 +54,7 @@ type ResolverRoot interface {
 	Role() RoleResolver
 	Secret() SecretResolver
 	ServiceAccount() ServiceAccountResolver
+	SqlInstance() SqlInstanceResolver
 	Subscription() SubscriptionResolver
 	Team() TeamResolver
 	TeamDeleteKey() TeamDeleteKeyResolver
@@ -754,6 +755,7 @@ type ComplexityRoot struct {
 	}
 
 	SqlInstance struct {
+		App                 func(childComplexity int) int
 		AutoBackupHour      func(childComplexity int) int
 		CascadingDelete     func(childComplexity int) int
 		Collation           func(childComplexity int) int
@@ -773,6 +775,7 @@ type ComplexityRoot struct {
 		PointInTimeRecovery func(childComplexity int) int
 		RetainedBackups     func(childComplexity int) int
 		Status              func(childComplexity int) int
+		Team                func(childComplexity int) int
 		Tier                func(childComplexity int) int
 		Type                func(childComplexity int) int
 	}
@@ -1072,6 +1075,11 @@ type SecretResolver interface {
 }
 type ServiceAccountResolver interface {
 	Roles(ctx context.Context, obj *model.ServiceAccount) ([]*model.Role, error)
+}
+type SqlInstanceResolver interface {
+	App(ctx context.Context, obj *model.SQLInstance) (*model.App, error)
+
+	Team(ctx context.Context, obj *model.SQLInstance) (*model.Team, error)
 }
 type SubscriptionResolver interface {
 	Log(ctx context.Context, input *model.LogSubscriptionInput) (<-chan *model.LogLine, error)
@@ -4168,6 +4176,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SlackAlertsChannel.Environment(childComplexity), true
 
+	case "SqlInstance.app":
+		if e.complexity.SqlInstance.App == nil {
+			break
+		}
+
+		return e.complexity.SqlInstance.App(childComplexity), true
+
 	case "SqlInstance.autoBackupHour":
 		if e.complexity.SqlInstance.AutoBackupHour == nil {
 			break
@@ -4300,6 +4315,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SqlInstance.Status(childComplexity), true
+
+	case "SqlInstance.team":
+		if e.complexity.SqlInstance.Team == nil {
+			break
+		}
+
+		return e.complexity.SqlInstance.Team(childComplexity), true
 
 	case "SqlInstance.tier":
 		if e.complexity.SqlInstance.Tier == nil {
@@ -6657,6 +6679,7 @@ type SqlInstancesList {
 
 type SqlInstance implements Storage {
   id: ID!
+  app: App
   autoBackupHour: Int!
   cascadingDelete: Boolean!
   collation: String!
@@ -6674,6 +6697,7 @@ type SqlInstance implements Storage {
   name: String!
   pointInTimeRecovery: Boolean!
   retainedBackups: Int!
+  team: Team!
   tier: String!
   type: String!
   status: SqlInstanceStatus!
@@ -6689,7 +6713,11 @@ type SqlInstanceCondition {
   status: String!
   type: String!
 }
-`, BuiltIn: false},
+
+extend enum OrderByField {
+  "Order by PostgreSQL version"
+  VERSION
+}`, BuiltIn: false},
 	{Name: "../graphqls/teams.graphqls", Input: `extend type Query {
   "Get a collection of teams. Default limit is 20"
   teams(
@@ -30096,6 +30124,85 @@ func (ec *executionContext) fieldContext_SqlInstance_id(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _SqlInstance_app(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_app(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.SqlInstance().App(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.App)
+	fc.Result = res
+	return ec.marshalOApp2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐApp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstance_app(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_App_id(ctx, field)
+			case "name":
+				return ec.fieldContext_App_name(ctx, field)
+			case "image":
+				return ec.fieldContext_App_image(ctx, field)
+			case "deployInfo":
+				return ec.fieldContext_App_deployInfo(ctx, field)
+			case "env":
+				return ec.fieldContext_App_env(ctx, field)
+			case "ingresses":
+				return ec.fieldContext_App_ingresses(ctx, field)
+			case "instances":
+				return ec.fieldContext_App_instances(ctx, field)
+			case "accessPolicy":
+				return ec.fieldContext_App_accessPolicy(ctx, field)
+			case "resources":
+				return ec.fieldContext_App_resources(ctx, field)
+			case "autoScaling":
+				return ec.fieldContext_App_autoScaling(ctx, field)
+			case "storage":
+				return ec.fieldContext_App_storage(ctx, field)
+			case "variables":
+				return ec.fieldContext_App_variables(ctx, field)
+			case "authz":
+				return ec.fieldContext_App_authz(ctx, field)
+			case "manifest":
+				return ec.fieldContext_App_manifest(ctx, field)
+			case "team":
+				return ec.fieldContext_App_team(ctx, field)
+			case "appState":
+				return ec.fieldContext_App_appState(ctx, field)
+			case "vulnerabilities":
+				return ec.fieldContext_App_vulnerabilities(ctx, field)
+			case "secrets":
+				return ec.fieldContext_App_secrets(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type App", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SqlInstance_autoBackupHour(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstance_autoBackupHour(ctx, field)
 	if err != nil {
@@ -30884,6 +30991,110 @@ func (ec *executionContext) fieldContext_SqlInstance_retainedBackups(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _SqlInstance_team(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.SqlInstance().Team(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Team)
+	fc.Result = res
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstance_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "auditLogs":
+				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
+			case "syncErrors":
+				return ec.fieldContext_Team_syncErrors(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "githubRepositories":
+				return ec.fieldContext_Team_githubRepositories(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "status":
+				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "apps":
+				return ec.fieldContext_Team_apps(ctx, field)
+			case "deployKey":
+				return ec.fieldContext_Team_deployKey(ctx, field)
+			case "naisjobs":
+				return ec.fieldContext_Team_naisjobs(ctx, field)
+			case "deployments":
+				return ec.fieldContext_Team_deployments(ctx, field)
+			case "vulnerabilities":
+				return ec.fieldContext_Team_vulnerabilities(ctx, field)
+			case "vulnerabilitiesSummary":
+				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
+			case "vulnerabilityMetrics":
+				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SqlInstance_tier(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstance_tier(ctx, field)
 	if err != nil {
@@ -31291,6 +31502,8 @@ func (ec *executionContext) fieldContext_SqlInstancesList_nodes(ctx context.Cont
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_SqlInstance_id(ctx, field)
+			case "app":
+				return ec.fieldContext_SqlInstance_app(ctx, field)
 			case "autoBackupHour":
 				return ec.fieldContext_SqlInstance_autoBackupHour(ctx, field)
 			case "cascadingDelete":
@@ -31325,6 +31538,8 @@ func (ec *executionContext) fieldContext_SqlInstancesList_nodes(ctx context.Cont
 				return ec.fieldContext_SqlInstance_pointInTimeRecovery(ctx, field)
 			case "retainedBackups":
 				return ec.fieldContext_SqlInstance_retainedBackups(ctx, field)
+			case "team":
+				return ec.fieldContext_SqlInstance_team(ctx, field)
 			case "tier":
 				return ec.fieldContext_SqlInstance_tier(ctx, field)
 			case "type":
@@ -45707,107 +45922,176 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 		case "id":
 			out.Values[i] = ec._SqlInstance_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "app":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SqlInstance_app(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "autoBackupHour":
 			out.Values[i] = ec._SqlInstance_autoBackupHour(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "cascadingDelete":
 			out.Values[i] = ec._SqlInstance_cascadingDelete(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "collation":
 			out.Values[i] = ec._SqlInstance_collation(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "connectionName":
 			out.Values[i] = ec._SqlInstance_connectionName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "databases":
 			out.Values[i] = ec._SqlInstance_databases(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "diskAutoresize":
 			out.Values[i] = ec._SqlInstance_diskAutoresize(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "diskSize":
 			out.Values[i] = ec._SqlInstance_diskSize(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "diskType":
 			out.Values[i] = ec._SqlInstance_diskType(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "env":
 			out.Values[i] = ec._SqlInstance_env(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "flags":
 			out.Values[i] = ec._SqlInstance_flags(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "highAvailability":
 			out.Values[i] = ec._SqlInstance_highAvailability(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "insights":
 			out.Values[i] = ec._SqlInstance_insights(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "isHealthy":
 			out.Values[i] = ec._SqlInstance_isHealthy(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "maintenance":
 			out.Values[i] = ec._SqlInstance_maintenance(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
 			out.Values[i] = ec._SqlInstance_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "pointInTimeRecovery":
 			out.Values[i] = ec._SqlInstance_pointInTimeRecovery(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "retainedBackups":
 			out.Values[i] = ec._SqlInstance_retainedBackups(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SqlInstance_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "tier":
 			out.Values[i] = ec._SqlInstance_tier(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "type":
 			out.Values[i] = ec._SqlInstance_type(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "status":
 			out.Values[i] = ec._SqlInstance_status(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -52452,6 +52736,13 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalOApp2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐApp(ctx context.Context, sel ast.SelectionSet, v *model.App) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._App(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOAzureApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAzureApplication(ctx context.Context, sel ast.SelectionSet, v *model.AzureApplication) graphql.Marshaler {

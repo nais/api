@@ -88,6 +88,7 @@ type SqlInstancesList {
 
 type SqlInstance implements Storage {
   id: ID!
+  app: App
   autoBackupHour: Int!
   cascadingDelete: Boolean!
   collation: String!
@@ -105,6 +106,7 @@ type SqlInstance implements Storage {
   name: String!
   pointInTimeRecovery: Boolean!
   retainedBackups: Int!
+  team: Team!
   tier: String!
   type: String!
   status: SqlInstanceStatus!
@@ -119,4 +121,9 @@ type SqlInstanceCondition {
   reason: String!
   status: String!
   type: String!
+}
+
+extend enum OrderByField {
+  "Order by PostgreSQL version"
+  VERSION
 }
