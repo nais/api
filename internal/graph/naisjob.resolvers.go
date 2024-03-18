@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
+	"k8s.io/utils/ptr"
 )
 
 // DeleteJob is the resolver for the deleteJob field.
@@ -25,6 +26,7 @@ func (r *mutationResolver) DeleteJob(ctx context.Context, name string, team slug
 	if err := r.k8sClient.DeleteJob(ctx, name, team.String(), env); err != nil {
 		return &model.DeleteJobResult{
 			Deleted: false,
+			Error:   ptr.To(err.Error()),
 		}, nil
 	}
 

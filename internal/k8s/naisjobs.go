@@ -9,7 +9,6 @@ import (
 	"time"
 
 	naisv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
-	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	sync_states "github.com/nais/liberator/pkg/events"
 	"gopkg.in/yaml.v2"
 	batchv1 "k8s.io/api/batch/v1"
@@ -36,13 +35,14 @@ func (c *Client) DeleteJob(ctx context.Context, name, team, env string) error {
 		return c.error(ctx, fmt.Errorf("no client set for env %q", env), "getting client")
 	}
 
-	app := cli.dynamicClient.Resource(naisv1alpha1.GroupVersion.WithResource("naisjobs")).Namespace(team)
+	app := cli.dynamicClient.Resource(naisv1.GroupVersion.WithResource("naisjobs")).Namespace(team)
 	if err := app.Delete(ctx, name, metav1.DeleteOptions{}); err != nil {
 		return c.error(ctx, err, "deleting naisjob")
 	}
 
 	return nil
 }
+
 func (c *Client) NaisJob(ctx context.Context, name, team, env string) (*model.NaisJob, error) {
 	c.log.Debugf("getting job %q in namespace %q in env %q", name, team, env)
 	if c.informers[env] == nil {
