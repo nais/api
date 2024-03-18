@@ -51,6 +51,8 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 			Name: env,
 			Team: team,
 		},
+		Type:           *sqlInstance.Spec.DatabaseVersion,
+		ConnectionName: *sqlInstance.Status.ConnectionName,
 		Status: model.SQLInstanceStatus{
 			Conditions: func() []*model.SQLInstanceCondition {
 				ret := make([]*model.SQLInstanceCondition, 0)

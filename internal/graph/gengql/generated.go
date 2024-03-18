@@ -757,6 +757,7 @@ type ComplexityRoot struct {
 		AutoBackupHour      func(childComplexity int) int
 		CascadingDelete     func(childComplexity int) int
 		Collation           func(childComplexity int) int
+		ConnectionName      func(childComplexity int) int
 		Databases           func(childComplexity int) int
 		DiskAutoresize      func(childComplexity int) int
 		DiskSize            func(childComplexity int) int
@@ -766,6 +767,7 @@ type ComplexityRoot struct {
 		HighAvailability    func(childComplexity int) int
 		ID                  func(childComplexity int) int
 		Insights            func(childComplexity int) int
+		IsHealthy           func(childComplexity int) int
 		Maintenance         func(childComplexity int) int
 		Name                func(childComplexity int) int
 		PointInTimeRecovery func(childComplexity int) int
@@ -4187,6 +4189,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.Collation(childComplexity), true
 
+	case "SqlInstance.connectionName":
+		if e.complexity.SqlInstance.ConnectionName == nil {
+			break
+		}
+
+		return e.complexity.SqlInstance.ConnectionName(childComplexity), true
+
 	case "SqlInstance.databases":
 		if e.complexity.SqlInstance.Databases == nil {
 			break
@@ -4249,6 +4258,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SqlInstance.Insights(childComplexity), true
+
+	case "SqlInstance.isHealthy":
+		if e.complexity.SqlInstance.IsHealthy == nil {
+			break
+		}
+
+		return e.complexity.SqlInstance.IsHealthy(childComplexity), true
 
 	case "SqlInstance.maintenance":
 		if e.complexity.SqlInstance.Maintenance == nil {
@@ -6644,6 +6660,7 @@ type SqlInstance implements Storage {
   autoBackupHour: Int!
   cascadingDelete: Boolean!
   collation: String!
+  connectionName: String!
   databases: [Database!]!
   diskAutoresize: Boolean!
   diskSize: Int!
@@ -6652,6 +6669,7 @@ type SqlInstance implements Storage {
   flags: [Flag!]!
   highAvailability: Boolean!
   insights: Insights!
+  isHealthy: Boolean!
   maintenance: Maintenance!
   name: String!
   pointInTimeRecovery: Boolean!
@@ -30210,6 +30228,50 @@ func (ec *executionContext) fieldContext_SqlInstance_collation(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _SqlInstance_connectionName(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_connectionName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ConnectionName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstance_connectionName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SqlInstance_databases(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstance_databases(ctx, field)
 	if err != nil {
@@ -30591,6 +30653,50 @@ func (ec *executionContext) fieldContext_SqlInstance_insights(ctx context.Contex
 				return ec.fieldContext_Insights_recordClientAddress(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Insights", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstance_isHealthy(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_isHealthy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsHealthy(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstance_isHealthy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -31191,6 +31297,8 @@ func (ec *executionContext) fieldContext_SqlInstancesList_nodes(ctx context.Cont
 				return ec.fieldContext_SqlInstance_cascadingDelete(ctx, field)
 			case "collation":
 				return ec.fieldContext_SqlInstance_collation(ctx, field)
+			case "connectionName":
+				return ec.fieldContext_SqlInstance_connectionName(ctx, field)
 			case "databases":
 				return ec.fieldContext_SqlInstance_databases(ctx, field)
 			case "diskAutoresize":
@@ -31207,6 +31315,8 @@ func (ec *executionContext) fieldContext_SqlInstancesList_nodes(ctx context.Cont
 				return ec.fieldContext_SqlInstance_highAvailability(ctx, field)
 			case "insights":
 				return ec.fieldContext_SqlInstance_insights(ctx, field)
+			case "isHealthy":
+				return ec.fieldContext_SqlInstance_isHealthy(ctx, field)
 			case "maintenance":
 				return ec.fieldContext_SqlInstance_maintenance(ctx, field)
 			case "name":
@@ -45614,6 +45724,11 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "connectionName":
+			out.Values[i] = ec._SqlInstance_connectionName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "databases":
 			out.Values[i] = ec._SqlInstance_databases(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -45651,6 +45766,11 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			}
 		case "insights":
 			out.Values[i] = ec._SqlInstance_insights(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "isHealthy":
+			out.Values[i] = ec._SqlInstance_isHealthy(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
