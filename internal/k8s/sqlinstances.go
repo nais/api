@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/nais/api/internal/slug"
+
 	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
@@ -66,6 +68,10 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 				}
 				return ret
 			}(),
+		},
+		GQLVars: model.SQLInstanceGQLVars{
+			TeamSlug: slug.Slug(team),
+			Labels:   sqlInstance.GetLabels(),
 		},
 	}, nil
 }

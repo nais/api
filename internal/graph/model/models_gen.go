@@ -1088,6 +1088,8 @@ const (
 	OrderByFieldSeverityLow OrderByField = "SEVERITY_LOW"
 	// Order apps by vulnerability severity unassigned
 	OrderByFieldSeverityUnassigned OrderByField = "SEVERITY_UNASSIGNED"
+	// Order by PostgreSQL version
+	OrderByFieldVersion OrderByField = "VERSION"
 )
 
 var AllOrderByField = []OrderByField{
@@ -1103,11 +1105,12 @@ var AllOrderByField = []OrderByField{
 	OrderByFieldSeverityMedium,
 	OrderByFieldSeverityLow,
 	OrderByFieldSeverityUnassigned,
+	OrderByFieldVersion,
 }
 
 func (e OrderByField) IsValid() bool {
 	switch e {
-	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned:
+	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned, OrderByFieldVersion:
 		return true
 	}
 	return false

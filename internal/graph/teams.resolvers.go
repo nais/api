@@ -1076,6 +1076,10 @@ func (r *teamResolver) SQLInstances(ctx context.Context, obj *model.Team, offset
 			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
 				return model.Compare(strconv.FormatBool(a.IsHealthy()), strconv.FormatBool(b.IsHealthy()), orderBy.Direction)
 			})
+		case "VERSION":
+			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
+				return model.Compare(a.Type, b.Type, orderBy.Direction)
+			})
 		}
 	}
 	pagination := model.NewPagination(offset, limit)
