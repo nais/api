@@ -760,6 +760,7 @@ type ComplexityRoot struct {
 		CascadingDelete     func(childComplexity int) int
 		Collation           func(childComplexity int) int
 		ConnectionName      func(childComplexity int) int
+		Cost                func(childComplexity int, from scalar.Date, to scalar.Date) int
 		Databases           func(childComplexity int) int
 		DiskAutoresize      func(childComplexity int) int
 		DiskSize            func(childComplexity int) int
@@ -1078,6 +1079,8 @@ type ServiceAccountResolver interface {
 }
 type SqlInstanceResolver interface {
 	App(ctx context.Context, obj *model.SQLInstance) (*model.App, error)
+
+	Cost(ctx context.Context, obj *model.SQLInstance, from scalar.Date, to scalar.Date) (float64, error)
 
 	Team(ctx context.Context, obj *model.SQLInstance) (*model.Team, error)
 }
@@ -4211,6 +4214,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.ConnectionName(childComplexity), true
 
+	case "SqlInstance.cost":
+		if e.complexity.SqlInstance.Cost == nil {
+			break
+		}
+
+		args, err := ec.field_SqlInstance_cost_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.SqlInstance.Cost(childComplexity, args["from"].(scalar.Date), args["to"].(scalar.Date)), true
+
 	case "SqlInstance.databases":
 		if e.complexity.SqlInstance.Databases == nil {
 			break
@@ -6684,6 +6699,10 @@ type SqlInstance implements Storage {
   cascadingDelete: Boolean!
   collation: String!
   connectionName: String!
+  cost(
+    from: Date!
+    to: Date!
+  ): Float!
   databases: [Database!]!
   diskAutoresize: Boolean!
   diskSize: Int!
@@ -8747,6 +8766,30 @@ func (ec *executionContext) field_Reconciler_auditLogs_args(ctx context.Context,
 		}
 	}
 	args["limit"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_SqlInstance_cost_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 scalar.Date
+	if tmp, ok := rawArgs["from"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("from"))
+		arg0, err = ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["from"] = arg0
+	var arg1 scalar.Date
+	if tmp, ok := rawArgs["to"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("to"))
+		arg1, err = ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["to"] = arg1
 	return args, nil
 }
 
@@ -30379,6 +30422,61 @@ func (ec *executionContext) fieldContext_SqlInstance_connectionName(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _SqlInstance_cost(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_cost(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.SqlInstance().Cost(rctx, obj, fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstance_cost(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_SqlInstance_cost_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SqlInstance_databases(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstance_databases(ctx, field)
 	if err != nil {
@@ -31512,6 +31610,8 @@ func (ec *executionContext) fieldContext_SqlInstancesList_nodes(ctx context.Cont
 				return ec.fieldContext_SqlInstance_collation(ctx, field)
 			case "connectionName":
 				return ec.fieldContext_SqlInstance_connectionName(ctx, field)
+			case "cost":
+				return ec.fieldContext_SqlInstance_cost(ctx, field)
 			case "databases":
 				return ec.fieldContext_SqlInstance_databases(ctx, field)
 			case "diskAutoresize":
@@ -45977,6 +46077,42 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "cost":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SqlInstance_cost(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "databases":
 			out.Values[i] = ec._SqlInstance_databases(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
