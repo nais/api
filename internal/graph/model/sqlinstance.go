@@ -6,6 +6,7 @@ type SQLInstance struct {
 	AutoBackupHour      int               `json:"autoBackupHour"`
 	CascadingDelete     bool              `json:"cascadingDelete"`
 	Collation           string            `json:"collation"`
+	ConnectionName      string            `json:"connectionName"`
 	Databases           []*Database       `json:"databases"`
 	DiskAutoresize      bool              `json:"diskAutoresize"`
 	DiskSize            int               `json:"diskSize"`

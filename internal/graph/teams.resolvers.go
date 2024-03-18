@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
@@ -1070,6 +1071,10 @@ func (r *teamResolver) SQLInstances(ctx context.Context, obj *model.Team, offset
 		case "ENV":
 			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
 				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
+			})
+		case "STATUS":
+			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
+				return model.Compare(strconv.FormatBool(a.IsHealthy()), strconv.FormatBool(b.IsHealthy()), orderBy.Direction)
 			})
 		}
 	}
