@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/scalar"
 )
 
 // App is the resolver for the app field.
@@ -25,6 +26,19 @@ func (r *sqlInstanceResolver) App(ctx context.Context, obj *model.SQLInstance) (
 	}
 
 	return app, nil
+}
+
+// Cost is the resolver for the cost field.
+func (r *sqlInstanceResolver) Cost(ctx context.Context, obj *model.SQLInstance, from scalar.Date, to scalar.Date) (float64, error) {
+	// TODO: fix error handling / validation for dates
+	fromDate, _ := from.PgDate()
+	toDate, _ := to.PgDate()
+	sum, err := r.database.CostForSqlInstance(ctx, fromDate, toDate, obj.GQLVars.TeamSlug, obj.Name, obj.Env.Name)
+	if err != nil {
+		return 0, err
+	}
+
+	return float64(sum), nil
 }
 
 // Team is the resolver for the team field.
