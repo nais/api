@@ -10,7 +10,7 @@ type SQLInstance struct {
 	DiskAutoresize      bool              `json:"diskAutoresize"`
 	DiskSize            int               `json:"diskSize"`
 	DiskType            string            `json:"diskType"`
-	Environment         string            `json:"environment"`
+	Env                 Env               `json:"env"`
 	Flags               []*Flag           `json:"flags"`
 	HighAvailability    bool              `json:"highAvailability"`
 	ID                  scalar.Ident      `json:"id"`
