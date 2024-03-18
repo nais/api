@@ -1,3 +1,20 @@
+extend type Mutation {
+  deleteJob(
+    "The name of the naisjob."
+    name: String!
+
+    "The name of the team who owns the naisjob."
+    team: Slug!
+
+    "The environment the naisjob is deployed to."
+    env: String!
+  ): DeleteJobResult!
+}
+type DeleteJobResult {
+  "Whether the job was deleted or not."
+  deleted: Boolean!
+  error: String
+}
 extend type Query {
   "Get a naisjob by name, team and env."
   naisjob(

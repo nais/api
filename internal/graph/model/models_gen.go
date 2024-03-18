@@ -240,6 +240,12 @@ type DeleteAppResult struct {
 	Error   *string `json:"error,omitempty"`
 }
 
+type DeleteJobResult struct {
+	// Whether the job was deleted or not.
+	Deleted bool    `json:"deleted"`
+	Error   *string `json:"error,omitempty"`
+}
+
 type Deployment struct {
 	ID         scalar.Ident          `json:"id"`
 	Team       Team                  `json:"team"`

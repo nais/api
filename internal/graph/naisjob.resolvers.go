@@ -14,6 +14,25 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
+// DeleteJob is the resolver for the deleteJob field.
+func (r *mutationResolver) DeleteJob(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteJobResult, error) {
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamMembership(actor, team)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := r.k8sClient.DeleteJob(ctx, name, team.String(), env); err != nil {
+		return &model.DeleteJobResult{
+			Deleted: false,
+		}, nil
+	}
+
+	return &model.DeleteJobResult{
+		Deleted: true,
+	}, nil
+}
+
 // Runs is the resolver for the runs field.
 func (r *naisJobResolver) Runs(ctx context.Context, obj *model.NaisJob) ([]*model.Run, error) {
 	runs, err := r.k8sClient.Runs(ctx, obj.GQLVars.Team.String(), obj.Env.Name, obj.Name)
