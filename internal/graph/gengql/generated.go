@@ -761,7 +761,7 @@ type ComplexityRoot struct {
 		DiskAutoresize      func(childComplexity int) int
 		DiskSize            func(childComplexity int) int
 		DiskType            func(childComplexity int) int
-		Environment         func(childComplexity int) int
+		Env                 func(childComplexity int) int
 		Flags               func(childComplexity int) int
 		HighAvailability    func(childComplexity int) int
 		ID                  func(childComplexity int) int
@@ -4215,12 +4215,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.DiskType(childComplexity), true
 
-	case "SqlInstance.environment":
-		if e.complexity.SqlInstance.Environment == nil {
+	case "SqlInstance.env":
+		if e.complexity.SqlInstance.Env == nil {
 			break
 		}
 
-		return e.complexity.SqlInstance.Environment(childComplexity), true
+		return e.complexity.SqlInstance.Env(childComplexity), true
 
 	case "SqlInstance.flags":
 		if e.complexity.SqlInstance.Flags == nil {
@@ -6648,7 +6648,7 @@ type SqlInstance implements Storage {
   diskAutoresize: Boolean!
   diskSize: Int!
   diskType: String!
-  environment: String! # TODO: Change to Env type
+  env: Env!
   flags: [Flag!]!
   highAvailability: Boolean!
   insights: Insights!
@@ -30394,8 +30394,8 @@ func (ec *executionContext) fieldContext_SqlInstance_diskType(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_environment(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SqlInstance_environment(ctx, field)
+func (ec *executionContext) _SqlInstance_env(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_env(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -30408,7 +30408,7 @@ func (ec *executionContext) _SqlInstance_environment(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Environment, nil
+		return obj.Env, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -30420,19 +30420,29 @@ func (ec *executionContext) _SqlInstance_environment(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(model.Env)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNEnv2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnv(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SqlInstance_environment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SqlInstance_env(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Env_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Env_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_Env_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_Env_slackAlertsChannel(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Env", field.Name)
 		},
 	}
 	return fc, nil
@@ -31189,8 +31199,8 @@ func (ec *executionContext) fieldContext_SqlInstancesList_nodes(ctx context.Cont
 				return ec.fieldContext_SqlInstance_diskSize(ctx, field)
 			case "diskType":
 				return ec.fieldContext_SqlInstance_diskType(ctx, field)
-			case "environment":
-				return ec.fieldContext_SqlInstance_environment(ctx, field)
+			case "env":
+				return ec.fieldContext_SqlInstance_env(ctx, field)
 			case "flags":
 				return ec.fieldContext_SqlInstance_flags(ctx, field)
 			case "highAvailability":
@@ -45624,8 +45634,8 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "environment":
-			out.Values[i] = ec._SqlInstance_environment(ctx, field, obj)
+		case "env":
+			out.Values[i] = ec._SqlInstance_env(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

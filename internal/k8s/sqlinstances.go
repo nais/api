@@ -23,7 +23,7 @@ func (c *Client) SqlInstances(ctx context.Context, team string) ([]*model.SQLIns
 		}
 
 		for _, obj := range objs {
-			instance, err := c.toSqlInstance(ctx, obj.(*unstructured.Unstructured), env)
+			instance, err := c.toSqlInstance(ctx, obj.(*unstructured.Unstructured), team, env)
 			if err != nil {
 				return nil, c.error(ctx, err, "converting to SQL instance model")
 			}
@@ -38,16 +38,19 @@ func (c *Client) SqlInstances(ctx context.Context, team string) ([]*model.SQLIns
 	return ret, nil
 }
 
-func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, env string) (*model.SQLInstance, error) {
+func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, team, env string) (*model.SQLInstance, error) {
 	sqlInstance := &sql_cnrm_cloud_google_com_v1beta1.SQLInstance{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, sqlInstance); err != nil {
 		return nil, fmt.Errorf("converting to SQL instance: %w", err)
 	}
 
 	return &model.SQLInstance{
-		ID:          scalar.SqlInstanceIdent("sqlInstance_" + env + "_" + sqlInstance.GetNamespace() + "_" + sqlInstance.GetName()),
-		Name:        sqlInstance.Name,
-		Environment: env,
+		ID:   scalar.SqlInstanceIdent("sqlInstance_" + env + "_" + sqlInstance.GetNamespace() + "_" + sqlInstance.GetName()),
+		Name: sqlInstance.Name,
+		Env: model.Env{
+			Name: env,
+			Team: team,
+		},
 		Status: model.SQLInstanceStatus{
 			Conditions: func() []*model.SQLInstanceCondition {
 				ret := make([]*model.SQLInstanceCondition, 0)

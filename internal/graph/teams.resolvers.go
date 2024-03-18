@@ -1069,7 +1069,7 @@ func (r *teamResolver) SQLInstances(ctx context.Context, obj *model.Team, offset
 			})
 		case "ENV":
 			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
-				return model.Compare(a.Environment, b.Environment, orderBy.Direction)
+				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
 			})
 		}
 	}
