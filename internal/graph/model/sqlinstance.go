@@ -1,5 +1,7 @@
 package model
 
+import "github.com/nais/api/internal/graph/scalar"
+
 type SQLInstance struct {
 	AutoBackupHour      int               `json:"autoBackupHour"`
 	CascadingDelete     bool              `json:"cascadingDelete"`
@@ -11,6 +13,7 @@ type SQLInstance struct {
 	Environment         string            `json:"environment"`
 	Flags               []*Flag           `json:"flags"`
 	HighAvailability    bool              `json:"highAvailability"`
+	ID                  scalar.Ident      `json:"id"`
 	Insights            Insights          `json:"insights"`
 	Maintenance         Maintenance       `json:"maintenance"`
 	Name                string            `json:"name"`

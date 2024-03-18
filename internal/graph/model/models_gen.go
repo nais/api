@@ -806,6 +806,11 @@ type SQLInstanceStatus struct {
 	Conditions []*SQLInstanceCondition `json:"conditions"`
 }
 
+type SQLInstancesList struct {
+	Nodes    []*SQLInstance `json:"nodes"`
+	PageInfo PageInfo       `json:"pageInfo"`
+}
+
 type SQLInstancesStatus struct {
 	Total   int `json:"total"`
 	Failing int `json:"failing"`
