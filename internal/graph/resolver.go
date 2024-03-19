@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/nais/api/internal/sqlinstance"
 	"slices"
 
 	"cloud.google.com/go/pubsub"
@@ -99,6 +100,7 @@ type Resolver struct {
 	auditLogger           auditlogger.AuditLogger
 	userSyncRuns          *usersync.RunsHandler
 	pubsubTopic           *pubsub.Topic
+	sqlinstanceMgr        *sqlinstance.SQLInstanceManager
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
@@ -116,6 +118,13 @@ func NewResolver(
 	pubsubTopic *pubsub.Topic,
 	log logrus.FieldLogger,
 ) *Resolver {
+
+	sqlinstanceMgr, err := sqlinstance.NewSQLInstanceManager(context.Background())
+	if err != nil {
+		// TODO: Remove this when we have a proper way to inject the SQLInstanceManager
+		log.Fatalf("create SQLInstanceManager: %v", err)
+	}
+
 	return &Resolver{
 		hookdClient:           hookdClient,
 		k8sClient:             k8sClient,
@@ -130,6 +139,7 @@ func NewResolver(
 		userSyncRuns:          userSyncRuns,
 		clusters:              clusters,
 		pubsubTopic:           pubsubTopic,
+		sqlinstanceMgr:        sqlinstanceMgr,
 	}
 }
 

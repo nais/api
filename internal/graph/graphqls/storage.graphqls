@@ -107,6 +107,7 @@ type SqlInstance implements Storage {
   insights: Insights!
   isHealthy: Boolean!
   maintenance: Maintenance!
+  metrics: Metrics!
   name: String!
   pointInTimeRecovery: Boolean!
   retainedBackups: Int!
@@ -114,6 +115,12 @@ type SqlInstance implements Storage {
   tier: String!
   type: String!
   status: SqlInstanceStatus!
+}
+
+type Metrics {
+  cpu: Float!
+  disk: Float!
+  memory: Float!
 }
 
 type SqlInstanceStatus {

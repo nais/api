@@ -524,6 +524,12 @@ type MaskinportenScope struct {
 	Exposes  []*Expose  `json:"exposes"`
 }
 
+type Metrics struct {
+	CPU    float64 `json:"cpu"`
+	Disk   float64 `json:"disk"`
+	Memory float64 `json:"memory"`
+}
+
 // Montly cost type.
 type MonthlyCost struct {
 	// Sum for all months in the series in euros.
