@@ -7,10 +7,8 @@ package graph
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/nais/api/internal/graph/gengql"
-	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/sqlinstance"
@@ -23,7 +21,7 @@ func (r *sqlInstanceResolver) App(ctx context.Context, obj *model.SQLInstance) (
 		return nil, nil
 	}
 
-	app, err := r.k8sClient.App(ctx, appName, string(obj.GQLVars.TeamSlug), obj.Env.Name)
+	app, err := r.k8sClient.App(ctx, appName, string(obj.Team.Slug), obj.Env.Name)
 	if err != nil {
 		return nil, nil
 	}
@@ -36,7 +34,7 @@ func (r *sqlInstanceResolver) Cost(ctx context.Context, obj *model.SQLInstance, 
 	// TODO: fix error handling / validation for dates
 	fromDate, _ := from.PgDate()
 	toDate, _ := to.PgDate()
-	sum, err := r.database.CostForSqlInstance(ctx, fromDate, toDate, obj.GQLVars.TeamSlug, obj.Name, obj.Env.Name)
+	sum, err := r.database.CostForSqlInstance(ctx, fromDate, toDate, obj.Team.Slug, obj.Name, obj.Env.Name)
 	if err != nil {
 		return 0, err
 	}
@@ -44,28 +42,27 @@ func (r *sqlInstanceResolver) Cost(ctx context.Context, obj *model.SQLInstance, 
 	return float64(sum), nil
 }
 
-// TODO: remove hard coded values
 // Metrics is the resolver for the metrics field.
 func (r *sqlInstanceResolver) Metrics(ctx context.Context, obj *model.SQLInstance) (*model.Metrics, error) {
-	projectID := os.Getenv("SQL_METRICS_PROJECT_ID")
-	databaseID := fmt.Sprintf("%s:%s", projectID, "gemini")
-	ts, error := r.sqlinstanceMgr.ListTimeSeries(ctx, projectID, sqlinstance.WithFilter(sqlinstance.CpuUtilizationFilter, databaseID))
-	if error != nil {
-		return nil, error
+	projectID := obj.GQLVars.Annotations["cnrm.cloud.google.com/project-id"]
+	databaseID := fmt.Sprintf("%s:%s", projectID, obj.Name)
+	ts, err := r.sqlinstanceMgr.ListTimeSeries(ctx, projectID, sqlinstance.WithFilter(sqlinstance.CpuUtilizationFilter, databaseID))
+	if err != nil {
+		return nil, err
 	}
 
-	fmt.Printf("TimeSeries: %v\n", ts)
+	sum := 0.0
+	average := 0.0
+	for _, t := range ts {
+		for _, p := range t.Points {
+			sum += p.Value.GetDoubleValue()
+		}
+		average = sum / float64(len(t.Points))
+	}
 
 	return &model.Metrics{
-		CPU:    0,
-		Disk:   0,
-		Memory: 0,
+		CPUUtilization: average * 100,
 	}, nil
-}
-
-// Team is the resolver for the team field.
-func (r *sqlInstanceResolver) Team(ctx context.Context, obj *model.SQLInstance) (*model.Team, error) {
-	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
 }
 
 // SqlInstance returns gengql.SqlInstanceResolver implementation.

@@ -5,6 +5,7 @@ import (
 	"cloud.google.com/go/monitoring/apiv3/v2/monitoringpb"
 	"context"
 	"fmt"
+	"google.golang.org/api/option"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
@@ -17,6 +18,7 @@ const (
 	CpuUtilizationFilter MetricsFilter = `metric.type = starts_with("cloudsql.googleapis.com/database/cpu/utilization")
 		AND resource.type="cloudsql_database" 
 		AND resource.labels.database_id = "%s"`
+	CpuUsageFilter MetricsFilter = `metric.type = starts_with("cloudsql.googleapis.com/database/cpu/usage_time")`
 )
 
 type MetricsFilter = string
@@ -24,12 +26,13 @@ type MetricsFilter = string
 type MetricsOptions struct {
 	filter      MetricsFilter
 	aggregation *monitoringpb.Aggregation
+	interval    *monitoringpb.TimeInterval
 }
 
 type Option func(*MetricsOptions)
 
 func NewSQLInstanceManager(ctx context.Context) (*SQLInstanceManager, error) {
-	client, err := monitoring.NewMetricClient(ctx)
+	client, err := monitoring.NewMetricClient(ctx, option.WithTokenSource(nil))
 	if err != nil {
 		return nil, err
 	}
@@ -49,6 +52,15 @@ func WithAggregation(aggregation *monitoringpb.Aggregation) Option {
 	}
 }
 
+func WithInterval(start, end time.Time) Option {
+	return func(o *MetricsOptions) {
+		o.interval = &monitoringpb.TimeInterval{
+			StartTime: timestamppb.New(start),
+			EndTime:   timestamppb.New(end),
+		}
+	}
+}
+
 func (m *SQLInstanceManager) Close() error {
 	return m.monitoring.Close()
 }
@@ -59,12 +71,16 @@ func (m *SQLInstanceManager) ListTimeSeries(ctx context.Context, projectID strin
 		o(&options)
 	}
 
-	req := &monitoringpb.ListTimeSeriesRequest{
-		Name: fmt.Sprintf("projects/%s", projectID),
-		Interval: &monitoringpb.TimeInterval{
+	if options.interval == nil {
+		options.interval = &monitoringpb.TimeInterval{
+			StartTime: timestamppb.New(time.Now().Add(-1 * time.Hour)),
 			EndTime:   timestamppb.New(time.Now()),
-			StartTime: timestamppb.New(time.Now().Add(-time.Hour * 24)),
-		},
+		}
+	}
+
+	req := &monitoringpb.ListTimeSeriesRequest{
+		Name:        fmt.Sprintf("projects/%s", projectID),
+		Interval:    options.interval,
 		Aggregation: options.aggregation,
 	}
 

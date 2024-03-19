@@ -525,9 +525,7 @@ type MaskinportenScope struct {
 }
 
 type Metrics struct {
-	CPU    float64 `json:"cpu"`
-	Disk   float64 `json:"disk"`
-	Memory float64 `json:"memory"`
+	CPUUtilization float64 `json:"cpuUtilization"`
 }
 
 // Montly cost type.

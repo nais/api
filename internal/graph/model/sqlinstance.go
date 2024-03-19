@@ -2,7 +2,6 @@ package model
 
 import (
 	"github.com/nais/api/internal/graph/scalar"
-	"github.com/nais/api/internal/slug"
 )
 
 type SQLInstance struct {
@@ -23,6 +22,7 @@ type SQLInstance struct {
 	Name                string             `json:"name"`
 	PointInTimeRecovery bool               `json:"pointInTimeRecovery"`
 	RetainedBackups     int                `json:"retainedBackups"`
+	Team                *Team              `json:"team"`
 	Tier                string             `json:"tier"`
 	Type                string             `json:"type"`
 	Status              SQLInstanceStatus  `json:"status"`
@@ -30,8 +30,8 @@ type SQLInstance struct {
 }
 
 type SQLInstanceGQLVars struct {
-	TeamSlug slug.Slug
-	Labels   map[string]string
+	Labels      map[string]string
+	Annotations map[string]string
 }
 
 func (SQLInstance) IsStorage()        {}
