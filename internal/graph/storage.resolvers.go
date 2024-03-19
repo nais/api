@@ -6,11 +6,14 @@ package graph
 
 import (
 	"context"
+	"fmt"
+	"os"
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/sqlinstance"
 )
 
 // App is the resolver for the app field.
@@ -39,6 +42,25 @@ func (r *sqlInstanceResolver) Cost(ctx context.Context, obj *model.SQLInstance, 
 	}
 
 	return float64(sum), nil
+}
+
+// TODO: remove hard coded values
+// Metrics is the resolver for the metrics field.
+func (r *sqlInstanceResolver) Metrics(ctx context.Context, obj *model.SQLInstance) (*model.Metrics, error) {
+	projectID := os.Getenv("SQL_METRICS_PROJECT_ID")
+	databaseID := fmt.Sprintf("%s:%s", projectID, "gemini")
+	ts, error := r.sqlinstanceMgr.ListTimeSeries(ctx, projectID, sqlinstance.WithFilter(sqlinstance.CpuUtilizationFilter, databaseID))
+	if error != nil {
+		return nil, error
+	}
+
+	fmt.Printf("TimeSeries: %v\n", ts)
+
+	return &model.Metrics{
+		CPU:    0,
+		Disk:   0,
+		Memory: 0,
+	}, nil
 }
 
 // Team is the resolver for the team field.

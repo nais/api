@@ -474,6 +474,12 @@ type ComplexityRoot struct {
 		Exposes  func(childComplexity int) int
 	}
 
+	Metrics struct {
+		CPU    func(childComplexity int) int
+		Disk   func(childComplexity int) int
+		Memory func(childComplexity int) int
+	}
+
 	MonthlyCost struct {
 		Cost func(childComplexity int) int
 		Sum  func(childComplexity int) int
@@ -772,6 +778,7 @@ type ComplexityRoot struct {
 		Insights            func(childComplexity int) int
 		IsHealthy           func(childComplexity int) int
 		Maintenance         func(childComplexity int) int
+		Metrics             func(childComplexity int) int
 		Name                func(childComplexity int) int
 		PointInTimeRecovery func(childComplexity int) int
 		RetainedBackups     func(childComplexity int) int
@@ -1081,6 +1088,8 @@ type SqlInstanceResolver interface {
 	App(ctx context.Context, obj *model.SQLInstance) (*model.App, error)
 
 	Cost(ctx context.Context, obj *model.SQLInstance, from scalar.Date, to scalar.Date) (float64, error)
+
+	Metrics(ctx context.Context, obj *model.SQLInstance) (*model.Metrics, error)
 
 	Team(ctx context.Context, obj *model.SQLInstance) (*model.Team, error)
 }
@@ -2687,6 +2696,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MaskinportenScope.Exposes(childComplexity), true
+
+	case "Metrics.cpu":
+		if e.complexity.Metrics.CPU == nil {
+			break
+		}
+
+		return e.complexity.Metrics.CPU(childComplexity), true
+
+	case "Metrics.disk":
+		if e.complexity.Metrics.Disk == nil {
+			break
+		}
+
+		return e.complexity.Metrics.Disk(childComplexity), true
+
+	case "Metrics.memory":
+		if e.complexity.Metrics.Memory == nil {
+			break
+		}
+
+		return e.complexity.Metrics.Memory(childComplexity), true
 
 	case "MonthlyCost.cost":
 		if e.complexity.MonthlyCost.Cost == nil {
@@ -4302,6 +4332,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SqlInstance.Maintenance(childComplexity), true
+
+	case "SqlInstance.metrics":
+		if e.complexity.SqlInstance.Metrics == nil {
+			break
+		}
+
+		return e.complexity.SqlInstance.Metrics(childComplexity), true
 
 	case "SqlInstance.name":
 		if e.complexity.SqlInstance.Name == nil {
@@ -6713,6 +6750,7 @@ type SqlInstance implements Storage {
   insights: Insights!
   isHealthy: Boolean!
   maintenance: Maintenance!
+  metrics: Metrics!
   name: String!
   pointInTimeRecovery: Boolean!
   retainedBackups: Int!
@@ -6720,6 +6758,12 @@ type SqlInstance implements Storage {
   tier: String!
   type: String!
   status: SqlInstanceStatus!
+}
+
+type Metrics {
+  cpu: Float!
+  disk: Float!
+  memory: Float!
 }
 
 type SqlInstanceStatus {
@@ -19355,6 +19399,138 @@ func (ec *executionContext) fieldContext_MaskinportenScope_exposes(ctx context.C
 	return fc, nil
 }
 
+func (ec *executionContext) _Metrics_cpu(ctx context.Context, field graphql.CollectedField, obj *model.Metrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Metrics_cpu(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CPU, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Metrics_cpu(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Metrics",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Metrics_disk(ctx context.Context, field graphql.CollectedField, obj *model.Metrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Metrics_disk(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Disk, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Metrics_disk(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Metrics",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Metrics_memory(ctx context.Context, field graphql.CollectedField, obj *model.Metrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Metrics_memory(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Memory, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Metrics_memory(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Metrics",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _MonthlyCost_sum(ctx context.Context, field graphql.CollectedField, obj *model.MonthlyCost) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_MonthlyCost_sum(ctx, field)
 	if err != nil {
@@ -30957,6 +31133,58 @@ func (ec *executionContext) fieldContext_SqlInstance_maintenance(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _SqlInstance_metrics(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_metrics(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.SqlInstance().Metrics(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Metrics)
+	fc.Result = res
+	return ec.marshalNMetrics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐMetrics(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstance_metrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cpu":
+				return ec.fieldContext_Metrics_cpu(ctx, field)
+			case "disk":
+				return ec.fieldContext_Metrics_disk(ctx, field)
+			case "memory":
+				return ec.fieldContext_Metrics_memory(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Metrics", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SqlInstance_name(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstance_name(ctx, field)
 	if err != nil {
@@ -31632,6 +31860,8 @@ func (ec *executionContext) fieldContext_SqlInstancesList_nodes(ctx context.Cont
 				return ec.fieldContext_SqlInstance_isHealthy(ctx, field)
 			case "maintenance":
 				return ec.fieldContext_SqlInstance_maintenance(ctx, field)
+			case "metrics":
+				return ec.fieldContext_SqlInstance_metrics(ctx, field)
 			case "name":
 				return ec.fieldContext_SqlInstance_name(ctx, field)
 			case "pointInTimeRecovery":
@@ -43008,6 +43238,55 @@ func (ec *executionContext) _MaskinportenScope(ctx context.Context, sel ast.Sele
 	return out
 }
 
+var metricsImplementors = []string{"Metrics"}
+
+func (ec *executionContext) _Metrics(ctx context.Context, sel ast.SelectionSet, obj *model.Metrics) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, metricsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Metrics")
+		case "cpu":
+			out.Values[i] = ec._Metrics_cpu(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "disk":
+			out.Values[i] = ec._Metrics_disk(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "memory":
+			out.Values[i] = ec._Metrics_memory(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var monthlyCostImplementors = []string{"MonthlyCost"}
 
 func (ec *executionContext) _MonthlyCost(ctx context.Context, sel ast.SelectionSet, obj *model.MonthlyCost) graphql.Marshaler {
@@ -46163,6 +46442,42 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "metrics":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SqlInstance_metrics(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "name":
 			out.Values[i] = ec._SqlInstance_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -50690,6 +51005,20 @@ func (ec *executionContext) marshalNMaintenance2githubᚗcomᚋnaisᚋapiᚋinte
 
 func (ec *executionContext) marshalNMaskinportenScope2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐMaskinportenScope(ctx context.Context, sel ast.SelectionSet, v model.MaskinportenScope) graphql.Marshaler {
 	return ec._MaskinportenScope(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNMetrics2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐMetrics(ctx context.Context, sel ast.SelectionSet, v model.Metrics) graphql.Marshaler {
+	return ec._Metrics(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNMetrics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐMetrics(ctx context.Context, sel ast.SelectionSet, v *model.Metrics) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Metrics(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNMonthlyCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐMonthlyCost(ctx context.Context, sel ast.SelectionSet, v model.MonthlyCost) graphql.Marshaler {
