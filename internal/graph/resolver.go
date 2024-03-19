@@ -3,8 +3,9 @@ package graph
 import (
 	"context"
 	"fmt"
-	"github.com/nais/api/internal/sqlinstance"
 	"slices"
+
+	"github.com/nais/api/internal/sqlinstance"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"
@@ -118,7 +119,6 @@ func NewResolver(
 	pubsubTopic *pubsub.Topic,
 	log logrus.FieldLogger,
 ) *Resolver {
-
 	sqlinstanceMgr, err := sqlinstance.NewSQLInstanceManager(context.Background())
 	if err != nil {
 		// TODO: Remove this when we have a proper way to inject the SQLInstanceManager

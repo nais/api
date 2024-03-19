@@ -118,9 +118,7 @@ type SqlInstance implements Storage {
 }
 
 type Metrics {
-  cpu: Float!
-  disk: Float!
-  memory: Float!
+  cpuUtilization: Float!
 }
 
 type SqlInstanceStatus {

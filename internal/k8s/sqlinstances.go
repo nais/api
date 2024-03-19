@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/nais/api/internal/slug"
-
 	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
@@ -15,11 +13,11 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-func (c *Client) SqlInstances(ctx context.Context, team string) ([]*model.SQLInstance, error) {
+func (c *Client) SqlInstances(ctx context.Context, team *model.Team) ([]*model.SQLInstance, error) {
 	ret := make([]*model.SQLInstance, 0)
 
 	for env, infs := range c.informers {
-		objs, err := infs.SqlInstanceInformer.Lister().ByNamespace(team).List(labels.Everything())
+		objs, err := infs.SqlInstanceInformer.Lister().ByNamespace(team.Slug.String()).List(labels.Everything())
 		if err != nil {
 			return nil, c.error(ctx, err, "listing SQL instances")
 		}
@@ -40,7 +38,7 @@ func (c *Client) SqlInstances(ctx context.Context, team string) ([]*model.SQLIns
 	return ret, nil
 }
 
-func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, team, env string) (*model.SQLInstance, error) {
+func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, team *model.Team, env string) (*model.SQLInstance, error) {
 	sqlInstance := &sql_cnrm_cloud_google_com_v1beta1.SQLInstance{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, sqlInstance); err != nil {
 		return nil, fmt.Errorf("converting to SQL instance: %w", err)
@@ -51,8 +49,9 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 		Name: sqlInstance.Name,
 		Env: model.Env{
 			Name: env,
-			Team: team,
+			Team: team.Slug.String(),
 		},
+		Team:           team,
 		Type:           *sqlInstance.Spec.DatabaseVersion,
 		ConnectionName: *sqlInstance.Status.ConnectionName,
 		Status: model.SQLInstanceStatus{
@@ -70,8 +69,8 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 			}(),
 		},
 		GQLVars: model.SQLInstanceGQLVars{
-			TeamSlug: slug.Slug(team),
-			Labels:   sqlInstance.GetLabels(),
+			Labels:      sqlInstance.GetLabels(),
+			Annotations: sqlInstance.GetAnnotations(),
 		},
 	}, nil
 }
