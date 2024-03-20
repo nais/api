@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = "./pkg/protoapi";
+
+service Cluster {
+  rpc ListContainerImagesInUse(ListContainerImagesInUseRequest) returns (ListContainerImagesInUseResponse) {}
+}
+
+// ContainerImage is a reference to a image that can be deployed as a container,
+// typically a Docker container inside a Kubernetes pod.
+message ContainerImage {
+  string name = 1;
+  string tag = 2;
+  string hash = 3;
+}
+
+message ListContainerImagesInUseRequest {}
+
+message ListContainerImagesInUseResponse {
+  repeated ContainerImage images = 1;
+}
