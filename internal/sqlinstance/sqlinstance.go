@@ -58,20 +58,7 @@ func WithQuery(metricType MetricType, databaseId string) Option {
 		q := &Query{
 			MetricType: metricType,
 		}
-		switch metricType {
-		case CpuUtilization:
-			q.Filter = fmt.Sprintf(Filter, CpuUtilization, databaseId)
-		case CpuCores:
-			q.Filter = fmt.Sprintf(Filter, CpuCores, databaseId)
-		case MemoryUtilization:
-			q.Filter = fmt.Sprintf(Filter, MemoryUtilization, databaseId)
-		case MemoryQuota:
-			q.Filter = fmt.Sprintf(Filter, MemoryQuota, databaseId)
-		case DiskUtilization:
-			q.Filter = fmt.Sprintf(Filter, DiskUtilization, databaseId)
-		case DiskQuota:
-			q.Filter = fmt.Sprintf(Filter, DiskQuota, databaseId)
-		}
+		q.Filter = fmt.Sprintf(Filter, metricType, databaseId)
 		o.query = q
 	}
 }
