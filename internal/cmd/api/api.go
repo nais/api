@@ -24,6 +24,7 @@ import (
 	"github.com/nais/api/internal/k8s/fake"
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/resourceusage"
+	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	faketrack "github.com/nais/api/internal/thirdparty/dependencytrack/fake"
 	"github.com/nais/api/internal/thirdparty/hookd"
@@ -161,6 +162,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	userSyncRuns := usersync.NewRunsHandler(cfg.UserSync.RunsToPersist)
 	resourceUsageClient := resourceusage.NewClient(cfg.K8s.AllClusterNames(), db, log)
+	sqlinstanceMetrics, err := sqlinstance.NewMetrics(ctx)
+	if err != nil {
+		return err
+	}
+
 	resolver := graph.NewResolver(
 		hookdClient,
 		k8sClient,
@@ -174,6 +180,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		userSyncRuns,
 		pubsubTopic,
 		log,
+		sqlinstanceMetrics,
 	)
 
 	graphHandler, err := graph.NewHandler(gengql.Config{
