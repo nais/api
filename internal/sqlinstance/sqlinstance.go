@@ -7,6 +7,8 @@ import (
 
 	monitoring "cloud.google.com/go/monitoring/apiv3/v2"
 	"cloud.google.com/go/monitoring/apiv3/v2/monitoringpb"
+	log "github.com/sirupsen/logrus"
+	"google.golang.org/genproto/googleapis/api/metric"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -15,22 +17,27 @@ type Metrics struct {
 }
 
 const (
-	CpuUtilizationFilter MetricsFilter = `metric.type = starts_with("cloudsql.googleapis.com/database/cpu/utilization")
+	CpuUtilization    MetricType    = "cloudsql.googleapis.com/database/cpu/utilization"
+	CpuCores          MetricType    = "cloudsql.googleapis.com/database/cpu/reserved_cores"
+	MemoryUtilization MetricType    = "cloudsql.googleapis.com/database/memory/utilization"
+	MemoryQuota       MetricType    = "cloudsql.googleapis.com/database/memory/quota"
+	DiskUtilization   MetricType    = "cloudsql.googleapis.com/database/disk/utilization"
+	DiskQuota         MetricType    = "cloudsql.googleapis.com/database/disk/quota"
+	Filter            MetricsFilter = `metric.type = starts_with("%s")
 		AND resource.type="cloudsql_database" 
-		AND resource.labels.database_id = "%s"`
-	CpuUsageFilter          MetricsFilter = `metric.type = starts_with("cloudsql.googleapis.com/database/cpu/usage_time")`
-	MemoryUtilizationFilter MetricsFilter = `metric.type = starts_with("cloudsql.googleapis.com/database/memory/utilization")
-		AND resource.type="cloudsql_database" 
-		AND resource.labels.database_id = "%s"`
-	DiskUtilizationFilter MetricsFilter = `metric.type = starts_with("cloudsql.googleapis.com/database/disk/utilization")
-		AND resource.type="cloudsql_database"
 		AND resource.labels.database_id = "%s"`
 )
 
 type MetricsFilter = string
+type MetricType = string
+
+type Query struct {
+	MetricType MetricType
+	Filter     MetricsFilter
+}
 
 type MetricsOptions struct {
-	filter      MetricsFilter
+	query       *Query
 	aggregation *monitoringpb.Aggregation
 	interval    *monitoringpb.TimeInterval
 }
@@ -46,9 +53,26 @@ func NewMetrics(ctx context.Context) (*Metrics, error) {
 	return &Metrics{monitoring: client}, nil
 }
 
-func WithFilter(filter MetricsFilter, databaseId string) Option {
+func WithQuery(metricType MetricType, databaseId string) Option {
 	return func(o *MetricsOptions) {
-		o.filter = fmt.Sprintf(filter, databaseId)
+		q := &Query{
+			MetricType: metricType,
+		}
+		switch metricType {
+		case CpuUtilization:
+			q.Filter = fmt.Sprintf(Filter, CpuUtilization, databaseId)
+		case CpuCores:
+			q.Filter = fmt.Sprintf(Filter, CpuCores, databaseId)
+		case MemoryUtilization:
+			q.Filter = fmt.Sprintf(Filter, MemoryUtilization, databaseId)
+		case MemoryQuota:
+			q.Filter = fmt.Sprintf(Filter, MemoryQuota, databaseId)
+		case DiskUtilization:
+			q.Filter = fmt.Sprintf(Filter, DiskUtilization, databaseId)
+		case DiskQuota:
+			q.Filter = fmt.Sprintf(Filter, DiskQuota, databaseId)
+		}
+		o.query = q
 	}
 }
 
@@ -71,6 +95,42 @@ func (m *Metrics) Close() error {
 	return m.monitoring.Close()
 }
 
+func (m *Metrics) AverageFor(ctx context.Context, projectID string, opts ...Option) (float64, error) {
+	var options MetricsOptions
+	for _, o := range opts {
+		o(&options)
+	}
+
+	if options.query == nil {
+		return 0, fmt.Errorf("query is required")
+	}
+
+	ts, err := m.ListTimeSeries(ctx, projectID, opts...)
+	if err != nil {
+		return 0, err
+	}
+
+	for _, t := range ts {
+		sum := 0.0
+		if t.Metric.Type != options.query.MetricType {
+			continue
+		}
+		for _, p := range t.Points {
+			switch t.ValueType {
+			case metric.MetricDescriptor_INT64:
+				sum += float64(p.Value.GetInt64Value())
+			case metric.MetricDescriptor_DOUBLE:
+				sum += p.Value.GetDoubleValue()
+			default:
+				//TODO: use injected logger
+				log.Error("unsupported value type")
+			}
+		}
+		return sum / float64(len(t.Points)), nil
+	}
+	return 0, nil
+}
+
 func (m *Metrics) ListTimeSeries(ctx context.Context, projectID string, opts ...Option) ([]*monitoringpb.TimeSeries, error) {
 	var options MetricsOptions
 	for _, o := range opts {
@@ -90,8 +150,8 @@ func (m *Metrics) ListTimeSeries(ctx context.Context, projectID string, opts ...
 		Aggregation: options.aggregation,
 	}
 
-	if options.filter != "" {
-		req.Filter = options.filter
+	if options.query != nil {
+		req.Filter = options.query.Filter
 	}
 
 	it := m.monitoring.ListTimeSeries(ctx, req)

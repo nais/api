@@ -14,7 +14,5 @@ func (r *Resolver) Mutation() gengql.MutationResolver { return &mutationResolver
 // Query returns gengql.QueryResolver implementation.
 func (r *Resolver) Query() gengql.QueryResolver { return &queryResolver{r} }
 
-type (
-	mutationResolver struct{ *Resolver }
-	queryResolver    struct{ *Resolver }
-)
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }

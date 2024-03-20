@@ -7,7 +7,6 @@ package graph
 import (
 	"context"
 	"fmt"
-
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
@@ -46,52 +45,50 @@ func (r *sqlInstanceResolver) Cost(ctx context.Context, obj *model.SQLInstance, 
 func (r *sqlInstanceResolver) Metrics(ctx context.Context, obj *model.SQLInstance) (*model.SQLInstanceMetrics, error) {
 	projectID := obj.GQLVars.Annotations["cnrm.cloud.google.com/project-id"]
 	databaseID := fmt.Sprintf("%s:%s", projectID, obj.Name)
-	cpuTs, err := r.sqlinstanceMetrics.ListTimeSeries(ctx, projectID, sqlinstance.WithFilter(sqlinstance.CpuUtilizationFilter, databaseID))
+
+	cpu, err := r.sqlinstanceMetrics.AverageFor(ctx, projectID, sqlinstance.WithQuery(sqlinstance.CpuUtilization, databaseID))
 	if err != nil {
 		return nil, err
 	}
 
-	cpuSum := 0.0
-	cpuAverage := 0.0
-	for _, t := range cpuTs {
-		for _, p := range t.Points {
-			cpuSum += p.Value.GetDoubleValue()
-		}
-		cpuAverage = cpuSum / float64(len(t.Points))
-	}
-
-	memoryTs, err := r.sqlinstanceMetrics.ListTimeSeries(ctx, projectID, sqlinstance.WithFilter(sqlinstance.MemoryUtilizationFilter, databaseID))
+	cpuCores, err := r.sqlinstanceMetrics.AverageFor(ctx, projectID, sqlinstance.WithQuery(sqlinstance.CpuCores, databaseID))
 	if err != nil {
 		return nil, err
 	}
 
-	memorySum := 0.0
-	memoryAverage := 0.0
-	for _, t := range memoryTs {
-		for _, p := range t.Points {
-			memorySum += p.Value.GetDoubleValue()
-		}
-		memoryAverage = memorySum / float64(len(t.Points))
-	}
-
-	diskTs, err := r.sqlinstanceMetrics.ListTimeSeries(ctx, projectID, sqlinstance.WithFilter(sqlinstance.DiskUtilizationFilter, databaseID))
+	memory, err := r.sqlinstanceMetrics.AverageFor(ctx, projectID, sqlinstance.WithQuery(sqlinstance.MemoryUtilization, databaseID))
 	if err != nil {
 		return nil, err
 	}
 
-	diskSum := 0.0
-	diskAverage := 0.0
-	for _, t := range diskTs {
-		for _, p := range t.Points {
-			diskSum += p.Value.GetDoubleValue()
-		}
-		diskAverage = diskSum / float64(len(t.Points))
+	memoryQuota, err := r.sqlinstanceMetrics.AverageFor(ctx, projectID, sqlinstance.WithQuery(sqlinstance.MemoryQuota, databaseID))
+	if err != nil {
+		return nil, err
+	}
+
+	disk, err := r.sqlinstanceMetrics.AverageFor(ctx, projectID, sqlinstance.WithQuery(sqlinstance.DiskUtilization, databaseID))
+	if err != nil {
+		return nil, err
+	}
+
+	diskQuota, err := r.sqlinstanceMetrics.AverageFor(ctx, projectID, sqlinstance.WithQuery(sqlinstance.DiskQuota, databaseID))
+	if err != nil {
+		return nil, err
 	}
 
 	return &model.SQLInstanceMetrics{
-		CPUUtilization:    cpuAverage * 100,
-		MemoryUtilization: memoryAverage * 100,
-		DiskUtilization:   diskAverage * 100,
+		CPU: model.SQLInstanceCPU{
+			Utilization: cpu * 100,
+			Cores:       cpuCores,
+		},
+		Memory: model.SQLInstanceMemory{
+			Utilization: memory * 100,
+			QuotaBytes:  memoryQuota,
+		},
+		Disk: model.SQLInstanceDisk{
+			Utilization: disk * 100,
+			QuotaBytes:  int(diskQuota),
+		},
 	}, nil
 }
 
