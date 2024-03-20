@@ -1,16 +1,16 @@
 package sqlinstance
 
 import (
-	monitoring "cloud.google.com/go/monitoring/apiv3/v2"
-	"cloud.google.com/go/monitoring/apiv3/v2/monitoringpb"
 	"context"
 	"fmt"
-	"google.golang.org/api/option"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
+
+	monitoring "cloud.google.com/go/monitoring/apiv3/v2"
+	"cloud.google.com/go/monitoring/apiv3/v2/monitoringpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type SQLInstanceManager struct {
+type Metrics struct {
 	monitoring *monitoring.MetricClient
 }
 
@@ -31,13 +31,13 @@ type MetricsOptions struct {
 
 type Option func(*MetricsOptions)
 
-func NewSQLInstanceManager(ctx context.Context) (*SQLInstanceManager, error) {
-	client, err := monitoring.NewMetricClient(ctx, option.WithTokenSource(nil))
+func NewMetrics(ctx context.Context) (*Metrics, error) {
+	client, err := monitoring.NewMetricClient(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return &SQLInstanceManager{monitoring: client}, nil
+	return &Metrics{monitoring: client}, nil
 }
 
 func WithFilter(filter MetricsFilter, databaseId string) Option {
@@ -61,11 +61,11 @@ func WithInterval(start, end time.Time) Option {
 	}
 }
 
-func (m *SQLInstanceManager) Close() error {
+func (m *Metrics) Close() error {
 	return m.monitoring.Close()
 }
 
-func (m *SQLInstanceManager) ListTimeSeries(ctx context.Context, projectID string, opts ...Option) ([]*monitoringpb.TimeSeries, error) {
+func (m *Metrics) ListTimeSeries(ctx context.Context, projectID string, opts ...Option) ([]*monitoringpb.TimeSeries, error) {
 	var options MetricsOptions
 	for _, o := range opts {
 		o(&options)

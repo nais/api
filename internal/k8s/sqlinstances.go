@@ -68,9 +68,14 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 				return ret
 			}(),
 		},
+		HighAvailability: equals(sqlInstance.Spec.Settings.AvailabilityType, "REGIONAL"),
 		GQLVars: model.SQLInstanceGQLVars{
 			Labels:      sqlInstance.GetLabels(),
 			Annotations: sqlInstance.GetAnnotations(),
 		},
 	}, nil
+}
+
+func equals(s *string, eq string) bool {
+	return s != nil && *s == eq
 }

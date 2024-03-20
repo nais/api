@@ -46,7 +46,7 @@ func (r *sqlInstanceResolver) Cost(ctx context.Context, obj *model.SQLInstance, 
 func (r *sqlInstanceResolver) Metrics(ctx context.Context, obj *model.SQLInstance) (*model.Metrics, error) {
 	projectID := obj.GQLVars.Annotations["cnrm.cloud.google.com/project-id"]
 	databaseID := fmt.Sprintf("%s:%s", projectID, obj.Name)
-	ts, err := r.sqlinstanceMgr.ListTimeSeries(ctx, projectID, sqlinstance.WithFilter(sqlinstance.CpuUtilizationFilter, databaseID))
+	ts, err := r.sqlinstanceMetrics.ListTimeSeries(ctx, projectID, sqlinstance.WithFilter(sqlinstance.CpuUtilizationFilter, databaseID))
 	if err != nil {
 		return nil, err
 	}
