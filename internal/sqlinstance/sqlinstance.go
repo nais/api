@@ -18,7 +18,10 @@ const (
 	CpuUtilizationFilter MetricsFilter = `metric.type = starts_with("cloudsql.googleapis.com/database/cpu/utilization")
 		AND resource.type="cloudsql_database" 
 		AND resource.labels.database_id = "%s"`
-	CpuUsageFilter MetricsFilter = `metric.type = starts_with("cloudsql.googleapis.com/database/cpu/usage_time")`
+	CpuUsageFilter          MetricsFilter = `metric.type = starts_with("cloudsql.googleapis.com/database/cpu/usage_time")`
+	MemoryUtilizationFilter MetricsFilter = `metric.type = starts_with("cloudsql.googleapis.com/database/memory/utilization")
+		AND resource.type="cloudsql_database" 
+		AND resource.labels.database_id = "%s"`
 )
 
 type MetricsFilter = string
