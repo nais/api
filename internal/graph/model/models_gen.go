@@ -802,10 +802,28 @@ type SQLInstanceCondition struct {
 	Type    string `json:"type"`
 }
 
+type SQLInstanceCPU struct {
+	Cores       float64 `json:"cores"`
+	Usage       float64 `json:"usage"`
+	Utilization float64 `json:"utilization"`
+}
+
+type SQLInstanceDisk struct {
+	QuotaBytes  int     `json:"quotaBytes"`
+	Usage       float64 `json:"usage"`
+	Utilization float64 `json:"utilization"`
+}
+
+type SQLInstanceMemory struct {
+	QuotaBytes  float64 `json:"quotaBytes"`
+	Usage       float64 `json:"usage"`
+	Utilization float64 `json:"utilization"`
+}
+
 type SQLInstanceMetrics struct {
-	CPUUtilization    float64 `json:"cpuUtilization"`
-	MemoryUtilization float64 `json:"memoryUtilization"`
-	DiskUtilization   float64 `json:"diskUtilization"`
+	CPU    SQLInstanceCPU    `json:"cpu"`
+	Memory SQLInstanceMemory `json:"memory"`
+	Disk   SQLInstanceDisk   `json:"disk"`
 }
 
 type SQLInstanceStatus struct {

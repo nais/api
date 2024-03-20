@@ -118,9 +118,27 @@ type SqlInstance implements Storage {
 }
 
 type SqlInstanceMetrics {
-  cpuUtilization: Float!
-  memoryUtilization: Float!
-  diskUtilization: Float!
+  cpu: SqlInstanceCpu!
+  memory: SqlInstanceMemory!
+  disk: SqlInstanceDisk!
+}
+
+type SqlInstanceCpu {
+  cores: Float!
+  usage: Float!
+  utilization: Float!
+}
+
+type SqlInstanceMemory {
+  quotaBytes: Float!
+  usage: Float!
+  utilization: Float!
+}
+
+type SqlInstanceDisk {
+  quotaBytes: Int!
+  usage: Float!
+  utilization: Float!
 }
 
 type SqlInstanceStatus {
