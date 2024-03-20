@@ -43,25 +43,40 @@ func (r *sqlInstanceResolver) Cost(ctx context.Context, obj *model.SQLInstance, 
 }
 
 // Metrics is the resolver for the metrics field.
-func (r *sqlInstanceResolver) Metrics(ctx context.Context, obj *model.SQLInstance) (*model.Metrics, error) {
+func (r *sqlInstanceResolver) Metrics(ctx context.Context, obj *model.SQLInstance) (*model.SQLInstanceMetrics, error) {
 	projectID := obj.GQLVars.Annotations["cnrm.cloud.google.com/project-id"]
 	databaseID := fmt.Sprintf("%s:%s", projectID, obj.Name)
-	ts, err := r.sqlinstanceMetrics.ListTimeSeries(ctx, projectID, sqlinstance.WithFilter(sqlinstance.CpuUtilizationFilter, databaseID))
+	cpuTs, err := r.sqlinstanceMetrics.ListTimeSeries(ctx, projectID, sqlinstance.WithFilter(sqlinstance.CpuUtilizationFilter, databaseID))
 	if err != nil {
 		return nil, err
 	}
 
-	sum := 0.0
-	average := 0.0
-	for _, t := range ts {
+	cpuSum := 0.0
+	cpuAverage := 0.0
+	for _, t := range cpuTs {
 		for _, p := range t.Points {
-			sum += p.Value.GetDoubleValue()
+			cpuSum += p.Value.GetDoubleValue()
 		}
-		average = sum / float64(len(t.Points))
+		cpuAverage = cpuSum / float64(len(t.Points))
 	}
 
-	return &model.Metrics{
-		CPUUtilization: average * 100,
+	memoryTs, err := r.sqlinstanceMetrics.ListTimeSeries(ctx, projectID, sqlinstance.WithFilter(sqlinstance.MemoryUtilizationFilter, databaseID))
+	if err != nil {
+		return nil, err
+	}
+
+	memorySum := 0.0
+	memoryAverage := 0.0
+	for _, t := range memoryTs {
+		for _, p := range t.Points {
+			memorySum += p.Value.GetDoubleValue()
+		}
+		memoryAverage = memorySum / float64(len(t.Points))
+	}
+
+	return &model.SQLInstanceMetrics{
+		CPUUtilization:    cpuAverage * 100,
+		MemoryUtilization: memoryAverage * 100,
 	}, nil
 }
 

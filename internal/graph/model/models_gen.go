@@ -524,10 +524,6 @@ type MaskinportenScope struct {
 	Exposes  []*Expose  `json:"exposes"`
 }
 
-type Metrics struct {
-	CPUUtilization float64 `json:"cpuUtilization"`
-}
-
 // Montly cost type.
 type MonthlyCost struct {
 	// Sum for all months in the series in euros.
@@ -804,6 +800,11 @@ type SQLInstanceCondition struct {
 	Reason  string `json:"reason"`
 	Status  string `json:"status"`
 	Type    string `json:"type"`
+}
+
+type SQLInstanceMetrics struct {
+	CPUUtilization    float64 `json:"cpuUtilization"`
+	MemoryUtilization float64 `json:"memoryUtilization"`
 }
 
 type SQLInstanceStatus struct {
