@@ -120,6 +120,7 @@ type SqlInstance implements Storage {
 type SqlInstanceMetrics {
   cpuUtilization: Float!
   memoryUtilization: Float!
+  diskUtilization: Float!
 }
 
 type SqlInstanceStatus {
