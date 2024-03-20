@@ -805,6 +805,7 @@ type SQLInstanceCondition struct {
 type SQLInstanceMetrics struct {
 	CPUUtilization    float64 `json:"cpuUtilization"`
 	MemoryUtilization float64 `json:"memoryUtilization"`
+	DiskUtilization   float64 `json:"diskUtilization"`
 }
 
 type SQLInstanceStatus struct {

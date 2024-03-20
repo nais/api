@@ -22,6 +22,9 @@ const (
 	MemoryUtilizationFilter MetricsFilter = `metric.type = starts_with("cloudsql.googleapis.com/database/memory/utilization")
 		AND resource.type="cloudsql_database" 
 		AND resource.labels.database_id = "%s"`
+	DiskUtilizationFilter MetricsFilter = `metric.type = starts_with("cloudsql.googleapis.com/database/disk/utilization")
+		AND resource.type="cloudsql_database"
+		AND resource.labels.database_id = "%s"`
 )
 
 type MetricsFilter = string

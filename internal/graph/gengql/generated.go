@@ -791,6 +791,7 @@ type ComplexityRoot struct {
 
 	SqlInstanceMetrics struct {
 		CPUUtilization    func(childComplexity int) int
+		DiskUtilization   func(childComplexity int) int
 		MemoryUtilization func(childComplexity int) int
 	}
 
@@ -4400,6 +4401,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstanceMetrics.CPUUtilization(childComplexity), true
 
+	case "SqlInstanceMetrics.diskUtilization":
+		if e.complexity.SqlInstanceMetrics.DiskUtilization == nil {
+			break
+		}
+
+		return e.complexity.SqlInstanceMetrics.DiskUtilization(childComplexity), true
+
 	case "SqlInstanceMetrics.memoryUtilization":
 		if e.complexity.SqlInstanceMetrics.MemoryUtilization == nil {
 			break
@@ -6753,6 +6761,7 @@ type SqlInstance implements Storage {
 type SqlInstanceMetrics {
   cpuUtilization: Float!
   memoryUtilization: Float!
+  diskUtilization: Float!
 }
 
 type SqlInstanceStatus {
@@ -31033,6 +31042,8 @@ func (ec *executionContext) fieldContext_SqlInstance_metrics(ctx context.Context
 				return ec.fieldContext_SqlInstanceMetrics_cpuUtilization(ctx, field)
 			case "memoryUtilization":
 				return ec.fieldContext_SqlInstanceMetrics_memoryUtilization(ctx, field)
+			case "diskUtilization":
+				return ec.fieldContext_SqlInstanceMetrics_diskUtilization(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SqlInstanceMetrics", field.Name)
 		},
@@ -31664,6 +31675,50 @@ func (ec *executionContext) _SqlInstanceMetrics_memoryUtilization(ctx context.Co
 }
 
 func (ec *executionContext) fieldContext_SqlInstanceMetrics_memoryUtilization(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstanceMetrics",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstanceMetrics_diskUtilization(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstanceMetrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstanceMetrics_diskUtilization(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DiskUtilization, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstanceMetrics_diskUtilization(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceMetrics",
 		Field:      field,
@@ -46502,6 +46557,11 @@ func (ec *executionContext) _SqlInstanceMetrics(ctx context.Context, sel ast.Sel
 			}
 		case "memoryUtilization":
 			out.Values[i] = ec._SqlInstanceMetrics_memoryUtilization(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "diskUtilization":
+			out.Values[i] = ec._SqlInstanceMetrics_diskUtilization(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

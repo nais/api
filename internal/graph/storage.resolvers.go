@@ -74,9 +74,24 @@ func (r *sqlInstanceResolver) Metrics(ctx context.Context, obj *model.SQLInstanc
 		memoryAverage = memorySum / float64(len(t.Points))
 	}
 
+	diskTs, err := r.sqlinstanceMetrics.ListTimeSeries(ctx, projectID, sqlinstance.WithFilter(sqlinstance.DiskUtilizationFilter, databaseID))
+	if err != nil {
+		return nil, err
+	}
+
+	diskSum := 0.0
+	diskAverage := 0.0
+	for _, t := range diskTs {
+		for _, p := range t.Points {
+			diskSum += p.Value.GetDoubleValue()
+		}
+		diskAverage = diskSum / float64(len(t.Points))
+	}
+
 	return &model.SQLInstanceMetrics{
 		CPUUtilization:    cpuAverage * 100,
 		MemoryUtilization: memoryAverage * 100,
+		DiskUtilization:   diskAverage * 100,
 	}, nil
 }
 
