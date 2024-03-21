@@ -304,6 +304,7 @@ type ComplexityRoot struct {
 		GcpProjectID       func(childComplexity int) int
 		ID                 func(childComplexity int) int
 		Name               func(childComplexity int) int
+		Secrets            func(childComplexity int) int
 		SlackAlertsChannel func(childComplexity int) int
 	}
 
@@ -954,6 +955,7 @@ type EnvResolver interface {
 
 	GcpProjectID(ctx context.Context, obj *model.Env) (*string, error)
 	SlackAlertsChannel(ctx context.Context, obj *model.Env) (string, error)
+	Secrets(ctx context.Context, obj *model.Env) ([]*model.Secret, error)
 }
 type GitHubRepositoryResolver interface {
 	Authorizations(ctx context.Context, obj *model.GitHubRepository) ([]model.RepositoryAuthorization, error)
@@ -2043,6 +2045,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Env.Name(childComplexity), true
+
+	case "Env.secrets":
+		if e.complexity.Env.Secrets == nil {
+			break
+		}
+
+		return e.complexity.Env.Secrets(childComplexity), true
 
 	case "Env.slackAlertsChannel":
 		if e.complexity.Env.SlackAlertsChannel == nil {
@@ -5687,6 +5696,7 @@ directive @admin on FIELD_DEFINITION
   name: String!
   gcpProjectID: String
   slackAlertsChannel: String!
+  secrets: [Secret!]! @auth
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/github_repo.graphqls", Input: `extend type Mutation {
@@ -9379,6 +9389,8 @@ func (ec *executionContext) fieldContext_App_env(ctx context.Context, field grap
 				return ec.fieldContext_Env_gcpProjectID(ctx, field)
 			case "slackAlertsChannel":
 				return ec.fieldContext_Env_slackAlertsChannel(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Env_secrets(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Env", field.Name)
 		},
@@ -15187,6 +15199,90 @@ func (ec *executionContext) fieldContext_Env_slackAlertsChannel(ctx context.Cont
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Env_secrets(ctx context.Context, field graphql.CollectedField, obj *model.Env) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Env_secrets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Env().Secrets(rctx, obj)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, obj, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Secret); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/nais/api/internal/graph/model.Secret`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Secret)
+	fc.Result = res
+	return ec.marshalNSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSecretᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Env_secrets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Env",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Secret_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Secret_name(ctx, field)
+			case "env":
+				return ec.fieldContext_Secret_env(ctx, field)
+			case "team":
+				return ec.fieldContext_Secret_team(ctx, field)
+			case "data":
+				return ec.fieldContext_Secret_data(ctx, field)
+			case "apps":
+				return ec.fieldContext_Secret_apps(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Secret_jobs(ctx, field)
+			case "lastModifiedAt":
+				return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+			case "lastModifiedBy":
+				return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Secret", field.Name)
 		},
 	}
 	return fc, nil
@@ -21886,6 +21982,8 @@ func (ec *executionContext) fieldContext_NaisJob_env(ctx context.Context, field 
 				return ec.fieldContext_Env_gcpProjectID(ctx, field)
 			case "slackAlertsChannel":
 				return ec.fieldContext_Env_slackAlertsChannel(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Env_secrets(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Env", field.Name)
 		},
@@ -28918,6 +29016,8 @@ func (ec *executionContext) fieldContext_Secret_env(ctx context.Context, field g
 				return ec.fieldContext_Env_gcpProjectID(ctx, field)
 			case "slackAlertsChannel":
 				return ec.fieldContext_Env_slackAlertsChannel(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Env_secrets(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Env", field.Name)
 		},
@@ -32294,6 +32394,8 @@ func (ec *executionContext) fieldContext_Team_environments(ctx context.Context, 
 				return ec.fieldContext_Env_gcpProjectID(ctx, field)
 			case "slackAlertsChannel":
 				return ec.fieldContext_Env_slackAlertsChannel(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Env_secrets(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Env", field.Name)
 		},
@@ -40126,6 +40228,42 @@ func (ec *executionContext) _Env(ctx context.Context, sel ast.SelectionSet, obj 
 					}
 				}()
 				res = ec._Env_slackAlertsChannel(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "secrets":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Env_secrets(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

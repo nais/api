@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	pgx "github.com/jackc/pgx/v5"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
@@ -57,6 +58,16 @@ func (r *envResolver) SlackAlertsChannel(ctx context.Context, obj *model.Env) (s
 	}
 
 	return obj.DBType.SlackAlertsChannel, nil
+}
+
+// Secrets is the resolver for the secrets field.
+func (r *envResolver) Secrets(ctx context.Context, obj *model.Env) ([]*model.Secret, error) {
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamMembership(actor, slug.Slug(obj.Team))
+	if err != nil {
+		return nil, err
+	}
+	return r.k8sClient.SecretsForEnv(ctx, slug.Slug(obj.Team), obj.Name)
 }
 
 // Env returns gengql.EnvResolver implementation.
