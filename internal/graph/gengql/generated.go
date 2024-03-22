@@ -783,6 +783,7 @@ type ComplexityRoot struct {
 		Metrics             func(childComplexity int) int
 		Name                func(childComplexity int) int
 		PointInTimeRecovery func(childComplexity int) int
+		ProjectID           func(childComplexity int) int
 		RetainedBackups     func(childComplexity int) int
 		Status              func(childComplexity int) int
 		Team                func(childComplexity int) int
@@ -4398,6 +4399,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.PointInTimeRecovery(childComplexity), true
 
+	case "SqlInstance.projectId":
+		if e.complexity.SqlInstance.ProjectID == nil {
+			break
+		}
+
+		return e.complexity.SqlInstance.ProjectID(childComplexity), true
+
 	case "SqlInstance.retainedBackups":
 		if e.complexity.SqlInstance.RetainedBackups == nil {
 			break
@@ -6896,6 +6904,7 @@ type SqlInstance implements Storage {
   metrics: SqlInstanceMetrics!
   name: String!
   pointInTimeRecovery: Boolean!
+  projectId: String!
   retainedBackups: Int!
   team: Team!
   tier: String!
@@ -25649,6 +25658,8 @@ func (ec *executionContext) fieldContext_Query_sqlInstance(ctx context.Context, 
 				return ec.fieldContext_SqlInstance_name(ctx, field)
 			case "pointInTimeRecovery":
 				return ec.fieldContext_SqlInstance_pointInTimeRecovery(ctx, field)
+			case "projectId":
+				return ec.fieldContext_SqlInstance_projectId(ctx, field)
 			case "retainedBackups":
 				return ec.fieldContext_SqlInstance_retainedBackups(ctx, field)
 			case "team":
@@ -31634,6 +31645,50 @@ func (ec *executionContext) fieldContext_SqlInstance_pointInTimeRecovery(ctx con
 	return fc, nil
 }
 
+func (ec *executionContext) _SqlInstance_projectId(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_projectId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProjectID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstance_projectId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SqlInstance_retainedBackups(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstance_retainedBackups(ctx, field)
 	if err != nil {
@@ -32781,6 +32836,8 @@ func (ec *executionContext) fieldContext_SqlInstancesList_nodes(ctx context.Cont
 				return ec.fieldContext_SqlInstance_name(ctx, field)
 			case "pointInTimeRecovery":
 				return ec.fieldContext_SqlInstance_pointInTimeRecovery(ctx, field)
+			case "projectId":
+				return ec.fieldContext_SqlInstance_projectId(ctx, field)
 			case "retainedBackups":
 				return ec.fieldContext_SqlInstance_retainedBackups(ctx, field)
 			case "team":
@@ -47427,6 +47484,11 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			}
 		case "pointInTimeRecovery":
 			out.Values[i] = ec._SqlInstance_pointInTimeRecovery(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "projectId":
+			out.Values[i] = ec._SqlInstance_projectId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

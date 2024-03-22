@@ -125,6 +125,7 @@ type SqlInstance implements Storage {
   metrics: SqlInstanceMetrics!
   name: String!
   pointInTimeRecovery: Boolean!
+  projectId: String!
   retainedBackups: Int!
   team: Team!
   tier: String!
