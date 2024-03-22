@@ -310,9 +310,6 @@ type Team {
 		"Returns the last n entries from the list."
 		limit: Int
 
-    "Returns a specific sql instance by name."
-    name: String
-
 		"Order SQL instances by"
 		orderBy: OrderBy
 	): SqlInstancesList!

@@ -1,3 +1,17 @@
+extend type Query {
+  "Get an SQL instance by name, team and env."
+  sqlInstance(
+    "The name of the instance."
+    name: String!
+
+    "The name of the team who owns the instance."
+    team: Slug!
+
+    "The environment the instance runs in."
+    env: String!
+  ): SqlInstance!
+}
+
 interface Storage {
   name: String!
 }

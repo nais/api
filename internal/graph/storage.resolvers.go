@@ -7,11 +7,20 @@ package graph
 import (
 	"context"
 	"fmt"
+
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/sqlinstance"
 )
+
+// SQLInstance is the resolver for the sqlInstance field.
+func (r *queryResolver) SQLInstance(ctx context.Context, name string, team slug.Slug, env string) (*model.SQLInstance, error) {
+	t, _ := loader.GetTeam(ctx, team)
+	return r.k8sClient.SqlInstance(ctx, env, t, name)
+}
 
 // App is the resolver for the app field.
 func (r *sqlInstanceResolver) App(ctx context.Context, obj *model.SQLInstance) (*model.App, error) {

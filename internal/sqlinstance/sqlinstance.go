@@ -28,8 +28,10 @@ const (
 		AND resource.labels.database_id = "%s"`
 )
 
-type MetricsFilter = string
-type MetricType = string
+type (
+	MetricsFilter = string
+	MetricType    = string
+)
 
 type Query struct {
 	MetricType MetricType
@@ -109,7 +111,7 @@ func (m *Metrics) AverageFor(ctx context.Context, projectID string, opts ...Opti
 			case metric.MetricDescriptor_DOUBLE:
 				sum += p.Value.GetDoubleValue()
 			default:
-				//TODO: use injected logger
+				// TODO: use injected logger
 				log.Error("unsupported value type")
 			}
 		}
