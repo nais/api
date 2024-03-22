@@ -53,5 +53,7 @@ func (r *Resolver) Role() gengql.RoleResolver { return &roleResolver{r} }
 // ServiceAccount returns gengql.ServiceAccountResolver implementation.
 func (r *Resolver) ServiceAccount() gengql.ServiceAccountResolver { return &serviceAccountResolver{r} }
 
-type roleResolver struct{ *Resolver }
-type serviceAccountResolver struct{ *Resolver }
+type (
+	roleResolver           struct{ *Resolver }
+	serviceAccountResolver struct{ *Resolver }
+)

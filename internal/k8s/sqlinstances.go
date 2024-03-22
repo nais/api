@@ -13,7 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-func (c *Client) SqlInstances(ctx context.Context, team *model.Team) ([]*model.SQLInstance, error) {
+func (c *Client) SqlInstances(ctx context.Context, team *model.Team, name *string) ([]*model.SQLInstance, error) {
 	ret := make([]*model.SQLInstance, 0)
 
 	for env, infs := range c.informers {
@@ -26,6 +26,9 @@ func (c *Client) SqlInstances(ctx context.Context, team *model.Team) ([]*model.S
 			instance, err := c.toSqlInstance(ctx, obj.(*unstructured.Unstructured), team, env)
 			if err != nil {
 				return nil, c.error(ctx, err, "converting to SQL instance model")
+			}
+			if name != nil && instance.Name == *name {
+				return []*model.SQLInstance{instance}, nil
 			}
 
 			ret = append(ret, instance)
@@ -51,6 +54,11 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 			Name: env,
 			Team: team.Slug.String(),
 		},
+		BackupConfiguration: &model.BackupConfiguration{
+			Enabled:         *sqlInstance.Spec.Settings.BackupConfiguration.Enabled,
+			StartTime:       *sqlInstance.Spec.Settings.BackupConfiguration.StartTime,
+			RetainedBackups: sqlInstance.Spec.Settings.BackupConfiguration.BackupRetentionSettings.RetainedBackups,
+		},
 		Team:           team,
 		Type:           *sqlInstance.Spec.DatabaseVersion,
 		ConnectionName: *sqlInstance.Status.ConnectionName,
@@ -68,6 +76,7 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 				return ret
 			}(),
 		},
+		Tier:             sqlInstance.Spec.Settings.Tier,
 		HighAvailability: equals(sqlInstance.Spec.Settings.AvailabilityType, "REGIONAL"),
 		GQLVars: model.SQLInstanceGQLVars{
 			Labels:      sqlInstance.GetLabels(),

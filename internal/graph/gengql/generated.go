@@ -169,6 +169,12 @@ type ComplexityRoot struct {
 		Tenant                func(childComplexity int) int
 	}
 
+	BackupConfiguration struct {
+		Enabled         func(childComplexity int) int
+		RetainedBackups func(childComplexity int) int
+		StartTime       func(childComplexity int) int
+	}
+
 	BigQueryDataset struct {
 		CascadingDelete func(childComplexity int) int
 		Description     func(childComplexity int) int
@@ -757,6 +763,7 @@ type ComplexityRoot struct {
 	SqlInstance struct {
 		App                 func(childComplexity int) int
 		AutoBackupHour      func(childComplexity int) int
+		BackupConfiguration func(childComplexity int) int
 		CascadingDelete     func(childComplexity int) int
 		Collation           func(childComplexity int) int
 		ConnectionName      func(childComplexity int) int
@@ -861,7 +868,7 @@ type ComplexityRoot struct {
 		Members                func(childComplexity int, offset *int, limit *int) int
 		Naisjobs               func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		Purpose                func(childComplexity int) int
-		SQLInstances           func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
+		SQLInstances           func(childComplexity int, offset *int, limit *int, name *string, orderBy *model.OrderBy) int
 		Secret                 func(childComplexity int, name string, env string) int
 		Secrets                func(childComplexity int) int
 		SlackChannel           func(childComplexity int) int
@@ -1126,7 +1133,7 @@ type TeamResolver interface {
 	ViewerIsOwner(ctx context.Context, obj *model.Team) (bool, error)
 	ViewerIsMember(ctx context.Context, obj *model.Team) (bool, error)
 	Status(ctx context.Context, obj *model.Team) (*model.TeamStatus, error)
-	SQLInstances(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.SQLInstancesList, error)
+	SQLInstances(ctx context.Context, obj *model.Team, offset *int, limit *int, name *string, orderBy *model.OrderBy) (*model.SQLInstancesList, error)
 	Apps(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.AppList, error)
 	DeployKey(ctx context.Context, obj *model.Team) (*model.DeploymentKey, error)
 	Naisjobs(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.NaisJobList, error)
@@ -1601,6 +1608,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AzureApplication.Tenant(childComplexity), true
+
+	case "BackupConfiguration.enabled":
+		if e.complexity.BackupConfiguration.Enabled == nil {
+			break
+		}
+
+		return e.complexity.BackupConfiguration.Enabled(childComplexity), true
+
+	case "BackupConfiguration.retainedBackups":
+		if e.complexity.BackupConfiguration.RetainedBackups == nil {
+			break
+		}
+
+		return e.complexity.BackupConfiguration.RetainedBackups(childComplexity), true
+
+	case "BackupConfiguration.startTime":
+		if e.complexity.BackupConfiguration.StartTime == nil {
+			break
+		}
+
+		return e.complexity.BackupConfiguration.StartTime(childComplexity), true
 
 	case "BigQueryDataset.cascadingDelete":
 		if e.complexity.BigQueryDataset.CascadingDelete == nil {
@@ -4218,6 +4246,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.AutoBackupHour(childComplexity), true
 
+	case "SqlInstance.backupConfiguration":
+		if e.complexity.SqlInstance.BackupConfiguration == nil {
+			break
+		}
+
+		return e.complexity.SqlInstance.BackupConfiguration(childComplexity), true
+
 	case "SqlInstance.cascadingDelete":
 		if e.complexity.SqlInstance.CascadingDelete == nil {
 			break
@@ -4749,7 +4784,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Team.SQLInstances(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy)), true
+		return e.complexity.Team.SQLInstances(childComplexity, args["offset"].(*int), args["limit"].(*int), args["name"].(*string), args["orderBy"].(*model.OrderBy)), true
 
 	case "Team.secret":
 		if e.complexity.Team.Secret == nil {
@@ -6812,6 +6847,7 @@ type SqlInstance implements Storage {
   id: ID!
   app: App
   autoBackupHour: Int!
+  backupConfiguration: BackupConfiguration!
   cascadingDelete: Boolean!
   collation: String!
   connectionName: String!
@@ -6837,6 +6873,12 @@ type SqlInstance implements Storage {
   tier: String!
   type: String!
   status: SqlInstanceStatus!
+}
+
+type BackupConfiguration {
+  enabled: Boolean!
+  startTime: String!
+  retainedBackups: Int!
 }
 
 type SqlInstanceMetrics {
@@ -7189,6 +7231,9 @@ type Team {
 
 		"Returns the last n entries from the list."
 		limit: Int
+
+    "Returns a specific sql instance by name."
+    name: String
 
 		"Order SQL instances by"
 		orderBy: OrderBy
@@ -9180,15 +9225,24 @@ func (ec *executionContext) field_Team_sqlInstances_args(ctx context.Context, ra
 		}
 	}
 	args["limit"] = arg1
-	var arg2 *model.OrderBy
-	if tmp, ok := rawArgs["orderBy"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
-		arg2, err = ec.unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderBy(ctx, tmp)
+	var arg2 *string
+	if tmp, ok := rawArgs["name"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["orderBy"] = arg2
+	args["name"] = arg2
+	var arg3 *model.OrderBy
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg3, err = ec.unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderBy(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg3
 	return args, nil
 }
 
@@ -12258,6 +12312,138 @@ func (ec *executionContext) fieldContext_AzureApplication_tenant(ctx context.Con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BackupConfiguration_enabled(ctx context.Context, field graphql.CollectedField, obj *model.BackupConfiguration) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BackupConfiguration_enabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Enabled, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BackupConfiguration_enabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BackupConfiguration",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BackupConfiguration_startTime(ctx context.Context, field graphql.CollectedField, obj *model.BackupConfiguration) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BackupConfiguration_startTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StartTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BackupConfiguration_startTime(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BackupConfiguration",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BackupConfiguration_retainedBackups(ctx context.Context, field graphql.CollectedField, obj *model.BackupConfiguration) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BackupConfiguration_retainedBackups(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RetainedBackups, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BackupConfiguration_retainedBackups(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BackupConfiguration",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -30431,6 +30617,58 @@ func (ec *executionContext) fieldContext_SqlInstance_autoBackupHour(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _SqlInstance_backupConfiguration(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_backupConfiguration(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.BackupConfiguration, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.BackupConfiguration)
+	fc.Result = res
+	return ec.marshalNBackupConfiguration2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBackupConfiguration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstance_backupConfiguration(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "enabled":
+				return ec.fieldContext_BackupConfiguration_enabled(ctx, field)
+			case "startTime":
+				return ec.fieldContext_BackupConfiguration_startTime(ctx, field)
+			case "retainedBackups":
+				return ec.fieldContext_BackupConfiguration_retainedBackups(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BackupConfiguration", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SqlInstance_cascadingDelete(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstance_cascadingDelete(ctx, field)
 	if err != nil {
@@ -32349,6 +32587,8 @@ func (ec *executionContext) fieldContext_SqlInstancesList_nodes(ctx context.Cont
 				return ec.fieldContext_SqlInstance_app(ctx, field)
 			case "autoBackupHour":
 				return ec.fieldContext_SqlInstance_autoBackupHour(ctx, field)
+			case "backupConfiguration":
+				return ec.fieldContext_SqlInstance_backupConfiguration(ctx, field)
 			case "cascadingDelete":
 				return ec.fieldContext_SqlInstance_cascadingDelete(ctx, field)
 			case "collation":
@@ -33760,7 +34000,7 @@ func (ec *executionContext) _Team_sqlInstances(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().SQLInstances(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["orderBy"].(*model.OrderBy))
+		return ec.resolvers.Team().SQLInstances(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["name"].(*string), fc.Args["orderBy"].(*model.OrderBy))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -41173,6 +41413,55 @@ func (ec *executionContext) _AzureApplication(ctx context.Context, sel ast.Selec
 	return out
 }
 
+var backupConfigurationImplementors = []string{"BackupConfiguration"}
+
+func (ec *executionContext) _BackupConfiguration(ctx context.Context, sel ast.SelectionSet, obj *model.BackupConfiguration) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, backupConfigurationImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("BackupConfiguration")
+		case "enabled":
+			out.Values[i] = ec._BackupConfiguration_enabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "startTime":
+			out.Values[i] = ec._BackupConfiguration_startTime(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "retainedBackups":
+			out.Values[i] = ec._BackupConfiguration_retainedBackups(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var bigQueryDatasetImplementors = []string{"BigQueryDataset", "Storage"}
 
 func (ec *executionContext) _BigQueryDataset(ctx context.Context, sel ast.SelectionSet, obj *model.BigQueryDataset) graphql.Marshaler {
@@ -46809,6 +47098,11 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "backupConfiguration":
+			out.Values[i] = ec._SqlInstance_backupConfiguration(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "cascadingDelete":
 			out.Values[i] = ec._SqlInstance_cascadingDelete(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -50342,6 +50636,16 @@ func (ec *executionContext) marshalNAuthz2ᚕgithubᚗcomᚋnaisᚋapiᚋinterna
 
 func (ec *executionContext) marshalNAutoScaling2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAutoScaling(ctx context.Context, sel ast.SelectionSet, v model.AutoScaling) graphql.Marshaler {
 	return ec._AutoScaling(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNBackupConfiguration2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBackupConfiguration(ctx context.Context, sel ast.SelectionSet, v *model.BackupConfiguration) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._BackupConfiguration(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
