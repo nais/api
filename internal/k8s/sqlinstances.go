@@ -13,7 +13,21 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-func (c *Client) SqlInstances(ctx context.Context, team *model.Team, name *string) ([]*model.SQLInstance, error) {
+func (c *Client) SqlInstance(ctx context.Context, env string, team *model.Team, instanceName string) (*model.SQLInstance, error) {
+	inf, exists := c.informers[env]
+	if !exists {
+		return nil, fmt.Errorf("unknown env: %s", env)
+	}
+
+	instance, err := inf.SqlInstanceInformer.Lister().ByNamespace(team.Slug.String()).Get(instanceName)
+	if err != nil {
+		return nil, fmt.Errorf("get SQL instance: %w", err)
+	}
+
+	return c.toSqlInstance(ctx, instance.(*unstructured.Unstructured), team, env)
+}
+
+func (c *Client) SqlInstances(ctx context.Context, team *model.Team) ([]*model.SQLInstance, error) {
 	ret := make([]*model.SQLInstance, 0)
 
 	for env, infs := range c.informers {
@@ -26,9 +40,6 @@ func (c *Client) SqlInstances(ctx context.Context, team *model.Team, name *strin
 			instance, err := c.toSqlInstance(ctx, obj.(*unstructured.Unstructured), team, env)
 			if err != nil {
 				return nil, c.error(ctx, err, "converting to SQL instance model")
-			}
-			if name != nil && instance.Name == *name {
-				return []*model.SQLInstance{instance}, nil
 			}
 
 			ret = append(ret, instance)
