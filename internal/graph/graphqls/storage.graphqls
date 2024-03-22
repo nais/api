@@ -90,6 +90,7 @@ type SqlInstance implements Storage {
   id: ID!
   app: App
   autoBackupHour: Int!
+  backupConfiguration: BackupConfiguration!
   cascadingDelete: Boolean!
   collation: String!
   connectionName: String!
@@ -115,6 +116,12 @@ type SqlInstance implements Storage {
   tier: String!
   type: String!
   status: SqlInstanceStatus!
+}
+
+type BackupConfiguration {
+  enabled: Boolean!
+  startTime: String!
+  retainedBackups: Int!
 }
 
 type SqlInstanceMetrics {

@@ -1029,7 +1029,7 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 		}
 	}
 
-	sqlInstances, err := r.k8sClient.SqlInstances(ctx, obj)
+	sqlInstances, err := r.k8sClient.SqlInstances(ctx, obj, nil)
 	if err != nil {
 		return nil, fmt.Errorf("getting SQL instances from Kubernetes: %w", err)
 	}
@@ -1057,8 +1057,8 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 }
 
 // SQLInstances is the resolver for the sqlInstances field.
-func (r *teamResolver) SQLInstances(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.SQLInstancesList, error) {
-	sqlInstances, err := r.k8sClient.SqlInstances(ctx, obj)
+func (r *teamResolver) SQLInstances(ctx context.Context, obj *model.Team, offset *int, limit *int, name *string, orderBy *model.OrderBy) (*model.SQLInstancesList, error) {
+	sqlInstances, err := r.k8sClient.SqlInstances(ctx, obj, name)
 	if err != nil {
 		return nil, fmt.Errorf("getting SQL instances from Kubernetes: %w", err)
 	}
@@ -1559,7 +1559,9 @@ func (r *Resolver) TeamMemberReconciler() gengql.TeamMemberReconcilerResolver {
 	return &teamMemberReconcilerResolver{r}
 }
 
-type teamResolver struct{ *Resolver }
-type teamDeleteKeyResolver struct{ *Resolver }
-type teamMemberResolver struct{ *Resolver }
-type teamMemberReconcilerResolver struct{ *Resolver }
+type (
+	teamResolver                 struct{ *Resolver }
+	teamDeleteKeyResolver        struct{ *Resolver }
+	teamMemberResolver           struct{ *Resolver }
+	teamMemberReconcilerResolver struct{ *Resolver }
+)
