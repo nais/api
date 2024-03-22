@@ -28,6 +28,7 @@ type SQLInstance struct {
 	Maintenance         Maintenance          `json:"maintenance"`
 	Name                string               `json:"name"`
 	PointInTimeRecovery bool                 `json:"pointInTimeRecovery"`
+	ProjectID           string               `json:"projectId"`
 	RetainedBackups     int                  `json:"retainedBackups"`
 	Team                *Team                `json:"team"`
 	Tier                string               `json:"tier"`

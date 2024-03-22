@@ -57,6 +57,10 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, sqlInstance); err != nil {
 		return nil, fmt.Errorf("converting to SQL instance: %w", err)
 	}
+	projectId := sqlInstance.GetAnnotations()["cnrm.cloud.google.com/project-id"]
+	if projectId == "" {
+		return nil, fmt.Errorf("missing project ID annotation")
+	}
 
 	return &model.SQLInstance{
 		ID:   scalar.SqlInstanceIdent("sqlInstance_" + env + "_" + sqlInstance.GetNamespace() + "_" + sqlInstance.GetName()),
@@ -87,6 +91,7 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 				return ret
 			}(),
 		},
+		ProjectID:        projectId,
 		Tier:             sqlInstance.Spec.Settings.Tier,
 		HighAvailability: equals(sqlInstance.Spec.Settings.AvailabilityType, "REGIONAL"),
 		GQLVars: model.SQLInstanceGQLVars{

@@ -52,35 +52,34 @@ func (r *sqlInstanceResolver) Cost(ctx context.Context, obj *model.SQLInstance, 
 
 // Metrics is the resolver for the metrics field.
 func (r *sqlInstanceResolver) Metrics(ctx context.Context, obj *model.SQLInstance) (*model.SQLInstanceMetrics, error) {
-	projectID := obj.GQLVars.Annotations["cnrm.cloud.google.com/project-id"]
-	databaseID := fmt.Sprintf("%s:%s", projectID, obj.Name)
+	databaseID := fmt.Sprintf("%s:%s", obj.ProjectID, obj.Name)
 
-	cpu, err := r.sqlinstanceMetrics.AverageFor(ctx, projectID, sqlinstance.WithQuery(sqlinstance.CpuUtilization, databaseID))
+	cpu, err := r.sqlinstanceMetrics.AverageFor(ctx, obj.ProjectID, sqlinstance.WithQuery(sqlinstance.CpuUtilization, databaseID))
 	if err != nil {
 		return nil, err
 	}
 
-	cpuCores, err := r.sqlinstanceMetrics.AverageFor(ctx, projectID, sqlinstance.WithQuery(sqlinstance.CpuCores, databaseID))
+	cpuCores, err := r.sqlinstanceMetrics.AverageFor(ctx, obj.ProjectID, sqlinstance.WithQuery(sqlinstance.CpuCores, databaseID))
 	if err != nil {
 		return nil, err
 	}
 
-	memory, err := r.sqlinstanceMetrics.AverageFor(ctx, projectID, sqlinstance.WithQuery(sqlinstance.MemoryUtilization, databaseID))
+	memory, err := r.sqlinstanceMetrics.AverageFor(ctx, obj.ProjectID, sqlinstance.WithQuery(sqlinstance.MemoryUtilization, databaseID))
 	if err != nil {
 		return nil, err
 	}
 
-	memoryQuota, err := r.sqlinstanceMetrics.AverageFor(ctx, projectID, sqlinstance.WithQuery(sqlinstance.MemoryQuota, databaseID))
+	memoryQuota, err := r.sqlinstanceMetrics.AverageFor(ctx, obj.ProjectID, sqlinstance.WithQuery(sqlinstance.MemoryQuota, databaseID))
 	if err != nil {
 		return nil, err
 	}
 
-	disk, err := r.sqlinstanceMetrics.AverageFor(ctx, projectID, sqlinstance.WithQuery(sqlinstance.DiskUtilization, databaseID))
+	disk, err := r.sqlinstanceMetrics.AverageFor(ctx, obj.ProjectID, sqlinstance.WithQuery(sqlinstance.DiskUtilization, databaseID))
 	if err != nil {
 		return nil, err
 	}
 
-	diskQuota, err := r.sqlinstanceMetrics.AverageFor(ctx, projectID, sqlinstance.WithQuery(sqlinstance.DiskQuota, databaseID))
+	diskQuota, err := r.sqlinstanceMetrics.AverageFor(ctx, obj.ProjectID, sqlinstance.WithQuery(sqlinstance.DiskQuota, databaseID))
 	if err != nil {
 		return nil, err
 	}
