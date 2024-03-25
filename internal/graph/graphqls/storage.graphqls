@@ -108,7 +108,6 @@ type SqlInstance implements Storage {
   ): Float!
   databases: [SqlDatabase!]!
   diskAutoresize: Boolean!
-  diskSize: Int!
   diskType: String!
   env: Env!
   flags: [Flag!]!

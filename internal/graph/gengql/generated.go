@@ -765,7 +765,6 @@ type ComplexityRoot struct {
 		Cost                func(childComplexity int, from scalar.Date, to scalar.Date) int
 		Databases           func(childComplexity int) int
 		DiskAutoresize      func(childComplexity int) int
-		DiskSize            func(childComplexity int) int
 		DiskType            func(childComplexity int) int
 		Env                 func(childComplexity int) int
 		Flags               func(childComplexity int) int
@@ -4291,13 +4290,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.DiskAutoresize(childComplexity), true
 
-	case "SqlInstance.diskSize":
-		if e.complexity.SqlInstance.DiskSize == nil {
-			break
-		}
-
-		return e.complexity.SqlInstance.DiskSize(childComplexity), true
-
 	case "SqlInstance.diskType":
 		if e.complexity.SqlInstance.DiskType == nil {
 			break
@@ -6863,7 +6855,6 @@ type SqlInstance implements Storage {
   ): Float!
   databases: [SqlDatabase!]!
   diskAutoresize: Boolean!
-  diskSize: Int!
   diskType: String!
   env: Env!
   flags: [Flag!]!
@@ -25426,8 +25417,6 @@ func (ec *executionContext) fieldContext_Query_sqlInstance(ctx context.Context, 
 				return ec.fieldContext_SqlInstance_databases(ctx, field)
 			case "diskAutoresize":
 				return ec.fieldContext_SqlInstance_diskAutoresize(ctx, field)
-			case "diskSize":
-				return ec.fieldContext_SqlInstance_diskSize(ctx, field)
 			case "diskType":
 				return ec.fieldContext_SqlInstance_diskType(ctx, field)
 			case "env":
@@ -30951,50 +30940,6 @@ func (ec *executionContext) fieldContext_SqlInstance_diskAutoresize(ctx context.
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_diskSize(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SqlInstance_diskSize(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DiskSize, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SqlInstance_diskSize(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SqlInstance",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _SqlInstance_diskType(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstance_diskType(ctx, field)
 	if err != nil {
@@ -32644,8 +32589,6 @@ func (ec *executionContext) fieldContext_SqlInstancesList_nodes(ctx context.Cont
 				return ec.fieldContext_SqlInstance_databases(ctx, field)
 			case "diskAutoresize":
 				return ec.fieldContext_SqlInstance_diskAutoresize(ctx, field)
-			case "diskSize":
-				return ec.fieldContext_SqlInstance_diskSize(ctx, field)
 			case "diskType":
 				return ec.fieldContext_SqlInstance_diskType(ctx, field)
 			case "env":
@@ -47210,11 +47153,6 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "diskAutoresize":
 			out.Values[i] = ec._SqlInstance_diskAutoresize(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "diskSize":
-			out.Values[i] = ec._SqlInstance_diskSize(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
