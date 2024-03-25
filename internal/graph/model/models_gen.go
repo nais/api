@@ -224,16 +224,6 @@ type DailyCost struct {
 	Series []*CostSeries `json:"series"`
 }
 
-type Database struct {
-	EnvVarPrefix string          `json:"envVarPrefix"`
-	Name         string          `json:"name"`
-	Users        []*DatabaseUser `json:"users"`
-}
-
-type DatabaseUser struct {
-	Name string `json:"name"`
-}
-
 type DeleteAppResult struct {
 	// Whether the app was deleted or not.
 	Deleted bool    `json:"deleted"`
@@ -793,6 +783,10 @@ type SlackAlertsChannelInput struct {
 	Environment string `json:"environment"`
 	// The name of the Slack channel.
 	ChannelName *string `json:"channelName,omitempty"`
+}
+
+type SQLDatabase struct {
+	Name string `json:"name"`
 }
 
 type SQLInstanceCondition struct {

@@ -45,6 +45,7 @@ func (c ClusterInformers) Start(ctx context.Context, log logrus.FieldLogger) err
 		go informer.NaisjobInformer.Informer().Run(ctx.Done())
 		go informer.JobInformer.Informer().Run(ctx.Done())
 		go informer.SqlInstanceInformer.Informer().Run(ctx.Done())
+		go informer.SqlDatabaseInformer.Informer().Run(ctx.Done())
 		if informer.TopicInformer != nil {
 			go informer.TopicInformer.Informer().Run(ctx.Done())
 		}
@@ -82,6 +83,7 @@ type Informers struct {
 	PodInformer         corev1inf.PodInformer
 	TopicInformer       informers.GenericInformer
 	SqlInstanceInformer informers.GenericInformer
+	SqlDatabaseInformer informers.GenericInformer
 }
 
 type settings struct {
@@ -192,6 +194,7 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 		infs[cluster].NaisjobInformer = dinf.ForResource(naisv1.GroupVersion.WithResource("naisjobs"))
 		infs[cluster].JobInformer = inf.Batch().V1().Jobs()
 		infs[cluster].SqlInstanceInformer = dinf.ForResource(sql_cnrm_cloud_google_com_v1beta1.GroupVersion.WithResource("sqlinstances"))
+		infs[cluster].SqlDatabaseInformer = dinf.ForResource(sql_cnrm_cloud_google_com_v1beta1.GroupVersion.WithResource("sqldatabases"))
 
 		clientSets[cluster] = clients{
 			client:        clientSet,

@@ -85,13 +85,7 @@ type Maintenance {
   hour: Int!
 }
 
-type Database {
-  envVarPrefix: String!
-  name: String!
-  users: [DatabaseUser!]!
-}
-
-type DatabaseUser {
+type SqlDatabase {
   name: String!
 }
 
@@ -112,7 +106,7 @@ type SqlInstance implements Storage {
     from: Date!
     to: Date!
   ): Float!
-  databases: [Database!]!
+  databases: [SqlDatabase!]!
   diskAutoresize: Boolean!
   diskSize: Int!
   diskType: String!
