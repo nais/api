@@ -16,7 +16,7 @@ func (c *Client) SqlDatabases(ctx context.Context, sqlInstance *model.SQLInstanc
 	ret := make([]*model.SQLDatabase, 0)
 
 	for _, infs := range c.informers {
-		objs, err := infs.SqlDatabaseInformer.Lister().ByNamespace(sqlInstance.Team.Slug.String()).List(labels.Everything())
+		objs, err := infs.SqlDatabaseInformer.Lister().ByNamespace(string(sqlInstance.GQLVars.TeamSlug)).List(labels.Everything())
 		if err != nil {
 			return nil, c.error(ctx, err, "listing SQL databases")
 		}

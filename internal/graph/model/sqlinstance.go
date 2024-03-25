@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 )
 
 type BackupConfiguration struct {
@@ -29,7 +30,6 @@ type SQLInstance struct {
 	PointInTimeRecovery bool                 `json:"pointInTimeRecovery"`
 	ProjectID           string               `json:"projectId"`
 	RetainedBackups     int                  `json:"retainedBackups"`
-	Team                *Team                `json:"team"`
 	Tier                string               `json:"tier"`
 	Type                string               `json:"type"`
 	Status              SQLInstanceStatus    `json:"status"`
@@ -37,6 +37,7 @@ type SQLInstance struct {
 }
 
 type SQLInstanceGQLVars struct {
+	TeamSlug    slug.Slug
 	Labels      map[string]string
 	Annotations map[string]string
 }
