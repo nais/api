@@ -31031,6 +31031,8 @@ func (ec *executionContext) fieldContext_SqlInstance_env(ctx context.Context, fi
 				return ec.fieldContext_Env_gcpProjectID(ctx, field)
 			case "slackAlertsChannel":
 				return ec.fieldContext_Env_slackAlertsChannel(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Env_secrets(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Env", field.Name)
 		},
