@@ -18,8 +18,7 @@ import (
 
 // SQLInstance is the resolver for the sqlInstance field.
 func (r *queryResolver) SQLInstance(ctx context.Context, name string, team slug.Slug, env string) (*model.SQLInstance, error) {
-	t, _ := loader.GetTeam(ctx, team)
-	return r.k8sClient.SqlInstance(ctx, env, t, name)
+	return r.k8sClient.SqlInstance(ctx, env, team, name)
 }
 
 // App is the resolver for the app field.
@@ -29,7 +28,7 @@ func (r *sqlInstanceResolver) App(ctx context.Context, obj *model.SQLInstance) (
 		return nil, nil
 	}
 
-	app, err := r.k8sClient.App(ctx, appName, string(obj.Team.Slug), obj.Env.Name)
+	app, err := r.k8sClient.App(ctx, appName, string(obj.GQLVars.TeamSlug), obj.Env.Name)
 	if err != nil {
 		return nil, nil
 	}
@@ -42,7 +41,7 @@ func (r *sqlInstanceResolver) Cost(ctx context.Context, obj *model.SQLInstance, 
 	// TODO: fix error handling / validation for dates
 	fromDate, _ := from.PgDate()
 	toDate, _ := to.PgDate()
-	sum, err := r.database.CostForSqlInstance(ctx, fromDate, toDate, obj.Team.Slug, obj.Name, obj.Env.Name)
+	sum, err := r.database.CostForSqlInstance(ctx, fromDate, toDate, obj.GQLVars.TeamSlug, obj.Name, obj.Env.Name)
 	if err != nil {
 		return 0, err
 	}
@@ -103,6 +102,11 @@ func (r *sqlInstanceResolver) Metrics(ctx context.Context, obj *model.SQLInstanc
 			QuotaBytes:  int(diskQuota),
 		},
 	}, nil
+}
+
+// Team is the resolver for the team field.
+func (r *sqlInstanceResolver) Team(ctx context.Context, obj *model.SQLInstance) (*model.Team, error) {
+	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
 }
 
 // SqlInstance returns gengql.SqlInstanceResolver implementation.
