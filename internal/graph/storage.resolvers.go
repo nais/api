@@ -50,6 +50,11 @@ func (r *sqlInstanceResolver) Cost(ctx context.Context, obj *model.SQLInstance, 
 	return float64(sum), nil
 }
 
+// Databases is the resolver for the databases field.
+func (r *sqlInstanceResolver) Databases(ctx context.Context, obj *model.SQLInstance) ([]*model.SQLDatabase, error) {
+	return r.k8sClient.SqlDatabases(ctx, obj)
+}
+
 // Metrics is the resolver for the metrics field.
 func (r *sqlInstanceResolver) Metrics(ctx context.Context, obj *model.SQLInstance) (*model.SQLInstanceMetrics, error) {
 	databaseID := fmt.Sprintf("%s:%s", obj.ProjectID, obj.Name)
