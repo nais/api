@@ -70,11 +70,22 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 			Name: env,
 			Team: teamSlug.String(),
 		},
-		BackupConfiguration: &model.BackupConfiguration{
-			Enabled:         *sqlInstance.Spec.Settings.BackupConfiguration.Enabled,
-			StartTime:       *sqlInstance.Spec.Settings.BackupConfiguration.StartTime,
-			RetainedBackups: sqlInstance.Spec.Settings.BackupConfiguration.BackupRetentionSettings.RetainedBackups,
-		},
+		BackupConfiguration: func() *model.BackupConfiguration {
+			if sqlInstance.Spec.Settings.BackupConfiguration == nil {
+				return nil
+			}
+			backupCfg := &model.BackupConfiguration{}
+			if sqlInstance.Spec.Settings.BackupConfiguration.BackupRetentionSettings != nil {
+				backupCfg.RetainedBackups = sqlInstance.Spec.Settings.BackupConfiguration.BackupRetentionSettings.RetainedBackups
+			}
+			if sqlInstance.Spec.Settings.BackupConfiguration.Enabled != nil {
+				backupCfg.Enabled = *sqlInstance.Spec.Settings.BackupConfiguration.Enabled
+			}
+			if sqlInstance.Spec.Settings.BackupConfiguration.StartTime != nil {
+				backupCfg.StartTime = *sqlInstance.Spec.Settings.BackupConfiguration.StartTime
+			}
+			return backupCfg
+		}(),
 		Type:           *sqlInstance.Spec.DatabaseVersion,
 		ConnectionName: *sqlInstance.Status.ConnectionName,
 		Status: model.SQLInstanceStatus{
@@ -100,6 +111,13 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 			Annotations: sqlInstance.GetAnnotations(),
 		},
 	}, nil
+}
+
+func valueOrNil(value *string) *string {
+	if value == nil {
+		return nil
+	}
+	return value
 }
 
 func equals(s *string, eq string) bool {
