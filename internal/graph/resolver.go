@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/nais/api/internal/sqlinstance"
+
 	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -99,6 +101,7 @@ type Resolver struct {
 	auditLogger           auditlogger.AuditLogger
 	userSyncRuns          *usersync.RunsHandler
 	pubsubTopic           *pubsub.Topic
+	sqlinstanceMetrics    *sqlinstance.Metrics
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
@@ -115,6 +118,7 @@ func NewResolver(
 	userSyncRuns *usersync.RunsHandler,
 	pubsubTopic *pubsub.Topic,
 	log logrus.FieldLogger,
+	sqlinstanceMetrics *sqlinstance.Metrics,
 ) *Resolver {
 	return &Resolver{
 		hookdClient:           hookdClient,
@@ -130,6 +134,7 @@ func NewResolver(
 		userSyncRuns:          userSyncRuns,
 		clusters:              clusters,
 		pubsubTopic:           pubsubTopic,
+		sqlinstanceMetrics:    sqlinstanceMetrics,
 	}
 }
 

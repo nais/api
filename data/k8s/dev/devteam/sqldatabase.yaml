@@ -1,0 +1,49 @@
+apiVersion: sql.cnrm.cloud.google.com/v1beta1
+kind: SQLDatabase
+metadata:
+  annotations:
+    cnrm.cloud.google.com/deletion-policy: abandon
+    cnrm.cloud.google.com/management-conflict-prevention-policy: none
+    cnrm.cloud.google.com/project-id: nais-dev-2e7b
+    cnrm.cloud.google.com/state-into-spec: merge
+    nais.io/deploymentCorrelationID: c28520a3-4232-4ece-ae48-330deb16c853
+  labels:
+    app: contests
+    app.kubernetes.io/instance: contests
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: contests
+    helm.sh/chart: contests-2023.1.12-172b2e7
+  name: contests
+spec:
+  charset: UTF8
+  collation: en_US.UTF8
+  deletionPolicy: DELETE
+  instanceRef:
+    name: contests
+  resourceID: contests
+---
+apiVersion: sql.cnrm.cloud.google.com/v1beta1
+kind: SQLDatabase
+metadata:
+  annotations:
+    cnrm.cloud.google.com/deletion-policy: abandon
+    cnrm.cloud.google.com/management-conflict-prevention-policy: none
+    cnrm.cloud.google.com/project-id: nais-dev-2e7b
+    cnrm.cloud.google.com/state-into-spec: merge
+    nais.io/deploymentCorrelationID: 1033f984-ed8b-4906-9d1b-4ebbda1d42b0
+  labels:
+    app: some-app
+    app.kubernetes.io/instance: some-app
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: some-app
+    app.kubernetes.io/version: 1.16.0
+    helm.sh/chart: some-app-0.1.1-20230825095400
+    team: nais
+  name: some-other-database
+spec:
+  charset: UTF8
+  collation: en_US.UTF8
+  deletionPolicy: DELETE
+  instanceRef:
+    name: contests
+  resourceID: some-other-database
