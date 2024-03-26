@@ -162,7 +162,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	userSyncRuns := usersync.NewRunsHandler(cfg.UserSync.RunsToPersist)
 	resourceUsageClient := resourceusage.NewClient(cfg.K8s.AllClusterNames(), db, log)
-	sqlinstanceMetrics, err := sqlinstance.NewMetrics(ctx)
+	sqlinstanceMetrics, err := sqlinstance.NewMetrics(ctx, log)
 	if err != nil {
 		return err
 	}
