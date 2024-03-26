@@ -14,6 +14,7 @@ import (
 
 type Metrics struct {
 	monitoring *monitoring.MetricClient
+	log        log.FieldLogger
 }
 
 const (
@@ -46,13 +47,16 @@ type MetricsOptions struct {
 
 type Option func(*MetricsOptions)
 
-func NewMetrics(ctx context.Context) (*Metrics, error) {
+func NewMetrics(ctx context.Context, log log.FieldLogger) (*Metrics, error) {
 	client, err := monitoring.NewMetricClient(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Metrics{monitoring: client}, nil
+	return &Metrics{
+		monitoring: client,
+		log:        log,
+	}, nil
 }
 
 func WithQuery(metricType MetricType, databaseId string) Option {
@@ -150,6 +154,7 @@ func (m *Metrics) ListTimeSeries(ctx context.Context, projectID string, opts ...
 		metric, err := it.Next()
 		// TODO: handle error?
 		if err != nil {
+			m.log.WithError(err).Error("error when fetching time series")
 			break
 		}
 		timeSeries = append(timeSeries, metric)
