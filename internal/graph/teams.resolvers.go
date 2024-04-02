@@ -1397,6 +1397,7 @@ func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team
 				Low:        int(row.Low),
 				Unassigned: int(row.Unassigned),
 				RiskScore:  int(row.RiskScore),
+				Count:      int(row.Count),
 			})
 		}
 	} else {
@@ -1414,13 +1415,17 @@ func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team
 				Low:        int(row.Low),
 				Unassigned: int(row.Unassigned),
 				RiskScore:  int(row.RiskScore),
+				Count:      int(row.Count),
 			})
 		}
-
 	}
 
 	if len(metrics) == 0 {
 		return &model.VulnerabilityMetrics{}, nil
+	}
+
+	for i := 1; i < len(metrics); i++ {
+		fmt.Println(metrics[i].Count)
 	}
 
 	dateRange, err := r.database.VulnerabilityMetricsDateRangeForTeam(ctx, obj.Slug)
