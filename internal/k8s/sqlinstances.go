@@ -113,13 +113,6 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 	}, nil
 }
 
-func valueOrNil(value *string) *string {
-	if value == nil {
-		return nil
-	}
-	return value
-}
-
 func equals(s *string, eq string) bool {
 	return s != nil && *s == eq
 }
