@@ -1424,10 +1424,6 @@ func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team
 		return &model.VulnerabilityMetrics{}, nil
 	}
 
-	for i := 1; i < len(metrics); i++ {
-		fmt.Println(metrics[i].Count)
-	}
-
 	dateRange, err := r.database.VulnerabilityMetricsDateRangeForTeam(ctx, obj.Slug)
 	if err != nil {
 		return nil, err
