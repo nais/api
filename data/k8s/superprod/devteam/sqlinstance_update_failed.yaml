@@ -10,20 +10,20 @@ metadata:
     cnrm.cloud.google.com/state-into-spec: merge
     nais.io/deploymentCorrelationID: c53778c4-f03f-41a5-ae2f-0ca6a833019e
   labels:
-    app: contests
-    app.kubernetes.io/instance: contests
+    app: contests-failing
+    app.kubernetes.io/instance: contests-failing
     app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: contests
-    helm.sh/chart: contests-2024-02-22-115844-b411609
+    app.kubernetes.io/name: contests-failing
+    helm.sh/chart: contests-failing-2024-02-22-115844-b411609
     team: nais
-  name: contests
+  name: contests-failing
   namespace: nais-system
 spec:
   databaseVersion: POSTGRES_14
   instanceType: CLOUD_SQL_INSTANCE
   maintenanceVersion: POSTGRES_14_10.R20240130.00_05
   region: europe-north1
-  resourceID: contests
+  resourceID: contests-failing
   settings:
     activationPolicy: ALWAYS
     availabilityType: REGIONAL
@@ -60,12 +60,15 @@ spec:
     tier: db-f1-micro
 status:
   conditions:
-  - lastTransitionTime: "2024-01-23T09:30:20Z"
-    message: The resource is up to date
-    reason: UpToDate
-    status: "True"
-    type: Ready
-  connectionName: nais-dev-123:europe-north1:contests
+    - lastTransitionTime: "2024-04-03T10:49:48Z"
+      message: 'Update call failed: error applying desired state: summary: Error, failed
+      to update instance settings for : googleapi: Error 400: Invalid request: Incorrect
+      Service Networking config for instance: tommytest3-dev-a367:contests-failing:SERVICE_NETWORKING_NOT_ENABLED.,
+      invalid'
+      reason: UpdateFailed
+      status: "False"
+      type: Ready
+  connectionName: nais-dev-123:europe-north1:contests-failing
   firstIpAddress: 1.2.3.4
   instanceType: CLOUD_SQL_INSTANCE
   ipAddress:
@@ -75,5 +78,5 @@ status:
     type: OUTGOING
   observedGeneration: 104
   publicIpAddress: 1.2.3.4
-  selfLink: https://sqladmin.googleapis.com/sql/v1beta4/projects/nais-dev-123/instances/contests
+  selfLink: https://sqladmin.googleapis.com/sql/v1beta4/projects/nais-dev-123/instances/contests-failing
   serviceAccountEmailAddress: sasa@gcp-sa-cloud-sql.iam.gserviceaccount.com

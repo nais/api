@@ -114,7 +114,7 @@ type SqlInstance implements Storage {
   highAvailability: Boolean!
   insights: Insights!
   isHealthy: Boolean!
-  maintenance: Maintenance!
+  maintenance: Maintenance
   metrics: SqlInstanceMetrics!
   name: String!
   pointInTimeRecovery: Boolean!
@@ -158,6 +158,7 @@ type SqlInstanceDisk {
 
 type SqlInstanceStatus {
   conditions: [SqlInstanceCondition!]!
+  publicIpAddress: String
 }
 
 type SqlInstanceCondition {

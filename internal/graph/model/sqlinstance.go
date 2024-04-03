@@ -25,7 +25,7 @@ type SQLInstance struct {
 	HighAvailability    bool                 `json:"highAvailability"`
 	ID                  scalar.Ident         `json:"id"`
 	Insights            Insights             `json:"insights"`
-	Maintenance         Maintenance          `json:"maintenance"`
+	Maintenance         *Maintenance         `json:"maintenance"`
 	Name                string               `json:"name"`
 	PointInTimeRecovery bool                 `json:"pointInTimeRecovery"`
 	ProjectID           string               `json:"projectId"`
@@ -46,7 +46,7 @@ func (SQLInstance) IsStorage()        {}
 func (i SQLInstance) GetName() string { return i.Name }
 func (i *SQLInstance) IsHealthy() bool {
 	for _, cond := range i.Status.Conditions {
-		if cond.Type == "Ready" && cond.Reason == "UpToDate" {
+		if cond.Type == "Ready" && cond.Reason == "UpToDate" && cond.Status == "True" {
 			return true
 		}
 	}

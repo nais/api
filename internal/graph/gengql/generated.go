@@ -817,7 +817,8 @@ type ComplexityRoot struct {
 	}
 
 	SqlInstanceStatus struct {
-		Conditions func(childComplexity int) int
+		Conditions      func(childComplexity int) int
+		PublicIPAddress func(childComplexity int) int
 	}
 
 	SqlInstancesList struct {
@@ -4534,6 +4535,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstanceStatus.Conditions(childComplexity), true
 
+	case "SqlInstanceStatus.publicIpAddress":
+		if e.complexity.SqlInstanceStatus.PublicIPAddress == nil {
+			break
+		}
+
+		return e.complexity.SqlInstanceStatus.PublicIPAddress(childComplexity), true
+
 	case "SqlInstancesList.nodes":
 		if e.complexity.SqlInstancesList.Nodes == nil {
 			break
@@ -6867,7 +6875,7 @@ type SqlInstance implements Storage {
   highAvailability: Boolean!
   insights: Insights!
   isHealthy: Boolean!
-  maintenance: Maintenance!
+  maintenance: Maintenance
   metrics: SqlInstanceMetrics!
   name: String!
   pointInTimeRecovery: Boolean!
@@ -6911,6 +6919,7 @@ type SqlInstanceDisk {
 
 type SqlInstanceStatus {
   conditions: [SqlInstanceCondition!]!
+  publicIpAddress: String
 }
 
 type SqlInstanceCondition {
@@ -31259,14 +31268,11 @@ func (ec *executionContext) _SqlInstance_maintenance(ctx context.Context, field 
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(model.Maintenance)
+	res := resTmp.(*model.Maintenance)
 	fc.Result = res
-	return ec.marshalNMaintenance2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐMaintenance(ctx, field.Selections, res)
+	return ec.marshalOMaintenance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐMaintenance(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SqlInstance_maintenance(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -31749,6 +31755,8 @@ func (ec *executionContext) fieldContext_SqlInstance_status(ctx context.Context,
 			switch field.Name {
 			case "conditions":
 				return ec.fieldContext_SqlInstanceStatus_conditions(ctx, field)
+			case "publicIpAddress":
+				return ec.fieldContext_SqlInstanceStatus_publicIpAddress(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SqlInstanceStatus", field.Name)
 		},
@@ -32533,6 +32541,47 @@ func (ec *executionContext) fieldContext_SqlInstanceStatus_conditions(ctx contex
 				return ec.fieldContext_SqlInstanceCondition_type(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SqlInstanceCondition", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstanceStatus_publicIpAddress(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstanceStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstanceStatus_publicIpAddress(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PublicIPAddress, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstanceStatus_publicIpAddress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstanceStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -47196,9 +47245,6 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			}
 		case "maintenance":
 			out.Values[i] = ec._SqlInstance_maintenance(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "metrics":
 			field := field
 
@@ -47688,6 +47734,8 @@ func (ec *executionContext) _SqlInstanceStatus(ctx context.Context, sel ast.Sele
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "publicIpAddress":
+			out.Values[i] = ec._SqlInstanceStatus_publicIpAddress(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -51952,10 +52000,6 @@ func (ec *executionContext) marshalNLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinter
 	return ec._LogLine(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNMaintenance2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐMaintenance(ctx context.Context, sel ast.SelectionSet, v model.Maintenance) graphql.Marshaler {
-	return ec._Maintenance(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalNMaskinportenScope2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐMaskinportenScope(ctx context.Context, sel ast.SelectionSet, v model.MaskinportenScope) graphql.Marshaler {
 	return ec._MaskinportenScope(ctx, sel, &v)
 }
@@ -54381,6 +54425,13 @@ func (ec *executionContext) unmarshalOLogSubscriptionInput2ᚖgithubᚗcomᚋnai
 	}
 	res, err := ec.unmarshalInputLogSubscriptionInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOMaintenance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐMaintenance(ctx context.Context, sel ast.SelectionSet, v *model.Maintenance) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Maintenance(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderBy(ctx context.Context, v interface{}) (*model.OrderBy, error) {

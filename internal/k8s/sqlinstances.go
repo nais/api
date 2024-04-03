@@ -101,7 +101,27 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 				}
 				return ret
 			}(),
+			PublicIPAddress: sqlInstance.Status.PublicIpAddress,
 		},
+		Maintenance: func(window *sql_cnrm_cloud_google_com_v1beta1.InstanceMaintenanceWindow) *model.Maintenance {
+			if window == nil || window.Day == nil || window.Hour == nil {
+				return nil
+			}
+			return &model.Maintenance{
+				Day:  *window.Day,
+				Hour: *window.Hour,
+			}
+		}(sqlInstance.Spec.Settings.MaintenanceWindow),
+		Flags: func() []*model.Flag {
+			ret := make([]*model.Flag, 0)
+			for _, flag := range sqlInstance.Spec.Settings.DatabaseFlags {
+				ret = append(ret, &model.Flag{
+					Name:  flag.Name,
+					Value: flag.Value,
+				})
+			}
+			return ret
+		}(),
 		ProjectID:        projectId,
 		Tier:             sqlInstance.Spec.Settings.Tier,
 		HighAvailability: equals(sqlInstance.Spec.Settings.AvailabilityType, "REGIONAL"),

@@ -815,7 +815,8 @@ type SQLInstanceMemory struct {
 }
 
 type SQLInstanceStatus struct {
-	Conditions []*SQLInstanceCondition `json:"conditions"`
+	Conditions      []*SQLInstanceCondition `json:"conditions"`
+	PublicIPAddress *string                 `json:"publicIpAddress,omitempty"`
 }
 
 type SQLInstancesList struct {
