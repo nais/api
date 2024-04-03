@@ -39,6 +39,8 @@ spec:
     databaseFlags:
     - name: cloudsql.iam_authentication
       value: "on"
+    - name: max_connections
+      value: "50"
     diskAutoresize: false
     diskAutoresizeLimit: 0
     diskSize: 10

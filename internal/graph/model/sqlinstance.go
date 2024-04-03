@@ -26,6 +26,7 @@ type SQLInstance struct {
 	ID                  scalar.Ident         `json:"id"`
 	Insights            Insights             `json:"insights"`
 	Maintenance         *Maintenance         `json:"maintenance"`
+	MaintenanceVersion  *string              `json:"maintenanceVersion"`
 	Name                string               `json:"name"`
 	PointInTimeRecovery bool                 `json:"pointInTimeRecovery"`
 	ProjectID           string               `json:"projectId"`

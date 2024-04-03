@@ -122,9 +122,10 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 			}
 			return ret
 		}(),
-		ProjectID:        projectId,
-		Tier:             sqlInstance.Spec.Settings.Tier,
-		HighAvailability: equals(sqlInstance.Spec.Settings.AvailabilityType, "REGIONAL"),
+		MaintenanceVersion: sqlInstance.Spec.MaintenanceVersion,
+		ProjectID:          projectId,
+		Tier:               sqlInstance.Spec.Settings.Tier,
+		HighAvailability:   equals(sqlInstance.Spec.Settings.AvailabilityType, "REGIONAL"),
 		GQLVars: model.SQLInstanceGQLVars{
 			TeamSlug:    teamSlug,
 			Labels:      sqlInstance.GetLabels(),

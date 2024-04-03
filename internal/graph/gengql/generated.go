@@ -774,6 +774,7 @@ type ComplexityRoot struct {
 		Insights            func(childComplexity int) int
 		IsHealthy           func(childComplexity int) int
 		Maintenance         func(childComplexity int) int
+		MaintenanceVersion  func(childComplexity int) int
 		Metrics             func(childComplexity int) int
 		Name                func(childComplexity int) int
 		PointInTimeRecovery func(childComplexity int) int
@@ -4353,6 +4354,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.Maintenance(childComplexity), true
 
+	case "SqlInstance.maintenanceVersion":
+		if e.complexity.SqlInstance.MaintenanceVersion == nil {
+			break
+		}
+
+		return e.complexity.SqlInstance.MaintenanceVersion(childComplexity), true
+
 	case "SqlInstance.metrics":
 		if e.complexity.SqlInstance.Metrics == nil {
 			break
@@ -6876,6 +6884,7 @@ type SqlInstance implements Storage {
   insights: Insights!
   isHealthy: Boolean!
   maintenance: Maintenance
+  maintenanceVersion: String
   metrics: SqlInstanceMetrics!
   name: String!
   pointInTimeRecovery: Boolean!
@@ -25446,6 +25455,8 @@ func (ec *executionContext) fieldContext_Query_sqlInstance(ctx context.Context, 
 				return ec.fieldContext_SqlInstance_isHealthy(ctx, field)
 			case "maintenance":
 				return ec.fieldContext_SqlInstance_maintenance(ctx, field)
+			case "maintenanceVersion":
+				return ec.fieldContext_SqlInstance_maintenanceVersion(ctx, field)
 			case "metrics":
 				return ec.fieldContext_SqlInstance_metrics(ctx, field)
 			case "name":
@@ -31294,6 +31305,47 @@ func (ec *executionContext) fieldContext_SqlInstance_maintenance(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _SqlInstance_maintenanceVersion(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_maintenanceVersion(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaintenanceVersion, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstance_maintenanceVersion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SqlInstance_metrics(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstance_metrics(ctx, field)
 	if err != nil {
@@ -32660,6 +32712,8 @@ func (ec *executionContext) fieldContext_SqlInstancesList_nodes(ctx context.Cont
 				return ec.fieldContext_SqlInstance_isHealthy(ctx, field)
 			case "maintenance":
 				return ec.fieldContext_SqlInstance_maintenance(ctx, field)
+			case "maintenanceVersion":
+				return ec.fieldContext_SqlInstance_maintenanceVersion(ctx, field)
 			case "metrics":
 				return ec.fieldContext_SqlInstance_metrics(ctx, field)
 			case "name":
@@ -47245,6 +47299,8 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			}
 		case "maintenance":
 			out.Values[i] = ec._SqlInstance_maintenance(ctx, field, obj)
+		case "maintenanceVersion":
+			out.Values[i] = ec._SqlInstance_maintenanceVersion(ctx, field, obj)
 		case "metrics":
 			field := field
 
