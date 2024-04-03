@@ -70,22 +70,22 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 			Name: env,
 			Team: teamSlug.String(),
 		},
-		BackupConfiguration: func() *model.BackupConfiguration {
-			if sqlInstance.Spec.Settings.BackupConfiguration == nil {
+		BackupConfiguration: func(backupConfig *sql_cnrm_cloud_google_com_v1beta1.InstanceBackupConfiguration) *model.BackupConfiguration {
+			if backupConfig == nil {
 				return nil
 			}
 			backupCfg := &model.BackupConfiguration{}
-			if sqlInstance.Spec.Settings.BackupConfiguration.BackupRetentionSettings != nil {
-				backupCfg.RetainedBackups = sqlInstance.Spec.Settings.BackupConfiguration.BackupRetentionSettings.RetainedBackups
+			if backupConfig.Enabled != nil {
+				backupCfg.Enabled = *backupConfig.Enabled
 			}
-			if sqlInstance.Spec.Settings.BackupConfiguration.Enabled != nil {
-				backupCfg.Enabled = *sqlInstance.Spec.Settings.BackupConfiguration.Enabled
+			if backupConfig.StartTime != nil {
+				backupCfg.StartTime = *backupConfig.StartTime
 			}
-			if sqlInstance.Spec.Settings.BackupConfiguration.StartTime != nil {
-				backupCfg.StartTime = *sqlInstance.Spec.Settings.BackupConfiguration.StartTime
+			if backupConfig.BackupRetentionSettings != nil {
+				backupCfg.RetainedBackups = backupConfig.BackupRetentionSettings.RetainedBackups
 			}
 			return backupCfg
-		}(),
+		}(sqlInstance.Spec.Settings.BackupConfiguration),
 		Type:           *sqlInstance.Spec.DatabaseVersion,
 		ConnectionName: *sqlInstance.Status.ConnectionName,
 		Status: model.SQLInstanceStatus{
