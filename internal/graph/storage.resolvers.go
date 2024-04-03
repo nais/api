@@ -6,8 +6,8 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
@@ -56,50 +56,10 @@ func (r *sqlInstanceResolver) Databases(ctx context.Context, obj *model.SQLInsta
 
 // Metrics is the resolver for the metrics field.
 func (r *sqlInstanceResolver) Metrics(ctx context.Context, obj *model.SQLInstance) (*model.SQLInstanceMetrics, error) {
-	databaseID := fmt.Sprintf("%s:%s", obj.ProjectID, obj.Name)
-
-	cpu, err := r.sqlinstanceMetrics.AverageFor(ctx, obj.ProjectID, sqlinstance.WithQuery(sqlinstance.CpuUtilization, databaseID))
-	if err != nil {
-		return nil, err
-	}
-
-	cpuCores, err := r.sqlinstanceMetrics.AverageFor(ctx, obj.ProjectID, sqlinstance.WithQuery(sqlinstance.CpuCores, databaseID))
-	if err != nil {
-		return nil, err
-	}
-
-	memory, err := r.sqlinstanceMetrics.AverageFor(ctx, obj.ProjectID, sqlinstance.WithQuery(sqlinstance.MemoryUtilization, databaseID))
-	if err != nil {
-		return nil, err
-	}
-
-	memoryQuota, err := r.sqlinstanceMetrics.AverageFor(ctx, obj.ProjectID, sqlinstance.WithQuery(sqlinstance.MemoryQuota, databaseID))
-	if err != nil {
-		return nil, err
-	}
-
-	disk, err := r.sqlinstanceMetrics.AverageFor(ctx, obj.ProjectID, sqlinstance.WithQuery(sqlinstance.DiskUtilization, databaseID))
-	if err != nil {
-		return nil, err
-	}
-
-	diskQuota, err := r.sqlinstanceMetrics.AverageFor(ctx, obj.ProjectID, sqlinstance.WithQuery(sqlinstance.DiskQuota, databaseID))
-	if err != nil {
-		return nil, err
-	}
-
 	return &model.SQLInstanceMetrics{
-		CPU: model.SQLInstanceCPU{
-			Utilization: cpu * 100,
-			Cores:       cpuCores,
-		},
-		Memory: model.SQLInstanceMemory{
-			Utilization: memory * 100,
-			QuotaBytes:  memoryQuota,
-		},
-		Disk: model.SQLInstanceDisk{
-			Utilization: disk * 100,
-			QuotaBytes:  int(diskQuota),
+		GQLVars: model.SQLInstanceMetricsGQLVars{
+			DatabaseID: obj.ProjectID + ":" + obj.Name,
+			ProjectID:  obj.ProjectID,
 		},
 	}, nil
 }
@@ -109,7 +69,69 @@ func (r *sqlInstanceResolver) Team(ctx context.Context, obj *model.SQLInstance) 
 	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
 }
 
+// CPU is the resolver for the cpu field.
+func (r *sqlInstanceMetricsResolver) CPU(ctx context.Context, obj *model.SQLInstanceMetrics) (*model.SQLInstanceCPU, error) {
+	cpu, err := r.sqlinstanceMetrics.AverageFor(ctx, obj.GQLVars.ProjectID, sqlinstance.WithQuery(sqlinstance.CpuUtilization, obj.GQLVars.DatabaseID))
+	if err != nil {
+		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+	}
+
+	cpuCores, err := r.sqlinstanceMetrics.AverageFor(ctx, obj.GQLVars.ProjectID, sqlinstance.WithQuery(sqlinstance.CpuCores, obj.GQLVars.DatabaseID))
+	if err != nil {
+		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+	}
+
+	return &model.SQLInstanceCPU{
+		Utilization: cpu * 100,
+		Cores:       cpuCores,
+	}, nil
+}
+
+// Memory is the resolver for the memory field.
+func (r *sqlInstanceMetricsResolver) Memory(ctx context.Context, obj *model.SQLInstanceMetrics) (*model.SQLInstanceMemory, error) {
+	memory, err := r.sqlinstanceMetrics.AverageFor(ctx, obj.GQLVars.ProjectID, sqlinstance.WithQuery(sqlinstance.MemoryUtilization, obj.GQLVars.DatabaseID))
+	if err != nil {
+		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+	}
+
+	memoryQuota, err := r.sqlinstanceMetrics.AverageFor(ctx, obj.GQLVars.ProjectID, sqlinstance.WithQuery(sqlinstance.MemoryQuota, obj.GQLVars.DatabaseID))
+	if err != nil {
+		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+	}
+
+	return &model.SQLInstanceMemory{
+		Utilization: memory * 100,
+		QuotaBytes:  memoryQuota,
+	}, nil
+}
+
+// Disk is the resolver for the disk field.
+func (r *sqlInstanceMetricsResolver) Disk(ctx context.Context, obj *model.SQLInstanceMetrics) (*model.SQLInstanceDisk, error) {
+	disk, err := r.sqlinstanceMetrics.AverageFor(ctx, obj.GQLVars.ProjectID, sqlinstance.WithQuery(sqlinstance.DiskUtilization, obj.GQLVars.DatabaseID))
+	if err != nil {
+		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+	}
+
+	diskQuota, err := r.sqlinstanceMetrics.AverageFor(ctx, obj.GQLVars.ProjectID, sqlinstance.WithQuery(sqlinstance.DiskQuota, obj.GQLVars.DatabaseID))
+	if err != nil {
+		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
+	}
+
+	return &model.SQLInstanceDisk{
+		Utilization: disk * 100,
+		QuotaBytes:  int(diskQuota),
+	}, nil
+}
+
 // SqlInstance returns gengql.SqlInstanceResolver implementation.
 func (r *Resolver) SqlInstance() gengql.SqlInstanceResolver { return &sqlInstanceResolver{r} }
 
-type sqlInstanceResolver struct{ *Resolver }
+// SqlInstanceMetrics returns gengql.SqlInstanceMetricsResolver implementation.
+func (r *Resolver) SqlInstanceMetrics() gengql.SqlInstanceMetricsResolver {
+	return &sqlInstanceMetricsResolver{r}
+}
+
+type (
+	sqlInstanceResolver        struct{ *Resolver }
+	sqlInstanceMetricsResolver struct{ *Resolver }
+)

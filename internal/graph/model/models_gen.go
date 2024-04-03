@@ -814,12 +814,6 @@ type SQLInstanceMemory struct {
 	Utilization float64 `json:"utilization"`
 }
 
-type SQLInstanceMetrics struct {
-	CPU    SQLInstanceCPU    `json:"cpu"`
-	Memory SQLInstanceMemory `json:"memory"`
-	Disk   SQLInstanceDisk   `json:"disk"`
-}
-
 type SQLInstanceStatus struct {
 	Conditions []*SQLInstanceCondition `json:"conditions"`
 }

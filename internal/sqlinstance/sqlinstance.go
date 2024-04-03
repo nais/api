@@ -2,12 +2,14 @@ package sqlinstance
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	monitoring "cloud.google.com/go/monitoring/apiv3/v2"
 	"cloud.google.com/go/monitoring/apiv3/v2/monitoringpb"
 	log "github.com/sirupsen/logrus"
+	"google.golang.org/api/iterator"
 	"google.golang.org/genproto/googleapis/api/metric"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -151,13 +153,13 @@ func (m *Metrics) ListTimeSeries(ctx context.Context, projectID string, opts ...
 
 	timeSeries := make([]*monitoringpb.TimeSeries, 0)
 	for {
-		metric, err := it.Next()
-		// TODO: handle error?
-		if err != nil {
-			m.log.WithError(err).Error("error when fetching time series")
-			break
+		met, err := it.Next()
+		if errors.Is(err, iterator.Done) {
+			return timeSeries, nil
+		} else if err != nil {
+			m.log.WithError(err).Error("failed to get next time series")
+			return nil, err
 		}
-		timeSeries = append(timeSeries, metric)
+		timeSeries = append(timeSeries, met)
 	}
-	return timeSeries, nil
 }

@@ -52,3 +52,12 @@ func (i *SQLInstance) IsHealthy() bool {
 	}
 	return false
 }
+
+type SQLInstanceMetrics struct {
+	GQLVars SQLInstanceMetricsGQLVars `json:"-"`
+}
+
+type SQLInstanceMetricsGQLVars struct {
+	DatabaseID string
+	ProjectID  string
+}
