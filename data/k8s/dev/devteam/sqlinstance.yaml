@@ -16,14 +16,14 @@ metadata:
     app.kubernetes.io/name: app-w-all-storage
     helm.sh/chart: app-w-all-storage-2024-02-22-115844-b411609
     team: nais
-  name: deleteme
+  name: contests
   namespace: nais-system
 spec:
   databaseVersion: POSTGRES_15
   instanceType: CLOUD_SQL_INSTANCE
   maintenanceVersion: POSTGRES_15_10.R20240130.00_05
   region: europe-north1
-  resourceID: deleteme
+  resourceID: contests
   settings:
     activationPolicy: ALWAYS
     availabilityType: ZONAL
@@ -59,9 +59,9 @@ status:
   conditions:
     - lastTransitionTime: "2024-01-23T09:30:20Z"
       message: The resource is up to date
-      reason: Provisioning
+      reason: UpToDate
       status: "True"
-      type: NotReady
+      type: Ready
   connectionName: nais-dev-123:europe-north1:app-w-all-storage
   firstIpAddress: 1.2.3.4
   instanceType: CLOUD_SQL_INSTANCE
@@ -135,10 +135,10 @@ spec:
 status:
   conditions:
     - lastTransitionTime: "2024-01-23T09:30:20Z"
-      message: The resource is up to date
-      reason: Provisioning
-      status: "True"
-      type: NotReady
+      message: "Update call failed: error applying desired state: summary: Error, failed to update instance settings for : googleapi: Error 400: Invalid request: backup retention should be >= transaction log retention.,"
+      reason: UpdateFailed
+      status: "False"
+      type: Ready
   connectionName: nais-dev-123:europe-north1:app-w-all-storage
   firstIpAddress: 1.2.3.4
   instanceType: CLOUD_SQL_INSTANCE

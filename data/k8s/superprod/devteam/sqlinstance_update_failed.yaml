@@ -65,7 +65,7 @@ status:
     - lastTransitionTime: "2024-04-03T10:49:48Z"
       message: 'Update call failed: error applying desired state: summary: Error, failed
       to update instance settings for : googleapi: Error 400: Invalid request: Incorrect
-      Service Networking config for instance: tommytest3-dev-a367:contests-failing:SERVICE_NETWORKING_NOT_ENABLED.,
+      Service Networking config for instance: superprod-test:contests-failing:SERVICE_NETWORKING_NOT_ENABLED.,
       invalid'
       reason: UpdateFailed
       status: "False"

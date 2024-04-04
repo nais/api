@@ -112,7 +112,7 @@ func (c *Client) App(ctx context.Context, name, team, env string) (*model.App, e
 		return nil, c.error(ctx, err, "getting topics")
 	}
 
-	storage, err := appStorage(obj.(*unstructured.Unstructured), topics)
+	storage, err := appStorage(obj.(*unstructured.Unstructured), topics, env)
 	if err != nil {
 		return nil, c.error(ctx, err, "converting to app storage")
 	}
@@ -928,7 +928,7 @@ func synchronizationStateCondition(conditions []metav1.Condition) *metav1.Condit
 	return nil
 }
 
-func appStorage(u *unstructured.Unstructured, topics []*model.Topic) ([]model.Storage, error) {
+func appStorage(u *unstructured.Unstructured, topics []*model.Topic, env string) ([]model.Storage, error) {
 	app := &naisv1alpha1.Application{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, app); err != nil {
 		return nil, fmt.Errorf("converting to application: %w", err)
@@ -954,6 +954,7 @@ func appStorage(u *unstructured.Unstructured, topics []*model.Topic) ([]model.St
 			if sqlInstance.Name == "" {
 				sqlInstance.Name = app.Name
 			}
+			sqlInstance.ID = scalar.SqlInstanceIdent("sqlInstance_" + env + "_" + app.GetNamespace() + "_" + sqlInstance.GetName())
 			ret = append(ret, sqlInstance)
 		}
 
