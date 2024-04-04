@@ -433,6 +433,67 @@ func (_c *MockDatabase_ConfirmTeamDeleteKey_Call) RunAndReturn(run func(context.
 	return _c
 }
 
+// CostForSqlInstance provides a mock function with given fields: ctx, fromDate, toDate, teamSlug, sqlInstanceName, environment
+func (_m *MockDatabase) CostForSqlInstance(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug, sqlInstanceName string, environment string) (float32, error) {
+	ret := _m.Called(ctx, fromDate, toDate, teamSlug, sqlInstanceName, environment)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CostForSqlInstance")
+	}
+
+	var r0 float32
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Date, pgtype.Date, slug.Slug, string, string) (float32, error)); ok {
+		return rf(ctx, fromDate, toDate, teamSlug, sqlInstanceName, environment)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Date, pgtype.Date, slug.Slug, string, string) float32); ok {
+		r0 = rf(ctx, fromDate, toDate, teamSlug, sqlInstanceName, environment)
+	} else {
+		r0 = ret.Get(0).(float32)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, pgtype.Date, pgtype.Date, slug.Slug, string, string) error); ok {
+		r1 = rf(ctx, fromDate, toDate, teamSlug, sqlInstanceName, environment)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockDatabase_CostForSqlInstance_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CostForSqlInstance'
+type MockDatabase_CostForSqlInstance_Call struct {
+	*mock.Call
+}
+
+// CostForSqlInstance is a helper method to define mock.On call
+//   - ctx context.Context
+//   - fromDate pgtype.Date
+//   - toDate pgtype.Date
+//   - teamSlug slug.Slug
+//   - sqlInstanceName string
+//   - environment string
+func (_e *MockDatabase_Expecter) CostForSqlInstance(ctx interface{}, fromDate interface{}, toDate interface{}, teamSlug interface{}, sqlInstanceName interface{}, environment interface{}) *MockDatabase_CostForSqlInstance_Call {
+	return &MockDatabase_CostForSqlInstance_Call{Call: _e.mock.On("CostForSqlInstance", ctx, fromDate, toDate, teamSlug, sqlInstanceName, environment)}
+}
+
+func (_c *MockDatabase_CostForSqlInstance_Call) Run(run func(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug, sqlInstanceName string, environment string)) *MockDatabase_CostForSqlInstance_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(pgtype.Date), args[2].(pgtype.Date), args[3].(slug.Slug), args[4].(string), args[5].(string))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_CostForSqlInstance_Call) Return(_a0 float32, _a1 error) *MockDatabase_CostForSqlInstance_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockDatabase_CostForSqlInstance_Call) RunAndReturn(run func(context.Context, pgtype.Date, pgtype.Date, slug.Slug, string, string) (float32, error)) *MockDatabase_CostForSqlInstance_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CostUpsert provides a mock function with given fields: ctx, arg
 func (_m *MockDatabase) CostUpsert(ctx context.Context, arg []gensql.CostUpsertParams) *gensql.CostUpsertBatchResults {
 	ret := _m.Called(ctx, arg)

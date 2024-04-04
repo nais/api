@@ -303,6 +303,17 @@ type Team {
   "The status of the team."
   status: TeamStatus!
 
+	sqlInstances(
+		"Returns the first n entries from the list."
+		offset: Int
+
+		"Returns the last n entries from the list."
+		limit: Int
+
+		"Order SQL instances by"
+		orderBy: OrderBy
+	): SqlInstancesList!
+
   "The NAIS applications owned by the team."
   apps(
     "Returns the first n entries from the list."
@@ -376,6 +387,11 @@ type Team {
 
   "The environments available for the team."
   environments: [Env!]!
+}
+
+type SqlInstancesStatus {
+	total: Int!
+	failing: Int!
 }
 
 input VulnerabilityFilter {
@@ -488,6 +504,7 @@ type TeamMemberReconciler {
 type TeamStatus {
   apps: AppsStatus!
   jobs: JobsStatus!
+  sqlInstances: SqlInstancesStatus!
 }
 
 "Team status for apps."

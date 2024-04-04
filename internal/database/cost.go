@@ -16,6 +16,7 @@ type CostRepo interface {
 	LastCostDate(ctx context.Context) (pgtype.Date, error)
 	MonthlyCostForApp(ctx context.Context, teamSlug slug.Slug, app string, environment string) ([]*gensql.MonthlyCostForAppRow, error)
 	MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*gensql.MonthlyCostForTeamRow, error)
+	CostForSqlInstance(ctx context.Context, fromDate, toDate pgtype.Date, teamSlug slug.Slug, sqlInstanceName, environment string) (float32, error)
 }
 
 var _ CostRepo = (*database)(nil)
@@ -65,4 +66,19 @@ func (d *database) MonthlyCostForApp(ctx context.Context, teamSlug slug.Slug, ap
 
 func (d *database) MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*gensql.MonthlyCostForTeamRow, error) {
 	return d.querier.MonthlyCostForTeam(ctx, teamSlug)
+}
+
+func (d *database) CostForSqlInstance(ctx context.Context, fromDate, toDate pgtype.Date, teamSlug slug.Slug, sqlInstanceName, environment string) (float32, error) {
+	cost, err := d.querier.CostForSqlInstance(ctx, gensql.CostForSqlInstanceParams{
+		FromDate:        fromDate,
+		ToDate:          toDate,
+		TeamSlug:        teamSlug,
+		SqlInstanceName: sqlInstanceName,
+		Environment:     environment,
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	return cost, nil
 }

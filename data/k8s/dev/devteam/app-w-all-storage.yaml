@@ -12,8 +12,8 @@ spec:
     sqlInstances:
       - type: POSTGRES_15
         cascadingDelete: true
-        name: deleteme
-      - type: POSTGRES_15
+        name: contests
+      - type: POSTGRES_14
         name: donotdelete
     bigQueryDatasets:
       - name: deleteme_bq

@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
@@ -1010,22 +1011,32 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 	if err != nil {
 		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
 	}
-
-	jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
-	if err != nil {
-		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
-	}
-
 	failingApps := 0
 	for _, app := range apps {
 		if app.AppState.State == model.StateFailing {
 			failingApps++
 		}
 	}
+
+	jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
+	if err != nil {
+		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
+	}
 	failingJobs := 0
 	for _, job := range jobs {
 		if job.JobState.State == model.StateFailing {
 			failingJobs++
+		}
+	}
+
+	sqlInstances, err := r.k8sClient.SqlInstances(ctx, obj.Slug)
+	if err != nil {
+		return nil, fmt.Errorf("getting SQL instances from Kubernetes: %w", err)
+	}
+	failingSqlInstances := 0
+	for _, sqlInstance := range sqlInstances {
+		if !sqlInstance.IsHealthy() {
+			failingSqlInstances++
 		}
 	}
 
@@ -1038,6 +1049,45 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 			Total:   len(jobs),
 			Failing: failingJobs,
 		},
+		SQLInstances: model.SQLInstancesStatus{
+			Total:   len(sqlInstances),
+			Failing: failingSqlInstances,
+		},
+	}, nil
+}
+
+// SQLInstances is the resolver for the sqlInstances field.
+func (r *teamResolver) SQLInstances(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.SQLInstancesList, error) {
+	sqlInstances, err := r.k8sClient.SqlInstances(ctx, obj.Slug)
+	if err != nil {
+		return nil, fmt.Errorf("getting SQL instances from Kubernetes: %w", err)
+	}
+	if orderBy != nil {
+		switch orderBy.Field {
+		case "NAME":
+			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
+				return model.Compare(a.Name, b.Name, orderBy.Direction)
+			})
+		case "ENV":
+			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
+				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
+			})
+		case "STATUS":
+			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
+				return model.Compare(strconv.FormatBool(a.IsHealthy()), strconv.FormatBool(b.IsHealthy()), orderBy.Direction)
+			})
+		case "VERSION":
+			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
+				return model.Compare(a.Type, b.Type, orderBy.Direction)
+			})
+		}
+	}
+	pagination := model.NewPagination(offset, limit)
+	sqlInstances, pageInfo := model.PaginatedSlice(sqlInstances, pagination)
+
+	return &model.SQLInstancesList{
+		Nodes:    sqlInstances,
+		PageInfo: pageInfo,
 	}, nil
 }
 

@@ -224,16 +224,6 @@ type DailyCost struct {
 	Series []*CostSeries `json:"series"`
 }
 
-type Database struct {
-	EnvVarPrefix string          `json:"envVarPrefix"`
-	Name         string          `json:"name"`
-	Users        []*DatabaseUser `json:"users"`
-}
-
-type DatabaseUser struct {
-	Name string `json:"name"`
-}
-
 type DeleteAppResult struct {
 	// Whether the app was deleted or not.
 	Deleted bool    `json:"deleted"`
@@ -507,7 +497,7 @@ type LogSubscriptionInput struct {
 	Instances []string  `json:"instances,omitempty"`
 }
 
-type Maintenance struct {
+type MaintenanceWindow struct {
 	Day  int `json:"day"`
 	Hour int `json:"hour"`
 }
@@ -795,27 +785,49 @@ type SlackAlertsChannelInput struct {
 	ChannelName *string `json:"channelName,omitempty"`
 }
 
-type SQLInstance struct {
-	AutoBackupHour      int         `json:"autoBackupHour"`
-	CascadingDelete     bool        `json:"cascadingDelete"`
-	Collation           string      `json:"collation"`
-	Databases           []*Database `json:"databases"`
-	DiskAutoresize      bool        `json:"diskAutoresize"`
-	DiskSize            int         `json:"diskSize"`
-	DiskType            string      `json:"diskType"`
-	Flags               []*Flag     `json:"flags"`
-	HighAvailability    bool        `json:"highAvailability"`
-	Insights            Insights    `json:"insights"`
-	Maintenance         Maintenance `json:"maintenance"`
-	Name                string      `json:"name"`
-	PointInTimeRecovery bool        `json:"pointInTimeRecovery"`
-	RetainedBackups     int         `json:"retainedBackups"`
-	Tier                string      `json:"tier"`
-	Type                string      `json:"type"`
+type SQLDatabase struct {
+	Name string `json:"name"`
 }
 
-func (SQLInstance) IsStorage()           {}
-func (this SQLInstance) GetName() string { return this.Name }
+type SQLInstanceCondition struct {
+	Message string `json:"message"`
+	Reason  string `json:"reason"`
+	Status  string `json:"status"`
+	Type    string `json:"type"`
+}
+
+type SQLInstanceCPU struct {
+	Cores       float64 `json:"cores"`
+	Usage       float64 `json:"usage"`
+	Utilization float64 `json:"utilization"`
+}
+
+type SQLInstanceDisk struct {
+	QuotaBytes  int     `json:"quotaBytes"`
+	Usage       float64 `json:"usage"`
+	Utilization float64 `json:"utilization"`
+}
+
+type SQLInstanceMemory struct {
+	QuotaBytes  float64 `json:"quotaBytes"`
+	Usage       float64 `json:"usage"`
+	Utilization float64 `json:"utilization"`
+}
+
+type SQLInstanceStatus struct {
+	Conditions      []*SQLInstanceCondition `json:"conditions"`
+	PublicIPAddress *string                 `json:"publicIpAddress,omitempty"`
+}
+
+type SQLInstancesList struct {
+	Nodes    []*SQLInstance `json:"nodes"`
+	PageInfo PageInfo       `json:"pageInfo"`
+}
+
+type SQLInstancesStatus struct {
+	Total   int `json:"total"`
+	Failing int `json:"failing"`
+}
 
 type Subscription struct {
 }
@@ -865,8 +877,9 @@ type TeamMemberList struct {
 
 // Team status.
 type TeamStatus struct {
-	Apps AppsStatus `json:"apps"`
-	Jobs JobsStatus `json:"jobs"`
+	Apps         AppsStatus         `json:"apps"`
+	Jobs         JobsStatus         `json:"jobs"`
+	SQLInstances SQLInstancesStatus `json:"sqlInstances"`
 }
 
 // Input for filtering teams.
@@ -1088,6 +1101,8 @@ const (
 	OrderByFieldSeverityLow OrderByField = "SEVERITY_LOW"
 	// Order apps by vulnerability severity unassigned
 	OrderByFieldSeverityUnassigned OrderByField = "SEVERITY_UNASSIGNED"
+	// Order by PostgreSQL version
+	OrderByFieldVersion OrderByField = "VERSION"
 )
 
 var AllOrderByField = []OrderByField{
@@ -1103,11 +1118,12 @@ var AllOrderByField = []OrderByField{
 	OrderByFieldSeverityMedium,
 	OrderByFieldSeverityLow,
 	OrderByFieldSeverityUnassigned,
+	OrderByFieldVersion,
 }
 
 func (e OrderByField) IsValid() bool {
 	switch e {
-	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned:
+	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned, OrderByFieldVersion:
 		return true
 	}
 	return false

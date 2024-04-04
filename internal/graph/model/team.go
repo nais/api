@@ -51,3 +51,7 @@ type TeamDeleteKeyGQLVars struct {
 	TeamSlug slug.Slug
 	UserID   uuid.UUID
 }
+
+type TeamInventory struct {
+	SQLInstances []*SQLInstance `json:"sqlInstances"`
+}

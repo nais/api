@@ -1,3 +1,17 @@
+extend type Query {
+  "Get an SQL instance by name, team and env."
+  sqlInstance(
+    "The name of the instance."
+    name: String!
+
+    "The name of the team who owns the instance."
+    team: Slug!
+
+    "The environment the instance runs in."
+    env: String!
+  ): SqlInstance!
+}
+
 interface Storage {
   name: String!
 }
@@ -66,36 +80,90 @@ type Insights {
   recordClientAddress: Boolean!
 }
 
-type Maintenance {
+type MaintenanceWindow {
   day: Int!
   hour: Int!
 }
 
-type Database {
-  envVarPrefix: String!
+type SqlDatabase {
   name: String!
-  users: [DatabaseUser!]!
 }
 
-type DatabaseUser {
-  name: String!
+type SqlInstancesList {
+  nodes: [SqlInstance!]!
+  pageInfo: PageInfo!
 }
 
 type SqlInstance implements Storage {
-  autoBackupHour: Int!
+  id: ID!
+  app: App
+  backupConfiguration: BackupConfiguration!
   cascadingDelete: Boolean!
-  collation: String!
-  databases: [Database!]!
-  diskAutoresize: Boolean!
-  diskSize: Int!
-  diskType: String!
+  connectionName: String!
+  cost(
+    from: Date!
+    to: Date!
+  ): Float!
+  databases: [SqlDatabase!]!
+  env: Env!
   flags: [Flag!]!
   highAvailability: Boolean!
-  insights: Insights!
-  maintenance: Maintenance!
+  isHealthy: Boolean!
+  maintenanceWindow: MaintenanceWindow
+  maintenanceVersion: String
+  metrics: SqlInstanceMetrics!
   name: String!
-  pointInTimeRecovery: Boolean!
-  retainedBackups: Int!
+  projectId: String!
+  team: Team!
   tier: String!
   type: String!
+  status: SqlInstanceStatus!
+}
+
+type BackupConfiguration {
+  enabled: Boolean!
+  startTime: String!
+  retainedBackups: Int!
+  pointInTimeRecovery: Boolean!
+}
+
+type SqlInstanceMetrics {
+  cpu: SqlInstanceCpu!
+  memory: SqlInstanceMemory!
+  disk: SqlInstanceDisk!
+}
+
+type SqlInstanceCpu {
+  cores: Float!
+  usage: Float!
+  utilization: Float!
+}
+
+type SqlInstanceMemory {
+  quotaBytes: Float!
+  usage: Float!
+  utilization: Float!
+}
+
+type SqlInstanceDisk {
+  quotaBytes: Int!
+  usage: Float!
+  utilization: Float!
+}
+
+type SqlInstanceStatus {
+  conditions: [SqlInstanceCondition!]!
+  publicIpAddress: String
+}
+
+type SqlInstanceCondition {
+  message: String!
+  reason: String!
+  status: String!
+  type: String!
+}
+
+extend enum OrderByField {
+  "Order by PostgreSQL version"
+  VERSION
 }

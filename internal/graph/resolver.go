@@ -22,6 +22,7 @@ import (
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/search"
+	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/usersync"
@@ -99,6 +100,7 @@ type Resolver struct {
 	auditLogger           auditlogger.AuditLogger
 	userSyncRuns          *usersync.RunsHandler
 	pubsubTopic           *pubsub.Topic
+	sqlinstanceMetrics    *sqlinstance.Metrics
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
@@ -115,6 +117,7 @@ func NewResolver(
 	userSyncRuns *usersync.RunsHandler,
 	pubsubTopic *pubsub.Topic,
 	log logrus.FieldLogger,
+	sqlinstanceMetrics *sqlinstance.Metrics,
 ) *Resolver {
 	return &Resolver{
 		hookdClient:           hookdClient,
@@ -130,6 +133,7 @@ func NewResolver(
 		userSyncRuns:          userSyncRuns,
 		clusters:              clusters,
 		pubsubTopic:           pubsubTopic,
+		sqlinstanceMetrics:    sqlinstanceMetrics,
 	}
 }
 
