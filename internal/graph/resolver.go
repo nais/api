@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/nais/api/internal/sqlinstance"
-
 	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -24,6 +22,7 @@ import (
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/search"
+	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/usersync"

@@ -36,8 +36,10 @@ type SQLInstanceGQLVars struct {
 	Annotations map[string]string
 }
 
-func (SQLInstance) IsStorage()        {}
+func (SQLInstance) IsStorage() {}
+
 func (i SQLInstance) GetName() string { return i.Name }
+
 func (i *SQLInstance) IsHealthy() bool {
 	for _, cond := range i.Status.Conditions {
 		if cond.Type == "Ready" && cond.Reason == "UpToDate" && cond.Status == "True" {

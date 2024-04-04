@@ -117,8 +117,7 @@ func (m *Metrics) AverageFor(ctx context.Context, projectID string, opts ...Opti
 			case metric.MetricDescriptor_DOUBLE:
 				sum += p.Value.GetDoubleValue()
 			default:
-				// TODO: use injected logger
-				log.Error("unsupported value type")
+				m.log.WithField("type", t.ValueType.String()).Error("unsupported value type")
 			}
 		}
 		return sum / float64(len(t.Points)), nil
@@ -140,7 +139,7 @@ func (m *Metrics) ListTimeSeries(ctx context.Context, projectID string, opts ...
 	}
 
 	req := &monitoringpb.ListTimeSeriesRequest{
-		Name:        fmt.Sprintf("projects/%s", projectID),
+		Name:        "projects/" + projectID,
 		Interval:    options.interval,
 		Aggregation: options.aggregation,
 	}

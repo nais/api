@@ -38,9 +38,20 @@ func (r *sqlInstanceResolver) App(ctx context.Context, obj *model.SQLInstance) (
 
 // Cost is the resolver for the cost field.
 func (r *sqlInstanceResolver) Cost(ctx context.Context, obj *model.SQLInstance, from scalar.Date, to scalar.Date) (float64, error) {
-	// TODO: fix error handling / validation for dates
-	fromDate, _ := from.PgDate()
-	toDate, _ := to.PgDate()
+	if err := ValidateDateInterval(from, to); err != nil {
+		return 0, err
+	}
+
+	fromDate, err := from.PgDate()
+	if err != nil {
+		return 0, err
+	}
+
+	toDate, err := to.PgDate()
+	if err != nil {
+		return 0, err
+	}
+
 	sum, err := r.database.CostForSqlInstance(ctx, fromDate, toDate, obj.GQLVars.TeamSlug, obj.Name, obj.Env.Name)
 	if err != nil {
 		return 0, err
