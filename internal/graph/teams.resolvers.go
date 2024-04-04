@@ -778,30 +778,33 @@ func (r *queryResolver) Teams(ctx context.Context, offset *int, limit *int, filt
 	}
 
 	var teams []*database.Team
-	var total int
 
 	p := model.NewPagination(offset, limit)
+	var pageInfo model.PageInfo
 
-	if filter != nil {
-		if filter.Github != nil {
-			teams, total, err = r.database.GetTeamsWithPermissionInGitHubRepo(ctx, filter.Github.RepoName, filter.Github.PermissionName, database.Page{
-				Limit:  p.Limit,
-				Offset: p.Offset,
-			})
+	if filter != nil && filter.Github != nil {
+		teams, err = r.database.GetAllTeamsWithPermissionInGitHubRepo(ctx, filter.Github.RepoName, filter.Github.PermissionName)
+		if err != nil {
+			return nil, err
 		}
+
+		teams, pageInfo = model.PaginatedSlice(teams, p)
 	} else {
+		var total int
 		teams, total, err = r.database.GetTeams(ctx, database.Page{
 			Limit:  p.Limit,
 			Offset: p.Offset,
 		})
-	}
-	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
+
+		pageInfo = model.NewPageInfo(p, total)
 	}
 
 	return &model.TeamList{
 		Nodes:    toGraphTeams(teams),
-		PageInfo: model.NewPageInfo(p, total),
+		PageInfo: pageInfo,
 	}, nil
 }
 

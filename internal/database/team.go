@@ -48,7 +48,7 @@ type TeamRepo interface {
 	GetTeamMembersForReconciler(ctx context.Context, teamSlug slug.Slug, reconcilerName string) ([]*User, error)
 	GetTeams(ctx context.Context, p Page) ([]*Team, int, error)
 	GetTeamsBySlugs(ctx context.Context, teamSlugs []slug.Slug) ([]*Team, error)
-	GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string, p Page) ([]*Team, int, error)
+	GetAllTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string) ([]*Team, error)
 	GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*UserTeam, error)
 	GetUserTeamsPaginated(ctx context.Context, userID uuid.UUID, p Page) ([]*UserTeam, int, error)
 	RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error
@@ -401,12 +401,12 @@ func (d *database) UpsertTeamEnvironment(ctx context.Context, teamSlug slug.Slug
 	return err
 }
 
-func (d *database) GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string, p Page) ([]*Team, int, error) {
+func (d *database) GetAllTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string) ([]*Team, error) {
 	// TODO: this should be refactored once we have a better model for the github reconciler state
 
 	states, err := d.GetReconcilerState(ctx, "github:team")
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
 	teams := make([]*Team, 0)
@@ -415,15 +415,7 @@ func (d *database) GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoN
 			teams = append(teams, state.Team)
 		}
 	}
-
-	start := p.Offset
-	end := start + p.Limit
-	total := len(teams)
-	if end > total {
-		end = total
-	}
-
-	return teams[start:end], total, nil
+	return teams, nil
 }
 
 func (d *database) SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*gensql.Team, error) {

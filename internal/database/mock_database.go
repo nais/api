@@ -1966,6 +1966,66 @@ func (_c *MockDatabase_GetAllTeamSlugs_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
+// GetAllTeamsWithPermissionInGitHubRepo provides a mock function with given fields: ctx, repoName, permission
+func (_m *MockDatabase) GetAllTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName string, permission string) ([]*Team, error) {
+	ret := _m.Called(ctx, repoName, permission)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAllTeamsWithPermissionInGitHubRepo")
+	}
+
+	var r0 []*Team
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) ([]*Team, error)); ok {
+		return rf(ctx, repoName, permission)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) []*Team); ok {
+		r0 = rf(ctx, repoName, permission)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*Team)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, repoName, permission)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockDatabase_GetAllTeamsWithPermissionInGitHubRepo_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAllTeamsWithPermissionInGitHubRepo'
+type MockDatabase_GetAllTeamsWithPermissionInGitHubRepo_Call struct {
+	*mock.Call
+}
+
+// GetAllTeamsWithPermissionInGitHubRepo is a helper method to define mock.On call
+//   - ctx context.Context
+//   - repoName string
+//   - permission string
+func (_e *MockDatabase_Expecter) GetAllTeamsWithPermissionInGitHubRepo(ctx interface{}, repoName interface{}, permission interface{}) *MockDatabase_GetAllTeamsWithPermissionInGitHubRepo_Call {
+	return &MockDatabase_GetAllTeamsWithPermissionInGitHubRepo_Call{Call: _e.mock.On("GetAllTeamsWithPermissionInGitHubRepo", ctx, repoName, permission)}
+}
+
+func (_c *MockDatabase_GetAllTeamsWithPermissionInGitHubRepo_Call) Run(run func(ctx context.Context, repoName string, permission string)) *MockDatabase_GetAllTeamsWithPermissionInGitHubRepo_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_GetAllTeamsWithPermissionInGitHubRepo_Call) Return(_a0 []*Team, _a1 error) *MockDatabase_GetAllTeamsWithPermissionInGitHubRepo_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockDatabase_GetAllTeamsWithPermissionInGitHubRepo_Call) RunAndReturn(run func(context.Context, string, string) ([]*Team, error)) *MockDatabase_GetAllTeamsWithPermissionInGitHubRepo_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetAllUserRoles provides a mock function with given fields: ctx
 func (_m *MockDatabase) GetAllUserRoles(ctx context.Context) ([]*UserRole, error) {
 	ret := _m.Called(ctx)
@@ -3671,74 +3731,6 @@ func (_c *MockDatabase_GetTeamsBySlugs_Call) Return(_a0 []*Team, _a1 error) *Moc
 }
 
 func (_c *MockDatabase_GetTeamsBySlugs_Call) RunAndReturn(run func(context.Context, []slug.Slug) ([]*Team, error)) *MockDatabase_GetTeamsBySlugs_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetTeamsWithPermissionInGitHubRepo provides a mock function with given fields: ctx, repoName, permission, p
-func (_m *MockDatabase) GetTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName string, permission string, p Page) ([]*Team, int, error) {
-	ret := _m.Called(ctx, repoName, permission, p)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetTeamsWithPermissionInGitHubRepo")
-	}
-
-	var r0 []*Team
-	var r1 int
-	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, Page) ([]*Team, int, error)); ok {
-		return rf(ctx, repoName, permission, p)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, Page) []*Team); ok {
-		r0 = rf(ctx, repoName, permission, p)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*Team)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, Page) int); ok {
-		r1 = rf(ctx, repoName, permission, p)
-	} else {
-		r1 = ret.Get(1).(int)
-	}
-
-	if rf, ok := ret.Get(2).(func(context.Context, string, string, Page) error); ok {
-		r2 = rf(ctx, repoName, permission, p)
-	} else {
-		r2 = ret.Error(2)
-	}
-
-	return r0, r1, r2
-}
-
-// MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamsWithPermissionInGitHubRepo'
-type MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call struct {
-	*mock.Call
-}
-
-// GetTeamsWithPermissionInGitHubRepo is a helper method to define mock.On call
-//   - ctx context.Context
-//   - repoName string
-//   - permission string
-//   - p Page
-func (_e *MockDatabase_Expecter) GetTeamsWithPermissionInGitHubRepo(ctx interface{}, repoName interface{}, permission interface{}, p interface{}) *MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call {
-	return &MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call{Call: _e.mock.On("GetTeamsWithPermissionInGitHubRepo", ctx, repoName, permission, p)}
-}
-
-func (_c *MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call) Run(run func(ctx context.Context, repoName string, permission string, p Page)) *MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(Page))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call) Return(_a0 []*Team, _a1 int, _a2 error) *MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call {
-	_c.Call.Return(_a0, _a1, _a2)
-	return _c
-}
-
-func (_c *MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call) RunAndReturn(run func(context.Context, string, string, Page) ([]*Team, int, error)) *MockDatabase_GetTeamsWithPermissionInGitHubRepo_Call {
 	_c.Call.Return(run)
 	return _c
 }
