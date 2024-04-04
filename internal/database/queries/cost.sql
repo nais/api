@@ -6,50 +6,18 @@ FROM
     cost;
 
 -- name: MonthlyCostForApp :many
-WITH last_run AS (
-    SELECT MAX(date)::date AS "last_run"
-    FROM cost
-)
-SELECT
-    team_slug,
-    app,
-    environment,
-    date_trunc('month', date)::date AS month,
-    -- Extract last day of known cost samples for the month, or the last recorded date
-    -- This helps with estimation etc
-    MAX(CASE
-        WHEN date_trunc('month', date) < date_trunc('month', last_run) THEN date_trunc('month', date) + interval '1 month' - interval '1 day'
-        ELSE date_trunc('day', last_run)
-    END)::date AS last_recorded_date,
-    SUM(daily_cost)::real AS daily_cost
-FROM cost c
-LEFT JOIN last_run ON true
-WHERE c.team_slug = @team_slug::slug
-AND c.app = @app
-AND c.environment = @environment::text
-GROUP BY team_slug, app, environment, month
+SELECT *
+FROM cost_monthly_app
+WHERE team_slug = @team_slug::slug
+AND app = @app
+AND environment = @environment::text
 ORDER BY month DESC
 LIMIT 12;
 
 -- name: MonthlyCostForTeam :many
-WITH last_run AS (
-    SELECT MAX(date)::date AS "last_run"
-    FROM cost
-)
-SELECT
-    team_slug,
-    date_trunc('month', date)::date AS month,
-    -- Extract last day of known cost samples for the month, or the last recorded date
-    -- This helps with estimation etc
-    MAX(CASE
-        WHEN date_trunc('month', date) < date_trunc('month', last_run) THEN date_trunc('month', date) + interval '1 month' - interval '1 day'
-        ELSE date_trunc('day', last_run)
-    END)::date AS last_recorded_date,
-    SUM(daily_cost)::real AS daily_cost
-FROM cost c
-LEFT JOIN last_run ON true
-WHERE c.team_slug = @team_slug::slug
-GROUP BY team_slug, month
+SELECT *
+FROM cost_monthly_team
+WHERE team_slug = @team_slug::slug
 ORDER BY month DESC
 LIMIT 12;
 
@@ -92,19 +60,12 @@ ORDER BY
 
 -- DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
 -- name: DailyEnvCostForTeam :many
-SELECT
-    team_slug,
-    app,
-    date,
-    SUM(daily_cost)::real AS daily_cost
-FROM
-    cost
+SELECT *
+FROM cost_daily_team
 WHERE
     date >= @from_date::date
     AND date <= @to_date::date
-    AND environment = @environment
     AND team_slug = @team_slug::slug
-GROUP BY
-    team_slug, app, date
+    AND environment = @environment
 ORDER BY
     date, app ASC;
