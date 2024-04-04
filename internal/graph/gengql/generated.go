@@ -171,9 +171,10 @@ type ComplexityRoot struct {
 	}
 
 	BackupConfiguration struct {
-		Enabled         func(childComplexity int) int
-		RetainedBackups func(childComplexity int) int
-		StartTime       func(childComplexity int) int
+		Enabled             func(childComplexity int) int
+		PointInTimeRecovery func(childComplexity int) int
+		RetainedBackups     func(childComplexity int) int
+		StartTime           func(childComplexity int) int
 	}
 
 	BigQueryDataset struct {
@@ -456,7 +457,7 @@ type ComplexityRoot struct {
 		Time     func(childComplexity int) int
 	}
 
-	Maintenance struct {
+	MaintenanceWindow struct {
 		Day  func(childComplexity int) int
 		Hour func(childComplexity int) int
 	}
@@ -758,28 +759,21 @@ type ComplexityRoot struct {
 
 	SqlInstance struct {
 		App                 func(childComplexity int) int
-		AutoBackupHour      func(childComplexity int) int
 		BackupConfiguration func(childComplexity int) int
 		CascadingDelete     func(childComplexity int) int
-		Collation           func(childComplexity int) int
 		ConnectionName      func(childComplexity int) int
 		Cost                func(childComplexity int, from scalar.Date, to scalar.Date) int
 		Databases           func(childComplexity int) int
-		DiskAutoresize      func(childComplexity int) int
-		DiskType            func(childComplexity int) int
 		Env                 func(childComplexity int) int
 		Flags               func(childComplexity int) int
 		HighAvailability    func(childComplexity int) int
 		ID                  func(childComplexity int) int
-		Insights            func(childComplexity int) int
 		IsHealthy           func(childComplexity int) int
-		Maintenance         func(childComplexity int) int
 		MaintenanceVersion  func(childComplexity int) int
+		MaintenanceWindow   func(childComplexity int) int
 		Metrics             func(childComplexity int) int
 		Name                func(childComplexity int) int
-		PointInTimeRecovery func(childComplexity int) int
 		ProjectID           func(childComplexity int) int
-		RetainedBackups     func(childComplexity int) int
 		Status              func(childComplexity int) int
 		Team                func(childComplexity int) int
 		Tier                func(childComplexity int) int
@@ -1622,6 +1616,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BackupConfiguration.Enabled(childComplexity), true
+
+	case "BackupConfiguration.pointInTimeRecovery":
+		if e.complexity.BackupConfiguration.PointInTimeRecovery == nil {
+			break
+		}
+
+		return e.complexity.BackupConfiguration.PointInTimeRecovery(childComplexity), true
 
 	case "BackupConfiguration.retainedBackups":
 		if e.complexity.BackupConfiguration.RetainedBackups == nil {
@@ -2678,19 +2679,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.LogLine.Time(childComplexity), true
 
-	case "Maintenance.day":
-		if e.complexity.Maintenance.Day == nil {
+	case "MaintenanceWindow.day":
+		if e.complexity.MaintenanceWindow.Day == nil {
 			break
 		}
 
-		return e.complexity.Maintenance.Day(childComplexity), true
+		return e.complexity.MaintenanceWindow.Day(childComplexity), true
 
-	case "Maintenance.hour":
-		if e.complexity.Maintenance.Hour == nil {
+	case "MaintenanceWindow.hour":
+		if e.complexity.MaintenanceWindow.Hour == nil {
 			break
 		}
 
-		return e.complexity.Maintenance.Hour(childComplexity), true
+		return e.complexity.MaintenanceWindow.Hour(childComplexity), true
 
 	case "Maskinporten.enabled":
 		if e.complexity.Maskinporten.Enabled == nil {
@@ -4237,13 +4238,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.App(childComplexity), true
 
-	case "SqlInstance.autoBackupHour":
-		if e.complexity.SqlInstance.AutoBackupHour == nil {
-			break
-		}
-
-		return e.complexity.SqlInstance.AutoBackupHour(childComplexity), true
-
 	case "SqlInstance.backupConfiguration":
 		if e.complexity.SqlInstance.BackupConfiguration == nil {
 			break
@@ -4257,13 +4251,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SqlInstance.CascadingDelete(childComplexity), true
-
-	case "SqlInstance.collation":
-		if e.complexity.SqlInstance.Collation == nil {
-			break
-		}
-
-		return e.complexity.SqlInstance.Collation(childComplexity), true
 
 	case "SqlInstance.connectionName":
 		if e.complexity.SqlInstance.ConnectionName == nil {
@@ -4290,20 +4277,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SqlInstance.Databases(childComplexity), true
-
-	case "SqlInstance.diskAutoresize":
-		if e.complexity.SqlInstance.DiskAutoresize == nil {
-			break
-		}
-
-		return e.complexity.SqlInstance.DiskAutoresize(childComplexity), true
-
-	case "SqlInstance.diskType":
-		if e.complexity.SqlInstance.DiskType == nil {
-			break
-		}
-
-		return e.complexity.SqlInstance.DiskType(childComplexity), true
 
 	case "SqlInstance.env":
 		if e.complexity.SqlInstance.Env == nil {
@@ -4333,13 +4306,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.ID(childComplexity), true
 
-	case "SqlInstance.insights":
-		if e.complexity.SqlInstance.Insights == nil {
-			break
-		}
-
-		return e.complexity.SqlInstance.Insights(childComplexity), true
-
 	case "SqlInstance.isHealthy":
 		if e.complexity.SqlInstance.IsHealthy == nil {
 			break
@@ -4347,19 +4313,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.IsHealthy(childComplexity), true
 
-	case "SqlInstance.maintenance":
-		if e.complexity.SqlInstance.Maintenance == nil {
-			break
-		}
-
-		return e.complexity.SqlInstance.Maintenance(childComplexity), true
-
 	case "SqlInstance.maintenanceVersion":
 		if e.complexity.SqlInstance.MaintenanceVersion == nil {
 			break
 		}
 
 		return e.complexity.SqlInstance.MaintenanceVersion(childComplexity), true
+
+	case "SqlInstance.maintenanceWindow":
+		if e.complexity.SqlInstance.MaintenanceWindow == nil {
+			break
+		}
+
+		return e.complexity.SqlInstance.MaintenanceWindow(childComplexity), true
 
 	case "SqlInstance.metrics":
 		if e.complexity.SqlInstance.Metrics == nil {
@@ -4375,26 +4341,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.Name(childComplexity), true
 
-	case "SqlInstance.pointInTimeRecovery":
-		if e.complexity.SqlInstance.PointInTimeRecovery == nil {
-			break
-		}
-
-		return e.complexity.SqlInstance.PointInTimeRecovery(childComplexity), true
-
 	case "SqlInstance.projectId":
 		if e.complexity.SqlInstance.ProjectID == nil {
 			break
 		}
 
 		return e.complexity.SqlInstance.ProjectID(childComplexity), true
-
-	case "SqlInstance.retainedBackups":
-		if e.complexity.SqlInstance.RetainedBackups == nil {
-			break
-		}
-
-		return e.complexity.SqlInstance.RetainedBackups(childComplexity), true
 
 	case "SqlInstance.status":
 		if e.complexity.SqlInstance.Status == nil {
@@ -6849,7 +6801,7 @@ type Insights {
   recordClientAddress: Boolean!
 }
 
-type Maintenance {
+type MaintenanceWindow {
   day: Int!
   hour: Int!
 }
@@ -6866,30 +6818,23 @@ type SqlInstancesList {
 type SqlInstance implements Storage {
   id: ID!
   app: App
-  autoBackupHour: Int!
   backupConfiguration: BackupConfiguration!
   cascadingDelete: Boolean!
-  collation: String!
   connectionName: String!
   cost(
     from: Date!
     to: Date!
   ): Float!
   databases: [SqlDatabase!]!
-  diskAutoresize: Boolean!
-  diskType: String!
   env: Env!
   flags: [Flag!]!
   highAvailability: Boolean!
-  insights: Insights!
   isHealthy: Boolean!
-  maintenance: Maintenance
+  maintenanceWindow: MaintenanceWindow
   maintenanceVersion: String
   metrics: SqlInstanceMetrics!
   name: String!
-  pointInTimeRecovery: Boolean!
   projectId: String!
-  retainedBackups: Int!
   team: Team!
   tier: String!
   type: String!
@@ -6900,6 +6845,7 @@ type BackupConfiguration {
   enabled: Boolean!
   startTime: String!
   retainedBackups: Int!
+  pointInTimeRecovery: Boolean!
 }
 
 type SqlInstanceMetrics {
@@ -12487,6 +12433,50 @@ func (ec *executionContext) fieldContext_BackupConfiguration_retainedBackups(ctx
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BackupConfiguration_pointInTimeRecovery(ctx context.Context, field graphql.CollectedField, obj *model.BackupConfiguration) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BackupConfiguration_pointInTimeRecovery(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PointInTimeRecovery, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BackupConfiguration_pointInTimeRecovery(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BackupConfiguration",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -19257,8 +19247,8 @@ func (ec *executionContext) fieldContext_LogLine_instance(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Maintenance_day(ctx context.Context, field graphql.CollectedField, obj *model.Maintenance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Maintenance_day(ctx, field)
+func (ec *executionContext) _MaintenanceWindow_day(ctx context.Context, field graphql.CollectedField, obj *model.MaintenanceWindow) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MaintenanceWindow_day(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -19288,9 +19278,9 @@ func (ec *executionContext) _Maintenance_day(ctx context.Context, field graphql.
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Maintenance_day(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MaintenanceWindow_day(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Maintenance",
+		Object:     "MaintenanceWindow",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -19301,8 +19291,8 @@ func (ec *executionContext) fieldContext_Maintenance_day(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Maintenance_hour(ctx context.Context, field graphql.CollectedField, obj *model.Maintenance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Maintenance_hour(ctx, field)
+func (ec *executionContext) _MaintenanceWindow_hour(ctx context.Context, field graphql.CollectedField, obj *model.MaintenanceWindow) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MaintenanceWindow_hour(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -19332,9 +19322,9 @@ func (ec *executionContext) _Maintenance_hour(ctx context.Context, field graphql
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Maintenance_hour(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MaintenanceWindow_hour(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Maintenance",
+		Object:     "MaintenanceWindow",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -25425,48 +25415,34 @@ func (ec *executionContext) fieldContext_Query_sqlInstance(ctx context.Context, 
 				return ec.fieldContext_SqlInstance_id(ctx, field)
 			case "app":
 				return ec.fieldContext_SqlInstance_app(ctx, field)
-			case "autoBackupHour":
-				return ec.fieldContext_SqlInstance_autoBackupHour(ctx, field)
 			case "backupConfiguration":
 				return ec.fieldContext_SqlInstance_backupConfiguration(ctx, field)
 			case "cascadingDelete":
 				return ec.fieldContext_SqlInstance_cascadingDelete(ctx, field)
-			case "collation":
-				return ec.fieldContext_SqlInstance_collation(ctx, field)
 			case "connectionName":
 				return ec.fieldContext_SqlInstance_connectionName(ctx, field)
 			case "cost":
 				return ec.fieldContext_SqlInstance_cost(ctx, field)
 			case "databases":
 				return ec.fieldContext_SqlInstance_databases(ctx, field)
-			case "diskAutoresize":
-				return ec.fieldContext_SqlInstance_diskAutoresize(ctx, field)
-			case "diskType":
-				return ec.fieldContext_SqlInstance_diskType(ctx, field)
 			case "env":
 				return ec.fieldContext_SqlInstance_env(ctx, field)
 			case "flags":
 				return ec.fieldContext_SqlInstance_flags(ctx, field)
 			case "highAvailability":
 				return ec.fieldContext_SqlInstance_highAvailability(ctx, field)
-			case "insights":
-				return ec.fieldContext_SqlInstance_insights(ctx, field)
 			case "isHealthy":
 				return ec.fieldContext_SqlInstance_isHealthy(ctx, field)
-			case "maintenance":
-				return ec.fieldContext_SqlInstance_maintenance(ctx, field)
+			case "maintenanceWindow":
+				return ec.fieldContext_SqlInstance_maintenanceWindow(ctx, field)
 			case "maintenanceVersion":
 				return ec.fieldContext_SqlInstance_maintenanceVersion(ctx, field)
 			case "metrics":
 				return ec.fieldContext_SqlInstance_metrics(ctx, field)
 			case "name":
 				return ec.fieldContext_SqlInstance_name(ctx, field)
-			case "pointInTimeRecovery":
-				return ec.fieldContext_SqlInstance_pointInTimeRecovery(ctx, field)
 			case "projectId":
 				return ec.fieldContext_SqlInstance_projectId(ctx, field)
-			case "retainedBackups":
-				return ec.fieldContext_SqlInstance_retainedBackups(ctx, field)
 			case "team":
 				return ec.fieldContext_SqlInstance_team(ctx, field)
 			case "tier":
@@ -30591,50 +30567,6 @@ func (ec *executionContext) fieldContext_SqlInstance_app(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_autoBackupHour(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SqlInstance_autoBackupHour(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.AutoBackupHour, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SqlInstance_autoBackupHour(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SqlInstance",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _SqlInstance_backupConfiguration(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstance_backupConfiguration(ctx, field)
 	if err != nil {
@@ -30680,6 +30612,8 @@ func (ec *executionContext) fieldContext_SqlInstance_backupConfiguration(ctx con
 				return ec.fieldContext_BackupConfiguration_startTime(ctx, field)
 			case "retainedBackups":
 				return ec.fieldContext_BackupConfiguration_retainedBackups(ctx, field)
+			case "pointInTimeRecovery":
+				return ec.fieldContext_BackupConfiguration_pointInTimeRecovery(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type BackupConfiguration", field.Name)
 		},
@@ -30726,50 +30660,6 @@ func (ec *executionContext) fieldContext_SqlInstance_cascadingDelete(ctx context
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SqlInstance_collation(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SqlInstance_collation(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Collation, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SqlInstance_collation(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SqlInstance",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -30917,94 +30807,6 @@ func (ec *executionContext) fieldContext_SqlInstance_databases(ctx context.Conte
 				return ec.fieldContext_SqlDatabase_name(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SqlDatabase", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SqlInstance_diskAutoresize(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SqlInstance_diskAutoresize(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DiskAutoresize, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SqlInstance_diskAutoresize(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SqlInstance",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SqlInstance_diskType(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SqlInstance_diskType(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DiskType, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SqlInstance_diskType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SqlInstance",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -31160,60 +30962,6 @@ func (ec *executionContext) fieldContext_SqlInstance_highAvailability(ctx contex
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_insights(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SqlInstance_insights(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Insights, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.Insights)
-	fc.Result = res
-	return ec.marshalNInsights2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐInsights(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SqlInstance_insights(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SqlInstance",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "enabled":
-				return ec.fieldContext_Insights_enabled(ctx, field)
-			case "queryStringLength":
-				return ec.fieldContext_Insights_queryStringLength(ctx, field)
-			case "recordApplicationTags":
-				return ec.fieldContext_Insights_recordApplicationTags(ctx, field)
-			case "recordClientAddress":
-				return ec.fieldContext_Insights_recordClientAddress(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Insights", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _SqlInstance_isHealthy(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstance_isHealthy(ctx, field)
 	if err != nil {
@@ -31258,8 +31006,8 @@ func (ec *executionContext) fieldContext_SqlInstance_isHealthy(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_maintenance(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SqlInstance_maintenance(ctx, field)
+func (ec *executionContext) _SqlInstance_maintenanceWindow(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_maintenanceWindow(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -31272,7 +31020,7 @@ func (ec *executionContext) _SqlInstance_maintenance(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Maintenance, nil
+		return obj.MaintenanceWindow, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -31281,12 +31029,12 @@ func (ec *executionContext) _SqlInstance_maintenance(ctx context.Context, field 
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.Maintenance)
+	res := resTmp.(*model.MaintenanceWindow)
 	fc.Result = res
-	return ec.marshalOMaintenance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐMaintenance(ctx, field.Selections, res)
+	return ec.marshalOMaintenanceWindow2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐMaintenanceWindow(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SqlInstance_maintenance(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SqlInstance_maintenanceWindow(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
@@ -31295,11 +31043,11 @@ func (ec *executionContext) fieldContext_SqlInstance_maintenance(ctx context.Con
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "day":
-				return ec.fieldContext_Maintenance_day(ctx, field)
+				return ec.fieldContext_MaintenanceWindow_day(ctx, field)
 			case "hour":
-				return ec.fieldContext_Maintenance_hour(ctx, field)
+				return ec.fieldContext_MaintenanceWindow_hour(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Maintenance", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type MaintenanceWindow", field.Name)
 		},
 	}
 	return fc, nil
@@ -31442,50 +31190,6 @@ func (ec *executionContext) fieldContext_SqlInstance_name(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_pointInTimeRecovery(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SqlInstance_pointInTimeRecovery(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PointInTimeRecovery, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SqlInstance_pointInTimeRecovery(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SqlInstance",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _SqlInstance_projectId(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstance_projectId(ctx, field)
 	if err != nil {
@@ -31525,50 +31229,6 @@ func (ec *executionContext) fieldContext_SqlInstance_projectId(ctx context.Conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SqlInstance_retainedBackups(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SqlInstance_retainedBackups(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.RetainedBackups, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SqlInstance_retainedBackups(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SqlInstance",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -32682,48 +32342,34 @@ func (ec *executionContext) fieldContext_SqlInstancesList_nodes(ctx context.Cont
 				return ec.fieldContext_SqlInstance_id(ctx, field)
 			case "app":
 				return ec.fieldContext_SqlInstance_app(ctx, field)
-			case "autoBackupHour":
-				return ec.fieldContext_SqlInstance_autoBackupHour(ctx, field)
 			case "backupConfiguration":
 				return ec.fieldContext_SqlInstance_backupConfiguration(ctx, field)
 			case "cascadingDelete":
 				return ec.fieldContext_SqlInstance_cascadingDelete(ctx, field)
-			case "collation":
-				return ec.fieldContext_SqlInstance_collation(ctx, field)
 			case "connectionName":
 				return ec.fieldContext_SqlInstance_connectionName(ctx, field)
 			case "cost":
 				return ec.fieldContext_SqlInstance_cost(ctx, field)
 			case "databases":
 				return ec.fieldContext_SqlInstance_databases(ctx, field)
-			case "diskAutoresize":
-				return ec.fieldContext_SqlInstance_diskAutoresize(ctx, field)
-			case "diskType":
-				return ec.fieldContext_SqlInstance_diskType(ctx, field)
 			case "env":
 				return ec.fieldContext_SqlInstance_env(ctx, field)
 			case "flags":
 				return ec.fieldContext_SqlInstance_flags(ctx, field)
 			case "highAvailability":
 				return ec.fieldContext_SqlInstance_highAvailability(ctx, field)
-			case "insights":
-				return ec.fieldContext_SqlInstance_insights(ctx, field)
 			case "isHealthy":
 				return ec.fieldContext_SqlInstance_isHealthy(ctx, field)
-			case "maintenance":
-				return ec.fieldContext_SqlInstance_maintenance(ctx, field)
+			case "maintenanceWindow":
+				return ec.fieldContext_SqlInstance_maintenanceWindow(ctx, field)
 			case "maintenanceVersion":
 				return ec.fieldContext_SqlInstance_maintenanceVersion(ctx, field)
 			case "metrics":
 				return ec.fieldContext_SqlInstance_metrics(ctx, field)
 			case "name":
 				return ec.fieldContext_SqlInstance_name(ctx, field)
-			case "pointInTimeRecovery":
-				return ec.fieldContext_SqlInstance_pointInTimeRecovery(ctx, field)
 			case "projectId":
 				return ec.fieldContext_SqlInstance_projectId(ctx, field)
-			case "retainedBackups":
-				return ec.fieldContext_SqlInstance_retainedBackups(ctx, field)
 			case "team":
 				return ec.fieldContext_SqlInstance_team(ctx, field)
 			case "tier":
@@ -41538,6 +41184,11 @@ func (ec *executionContext) _BackupConfiguration(ctx context.Context, sel ast.Se
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "pointInTimeRecovery":
+			out.Values[i] = ec._BackupConfiguration_pointInTimeRecovery(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -43923,24 +43574,24 @@ func (ec *executionContext) _LogLine(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
-var maintenanceImplementors = []string{"Maintenance"}
+var maintenanceWindowImplementors = []string{"MaintenanceWindow"}
 
-func (ec *executionContext) _Maintenance(ctx context.Context, sel ast.SelectionSet, obj *model.Maintenance) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, maintenanceImplementors)
+func (ec *executionContext) _MaintenanceWindow(ctx context.Context, sel ast.SelectionSet, obj *model.MaintenanceWindow) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, maintenanceWindowImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Maintenance")
+			out.Values[i] = graphql.MarshalString("MaintenanceWindow")
 		case "day":
-			out.Values[i] = ec._Maintenance_day(ctx, field, obj)
+			out.Values[i] = ec._MaintenanceWindow_day(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "hour":
-			out.Values[i] = ec._Maintenance_hour(ctx, field, obj)
+			out.Values[i] = ec._MaintenanceWindow_hour(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -47165,11 +46816,6 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "autoBackupHour":
-			out.Values[i] = ec._SqlInstance_autoBackupHour(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "backupConfiguration":
 			out.Values[i] = ec._SqlInstance_backupConfiguration(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -47177,11 +46823,6 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			}
 		case "cascadingDelete":
 			out.Values[i] = ec._SqlInstance_cascadingDelete(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "collation":
-			out.Values[i] = ec._SqlInstance_collation(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -47262,16 +46903,6 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "diskAutoresize":
-			out.Values[i] = ec._SqlInstance_diskAutoresize(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "diskType":
-			out.Values[i] = ec._SqlInstance_diskType(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "env":
 			out.Values[i] = ec._SqlInstance_env(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -47287,18 +46918,13 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "insights":
-			out.Values[i] = ec._SqlInstance_insights(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "isHealthy":
 			out.Values[i] = ec._SqlInstance_isHealthy(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "maintenance":
-			out.Values[i] = ec._SqlInstance_maintenance(ctx, field, obj)
+		case "maintenanceWindow":
+			out.Values[i] = ec._SqlInstance_maintenanceWindow(ctx, field, obj)
 		case "maintenanceVersion":
 			out.Values[i] = ec._SqlInstance_maintenanceVersion(ctx, field, obj)
 		case "metrics":
@@ -47342,18 +46968,8 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "pointInTimeRecovery":
-			out.Values[i] = ec._SqlInstance_pointInTimeRecovery(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "projectId":
 			out.Values[i] = ec._SqlInstance_projectId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "retainedBackups":
-			out.Values[i] = ec._SqlInstance_retainedBackups(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -51947,10 +51563,6 @@ func (ec *executionContext) marshalNInbound2githubᚗcomᚋnaisᚋapiᚋinternal
 	return ec._Inbound(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNInsights2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐInsights(ctx context.Context, sel ast.SelectionSet, v model.Insights) graphql.Marshaler {
-	return ec._Insights(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalNInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐInstanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Instance) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -54483,11 +54095,11 @@ func (ec *executionContext) unmarshalOLogSubscriptionInput2ᚖgithubᚗcomᚋnai
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOMaintenance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐMaintenance(ctx context.Context, sel ast.SelectionSet, v *model.Maintenance) graphql.Marshaler {
+func (ec *executionContext) marshalOMaintenanceWindow2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐMaintenanceWindow(ctx context.Context, sel ast.SelectionSet, v *model.MaintenanceWindow) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._Maintenance(ctx, sel, v)
+	return ec._MaintenanceWindow(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderBy(ctx context.Context, v interface{}) (*model.OrderBy, error) {

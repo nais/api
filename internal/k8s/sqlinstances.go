@@ -84,10 +84,14 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 			if backupConfig.BackupRetentionSettings != nil {
 				backupCfg.RetainedBackups = backupConfig.BackupRetentionSettings.RetainedBackups
 			}
+			if backupConfig.PointInTimeRecoveryEnabled != nil {
+				backupCfg.PointInTimeRecovery = *backupConfig.PointInTimeRecoveryEnabled
+			}
 			return backupCfg
 		}(sqlInstance.Spec.Settings.BackupConfiguration),
-		Type:           *sqlInstance.Spec.DatabaseVersion,
-		ConnectionName: *sqlInstance.Status.ConnectionName,
+		CascadingDelete: sqlInstance.GetAnnotations()["cnrm.cloud.google.com/deletion-policy"] != "abandon",
+		Type:            *sqlInstance.Spec.DatabaseVersion,
+		ConnectionName:  *sqlInstance.Status.ConnectionName,
 		Status: model.SQLInstanceStatus{
 			Conditions: func() []*model.SQLInstanceCondition {
 				ret := make([]*model.SQLInstanceCondition, 0)
@@ -103,11 +107,11 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 			}(),
 			PublicIPAddress: sqlInstance.Status.PublicIpAddress,
 		},
-		Maintenance: func(window *sql_cnrm_cloud_google_com_v1beta1.InstanceMaintenanceWindow) *model.Maintenance {
+		MaintenanceWindow: func(window *sql_cnrm_cloud_google_com_v1beta1.InstanceMaintenanceWindow) *model.MaintenanceWindow {
 			if window == nil || window.Day == nil || window.Hour == nil {
 				return nil
 			}
-			return &model.Maintenance{
+			return &model.MaintenanceWindow{
 				Day:  *window.Day,
 				Hour: *window.Hour,
 			}

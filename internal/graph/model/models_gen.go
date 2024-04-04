@@ -497,7 +497,7 @@ type LogSubscriptionInput struct {
 	Instances []string  `json:"instances,omitempty"`
 }
 
-type Maintenance struct {
+type MaintenanceWindow struct {
 	Day  int `json:"day"`
 	Hour int `json:"hour"`
 }

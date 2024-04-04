@@ -80,7 +80,7 @@ type Insights {
   recordClientAddress: Boolean!
 }
 
-type Maintenance {
+type MaintenanceWindow {
   day: Int!
   hour: Int!
 }
@@ -97,30 +97,23 @@ type SqlInstancesList {
 type SqlInstance implements Storage {
   id: ID!
   app: App
-  autoBackupHour: Int!
   backupConfiguration: BackupConfiguration!
   cascadingDelete: Boolean!
-  collation: String!
   connectionName: String!
   cost(
     from: Date!
     to: Date!
   ): Float!
   databases: [SqlDatabase!]!
-  diskAutoresize: Boolean!
-  diskType: String!
   env: Env!
   flags: [Flag!]!
   highAvailability: Boolean!
-  insights: Insights!
   isHealthy: Boolean!
-  maintenance: Maintenance
+  maintenanceWindow: MaintenanceWindow
   maintenanceVersion: String
   metrics: SqlInstanceMetrics!
   name: String!
-  pointInTimeRecovery: Boolean!
   projectId: String!
-  retainedBackups: Int!
   team: Team!
   tier: String!
   type: String!
@@ -131,6 +124,7 @@ type BackupConfiguration {
   enabled: Boolean!
   startTime: String!
   retainedBackups: Int!
+  pointInTimeRecovery: Boolean!
 }
 
 type SqlInstanceMetrics {
