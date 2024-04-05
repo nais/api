@@ -433,9 +433,9 @@ func (_c *MockDatabase_ConfirmTeamDeleteKey_Call) RunAndReturn(run func(context.
 	return _c
 }
 
-// CostForSqlInstance provides a mock function with given fields: ctx, fromDate, toDate, teamSlug, sqlInstanceName, environment
-func (_m *MockDatabase) CostForSqlInstance(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug, sqlInstanceName string, environment string) (float32, error) {
-	ret := _m.Called(ctx, fromDate, toDate, teamSlug, sqlInstanceName, environment)
+// CostForSqlInstance provides a mock function with given fields: ctx, fromDate, toDate, teamSlug, appName, environment
+func (_m *MockDatabase) CostForSqlInstance(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug, appName string, environment string) (float32, error) {
+	ret := _m.Called(ctx, fromDate, toDate, teamSlug, appName, environment)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CostForSqlInstance")
@@ -444,16 +444,16 @@ func (_m *MockDatabase) CostForSqlInstance(ctx context.Context, fromDate pgtype.
 	var r0 float32
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Date, pgtype.Date, slug.Slug, string, string) (float32, error)); ok {
-		return rf(ctx, fromDate, toDate, teamSlug, sqlInstanceName, environment)
+		return rf(ctx, fromDate, toDate, teamSlug, appName, environment)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, pgtype.Date, pgtype.Date, slug.Slug, string, string) float32); ok {
-		r0 = rf(ctx, fromDate, toDate, teamSlug, sqlInstanceName, environment)
+		r0 = rf(ctx, fromDate, toDate, teamSlug, appName, environment)
 	} else {
 		r0 = ret.Get(0).(float32)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, pgtype.Date, pgtype.Date, slug.Slug, string, string) error); ok {
-		r1 = rf(ctx, fromDate, toDate, teamSlug, sqlInstanceName, environment)
+		r1 = rf(ctx, fromDate, toDate, teamSlug, appName, environment)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -471,13 +471,13 @@ type MockDatabase_CostForSqlInstance_Call struct {
 //   - fromDate pgtype.Date
 //   - toDate pgtype.Date
 //   - teamSlug slug.Slug
-//   - sqlInstanceName string
+//   - appName string
 //   - environment string
-func (_e *MockDatabase_Expecter) CostForSqlInstance(ctx interface{}, fromDate interface{}, toDate interface{}, teamSlug interface{}, sqlInstanceName interface{}, environment interface{}) *MockDatabase_CostForSqlInstance_Call {
-	return &MockDatabase_CostForSqlInstance_Call{Call: _e.mock.On("CostForSqlInstance", ctx, fromDate, toDate, teamSlug, sqlInstanceName, environment)}
+func (_e *MockDatabase_Expecter) CostForSqlInstance(ctx interface{}, fromDate interface{}, toDate interface{}, teamSlug interface{}, appName interface{}, environment interface{}) *MockDatabase_CostForSqlInstance_Call {
+	return &MockDatabase_CostForSqlInstance_Call{Call: _e.mock.On("CostForSqlInstance", ctx, fromDate, toDate, teamSlug, appName, environment)}
 }
 
-func (_c *MockDatabase_CostForSqlInstance_Call) Run(run func(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug, sqlInstanceName string, environment string)) *MockDatabase_CostForSqlInstance_Call {
+func (_c *MockDatabase_CostForSqlInstance_Call) Run(run func(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug, appName string, environment string)) *MockDatabase_CostForSqlInstance_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(pgtype.Date), args[2].(pgtype.Date), args[3].(slug.Slug), args[4].(string), args[5].(string))
 	})

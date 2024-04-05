@@ -25,17 +25,17 @@ WHERE
 `
 
 type CostForSqlInstanceParams struct {
-	TeamSlug        slug.Slug
-	SqlInstanceName string
-	FromDate        pgtype.Date
-	ToDate          pgtype.Date
-	Environment     string
+	TeamSlug    slug.Slug
+	AppName     string
+	FromDate    pgtype.Date
+	ToDate      pgtype.Date
+	Environment string
 }
 
 func (q *Queries) CostForSqlInstance(ctx context.Context, arg CostForSqlInstanceParams) (float32, error) {
 	row := q.db.QueryRow(ctx, costForSqlInstance,
 		arg.TeamSlug,
-		arg.SqlInstanceName,
+		arg.AppName,
 		arg.FromDate,
 		arg.ToDate,
 		arg.Environment,
