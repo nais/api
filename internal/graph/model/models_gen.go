@@ -966,6 +966,8 @@ type VulnerabilityMetric struct {
 	Unassigned int `json:"unassigned"`
 	// The weighted severity score calculated from the number of vulnerabilities.
 	RiskScore int `json:"riskScore"`
+	// The number of applications with vulnerabilities.
+	Count int `json:"count"`
 }
 
 type VulnerabilityMetrics struct {

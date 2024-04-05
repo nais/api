@@ -967,6 +967,7 @@ type ComplexityRoot struct {
 	}
 
 	VulnerabilityMetric struct {
+		Count      func(childComplexity int) int
 		Critical   func(childComplexity int) int
 		Date       func(childComplexity int) int
 		High       func(childComplexity int) int
@@ -5181,6 +5182,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.VulnerabilityList.PageInfo(childComplexity), true
 
+	case "VulnerabilityMetric.count":
+		if e.complexity.VulnerabilityMetric.Count == nil {
+			break
+		}
+
+		return e.complexity.VulnerabilityMetric.Count(childComplexity), true
+
 	case "VulnerabilityMetric.critical":
 		if e.complexity.VulnerabilityMetric.Critical == nil {
 			break
@@ -7322,6 +7330,9 @@ type VulnerabilityMetric {
 
   "The weighted severity score calculated from the number of vulnerabilities."
   riskScore: Int!
+
+  "The number of applications with vulnerabilities."
+  count: Int!
 }
 
 "Slack alerts channel type."
@@ -37210,6 +37221,50 @@ func (ec *executionContext) fieldContext_VulnerabilityMetric_riskScore(ctx conte
 	return fc, nil
 }
 
+func (ec *executionContext) _VulnerabilityMetric_count(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityMetric) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityMetric_count(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Count, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VulnerabilityMetric_count(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnerabilityMetric",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _VulnerabilityMetrics_minDate(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityMetrics) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_VulnerabilityMetrics_minDate(ctx, field)
 	if err != nil {
@@ -37345,6 +37400,8 @@ func (ec *executionContext) fieldContext_VulnerabilityMetrics_data(ctx context.C
 				return ec.fieldContext_VulnerabilityMetric_unassigned(ctx, field)
 			case "riskScore":
 				return ec.fieldContext_VulnerabilityMetric_riskScore(ctx, field)
+			case "count":
+				return ec.fieldContext_VulnerabilityMetric_count(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type VulnerabilityMetric", field.Name)
 		},
@@ -49631,6 +49688,11 @@ func (ec *executionContext) _VulnerabilityMetric(ctx context.Context, sel ast.Se
 			}
 		case "riskScore":
 			out.Values[i] = ec._VulnerabilityMetric_riskScore(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "count":
+			out.Values[i] = ec._VulnerabilityMetric_count(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

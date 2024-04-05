@@ -1397,6 +1397,7 @@ func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team
 				Low:        int(row.Low),
 				Unassigned: int(row.Unassigned),
 				RiskScore:  int(row.RiskScore),
+				Count:      int(row.Count),
 			})
 		}
 	} else {
@@ -1414,9 +1415,9 @@ func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team
 				Low:        int(row.Low),
 				Unassigned: int(row.Unassigned),
 				RiskScore:  int(row.RiskScore),
+				Count:      int(row.Count),
 			})
 		}
-
 	}
 
 	if len(metrics) == 0 {

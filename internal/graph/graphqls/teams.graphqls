@@ -432,6 +432,9 @@ type VulnerabilityMetric {
 
   "The weighted severity score calculated from the number of vulnerabilities."
   riskScore: Int!
+
+  "The number of applications with vulnerabilities."
+  count: Int!
 }
 
 "Slack alerts channel type."
