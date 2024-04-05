@@ -79,7 +79,7 @@ func (c *Client) NaisJob(ctx context.Context, name, team, env string) (*model.Na
 		return nil, c.error(ctx, err, "getting topics")
 	}
 
-	storage, err := naisjobStorage(obj.(*unstructured.Unstructured), topics)
+	storage, err := naisjobStorage(obj.(*unstructured.Unstructured), topics, env)
 	if err != nil {
 		return nil, c.error(ctx, err, "getting storage")
 	}
@@ -617,7 +617,7 @@ func (c *Client) ToNaisJob(u *unstructured.Unstructured, env string) (*model.Nai
 	return ret, nil
 }
 
-func naisjobStorage(u *unstructured.Unstructured, topics []*model.Topic) ([]model.Storage, error) {
+func naisjobStorage(u *unstructured.Unstructured, topics []*model.Topic, env string) ([]model.Storage, error) {
 	naisjob := &naisv1.Naisjob{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, naisjob); err != nil {
 		return nil, fmt.Errorf("converting to application: %w", err)
@@ -641,6 +641,7 @@ func naisjobStorage(u *unstructured.Unstructured, topics []*model.Topic) ([]mode
 			if sqlInstance.Name == "" {
 				sqlInstance.Name = naisjob.Name
 			}
+			sqlInstance.ID = scalar.SqlInstanceIdent("sqlInstance_" + env + "_" + naisjob.GetNamespace() + "_" + sqlInstance.GetName())
 			ret = append(ret, sqlInstance)
 		}
 
