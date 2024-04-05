@@ -21,21 +21,6 @@ func (r *queryResolver) SQLInstance(ctx context.Context, name string, team slug.
 	return r.k8sClient.SqlInstance(ctx, env, team, name)
 }
 
-// App is the resolver for the app field.
-func (r *sqlInstanceResolver) App(ctx context.Context, obj *model.SQLInstance) (*model.App, error) {
-	appName, ok := obj.GQLVars.Labels["app"]
-	if !ok {
-		return nil, nil
-	}
-
-	app, err := r.k8sClient.App(ctx, appName, string(obj.GQLVars.TeamSlug), obj.Env.Name)
-	if err != nil {
-		return nil, nil
-	}
-
-	return app, nil
-}
-
 // Cost is the resolver for the cost field.
 func (r *sqlInstanceResolver) Cost(ctx context.Context, obj *model.SQLInstance, from scalar.Date, to scalar.Date) (float64, error) {
 	appName, ok := obj.GQLVars.Labels["app"]
@@ -83,6 +68,23 @@ func (r *sqlInstanceResolver) Metrics(ctx context.Context, obj *model.SQLInstanc
 // Team is the resolver for the team field.
 func (r *sqlInstanceResolver) Team(ctx context.Context, obj *model.SQLInstance) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
+}
+
+// Workload is the resolver for the workload field.
+func (r *sqlInstanceResolver) Workload(ctx context.Context, obj *model.SQLInstance) (model.Workload, error) {
+	if obj.GQLVars.OwnerReference == nil {
+		return nil, nil
+	}
+
+	switch obj.GQLVars.OwnerReference.Kind {
+	case "Naisjob":
+		return r.k8sClient.NaisJob(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
+	case "Application":
+		return r.k8sClient.App(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
+	default:
+		r.log.WithField("kind", obj.GQLVars.OwnerReference.Kind).Warnf("Unknown owner reference kind")
+	}
+	return nil, nil
 }
 
 // CPU is the resolver for the cpu field.

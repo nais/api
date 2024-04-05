@@ -18,6 +18,11 @@ metadata:
     team: nais
   name: contests
   namespace: nais-system
+  ownerReferences:
+    - apiVersion: nais.io/v1
+      kind: Application
+      name: app-w-all-storage
+      uid: 6957e4dd-2997-46b3-8f6f-b6d1e0606b1d
 spec:
   databaseVersion: POSTGRES_15
   instanceType: CLOUD_SQL_INSTANCE

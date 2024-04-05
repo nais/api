@@ -96,7 +96,6 @@ type SqlInstancesList {
 
 type SqlInstance implements Storage {
   id: ID!
-  app: App
   backupConfiguration: BackupConfiguration!
   cascadingDelete: Boolean!
   connectionName: String!
@@ -118,6 +117,7 @@ type SqlInstance implements Storage {
   tier: String!
   type: String!
   status: SqlInstanceStatus!
+  workload: Workload
 }
 
 type BackupConfiguration {

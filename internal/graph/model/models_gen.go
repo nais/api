@@ -40,6 +40,10 @@ type Storage interface {
 	GetName() string
 }
 
+type Workload interface {
+	IsWorkload()
+}
+
 type AccessPolicy struct {
 	Inbound  Inbound  `json:"inbound"`
 	Outbound Outbound `json:"outbound"`

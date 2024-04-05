@@ -3,6 +3,7 @@ package model
 import (
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type BackupConfiguration struct {
@@ -31,9 +32,10 @@ type SQLInstance struct {
 }
 
 type SQLInstanceGQLVars struct {
-	TeamSlug    slug.Slug
-	Labels      map[string]string
-	Annotations map[string]string
+	TeamSlug       slug.Slug
+	Labels         map[string]string
+	Annotations    map[string]string
+	OwnerReference *v1.OwnerReference
 }
 
 func (SQLInstance) IsStorage() {}

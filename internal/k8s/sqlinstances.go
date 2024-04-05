@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -134,6 +135,23 @@ func (c *Client) toSqlInstance(_ context.Context, u *unstructured.Unstructured, 
 			TeamSlug:    teamSlug,
 			Labels:      sqlInstance.GetLabels(),
 			Annotations: sqlInstance.GetAnnotations(),
+			OwnerReference: func(refs []v1.OwnerReference) *v1.OwnerReference {
+				if len(refs) == 0 {
+					return nil
+				}
+
+				for _, o := range refs {
+					if o.Kind == "Naisjob" || o.Kind == "Application" {
+						return &v1.OwnerReference{
+							APIVersion: o.APIVersion,
+							Kind:       o.Kind,
+							Name:       o.Name,
+							UID:        o.UID,
+						}
+					}
+				}
+				return nil
+			}(sqlInstance.OwnerReferences),
 		},
 	}, nil
 }

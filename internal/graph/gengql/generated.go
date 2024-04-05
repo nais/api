@@ -758,7 +758,6 @@ type ComplexityRoot struct {
 	}
 
 	SqlInstance struct {
-		App                 func(childComplexity int) int
 		BackupConfiguration func(childComplexity int) int
 		CascadingDelete     func(childComplexity int) int
 		ConnectionName      func(childComplexity int) int
@@ -778,6 +777,7 @@ type ComplexityRoot struct {
 		Team                func(childComplexity int) int
 		Tier                func(childComplexity int) int
 		Type                func(childComplexity int) int
+		Workload            func(childComplexity int) int
 	}
 
 	SqlInstanceCondition struct {
@@ -1104,14 +1104,14 @@ type ServiceAccountResolver interface {
 	Roles(ctx context.Context, obj *model.ServiceAccount) ([]*model.Role, error)
 }
 type SqlInstanceResolver interface {
-	App(ctx context.Context, obj *model.SQLInstance) (*model.App, error)
-
 	Cost(ctx context.Context, obj *model.SQLInstance, from scalar.Date, to scalar.Date) (float64, error)
 	Databases(ctx context.Context, obj *model.SQLInstance) ([]*model.SQLDatabase, error)
 
 	Metrics(ctx context.Context, obj *model.SQLInstance) (*model.SQLInstanceMetrics, error)
 
 	Team(ctx context.Context, obj *model.SQLInstance) (*model.Team, error)
+
+	Workload(ctx context.Context, obj *model.SQLInstance) (model.Workload, error)
 }
 type SqlInstanceMetricsResolver interface {
 	CPU(ctx context.Context, obj *model.SQLInstanceMetrics) (*model.SQLInstanceCPU, error)
@@ -4232,13 +4232,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlDatabase.Name(childComplexity), true
 
-	case "SqlInstance.app":
-		if e.complexity.SqlInstance.App == nil {
-			break
-		}
-
-		return e.complexity.SqlInstance.App(childComplexity), true
-
 	case "SqlInstance.backupConfiguration":
 		if e.complexity.SqlInstance.BackupConfiguration == nil {
 			break
@@ -4376,6 +4369,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SqlInstance.Type(childComplexity), true
+
+	case "SqlInstance.workload":
+		if e.complexity.SqlInstance.Workload == nil {
+			break
+		}
+
+		return e.complexity.SqlInstance.Workload(childComplexity), true
 
 	case "SqlInstanceCondition.message":
 		if e.complexity.SqlInstanceCondition.Message == nil {
@@ -6617,7 +6617,8 @@ input VariableInput {
   name: String!
   value: String!
 }
-`, BuiltIn: false},
+
+union Workload = App | NaisJob`, BuiltIn: false},
 	{Name: "../graphqls/search.graphqls", Input: `extend type Query {
   search(
     query: String!
@@ -6825,7 +6826,6 @@ type SqlInstancesList {
 
 type SqlInstance implements Storage {
   id: ID!
-  app: App
   backupConfiguration: BackupConfiguration!
   cascadingDelete: Boolean!
   connectionName: String!
@@ -6847,6 +6847,7 @@ type SqlInstance implements Storage {
   tier: String!
   type: String!
   status: SqlInstanceStatus!
+  workload: Workload
 }
 
 type BackupConfiguration {
@@ -25424,8 +25425,6 @@ func (ec *executionContext) fieldContext_Query_sqlInstance(ctx context.Context, 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_SqlInstance_id(ctx, field)
-			case "app":
-				return ec.fieldContext_SqlInstance_app(ctx, field)
 			case "backupConfiguration":
 				return ec.fieldContext_SqlInstance_backupConfiguration(ctx, field)
 			case "cascadingDelete":
@@ -25462,6 +25461,8 @@ func (ec *executionContext) fieldContext_Query_sqlInstance(ctx context.Context, 
 				return ec.fieldContext_SqlInstance_type(ctx, field)
 			case "status":
 				return ec.fieldContext_SqlInstance_status(ctx, field)
+			case "workload":
+				return ec.fieldContext_SqlInstance_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SqlInstance", field.Name)
 		},
@@ -30499,85 +30500,6 @@ func (ec *executionContext) fieldContext_SqlInstance_id(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_app(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SqlInstance_app(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.SqlInstance().App(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.App)
-	fc.Result = res
-	return ec.marshalOApp2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐApp(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SqlInstance_app(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SqlInstance",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_App_id(ctx, field)
-			case "name":
-				return ec.fieldContext_App_name(ctx, field)
-			case "image":
-				return ec.fieldContext_App_image(ctx, field)
-			case "deployInfo":
-				return ec.fieldContext_App_deployInfo(ctx, field)
-			case "env":
-				return ec.fieldContext_App_env(ctx, field)
-			case "ingresses":
-				return ec.fieldContext_App_ingresses(ctx, field)
-			case "instances":
-				return ec.fieldContext_App_instances(ctx, field)
-			case "accessPolicy":
-				return ec.fieldContext_App_accessPolicy(ctx, field)
-			case "resources":
-				return ec.fieldContext_App_resources(ctx, field)
-			case "autoScaling":
-				return ec.fieldContext_App_autoScaling(ctx, field)
-			case "storage":
-				return ec.fieldContext_App_storage(ctx, field)
-			case "variables":
-				return ec.fieldContext_App_variables(ctx, field)
-			case "authz":
-				return ec.fieldContext_App_authz(ctx, field)
-			case "manifest":
-				return ec.fieldContext_App_manifest(ctx, field)
-			case "team":
-				return ec.fieldContext_App_team(ctx, field)
-			case "appState":
-				return ec.fieldContext_App_appState(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_App_vulnerabilities(ctx, field)
-			case "secrets":
-				return ec.fieldContext_App_secrets(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type App", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _SqlInstance_backupConfiguration(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstance_backupConfiguration(ctx, field)
 	if err != nil {
@@ -31487,6 +31409,47 @@ func (ec *executionContext) fieldContext_SqlInstance_status(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _SqlInstance_workload(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_workload(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.SqlInstance().Workload(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(model.Workload)
+	fc.Result = res
+	return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstance_workload(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Workload does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SqlInstanceCondition_message(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstanceCondition) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstanceCondition_message(ctx, field)
 	if err != nil {
@@ -32351,8 +32314,6 @@ func (ec *executionContext) fieldContext_SqlInstancesList_nodes(ctx context.Cont
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_SqlInstance_id(ctx, field)
-			case "app":
-				return ec.fieldContext_SqlInstance_app(ctx, field)
 			case "backupConfiguration":
 				return ec.fieldContext_SqlInstance_backupConfiguration(ctx, field)
 			case "cascadingDelete":
@@ -32389,6 +32350,8 @@ func (ec *executionContext) fieldContext_SqlInstancesList_nodes(ctx context.Cont
 				return ec.fieldContext_SqlInstance_type(ctx, field)
 			case "status":
 				return ec.fieldContext_SqlInstance_status(ctx, field)
+			case "workload":
+				return ec.fieldContext_SqlInstance_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SqlInstance", field.Name)
 		},
@@ -40326,6 +40289,29 @@ func (ec *executionContext) _Storage(ctx context.Context, sel ast.SelectionSet, 
 	}
 }
 
+func (ec *executionContext) _Workload(ctx context.Context, sel ast.SelectionSet, obj model.Workload) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.App:
+		return ec._App(ctx, sel, &obj)
+	case *model.App:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._App(ctx, sel, obj)
+	case model.NaisJob:
+		return ec._NaisJob(ctx, sel, &obj)
+	case *model.NaisJob:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._NaisJob(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
@@ -40423,7 +40409,7 @@ func (ec *executionContext) _Acl(ctx context.Context, sel ast.SelectionSet, obj 
 	return out
 }
 
-var appImplementors = []string{"App", "SearchNode"}
+var appImplementors = []string{"App", "Workload", "SearchNode"}
 
 func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj *model.App) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, appImplementors)
@@ -44045,7 +44031,7 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 	return out
 }
 
-var naisJobImplementors = []string{"NaisJob", "SearchNode"}
+var naisJobImplementors = []string{"NaisJob", "Workload", "SearchNode"}
 
 func (ec *executionContext) _NaisJob(ctx context.Context, sel ast.SelectionSet, obj *model.NaisJob) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, naisJobImplementors)
@@ -46840,39 +46826,6 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "app":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._SqlInstance_app(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "backupConfiguration":
 			out.Values[i] = ec._SqlInstance_backupConfiguration(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -47081,6 +47034,39 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "workload":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SqlInstance_workload(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -54030,13 +54016,6 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
-func (ec *executionContext) marshalOApp2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐApp(ctx context.Context, sel ast.SelectionSet, v *model.App) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._App(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalOAzureApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAzureApplication(ctx context.Context, sel ast.SelectionSet, v *model.AzureApplication) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -54389,6 +54368,13 @@ func (ec *executionContext) marshalOVulnerabilitySummary2ᚖgithubᚗcomᚋnais�
 		return graphql.Null
 	}
 	return ec._VulnerabilitySummary(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkload(ctx context.Context, sel ast.SelectionSet, v model.Workload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Workload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {
