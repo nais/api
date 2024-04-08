@@ -100,7 +100,7 @@ type Resolver struct {
 	auditLogger           auditlogger.AuditLogger
 	userSyncRuns          *usersync.RunsHandler
 	pubsubTopic           *pubsub.Topic
-	sqlinstanceMetrics    *sqlinstance.Metrics
+	sqlInstanceClient     *sqlinstance.Client
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
@@ -117,7 +117,7 @@ func NewResolver(
 	userSyncRuns *usersync.RunsHandler,
 	pubsubTopic *pubsub.Topic,
 	log logrus.FieldLogger,
-	sqlinstanceMetrics *sqlinstance.Metrics,
+	sqlInstanceClient *sqlinstance.Client,
 ) *Resolver {
 	return &Resolver{
 		hookdClient:           hookdClient,
@@ -133,7 +133,7 @@ func NewResolver(
 		userSyncRuns:          userSyncRuns,
 		clusters:              clusters,
 		pubsubTopic:           pubsubTopic,
-		sqlinstanceMetrics:    sqlinstanceMetrics,
+		sqlInstanceClient:     sqlInstanceClient,
 	}
 }
 

@@ -162,9 +162,9 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	userSyncRuns := usersync.NewRunsHandler(cfg.UserSync.RunsToPersist)
 	resourceUsageClient := resourceusage.NewClient(cfg.K8s.AllClusterNames(), db, log)
-	sqlinstanceMetrics, err := sqlinstance.NewMetrics(ctx, log)
+	sqlInstanceClient, err := sqlinstance.NewClient(ctx, k8sClient.Informers(), log)
 	if err != nil {
-		return err
+		return fmt.Errorf("create sql instance client: %w", err)
 	}
 
 	resolver := graph.NewResolver(
@@ -180,7 +180,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		userSyncRuns,
 		pubsubTopic,
 		log,
-		sqlinstanceMetrics,
+		sqlInstanceClient,
 	)
 
 	graphHandler, err := graph.NewHandler(gengql.Config{
@@ -213,6 +213,10 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	})
 	wg.Go(func() error {
 		return vulnerabilityMetricUpdater(ctx, cfg, db, k8sClient, dependencyTrackClient, log)
+	})
+
+	wg.Go(func() error {
+		return sqlinstance.RunUpdater(ctx, k8sClient, db, log)
 	})
 
 	authHandler, err := setupAuthHandler(cfg.OAuth, db, log)
