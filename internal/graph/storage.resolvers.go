@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
@@ -19,6 +18,33 @@ import (
 // SQLInstance is the resolver for the sqlInstance field.
 func (r *queryResolver) SQLInstance(ctx context.Context, name string, team slug.Slug, env string) (*model.SQLInstance, error) {
 	return r.sqlInstanceClient.SqlInstance(ctx, env, team, name)
+}
+
+// CurrentSQLInstancesMetrics is the resolver for the currentSqlInstancesMetrics field.
+func (r *queryResolver) CurrentSQLInstancesMetrics(ctx context.Context, team slug.Slug) (*model.CurrentSQLInstancesMetrics, error) {
+	cost, err := r.database.CurrentSqlInstancesCostForTeam(ctx, team)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.CurrentSQLInstancesMetrics{
+		Cost: float64(cost),
+		CPU: model.SQLInstanceCPU{
+			Cores:       0,
+			Usage:       0,
+			Utilization: 0,
+		},
+		Disk: model.SQLInstanceDisk{
+			QuotaBytes:  0,
+			Usage:       0,
+			Utilization: 0,
+		},
+		Memory: model.SQLInstanceMemory{
+			QuotaBytes:  0,
+			Usage:       0,
+			Utilization: 0,
+		},
+	}, nil
 }
 
 // Cost is the resolver for the cost field.

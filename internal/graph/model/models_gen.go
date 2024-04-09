@@ -220,6 +220,13 @@ type CurrentResourceUtilization struct {
 	Memory ResourceUtilization `json:"memory"`
 }
 
+type CurrentSQLInstancesMetrics struct {
+	Cost   float64           `json:"cost"`
+	CPU    SQLInstanceCPU    `json:"cpu"`
+	Memory SQLInstanceMemory `json:"memory"`
+	Disk   SQLInstanceDisk   `json:"disk"`
+}
+
 // Daily cost type.
 type DailyCost struct {
 	// The sum of all costs in the cost series in euros.

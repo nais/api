@@ -45,6 +45,31 @@ func (q *Queries) CostForSqlInstance(ctx context.Context, arg CostForSqlInstance
 	return column_1, err
 }
 
+const currentSqlInstancesCostForTeam = `-- name: CurrentSqlInstancesCostForTeam :one
+SELECT
+    COALESCE(SUM(daily_cost), 0)::real
+FROM
+    cost
+WHERE
+    team_slug = $1
+    AND cost_type = 'Cloud SQL'
+    AND date >= $2
+    AND date <= $3
+`
+
+type CurrentSqlInstancesCostForTeamParams struct {
+	TeamSlug slug.Slug
+	FromDate pgtype.Date
+	ToDate   pgtype.Date
+}
+
+func (q *Queries) CurrentSqlInstancesCostForTeam(ctx context.Context, arg CurrentSqlInstancesCostForTeamParams) (float32, error) {
+	row := q.db.QueryRow(ctx, currentSqlInstancesCostForTeam, arg.TeamSlug, arg.FromDate, arg.ToDate)
+	var column_1 float32
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const dailyCostForApp = `-- name: DailyCostForApp :many
 SELECT
     id, environment, team_slug, app, cost_type, date, daily_cost

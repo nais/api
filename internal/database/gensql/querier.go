@@ -34,6 +34,7 @@ type Querier interface {
 	CreateTeam(ctx context.Context, arg CreateTeamParams) (*Team, error)
 	CreateTeamDeleteKey(ctx context.Context, arg CreateTeamDeleteKeyParams) (*TeamDeleteKey, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (*User, error)
+	CurrentSqlInstancesCostForTeam(ctx context.Context, arg CurrentSqlInstancesCostForTeamParams) (float32, error)
 	// DailyCostForApp will fetch the daily cost for a specific team app in a specific environment, across all cost types
 	// in a date range.
 	DailyCostForApp(ctx context.Context, arg DailyCostForAppParams) ([]*Cost, error)
