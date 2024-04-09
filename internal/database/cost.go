@@ -87,14 +87,14 @@ func (d *database) CostForSqlInstance(ctx context.Context, fromDate, toDate pgty
 
 func (d *database) CurrentSqlInstancesCostForTeam(ctx context.Context, teamSlug slug.Slug) (float32, error) {
 	now := time.Now()
-	var from, to *pgtype.Date
+	var from, to pgtype.Date
 
 	_ = to.Scan(now)
 	_ = from.Scan(now.AddDate(0, 0, -32)) // we don't have cost for today or yesterday
 
 	return d.querier.CurrentSqlInstancesCostForTeam(ctx, gensql.CurrentSqlInstancesCostForTeamParams{
-		FromDate: *from,
-		ToDate:   *to,
+		FromDate: from,
+		ToDate:   to,
 		TeamSlug: teamSlug,
 	})
 }

@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
@@ -22,27 +23,62 @@ func (r *queryResolver) SQLInstance(ctx context.Context, name string, team slug.
 
 // CurrentSQLInstancesMetrics is the resolver for the currentSqlInstancesMetrics field.
 func (r *queryResolver) CurrentSQLInstancesMetrics(ctx context.Context, team slug.Slug) (*model.CurrentSQLInstancesMetrics, error) {
+	metrics := make(map[sqlinstance.MetricType]float64)
+	metricTypes := []sqlinstance.MetricType{
+		sqlinstance.CpuUtilization,
+		sqlinstance.CpuCores,
+		sqlinstance.MemoryUtilization,
+		sqlinstance.MemoryQuota,
+		sqlinstance.DiskUtilization,
+		sqlinstance.DiskQuota,
+	}
+
 	cost, err := r.database.CurrentSqlInstancesCostForTeam(ctx, team)
 	if err != nil {
 		return nil, err
 	}
 
+	for _, c := range r.clusters.GCPClusters() {
+		teamEnv, err := loader.GetTeamEnvironment(ctx, team, c)
+		if err != nil {
+			return nil, err
+		}
+
+		if teamEnv.DBType.GcpProjectID == nil {
+			continue
+		}
+
+		for _, mt := range metricTypes {
+			averageFor, err := r.sqlInstanceClient.Metrics.AverageFor(ctx, *teamEnv.DBType.GcpProjectID, sqlinstance.WithTeamQuery(mt))
+			if err != nil {
+				return nil, err
+			}
+
+			sum := 0.0
+			for _, mm := range averageFor {
+				sum += mm
+			}
+			v, ok := metrics[mt]
+			if !ok {
+				metrics[mt] = sum
+			}
+			metrics[mt] = v + sum
+		}
+	}
+
 	return &model.CurrentSQLInstancesMetrics{
 		Cost: float64(cost),
 		CPU: model.SQLInstanceCPU{
-			Cores:       0,
-			Usage:       0,
-			Utilization: 0,
+			Cores:       metrics[sqlinstance.CpuCores],
+			Utilization: metrics[sqlinstance.CpuUtilization],
 		},
 		Disk: model.SQLInstanceDisk{
-			QuotaBytes:  0,
-			Usage:       0,
-			Utilization: 0,
+			QuotaBytes:  int(metrics[sqlinstance.DiskQuota]),
+			Utilization: metrics[sqlinstance.DiskUtilization],
 		},
 		Memory: model.SQLInstanceMemory{
-			QuotaBytes:  0,
-			Usage:       0,
-			Utilization: 0,
+			QuotaBytes:  metrics[sqlinstance.MemoryQuota],
+			Utilization: metrics[sqlinstance.MemoryUtilization],
 		},
 	}, nil
 }
@@ -126,8 +162,8 @@ func (r *sqlInstanceMetricsResolver) CPU(ctx context.Context, obj *model.SQLInst
 	}
 
 	return &model.SQLInstanceCPU{
-		Utilization: cpu * 100,
-		Cores:       cpuCores,
+		Utilization: cpu[obj.GQLVars.DatabaseID] * 100,
+		Cores:       cpuCores[obj.GQLVars.DatabaseID],
 	}, nil
 }
 
@@ -144,8 +180,8 @@ func (r *sqlInstanceMetricsResolver) Memory(ctx context.Context, obj *model.SQLI
 	}
 
 	return &model.SQLInstanceMemory{
-		Utilization: memory * 100,
-		QuotaBytes:  memoryQuota,
+		Utilization: memory[obj.GQLVars.DatabaseID] * 100,
+		QuotaBytes:  memoryQuota[obj.GQLVars.DatabaseID],
 	}, nil
 }
 
@@ -162,8 +198,8 @@ func (r *sqlInstanceMetricsResolver) Disk(ctx context.Context, obj *model.SQLIns
 	}
 
 	return &model.SQLInstanceDisk{
-		Utilization: disk * 100,
-		QuotaBytes:  int(diskQuota),
+		Utilization: disk[obj.GQLVars.DatabaseID] * 100,
+		QuotaBytes:  int(diskQuota[obj.GQLVars.DatabaseID]),
 	}, nil
 }
 
