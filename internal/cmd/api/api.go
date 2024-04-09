@@ -215,10 +215,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return vulnerabilityMetricUpdater(ctx, cfg, db, k8sClient, dependencyTrackClient, log)
 	})
 
-	wg.Go(func() error {
-		return sqlinstance.RunUpdater(ctx, k8sClient, db, log)
-	})
-
 	authHandler, err := setupAuthHandler(cfg.OAuth, db, log)
 	if err != nil {
 		return err

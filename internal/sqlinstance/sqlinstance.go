@@ -2,6 +2,7 @@ package sqlinstance
 
 import (
 	"context"
+
 	"github.com/nais/api/internal/k8s"
 	"github.com/sirupsen/logrus"
 )

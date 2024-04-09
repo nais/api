@@ -3,6 +3,8 @@ package sqlinstance
 import (
 	"context"
 	"fmt"
+	"sort"
+
 	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
@@ -11,7 +13,6 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
-	"sort"
 )
 
 func (c *Client) SqlInstance(ctx context.Context, env string, teamSlug slug.Slug, instanceName string) (*model.SQLInstance, error) {
@@ -193,6 +194,7 @@ func (c *Client) toSqlDatabase(sqlDatabase *sql_cnrm_cloud_google_com_v1beta1.SQ
 		Name: sqlDatabase.Name,
 	}
 }
+
 func (c *Client) error(_ context.Context, err error, msg string) error {
 	c.log.WithError(err).Error(msg)
 	return fmt.Errorf("%s: %w", msg, err)
