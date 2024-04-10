@@ -10,6 +10,12 @@ extend type Query {
     "The environment the instance runs in."
     env: String!
   ): SqlInstance!
+
+  "Get the current SQL instances metrics for a team across all environments."
+  currentSqlInstancesMetrics(
+    "The name of the team."
+    team: Slug!
+  ): CurrentSqlInstancesMetrics!
 }
 
 interface Storage {
@@ -133,21 +139,25 @@ type SqlInstanceMetrics {
   disk: SqlInstanceDisk!
 }
 
+type CurrentSqlInstancesMetrics {
+  cost: Float!
+  cpu: SqlInstanceCpu!
+  memory: SqlInstanceMemory!
+  disk: SqlInstanceDisk!
+}
+
 type SqlInstanceCpu {
   cores: Float!
-  usage: Float!
   utilization: Float!
 }
 
 type SqlInstanceMemory {
   quotaBytes: Float!
-  usage: Float!
   utilization: Float!
 }
 
 type SqlInstanceDisk {
   quotaBytes: Int!
-  usage: Float!
   utilization: Float!
 }
 

@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/database/gensql"
@@ -17,6 +18,7 @@ type CostRepo interface {
 	MonthlyCostForApp(ctx context.Context, teamSlug slug.Slug, app string, environment string) ([]*gensql.MonthlyCostForAppRow, error)
 	MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*gensql.MonthlyCostForTeamRow, error)
 	CostForSqlInstance(ctx context.Context, fromDate, toDate pgtype.Date, teamSlug slug.Slug, appName, environment string) (float32, error)
+	CurrentSqlInstancesCostForTeam(ctx context.Context, teamSlug slug.Slug) (float32, error)
 }
 
 var _ CostRepo = (*database)(nil)
@@ -81,4 +83,18 @@ func (d *database) CostForSqlInstance(ctx context.Context, fromDate, toDate pgty
 	}
 
 	return cost, nil
+}
+
+func (d *database) CurrentSqlInstancesCostForTeam(ctx context.Context, teamSlug slug.Slug) (float32, error) {
+	now := time.Now()
+	var from, to pgtype.Date
+
+	_ = to.Scan(now)
+	_ = from.Scan(now.AddDate(0, 0, -32)) // we don't have cost for today or yesterday
+
+	return d.querier.CurrentSqlInstancesCostForTeam(ctx, gensql.CurrentSqlInstancesCostForTeamParams{
+		FromDate: from,
+		ToDate:   to,
+		TeamSlug: teamSlug,
+	})
 }

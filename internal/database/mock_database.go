@@ -1039,6 +1039,63 @@ func (_c *MockDatabase_CreateUser_Call) RunAndReturn(run func(context.Context, s
 	return _c
 }
 
+// CurrentSqlInstancesCostForTeam provides a mock function with given fields: ctx, teamSlug
+func (_m *MockDatabase) CurrentSqlInstancesCostForTeam(ctx context.Context, teamSlug slug.Slug) (float32, error) {
+	ret := _m.Called(ctx, teamSlug)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CurrentSqlInstancesCostForTeam")
+	}
+
+	var r0 float32
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (float32, error)); ok {
+		return rf(ctx, teamSlug)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) float32); ok {
+		r0 = rf(ctx, teamSlug)
+	} else {
+		r0 = ret.Get(0).(float32)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
+		r1 = rf(ctx, teamSlug)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockDatabase_CurrentSqlInstancesCostForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CurrentSqlInstancesCostForTeam'
+type MockDatabase_CurrentSqlInstancesCostForTeam_Call struct {
+	*mock.Call
+}
+
+// CurrentSqlInstancesCostForTeam is a helper method to define mock.On call
+//   - ctx context.Context
+//   - teamSlug slug.Slug
+func (_e *MockDatabase_Expecter) CurrentSqlInstancesCostForTeam(ctx interface{}, teamSlug interface{}) *MockDatabase_CurrentSqlInstancesCostForTeam_Call {
+	return &MockDatabase_CurrentSqlInstancesCostForTeam_Call{Call: _e.mock.On("CurrentSqlInstancesCostForTeam", ctx, teamSlug)}
+}
+
+func (_c *MockDatabase_CurrentSqlInstancesCostForTeam_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockDatabase_CurrentSqlInstancesCostForTeam_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(slug.Slug))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_CurrentSqlInstancesCostForTeam_Call) Return(_a0 float32, _a1 error) *MockDatabase_CurrentSqlInstancesCostForTeam_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockDatabase_CurrentSqlInstancesCostForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug) (float32, error)) *MockDatabase_CurrentSqlInstancesCostForTeam_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DailyCostForApp provides a mock function with given fields: ctx, fromDate, toDate, environment, teamSlug, app
 func (_m *MockDatabase) DailyCostForApp(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment string, teamSlug slug.Slug, app string) ([]*gensql.Cost, error) {
 	ret := _m.Called(ctx, fromDate, toDate, environment, teamSlug, app)
