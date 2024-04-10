@@ -809,19 +809,16 @@ type SQLInstanceCondition struct {
 
 type SQLInstanceCPU struct {
 	Cores       float64 `json:"cores"`
-	Usage       float64 `json:"usage"`
 	Utilization float64 `json:"utilization"`
 }
 
 type SQLInstanceDisk struct {
 	QuotaBytes  int     `json:"quotaBytes"`
-	Usage       float64 `json:"usage"`
 	Utilization float64 `json:"utilization"`
 }
 
 type SQLInstanceMemory struct {
 	QuotaBytes  float64 `json:"quotaBytes"`
-	Usage       float64 `json:"usage"`
 	Utilization float64 `json:"utilization"`
 }
 

@@ -38,6 +38,7 @@ func (r *queryResolver) CurrentSQLInstancesMetrics(ctx context.Context, team slu
 		return nil, err
 	}
 
+	uniqueInstances := make(map[string]struct{})
 	for _, c := range r.clusters.GCPClusters() {
 		teamEnv, err := loader.GetTeamEnvironment(ctx, team, c)
 		if err != nil {
@@ -49,36 +50,39 @@ func (r *queryResolver) CurrentSQLInstancesMetrics(ctx context.Context, team slu
 		}
 
 		for _, mt := range metricTypes {
-			averageFor, err := r.sqlInstanceClient.Metrics.AverageFor(ctx, *teamEnv.DBType.GcpProjectID, sqlinstance.WithTeamQuery(mt))
+			instances, err := r.sqlInstanceClient.Metrics.AverageFor(ctx, *teamEnv.DBType.GcpProjectID, sqlinstance.WithTeamQuery(mt))
 			if err != nil {
 				return nil, err
 			}
 
 			sum := 0.0
-			for _, mm := range averageFor {
-				sum += mm
+			for instanceId, m := range instances {
+				uniqueInstances[instanceId] = struct{}{}
+				sum += m
 			}
 			v, ok := metrics[mt]
 			if !ok {
 				metrics[mt] = sum
+				continue
 			}
 			metrics[mt] = v + sum
 		}
 	}
 
+	totalInstances := float64(len(uniqueInstances))
 	return &model.CurrentSQLInstancesMetrics{
 		Cost: float64(cost),
 		CPU: model.SQLInstanceCPU{
 			Cores:       metrics[sqlinstance.CpuCores],
-			Utilization: metrics[sqlinstance.CpuUtilization],
+			Utilization: metrics[sqlinstance.CpuUtilization] / totalInstances * 100,
 		},
 		Disk: model.SQLInstanceDisk{
 			QuotaBytes:  int(metrics[sqlinstance.DiskQuota]),
-			Utilization: metrics[sqlinstance.DiskUtilization],
+			Utilization: metrics[sqlinstance.DiskUtilization] / totalInstances * 100,
 		},
 		Memory: model.SQLInstanceMemory{
 			QuotaBytes:  metrics[sqlinstance.MemoryQuota],
-			Utilization: metrics[sqlinstance.MemoryUtilization],
+			Utilization: metrics[sqlinstance.MemoryUtilization] / totalInstances * 100,
 		},
 	}, nil
 }
@@ -151,6 +155,7 @@ func (r *sqlInstanceResolver) Workload(ctx context.Context, obj *model.SQLInstan
 
 // CPU is the resolver for the cpu field.
 func (r *sqlInstanceMetricsResolver) CPU(ctx context.Context, obj *model.SQLInstanceMetrics) (*model.SQLInstanceCPU, error) {
+	db := obj.GQLVars.DatabaseID
 	cpu, err := r.sqlInstanceClient.Metrics.AverageFor(ctx, obj.GQLVars.ProjectID, sqlinstance.WithQuery(sqlinstance.CpuUtilization, obj.GQLVars.DatabaseID))
 	if err != nil {
 		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
@@ -162,8 +167,8 @@ func (r *sqlInstanceMetricsResolver) CPU(ctx context.Context, obj *model.SQLInst
 	}
 
 	return &model.SQLInstanceCPU{
-		Utilization: cpu[obj.GQLVars.DatabaseID] * 100,
-		Cores:       cpuCores[obj.GQLVars.DatabaseID],
+		Utilization: cpu[db] * 100,
+		Cores:       cpuCores[db],
 	}, nil
 }
 

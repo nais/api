@@ -148,19 +148,16 @@ type CurrentSqlInstancesMetrics {
 
 type SqlInstanceCpu {
   cores: Float!
-  usage: Float!
   utilization: Float!
 }
 
 type SqlInstanceMemory {
   quotaBytes: Float!
-  usage: Float!
   utilization: Float!
 }
 
 type SqlInstanceDisk {
   quotaBytes: Int!
-  usage: Float!
   utilization: Float!
 }
 

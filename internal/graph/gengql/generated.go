@@ -797,19 +797,16 @@ type ComplexityRoot struct {
 
 	SqlInstanceCpu struct {
 		Cores       func(childComplexity int) int
-		Usage       func(childComplexity int) int
 		Utilization func(childComplexity int) int
 	}
 
 	SqlInstanceDisk struct {
 		QuotaBytes  func(childComplexity int) int
-		Usage       func(childComplexity int) int
 		Utilization func(childComplexity int) int
 	}
 
 	SqlInstanceMemory struct {
 		QuotaBytes  func(childComplexity int) int
-		Usage       func(childComplexity int) int
 		Utilization func(childComplexity int) int
 	}
 
@@ -4461,13 +4458,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstanceCpu.Cores(childComplexity), true
 
-	case "SqlInstanceCpu.usage":
-		if e.complexity.SqlInstanceCpu.Usage == nil {
-			break
-		}
-
-		return e.complexity.SqlInstanceCpu.Usage(childComplexity), true
-
 	case "SqlInstanceCpu.utilization":
 		if e.complexity.SqlInstanceCpu.Utilization == nil {
 			break
@@ -4482,13 +4472,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstanceDisk.QuotaBytes(childComplexity), true
 
-	case "SqlInstanceDisk.usage":
-		if e.complexity.SqlInstanceDisk.Usage == nil {
-			break
-		}
-
-		return e.complexity.SqlInstanceDisk.Usage(childComplexity), true
-
 	case "SqlInstanceDisk.utilization":
 		if e.complexity.SqlInstanceDisk.Utilization == nil {
 			break
@@ -4502,13 +4485,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SqlInstanceMemory.QuotaBytes(childComplexity), true
-
-	case "SqlInstanceMemory.usage":
-		if e.complexity.SqlInstanceMemory.Usage == nil {
-			break
-		}
-
-		return e.complexity.SqlInstanceMemory.Usage(childComplexity), true
 
 	case "SqlInstanceMemory.utilization":
 		if e.complexity.SqlInstanceMemory.Utilization == nil {
@@ -6927,19 +6903,16 @@ type CurrentSqlInstancesMetrics {
 
 type SqlInstanceCpu {
   cores: Float!
-  usage: Float!
   utilization: Float!
 }
 
 type SqlInstanceMemory {
   quotaBytes: Float!
-  usage: Float!
   utilization: Float!
 }
 
 type SqlInstanceDisk {
   quotaBytes: Int!
-  usage: Float!
   utilization: Float!
 }
 
@@ -13670,8 +13643,6 @@ func (ec *executionContext) fieldContext_CurrentSqlInstancesMetrics_cpu(ctx cont
 			switch field.Name {
 			case "cores":
 				return ec.fieldContext_SqlInstanceCpu_cores(ctx, field)
-			case "usage":
-				return ec.fieldContext_SqlInstanceCpu_usage(ctx, field)
 			case "utilization":
 				return ec.fieldContext_SqlInstanceCpu_utilization(ctx, field)
 			}
@@ -13722,8 +13693,6 @@ func (ec *executionContext) fieldContext_CurrentSqlInstancesMetrics_memory(ctx c
 			switch field.Name {
 			case "quotaBytes":
 				return ec.fieldContext_SqlInstanceMemory_quotaBytes(ctx, field)
-			case "usage":
-				return ec.fieldContext_SqlInstanceMemory_usage(ctx, field)
 			case "utilization":
 				return ec.fieldContext_SqlInstanceMemory_utilization(ctx, field)
 			}
@@ -13774,8 +13743,6 @@ func (ec *executionContext) fieldContext_CurrentSqlInstancesMetrics_disk(ctx con
 			switch field.Name {
 			case "quotaBytes":
 				return ec.fieldContext_SqlInstanceDisk_quotaBytes(ctx, field)
-			case "usage":
-				return ec.fieldContext_SqlInstanceDisk_usage(ctx, field)
 			case "utilization":
 				return ec.fieldContext_SqlInstanceDisk_utilization(ctx, field)
 			}
@@ -32012,50 +31979,6 @@ func (ec *executionContext) fieldContext_SqlInstanceCpu_cores(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstanceCpu_usage(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstanceCPU) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SqlInstanceCpu_usage(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Usage, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(float64)
-	fc.Result = res
-	return ec.marshalNFloat2float64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SqlInstanceCpu_usage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SqlInstanceCpu",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _SqlInstanceCpu_utilization(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstanceCPU) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstanceCpu_utilization(ctx, field)
 	if err != nil {
@@ -32144,50 +32067,6 @@ func (ec *executionContext) fieldContext_SqlInstanceDisk_quotaBytes(ctx context.
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstanceDisk_usage(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstanceDisk) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SqlInstanceDisk_usage(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Usage, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(float64)
-	fc.Result = res
-	return ec.marshalNFloat2float64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SqlInstanceDisk_usage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SqlInstanceDisk",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _SqlInstanceDisk_utilization(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstanceDisk) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstanceDisk_utilization(ctx, field)
 	if err != nil {
@@ -32264,50 +32143,6 @@ func (ec *executionContext) _SqlInstanceMemory_quotaBytes(ctx context.Context, f
 }
 
 func (ec *executionContext) fieldContext_SqlInstanceMemory_quotaBytes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SqlInstanceMemory",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SqlInstanceMemory_usage(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstanceMemory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SqlInstanceMemory_usage(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Usage, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(float64)
-	fc.Result = res
-	return ec.marshalNFloat2float64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SqlInstanceMemory_usage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceMemory",
 		Field:      field,
@@ -32405,8 +32240,6 @@ func (ec *executionContext) fieldContext_SqlInstanceMetrics_cpu(ctx context.Cont
 			switch field.Name {
 			case "cores":
 				return ec.fieldContext_SqlInstanceCpu_cores(ctx, field)
-			case "usage":
-				return ec.fieldContext_SqlInstanceCpu_usage(ctx, field)
 			case "utilization":
 				return ec.fieldContext_SqlInstanceCpu_utilization(ctx, field)
 			}
@@ -32457,8 +32290,6 @@ func (ec *executionContext) fieldContext_SqlInstanceMetrics_memory(ctx context.C
 			switch field.Name {
 			case "quotaBytes":
 				return ec.fieldContext_SqlInstanceMemory_quotaBytes(ctx, field)
-			case "usage":
-				return ec.fieldContext_SqlInstanceMemory_usage(ctx, field)
 			case "utilization":
 				return ec.fieldContext_SqlInstanceMemory_utilization(ctx, field)
 			}
@@ -32509,8 +32340,6 @@ func (ec *executionContext) fieldContext_SqlInstanceMetrics_disk(ctx context.Con
 			switch field.Name {
 			case "quotaBytes":
 				return ec.fieldContext_SqlInstanceDisk_quotaBytes(ctx, field)
-			case "usage":
-				return ec.fieldContext_SqlInstanceDisk_usage(ctx, field)
 			case "utilization":
 				return ec.fieldContext_SqlInstanceDisk_utilization(ctx, field)
 			}
@@ -47578,11 +47407,6 @@ func (ec *executionContext) _SqlInstanceCpu(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "usage":
-			out.Values[i] = ec._SqlInstanceCpu_usage(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "utilization":
 			out.Values[i] = ec._SqlInstanceCpu_utilization(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -47627,11 +47451,6 @@ func (ec *executionContext) _SqlInstanceDisk(ctx context.Context, sel ast.Select
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "usage":
-			out.Values[i] = ec._SqlInstanceDisk_usage(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "utilization":
 			out.Values[i] = ec._SqlInstanceDisk_utilization(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -47673,11 +47492,6 @@ func (ec *executionContext) _SqlInstanceMemory(ctx context.Context, sel ast.Sele
 			out.Values[i] = graphql.MarshalString("SqlInstanceMemory")
 		case "quotaBytes":
 			out.Values[i] = ec._SqlInstanceMemory_quotaBytes(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "usage":
-			out.Values[i] = ec._SqlInstanceMemory_usage(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

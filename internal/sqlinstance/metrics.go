@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/patrickmn/go-cache"
 	"time"
 
 	monitoring "cloud.google.com/go/monitoring/apiv3/v2"
@@ -15,12 +14,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type Metrics struct {
-	monitoring *monitoring.MetricClient
-	log        log.FieldLogger
-	cache      *cache.Cache
-}
-
 const (
 	CpuUtilization    MetricType = "cloudsql.googleapis.com/database/cpu/utilization"
 	CpuCores          MetricType = "cloudsql.googleapis.com/database/cpu/reserved_cores"
@@ -29,9 +22,9 @@ const (
 	DiskUtilization   MetricType = "cloudsql.googleapis.com/database/disk/utilization"
 	DiskQuota         MetricType = "cloudsql.googleapis.com/database/disk/quota"
 
-	Filter MetricsFilter = `metric.type = starts_with("%s")
+	Filter MetricsFilter = `metric.type="%s"
 		AND resource.type="cloudsql_database"`
-	DatabaseIdFilter MetricsFilter = `metric.type = starts_with("%s")
+	DatabaseIdFilter MetricsFilter = `metric.type="%s"
 		AND resource.type="cloudsql_database" 
 		AND resource.labels.database_id = "%s"`
 )
@@ -44,6 +37,12 @@ type (
 type Query struct {
 	MetricType MetricType
 	Filter     MetricsFilter
+}
+
+type Metrics struct {
+	monitoring  *monitoring.MetricClient
+	log         log.FieldLogger
+	defaultOpts *MetricsOptions
 }
 
 type MetricsOptions struct {
@@ -63,7 +62,12 @@ func NewMetrics(ctx context.Context, log log.FieldLogger) (*Metrics, error) {
 	return &Metrics{
 		monitoring: client,
 		log:        log,
-		cache:      cache.New(5*time.Minute, 10*time.Minute),
+		defaultOpts: &MetricsOptions{
+			interval: &monitoringpb.TimeInterval{
+				StartTime: timestamppb.New(time.Now().Add(-1 * time.Hour)),
+				EndTime:   timestamppb.New(time.Now()),
+			},
+		},
 	}, nil
 }
 
@@ -112,10 +116,6 @@ func (m *Metrics) AverageFor(ctx context.Context, projectID string, opts ...Opti
 		o(&options)
 	}
 
-	if options.query == nil {
-		return nil, fmt.Errorf("query is required")
-	}
-
 	ts, err := m.ListTimeSeries(ctx, projectID, opts...)
 	if err != nil {
 		return nil, err
@@ -148,22 +148,13 @@ func (m *Metrics) AverageFor(ctx context.Context, projectID string, opts ...Opti
 }
 
 func (m *Metrics) ListTimeSeries(ctx context.Context, projectID string, opts ...Option) ([]*monitoringpb.TimeSeries, error) {
-	var options MetricsOptions
+	options := m.defaultOpts
 	for _, o := range opts {
-		o(&options)
+		o(options)
 	}
 
-	cacheKey := projectID + ":" + options.query.Filter
-	if _, ok := m.cache.Get(cacheKey); ok {
-		m.log.Debug("cache hit")
-		// return v.([]*monitoringpb.TimeSeries), nil
-	}
-
-	if options.interval == nil {
-		options.interval = &monitoringpb.TimeInterval{
-			StartTime: timestamppb.New(time.Now().Add(-1 * time.Hour)),
-			EndTime:   timestamppb.New(time.Now()),
-		}
+	if options.query == nil {
+		return nil, fmt.Errorf("query is required")
 	}
 
 	req := &monitoringpb.ListTimeSeriesRequest{
@@ -178,12 +169,10 @@ func (m *Metrics) ListTimeSeries(ctx context.Context, projectID string, opts ...
 
 	it := m.monitoring.ListTimeSeries(ctx, req)
 
-	m.log.Debug("getting time series from monitoring api")
 	timeSeries := make([]*monitoringpb.TimeSeries, 0)
 	for {
 		met, err := it.Next()
 		if errors.Is(err, iterator.Done) {
-			m.cache.Set(cacheKey, timeSeries, cache.DefaultExpiration)
 			return timeSeries, nil
 		} else if err != nil {
 			m.log.WithError(err).Error("failed to get next time series")
