@@ -5,6 +5,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"k8s.io/utils/ptr"
 	"math/rand"
 	"os"
 	"strings"
@@ -246,6 +247,14 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 
 		err = dbtx.SetTeamMemberRole(ctx, devUser.ID, devteam.Slug, gensql.RoleNameTeamowner)
 		if err != nil {
+			return err
+		}
+
+		if err = dbtx.UpsertTeamEnvironment(ctx, devteam.Slug, "dev", ptr.To("#yolo"), ptr.To("nais-dev-2e7b")); err != nil {
+			return err
+		}
+
+		if err = dbtx.UpsertTeamEnvironment(ctx, devteam.Slug, "superprod", ptr.To("#yolo"), ptr.To("nais-dev-cdea")); err != nil {
 			return err
 		}
 

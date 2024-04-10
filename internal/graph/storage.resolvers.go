@@ -70,6 +70,11 @@ func (r *queryResolver) CurrentSQLInstancesMetrics(ctx context.Context, team slu
 	}
 
 	totalInstances := float64(len(uniqueInstances))
+
+	if totalInstances == 0 {
+		return &model.CurrentSQLInstancesMetrics{}, nil
+	}
+
 	return &model.CurrentSQLInstancesMetrics{
 		Cost: float64(cost),
 		CPU: model.SQLInstanceCPU{
