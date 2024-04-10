@@ -1050,6 +1050,63 @@ func (_c *MockQuerier_CreateUser_Call) RunAndReturn(run func(context.Context, Cr
 	return _c
 }
 
+// CurrentSqlInstancesCostForTeam provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) CurrentSqlInstancesCostForTeam(ctx context.Context, arg CurrentSqlInstancesCostForTeamParams) (float32, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CurrentSqlInstancesCostForTeam")
+	}
+
+	var r0 float32
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, CurrentSqlInstancesCostForTeamParams) (float32, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, CurrentSqlInstancesCostForTeamParams) float32); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(float32)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, CurrentSqlInstancesCostForTeamParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_CurrentSqlInstancesCostForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CurrentSqlInstancesCostForTeam'
+type MockQuerier_CurrentSqlInstancesCostForTeam_Call struct {
+	*mock.Call
+}
+
+// CurrentSqlInstancesCostForTeam is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg CurrentSqlInstancesCostForTeamParams
+func (_e *MockQuerier_Expecter) CurrentSqlInstancesCostForTeam(ctx interface{}, arg interface{}) *MockQuerier_CurrentSqlInstancesCostForTeam_Call {
+	return &MockQuerier_CurrentSqlInstancesCostForTeam_Call{Call: _e.mock.On("CurrentSqlInstancesCostForTeam", ctx, arg)}
+}
+
+func (_c *MockQuerier_CurrentSqlInstancesCostForTeam_Call) Run(run func(ctx context.Context, arg CurrentSqlInstancesCostForTeamParams)) *MockQuerier_CurrentSqlInstancesCostForTeam_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(CurrentSqlInstancesCostForTeamParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_CurrentSqlInstancesCostForTeam_Call) Return(_a0 float32, _a1 error) *MockQuerier_CurrentSqlInstancesCostForTeam_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_CurrentSqlInstancesCostForTeam_Call) RunAndReturn(run func(context.Context, CurrentSqlInstancesCostForTeamParams) (float32, error)) *MockQuerier_CurrentSqlInstancesCostForTeam_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DailyCostForApp provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) DailyCostForApp(ctx context.Context, arg DailyCostForAppParams) ([]*Cost, error) {
 	ret := _m.Called(ctx, arg)
