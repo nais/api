@@ -5,7 +5,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"k8s.io/utils/ptr"
 	"math/rand"
 	"os"
 	"strings"
@@ -27,6 +26,7 @@ import (
 	"golang.org/x/text/unicode/norm"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"k8s.io/utils/ptr"
 )
 
 type seedConfig struct {
