@@ -148,7 +148,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 // RemoveUsersFromTeam is the resolver for the removeUsersFromTeam field.
 func (r *mutationResolver) RemoveUsersFromTeam(ctx context.Context, slug slug.Slug, userIds []*scalar.Ident) (*model.Team, error) {
 	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsUpdate, slug)
+	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamMembersAll, slug)
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +223,7 @@ func (r *mutationResolver) RemoveUsersFromTeam(ctx context.Context, slug slug.Sl
 // RemoveUserFromTeam is the resolver for the removeUserFromTeam field.
 func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slug, userID scalar.Ident) (*model.Team, error) {
 	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsUpdate, slug)
+	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamMembersAll, slug)
 	if err != nil {
 		return nil, err
 	}
@@ -355,7 +355,7 @@ func (r *mutationResolver) SynchronizeAllTeams(ctx context.Context) (*model.Team
 
 	targets := make([]auditlogger.Target, 0, len(teams))
 	for _, entry := range teams {
-		targets = append(targets, auditlogger.TeamTarget(entry.Team.Slug))
+		targets = append(targets, auditlogger.TeamTarget(entry.Slug))
 	}
 	fields := auditlogger.Fields{
 		Action:        audittype.AuditActionGraphqlApiTeamSync,
@@ -373,7 +373,7 @@ func (r *mutationResolver) SynchronizeAllTeams(ctx context.Context) (*model.Team
 // AddTeamMembers is the resolver for the addTeamMembers field.
 func (r *mutationResolver) AddTeamMembers(ctx context.Context, slug slug.Slug, userIds []*scalar.Ident) (*model.Team, error) {
 	actor := authz.ActorFromContext(ctx)
-	if err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsUpdate, slug); err != nil {
+	if err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamMembersAll, slug); err != nil {
 		return nil, err
 	}
 
@@ -433,7 +433,7 @@ func (r *mutationResolver) AddTeamMembers(ctx context.Context, slug slug.Slug, u
 // AddTeamOwners is the resolver for the addTeamOwners field.
 func (r *mutationResolver) AddTeamOwners(ctx context.Context, slug slug.Slug, userIds []*scalar.Ident) (*model.Team, error) {
 	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsUpdate, slug)
+	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamMembersAll, slug)
 	if err != nil {
 		return nil, err
 	}
@@ -495,7 +495,7 @@ func (r *mutationResolver) AddTeamOwners(ctx context.Context, slug slug.Slug, us
 // AddTeamMember is the resolver for the addTeamMember field.
 func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, member model.TeamMemberInput) (*model.Team, error) {
 	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsUpdate, slug)
+	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamMembersAll, slug)
 	if err != nil {
 		return nil, err
 	}
@@ -587,7 +587,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 // SetTeamMemberRole is the resolver for the setTeamMemberRole field.
 func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug, userID scalar.Ident, role model.TeamRole) (*model.Team, error) {
 	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsUpdate, slug)
+	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationUsersUpdate, slug)
 	if err != nil {
 		return nil, err
 	}
@@ -661,7 +661,7 @@ func (r *mutationResolver) RequestTeamDeletion(ctx context.Context, slug slug.Sl
 		return nil, apierror.Errorf("Service accounts are not allowed to request a team deletion.")
 	}
 
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsUpdate, slug)
+	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamMembersAll, slug)
 	if err != nil {
 		return nil, err
 	}
@@ -710,7 +710,7 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, key string) 
 	if actor.User.IsServiceAccount() {
 		return false, apierror.Errorf("Service accounts are not allowed to confirm a team deletion.")
 	}
-	err = authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsUpdate, deleteKey.TeamSlug)
+	err = authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamMembersAll, deleteKey.TeamSlug)
 	if err != nil {
 		return false, err
 	}

@@ -23,6 +23,7 @@ const (
 	AuthorizationTeamsList             Authorization = "teams:list"
 	AuthorizationTeamsRead             Authorization = "teams:read"
 	AuthorizationTeamsUpdate           Authorization = "teams:update"
+	AuthorizationTeamMembersAll        Authorization = "teammembers:all"
 	AuthorizationUsersList             Authorization = "users:list"
 	AuthorizationUsersUpdate           Authorization = "users:update"
 	AuthorizationTeamsSynchronize      Authorization = "teams:synchronize"
@@ -66,6 +67,7 @@ var roles = map[gensql.RoleName][]Authorization{
 	gensql.RoleNameTeammember: {
 		AuthorizationAuditLogsRead,
 		AuthorizationTeamsRead,
+		AuthorizationTeamsUpdate,
 		AuthorizationDeployKeyView,
 		AuthorizationTeamsSynchronize,
 	},
@@ -75,6 +77,7 @@ var roles = map[gensql.RoleName][]Authorization{
 		AuthorizationTeamsRead,
 		AuthorizationTeamsUpdate,
 		AuthorizationTeamsSynchronize,
+		AuthorizationTeamMembersAll,
 		AuthorizationDeployKeyView,
 	},
 	gensql.RoleNameTeamviewer: {

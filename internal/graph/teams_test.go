@@ -297,7 +297,7 @@ func TestMutationResolver_RequestTeamDeletion(t *testing.T) {
 			{
 				RoleName: gensql.RoleNameTeamowner,
 				Authorizations: []roles.Authorization{
-					roles.AuthorizationTeamsUpdate,
+					roles.AuthorizationTeamMembersAll,
 				},
 			},
 		})
@@ -334,7 +334,7 @@ func TestMutationResolver_RequestTeamDeletion(t *testing.T) {
 			{
 				RoleName: gensql.RoleNameTeamowner,
 				Authorizations: []roles.Authorization{
-					roles.AuthorizationTeamsUpdate,
+					roles.AuthorizationTeamMembersAll,
 				},
 			},
 		})
