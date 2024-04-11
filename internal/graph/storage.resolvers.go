@@ -50,14 +50,14 @@ func (r *queryResolver) CurrentSQLInstancesMetrics(ctx context.Context, team slu
 		}
 
 		for _, mt := range metricTypes {
-			instances, err := r.sqlInstanceClient.Metrics.AverageFor(ctx, *teamEnv.DBType.GcpProjectID, sqlinstance.WithTeamQuery(mt))
+			instances, err := r.sqlInstanceClient.Metrics.AverageForTeam(ctx, *teamEnv.DBType.GcpProjectID, mt)
 			if err != nil {
 				return nil, err
 			}
 
 			sum := 0.0
 			for instanceId, m := range instances {
-				uniqueInstances[instanceId] = struct{}{}
+				uniqueInstances[string(instanceId)] = struct{}{}
 				sum += m
 			}
 			v, ok := metrics[mt]
@@ -160,56 +160,55 @@ func (r *sqlInstanceResolver) Workload(ctx context.Context, obj *model.SQLInstan
 
 // CPU is the resolver for the cpu field.
 func (r *sqlInstanceMetricsResolver) CPU(ctx context.Context, obj *model.SQLInstanceMetrics) (*model.SQLInstanceCPU, error) {
-	db := obj.GQLVars.DatabaseID
-	cpu, err := r.sqlInstanceClient.Metrics.AverageFor(ctx, obj.GQLVars.ProjectID, sqlinstance.WithQuery(sqlinstance.CpuUtilization, obj.GQLVars.DatabaseID))
+	cpu, err := r.sqlInstanceClient.Metrics.AverageForDatabase(ctx, obj.GQLVars.ProjectID, sqlinstance.CpuUtilization, obj.GQLVars.DatabaseID)
 	if err != nil {
 		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
 	}
 
-	cpuCores, err := r.sqlInstanceClient.Metrics.AverageFor(ctx, obj.GQLVars.ProjectID, sqlinstance.WithQuery(sqlinstance.CpuCores, obj.GQLVars.DatabaseID))
+	cpuCores, err := r.sqlInstanceClient.Metrics.AverageForDatabase(ctx, obj.GQLVars.ProjectID, sqlinstance.CpuCores, obj.GQLVars.DatabaseID)
 	if err != nil {
 		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
 	}
 
 	return &model.SQLInstanceCPU{
-		Utilization: cpu[db] * 100,
-		Cores:       cpuCores[db],
+		Utilization: cpu * 100,
+		Cores:       cpuCores,
 	}, nil
 }
 
 // Memory is the resolver for the memory field.
 func (r *sqlInstanceMetricsResolver) Memory(ctx context.Context, obj *model.SQLInstanceMetrics) (*model.SQLInstanceMemory, error) {
-	memory, err := r.sqlInstanceClient.Metrics.AverageFor(ctx, obj.GQLVars.ProjectID, sqlinstance.WithQuery(sqlinstance.MemoryUtilization, obj.GQLVars.DatabaseID))
+	memory, err := r.sqlInstanceClient.Metrics.AverageForDatabase(ctx, obj.GQLVars.ProjectID, sqlinstance.MemoryUtilization, obj.GQLVars.DatabaseID)
 	if err != nil {
 		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
 	}
 
-	memoryQuota, err := r.sqlInstanceClient.Metrics.AverageFor(ctx, obj.GQLVars.ProjectID, sqlinstance.WithQuery(sqlinstance.MemoryQuota, obj.GQLVars.DatabaseID))
+	memoryQuota, err := r.sqlInstanceClient.Metrics.AverageForDatabase(ctx, obj.GQLVars.ProjectID, sqlinstance.MemoryQuota, obj.GQLVars.DatabaseID)
 	if err != nil {
 		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
 	}
 
 	return &model.SQLInstanceMemory{
-		Utilization: memory[obj.GQLVars.DatabaseID] * 100,
-		QuotaBytes:  memoryQuota[obj.GQLVars.DatabaseID],
+		Utilization: memory * 100,
+		QuotaBytes:  memoryQuota,
 	}, nil
 }
 
 // Disk is the resolver for the disk field.
 func (r *sqlInstanceMetricsResolver) Disk(ctx context.Context, obj *model.SQLInstanceMetrics) (*model.SQLInstanceDisk, error) {
-	disk, err := r.sqlInstanceClient.Metrics.AverageFor(ctx, obj.GQLVars.ProjectID, sqlinstance.WithQuery(sqlinstance.DiskUtilization, obj.GQLVars.DatabaseID))
+	disk, err := r.sqlInstanceClient.Metrics.AverageForDatabase(ctx, obj.GQLVars.ProjectID, sqlinstance.DiskUtilization, obj.GQLVars.DatabaseID)
 	if err != nil {
 		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
 	}
 
-	diskQuota, err := r.sqlInstanceClient.Metrics.AverageFor(ctx, obj.GQLVars.ProjectID, sqlinstance.WithQuery(sqlinstance.DiskQuota, obj.GQLVars.DatabaseID))
+	diskQuota, err := r.sqlInstanceClient.Metrics.AverageForDatabase(ctx, obj.GQLVars.ProjectID, sqlinstance.DiskQuota, obj.GQLVars.DatabaseID)
 	if err != nil {
 		return nil, apierror.ErrGoogleCloudMonitoringMetricsApi
 	}
 
 	return &model.SQLInstanceDisk{
-		Utilization: disk[obj.GQLVars.DatabaseID] * 100,
-		QuotaBytes:  int(diskQuota[obj.GQLVars.DatabaseID]),
+		Utilization: disk * 100,
+		QuotaBytes:  int(diskQuota),
 	}, nil
 }
 

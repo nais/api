@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/patrickmn/go-cache"
 	"time"
 
 	monitoring "cloud.google.com/go/monitoring/apiv3/v2"
@@ -43,6 +44,7 @@ type Metrics struct {
 	monitoring  *monitoring.MetricClient
 	log         log.FieldLogger
 	defaultOpts *MetricsOptions
+	cache       *cache.Cache
 }
 
 type MetricsOptions struct {
@@ -52,6 +54,12 @@ type MetricsOptions struct {
 }
 
 type Option func(*MetricsOptions)
+
+type DatabaseID string
+
+type DatabaseIDToMetricValues = map[DatabaseID]float64
+
+type TeamMetricsCache = map[MetricType]DatabaseIDToMetricValues
 
 func NewMetrics(ctx context.Context, log log.FieldLogger) (*Metrics, error) {
 	client, err := monitoring.NewMetricClient(ctx)
@@ -68,25 +76,16 @@ func NewMetrics(ctx context.Context, log log.FieldLogger) (*Metrics, error) {
 				EndTime:   timestamppb.New(time.Now()),
 			},
 		},
+		cache: cache.New(30*time.Minute, 40*time.Minute),
 	}, nil
 }
 
-func WithTeamQuery(metricType MetricType) Option {
+func WithDefaultQuery(metricType MetricType) Option {
 	return func(o *MetricsOptions) {
 		q := &Query{
 			MetricType: metricType,
 		}
 		q.Filter = fmt.Sprintf(Filter, metricType)
-		o.query = q
-	}
-}
-
-func WithQuery(metricType MetricType, databaseId string) Option {
-	return func(o *MetricsOptions) {
-		q := &Query{
-			MetricType: metricType,
-		}
-		q.Filter = fmt.Sprintf(DatabaseIdFilter, metricType, databaseId)
 		o.query = q
 	}
 }
@@ -110,21 +109,63 @@ func (m *Metrics) Close() error {
 	return m.monitoring.Close()
 }
 
-func (m *Metrics) AverageFor(ctx context.Context, projectID string, opts ...Option) (map[string]float64, error) {
-	var options MetricsOptions
-	for _, o := range opts {
-		o(&options)
+func (m *Metrics) AverageForDatabase(ctx context.Context, projectID string, metricType MetricType, databaseID string) (float64, error) {
+	averages, err := m.AverageForTeam(ctx, projectID, metricType)
+	if err != nil {
+		return 0, err
 	}
 
-	ts, err := m.ListTimeSeries(ctx, projectID, opts...)
+	teamMetrics := TeamMetricsCache{}
+	teamMetrics[metricType] = averages
+	if dbMetric, found := metricFor(teamMetrics, metricType, DatabaseID(databaseID)); found {
+		return dbMetric, nil
+	}
+
+	return 0, nil
+}
+
+func (m *Metrics) AverageForTeam(ctx context.Context, projectID string, metricType MetricType) (map[DatabaseID]float64, error) {
+	entry, found := m.cache.Get(projectID)
+	tc := TeamMetricsCache{}
+	idToMetricValues := DatabaseIDToMetricValues{}
+	if found {
+		tc = entry.(TeamMetricsCache)
+		if idToMetricValues, found = tc[metricType]; found {
+			m.log.Debugf("found metrics in cache for metricType %q", metricType)
+			return idToMetricValues, nil
+		}
+	}
+
+	ts, err := m.listTimeSeries(ctx, projectID, WithDefaultQuery(metricType))
 	if err != nil {
 		return nil, err
 	}
 
-	averages := make(map[string]float64)
+	idToMetricValues = m.average(metricType, ts)
+	tc[metricType] = idToMetricValues
+
+	m.cache.Set(projectID, tc, cache.DefaultExpiration)
+
+	return idToMetricValues, nil
+}
+
+func metricFor(teamMetrics TeamMetricsCache, metricType MetricType, databaseID DatabaseID) (float64, bool) {
+	idToMetricValues, found := teamMetrics[metricType]
+	if !found {
+		return 0, false
+	}
+	metric, found := idToMetricValues[databaseID]
+	if !found {
+		return 0, false
+	}
+	return metric, true
+}
+
+func (m *Metrics) average(metricType MetricType, ts []*monitoringpb.TimeSeries) map[DatabaseID]float64 {
+	averages := map[DatabaseID]float64{}
 	for _, t := range ts {
 		sum := 0.0
-		if t.Metric.Type != options.query.MetricType {
+		if t.Metric.Type != metricType {
 			continue
 		}
 		for _, p := range t.Points {
@@ -142,12 +183,13 @@ func (m *Metrics) AverageFor(ctx context.Context, projectID string, opts ...Opti
 			m.log.Error("database_id not found")
 			continue
 		}
-		averages[databaseId] = sum / float64(len(t.Points))
+
+		averages[DatabaseID(databaseId)] = sum / float64(len(t.Points))
 	}
-	return averages, nil
+	return averages
 }
 
-func (m *Metrics) ListTimeSeries(ctx context.Context, projectID string, opts ...Option) ([]*monitoringpb.TimeSeries, error) {
+func (m *Metrics) listTimeSeries(ctx context.Context, projectID string, opts ...Option) ([]*monitoringpb.TimeSeries, error) {
 	options := m.defaultOpts
 	for _, o := range opts {
 		o(options)
