@@ -211,7 +211,7 @@ func (r *mutationResolver) ResetReconciler(ctx context.Context, name string) (*m
 // AddReconcilerOptOut is the resolver for the addReconcilerOptOut field.
 func (r *mutationResolver) AddReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler string) (*model.TeamMember, error) {
 	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsUpdate, teamSlug)
+	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMembersAdmin, teamSlug)
 	if err != nil {
 		return nil, err
 	}
@@ -245,7 +245,7 @@ func (r *mutationResolver) AddReconcilerOptOut(ctx context.Context, teamSlug slu
 // RemoveReconcilerOptOut is the resolver for the removeReconcilerOptOut field.
 func (r *mutationResolver) RemoveReconcilerOptOut(ctx context.Context, teamSlug slug.Slug, userID scalar.Ident, reconciler string) (*model.TeamMember, error) {
 	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsUpdate, teamSlug)
+	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMembersAdmin, teamSlug)
 	if err != nil {
 		return nil, err
 	}

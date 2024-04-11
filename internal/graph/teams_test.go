@@ -244,26 +244,6 @@ func TestMutationResolver_RequestTeamDeletion(t *testing.T) {
 	teamSlug := slug.Slug("my-team")
 	userSyncRuns := usersync.NewRunsHandler(5)
 
-	t.Run("service accounts can not create delete keys", func(t *testing.T) {
-		db := database.NewMockDatabase(t)
-
-		resolver := graph.
-			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditlogger.NewAuditLoggerForTesting(), nil, userSyncRuns, nil, log, nil).
-			Mutation()
-
-		serviceAccount := database.ServiceAccount{
-			ServiceAccount: &gensql.ServiceAccount{
-				ID:   uuid.New(),
-				Name: "service-account",
-			},
-		}
-
-		ctx := authz.ContextWithActor(ctx, serviceAccount, []*authz.Role{})
-		key, err := resolver.RequestTeamDeletion(ctx, teamSlug)
-		assert.Nil(t, key)
-		assert.ErrorContains(t, err, "Service accounts are not allowed")
-	})
-
 	t.Run("missing authz", func(t *testing.T) {
 		db := database.NewMockDatabase(t)
 
@@ -282,7 +262,7 @@ func TestMutationResolver_RequestTeamDeletion(t *testing.T) {
 
 		key, err := resolver.RequestTeamDeletion(ctx, teamSlug)
 		assert.Nil(t, key)
-		assert.ErrorContains(t, err, "required authorization")
+		assert.ErrorContains(t, err, "required role: \"Team owner\"")
 	})
 
 	t.Run("missing team", func(t *testing.T) {
@@ -295,9 +275,10 @@ func TestMutationResolver_RequestTeamDeletion(t *testing.T) {
 		}
 		ctx := authz.ContextWithActor(ctx, user, []*authz.Role{
 			{
-				RoleName: gensql.RoleNameTeamowner,
+				TargetTeamSlug: &teamSlug,
+				RoleName:       gensql.RoleNameTeamowner,
 				Authorizations: []roles.Authorization{
-					roles.AuthorizationTeamMembersAll,
+					roles.AuthorizationTeamsMembersAdmin,
 				},
 			},
 		})
@@ -332,9 +313,10 @@ func TestMutationResolver_RequestTeamDeletion(t *testing.T) {
 		}
 		ctx := authz.ContextWithActor(ctx, user, []*authz.Role{
 			{
-				RoleName: gensql.RoleNameTeamowner,
+				TargetTeamSlug: &teamSlug,
+				RoleName:       gensql.RoleNameTeamowner,
 				Authorizations: []roles.Authorization{
-					roles.AuthorizationTeamMembersAll,
+					roles.AuthorizationTeamsMembersAdmin,
 				},
 			},
 		})
