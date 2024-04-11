@@ -50,7 +50,6 @@ func (c ClusterInformers) Start(ctx context.Context, log logrus.FieldLogger) err
 		if informer.SqlDatabaseInformer != nil {
 			go informer.SqlDatabaseInformer.Informer().Run(ctx.Done())
 		}
-		go informer.SqlDatabaseInformer.Informer().Run(ctx.Done())
 		if informer.TopicInformer != nil {
 			go informer.TopicInformer.Informer().Run(ctx.Done())
 		}
