@@ -11,3 +11,12 @@ type StaticCluster struct {
 	Host  string
 	Token string
 }
+
+func (c *Config) IsStaticCluster(cluster string) bool {
+	for _, sc := range c.StaticClusters {
+		if sc.Name == cluster {
+			return true
+		}
+	}
+	return false
+}

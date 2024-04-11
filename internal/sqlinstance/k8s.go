@@ -21,6 +21,10 @@ func (c *Client) SqlInstance(ctx context.Context, env string, teamSlug slug.Slug
 		return nil, fmt.Errorf("unknown env: %s", env)
 	}
 
+	if inf.SqlInstanceInformer == nil {
+		return nil, fmt.Errorf("SQL instance informer not supported in env: %q", env)
+	}
+
 	instance, err := inf.SqlInstanceInformer.Lister().ByNamespace(string(teamSlug)).Get(instanceName)
 	if err != nil {
 		return nil, fmt.Errorf("get SQL instance: %w", err)
@@ -33,6 +37,10 @@ func (c *Client) SqlInstances(ctx context.Context, teamSlug slug.Slug) ([]*model
 	ret := make([]*model.SQLInstance, 0)
 
 	for env, infs := range c.informers {
+		if infs.SqlInstanceInformer == nil {
+			continue
+		}
+
 		objs, err := infs.SqlInstanceInformer.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
 		if err != nil {
 			return nil, c.error(ctx, err, "listing SQL instances")
