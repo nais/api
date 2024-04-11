@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/patrickmn/go-cache"
 	"time"
+
+	"github.com/patrickmn/go-cache"
 
 	monitoring "cloud.google.com/go/monitoring/apiv3/v2"
 	"cloud.google.com/go/monitoring/apiv3/v2/monitoringpb"
@@ -127,10 +128,9 @@ func (m *Metrics) AverageForDatabase(ctx context.Context, projectID string, metr
 func (m *Metrics) AverageForTeam(ctx context.Context, projectID string, metricType MetricType) (map[DatabaseID]float64, error) {
 	entry, found := m.cache.Get(projectID)
 	tc := TeamMetricsCache{}
-	idToMetricValues := DatabaseIDToMetricValues{}
 	if found {
 		tc = entry.(TeamMetricsCache)
-		if idToMetricValues, found = tc[metricType]; found {
+		if idToMetricValues, found := tc[metricType]; found {
 			m.log.Debugf("found metrics in cache for metricType %q", metricType)
 			return idToMetricValues, nil
 		}
@@ -141,7 +141,7 @@ func (m *Metrics) AverageForTeam(ctx context.Context, projectID string, metricTy
 		return nil, err
 	}
 
-	idToMetricValues = m.average(metricType, ts)
+	idToMetricValues := m.average(metricType, ts)
 	tc[metricType] = idToMetricValues
 
 	m.cache.Set(projectID, tc, cache.DefaultExpiration)
