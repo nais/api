@@ -15,7 +15,7 @@ import (
 
 const (
 	authTeamCreateError = `required authorization: "teams:create"`
-	authTeamUpdateError = `required authorization: "teams:update"`
+	authTeamUpdateError = `required authorization: "teams:metadata:update"`
 )
 
 func TestContextWithUser(t *testing.T) {
@@ -123,7 +123,7 @@ func TestRequireAuthorizationForTeamTarget(t *testing.T) {
 			},
 		}
 		contextUser := authz.ActorFromContext(authz.ContextWithActor(context.Background(), user, userRoles))
-		if authz.RequireTeamAuthorization(contextUser, roles.AuthorizationTeamsUpdate, targetTeamSlug).Error() != authTeamUpdateError {
+		if authz.RequireTeamAuthorization(contextUser, roles.AuthorizationTeamsMetadataUpdate, targetTeamSlug).Error() != authTeamUpdateError {
 			t.Fatalf("RequireTeamAuthorization(ctx): expected error text to match %q", authTeamUpdateError)
 		}
 	})
@@ -132,11 +132,11 @@ func TestRequireAuthorizationForTeamTarget(t *testing.T) {
 		userRoles := []*authz.Role{
 			{
 				TargetTeamSlug: &targetTeamSlug,
-				Authorizations: []roles.Authorization{roles.AuthorizationTeamsUpdate},
+				Authorizations: []roles.Authorization{roles.AuthorizationTeamsMetadataUpdate},
 			},
 		}
 		contextUser := authz.ActorFromContext(authz.ContextWithActor(context.Background(), user, userRoles))
-		if authz.RequireTeamAuthorization(contextUser, roles.AuthorizationTeamsUpdate, targetTeamSlug) != nil {
+		if authz.RequireTeamAuthorization(contextUser, roles.AuthorizationTeamsMetadataUpdate, targetTeamSlug) != nil {
 			t.Fatal("RequireTeamAuthorization(ctx): expected nil error")
 		}
 	})
@@ -146,11 +146,11 @@ func TestRequireAuthorizationForTeamTarget(t *testing.T) {
 		userRoles := []*authz.Role{
 			{
 				TargetTeamSlug: &wrongSlug,
-				Authorizations: []roles.Authorization{roles.AuthorizationTeamsUpdate},
+				Authorizations: []roles.Authorization{roles.AuthorizationTeamsMetadataUpdate},
 			},
 		}
 		contextUser := authz.ActorFromContext(authz.ContextWithActor(context.Background(), user, userRoles))
-		if authz.RequireTeamAuthorization(contextUser, roles.AuthorizationTeamsUpdate, targetTeamSlug).Error() != authTeamUpdateError {
+		if authz.RequireTeamAuthorization(contextUser, roles.AuthorizationTeamsMetadataUpdate, targetTeamSlug).Error() != authTeamUpdateError {
 			t.Fatalf("RequireTeamAuthorization(ctx): expected error text to match %q", authTeamUpdateError)
 		}
 	})
@@ -158,11 +158,11 @@ func TestRequireAuthorizationForTeamTarget(t *testing.T) {
 	t.Run("User with global role", func(t *testing.T) {
 		userRoles := []*authz.Role{
 			{
-				Authorizations: []roles.Authorization{roles.AuthorizationTeamsUpdate},
+				Authorizations: []roles.Authorization{roles.AuthorizationTeamsMetadataUpdate},
 			},
 		}
 		contextUser := authz.ActorFromContext(authz.ContextWithActor(context.Background(), user, userRoles))
-		if authz.RequireTeamAuthorization(contextUser, roles.AuthorizationTeamsUpdate, targetTeamSlug) != nil {
+		if authz.RequireTeamAuthorization(contextUser, roles.AuthorizationTeamsMetadataUpdate, targetTeamSlug) != nil {
 			t.Fatal("RequireTeamAuthorization(ctx): expected nil error")
 		}
 	})
