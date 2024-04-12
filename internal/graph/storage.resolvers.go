@@ -18,7 +18,7 @@ import (
 
 // SQLInstance is the resolver for the sqlInstance field.
 func (r *queryResolver) SQLInstance(ctx context.Context, name string, team slug.Slug, env string) (*model.SQLInstance, error) {
-	return r.sqlInstanceClient.SqlInstance(ctx, env, team, name)
+	return r.sqlInstanceClient.SqlInstance(env, team, name)
 }
 
 // CurrentSQLInstancesMetrics is the resolver for the currentSqlInstancesMetrics field.

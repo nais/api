@@ -6653,7 +6653,7 @@ union Workload = App | NaisJob`, BuiltIn: false},
   ): SearchList!
 }
 
-union SearchNode = App | Team | NaisJob
+union SearchNode = App | Team | NaisJob | SqlInstance
 
 input SearchFilter {
   type: SearchType
@@ -6668,6 +6668,7 @@ enum SearchType {
   APP
   TEAM
   NAISJOB
+  SQLINSTANCE
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/secrets.graphqls", Input: `extend type Mutation {
@@ -40304,6 +40305,13 @@ func (ec *executionContext) _SearchNode(ctx context.Context, sel ast.SelectionSe
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
+	case model.SQLInstance:
+		return ec._SqlInstance(ctx, sel, &obj)
+	case *model.SQLInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SqlInstance(ctx, sel, obj)
 	case model.App:
 		return ec._App(ctx, sel, &obj)
 	case *model.App:
@@ -47057,7 +47065,7 @@ func (ec *executionContext) _SqlDatabase(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
-var sqlInstanceImplementors = []string{"SqlInstance", "Storage"}
+var sqlInstanceImplementors = []string{"SqlInstance", "SearchNode", "Storage"}
 
 func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionSet, obj *model.SQLInstance) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceImplementors)

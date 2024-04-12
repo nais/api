@@ -15,7 +15,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: app-w-all-storage
     helm.sh/chart: app-w-all-storage-2024-02-22-115844-b411609
-    team: nais
+    team: devteam
   name: contests
   namespace: nais-system
   ownerReferences:
@@ -97,7 +97,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: app-w-all-storage
     helm.sh/chart: app-w-all-storage-2024-02-22-115844-b411609
-    team: nais
+    team: devteam
   name: donotdelete
   namespace: nais-system
 spec:

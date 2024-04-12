@@ -251,7 +251,38 @@ func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilte
 	ret := []*search.Result{}
 
 	for env, infs := range c.informers {
-		// TODO: search sql instances
+		if isFilterSqlInstanceOrNoFilter(filter) {
+			if infs.SqlInstanceInformer == nil {
+				continue
+			}
+
+			sqlInstances, err := infs.SqlInstanceInformer.Lister().List(labels.Everything())
+			if err != nil {
+				c.error(ctx, err, "listing SQL instances")
+				return nil
+			}
+
+			for _, obj := range sqlInstances {
+				u := obj.(*unstructured.Unstructured)
+				rank := search.Match(q, u.GetName())
+				if rank == -1 {
+					continue
+				}
+
+				sqlInstance, err := model.ToSqlInstance(u, env)
+				if err != nil {
+					c.error(ctx, err, "converting to SQL instance")
+					return nil
+				} else if ok, _ := c.database.TeamExists(ctx, sqlInstance.GQLVars.TeamSlug); !ok {
+					continue
+				}
+
+				ret = append(ret, &search.Result{
+					Node: sqlInstance,
+					Rank: rank,
+				})
+			}
+		}
 
 		if isFilterNaisjobOrNoFilter(filter) {
 			jobs, err := infs.NaisjobInformer.Lister().List(labels.Everything())
@@ -353,7 +384,7 @@ func isFilterOrNoFilter(filter *model.SearchFilter) bool {
 		return true
 	}
 
-	return *filter.Type == model.SearchTypeApp || *filter.Type == model.SearchTypeNaisjob
+	return *filter.Type == model.SearchTypeApp || *filter.Type == model.SearchTypeNaisjob || *filter.Type == model.SearchTypeSQLInstance
 }
 
 func isFilterAppOrNoFilter(filter *model.SearchFilter) bool {
@@ -370,4 +401,12 @@ func isFilterNaisjobOrNoFilter(filter *model.SearchFilter) bool {
 	}
 
 	return *filter.Type == model.SearchTypeNaisjob
+}
+
+func isFilterSqlInstanceOrNoFilter(filter *model.SearchFilter) bool {
+	if !isFilter(filter) {
+		return true
+	}
+
+	return *filter.Type == model.SearchTypeSQLInstance
 }

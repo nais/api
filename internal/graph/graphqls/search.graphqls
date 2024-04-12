@@ -7,7 +7,7 @@ extend type Query {
   ): SearchList!
 }
 
-union SearchNode = App | Team | NaisJob
+union SearchNode = App | Team | NaisJob | SqlInstance
 
 input SearchFilter {
   type: SearchType
@@ -22,4 +22,5 @@ enum SearchType {
   APP
   TEAM
   NAISJOB
+  SQLINSTANCE
 }

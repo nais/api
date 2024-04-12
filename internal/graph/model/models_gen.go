@@ -1246,20 +1246,22 @@ func (e ResourceType) MarshalGQL(w io.Writer) {
 type SearchType string
 
 const (
-	SearchTypeApp     SearchType = "APP"
-	SearchTypeTeam    SearchType = "TEAM"
-	SearchTypeNaisjob SearchType = "NAISJOB"
+	SearchTypeApp         SearchType = "APP"
+	SearchTypeTeam        SearchType = "TEAM"
+	SearchTypeNaisjob     SearchType = "NAISJOB"
+	SearchTypeSQLInstance SearchType = "SQLINSTANCE"
 )
 
 var AllSearchType = []SearchType{
 	SearchTypeApp,
 	SearchTypeTeam,
 	SearchTypeNaisjob,
+	SearchTypeSQLInstance,
 }
 
 func (e SearchType) IsValid() bool {
 	switch e {
-	case SearchTypeApp, SearchTypeTeam, SearchTypeNaisjob:
+	case SearchTypeApp, SearchTypeTeam, SearchTypeNaisjob, SearchTypeSQLInstance:
 		return true
 	}
 	return false

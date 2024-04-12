@@ -15,7 +15,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: contests-failing
     helm.sh/chart: contests-failing-2024-02-22-115844-b411609
-    team: nais
+    team: devteam
   name: contests-failing
   namespace: nais-system
 spec:
