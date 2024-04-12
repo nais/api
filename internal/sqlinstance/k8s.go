@@ -56,7 +56,7 @@ func (c *Client) SqlInstances(ctx context.Context, teamSlug slug.Slug) ([]*model
 		}
 	}
 	sort.Slice(ret, func(i, j int) bool {
-		return ret[i].Name < ret[j].Name
+		return ret[i].ConnectionName < ret[j].ConnectionName
 	})
 
 	return ret, nil
