@@ -33,11 +33,6 @@ func (r *queryResolver) CurrentSQLInstancesMetrics(ctx context.Context, team slu
 		sqlinstance.DiskQuota,
 	}
 
-	cost, err := r.database.CurrentSqlInstancesCostForTeam(ctx, team)
-	if err != nil {
-		return nil, err
-	}
-
 	uniqueInstances := make(map[string]struct{})
 	for _, c := range r.clusters.GCPClusters() {
 		teamEnv, err := loader.GetTeamEnvironment(ctx, team, c)
@@ -73,6 +68,11 @@ func (r *queryResolver) CurrentSQLInstancesMetrics(ctx context.Context, team slu
 
 	if totalInstances == 0 {
 		return &model.CurrentSQLInstancesMetrics{}, nil
+	}
+
+	cost, err := r.database.CurrentSqlInstancesCostForTeam(ctx, team)
+	if err != nil {
+		return nil, err
 	}
 
 	return &model.CurrentSQLInstancesMetrics{
