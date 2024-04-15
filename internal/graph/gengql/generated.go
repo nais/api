@@ -789,10 +789,11 @@ type ComplexityRoot struct {
 	}
 
 	SqlInstanceCondition struct {
-		Message func(childComplexity int) int
-		Reason  func(childComplexity int) int
-		Status  func(childComplexity int) int
-		Type    func(childComplexity int) int
+		LastTransitionTime func(childComplexity int) int
+		Message            func(childComplexity int) int
+		Reason             func(childComplexity int) int
+		Status             func(childComplexity int) int
+		Type               func(childComplexity int) int
 	}
 
 	SqlInstanceCpu struct {
@@ -4423,6 +4424,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.Workload(childComplexity), true
 
+	case "SqlInstanceCondition.lastTransitionTime":
+		if e.complexity.SqlInstanceCondition.LastTransitionTime == nil {
+			break
+		}
+
+		return e.complexity.SqlInstanceCondition.LastTransitionTime(childComplexity), true
+
 	case "SqlInstanceCondition.message":
 		if e.complexity.SqlInstanceCondition.Message == nil {
 			break
@@ -6927,6 +6935,7 @@ type SqlInstanceCondition {
   reason: String!
   status: String!
   type: String!
+  lastTransitionTime: String!
 }
 
 extend enum OrderByField {
@@ -31936,6 +31945,50 @@ func (ec *executionContext) fieldContext_SqlInstanceCondition_type(ctx context.C
 	return fc, nil
 }
 
+func (ec *executionContext) _SqlInstanceCondition_lastTransitionTime(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstanceCondition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstanceCondition_lastTransitionTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LastTransitionTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstanceCondition_lastTransitionTime(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstanceCondition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SqlInstanceCpu_cores(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstanceCPU) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstanceCpu_cores(ctx, field)
 	if err != nil {
@@ -32397,6 +32450,8 @@ func (ec *executionContext) fieldContext_SqlInstanceStatus_conditions(ctx contex
 				return ec.fieldContext_SqlInstanceCondition_status(ctx, field)
 			case "type":
 				return ec.fieldContext_SqlInstanceCondition_type(ctx, field)
+			case "lastTransitionTime":
+				return ec.fieldContext_SqlInstanceCondition_lastTransitionTime(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SqlInstanceCondition", field.Name)
 		},
@@ -47373,6 +47428,11 @@ func (ec *executionContext) _SqlInstanceCondition(ctx context.Context, sel ast.S
 			}
 		case "type":
 			out.Values[i] = ec._SqlInstanceCondition_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "lastTransitionTime":
+			out.Values[i] = ec._SqlInstanceCondition_lastTransitionTime(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

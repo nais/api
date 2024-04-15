@@ -801,10 +801,11 @@ type SQLDatabase struct {
 }
 
 type SQLInstanceCondition struct {
-	Message string `json:"message"`
-	Reason  string `json:"reason"`
-	Status  string `json:"status"`
-	Type    string `json:"type"`
+	Message            string `json:"message"`
+	Reason             string `json:"reason"`
+	Status             string `json:"status"`
+	Type               string `json:"type"`
+	LastTransitionTime string `json:"lastTransitionTime"`
 }
 
 type SQLInstanceCPU struct {
