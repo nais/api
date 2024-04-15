@@ -112,10 +112,11 @@ func ToSqlInstance(u *unstructured.Unstructured, env string) (*SQLInstance, erro
 				ret := make([]*SQLInstanceCondition, 0)
 				for _, condition := range sqlInstance.Status.Conditions {
 					ret = append(ret, &SQLInstanceCondition{
-						Type:    condition.Type,
-						Status:  string(condition.Status),
-						Reason:  condition.Reason,
-						Message: condition.Message,
+						Type:               condition.Type,
+						Status:             string(condition.Status),
+						Reason:             condition.Reason,
+						Message:            condition.Message,
+						LastTransitionTime: condition.LastTransitionTime,
 					})
 				}
 				return ret

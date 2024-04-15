@@ -171,6 +171,7 @@ type SqlInstanceCondition {
   reason: String!
   status: String!
   type: String!
+  lastTransitionTime: String!
 }
 
 extend enum OrderByField {
