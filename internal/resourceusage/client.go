@@ -165,8 +165,8 @@ func (c *client) CurrentResourceUtilizationForApp(ctx context.Context, env strin
 
 	return &model.CurrentResourceUtilization{
 		Timestamp: timeRange.To.Time,
-		CPU:       resourceUtilization(model.ResourceTypeCPU, cpu.Timestamp.Time.UTC(), cpu.Request, cpu.Usage),
-		Memory:    resourceUtilization(model.ResourceTypeMemory, memory.Timestamp.Time.UTC(), memory.Request, memory.Usage),
+		CPU:       resourceUtilization(model.ResourceTypeCPU, cpu.Timestamp.Time.UTC(), cpu.Request, cpu.Usage, cpu.Request, cpu.Usage),
+		Memory:    resourceUtilization(model.ResourceTypeMemory, memory.Timestamp.Time.UTC(), memory.Request, memory.Usage, memory.Request, memory.Usage),
 	}, nil
 }
 
@@ -201,10 +201,13 @@ func (c *client) CurrentResourceUtilizationForTeam(ctx context.Context, team slu
 		return nil, fmt.Errorf("fetching current memory: %w", err)
 	}
 
+	sMem := joinSpecificRows(currentMemory)
+	sCpu := joinSpecificRows(currentCpu)
+
 	return &model.CurrentResourceUtilization{
 		Timestamp: timeRange.To.Time,
-		CPU:       resourceUtilization(model.ResourceTypeCPU, currentCpu.Timestamp.Time.UTC(), currentCpu.Request, currentCpu.Usage),
-		Memory:    resourceUtilization(model.ResourceTypeMemory, currentMemory.Timestamp.Time.UTC(), currentMemory.Request, currentMemory.Usage),
+		CPU:       resourceUtilization(model.ResourceTypeCPU, sCpu.utcTime, sCpu.request, sCpu.usage, sCpu.costOnlyRequest, sCpu.costOnlyUsage),
+		Memory:    resourceUtilization(model.ResourceTypeMemory, sMem.utcTime, sMem.request, sMem.usage, sMem.costOnlyRequest, sMem.costOnlyUsage),
 	}, nil
 }
 
@@ -288,7 +291,7 @@ func (c *client) resourceUtilizationForApp(ctx context.Context, resourceType mod
 	utilizationMap := initUtilizationMap(s, e)
 	for _, row := range rows {
 		ts := row.Timestamp.Time.UTC()
-		utilizationMap[ts] = resourceUtilization(resourceType, ts, row.Request, row.Usage)
+		utilizationMap[ts] = resourceUtilization(resourceType, ts, row.Request, row.Usage, row.Request, row.Usage)
 	}
 
 	data := make([]*model.ResourceUtilization, 0)
@@ -335,7 +338,7 @@ func (c *client) resourceUtilizationForTeam(ctx context.Context, resourceType mo
 	utilizationMap := initUtilizationMap(s, e)
 	for _, row := range rows {
 		ts := row.Timestamp.Time.UTC()
-		utilizationMap[ts] = resourceUtilization(resourceType, ts, row.Request, row.Usage)
+		utilizationMap[ts] = resourceUtilization(resourceType, ts, row.Request, row.Usage, row.Request, row.Usage)
 	}
 
 	data := make([]*model.ResourceUtilization, 0)
@@ -409,14 +412,14 @@ func getDateRange(from, to pgtype.Timestamptz) *model.ResourceUtilizationDateRan
 }
 
 // resourceUtilization will return a resource utilization model
-func resourceUtilization(resource model.ResourceType, ts time.Time, request, usage float64) model.ResourceUtilization {
+func resourceUtilization(resource model.ResourceType, ts time.Time, request, usage, costRequest, costUsage float64) model.ResourceUtilization {
 	var utilization float64
 	if request > 0 {
 		utilization = usage / request * 100
 	}
 
-	requestCost := costPerHour(resource.ToDatabaseEnum(), request)
-	usageCost := costPerHour(resource.ToDatabaseEnum(), usage)
+	requestCost := costPerHour(resource.ToDatabaseEnum(), costRequest)
+	usageCost := costPerHour(resource.ToDatabaseEnum(), costUsage)
 	overageCostPerHour := requestCost - usageCost
 
 	return model.ResourceUtilization{
@@ -448,4 +451,33 @@ func initUtilizationMap(start, end time.Time) map[time.Time]model.ResourceUtiliz
 		}
 	}
 	return utilization
+}
+
+type splitResource struct {
+	request         float64
+	usage           float64
+	costOnlyRequest float64
+	costOnlyUsage   float64
+	utcTime         time.Time
+}
+
+func joinSpecificRows(r []*gensql.SpecificResourceUtilizationForTeamRow) splitResource {
+	var request, usage, costOnlyRequest, costOnlyUsage float64
+	var utcTime time.Time
+	for _, row := range r {
+		utcTime = row.Timestamp.Time.UTC()
+		request += row.Request
+		usage += row.Usage
+		if row.UsableForCost {
+			costOnlyRequest += row.Request
+			costOnlyUsage += row.Usage
+		}
+	}
+	return splitResource{
+		request:         request,
+		usage:           usage,
+		costOnlyRequest: costOnlyRequest,
+		costOnlyUsage:   costOnlyUsage,
+		utcTime:         utcTime,
+	}
 }

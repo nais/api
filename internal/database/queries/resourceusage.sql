@@ -106,20 +106,21 @@ WHERE
 
 -- SpecificResourceUtilizationForTeam will return resource utilization for a team at a specific timestamp. Applications
 -- with a usage greater than request will be ignored.
--- name: SpecificResourceUtilizationForTeam :one
+-- name: SpecificResourceUtilizationForTeam :many
 SELECT
     SUM(usage)::double precision AS usage,
     SUM(request)::double precision AS request,
-    timestamp
+    timestamp,
+    request > usage as usable_for_cost
 FROM
     resource_utilization_metrics
 WHERE
     team_slug = @team_slug
     AND resource_type = @resource_type
     AND timestamp = @timestamp
-    AND request > usage
 GROUP BY
-    timestamp;
+    timestamp, usable_for_cost
+ORDER BY usable_for_cost DESC;
 
 -- AverageResourceUtilizationForTeam will return the average resource utilization for a team for a week.
 -- name: AverageResourceUtilizationForTeam :one

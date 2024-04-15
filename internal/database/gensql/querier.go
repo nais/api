@@ -142,7 +142,7 @@ type Querier interface {
 	SpecificResourceUtilizationForApp(ctx context.Context, arg SpecificResourceUtilizationForAppParams) (*SpecificResourceUtilizationForAppRow, error)
 	// SpecificResourceUtilizationForTeam will return resource utilization for a team at a specific timestamp. Applications
 	// with a usage greater than request will be ignored.
-	SpecificResourceUtilizationForTeam(ctx context.Context, arg SpecificResourceUtilizationForTeamParams) (*SpecificResourceUtilizationForTeamRow, error)
+	SpecificResourceUtilizationForTeam(ctx context.Context, arg SpecificResourceUtilizationForTeamParams) ([]*SpecificResourceUtilizationForTeamRow, error)
 	TeamExists(ctx context.Context, argSlug slug.Slug) (bool, error)
 	UpdateTeam(ctx context.Context, arg UpdateTeamParams) (*Team, error)
 	UpdateTeamExternalReferences(ctx context.Context, arg UpdateTeamExternalReferencesParams) (*Team, error)
