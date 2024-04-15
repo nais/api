@@ -2,10 +2,12 @@ package resourceusage
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sort"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
@@ -171,27 +173,32 @@ func (c *client) CurrentResourceUtilizationForApp(ctx context.Context, env strin
 func (c *client) CurrentResourceUtilizationForTeam(ctx context.Context, team slug.Slug) (*model.CurrentResourceUtilization, error) {
 	timeRange, err := c.db.ResourceUtilizationRangeForTeam(ctx, team)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("fetching resource utilization range: %w", err)
 	}
 
 	if timeRange.To.Time.Before(time.Now().UTC().Add(-3 * time.Hour)) {
 		return nil, nil
 	}
 
-	ts := pgtype.Timestamptz{}
-	err = ts.Scan(timeRange.To.Time)
-	if err != nil {
-		return nil, err
+	ts := pgtype.Timestamptz{
+		Time:  timeRange.To.Time,
+		Valid: true,
 	}
 
 	currentCpu, err := c.db.SpecificResourceUtilizationForTeam(ctx, team, gensql.ResourceTypeCpu, ts)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("fetching current cpu: %w", err)
 	}
 
 	currentMemory, err := c.db.SpecificResourceUtilizationForTeam(ctx, team, gensql.ResourceTypeMemory, ts)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("fetching current memory: %w", err)
 	}
 
 	return &model.CurrentResourceUtilization{
