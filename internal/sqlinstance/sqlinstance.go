@@ -3,29 +3,43 @@ package sqlinstance
 import (
 	"context"
 
+	"github.com/nais/api/internal/database"
+
 	"github.com/nais/api/internal/k8s"
 	"github.com/sirupsen/logrus"
 )
 
 type Client struct {
-	Metrics   *Metrics
+	metrics   *Metrics
 	informers k8s.ClusterInformers
 	log       logrus.FieldLogger
 }
 
-func NewClient(ctx context.Context, informers k8s.ClusterInformers, log logrus.FieldLogger) (*Client, error) {
-	metrics, err := NewMetrics(ctx, log)
-	if err != nil {
-		return nil, err
+type ClientOption func(*Client)
+
+func WithMetrics(metrics *Metrics) ClientOption {
+	return func(c *Client) {
+		c.metrics = metrics
 	}
-	return &Client{
-		Metrics:   metrics,
-		informers: informers,
-		log:       log,
-	}, nil
 }
 
-func (c *Client) WithMetrics(metrics *Metrics) *Client {
-	c.Metrics = metrics
-	return c
+func NewClient(ctx context.Context, db database.Database, informers k8s.ClusterInformers, log logrus.FieldLogger, opts ...ClientOption) (*Client, error) {
+	client := &Client{
+		informers: informers,
+		log:       log,
+	}
+
+	for _, opt := range opts {
+		opt(client)
+	}
+
+	if client.metrics == nil {
+		metrics, err := NewMetrics(ctx, db, log)
+		if err != nil {
+			return nil, err
+		}
+		client.metrics = metrics
+	}
+
+	return client, nil
 }

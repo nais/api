@@ -10,12 +10,6 @@ extend type Query {
     "The environment the instance runs in."
     env: String!
   ): SqlInstance!
-
-  "Get the current SQL instances metrics for a team across all environments."
-  currentSqlInstancesMetrics(
-    "The name of the team."
-    team: Slug!
-  ): CurrentSqlInstancesMetrics!
 }
 
 interface Storage {
@@ -98,6 +92,7 @@ type SqlDatabase {
 type SqlInstancesList {
   nodes: [SqlInstance!]!
   pageInfo: PageInfo!
+  metrics: SqlInstancesMetrics!
 }
 
 type SqlInstance implements Storage {
@@ -105,10 +100,6 @@ type SqlInstance implements Storage {
   backupConfiguration: BackupConfiguration!
   cascadingDelete: Boolean!
   connectionName: String!
-  cost(
-    from: Date!
-    to: Date!
-  ): Float!
   databases: [SqlDatabase!]!
   env: Env!
   flags: [Flag!]!
@@ -134,12 +125,13 @@ type BackupConfiguration {
 }
 
 type SqlInstanceMetrics {
+  cost: Float!
   cpu: SqlInstanceCpu!
   memory: SqlInstanceMemory!
   disk: SqlInstanceDisk!
 }
 
-type CurrentSqlInstancesMetrics {
+type SqlInstancesMetrics {
   cost: Float!
   cpu: SqlInstanceCpu!
   memory: SqlInstanceMemory!
@@ -152,7 +144,7 @@ type SqlInstanceCpu {
 }
 
 type SqlInstanceMemory {
-  quotaBytes: Float!
+  quotaBytes: Int!
   utilization: Float!
 }
 
@@ -177,4 +169,16 @@ type SqlInstanceCondition {
 extend enum OrderByField {
   "Order by PostgreSQL version"
   VERSION
+
+  "Order by cost"
+  COST
+
+  "Order by CPU utilization"
+  CPU
+
+  "Order by memory utilization"
+  MEMORY
+
+  "Order by disk utilization"
+  DISK
 }
