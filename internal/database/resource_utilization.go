@@ -16,7 +16,7 @@ type ResourceUtilizationRepo interface {
 	ResourceUtilizationOverageForTeam(ctx context.Context, teamSlug slug.Slug, timestamp pgtype.Timestamptz, resourceType gensql.ResourceType) ([]*gensql.ResourceUtilizationOverageForTeamRow, error)
 	ResourceUtilizationRangeForApp(ctx context.Context, environment string, teamSlug slug.Slug, app string) (*gensql.ResourceUtilizationRangeForAppRow, error)
 	ResourceUtilizationRangeForTeam(ctx context.Context, teamSlug slug.Slug) (*gensql.ResourceUtilizationRangeForTeamRow, error)
-    ResourceUtilizationRefresh(ctx context.Context) error 
+	ResourceUtilizationRefresh(ctx context.Context) error
 	ResourceUtilizationUpsert(ctx context.Context, arg []gensql.ResourceUtilizationUpsertParams) *gensql.ResourceUtilizationUpsertBatchResults
 	SpecificResourceUtilizationForApp(ctx context.Context, environment string, teamSlug slug.Slug, app string, resourceType gensql.ResourceType, timestamp pgtype.Timestamptz) (*gensql.SpecificResourceUtilizationForAppRow, error)
 	SpecificResourceUtilizationForTeam(ctx context.Context, teamSlug slug.Slug, resourceType gensql.ResourceType, timestamp pgtype.Timestamptz) (*gensql.SpecificResourceUtilizationForTeamRow, error)
@@ -31,7 +31,6 @@ func (d *database) ResourceUtilizationUpsert(ctx context.Context, arg []gensql.R
 func (d *database) ResourceUtilizationRefresh(ctx context.Context) error {
 	return d.querier.RefreshResourceTeamRange(ctx)
 }
-
 
 func (d *database) AverageResourceUtilizationForTeam(ctx context.Context, teamSlug slug.Slug, resourceType gensql.ResourceType, timestamp pgtype.Timestamptz) (*gensql.AverageResourceUtilizationForTeamRow, error) {
 	return d.querier.AverageResourceUtilizationForTeam(ctx, gensql.AverageResourceUtilizationForTeamParams{
