@@ -326,44 +326,21 @@ func (q *Queries) MonthlyCostForApp(ctx context.Context, arg MonthlyCostForAppPa
 }
 
 const monthlyCostForTeam = `-- name: MonthlyCostForTeam :many
-WITH last_run AS (
-    SELECT MAX(date)::date AS "last_run"
-    FROM cost
-)
-SELECT
-    team_slug,
-    date_trunc('month', date)::date AS month,
-    -- Extract last day of known cost samples for the month, or the last recorded date
-    -- This helps with estimation etc
-    MAX(CASE
-        WHEN date_trunc('month', date) < date_trunc('month', last_run) THEN date_trunc('month', date) + interval '1 month' - interval '1 day'
-        ELSE date_trunc('day', last_run)
-    END)::date AS last_recorded_date,
-    SUM(daily_cost)::real AS daily_cost
-FROM cost c
-LEFT JOIN last_run ON true
-WHERE c.team_slug = $1::slug
-GROUP BY team_slug, month
+SELECT team_slug, month, last_recorded_date, daily_cost FROM cost_monthly_team
+WHERE team_slug = $1::slug
 ORDER BY month DESC
 LIMIT 12
 `
 
-type MonthlyCostForTeamRow struct {
-	TeamSlug         slug.Slug
-	Month            pgtype.Date
-	LastRecordedDate pgtype.Date
-	DailyCost        float32
-}
-
-func (q *Queries) MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*MonthlyCostForTeamRow, error) {
+func (q *Queries) MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*CostMonthlyTeam, error) {
 	rows, err := q.db.Query(ctx, monthlyCostForTeam, teamSlug)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*MonthlyCostForTeamRow{}
+	items := []*CostMonthlyTeam{}
 	for rows.Next() {
-		var i MonthlyCostForTeamRow
+		var i CostMonthlyTeam
 		if err := rows.Scan(
 			&i.TeamSlug,
 			&i.Month,
@@ -378,4 +355,13 @@ func (q *Queries) MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([
 		return nil, err
 	}
 	return items, nil
+}
+
+const refreshCostMonthlyTeam = `-- name: RefreshCostMonthlyTeam :exec
+REFRESH MATERIALIZED VIEW CONCURRENTLY cost_monthly_team
+`
+
+func (q *Queries) RefreshCostMonthlyTeam(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, refreshCostMonthlyTeam)
+	return err
 }

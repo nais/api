@@ -230,6 +230,13 @@ type Cost struct {
 	DailyCost   float32
 }
 
+type CostMonthlyTeam struct {
+	TeamSlug         slug.Slug
+	Month            pgtype.Date
+	LastRecordedDate pgtype.Date
+	DailyCost        float32
+}
+
 type Reconciler struct {
 	Name        string
 	DisplayName string

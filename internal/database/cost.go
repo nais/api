@@ -10,15 +10,16 @@ import (
 )
 
 type CostRepo interface {
+	CostForSqlInstance(ctx context.Context, fromDate, toDate pgtype.Date, teamSlug slug.Slug, appName, environment string) (float32, error)
+	CostRefresh(ctx context.Context) error
 	CostUpsert(ctx context.Context, arg []gensql.CostUpsertParams) *gensql.CostUpsertBatchResults
+	CurrentSqlInstancesCostForTeam(ctx context.Context, teamSlug slug.Slug) (float32, error)
 	DailyCostForApp(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment string, teamSlug slug.Slug, app string) ([]*gensql.Cost, error)
 	DailyCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug) ([]*gensql.Cost, error)
 	DailyEnvCostForTeam(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment *string, teamSlug slug.Slug) ([]*gensql.DailyEnvCostForTeamRow, error)
 	LastCostDate(ctx context.Context) (pgtype.Date, error)
 	MonthlyCostForApp(ctx context.Context, teamSlug slug.Slug, app string, environment string) ([]*gensql.MonthlyCostForAppRow, error)
-	MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*gensql.MonthlyCostForTeamRow, error)
-	CostForSqlInstance(ctx context.Context, fromDate, toDate pgtype.Date, teamSlug slug.Slug, appName, environment string) (float32, error)
-	CurrentSqlInstancesCostForTeam(ctx context.Context, teamSlug slug.Slug) (float32, error)
+	MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*gensql.CostMonthlyTeam, error)
 }
 
 var _ CostRepo = (*database)(nil)
@@ -66,7 +67,7 @@ func (d *database) MonthlyCostForApp(ctx context.Context, teamSlug slug.Slug, ap
 	})
 }
 
-func (d *database) MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*gensql.MonthlyCostForTeamRow, error) {
+func (d *database) MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*gensql.CostMonthlyTeam, error) {
 	return d.querier.MonthlyCostForTeam(ctx, teamSlug)
 }
 
@@ -97,4 +98,8 @@ func (d *database) CurrentSqlInstancesCostForTeam(ctx context.Context, teamSlug 
 		ToDate:   to,
 		TeamSlug: teamSlug,
 	})
+}
+
+func (d *database) CostRefresh(ctx context.Context) error {
+	return d.querier.RefreshCostMonthlyTeam(ctx)
 }

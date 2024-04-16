@@ -82,6 +82,10 @@ func runCostUpdater(ctx context.Context, db database.Database, tenant, bigQueryP
 				close(ch)
 				<-done
 
+				if err := db.CostRefresh(ctx); err != nil {
+					log.WithError(err).Errorf("unable to refresh cost team monthly")
+				}
+
 				log.WithFields(logrus.Fields{
 					"duration": time.Since(start),
 				}).Infof("cost update run finished")

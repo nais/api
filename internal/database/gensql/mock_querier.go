@@ -5109,23 +5109,23 @@ func (_c *MockQuerier_MonthlyCostForApp_Call) RunAndReturn(run func(context.Cont
 }
 
 // MonthlyCostForTeam provides a mock function with given fields: ctx, teamSlug
-func (_m *MockQuerier) MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*MonthlyCostForTeamRow, error) {
+func (_m *MockQuerier) MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*CostMonthlyTeam, error) {
 	ret := _m.Called(ctx, teamSlug)
 
 	if len(ret) == 0 {
 		panic("no return value specified for MonthlyCostForTeam")
 	}
 
-	var r0 []*MonthlyCostForTeamRow
+	var r0 []*CostMonthlyTeam
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) ([]*MonthlyCostForTeamRow, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) ([]*CostMonthlyTeam, error)); ok {
 		return rf(ctx, teamSlug)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) []*MonthlyCostForTeamRow); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) []*CostMonthlyTeam); ok {
 		r0 = rf(ctx, teamSlug)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*MonthlyCostForTeamRow)
+			r0 = ret.Get(0).([]*CostMonthlyTeam)
 		}
 	}
 
@@ -5157,12 +5157,58 @@ func (_c *MockQuerier_MonthlyCostForTeam_Call) Run(run func(ctx context.Context,
 	return _c
 }
 
-func (_c *MockQuerier_MonthlyCostForTeam_Call) Return(_a0 []*MonthlyCostForTeamRow, _a1 error) *MockQuerier_MonthlyCostForTeam_Call {
+func (_c *MockQuerier_MonthlyCostForTeam_Call) Return(_a0 []*CostMonthlyTeam, _a1 error) *MockQuerier_MonthlyCostForTeam_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockQuerier_MonthlyCostForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug) ([]*MonthlyCostForTeamRow, error)) *MockQuerier_MonthlyCostForTeam_Call {
+func (_c *MockQuerier_MonthlyCostForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug) ([]*CostMonthlyTeam, error)) *MockQuerier_MonthlyCostForTeam_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RefreshCostMonthlyTeam provides a mock function with given fields: ctx
+func (_m *MockQuerier) RefreshCostMonthlyTeam(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RefreshCostMonthlyTeam")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockQuerier_RefreshCostMonthlyTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RefreshCostMonthlyTeam'
+type MockQuerier_RefreshCostMonthlyTeam_Call struct {
+	*mock.Call
+}
+
+// RefreshCostMonthlyTeam is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockQuerier_Expecter) RefreshCostMonthlyTeam(ctx interface{}) *MockQuerier_RefreshCostMonthlyTeam_Call {
+	return &MockQuerier_RefreshCostMonthlyTeam_Call{Call: _e.mock.On("RefreshCostMonthlyTeam", ctx)}
+}
+
+func (_c *MockQuerier_RefreshCostMonthlyTeam_Call) Run(run func(ctx context.Context)) *MockQuerier_RefreshCostMonthlyTeam_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_RefreshCostMonthlyTeam_Call) Return(_a0 error) *MockQuerier_RefreshCostMonthlyTeam_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockQuerier_RefreshCostMonthlyTeam_Call) RunAndReturn(run func(context.Context) error) *MockQuerier_RefreshCostMonthlyTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }

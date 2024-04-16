@@ -32,24 +32,8 @@ ORDER BY month DESC
 LIMIT 12;
 
 -- name: MonthlyCostForTeam :many
-WITH last_run AS (
-    SELECT MAX(date)::date AS "last_run"
-    FROM cost
-)
-SELECT
-    team_slug,
-    date_trunc('month', date)::date AS month,
-    -- Extract last day of known cost samples for the month, or the last recorded date
-    -- This helps with estimation etc
-    MAX(CASE
-        WHEN date_trunc('month', date) < date_trunc('month', last_run) THEN date_trunc('month', date) + interval '1 month' - interval '1 day'
-        ELSE date_trunc('day', last_run)
-    END)::date AS last_recorded_date,
-    SUM(daily_cost)::real AS daily_cost
-FROM cost c
-LEFT JOIN last_run ON true
-WHERE c.team_slug = @team_slug::slug
-GROUP BY team_slug, month
+SELECT * FROM cost_monthly_team
+WHERE team_slug = @team_slug::slug
 ORDER BY month DESC
 LIMIT 12;
 
@@ -133,3 +117,5 @@ WHERE
     AND date >= @from_date
     AND date <= @to_date;
 
+-- name: RefreshCostMonthlyTeam :exec
+REFRESH MATERIALIZED VIEW CONCURRENTLY cost_monthly_team;
