@@ -103,6 +103,7 @@ func New(ctx context.Context, dsn string, log logrus.FieldLogger) (db Database, 
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to parse dsn config: %w", err)
 	}
+	config.MaxConns = 25
 
 	config.ConnConfig.Tracer = otelpgx.NewTracer(
 		otelpgx.WithTrimSQLInSpanName(),
