@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"strings"
 
 	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
 	"github.com/nais/api/internal/graph/scalar"
@@ -115,7 +116,7 @@ func ToSqlInstance(u *unstructured.Unstructured, env string) (*SQLInstance, erro
 						Type:               condition.Type,
 						Status:             string(condition.Status),
 						Reason:             condition.Reason,
-						Message:            condition.Message,
+						Message:            formatMessage(condition.Message),
 						LastTransitionTime: condition.LastTransitionTime,
 					})
 				}
@@ -169,6 +170,14 @@ func ToSqlInstance(u *unstructured.Unstructured, env string) (*SQLInstance, erro
 			}(sqlInstance.OwnerReferences),
 		},
 	}, nil
+}
+
+func formatMessage(raw string) string {
+	gapi := strings.SplitAfter(raw, "googleapi:")
+	if len(gapi) > 1 {
+		return strings.ReplaceAll(gapi[1], ",", "")
+	}
+	return raw
 }
 
 func equals(s *string, eq string) bool {
