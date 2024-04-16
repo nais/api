@@ -2,7 +2,9 @@ package database
 
 import (
 	"context"
+	"errors"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
@@ -75,7 +77,12 @@ func (d *database) ResourceUtilizationRangeForApp(ctx context.Context, environme
 }
 
 func (d *database) ResourceUtilizationRangeForTeam(ctx context.Context, teamSlug slug.Slug) (*gensql.ResourceUtilizationRangeForTeamRow, error) {
-	return d.querier.ResourceUtilizationRangeForTeam(ctx, teamSlug)
+	row, err := d.querier.ResourceUtilizationRangeForTeam(ctx, teamSlug)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return &gensql.ResourceUtilizationRangeForTeamRow{}, nil
+	}
+
+	return row, err
 }
 
 func (d *database) SpecificResourceUtilizationForApp(ctx context.Context, environment string, teamSlug slug.Slug, app string, resourceType gensql.ResourceType, timestamp pgtype.Timestamptz) (*gensql.SpecificResourceUtilizationForAppRow, error) {
