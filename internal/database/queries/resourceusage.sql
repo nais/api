@@ -1,17 +1,6 @@
 -- ResourceUtilizationRangeForTeam will return the min and max timestamps for a specific team.
 -- name: ResourceUtilizationRangeForTeam :one
-WITH team_range AS (
-    SELECT timestamp
-    FROM
-        resource_utilization_metrics
-    WHERE
-        team_slug = @team_slug
-)
-SELECT
-    MIN(timestamp)::timestamptz AS "from",
-    MAX(timestamp)::timestamptz AS "to"
-FROM
-    team_range;
+SELECT "from", "to" FROM resource_team_range WHERE team_slug = @team_slug;
 
 -- ResourceUtilizationRangeForApp will return the min and max timestamps for a specific app.
 -- name: ResourceUtilizationRangeForApp :one
@@ -134,3 +123,7 @@ WHERE
     AND timestamp >= sqlc.arg(timestamp)::timestamptz - INTERVAL '1 week'
     AND timestamp < sqlc.arg(timestamp)::timestamptz
     AND request > usage;
+
+-- Refresh materialized view resource_team_range
+-- name: RefreshResourceTeamRange :exec
+REFRESH MATERIALIZED VIEW CONCURRENTLY resource_team_range;

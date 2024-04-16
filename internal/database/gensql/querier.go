@@ -115,6 +115,8 @@ type Querier interface {
 	MaxResourceUtilizationDate(ctx context.Context) (pgtype.Timestamptz, error)
 	MonthlyCostForApp(ctx context.Context, arg MonthlyCostForAppParams) ([]*MonthlyCostForAppRow, error)
 	MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*MonthlyCostForTeamRow, error)
+	// Refresh materialized view resource_team_range
+	RefreshResourceTeamRange(ctx context.Context) error
 	RemoveAllServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveReconcilerOptOut(ctx context.Context, arg RemoveReconcilerOptOutParams) error

@@ -15,6 +15,8 @@ import (
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel"
+	metricapi "go.opentelemetry.io/otel/metric"
 )
 
 type (
@@ -23,10 +25,11 @@ type (
 )
 
 type Updater struct {
-	k8sClient   *k8s.Client
-	db          database.Database
-	promClients map[string]promv1.API
-	log         logrus.FieldLogger
+	k8sClient    *k8s.Client
+	db           database.Database
+	promClients  map[string]promv1.API
+	log          logrus.FieldLogger
+	errorCounter metricapi.Int64Counter
 }
 
 const (
@@ -60,11 +63,18 @@ var (
 
 // NewUpdater creates a new resourceusage updater
 func NewUpdater(k8sClient *k8s.Client, promClients map[string]promv1.API, db database.Database, log logrus.FieldLogger) *Updater {
+	meter := otel.Meter("resourceusage")
+	counter, err := meter.Int64Counter("mat_view_update_error", metricapi.WithDescription("Counter for errors when updating materialized view"))
+	if err != nil {
+		log.Fatalf("failed to create counter: %v", err)
+	}
+	counter.Add(context.Background(), 1)
 	return &Updater{
-		k8sClient:   k8sClient,
-		db:          db,
-		promClients: promClients,
-		log:         log,
+		k8sClient:    k8sClient,
+		db:           db,
+		promClients:  promClients,
+		log:          log,
+		errorCounter: counter,
 	}
 }
 
@@ -106,6 +116,11 @@ func (u *Updater) UpdateResourceUsage(ctx context.Context) (rowsUpserted int, er
 			}).Debugf("batch upsert")
 			rowsUpserted += len(batch) - batchErrors
 		}
+	}
+
+	if err := u.db.ResourceUtilizationRefresh(ctx); err != nil {
+		u.log.WithError(err).Errorf("unable to refresh resource team range")
+		u.errorCounter.Add(ctx, 1)
 	}
 
 	return rowsUpserted, nil

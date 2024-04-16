@@ -55,6 +55,16 @@ func (q *Queries) MaxResourceUtilizationDate(ctx context.Context) (pgtype.Timest
 	return column_1, err
 }
 
+const refreshResourceTeamRange = `-- name: RefreshResourceTeamRange :exec
+REFRESH MATERIALIZED VIEW CONCURRENTLY resource_team_range
+`
+
+// Refresh materialized view resource_team_range
+func (q *Queries) RefreshResourceTeamRange(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, refreshResourceTeamRange)
+	return err
+}
+
 const resourceUtilizationForApp = `-- name: ResourceUtilizationForApp :many
 SELECT
     id, timestamp, environment, team_slug, app, resource_type, usage, request
@@ -269,18 +279,7 @@ func (q *Queries) ResourceUtilizationRangeForApp(ctx context.Context, arg Resour
 }
 
 const resourceUtilizationRangeForTeam = `-- name: ResourceUtilizationRangeForTeam :one
-WITH team_range AS (
-    SELECT timestamp
-    FROM
-        resource_utilization_metrics
-    WHERE
-        team_slug = $1
-)
-SELECT
-    MIN(timestamp)::timestamptz AS "from",
-    MAX(timestamp)::timestamptz AS "to"
-FROM
-    team_range
+SELECT "from", "to" FROM resource_team_range WHERE team_slug = $1
 `
 
 type ResourceUtilizationRangeForTeamRow struct {
