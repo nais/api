@@ -234,6 +234,15 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 				return err
 			}
 		}
+		if _, err := dbtx.UpdateTeamExternalReferences(ctx, gensql.UpdateTeamExternalReferencesParams{
+			GoogleGroupEmail: ptr.To("nais-team-devteam@" + cfg.Domain),
+			AzureGroupID:     ptr.To(uuid.MustParse("70c0541d-c079-4d10-9c50-164681e0b900")),
+			GithubTeamSlug:   ptr.To("devteam"),
+			GarRepository:    ptr.To("projects/some-project-123/locations/europe-north1/repositories/devteam"),
+			Slug:             devteam.Slug,
+		}); err != nil {
+			return err
+		}
 		dbtx.ResourceUtilizationUpsert(ctx, generateUtilizationData("dev", "devteam", "devapp", time.Now().Add(-24*time.Hour*7), time.Now())).Exec(func(i int, err error) {
 			if err != nil {
 				log.Errorf("error updating resource utilization for team %s: %v", devteam.Slug, err)
