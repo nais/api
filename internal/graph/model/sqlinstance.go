@@ -23,6 +23,7 @@ type SQLInstance struct {
 	BackupConfiguration *BackupConfiguration `json:"backupConfiguration"`
 	CascadingDelete     bool                 `json:"cascadingDelete"`
 	ConnectionName      string               `json:"connectionName"`
+	DiskAutoresize      bool                 `json:"diskAutoresize"`
 	Env                 Env                  `json:"env"`
 	Flags               []*Flag              `json:"flags"`
 	HighAvailability    bool                 `json:"highAvailability"`
@@ -152,6 +153,7 @@ func ToSqlInstance(u *unstructured.Unstructured, env string) (*SQLInstance, erro
 		ProjectID:          projectId,
 		Tier:               sqlInstance.Spec.Settings.Tier,
 		HighAvailability:   equals(sqlInstance.Spec.Settings.AvailabilityType, "REGIONAL"),
+		DiskAutoresize:     *sqlInstance.Spec.Settings.DiskAutoresize,
 		GQLVars: SQLInstanceGQLVars{
 			TeamSlug:    slug.Slug(teamSlug),
 			Labels:      sqlInstance.GetLabels(),

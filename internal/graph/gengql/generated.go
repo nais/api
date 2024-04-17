@@ -761,6 +761,7 @@ type ComplexityRoot struct {
 		CascadingDelete     func(childComplexity int) int
 		ConnectionName      func(childComplexity int) int
 		Database            func(childComplexity int) int
+		DiskAutoresize      func(childComplexity int) int
 		Env                 func(childComplexity int) int
 		Flags               func(childComplexity int) int
 		HighAvailability    func(childComplexity int) int
@@ -4257,6 +4258,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.Database(childComplexity), true
 
+	case "SqlInstance.diskAutoresize":
+		if e.complexity.SqlInstance.DiskAutoresize == nil {
+			break
+		}
+
+		return e.complexity.SqlInstance.DiskAutoresize(childComplexity), true
+
 	case "SqlInstance.env":
 		if e.complexity.SqlInstance.Env == nil {
 			break
@@ -6845,6 +6853,7 @@ type SqlInstance implements Storage {
   cascadingDelete: Boolean!
   connectionName: String!
   database: SqlDatabase
+  diskAutoresize: Boolean!
   env: Env!
   flags: [Flag!]!
   highAvailability: Boolean!
@@ -25438,6 +25447,8 @@ func (ec *executionContext) fieldContext_Query_sqlInstance(ctx context.Context, 
 				return ec.fieldContext_SqlInstance_connectionName(ctx, field)
 			case "database":
 				return ec.fieldContext_SqlInstance_database(ctx, field)
+			case "diskAutoresize":
+				return ec.fieldContext_SqlInstance_diskAutoresize(ctx, field)
 			case "env":
 				return ec.fieldContext_SqlInstance_env(ctx, field)
 			case "flags":
@@ -30690,6 +30701,50 @@ func (ec *executionContext) fieldContext_SqlInstance_database(ctx context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _SqlInstance_diskAutoresize(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_diskAutoresize(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DiskAutoresize, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstance_diskAutoresize(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SqlInstance_env(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstance_env(ctx, field)
 	if err != nil {
@@ -32221,6 +32276,8 @@ func (ec *executionContext) fieldContext_SqlInstancesList_nodes(ctx context.Cont
 				return ec.fieldContext_SqlInstance_connectionName(ctx, field)
 			case "database":
 				return ec.fieldContext_SqlInstance_database(ctx, field)
+			case "diskAutoresize":
+				return ec.fieldContext_SqlInstance_diskAutoresize(ctx, field)
 			case "env":
 				return ec.fieldContext_SqlInstance_env(ctx, field)
 			case "flags":
@@ -47028,6 +47085,11 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "diskAutoresize":
+			out.Values[i] = ec._SqlInstance_diskAutoresize(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "env":
 			out.Values[i] = ec._SqlInstance_env(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
