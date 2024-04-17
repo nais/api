@@ -18,9 +18,9 @@ func (r *queryResolver) SQLInstance(ctx context.Context, name string, team slug.
 	return r.sqlInstanceClient.SqlInstance(ctx, env, team, name)
 }
 
-// Databases is the resolver for the databases field.
-func (r *sqlInstanceResolver) Databases(ctx context.Context, obj *model.SQLInstance) ([]*model.SQLDatabase, error) {
-	return r.sqlInstanceClient.SqlDatabases(obj)
+// Database is the resolver for the database field.
+func (r *sqlInstanceResolver) Database(ctx context.Context, obj *model.SQLInstance) (*model.SQLDatabase, error) {
+	return r.sqlInstanceClient.SqlDatabase(obj)
 }
 
 // Team is the resolver for the team field.

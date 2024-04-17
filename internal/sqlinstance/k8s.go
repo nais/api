@@ -109,9 +109,7 @@ func metricsSummary(instances []*model.SQLInstance) *model.SQLInstancesMetrics {
 	}
 }
 
-func (c *Client) SqlDatabases(sqlInstance *model.SQLInstance) ([]*model.SQLDatabase, error) {
-	ret := make([]*model.SQLDatabase, 0)
-
+func (c *Client) SqlDatabase(sqlInstance *model.SQLInstance) (*model.SQLDatabase, error) {
 	inf := c.informers[sqlInstance.Env.Name]
 	if inf == nil {
 		return nil, fmt.Errorf("unknown env: %s", sqlInstance.Env.Name)
@@ -123,9 +121,8 @@ func (c *Client) SqlDatabases(sqlInstance *model.SQLInstance) ([]*model.SQLDatab
 	}
 
 	for _, obj := range objs {
-		db := obj.(*unstructured.Unstructured)
 		sqlDatabase := &sql_cnrm_cloud_google_com_v1beta1.SQLDatabase{}
-		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(db.Object, sqlDatabase); err != nil {
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(obj.(*unstructured.Unstructured).Object, sqlDatabase); err != nil {
 			return nil, fmt.Errorf("converting to SQL database: %w", err)
 		}
 
@@ -133,19 +130,12 @@ func (c *Client) SqlDatabases(sqlInstance *model.SQLInstance) ([]*model.SQLDatab
 			continue
 		}
 
-		ret = append(ret, c.toSqlDatabase(sqlDatabase))
+		return &model.SQLDatabase{
+			Name: sqlDatabase.Name,
+		}, nil
 	}
-	sort.Slice(ret, func(i, j int) bool {
-		return ret[i].Name < ret[j].Name
-	})
 
-	return ret, nil
-}
-
-func (c *Client) toSqlDatabase(sqlDatabase *sql_cnrm_cloud_google_com_v1beta1.SQLDatabase) *model.SQLDatabase {
-	return &model.SQLDatabase{
-		Name: sqlDatabase.Name,
-	}
+	return nil, nil
 }
 
 func (c *Client) error(err error, msg string) error {

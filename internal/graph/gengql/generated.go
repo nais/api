@@ -760,7 +760,7 @@ type ComplexityRoot struct {
 		BackupConfiguration func(childComplexity int) int
 		CascadingDelete     func(childComplexity int) int
 		ConnectionName      func(childComplexity int) int
-		Databases           func(childComplexity int) int
+		Database            func(childComplexity int) int
 		Env                 func(childComplexity int) int
 		Flags               func(childComplexity int) int
 		HighAvailability    func(childComplexity int) int
@@ -1109,7 +1109,7 @@ type ServiceAccountResolver interface {
 	Roles(ctx context.Context, obj *model.ServiceAccount) ([]*model.Role, error)
 }
 type SqlInstanceResolver interface {
-	Databases(ctx context.Context, obj *model.SQLInstance) ([]*model.SQLDatabase, error)
+	Database(ctx context.Context, obj *model.SQLInstance) (*model.SQLDatabase, error)
 
 	Team(ctx context.Context, obj *model.SQLInstance) (*model.Team, error)
 
@@ -4250,12 +4250,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.ConnectionName(childComplexity), true
 
-	case "SqlInstance.databases":
-		if e.complexity.SqlInstance.Databases == nil {
+	case "SqlInstance.database":
+		if e.complexity.SqlInstance.Database == nil {
 			break
 		}
 
-		return e.complexity.SqlInstance.Databases(childComplexity), true
+		return e.complexity.SqlInstance.Database(childComplexity), true
 
 	case "SqlInstance.env":
 		if e.complexity.SqlInstance.Env == nil {
@@ -6844,7 +6844,7 @@ type SqlInstance implements Storage {
   backupConfiguration: BackupConfiguration!
   cascadingDelete: Boolean!
   connectionName: String!
-  databases: [SqlDatabase!]!
+  database: SqlDatabase
   env: Env!
   flags: [Flag!]!
   highAvailability: Boolean!
@@ -25436,8 +25436,8 @@ func (ec *executionContext) fieldContext_Query_sqlInstance(ctx context.Context, 
 				return ec.fieldContext_SqlInstance_cascadingDelete(ctx, field)
 			case "connectionName":
 				return ec.fieldContext_SqlInstance_connectionName(ctx, field)
-			case "databases":
-				return ec.fieldContext_SqlInstance_databases(ctx, field)
+			case "database":
+				return ec.fieldContext_SqlInstance_database(ctx, field)
 			case "env":
 				return ec.fieldContext_SqlInstance_env(ctx, field)
 			case "flags":
@@ -30645,8 +30645,8 @@ func (ec *executionContext) fieldContext_SqlInstance_connectionName(ctx context.
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_databases(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SqlInstance_databases(ctx, field)
+func (ec *executionContext) _SqlInstance_database(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_database(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -30659,24 +30659,21 @@ func (ec *executionContext) _SqlInstance_databases(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.SqlInstance().Databases(rctx, obj)
+		return ec.resolvers.SqlInstance().Database(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.SQLDatabase)
+	res := resTmp.(*model.SQLDatabase)
 	fc.Result = res
-	return ec.marshalNSqlDatabase2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLDatabaseᚄ(ctx, field.Selections, res)
+	return ec.marshalOSqlDatabase2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLDatabase(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SqlInstance_databases(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SqlInstance_database(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
@@ -32222,8 +32219,8 @@ func (ec *executionContext) fieldContext_SqlInstancesList_nodes(ctx context.Cont
 				return ec.fieldContext_SqlInstance_cascadingDelete(ctx, field)
 			case "connectionName":
 				return ec.fieldContext_SqlInstance_connectionName(ctx, field)
-			case "databases":
-				return ec.fieldContext_SqlInstance_databases(ctx, field)
+			case "database":
+				return ec.fieldContext_SqlInstance_database(ctx, field)
 			case "env":
 				return ec.fieldContext_SqlInstance_env(ctx, field)
 			case "flags":
@@ -46998,7 +46995,7 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "databases":
+		case "database":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -47007,10 +47004,7 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SqlInstance_databases(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
+				res = ec._SqlInstance_database(ctx, field, obj)
 				return res
 			}
 
@@ -52660,60 +52654,6 @@ func (ec *executionContext) marshalNSortOrder2githubᚗcomᚋnaisᚋapiᚋintern
 	return v
 }
 
-func (ec *executionContext) marshalNSqlDatabase2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLDatabaseᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.SQLDatabase) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNSqlDatabase2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLDatabase(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNSqlDatabase2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLDatabase(ctx context.Context, sel ast.SelectionSet, v *model.SQLDatabase) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._SqlDatabase(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalNSqlInstance2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstance(ctx context.Context, sel ast.SelectionSet, v model.SQLInstance) graphql.Marshaler {
 	return ec._SqlInstance(ctx, sel, &v)
 }
@@ -54271,6 +54211,13 @@ func (ec *executionContext) unmarshalOSlackAlertsChannelInput2ᚕᚖgithubᚗcom
 		}
 	}
 	return res, nil
+}
+
+func (ec *executionContext) marshalOSqlDatabase2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLDatabase(ctx context.Context, sel ast.SelectionSet, v *model.SQLDatabase) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._SqlDatabase(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
