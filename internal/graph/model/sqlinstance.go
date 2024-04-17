@@ -29,6 +29,7 @@ type SQLInstance struct {
 	ID                  scalar.Ident         `json:"id"`
 	MaintenanceWindow   *MaintenanceWindow   `json:"maintenanceWindow"`
 	MaintenanceVersion  *string              `json:"maintenanceVersion"`
+	Metrics             *SQLInstanceMetrics  `json:"metrics"`
 	Name                string               `json:"name"`
 	ProjectID           string               `json:"projectId"`
 	Tier                string               `json:"tier"`
@@ -59,12 +60,16 @@ func (i *SQLInstance) IsHealthy() bool {
 }
 
 type SQLInstanceMetrics struct {
-	GQLVars SQLInstanceMetricsGQLVars `json:"-"`
+	Cost   float64            `json:"cost"`
+	CPU    *SQLInstanceCPU    `json:"cpu"`
+	Memory *SQLInstanceMemory `json:"memory"`
+	Disk   *SQLInstanceDisk   `json:"disk"`
 }
 
-type SQLInstanceMetricsGQLVars struct {
-	DatabaseID string
-	ProjectID  string
+type SQLInstancesList struct {
+	Nodes    []*SQLInstance       `json:"nodes"`
+	PageInfo PageInfo             `json:"pageInfo"`
+	Metrics  *SQLInstancesMetrics `json:"metrics"`
 }
 
 func ToSqlInstance(u *unstructured.Unstructured, env string) (*SQLInstance, error) {

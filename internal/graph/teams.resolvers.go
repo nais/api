@@ -1020,7 +1020,7 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 		}
 	}
 
-	sqlInstances, err := r.sqlInstanceClient.SqlInstances(obj.Slug)
+	sqlInstances, _, err := r.sqlInstanceClient.SqlInstances(ctx, obj.Slug)
 	if err != nil {
 		return nil, fmt.Errorf("getting SQL instances from Kubernetes: %w", err)
 	}
@@ -1049,27 +1049,44 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 
 // SQLInstances is the resolver for the sqlInstances field.
 func (r *teamResolver) SQLInstances(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.SQLInstancesList, error) {
-	sqlInstances, err := r.sqlInstanceClient.SqlInstances(obj.Slug)
+	sqlInstances, metrics, err := r.sqlInstanceClient.SqlInstances(ctx, obj.Slug)
 	if err != nil {
 		return nil, fmt.Errorf("getting SQL instances from Kubernetes: %w", err)
 	}
+
 	if orderBy != nil {
 		switch orderBy.Field {
-		case "NAME":
+		case model.OrderByFieldName:
 			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
 				return model.Compare(a.Name, b.Name, orderBy.Direction)
 			})
-		case "ENV":
+		case model.OrderByFieldEnv:
 			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
 				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
 			})
-		case "STATUS":
+		case model.OrderByFieldStatus:
 			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
 				return model.Compare(strconv.FormatBool(a.IsHealthy()), strconv.FormatBool(b.IsHealthy()), orderBy.Direction)
 			})
-		case "VERSION":
+		case model.OrderByFieldVersion:
 			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
 				return model.Compare(a.Type, b.Type, orderBy.Direction)
+			})
+		case model.OrderByFieldCost:
+			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
+				return model.Compare(a.Metrics.Cost, b.Metrics.Cost, orderBy.Direction)
+			})
+		case model.OrderByFieldCPU:
+			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
+				return model.Compare(a.Metrics.CPU.Utilization, b.Metrics.CPU.Utilization, orderBy.Direction)
+			})
+		case model.OrderByFieldMemory:
+			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
+				return model.Compare(a.Metrics.Memory.Utilization, b.Metrics.Memory.Utilization, orderBy.Direction)
+			})
+		case model.OrderByFieldDisk:
+			model.SortWith(sqlInstances, func(a, b *model.SQLInstance) bool {
+				return model.Compare(a.Metrics.Disk.Utilization, b.Metrics.Disk.Utilization, orderBy.Direction)
 			})
 		}
 	}
@@ -1079,6 +1096,7 @@ func (r *teamResolver) SQLInstances(ctx context.Context, obj *model.Team, offset
 	return &model.SQLInstancesList{
 		Nodes:    sqlInstances,
 		PageInfo: pageInfo,
+		Metrics:  metrics,
 	}, nil
 }
 

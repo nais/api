@@ -220,13 +220,6 @@ type CurrentResourceUtilization struct {
 	Memory ResourceUtilization `json:"memory"`
 }
 
-type CurrentSQLInstancesMetrics struct {
-	Cost   float64           `json:"cost"`
-	CPU    SQLInstanceCPU    `json:"cpu"`
-	Memory SQLInstanceMemory `json:"memory"`
-	Disk   SQLInstanceDisk   `json:"disk"`
-}
-
 // Daily cost type.
 type DailyCost struct {
 	// The sum of all costs in the cost series in euros.
@@ -819,7 +812,7 @@ type SQLInstanceDisk struct {
 }
 
 type SQLInstanceMemory struct {
-	QuotaBytes  float64 `json:"quotaBytes"`
+	QuotaBytes  int     `json:"quotaBytes"`
 	Utilization float64 `json:"utilization"`
 }
 
@@ -828,9 +821,11 @@ type SQLInstanceStatus struct {
 	PublicIPAddress *string                 `json:"publicIpAddress,omitempty"`
 }
 
-type SQLInstancesList struct {
-	Nodes    []*SQLInstance `json:"nodes"`
-	PageInfo PageInfo       `json:"pageInfo"`
+type SQLInstancesMetrics struct {
+	Cost   float64           `json:"cost"`
+	CPU    SQLInstanceCPU    `json:"cpu"`
+	Memory SQLInstanceMemory `json:"memory"`
+	Disk   SQLInstanceDisk   `json:"disk"`
 }
 
 type SQLInstancesStatus struct {
@@ -1114,6 +1109,14 @@ const (
 	OrderByFieldSeverityUnassigned OrderByField = "SEVERITY_UNASSIGNED"
 	// Order by PostgreSQL version
 	OrderByFieldVersion OrderByField = "VERSION"
+	// Order by cost
+	OrderByFieldCost OrderByField = "COST"
+	// Order by CPU utilization
+	OrderByFieldCPU OrderByField = "CPU"
+	// Order by memory utilization
+	OrderByFieldMemory OrderByField = "MEMORY"
+	// Order by disk utilization
+	OrderByFieldDisk OrderByField = "DISK"
 )
 
 var AllOrderByField = []OrderByField{
@@ -1130,11 +1133,15 @@ var AllOrderByField = []OrderByField{
 	OrderByFieldSeverityLow,
 	OrderByFieldSeverityUnassigned,
 	OrderByFieldVersion,
+	OrderByFieldCost,
+	OrderByFieldCPU,
+	OrderByFieldMemory,
+	OrderByFieldDisk,
 }
 
 func (e OrderByField) IsValid() bool {
 	switch e {
-	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned, OrderByFieldVersion:
+	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned, OrderByFieldVersion, OrderByFieldCost, OrderByFieldCPU, OrderByFieldMemory, OrderByFieldDisk:
 		return true
 	}
 	return false

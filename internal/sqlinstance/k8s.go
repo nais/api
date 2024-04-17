@@ -13,7 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-func (c *Client) SqlInstance(env string, teamSlug slug.Slug, instanceName string) (*model.SQLInstance, error) {
+func (c *Client) SqlInstance(ctx context.Context, env string, teamSlug slug.Slug, instanceName string) (*model.SQLInstance, error) {
 	inf, exists := c.informers[env]
 	if !exists {
 		return nil, fmt.Errorf("unknown env: %s", env)
@@ -23,15 +23,26 @@ func (c *Client) SqlInstance(env string, teamSlug slug.Slug, instanceName string
 		return nil, fmt.Errorf("SQL instance informer not supported in env: %q", env)
 	}
 
-	instance, err := inf.SqlInstanceInformer.Lister().ByNamespace(string(teamSlug)).Get(instanceName)
+	obj, err := inf.SqlInstanceInformer.Lister().ByNamespace(string(teamSlug)).Get(instanceName)
 	if err != nil {
 		return nil, fmt.Errorf("get SQL instance: %w", err)
 	}
 
-	return model.ToSqlInstance(instance.(*unstructured.Unstructured), env)
+	instance, err := model.ToSqlInstance(obj.(*unstructured.Unstructured), env)
+	if err != nil {
+		return nil, err
+	}
+
+	metrics, err := c.metrics.metricsForSqlInstance(ctx, instance)
+	if err != nil {
+		return nil, err
+	}
+	instance.Metrics = metrics
+
+	return instance, nil
 }
 
-func (c *Client) SqlInstances(teamSlug slug.Slug) ([]*model.SQLInstance, error) {
+func (c *Client) SqlInstances(ctx context.Context, teamSlug slug.Slug) ([]*model.SQLInstance, *model.SQLInstancesMetrics, error) {
 	ret := make([]*model.SQLInstance, 0)
 
 	for env, infs := range c.informers {
@@ -41,14 +52,20 @@ func (c *Client) SqlInstances(teamSlug slug.Slug) ([]*model.SQLInstance, error) 
 
 		objs, err := infs.SqlInstanceInformer.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
 		if err != nil {
-			return nil, c.error(err, "listing SQL instances")
+			return nil, nil, c.error(err, "listing SQL instances")
 		}
 
 		for _, obj := range objs {
 			instance, err := model.ToSqlInstance(obj.(*unstructured.Unstructured), env)
 			if err != nil {
-				return nil, c.error(err, "converting to SQL instance model")
+				return nil, nil, c.error(err, "converting to SQL instance model")
 			}
+
+			metrics, err := c.metrics.metricsForSqlInstance(ctx, instance) // instance => ws-test
+			if err != nil {
+				return nil, nil, err
+			}
+			instance.Metrics = metrics
 
 			ret = append(ret, instance)
 		}
@@ -57,10 +74,42 @@ func (c *Client) SqlInstances(teamSlug slug.Slug) ([]*model.SQLInstance, error) 
 		return ret[i].ConnectionName < ret[j].ConnectionName
 	})
 
-	return ret, nil
+	return ret, metricsSummary(ret), nil
 }
 
-func (c *Client) SqlDatabases(ctx context.Context, sqlInstance *model.SQLInstance) ([]*model.SQLDatabase, error) {
+func metricsSummary(instances []*model.SQLInstance) *model.SQLInstancesMetrics {
+	var cost, cpuCores, cpuUtilization, diskUtilization, memoryUtilization float64
+	var diskQuota, memoryQuota int
+
+	for _, instance := range instances {
+		cost += instance.Metrics.Cost
+		cpuCores += instance.Metrics.CPU.Cores
+		cpuUtilization += instance.Metrics.CPU.Utilization
+		diskQuota += instance.Metrics.Disk.QuotaBytes
+		diskUtilization += instance.Metrics.Disk.Utilization
+		memoryQuota += instance.Metrics.Memory.QuotaBytes
+		memoryUtilization += instance.Metrics.Memory.Utilization
+	}
+
+	numInstances := float64(len(instances))
+	return &model.SQLInstancesMetrics{
+		Cost: cost,
+		CPU: model.SQLInstanceCPU{
+			Cores:       cpuCores,
+			Utilization: cpuUtilization / numInstances,
+		},
+		Disk: model.SQLInstanceDisk{
+			QuotaBytes:  diskQuota,
+			Utilization: diskUtilization / numInstances,
+		},
+		Memory: model.SQLInstanceMemory{
+			QuotaBytes:  memoryQuota,
+			Utilization: memoryUtilization / numInstances,
+		},
+	}
+}
+
+func (c *Client) SqlDatabases(sqlInstance *model.SQLInstance) ([]*model.SQLDatabase, error) {
 	ret := make([]*model.SQLDatabase, 0)
 
 	inf := c.informers[sqlInstance.Env.Name]
