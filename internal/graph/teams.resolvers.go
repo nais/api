@@ -1475,8 +1475,7 @@ func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*mo
 		return nil, err
 	}
 
-	names := r.clusters.Names()
-	ret := make([]*model.Env, len(names))
+	ret := make([]*model.Env, len(dbEnvs))
 	for i, env := range dbEnvs {
 		ret[i] = &model.Env{Name: env.Environment, Team: obj.Slug.String()}
 	}
