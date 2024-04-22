@@ -66,7 +66,7 @@ func New(endpoint, username, password, frontend string, log *logrus.Entry) *Clie
 		dependencytrack.WithHttpClient(&http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}),
 	)
 
-	ch := cache.New(5*time.Minute, 10*time.Minute)
+	ch := cache.New(30*time.Minute, 10*time.Minute)
 
 	return &Client{
 		client:      c,
