@@ -29,6 +29,7 @@ import (
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/pkg/protoapi"
+	"github.com/sourcegraph/conc/pool"
 	"k8s.io/utils/ptr"
 )
 
@@ -998,53 +999,78 @@ func (r *teamResolver) ViewerIsMember(ctx context.Context, obj *model.Team) (boo
 
 // Status is the resolver for the status field.
 func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.TeamStatus, error) {
-	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
-	if err != nil {
-		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
-	}
-	failingApps := 0
-	for _, app := range apps {
-		if app.AppState.State == model.StateFailing {
-			failingApps++
-		}
-	}
+	wg := pool.NewWithResults[any]().WithErrors().WithFirstError()
 
-	jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
-	if err != nil {
-		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
-	}
-	failingJobs := 0
-	for _, job := range jobs {
-		if job.JobState.State == model.StateFailing {
-			failingJobs++
+	wg.Go(func() (any, error) {
+		apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
+		if err != nil {
+			return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
 		}
-	}
-
-	sqlInstances, _, err := r.sqlInstanceClient.SqlInstances(ctx, obj.Slug)
-	if err != nil {
-		return nil, fmt.Errorf("getting SQL instances from Kubernetes: %w", err)
-	}
-	failingSqlInstances := 0
-	for _, sqlInstance := range sqlInstances {
-		if !sqlInstance.IsHealthy() {
-			failingSqlInstances++
+		failingApps := 0
+		for _, app := range apps {
+			if app.AppState.State == model.StateFailing {
+				failingApps++
+			}
 		}
-	}
-
-	return &model.TeamStatus{
-		Apps: model.AppsStatus{
+		return model.AppsStatus{
 			Total:   len(apps),
 			Failing: failingApps,
-		},
-		Jobs: model.JobsStatus{
+		}, nil
+	})
+
+	wg.Go(func() (any, error) {
+		jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
+		if err != nil {
+			return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
+		}
+		failingJobs := 0
+		for _, job := range jobs {
+			if job.JobState.State == model.StateFailing {
+				failingJobs++
+			}
+		}
+		return model.JobsStatus{
 			Total:   len(jobs),
 			Failing: failingJobs,
-		},
-		SQLInstances: model.SQLInstancesStatus{
+		}, nil
+	})
+
+	wg.Go(func() (any, error) {
+		sqlInstances, _, err := r.sqlInstanceClient.SqlInstances(ctx, obj.Slug)
+		if err != nil {
+			return nil, fmt.Errorf("getting SQL instances from Kubernetes: %w", err)
+		}
+		failingSqlInstances := 0
+		for _, sqlInstance := range sqlInstances {
+			if !sqlInstance.IsHealthy() {
+				failingSqlInstances++
+			}
+		}
+		return model.SQLInstancesStatus{
 			Total:   len(sqlInstances),
 			Failing: failingSqlInstances,
-		},
-	}, nil
+		}, nil
+	})
+
+	res, err := wg.Wait()
+	if err != nil {
+		return nil, err
+	}
+
+	ret := &model.TeamStatus{}
+
+	for _, r := range res {
+		switch v := r.(type) {
+		case model.AppsStatus:
+			ret.Apps = v
+		case model.JobsStatus:
+			ret.Jobs = v
+		case model.SQLInstancesStatus:
+			ret.SQLInstances = v
+		}
+	}
+
+	return ret, nil
 }
 
 // SQLInstances is the resolver for the sqlInstances field.
