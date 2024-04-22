@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/sourcegraph/conc/pool"
@@ -153,6 +154,7 @@ func RequireSbom() Filter {
 func (c *Client) GetVulnerabilities(ctx context.Context, apps []*AppInstance, filters ...Filter) ([]*model.Vulnerability, error) {
 	now := time.Now()
 	nodes := make([]*model.Vulnerability, 0)
+	lock := sync.Mutex{}
 	p := pool.New().WithMaxGoroutines(10)
 	for _, app := range apps {
 		p.Go(func() {
@@ -170,7 +172,9 @@ func (c *Client) GetVulnerabilities(ctx context.Context, apps []*AppInstance, fi
 					return
 				}
 			}
+			lock.Lock()
 			nodes = append(nodes, appVulnNode)
+			lock.Unlock()
 		})
 	}
 	p.Wait()
