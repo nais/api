@@ -51,9 +51,18 @@ func (SQLInstance) IsSearchNode() {}
 
 func (i SQLInstance) GetName() string { return i.Name }
 
-func (i *SQLInstance) IsHealthy() bool {
+func (i SQLInstance) IsHealthy() bool {
 	for _, cond := range i.Status.Conditions {
 		if cond.Type == "Ready" && cond.Reason == "UpToDate" && cond.Status == "True" {
+			return true
+		}
+	}
+	return false
+}
+
+func (i SQLInstance) IsNotReady() bool {
+	for _, cond := range i.Status.Conditions {
+		if cond.Type != "Ready" {
 			return true
 		}
 	}
@@ -129,6 +138,15 @@ func ToSqlInstance(u *unstructured.Unstructured, env string) (*SQLInstance, erro
 				return ret
 			}(),
 			PublicIPAddress: sqlInstance.Status.PublicIpAddress,
+			PrivateIPAddress: func(status sql_cnrm_cloud_google_com_v1beta1.SQLInstanceStatus) *string {
+				var privateIpAddresses *string
+				for _, ip := range status.IpAddress {
+					if *ip.Type == "PRIVATE" {
+						privateIpAddresses = ip.IpAddress
+					}
+				}
+				return privateIpAddresses
+			}(sqlInstance.Status),
 		},
 		MaintenanceWindow: func(window *sql_cnrm_cloud_google_com_v1beta1.InstanceMaintenanceWindow) *MaintenanceWindow {
 			if window == nil || window.Day == nil || window.Hour == nil {

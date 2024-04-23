@@ -390,8 +390,9 @@ type Team {
 }
 
 type SqlInstancesStatus {
-	total: Int!
-	failing: Int!
+  total: Int!
+  failing: Int!
+  otherConditions: Int!
 }
 
 input VulnerabilityFilter {

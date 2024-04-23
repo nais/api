@@ -810,8 +810,9 @@ type ComplexityRoot struct {
 	}
 
 	SqlInstanceStatus struct {
-		Conditions      func(childComplexity int) int
-		PublicIPAddress func(childComplexity int) int
+		Conditions       func(childComplexity int) int
+		PrivateIPAddress func(childComplexity int) int
+		PublicIPAddress  func(childComplexity int) int
 	}
 
 	SqlInstancesList struct {
@@ -828,8 +829,9 @@ type ComplexityRoot struct {
 	}
 
 	SqlInstancesStatus struct {
-		Failing func(childComplexity int) int
-		Total   func(childComplexity int) int
+		Failing         func(childComplexity int) int
+		OtherConditions func(childComplexity int) int
+		Total           func(childComplexity int) int
 	}
 
 	Subscription struct {
@@ -4482,6 +4484,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstanceStatus.Conditions(childComplexity), true
 
+	case "SqlInstanceStatus.privateIpAddress":
+		if e.complexity.SqlInstanceStatus.PrivateIPAddress == nil {
+			break
+		}
+
+		return e.complexity.SqlInstanceStatus.PrivateIPAddress(childComplexity), true
+
 	case "SqlInstanceStatus.publicIpAddress":
 		if e.complexity.SqlInstanceStatus.PublicIPAddress == nil {
 			break
@@ -4544,6 +4553,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SqlInstancesStatus.Failing(childComplexity), true
+
+	case "SqlInstancesStatus.otherConditions":
+		if e.complexity.SqlInstancesStatus.OtherConditions == nil {
+			break
+		}
+
+		return e.complexity.SqlInstancesStatus.OtherConditions(childComplexity), true
 
 	case "SqlInstancesStatus.total":
 		if e.complexity.SqlInstancesStatus.Total == nil {
@@ -6909,6 +6925,7 @@ type SqlInstanceDisk {
 type SqlInstanceStatus {
   conditions: [SqlInstanceCondition!]!
   publicIpAddress: String
+  privateIpAddress: String
 }
 
 type SqlInstanceCondition {
@@ -7327,8 +7344,9 @@ type Team {
 }
 
 type SqlInstancesStatus {
-	total: Int!
-	failing: Int!
+  total: Int!
+  failing: Int!
+  otherConditions: Int!
 }
 
 input VulnerabilityFilter {
@@ -31404,6 +31422,8 @@ func (ec *executionContext) fieldContext_SqlInstance_status(ctx context.Context,
 				return ec.fieldContext_SqlInstanceStatus_conditions(ctx, field)
 			case "publicIpAddress":
 				return ec.fieldContext_SqlInstanceStatus_publicIpAddress(ctx, field)
+			case "privateIpAddress":
+				return ec.fieldContext_SqlInstanceStatus_privateIpAddress(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SqlInstanceStatus", field.Name)
 		},
@@ -32227,6 +32247,47 @@ func (ec *executionContext) fieldContext_SqlInstanceStatus_publicIpAddress(ctx c
 	return fc, nil
 }
 
+func (ec *executionContext) _SqlInstanceStatus_privateIpAddress(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstanceStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstanceStatus_privateIpAddress(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PrivateIPAddress, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstanceStatus_privateIpAddress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstanceStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SqlInstancesList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstancesList) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstancesList_nodes(ctx, field)
 	if err != nil {
@@ -32689,6 +32750,50 @@ func (ec *executionContext) _SqlInstancesStatus_failing(ctx context.Context, fie
 }
 
 func (ec *executionContext) fieldContext_SqlInstancesStatus_failing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstancesStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstancesStatus_otherConditions(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstancesStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstancesStatus_otherConditions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OtherConditions, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstancesStatus_otherConditions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstancesStatus",
 		Field:      field,
@@ -35693,6 +35798,8 @@ func (ec *executionContext) fieldContext_TeamStatus_sqlInstances(ctx context.Con
 				return ec.fieldContext_SqlInstancesStatus_total(ctx, field)
 			case "failing":
 				return ec.fieldContext_SqlInstancesStatus_failing(ctx, field)
+			case "otherConditions":
+				return ec.fieldContext_SqlInstancesStatus_otherConditions(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SqlInstancesStatus", field.Name)
 		},
@@ -47499,6 +47606,8 @@ func (ec *executionContext) _SqlInstanceStatus(ctx context.Context, sel ast.Sele
 			}
 		case "publicIpAddress":
 			out.Values[i] = ec._SqlInstanceStatus_publicIpAddress(ctx, field, obj)
+		case "privateIpAddress":
+			out.Values[i] = ec._SqlInstanceStatus_privateIpAddress(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -47643,6 +47752,11 @@ func (ec *executionContext) _SqlInstancesStatus(ctx context.Context, sel ast.Sel
 			}
 		case "failing":
 			out.Values[i] = ec._SqlInstancesStatus_failing(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "otherConditions":
+			out.Values[i] = ec._SqlInstancesStatus_otherConditions(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

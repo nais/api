@@ -157,6 +157,7 @@ type SqlInstanceDisk {
 type SqlInstanceStatus {
   conditions: [SqlInstanceCondition!]!
   publicIpAddress: String
+  privateIpAddress: String
 }
 
 type SqlInstanceCondition {

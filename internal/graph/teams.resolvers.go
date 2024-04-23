@@ -1037,18 +1037,25 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 
 	wg.Go(func() (any, error) {
 		sqlInstances, _, err := r.sqlInstanceClient.SqlInstances(ctx, obj.Slug)
+		failingSqlInstances := 0
+		otherConditions := 0
 		if err != nil {
 			return nil, fmt.Errorf("getting SQL instances from Kubernetes: %w", err)
 		}
-		failingSqlInstances := 0
 		for _, sqlInstance := range sqlInstances {
-			if !sqlInstance.IsHealthy() {
+			notReady := sqlInstance.IsNotReady()
+			healthy := sqlInstance.IsHealthy()
+			if notReady {
 				failingSqlInstances++
+			}
+			if !notReady && !healthy {
+				otherConditions++
 			}
 		}
 		return model.SQLInstancesStatus{
-			Total:   len(sqlInstances),
-			Failing: failingSqlInstances,
+			Total:           len(sqlInstances),
+			Failing:         failingSqlInstances,
+			OtherConditions: otherConditions,
 		}, nil
 	})
 

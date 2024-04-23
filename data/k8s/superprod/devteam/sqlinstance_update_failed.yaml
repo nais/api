@@ -69,7 +69,7 @@ status:
       invalid'
       reason: UpdateFailed
       status: "False"
-      type: Ready
+      type: Failed
   connectionName: nais-dev-123:europe-north1:contests-failing
   firstIpAddress: 1.2.3.4
   instanceType: CLOUD_SQL_INSTANCE
