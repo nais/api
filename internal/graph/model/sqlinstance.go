@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	corev1 "k8s.io/api/core/v1"
 	"strings"
 
 	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
@@ -53,7 +54,7 @@ func (i SQLInstance) GetName() string { return i.Name }
 
 func (i SQLInstance) IsHealthy() bool {
 	for _, cond := range i.Status.Conditions {
-		if cond.Type == "Ready" && cond.Reason == "UpToDate" && cond.Status == "True" {
+		if cond.Type == string(corev1.PodReady) && cond.Reason == "UpToDate" && cond.Status == string(corev1.ConditionTrue) {
 			return true
 		}
 	}
@@ -62,7 +63,7 @@ func (i SQLInstance) IsHealthy() bool {
 
 func (i SQLInstance) IsNotReady() bool {
 	for _, cond := range i.Status.Conditions {
-		if cond.Type != "Ready" {
+		if cond.Type != string(corev1.PodReady) {
 			return true
 		}
 	}
