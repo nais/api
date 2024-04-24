@@ -73,8 +73,10 @@ status:
   ipAddress:
     - ipAddress: 1.2.3.4
       type: PRIMARY
-    - ipAddress: 1.2.3.4
+    - ipAddress: 1.2.3.5
       type: OUTGOING
+    - ipAddress: 1.2.3.6
+      type: PRIVATE
   observedGeneration: 104
   publicIpAddress: 1.2.3.4
   selfLink: https://sqladmin.googleapis.com/sql/v1beta4/projects/nais-dev-123/instances/app-w-all-storage

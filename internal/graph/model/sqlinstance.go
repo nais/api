@@ -7,6 +7,7 @@ import (
 	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
+	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -51,9 +52,18 @@ func (SQLInstance) IsSearchNode() {}
 
 func (i SQLInstance) GetName() string { return i.Name }
 
-func (i *SQLInstance) IsHealthy() bool {
+func (i SQLInstance) IsHealthy() bool {
 	for _, cond := range i.Status.Conditions {
-		if cond.Type == "Ready" && cond.Reason == "UpToDate" && cond.Status == "True" {
+		if cond.Type == string(corev1.PodReady) && cond.Reason == "UpToDate" && cond.Status == string(corev1.ConditionTrue) {
+			return true
+		}
+	}
+	return false
+}
+
+func (i SQLInstance) IsNotReady() bool {
+	for _, cond := range i.Status.Conditions {
+		if cond.Type != string(corev1.PodReady) {
 			return true
 		}
 	}
@@ -129,6 +139,15 @@ func ToSqlInstance(u *unstructured.Unstructured, env string) (*SQLInstance, erro
 				return ret
 			}(),
 			PublicIPAddress: sqlInstance.Status.PublicIpAddress,
+			PrivateIPAddress: func(status sql_cnrm_cloud_google_com_v1beta1.SQLInstanceStatus) *string {
+				var privateIpAddresses *string
+				for _, ip := range status.IpAddress {
+					if *ip.Type == "PRIVATE" {
+						privateIpAddresses = ip.IpAddress
+					}
+				}
+				return privateIpAddresses
+			}(sqlInstance.Status),
 		},
 		MaintenanceWindow: func(window *sql_cnrm_cloud_google_com_v1beta1.InstanceMaintenanceWindow) *MaintenanceWindow {
 			if window == nil || window.Day == nil || window.Hour == nil {

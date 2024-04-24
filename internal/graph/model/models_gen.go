@@ -817,8 +817,9 @@ type SQLInstanceMemory struct {
 }
 
 type SQLInstanceStatus struct {
-	Conditions      []*SQLInstanceCondition `json:"conditions"`
-	PublicIPAddress *string                 `json:"publicIpAddress,omitempty"`
+	Conditions       []*SQLInstanceCondition `json:"conditions"`
+	PublicIPAddress  *string                 `json:"publicIpAddress,omitempty"`
+	PrivateIPAddress *string                 `json:"privateIpAddress,omitempty"`
 }
 
 type SQLInstancesMetrics struct {
@@ -829,8 +830,9 @@ type SQLInstancesMetrics struct {
 }
 
 type SQLInstancesStatus struct {
-	Total   int `json:"total"`
-	Failing int `json:"failing"`
+	Total           int `json:"total"`
+	Failing         int `json:"failing"`
+	OtherConditions int `json:"otherConditions"`
 }
 
 type Subscription struct {
