@@ -95,16 +95,31 @@ func metricsSummary(instances []*model.SQLInstance) *model.SQLInstancesMetrics {
 	return &model.SQLInstancesMetrics{
 		Cost: cost,
 		CPU: model.SQLInstanceCPU{
-			Cores:       cpuCores,
-			Utilization: cpuUtilization / numInstances,
+			Cores: cpuCores,
+			Utilization: func() float64 {
+				if numInstances == 0 {
+					return 0
+				}
+				return cpuUtilization / numInstances
+			}(),
 		},
 		Disk: model.SQLInstanceDisk{
-			QuotaBytes:  diskQuota,
-			Utilization: diskUtilization / numInstances,
+			QuotaBytes: diskQuota,
+			Utilization: func() float64 {
+				if numInstances == 0 {
+					return 0
+				}
+				return diskUtilization / numInstances
+			}(),
 		},
 		Memory: model.SQLInstanceMemory{
-			QuotaBytes:  memoryQuota,
-			Utilization: memoryUtilization / numInstances,
+			QuotaBytes: memoryQuota,
+			Utilization: func() float64 {
+				if numInstances == 0 {
+					return 0
+				}
+				return memoryUtilization / numInstances
+			}(),
 		},
 	}
 }
