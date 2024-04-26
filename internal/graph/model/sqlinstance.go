@@ -14,10 +14,11 @@ import (
 )
 
 type BackupConfiguration struct {
-	Enabled             bool   `json:"enabled"`
-	StartTime           string `json:"startTime"`
-	RetainedBackups     int    `json:"retainedBackups"`
-	PointInTimeRecovery bool   `json:"pointInTimeRecovery"`
+	Enabled                     bool   `json:"enabled"`
+	StartTime                   string `json:"startTime"`
+	RetainedBackups             int    `json:"retainedBackups"`
+	PointInTimeRecovery         bool   `json:"pointInTimeRecovery"`
+	TransactionLogRetentionDays int    `json:"transactionLogRetentionDays"`
 }
 
 type SQLInstance struct {
@@ -25,6 +26,7 @@ type SQLInstance struct {
 	CascadingDelete     bool                 `json:"cascadingDelete"`
 	ConnectionName      string               `json:"connectionName"`
 	DiskAutoresize      bool                 `json:"diskAutoresize"`
+	DiskAutoresizeLimit int                  `json:"diskAutoresizeLimit"`
 	Env                 Env                  `json:"env"`
 	Flags               []*Flag              `json:"flags"`
 	HighAvailability    bool                 `json:"highAvailability"`
@@ -119,6 +121,9 @@ func ToSqlInstance(u *unstructured.Unstructured, env string) (*SQLInstance, erro
 			if backupConfig.PointInTimeRecoveryEnabled != nil {
 				backupCfg.PointInTimeRecovery = *backupConfig.PointInTimeRecoveryEnabled
 			}
+			if backupConfig.TransactionLogRetentionDays != nil {
+				backupCfg.TransactionLogRetentionDays = *backupConfig.TransactionLogRetentionDays
+			}
 			return backupCfg
 		}(sqlInstance.Spec.Settings.BackupConfiguration),
 		CascadingDelete: sqlInstance.GetAnnotations()["cnrm.cloud.google.com/deletion-policy"] != "abandon",
@@ -168,11 +173,12 @@ func ToSqlInstance(u *unstructured.Unstructured, env string) (*SQLInstance, erro
 			}
 			return ret
 		}(),
-		MaintenanceVersion: sqlInstance.Spec.MaintenanceVersion,
-		ProjectID:          projectId,
-		Tier:               sqlInstance.Spec.Settings.Tier,
-		HighAvailability:   equals(sqlInstance.Spec.Settings.AvailabilityType, "REGIONAL"),
-		DiskAutoresize:     *sqlInstance.Spec.Settings.DiskAutoresize,
+		MaintenanceVersion:  sqlInstance.Spec.MaintenanceVersion,
+		ProjectID:           projectId,
+		Tier:                sqlInstance.Spec.Settings.Tier,
+		HighAvailability:    equals(sqlInstance.Spec.Settings.AvailabilityType, "REGIONAL"),
+		DiskAutoresize:      *sqlInstance.Spec.Settings.DiskAutoresize,
+		DiskAutoresizeLimit: *sqlInstance.Spec.Settings.DiskAutoresizeLimit,
 		GQLVars: SQLInstanceGQLVars{
 			TeamSlug:    slug.Slug(teamSlug),
 			Labels:      sqlInstance.GetLabels(),

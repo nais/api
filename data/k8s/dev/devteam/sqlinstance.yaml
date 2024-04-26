@@ -113,7 +113,7 @@ spec:
     availabilityType: ZONAL
     backupConfiguration:
       backupRetentionSettings:
-        retainedBackups: 7
+        retainedBackups: 6
         retentionUnit: COUNT
       enabled: true
       pointInTimeRecoveryEnabled: false
@@ -123,8 +123,8 @@ spec:
     databaseFlags:
       - name: cloudsql.iam_authentication
         value: "on"
-    diskAutoresize: false
-    diskAutoresizeLimit: 0
+    diskAutoresize: true
+    diskAutoresizeLimit: 60
     diskSize: 10
     diskType: PD_SSD
     insightsConfig:
