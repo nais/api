@@ -47,8 +47,6 @@ cloud.google.com/go/pubsub v1.0.1/go.mod h1:R0Gpsv3s54REJCy4fxDixWD93lHJMoZTyQ2k
 cloud.google.com/go/pubsub v1.1.0/go.mod h1:EwwdRX2sKPjnvnqCa270oGRyludottCI76h+R3AArQw=
 cloud.google.com/go/pubsub v1.2.0/go.mod h1:jhfEVHT8odbXTkndysNHCcx0awwzvfOlguIAii9o8iA=
 cloud.google.com/go/pubsub v1.3.1/go.mod h1:i+ucay31+CNRpDW4Lu78I4xXG+O1r/MAHgjpRVR+TSU=
-cloud.google.com/go/pubsub v1.36.1 h1:dfEPuGCHGbWUhaMCTHUFjfroILEkx55iUmKBZTP5f+Y=
-cloud.google.com/go/pubsub v1.36.1/go.mod h1:iYjCa9EzWOoBiTdd4ps7QoMtMln5NwaZQpK1hbRfBDE=
 cloud.google.com/go/pubsub v1.36.2 h1:nAUD4aiWHZFYyINhRag1qOnHUk0/7QiWEa04XWnqACA=
 cloud.google.com/go/pubsub v1.36.2/go.mod h1:mHCFLNG8abCrPzhuOnpBcr9DUy+l3/LWWn0qoJdbh1w=
 cloud.google.com/go/storage v1.0.0/go.mod h1:IhtSnM/ZTZV8YYJWCY8RULGVqBDmpoyjwiyrjsg+URw=
@@ -453,8 +451,8 @@ github.com/nais/dependencytrack v0.0.0-20240301095153-b46382e6a8be h1:Ri7fb/vmxJ
 github.com/nais/dependencytrack v0.0.0-20240301095153-b46382e6a8be/go.mod h1:kgE6W/n/1C1k+09xVbf7VD8J5J7v0ueHSY9E9vRCM1Y=
 github.com/nais/liberator v0.0.0-20240223134957-13b72a76ba9d h1:NA//xj14122osF306Q19oARHyg9JW7g4qJReFO1O3Ds=
 github.com/nais/liberator v0.0.0-20240223134957-13b72a76ba9d/go.mod h1:cWThp1WBBbkRFhMI2DQMvBTTEN+6GPzmmh+Xjv8vffE=
-github.com/nais/tester v0.0.0-20240426110453-b3064b97764f h1:PJ0Fen5vZ1zOUom4SLEAhHjfaTVQlDXxytN9GyNuCK4=
-github.com/nais/tester v0.0.0-20240426110453-b3064b97764f/go.mod h1:uRAGK4W74/pBxHgJmMQ2HBw2pUazBt7JT1wAUPqfv08=
+github.com/nais/tester v0.0.0-20240426134150-c8e38eb9f33b h1:9lPL7gYnu11ipCszTGGP+3NN4vFwWaB2VMEa69Uh/yA=
+github.com/nais/tester v0.0.0-20240426134150-c8e38eb9f33b/go.mod h1:uRAGK4W74/pBxHgJmMQ2HBw2pUazBt7JT1wAUPqfv08=
 github.com/ncruces/go-strftime v0.1.9 h1:bY0MQC28UADQmHmaF5dgpLmImcShSi2kHU9XLdhx/f4=
 github.com/ncruces/go-strftime v0.1.9/go.mod h1:Fwc5htZGVVkseilnfgOVb9mKy6w1naJmn9CehxcKcls=
 github.com/onsi/ginkgo/v2 v2.14.0 h1:vSmGj2Z5YPb9JwCWT6z6ihcUvDhuXLc3sJiqd3jMKAY=
@@ -591,8 +589,6 @@ github.com/subosito/gotenv v1.6.0 h1:9NlTDc1FTs4qu0DDq7AEtTPNw6SVm7uBMsUCUjABIf8
 github.com/subosito/gotenv v1.6.0/go.mod h1:Dk4QP5c2W3ibzajGcXpNraDfq2IrhjMIvMSWPKKo0FU=
 github.com/testcontainers/testcontainers-go v0.30.0 h1:jmn/XS22q4YRrcMwWg0pAwlClzs/abopbsBzrepyc4E=
 github.com/testcontainers/testcontainers-go v0.30.0/go.mod h1:K+kHNGiM5zjklKjgTtcrEetF3uhWbMUyqAQoyoh8Pf0=
-github.com/testcontainers/testcontainers-go/modules/gcloud v0.30.0 h1:4Y7WOAXRLNlJ322b1/uzbOv3xz91+yw4PJJRIITGQdA=
-github.com/testcontainers/testcontainers-go/modules/gcloud v0.30.0/go.mod h1:qcfLQMD68oRVROPJVQQBdYOJXr9/maf2vn/3H3x/e3s=
 github.com/testcontainers/testcontainers-go/modules/postgres v0.30.0 h1:D3HFqpZS90iRGAN7M85DFiuhPfvYvFNnx8urQ6mPAvo=
 github.com/testcontainers/testcontainers-go/modules/postgres v0.30.0/go.mod h1:e1sKxwUOkqzvaqdHl/oV9mUtFmkDPTfBGp0po2tnWQU=
 github.com/tetratelabs/wazero v1.7.0 h1:jg5qPydno59wqjpGrHph81lbtHzTrWzwwtD4cD88+hQ=

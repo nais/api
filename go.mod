@@ -22,7 +22,7 @@ require (
 	github.com/lithammer/fuzzysearch v1.1.8
 	github.com/nais/dependencytrack v0.0.0-20240301095153-b46382e6a8be
 	github.com/nais/liberator v0.0.0-20240223134957-13b72a76ba9d
-	github.com/nais/tester v0.0.0-20240426110453-b3064b97764f
+	github.com/nais/tester v0.0.0-20240426134150-c8e38eb9f33b
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.18.0
 	github.com/prometheus/client_golang v1.19.0
@@ -202,7 +202,6 @@ require (
 	github.com/stoewer/go-strcase v1.3.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/testcontainers/testcontainers-go/modules/gcloud v0.30.0 // indirect
 	github.com/tetratelabs/wazero v1.7.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
@@ -252,5 +251,3 @@ require (
 replace github.com/GoogleCloudPlatform/k8s-config-connector/mockgcp => ./mockgcp
 
 replace github.com/hashicorp/terraform-provider-google-beta => ./third_party/github.com/hashicorp/terraform-provider-google-beta
-
-replace github.com/nais/tester => ../tester
