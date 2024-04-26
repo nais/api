@@ -102,6 +102,7 @@ type SqlInstance implements Storage {
   connectionName: String!
   database: SqlDatabase
   diskAutoresize: Boolean!
+  diskAutoresizeLimit: Int!
   env: Env!
   flags: [Flag!]!
   highAvailability: Boolean!
@@ -123,6 +124,7 @@ type BackupConfiguration {
   startTime: String!
   retainedBackups: Int!
   pointInTimeRecovery: Boolean!
+  transactionLogRetentionDays: Int!
 }
 
 type SqlInstanceMetrics {
