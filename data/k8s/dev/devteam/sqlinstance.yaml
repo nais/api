@@ -45,7 +45,6 @@ spec:
       - name: cloudsql.iam_authentication
         value: "on"
     diskAutoresize: false
-    diskAutoresizeLimit: 0
     diskSize: 10
     diskType: PD_SSD
     insightsConfig:

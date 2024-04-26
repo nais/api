@@ -173,12 +173,17 @@ func ToSqlInstance(u *unstructured.Unstructured, env string) (*SQLInstance, erro
 			}
 			return ret
 		}(),
-		MaintenanceVersion:  sqlInstance.Spec.MaintenanceVersion,
-		ProjectID:           projectId,
-		Tier:                sqlInstance.Spec.Settings.Tier,
-		HighAvailability:    equals(sqlInstance.Spec.Settings.AvailabilityType, "REGIONAL"),
-		DiskAutoresize:      *sqlInstance.Spec.Settings.DiskAutoresize,
-		DiskAutoresizeLimit: *sqlInstance.Spec.Settings.DiskAutoresizeLimit,
+		MaintenanceVersion: sqlInstance.Spec.MaintenanceVersion,
+		ProjectID:          projectId,
+		Tier:               sqlInstance.Spec.Settings.Tier,
+		HighAvailability:   equals(sqlInstance.Spec.Settings.AvailabilityType, "REGIONAL"),
+		DiskAutoresize:     *sqlInstance.Spec.Settings.DiskAutoresize,
+		DiskAutoresizeLimit: func() int {
+			if sqlInstance.Spec.Settings.DiskAutoresizeLimit == nil {
+				return 0
+			}
+			return *sqlInstance.Spec.Settings.DiskAutoresizeLimit
+		}(),
 		GQLVars: SQLInstanceGQLVars{
 			TeamSlug:    slug.Slug(teamSlug),
 			Labels:      sqlInstance.GetLabels(),
