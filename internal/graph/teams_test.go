@@ -115,7 +115,7 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 
 		auditLogger := auditlogger.NewAuditLoggerForTesting()
 		returnedTeam, err := graph.
-			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditLogger, nil, userSyncRuns, psClient.Topic("topic-id"), log, nil).
+			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditLogger, nil, userSyncRuns, &graph.TopicWrapper{Topic: psClient.Topic("topic-id")}, log, nil).
 			Mutation().
 			CreateTeam(ctx, model.CreateTeamInput{
 				Slug:         teamSlug,
@@ -194,7 +194,7 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 
 		auditLogger := auditlogger.NewAuditLoggerForTesting()
 		returnedTeam, err := graph.
-			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditLogger, nil, userSyncRuns, psClient.Topic("topic-id"), log, nil).
+			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditLogger, nil, userSyncRuns, &graph.TopicWrapper{Topic: psClient.Topic("topic-id")}, log, nil).
 			Mutation().CreateTeam(saCtx, model.CreateTeamInput{
 			Slug:         teamSlug,
 			Purpose:      " some purpose ",

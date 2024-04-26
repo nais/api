@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"slices"
 
-	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -29,6 +28,7 @@ import (
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 // This file will not be regenerated automatically.
@@ -86,6 +86,11 @@ type DependencytrackClient interface {
 	GetVulnerabilities(ctx context.Context, apps []*dependencytrack.AppInstance, filters ...dependencytrack.Filter) ([]*model.Vulnerability, error)
 }
 
+type PubsubTopic interface {
+	Publish(ctx context.Context, msg protoreflect.ProtoMessage, attrs map[string]string) (string, error)
+	String() string
+}
+
 type Resolver struct {
 	hookdClient           HookdClient
 	k8sClient             *k8s.Client
@@ -99,7 +104,7 @@ type Resolver struct {
 	userSync              chan<- uuid.UUID
 	auditLogger           auditlogger.AuditLogger
 	userSyncRuns          *usersync.RunsHandler
-	pubsubTopic           *pubsub.Topic
+	pubsubTopic           PubsubTopic
 	sqlInstanceClient     *sqlinstance.Client
 }
 
@@ -115,7 +120,7 @@ func NewResolver(
 	auditLogger auditlogger.AuditLogger,
 	clusters ClusterList,
 	userSyncRuns *usersync.RunsHandler,
-	pubsubTopic *pubsub.Topic,
+	pubsubTopic PubsubTopic,
 	log logrus.FieldLogger,
 	sqlInstanceClient *sqlinstance.Client,
 ) *Resolver {

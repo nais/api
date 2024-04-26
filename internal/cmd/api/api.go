@@ -178,7 +178,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		auditLogger,
 		cfg.K8s.GraphClusterList(),
 		userSyncRuns,
-		pubsubTopic,
+		&graph.TopicWrapper{Topic: pubsubTopic},
 		log,
 		sqlInstanceClient,
 	)

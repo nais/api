@@ -37,6 +37,9 @@ local:
 test:
 	go test -cover --race ./...
 
+integration_test:
+	go test -tags integration_test --race ./internal/integration_test
+
 check: staticcheck vulncheck deadcode
 
 staticcheck:
