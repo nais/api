@@ -58,7 +58,7 @@ func TestValidateSecretData(t *testing.T) {
 		},
 	}
 
-	err = validateSecretData(doubleKeys)
+	err = validateSecretData(duplicateKeys)
 	if err == nil {
 		t.Errorf("Expected error, got nil")
 	}
