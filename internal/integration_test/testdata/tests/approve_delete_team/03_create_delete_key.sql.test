@@ -1,0 +1,20 @@
+-- type: row
+INSERT INTO team_delete_keys (
+  team_slug,
+  created_by
+) VALUES (
+  'delete-me',
+  (SELECT id FROM users WHERE email = 'email-2@example.com')
+) RETURNING key;
+
+RETURNS
+
+OPTION key=IGNORE
+
+ENDOPTS
+
+{
+  "key": "something"
+}
+
+STORE deleteKey=key

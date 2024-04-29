@@ -1,0 +1,11 @@
+mutation {
+  confirmTeamDeletion(key: "{{ .deleteKey }}")
+}
+
+RETURNS
+
+{
+  "data": {
+    "confirmTeamDeletion": true
+  }
+}
