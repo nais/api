@@ -451,8 +451,8 @@ github.com/nais/dependencytrack v0.0.0-20240301095153-b46382e6a8be h1:Ri7fb/vmxJ
 github.com/nais/dependencytrack v0.0.0-20240301095153-b46382e6a8be/go.mod h1:kgE6W/n/1C1k+09xVbf7VD8J5J7v0ueHSY9E9vRCM1Y=
 github.com/nais/liberator v0.0.0-20240223134957-13b72a76ba9d h1:NA//xj14122osF306Q19oARHyg9JW7g4qJReFO1O3Ds=
 github.com/nais/liberator v0.0.0-20240223134957-13b72a76ba9d/go.mod h1:cWThp1WBBbkRFhMI2DQMvBTTEN+6GPzmmh+Xjv8vffE=
-github.com/nais/tester v0.0.0-20240426134150-c8e38eb9f33b h1:9lPL7gYnu11ipCszTGGP+3NN4vFwWaB2VMEa69Uh/yA=
-github.com/nais/tester v0.0.0-20240426134150-c8e38eb9f33b/go.mod h1:uRAGK4W74/pBxHgJmMQ2HBw2pUazBt7JT1wAUPqfv08=
+github.com/nais/tester v0.0.0-20240429114930-a358729d1e66 h1:QKrnWFOBWKakUrzdgRk8Zy73uguKQbaAwskvLX4Ctas=
+github.com/nais/tester v0.0.0-20240429114930-a358729d1e66/go.mod h1:uRAGK4W74/pBxHgJmMQ2HBw2pUazBt7JT1wAUPqfv08=
 github.com/ncruces/go-strftime v0.1.9 h1:bY0MQC28UADQmHmaF5dgpLmImcShSi2kHU9XLdhx/f4=
 github.com/ncruces/go-strftime v0.1.9/go.mod h1:Fwc5htZGVVkseilnfgOVb9mKy6w1naJmn9CehxcKcls=
 github.com/onsi/ginkgo/v2 v2.14.0 h1:vSmGj2Z5YPb9JwCWT6z6ihcUvDhuXLc3sJiqd3jMKAY=

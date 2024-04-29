@@ -21,7 +21,7 @@ ENDOPTS
 {
   "errors": [
     {
-      "message": "not authenticated",
+      "message": "Valid user required. You are not logged in.",
       "path": [
         "users"
       ]

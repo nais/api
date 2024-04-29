@@ -1,0 +1,72 @@
+# Add user to team, but opt out of one reconciler
+mutation {
+  addTeamMember(slug: "{{ .teamSlug }}",  member: {userId: "{{ .userID }}", role: MEMBER, reconcilerOptOuts:[ "rec1" ]}) {
+    members {
+      nodes {
+        user {
+          email
+        }
+        reconcilers {
+          reconciler {
+            name
+          }
+          enabled
+        }
+        role
+      }
+    }
+  }
+}
+
+RETURNS
+
+{
+  "data": {
+    "addTeamMember": {
+      "members": {
+        "nodes": [
+          {
+            "user": {
+              "email": "authenticated@example.com"
+            },
+            "reconcilers": [
+              {
+                "enabled": true,
+                "reconciler": {
+                  "name": "rec1"
+                }
+              },
+              {
+                "enabled": true,
+                "reconciler": {
+                  "name": "rec2"
+                }
+              }
+            ],
+            "role": "OWNER"
+          },
+          {
+            "user": {
+              "email": "email-3@example.com"
+            },
+            "reconcilers": [
+              {
+                "enabled": false,
+                "reconciler": {
+                  "name": "rec1"
+                }
+              },
+              {
+                "enabled": true,
+                "reconciler": {
+                  "name": "rec2"
+                }
+              }
+            ],
+            "role": "MEMBER"
+          }
+        ]
+      }
+    }
+  }
+}

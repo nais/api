@@ -1,0 +1,30 @@
+# Add user to team, but opt out of one reconciler
+mutation {
+  removeUserFromTeam(slug: "{{ .teamSlug }}",  userId: "{{ .userID }}") {
+    members {
+      nodes {
+        user {
+          email
+        }
+      }
+    }
+  }
+}
+
+RETURNS
+
+{
+  "data": {
+    "removeUserFromTeam": {
+      "members": {
+        "nodes": [
+          {
+            "user": {
+              "email": "authenticated@example.com"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

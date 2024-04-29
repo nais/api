@@ -22,7 +22,7 @@ require (
 	github.com/lithammer/fuzzysearch v1.1.8
 	github.com/nais/dependencytrack v0.0.0-20240301095153-b46382e6a8be
 	github.com/nais/liberator v0.0.0-20240223134957-13b72a76ba9d
-	github.com/nais/tester v0.0.0-20240426134150-c8e38eb9f33b
+	github.com/nais/tester v0.0.0-20240429114930-a358729d1e66
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.18.0
 	github.com/prometheus/client_golang v1.19.0

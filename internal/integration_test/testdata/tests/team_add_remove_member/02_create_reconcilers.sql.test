@@ -1,0 +1,35 @@
+INSERT INTO reconcilers (
+  name,
+  display_name,
+  description,
+  enabled,
+  member_aware
+) VALUES (
+  'rec1',
+  'Rec1',
+  'Rec1 reconciler',
+  true,
+  true
+), (
+  'rec2',
+  'Rec2',
+  'Rec2 reconciler',
+  true,
+  false
+), (
+  'rec3',
+  'Rec3',
+  'Rec3 reconciler',
+  false,
+  true
+), (
+  'rec4',
+  'Rec4',
+  'Rec4 reconciler',
+  false,
+  false
+);
+
+RETURNS
+
+[]

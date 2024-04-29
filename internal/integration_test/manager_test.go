@@ -7,6 +7,7 @@ import (
 	"context"
 	"embed"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"io/fs"
@@ -15,9 +16,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/99designs/gqlgen/graphql"
-	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auth/authz"
@@ -25,6 +23,7 @@ import (
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/directives"
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/usersync"
 	"github.com/nais/tester/testmanager"
 	"github.com/nais/tester/testmanager/runner"
@@ -39,21 +38,49 @@ import (
 //go:embed testdata/seeds/*.sql
 var seeds embed.FS
 
+var (
+	postgresContainer *postgres.PostgresContainer
+	connectionString  string
+)
+
+func TestMain(m *testing.M) {
+	flag.Parse()
+
+	ctx := context.Background()
+	container, connStr, err := startPostgresql(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	postgresContainer = container
+	connectionString = connStr
+
+	code := m.Run()
+
+	if err := postgresContainer.Terminate(ctx); err != nil {
+		log.Fatalf("failed to terminate container: %s", err)
+	}
+
+	os.Exit(code)
+}
+
 func TestRunner(t *testing.T) {
 	ctx := context.Background()
-	mgr := testmanager.New(t, newManager(ctx, t))
+	mgr := testmanager.New(t, newManager(t))
 
 	if err := mgr.Run(ctx, os.DirFS("./testdata/tests")); err != nil {
 		t.Fatal(err)
 	}
 }
 
-func newManager(ctx context.Context, t *testing.T) testmanager.CreateRunnerFunc[*Config] {
-	container, connStr, err := startPostgresql(ctx, t)
-	if err != nil {
-		t.Fatal(err)
+func clusters() graph.ClusterList {
+	return graph.ClusterList{
+		"dev":     {GCP: true},
+		"staging": {GCP: false},
 	}
+}
 
+func newManager(t *testing.T) testmanager.CreateRunnerFunc[*Config] {
 	return func(ctx context.Context, config *Config, state map[string]any) ([]testmanager.Runner, func(), []testmanager.Option, error) {
 		if config == nil {
 			config = &Config{}
@@ -63,7 +90,7 @@ func newManager(ctx context.Context, t *testing.T) testmanager.CreateRunnerFunc[
 
 		opts := []testmanager.Option{}
 
-		db, pool, cleanup, err := newDB(ctx, container, connStr, !config.SkipSeed)
+		db, pool, cleanup, err := newDB(ctx, !config.SkipSeed)
 		if err != nil {
 			done()
 			return nil, nil, opts, err
@@ -95,30 +122,26 @@ func newManager(ctx context.Context, t *testing.T) testmanager.CreateRunnerFunc[
 	}
 }
 
-func newGQLRunner(_ context.Context, _ *testing.T, config *Config, db database.Database, topic graph.PubsubTopic) testmanager.Runner {
+func newGQLRunner(_ context.Context, t *testing.T, config *Config, db database.Database, topic graph.PubsubTopic) testmanager.Runner {
 	log := logrus.New()
 	log.Out = io.Discard
 
 	auditLogger := auditlogger.New(db, log)
 
-	resolver := graph.NewResolver(nil, nil, nil, nil, db, "dev-nais.io", nil, auditLogger, nil, nil, topic, nil, nil)
+	resolver := graph.NewResolver(nil, nil, nil, nil, db, "dev-nais.io", nil, auditLogger, clusters(), nil, topic, nil, nil)
 
-	newServer := func(es graphql.ExecutableSchema) *handler.Server {
-		srv := handler.New(es)
-		srv.AddTransport(transport.SSE{})
-		srv.AddTransport(transport.GET{})
-		srv.AddTransport(transport.POST{})
-
-		return srv
-	}
-
-	srv := newServer(gengql.NewExecutableSchema(gengql.Config{
+	hlog := logrus.New()
+	hlog.Out = logrusTestLoggerWriter{t: t}
+	srv, err := graph.NewHandler(gengql.Config{
 		Resolvers: resolver,
 		Directives: gengql.DirectiveRoot{
 			Auth:  directives.Auth(),
 			Admin: directives.Admin(),
 		},
-	}))
+	}, hlog)
+	if err != nil {
+		panic(fmt.Sprintf("failed to create graph handler: %s", err))
+	}
 
 	authProxy := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !config.Unauthenticated {
@@ -140,15 +163,22 @@ func newGQLRunner(_ context.Context, _ *testing.T, config *Config, db database.D
 
 			r = r.WithContext(authz.ContextWithActor(ctx, usr, roles))
 		}
-		srv.ServeHTTP(w, r)
+
+		h := loader.Middleware(db)
+		h(srv).ServeHTTP(w, r)
 	})
 
 	return runner.NewGQLRunner(authProxy)
 }
 
-func startPostgresql(ctx context.Context, t *testing.T) (*postgres.PostgresContainer, string, error) {
+func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, error) {
+	lg := log.New(io.Discard, "", 0)
+	if testing.Verbose() {
+		lg = log.New(os.Stderr, "", log.LstdFlags)
+	}
+
 	container, err := postgres.RunContainer(ctx,
-		testcontainers.WithLogger(testcontainers.TestLogger(t)),
+		testcontainers.WithLogger(lg),
 		testcontainers.WithImage("docker.io/postgres:16-alpine"),
 		postgres.WithDatabase("example"),
 		postgres.WithUsername("example"),
@@ -160,12 +190,6 @@ func startPostgresql(ctx context.Context, t *testing.T) (*postgres.PostgresConta
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to start container: %w", err)
 	}
-
-	t.Cleanup(func() {
-		if err := container.Terminate(ctx); err != nil {
-			log.Fatalf("failed to terminate container: %s", err)
-		}
-	})
 
 	connStr, err := container.ConnectionString(ctx, "sslmode=disable")
 	if err != nil {
@@ -187,11 +211,11 @@ func startPostgresql(ctx context.Context, t *testing.T) (*postgres.PostgresConta
 	return container, connStr, nil
 }
 
-func newDB(ctx context.Context, container *postgres.PostgresContainer, connStr string, seed bool) (database.Database, *pgxpool.Pool, func(), error) {
+func newDB(ctx context.Context, seed bool) (database.Database, *pgxpool.Pool, func(), error) {
 	logr := logrus.New()
 	logr.Out = io.Discard
 
-	pool, err := database.NewPool(ctx, connStr, logr, false)
+	pool, err := database.NewPool(ctx, connectionString, logr, false)
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to create pool: %w", err)
 	}
@@ -200,7 +224,7 @@ func newDB(ctx context.Context, container *postgres.PostgresContainer, connStr s
 
 	cleanup := func() {
 		pool.Close()
-		if err := container.Restore(ctx); err != nil {
+		if err := postgresContainer.Restore(ctx); err != nil {
 			log.Fatalf("failed to restore: %s", err)
 		}
 	}
@@ -228,6 +252,18 @@ func newDB(ctx context.Context, container *postgres.PostgresContainer, connStr s
 		if err != nil {
 			cleanup()
 			return nil, nil, nil, fmt.Errorf("failed to seed database: %w", err)
+		}
+
+		envs := []*database.Environment{}
+		for name, o := range clusters() {
+			envs = append(envs, &database.Environment{
+				Name: name,
+				GCP:  o.GCP,
+			})
+		}
+		if err := db.SyncEnvironments(ctx, envs); err != nil {
+			cleanup()
+			return nil, nil, nil, fmt.Errorf("sync environments: %w", err)
 		}
 
 		// Assign default roles to all users
@@ -285,4 +321,13 @@ func (p *pubsubRunner) Publish(ctx context.Context, msg protoreflect.ProtoMessag
 
 func (p *pubsubRunner) String() string {
 	return "topic"
+}
+
+type logrusTestLoggerWriter struct {
+	t *testing.T
+}
+
+func (l logrusTestLoggerWriter) Write(p []byte) (n int, err error) {
+	l.t.Log(string(p))
+	return len(p), nil
 }
