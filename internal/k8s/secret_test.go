@@ -1,12 +1,12 @@
 package k8s
 
 import (
-	"github.com/nais/api/internal/graph/model"
 	"testing"
+
+	"github.com/nais/api/internal/graph/model"
 )
 
 func TestValidateSecretData(t *testing.T) {
-
 	validKeys := []*model.VariableInput{
 		{
 			Name:  "key",
