@@ -14,6 +14,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -24,6 +25,8 @@ import (
 	"github.com/nais/api/internal/graph/directives"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
+	"github.com/nais/api/internal/k8s"
+	"github.com/nais/api/internal/k8s/fake"
 	"github.com/nais/api/internal/usersync"
 	"github.com/nais/tester/testmanager"
 	"github.com/nais/tester/testmanager/runner"
@@ -122,13 +125,34 @@ func newManager(t *testing.T) testmanager.CreateRunnerFunc[*Config] {
 	}
 }
 
-func newGQLRunner(_ context.Context, t *testing.T, config *Config, db database.Database, topic graph.PubsubTopic) testmanager.Runner {
+func newGQLRunner(ctx context.Context, t *testing.T, config *Config, db database.Database, topic graph.PubsubTopic) testmanager.Runner {
 	log := logrus.New()
 	log.Out = io.Discard
 
 	auditLogger := auditlogger.New(db, log)
 
-	resolver := graph.NewResolver(nil, nil, nil, nil, db, "dev-nais.io", nil, auditLogger, clusters(), nil, topic, nil, nil)
+	k8sPath := filepath.Join("testdata", "tests", testmanager.TestDir(ctx), "k8s")
+
+	k8sClient, err := k8s.New(
+		"dev-nais",
+		k8s.Config{
+			Clusters: clusters().GCPClusters(),
+		},
+		db,
+		log.WithField("client", "k8s"),
+		k8s.WithClientsCreator(fake.Clients(os.DirFS(k8sPath))),
+	)
+	if err != nil {
+		panic(fmt.Sprintf("failed to create k8s client: %s", err))
+	}
+
+	if _, err := os.Stat(k8sPath); err == nil {
+		if err := k8sClient.Informers().Start(ctx, log); err != nil {
+			panic(fmt.Sprintf("failed to start informers: %s", err))
+		}
+	}
+
+	resolver := graph.NewResolver(nil, k8sClient, nil, nil, db, "dev-nais.io", nil, auditLogger, clusters(), nil, topic, nil, nil)
 
 	hlog := logrus.New()
 	hlog.Out = logrusTestLoggerWriter{t: t}

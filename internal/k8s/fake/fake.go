@@ -80,7 +80,7 @@ func Clients(dir fs.FS) func(cluster string) (kubernetes.Interface, dynamic.Inte
 	return func(cluster string) (kubernetes.Interface, dynamic.Interface, error) {
 		c, ok := ret[cluster]
 		if !ok {
-			return nil, nil, fmt.Errorf("no fake client for cluster %s", cluster)
+			return fake.NewSimpleClientset(), dynfake.NewSimpleDynamicClient(scheme), nil
 		}
 
 		return c.ClientSet, c.Dynamic, nil
