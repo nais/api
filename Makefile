@@ -38,7 +38,11 @@ test:
 	go test -cover --race ./...
 
 integration_test:
-	go test -tags integration_test --race ./internal/integration_test
+	rm -f hack/coverprofile.txt
+	go test -coverprofile=hack/coverprofile.txt -coverpkg github.com/nais/api/... -tags integration_test --race ./internal/integration_test
+
+view-coverage:
+	go tool cover -html=hack/coverprofile.txt
 
 check: staticcheck vulncheck deadcode
 
