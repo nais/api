@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -388,11 +387,7 @@ func makeSecretIdent(env, namespace, name string) scalar.Ident {
 	return scalar.SecretIdent("secret_" + env + "_" + namespace + "_" + name)
 }
 
-var envVarNameRegexp = regexp.MustCompile("^[_a-zA-Z][_a-zA-Z0-9]*$")
-
 func validateSecretData(data []*model.VariableInput) error {
-	const envVarNameFmtErrMsg = "must consist of alphabetic characters, digits, '_', and must not start with a digit"
-
 	seen := make(map[string]bool)
 
 	for _, d := range data {
@@ -407,8 +402,9 @@ func validateSecretData(data []*model.VariableInput) error {
 			return fmt.Errorf("%q is too long: %d characters, max %d", d.Name, len(d.Name), validation.DNS1123SubdomainMaxLength)
 		}
 
-		if !envVarNameRegexp.MatchString(d.Name) {
-			return fmt.Errorf("%q is invalid: %s", d.Name, envVarNameFmtErrMsg)
+		isEnvVarName := validation.IsEnvVarName(d.Name)
+		if len(isEnvVarName) > 0 {
+			return fmt.Errorf("%q: %s", d.Name, strings.Join(isEnvVarName, ", "))
 		}
 	}
 
