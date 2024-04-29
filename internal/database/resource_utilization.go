@@ -21,7 +21,7 @@ type ResourceUtilizationRepo interface {
 	ResourceUtilizationRefresh(ctx context.Context) error
 	ResourceUtilizationUpsert(ctx context.Context, arg []gensql.ResourceUtilizationUpsertParams) *gensql.ResourceUtilizationUpsertBatchResults
 	SpecificResourceUtilizationForApp(ctx context.Context, environment string, teamSlug slug.Slug, app string, resourceType gensql.ResourceType, timestamp pgtype.Timestamptz) (*gensql.SpecificResourceUtilizationForAppRow, error)
-	SpecificResourceUtilizationForTeam(ctx context.Context, teamSlug slug.Slug, resourceType gensql.ResourceType, timestamp pgtype.Timestamptz) (*gensql.SpecificResourceUtilizationForTeamRow, error)
+	SpecificResourceUtilizationForTeam(ctx context.Context, teamSlug slug.Slug, resourceType gensql.ResourceType, timestamp pgtype.Timestamptz) ([]*gensql.SpecificResourceUtilizationForTeamRow, error)
 }
 
 var _ ResourceUtilizationRepo = (*database)(nil)
@@ -95,7 +95,7 @@ func (d *database) SpecificResourceUtilizationForApp(ctx context.Context, enviro
 	})
 }
 
-func (d *database) SpecificResourceUtilizationForTeam(ctx context.Context, teamSlug slug.Slug, resourceType gensql.ResourceType, timestamp pgtype.Timestamptz) (*gensql.SpecificResourceUtilizationForTeamRow, error) {
+func (d *database) SpecificResourceUtilizationForTeam(ctx context.Context, teamSlug slug.Slug, resourceType gensql.ResourceType, timestamp pgtype.Timestamptz) ([]*gensql.SpecificResourceUtilizationForTeamRow, error) {
 	return d.querier.SpecificResourceUtilizationForTeam(ctx, gensql.SpecificResourceUtilizationForTeamParams{
 		TeamSlug:     teamSlug,
 		ResourceType: resourceType,

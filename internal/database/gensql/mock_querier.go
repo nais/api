@@ -6204,23 +6204,23 @@ func (_c *MockQuerier_SpecificResourceUtilizationForApp_Call) RunAndReturn(run f
 }
 
 // SpecificResourceUtilizationForTeam provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) SpecificResourceUtilizationForTeam(ctx context.Context, arg SpecificResourceUtilizationForTeamParams) (*SpecificResourceUtilizationForTeamRow, error) {
+func (_m *MockQuerier) SpecificResourceUtilizationForTeam(ctx context.Context, arg SpecificResourceUtilizationForTeamParams) ([]*SpecificResourceUtilizationForTeamRow, error) {
 	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SpecificResourceUtilizationForTeam")
 	}
 
-	var r0 *SpecificResourceUtilizationForTeamRow
+	var r0 []*SpecificResourceUtilizationForTeamRow
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, SpecificResourceUtilizationForTeamParams) (*SpecificResourceUtilizationForTeamRow, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, SpecificResourceUtilizationForTeamParams) ([]*SpecificResourceUtilizationForTeamRow, error)); ok {
 		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, SpecificResourceUtilizationForTeamParams) *SpecificResourceUtilizationForTeamRow); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, SpecificResourceUtilizationForTeamParams) []*SpecificResourceUtilizationForTeamRow); ok {
 		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*SpecificResourceUtilizationForTeamRow)
+			r0 = ret.Get(0).([]*SpecificResourceUtilizationForTeamRow)
 		}
 	}
 
@@ -6252,12 +6252,12 @@ func (_c *MockQuerier_SpecificResourceUtilizationForTeam_Call) Run(run func(ctx 
 	return _c
 }
 
-func (_c *MockQuerier_SpecificResourceUtilizationForTeam_Call) Return(_a0 *SpecificResourceUtilizationForTeamRow, _a1 error) *MockQuerier_SpecificResourceUtilizationForTeam_Call {
+func (_c *MockQuerier_SpecificResourceUtilizationForTeam_Call) Return(_a0 []*SpecificResourceUtilizationForTeamRow, _a1 error) *MockQuerier_SpecificResourceUtilizationForTeam_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockQuerier_SpecificResourceUtilizationForTeam_Call) RunAndReturn(run func(context.Context, SpecificResourceUtilizationForTeamParams) (*SpecificResourceUtilizationForTeamRow, error)) *MockQuerier_SpecificResourceUtilizationForTeam_Call {
+func (_c *MockQuerier_SpecificResourceUtilizationForTeam_Call) RunAndReturn(run func(context.Context, SpecificResourceUtilizationForTeamParams) ([]*SpecificResourceUtilizationForTeamRow, error)) *MockQuerier_SpecificResourceUtilizationForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }

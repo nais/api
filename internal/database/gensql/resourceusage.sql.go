@@ -338,20 +338,21 @@ func (q *Queries) SpecificResourceUtilizationForApp(ctx context.Context, arg Spe
 	return &i, err
 }
 
-const specificResourceUtilizationForTeam = `-- name: SpecificResourceUtilizationForTeam :one
+const specificResourceUtilizationForTeam = `-- name: SpecificResourceUtilizationForTeam :many
 SELECT
     SUM(usage)::double precision AS usage,
     SUM(request)::double precision AS request,
-    timestamp
+    timestamp,
+    request > usage as usable_for_cost
 FROM
     resource_utilization_metrics
 WHERE
     team_slug = $1
     AND resource_type = $2
     AND timestamp = $3
-    AND request > usage
 GROUP BY
-    timestamp
+    timestamp, usable_for_cost
+ORDER BY usable_for_cost DESC
 `
 
 type SpecificResourceUtilizationForTeamParams struct {
@@ -361,16 +362,35 @@ type SpecificResourceUtilizationForTeamParams struct {
 }
 
 type SpecificResourceUtilizationForTeamRow struct {
-	Usage     float64
-	Request   float64
-	Timestamp pgtype.Timestamptz
+	Usage         float64
+	Request       float64
+	Timestamp     pgtype.Timestamptz
+	UsableForCost bool
 }
 
 // SpecificResourceUtilizationForTeam will return resource utilization for a team at a specific timestamp. Applications
 // with a usage greater than request will be ignored.
-func (q *Queries) SpecificResourceUtilizationForTeam(ctx context.Context, arg SpecificResourceUtilizationForTeamParams) (*SpecificResourceUtilizationForTeamRow, error) {
-	row := q.db.QueryRow(ctx, specificResourceUtilizationForTeam, arg.TeamSlug, arg.ResourceType, arg.Timestamp)
-	var i SpecificResourceUtilizationForTeamRow
-	err := row.Scan(&i.Usage, &i.Request, &i.Timestamp)
-	return &i, err
+func (q *Queries) SpecificResourceUtilizationForTeam(ctx context.Context, arg SpecificResourceUtilizationForTeamParams) ([]*SpecificResourceUtilizationForTeamRow, error) {
+	rows, err := q.db.Query(ctx, specificResourceUtilizationForTeam, arg.TeamSlug, arg.ResourceType, arg.Timestamp)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*SpecificResourceUtilizationForTeamRow{}
+	for rows.Next() {
+		var i SpecificResourceUtilizationForTeamRow
+		if err := rows.Scan(
+			&i.Usage,
+			&i.Request,
+			&i.Timestamp,
+			&i.UsableForCost,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
