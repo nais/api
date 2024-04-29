@@ -47,7 +47,7 @@ func TestValidateSecretData(t *testing.T) {
 		t.Errorf("Expected error, got nil")
 	}
 
-	doubleKeys := []*model.VariableInput{
+	duplicateKeys := []*model.VariableInput{
 		{
 			Name:  "key",
 			Value: "value",
