@@ -21,6 +21,13 @@ spec:
   instanceRef:
     name: contests
   resourceID: contests
+status:
+  conditions:
+    - lastTransitionTime: "2024-01-23T09:30:20Z"
+      message: The resource is up to date
+      reason: UpToDate
+      status: "True"
+      type: Ready
 ---
 apiVersion: sql.cnrm.cloud.google.com/v1beta1
 kind: SQLDatabase
@@ -45,5 +52,12 @@ spec:
   collation: en_US.UTF8
   deletionPolicy: DELETE
   instanceRef:
-    name: contests
+    name: donotdelete
   resourceID: some-other-database
+status:
+  conditions:
+    - lastTransitionTime: "2023-02-27T08:42:03Z"
+      message: reference SQLInstance nais/donotdelete is not ready
+      reason: DependencyNotReady
+      status: "False"
+      type: Ready

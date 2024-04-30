@@ -85,8 +85,13 @@ type MaintenanceWindow {
   hour: Int!
 }
 
-type SqlDatabase {
+type SqlDatabase implements Storage{
   name: String!
+  charset: String!
+  collation: String!
+  deletionPolicy: String!
+  healthy: Boolean!
+  conditions: [Condition!]!
 }
 
 type SqlInstancesList {
@@ -157,12 +162,12 @@ type SqlInstanceDisk {
 }
 
 type SqlInstanceStatus {
-  conditions: [SqlInstanceCondition!]!
+  conditions: [Condition!]!
   publicIpAddress: String
   privateIpAddress: String
 }
 
-type SqlInstanceCondition {
+type Condition {
   message: String!
   reason: String!
   status: String!
