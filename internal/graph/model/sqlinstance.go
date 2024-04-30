@@ -130,10 +130,10 @@ func ToSqlInstance(u *unstructured.Unstructured, env string) (*SQLInstance, erro
 		Type:            *sqlInstance.Spec.DatabaseVersion,
 		ConnectionName:  *sqlInstance.Status.ConnectionName,
 		Status: SQLInstanceStatus{
-			Conditions: func() []*SQLInstanceCondition {
-				ret := make([]*SQLInstanceCondition, 0)
+			Conditions: func() []*Condition {
+				ret := make([]*Condition, 0)
 				for _, condition := range sqlInstance.Status.Conditions {
-					ret = append(ret, &SQLInstanceCondition{
+					ret = append(ret, &Condition{
 						Type:               condition.Type,
 						Status:             string(condition.Status),
 						Reason:             condition.Reason,

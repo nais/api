@@ -173,6 +173,14 @@ type Claims struct {
 	Groups []*Group `json:"groups"`
 }
 
+type Condition struct {
+	Message            string `json:"message"`
+	Reason             string `json:"reason"`
+	Status             string `json:"status"`
+	Type               string `json:"type"`
+	LastTransitionTime string `json:"lastTransitionTime"`
+}
+
 type Consume struct {
 	Name string `json:"name"`
 }
@@ -789,18 +797,6 @@ type SlackAlertsChannelInput struct {
 	ChannelName *string `json:"channelName,omitempty"`
 }
 
-type SQLDatabase struct {
-	Name string `json:"name"`
-}
-
-type SQLInstanceCondition struct {
-	Message            string `json:"message"`
-	Reason             string `json:"reason"`
-	Status             string `json:"status"`
-	Type               string `json:"type"`
-	LastTransitionTime string `json:"lastTransitionTime"`
-}
-
 type SQLInstanceCPU struct {
 	Cores       float64 `json:"cores"`
 	Utilization float64 `json:"utilization"`
@@ -817,9 +813,9 @@ type SQLInstanceMemory struct {
 }
 
 type SQLInstanceStatus struct {
-	Conditions       []*SQLInstanceCondition `json:"conditions"`
-	PublicIPAddress  *string                 `json:"publicIpAddress,omitempty"`
-	PrivateIPAddress *string                 `json:"privateIpAddress,omitempty"`
+	Conditions       []*Condition `json:"conditions"`
+	PublicIPAddress  *string      `json:"publicIpAddress,omitempty"`
+	PrivateIPAddress *string      `json:"privateIpAddress,omitempty"`
 }
 
 type SQLInstancesMetrics struct {

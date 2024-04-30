@@ -5,12 +5,10 @@ import (
 	"fmt"
 	"sort"
 
-	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/runtime"
 )
 
 func (c *Client) SqlInstance(ctx context.Context, env string, teamSlug slug.Slug, instanceName string) (*model.SQLInstance, error) {
@@ -136,20 +134,15 @@ func (c *Client) SqlDatabase(sqlInstance *model.SQLInstance) (*model.SQLDatabase
 	}
 
 	for _, obj := range objs {
-		sqlDatabase := &sql_cnrm_cloud_google_com_v1beta1.SQLDatabase{}
-		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(obj.(*unstructured.Unstructured).Object, sqlDatabase); err != nil {
-			return nil, fmt.Errorf("converting to SQL database: %w", err)
+		db, err := model.ToSqlDatabase(obj.(*unstructured.Unstructured), sqlInstance.Name)
+		if err != nil {
+			return nil, c.error(err, "converting to SQL database model")
 		}
 
-		if sqlDatabase.Spec.InstanceRef.Name != sqlInstance.Name {
-			continue
+		if db != nil {
+			return db, nil
 		}
-
-		return &model.SQLDatabase{
-			Name: sqlDatabase.Name,
-		}, nil
 	}
-
 	return nil, nil
 }
 
