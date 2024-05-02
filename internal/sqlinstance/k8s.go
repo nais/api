@@ -37,20 +37,6 @@ func (c *Client) SqlInstance(ctx context.Context, env string, teamSlug slug.Slug
 	}
 	instance.Metrics = metrics
 
-	sqlUsers, err := c.admin.GetUsers(ctx, instance.ProjectID, instance.Name)
-	if err != nil {
-		return nil, err
-	}
-
-	users := make([]*model.SQLUser, 0)
-	for _, user := range sqlUsers {
-		users = append(users, &model.SQLUser{
-			Name:           user.Name,
-			Authentication: authentication(user.Type),
-		})
-	}
-	instance.SQLUsers = users
-
 	return instance, nil
 }
 

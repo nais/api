@@ -22,7 +22,7 @@ func NewSqlAdminService(ctx context.Context, log logrus.FieldLogger) (*SqlAdminS
 	}
 
 	return &SqlAdminService{
-		cache:  cache.New(60*time.Minute, 70*time.Minute),
+		cache:  cache.New(30*time.Minute, 40*time.Minute),
 		client: sqladminService,
 		log:    log,
 	}, nil
