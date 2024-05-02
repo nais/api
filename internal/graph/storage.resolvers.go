@@ -28,6 +28,11 @@ func (r *sqlInstanceResolver) Team(ctx context.Context, obj *model.SQLInstance) 
 	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
 }
 
+// Users is the resolver for the users field.
+func (r *sqlInstanceResolver) Users(ctx context.Context, obj *model.SQLInstance) ([]*model.SQLUser, error) {
+	return r.sqlInstanceClient.SqlUsers(ctx, obj)
+}
+
 // Workload is the resolver for the workload field.
 func (r *sqlInstanceResolver) Workload(ctx context.Context, obj *model.SQLInstance) (model.Workload, error) {
 	if obj.GQLVars.OwnerReference == nil {

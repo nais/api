@@ -21,6 +21,11 @@ type BackupConfiguration struct {
 	TransactionLogRetentionDays int    `json:"transactionLogRetentionDays"`
 }
 
+type SQLUser struct {
+	Name           string `json:"name"`
+	Authentication string `json:"authentication"`
+}
+
 type SQLInstance struct {
 	BackupConfiguration *BackupConfiguration `json:"backupConfiguration"`
 	CascadingDelete     bool                 `json:"cascadingDelete"`
@@ -36,6 +41,7 @@ type SQLInstance struct {
 	Metrics             *SQLInstanceMetrics  `json:"metrics"`
 	Name                string               `json:"name"`
 	ProjectID           string               `json:"projectId"`
+	SQLUsers            []*SQLUser           `json:"users"`
 	Tier                string               `json:"tier"`
 	Type                string               `json:"type"`
 	Status              SQLInstanceStatus    `json:"status"`

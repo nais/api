@@ -37,6 +37,20 @@ func (c *Client) SqlInstance(ctx context.Context, env string, teamSlug slug.Slug
 	}
 	instance.Metrics = metrics
 
+	sqlUsers, err := c.admin.GetUsers(ctx, instance.ProjectID, instance.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	users := make([]*model.SQLUser, 0)
+	for _, user := range sqlUsers {
+		users = append(users, &model.SQLUser{
+			Name:           user.Name,
+			Authentication: authentication(user.Type),
+		})
+	}
+	instance.SQLUsers = users
+
 	return instance, nil
 }
 
@@ -144,6 +158,31 @@ func (c *Client) SqlDatabase(sqlInstance *model.SQLInstance) (*model.SQLDatabase
 		}
 	}
 	return nil, nil
+}
+
+func (c *Client) SqlUsers(ctx context.Context, sqlInstance *model.SQLInstance) ([]*model.SQLUser, error) {
+	users, err := c.admin.GetUsers(ctx, sqlInstance.ProjectID, sqlInstance.Name)
+	if err != nil {
+		return nil, c.error(err, "getting SQL users")
+	}
+
+	ret := make([]*model.SQLUser, 0)
+	for _, user := range users {
+		ret = append(ret, &model.SQLUser{
+			Name:           user.Name,
+			Authentication: authentication(user.Type),
+		})
+	}
+	return ret, nil
+}
+
+func authentication(t string) string {
+	switch t {
+	case "":
+		return "Built-in"
+	default:
+		return t
+	}
 }
 
 func (c *Client) error(err error, msg string) error {
