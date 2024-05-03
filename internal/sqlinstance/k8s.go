@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"google.golang.org/api/googleapi"
 	"sort"
+
+	"google.golang.org/api/googleapi"
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
@@ -150,7 +151,6 @@ func (c *Client) SqlDatabase(sqlInstance *model.SQLInstance) (*model.SQLDatabase
 
 func (c *Client) SqlUsers(ctx context.Context, sqlInstance *model.SQLInstance) ([]*model.SQLUser, error) {
 	users, err := c.admin.GetUsers(ctx, sqlInstance.ProjectID, sqlInstance.Name)
-
 	// TODO handle error in a better way
 	if err != nil {
 		var googleErr *googleapi.Error
