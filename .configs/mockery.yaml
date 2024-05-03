@@ -29,3 +29,6 @@ packages:
     config:
       include-regex: ".*Server"
       exclude-regex: "Unsafe.*"
+  github.com/nais/api/internal/search:
+    interfaces:
+      Searchable:

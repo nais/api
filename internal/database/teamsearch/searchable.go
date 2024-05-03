@@ -18,11 +18,11 @@ func New(db database.Database) *TeamSearcher {
 	}
 }
 
-func (d *TeamSearcher) Search(ctx context.Context, q string, filter *model.SearchFilter) []*search.Result {
-	if !isTeamFilterOrNoFilter(filter) {
-		return nil
-	}
+func (d *TeamSearcher) SupportsSearchFilter(filter *model.SearchFilter) bool {
+	return filter == nil || filter.Type == nil || *filter.Type == model.SearchTypeTeam
+}
 
+func (d *TeamSearcher) Search(ctx context.Context, q string, _ *model.SearchFilter) []*search.Result {
 	ret, err := d.db.SearchTeams(ctx, q, 10)
 	if err != nil {
 		return nil
@@ -45,17 +45,4 @@ func (d *TeamSearcher) Search(ctx context.Context, q string, filter *model.Searc
 		})
 	}
 	return edges
-}
-
-// isTeamFilterOrNoFilter returns true if the filter is a team filter or no filter is provided
-func isTeamFilterOrNoFilter(filter *model.SearchFilter) bool {
-	if filter == nil {
-		return true
-	}
-
-	if filter.Type == nil {
-		return true
-	}
-
-	return *filter.Type == model.SearchTypeTeam
 }

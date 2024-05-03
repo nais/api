@@ -9,16 +9,29 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 )
 
-func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilter) []*search.Result {
-	if !isFilterOrNoFilter(filter) {
-		return nil
+func (c *Client) SupportsSearchFilter(filter *model.SearchFilter) bool {
+	if emptyFilter(filter) {
+		return true
 	}
+
+	switch *filter.Type {
+	case
+		model.SearchTypeApp,
+		model.SearchTypeNaisjob,
+		model.SearchTypeSQLInstance:
+		return true
+	default:
+		return false
+	}
+}
+
+func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilter) []*search.Result {
+	ret := make([]*search.Result, 0)
 
 	if c.database == nil {
-		panic("database not set")
+		c.log.Warnf("database not set, unable to perform search")
+		return ret
 	}
-
-	ret := []*search.Result{}
 
 	for env, infs := range c.informers {
 		if isFilterSqlInstanceOrNoFilter(filter) {
@@ -114,46 +127,18 @@ func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilte
 	return ret
 }
 
-func isFilter(filter *model.SearchFilter) bool {
-	if filter == nil {
-		return false
-	}
-
-	if filter.Type == nil {
-		return false
-	}
-
-	return true
-}
-
-func isFilterOrNoFilter(filter *model.SearchFilter) bool {
-	if !isFilter(filter) {
-		return true
-	}
-
-	return *filter.Type == model.SearchTypeApp || *filter.Type == model.SearchTypeNaisjob || *filter.Type == model.SearchTypeSQLInstance
+func emptyFilter(filter *model.SearchFilter) bool {
+	return filter == nil || filter.Type == nil
 }
 
 func isFilterAppOrNoFilter(filter *model.SearchFilter) bool {
-	if !isFilter(filter) {
-		return true
-	}
-
-	return *filter.Type == model.SearchTypeApp
+	return emptyFilter(filter) || *filter.Type == model.SearchTypeApp
 }
 
 func isFilterNaisjobOrNoFilter(filter *model.SearchFilter) bool {
-	if !isFilter(filter) {
-		return true
-	}
-
-	return *filter.Type == model.SearchTypeNaisjob
+	return emptyFilter(filter) || *filter.Type == model.SearchTypeNaisjob
 }
 
 func isFilterSqlInstanceOrNoFilter(filter *model.SearchFilter) bool {
-	if !isFilter(filter) {
-		return true
-	}
-
-	return *filter.Type == model.SearchTypeSQLInstance
+	return emptyFilter(filter) || *filter.Type == model.SearchTypeSQLInstance
 }
