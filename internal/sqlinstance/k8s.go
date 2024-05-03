@@ -2,7 +2,9 @@ package sqlinstance
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"google.golang.org/api/googleapi"
 	"sort"
 
 	"github.com/nais/api/internal/graph/model"
@@ -148,7 +150,16 @@ func (c *Client) SqlDatabase(sqlInstance *model.SQLInstance) (*model.SQLDatabase
 
 func (c *Client) SqlUsers(ctx context.Context, sqlInstance *model.SQLInstance) ([]*model.SQLUser, error) {
 	users, err := c.admin.GetUsers(ctx, sqlInstance.ProjectID, sqlInstance.Name)
+
+	// TODO handle error in a better way
 	if err != nil {
+		var googleErr *googleapi.Error
+		if errors.As(err, &googleErr) {
+			if googleErr.Code == 400 {
+				c.log.WithError(err).Info("could not get SQL users, instance not found or stopped")
+				return nil, nil
+			}
+		}
 		return nil, c.error(err, "getting SQL users")
 	}
 
