@@ -52,7 +52,6 @@ type TeamRepo interface {
 	GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*UserTeam, error)
 	GetUserTeamsPaginated(ctx context.Context, userID uuid.UUID, p Page) ([]*UserTeam, int, error)
 	RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error
-	SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*gensql.Team, error)
 	SetLastSuccessfulSyncForTeam(ctx context.Context, teamSlug slug.Slug) error
 	TeamExists(ctx context.Context, team slug.Slug) (bool, error)
 	UpdateTeam(ctx context.Context, teamSlug slug.Slug, purpose, slackChannel *string) (*Team, error)
@@ -416,13 +415,6 @@ func (d *database) GetAllTeamsWithPermissionInGitHubRepo(ctx context.Context, re
 		}
 	}
 	return teams, nil
-}
-
-func (d *database) SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*gensql.Team, error) {
-	return d.querier.SearchTeams(ctx, gensql.SearchTeamsParams{
-		SlugMatch: slugMatch,
-		Limit:     limit,
-	})
 }
 
 func (d *database) TeamExists(ctx context.Context, team slug.Slug) (bool, error) {

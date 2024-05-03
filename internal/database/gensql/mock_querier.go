@@ -5932,65 +5932,6 @@ func (_c *MockQuerier_RevokeGlobalUserRole_Call) RunAndReturn(run func(context.C
 	return _c
 }
 
-// SearchTeams provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) SearchTeams(ctx context.Context, arg SearchTeamsParams) ([]*Team, error) {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SearchTeams")
-	}
-
-	var r0 []*Team
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, SearchTeamsParams) ([]*Team, error)); ok {
-		return rf(ctx, arg)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, SearchTeamsParams) []*Team); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*Team)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, SearchTeamsParams) error); ok {
-		r1 = rf(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_SearchTeams_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SearchTeams'
-type MockQuerier_SearchTeams_Call struct {
-	*mock.Call
-}
-
-// SearchTeams is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg SearchTeamsParams
-func (_e *MockQuerier_Expecter) SearchTeams(ctx interface{}, arg interface{}) *MockQuerier_SearchTeams_Call {
-	return &MockQuerier_SearchTeams_Call{Call: _e.mock.On("SearchTeams", ctx, arg)}
-}
-
-func (_c *MockQuerier_SearchTeams_Call) Run(run func(ctx context.Context, arg SearchTeamsParams)) *MockQuerier_SearchTeams_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(SearchTeamsParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_SearchTeams_Call) Return(_a0 []*Team, _a1 error) *MockQuerier_SearchTeams_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_SearchTeams_Call) RunAndReturn(run func(context.Context, SearchTeamsParams) ([]*Team, error)) *MockQuerier_SearchTeams_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // SetLastSuccessfulSyncForTeam provides a mock function with given fields: ctx, argSlug
 func (_m *MockQuerier) SetLastSuccessfulSyncForTeam(ctx context.Context, argSlug slug.Slug) error {
 	ret := _m.Called(ctx, argSlug)

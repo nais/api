@@ -137,7 +137,6 @@ type Querier interface {
 	// ResourceUtilizationUpsert will insert or update resource utilization records.
 	ResourceUtilizationUpsert(ctx context.Context, arg []ResourceUtilizationUpsertParams) *ResourceUtilizationUpsertBatchResults
 	RevokeGlobalUserRole(ctx context.Context, arg RevokeGlobalUserRoleParams) error
-	SearchTeams(ctx context.Context, arg SearchTeamsParams) ([]*Team, error)
 	SetLastSuccessfulSyncForTeam(ctx context.Context, argSlug slug.Slug) error
 	SetReconcilerErrorForTeam(ctx context.Context, arg SetReconcilerErrorForTeamParams) error
 	SetSessionExpires(ctx context.Context, arg SetSessionExpiresParams) (*Session, error)
