@@ -8,17 +8,14 @@ import (
 	"github.com/nais/api/internal/graph/model"
 )
 
-type Filters struct {
-	Type string
+type Searchable interface {
+	SupportsSearchFilter(filter *model.SearchFilter) bool
+	Search(ctx context.Context, q string, filter *model.SearchFilter) []*Result
 }
 
 type Result struct {
 	Node model.SearchNode
 	Rank int
-}
-
-type Searchable interface {
-	Search(ctx context.Context, q string, filter *model.SearchFilter) []*Result
 }
 
 type Searcher struct {
@@ -30,14 +27,17 @@ func New(s ...Searchable) *Searcher {
 }
 
 func (s *Searcher) Search(ctx context.Context, q string, filter *model.SearchFilter) []*Result {
-	ret := []*Result{}
-
+	ret := make([]*Result, 0)
 	for _, searchable := range s.searchables {
+		if !searchable.SupportsSearchFilter(filter) {
+			continue
+		}
+
 		results := searchable.Search(ctx, q, filter)
 		ret = append(ret, results...)
 	}
 
-	sort.Slice(ret, func(i, j int) bool {
+	sort.SliceStable(ret, func(i, j int) bool {
 		return ret[i].Rank < ret[j].Rank
 	})
 

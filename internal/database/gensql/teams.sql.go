@@ -625,48 +625,6 @@ func (q *Queries) RemoveUserFromTeam(ctx context.Context, arg RemoveUserFromTeam
 	return err
 }
 
-const searchTeams = `-- name: SearchTeams :many
-SELECT slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository
-FROM teams
-WHERE levenshtein($1::text, slug) >= 0
-ORDER BY levenshtein($1::text, slug) ASC
-LIMIT $2
-`
-
-type SearchTeamsParams struct {
-	SlugMatch string
-	Limit     int32
-}
-
-func (q *Queries) SearchTeams(ctx context.Context, arg SearchTeamsParams) ([]*Team, error) {
-	rows, err := q.db.Query(ctx, searchTeams, arg.SlugMatch, arg.Limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*Team{}
-	for rows.Next() {
-		var i Team
-		if err := rows.Scan(
-			&i.Slug,
-			&i.Purpose,
-			&i.LastSuccessfulSync,
-			&i.SlackChannel,
-			&i.GoogleGroupEmail,
-			&i.AzureGroupID,
-			&i.GithubTeamSlug,
-			&i.GarRepository,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const setLastSuccessfulSyncForTeam = `-- name: SetLastSuccessfulSyncForTeam :exec
 UPDATE teams SET last_successful_sync = NOW()
 WHERE slug = $1

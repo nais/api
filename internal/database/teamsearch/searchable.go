@@ -6,6 +6,7 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/search"
+	"github.com/nais/api/internal/slug"
 )
 
 type TeamSearcher struct {
@@ -18,44 +19,41 @@ func New(db database.Database) *TeamSearcher {
 	}
 }
 
-func (d *TeamSearcher) Search(ctx context.Context, q string, filter *model.SearchFilter) []*search.Result {
-	if !isTeamFilterOrNoFilter(filter) {
-		return nil
-	}
+func (d *TeamSearcher) SupportsSearchFilter(filter *model.SearchFilter) bool {
+	return filter == nil || filter.Type == nil || *filter.Type == model.SearchTypeTeam
+}
 
-	ret, err := d.db.SearchTeams(ctx, q, 10)
+func (d *TeamSearcher) Search(ctx context.Context, q string, _ *model.SearchFilter) []*search.Result {
+	allTeamSlugs, err := d.db.GetAllTeamSlugs(ctx)
 	if err != nil {
 		return nil
 	}
 
-	edges := make([]*search.Result, 0)
-	for _, team := range ret {
-		rank := search.Match(q, team.Slug.String())
-		if rank == -1 {
-			continue
+	ranks := make(map[slug.Slug]int)
+	matchingSlugs := make([]slug.Slug, 0)
+	for _, s := range allTeamSlugs {
+		if rank := search.Match(q, string(s)); rank >= 0 {
+			ranks[s] = rank
+			matchingSlugs = append(matchingSlugs, s)
 		}
-		edges = append(edges, &search.Result{
-			Rank: rank,
+	}
+
+	teams, err := d.db.GetTeamsBySlugs(ctx, matchingSlugs)
+	if err != nil {
+		return nil
+	}
+
+	ret := make([]*search.Result, len(teams))
+	for i, team := range teams {
+		ret[i] = &search.Result{
+			Rank: ranks[team.Slug],
 			Node: &model.Team{
 				Slug:               team.Slug,
 				Purpose:            team.Purpose,
 				LastSuccessfulSync: &team.LastSuccessfulSync.Time,
 				SlackChannel:       team.SlackChannel,
 			},
-		})
+		}
 	}
-	return edges
-}
-
-// isTeamFilterOrNoFilter returns true if the filter is a team filter or no filter is provided
-func isTeamFilterOrNoFilter(filter *model.SearchFilter) bool {
-	if filter == nil {
-		return true
-	}
-
-	if filter.Type == nil {
-		return true
-	}
-
-	return *filter.Type == model.SearchTypeTeam
+	return ret
 }

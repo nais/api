@@ -5589,66 +5589,6 @@ func (_c *MockDatabase_RevokeGlobalUserRole_Call) RunAndReturn(run func(context.
 	return _c
 }
 
-// SearchTeams provides a mock function with given fields: ctx, slugMatch, limit
-func (_m *MockDatabase) SearchTeams(ctx context.Context, slugMatch string, limit int32) ([]*gensql.Team, error) {
-	ret := _m.Called(ctx, slugMatch, limit)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SearchTeams")
-	}
-
-	var r0 []*gensql.Team
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, int32) ([]*gensql.Team, error)); ok {
-		return rf(ctx, slugMatch, limit)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, int32) []*gensql.Team); ok {
-		r0 = rf(ctx, slugMatch, limit)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*gensql.Team)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, string, int32) error); ok {
-		r1 = rf(ctx, slugMatch, limit)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_SearchTeams_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SearchTeams'
-type MockDatabase_SearchTeams_Call struct {
-	*mock.Call
-}
-
-// SearchTeams is a helper method to define mock.On call
-//   - ctx context.Context
-//   - slugMatch string
-//   - limit int32
-func (_e *MockDatabase_Expecter) SearchTeams(ctx interface{}, slugMatch interface{}, limit interface{}) *MockDatabase_SearchTeams_Call {
-	return &MockDatabase_SearchTeams_Call{Call: _e.mock.On("SearchTeams", ctx, slugMatch, limit)}
-}
-
-func (_c *MockDatabase_SearchTeams_Call) Run(run func(ctx context.Context, slugMatch string, limit int32)) *MockDatabase_SearchTeams_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(int32))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_SearchTeams_Call) Return(_a0 []*gensql.Team, _a1 error) *MockDatabase_SearchTeams_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockDatabase_SearchTeams_Call) RunAndReturn(run func(context.Context, string, int32) ([]*gensql.Team, error)) *MockDatabase_SearchTeams_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // SetLastSuccessfulSyncForTeam provides a mock function with given fields: ctx, teamSlug
 func (_m *MockDatabase) SetLastSuccessfulSyncForTeam(ctx context.Context, teamSlug slug.Slug) error {
 	ret := _m.Called(ctx, teamSlug)
