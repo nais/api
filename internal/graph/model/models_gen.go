@@ -1337,6 +1337,57 @@ func (e SortOrder) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type SQLInstanceState string
+
+const (
+	SQLInstanceStateSQLInstanceStateUnspecified SQLInstanceState = "SQL_INSTANCE_STATE_UNSPECIFIED"
+	SQLInstanceStateRunnable                    SQLInstanceState = "RUNNABLE"
+	SQLInstanceStateSuspended                   SQLInstanceState = "SUSPENDED"
+	SQLInstanceStatePendingDelete               SQLInstanceState = "PENDING_DELETE"
+	SQLInstanceStatePendingCreate               SQLInstanceState = "PENDING_CREATE"
+	SQLInstanceStateMaintenance                 SQLInstanceState = "MAINTENANCE"
+	SQLInstanceStateFailed                      SQLInstanceState = "FAILED"
+)
+
+var AllSQLInstanceState = []SQLInstanceState{
+	SQLInstanceStateSQLInstanceStateUnspecified,
+	SQLInstanceStateRunnable,
+	SQLInstanceStateSuspended,
+	SQLInstanceStatePendingDelete,
+	SQLInstanceStatePendingCreate,
+	SQLInstanceStateMaintenance,
+	SQLInstanceStateFailed,
+}
+
+func (e SQLInstanceState) IsValid() bool {
+	switch e {
+	case SQLInstanceStateSQLInstanceStateUnspecified, SQLInstanceStateRunnable, SQLInstanceStateSuspended, SQLInstanceStatePendingDelete, SQLInstanceStatePendingCreate, SQLInstanceStateMaintenance, SQLInstanceStateFailed:
+		return true
+	}
+	return false
+}
+
+func (e SQLInstanceState) String() string {
+	return string(e)
+}
+
+func (e *SQLInstanceState) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SQLInstanceState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SqlInstanceState", str)
+	}
+	return nil
+}
+
+func (e SQLInstanceState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type State string
 
 const (

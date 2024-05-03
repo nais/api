@@ -1036,7 +1036,11 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 	})
 
 	wg.Go(func() (any, error) {
-		sqlInstances, _, err := r.sqlInstanceClient.SqlInstances(ctx, obj.Slug)
+		teamEnvs, _, err := r.database.GetTeamEnvironments(ctx, obj.Slug, database.Page{Limit: 50})
+		if err != nil {
+			return nil, err
+		}
+		sqlInstances, _, err := r.sqlInstanceClient.SqlInstances(ctx, obj.Slug, teamEnvs)
 		failingSqlInstances := 0
 		otherConditions := 0
 		if err != nil {
@@ -1045,9 +1049,15 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 		for _, sqlInstance := range sqlInstances {
 			notReady := sqlInstance.IsNotReady()
 			healthy := sqlInstance.IsHealthy()
+			if sqlInstance.State != model.SQLInstanceStateRunnable {
+				failingSqlInstances++
+				continue
+			}
+
 			if notReady {
 				failingSqlInstances++
 			}
+
 			if !notReady && !healthy {
 				otherConditions++
 			}
@@ -1082,7 +1092,12 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 
 // SQLInstances is the resolver for the sqlInstances field.
 func (r *teamResolver) SQLInstances(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.SQLInstancesList, error) {
-	sqlInstances, metrics, err := r.sqlInstanceClient.SqlInstances(ctx, obj.Slug)
+	dbEnvs, _, err := r.database.GetTeamEnvironments(ctx, obj.Slug, database.Page{Limit: 50})
+	if err != nil {
+		return nil, err
+	}
+
+	sqlInstances, metrics, err := r.sqlInstanceClient.SqlInstances(ctx, obj.Slug, dbEnvs)
 	if err != nil {
 		return nil, fmt.Errorf("getting SQL instances from Kubernetes: %w", err)
 	}

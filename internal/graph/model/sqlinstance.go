@@ -44,6 +44,7 @@ type SQLInstance struct {
 	SQLUsers            []*SQLUser           `json:"users"`
 	Tier                string               `json:"tier"`
 	Type                string               `json:"type"`
+	State               SQLInstanceState     `json:"state"`
 	Status              SQLInstanceStatus    `json:"status"`
 	GQLVars             SQLInstanceGQLVars   `json:"-"`
 }

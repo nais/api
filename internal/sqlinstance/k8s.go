@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"sort"
 
-	"google.golang.org/api/googleapi"
-
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
+	"google.golang.org/api/googleapi"
+	"google.golang.org/api/sqladmin/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 )
@@ -34,6 +35,12 @@ func (c *Client) SqlInstance(ctx context.Context, env string, teamSlug slug.Slug
 		return nil, err
 	}
 
+	state, err := c.admin.GetState(ctx, instance.ProjectID, instance.Name)
+	if err != nil {
+		return nil, c.error(err, "getting SQL instance from admin API")
+	}
+	instance.State = model.SQLInstanceState(state)
+
 	metrics, err := c.metrics.metricsForSqlInstance(ctx, instance)
 	if err != nil {
 		return nil, err
@@ -43,7 +50,7 @@ func (c *Client) SqlInstance(ctx context.Context, env string, teamSlug slug.Slug
 	return instance, nil
 }
 
-func (c *Client) SqlInstances(ctx context.Context, teamSlug slug.Slug) ([]*model.SQLInstance, *model.SQLInstancesMetrics, error) {
+func (c *Client) SqlInstances(ctx context.Context, teamSlug slug.Slug, teamEnvs []*database.TeamEnvironment) ([]*model.SQLInstance, *model.SQLInstancesMetrics, error) {
 	ret := make([]*model.SQLInstance, 0)
 
 	for env, infs := range c.informers {
@@ -56,10 +63,31 @@ func (c *Client) SqlInstances(ctx context.Context, teamSlug slug.Slug) ([]*model
 			return nil, nil, c.error(err, "listing SQL instances")
 		}
 
+		instances := make([]*sqladmin.DatabaseInstance, 0)
+		for _, teamEnv := range teamEnvs {
+			if teamEnv.Environment == env {
+				i, err := c.admin.GetInstances(ctx, *teamEnv.GcpProjectID)
+				if err != nil {
+					return nil, nil, c.error(err, "getting SQL instances from admin API")
+				}
+				instances = append(instances, i...)
+			}
+		}
+
 		for _, obj := range objs {
 			instance, err := model.ToSqlInstance(obj.(*unstructured.Unstructured), env)
 			if err != nil {
 				return nil, nil, c.error(err, "converting to SQL instance model")
+			}
+
+			for _, i := range instances {
+				if i.Name == instance.Name {
+					instance.State = model.SQLInstanceState(i.State)
+					break
+				}
+			}
+			if instance.State == "" {
+				instance.State = model.SQLInstanceStateSQLInstanceStateUnspecified
 			}
 
 			metrics, err := c.metrics.metricsForSqlInstance(ctx, instance) // instance => ws-test

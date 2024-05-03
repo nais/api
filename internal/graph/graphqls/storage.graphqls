@@ -121,8 +121,19 @@ type SqlInstance implements Storage {
   tier: String!
   type: String!
   status: SqlInstanceStatus!
+  state: SqlInstanceState!
   users: [SqlUser!]!
   workload: Workload
+}
+
+enum SqlInstanceState {
+  SQL_INSTANCE_STATE_UNSPECIFIED
+  RUNNABLE
+  SUSPENDED
+  PENDING_DELETE
+  PENDING_CREATE
+  MAINTENANCE
+  FAILED
 }
 
 type SqlUser {

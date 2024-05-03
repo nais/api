@@ -787,6 +787,7 @@ type ComplexityRoot struct {
 		Metrics             func(childComplexity int) int
 		Name                func(childComplexity int) int
 		ProjectID           func(childComplexity int) int
+		State               func(childComplexity int) int
 		Status              func(childComplexity int) int
 		Team                func(childComplexity int) int
 		Tier                func(childComplexity int) int
@@ -4435,6 +4436,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.ProjectID(childComplexity), true
 
+	case "SqlInstance.state":
+		if e.complexity.SqlInstance.State == nil {
+			break
+		}
+
+		return e.complexity.SqlInstance.State(childComplexity), true
+
 	case "SqlInstance.status":
 		if e.complexity.SqlInstance.Status == nil {
 			break
@@ -6973,8 +6981,19 @@ type SqlInstance implements Storage {
   tier: String!
   type: String!
   status: SqlInstanceStatus!
+  state: SqlInstanceState!
   users: [SqlUser!]!
   workload: Workload
+}
+
+enum SqlInstanceState {
+  SQL_INSTANCE_STATE_UNSPECIFIED
+  RUNNABLE
+  SUSPENDED
+  PENDING_DELETE
+  PENDING_CREATE
+  MAINTENANCE
+  FAILED
 }
 
 type SqlUser {
@@ -25856,6 +25875,8 @@ func (ec *executionContext) fieldContext_Query_sqlInstance(ctx context.Context, 
 				return ec.fieldContext_SqlInstance_type(ctx, field)
 			case "status":
 				return ec.fieldContext_SqlInstance_status(ctx, field)
+			case "state":
+				return ec.fieldContext_SqlInstance_state(ctx, field)
 			case "users":
 				return ec.fieldContext_SqlInstance_users(ctx, field)
 			case "workload":
@@ -32084,6 +32105,50 @@ func (ec *executionContext) fieldContext_SqlInstance_status(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _SqlInstance_state(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_state(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.State, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.SQLInstanceState)
+	fc.Result = res
+	return ec.marshalNSqlInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstanceState(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstance_state(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type SqlInstanceState does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SqlInstance_users(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstance_users(ctx, field)
 	if err != nil {
@@ -32850,6 +32915,8 @@ func (ec *executionContext) fieldContext_SqlInstancesList_nodes(ctx context.Cont
 				return ec.fieldContext_SqlInstance_type(ctx, field)
 			case "status":
 				return ec.fieldContext_SqlInstance_status(ctx, field)
+			case "state":
+				return ec.fieldContext_SqlInstance_state(ctx, field)
 			case "users":
 				return ec.fieldContext_SqlInstance_users(ctx, field)
 			case "workload":
@@ -47963,6 +48030,11 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "state":
+			out.Values[i] = ec._SqlInstance_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "users":
 			field := field
 
@@ -53689,6 +53761,16 @@ func (ec *executionContext) marshalNSqlInstanceMetrics2ᚖgithubᚗcomᚋnaisᚋ
 		return graphql.Null
 	}
 	return ec._SqlInstanceMetrics(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNSqlInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstanceState(ctx context.Context, v interface{}) (model.SQLInstanceState, error) {
+	var res model.SQLInstanceState
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNSqlInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstanceState(ctx context.Context, sel ast.SelectionSet, v model.SQLInstanceState) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNSqlInstanceStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstanceStatus(ctx context.Context, sel ast.SelectionSet, v model.SQLInstanceStatus) graphql.Marshaler {
