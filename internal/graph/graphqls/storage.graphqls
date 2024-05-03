@@ -121,7 +121,13 @@ type SqlInstance implements Storage {
   tier: String!
   type: String!
   status: SqlInstanceStatus!
+  users: [SqlUser!]!
   workload: Workload
+}
+
+type SqlUser {
+  name: String!
+  authentication: String!
 }
 
 type BackupConfiguration {
