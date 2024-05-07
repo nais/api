@@ -4,14 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
+	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
+	storage_cnrm_cloud_gogle_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/storage/v1beta1"
 	"strings"
 	"time"
 
-	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/slug"
+	bigquery_nais_io_v1 "github.com/nais/liberator/pkg/apis/bigquery.cnrm.cloud.google.com/v1beta1"
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	naisv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
@@ -40,12 +43,23 @@ func (c ClusterInformers) Start(ctx context.Context, log logrus.FieldLogger) err
 		go informer.AppInformer.Informer().Run(ctx.Done())
 		go informer.NaisjobInformer.Informer().Run(ctx.Done())
 		go informer.JobInformer.Informer().Run(ctx.Done())
+
+		if informer.BucketInformer != nil {
+			go informer.BucketInformer.Informer().Run(ctx.Done())
+		}
+
+		if informer.BigQueryInformer != nil {
+			go informer.BigQueryInformer.Informer().Run(ctx.Done())
+		}
+
 		if informer.SqlInstanceInformer != nil {
 			go informer.SqlInstanceInformer.Informer().Run(ctx.Done())
 		}
+
 		if informer.SqlDatabaseInformer != nil {
 			go informer.SqlDatabaseInformer.Informer().Run(ctx.Done())
 		}
+
 		if informer.TopicInformer != nil {
 			go informer.TopicInformer.Informer().Run(ctx.Done())
 		}
@@ -81,6 +95,8 @@ type Informers struct {
 	JobInformer         batchv1inf.JobInformer
 	NaisjobInformer     informers.GenericInformer
 	PodInformer         corev1inf.PodInformer
+	BucketInformer      informers.GenericInformer
+	BigQueryInformer    informers.GenericInformer
 	TopicInformer       informers.GenericInformer
 	SqlInstanceInformer informers.GenericInformer
 	SqlDatabaseInformer informers.GenericInformer
@@ -194,9 +210,11 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 		infs[cluster].NaisjobInformer = dinf.ForResource(naisv1.GroupVersion.WithResource("naisjobs"))
 		infs[cluster].JobInformer = inf.Batch().V1().Jobs()
 
-		if !cfg.IsStaticCluster(cluster) {
+		if cfg.IsGcp(cluster) {
 			infs[cluster].SqlInstanceInformer = dinf.ForResource(sql_cnrm_cloud_google_com_v1beta1.SchemeGroupVersion.WithResource("sqlinstances"))
 			infs[cluster].SqlDatabaseInformer = dinf.ForResource(sql_cnrm_cloud_google_com_v1beta1.SchemeGroupVersion.WithResource("sqldatabases"))
+			infs[cluster].BucketInformer = dinf.ForResource(storage_cnrm_cloud_gogle_com_v1beta1.SchemeGroupVersion.WithResource("storagebuckets"))
+			infs[cluster].BucketInformer = dinf.ForResource(bigquery_nais_io_v1.GroupVersion.WithResource("bigquerydatasets"))
 		}
 
 		clientSets[cluster] = clients{

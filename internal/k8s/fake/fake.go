@@ -3,6 +3,7 @@ package fake
 import (
 	"bytes"
 	"fmt"
+	bigquery_nais_io_v1 "github.com/nais/liberator/pkg/apis/bigquery.cnrm.cloud.google.com/v1beta1"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -12,6 +13,7 @@ import (
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 
 	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
+	storage_cnrm_cloud_gogle_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/storage/v1beta1"
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
@@ -97,6 +99,8 @@ func newScheme() *runtime.Scheme {
 	corev1.AddToScheme(scheme)
 	appsv1.AddToScheme(scheme)
 	sql_cnrm_cloud_google_com_v1beta1.AddToScheme(scheme)
+	storage_cnrm_cloud_gogle_com_v1beta1.AddToScheme(scheme)
+	bigquery_nais_io_v1.AddToScheme(scheme)
 	unleash_nais_io_v1.AddToScheme(scheme)
 	return scheme
 }
