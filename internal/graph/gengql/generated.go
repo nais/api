@@ -44,6 +44,7 @@ type Config struct {
 
 type ResolverRoot interface {
 	App() AppResolver
+	Bucket() BucketResolver
 	DeployInfo() DeployInfoResolver
 	Env() EnvResolver
 	GitHubRepository() GitHubRepositoryResolver
@@ -187,7 +188,17 @@ type ComplexityRoot struct {
 
 	Bucket struct {
 		CascadingDelete func(childComplexity int) int
+		Env             func(childComplexity int) int
+		ID              func(childComplexity int) int
 		Name            func(childComplexity int) int
+		ProjectID       func(childComplexity int) int
+		Team            func(childComplexity int) int
+		Workload        func(childComplexity int) int
+	}
+
+	BucketsList struct {
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
 	}
 
 	Claims struct {
@@ -867,6 +878,7 @@ type ComplexityRoot struct {
 		Apps                   func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		AuditLogs              func(childComplexity int, offset *int, limit *int) int
 		AzureGroupID           func(childComplexity int) int
+		Buckets                func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		DeletionInProgress     func(childComplexity int) int
 		DeployKey              func(childComplexity int) int
 		Deployments            func(childComplexity int, offset *int, limit *int) int
@@ -1044,6 +1056,11 @@ type AppResolver interface {
 	Vulnerabilities(ctx context.Context, obj *model.App) (*model.Vulnerability, error)
 	Secrets(ctx context.Context, obj *model.App) ([]*model.Secret, error)
 }
+type BucketResolver interface {
+	Team(ctx context.Context, obj *model.Bucket) (*model.Team, error)
+
+	Workload(ctx context.Context, obj *model.Bucket) (model.Workload, error)
+}
 type DeployInfoResolver interface {
 	History(ctx context.Context, obj *model.DeployInfo, offset *int, limit *int) (model.DeploymentResponse, error)
 }
@@ -1170,6 +1187,7 @@ type TeamResolver interface {
 	ViewerIsMember(ctx context.Context, obj *model.Team) (bool, error)
 	Status(ctx context.Context, obj *model.Team) (*model.TeamStatus, error)
 	SQLInstances(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.SQLInstancesList, error)
+	Buckets(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BucketsList, error)
 	Apps(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.AppList, error)
 	DeployKey(ctx context.Context, obj *model.Team) (*model.DeploymentKey, error)
 	Naisjobs(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.NaisJobList, error)
@@ -1723,12 +1741,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Bucket.CascadingDelete(childComplexity), true
 
+	case "Bucket.env":
+		if e.complexity.Bucket.Env == nil {
+			break
+		}
+
+		return e.complexity.Bucket.Env(childComplexity), true
+
+	case "Bucket.id":
+		if e.complexity.Bucket.ID == nil {
+			break
+		}
+
+		return e.complexity.Bucket.ID(childComplexity), true
+
 	case "Bucket.name":
 		if e.complexity.Bucket.Name == nil {
 			break
 		}
 
 		return e.complexity.Bucket.Name(childComplexity), true
+
+	case "Bucket.projectId":
+		if e.complexity.Bucket.ProjectID == nil {
+			break
+		}
+
+		return e.complexity.Bucket.ProjectID(childComplexity), true
+
+	case "Bucket.team":
+		if e.complexity.Bucket.Team == nil {
+			break
+		}
+
+		return e.complexity.Bucket.Team(childComplexity), true
+
+	case "Bucket.workload":
+		if e.complexity.Bucket.Workload == nil {
+			break
+		}
+
+		return e.complexity.Bucket.Workload(childComplexity), true
+
+	case "BucketsList.nodes":
+		if e.complexity.BucketsList.Nodes == nil {
+			break
+		}
+
+		return e.complexity.BucketsList.Nodes(childComplexity), true
+
+	case "BucketsList.pageInfo":
+		if e.complexity.BucketsList.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.BucketsList.PageInfo(childComplexity), true
 
 	case "Claims.extra":
 		if e.complexity.Claims.Extra == nil {
@@ -4763,6 +4830,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.AzureGroupID(childComplexity), true
 
+	case "Team.buckets":
+		if e.complexity.Team.Buckets == nil {
+			break
+		}
+
+		args, err := ec.field_Team_buckets_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Team.Buckets(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy)), true
+
 	case "Team.deletionInProgress":
 		if e.complexity.Team.DeletionInProgress == nil {
 			break
@@ -6448,11 +6527,17 @@ type BigQueryDataset implements Persistence {
 }
 
 type Bucket implements Persistence {
+  id: ID!
   cascadingDelete: Boolean!
   name: String!
   # publicAccessPrevention: Boolean!
   # retentionPeriodDays: Int!
   # uniformBucketLevelAccess: Boolean!
+
+  projectId: String!
+  team: Team!
+  env: Env!
+  workload: Workload
 }
 
 type Kafka implements Persistence {
@@ -6513,6 +6598,11 @@ type SqlInstancesList {
   nodes: [SqlInstance!]!
   pageInfo: PageInfo!
   metrics: SqlInstancesMetrics!
+}
+
+type BucketsList {
+  nodes: [Bucket!]!
+  pageInfo: PageInfo!
 }
 
 type SqlInstance implements Persistence {
@@ -7492,6 +7582,17 @@ type Team {
     "Order SQL instances by"
     orderBy: OrderBy
   ): SqlInstancesList!
+
+  buckets(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order buckets by"
+    orderBy: OrderBy
+  ): BucketsList!
 
   "The NAIS applications owned by the team."
   apps(
@@ -9364,6 +9465,39 @@ func (ec *executionContext) field_Team_auditLogs_args(ctx context.Context, rawAr
 	return args, nil
 }
 
+func (ec *executionContext) field_Team_buckets_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	var arg2 *model.OrderBy
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg2, err = ec.unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderBy(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_Team_deployments_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -10702,6 +10836,8 @@ func (ec *executionContext) fieldContext_App_team(ctx context.Context, field gra
 				return ec.fieldContext_Team_status(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -13019,6 +13155,50 @@ func (ec *executionContext) fieldContext_BigQueryDataset_permission(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _Bucket_id(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Bucket_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Bucket_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Bucket",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Bucket_cascadingDelete(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Bucket_cascadingDelete(ctx, field)
 	if err != nil {
@@ -13102,6 +13282,365 @@ func (ec *executionContext) fieldContext_Bucket_name(ctx context.Context, field 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Bucket_projectId(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Bucket_projectId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProjectID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Bucket_projectId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Bucket",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Bucket_team(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Bucket_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Bucket().Team(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Team)
+	fc.Result = res
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Bucket_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Bucket",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "auditLogs":
+				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
+			case "syncErrors":
+				return ec.fieldContext_Team_syncErrors(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "githubRepositories":
+				return ec.fieldContext_Team_githubRepositories(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "status":
+				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "apps":
+				return ec.fieldContext_Team_apps(ctx, field)
+			case "deployKey":
+				return ec.fieldContext_Team_deployKey(ctx, field)
+			case "naisjobs":
+				return ec.fieldContext_Team_naisjobs(ctx, field)
+			case "deployments":
+				return ec.fieldContext_Team_deployments(ctx, field)
+			case "vulnerabilities":
+				return ec.fieldContext_Team_vulnerabilities(ctx, field)
+			case "vulnerabilitiesSummary":
+				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
+			case "vulnerabilityMetrics":
+				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Bucket_env(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Bucket_env(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Env, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.Env)
+	fc.Result = res
+	return ec.marshalNEnv2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnv(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Bucket_env(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Bucket",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Env_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Env_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_Env_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_Env_slackAlertsChannel(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Env_secrets(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Env", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Bucket_workload(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Bucket_workload(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Bucket().Workload(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(model.Workload)
+	fc.Result = res
+	return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Bucket_workload(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Bucket",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Workload does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BucketsList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.BucketsList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BucketsList_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Bucket)
+	fc.Result = res
+	return ec.marshalNBucket2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BucketsList_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BucketsList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Bucket_id(ctx, field)
+			case "cascadingDelete":
+				return ec.fieldContext_Bucket_cascadingDelete(ctx, field)
+			case "name":
+				return ec.fieldContext_Bucket_name(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Bucket_projectId(ctx, field)
+			case "team":
+				return ec.fieldContext_Bucket_team(ctx, field)
+			case "env":
+				return ec.fieldContext_Bucket_env(ctx, field)
+			case "workload":
+				return ec.fieldContext_Bucket_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Bucket", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BucketsList_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.BucketsList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BucketsList_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BucketsList_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BucketsList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
 	}
 	return fc, nil
@@ -14560,6 +15099,8 @@ func (ec *executionContext) fieldContext_Deployment_team(ctx context.Context, fi
 				return ec.fieldContext_Team_status(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -21303,6 +21844,8 @@ func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context
 				return ec.fieldContext_Team_status(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -21440,6 +21983,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 				return ec.fieldContext_Team_status(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -21577,6 +22122,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUsersFromTeam(ctx contex
 				return ec.fieldContext_Team_status(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -21714,6 +22261,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUserFromTeam(ctx context
 				return ec.fieldContext_Team_status(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -21998,6 +22547,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMembers(ctx context.Con
 				return ec.fieldContext_Team_status(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -22135,6 +22686,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamOwners(ctx context.Cont
 				return ec.fieldContext_Team_status(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -22272,6 +22825,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 				return ec.fieldContext_Team_status(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -22409,6 +22964,8 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 				return ec.fieldContext_Team_status(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -23402,6 +23959,8 @@ func (ec *executionContext) fieldContext_NaisJob_team(ctx context.Context, field
 				return ec.fieldContext_Team_status(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -26211,6 +26770,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_status(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -29261,6 +29822,8 @@ func (ec *executionContext) fieldContext_Role_targetTeam(ctx context.Context, fi
 				return ec.fieldContext_Team_status(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -30261,6 +30824,8 @@ func (ec *executionContext) fieldContext_Secret_team(ctx context.Context, field 
 				return ec.fieldContext_Team_status(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -32078,6 +32643,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(ctx context.Context, f
 				return ec.fieldContext_Team_status(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -34859,6 +35426,67 @@ func (ec *executionContext) fieldContext_Team_sqlInstances(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_buckets(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_buckets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().Buckets(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["orderBy"].(*model.OrderBy))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.BucketsList)
+	fc.Result = res
+	return ec.marshalNBucketsList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketsList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_buckets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "nodes":
+				return ec.fieldContext_BucketsList_nodes(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_BucketsList_pageInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BucketsList", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Team_buckets_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_apps(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_apps(ctx, field)
 	if err != nil {
@@ -35841,6 +36469,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(ctx context.Context,
 				return ec.fieldContext_Team_status(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -35947,6 +36577,8 @@ func (ec *executionContext) fieldContext_TeamList_nodes(ctx context.Context, fie
 				return ec.fieldContext_Team_status(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -36105,6 +36737,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(ctx context.Context, fi
 				return ec.fieldContext_Team_status(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -43037,13 +43671,141 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Bucket")
+		case "id":
+			out.Values[i] = ec._Bucket_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "cascadingDelete":
 			out.Values[i] = ec._Bucket_cascadingDelete(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
 			out.Values[i] = ec._Bucket_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "projectId":
+			out.Values[i] = ec._Bucket_projectId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Bucket_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "env":
+			out.Values[i] = ec._Bucket_env(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "workload":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Bucket_workload(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var bucketsListImplementors = []string{"BucketsList"}
+
+func (ec *executionContext) _BucketsList(ctx context.Context, sel ast.SelectionSet, obj *model.BucketsList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, bucketsListImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("BucketsList")
+		case "nodes":
+			out.Values[i] = ec._BucketsList_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pageInfo":
+			out.Values[i] = ec._BucketsList_pageInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -49839,6 +50601,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "buckets":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_buckets(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "apps":
 			field := field
 
@@ -52565,6 +53363,74 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNBucket2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Bucket) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBucket2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucket(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNBucket2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucket(ctx context.Context, sel ast.SelectionSet, v *model.Bucket) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Bucket(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNBucketsList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketsList(ctx context.Context, sel ast.SelectionSet, v model.BucketsList) graphql.Marshaler {
+	return ec._BucketsList(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNBucketsList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketsList(ctx context.Context, sel ast.SelectionSet, v *model.BucketsList) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._BucketsList(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNClaims2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐClaims(ctx context.Context, sel ast.SelectionSet, v model.Claims) graphql.Marshaler {

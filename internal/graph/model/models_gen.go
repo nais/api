@@ -157,6 +157,11 @@ type BigQueryDataset struct {
 func (BigQueryDataset) IsPersistence()       {}
 func (this BigQueryDataset) GetName() string { return this.Name }
 
+type BucketsList struct {
+	Nodes    []*Bucket `json:"nodes"`
+	PageInfo PageInfo  `json:"pageInfo"`
+}
+
 type Claims struct {
 	Extra  []string `json:"extra"`
 	Groups []*Group `json:"groups"`

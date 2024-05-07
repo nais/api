@@ -16,6 +16,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auth/authn"
+	"github.com/nais/api/internal/bucket"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/fixtures"
 	"github.com/nais/api/internal/graph"
@@ -196,6 +197,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		log,
 		sqlInstanceClient,
 		unleashMgr,
+		bucket.NewClient(k8sClient.Informers(), log),
 	)
 
 	graphHandler, err := graph.NewHandler(gengql.Config{

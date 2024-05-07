@@ -1148,6 +1148,35 @@ func (r *teamResolver) SQLInstances(ctx context.Context, obj *model.Team, offset
 	}, nil
 }
 
+// Buckets is the resolver for the buckets field.
+func (r *teamResolver) Buckets(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BucketsList, error) {
+	buckets, err := r.bucketClient.Buckets(obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case model.OrderByFieldName:
+			model.SortWith(buckets, func(a, b *model.Bucket) bool {
+				return model.Compare(a.Name, b.Name, orderBy.Direction)
+			})
+		case model.OrderByFieldEnv:
+			model.SortWith(buckets, func(a, b *model.Bucket) bool {
+				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
+			})
+		}
+	}
+
+	pagination := model.NewPagination(offset, limit)
+	buckets, pageInfo := model.PaginatedSlice(buckets, pagination)
+
+	return &model.BucketsList{
+		Nodes:    buckets,
+		PageInfo: pageInfo,
+	}, nil
+}
+
 // Apps is the resolver for the apps field.
 func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.AppList, error) {
 	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())

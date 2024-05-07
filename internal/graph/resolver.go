@@ -15,6 +15,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auditlogger"
+	"github.com/nais/api/internal/bucket"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/database/teamsearch"
@@ -103,6 +104,7 @@ type Resolver struct {
 	userSyncRuns          *usersync.RunsHandler
 	pubsubTopic           *pubsub.Topic
 	sqlInstanceClient     *sqlinstance.Client
+	bucketClient          *bucket.Client
 	unleashMgr            *unleash.Manager
 }
 
@@ -121,6 +123,7 @@ func NewResolver(
 	pubsubTopic *pubsub.Topic,
 	log logrus.FieldLogger,
 	sqlInstanceClient *sqlinstance.Client,
+	bucketClient *bucket.Client,
 	unleashMgr *unleash.Manager,
 ) *Resolver {
 	return &Resolver{
@@ -138,6 +141,7 @@ func NewResolver(
 		clusters:              clusters,
 		pubsubTopic:           pubsubTopic,
 		sqlInstanceClient:     sqlInstanceClient,
+		bucketClient:          bucketClient,
 		unleashMgr:            unleashMgr,
 	}
 }

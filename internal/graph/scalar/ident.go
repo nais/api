@@ -18,19 +18,21 @@ type IdentType string
 const (
 	IdentTypeApp                IdentType = "app"
 	IdentTypeAuditLog           IdentType = "auditLog"
+	IdentTypeBucket             IdentType = "bucket"
 	IdentTypeCorrelationID      IdentType = "correlationID"
 	IdentTypeDeployKey          IdentType = "deployKey"
 	IdentTypeDeployment         IdentType = "deployment"
 	IdentTypeDeploymentResource IdentType = "deploymentResource"
 	IdentTypeDeploymentStatus   IdentType = "deploymentStatus"
 	IdentTypeEnv                IdentType = "env"
+	IdentTypeGitHubRepo         IdentType = "githubRepo"
 	IdentTypeJob                IdentType = "job"
 	IdentTypePod                IdentType = "pod"
 	IdentTypeSecret             IdentType = "secret"
 	IdentTypeSqlInstance        IdentType = "sqlInstance"
 	IdentTypeTeam               IdentType = "team"
+	IdentTypeUser               IdentType = "user"
 	IdentTypeVulnerabilities    IdentType = "vulnerabilities"
-	IdentTypeGitHubRepo         IdentType = "githubRepo"
 )
 
 type Ident struct {
@@ -128,7 +130,7 @@ func CorrelationID(id uuid.UUID) Ident {
 }
 
 func UserIdent(id uuid.UUID) Ident {
-	return newIdent(id.String(), "user")
+	return newIdent(id.String(), IdentTypeUser)
 }
 
 func GitHubRepository(name string) Ident {
@@ -137,6 +139,10 @@ func GitHubRepository(name string) Ident {
 
 func SqlInstanceIdent(id string) Ident {
 	return newIdent(id, IdentTypeSqlInstance)
+}
+
+func BucketIdent(id string) Ident {
+	return newIdent(id, IdentTypeBucket)
 }
 
 func newIdent(id string, t IdentType) Ident {

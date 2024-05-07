@@ -936,24 +936,21 @@ func (c *Client) appPersistence(u *unstructured.Unstructured, topics []*model.To
 
 	ret := make([]model.Persistence, 0)
 
-
 	if inf := c.informers[env].BucketInformer; inf != nil {
 		buckets, err := inf.Lister().ByNamespace(app.GetNamespace()).List(labels.Everything())
 		if err != nil {
 			return nil, fmt.Errorf("listing buckets: %w", err)
 		}
 		for _, bucket := range buckets {
-			b, err := model.ToBucket(bucket.(*unstructured.Unstructured))
+			b, err := model.ToBucket(bucket.(*unstructured.Unstructured), env)
 			if err != nil {
 				return nil, fmt.Errorf("converting bucket: %w", err)
 			}
 			ret = append(ret, b)
 		}
-
 	}
 
 	if app.Spec.GCP != nil {
-
 		// TODO: Use SqlInstance informer for this instead?
 		for _, v := range app.Spec.GCP.SqlInstances {
 			sqlInstance := model.SQLInstance{}

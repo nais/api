@@ -1,6 +1,11 @@
 apiVersion: storage.cnrm.cloud.google.com/v1beta1
 kind: StorageBucket
 metadata:
+  ownerReferences:
+    - apiVersion: nais.io/v1
+      kind: Application
+      name: app-w-all-storage
+      uid: 6957e4dd-2997-46b3-8f6f-b6d1e0606b1d
   annotations:
     cnrm.cloud.google.com/deletion-policy: abandon
     cnrm.cloud.google.com/management-conflict-prevention-policy: none

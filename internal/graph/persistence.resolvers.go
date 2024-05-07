@@ -13,6 +13,28 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
+// Team is the resolver for the team field.
+func (r *bucketResolver) Team(ctx context.Context, obj *model.Bucket) (*model.Team, error) {
+	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
+}
+
+// Workload is the resolver for the workload field.
+func (r *bucketResolver) Workload(ctx context.Context, obj *model.Bucket) (model.Workload, error) {
+	if obj.GQLVars.OwnerReference == nil {
+		return nil, nil
+	}
+
+	switch obj.GQLVars.OwnerReference.Kind {
+	case "Naisjob":
+		return r.k8sClient.NaisJob(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
+	case "Application":
+		return r.k8sClient.App(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
+	default:
+		r.log.WithField("kind", obj.GQLVars.OwnerReference.Kind).Warnf("Unknown owner reference kind")
+	}
+	return nil, nil
+}
+
 // SQLInstance is the resolver for the sqlInstance field.
 func (r *queryResolver) SQLInstance(ctx context.Context, name string, team slug.Slug, env string) (*model.SQLInstance, error) {
 	return r.sqlInstanceClient.SqlInstance(ctx, env, team, name)
@@ -50,7 +72,13 @@ func (r *sqlInstanceResolver) Workload(ctx context.Context, obj *model.SQLInstan
 	return nil, nil
 }
 
+// Bucket returns gengql.BucketResolver implementation.
+func (r *Resolver) Bucket() gengql.BucketResolver { return &bucketResolver{r} }
+
 // SqlInstance returns gengql.SqlInstanceResolver implementation.
 func (r *Resolver) SqlInstance() gengql.SqlInstanceResolver { return &sqlInstanceResolver{r} }
 
-type sqlInstanceResolver struct{ *Resolver }
+type (
+	bucketResolver      struct{ *Resolver }
+	sqlInstanceResolver struct{ *Resolver }
+)

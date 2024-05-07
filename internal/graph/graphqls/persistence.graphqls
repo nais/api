@@ -33,11 +33,17 @@ type BigQueryDataset implements Persistence {
 }
 
 type Bucket implements Persistence {
+  id: ID!
   cascadingDelete: Boolean!
   name: String!
   # publicAccessPrevention: Boolean!
   # retentionPeriodDays: Int!
   # uniformBucketLevelAccess: Boolean!
+
+  projectId: String!
+  team: Team!
+  env: Env!
+  workload: Workload
 }
 
 type Kafka implements Persistence {
@@ -98,6 +104,11 @@ type SqlInstancesList {
   nodes: [SqlInstance!]!
   pageInfo: PageInfo!
   metrics: SqlInstancesMetrics!
+}
+
+type BucketsList {
+  nodes: [Bucket!]!
+  pageInfo: PageInfo!
 }
 
 type SqlInstance implements Persistence {
