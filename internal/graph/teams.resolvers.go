@@ -1531,6 +1531,17 @@ func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*mo
 	return ret, nil
 }
 
+// Unleash is the resolver for the unleash field.
+func (r *teamResolver) Unleash(ctx context.Context, obj *model.Team) (*model.Unleash, error) {
+	return &model.Unleash{
+		Name:         "DummyUnleash",
+		Version:      "1.2.4",
+		AllowedTeams: []string{"team1", "team2"},
+		WebIngress:   "https://team1-unleash-web.nav.cloud.nais.io/",
+		APIIngress:   "https://team1-unleash-api.nav.cloud.nais.io/",
+	}, nil
+}
+
 // CreatedBy is the resolver for the createdBy field.
 func (r *teamDeleteKeyResolver) CreatedBy(ctx context.Context, obj *model.TeamDeleteKey) (*model.User, error) {
 	return loader.GetUser(ctx, obj.GQLVars.UserID)

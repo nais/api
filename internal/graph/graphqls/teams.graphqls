@@ -303,16 +303,16 @@ type Team {
   "The status of the team."
   status: TeamStatus!
 
-	sqlInstances(
-		"Returns the first n entries from the list."
-		offset: Int
+  sqlInstances(
+    "Returns the first n entries from the list."
+    offset: Int
 
-		"Returns the last n entries from the list."
-		limit: Int
+    "Returns the last n entries from the list."
+    limit: Int
 
-		"Order SQL instances by"
-		orderBy: OrderBy
-	): SqlInstancesList!
+    "Order SQL instances by"
+    orderBy: OrderBy
+  ): SqlInstancesList!
 
   "The NAIS applications owned by the team."
   apps(
@@ -387,6 +387,23 @@ type Team {
 
   "The environments available for the team."
   environments: [Env!]!
+
+  unleash: Unleash!
+}
+
+type Unleash {
+  name: String!
+  version: String!
+  allowedTeams: [String!]!
+  webIngress: String!
+  apiIngress: String!
+  metrics: UnleashMetrics!
+}
+
+type UnleashMetrics {
+  numToggles: Int!
+  apiTokens: Int!
+  users: Int!
 }
 
 type SqlInstancesStatus {

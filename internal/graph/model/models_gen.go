@@ -907,6 +907,21 @@ type Topic struct {
 	ACL  []*ACL `json:"acl"`
 }
 
+type Unleash struct {
+	Name         string         `json:"name"`
+	Version      string         `json:"version"`
+	AllowedTeams []string       `json:"allowedTeams"`
+	WebIngress   string         `json:"webIngress"`
+	APIIngress   string         `json:"apiIngress"`
+	Metrics      UnleashMetrics `json:"metrics"`
+}
+
+type UnleashMetrics struct {
+	NumToggles int `json:"numToggles"`
+	APITokens  int `json:"apiTokens"`
+	Users      int `json:"users"`
+}
+
 // Input for updating an existing team.
 type UpdateTeamInput struct {
 	// Specify team purpose to update the existing value.
