@@ -51,6 +51,7 @@ services:
     mem_limit: 100m
 
   bigquery:
+    platform: linux/x86_64 # this is required for running on M1 Mac
     image: ghcr.io/goccy/bigquery-emulator:latest
     command:
       - "bigquery-emulator"
