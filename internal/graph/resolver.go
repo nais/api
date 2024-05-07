@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/nais/api/internal/unleash"
 	"slices"
 
 	"cloud.google.com/go/pubsub"
@@ -101,6 +102,7 @@ type Resolver struct {
 	userSyncRuns          *usersync.RunsHandler
 	pubsubTopic           *pubsub.Topic
 	sqlInstanceClient     *sqlinstance.Client
+	unleashMgr            *unleash.Manager
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
@@ -118,6 +120,7 @@ func NewResolver(
 	pubsubTopic *pubsub.Topic,
 	log logrus.FieldLogger,
 	sqlInstanceClient *sqlinstance.Client,
+	unleashMgr *unleash.Manager,
 ) *Resolver {
 	return &Resolver{
 		hookdClient:           hookdClient,
@@ -134,6 +137,7 @@ func NewResolver(
 		clusters:              clusters,
 		pubsubTopic:           pubsubTopic,
 		sqlInstanceClient:     sqlInstanceClient,
+		unleashMgr:            unleashMgr,
 	}
 }
 

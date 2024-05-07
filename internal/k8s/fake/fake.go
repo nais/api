@@ -3,6 +3,7 @@ package fake
 import (
 	"bytes"
 	"fmt"
+	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -95,6 +96,7 @@ func newScheme() *runtime.Scheme {
 	corev1.AddToScheme(scheme)
 	appsv1.AddToScheme(scheme)
 	sql_cnrm_cloud_google_com_v1beta1.AddToScheme(scheme)
+	unleash_nais_io_v1.AddToScheme(scheme)
 	return scheme
 }
 

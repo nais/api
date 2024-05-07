@@ -1533,6 +1533,10 @@ func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*mo
 
 // Unleash is the resolver for the unleash field.
 func (r *teamResolver) Unleash(ctx context.Context, obj *model.Team) (*model.Unleash, error) {
+	err := r.unleashMgr.Unleash(ctx, obj.Slug.String())
+	if err != nil {
+		return nil, err
+	}
 	return &model.Unleash{
 		Name:         "DummyUnleash",
 		Version:      "1.2.4",

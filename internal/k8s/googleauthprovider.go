@@ -17,12 +17,12 @@ var googleScopes = []string{
 }
 
 const (
-	googleAuthPlugin = "google" // so that this is different than "gcp" that's already in client-go tree.
+	GoogleAuthPlugin = "google" // so that this is different than "gcp" that's already in client-go tree.
 )
 
 func init() {
-	if err := rest.RegisterAuthProviderPlugin(googleAuthPlugin, newGoogleAuthProvider); err != nil {
-		log.Fatalf("Failed to register %s auth plugin: %v", googleAuthPlugin, err)
+	if err := rest.RegisterAuthProviderPlugin(GoogleAuthPlugin, newGoogleAuthProvider); err != nil {
+		log.Fatalf("Failed to register %s auth plugin: %v", GoogleAuthPlugin, err)
 	}
 }
 

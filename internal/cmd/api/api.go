@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/nais/api/internal/unleash"
 	"os"
 	"os/signal"
 	"syscall"
@@ -134,6 +135,18 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("unable to create k8s client: %w", err)
 	}
 
+	unleashOpts := []unleash.Opt{}
+	if cfg.WithFakeClients {
+		unleashOpts = append(unleashOpts, unleash.WithClientsCreator(fake.Clients(os.DirFS("./data/k8s"))))
+	}
+	unleashMgr, err := unleash.NewManager(cfg.Tenant, cfg.K8s.AllClusterNames(), unleashOpts...)
+	if err != nil {
+		return fmt.Errorf("unable to create unleash manager: %w", err)
+	}
+	if err := unleashMgr.Start(ctx, log); err != nil {
+		return fmt.Errorf("unable to start unleash manager: %w", err)
+	}
+
 	auditLogger := auditlogger.New(db, log)
 	userSync := make(chan uuid.UUID, 1)
 
@@ -181,6 +194,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		pubsubTopic,
 		log,
 		sqlInstanceClient,
+		unleashMgr,
 	)
 
 	graphHandler, err := graph.NewHandler(gengql.Config{
