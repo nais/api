@@ -1533,17 +1533,7 @@ func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*mo
 
 // Unleash is the resolver for the unleash field.
 func (r *teamResolver) Unleash(ctx context.Context, obj *model.Team) (*model.Unleash, error) {
-	err := r.unleashMgr.Unleash(ctx, obj.Slug.String())
-	if err != nil {
-		return nil, err
-	}
-	return &model.Unleash{
-		Name:         "DummyUnleash",
-		Version:      "1.2.4",
-		AllowedTeams: []string{"team1", "team2"},
-		WebIngress:   "https://team1-unleash-web.nav.cloud.nais.io/",
-		APIIngress:   "https://team1-unleash-api.nav.cloud.nais.io/",
-	}, nil
+	return r.unleashMgr.Unleash(ctx, obj.Slug.String())
 }
 
 // CreatedBy is the resolver for the createdBy field.

@@ -1,0 +1,43 @@
+apiVersion: unleash.nais.io/v1
+kind: Unleash
+metadata:
+  labels:
+    app.kubernetes.io/name: unleash
+    app.kubernetes.io/instance: unleash-sample
+    app.kubernetes.io/part-of: unleasherator
+    app.kuberentes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: unleasherator
+  name: unleash-sample
+spec:
+  size: 1
+  customImage: unleashorg/unleash-server:5
+  database:
+    secretName: postgres-postgresql
+    secretPassKey: postgres-password
+    host: postgres-postgresql
+    databaseName: postgres
+    port: "5432"
+    user: postgres
+    ssl: "false"
+  extraEnvVars:
+    - name: ENABLE_OAS
+      value: "true"
+    - name: TEAMS_ALLOWED_TEAMS
+      value: "devteam"
+  apiIngress:
+    host: api.unleash.foo.com
+  webIngress:
+    host: web.unleash.foo.com
+  networkPolicy:
+    enabled: true
+    allowDNS: true
+    extraEgressRules:
+      - to:
+          - podSelector:
+              matchLabels:
+                app.kubernetes.io/name: postgresql
+        ports:
+          - protocol: TCP
+            port: 5432
+status:
+  version: 1.2.3

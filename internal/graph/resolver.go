@@ -3,8 +3,9 @@ package graph
 import (
 	"context"
 	"fmt"
-	"github.com/nais/api/internal/unleash"
 	"slices"
+
+	"github.com/nais/api/internal/unleash"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"

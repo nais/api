@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/nais/api/internal/unleash"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/nais/api/internal/unleash"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
@@ -139,6 +140,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	if cfg.WithFakeClients {
 		unleashOpts = append(unleashOpts, unleash.WithClientsCreator(fake.Clients(os.DirFS("./data/k8s"))))
 	}
+	// @TODO add more clusters?
 	unleashMgr, err := unleash.NewManager(cfg.Tenant, cfg.K8s.AllClusterNames(), unleashOpts...)
 	if err != nil {
 		return fmt.Errorf("unable to create unleash manager: %w", err)

@@ -7518,7 +7518,7 @@ type Team {
     "Order apps by"
     orderBy: OrderBy
 
-    filter : VulnerabilityFilter
+    filter: VulnerabilityFilter
   ): VulnerabilityList!
 
   vulnerabilitiesSummary: VulnerabilitySummary!
@@ -7545,7 +7545,7 @@ type Team {
   "The environments available for the team."
   environments: [Env!]!
 
-  unleash: Unleash!
+  unleash: Unleash
 }
 
 type Unleash {
@@ -35530,14 +35530,11 @@ func (ec *executionContext) _Team_unleash(ctx context.Context, field graphql.Col
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.Unleash)
 	fc.Result = res
-	return ec.marshalNUnleash2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleash(ctx, field.Selections, res)
+	return ec.marshalOUnleash2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleash(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Team_unleash(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -50074,9 +50071,6 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Team_unleash(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
 				return res
 			}
 
@@ -55174,20 +55168,6 @@ func (ec *executionContext) marshalNTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinterna
 	return ec._Topic(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUnleash2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleash(ctx context.Context, sel ast.SelectionSet, v model.Unleash) graphql.Marshaler {
-	return ec._Unleash(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNUnleash2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleash(ctx context.Context, sel ast.SelectionSet, v *model.Unleash) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Unleash(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalNUnleashMetrics2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleashMetrics(ctx context.Context, sel ast.SelectionSet, v model.UnleashMetrics) graphql.Marshaler {
 	return ec._UnleashMetrics(ctx, sel, &v)
 }
@@ -56142,6 +56122,13 @@ func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel
 	}
 	res := graphql.MarshalTime(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOUnleash2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleash(ctx context.Context, sel ast.SelectionSet, v *model.Unleash) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Unleash(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
