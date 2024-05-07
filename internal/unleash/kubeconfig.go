@@ -2,6 +2,9 @@ package unleash
 
 import (
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/nais/api/internal/k8s"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -11,8 +14,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd/api"
-	"net/http"
-	"time"
 )
 
 type k8sClient struct {
@@ -86,6 +87,6 @@ func createClientMap(tenant string, clusters []string, opts ...Opt) (clusterClie
 func createInformers(dynamicClient dynamic.Interface) []informers.GenericInformer {
 	dinf := dynamicinformer.NewDynamicSharedInformerFactory(dynamicClient, 4*time.Hour)
 	infs := make([]informers.GenericInformer, 0)
-	infs = append(infs, dinf.ForResource(unleash_nais_io_v1.GroupVersion.WithResource("unleashes")))
+	infs = append(infs, dinf.ForResource(unleash_nais_io_v1.GroupVersion.WithResource("unleashs")))
 	return infs
 }
