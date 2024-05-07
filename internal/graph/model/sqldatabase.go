@@ -55,7 +55,7 @@ func ToSqlDatabase(u *unstructured.Unstructured, sqlInstanceName string) (*SQLDa
 	}, nil
 }
 
-func (SQLDatabase) IsStorage()        {}
+func (SQLDatabase) IsPersistence()    {}
 func (i SQLDatabase) GetName() string { return i.Name }
 
 func IsHealthy(cs []v1alpha1.Condition) bool {

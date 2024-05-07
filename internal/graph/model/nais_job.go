@@ -16,7 +16,7 @@ type NaisJob struct {
 	Name         string         `json:"name"`
 	Resources    Resources      `json:"resources"`
 	Schedule     string         `json:"schedule"`
-	Storage      []Storage      `json:"storage"`
+	Persistence  []Persistence  `json:"persistence"`
 	Authz        []Authz        `json:"authz"`
 	Completions  int            `json:"completions"`
 	Parallelism  int            `json:"parallelism"`

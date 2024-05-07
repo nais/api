@@ -65,7 +65,7 @@ type NaisJob {
   resources: Resources!
   schedule: String!
   team: Team!
-  storage: [Storage!]!
+  persistence: [Persistence!]!
   authz: [Authz!]!
   completions: Int!
   parallelism: Int!

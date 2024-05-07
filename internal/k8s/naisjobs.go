@@ -84,7 +84,7 @@ func (c *Client) NaisJob(ctx context.Context, name, team, env string) (*model.Na
 		return nil, c.error(ctx, err, "getting storage")
 	}
 
-	job.Storage = storage
+	job.Persistence = storage
 
 	runs, err := c.Runs(ctx, team, env, name)
 	if err != nil {
@@ -617,13 +617,13 @@ func (c *Client) ToNaisJob(u *unstructured.Unstructured, env string) (*model.Nai
 	return ret, nil
 }
 
-func naisjobStorage(u *unstructured.Unstructured, topics []*model.Topic, env string) ([]model.Storage, error) {
+func naisjobStorage(u *unstructured.Unstructured, topics []*model.Topic, env string) ([]model.Persistence, error) {
 	naisjob := &naisv1.Naisjob{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, naisjob); err != nil {
 		return nil, fmt.Errorf("converting to application: %w", err)
 	}
 
-	ret := make([]model.Storage, 0)
+	ret := make([]model.Persistence, 0)
 
 	if naisjob.Spec.GCP != nil {
 		for _, v := range naisjob.Spec.GCP.Buckets {

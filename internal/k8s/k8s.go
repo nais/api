@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-
-	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
-	storage_cnrm_cloud_gogle_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/storage/v1beta1"
 	"strings"
 	"time"
+
+	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
+	storage_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/storage/v1beta1"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
@@ -213,8 +213,8 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 		if cfg.IsGcp(cluster) {
 			infs[cluster].SqlInstanceInformer = dinf.ForResource(sql_cnrm_cloud_google_com_v1beta1.SchemeGroupVersion.WithResource("sqlinstances"))
 			infs[cluster].SqlDatabaseInformer = dinf.ForResource(sql_cnrm_cloud_google_com_v1beta1.SchemeGroupVersion.WithResource("sqldatabases"))
-			infs[cluster].BucketInformer = dinf.ForResource(storage_cnrm_cloud_gogle_com_v1beta1.SchemeGroupVersion.WithResource("storagebuckets"))
-			infs[cluster].BucketInformer = dinf.ForResource(bigquery_nais_io_v1.GroupVersion.WithResource("bigquerydatasets"))
+			infs[cluster].BucketInformer = dinf.ForResource(storage_cnrm_cloud_google_com_v1beta1.SchemeGroupVersion.WithResource("storagebuckets"))
+			infs[cluster].BigQueryInformer = dinf.ForResource(bigquery_nais_io_v1.GroupVersion.WithResource("bigquerydatasets"))
 		}
 
 		clientSets[cluster] = clients{

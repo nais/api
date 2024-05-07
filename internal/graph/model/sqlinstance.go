@@ -56,8 +56,8 @@ type SQLInstanceGQLVars struct {
 	OwnerReference *v1.OwnerReference
 }
 
-func (SQLInstance) IsStorage()    {}
-func (SQLInstance) IsSearchNode() {}
+func (SQLInstance) IsPersistence() {}
+func (SQLInstance) IsSearchNode()  {}
 
 func (i SQLInstance) GetName() string { return i.Name }
 

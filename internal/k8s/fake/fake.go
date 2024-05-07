@@ -3,12 +3,13 @@ package fake
 import (
 	"bytes"
 	"fmt"
-	bigquery_nais_io_v1 "github.com/nais/liberator/pkg/apis/bigquery.cnrm.cloud.google.com/v1beta1"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
+
+	bigquery_nais_io_v1 "github.com/nais/liberator/pkg/apis/bigquery.cnrm.cloud.google.com/v1beta1"
 
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 

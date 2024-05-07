@@ -55,7 +55,7 @@ type App {
   accessPolicy: AccessPolicy!
   resources: Resources!
   autoScaling: AutoScaling!
-  storage: [Storage!]!
+  persistence: [Persistence!]!
   variables: [Variable!]!
   authz: [Authz!]!
   manifest: String!

@@ -12,35 +12,35 @@ extend type Query {
   ): SqlInstance!
 }
 
-interface Storage {
+interface Persistence {
   name: String!
 }
 
-type InfluxDb implements Storage {
+type InfluxDb implements Persistence {
   name: String!
 }
 
-type Redis implements Storage {
+type Redis implements Persistence {
   name: String!
   access: String!
 }
 
-type BigQueryDataset implements Storage {
+type BigQueryDataset implements Persistence {
   cascadingDelete: Boolean!
   description: String!
   name: String!
   permission: String!
 }
 
-type Bucket implements Storage {
+type Bucket implements Persistence {
   cascadingDelete: Boolean!
   name: String!
-  publicAccessPrevention: Boolean!
-  retentionPeriodDays: Int!
-  uniformBucketLevelAccess: Boolean!
+  # publicAccessPrevention: Boolean!
+  # retentionPeriodDays: Int!
+  # uniformBucketLevelAccess: Boolean!
 }
 
-type Kafka implements Storage {
+type Kafka implements Persistence {
   """
   The kafka pool name
   """
@@ -60,7 +60,7 @@ type Acl {
   team: Slug!
 }
 
-type OpenSearch implements Storage {
+type OpenSearch implements Persistence {
   """
   The opensearch instance name
   """
@@ -85,7 +85,7 @@ type MaintenanceWindow {
   hour: Int!
 }
 
-type SqlDatabase implements Storage{
+type SqlDatabase implements Persistence{
   name: String!
   charset: String!
   collation: String!
@@ -100,7 +100,7 @@ type SqlInstancesList {
   metrics: SqlInstancesMetrics!
 }
 
-type SqlInstance implements Storage {
+type SqlInstance implements Persistence {
   id: ID!
   backupConfiguration: BackupConfiguration!
   cascadingDelete: Boolean!

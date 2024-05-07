@@ -95,9 +95,9 @@ type ComplexityRoot struct {
 		Instances       func(childComplexity int) int
 		Manifest        func(childComplexity int) int
 		Name            func(childComplexity int) int
+		Persistence     func(childComplexity int) int
 		Resources       func(childComplexity int) int
 		Secrets         func(childComplexity int) int
-		Storage         func(childComplexity int) int
 		Team            func(childComplexity int) int
 		Variables       func(childComplexity int) int
 		Vulnerabilities func(childComplexity int) int
@@ -186,11 +186,8 @@ type ComplexityRoot struct {
 	}
 
 	Bucket struct {
-		CascadingDelete          func(childComplexity int) int
-		Name                     func(childComplexity int) int
-		PublicAccessPrevention   func(childComplexity int) int
-		RetentionPeriodDays      func(childComplexity int) int
-		UniformBucketLevelAccess func(childComplexity int) int
+		CascadingDelete func(childComplexity int) int
+		Name            func(childComplexity int) int
 	}
 
 	Claims struct {
@@ -530,12 +527,12 @@ type ComplexityRoot struct {
 		Manifest     func(childComplexity int) int
 		Name         func(childComplexity int) int
 		Parallelism  func(childComplexity int) int
+		Persistence  func(childComplexity int) int
 		Resources    func(childComplexity int) int
 		Retries      func(childComplexity int) int
 		Runs         func(childComplexity int) int
 		Schedule     func(childComplexity int) int
 		Secrets      func(childComplexity int) int
-		Storage      func(childComplexity int) int
 		Team         func(childComplexity int) int
 	}
 
@@ -1108,6 +1105,7 @@ type QueryResolver interface {
 	EnvCost(ctx context.Context, filter model.EnvCostFilter) ([]*model.EnvCost, error)
 	Deployments(ctx context.Context, offset *int, limit *int) (*model.DeploymentList, error)
 	Naisjob(ctx context.Context, name string, team slug.Slug, env string) (*model.NaisJob, error)
+	SQLInstance(ctx context.Context, name string, team slug.Slug, env string) (*model.SQLInstance, error)
 	Reconcilers(ctx context.Context, offset *int, limit *int) (*model.ReconcilerList, error)
 	ResourceUtilizationTrendForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationTrend, error)
 	CurrentResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.CurrentResourceUtilization, error)
@@ -1118,7 +1116,6 @@ type QueryResolver interface {
 	ResourceUtilizationDateRangeForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.ResourceUtilizationDateRange, error)
 	ResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string, from *scalar.Date, to *scalar.Date) (*model.ResourceUtilizationForApp, error)
 	Search(ctx context.Context, query string, filter *model.SearchFilter, offset *int, limit *int) (*model.SearchList, error)
-	SQLInstance(ctx context.Context, name string, team slug.Slug, env string) (*model.SQLInstance, error)
 	Teams(ctx context.Context, offset *int, limit *int, filter *model.TeamsFilter) (*model.TeamList, error)
 	Team(ctx context.Context, slug slug.Slug) (*model.Team, error)
 	TeamDeleteKey(ctx context.Context, key string) (*model.TeamDeleteKey, error)
@@ -1355,6 +1352,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.App.Name(childComplexity), true
 
+	case "App.persistence":
+		if e.complexity.App.Persistence == nil {
+			break
+		}
+
+		return e.complexity.App.Persistence(childComplexity), true
+
 	case "App.resources":
 		if e.complexity.App.Resources == nil {
 			break
@@ -1368,13 +1372,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.App.Secrets(childComplexity), true
-
-	case "App.storage":
-		if e.complexity.App.Storage == nil {
-			break
-		}
-
-		return e.complexity.App.Storage(childComplexity), true
 
 	case "App.team":
 		if e.complexity.App.Team == nil {
@@ -1732,27 +1729,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Bucket.Name(childComplexity), true
-
-	case "Bucket.publicAccessPrevention":
-		if e.complexity.Bucket.PublicAccessPrevention == nil {
-			break
-		}
-
-		return e.complexity.Bucket.PublicAccessPrevention(childComplexity), true
-
-	case "Bucket.retentionPeriodDays":
-		if e.complexity.Bucket.RetentionPeriodDays == nil {
-			break
-		}
-
-		return e.complexity.Bucket.RetentionPeriodDays(childComplexity), true
-
-	case "Bucket.uniformBucketLevelAccess":
-		if e.complexity.Bucket.UniformBucketLevelAccess == nil {
-			break
-		}
-
-		return e.complexity.Bucket.UniformBucketLevelAccess(childComplexity), true
 
 	case "Claims.extra":
 		if e.complexity.Claims.Extra == nil {
@@ -3238,6 +3214,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.NaisJob.Parallelism(childComplexity), true
 
+	case "NaisJob.persistence":
+		if e.complexity.NaisJob.Persistence == nil {
+			break
+		}
+
+		return e.complexity.NaisJob.Persistence(childComplexity), true
+
 	case "NaisJob.resources":
 		if e.complexity.NaisJob.Resources == nil {
 			break
@@ -3272,13 +3255,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.NaisJob.Secrets(childComplexity), true
-
-	case "NaisJob.storage":
-		if e.complexity.NaisJob.Storage == nil {
-			break
-		}
-
-		return e.complexity.NaisJob.Storage(childComplexity), true
 
 	case "NaisJob.team":
 		if e.complexity.NaisJob.Team == nil {
@@ -5803,7 +5779,7 @@ type App {
   accessPolicy: AccessPolicy!
   resources: Resources!
   autoScaling: AutoScaling!
-  storage: [Storage!]!
+  persistence: [Persistence!]!
   variables: [Variable!]!
   authz: [Authz!]!
   manifest: String!
@@ -6423,7 +6399,7 @@ type NaisJob {
   resources: Resources!
   schedule: String!
   team: Team!
-  storage: [Storage!]!
+  persistence: [Persistence!]!
   authz: [Authz!]!
   completions: Int!
   parallelism: Int!
@@ -6437,6 +6413,216 @@ type NaisJobList {
   pageInfo: PageInfo!
 }
 `, BuiltIn: false},
+	{Name: "../graphqls/persistence.graphqls", Input: `extend type Query {
+  "Get an SQL instance by name, team and env."
+  sqlInstance(
+    "The name of the instance."
+    name: String!
+
+    "The name of the team who owns the instance."
+    team: Slug!
+
+    "The environment the instance runs in."
+    env: String!
+  ): SqlInstance!
+}
+
+interface Persistence {
+  name: String!
+}
+
+type InfluxDb implements Persistence {
+  name: String!
+}
+
+type Redis implements Persistence {
+  name: String!
+  access: String!
+}
+
+type BigQueryDataset implements Persistence {
+  cascadingDelete: Boolean!
+  description: String!
+  name: String!
+  permission: String!
+}
+
+type Bucket implements Persistence {
+  cascadingDelete: Boolean!
+  name: String!
+  # publicAccessPrevention: Boolean!
+  # retentionPeriodDays: Int!
+  # uniformBucketLevelAccess: Boolean!
+}
+
+type Kafka implements Persistence {
+  """
+  The kafka pool name
+  """
+  name: String!
+  streams: Boolean!
+  topics: [Topic!]!
+}
+
+type Topic {
+  name: String!
+  acl: [Acl!]!
+}
+
+type Acl {
+  access: String!
+  application: String!
+  team: Slug!
+}
+
+type OpenSearch implements Persistence {
+  """
+  The opensearch instance name
+  """
+  name: String!
+  access: String!
+}
+
+type Flag {
+  name: String!
+  value: String!
+}
+
+type Insights {
+  enabled: Boolean!
+  queryStringLength: Int!
+  recordApplicationTags: Boolean!
+  recordClientAddress: Boolean!
+}
+
+type MaintenanceWindow {
+  day: Int!
+  hour: Int!
+}
+
+type SqlDatabase implements Persistence{
+  name: String!
+  charset: String!
+  collation: String!
+  deletionPolicy: String!
+  healthy: Boolean!
+  conditions: [Condition!]!
+}
+
+type SqlInstancesList {
+  nodes: [SqlInstance!]!
+  pageInfo: PageInfo!
+  metrics: SqlInstancesMetrics!
+}
+
+type SqlInstance implements Persistence {
+  id: ID!
+  backupConfiguration: BackupConfiguration!
+  cascadingDelete: Boolean!
+  connectionName: String!
+  database: SqlDatabase
+  diskAutoresize: Boolean!
+  diskAutoresizeLimit: Int!
+  env: Env!
+  flags: [Flag!]!
+  highAvailability: Boolean!
+  isHealthy: Boolean!
+  maintenanceWindow: MaintenanceWindow
+  maintenanceVersion: String
+  metrics: SqlInstanceMetrics!
+  name: String!
+  projectId: String!
+  team: Team!
+  tier: String!
+  type: String!
+  status: SqlInstanceStatus!
+  state: SqlInstanceState!
+  users: [SqlUser!]!
+  workload: Workload
+}
+
+enum SqlInstanceState {
+  SQL_INSTANCE_STATE_UNSPECIFIED
+  RUNNABLE
+  SUSPENDED
+  PENDING_DELETE
+  PENDING_CREATE
+  MAINTENANCE
+  FAILED
+}
+
+type SqlUser {
+  name: String!
+  authentication: String!
+}
+
+type BackupConfiguration {
+  enabled: Boolean!
+  startTime: String!
+  retainedBackups: Int!
+  pointInTimeRecovery: Boolean!
+  transactionLogRetentionDays: Int!
+}
+
+type SqlInstanceMetrics {
+  cost: Float!
+  cpu: SqlInstanceCpu!
+  memory: SqlInstanceMemory!
+  disk: SqlInstanceDisk!
+}
+
+type SqlInstancesMetrics {
+  cost: Float!
+  cpu: SqlInstanceCpu!
+  memory: SqlInstanceMemory!
+  disk: SqlInstanceDisk!
+}
+
+type SqlInstanceCpu {
+  cores: Float!
+  utilization: Float!
+}
+
+type SqlInstanceMemory {
+  quotaBytes: Int!
+  utilization: Float!
+}
+
+type SqlInstanceDisk {
+  quotaBytes: Int!
+  utilization: Float!
+}
+
+type SqlInstanceStatus {
+  conditions: [Condition!]!
+  publicIpAddress: String
+  privateIpAddress: String
+}
+
+type Condition {
+  message: String!
+  reason: String!
+  status: String!
+  type: String!
+  lastTransitionTime: String!
+}
+
+extend enum OrderByField {
+  "Order by PostgreSQL version"
+  VERSION
+
+  "Order by cost"
+  COST
+
+  "Order by CPU utilization"
+  CPU
+
+  "Order by memory utilization"
+  MEMORY
+
+  "Order by disk utilization"
+  DISK
+}`, BuiltIn: false},
 	{Name: "../graphqls/reconcilers.graphqls", Input: `extend type Mutation {
   """
   Enable a reconciler
@@ -6991,216 +7177,6 @@ type Role {
   targetTeam: Team
 }
 `, BuiltIn: false},
-	{Name: "../graphqls/storage.graphqls", Input: `extend type Query {
-  "Get an SQL instance by name, team and env."
-  sqlInstance(
-    "The name of the instance."
-    name: String!
-
-    "The name of the team who owns the instance."
-    team: Slug!
-
-    "The environment the instance runs in."
-    env: String!
-  ): SqlInstance!
-}
-
-interface Storage {
-  name: String!
-}
-
-type InfluxDb implements Storage {
-  name: String!
-}
-
-type Redis implements Storage {
-  name: String!
-  access: String!
-}
-
-type BigQueryDataset implements Storage {
-  cascadingDelete: Boolean!
-  description: String!
-  name: String!
-  permission: String!
-}
-
-type Bucket implements Storage {
-  cascadingDelete: Boolean!
-  name: String!
-  publicAccessPrevention: Boolean!
-  retentionPeriodDays: Int!
-  uniformBucketLevelAccess: Boolean!
-}
-
-type Kafka implements Storage {
-  """
-  The kafka pool name
-  """
-  name: String!
-  streams: Boolean!
-  topics: [Topic!]!
-}
-
-type Topic {
-  name: String!
-  acl: [Acl!]!
-}
-
-type Acl {
-  access: String!
-  application: String!
-  team: Slug!
-}
-
-type OpenSearch implements Storage {
-  """
-  The opensearch instance name
-  """
-  name: String!
-  access: String!
-}
-
-type Flag {
-  name: String!
-  value: String!
-}
-
-type Insights {
-  enabled: Boolean!
-  queryStringLength: Int!
-  recordApplicationTags: Boolean!
-  recordClientAddress: Boolean!
-}
-
-type MaintenanceWindow {
-  day: Int!
-  hour: Int!
-}
-
-type SqlDatabase implements Storage{
-  name: String!
-  charset: String!
-  collation: String!
-  deletionPolicy: String!
-  healthy: Boolean!
-  conditions: [Condition!]!
-}
-
-type SqlInstancesList {
-  nodes: [SqlInstance!]!
-  pageInfo: PageInfo!
-  metrics: SqlInstancesMetrics!
-}
-
-type SqlInstance implements Storage {
-  id: ID!
-  backupConfiguration: BackupConfiguration!
-  cascadingDelete: Boolean!
-  connectionName: String!
-  database: SqlDatabase
-  diskAutoresize: Boolean!
-  diskAutoresizeLimit: Int!
-  env: Env!
-  flags: [Flag!]!
-  highAvailability: Boolean!
-  isHealthy: Boolean!
-  maintenanceWindow: MaintenanceWindow
-  maintenanceVersion: String
-  metrics: SqlInstanceMetrics!
-  name: String!
-  projectId: String!
-  team: Team!
-  tier: String!
-  type: String!
-  status: SqlInstanceStatus!
-  state: SqlInstanceState!
-  users: [SqlUser!]!
-  workload: Workload
-}
-
-enum SqlInstanceState {
-  SQL_INSTANCE_STATE_UNSPECIFIED
-  RUNNABLE
-  SUSPENDED
-  PENDING_DELETE
-  PENDING_CREATE
-  MAINTENANCE
-  FAILED
-}
-
-type SqlUser {
-  name: String!
-  authentication: String!
-}
-
-type BackupConfiguration {
-  enabled: Boolean!
-  startTime: String!
-  retainedBackups: Int!
-  pointInTimeRecovery: Boolean!
-  transactionLogRetentionDays: Int!
-}
-
-type SqlInstanceMetrics {
-  cost: Float!
-  cpu: SqlInstanceCpu!
-  memory: SqlInstanceMemory!
-  disk: SqlInstanceDisk!
-}
-
-type SqlInstancesMetrics {
-  cost: Float!
-  cpu: SqlInstanceCpu!
-  memory: SqlInstanceMemory!
-  disk: SqlInstanceDisk!
-}
-
-type SqlInstanceCpu {
-  cores: Float!
-  utilization: Float!
-}
-
-type SqlInstanceMemory {
-  quotaBytes: Int!
-  utilization: Float!
-}
-
-type SqlInstanceDisk {
-  quotaBytes: Int!
-  utilization: Float!
-}
-
-type SqlInstanceStatus {
-  conditions: [Condition!]!
-  publicIpAddress: String
-  privateIpAddress: String
-}
-
-type Condition {
-  message: String!
-  reason: String!
-  status: String!
-  type: String!
-  lastTransitionTime: String!
-}
-
-extend enum OrderByField {
-  "Order by PostgreSQL version"
-  VERSION
-
-  "Order by cost"
-  COST
-
-  "Order by CPU utilization"
-  CPU
-
-  "Order by memory utilization"
-  MEMORY
-
-  "Order by disk utilization"
-  DISK
-}`, BuiltIn: false},
 	{Name: "../graphqls/teams.graphqls", Input: `extend type Query {
   "Get a collection of teams. Default limit is 20"
   teams(
@@ -10467,8 +10443,8 @@ func (ec *executionContext) fieldContext_App_autoScaling(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _App_storage(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_App_storage(ctx, field)
+func (ec *executionContext) _App_persistence(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_App_persistence(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -10481,7 +10457,7 @@ func (ec *executionContext) _App_storage(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Storage, nil
+		return obj.Persistence, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10493,12 +10469,12 @@ func (ec *executionContext) _App_storage(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]model.Storage)
+	res := resTmp.([]model.Persistence)
 	fc.Result = res
-	return ec.marshalNStorage2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStorageᚄ(ctx, field.Selections, res)
+	return ec.marshalNPersistence2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPersistenceᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_App_storage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_App_persistence(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "App",
 		Field:      field,
@@ -11121,8 +11097,8 @@ func (ec *executionContext) fieldContext_AppList_nodes(ctx context.Context, fiel
 				return ec.fieldContext_App_resources(ctx, field)
 			case "autoScaling":
 				return ec.fieldContext_App_autoScaling(ctx, field)
-			case "storage":
-				return ec.fieldContext_App_storage(ctx, field)
+			case "persistence":
+				return ec.fieldContext_App_persistence(ctx, field)
 			case "variables":
 				return ec.fieldContext_App_variables(ctx, field)
 			case "authz":
@@ -13126,138 +13102,6 @@ func (ec *executionContext) fieldContext_Bucket_name(ctx context.Context, field 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Bucket_publicAccessPrevention(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Bucket_publicAccessPrevention(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PublicAccessPrevention, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Bucket_publicAccessPrevention(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Bucket",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Bucket_retentionPeriodDays(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Bucket_retentionPeriodDays(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.RetentionPeriodDays, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Bucket_retentionPeriodDays(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Bucket",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Bucket_uniformBucketLevelAccess(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Bucket_uniformBucketLevelAccess(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UniformBucketLevelAccess, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Bucket_uniformBucketLevelAccess(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Bucket",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -23587,8 +23431,8 @@ func (ec *executionContext) fieldContext_NaisJob_team(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _NaisJob_storage(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_NaisJob_storage(ctx, field)
+func (ec *executionContext) _NaisJob_persistence(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NaisJob_persistence(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -23601,7 +23445,7 @@ func (ec *executionContext) _NaisJob_storage(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Storage, nil
+		return obj.Persistence, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23613,12 +23457,12 @@ func (ec *executionContext) _NaisJob_storage(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]model.Storage)
+	res := resTmp.([]model.Persistence)
 	fc.Result = res
-	return ec.marshalNStorage2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStorageᚄ(ctx, field.Selections, res)
+	return ec.marshalNPersistence2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPersistenceᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_NaisJob_storage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_NaisJob_persistence(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "NaisJob",
 		Field:      field,
@@ -23982,8 +23826,8 @@ func (ec *executionContext) fieldContext_NaisJobList_nodes(ctx context.Context, 
 				return ec.fieldContext_NaisJob_schedule(ctx, field)
 			case "team":
 				return ec.fieldContext_NaisJob_team(ctx, field)
-			case "storage":
-				return ec.fieldContext_NaisJob_storage(ctx, field)
+			case "persistence":
+				return ec.fieldContext_NaisJob_persistence(ctx, field)
 			case "authz":
 				return ec.fieldContext_NaisJob_authz(ctx, field)
 			case "completions":
@@ -24940,8 +24784,8 @@ func (ec *executionContext) fieldContext_Query_app(ctx context.Context, field gr
 				return ec.fieldContext_App_resources(ctx, field)
 			case "autoScaling":
 				return ec.fieldContext_App_autoScaling(ctx, field)
-			case "storage":
-				return ec.fieldContext_App_storage(ctx, field)
+			case "persistence":
+				return ec.fieldContext_App_persistence(ctx, field)
 			case "variables":
 				return ec.fieldContext_App_variables(ctx, field)
 			case "authz":
@@ -25406,8 +25250,8 @@ func (ec *executionContext) fieldContext_Query_naisjob(ctx context.Context, fiel
 				return ec.fieldContext_NaisJob_schedule(ctx, field)
 			case "team":
 				return ec.fieldContext_NaisJob_team(ctx, field)
-			case "storage":
-				return ec.fieldContext_NaisJob_storage(ctx, field)
+			case "persistence":
+				return ec.fieldContext_NaisJob_persistence(ctx, field)
 			case "authz":
 				return ec.fieldContext_NaisJob_authz(ctx, field)
 			case "completions":
@@ -25432,6 +25276,109 @@ func (ec *executionContext) fieldContext_Query_naisjob(ctx context.Context, fiel
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_naisjob_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_sqlInstance(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_sqlInstance(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().SQLInstance(rctx, fc.Args["name"].(string), fc.Args["team"].(slug.Slug), fc.Args["env"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.SQLInstance)
+	fc.Result = res
+	return ec.marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstance(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_sqlInstance(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_SqlInstance_id(ctx, field)
+			case "backupConfiguration":
+				return ec.fieldContext_SqlInstance_backupConfiguration(ctx, field)
+			case "cascadingDelete":
+				return ec.fieldContext_SqlInstance_cascadingDelete(ctx, field)
+			case "connectionName":
+				return ec.fieldContext_SqlInstance_connectionName(ctx, field)
+			case "database":
+				return ec.fieldContext_SqlInstance_database(ctx, field)
+			case "diskAutoresize":
+				return ec.fieldContext_SqlInstance_diskAutoresize(ctx, field)
+			case "diskAutoresizeLimit":
+				return ec.fieldContext_SqlInstance_diskAutoresizeLimit(ctx, field)
+			case "env":
+				return ec.fieldContext_SqlInstance_env(ctx, field)
+			case "flags":
+				return ec.fieldContext_SqlInstance_flags(ctx, field)
+			case "highAvailability":
+				return ec.fieldContext_SqlInstance_highAvailability(ctx, field)
+			case "isHealthy":
+				return ec.fieldContext_SqlInstance_isHealthy(ctx, field)
+			case "maintenanceWindow":
+				return ec.fieldContext_SqlInstance_maintenanceWindow(ctx, field)
+			case "maintenanceVersion":
+				return ec.fieldContext_SqlInstance_maintenanceVersion(ctx, field)
+			case "metrics":
+				return ec.fieldContext_SqlInstance_metrics(ctx, field)
+			case "name":
+				return ec.fieldContext_SqlInstance_name(ctx, field)
+			case "projectId":
+				return ec.fieldContext_SqlInstance_projectId(ctx, field)
+			case "team":
+				return ec.fieldContext_SqlInstance_team(ctx, field)
+			case "tier":
+				return ec.fieldContext_SqlInstance_tier(ctx, field)
+			case "type":
+				return ec.fieldContext_SqlInstance_type(ctx, field)
+			case "status":
+				return ec.fieldContext_SqlInstance_status(ctx, field)
+			case "state":
+				return ec.fieldContext_SqlInstance_state(ctx, field)
+			case "users":
+				return ec.fieldContext_SqlInstance_users(ctx, field)
+			case "workload":
+				return ec.fieldContext_SqlInstance_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SqlInstance", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_sqlInstance_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -26080,109 +26027,6 @@ func (ec *executionContext) fieldContext_Query_search(ctx context.Context, field
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_search_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_sqlInstance(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_sqlInstance(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().SQLInstance(rctx, fc.Args["name"].(string), fc.Args["team"].(slug.Slug), fc.Args["env"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.SQLInstance)
-	fc.Result = res
-	return ec.marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstance(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_sqlInstance(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_SqlInstance_id(ctx, field)
-			case "backupConfiguration":
-				return ec.fieldContext_SqlInstance_backupConfiguration(ctx, field)
-			case "cascadingDelete":
-				return ec.fieldContext_SqlInstance_cascadingDelete(ctx, field)
-			case "connectionName":
-				return ec.fieldContext_SqlInstance_connectionName(ctx, field)
-			case "database":
-				return ec.fieldContext_SqlInstance_database(ctx, field)
-			case "diskAutoresize":
-				return ec.fieldContext_SqlInstance_diskAutoresize(ctx, field)
-			case "diskAutoresizeLimit":
-				return ec.fieldContext_SqlInstance_diskAutoresizeLimit(ctx, field)
-			case "env":
-				return ec.fieldContext_SqlInstance_env(ctx, field)
-			case "flags":
-				return ec.fieldContext_SqlInstance_flags(ctx, field)
-			case "highAvailability":
-				return ec.fieldContext_SqlInstance_highAvailability(ctx, field)
-			case "isHealthy":
-				return ec.fieldContext_SqlInstance_isHealthy(ctx, field)
-			case "maintenanceWindow":
-				return ec.fieldContext_SqlInstance_maintenanceWindow(ctx, field)
-			case "maintenanceVersion":
-				return ec.fieldContext_SqlInstance_maintenanceVersion(ctx, field)
-			case "metrics":
-				return ec.fieldContext_SqlInstance_metrics(ctx, field)
-			case "name":
-				return ec.fieldContext_SqlInstance_name(ctx, field)
-			case "projectId":
-				return ec.fieldContext_SqlInstance_projectId(ctx, field)
-			case "team":
-				return ec.fieldContext_SqlInstance_team(ctx, field)
-			case "tier":
-				return ec.fieldContext_SqlInstance_tier(ctx, field)
-			case "type":
-				return ec.fieldContext_SqlInstance_type(ctx, field)
-			case "status":
-				return ec.fieldContext_SqlInstance_status(ctx, field)
-			case "state":
-				return ec.fieldContext_SqlInstance_state(ctx, field)
-			case "users":
-				return ec.fieldContext_SqlInstance_users(ctx, field)
-			case "workload":
-				return ec.fieldContext_SqlInstance_workload(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type SqlInstance", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_sqlInstance_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -30555,8 +30399,8 @@ func (ec *executionContext) fieldContext_Secret_apps(ctx context.Context, field 
 				return ec.fieldContext_App_resources(ctx, field)
 			case "autoScaling":
 				return ec.fieldContext_App_autoScaling(ctx, field)
-			case "storage":
-				return ec.fieldContext_App_storage(ctx, field)
+			case "persistence":
+				return ec.fieldContext_App_persistence(ctx, field)
 			case "variables":
 				return ec.fieldContext_App_variables(ctx, field)
 			case "authz":
@@ -30639,8 +30483,8 @@ func (ec *executionContext) fieldContext_Secret_jobs(ctx context.Context, field 
 				return ec.fieldContext_NaisJob_schedule(ctx, field)
 			case "team":
 				return ec.fieldContext_NaisJob_team(ctx, field)
-			case "storage":
-				return ec.fieldContext_NaisJob_storage(ctx, field)
+			case "persistence":
+				return ec.fieldContext_NaisJob_persistence(ctx, field)
 			case "authz":
 				return ec.fieldContext_NaisJob_authz(ctx, field)
 			case "completions":
@@ -41983,6 +41827,71 @@ func (ec *executionContext) _DeploymentResponse(ctx context.Context, sel ast.Sel
 	}
 }
 
+func (ec *executionContext) _Persistence(ctx context.Context, sel ast.SelectionSet, obj model.Persistence) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case model.InfluxDb:
+		return ec._InfluxDb(ctx, sel, &obj)
+	case *model.InfluxDb:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._InfluxDb(ctx, sel, obj)
+	case model.Redis:
+		return ec._Redis(ctx, sel, &obj)
+	case *model.Redis:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Redis(ctx, sel, obj)
+	case model.BigQueryDataset:
+		return ec._BigQueryDataset(ctx, sel, &obj)
+	case *model.BigQueryDataset:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._BigQueryDataset(ctx, sel, obj)
+	case model.Bucket:
+		return ec._Bucket(ctx, sel, &obj)
+	case *model.Bucket:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Bucket(ctx, sel, obj)
+	case model.Kafka:
+		return ec._Kafka(ctx, sel, &obj)
+	case *model.Kafka:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Kafka(ctx, sel, obj)
+	case model.OpenSearch:
+		return ec._OpenSearch(ctx, sel, &obj)
+	case *model.OpenSearch:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._OpenSearch(ctx, sel, obj)
+	case model.SQLDatabase:
+		return ec._SqlDatabase(ctx, sel, &obj)
+	case *model.SQLDatabase:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SqlDatabase(ctx, sel, obj)
+	case model.SQLInstance:
+		return ec._SqlInstance(ctx, sel, &obj)
+	case *model.SQLInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SqlInstance(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _SearchNode(ctx context.Context, sel ast.SelectionSet, obj model.SearchNode) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -42087,71 +41996,6 @@ func (ec *executionContext) _StateError(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._FailedRunError(ctx, sel, obj)
-	default:
-		panic(fmt.Errorf("unexpected type %T", obj))
-	}
-}
-
-func (ec *executionContext) _Storage(ctx context.Context, sel ast.SelectionSet, obj model.Storage) graphql.Marshaler {
-	switch obj := (obj).(type) {
-	case nil:
-		return graphql.Null
-	case model.InfluxDb:
-		return ec._InfluxDb(ctx, sel, &obj)
-	case *model.InfluxDb:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._InfluxDb(ctx, sel, obj)
-	case model.Redis:
-		return ec._Redis(ctx, sel, &obj)
-	case *model.Redis:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Redis(ctx, sel, obj)
-	case model.BigQueryDataset:
-		return ec._BigQueryDataset(ctx, sel, &obj)
-	case *model.BigQueryDataset:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._BigQueryDataset(ctx, sel, obj)
-	case model.Bucket:
-		return ec._Bucket(ctx, sel, &obj)
-	case *model.Bucket:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Bucket(ctx, sel, obj)
-	case model.Kafka:
-		return ec._Kafka(ctx, sel, &obj)
-	case *model.Kafka:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Kafka(ctx, sel, obj)
-	case model.OpenSearch:
-		return ec._OpenSearch(ctx, sel, &obj)
-	case *model.OpenSearch:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._OpenSearch(ctx, sel, obj)
-	case model.SQLDatabase:
-		return ec._SqlDatabase(ctx, sel, &obj)
-	case *model.SQLDatabase:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SqlDatabase(ctx, sel, obj)
-	case model.SQLInstance:
-		return ec._SqlInstance(ctx, sel, &obj)
-	case *model.SQLInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SqlInstance(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -42369,8 +42213,8 @@ func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "storage":
-			out.Values[i] = ec._App_storage(ctx, field, obj)
+		case "persistence":
+			out.Values[i] = ec._App_persistence(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -43128,7 +42972,7 @@ func (ec *executionContext) _BackupConfiguration(ctx context.Context, sel ast.Se
 	return out
 }
 
-var bigQueryDatasetImplementors = []string{"BigQueryDataset", "Storage"}
+var bigQueryDatasetImplementors = []string{"BigQueryDataset", "Persistence"}
 
 func (ec *executionContext) _BigQueryDataset(ctx context.Context, sel ast.SelectionSet, obj *model.BigQueryDataset) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, bigQueryDatasetImplementors)
@@ -43182,7 +43026,7 @@ func (ec *executionContext) _BigQueryDataset(ctx context.Context, sel ast.Select
 	return out
 }
 
-var bucketImplementors = []string{"Bucket", "Storage"}
+var bucketImplementors = []string{"Bucket", "Persistence"}
 
 func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, obj *model.Bucket) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, bucketImplementors)
@@ -43200,21 +43044,6 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 			}
 		case "name":
 			out.Values[i] = ec._Bucket_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "publicAccessPrevention":
-			out.Values[i] = ec._Bucket_publicAccessPrevention(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "retentionPeriodDays":
-			out.Values[i] = ec._Bucket_retentionPeriodDays(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "uniformBucketLevelAccess":
-			out.Values[i] = ec._Bucket_uniformBucketLevelAccess(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -45108,7 +44937,7 @@ func (ec *executionContext) _InboundAccessError(ctx context.Context, sel ast.Sel
 	return out
 }
 
-var influxDbImplementors = []string{"InfluxDb", "Storage"}
+var influxDbImplementors = []string{"InfluxDb", "Persistence"}
 
 func (ec *executionContext) _InfluxDb(ctx context.Context, sel ast.SelectionSet, obj *model.InfluxDb) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, influxDbImplementors)
@@ -45407,7 +45236,7 @@ func (ec *executionContext) _JobsStatus(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
-var kafkaImplementors = []string{"Kafka", "Storage"}
+var kafkaImplementors = []string{"Kafka", "Persistence"}
 
 func (ec *executionContext) _Kafka(ctx context.Context, sel ast.SelectionSet, obj *model.Kafka) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaImplementors)
@@ -46129,8 +45958,8 @@ func (ec *executionContext) _NaisJob(ctx context.Context, sel ast.SelectionSet, 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "storage":
-			out.Values[i] = ec._NaisJob_storage(ctx, field, obj)
+		case "persistence":
+			out.Values[i] = ec._NaisJob_persistence(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -46399,7 +46228,7 @@ func (ec *executionContext) _NoRunningInstancesError(ctx context.Context, sel as
 	return out
 }
 
-var openSearchImplementors = []string{"OpenSearch", "Storage"}
+var openSearchImplementors = []string{"OpenSearch", "Persistence"}
 
 func (ec *executionContext) _OpenSearch(ctx context.Context, sel ast.SelectionSet, obj *model.OpenSearch) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, openSearchImplementors)
@@ -46819,6 +46648,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "sqlInstance":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_sqlInstance(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "reconcilers":
 			field := field
 
@@ -47027,28 +46878,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_search(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "sqlInstance":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_sqlInstance(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -47496,7 +47325,7 @@ func (ec *executionContext) _ReconcilerList(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var redisImplementors = []string{"Redis", "Storage"}
+var redisImplementors = []string{"Redis", "Persistence"}
 
 func (ec *executionContext) _Redis(ctx context.Context, sel ast.SelectionSet, obj *model.Redis) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, redisImplementors)
@@ -48710,7 +48539,7 @@ func (ec *executionContext) _SlackAlertsChannel(ctx context.Context, sel ast.Sel
 	return out
 }
 
-var sqlDatabaseImplementors = []string{"SqlDatabase", "Storage"}
+var sqlDatabaseImplementors = []string{"SqlDatabase", "Persistence"}
 
 func (ec *executionContext) _SqlDatabase(ctx context.Context, sel ast.SelectionSet, obj *model.SQLDatabase) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlDatabaseImplementors)
@@ -48774,7 +48603,7 @@ func (ec *executionContext) _SqlDatabase(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
-var sqlInstanceImplementors = []string{"SqlInstance", "SearchNode", "Storage"}
+var sqlInstanceImplementors = []string{"SqlInstance", "Persistence", "SearchNode"}
 
 func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionSet, obj *model.SQLInstance) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceImplementors)
@@ -54066,6 +53895,60 @@ func (ec *executionContext) marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinterna
 	return ec._PageInfo(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalNPersistence2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPersistence(ctx context.Context, sel ast.SelectionSet, v model.Persistence) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Persistence(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPersistence2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPersistenceᚄ(ctx context.Context, sel ast.SelectionSet, v []model.Persistence) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNPersistence2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPersistence(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNPort2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPortᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Port) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -55097,60 +54980,6 @@ func (ec *executionContext) marshalNStateError2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 				defer wg.Done()
 			}
 			ret[i] = ec.marshalNStateError2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStateError(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNStorage2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStorage(ctx context.Context, sel ast.SelectionSet, v model.Storage) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Storage(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNStorage2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStorageᚄ(ctx context.Context, sel ast.SelectionSet, v []model.Storage) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNStorage2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStorage(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)

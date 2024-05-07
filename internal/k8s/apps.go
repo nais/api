@@ -112,12 +112,12 @@ func (c *Client) App(ctx context.Context, name, team, env string) (*model.App, e
 		return nil, c.error(ctx, err, "getting topics")
 	}
 
-	storage, err := appStorage(obj.(*unstructured.Unstructured), topics, env)
+	storage, err := c.appPersistence(obj.(*unstructured.Unstructured), topics, env)
 	if err != nil {
 		return nil, c.error(ctx, err, "converting to app storage")
 	}
 
-	app.Storage = storage
+	app.Persistence = storage
 
 	instances, err := c.Instances(ctx, team, env, name)
 	if err != nil {
@@ -928,22 +928,31 @@ func synchronizationStateCondition(conditions []metav1.Condition) *metav1.Condit
 	return nil
 }
 
-func appStorage(u *unstructured.Unstructured, topics []*model.Topic, env string) ([]model.Storage, error) {
+func (c *Client) appPersistence(u *unstructured.Unstructured, topics []*model.Topic, env string) ([]model.Persistence, error) {
 	app := &naisv1alpha1.Application{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, app); err != nil {
 		return nil, fmt.Errorf("converting to application: %w", err)
 	}
 
-	ret := make([]model.Storage, 0)
+	ret := make([]model.Persistence, 0)
+
+
+	if inf := c.informers[env].BucketInformer; inf != nil {
+		buckets, err := inf.Lister().ByNamespace(app.GetNamespace()).List(labels.Everything())
+		if err != nil {
+			return nil, fmt.Errorf("listing buckets: %w", err)
+		}
+		for _, bucket := range buckets {
+			b, err := model.ToBucket(bucket.(*unstructured.Unstructured))
+			if err != nil {
+				return nil, fmt.Errorf("converting bucket: %w", err)
+			}
+			ret = append(ret, b)
+		}
+
+	}
 
 	if app.Spec.GCP != nil {
-		for _, v := range app.Spec.GCP.Buckets {
-			bucket := model.Bucket{}
-			if err := convert(v, &bucket); err != nil {
-				return nil, fmt.Errorf("converting buckets: %w", err)
-			}
-			ret = append(ret, bucket)
-		}
 
 		// TODO: Use SqlInstance informer for this instead?
 		for _, v := range app.Spec.GCP.SqlInstances {

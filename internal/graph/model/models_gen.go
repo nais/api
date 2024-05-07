@@ -25,6 +25,11 @@ type DeploymentResponse interface {
 	IsDeploymentResponse()
 }
 
+type Persistence interface {
+	IsPersistence()
+	GetName() string
+}
+
 type SearchNode interface {
 	IsSearchNode()
 }
@@ -33,11 +38,6 @@ type StateError interface {
 	IsStateError()
 	GetRevision() string
 	GetLevel() ErrorLevel
-}
-
-type Storage interface {
-	IsStorage()
-	GetName() string
 }
 
 type Workload interface {
@@ -154,19 +154,8 @@ type BigQueryDataset struct {
 	Permission      string `json:"permission"`
 }
 
-func (BigQueryDataset) IsStorage()           {}
+func (BigQueryDataset) IsPersistence()       {}
 func (this BigQueryDataset) GetName() string { return this.Name }
-
-type Bucket struct {
-	CascadingDelete          bool   `json:"cascadingDelete"`
-	Name                     string `json:"name"`
-	PublicAccessPrevention   bool   `json:"publicAccessPrevention"`
-	RetentionPeriodDays      int    `json:"retentionPeriodDays"`
-	UniformBucketLevelAccess bool   `json:"uniformBucketLevelAccess"`
-}
-
-func (Bucket) IsStorage()           {}
-func (this Bucket) GetName() string { return this.Name }
 
 type Claims struct {
 	Extra  []string `json:"extra"`
@@ -449,7 +438,7 @@ type InfluxDb struct {
 	Name string `json:"name"`
 }
 
-func (InfluxDb) IsStorage()           {}
+func (InfluxDb) IsPersistence()       {}
 func (this InfluxDb) GetName() string { return this.Name }
 
 type Insights struct {
@@ -487,7 +476,7 @@ type Kafka struct {
 	Topics  []*Topic `json:"topics"`
 }
 
-func (Kafka) IsStorage()           {}
+func (Kafka) IsPersistence()       {}
 func (this Kafka) GetName() string { return this.Name }
 
 type Limits struct {
@@ -586,7 +575,7 @@ type OpenSearch struct {
 	Access string `json:"access"`
 }
 
-func (OpenSearch) IsStorage()           {}
+func (OpenSearch) IsPersistence()       {}
 func (this OpenSearch) GetName() string { return this.Name }
 
 type OrderBy struct {
@@ -666,7 +655,7 @@ type Redis struct {
 	Access string `json:"access"`
 }
 
-func (Redis) IsStorage()           {}
+func (Redis) IsPersistence()       {}
 func (this Redis) GetName() string { return this.Name }
 
 type Requests struct {
