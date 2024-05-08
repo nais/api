@@ -60,12 +60,12 @@ type App {
   authz: [Authz!]!
   manifest: String!
   team: Team!
-  appState: AppState!
+  status: WorkloadStatus!
   vulnerabilities: Vulnerability
   secrets: [Secret!]!
 }
 
-type AppState {
+type WorkloadStatus {
   state: State!
   errors: [StateError!]!
 }

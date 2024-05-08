@@ -107,18 +107,6 @@ func (c *Client) App(ctx context.Context, name, team, env string) (*model.App, e
 		app.AccessPolicy.Inbound.Rules[i] = rule
 	}
 
-	topics, err := c.getTopics(ctx, name, team, env)
-	if err != nil {
-		return nil, c.error(ctx, err, "getting topics")
-	}
-
-	storage, err := c.appPersistence(obj.(*unstructured.Unstructured), topics, env)
-	if err != nil {
-		return nil, c.error(ctx, err, "converting to app storage")
-	}
-
-	app.Persistence = storage
-
 	instances, err := c.Instances(ctx, team, env, name)
 	if err != nil {
 		return nil, c.error(ctx, err, "getting instances")
@@ -673,6 +661,13 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 	ret.DeployInfo.GQLVars.Env = env
 	ret.DeployInfo.GQLVars.Team = slug.Slug(app.GetNamespace())
 	ret.GQLVars.Team = slug.Slug(app.GetNamespace())
+	ret.GQLVars.Spec = model.WorkloadSpec{
+		GCP:        app.Spec.GCP,
+		Influx:     app.Spec.Influx,
+		Kafka:      app.Spec.Kafka,
+		OpenSearch: app.Spec.OpenSearch,
+		Redis:      app.Spec.Redis,
+	}
 
 	ret.Image = app.Spec.Image
 
@@ -771,7 +766,7 @@ func toTopic(u *unstructured.Unstructured, name, team string) (*model.Topic, err
 func setStatus(app *model.App, conditions []metav1.Condition, instances []*model.Instance) {
 	currentCondition := synchronizationStateCondition(conditions)
 	numFailing := failing(instances)
-	appState := model.AppState{
+	appState := model.WorkloadStatus{
 		State:  model.StateNais,
 		Errors: []model.StateError{},
 	}
@@ -906,7 +901,7 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 		}
 	}
 
-	app.AppState = appState
+	app.Status = appState
 }
 
 func failing(instances []*model.Instance) int {
@@ -926,88 +921,6 @@ func synchronizationStateCondition(conditions []metav1.Condition) *metav1.Condit
 		}
 	}
 	return nil
-}
-
-func (c *Client) appPersistence(u *unstructured.Unstructured, topics []*model.Topic, env string) ([]model.Persistence, error) {
-	app := &naisv1alpha1.Application{}
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, app); err != nil {
-		return nil, fmt.Errorf("converting to application: %w", err)
-	}
-
-	ret := make([]model.Persistence, 0)
-
-	if inf := c.informers[env].BucketInformer; inf != nil {
-		buckets, err := inf.Lister().ByNamespace(app.GetNamespace()).List(labels.Everything())
-		if err != nil {
-			return nil, fmt.Errorf("listing buckets: %w", err)
-		}
-		for _, bucket := range buckets {
-			b, err := model.ToBucket(bucket.(*unstructured.Unstructured), env)
-			if err != nil {
-				return nil, fmt.Errorf("converting bucket: %w", err)
-			}
-			ret = append(ret, b)
-		}
-	}
-
-	if app.Spec.GCP != nil {
-		// TODO: Use SqlInstance informer for this instead?
-		for _, v := range app.Spec.GCP.SqlInstances {
-			sqlInstance := model.SQLInstance{}
-			if err := convert(v, &sqlInstance); err != nil {
-				return nil, fmt.Errorf("converting sqlInstance: %w", err)
-			}
-			if sqlInstance.Name == "" {
-				sqlInstance.Name = app.Name
-			}
-			sqlInstance.ID = scalar.SqlInstanceIdent("sqlInstance_" + env + "_" + app.GetNamespace() + "_" + sqlInstance.GetName())
-			ret = append(ret, sqlInstance)
-		}
-
-		for _, v := range app.Spec.GCP.BigQueryDatasets {
-			bqDataset := model.BigQueryDataset{}
-			if err := convert(v, &bqDataset); err != nil {
-				return nil, fmt.Errorf("converting bigQueryDataset: %w", err)
-			}
-			ret = append(ret, bqDataset)
-		}
-	}
-
-	if app.Spec.OpenSearch != nil {
-		os := model.OpenSearch{
-			Name:   app.Spec.OpenSearch.Instance,
-			Access: app.Spec.OpenSearch.Access,
-		}
-		ret = append(ret, os)
-	}
-
-	if app.Spec.Kafka != nil {
-		kafka := model.Kafka{
-			Name:    app.Spec.Kafka.Pool,
-			Streams: app.Spec.Kafka.Streams,
-			Topics:  topics,
-		}
-
-		ret = append(ret, kafka)
-	}
-
-	if len(app.Spec.Redis) > 0 {
-		for _, v := range app.Spec.Redis {
-			redis := model.Redis{
-				Name:   v.Instance,
-				Access: v.Access,
-			}
-			ret = append(ret, redis)
-		}
-	}
-
-	if app.Spec.Influx != nil {
-		influx := model.InfluxDb{
-			Name: app.Spec.Influx.Instance,
-		}
-		ret = append(ret, influx)
-	}
-	return ret, nil
 }
 
 func appAuthz(app *naisv1alpha1.Application) ([]model.Authz, error) {

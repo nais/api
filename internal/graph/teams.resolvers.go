@@ -1008,7 +1008,7 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 		}
 		failingApps := 0
 		for _, app := range apps {
-			if app.AppState.State == model.StateFailing {
+			if app.Status.State == model.StateFailing {
 				failingApps++
 			}
 		}
@@ -1025,7 +1025,7 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 		}
 		failingJobs := 0
 		for _, job := range jobs {
-			if job.JobState.State == model.StateFailing {
+			if job.Status.State == model.StateFailing {
 				failingJobs++
 			}
 		}
@@ -1209,10 +1209,10 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 				aIndex := -1
 				bIndex := -1
 				for i, s := range sortOrder {
-					if a.AppState.State == s {
+					if a.Status.State == s {
 						aIndex = i
 					}
-					if b.AppState.State == s {
+					if b.Status.State == s {
 						bIndex = i
 					}
 				}
@@ -1232,7 +1232,7 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 	pagination := model.NewPagination(offset, limit)
 	apps, pageInfo := model.PaginatedSlice(apps, pagination)
 	for _, app := range apps {
-		app.GQLVars = model.AppGQLVars{Team: obj.Slug}
+		app.GQLVars = model.WorkloadBaseGQLVars{Team: obj.Slug}
 	}
 
 	return &model.AppList{
@@ -1298,10 +1298,10 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 				aIndex := -1
 				bIndex := -1
 				for i, s := range sortOrder {
-					if a.JobState.State == s {
+					if a.Status.State == s {
 						aIndex = i
 					}
-					if b.JobState.State == s {
+					if b.Status.State == s {
 						bIndex = i
 					}
 				}
@@ -1322,7 +1322,7 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 	pagination := model.NewPagination(offset, limit)
 	jobs, pageInfo := model.PaginatedSlice(naisjobs, pagination)
 	for _, job := range jobs {
-		job.GQLVars = model.NaisJobGQLVars{Team: obj.Slug}
+		job.GQLVars = model.WorkloadBaseGQLVars{Team: obj.Slug}
 	}
 
 	return &model.NaisJobList{

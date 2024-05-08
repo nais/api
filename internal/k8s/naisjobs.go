@@ -74,18 +74,6 @@ func (c *Client) NaisJob(ctx context.Context, name, team, env string) (*model.Na
 		job.AccessPolicy.Inbound.Rules[i] = rule
 	}
 
-	topics, err := c.getTopics(ctx, name, team, env)
-	if err != nil {
-		return nil, c.error(ctx, err, "getting topics")
-	}
-
-	storage, err := naisjobStorage(obj.(*unstructured.Unstructured), topics, env)
-	if err != nil {
-		return nil, c.error(ctx, err, "getting storage")
-	}
-
-	job.Persistence = storage
-
 	runs, err := c.Runs(ctx, team, env, name)
 	if err != nil {
 		return nil, c.error(ctx, err, "getting runs")
@@ -219,7 +207,7 @@ func (c *Client) setJobHasMutualOnInbound(ctx context.Context, oApp, oTeam, oEnv
 
 func setJobStatus(job *model.NaisJob, conditions []metav1.Condition, runs []*model.Run) {
 	currentCondition := synchronizationStateCondition(conditions)
-	jobState := model.JobState{
+	jobState := model.WorkloadStatus{
 		State:  model.StateNais,
 		Errors: []model.StateError{},
 	}
@@ -322,7 +310,7 @@ func setJobStatus(job *model.NaisJob, conditions []metav1.Condition, runs []*mod
 		}
 	}
 
-	job.JobState = jobState
+	job.Status = jobState
 }
 
 func (c *Client) NaisJobs(ctx context.Context, team string) ([]*model.NaisJob, error) {
@@ -613,80 +601,14 @@ func (c *Client) ToNaisJob(u *unstructured.Unstructured, env string) (*model.Nai
 
 	slices.Sort(secrets)
 	ret.GQLVars.SecretNames = slices.Compact(secrets)
-
-	return ret, nil
-}
-
-func naisjobStorage(u *unstructured.Unstructured, topics []*model.Topic, env string) ([]model.Persistence, error) {
-	naisjob := &naisv1.Naisjob{}
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, naisjob); err != nil {
-		return nil, fmt.Errorf("converting to application: %w", err)
+	ret.GQLVars.Spec = model.WorkloadSpec{
+		GCP:        naisjob.Spec.GCP,
+		Influx:     naisjob.Spec.Influx,
+		Kafka:      naisjob.Spec.Kafka,
+		OpenSearch: naisjob.Spec.OpenSearch,
+		Redis:      naisjob.Spec.Redis,
 	}
 
-	ret := make([]model.Persistence, 0)
-
-	if naisjob.Spec.GCP != nil {
-		for _, v := range naisjob.Spec.GCP.Buckets {
-			bucket := model.Bucket{}
-			if err := convert(v, &bucket); err != nil {
-				return nil, fmt.Errorf("converting buckets: %w", err)
-			}
-			ret = append(ret, bucket)
-		}
-		for _, v := range naisjob.Spec.GCP.SqlInstances {
-			sqlInstance := model.SQLInstance{}
-			if err := convert(v, &sqlInstance); err != nil {
-				return nil, fmt.Errorf("converting sqlInstance: %w", err)
-			}
-			if sqlInstance.Name == "" {
-				sqlInstance.Name = naisjob.Name
-			}
-			sqlInstance.ID = scalar.SqlInstanceIdent("sqlInstance_" + env + "_" + naisjob.GetNamespace() + "_" + sqlInstance.GetName())
-			ret = append(ret, sqlInstance)
-		}
-
-		for _, v := range naisjob.Spec.GCP.BigQueryDatasets {
-			bqDataset := model.BigQueryDataset{}
-			if err := convert(v, &bqDataset); err != nil {
-				return nil, fmt.Errorf("converting bigQueryDataset: %w", err)
-			}
-			ret = append(ret, bqDataset)
-		}
-	}
-
-	if naisjob.Spec.OpenSearch != nil {
-		os := model.OpenSearch{
-			Name:   naisjob.Spec.OpenSearch.Instance,
-			Access: naisjob.Spec.OpenSearch.Access,
-		}
-		ret = append(ret, os)
-	}
-
-	if naisjob.Spec.Kafka != nil {
-		kafka := model.Kafka{
-			Name:    naisjob.Spec.Kafka.Pool,
-			Streams: naisjob.Spec.Kafka.Streams,
-			Topics:  topics,
-		}
-		ret = append(ret, kafka)
-	}
-
-	if len(naisjob.Spec.Redis) > 0 {
-		for _, v := range naisjob.Spec.Redis {
-			redis := model.Redis{
-				Name:   v.Instance,
-				Access: v.Access,
-			}
-			ret = append(ret, redis)
-		}
-	}
-
-	if naisjob.Spec.Influx != nil {
-		influx := model.InfluxDb{
-			Name: naisjob.Spec.Influx.Instance,
-		}
-		ret = append(ret, influx)
-	}
 	return ret, nil
 }
 

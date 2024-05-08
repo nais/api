@@ -28,6 +28,11 @@ func (r *appResolver) Instances(ctx context.Context, obj *model.App) ([]*model.I
 	return instances, nil
 }
 
+// Persistence is the resolver for the persistence field.
+func (r *appResolver) Persistence(ctx context.Context, obj *model.App) ([]model.Persistence, error) {
+	return r.k8sClient.Persistence(ctx, obj.WorkloadBase)
+}
+
 // Manifest is the resolver for the manifest field.
 func (r *appResolver) Manifest(ctx context.Context, obj *model.App) (string, error) {
 	app, err := r.k8sClient.Manifest(ctx, obj.Name, obj.GQLVars.Team.String(), obj.Env.Name)

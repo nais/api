@@ -25,9 +25,9 @@ func TestSearcher_Search(t *testing.T) {
 
 		r1 := &search.Result{Node: &model.Team{Slug: "r1"}, Rank: 2}
 		r2 := &search.Result{Node: &model.Team{Slug: "r2"}, Rank: 1}
-		r3 := &search.Result{Node: &model.App{Name: "r3"}, Rank: 18}
-		r4 := &search.Result{Node: &model.App{Name: "r4"}, Rank: 20}
-		r5 := &search.Result{Node: &model.NaisJob{Name: "r5"}, Rank: 2}
+		r3 := &search.Result{Node: &model.App{WorkloadBase: model.WorkloadBase{Name: "r3"}}, Rank: 18}
+		r4 := &search.Result{Node: &model.App{WorkloadBase: model.WorkloadBase{Name: "r4"}}, Rank: 20}
+		r5 := &search.Result{Node: &model.NaisJob{WorkloadBase: model.WorkloadBase{Name: "r5"}}, Rank: 2}
 
 		s1 := search.NewMockSearchable(t)
 		s1.EXPECT().

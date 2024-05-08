@@ -70,11 +70,6 @@ type AppList struct {
 	PageInfo PageInfo `json:"pageInfo"`
 }
 
-type AppState struct {
-	State  State        `json:"state"`
-	Errors []StateError `json:"errors"`
-}
-
 // Resource utilization overage cost for an app.
 type AppWithResourceUtilizationOverage struct {
 	// The overage for the app.
@@ -462,11 +457,6 @@ type InvalidNaisYamlError struct {
 func (InvalidNaisYamlError) IsStateError()             {}
 func (this InvalidNaisYamlError) GetRevision() string  { return this.Revision }
 func (this InvalidNaisYamlError) GetLevel() ErrorLevel { return this.Level }
-
-type JobState struct {
-	State  State        `json:"state"`
-	Errors []StateError `json:"errors"`
-}
 
 // Team status for jobs.
 type JobsStatus struct {
