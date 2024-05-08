@@ -81,6 +81,8 @@ func (m *Manager) Unleash(ctx context.Context, team string) (*model.Unleash, err
 }
 
 // @TODO check if unleash already exists
+// @TODO create fqdnnetpolicy for unleash
+// @TODO create sql database, sql user and database secret
 func (m *Manager) CreateUnleash(ctx context.Context, team slug.Slug) (*model.Unleash, error) {
 	client, found := m.clientMap[ManagementClusterChangeme]
 	if !found {
