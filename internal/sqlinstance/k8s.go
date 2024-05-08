@@ -21,11 +21,11 @@ func (c *Client) SqlInstance(ctx context.Context, env string, teamSlug slug.Slug
 		return nil, fmt.Errorf("unknown env: %s", env)
 	}
 
-	if inf.SqlInstanceInformer == nil {
+	if inf.SqlInstance == nil {
 		return nil, fmt.Errorf("SQL instance informer not supported in env: %q", env)
 	}
 
-	obj, err := inf.SqlInstanceInformer.Lister().ByNamespace(string(teamSlug)).Get(instanceName)
+	obj, err := inf.SqlInstance.Lister().ByNamespace(string(teamSlug)).Get(instanceName)
 	if err != nil {
 		return nil, fmt.Errorf("get SQL instance: %w", err)
 	}
@@ -54,11 +54,11 @@ func (c *Client) SqlInstances(ctx context.Context, teamSlug slug.Slug, teamEnvs 
 	ret := make([]*model.SQLInstance, 0)
 
 	for env, infs := range c.informers {
-		if infs.SqlInstanceInformer == nil {
+		if infs.SqlInstance == nil {
 			continue
 		}
 
-		objs, err := infs.SqlInstanceInformer.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
+		objs, err := infs.SqlInstance.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
 		if err != nil {
 			return nil, nil, c.error(err, "listing SQL instances")
 		}
@@ -159,7 +159,7 @@ func (c *Client) SqlDatabase(sqlInstance *model.SQLInstance) (*model.SQLDatabase
 		return nil, fmt.Errorf("unknown env: %s", sqlInstance.Env.Name)
 	}
 
-	objs, err := inf.SqlDatabaseInformer.Lister().ByNamespace(string(sqlInstance.GQLVars.TeamSlug)).List(labels.Everything())
+	objs, err := inf.SqlDatabase.Lister().ByNamespace(string(sqlInstance.GQLVars.TeamSlug)).List(labels.Everything())
 	if err != nil {
 		return nil, c.error(err, "listing SQL databases")
 	}

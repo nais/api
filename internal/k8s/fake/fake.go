@@ -3,6 +3,7 @@ package fake
 import (
 	"bytes"
 	"fmt"
+	aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -102,6 +103,7 @@ func newScheme() *runtime.Scheme {
 	sql_cnrm_cloud_google_com_v1beta1.AddToScheme(scheme)
 	storage_cnrm_cloud_gogle_com_v1beta1.AddToScheme(scheme)
 	bigquery_nais_io_v1.AddToScheme(scheme)
+	aiven_io_v1alpha1.AddToScheme(scheme)
 	unleash_nais_io_v1.AddToScheme(scheme)
 	return scheme
 }

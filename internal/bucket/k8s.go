@@ -14,7 +14,7 @@ func (c *Client) Buckets(teamSlug slug.Slug) ([]*model.Bucket, error) {
 	ret := make([]*model.Bucket, 0)
 
 	for env, infs := range c.informers {
-		inf := infs.BucketInformer
+		inf := infs.Bucket
 		if inf == nil {
 			continue
 		}

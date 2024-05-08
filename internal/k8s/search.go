@@ -35,11 +35,11 @@ func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilte
 
 	for env, infs := range c.informers {
 		if isFilterSqlInstanceOrNoFilter(filter) {
-			if infs.SqlInstanceInformer == nil {
+			if infs.SqlInstance == nil {
 				continue
 			}
 
-			sqlInstances, err := infs.SqlInstanceInformer.Lister().List(labels.Everything())
+			sqlInstances, err := infs.SqlInstance.Lister().List(labels.Everything())
 			if err != nil {
 				c.error(ctx, err, "listing SQL instances")
 				return nil
@@ -68,7 +68,7 @@ func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilte
 		}
 
 		if isFilterNaisjobOrNoFilter(filter) {
-			jobs, err := infs.NaisjobInformer.Lister().List(labels.Everything())
+			jobs, err := infs.Naisjob.Lister().List(labels.Everything())
 			if err != nil {
 				c.error(ctx, err, "listing jobs")
 				return nil
@@ -96,7 +96,7 @@ func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilte
 		}
 
 		if isFilterAppOrNoFilter(filter) {
-			apps, err := infs.AppInformer.Lister().List(labels.Everything())
+			apps, err := infs.App.Lister().List(labels.Everything())
 			if err != nil {
 				c.error(ctx, err, "listing applications")
 				return nil

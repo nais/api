@@ -20,7 +20,7 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 
 	ret := make([]model.Persistence, 0)
 
-	if inf := c.informers[cluster].BucketInformer; inf != nil {
+	if inf := c.informers[cluster].Bucket; inf != nil {
 		buckets, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
 		if err != nil {
 			return nil, fmt.Errorf("listing buckets: %w", err)

@@ -48,7 +48,7 @@ func (c *Client) NaisJob(ctx context.Context, name, team, env string) (*model.Na
 	if c.informers[env] == nil {
 		return nil, fmt.Errorf("no jobInformer for env %q", env)
 	}
-	obj, err := c.informers[env].NaisjobInformer.Lister().ByNamespace(team).Get(name)
+	obj, err := c.informers[env].Naisjob.Lister().ByNamespace(team).Get(name)
 	if err != nil {
 		return nil, c.error(ctx, err, "getting job")
 	}
@@ -317,7 +317,7 @@ func (c *Client) NaisJobs(ctx context.Context, team string) ([]*model.NaisJob, e
 	ret := make([]*model.NaisJob, 0)
 
 	for env, infs := range c.informers {
-		objs, err := infs.NaisjobInformer.Lister().ByNamespace(team).List(labels.Everything())
+		objs, err := infs.Naisjob.Lister().ByNamespace(team).List(labels.Everything())
 		if err != nil {
 			return nil, c.error(ctx, err, "listing jobs")
 		}
@@ -366,7 +366,7 @@ func (c *Client) NaisJobs(ctx context.Context, team string) ([]*model.NaisJob, e
 }
 
 func (c *Client) NaisJobManifest(ctx context.Context, name, team, env string) (string, error) {
-	obj, err := c.informers[env].NaisjobInformer.Lister().ByNamespace(team).Get(name)
+	obj, err := c.informers[env].Naisjob.Lister().ByNamespace(team).Get(name)
 	if err != nil {
 		return "", c.error(ctx, err, "getting job")
 	}
@@ -403,7 +403,7 @@ func (c *Client) Runs(ctx context.Context, team, env, name string) ([]*model.Run
 
 	selector := labels.NewSelector().Add(*nameReq)
 
-	jobs, err := c.informers[env].JobInformer.Lister().Jobs(team).List(selector)
+	jobs, err := c.informers[env].Job.Lister().Jobs(team).List(selector)
 	if err != nil {
 		return nil, c.error(ctx, err, "listing job instances")
 	}
@@ -422,7 +422,7 @@ func (c *Client) Runs(ctx context.Context, team, env, name string) ([]*model.Run
 			return nil, c.error(ctx, err, "creating label selector")
 		}
 		podSelector := labels.NewSelector().Add(*podReq)
-		pods, err := c.informers[env].PodInformer.Lister().Pods(team).List(podSelector)
+		pods, err := c.informers[env].Pod.Lister().Pods(team).List(podSelector)
 		if err != nil {
 			return nil, c.error(ctx, err, "listing job instance pods")
 		}

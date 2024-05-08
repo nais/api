@@ -71,7 +71,7 @@ func (c *Client) AppExists(env, team, app string) bool {
 		return false
 	}
 
-	_, err := c.informers[env].AppInformer.Lister().ByNamespace(team).Get(app)
+	_, err := c.informers[env].App.Lister().ByNamespace(team).Get(app)
 	return err == nil
 }
 
@@ -81,7 +81,7 @@ func (c *Client) App(ctx context.Context, name, team, env string) (*model.App, e
 	}
 
 	c.log.Debugf("getting app %q in namespace %q in env %q", name, team, env)
-	obj, err := c.informers[env].AppInformer.Lister().ByNamespace(team).Get(name)
+	obj, err := c.informers[env].App.Lister().ByNamespace(team).Get(name)
 	if err != nil {
 		return nil, c.error(ctx, err, "getting application "+name+"."+team+"."+env)
 	}
@@ -352,7 +352,7 @@ func checkNoZeroTrust(env string, rule *model.Rule) bool {
 }
 
 func (c *Client) getApp(ctx context.Context, inf *Informers, env string, team string, app string) (*model.App, error) {
-	obj, err := inf.AppInformer.Lister().ByNamespace(team).Get(app)
+	obj, err := inf.App.Lister().ByNamespace(team).Get(app)
 	if err != nil {
 		if notFoundError(err) {
 			return nil, nil
@@ -368,7 +368,7 @@ func (c *Client) getApp(ctx context.Context, inf *Informers, env string, team st
 }
 
 func (c *Client) getNaisJob(ctx context.Context, inf *Informers, env, team, job string) (*model.NaisJob, error) {
-	obj, err := inf.NaisjobInformer.Lister().ByNamespace(team).Get(job)
+	obj, err := inf.Naisjob.Lister().ByNamespace(team).Get(job)
 	if err != nil {
 		if notFoundError(err) {
 			return nil, nil
@@ -393,11 +393,11 @@ func (c *Client) getTopics(ctx context.Context, name, team, env string) ([]*mode
 		topicEnv = "prod-gcp"
 	}
 
-	if c.informers[topicEnv].TopicInformer == nil {
+	if c.informers[topicEnv].KafkaTopic == nil {
 		return []*model.Topic{}, nil
 	}
 
-	topics, err := c.informers[topicEnv].TopicInformer.Lister().List(labels.Everything())
+	topics, err := c.informers[topicEnv].KafkaTopic.Lister().List(labels.Everything())
 	if err != nil {
 		return nil, c.error(ctx, err, "listing topics")
 	}
@@ -421,7 +421,7 @@ func (c *Client) getTopics(ctx context.Context, name, team, env string) ([]*mode
 }
 
 func (c *Client) Manifest(ctx context.Context, name, team, env string) (string, error) {
-	obj, err := c.informers[env].AppInformer.Lister().ByNamespace(team).Get(name)
+	obj, err := c.informers[env].App.Lister().ByNamespace(team).Get(name)
 	if err != nil {
 		return "", c.error(ctx, err, "getting application "+name+"."+team+"."+env)
 	}
@@ -480,7 +480,7 @@ func (c *Client) Apps(ctx context.Context, team string, filter ...EnvFilter) ([]
 			continue
 		}
 
-		objs, err := infs.AppInformer.Lister().ByNamespace(team).List(labels.Everything())
+		objs, err := infs.App.Lister().ByNamespace(team).List(labels.Everything())
 		if err != nil {
 			return nil, c.error(ctx, err, "listing applications")
 		}
@@ -538,7 +538,7 @@ func (c *Client) Instances(ctx context.Context, team, env, name string) ([]*mode
 	}
 
 	selector := labels.NewSelector().Add(*req)
-	pods, err := c.informers[env].PodInformer.Lister().Pods(team).List(selector)
+	pods, err := c.informers[env].Pod.Lister().Pods(team).List(selector)
 	if err != nil {
 		return nil, c.error(ctx, err, "listing pods")
 	}
