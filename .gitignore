@@ -9,3 +9,4 @@ values.json
 .direnv
 __debug_bin*
 .envrc
+hack/coverprofile.txt

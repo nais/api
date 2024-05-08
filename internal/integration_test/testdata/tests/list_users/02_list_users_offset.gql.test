@@ -1,0 +1,49 @@
+{
+  users(limit: 5, offset: 3) {
+    nodes {
+      name
+      email
+    }
+    pageInfo {
+      totalCount
+      hasNextPage
+      hasPreviousPage
+    }
+  }
+}
+
+RETURNS
+
+{
+  "data": {
+    "users": {
+      "nodes": [
+        {
+          "email": "email-11@example.com",
+          "name": "name-11"
+        },
+        {
+          "email": "email-12@example.com",
+          "name": "name-12"
+        },
+        {
+          "email": "email-13@example.com",
+          "name": "name-13"
+        },
+        {
+          "email": "email-14@example.com",
+          "name": "name-14"
+        },
+        {
+          "email": "email-15@example.com",
+          "name": "name-15"
+        }
+      ],
+      "pageInfo": {
+        "totalCount": 21,
+        "hasNextPage": true,
+        "hasPreviousPage": true
+      }
+    }
+  }
+}

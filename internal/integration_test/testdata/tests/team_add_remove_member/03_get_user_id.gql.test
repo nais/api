@@ -1,0 +1,19 @@
+{
+  user(email: "email-3@example.com") {
+    id
+  }
+}
+
+RETURNS
+OPTION data.user.id=IGNORE
+ENDOPTS
+
+{
+  "data": {
+    "user": {
+      "id": "storedid"
+    }
+  }
+}
+
+STORE userID=data.user.id

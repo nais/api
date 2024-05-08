@@ -1,0 +1,41 @@
+mutation {
+  updateTeam(slug: "{{ .teamSlug }}", input: {purpose: "new-purpose", slackChannel: "#new-slack-channel", slackAlertsChannels: [
+    {
+      environment: "dev"
+      channelName: "#dev"
+    },
+    {
+      environment: "staging"
+      channelName: "#staging"
+    }
+  ]}) {
+    purpose
+    slackChannel
+    environments {
+      name
+      slackAlertsChannel
+    }
+  }
+}
+
+
+RETURNS
+
+{
+  "data": {
+    "updateTeam": {
+      "purpose": "new-purpose",
+      "slackChannel": "#new-slack-channel",
+      "environments": [
+        {
+          "name": "dev",
+          "slackAlertsChannel": "#dev"
+        },
+        {
+          "name": "staging",
+          "slackAlertsChannel": "#staging"
+        }
+      ]
+    }
+  }
+}

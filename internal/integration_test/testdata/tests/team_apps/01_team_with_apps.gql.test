@@ -1,0 +1,34 @@
+{
+  team(slug: "slug-1") {
+    apps {
+      nodes {
+        name
+      }
+      pageInfo {
+        totalCount
+      }
+    }
+  }
+}
+
+RETURNS
+
+{
+  "data": {
+    "team": {
+      "apps": {
+        "nodes": [
+          {
+            "name": "another-app"
+          },
+          {
+            "name": "app-name"
+          }
+        ],
+        "pageInfo": {
+          "totalCount": 2
+        }
+      }
+    }
+  }
+}

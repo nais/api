@@ -13,6 +13,7 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 func (r *Resolver) triggerTeamUpdatedEvent(ctx context.Context, teamSlug slug.Slug, correlationID uuid.UUID) {
@@ -31,12 +32,6 @@ func (r *Resolver) triggerEvent(ctx context.Context, event protoapi.EventTypes, 
 	))
 	defer span.End()
 
-	b, err := proto.Marshal(msg)
-	if err != nil {
-		span.RecordError(err)
-		panic(err)
-	}
-
 	attrs := map[string]string{
 		"CorrelationID": correlationID.String(),
 		"EventType":     event.String(),
@@ -44,14 +39,32 @@ func (r *Resolver) triggerEvent(ctx context.Context, event protoapi.EventTypes, 
 
 	otel.GetTextMapPropagator().Inject(ctx, propagation.MapCarrier(attrs))
 
-	id, err := r.pubsubTopic.Publish(ctx, &pubsub.Message{
-		Data:       b,
-		Attributes: attrs,
-	}).Get(ctx)
+	id, err := r.pubsubTopic.Publish(ctx, msg, attrs)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
 	} else {
 		span.SetAttributes(semconv.MessagingMessageID(id))
 	}
+}
+
+type TopicWrapper struct {
+	Topic *pubsub.Topic
+}
+
+func (t *TopicWrapper) Publish(ctx context.Context, msg protoreflect.ProtoMessage, attrs map[string]string) (string, error) {
+	b, err := proto.Marshal(msg)
+	if err != nil {
+		return "", err
+	}
+
+	res := t.Topic.Publish(ctx, &pubsub.Message{
+		Data:       b,
+		Attributes: attrs,
+	})
+	return res.Get(ctx)
+}
+
+func (t *TopicWrapper) String() string {
+	return t.Topic.String()
 }
