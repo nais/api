@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2/google"
-	"time"
 )
 
 type Manager struct {

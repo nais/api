@@ -391,21 +391,6 @@ type Team {
   unleash: Unleash
 }
 
-type Unleash {
-  name: String!
-  version: String!
-  allowedTeams: [String!]!
-  webIngress: String!
-  apiIngress: String!
-  metrics: UnleashMetrics!
-}
-
-type UnleashMetrics {
-  numToggles: Int!
-  apiTokens: Int!
-  users: Int!
-}
-
 type SqlInstancesStatus {
   total: Int!
   failing: Int!
