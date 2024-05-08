@@ -1,28 +1,16 @@
-apiVersion: bigquery.cnrm.cloud.google.com/v1beta1
+apiVersion: google.nais.io/v1
 kind: BigQueryDataset
 metadata:
-  labels:
-      app: contests
-      app.kubernetes.io/instance: contests
-      team: devteam
-  name: contests
-  namespace: nais-system
-  annotations:
-    cnrm.cloud.google.com/delete-contents-on-destroy: "false"
-    cnrm.cloud.google.com/management-conflict-prevention-policy: resource
-    cnrm.cloud.google.com/project-id:  nais-dev-2e7b
-
+  name: bigquerydataset-sample
+  namespace: devteam
 spec:
   access:
-    - role: OWNER
-      userByEmail: cnrm-nais-analyse@nais-prod-020f.iam.gserviceaccount.com
-    - role: OWNER
-      specialGroup: projectOwners
     - role: READER
-      specialGroup: projectReaders
-    - role: WRITER
-      specialGroup: projectWriters
-  description: Data about nais deploys
-  friendlyName: deploys
+      userByEmail: frode.sundby@nav.no
+    - role: OWNER
+      userByEmail: thomas.siegfried.krampl@nav.no
+  cascadingDelete: true
+  description: Supert datasett som har data fra tidenes morgen
   location: europe-north1
-  resourceID: deploys
+  name: bqrater_test_set2
+  project: nada-dev-db2e

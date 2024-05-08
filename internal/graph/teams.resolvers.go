@@ -1650,7 +1650,9 @@ func (r *Resolver) TeamMemberReconciler() gengql.TeamMemberReconcilerResolver {
 	return &teamMemberReconcilerResolver{r}
 }
 
-type teamResolver struct{ *Resolver }
-type teamDeleteKeyResolver struct{ *Resolver }
-type teamMemberResolver struct{ *Resolver }
-type teamMemberReconcilerResolver struct{ *Resolver }
+type (
+	teamResolver                 struct{ *Resolver }
+	teamDeleteKeyResolver        struct{ *Resolver }
+	teamMemberResolver           struct{ *Resolver }
+	teamMemberReconcilerResolver struct{ *Resolver }
+)

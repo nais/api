@@ -15,7 +15,7 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/slug"
 	aiven_nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
-	bigquery_nais_io_v1 "github.com/nais/liberator/pkg/apis/bigquery.cnrm.cloud.google.com/v1beta1"
+	bigquery_nais_io_v1 "github.com/nais/liberator/pkg/apis/google.nais.io/v1"
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	naisv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"

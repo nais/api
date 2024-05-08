@@ -103,6 +103,8 @@ func (r *Resolver) Redis() gengql.RedisResolver { return &redisResolver{r} }
 // SqlInstance returns gengql.SqlInstanceResolver implementation.
 func (r *Resolver) SqlInstance() gengql.SqlInstanceResolver { return &sqlInstanceResolver{r} }
 
-type bucketResolver struct{ *Resolver }
-type redisResolver struct{ *Resolver }
-type sqlInstanceResolver struct{ *Resolver }
+type (
+	bucketResolver      struct{ *Resolver }
+	redisResolver       struct{ *Resolver }
+	sqlInstanceResolver struct{ *Resolver }
+)

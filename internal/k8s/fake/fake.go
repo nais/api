@@ -4,15 +4,16 @@ import (
 	"bytes"
 	"fmt"
 	"io/fs"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
 
+	"k8s.io/apimachinery/pkg/runtime/schema"
+
 	liberator_aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
 
-	bigquery_nais_io_v1 "github.com/nais/liberator/pkg/apis/bigquery.cnrm.cloud.google.com/v1beta1"
+	bigquery_nais_io_v1 "github.com/nais/liberator/pkg/apis/google.nais.io/v1"
 
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 
@@ -82,8 +83,7 @@ func Clients(dir fs.FS) func(cluster string) (kubernetes.Interface, dynamic.Inte
 		ret[cluster] = clients{
 			ClientSet: fake.NewSimpleClientset(objs.core...),
 			Dynamic: dynfake.NewSimpleDynamicClientWithCustomListKinds(scheme,
-				map[schema.GroupVersionResource]string{liberator_aiven_io_v1alpha1.GroupVersion.WithResource("redis"): "RedisList"},
-				objs.dynamic...),
+				map[schema.GroupVersionResource]string{liberator_aiven_io_v1alpha1.GroupVersion.WithResource("redis"): "RedisList"}, objs.dynamic...),
 		}
 	}
 
