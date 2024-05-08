@@ -33,6 +33,7 @@ const (
 	IdentTypeTeam               IdentType = "team"
 	IdentTypeUser               IdentType = "user"
 	IdentTypeVulnerabilities    IdentType = "vulnerabilities"
+	IdentTypeRedis              IdentType = "redis"
 )
 
 type Ident struct {
@@ -143,6 +144,10 @@ func SqlInstanceIdent(id string) Ident {
 
 func BucketIdent(id string) Ident {
 	return newIdent(id, IdentTypeBucket)
+}
+
+func RedisIdent(id string) Ident {
+	return newIdent(id, IdentTypeRedis)
 }
 
 func newIdent(id string, t IdentType) Ident {

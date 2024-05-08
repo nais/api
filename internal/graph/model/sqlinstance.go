@@ -192,26 +192,10 @@ func ToSqlInstance(u *unstructured.Unstructured, env string) (*SQLInstance, erro
 			return *sqlInstance.Spec.Settings.DiskAutoresizeLimit
 		}(),
 		GQLVars: SQLInstanceGQLVars{
-			TeamSlug:    slug.Slug(teamSlug),
-			Labels:      sqlInstance.GetLabels(),
-			Annotations: sqlInstance.GetAnnotations(),
-			OwnerReference: func(refs []v1.OwnerReference) *v1.OwnerReference {
-				if len(refs) == 0 {
-					return nil
-				}
-
-				for _, o := range refs {
-					if o.Kind == "Naisjob" || o.Kind == "Application" {
-						return &v1.OwnerReference{
-							APIVersion: o.APIVersion,
-							Kind:       o.Kind,
-							Name:       o.Name,
-							UID:        o.UID,
-						}
-					}
-				}
-				return nil
-			}(sqlInstance.OwnerReferences),
+			TeamSlug:       slug.Slug(teamSlug),
+			Labels:         sqlInstance.GetLabels(),
+			Annotations:    sqlInstance.GetAnnotations(),
+			OwnerReference: OwnerReference(sqlInstance.OwnerReferences),
 		},
 	}, nil
 }

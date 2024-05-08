@@ -17,7 +17,7 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 	if err != nil {
 		return nil, c.error(ctx, err, "getting topics")
 	}
-
+	spec := workload.GQLVars.Spec
 	ret := make([]model.Persistence, 0)
 
 	if inf := c.informers[cluster].Bucket; inf != nil {
@@ -34,7 +34,27 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 		}
 	}
 
-	spec := workload.GQLVars.Spec
+	if inf := c.informers[cluster].Redis; inf != nil {
+		redises, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
+		if err != nil {
+			return nil, fmt.Errorf("getting redis: %w", err)
+		}
+		for _, redis := range redises {
+			r, err := model.ToRedis(redis.(*unstructured.Unstructured), cluster)
+			if err != nil {
+				return nil, fmt.Errorf("converting to redis: %w", err)
+			}
+
+			// TODO: maybe make this an informer 🙃
+			for _, specRedis := range spec.Redis {
+				if specRedis.Instance != r.Name {
+					continue
+				}
+				r.Access = specRedis.Access
+			}
+			ret = append(ret, r)
+		}
+	}
 
 	if spec.GCP != nil {
 		// TODO: Use SqlInstance informer for this instead?
@@ -75,16 +95,6 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 		}
 
 		ret = append(ret, kafka)
-	}
-
-	if len(spec.Redis) > 0 {
-		for _, v := range spec.Redis {
-			redis := model.Redis{
-				Name:   v.Instance,
-				Access: v.Access,
-			}
-			ret = append(ret, redis)
-		}
 	}
 
 	if spec.Influx != nil {

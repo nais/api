@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"fmt"
 	"io/fs"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
 
-	aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
+	liberator_aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
 
 	bigquery_nais_io_v1 "github.com/nais/liberator/pkg/apis/bigquery.cnrm.cloud.google.com/v1beta1"
 
@@ -80,7 +81,9 @@ func Clients(dir fs.FS) func(cluster string) (kubernetes.Interface, dynamic.Inte
 	for cluster, objs := range resources {
 		ret[cluster] = clients{
 			ClientSet: fake.NewSimpleClientset(objs.core...),
-			Dynamic:   dynfake.NewSimpleDynamicClient(scheme, objs.dynamic...),
+			Dynamic: dynfake.NewSimpleDynamicClientWithCustomListKinds(scheme,
+				map[schema.GroupVersionResource]string{liberator_aiven_io_v1alpha1.GroupVersion.WithResource("redis"): "RedisList"},
+				objs.dynamic...),
 		}
 	}
 
@@ -104,7 +107,7 @@ func newScheme() *runtime.Scheme {
 	sql_cnrm_cloud_google_com_v1beta1.AddToScheme(scheme)
 	storage_cnrm_cloud_gogle_com_v1beta1.AddToScheme(scheme)
 	bigquery_nais_io_v1.AddToScheme(scheme)
-	aiven_io_v1alpha1.AddToScheme(scheme)
+	liberator_aiven_io_v1alpha1.AddToScheme(scheme)
 	unleash_nais_io_v1.AddToScheme(scheme)
 	return scheme
 }

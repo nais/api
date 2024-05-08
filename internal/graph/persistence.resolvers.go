@@ -40,6 +40,28 @@ func (r *queryResolver) SQLInstance(ctx context.Context, name string, team slug.
 	return r.sqlInstanceClient.SqlInstance(ctx, env, team, name)
 }
 
+// Team is the resolver for the team field.
+func (r *redisResolver) Team(ctx context.Context, obj *model.Redis) (*model.Team, error) {
+	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
+}
+
+// Workload is the resolver for the workload field.
+func (r *redisResolver) Workload(ctx context.Context, obj *model.Redis) (model.Workload, error) {
+	if obj.GQLVars.OwnerReference == nil {
+		return nil, nil
+	}
+
+	switch obj.GQLVars.OwnerReference.Kind {
+	case "Naisjob":
+		return r.k8sClient.NaisJob(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
+	case "Application":
+		return r.k8sClient.App(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
+	default:
+		r.log.WithField("kind", obj.GQLVars.OwnerReference.Kind).Warnf("Unknown owner reference kind")
+	}
+	return nil, nil
+}
+
 // Database is the resolver for the database field.
 func (r *sqlInstanceResolver) Database(ctx context.Context, obj *model.SQLInstance) (*model.SQLDatabase, error) {
 	return r.sqlInstanceClient.SqlDatabase(obj)
@@ -75,10 +97,12 @@ func (r *sqlInstanceResolver) Workload(ctx context.Context, obj *model.SQLInstan
 // Bucket returns gengql.BucketResolver implementation.
 func (r *Resolver) Bucket() gengql.BucketResolver { return &bucketResolver{r} }
 
+// Redis returns gengql.RedisResolver implementation.
+func (r *Resolver) Redis() gengql.RedisResolver { return &redisResolver{r} }
+
 // SqlInstance returns gengql.SqlInstanceResolver implementation.
 func (r *Resolver) SqlInstance() gengql.SqlInstanceResolver { return &sqlInstanceResolver{r} }
 
-type (
-	bucketResolver      struct{ *Resolver }
-	sqlInstanceResolver struct{ *Resolver }
-)
+type bucketResolver struct{ *Resolver }
+type redisResolver struct{ *Resolver }
+type sqlInstanceResolver struct{ *Resolver }

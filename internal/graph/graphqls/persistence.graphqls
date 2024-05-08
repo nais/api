@@ -23,6 +23,10 @@ type InfluxDb implements Persistence {
 type Redis implements Persistence {
   name: String!
   access: String!
+
+  team: Team!
+  env: Env!
+  workload: Workload
 }
 
 type BigQueryDataset implements Persistence {

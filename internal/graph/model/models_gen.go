@@ -645,14 +645,6 @@ type ReconcilerList struct {
 	PageInfo PageInfo `json:"pageInfo"`
 }
 
-type Redis struct {
-	Name   string `json:"name"`
-	Access string `json:"access"`
-}
-
-func (Redis) IsPersistence()       {}
-func (this Redis) GetName() string { return this.Name }
-
 type Requests struct {
 	CPU    string `json:"cpu"`
 	Memory string `json:"memory"`

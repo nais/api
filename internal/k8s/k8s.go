@@ -14,7 +14,7 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/slug"
-	aiven_nais_io_v1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
+	aiven_nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
 	bigquery_nais_io_v1 "github.com/nais/liberator/pkg/apis/bigquery.cnrm.cloud.google.com/v1beta1"
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	naisv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
@@ -225,7 +225,7 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 			infs[cluster].BigQuery = dinf.ForResource(bigquery_nais_io_v1.GroupVersion.WithResource("bigquerydatasets"))
 		}
 
-		infs[cluster].Redis = dinf.ForResource(aiven_nais_io_v1.GroupVersion.WithResource("redis"))
+		infs[cluster].Redis = dinf.ForResource(aiven_nais_io_v1alpha1.GroupVersion.WithResource("redis"))
 
 		clientSets[cluster] = clients{
 			client:        clientSet,
