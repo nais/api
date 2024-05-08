@@ -64,6 +64,10 @@ func (c ClusterInformers) Start(ctx context.Context, log logrus.FieldLogger) err
 		if informer.KafkaTopic != nil {
 			go informer.KafkaTopic.Informer().Run(ctx.Done())
 		}
+
+		if informer.Redis != nil {
+			go informer.Redis.Informer().Run(ctx.Done())
+		}
 	}
 
 	for env, informers := range c {
