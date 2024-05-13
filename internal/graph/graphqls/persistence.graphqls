@@ -21,9 +21,9 @@ type InfluxDb implements Persistence {
 }
 
 type Redis implements Persistence {
+  id: ID!
   name: String!
   access: String!
-
   team: Team!
   env: Env!
   workload: Workload
@@ -112,6 +112,11 @@ type SqlInstancesList {
 
 type BucketsList {
   nodes: [Bucket!]!
+  pageInfo: PageInfo!
+}
+
+type RedisList {
+  nodes: [Redis!]!
   pageInfo: PageInfo!
 }
 

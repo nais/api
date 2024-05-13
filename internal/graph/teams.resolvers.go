@@ -1177,6 +1177,35 @@ func (r *teamResolver) Buckets(ctx context.Context, obj *model.Team, offset *int
 	}, nil
 }
 
+// Redis is the resolver for the redis field.
+func (r *teamResolver) Redis(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.RedisList, error) {
+	redis, err := r.redisClient.Redis(obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case model.OrderByFieldName:
+			model.SortWith(redis, func(a, b *model.Redis) bool {
+				return model.Compare(a.Name, b.Name, orderBy.Direction)
+			})
+		case model.OrderByFieldEnv:
+			model.SortWith(redis, func(a, b *model.Redis) bool {
+				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
+			})
+		}
+	}
+
+	pagination := model.NewPagination(offset, limit)
+	redis, pageInfo := model.PaginatedSlice(redis, pagination)
+
+	return &model.RedisList{
+		Nodes:    redis,
+		PageInfo: pageInfo,
+	}, nil
+}
+
 // Apps is the resolver for the apps field.
 func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.AppList, error) {
 	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())

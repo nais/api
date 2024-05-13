@@ -35,25 +35,18 @@ func ToRedis(u *unstructured.Unstructured, env string) (*Redis, error) {
 		return nil, fmt.Errorf("converting to Bucket: %w", err)
 	}
 
-	projectId := redis.GetAnnotations()["cnrm.cloud.google.com/project-id"]
-	if projectId == "" {
-		return nil, fmt.Errorf("missing project ID annotation")
-	}
-
 	teamSlug := redis.GetNamespace()
 
 	return &Redis{
-		ID: scalar.RedisIdent("redis_" + env + "_" + teamSlug + "_" + redis.GetName()),
-
+		ID:   scalar.RedisIdent("redis_" + env + "_" + teamSlug + "_" + redis.GetName()),
 		Name: redis.Name,
 		Env: Env{
 			Name: env,
-			Team: redis.GetNamespace(),
+			Team: teamSlug,
 		},
 		GQLVars: RedisGQLVars{
-			TeamSlug:       slug.Slug(redis.GetNamespace()),
+			TeamSlug:       slug.Slug(teamSlug),
 			OwnerReference: OwnerReference(redis.OwnerReferences),
 		},
-		// ProjectID: projectId,
 	}, nil
 }

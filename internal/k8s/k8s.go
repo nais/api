@@ -225,7 +225,8 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 			infs[cluster].BigQuery = dinf.ForResource(bigquery_nais_io_v1.GroupVersion.WithResource("bigquerydatasets"))
 		}
 
-		infs[cluster].Redis = dinf.ForResource(aiven_nais_io_v1alpha1.GroupVersion.WithResource("redis"))
+		foo := aiven_nais_io_v1alpha1.GroupVersion.WithResource("redis")
+		infs[cluster].Redis = dinf.ForResource(foo)
 
 		clientSets[cluster] = clients{
 			client:        clientSet,

@@ -30,9 +30,9 @@ spec:
   influx:
     instance: influxdb
   redis:
-    - name: redis
+    - name: contests
       size: 100Mi
-      instance: redis
+      instance: contests
   openSearch:
     instance: opensearch
   filesFrom:

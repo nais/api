@@ -645,6 +645,11 @@ type ReconcilerList struct {
 	PageInfo PageInfo `json:"pageInfo"`
 }
 
+type RedisList struct {
+	Nodes    []*Redis `json:"nodes"`
+	PageInfo PageInfo `json:"pageInfo"`
+}
+
 type Requests struct {
 	CPU    string `json:"cpu"`
 	Memory string `json:"memory"`

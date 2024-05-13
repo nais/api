@@ -23,6 +23,7 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/k8s"
+	"github.com/nais/api/internal/redis"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/sqlinstance"
@@ -105,6 +106,7 @@ type Resolver struct {
 	pubsubTopic           *pubsub.Topic
 	sqlInstanceClient     *sqlinstance.Client
 	bucketClient          *bucket.Client
+	redisClient           *redis.Client
 	unleashMgr            *unleash.Manager
 }
 
@@ -124,6 +126,7 @@ func NewResolver(
 	log logrus.FieldLogger,
 	sqlInstanceClient *sqlinstance.Client,
 	bucketClient *bucket.Client,
+	redisClient *redis.Client,
 	unleashMgr *unleash.Manager,
 ) *Resolver {
 	return &Resolver{
@@ -142,6 +145,7 @@ func NewResolver(
 		pubsubTopic:           pubsubTopic,
 		sqlInstanceClient:     sqlInstanceClient,
 		bucketClient:          bucketClient,
+		redisClient:           redisClient,
 		unleashMgr:            unleashMgr,
 	}
 }

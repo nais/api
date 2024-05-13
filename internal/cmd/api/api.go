@@ -26,6 +26,7 @@ import (
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/k8s/fake"
 	"github.com/nais/api/internal/logger"
+	"github.com/nais/api/internal/redis"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
@@ -198,6 +199,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		sqlInstanceClient,
 		unleashMgr,
 		bucket.NewClient(k8sClient.Informers(), log),
+		redis.NewClient(k8sClient.Informers(), log),
 	)
 
 	graphHandler, err := graph.NewHandler(gengql.Config{

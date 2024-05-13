@@ -641,9 +641,15 @@ type ComplexityRoot struct {
 	Redis struct {
 		Access   func(childComplexity int) int
 		Env      func(childComplexity int) int
+		ID       func(childComplexity int) int
 		Name     func(childComplexity int) int
 		Team     func(childComplexity int) int
 		Workload func(childComplexity int) int
+	}
+
+	RedisList struct {
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
 	}
 
 	Requests struct {
@@ -887,6 +893,7 @@ type ComplexityRoot struct {
 		Members                func(childComplexity int, offset *int, limit *int) int
 		Naisjobs               func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		Purpose                func(childComplexity int) int
+		Redis                  func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		SQLInstances           func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		Secret                 func(childComplexity int, name string, env string) int
 		Secrets                func(childComplexity int) int
@@ -1195,6 +1202,7 @@ type TeamResolver interface {
 	Status(ctx context.Context, obj *model.Team) (*model.TeamStatus, error)
 	SQLInstances(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.SQLInstancesList, error)
 	Buckets(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BucketsList, error)
+	Redis(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.RedisList, error)
 	Apps(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.AppList, error)
 	DeployKey(ctx context.Context, obj *model.Team) (*model.DeploymentKey, error)
 	Naisjobs(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.NaisJobList, error)
@@ -3870,6 +3878,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Redis.Env(childComplexity), true
 
+	case "Redis.id":
+		if e.complexity.Redis.ID == nil {
+			break
+		}
+
+		return e.complexity.Redis.ID(childComplexity), true
+
 	case "Redis.name":
 		if e.complexity.Redis.Name == nil {
 			break
@@ -3890,6 +3905,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Redis.Workload(childComplexity), true
+
+	case "RedisList.nodes":
+		if e.complexity.RedisList.Nodes == nil {
+			break
+		}
+
+		return e.complexity.RedisList.Nodes(childComplexity), true
+
+	case "RedisList.pageInfo":
+		if e.complexity.RedisList.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.RedisList.PageInfo(childComplexity), true
 
 	case "Requests.cpu":
 		if e.complexity.Requests.CPU == nil {
@@ -4964,6 +4993,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Team.Purpose(childComplexity), true
+
+	case "Team.redis":
+		if e.complexity.Team.Redis == nil {
+			break
+		}
+
+		args, err := ec.field_Team_redis_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Team.Redis(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy)), true
 
 	case "Team.sqlInstances":
 		if e.complexity.Team.SQLInstances == nil {
@@ -6524,9 +6565,9 @@ type InfluxDb implements Persistence {
 }
 
 type Redis implements Persistence {
+  id: ID!
   name: String!
   access: String!
-
   team: Team!
   env: Env!
   workload: Workload
@@ -6615,6 +6656,11 @@ type SqlInstancesList {
 
 type BucketsList {
   nodes: [Bucket!]!
+  pageInfo: PageInfo!
+}
+
+type RedisList {
+  nodes: [Redis!]!
   pageInfo: PageInfo!
 }
 
@@ -7606,6 +7652,17 @@ type Team {
     "Order buckets by"
     orderBy: OrderBy
   ): BucketsList!
+
+  redis(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order buckets by"
+    orderBy: OrderBy
+  ): RedisList!
 
   "The NAIS applications owned by the team."
   apps(
@@ -9640,6 +9697,39 @@ func (ec *executionContext) field_Team_naisjobs_args(ctx context.Context, rawArg
 	return args, nil
 }
 
+func (ec *executionContext) field_Team_redis_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	var arg2 *model.OrderBy
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg2, err = ec.unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderBy(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_Team_secret_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -10851,6 +10941,8 @@ func (ec *executionContext) fieldContext_App_team(ctx context.Context, field gra
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -13335,6 +13427,8 @@ func (ec *executionContext) fieldContext_Bucket_team(ctx context.Context, field 
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -15026,6 +15120,8 @@ func (ec *executionContext) fieldContext_Deployment_team(ctx context.Context, fi
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -21683,6 +21779,8 @@ func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -21822,6 +21920,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -21961,6 +22061,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUsersFromTeam(ctx contex
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -22100,6 +22202,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUserFromTeam(ctx context
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -22386,6 +22490,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMembers(ctx context.Con
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -22525,6 +22631,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamOwners(ctx context.Cont
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -22664,6 +22772,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -22803,6 +22913,8 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -23798,6 +23910,8 @@ func (ec *executionContext) fieldContext_NaisJob_team(ctx context.Context, field
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -26609,6 +26723,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -27933,6 +28049,50 @@ func (ec *executionContext) fieldContext_ReconcilerList_pageInfo(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Redis_id(ctx context.Context, field graphql.CollectedField, obj *model.Redis) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Redis_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Redis_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Redis",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Redis_name(ctx context.Context, field graphql.CollectedField, obj *model.Redis) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Redis_name(ctx, field)
 	if err != nil {
@@ -28100,6 +28260,8 @@ func (ec *executionContext) fieldContext_Redis_team(ctx context.Context, field g
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -28219,6 +28381,116 @@ func (ec *executionContext) fieldContext_Redis_workload(ctx context.Context, fie
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Workload does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RedisList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.RedisList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisList_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Redis)
+	fc.Result = res
+	return ec.marshalNRedis2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedisList_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedisList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Redis_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Redis_name(ctx, field)
+			case "access":
+				return ec.fieldContext_Redis_access(ctx, field)
+			case "team":
+				return ec.fieldContext_Redis_team(ctx, field)
+			case "env":
+				return ec.fieldContext_Redis_env(ctx, field)
+			case "workload":
+				return ec.fieldContext_Redis_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Redis", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RedisList_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.RedisList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisList_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedisList_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedisList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
 	}
 	return fc, nil
@@ -29864,6 +30136,8 @@ func (ec *executionContext) fieldContext_Role_targetTeam(ctx context.Context, fi
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -30866,6 +31140,8 @@ func (ec *executionContext) fieldContext_Secret_team(ctx context.Context, field 
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -32685,6 +32961,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(ctx context.Context, f
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -35527,6 +35805,67 @@ func (ec *executionContext) fieldContext_Team_buckets(ctx context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_redis(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_redis(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().Redis(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["orderBy"].(*model.OrderBy))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.RedisList)
+	fc.Result = res
+	return ec.marshalNRedisList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_redis(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "nodes":
+				return ec.fieldContext_RedisList_nodes(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_RedisList_pageInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RedisList", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Team_redis_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_apps(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_apps(ctx, field)
 	if err != nil {
@@ -36511,6 +36850,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(ctx context.Context,
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -36619,6 +36960,8 @@ func (ec *executionContext) fieldContext_TeamList_nodes(ctx context.Context, fie
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -36779,6 +37122,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(ctx context.Context, fi
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -48200,6 +48545,11 @@ func (ec *executionContext) _Redis(ctx context.Context, sel ast.SelectionSet, ob
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Redis")
+		case "id":
+			out.Values[i] = ec._Redis_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "name":
 			out.Values[i] = ec._Redis_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -48284,6 +48634,50 @@ func (ec *executionContext) _Redis(ctx context.Context, sel ast.SelectionSet, ob
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var redisListImplementors = []string{"RedisList"}
+
+func (ec *executionContext) _RedisList(ctx context.Context, sel ast.SelectionSet, obj *model.RedisList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, redisListImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RedisList")
+		case "nodes":
+			out.Values[i] = ec._RedisList_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pageInfo":
+			out.Values[i] = ec._RedisList_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -50787,6 +51181,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Team_buckets(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "redis":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_redis(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -55227,6 +55657,74 @@ func (ec *executionContext) marshalNReconcilerList2ᚖgithubᚗcomᚋnaisᚋapi�
 		return graphql.Null
 	}
 	return ec._ReconcilerList(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRedis2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Redis) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRedis2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedis(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNRedis2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedis(ctx context.Context, sel ast.SelectionSet, v *model.Redis) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Redis(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRedisList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisList(ctx context.Context, sel ast.SelectionSet, v model.RedisList) graphql.Marshaler {
+	return ec._RedisList(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRedisList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisList(ctx context.Context, sel ast.SelectionSet, v *model.RedisList) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RedisList(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNRepositoryAuthorization2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorization(ctx context.Context, v interface{}) (model.RepositoryAuthorization, error) {

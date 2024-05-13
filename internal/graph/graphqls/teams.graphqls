@@ -325,6 +325,17 @@ type Team {
     orderBy: OrderBy
   ): BucketsList!
 
+  redis(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order buckets by"
+    orderBy: OrderBy
+  ): RedisList!
+
   "The NAIS applications owned by the team."
   apps(
     "Returns the first n entries from the list."
