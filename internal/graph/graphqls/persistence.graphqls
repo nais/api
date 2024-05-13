@@ -89,6 +89,9 @@ type OpenSearch implements Persistence {
   name: String!
   access: String!
   id: ID!
+  team: Team!
+  env: Env!
+  workload: Workload
 }
 
 type Flag {
@@ -131,6 +134,11 @@ type BucketsList {
 
 type RedisList {
   nodes: [Redis!]!
+  pageInfo: PageInfo!
+}
+
+type OpenSearchList {
+  nodes: [OpenSearch!]!
   pageInfo: PageInfo!
 }
 

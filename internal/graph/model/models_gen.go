@@ -569,6 +569,11 @@ func (NoRunningInstancesError) IsStateError()             {}
 func (this NoRunningInstancesError) GetRevision() string  { return this.Revision }
 func (this NoRunningInstancesError) GetLevel() ErrorLevel { return this.Level }
 
+type OpenSearchList struct {
+	Nodes    []*OpenSearch `json:"nodes"`
+	PageInfo PageInfo      `json:"pageInfo"`
+}
+
 type OrderBy struct {
 	// Order direction.
 	Direction SortOrder `json:"direction"`

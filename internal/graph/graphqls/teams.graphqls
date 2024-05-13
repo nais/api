@@ -310,9 +310,9 @@ type Team {
     "Returns the last n entries from the list."
     limit: Int
 
-    "Order SQL instances by"
-    orderBy: OrderBy
-  ): SqlInstancesList!
+		"Order entries by"
+		orderBy: OrderBy
+	): SqlInstancesList!
 
   buckets(
     "Returns the first n entries from the list."
@@ -321,7 +321,7 @@ type Team {
     "Returns the last n entries from the list."
     limit: Int
 
-    "Order buckets by"
+    "Order entries by"
     orderBy: OrderBy
   ): BucketsList!
 
@@ -332,18 +332,29 @@ type Team {
     "Returns the last n entries from the list."
     limit: Int
 
-    "Order buckets by"
+    "Order entries by"
     orderBy: OrderBy
   ): RedisList!
 
-  bigquery(
+  openSearch(
     "Returns the first n entries from the list."
     offset: Int
 
     "Returns the last n entries from the list."
     limit: Int
 
-    "Order buckets by"
+    "Order entries by"
+    orderBy: OrderBy
+  ): OpenSearchList!
+
+  bigQuery(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order entries by"
     orderBy: OrderBy
   ): BigQueryDatasetList!
 
@@ -355,7 +366,7 @@ type Team {
     "Returns the last n entries from the list."
     limit: Int
 
-    "Order apps by"
+    "Order entries by"
     orderBy: OrderBy
   ): AppList!
 
@@ -370,7 +381,7 @@ type Team {
     "Returns the last n entries from the list."
     limit: Int
 
-    "Order naisjobs by"
+    "Order entries by"
     orderBy: OrderBy
   ): NaisJobList!
 
@@ -391,7 +402,7 @@ type Team {
     "Returns the last n entries from the list."
     limit: Int
 
-    "Order apps by"
+    "Order entries by"
     orderBy: OrderBy
 
     filter: VulnerabilityFilter

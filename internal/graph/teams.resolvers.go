@@ -1206,8 +1206,37 @@ func (r *teamResolver) Redis(ctx context.Context, obj *model.Team, offset *int, 
 	}, nil
 }
 
-// Bigquery is the resolver for the bigquery field.
-func (r *teamResolver) Bigquery(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BigQueryDatasetList, error) {
+// OpenSearch is the resolver for the openSearch field.
+func (r *teamResolver) OpenSearch(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.OpenSearchList, error) {
+	openSearch, err := r.openSearchClient.OpenSearch(obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case model.OrderByFieldName:
+			model.SortWith(openSearch, func(a, b *model.OpenSearch) bool {
+				return model.Compare(a.Name, b.Name, orderBy.Direction)
+			})
+		case model.OrderByFieldEnv:
+			model.SortWith(openSearch, func(a, b *model.OpenSearch) bool {
+				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
+			})
+		}
+	}
+
+	pagination := model.NewPagination(offset, limit)
+	openSearch, pageInfo := model.PaginatedSlice(openSearch, pagination)
+
+	return &model.OpenSearchList{
+		Nodes:    openSearch,
+		PageInfo: pageInfo,
+	}, nil
+}
+
+// BigQuery is the resolver for the bigQuery field.
+func (r *teamResolver) BigQuery(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BigQueryDatasetList, error) {
 	bqs, err := r.bigQueryClient.BigQueryDatasets(obj.Slug)
 	if err != nil {
 		return nil, err

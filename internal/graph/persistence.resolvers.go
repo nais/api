@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
@@ -42,6 +41,29 @@ func (r *bucketResolver) Team(ctx context.Context, obj *model.Bucket) (*model.Te
 
 // Workload is the resolver for the workload field.
 func (r *bucketResolver) Workload(ctx context.Context, obj *model.Bucket) (model.Workload, error) {
+	if obj.GQLVars.OwnerReference == nil {
+		return nil, nil
+	}
+
+	switch obj.GQLVars.OwnerReference.Kind {
+	case "Naisjob":
+		return r.k8sClient.NaisJob(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
+	case "Application":
+		return r.k8sClient.App(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
+	default:
+		r.log.WithField("kind", obj.GQLVars.OwnerReference.Kind).Warnf("Unknown owner reference kind")
+	}
+	return nil, nil
+}
+
+// Team is the resolver for the team field.
+func (r *openSearchResolver) Team(ctx context.Context, obj *model.OpenSearch) (*model.Team, error) {
+	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
+
+}
+
+// Workload is the resolver for the workload field.
+func (r *openSearchResolver) Workload(ctx context.Context, obj *model.OpenSearch) (model.Workload, error) {
 	if obj.GQLVars.OwnerReference == nil {
 		return nil, nil
 	}
@@ -124,6 +146,9 @@ func (r *Resolver) BigQueryDataset() gengql.BigQueryDatasetResolver {
 // Bucket returns gengql.BucketResolver implementation.
 func (r *Resolver) Bucket() gengql.BucketResolver { return &bucketResolver{r} }
 
+// OpenSearch returns gengql.OpenSearchResolver implementation.
+func (r *Resolver) OpenSearch() gengql.OpenSearchResolver { return &openSearchResolver{r} }
+
 // Redis returns gengql.RedisResolver implementation.
 func (r *Resolver) Redis() gengql.RedisResolver { return &redisResolver{r} }
 
@@ -133,6 +158,7 @@ func (r *Resolver) SqlInstance() gengql.SqlInstanceResolver { return &sqlInstanc
 type (
 	bigQueryDatasetResolver struct{ *Resolver }
 	bucketResolver          struct{ *Resolver }
+	openSearchResolver      struct{ *Resolver }
 	redisResolver           struct{ *Resolver }
 	sqlInstanceResolver     struct{ *Resolver }
 )
