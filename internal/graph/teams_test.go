@@ -76,7 +76,7 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 
 	t.Run("create team with empty purpose", func(t *testing.T) {
 		_, err := graph.
-			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditlogger.NewAuditLoggerForTesting(), nil, userSyncRuns, nil, log, nil, nil, nil, nil).
+			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditlogger.NewAuditLoggerForTesting(), nil, userSyncRuns, nil, log, nil, nil, nil, nil, nil).
 			Mutation().
 			CreateTeam(ctx, model.CreateTeamInput{
 				Slug:         teamSlug,
@@ -115,7 +115,7 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 
 		auditLogger := auditlogger.NewAuditLoggerForTesting()
 		returnedTeam, err := graph.
-			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditLogger, nil, userSyncRuns, psClient.Topic("topic-id"), log, nil, nil, nil, nil).
+			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditLogger, nil, userSyncRuns, psClient.Topic("topic-id"), log, nil, nil, nil, nil, nil).
 			Mutation().
 			CreateTeam(ctx, model.CreateTeamInput{
 				Slug:         teamSlug,
@@ -194,7 +194,7 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 
 		auditLogger := auditlogger.NewAuditLoggerForTesting()
 		returnedTeam, err := graph.
-			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditLogger, nil, userSyncRuns, psClient.Topic("topic-id"), log, nil, nil, nil, nil).
+			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditLogger, nil, userSyncRuns, psClient.Topic("topic-id"), log, nil, nil, nil, nil, nil).
 			Mutation().CreateTeam(saCtx, model.CreateTeamInput{
 			Slug:         teamSlug,
 			Purpose:      " some purpose ",
@@ -248,7 +248,7 @@ func TestMutationResolver_RequestTeamDeletion(t *testing.T) {
 		db := database.NewMockDatabase(t)
 
 		resolver := graph.
-			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditlogger.NewAuditLoggerForTesting(), nil, userSyncRuns, nil, log, nil, nil, nil, nil).
+			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditlogger.NewAuditLoggerForTesting(), nil, userSyncRuns, nil, log, nil, nil, nil, nil, nil).
 			Mutation()
 
 		user := database.User{
@@ -289,7 +289,7 @@ func TestMutationResolver_RequestTeamDeletion(t *testing.T) {
 
 		ctx = loader.NewLoaderContext(ctx, db)
 		resolver := graph.
-			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditlogger.NewAuditLoggerForTesting(), nil, userSyncRuns, nil, log, nil, nil, nil, nil).
+			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditlogger.NewAuditLoggerForTesting(), nil, userSyncRuns, nil, log, nil, nil, nil, nil, nil).
 			Mutation()
 		key, err := resolver.RequestTeamDeletion(ctx, teamSlug)
 		assert.Nil(t, key)
@@ -347,7 +347,7 @@ func TestMutationResolver_RequestTeamDeletion(t *testing.T) {
 
 		auditLogger := auditlogger.NewAuditLoggerForTesting()
 		resolver := graph.
-			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditLogger, nil, userSyncRuns, nil, log, nil, nil, nil, nil).
+			NewResolver(nil, nil, nil, nil, db, tenantDomain, userSync, auditLogger, nil, userSyncRuns, nil, log, nil, nil, nil, nil, nil).
 			Mutation()
 
 		returnedKey, err := resolver.RequestTeamDeletion(ctx, teamSlug)

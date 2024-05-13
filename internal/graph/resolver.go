@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/nais/api/internal/opensearch"
+
 	"github.com/nais/api/internal/bigquery"
 
 	"github.com/nais/api/internal/unleash"
@@ -110,11 +112,31 @@ type Resolver struct {
 	bucketClient          *bucket.Client
 	redisClient           *redis.Client
 	bigQueryDatasetClient *bigquery.Client
+	openSearchClient      *opensearch.Client
 	unleashMgr            *unleash.Manager
+
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
-func NewResolver(hookdClient HookdClient, k8sClient *k8s.Client, dependencyTrackClient DependencytrackClient, resourceUsageClient resourceusage.Client, db database.Database, tenantDomain string, userSync chan<- uuid.UUID, auditLogger auditlogger.AuditLogger, clusters ClusterList, userSyncRuns *usersync.RunsHandler, pubsubTopic *pubsub.Topic, log logrus.FieldLogger, sqlInstanceClient *sqlinstance.Client, bucketClient *bucket.Client, redisClient *redis.Client) *Resolver {
+func NewResolver(hookdClient HookdClient,
+	k8sClient *k8s.Client,
+	dependencyTrackClient DependencytrackClient,
+	resourceUsageClient resourceusage.Client,
+	db database.Database,
+	tenantDomain string,
+	userSync chan<- uuid.UUID,
+	auditLogger auditlogger.AuditLogger,
+	clusters ClusterList,
+	userSyncRuns *usersync.RunsHandler,
+	pubsubTopic *pubsub.Topic,
+	log logrus.FieldLogger,
+	sqlInstanceClient *sqlinstance.Client,
+	bucketClient *bucket.Client,
+	redisClient *redis.Client,
+	bigQueryDatasetClient *bigquery.Client,
+	openSearchClient *opensearch.Client,
+	unleashMgr *unleash.Manager,
+) *Resolver {
 	return &Resolver{
 		hookdClient:           hookdClient,
 		k8sClient:             k8sClient,
@@ -133,6 +155,7 @@ func NewResolver(hookdClient HookdClient, k8sClient *k8s.Client, dependencyTrack
 		bucketClient:          bucketClient,
 		redisClient:           redisClient,
 		bigQueryDatasetClient: bigQueryDatasetClient,
+		openSearchClient:      openSearchClient,
 		unleashMgr:            unleashMgr,
 	}
 }

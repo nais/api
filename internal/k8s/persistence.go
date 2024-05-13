@@ -41,7 +41,6 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 		}
 		for _, bq := range bqs {
 			b, err := model.ToBigQueryDataset(bq.(*unstructured.Unstructured), cluster)
-
 			if err != nil {
 				return nil, fmt.Errorf("converting bigQueryDataset: %w", err)
 			}

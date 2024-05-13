@@ -569,17 +569,6 @@ func (NoRunningInstancesError) IsStateError()             {}
 func (this NoRunningInstancesError) GetRevision() string  { return this.Revision }
 func (this NoRunningInstancesError) GetLevel() ErrorLevel { return this.Level }
 
-type OpenSearch struct {
-	// The opensearch instance name
-	Name   string       `json:"name"`
-	Access string       `json:"access"`
-	ID     scalar.Ident `json:"id"`
-}
-
-func (OpenSearch) IsPersistence()           {}
-func (this OpenSearch) GetName() string     { return this.Name }
-func (this OpenSearch) GetID() scalar.Ident { return this.ID }
-
 type OrderBy struct {
 	// Order direction.
 	Direction SortOrder `json:"direction"`

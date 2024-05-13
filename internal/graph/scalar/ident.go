@@ -28,6 +28,7 @@ const (
 	IdentTypeEnv                IdentType = "env"
 	IdentTypeGitHubRepo         IdentType = "githubRepo"
 	IdentTypeJob                IdentType = "job"
+	IdentTypeOpenSearch         IdentType = "opensearch"
 	IdentTypePod                IdentType = "pod"
 	IdentTypeRedis              IdentType = "redis"
 	IdentTypeSecret             IdentType = "secret"
@@ -158,6 +159,10 @@ func BigQueryDatasetIdent(id string) Ident {
 
 func RedisIdent(id string) Ident {
 	return newIdent(id, IdentTypeRedis)
+}
+
+func OpenSearchIdent(id string) Ident {
+	return newIdent(id, IdentTypeOpenSearch)
 }
 
 func newIdent(id string, t IdentType) Ident {
