@@ -28,6 +28,8 @@ type RedisGQLVars struct {
 func (Redis) IsPersistence()    {}
 func (r Redis) GetName() string { return r.Name }
 
+func (r Redis) GetID() scalar.Ident { return r.ID }
+
 func ToRedis(u *unstructured.Unstructured, env string) (*Redis, error) {
 	redis := &aiven_io_v1alpha1.Redis{}
 

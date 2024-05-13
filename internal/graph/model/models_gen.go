@@ -28,6 +28,7 @@ type DeploymentResponse interface {
 type Persistence interface {
 	IsPersistence()
 	GetName() string
+	GetID() scalar.Ident
 }
 
 type SearchNode interface {
@@ -142,15 +143,10 @@ type AzureApplication struct {
 	Tenant                string   `json:"tenant"`
 }
 
-type BigQueryDataset struct {
-	CascadingDelete bool   `json:"cascadingDelete"`
-	Description     string `json:"description"`
-	Name            string `json:"name"`
-	Permission      string `json:"permission"`
+type BigQueryDatasetList struct {
+	Nodes    []*BigQueryDataset `json:"nodes"`
+	PageInfo PageInfo           `json:"pageInfo"`
 }
-
-func (BigQueryDataset) IsPersistence()       {}
-func (this BigQueryDataset) GetName() string { return this.Name }
 
 type BucketsList struct {
 	Nodes    []*Bucket `json:"nodes"`
@@ -435,11 +431,13 @@ func (this InboundAccessError) GetRevision() string  { return this.Revision }
 func (this InboundAccessError) GetLevel() ErrorLevel { return this.Level }
 
 type InfluxDb struct {
-	Name string `json:"name"`
+	Name string       `json:"name"`
+	ID   scalar.Ident `json:"id"`
 }
 
-func (InfluxDb) IsPersistence()       {}
-func (this InfluxDb) GetName() string { return this.Name }
+func (InfluxDb) IsPersistence()           {}
+func (this InfluxDb) GetName() string     { return this.Name }
+func (this InfluxDb) GetID() scalar.Ident { return this.ID }
 
 type Insights struct {
 	Enabled               bool `json:"enabled"`
@@ -466,13 +464,15 @@ type JobsStatus struct {
 
 type Kafka struct {
 	// The kafka pool name
-	Name    string   `json:"name"`
-	Streams bool     `json:"streams"`
-	Topics  []*Topic `json:"topics"`
+	Name    string       `json:"name"`
+	Streams bool         `json:"streams"`
+	Topics  []*Topic     `json:"topics"`
+	ID      scalar.Ident `json:"id"`
 }
 
-func (Kafka) IsPersistence()       {}
-func (this Kafka) GetName() string { return this.Name }
+func (Kafka) IsPersistence()           {}
+func (this Kafka) GetName() string     { return this.Name }
+func (this Kafka) GetID() scalar.Ident { return this.ID }
 
 type Limits struct {
 	CPU    string `json:"cpu"`
@@ -566,12 +566,14 @@ func (this NoRunningInstancesError) GetLevel() ErrorLevel { return this.Level }
 
 type OpenSearch struct {
 	// The opensearch instance name
-	Name   string `json:"name"`
-	Access string `json:"access"`
+	Name   string       `json:"name"`
+	Access string       `json:"access"`
+	ID     scalar.Ident `json:"id"`
 }
 
-func (OpenSearch) IsPersistence()       {}
-func (this OpenSearch) GetName() string { return this.Name }
+func (OpenSearch) IsPersistence()           {}
+func (this OpenSearch) GetName() string     { return this.Name }
+func (this OpenSearch) GetID() scalar.Ident { return this.ID }
 
 type OrderBy struct {
 	// Order direction.

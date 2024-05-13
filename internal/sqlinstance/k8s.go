@@ -165,7 +165,7 @@ func (c *Client) SqlDatabase(sqlInstance *model.SQLInstance) (*model.SQLDatabase
 	}
 
 	for _, obj := range objs {
-		db, err := model.ToSqlDatabase(obj.(*unstructured.Unstructured), sqlInstance.Name)
+		db, err := model.ToSqlDatabase(obj.(*unstructured.Unstructured), sqlInstance.Name, sqlInstance.Env.Name)
 		if err != nil {
 			return nil, c.error(err, "converting to SQL database model")
 		}

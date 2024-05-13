@@ -27,6 +27,7 @@ type SQLUser struct {
 }
 
 type SQLInstance struct {
+	ID                  scalar.Ident         `json:"id"`
 	BackupConfiguration *BackupConfiguration `json:"backupConfiguration"`
 	CascadingDelete     bool                 `json:"cascadingDelete"`
 	ConnectionName      string               `json:"connectionName"`
@@ -35,7 +36,6 @@ type SQLInstance struct {
 	Env                 Env                  `json:"env"`
 	Flags               []*Flag              `json:"flags"`
 	HighAvailability    bool                 `json:"highAvailability"`
-	ID                  scalar.Ident         `json:"id"`
 	MaintenanceWindow   *MaintenanceWindow   `json:"maintenanceWindow"`
 	MaintenanceVersion  *string              `json:"maintenanceVersion"`
 	Metrics             *SQLInstanceMetrics  `json:"metrics"`
@@ -59,7 +59,8 @@ type SQLInstanceGQLVars struct {
 func (SQLInstance) IsPersistence() {}
 func (SQLInstance) IsSearchNode()  {}
 
-func (i SQLInstance) GetName() string { return i.Name }
+func (i SQLInstance) GetName() string     { return i.Name }
+func (i SQLInstance) GetID() scalar.Ident { return i.ID }
 
 func (i SQLInstance) IsHealthy() bool {
 	for _, cond := range i.Status.Conditions {

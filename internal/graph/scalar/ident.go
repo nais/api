@@ -30,6 +30,7 @@ const (
 	IdentTypePod                IdentType = "pod"
 	IdentTypeSecret             IdentType = "secret"
 	IdentTypeSqlInstance        IdentType = "sqlInstance"
+	IdentTypeSqlDatabase        IdentType = "sqlDatabase"
 	IdentTypeTeam               IdentType = "team"
 	IdentTypeUser               IdentType = "user"
 	IdentTypeVulnerabilities    IdentType = "vulnerabilities"
@@ -140,6 +141,10 @@ func GitHubRepository(name string) Ident {
 
 func SqlInstanceIdent(id string) Ident {
 	return newIdent(id, IdentTypeSqlInstance)
+}
+
+func SqlDatabaseIdent(id string) Ident {
+	return newIdent(id, IdentTypeSqlDatabase)
 }
 
 func BucketIdent(id string) Ident {

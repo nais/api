@@ -33,6 +33,7 @@ type BucketGQLVars struct {
 func (Bucket) IsPersistence()    {}
 func (b Bucket) GetName() string { return b.Name }
 
+func (b Bucket) GetID() scalar.Ident { return b.ID }
 func ToBucket(u *unstructured.Unstructured, env string) (*Bucket, error) {
 	bucket := &storage_cnrm_cloud_google_com_v1beta1.StorageBucket{}
 

@@ -14,10 +14,12 @@ extend type Query {
 
 interface Persistence {
   name: String!
+  id: ID!
 }
 
 type InfluxDb implements Persistence {
   name: String!
+  id: ID!
 }
 
 type Redis implements Persistence {
@@ -34,6 +36,7 @@ type BigQueryDataset implements Persistence {
   description: String!
   name: String!
   permission: String!
+  id: ID!
 }
 
 type Bucket implements Persistence {
@@ -57,6 +60,7 @@ type Kafka implements Persistence {
   name: String!
   streams: Boolean!
   topics: [Topic!]!
+  id: ID!
 }
 
 type Topic {
@@ -76,6 +80,7 @@ type OpenSearch implements Persistence {
   """
   name: String!
   access: String!
+  id: ID!
 }
 
 type Flag {
@@ -102,6 +107,7 @@ type SqlDatabase implements Persistence{
   deletionPolicy: String!
   healthy: Boolean!
   conditions: [Condition!]!
+  id: ID!
 }
 
 type SqlInstancesList {
@@ -117,6 +123,11 @@ type BucketsList {
 
 type RedisList {
   nodes: [Redis!]!
+  pageInfo: PageInfo!
+}
+
+type BigQueryDatasetList {
+  nodes: [BigQueryDataset!]!
   pageInfo: PageInfo!
 }
 

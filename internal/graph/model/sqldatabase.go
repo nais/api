@@ -3,6 +3,8 @@ package model
 import (
 	"fmt"
 
+	"github.com/nais/api/internal/graph/scalar"
+
 	"github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/k8s/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 
@@ -19,9 +21,10 @@ type SQLDatabase struct {
 	Healthy        bool         `json:"healthy"`
 	Name           string       `json:"name"`
 	Conditions     []*Condition `json:"conditions"`
+	ID             scalar.Ident `json:"id"`
 }
 
-func ToSqlDatabase(u *unstructured.Unstructured, sqlInstanceName string) (*SQLDatabase, error) {
+func ToSqlDatabase(u *unstructured.Unstructured, sqlInstanceName, env string) (*SQLDatabase, error) {
 	sqlDatabase := &sql_cnrm_cloud_google_com_v1beta1.SQLDatabase{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, sqlDatabase); err != nil {
 		return nil, fmt.Errorf("converting to SQL database: %w", err)
@@ -32,7 +35,9 @@ func ToSqlDatabase(u *unstructured.Unstructured, sqlInstanceName string) (*SQLDa
 		return nil, nil
 	}
 
+	teamSlug := sqlDatabase.GetNamespace()
 	return &SQLDatabase{
+		ID:             scalar.SqlDatabaseIdent("sqldatabase_" + env + "_" + teamSlug + "_" + sqlDatabase.GetName()),
 		Name:           sqlDatabase.Name,
 		Charset:        sqlDatabase.Spec.Charset,
 		Collation:      sqlDatabase.Spec.Collation,
@@ -55,8 +60,9 @@ func ToSqlDatabase(u *unstructured.Unstructured, sqlInstanceName string) (*SQLDa
 	}, nil
 }
 
-func (SQLDatabase) IsPersistence()    {}
-func (i SQLDatabase) GetName() string { return i.Name }
+func (SQLDatabase) IsPersistence()        {}
+func (i SQLDatabase) GetName() string     { return i.Name }
+func (i SQLDatabase) GetID() scalar.Ident { return i.ID }
 
 func IsHealthy(cs []v1alpha1.Condition) bool {
 	for _, cond := range cs {

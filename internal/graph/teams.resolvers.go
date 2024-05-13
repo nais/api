@@ -1206,6 +1206,11 @@ func (r *teamResolver) Redis(ctx context.Context, obj *model.Team, offset *int, 
 	}, nil
 }
 
+// Bigquery is the resolver for the bigquery field.
+func (r *teamResolver) Bigquery(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BigQueryDatasetList, error) {
+	panic(fmt.Errorf("not implemented: Bigquery - bigquery"))
+}
+
 // Apps is the resolver for the apps field.
 func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.AppList, error) {
 	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())

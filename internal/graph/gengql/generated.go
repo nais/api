@@ -178,8 +178,14 @@ type ComplexityRoot struct {
 	BigQueryDataset struct {
 		CascadingDelete func(childComplexity int) int
 		Description     func(childComplexity int) int
+		ID              func(childComplexity int) int
 		Name            func(childComplexity int) int
 		Permission      func(childComplexity int) int
+	}
+
+	BigQueryDatasetList struct {
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
 	}
 
 	Bucket struct {
@@ -417,6 +423,7 @@ type ComplexityRoot struct {
 	}
 
 	InfluxDb struct {
+		ID   func(childComplexity int) int
 		Name func(childComplexity int) int
 	}
 
@@ -449,6 +456,7 @@ type ComplexityRoot struct {
 	}
 
 	Kafka struct {
+		ID      func(childComplexity int) int
 		Name    func(childComplexity int) int
 		Streams func(childComplexity int) int
 		Topics  func(childComplexity int) int
@@ -561,6 +569,7 @@ type ComplexityRoot struct {
 
 	OpenSearch struct {
 		Access func(childComplexity int) int
+		ID     func(childComplexity int) int
 		Name   func(childComplexity int) int
 	}
 
@@ -777,6 +786,7 @@ type ComplexityRoot struct {
 		Conditions     func(childComplexity int) int
 		DeletionPolicy func(childComplexity int) int
 		Healthy        func(childComplexity int) int
+		ID             func(childComplexity int) int
 		Name           func(childComplexity int) int
 	}
 
@@ -878,6 +888,7 @@ type ComplexityRoot struct {
 		Apps                   func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		AuditLogs              func(childComplexity int, offset *int, limit *int) int
 		AzureGroupID           func(childComplexity int) int
+		Bigquery               func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		Buckets                func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		DeletionInProgress     func(childComplexity int) int
 		DeployKey              func(childComplexity int) int
@@ -1203,6 +1214,7 @@ type TeamResolver interface {
 	SQLInstances(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.SQLInstancesList, error)
 	Buckets(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BucketsList, error)
 	Redis(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.RedisList, error)
+	Bigquery(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BigQueryDatasetList, error)
 	Apps(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.AppList, error)
 	DeployKey(ctx context.Context, obj *model.Team) (*model.DeploymentKey, error)
 	Naisjobs(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.NaisJobList, error)
@@ -1721,6 +1733,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.BigQueryDataset.Description(childComplexity), true
 
+	case "BigQueryDataset.id":
+		if e.complexity.BigQueryDataset.ID == nil {
+			break
+		}
+
+		return e.complexity.BigQueryDataset.ID(childComplexity), true
+
 	case "BigQueryDataset.name":
 		if e.complexity.BigQueryDataset.Name == nil {
 			break
@@ -1734,6 +1753,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BigQueryDataset.Permission(childComplexity), true
+
+	case "BigQueryDatasetList.nodes":
+		if e.complexity.BigQueryDatasetList.Nodes == nil {
+			break
+		}
+
+		return e.complexity.BigQueryDatasetList.Nodes(childComplexity), true
+
+	case "BigQueryDatasetList.pageInfo":
+		if e.complexity.BigQueryDatasetList.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.BigQueryDatasetList.PageInfo(childComplexity), true
 
 	case "Bucket.cascadingDelete":
 		if e.complexity.Bucket.CascadingDelete == nil {
@@ -2622,6 +2655,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.InboundAccessError.Rule(childComplexity), true
 
+	case "InfluxDb.id":
+		if e.complexity.InfluxDb.ID == nil {
+			break
+		}
+
+		return e.complexity.InfluxDb.ID(childComplexity), true
+
 	case "InfluxDb.name":
 		if e.complexity.InfluxDb.Name == nil {
 			break
@@ -2740,6 +2780,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.JobsStatus.Total(childComplexity), true
+
+	case "Kafka.id":
+		if e.complexity.Kafka.ID == nil {
+			break
+		}
+
+		return e.complexity.Kafka.ID(childComplexity), true
 
 	case "Kafka.name":
 		if e.complexity.Kafka.Name == nil {
@@ -3386,6 +3433,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.OpenSearch.Access(childComplexity), true
+
+	case "OpenSearch.id":
+		if e.complexity.OpenSearch.ID == nil {
+			break
+		}
+
+		return e.complexity.OpenSearch.ID(childComplexity), true
 
 	case "OpenSearch.name":
 		if e.complexity.OpenSearch.Name == nil {
@@ -4431,6 +4485,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlDatabase.Healthy(childComplexity), true
 
+	case "SqlDatabase.id":
+		if e.complexity.SqlDatabase.ID == nil {
+			break
+		}
+
+		return e.complexity.SqlDatabase.ID(childComplexity), true
+
 	case "SqlDatabase.name":
 		if e.complexity.SqlDatabase.Name == nil {
 			break
@@ -4858,6 +4919,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Team.AzureGroupID(childComplexity), true
+
+	case "Team.bigquery":
+		if e.complexity.Team.Bigquery == nil {
+			break
+		}
+
+		args, err := ec.field_Team_bigquery_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Team.Bigquery(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy)), true
 
 	case "Team.buckets":
 		if e.complexity.Team.Buckets == nil {
@@ -6558,10 +6631,12 @@ type NaisJobList {
 
 interface Persistence {
   name: String!
+  id: ID!
 }
 
 type InfluxDb implements Persistence {
   name: String!
+  id: ID!
 }
 
 type Redis implements Persistence {
@@ -6578,6 +6653,7 @@ type BigQueryDataset implements Persistence {
   description: String!
   name: String!
   permission: String!
+  id: ID!
 }
 
 type Bucket implements Persistence {
@@ -6601,6 +6677,7 @@ type Kafka implements Persistence {
   name: String!
   streams: Boolean!
   topics: [Topic!]!
+  id: ID!
 }
 
 type Topic {
@@ -6620,6 +6697,7 @@ type OpenSearch implements Persistence {
   """
   name: String!
   access: String!
+  id: ID!
 }
 
 type Flag {
@@ -6646,6 +6724,7 @@ type SqlDatabase implements Persistence{
   deletionPolicy: String!
   healthy: Boolean!
   conditions: [Condition!]!
+  id: ID!
 }
 
 type SqlInstancesList {
@@ -6661,6 +6740,11 @@ type BucketsList {
 
 type RedisList {
   nodes: [Redis!]!
+  pageInfo: PageInfo!
+}
+
+type BigQueryDatasetList {
+  nodes: [BigQueryDataset!]!
   pageInfo: PageInfo!
 }
 
@@ -7663,6 +7747,17 @@ type Team {
     "Order buckets by"
     orderBy: OrderBy
   ): RedisList!
+
+  bigquery(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order buckets by"
+    orderBy: OrderBy
+  ): BigQueryDatasetList!
 
   "The NAIS applications owned by the team."
   apps(
@@ -9535,6 +9630,39 @@ func (ec *executionContext) field_Team_auditLogs_args(ctx context.Context, rawAr
 	return args, nil
 }
 
+func (ec *executionContext) field_Team_bigquery_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	var arg2 *model.OrderBy
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg2, err = ec.unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderBy(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_Team_buckets_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -10943,6 +11071,8 @@ func (ec *executionContext) fieldContext_App_team(ctx context.Context, field gra
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -13172,6 +13302,158 @@ func (ec *executionContext) fieldContext_BigQueryDataset_permission(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _BigQueryDataset_id(ctx context.Context, field graphql.CollectedField, obj *model.BigQueryDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDataset_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDataset_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BigQueryDatasetList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.BigQueryDatasetList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDatasetList_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.BigQueryDataset)
+	fc.Result = res
+	return ec.marshalNBigQueryDataset2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDatasetList_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDatasetList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cascadingDelete":
+				return ec.fieldContext_BigQueryDataset_cascadingDelete(ctx, field)
+			case "description":
+				return ec.fieldContext_BigQueryDataset_description(ctx, field)
+			case "name":
+				return ec.fieldContext_BigQueryDataset_name(ctx, field)
+			case "permission":
+				return ec.fieldContext_BigQueryDataset_permission(ctx, field)
+			case "id":
+				return ec.fieldContext_BigQueryDataset_id(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BigQueryDataset", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BigQueryDatasetList_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.BigQueryDatasetList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDatasetList_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDatasetList_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDatasetList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Bucket_id(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Bucket_id(ctx, field)
 	if err != nil {
@@ -13429,6 +13711,8 @@ func (ec *executionContext) fieldContext_Bucket_team(ctx context.Context, field 
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -15122,6 +15406,8 @@ func (ec *executionContext) fieldContext_Deployment_team(ctx context.Context, fi
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -19110,6 +19396,50 @@ func (ec *executionContext) fieldContext_InfluxDb_name(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _InfluxDb_id(ctx context.Context, field graphql.CollectedField, obj *model.InfluxDb) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_InfluxDb_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_InfluxDb_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "InfluxDb",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Insights_enabled(ctx context.Context, field graphql.CollectedField, obj *model.Insights) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Insights_enabled(ctx, field)
 	if err != nil {
@@ -19947,6 +20277,50 @@ func (ec *executionContext) fieldContext_Kafka_topics(ctx context.Context, field
 				return ec.fieldContext_Topic_acl(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Topic", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Kafka_id(ctx context.Context, field graphql.CollectedField, obj *model.Kafka) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Kafka_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Kafka_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Kafka",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -21781,6 +22155,8 @@ func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -21922,6 +22298,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -22063,6 +22441,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUsersFromTeam(ctx contex
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -22204,6 +22584,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUserFromTeam(ctx context
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -22492,6 +22874,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMembers(ctx context.Con
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -22633,6 +23017,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamOwners(ctx context.Cont
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -22774,6 +23160,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -22915,6 +23303,8 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -23912,6 +24302,8 @@ func (ec *executionContext) fieldContext_NaisJob_team(ctx context.Context, field
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -24800,6 +25192,50 @@ func (ec *executionContext) fieldContext_OpenSearch_access(ctx context.Context, 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _OpenSearch_id(ctx context.Context, field graphql.CollectedField, obj *model.OpenSearch) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_OpenSearch_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_OpenSearch_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearch",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -26725,6 +27161,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -28262,6 +28700,8 @@ func (ec *executionContext) fieldContext_Redis_team(ctx context.Context, field g
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -30138,6 +30578,8 @@ func (ec *executionContext) fieldContext_Role_targetTeam(ctx context.Context, fi
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -31142,6 +31584,8 @@ func (ec *executionContext) fieldContext_Secret_team(ctx context.Context, field 
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -32127,6 +32571,50 @@ func (ec *executionContext) fieldContext_SqlDatabase_conditions(ctx context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _SqlDatabase_id(ctx context.Context, field graphql.CollectedField, obj *model.SQLDatabase) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlDatabase_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlDatabase_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlDatabase",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SqlInstance_id(ctx context.Context, field graphql.CollectedField, obj *model.SQLInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstance_id(ctx, field)
 	if err != nil {
@@ -32363,6 +32851,8 @@ func (ec *executionContext) fieldContext_SqlInstance_database(ctx context.Contex
 				return ec.fieldContext_SqlDatabase_healthy(ctx, field)
 			case "conditions":
 				return ec.fieldContext_SqlDatabase_conditions(ctx, field)
+			case "id":
+				return ec.fieldContext_SqlDatabase_id(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SqlDatabase", field.Name)
 		},
@@ -32963,6 +33453,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(ctx context.Context, f
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -35866,6 +36358,67 @@ func (ec *executionContext) fieldContext_Team_redis(ctx context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_bigquery(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_bigquery(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().Bigquery(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["orderBy"].(*model.OrderBy))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.BigQueryDatasetList)
+	fc.Result = res
+	return ec.marshalNBigQueryDatasetList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_bigquery(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "nodes":
+				return ec.fieldContext_BigQueryDatasetList_nodes(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_BigQueryDatasetList_pageInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetList", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Team_bigquery_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_apps(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_apps(ctx, field)
 	if err != nil {
@@ -36852,6 +37405,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(ctx context.Context,
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -36962,6 +37517,8 @@ func (ec *executionContext) fieldContext_TeamList_nodes(ctx context.Context, fie
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -37124,6 +37681,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(ctx context.Context, fi
 				return ec.fieldContext_Team_buckets(ctx, field)
 			case "redis":
 				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
 			case "deployKey":
@@ -44097,6 +44656,55 @@ func (ec *executionContext) _BigQueryDataset(ctx context.Context, sel ast.Select
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "id":
+			out.Values[i] = ec._BigQueryDataset_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var bigQueryDatasetListImplementors = []string{"BigQueryDatasetList"}
+
+func (ec *executionContext) _BigQueryDatasetList(ctx context.Context, sel ast.SelectionSet, obj *model.BigQueryDatasetList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, bigQueryDatasetListImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("BigQueryDatasetList")
+		case "nodes":
+			out.Values[i] = ec._BigQueryDatasetList_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pageInfo":
+			out.Values[i] = ec._BigQueryDatasetList_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -46175,6 +46783,11 @@ func (ec *executionContext) _InfluxDb(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "id":
+			out.Values[i] = ec._InfluxDb_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -46437,6 +47050,11 @@ func (ec *executionContext) _Kafka(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "topics":
 			out.Values[i] = ec._Kafka_topics(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "id":
+			out.Values[i] = ec._Kafka_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -47455,6 +48073,11 @@ func (ec *executionContext) _OpenSearch(ctx context.Context, sel ast.SelectionSe
 			}
 		case "access":
 			out.Values[i] = ec._OpenSearch_access(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "id":
+			out.Values[i] = ec._OpenSearch_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -49912,6 +50535,11 @@ func (ec *executionContext) _SqlDatabase(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "id":
+			out.Values[i] = ec._SqlDatabase_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -51217,6 +51845,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Team_redis(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "bigquery":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_bigquery(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -53994,6 +54658,74 @@ func (ec *executionContext) marshalNBackupConfiguration2ᚖgithubᚗcomᚋnais�
 		return graphql.Null
 	}
 	return ec._BackupConfiguration(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNBigQueryDataset2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.BigQueryDataset) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDataset(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDataset(ctx context.Context, sel ast.SelectionSet, v *model.BigQueryDataset) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._BigQueryDataset(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNBigQueryDatasetList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetList(ctx context.Context, sel ast.SelectionSet, v model.BigQueryDatasetList) graphql.Marshaler {
+	return ec._BigQueryDatasetList(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNBigQueryDatasetList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetList(ctx context.Context, sel ast.SelectionSet, v *model.BigQueryDatasetList) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._BigQueryDatasetList(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
