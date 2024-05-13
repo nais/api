@@ -21,4 +21,5 @@ type UnleashMetrics {
   numToggles: Int!
   apiTokens: Int!
   users: Int!
+  cpuUsage: Float!
 }

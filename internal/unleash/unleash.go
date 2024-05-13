@@ -6,15 +6,19 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/prometheus/client_golang/api"
+	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2/google"
 )
 
 type Manager struct {
-	clientMap clusterClients
+	clientMap  clusterClients
+	namespace  string
+	prometheus promv1.API
 }
 
-func NewManager(tenant string, clusters []string, opts ...Opt) (*Manager, error) {
+func NewManager(tenant, namespace string, clusters []string, opts ...Opt) (*Manager, error) {
 	clientMap, err := createClientMap(tenant, clusters, opts...)
 	if err != nil {
 		var authErr *google.AuthenticationError
@@ -24,8 +28,18 @@ func NewManager(tenant string, clusters []string, opts ...Opt) (*Manager, error)
 		return nil, err
 	}
 
+	promClient, err := api.NewClient(api.Config{
+		// Address: "http://monitoring-nais-prometheus",
+		Address: "https://nais-prometheus.nav.cloud.nais.io",
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	return &Manager{
-		clientMap: clientMap,
+		namespace:  namespace,
+		clientMap:  clientMap,
+		prometheus: promv1.NewAPI(promClient),
 	}, nil
 }
 

@@ -16,9 +16,10 @@ type Unleash struct {
 }
 
 type UnleashMetrics struct {
-	NumToggles int `json:"numToggles"`
-	APITokens  int `json:"apiTokens"`
-	Users      int `json:"users"`
+	NumToggles int     `json:"numToggles"`
+	APITokens  int     `json:"apiTokens"`
+	Users      int     `json:"users"`
+	CpuUsage   float64 `json:"cpuUsage"`
 }
 
 func ToUnleashInstance(u *unleash_nais_io_v1.Unleash) *Unleash {
