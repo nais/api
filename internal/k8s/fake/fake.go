@@ -84,7 +84,8 @@ func Clients(dir fs.FS) func(cluster string) (kubernetes.Interface, dynamic.Inte
 			ClientSet: fake.NewSimpleClientset(objs.core...),
 			Dynamic: dynfake.NewSimpleDynamicClientWithCustomListKinds(scheme,
 				map[schema.GroupVersionResource]string{
-					liberator_aiven_io_v1alpha1.GroupVersion.WithResource("redis"): "RedisList",
+					liberator_aiven_io_v1alpha1.GroupVersion.WithResource("redis"):      "RedisList",
+					liberator_aiven_io_v1alpha1.GroupVersion.WithResource("opensearch"): "OpenSearchList",
 				}, objs.dynamic...),
 		}
 	}
