@@ -18,6 +18,7 @@ type IdentType string
 const (
 	IdentTypeApp                IdentType = "app"
 	IdentTypeAuditLog           IdentType = "auditLog"
+	IdentTypeBigQueryDataset    IdentType = "bigquerydataset"
 	IdentTypeBucket             IdentType = "bucket"
 	IdentTypeCorrelationID      IdentType = "correlationID"
 	IdentTypeDeployKey          IdentType = "deployKey"
@@ -28,13 +29,13 @@ const (
 	IdentTypeGitHubRepo         IdentType = "githubRepo"
 	IdentTypeJob                IdentType = "job"
 	IdentTypePod                IdentType = "pod"
+	IdentTypeRedis              IdentType = "redis"
 	IdentTypeSecret             IdentType = "secret"
-	IdentTypeSqlInstance        IdentType = "sqlInstance"
 	IdentTypeSqlDatabase        IdentType = "sqlDatabase"
+	IdentTypeSqlInstance        IdentType = "sqlInstance"
 	IdentTypeTeam               IdentType = "team"
 	IdentTypeUser               IdentType = "user"
 	IdentTypeVulnerabilities    IdentType = "vulnerabilities"
-	IdentTypeRedis              IdentType = "redis"
 )
 
 type Ident struct {
@@ -149,6 +150,10 @@ func SqlDatabaseIdent(id string) Ident {
 
 func BucketIdent(id string) Ident {
 	return newIdent(id, IdentTypeBucket)
+}
+
+func BigQueryDatasetIdent(id string) Ident {
+	return newIdent(id, IdentTypeBigQueryDataset)
 }
 
 func RedisIdent(id string) Ident {

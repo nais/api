@@ -44,6 +44,7 @@ type Config struct {
 
 type ResolverRoot interface {
 	App() AppResolver
+	BigQueryDataset() BigQueryDatasetResolver
 	Bucket() BucketResolver
 	DeployInfo() DeployInfoResolver
 	Env() EnvResolver
@@ -176,11 +177,19 @@ type ComplexityRoot struct {
 	}
 
 	BigQueryDataset struct {
+		Access          func(childComplexity int) int
 		CascadingDelete func(childComplexity int) int
 		Description     func(childComplexity int) int
+		Env             func(childComplexity int) int
 		ID              func(childComplexity int) int
 		Name            func(childComplexity int) int
-		Permission      func(childComplexity int) int
+		Team            func(childComplexity int) int
+		Workload        func(childComplexity int) int
+	}
+
+	BigQueryDatasetAccess struct {
+		Email func(childComplexity int) int
+		Role  func(childComplexity int) int
 	}
 
 	BigQueryDatasetList struct {
@@ -1075,6 +1084,13 @@ type AppResolver interface {
 	Vulnerabilities(ctx context.Context, obj *model.App) (*model.Vulnerability, error)
 	Secrets(ctx context.Context, obj *model.App) ([]*model.Secret, error)
 }
+type BigQueryDatasetResolver interface {
+	Access(ctx context.Context, obj *model.BigQueryDataset) ([]*model.BigQueryDatasetAccess, error)
+
+	Team(ctx context.Context, obj *model.BigQueryDataset) (*model.Team, error)
+
+	Workload(ctx context.Context, obj *model.BigQueryDataset) (model.Workload, error)
+}
 type BucketResolver interface {
 	Team(ctx context.Context, obj *model.Bucket) (*model.Team, error)
 
@@ -1719,6 +1735,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.BackupConfiguration.TransactionLogRetentionDays(childComplexity), true
 
+	case "BigQueryDataset.Access":
+		if e.complexity.BigQueryDataset.Access == nil {
+			break
+		}
+
+		return e.complexity.BigQueryDataset.Access(childComplexity), true
+
 	case "BigQueryDataset.cascadingDelete":
 		if e.complexity.BigQueryDataset.CascadingDelete == nil {
 			break
@@ -1732,6 +1755,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BigQueryDataset.Description(childComplexity), true
+
+	case "BigQueryDataset.env":
+		if e.complexity.BigQueryDataset.Env == nil {
+			break
+		}
+
+		return e.complexity.BigQueryDataset.Env(childComplexity), true
 
 	case "BigQueryDataset.id":
 		if e.complexity.BigQueryDataset.ID == nil {
@@ -1747,12 +1777,33 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.BigQueryDataset.Name(childComplexity), true
 
-	case "BigQueryDataset.permission":
-		if e.complexity.BigQueryDataset.Permission == nil {
+	case "BigQueryDataset.team":
+		if e.complexity.BigQueryDataset.Team == nil {
 			break
 		}
 
-		return e.complexity.BigQueryDataset.Permission(childComplexity), true
+		return e.complexity.BigQueryDataset.Team(childComplexity), true
+
+	case "BigQueryDataset.workload":
+		if e.complexity.BigQueryDataset.Workload == nil {
+			break
+		}
+
+		return e.complexity.BigQueryDataset.Workload(childComplexity), true
+
+	case "BigQueryDatasetAccess.email":
+		if e.complexity.BigQueryDatasetAccess.Email == nil {
+			break
+		}
+
+		return e.complexity.BigQueryDatasetAccess.Email(childComplexity), true
+
+	case "BigQueryDatasetAccess.role":
+		if e.complexity.BigQueryDatasetAccess.Role == nil {
+			break
+		}
+
+		return e.complexity.BigQueryDatasetAccess.Role(childComplexity), true
 
 	case "BigQueryDatasetList.nodes":
 		if e.complexity.BigQueryDatasetList.Nodes == nil {
@@ -6652,8 +6703,16 @@ type BigQueryDataset implements Persistence {
   cascadingDelete: Boolean!
   description: String!
   name: String!
-  permission: String!
+  Access: [BigQueryDatasetAccess!]!
   id: ID!
+  team: Team!
+  env: Env!
+  workload: Workload
+}
+
+type BigQueryDatasetAccess {
+  role: String!
+  email: String!
 }
 
 type Bucket implements Persistence {
@@ -13258,8 +13317,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_name(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _BigQueryDataset_permission(ctx context.Context, field graphql.CollectedField, obj *model.BigQueryDataset) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BigQueryDataset_permission(ctx, field)
+func (ec *executionContext) _BigQueryDataset_Access(ctx context.Context, field graphql.CollectedField, obj *model.BigQueryDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDataset_Access(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -13272,7 +13331,7 @@ func (ec *executionContext) _BigQueryDataset_permission(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Permission, nil
+		return ec.resolvers.BigQueryDataset().Access(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13284,19 +13343,25 @@ func (ec *executionContext) _BigQueryDataset_permission(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.([]*model.BigQueryDatasetAccess)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNBigQueryDatasetAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetAccessᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BigQueryDataset_permission(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_BigQueryDataset_Access(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BigQueryDataset",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "role":
+				return ec.fieldContext_BigQueryDatasetAccess_role(ctx, field)
+			case "email":
+				return ec.fieldContext_BigQueryDatasetAccess_email(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetAccess", field.Name)
 		},
 	}
 	return fc, nil
@@ -13341,6 +13406,301 @@ func (ec *executionContext) fieldContext_BigQueryDataset_id(ctx context.Context,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BigQueryDataset_team(ctx context.Context, field graphql.CollectedField, obj *model.BigQueryDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDataset_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.BigQueryDataset().Team(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Team)
+	fc.Result = res
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDataset_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDataset",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "auditLogs":
+				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
+			case "syncErrors":
+				return ec.fieldContext_Team_syncErrors(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "githubRepositories":
+				return ec.fieldContext_Team_githubRepositories(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "status":
+				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
+			case "bigquery":
+				return ec.fieldContext_Team_bigquery(ctx, field)
+			case "apps":
+				return ec.fieldContext_Team_apps(ctx, field)
+			case "deployKey":
+				return ec.fieldContext_Team_deployKey(ctx, field)
+			case "naisjobs":
+				return ec.fieldContext_Team_naisjobs(ctx, field)
+			case "deployments":
+				return ec.fieldContext_Team_deployments(ctx, field)
+			case "vulnerabilities":
+				return ec.fieldContext_Team_vulnerabilities(ctx, field)
+			case "vulnerabilitiesSummary":
+				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
+			case "vulnerabilityMetrics":
+				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BigQueryDataset_env(ctx context.Context, field graphql.CollectedField, obj *model.BigQueryDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDataset_env(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Env, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.Env)
+	fc.Result = res
+	return ec.marshalNEnv2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnv(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDataset_env(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Env_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Env_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_Env_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_Env_slackAlertsChannel(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Env_secrets(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Env", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BigQueryDataset_workload(ctx context.Context, field graphql.CollectedField, obj *model.BigQueryDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDataset_workload(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.BigQueryDataset().Workload(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(model.Workload)
+	fc.Result = res
+	return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDataset_workload(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDataset",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Workload does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BigQueryDatasetAccess_role(ctx context.Context, field graphql.CollectedField, obj *model.BigQueryDatasetAccess) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDatasetAccess_role(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Role, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDatasetAccess_role(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDatasetAccess",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BigQueryDatasetAccess_email(ctx context.Context, field graphql.CollectedField, obj *model.BigQueryDatasetAccess) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDatasetAccess_email(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Email, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDatasetAccess_email(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDatasetAccess",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -13391,10 +13751,16 @@ func (ec *executionContext) fieldContext_BigQueryDatasetList_nodes(ctx context.C
 				return ec.fieldContext_BigQueryDataset_description(ctx, field)
 			case "name":
 				return ec.fieldContext_BigQueryDataset_name(ctx, field)
-			case "permission":
-				return ec.fieldContext_BigQueryDataset_permission(ctx, field)
+			case "Access":
+				return ec.fieldContext_BigQueryDataset_Access(ctx, field)
 			case "id":
 				return ec.fieldContext_BigQueryDataset_id(ctx, field)
+			case "team":
+				return ec.fieldContext_BigQueryDataset_team(ctx, field)
+			case "env":
+				return ec.fieldContext_BigQueryDataset_env(ctx, field)
+			case "workload":
+				return ec.fieldContext_BigQueryDataset_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type BigQueryDataset", field.Name)
 		},
@@ -44639,25 +45005,174 @@ func (ec *executionContext) _BigQueryDataset(ctx context.Context, sel ast.Select
 		case "cascadingDelete":
 			out.Values[i] = ec._BigQueryDataset_cascadingDelete(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "description":
 			out.Values[i] = ec._BigQueryDataset_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
 			out.Values[i] = ec._BigQueryDataset_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "permission":
-			out.Values[i] = ec._BigQueryDataset_permission(ctx, field, obj)
+		case "Access":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._BigQueryDataset_Access(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "id":
+			out.Values[i] = ec._BigQueryDataset_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._BigQueryDataset_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "env":
+			out.Values[i] = ec._BigQueryDataset_env(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "workload":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._BigQueryDataset_workload(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var bigQueryDatasetAccessImplementors = []string{"BigQueryDatasetAccess"}
+
+func (ec *executionContext) _BigQueryDatasetAccess(ctx context.Context, sel ast.SelectionSet, obj *model.BigQueryDatasetAccess) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, bigQueryDatasetAccessImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("BigQueryDatasetAccess")
+		case "role":
+			out.Values[i] = ec._BigQueryDatasetAccess_role(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "id":
-			out.Values[i] = ec._BigQueryDataset_id(ctx, field, obj)
+		case "email":
+			out.Values[i] = ec._BigQueryDatasetAccess_email(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -54712,6 +55227,60 @@ func (ec *executionContext) marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapi
 		return graphql.Null
 	}
 	return ec._BigQueryDataset(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNBigQueryDatasetAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetAccessᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.BigQueryDatasetAccess) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBigQueryDatasetAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetAccess(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNBigQueryDatasetAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetAccess(ctx context.Context, sel ast.SelectionSet, v *model.BigQueryDatasetAccess) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._BigQueryDatasetAccess(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNBigQueryDatasetList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetList(ctx context.Context, sel ast.SelectionSet, v model.BigQueryDatasetList) graphql.Marshaler {

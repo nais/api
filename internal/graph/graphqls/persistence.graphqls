@@ -35,8 +35,16 @@ type BigQueryDataset implements Persistence {
   cascadingDelete: Boolean!
   description: String!
   name: String!
-  permission: String!
+  Access: [BigQueryDatasetAccess!]!
   id: ID!
+  team: Team!
+  env: Env!
+  workload: Workload
+}
+
+type BigQueryDatasetAccess {
+  role: String!
+  email: String!
 }
 
 type Bucket implements Persistence {

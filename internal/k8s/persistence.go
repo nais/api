@@ -34,6 +34,21 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 		}
 	}
 
+	if inf := c.informers[cluster].BigQuery; inf != nil {
+		bqs, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
+		if err != nil {
+			return nil, fmt.Errorf("listing bigquerydatasets: %w", err)
+		}
+		for _, bq := range bqs {
+			b, err := model.ToBigQueryDataset(bq.(*unstructured.Unstructured), cluster)
+
+			if err != nil {
+				return nil, fmt.Errorf("converting bigQueryDataset: %w", err)
+			}
+			ret = append(ret, b)
+		}
+	}
+
 	if inf := c.informers[cluster].Redis; inf != nil {
 		redises, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
 		if err != nil {
@@ -68,14 +83,6 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 			}
 			sqlInstance.ID = scalar.SqlInstanceIdent("sqlInstance_" + cluster + "_" + string(teamSlug) + "_" + sqlInstance.GetName())
 			ret = append(ret, sqlInstance)
-		}
-
-		for _, v := range spec.GCP.BigQueryDatasets {
-			bqDataset := model.BigQueryDataset{}
-			if err := convert(v, &bqDataset); err != nil {
-				return nil, fmt.Errorf("converting bigQueryDataset: %w", err)
-			}
-			ret = append(ret, bqDataset)
 		}
 	}
 

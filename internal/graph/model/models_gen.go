@@ -143,6 +143,11 @@ type AzureApplication struct {
 	Tenant                string   `json:"tenant"`
 }
 
+type BigQueryDatasetAccess struct {
+	Role  string `json:"role"`
+	Email string `json:"email"`
+}
+
 type BigQueryDatasetList struct {
 	Nodes    []*BigQueryDataset `json:"nodes"`
 	PageInfo PageInfo           `json:"pageInfo"`

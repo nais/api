@@ -6,12 +6,40 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
 )
+
+// Access is the resolver for the Access field.
+func (r *bigQueryDatasetResolver) Access(ctx context.Context, obj *model.BigQueryDataset) ([]*model.BigQueryDatasetAccess, error) {
+	panic(fmt.Errorf("not implemented: Access - Access"))
+}
+
+// Team is the resolver for the team field.
+func (r *bigQueryDatasetResolver) Team(ctx context.Context, obj *model.BigQueryDataset) (*model.Team, error) {
+	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
+}
+
+// Workload is the resolver for the workload field.
+func (r *bigQueryDatasetResolver) Workload(ctx context.Context, obj *model.BigQueryDataset) (model.Workload, error) {
+	if obj.GQLVars.OwnerReference == nil {
+		return nil, nil
+	}
+
+	switch obj.GQLVars.OwnerReference.Kind {
+	case "Naisjob":
+		return r.k8sClient.NaisJob(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
+	case "Application":
+		return r.k8sClient.App(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
+	default:
+		r.log.WithField("kind", obj.GQLVars.OwnerReference.Kind).Warnf("Unknown owner reference kind")
+	}
+	return nil, nil
+}
 
 // Team is the resolver for the team field.
 func (r *bucketResolver) Team(ctx context.Context, obj *model.Bucket) (*model.Team, error) {
@@ -94,6 +122,11 @@ func (r *sqlInstanceResolver) Workload(ctx context.Context, obj *model.SQLInstan
 	return nil, nil
 }
 
+// BigQueryDataset returns gengql.BigQueryDatasetResolver implementation.
+func (r *Resolver) BigQueryDataset() gengql.BigQueryDatasetResolver {
+	return &bigQueryDatasetResolver{r}
+}
+
 // Bucket returns gengql.BucketResolver implementation.
 func (r *Resolver) Bucket() gengql.BucketResolver { return &bucketResolver{r} }
 
@@ -104,7 +137,18 @@ func (r *Resolver) Redis() gengql.RedisResolver { return &redisResolver{r} }
 func (r *Resolver) SqlInstance() gengql.SqlInstanceResolver { return &sqlInstanceResolver{r} }
 
 type (
-	bucketResolver      struct{ *Resolver }
-	redisResolver       struct{ *Resolver }
-	sqlInstanceResolver struct{ *Resolver }
+	bigQueryDatasetResolver struct{ *Resolver }
+	bucketResolver          struct{ *Resolver }
+	redisResolver           struct{ *Resolver }
+	sqlInstanceResolver     struct{ *Resolver }
 )
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *bigQueryDatasetResolver) Permission(ctx context.Context, obj *model.BigQueryDataset) (string, error) {
+	panic(fmt.Errorf("not implemented: Permission - permission"))
+}
