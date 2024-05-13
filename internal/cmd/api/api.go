@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/nais/api/internal/bigquery"
 	"os"
 	"os/signal"
 	"syscall"
@@ -200,6 +201,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		unleashMgr,
 		bucket.NewClient(k8sClient.Informers(), log),
 		redis.NewClient(k8sClient.Informers(), log),
+		bigquery.NewClient(k8sClient.Informers(), log),
 	)
 
 	graphHandler, err := graph.NewHandler(gengql.Config{

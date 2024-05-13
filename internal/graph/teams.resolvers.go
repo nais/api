@@ -1208,7 +1208,31 @@ func (r *teamResolver) Redis(ctx context.Context, obj *model.Team, offset *int, 
 
 // Bigquery is the resolver for the bigquery field.
 func (r *teamResolver) Bigquery(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BigQueryDatasetList, error) {
-	panic(fmt.Errorf("not implemented: Bigquery - bigquery"))
+	bqs, err := r.bigQueryClient.BigQueryDatasets(obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case model.OrderByFieldName:
+			model.SortWith(bqs, func(a, b *model.BigQueryDataset) bool {
+				return model.Compare(a.Name, b.Name, orderBy.Direction)
+			})
+		case model.OrderByFieldEnv:
+			model.SortWith(bqs, func(a, b *model.BigQueryDataset) bool {
+				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
+			})
+		}
+	}
+
+	pagination := model.NewPagination(offset, limit)
+	bqs, pageInfo := model.PaginatedSlice(bqs, pagination)
+
+	return &model.BigQueryDatasetList{
+		Nodes:    bqs,
+		PageInfo: pageInfo,
+	}, nil
 }
 
 // Apps is the resolver for the apps field.

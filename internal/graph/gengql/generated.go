@@ -1085,8 +1085,6 @@ type AppResolver interface {
 	Secrets(ctx context.Context, obj *model.App) ([]*model.Secret, error)
 }
 type BigQueryDatasetResolver interface {
-	Access(ctx context.Context, obj *model.BigQueryDataset) ([]*model.BigQueryDatasetAccess, error)
-
 	Team(ctx context.Context, obj *model.BigQueryDataset) (*model.Team, error)
 
 	Workload(ctx context.Context, obj *model.BigQueryDataset) (model.Workload, error)
@@ -13331,7 +13329,7 @@ func (ec *executionContext) _BigQueryDataset_Access(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.BigQueryDataset().Access(rctx, obj)
+		return obj.Access, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13343,17 +13341,17 @@ func (ec *executionContext) _BigQueryDataset_Access(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.BigQueryDatasetAccess)
+	res := resTmp.([]model.BigQueryDatasetAccess)
 	fc.Result = res
-	return ec.marshalNBigQueryDatasetAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetAccessᚄ(ctx, field.Selections, res)
+	return ec.marshalNBigQueryDatasetAccess2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetAccessᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_BigQueryDataset_Access(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BigQueryDataset",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "role":
@@ -45018,41 +45016,10 @@ func (ec *executionContext) _BigQueryDataset(ctx context.Context, sel ast.Select
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "Access":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._BigQueryDataset_Access(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._BigQueryDataset_Access(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "id":
 			out.Values[i] = ec._BigQueryDataset_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -55229,7 +55196,11 @@ func (ec *executionContext) marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapi
 	return ec._BigQueryDataset(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNBigQueryDatasetAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetAccessᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.BigQueryDatasetAccess) graphql.Marshaler {
+func (ec *executionContext) marshalNBigQueryDatasetAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetAccess(ctx context.Context, sel ast.SelectionSet, v model.BigQueryDatasetAccess) graphql.Marshaler {
+	return ec._BigQueryDatasetAccess(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNBigQueryDatasetAccess2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetAccessᚄ(ctx context.Context, sel ast.SelectionSet, v []model.BigQueryDatasetAccess) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -55253,7 +55224,7 @@ func (ec *executionContext) marshalNBigQueryDatasetAccess2ᚕᚖgithubᚗcomᚋn
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNBigQueryDatasetAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetAccess(ctx, sel, v[i])
+			ret[i] = ec.marshalNBigQueryDatasetAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetAccess(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -55271,16 +55242,6 @@ func (ec *executionContext) marshalNBigQueryDatasetAccess2ᚕᚖgithubᚗcomᚋn
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNBigQueryDatasetAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetAccess(ctx context.Context, sel ast.SelectionSet, v *model.BigQueryDatasetAccess) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._BigQueryDatasetAccess(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNBigQueryDatasetList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBigQueryDatasetList(ctx context.Context, sel ast.SelectionSet, v model.BigQueryDatasetList) graphql.Marshaler {

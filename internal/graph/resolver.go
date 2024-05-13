@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/nais/api/internal/bigquery"
+
 	"github.com/nais/api/internal/unleash"
 
 	"cloud.google.com/go/pubsub"
@@ -107,28 +109,12 @@ type Resolver struct {
 	sqlInstanceClient     *sqlinstance.Client
 	bucketClient          *bucket.Client
 	redisClient           *redis.Client
+	bigQueryDatasetClient *bigquery.Client
 	unleashMgr            *unleash.Manager
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
-func NewResolver(
-	hookdClient HookdClient,
-	k8sClient *k8s.Client,
-	dependencyTrackClient DependencytrackClient,
-	resourceUsageClient resourceusage.Client,
-	db database.Database,
-	tenantDomain string,
-	userSync chan<- uuid.UUID,
-	auditLogger auditlogger.AuditLogger,
-	clusters ClusterList,
-	userSyncRuns *usersync.RunsHandler,
-	pubsubTopic *pubsub.Topic,
-	log logrus.FieldLogger,
-	sqlInstanceClient *sqlinstance.Client,
-	bucketClient *bucket.Client,
-	redisClient *redis.Client,
-	unleashMgr *unleash.Manager,
-) *Resolver {
+func NewResolver(hookdClient HookdClient, k8sClient *k8s.Client, dependencyTrackClient DependencytrackClient, resourceUsageClient resourceusage.Client, db database.Database, tenantDomain string, userSync chan<- uuid.UUID, auditLogger auditlogger.AuditLogger, clusters ClusterList, userSyncRuns *usersync.RunsHandler, pubsubTopic *pubsub.Topic, log logrus.FieldLogger, sqlInstanceClient *sqlinstance.Client, bucketClient *bucket.Client, redisClient *redis.Client) *Resolver {
 	return &Resolver{
 		hookdClient:           hookdClient,
 		k8sClient:             k8sClient,
@@ -146,6 +132,7 @@ func NewResolver(
 		sqlInstanceClient:     sqlInstanceClient,
 		bucketClient:          bucketClient,
 		redisClient:           redisClient,
+		bigQueryDatasetClient: bigQueryDatasetClient,
 		unleashMgr:            unleashMgr,
 	}
 }
