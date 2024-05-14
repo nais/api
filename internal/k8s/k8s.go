@@ -39,34 +39,50 @@ type ClusterInformers map[string]*Informers
 
 func (c ClusterInformers) Start(ctx context.Context, log logrus.FieldLogger) error {
 	for cluster, informer := range c {
-		log.WithField("cluster", cluster).Infof("starting informers")
+		log := log.WithField("cluster", cluster)
+		log.Infof("starting informers")
 		go informer.Pod.Informer().Run(ctx.Done())
 		go informer.App.Informer().Run(ctx.Done())
 		go informer.Naisjob.Informer().Run(ctx.Done())
 		go informer.Job.Informer().Run(ctx.Done())
 
 		if informer.Bucket != nil {
+			log.WithField("informer", "bucket").Info("started informer")
 			go informer.Bucket.Informer().Run(ctx.Done())
 		}
 
 		if informer.BigQuery != nil {
+			log.WithField("informer", "bigquerydataset").Info("started informer")
+
 			go informer.BigQuery.Informer().Run(ctx.Done())
 		}
 
 		if informer.SqlInstance != nil {
+			log.WithField("informer", "sqlinstance").Info("started informer")
+
 			go informer.SqlInstance.Informer().Run(ctx.Done())
 		}
 
 		if informer.SqlDatabase != nil {
+			log.WithField("informer", "sqldatabase").Info("started informer")
+
 			go informer.SqlDatabase.Informer().Run(ctx.Done())
 		}
 
 		if informer.KafkaTopic != nil {
+			log.WithField("informer", "kafkatopic").Info("started informer")
+
 			go informer.KafkaTopic.Informer().Run(ctx.Done())
 		}
 
 		if informer.Redis != nil {
+			log.WithField("informer", "redis").Info("started informer")
 			go informer.Redis.Informer().Run(ctx.Done())
+		}
+
+		if informer.OpenSearch != nil {
+			log.WithField("informer", "opensearch").Info("started informer")
+			go informer.OpenSearch.Informer().Run(ctx.Done())
 		}
 	}
 
@@ -129,7 +145,7 @@ type clients struct {
 
 type impersonationClientCreator = func(context.Context) (map[string]clients, error)
 
-func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ...Opt) (*Client, error) {
+func New(tenant string, cfg Config, db Database, fake bool, log logrus.FieldLogger, opts ...Opt) (*Client, error) {
 	s := &settings{}
 	for _, opt := range opts {
 		opt(s)
@@ -225,10 +241,21 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 			infs[cluster].BigQuery = dinf.ForResource(bigquery_nais_io_v1.GroupVersion.WithResource("bigquerydatasets"))
 		}
 
-		redis := aiven_nais_io_v1alpha1.GroupVersion.WithResource("redis")
+		// These assignments and the fake param are introduced to deal with an impedance mismatch between the fake.go stuff
+		// and the actual environment. K8s guesses retardedly at plurals, and we haven't found a way of turning that off.
+		redisString := "redis"
+		kafkatopicsString := "topics"
+		openSearchString := "opensearch"
+		if fake {
+			redisString = "redises"
+			kafkatopicsString = "topicses"
+			openSearchString = "opensearchs"
+		}
+
+		redis := aiven_nais_io_v1alpha1.GroupVersion.WithResource(redisString)
 		infs[cluster].Redis = dinf.ForResource(redis)
 
-		openSearch := aiven_nais_io_v1alpha1.GroupVersion.WithResource("opensearch")
+		openSearch := aiven_nais_io_v1alpha1.GroupVersion.WithResource(openSearchString)
 		infs[cluster].OpenSearch = dinf.ForResource(openSearch)
 
 		clientSets[cluster] = clients{
@@ -244,7 +271,7 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 			if err == nil {
 				for _, r := range resources.APIResources {
 					if r.Name == "topics" {
-						infs[cluster].KafkaTopic = dinf.ForResource(kafka_nais_io_v1.GroupVersion.WithResource("topics"))
+						infs[cluster].KafkaTopic = dinf.ForResource(kafka_nais_io_v1.GroupVersion.WithResource(kafkatopicsString))
 					}
 				}
 			}

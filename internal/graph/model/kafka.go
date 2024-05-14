@@ -39,7 +39,7 @@ func ToKafkaTopic(u *unstructured.Unstructured, env string) (*KafkaTopic, error)
 	teamSlug := kt.GetNamespace()
 
 	return &KafkaTopic{
-		ID:   scalar.RedisIdent("redis_" + env + "_" + teamSlug + "_" + kt.GetName()),
+		ID:   scalar.RedisIdent("kafkatopic_" + env + "_" + teamSlug + "_" + kt.GetName()),
 		Name: kt.Name,
 		ACL: func(as []kafka_nais_io_v1.TopicACL) []*ACL {
 			ret := make([]*ACL, len(as))

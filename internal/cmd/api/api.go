@@ -131,6 +131,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		cfg.Tenant,
 		cfg.K8s.PkgConfig(),
 		db,
+		cfg.WithFakeClients,
 		log.WithField("client", "k8s"),
 		k8sOpts...,
 	)

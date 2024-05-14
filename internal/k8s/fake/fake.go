@@ -79,6 +79,7 @@ func Clients(dir fs.FS) func(cluster string) (kubernetes.Interface, dynamic.Inte
 	})
 
 	ret := make(map[string]clients)
+
 	for cluster, objs := range resources {
 		ret[cluster] = clients{
 			ClientSet: fake.NewSimpleClientset(objs.core...),
@@ -127,9 +128,9 @@ func parseCluster(path string) string {
 func parseResources(scheme *runtime.Scheme, dir fs.FS, path string) clusterResources {
 	b, err := fs.ReadFile(dir, path)
 	if err != nil {
-		return clusterResources{}
+		panic(err.Error())
 	}
-
+	fmt.Printf("%v\n", path)
 	parts := bytes.Split(b, []byte("\n---"))
 	ns := strings.Trim(filepath.Base(filepath.Dir(path)), string(filepath.Separator))
 
