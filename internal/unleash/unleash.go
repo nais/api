@@ -138,7 +138,7 @@ func createClient(apiServer, clusterName string, resources []schema.GroupVersion
 		opt(s)
 	}
 	restConfig := rest.Config{
-		Host: fmt.Sprintf(apiServer),
+		Host: apiServer,
 		AuthProvider: &api.AuthProviderConfig{
 			Name: k8s.GoogleAuthPlugin,
 		},
