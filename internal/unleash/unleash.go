@@ -34,10 +34,12 @@ type k8sClient struct {
 	informers     []informers.GenericInformer
 }
 
-type clusterClients map[string]*k8sClient
-type settings struct {
-	clientsCreator func(cluster string) (kubernetes.Interface, dynamic.Interface, error)
-}
+type (
+	clusterClients map[string]*k8sClient
+	settings       struct {
+		clientsCreator func(cluster string) (kubernetes.Interface, dynamic.Interface, error)
+	}
+)
 
 type Opt func(*settings)
 
@@ -179,7 +181,6 @@ func createInformers(dynamicClient dynamic.Interface, resources []schema.GroupVe
 	for _, resources := range resources {
 		infs = append(infs, dinf.ForResource(resources))
 	}
-	//infs = append(infs, dinf.ForResource(unleash_nais_io_v1.GroupVersion.WithResource("unleashs")))
 	return infs
 }
 

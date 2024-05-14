@@ -254,6 +254,7 @@ func unleashSpec(team slug.Slug) *unleash_nais_io_v1.Unleash {
 		},
 	}
 }
+
 func boolRef(b bool) *bool {
 	boolVar := b
 	return &boolVar
