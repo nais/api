@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
@@ -59,7 +60,6 @@ func (r *bucketResolver) Workload(ctx context.Context, obj *model.Bucket) (model
 // Team is the resolver for the team field.
 func (r *openSearchResolver) Team(ctx context.Context, obj *model.OpenSearch) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
-
 }
 
 // Workload is the resolver for the workload field.
