@@ -14,7 +14,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -25,8 +24,8 @@ import (
 	"github.com/nais/api/internal/graph/directives"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
+	apiRunner "github.com/nais/api/internal/integration_test/runner"
 	"github.com/nais/api/internal/k8s"
-	"github.com/nais/api/internal/k8s/fake"
 	"github.com/nais/api/internal/usersync"
 	"github.com/nais/tester/testmanager"
 	"github.com/nais/tester/testmanager/runner"
@@ -110,9 +109,11 @@ func newManager(t *testing.T) testmanager.CreateRunnerFunc[*Config] {
 
 		topic := newPubsubRunner()
 
+		k8sRunner := apiRunner.NewK8sRunner()
 		runners := []testmanager.Runner{
-			newGQLRunner(ctx, t, config, db, topic),
+			newGQLRunner(ctx, t, config, db, topic, k8sRunner),
 			runner.NewSQLRunner(pool),
+			k8sRunner,
 			topic,
 		}
 
@@ -125,13 +126,11 @@ func newManager(t *testing.T) testmanager.CreateRunnerFunc[*Config] {
 	}
 }
 
-func newGQLRunner(ctx context.Context, t *testing.T, config *Config, db database.Database, topic graph.PubsubTopic) testmanager.Runner {
+func newGQLRunner(ctx context.Context, t *testing.T, config *Config, db database.Database, topic graph.PubsubTopic, k8sRunner *apiRunner.K8s) testmanager.Runner {
 	log := logrus.New()
 	log.Out = io.Discard
 
 	auditLogger := auditlogger.New(db, log)
-
-	k8sPath := filepath.Join("testdata", "tests", testmanager.TestDir(ctx), "k8s")
 
 	k8sClient, err := k8s.New(
 		"dev-nais",
@@ -140,13 +139,13 @@ func newGQLRunner(ctx context.Context, t *testing.T, config *Config, db database
 		},
 		db,
 		log.WithField("client", "k8s"),
-		k8s.WithClientsCreator(fake.Clients(os.DirFS(k8sPath))),
+		k8s.WithClientsCreator(k8sRunner.ClientsCreator(ctx, t)),
 	)
 	if err != nil {
 		panic(fmt.Sprintf("failed to create k8s client: %s", err))
 	}
 
-	if _, err := os.Stat(k8sPath); err == nil {
+	if _, err := os.Stat(k8sRunner.K8sPath(ctx)); err == nil {
 		if err := k8sClient.Informers().Start(ctx, log); err != nil {
 			panic(fmt.Sprintf("failed to start informers: %s", err))
 		}

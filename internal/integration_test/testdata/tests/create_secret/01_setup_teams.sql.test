@@ -1,0 +1,17 @@
+INSERT INTO user_roles
+(
+  role_name,
+  user_id,
+  target_team_slug
+)
+(
+SELECT
+  'Team member',
+  (SELECT id FROM users WHERE email = 'authenticated@example.com'),
+  slug
+FROM teams
+) ON CONFLICT DO NOTHING;
+
+RETURNS
+
+[]

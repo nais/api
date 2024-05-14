@@ -43,7 +43,7 @@ func (c *clusterResources) append(o clusterResources) {
 // Each yaml file in the directory will be created as a resource, where resources in a "teams" directory
 // will be created in a namespace with the same name as the file.
 func Clients(dir fs.FS) func(cluster string) (kubernetes.Interface, dynamic.Interface, error) {
-	scheme := newScheme()
+	scheme := NewScheme()
 
 	resources := make(map[string]*clusterResources)
 	// TODO: use yaml file in the data dir on root?
@@ -87,7 +87,7 @@ func Clients(dir fs.FS) func(cluster string) (kubernetes.Interface, dynamic.Inte
 	}
 }
 
-func newScheme() *runtime.Scheme {
+func NewScheme() *runtime.Scheme {
 	scheme := runtime.NewScheme()
 	nais_io_v1.AddToScheme(scheme)
 	nais_io_v1alpha1.AddToScheme(scheme)
@@ -122,16 +122,30 @@ func parseResources(scheme *runtime.Scheme, dir fs.FS, path string) clusterResou
 			continue
 		}
 
-		r := &unstructured.Unstructured{}
-		if err := yaml.Unmarshal(p, &r); err != nil {
-			panic(err)
-		}
+		v, core := ParseResource(scheme, p, ns)
 
-		kt := scheme.KnownTypes(r.GetObjectKind().GroupVersionKind().GroupVersion())
-		if kt == nil {
-			panic(fmt.Errorf("unknown group version: %q", r.GetObjectKind().GroupVersionKind().GroupVersion()))
+		if core {
+			ret.core = append(ret.core, v)
+		} else {
+			ret.dynamic = append(ret.dynamic, v)
 		}
+	}
 
+	return ret
+}
+
+func ParseResource(scheme *runtime.Scheme, b []byte, ns string) (v runtime.Object, core bool) {
+	r := &unstructured.Unstructured{}
+	if err := yaml.Unmarshal(b, &r); err != nil {
+		panic(err)
+	}
+
+	kt := scheme.KnownTypes(r.GetObjectKind().GroupVersionKind().GroupVersion())
+	if kt == nil {
+		panic(fmt.Errorf("unknown group version: %q", r.GetObjectKind().GroupVersionKind().GroupVersion()))
+	}
+
+	if ns != "" {
 		r.SetNamespace(ns)
 		lbls := r.GetLabels()
 		if lbls == nil {
@@ -139,26 +153,22 @@ func parseResources(scheme *runtime.Scheme, dir fs.FS, path string) clusterResou
 		}
 		lbls["team"] = ns
 		r.SetLabels(lbls)
-
-		var v runtime.Object
-		if t, ok := kt[r.GetObjectKind().GroupVersionKind().Kind]; ok {
-			v = reflect.New(t).Interface().(runtime.Object)
-			if err := scheme.Convert(r, v, nil); err != nil {
-				panic(err)
-			}
-			v.GetObjectKind().SetGroupVersionKind(r.GetObjectKind().GroupVersionKind())
-
-		} else {
-			panic(fmt.Errorf("unknown kind: %q", r.GetObjectKind().GroupVersionKind()))
-		}
-
-		switch v.GetObjectKind().GroupVersionKind().GroupVersion() {
-		case corev1.SchemeGroupVersion, appsv1.SchemeGroupVersion:
-			ret.core = append(ret.core, v)
-		default:
-			ret.dynamic = append(ret.dynamic, v)
-		}
 	}
 
-	return ret
+	if t, ok := kt[r.GetObjectKind().GroupVersionKind().Kind]; ok {
+		v = reflect.New(t).Interface().(runtime.Object)
+		if err := scheme.Convert(r, v, nil); err != nil {
+			panic(err)
+		}
+		v.GetObjectKind().SetGroupVersionKind(r.GetObjectKind().GroupVersionKind())
+
+	} else {
+		panic(fmt.Errorf("unknown kind: %q", r.GetObjectKind().GroupVersionKind()))
+	}
+	switch v.GetObjectKind().GroupVersionKind().GroupVersion() {
+	case corev1.SchemeGroupVersion, appsv1.SchemeGroupVersion:
+		return v, true
+	default:
+		return v, false
+	}
 }

@@ -91,7 +91,8 @@ type Informers struct {
 }
 
 type settings struct {
-	clientsCreator func(cluster string) (kubernetes.Interface, dynamic.Interface, error)
+	clientsCreator             func(cluster string) (kubernetes.Interface, dynamic.Interface, error)
+	impersonationClientCreator impersonationClientCreator
 }
 
 type Opt func(*settings)
@@ -99,6 +100,24 @@ type Opt func(*settings)
 func WithClientsCreator(f func(cluster string) (kubernetes.Interface, dynamic.Interface, error)) Opt {
 	return func(s *settings) {
 		s.clientsCreator = f
+	}
+}
+
+func WithImpersonationClientsCreator(f func(ctx context.Context) (kubernetes.Interface, dynamic.Interface, error)) Opt {
+	return func(s *settings) {
+		s.impersonationClientCreator = func(ctx context.Context) (map[string]clients, error) {
+			clientSet, dynamicClient, err := f(ctx)
+			if err != nil {
+				return nil, err
+			}
+
+			return map[string]clients{
+				"dev": {
+					client:        clientSet,
+					dynamicClient: dynamicClient,
+				},
+			}, nil
+		}
 	}
 }
 
@@ -224,9 +243,12 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 	}
 
 	if impersonationClientCreator == nil {
-		log.Warnf("impersonation not configured; using default clientSets")
-		impersonationClientCreator = func(ctx context.Context) (map[string]clients, error) {
-			return clientSets, nil
+		impersonationClientCreator = s.impersonationClientCreator
+		if impersonationClientCreator == nil {
+			log.Warnf("impersonation not configured; using default clientSets")
+			impersonationClientCreator = func(ctx context.Context) (map[string]clients, error) {
+				return clientSets, nil
+			}
 		}
 	}
 
