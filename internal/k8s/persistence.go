@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/scalar"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 )
@@ -70,27 +69,32 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 		}
 	}
 
-	if spec.GCP != nil {
-		// TODO: Use SqlInstance informer for this instead?
-		for _, v := range spec.GCP.SqlInstances {
-			sqlInstance := model.SQLInstance{}
-			if err := convert(v, &sqlInstance); err != nil {
-				return nil, fmt.Errorf("converting sqlInstance: %w", err)
+	if inf := c.informers[cluster].SqlInstance; inf != nil {
+		objs, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
+		if err != nil {
+			return nil, fmt.Errorf("listing SQL instances: %w", err)
+		}
+		for _, obj := range objs {
+			o, err := model.ToSqlInstance(obj.(*unstructured.Unstructured), cluster)
+			if err != nil {
+				return nil, fmt.Errorf("converting SQL instance: %w", err)
 			}
-			if sqlInstance.Name == "" {
-				sqlInstance.Name = workload.Name
-			}
-			sqlInstance.ID = scalar.SqlInstanceIdent("sqlInstance_" + cluster + "_" + string(teamSlug) + "_" + sqlInstance.GetName())
-			ret = append(ret, sqlInstance)
+			ret = append(ret, o)
 		}
 	}
 
-	if spec.OpenSearch != nil {
-		os := model.OpenSearch{
-			Name:   spec.OpenSearch.Instance,
-			Access: spec.OpenSearch.Access,
+	if inf := c.informers[cluster].OpenSearch; inf != nil {
+		objs, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
+		if err != nil {
+			return nil, fmt.Errorf("listing OpenSearch instances: %w", err)
 		}
-		ret = append(ret, os)
+		for _, obj := range objs {
+			o, err := model.ToOpenSearch(obj.(*unstructured.Unstructured), cluster)
+			if err != nil {
+				return nil, fmt.Errorf("converting OpenSearch instance: %w", err)
+			}
+			ret = append(ret, o)
+		}
 	}
 
 	if spec.Kafka != nil {
