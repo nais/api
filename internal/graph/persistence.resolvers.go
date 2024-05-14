@@ -20,19 +20,7 @@ func (r *bigQueryDatasetResolver) Team(ctx context.Context, obj *model.BigQueryD
 
 // Workload is the resolver for the workload field.
 func (r *bigQueryDatasetResolver) Workload(ctx context.Context, obj *model.BigQueryDataset) (model.Workload, error) {
-	if obj.GQLVars.OwnerReference == nil {
-		return nil, nil
-	}
-
-	switch obj.GQLVars.OwnerReference.Kind {
-	case "Naisjob":
-		return r.k8sClient.NaisJob(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
-	case "Application":
-		return r.k8sClient.App(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
-	default:
-		r.log.WithField("kind", obj.GQLVars.OwnerReference.Kind).Warnf("Unknown owner reference kind")
-	}
-	return nil, nil
+	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
 }
 
 // Team is the resolver for the team field.
@@ -42,19 +30,7 @@ func (r *bucketResolver) Team(ctx context.Context, obj *model.Bucket) (*model.Te
 
 // Workload is the resolver for the workload field.
 func (r *bucketResolver) Workload(ctx context.Context, obj *model.Bucket) (model.Workload, error) {
-	if obj.GQLVars.OwnerReference == nil {
-		return nil, nil
-	}
-
-	switch obj.GQLVars.OwnerReference.Kind {
-	case "Naisjob":
-		return r.k8sClient.NaisJob(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
-	case "Application":
-		return r.k8sClient.App(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
-	default:
-		r.log.WithField("kind", obj.GQLVars.OwnerReference.Kind).Warnf("Unknown owner reference kind")
-	}
-	return nil, nil
+	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
 }
 
 // Team is the resolver for the team field.
@@ -64,19 +40,7 @@ func (r *openSearchResolver) Team(ctx context.Context, obj *model.OpenSearch) (*
 
 // Workload is the resolver for the workload field.
 func (r *openSearchResolver) Workload(ctx context.Context, obj *model.OpenSearch) (model.Workload, error) {
-	if obj.GQLVars.OwnerReference == nil {
-		return nil, nil
-	}
-
-	switch obj.GQLVars.OwnerReference.Kind {
-	case "Naisjob":
-		return r.k8sClient.NaisJob(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
-	case "Application":
-		return r.k8sClient.App(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
-	default:
-		r.log.WithField("kind", obj.GQLVars.OwnerReference.Kind).Warnf("Unknown owner reference kind")
-	}
-	return nil, nil
+	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
 }
 
 // SQLInstance is the resolver for the sqlInstance field.
@@ -91,19 +55,7 @@ func (r *redisResolver) Team(ctx context.Context, obj *model.Redis) (*model.Team
 
 // Workload is the resolver for the workload field.
 func (r *redisResolver) Workload(ctx context.Context, obj *model.Redis) (model.Workload, error) {
-	if obj.GQLVars.OwnerReference == nil {
-		return nil, nil
-	}
-
-	switch obj.GQLVars.OwnerReference.Kind {
-	case "Naisjob":
-		return r.k8sClient.NaisJob(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
-	case "Application":
-		return r.k8sClient.App(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
-	default:
-		r.log.WithField("kind", obj.GQLVars.OwnerReference.Kind).Warnf("Unknown owner reference kind")
-	}
-	return nil, nil
+	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
 }
 
 // Database is the resolver for the database field.
@@ -123,19 +75,7 @@ func (r *sqlInstanceResolver) Users(ctx context.Context, obj *model.SQLInstance)
 
 // Workload is the resolver for the workload field.
 func (r *sqlInstanceResolver) Workload(ctx context.Context, obj *model.SQLInstance) (model.Workload, error) {
-	if obj.GQLVars.OwnerReference == nil {
-		return nil, nil
-	}
-
-	switch obj.GQLVars.OwnerReference.Kind {
-	case "Naisjob":
-		return r.k8sClient.NaisJob(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
-	case "Application":
-		return r.k8sClient.App(ctx, obj.GQLVars.OwnerReference.Name, string(obj.GQLVars.TeamSlug), obj.Env.Name)
-	default:
-		r.log.WithField("kind", obj.GQLVars.OwnerReference.Kind).Warnf("Unknown owner reference kind")
-	}
-	return nil, nil
+	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
 }
 
 // BigQueryDataset returns gengql.BigQueryDatasetResolver implementation.

@@ -19,6 +19,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auditlogger"
+	"github.com/nais/api/internal/bigquery"
 	"github.com/nais/api/internal/bucket"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
@@ -27,9 +28,11 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/k8s"
+	"github.com/nais/api/internal/opensearch"
 	"github.com/nais/api/internal/redis"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/search"
+	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
@@ -37,6 +40,7 @@ import (
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
+	"k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // This file will not be regenerated automatically.
@@ -81,6 +85,22 @@ func (c ClusterList) Names() []string {
 		return 1
 	})
 	return ret
+}
+
+func (r *Resolver) workload(ctx context.Context, ownerReference *v1.OwnerReference, teamSlug slug.Slug, env string) (model.Workload, error) {
+	if ownerReference == nil {
+		return nil, nil
+	}
+
+	switch ownerReference.Kind {
+	case "Naisjob":
+		return r.k8sClient.NaisJob(ctx, ownerReference.Name, string(teamSlug), env)
+	case "Application":
+		return r.k8sClient.App(ctx, ownerReference.Name, string(teamSlug), env)
+	default:
+		r.log.WithField("kind", ownerReference.Kind).Warnf("Unknown owner reference kind")
+	}
+	return nil, nil
 }
 
 type HookdClient interface {
