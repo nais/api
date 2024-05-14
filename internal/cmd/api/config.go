@@ -147,6 +147,11 @@ type oAuthConfig struct {
 	RedirectURL string `env:"OAUTH_REDIRECT_URL"`
 }
 
+type unleashConfig struct {
+	// Namespace is the namespace where the Unleash servers are running
+	Namespace string `env:"UNLEASH_NAMESPACE,default=bifrost-unleash"`
+}
+
 type Config struct {
 	// Tenant is the active tenant
 	Tenant string `env:"TENANT,default=dev-nais"`
@@ -185,6 +190,7 @@ type Config struct {
 	DependencyTrack dependencyTrackConfig
 	Hookd           hookdConfig
 	OAuth           oAuthConfig
+	Unleash         unleashConfig
 }
 
 // NewConfig creates a new configuration instance from environment variables

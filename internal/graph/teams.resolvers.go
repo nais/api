@@ -1531,6 +1531,11 @@ func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*mo
 	return ret, nil
 }
 
+// Unleash is the resolver for the unleash field.
+func (r *teamResolver) Unleash(ctx context.Context, obj *model.Team) (*model.Unleash, error) {
+	return r.unleashMgr.Unleash(obj.Slug.String())
+}
+
 // CreatedBy is the resolver for the createdBy field.
 func (r *teamDeleteKeyResolver) CreatedBy(ctx context.Context, obj *model.TeamDeleteKey) (*model.User, error) {
 	return loader.GetUser(ctx, obj.GQLVars.UserID)

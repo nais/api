@@ -80,6 +80,8 @@ spec:
               value: {{ .Values.usersync.serviceAccount | default (printf "nais-api@%s.iam.gserviceaccount.com" .Values.google.managementProjectID) | quote }}
             - name: USERSYNC_SUBJECT_EMAIL
               value: {{ .Values.usersync.subjectEmail | default (printf "nais-admin@%s" .Values.tenant.domain) | quote }}
+            - name: UNLEASH_NAMESPACE
+              value: "{{ .Values.unleash.namespace }}"
             {{- if .Values.usersync.adminGroupPrefix }}
             - name: USERSYNC_ADMIN_GROUP_PREFIX
               value: "{{ .Values.usersync.adminGroupPrefix }}"

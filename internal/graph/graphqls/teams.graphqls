@@ -303,16 +303,16 @@ type Team {
   "The status of the team."
   status: TeamStatus!
 
-	sqlInstances(
-		"Returns the first n entries from the list."
-		offset: Int
+  sqlInstances(
+    "Returns the first n entries from the list."
+    offset: Int
 
-		"Returns the last n entries from the list."
-		limit: Int
+    "Returns the last n entries from the list."
+    limit: Int
 
-		"Order SQL instances by"
-		orderBy: OrderBy
-	): SqlInstancesList!
+    "Order SQL instances by"
+    orderBy: OrderBy
+  ): SqlInstancesList!
 
   "The NAIS applications owned by the team."
   apps(
@@ -361,7 +361,7 @@ type Team {
     "Order apps by"
     orderBy: OrderBy
 
-    filter : VulnerabilityFilter
+    filter: VulnerabilityFilter
   ): VulnerabilityList!
 
   vulnerabilitiesSummary: VulnerabilitySummary!
@@ -387,6 +387,8 @@ type Team {
 
   "The environments available for the team."
   environments: [Env!]!
+
+  unleash: Unleash
 }
 
 type SqlInstancesStatus {

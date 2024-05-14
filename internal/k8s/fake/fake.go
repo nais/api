@@ -9,6 +9,8 @@ import (
 	"reflect"
 	"strings"
 
+	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
+
 	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
@@ -95,6 +97,7 @@ func newScheme() *runtime.Scheme {
 	corev1.AddToScheme(scheme)
 	appsv1.AddToScheme(scheme)
 	sql_cnrm_cloud_google_com_v1beta1.AddToScheme(scheme)
+	unleash_nais_io_v1.AddToScheme(scheme)
 	return scheme
 }
 

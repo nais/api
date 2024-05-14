@@ -1,0 +1,28 @@
+extend type Mutation {
+  """
+  Create a new Unleash instance.
+
+  This mutation will create a new Unleash instance for the given team. The team
+  will be set as owner of the Unleash instance and will be able to manage it.
+  """
+  createUnleashForTeam(team: Slug!): Unleash! @auth
+}
+
+type Unleash {
+  name: String!
+  version: String!
+  allowedTeams: [String!]!
+  webIngress: String!
+  apiIngress: String!
+  metrics: UnleashMetrics!
+}
+
+type UnleashMetrics {
+  toggles: Int!
+  apiTokens: Int!
+  cpuUtilization: Float!
+  cpuRequests: Float!
+  memoryUtilization: Float!
+  memoryRequests: Float!
+}
+

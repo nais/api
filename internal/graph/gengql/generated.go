@@ -60,6 +60,7 @@ type ResolverRoot interface {
 	TeamDeleteKey() TeamDeleteKeyResolver
 	TeamMember() TeamMemberResolver
 	TeamMemberReconciler() TeamMemberReconcilerResolver
+	UnleashMetrics() UnleashMetricsResolver
 	User() UserResolver
 	UserSyncRun() UserSyncRunResolver
 }
@@ -496,6 +497,7 @@ type ComplexityRoot struct {
 		ConfirmTeamDeletion    func(childComplexity int, key string) int
 		CreateSecret           func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
 		CreateTeam             func(childComplexity int, input model.CreateTeamInput) int
+		CreateUnleashForTeam   func(childComplexity int, team slug.Slug) int
 		DeauthorizeRepository  func(childComplexity int, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) int
 		DeleteApp              func(childComplexity int, name string, team slug.Slug, env string) int
 		DeleteJob              func(childComplexity int, name string, team slug.Slug, env string) int
@@ -889,6 +891,7 @@ type ComplexityRoot struct {
 		Slug                   func(childComplexity int) int
 		Status                 func(childComplexity int) int
 		SyncErrors             func(childComplexity int) int
+		Unleash                func(childComplexity int) int
 		ViewerIsMember         func(childComplexity int) int
 		ViewerIsOwner          func(childComplexity int) int
 		Vulnerabilities        func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy, filter *model.VulnerabilityFilter) int
@@ -943,6 +946,24 @@ type ComplexityRoot struct {
 	Topic struct {
 		ACL  func(childComplexity int) int
 		Name func(childComplexity int) int
+	}
+
+	Unleash struct {
+		APIIngress   func(childComplexity int) int
+		AllowedTeams func(childComplexity int) int
+		Metrics      func(childComplexity int) int
+		Name         func(childComplexity int) int
+		Version      func(childComplexity int) int
+		WebIngress   func(childComplexity int) int
+	}
+
+	UnleashMetrics struct {
+		APITokens         func(childComplexity int) int
+		CPUUtilization    func(childComplexity int) int
+		CpuRequests       func(childComplexity int) int
+		MemoryRequests    func(childComplexity int) int
+		MemoryUtilization func(childComplexity int) int
+		Toggles           func(childComplexity int) int
 	}
 
 	User struct {
@@ -1067,6 +1088,7 @@ type MutationResolver interface {
 	RequestTeamDeletion(ctx context.Context, slug slug.Slug) (*model.TeamDeleteKey, error)
 	ConfirmTeamDeletion(ctx context.Context, key string) (bool, error)
 	ChangeDeployKey(ctx context.Context, team slug.Slug) (*model.DeploymentKey, error)
+	CreateUnleashForTeam(ctx context.Context, team slug.Slug) (*model.Unleash, error)
 	SynchronizeUsers(ctx context.Context) (string, error)
 }
 type NaisJobResolver interface {
@@ -1161,6 +1183,7 @@ type TeamResolver interface {
 	Secrets(ctx context.Context, obj *model.Team) ([]*model.Secret, error)
 	Secret(ctx context.Context, obj *model.Team, name string, env string) (*model.Secret, error)
 	Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error)
+	Unleash(ctx context.Context, obj *model.Team) (*model.Unleash, error)
 }
 type TeamDeleteKeyResolver interface {
 	CreatedBy(ctx context.Context, obj *model.TeamDeleteKey) (*model.User, error)
@@ -1174,6 +1197,13 @@ type TeamMemberResolver interface {
 }
 type TeamMemberReconcilerResolver interface {
 	Reconciler(ctx context.Context, obj *model.TeamMemberReconciler) (*model.Reconciler, error)
+}
+type UnleashMetricsResolver interface {
+	Toggles(ctx context.Context, obj *model.UnleashMetrics) (int, error)
+	APITokens(ctx context.Context, obj *model.UnleashMetrics) (int, error)
+	CPUUtilization(ctx context.Context, obj *model.UnleashMetrics) (float64, error)
+
+	MemoryUtilization(ctx context.Context, obj *model.UnleashMetrics) (float64, error)
 }
 type UserResolver interface {
 	Teams(ctx context.Context, obj *model.User, limit *int, offset *int) (*model.TeamMemberList, error)
@@ -2912,6 +2942,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateTeam(childComplexity, args["input"].(model.CreateTeamInput)), true
+
+	case "Mutation.createUnleashForTeam":
+		if e.complexity.Mutation.CreateUnleashForTeam == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createUnleashForTeam_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateUnleashForTeam(childComplexity, args["team"].(slug.Slug)), true
 
 	case "Mutation.deauthorizeRepository":
 		if e.complexity.Mutation.DeauthorizeRepository == nil {
@@ -4927,6 +4969,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.SyncErrors(childComplexity), true
 
+	case "Team.unleash":
+		if e.complexity.Team.Unleash == nil {
+			break
+		}
+
+		return e.complexity.Team.Unleash(childComplexity), true
+
 	case "Team.viewerIsMember":
 		if e.complexity.Team.ViewerIsMember == nil {
 			break
@@ -5125,6 +5174,90 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Topic.Name(childComplexity), true
+
+	case "Unleash.apiIngress":
+		if e.complexity.Unleash.APIIngress == nil {
+			break
+		}
+
+		return e.complexity.Unleash.APIIngress(childComplexity), true
+
+	case "Unleash.allowedTeams":
+		if e.complexity.Unleash.AllowedTeams == nil {
+			break
+		}
+
+		return e.complexity.Unleash.AllowedTeams(childComplexity), true
+
+	case "Unleash.metrics":
+		if e.complexity.Unleash.Metrics == nil {
+			break
+		}
+
+		return e.complexity.Unleash.Metrics(childComplexity), true
+
+	case "Unleash.name":
+		if e.complexity.Unleash.Name == nil {
+			break
+		}
+
+		return e.complexity.Unleash.Name(childComplexity), true
+
+	case "Unleash.version":
+		if e.complexity.Unleash.Version == nil {
+			break
+		}
+
+		return e.complexity.Unleash.Version(childComplexity), true
+
+	case "Unleash.webIngress":
+		if e.complexity.Unleash.WebIngress == nil {
+			break
+		}
+
+		return e.complexity.Unleash.WebIngress(childComplexity), true
+
+	case "UnleashMetrics.apiTokens":
+		if e.complexity.UnleashMetrics.APITokens == nil {
+			break
+		}
+
+		return e.complexity.UnleashMetrics.APITokens(childComplexity), true
+
+	case "UnleashMetrics.cpuUtilization":
+		if e.complexity.UnleashMetrics.CPUUtilization == nil {
+			break
+		}
+
+		return e.complexity.UnleashMetrics.CPUUtilization(childComplexity), true
+
+	case "UnleashMetrics.cpuRequests":
+		if e.complexity.UnleashMetrics.CpuRequests == nil {
+			break
+		}
+
+		return e.complexity.UnleashMetrics.CpuRequests(childComplexity), true
+
+	case "UnleashMetrics.memoryRequests":
+		if e.complexity.UnleashMetrics.MemoryRequests == nil {
+			break
+		}
+
+		return e.complexity.UnleashMetrics.MemoryRequests(childComplexity), true
+
+	case "UnleashMetrics.memoryUtilization":
+		if e.complexity.UnleashMetrics.MemoryUtilization == nil {
+			break
+		}
+
+		return e.complexity.UnleashMetrics.MemoryUtilization(childComplexity), true
+
+	case "UnleashMetrics.toggles":
+		if e.complexity.UnleashMetrics.Toggles == nil {
+			break
+		}
+
+		return e.complexity.UnleashMetrics.Toggles(childComplexity), true
 
 	case "User.email":
 		if e.complexity.User.Email == nil {
@@ -7373,16 +7506,16 @@ type Team {
   "The status of the team."
   status: TeamStatus!
 
-	sqlInstances(
-		"Returns the first n entries from the list."
-		offset: Int
+  sqlInstances(
+    "Returns the first n entries from the list."
+    offset: Int
 
-		"Returns the last n entries from the list."
-		limit: Int
+    "Returns the last n entries from the list."
+    limit: Int
 
-		"Order SQL instances by"
-		orderBy: OrderBy
-	): SqlInstancesList!
+    "Order SQL instances by"
+    orderBy: OrderBy
+  ): SqlInstancesList!
 
   "The NAIS applications owned by the team."
   apps(
@@ -7431,7 +7564,7 @@ type Team {
     "Order apps by"
     orderBy: OrderBy
 
-    filter : VulnerabilityFilter
+    filter: VulnerabilityFilter
   ): VulnerabilityList!
 
   vulnerabilitiesSummary: VulnerabilitySummary!
@@ -7457,6 +7590,8 @@ type Team {
 
   "The environments available for the team."
   environments: [Env!]!
+
+  unleash: Unleash
 }
 
 type SqlInstancesStatus {
@@ -7685,6 +7820,35 @@ enum RepositoryAuthorization {
   "Authorize for NAIS deployment."
   DEPLOY
 }
+`, BuiltIn: false},
+	{Name: "../graphqls/unleash.graphqls", Input: `extend type Mutation {
+  """
+  Create a new Unleash instance.
+
+  This mutation will create a new Unleash instance for the given team. The team
+  will be set as owner of the Unleash instance and will be able to manage it.
+  """
+  createUnleashForTeam(team: Slug!): Unleash! @auth
+}
+
+type Unleash {
+  name: String!
+  version: String!
+  allowedTeams: [String!]!
+  webIngress: String!
+  apiIngress: String!
+  metrics: UnleashMetrics!
+}
+
+type UnleashMetrics {
+  toggles: Int!
+  apiTokens: Int!
+  cpuUtilization: Float!
+  cpuRequests: Float!
+  memoryUtilization: Float!
+  memoryRequests: Float!
+}
+
 `, BuiltIn: false},
 	{Name: "../graphqls/users.graphqls", Input: `extend type Query {
   "Get a collection of users, sorted by name."
@@ -8051,6 +8215,21 @@ func (ec *executionContext) field_Mutation_createTeam_args(ctx context.Context, 
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createUnleashForTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 slug.Slug
+	if tmp, ok := rawArgs["team"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
+		arg0, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["team"] = arg0
 	return args, nil
 }
 
@@ -10567,6 +10746,8 @@ func (ec *executionContext) fieldContext_App_team(ctx context.Context, field gra
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -14555,6 +14736,8 @@ func (ec *executionContext) fieldContext_Deployment_team(ctx context.Context, fi
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -21296,6 +21479,8 @@ func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -21431,6 +21616,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -21566,6 +21753,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUsersFromTeam(ctx contex
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -21701,6 +21890,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUserFromTeam(ctx context
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -21983,6 +22174,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMembers(ctx context.Con
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -22118,6 +22311,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamOwners(ctx context.Cont
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -22253,6 +22448,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -22388,6 +22585,8 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -22627,6 +22826,95 @@ func (ec *executionContext) fieldContext_Mutation_changeDeployKey(ctx context.Co
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_changeDeployKey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createUnleashForTeam(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createUnleashForTeam(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateUnleashForTeam(rctx, fc.Args["team"].(slug.Slug))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Unleash); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.Unleash`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Unleash)
+	fc.Result = res
+	return ec.marshalNUnleash2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleash(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createUnleashForTeam(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_Unleash_name(ctx, field)
+			case "version":
+				return ec.fieldContext_Unleash_version(ctx, field)
+			case "allowedTeams":
+				return ec.fieldContext_Unleash_allowedTeams(ctx, field)
+			case "webIngress":
+				return ec.fieldContext_Unleash_webIngress(ctx, field)
+			case "apiIngress":
+				return ec.fieldContext_Unleash_apiIngress(ctx, field)
+			case "metrics":
+				return ec.fieldContext_Unleash_metrics(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Unleash", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createUnleashForTeam_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -23290,6 +23578,8 @@ func (ec *executionContext) fieldContext_NaisJob_team(ctx context.Context, field
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -26097,6 +26387,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -29145,6 +29437,8 @@ func (ec *executionContext) fieldContext_Role_targetTeam(ctx context.Context, fi
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -30143,6 +30437,8 @@ func (ec *executionContext) fieldContext_Secret_team(ctx context.Context, field 
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -31958,6 +32254,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(ctx context.Context, f
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -35375,6 +35673,61 @@ func (ec *executionContext) fieldContext_Team_environments(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_unleash(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_unleash(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().Unleash(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Unleash)
+	fc.Result = res
+	return ec.marshalOUnleash2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleash(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_unleash(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_Unleash_name(ctx, field)
+			case "version":
+				return ec.fieldContext_Unleash_version(ctx, field)
+			case "allowedTeams":
+				return ec.fieldContext_Unleash_allowedTeams(ctx, field)
+			case "webIngress":
+				return ec.fieldContext_Unleash_webIngress(ctx, field)
+			case "apiIngress":
+				return ec.fieldContext_Unleash_apiIngress(ctx, field)
+			case "metrics":
+				return ec.fieldContext_Unleash_metrics(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Unleash", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamDeleteKey_key(ctx context.Context, field graphql.CollectedField, obj *model.TeamDeleteKey) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamDeleteKey_key(ctx, field)
 	if err != nil {
@@ -35664,6 +36017,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(ctx context.Context,
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -35768,6 +36123,8 @@ func (ec *executionContext) fieldContext_TeamList_nodes(ctx context.Context, fie
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -35924,6 +36281,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(ctx context.Context, fi
 				return ec.fieldContext_Team_secret(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -36628,6 +36987,548 @@ func (ec *executionContext) fieldContext_Topic_acl(ctx context.Context, field gr
 				return ec.fieldContext_Acl_team(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Acl", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unleash_name(ctx context.Context, field graphql.CollectedField, obj *model.Unleash) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unleash_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unleash_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unleash",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unleash_version(ctx context.Context, field graphql.CollectedField, obj *model.Unleash) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unleash_version(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Version, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unleash_version(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unleash",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unleash_allowedTeams(ctx context.Context, field graphql.CollectedField, obj *model.Unleash) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unleash_allowedTeams(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AllowedTeams, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unleash_allowedTeams(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unleash",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unleash_webIngress(ctx context.Context, field graphql.CollectedField, obj *model.Unleash) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unleash_webIngress(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.WebIngress, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unleash_webIngress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unleash",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unleash_apiIngress(ctx context.Context, field graphql.CollectedField, obj *model.Unleash) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unleash_apiIngress(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.APIIngress, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unleash_apiIngress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unleash",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unleash_metrics(ctx context.Context, field graphql.CollectedField, obj *model.Unleash) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unleash_metrics(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Metrics, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.UnleashMetrics)
+	fc.Result = res
+	return ec.marshalNUnleashMetrics2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleashMetrics(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unleash_metrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unleash",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "toggles":
+				return ec.fieldContext_UnleashMetrics_toggles(ctx, field)
+			case "apiTokens":
+				return ec.fieldContext_UnleashMetrics_apiTokens(ctx, field)
+			case "cpuUtilization":
+				return ec.fieldContext_UnleashMetrics_cpuUtilization(ctx, field)
+			case "cpuRequests":
+				return ec.fieldContext_UnleashMetrics_cpuRequests(ctx, field)
+			case "memoryUtilization":
+				return ec.fieldContext_UnleashMetrics_memoryUtilization(ctx, field)
+			case "memoryRequests":
+				return ec.fieldContext_UnleashMetrics_memoryRequests(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UnleashMetrics", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashMetrics_toggles(ctx context.Context, field graphql.CollectedField, obj *model.UnleashMetrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashMetrics_toggles(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.UnleashMetrics().Toggles(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashMetrics_toggles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashMetrics",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashMetrics_apiTokens(ctx context.Context, field graphql.CollectedField, obj *model.UnleashMetrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashMetrics_apiTokens(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.UnleashMetrics().APITokens(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashMetrics_apiTokens(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashMetrics",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashMetrics_cpuUtilization(ctx context.Context, field graphql.CollectedField, obj *model.UnleashMetrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashMetrics_cpuUtilization(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.UnleashMetrics().CPUUtilization(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashMetrics_cpuUtilization(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashMetrics",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashMetrics_cpuRequests(ctx context.Context, field graphql.CollectedField, obj *model.UnleashMetrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashMetrics_cpuRequests(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CpuRequests, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashMetrics_cpuRequests(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashMetrics",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashMetrics_memoryUtilization(ctx context.Context, field graphql.CollectedField, obj *model.UnleashMetrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashMetrics_memoryUtilization(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.UnleashMetrics().MemoryUtilization(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashMetrics_memoryUtilization(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashMetrics",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashMetrics_memoryRequests(ctx context.Context, field graphql.CollectedField, obj *model.UnleashMetrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashMetrics_memoryRequests(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MemoryRequests, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashMetrics_memoryRequests(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashMetrics",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -45032,6 +45933,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "createUnleashForTeam":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createUnleashForTeam(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "synchronizeUsers":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_synchronizeUsers(ctx, field)
@@ -49462,6 +50370,39 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "unleash":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_unleash(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -50094,6 +51035,258 @@ func (ec *executionContext) _Topic(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = ec._Topic_acl(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var unleashImplementors = []string{"Unleash"}
+
+func (ec *executionContext) _Unleash(ctx context.Context, sel ast.SelectionSet, obj *model.Unleash) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, unleashImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Unleash")
+		case "name":
+			out.Values[i] = ec._Unleash_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "version":
+			out.Values[i] = ec._Unleash_version(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "allowedTeams":
+			out.Values[i] = ec._Unleash_allowedTeams(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "webIngress":
+			out.Values[i] = ec._Unleash_webIngress(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "apiIngress":
+			out.Values[i] = ec._Unleash_apiIngress(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "metrics":
+			out.Values[i] = ec._Unleash_metrics(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var unleashMetricsImplementors = []string{"UnleashMetrics"}
+
+func (ec *executionContext) _UnleashMetrics(ctx context.Context, sel ast.SelectionSet, obj *model.UnleashMetrics) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, unleashMetricsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UnleashMetrics")
+		case "toggles":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UnleashMetrics_toggles(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "apiTokens":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UnleashMetrics_apiTokens(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "cpuUtilization":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UnleashMetrics_cpuUtilization(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "cpuRequests":
+			out.Values[i] = ec._UnleashMetrics_cpuRequests(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "memoryUtilization":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UnleashMetrics_memoryUtilization(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "memoryRequests":
+			out.Values[i] = ec._UnleashMetrics_memoryRequests(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -54423,6 +55616,24 @@ func (ec *executionContext) marshalNTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinterna
 	return ec._Topic(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNUnleash2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleash(ctx context.Context, sel ast.SelectionSet, v model.Unleash) graphql.Marshaler {
+	return ec._Unleash(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUnleash2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleash(ctx context.Context, sel ast.SelectionSet, v *model.Unleash) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Unleash(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNUnleashMetrics2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleashMetrics(ctx context.Context, sel ast.SelectionSet, v model.UnleashMetrics) graphql.Marshaler {
+	return ec._UnleashMetrics(ctx, sel, &v)
+}
+
 func (ec *executionContext) unmarshalNUpdateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUpdateTeamInput(ctx context.Context, v interface{}) (model.UpdateTeamInput, error) {
 	res, err := ec.unmarshalInputUpdateTeamInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -55373,6 +56584,13 @@ func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel
 	}
 	res := graphql.MarshalTime(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOUnleash2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleash(ctx context.Context, sel ast.SelectionSet, v *model.Unleash) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Unleash(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
