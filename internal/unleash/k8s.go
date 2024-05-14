@@ -73,11 +73,14 @@ func (m *Manager) Unleash(ctx context.Context, team string) (*model.Unleash, err
 
 				if hasAccessToUnleash(team, unleashInstance) {
 					u := model.ToUnleashInstance(unleashInstance)
-					u.Metrics, err = m.Metrics(ctx, unleashInstance)
-					if err != nil {
-						return nil, err
+					u.Metrics = model.UnleashMetrics{
+						CpuRequests:    unleashInstance.Spec.Resources.Requests.Cpu().AsApproximateFloat64(),
+						MemoryRequests: unleashInstance.Spec.Resources.Requests.Memory().AsApproximateFloat64(),
+						GQLVars: model.UnleashGQLVars{
+							Namespace:    m.namespace,
+							InstanceName: unleashInstance.Name,
+						},
 					}
-
 					return u, nil
 				}
 			}

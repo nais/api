@@ -18,8 +18,11 @@ type Unleash {
 }
 
 type UnleashMetrics {
-  numToggles: Int!
+  toggles: Int!
   apiTokens: Int!
-  users: Int!
-  cpuUsage: Float!
+  cpuUtilization: Float!
+  cpuRequests: Float!
+  memoryUtilization: Float!
+  memoryRequests: Float!
 }
+

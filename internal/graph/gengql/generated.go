@@ -60,6 +60,7 @@ type ResolverRoot interface {
 	TeamDeleteKey() TeamDeleteKeyResolver
 	TeamMember() TeamMemberResolver
 	TeamMemberReconciler() TeamMemberReconcilerResolver
+	UnleashMetrics() UnleashMetricsResolver
 	User() UserResolver
 	UserSyncRun() UserSyncRunResolver
 }
@@ -957,10 +958,12 @@ type ComplexityRoot struct {
 	}
 
 	UnleashMetrics struct {
-		APITokens  func(childComplexity int) int
-		CpuUsage   func(childComplexity int) int
-		NumToggles func(childComplexity int) int
-		Users      func(childComplexity int) int
+		APITokens         func(childComplexity int) int
+		CPUUtilization    func(childComplexity int) int
+		CpuRequests       func(childComplexity int) int
+		MemoryRequests    func(childComplexity int) int
+		MemoryUtilization func(childComplexity int) int
+		Toggles           func(childComplexity int) int
 	}
 
 	User struct {
@@ -1194,6 +1197,13 @@ type TeamMemberResolver interface {
 }
 type TeamMemberReconcilerResolver interface {
 	Reconciler(ctx context.Context, obj *model.TeamMemberReconciler) (*model.Reconciler, error)
+}
+type UnleashMetricsResolver interface {
+	Toggles(ctx context.Context, obj *model.UnleashMetrics) (int, error)
+	APITokens(ctx context.Context, obj *model.UnleashMetrics) (int, error)
+	CPUUtilization(ctx context.Context, obj *model.UnleashMetrics) (float64, error)
+
+	MemoryUtilization(ctx context.Context, obj *model.UnleashMetrics) (float64, error)
 }
 type UserResolver interface {
 	Teams(ctx context.Context, obj *model.User, limit *int, offset *int) (*model.TeamMemberList, error)
@@ -5214,26 +5224,40 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UnleashMetrics.APITokens(childComplexity), true
 
-	case "UnleashMetrics.cpuUsage":
-		if e.complexity.UnleashMetrics.CpuUsage == nil {
+	case "UnleashMetrics.cpuUtilization":
+		if e.complexity.UnleashMetrics.CPUUtilization == nil {
 			break
 		}
 
-		return e.complexity.UnleashMetrics.CpuUsage(childComplexity), true
+		return e.complexity.UnleashMetrics.CPUUtilization(childComplexity), true
 
-	case "UnleashMetrics.numToggles":
-		if e.complexity.UnleashMetrics.NumToggles == nil {
+	case "UnleashMetrics.cpuRequests":
+		if e.complexity.UnleashMetrics.CpuRequests == nil {
 			break
 		}
 
-		return e.complexity.UnleashMetrics.NumToggles(childComplexity), true
+		return e.complexity.UnleashMetrics.CpuRequests(childComplexity), true
 
-	case "UnleashMetrics.users":
-		if e.complexity.UnleashMetrics.Users == nil {
+	case "UnleashMetrics.memoryRequests":
+		if e.complexity.UnleashMetrics.MemoryRequests == nil {
 			break
 		}
 
-		return e.complexity.UnleashMetrics.Users(childComplexity), true
+		return e.complexity.UnleashMetrics.MemoryRequests(childComplexity), true
+
+	case "UnleashMetrics.memoryUtilization":
+		if e.complexity.UnleashMetrics.MemoryUtilization == nil {
+			break
+		}
+
+		return e.complexity.UnleashMetrics.MemoryUtilization(childComplexity), true
+
+	case "UnleashMetrics.toggles":
+		if e.complexity.UnleashMetrics.Toggles == nil {
+			break
+		}
+
+		return e.complexity.UnleashMetrics.Toggles(childComplexity), true
 
 	case "User.email":
 		if e.complexity.User.Email == nil {
@@ -7817,11 +7841,14 @@ type Unleash {
 }
 
 type UnleashMetrics {
-  numToggles: Int!
+  toggles: Int!
   apiTokens: Int!
-  users: Int!
-  cpuUsage: Float!
+  cpuUtilization: Float!
+  cpuRequests: Float!
+  memoryUtilization: Float!
+  memoryRequests: Float!
 }
+
 `, BuiltIn: false},
 	{Name: "../graphqls/users.graphqls", Input: `extend type Query {
   "Get a collection of users, sorted by name."
@@ -37224,14 +37251,18 @@ func (ec *executionContext) fieldContext_Unleash_metrics(ctx context.Context, fi
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "numToggles":
-				return ec.fieldContext_UnleashMetrics_numToggles(ctx, field)
+			case "toggles":
+				return ec.fieldContext_UnleashMetrics_toggles(ctx, field)
 			case "apiTokens":
 				return ec.fieldContext_UnleashMetrics_apiTokens(ctx, field)
-			case "users":
-				return ec.fieldContext_UnleashMetrics_users(ctx, field)
-			case "cpuUsage":
-				return ec.fieldContext_UnleashMetrics_cpuUsage(ctx, field)
+			case "cpuUtilization":
+				return ec.fieldContext_UnleashMetrics_cpuUtilization(ctx, field)
+			case "cpuRequests":
+				return ec.fieldContext_UnleashMetrics_cpuRequests(ctx, field)
+			case "memoryUtilization":
+				return ec.fieldContext_UnleashMetrics_memoryUtilization(ctx, field)
+			case "memoryRequests":
+				return ec.fieldContext_UnleashMetrics_memoryRequests(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UnleashMetrics", field.Name)
 		},
@@ -37239,8 +37270,8 @@ func (ec *executionContext) fieldContext_Unleash_metrics(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashMetrics_numToggles(ctx context.Context, field graphql.CollectedField, obj *model.UnleashMetrics) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashMetrics_numToggles(ctx, field)
+func (ec *executionContext) _UnleashMetrics_toggles(ctx context.Context, field graphql.CollectedField, obj *model.UnleashMetrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashMetrics_toggles(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -37253,7 +37284,7 @@ func (ec *executionContext) _UnleashMetrics_numToggles(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.NumToggles, nil
+		return ec.resolvers.UnleashMetrics().Toggles(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -37270,12 +37301,12 @@ func (ec *executionContext) _UnleashMetrics_numToggles(ctx context.Context, fiel
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashMetrics_numToggles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashMetrics_toggles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UnleashMetrics",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
 		},
@@ -37297,7 +37328,7 @@ func (ec *executionContext) _UnleashMetrics_apiTokens(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.APITokens, nil
+		return ec.resolvers.UnleashMetrics().APITokens(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -37318,8 +37349,8 @@ func (ec *executionContext) fieldContext_UnleashMetrics_apiTokens(ctx context.Co
 	fc = &graphql.FieldContext{
 		Object:     "UnleashMetrics",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
 		},
@@ -37327,8 +37358,8 @@ func (ec *executionContext) fieldContext_UnleashMetrics_apiTokens(ctx context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _UnleashMetrics_users(ctx context.Context, field graphql.CollectedField, obj *model.UnleashMetrics) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashMetrics_users(ctx, field)
+func (ec *executionContext) _UnleashMetrics_cpuUtilization(ctx context.Context, field graphql.CollectedField, obj *model.UnleashMetrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashMetrics_cpuUtilization(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -37341,51 +37372,7 @@ func (ec *executionContext) _UnleashMetrics_users(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Users, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UnleashMetrics_users(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UnleashMetrics",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UnleashMetrics_cpuUsage(ctx context.Context, field graphql.CollectedField, obj *model.UnleashMetrics) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UnleashMetrics_cpuUsage(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CpuUsage, nil
+		return ec.resolvers.UnleashMetrics().CPUUtilization(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -37402,7 +37389,139 @@ func (ec *executionContext) _UnleashMetrics_cpuUsage(ctx context.Context, field 
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UnleashMetrics_cpuUsage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashMetrics_cpuUtilization(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashMetrics",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashMetrics_cpuRequests(ctx context.Context, field graphql.CollectedField, obj *model.UnleashMetrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashMetrics_cpuRequests(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CpuRequests, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashMetrics_cpuRequests(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashMetrics",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashMetrics_memoryUtilization(ctx context.Context, field graphql.CollectedField, obj *model.UnleashMetrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashMetrics_memoryUtilization(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.UnleashMetrics().MemoryUtilization(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashMetrics_memoryUtilization(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashMetrics",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashMetrics_memoryRequests(ctx context.Context, field graphql.CollectedField, obj *model.UnleashMetrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashMetrics_memoryRequests(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MemoryRequests, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashMetrics_memoryRequests(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UnleashMetrics",
 		Field:      field,
@@ -51015,25 +51134,159 @@ func (ec *executionContext) _UnleashMetrics(ctx context.Context, sel ast.Selecti
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("UnleashMetrics")
-		case "numToggles":
-			out.Values[i] = ec._UnleashMetrics_numToggles(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+		case "toggles":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UnleashMetrics_toggles(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "apiTokens":
-			out.Values[i] = ec._UnleashMetrics_apiTokens(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UnleashMetrics_apiTokens(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
-		case "users":
-			out.Values[i] = ec._UnleashMetrics_users(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
 			}
-		case "cpuUsage":
-			out.Values[i] = ec._UnleashMetrics_cpuUsage(ctx, field, obj)
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "cpuUtilization":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UnleashMetrics_cpuUtilization(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "cpuRequests":
+			out.Values[i] = ec._UnleashMetrics_cpuRequests(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "memoryUtilization":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UnleashMetrics_memoryUtilization(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "memoryRequests":
+			out.Values[i] = ec._UnleashMetrics_memoryRequests(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))

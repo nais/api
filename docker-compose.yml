@@ -24,6 +24,7 @@ services:
 
   pubsub:
     image: google/cloud-sdk
+    platform: linux/x86_64 # this is required for running on M1 Mac
     command:
       - gcloud
       - beta

@@ -16,10 +16,14 @@ type Unleash struct {
 }
 
 type UnleashMetrics struct {
-	NumToggles int     `json:"numToggles"`
-	APITokens  int     `json:"apiTokens"`
-	Users      int     `json:"users"`
-	CpuUsage   float64 `json:"cpuUsage"`
+	CpuRequests    float64        `json:"cpuRequests"`
+	MemoryRequests float64        `json:"memoryRequests"`
+	GQLVars        UnleashGQLVars `json:"-"` // Internal context for custom resolvers
+}
+
+type UnleashGQLVars struct {
+	Namespace    string
+	InstanceName string
 }
 
 func ToUnleashInstance(u *unleash_nais_io_v1.Unleash) *Unleash {

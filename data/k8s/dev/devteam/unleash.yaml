@@ -1,20 +1,20 @@
 apiVersion: unleash.nais.io/v1
 kind: Unleash
 metadata:
-  name: min-side
+  name: nais-demo
   namespace: bifrost-unleash
 spec:
   apiIngress:
     class: nais-ingress
     enabled: true
-    host: min-side-unleash-api.nav.cloud.nais.io
+    host: nais-demo-unleash-api.nav.cloud.nais.io
     path: /
   customImage: europe-north1-docker.pkg.dev/nais-io/nais/images/unleash-v4:v5.9.6-20240223-085937-43cfceb
   database:
     host: localhost
     port: "5432"
     secretDatabaseNameKey: POSTGRES_DB
-    secretName: min-side
+    secretName: nais-demo
     secretPassKey: POSTGRES_PASSWORD
     secretUserKey: POSTGRES_USER
     ssl: "false"
@@ -51,9 +51,9 @@ spec:
         key: token
         name: teams-api-token
   - name: TEAMS_ALLOWED_TEAMS
-    value: min-side,devteam
+    value: nais-demo,devteam
   - name: TEAMS_ALLOWED_NAMESPACES
-    value: min-side,devteam
+    value: nais-demo,devteam
   - name: TEAMS_ALLOWED_CLUSTERS
     value: dev-gcp,prod-gcp
   - name: LOG_LEVEL
@@ -64,7 +64,7 @@ spec:
     - prod-gcp
     enabled: true
     namespaces:
-    - min-side
+    - nais-demo
     - devteam
     secretNonce: abc123
   networkPolicy:
@@ -101,7 +101,7 @@ spec:
   webIngress:
     class: nais-ingress-iap
     enabled: true
-    host: min-side-unleash-web.nav.cloud.nais.io
+    host: nais-demo-unleash-web.nav.cloud.nais.io
     path: /
 status:
   conditions:
