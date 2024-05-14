@@ -109,7 +109,7 @@ func mgmtCluster(opts ...Opt) (*k8sClient, error) {
 		"http://kubernetes.default.svc",
 		"management",
 		[]schema.GroupVersionResource{
-			unleash_nais_io_v1.GroupVersion.WithResource("unleashs"),
+			unleash_nais_io_v1.GroupVersion.WithResource("unleashes"),
 		},
 		opts...,
 	)

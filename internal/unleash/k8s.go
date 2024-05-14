@@ -103,7 +103,7 @@ func (m *Manager) CreateUnleash(ctx context.Context, team slug.Slug) (*model.Unl
 		return nil, err
 	}
 
-	_, err = client.dynamicClient.Resource(unleash_nais_io_v1.GroupVersion.WithResource("unleashs")).Namespace(ManagementClusterNamespace).Create(ctx, &unstructured.Unstructured{Object: unleashObject}, metav1.CreateOptions{})
+	_, err = client.dynamicClient.Resource(unleash_nais_io_v1.GroupVersion.WithResource("unleashes")).Namespace(ManagementClusterNamespace).Create(ctx, &unstructured.Unstructured{Object: unleashObject}, metav1.CreateOptions{})
 	if err != nil {
 		return nil, err
 	}
