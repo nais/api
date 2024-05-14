@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/nais/api/internal/k8s"
@@ -13,6 +14,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/informers"
@@ -171,15 +173,17 @@ func createClient(apiServer, clusterName string, resources []schema.GroupVersion
 	return &k8sClient{
 		clientSet:     clientSet,
 		dynamicClient: dynamicClient,
-		informers:     createInformers(dynamicClient, resources),
+		informers:     createInformers(clientSet, dynamicClient, resources),
 	}, nil
 }
 
-func createInformers(dynamicClient dynamic.Interface, resources []schema.GroupVersionResource) []informers.GenericInformer {
+func createInformers(clientSet kubernetes.Interface, dynamicClient dynamic.Interface, resources []schema.GroupVersionResource) []informers.GenericInformer {
 	dinf := dynamicinformer.NewDynamicSharedInformerFactory(dynamicClient, 4*time.Hour)
 	infs := make([]informers.GenericInformer, 0)
 	for _, resources := range resources {
-		infs = append(infs, dinf.ForResource(resources))
+		if supportsResource(clientSet, resources) {
+			infs = append(infs, dinf.ForResource(resources))
+		}
 	}
 	return infs
 }
@@ -196,4 +200,23 @@ func hasSynced(ctx context.Context, cluster string, informer informers.GenericIn
 		}
 	}
 	return nil
+}
+
+func supportsResource(clientSet kubernetes.Interface, resource schema.GroupVersionResource) bool {
+	if clientSet, ok := clientSet.(*kubernetes.Clientset); ok {
+		resources, err := discovery.NewDiscoveryClient(clientSet.RESTClient()).ServerResourcesForGroupVersion(resource.GroupVersion().String())
+		if err != nil && !strings.Contains(err.Error(), "the server could not find the requested resource") {
+			logrus.Warnf("get server resources for group version: %v", err)
+			return false
+		}
+		if err == nil {
+			for _, r := range resources.APIResources {
+				if r.Name == resource.Resource {
+					return true
+				}
+			}
+		}
+	}
+	logrus.Warnf("resource %s not supported", resource.String())
+	return false
 }
