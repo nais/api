@@ -56,33 +56,30 @@ func hasAccessToUnleash(team string, unleash *unleash_nais_io_v1.Unleash) bool {
 	return false
 }
 
-// @TODO this should use management cluster and not tenant clusters
-func (m *Manager) Unleash(ctx context.Context, team string) (*model.Unleash, error) {
-	for _, informers := range m.clientMap {
-		for _, informer := range informers.informers {
-			objs, err := informer.Lister().ByNamespace(team).List(labels.Everything())
-			if err != nil {
+func (m *Manager) Unleash(team string) (*model.Unleash, error) {
+	for _, informer := range m.mgmCluster.informers {
+		objs, err := informer.Lister().ByNamespace(m.mgmtNamespace).List(labels.Everything())
+		if err != nil {
+			return nil, err
+		}
+
+		for _, obj := range objs {
+			unleashInstance := &unleash_nais_io_v1.Unleash{}
+			if err := runtime.DefaultUnstructuredConverter.FromUnstructured(obj.(*unstructured.Unstructured).Object, unleashInstance); err != nil {
 				return nil, err
 			}
 
-			for _, obj := range objs {
-				unleashInstance := &unleash_nais_io_v1.Unleash{}
-				if err := runtime.DefaultUnstructuredConverter.FromUnstructured(obj.(*unstructured.Unstructured).Object, unleashInstance); err != nil {
-					return nil, err
+			if hasAccessToUnleash(team, unleashInstance) {
+				u := model.ToUnleashInstance(unleashInstance)
+				u.Metrics = model.UnleashMetrics{
+					CpuRequests:    unleashInstance.Spec.Resources.Requests.Cpu().AsApproximateFloat64(),
+					MemoryRequests: unleashInstance.Spec.Resources.Requests.Memory().AsApproximateFloat64(),
+					GQLVars: model.UnleashGQLVars{
+						Namespace:    m.mgmtNamespace,
+						InstanceName: unleashInstance.Name,
+					},
 				}
-
-				if hasAccessToUnleash(team, unleashInstance) {
-					u := model.ToUnleashInstance(unleashInstance)
-					u.Metrics = model.UnleashMetrics{
-						CpuRequests:    unleashInstance.Spec.Resources.Requests.Cpu().AsApproximateFloat64(),
-						MemoryRequests: unleashInstance.Spec.Resources.Requests.Memory().AsApproximateFloat64(),
-						GQLVars: model.UnleashGQLVars{
-							Namespace:    m.namespace,
-							InstanceName: unleashInstance.Name,
-						},
-					}
-					return u, nil
-				}
+				return u, nil
 			}
 		}
 	}
@@ -94,7 +91,7 @@ func (m *Manager) Unleash(ctx context.Context, team string) (*model.Unleash, err
 // @TODO create sql database, sql user and database secret
 // @TODO create remote unleash in team namespace
 func (m *Manager) CreateUnleash(ctx context.Context, team slug.Slug) (*model.Unleash, error) {
-	client, found := m.clientMap[ManagementClusterChangeme]
+	client, found := m.tenantClusters[ManagementClusterChangeme]
 	if !found {
 		return nil, fmt.Errorf("no kubernetes client found for %s cluster", ManagementClusterChangeme)
 	}

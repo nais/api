@@ -1533,7 +1533,7 @@ func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*mo
 
 // Unleash is the resolver for the unleash field.
 func (r *teamResolver) Unleash(ctx context.Context, obj *model.Team) (*model.Unleash, error) {
-	return r.unleashMgr.Unleash(ctx, obj.Slug.String())
+	return r.unleashMgr.Unleash(obj.Slug.String())
 }
 
 // CreatedBy is the resolver for the createdBy field.
