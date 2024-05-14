@@ -6799,23 +6799,22 @@ type KafkaTopic implements Persistence {
   name: String!
   id: ID!
   acl: [Acl!]!
-  config: KafkaTopicConfig!
+  config: KafkaTopicConfig
   pool: String!
-  
   team: Team!
   env: Env!
   workload: Workload
 }
 
 type KafkaTopicConfig {
-    cleanupPolicy: String!
-    maxMessageBytes: Int!
-    minimumInSyncReplicas: Int!
-    partitions: Int!
-    replication: Int!
-    retentionBytes: Int!
-    retentionHours: Int!
-    segmentHours: Int!
+    cleanupPolicy: String
+    maxMessageBytes: Int
+    minimumInSyncReplicas: Int
+    partitions: Int
+    replication: Int
+    retentionBytes: Int
+    retentionHours: Int
+    segmentHours: Int
 }
 
 type Topic {
@@ -20817,14 +20816,11 @@ func (ec *executionContext) _KafkaTopic_config(ctx context.Context, field graphq
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(model.KafkaTopicConfig)
+	res := resTmp.(*model.KafkaTopicConfig)
 	fc.Result = res
-	return ec.marshalNKafkaTopicConfig2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐKafkaTopicConfig(ctx, field.Selections, res)
+	return ec.marshalOKafkaTopicConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐKafkaTopicConfig(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_KafkaTopic_config(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -21134,14 +21130,11 @@ func (ec *executionContext) _KafkaTopicConfig_cleanupPolicy(ctx context.Context,
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_KafkaTopicConfig_cleanupPolicy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -21178,14 +21171,11 @@ func (ec *executionContext) _KafkaTopicConfig_maxMessageBytes(ctx context.Contex
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(*int)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_KafkaTopicConfig_maxMessageBytes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -21222,14 +21212,11 @@ func (ec *executionContext) _KafkaTopicConfig_minimumInSyncReplicas(ctx context.
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(*int)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_KafkaTopicConfig_minimumInSyncReplicas(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -21266,14 +21253,11 @@ func (ec *executionContext) _KafkaTopicConfig_partitions(ctx context.Context, fi
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(*int)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_KafkaTopicConfig_partitions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -21310,14 +21294,11 @@ func (ec *executionContext) _KafkaTopicConfig_replication(ctx context.Context, f
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(*int)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_KafkaTopicConfig_replication(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -21354,14 +21335,11 @@ func (ec *executionContext) _KafkaTopicConfig_retentionBytes(ctx context.Context
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(*int)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_KafkaTopicConfig_retentionBytes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -21398,14 +21376,11 @@ func (ec *executionContext) _KafkaTopicConfig_retentionHours(ctx context.Context
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(*int)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_KafkaTopicConfig_retentionHours(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -21442,14 +21417,11 @@ func (ec *executionContext) _KafkaTopicConfig_segmentHours(ctx context.Context, 
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(*int)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_KafkaTopicConfig_segmentHours(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -48219,9 +48191,6 @@ func (ec *executionContext) _KafkaTopic(ctx context.Context, sel ast.SelectionSe
 			}
 		case "config":
 			out.Values[i] = ec._KafkaTopic_config(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "pool":
 			out.Values[i] = ec._KafkaTopic_pool(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -48337,44 +48306,20 @@ func (ec *executionContext) _KafkaTopicConfig(ctx context.Context, sel ast.Selec
 			out.Values[i] = graphql.MarshalString("KafkaTopicConfig")
 		case "cleanupPolicy":
 			out.Values[i] = ec._KafkaTopicConfig_cleanupPolicy(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "maxMessageBytes":
 			out.Values[i] = ec._KafkaTopicConfig_maxMessageBytes(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "minimumInSyncReplicas":
 			out.Values[i] = ec._KafkaTopicConfig_minimumInSyncReplicas(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "partitions":
 			out.Values[i] = ec._KafkaTopicConfig_partitions(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "replication":
 			out.Values[i] = ec._KafkaTopicConfig_replication(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "retentionBytes":
 			out.Values[i] = ec._KafkaTopicConfig_retentionBytes(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "retentionHours":
 			out.Values[i] = ec._KafkaTopicConfig_retentionHours(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "segmentHours":
 			out.Values[i] = ec._KafkaTopicConfig_segmentHours(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -57365,10 +57310,6 @@ func (ec *executionContext) marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 	return ec._KafkaTopic(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNKafkaTopicConfig2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐKafkaTopicConfig(ctx context.Context, sel ast.SelectionSet, v model.KafkaTopicConfig) graphql.Marshaler {
-	return ec._KafkaTopicConfig(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalNKafkaTopicList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐKafkaTopicList(ctx context.Context, sel ast.SelectionSet, v model.KafkaTopicList) graphql.Marshaler {
 	return ec._KafkaTopicList(ctx, sel, &v)
 }
@@ -59880,6 +59821,13 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	}
 	res := graphql.MarshalInt(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOKafkaTopicConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐKafkaTopicConfig(ctx context.Context, sel ast.SelectionSet, v *model.KafkaTopicConfig) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._KafkaTopicConfig(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOLogSubscriptionInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLogSubscriptionInput(ctx context.Context, v interface{}) (*model.LogSubscriptionInput, error) {

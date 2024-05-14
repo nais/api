@@ -65,23 +65,22 @@ type KafkaTopic implements Persistence {
   name: String!
   id: ID!
   acl: [Acl!]!
-  config: KafkaTopicConfig!
+  config: KafkaTopicConfig
   pool: String!
-  
   team: Team!
   env: Env!
   workload: Workload
 }
 
 type KafkaTopicConfig {
-    cleanupPolicy: String!
-    maxMessageBytes: Int!
-    minimumInSyncReplicas: Int!
-    partitions: Int!
-    replication: Int!
-    retentionBytes: Int!
-    retentionHours: Int!
-    segmentHours: Int!
+    cleanupPolicy: String
+    maxMessageBytes: Int
+    minimumInSyncReplicas: Int
+    partitions: Int
+    replication: Int
+    retentionBytes: Int
+    retentionHours: Int
+    segmentHours: Int
 }
 
 type Topic {

@@ -15,7 +15,7 @@ type KafkaTopic struct {
 	Name    string            `json:"name"`
 	ID      scalar.Ident      `json:"id"`
 	ACL     []*ACL            `json:"acl"`
-	Config  KafkaTopicConfig  `json:"config"`
+	Config  *KafkaTopicConfig `json:"config"`
 	Pool    string            `json:"pool"`
 	Env     Env               `json:"env"`
 	GQLVars KafkaTopicGQLVars `json:"-"`
@@ -39,8 +39,23 @@ func ToKafkaTopic(u *unstructured.Unstructured, env string) (*KafkaTopic, error)
 	teamSlug := kt.GetNamespace()
 
 	return &KafkaTopic{
-		ID:   scalar.RedisIdent("kafkatopic_" + env + "_" + teamSlug + "_" + kt.GetName()),
+		ID:   scalar.KafkaTopicIdent("kafkatopic_" + env + "_" + teamSlug + "_" + kt.GetName()),
 		Name: kt.Name,
+		Config: func(cfg *kafka_nais_io_v1.Config) *KafkaTopicConfig {
+			if cfg == nil {
+				return nil
+			}
+			return &KafkaTopicConfig{
+				CleanupPolicy:         cfg.CleanupPolicy,
+				MaxMessageBytes:       cfg.MaxMessageBytes,
+				MinimumInSyncReplicas: cfg.MinimumInSyncReplicas,
+				Partitions:            cfg.Partitions,
+				Replication:           cfg.Replication,
+				RetentionBytes:        cfg.RetentionBytes,
+				RetentionHours:        cfg.RetentionHours,
+				SegmentHours:          cfg.SegmentHours,
+			}
+		}(kt.Spec.Config),
 		ACL: func(as []kafka_nais_io_v1.TopicACL) []*ACL {
 			ret := make([]*ACL, len(as))
 			for i, a := range as {

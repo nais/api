@@ -468,14 +468,14 @@ type JobsStatus struct {
 }
 
 type KafkaTopicConfig struct {
-	CleanupPolicy         string `json:"cleanupPolicy"`
-	MaxMessageBytes       int    `json:"maxMessageBytes"`
-	MinimumInSyncReplicas int    `json:"minimumInSyncReplicas"`
-	Partitions            int    `json:"partitions"`
-	Replication           int    `json:"replication"`
-	RetentionBytes        int    `json:"retentionBytes"`
-	RetentionHours        int    `json:"retentionHours"`
-	SegmentHours          int    `json:"segmentHours"`
+	CleanupPolicy         *string `json:"cleanupPolicy,omitempty"`
+	MaxMessageBytes       *int    `json:"maxMessageBytes,omitempty"`
+	MinimumInSyncReplicas *int    `json:"minimumInSyncReplicas,omitempty"`
+	Partitions            *int    `json:"partitions,omitempty"`
+	Replication           *int    `json:"replication,omitempty"`
+	RetentionBytes        *int    `json:"retentionBytes,omitempty"`
+	RetentionHours        *int    `json:"retentionHours,omitempty"`
+	SegmentHours          *int    `json:"segmentHours,omitempty"`
 }
 
 type KafkaTopicList struct {
