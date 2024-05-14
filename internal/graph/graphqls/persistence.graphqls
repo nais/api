@@ -61,14 +61,27 @@ type Bucket implements Persistence {
   workload: Workload
 }
 
-type Kafka implements Persistence {
-  """
-  The kafka pool name
-  """
+type KafkaTopic implements Persistence {
   name: String!
-  streams: Boolean!
-  topics: [Topic!]!
   id: ID!
+  acl: [Acl!]!
+  config: KafkaTopicConfig!
+  pool: String!
+  
+  team: Team!
+  env: Env!
+  workload: Workload
+}
+
+type KafkaTopicConfig {
+    cleanupPolicy: String!
+    maxMessageBytes: Int!
+    minimumInSyncReplicas: Int!
+    partitions: Int!
+    replication: Int!
+    retentionBytes: Int!
+    retentionHours: Int!
+    segmentHours: Int!
 }
 
 type Topic {
@@ -144,6 +157,11 @@ type OpenSearchList {
 
 type BigQueryDatasetList {
   nodes: [BigQueryDataset!]!
+  pageInfo: PageInfo!
+}
+
+type KafkaTopicList {
+  nodes: [KafkaTopic!]!
   pageInfo: PageInfo!
 }
 

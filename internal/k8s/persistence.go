@@ -12,10 +12,6 @@ import (
 func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) ([]model.Persistence, error) {
 	cluster := workload.Env.Name
 	teamSlug := workload.GQLVars.Team
-	topics, err := c.getTopics(ctx, workload.Name, string(teamSlug), cluster)
-	if err != nil {
-		return nil, c.error(ctx, err, "getting topics")
-	}
 	spec := workload.GQLVars.Spec
 	ret := make([]model.Persistence, 0)
 
@@ -96,15 +92,19 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 			ret = append(ret, o)
 		}
 	}
-
-	if spec.Kafka != nil {
-		kafka := model.Kafka{
-			Name:    spec.Kafka.Pool,
-			Streams: spec.Kafka.Streams,
-			Topics:  topics,
+	
+	if inf := c.informers[cluster].KafkaTopic; inf != nil {
+		objs, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
+		if err != nil {
+			return nil, fmt.Errorf("listing KafkaTopic instances: %w", err)
 		}
-
-		ret = append(ret, kafka)
+		for _, obj := range objs {
+			o, err := model.ToKafkaTopic(obj.(*unstructured.Unstructured), cluster)
+			if err != nil {
+				return nil, fmt.Errorf("converting KafkaTopic instance: %w", err)
+			}
+			ret = append(ret, o)
+		}
 	}
 
 	if spec.Influx != nil {

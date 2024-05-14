@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/bigquery"
+	"github.com/nais/api/internal/kafka"
 	"github.com/nais/api/internal/opensearch"
 
 	"github.com/nais/api/internal/unleash"
@@ -204,6 +205,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		redis.NewClient(k8sClient.Informers(), log),
 		bigquery.NewClient(k8sClient.Informers(), log),
 		opensearch.NewClient(k8sClient.Informers(), log),
+		kafka.NewClient(k8sClient.Informers(), log),
 		unleashMgr,
 	)
 

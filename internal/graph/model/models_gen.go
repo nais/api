@@ -467,17 +467,21 @@ type JobsStatus struct {
 	Failing int `json:"failing"`
 }
 
-type Kafka struct {
-	// The kafka pool name
-	Name    string       `json:"name"`
-	Streams bool         `json:"streams"`
-	Topics  []*Topic     `json:"topics"`
-	ID      scalar.Ident `json:"id"`
+type KafkaTopicConfig struct {
+	CleanupPolicy         string `json:"cleanupPolicy"`
+	MaxMessageBytes       int    `json:"maxMessageBytes"`
+	MinimumInSyncReplicas int    `json:"minimumInSyncReplicas"`
+	Partitions            int    `json:"partitions"`
+	Replication           int    `json:"replication"`
+	RetentionBytes        int    `json:"retentionBytes"`
+	RetentionHours        int    `json:"retentionHours"`
+	SegmentHours          int    `json:"segmentHours"`
 }
 
-func (Kafka) IsPersistence()           {}
-func (this Kafka) GetName() string     { return this.Name }
-func (this Kafka) GetID() scalar.Ident { return this.ID }
+type KafkaTopicList struct {
+	Nodes    []*KafkaTopic `json:"nodes"`
+	PageInfo PageInfo      `json:"pageInfo"`
+}
 
 type Limits struct {
 	CPU    string `json:"cpu"`

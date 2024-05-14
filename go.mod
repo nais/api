@@ -1,6 +1,6 @@
 module github.com/nais/api
 
-go 1.22.0
+go 1.22
 
 require (
 	cloud.google.com/go v0.112.1

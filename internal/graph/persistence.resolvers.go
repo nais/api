@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
@@ -30,6 +31,16 @@ func (r *bucketResolver) Team(ctx context.Context, obj *model.Bucket) (*model.Te
 
 // Workload is the resolver for the workload field.
 func (r *bucketResolver) Workload(ctx context.Context, obj *model.Bucket) (model.Workload, error) {
+	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
+}
+
+// Team is the resolver for the team field.
+func (r *kafkaTopicResolver) Team(ctx context.Context, obj *model.KafkaTopic) (*model.Team, error) {
+	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
+}
+
+// Workload is the resolver for the workload field.
+func (r *kafkaTopicResolver) Workload(ctx context.Context, obj *model.KafkaTopic) (model.Workload, error) {
 	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
 }
 
@@ -86,6 +97,9 @@ func (r *Resolver) BigQueryDataset() gengql.BigQueryDatasetResolver {
 // Bucket returns gengql.BucketResolver implementation.
 func (r *Resolver) Bucket() gengql.BucketResolver { return &bucketResolver{r} }
 
+// KafkaTopic returns gengql.KafkaTopicResolver implementation.
+func (r *Resolver) KafkaTopic() gengql.KafkaTopicResolver { return &kafkaTopicResolver{r} }
+
 // OpenSearch returns gengql.OpenSearchResolver implementation.
 func (r *Resolver) OpenSearch() gengql.OpenSearchResolver { return &openSearchResolver{r} }
 
@@ -98,7 +112,18 @@ func (r *Resolver) SqlInstance() gengql.SqlInstanceResolver { return &sqlInstanc
 type (
 	bigQueryDatasetResolver struct{ *Resolver }
 	bucketResolver          struct{ *Resolver }
+	kafkaTopicResolver      struct{ *Resolver }
 	openSearchResolver      struct{ *Resolver }
 	redisResolver           struct{ *Resolver }
 	sqlInstanceResolver     struct{ *Resolver }
 )
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *kafkaTopicResolver) Env(ctx context.Context, obj *model.KafkaTopic) (*model.Env, error) {
+	panic(fmt.Errorf("not implemented: Env - env"))
+}

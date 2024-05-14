@@ -28,6 +28,7 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/k8s"
+	"github.com/nais/api/internal/kafka"
 	"github.com/nais/api/internal/opensearch"
 	"github.com/nais/api/internal/redis"
 	"github.com/nais/api/internal/resourceusage"
@@ -133,6 +134,7 @@ type Resolver struct {
 	redisClient           *redis.Client
 	bigQueryDatasetClient *bigquery.Client
 	openSearchClient      *opensearch.Client
+	kafkaClient           *kafka.Client
 	unleashMgr            *unleash.Manager
 
 }
@@ -155,6 +157,7 @@ func NewResolver(hookdClient HookdClient,
 	redisClient *redis.Client,
 	bigQueryDatasetClient *bigquery.Client,
 	openSearchClient *opensearch.Client,
+	kafkaClient *kafka.Client,
 	unleashMgr *unleash.Manager,
 ) *Resolver {
 	return &Resolver{
@@ -176,6 +179,7 @@ func NewResolver(hookdClient HookdClient,
 		redisClient:           redisClient,
 		bigQueryDatasetClient: bigQueryDatasetClient,
 		openSearchClient:      openSearchClient,
+		kafkaClient:           kafkaClient,
 		unleashMgr:            unleashMgr,
 	}
 }

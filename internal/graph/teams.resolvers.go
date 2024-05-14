@@ -1235,6 +1235,35 @@ func (r *teamResolver) OpenSearch(ctx context.Context, obj *model.Team, offset *
 	}, nil
 }
 
+// KafkaTopics is the resolver for the kafkaTopics field.
+func (r *teamResolver) KafkaTopics(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.KafkaTopicList, error) {
+	kts, err := r.kafkaClient.Topics(obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case model.OrderByFieldName:
+			model.SortWith(kts, func(a, b *model.KafkaTopic) bool {
+				return model.Compare(a.Name, b.Name, orderBy.Direction)
+			})
+		case model.OrderByFieldEnv:
+			model.SortWith(kts, func(a, b *model.KafkaTopic) bool {
+				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
+			})
+		}
+	}
+
+	pagination := model.NewPagination(offset, limit)
+	kts, pageInfo := model.PaginatedSlice(kts, pagination)
+
+	return &model.KafkaTopicList{
+		Nodes:    kts,
+		PageInfo: pageInfo,
+	}, nil
+}
+
 // BigQuery is the resolver for the bigQuery field.
 func (r *teamResolver) BigQuery(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BigQueryDatasetList, error) {
 	bqs, err := r.bigQueryClient.BigQueryDatasets(obj.Slug)

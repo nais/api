@@ -324,7 +324,7 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): BucketsList!
-
+  
   redis(
     "Returns the first n entries from the list."
     offset: Int
@@ -335,7 +335,7 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): RedisList!
-
+  
   openSearch(
     "Returns the first n entries from the list."
     offset: Int
@@ -347,6 +347,17 @@ type Team {
     orderBy: OrderBy
   ): OpenSearchList!
 
+  kafkaTopics(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order entries by"
+    orderBy: OrderBy
+  ): KafkaTopicList!
+ 
   bigQuery(
     "Returns the first n entries from the list."
     offset: Int

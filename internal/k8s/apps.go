@@ -735,7 +735,7 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 
 	return ret, nil
 }
-
+// TODO: Replace with informer 🙈
 func toTopic(u *unstructured.Unstructured, name, team string) (*model.Topic, error) {
 	topic := &kafka_nais_io_v1.Topic{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, topic); err != nil {
