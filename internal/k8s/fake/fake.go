@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/fs"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -83,11 +84,8 @@ func Clients(dir fs.FS) func(cluster string) (kubernetes.Interface, dynamic.Inte
 	for cluster, objs := range resources {
 		ret[cluster] = clients{
 			ClientSet: fake.NewSimpleClientset(objs.core...),
-			Dynamic: dynfake.NewSimpleDynamicClientWithCustomListKinds(scheme,
-				map[schema.GroupVersionResource]string{
-					liberator_aiven_io_v1alpha1.GroupVersion.WithResource("redis"):      "RedisList",
-					liberator_aiven_io_v1alpha1.GroupVersion.WithResource("opensearch"): "OpenSearchList",
-				}, objs.dynamic...),
+			Dynamic: newDynamicClient(scheme,
+				objs.dynamic...),
 		}
 	}
 
@@ -179,4 +177,41 @@ func parseResources(scheme *runtime.Scheme, dir fs.FS, path string) clusterResou
 	}
 
 	return ret
+}
+
+// This is a hack around how k8s unsafeGuesses resource plurals
+func depluralized(s string) string {
+	switch s {
+	case "redises":
+		return "redis"
+	case "opensearchs":
+		return "opensearch"
+	}
+
+	return s
+}
+
+func newDynamicClient(scheme *runtime.Scheme, objs ...runtime.Object) dynamic.Interface {
+	fc := dynfake.NewSimpleDynamicClientWithCustomListKinds(scheme,
+		map[schema.GroupVersionResource]string{
+			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("redis"):      "RedisList",
+			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("opensearch"): "OpenSearchList",
+		})
+
+	for _, obj := range objs {
+		gvks, _, err := scheme.ObjectKinds(obj)
+		if err != nil {
+			panic(err)
+		}
+
+		if len(gvks) == 0 {
+			panic(fmt.Errorf("no registered kinds for %v", obj))
+		}
+		for _, gvk := range gvks {
+			gvr, _ := meta.UnsafeGuessKindToResource(gvk)
+			gvr.Resource = depluralized(gvr.Resource)
+			fc.Tracker().Create(gvr, obj, "devteam")
+		}
+	}
+	return fc
 }

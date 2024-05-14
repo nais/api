@@ -244,13 +244,7 @@ func New(tenant string, cfg Config, db Database, fake bool, log logrus.FieldLogg
 		// These assignments and the fake param are introduced to deal with an impedance mismatch between the fake.go stuff
 		// and the actual environment. K8s guesses retardedly at plurals, and we haven't found a way of turning that off.
 		redisString := "redis"
-		kafkatopicsString := "topics"
 		openSearchString := "opensearch"
-		if fake {
-			redisString = "redises"
-			kafkatopicsString = "topicses"
-			openSearchString = "opensearchs"
-		}
 
 		redis := aiven_nais_io_v1alpha1.GroupVersion.WithResource(redisString)
 		infs[cluster].Redis = dinf.ForResource(redis)
@@ -271,11 +265,14 @@ func New(tenant string, cfg Config, db Database, fake bool, log logrus.FieldLogg
 			if err == nil {
 				for _, r := range resources.APIResources {
 					if r.Name == "topics" {
-						infs[cluster].KafkaTopic = dinf.ForResource(kafka_nais_io_v1.GroupVersion.WithResource(kafkatopicsString))
+						infs[cluster].KafkaTopic = dinf.ForResource(kafka_nais_io_v1.GroupVersion.WithResource("topics"))
 					}
 				}
 			}
+		} else if fake { // Again, this is about the fake-real disparity
+			infs[cluster].KafkaTopic = dinf.ForResource(kafka_nais_io_v1.GroupVersion.WithResource("topics"))
 		}
+
 	}
 
 	if impersonationClientCreator == nil {
