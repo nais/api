@@ -122,7 +122,7 @@ func tenantClusters(tenant string, clusters []string, opts ...Opt) (clusterClien
 			fmt.Sprintf("https://apiserver.%s.%s.cloud.nais.io", tenant, cluster),
 			cluster,
 			[]schema.GroupVersionResource{
-				unleash_nais_io_v1.GroupVersion.WithResource("remoteunleashs"),
+				unleash_nais_io_v1.GroupVersion.WithResource("remoteunleashes"),
 			},
 			opts...,
 		)
