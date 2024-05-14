@@ -55,3 +55,6 @@ usersync:
   serviceAccount: null # Config in fasit
   subjectEmail: null # Config in fasit
   adminGroupPrefix: null # Config in fasit
+
+unleash:
+  namespace: "bifrost-unleash"

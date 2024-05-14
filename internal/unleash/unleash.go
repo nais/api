@@ -49,16 +49,17 @@ func WithClientsCreator(f func(cluster string) (kubernetes.Interface, dynamic.In
 
 func NewManager(tenant, namespace string, clusters []string, opts ...Opt) (*Manager, error) {
 	clientMap, err := tenantClusters(tenant, clusters, opts...)
+	if err != nil {
+		return nil, err
+	}
 
 	mgmt, err := mgmtCluster(opts...)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO:  fix config for prometheus in prod
 	promClient, err := promapi.NewClient(promapi.Config{
-		// Address: "http://monitoring-nais-prometheus",
-		Address: "https://nais-prometheus.nav.cloud.nais.io",
+		Address: fmt.Sprintf("https://nais-prometheus.%s.cloud.nais.io", tenant),
 	})
 	if err != nil {
 		return nil, err

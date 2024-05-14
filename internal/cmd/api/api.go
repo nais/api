@@ -140,9 +140,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	if cfg.WithFakeClients {
 		unleashOpts = append(unleashOpts, unleash.WithClientsCreator(fake.Clients(os.DirFS("./data/k8s"))))
 	}
-	// @TODO add more clusters?
-	// @TODO add namespace to config
-	unleashMgr, err := unleash.NewManager(cfg.Tenant, "bifrost-unleash", cfg.K8s.AllClusterNames(), unleashOpts...)
+	unleashMgr, err := unleash.NewManager(cfg.Tenant, cfg.Unleash.Namespace, cfg.K8s.AllClusterNames(), unleashOpts...)
 	if err != nil {
 		return fmt.Errorf("unable to create unleash manager: %w", err)
 	}
