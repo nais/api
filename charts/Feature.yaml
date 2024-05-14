@@ -8,6 +8,10 @@ dependencies:
       - loadbalancer-internal
 
 values:
+  apiserverIP:
+    displayName: API server IP
+    computed:
+      template: '"{{.Env.apiserver_endpoint}}"'
   host:
     displayName: Ingress hostname
     computed:

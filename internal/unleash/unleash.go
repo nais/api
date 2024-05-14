@@ -108,7 +108,7 @@ func (m Manager) Start(ctx context.Context, log logrus.FieldLogger) error {
 
 func mgmtCluster(opts ...Opt) (*k8sClient, error) {
 	return createClient(
-		"http://kubernetes.default.svc",
+		"",
 		"management",
 		[]schema.GroupVersionResource{
 			unleash_nais_io_v1.GroupVersion.WithResource("unleashes"),
@@ -141,7 +141,8 @@ func createClient(apiServer, clusterName string, resources []schema.GroupVersion
 	for _, opt := range opts {
 		opt(s)
 	}
-	restConfig := rest.Config{
+
+	restConfig := &rest.Config{
 		Host: apiServer,
 		AuthProvider: &api.AuthProviderConfig{
 			Name: k8s.GoogleAuthPlugin,
@@ -150,14 +151,23 @@ func createClient(apiServer, clusterName string, resources []schema.GroupVersion
 			return otelhttp.NewTransport(rt, otelhttp.WithServerName(clusterName))
 		},
 	}
+
+	var err error
+	if clusterName == "management" {
+		restConfig, err = rest.InClusterConfig()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get kubeconfig: %w", err)
+		}
+	}
+
 	if s.clientsCreator == nil {
 		s.clientsCreator = func(cluster string) (kubernetes.Interface, dynamic.Interface, error) {
-			clientSet, err := kubernetes.NewForConfig(&restConfig)
+			clientSet, err := kubernetes.NewForConfig(restConfig)
 			if err != nil {
 				return nil, nil, fmt.Errorf("create clientset: %w", err)
 			}
 
-			dynamicClient, err := dynamic.NewForConfig(&restConfig)
+			dynamicClient, err := dynamic.NewForConfig(restConfig)
 			if err != nil {
 				return nil, nil, fmt.Errorf("create dynamic client: %w", err)
 			}

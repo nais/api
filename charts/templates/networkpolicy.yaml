@@ -10,6 +10,9 @@ spec:
         - ipBlock:
             cidr: 0.0.0.0/0
     - to:
+        - ipBlock:
+            cidr: {{ .Values.apiserverIP }}/32
+    - to:
         - namespaceSelector: {}
           podSelector:
             matchLabels:
