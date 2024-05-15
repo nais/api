@@ -147,14 +147,19 @@ func TestSetStatus(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			app := &model.App{Image: tc.image, Ingresses: tc.ingresses, Env: model.Env{Name: "prod-gcp"}, AutoScaling: model.AutoScaling{Min: 1, Max: 2}}
+			app := &model.App{
+				WorkloadBase: model.WorkloadBase{Image: tc.image, Env: model.Env{Name: "prod-gcp"}},
+				Ingresses:    tc.ingresses,
+				AutoScaling:  model.AutoScaling{Min: 1, Max: 2},
+			}
+
 			setStatus(app, []metav1.Condition{{Status: metav1.ConditionTrue, Reason: tc.appCondition, Type: "SynchronizationState"}}, asInstances(tc.instanceStates))
 
-			if app.AppState.State != tc.expectedState {
-				t.Errorf("%s\ngot state: %v, want: %v", tc.name, app.AppState.State, tc.expectedState)
+			if app.Status.State != tc.expectedState {
+				t.Errorf("%s\ngot state: %v, want: %v", tc.name, app.Status.State, tc.expectedState)
 			}
-			if !hasError(app.AppState.Errors, tc.expectedErrors) {
-				t.Errorf("%s\ngot error: %v, want: %v", tc.name, app.AppState.Errors, tc.expectedErrors)
+			if !hasError(app.Status.Errors, tc.expectedErrors) {
+				t.Errorf("%s\ngot error: %v, want: %v", tc.name, app.Status.Errors, tc.expectedErrors)
 			}
 		})
 	}

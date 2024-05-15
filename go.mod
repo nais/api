@@ -1,6 +1,6 @@
 module github.com/nais/api
 
-go 1.22.3
+go 1.22.2
 
 require (
 	cloud.google.com/go v0.112.2
@@ -19,11 +19,11 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/lithammer/fuzzysearch v1.1.8
 	github.com/nais/dependencytrack v0.0.0-20240301095153-b46382e6a8be
-	github.com/nais/liberator v0.0.0-20240223134957-13b72a76ba9d
-	github.com/nais/unleasherator v0.0.0-20240506080806-6cc7bee27cd6
+	github.com/nais/liberator v0.0.0-20240513134459-37eb7a65f8a3
+	github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.18.0
-	github.com/prometheus/client_golang v1.19.0
+	github.com/prometheus/client_golang v1.19.1
 	github.com/prometheus/common v0.52.3
 	github.com/ravilushqa/otelgqlgen v0.15.0
 	github.com/rs/cors v1.10.1
@@ -210,7 +210,7 @@ require (
 	modernc.org/sqlite v1.28.0 // indirect
 	modernc.org/strutil v1.2.0 // indirect
 	modernc.org/token v1.1.0 // indirect
-	sigs.k8s.io/controller-runtime v0.17.4 // indirect
+	sigs.k8s.io/controller-runtime v0.17.5 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
 )

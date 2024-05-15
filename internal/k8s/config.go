@@ -20,3 +20,7 @@ func (c *Config) IsStaticCluster(cluster string) bool {
 	}
 	return false
 }
+
+func (c *Config) IsGcp(cluster string) bool {
+	return !c.IsStaticCluster(cluster)
+}

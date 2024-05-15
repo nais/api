@@ -8,13 +8,16 @@ import (
 	"time"
 
 	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
+	storage_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/storage/v1beta1"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/slug"
+	aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
+	google_nais_io_v1 "github.com/nais/liberator/pkg/apis/google.nais.io/v1"
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
-	naisv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
-	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"github.com/sirupsen/logrus"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
@@ -27,32 +30,59 @@ import (
 )
 
 type Database interface {
-	TeamExists(ctx context.Context, team slug.Slug) (bool, error)
 	GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*database.UserTeam, error)
+	TeamExists(ctx context.Context, team slug.Slug) (bool, error)
 }
 
 type ClusterInformers map[string]*Informers
 
 func (c ClusterInformers) Start(ctx context.Context, log logrus.FieldLogger) error {
 	for cluster, informer := range c {
-		log.WithField("cluster", cluster).Infof("starting informers")
-		go informer.PodInformer.Informer().Run(ctx.Done())
-		go informer.AppInformer.Informer().Run(ctx.Done())
-		go informer.NaisjobInformer.Informer().Run(ctx.Done())
-		go informer.JobInformer.Informer().Run(ctx.Done())
-		if informer.SqlInstanceInformer != nil {
-			go informer.SqlInstanceInformer.Informer().Run(ctx.Done())
+		log := log.WithField("cluster", cluster)
+		log.Infof("starting informers")
+		go informer.Pod.Informer().Run(ctx.Done())
+		go informer.App.Informer().Run(ctx.Done())
+		go informer.Naisjob.Informer().Run(ctx.Done())
+		go informer.Job.Informer().Run(ctx.Done())
+
+		if informer.Bucket != nil {
+			log.WithField("informer", "bucket").Debugf("started informer")
+			go informer.Bucket.Informer().Run(ctx.Done())
 		}
-		if informer.SqlDatabaseInformer != nil {
-			go informer.SqlDatabaseInformer.Informer().Run(ctx.Done())
+
+		if informer.BigQuery != nil {
+			log.WithField("informer", "bigquerydataset").Debugf("started informer")
+			go informer.BigQuery.Informer().Run(ctx.Done())
 		}
-		if informer.TopicInformer != nil {
-			go informer.TopicInformer.Informer().Run(ctx.Done())
+
+		if informer.SqlInstance != nil {
+			log.WithField("informer", "sqlinstance").Debugf("started informer")
+			go informer.SqlInstance.Informer().Run(ctx.Done())
+		}
+
+		if informer.SqlDatabase != nil {
+			log.WithField("informer", "sqldatabase").Debugf("started informer")
+			go informer.SqlDatabase.Informer().Run(ctx.Done())
+		}
+
+		if informer.KafkaTopic != nil {
+			log.WithField("informer", "kafkatopic").Debugf("started informer")
+			go informer.KafkaTopic.Informer().Run(ctx.Done())
+		}
+
+		if informer.Redis != nil {
+			log.WithField("informer", "redis").Debugf("started informer")
+			go informer.Redis.Informer().Run(ctx.Done())
+		}
+
+		if informer.OpenSearch != nil {
+			log.WithField("informer", "opensearch").Debugf("started informer")
+			go informer.OpenSearch.Informer().Run(ctx.Done())
 		}
 	}
 
 	for env, informers := range c {
-		for !informers.AppInformer.Informer().HasSynced() {
+		for !informers.App.Informer().HasSynced() {
 			log.Infof("waiting for app informer in %q to sync", env)
 
 			select {
@@ -76,14 +106,19 @@ type Client struct {
 }
 
 type Informers struct {
-	AppInformer         informers.GenericInformer
-	EventInformer       corev1inf.EventInformer
-	JobInformer         batchv1inf.JobInformer
-	NaisjobInformer     informers.GenericInformer
-	PodInformer         corev1inf.PodInformer
-	TopicInformer       informers.GenericInformer
-	SqlInstanceInformer informers.GenericInformer
-	SqlDatabaseInformer informers.GenericInformer
+	App         informers.GenericInformer
+	Event       corev1inf.EventInformer
+	Job         batchv1inf.JobInformer
+	Naisjob     informers.GenericInformer
+	Pod         corev1inf.PodInformer
+	Bucket      informers.GenericInformer
+	BigQuery    informers.GenericInformer
+	KafkaTopic  informers.GenericInformer
+	SqlInstance informers.GenericInformer
+	SqlDatabase informers.GenericInformer
+	OpenSearch  informers.GenericInformer
+	Redis       informers.GenericInformer
+	InfluxDb    informers.GenericInformer
 }
 
 type settings struct {
@@ -105,7 +140,7 @@ type clients struct {
 
 type impersonationClientCreator = func(context.Context) (map[string]clients, error)
 
-func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ...Opt) (*Client, error) {
+func New(tenant string, cfg Config, db Database, fake bool, log logrus.FieldLogger, opts ...Opt) (*Client, error) {
 	s := &settings{}
 	for _, opt := range opts {
 		opt(s)
@@ -189,14 +224,18 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 		dinf := dynamicinformer.NewDynamicSharedInformerFactory(dynamicClient, 4*time.Hour)
 		inf := informers.NewSharedInformerFactoryWithOptions(clientSet, 4*time.Hour)
 
-		infs[cluster].PodInformer = inf.Core().V1().Pods()
-		infs[cluster].AppInformer = dinf.ForResource(naisv1alpha1.GroupVersion.WithResource("applications"))
-		infs[cluster].NaisjobInformer = dinf.ForResource(naisv1.GroupVersion.WithResource("naisjobs"))
-		infs[cluster].JobInformer = inf.Batch().V1().Jobs()
+		infs[cluster].Pod = inf.Core().V1().Pods()
+		infs[cluster].App = dinf.ForResource(nais_io_v1alpha1.GroupVersion.WithResource("applications"))
+		infs[cluster].Naisjob = dinf.ForResource(nais_io_v1.GroupVersion.WithResource("naisjobs"))
+		infs[cluster].Job = inf.Batch().V1().Jobs()
+		infs[cluster].Redis = dinf.ForResource(aiven_io_v1alpha1.GroupVersion.WithResource("redis"))
+		infs[cluster].OpenSearch = dinf.ForResource(aiven_io_v1alpha1.GroupVersion.WithResource("opensearch"))
 
-		if !cfg.IsStaticCluster(cluster) {
-			infs[cluster].SqlInstanceInformer = dinf.ForResource(sql_cnrm_cloud_google_com_v1beta1.SchemeGroupVersion.WithResource("sqlinstances"))
-			infs[cluster].SqlDatabaseInformer = dinf.ForResource(sql_cnrm_cloud_google_com_v1beta1.SchemeGroupVersion.WithResource("sqldatabases"))
+		if cfg.IsGcp(cluster) {
+			infs[cluster].SqlInstance = dinf.ForResource(sql_cnrm_cloud_google_com_v1beta1.SchemeGroupVersion.WithResource("sqlinstances"))
+			infs[cluster].SqlDatabase = dinf.ForResource(sql_cnrm_cloud_google_com_v1beta1.SchemeGroupVersion.WithResource("sqldatabases"))
+			infs[cluster].Bucket = dinf.ForResource(storage_cnrm_cloud_google_com_v1beta1.SchemeGroupVersion.WithResource("storagebuckets"))
+			infs[cluster].BigQuery = dinf.ForResource(google_nais_io_v1.GroupVersion.WithResource("bigquerydatasets"))
 		}
 
 		clientSets[cluster] = clients{
@@ -212,10 +251,12 @@ func New(tenant string, cfg Config, db Database, log logrus.FieldLogger, opts ..
 			if err == nil {
 				for _, r := range resources.APIResources {
 					if r.Name == "topics" {
-						infs[cluster].TopicInformer = dinf.ForResource(kafka_nais_io_v1.GroupVersion.WithResource("topics"))
+						infs[cluster].KafkaTopic = dinf.ForResource(kafka_nais_io_v1.GroupVersion.WithResource("topics"))
 					}
 				}
 			}
+		} else if fake {
+			infs[cluster].KafkaTopic = dinf.ForResource(kafka_nais_io_v1.GroupVersion.WithResource("topics"))
 		}
 	}
 

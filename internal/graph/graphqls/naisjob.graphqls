@@ -41,11 +41,6 @@ type Run {
   failed: Boolean!
 }
 
-type JobState {
-  state: State!
-  errors: [StateError!]!
-}
-
 type FailedRunError implements StateError {
   revision: String!
   level: ErrorLevel!
@@ -65,12 +60,12 @@ type NaisJob {
   resources: Resources!
   schedule: String!
   team: Team!
-  storage: [Storage!]!
+  persistence: [Persistence!]!
   authz: [Authz!]!
   completions: Int!
   parallelism: Int!
   retries: Int!
-  jobState: JobState!
+  status: WorkloadStatus!
   secrets: [Secret!]!
 }
 

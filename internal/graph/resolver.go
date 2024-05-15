@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/nais/api/internal/opensearch"
+
+	"github.com/nais/api/internal/bigquery"
+
 	"github.com/nais/api/internal/unleash"
 
 	"cloud.google.com/go/pubsub"
@@ -15,6 +19,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auditlogger"
+	"github.com/nais/api/internal/bucket"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/database/teamsearch"
@@ -22,8 +27,11 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/k8s"
+	"github.com/nais/api/internal/kafka"
+	"github.com/nais/api/internal/redis"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/search"
+	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
@@ -31,6 +39,7 @@ import (
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
+	"k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // This file will not be regenerated automatically.
@@ -77,6 +86,22 @@ func (c ClusterList) Names() []string {
 	return ret
 }
 
+func (r *Resolver) workload(ctx context.Context, ownerReference *v1.OwnerReference, teamSlug slug.Slug, env string) (model.Workload, error) {
+	if ownerReference == nil {
+		return nil, nil
+	}
+
+	switch ownerReference.Kind {
+	case "Naisjob":
+		return r.k8sClient.NaisJob(ctx, ownerReference.Name, string(teamSlug), env)
+	case "Application":
+		return r.k8sClient.App(ctx, ownerReference.Name, string(teamSlug), env)
+	default:
+		r.log.WithField("kind", ownerReference.Kind).Warnf("Unknown owner reference kind")
+	}
+	return nil, nil
+}
+
 type HookdClient interface {
 	Deployments(ctx context.Context, opts ...hookd.RequestOption) ([]hookd.Deploy, error)
 	ChangeDeployKey(ctx context.Context, team string) (*hookd.DeployKey, error)
@@ -103,12 +128,16 @@ type Resolver struct {
 	userSyncRuns          *usersync.RunsHandler
 	pubsubTopic           *pubsub.Topic
 	sqlInstanceClient     *sqlinstance.Client
+	bucketClient          *bucket.Client
+	redisClient           *redis.Client
+	bigQueryDatasetClient *bigquery.Client
+	openSearchClient      *opensearch.Client
+	kafkaClient           *kafka.Client
 	unleashMgr            *unleash.Manager
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
-func NewResolver(
-	hookdClient HookdClient,
+func NewResolver(hookdClient HookdClient,
 	k8sClient *k8s.Client,
 	dependencyTrackClient DependencytrackClient,
 	resourceUsageClient resourceusage.Client,
@@ -121,6 +150,11 @@ func NewResolver(
 	pubsubTopic *pubsub.Topic,
 	log logrus.FieldLogger,
 	sqlInstanceClient *sqlinstance.Client,
+	bucketClient *bucket.Client,
+	redisClient *redis.Client,
+	bigQueryDatasetClient *bigquery.Client,
+	openSearchClient *opensearch.Client,
+	kafkaClient *kafka.Client,
 	unleashMgr *unleash.Manager,
 ) *Resolver {
 	return &Resolver{
@@ -138,6 +172,11 @@ func NewResolver(
 		clusters:              clusters,
 		pubsubTopic:           pubsubTopic,
 		sqlInstanceClient:     sqlInstanceClient,
+		bucketClient:          bucketClient,
+		redisClient:           redisClient,
+		bigQueryDatasetClient: bigQueryDatasetClient,
+		openSearchClient:      openSearchClient,
+		kafkaClient:           kafkaClient,
 		unleashMgr:            unleashMgr,
 	}
 }

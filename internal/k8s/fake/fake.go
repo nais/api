@@ -9,9 +9,14 @@ import (
 	"reflect"
 	"strings"
 
+	liberator_aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
+
+	bigquery_nais_io_v1 "github.com/nais/liberator/pkg/apis/google.nais.io/v1"
+
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 
 	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
+	storage_cnrm_cloud_gogle_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/storage/v1beta1"
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
@@ -74,10 +79,12 @@ func Clients(dir fs.FS) func(cluster string) (kubernetes.Interface, dynamic.Inte
 	})
 
 	ret := make(map[string]clients)
+
 	for cluster, objs := range resources {
 		ret[cluster] = clients{
 			ClientSet: fake.NewSimpleClientset(objs.core...),
-			Dynamic:   newDynamicClient(scheme, objs.dynamic...),
+			Dynamic: newDynamicClient(scheme,
+				objs.dynamic...),
 		}
 	}
 
@@ -99,6 +106,9 @@ func newScheme() *runtime.Scheme {
 	corev1.AddToScheme(scheme)
 	appsv1.AddToScheme(scheme)
 	sql_cnrm_cloud_google_com_v1beta1.AddToScheme(scheme)
+	storage_cnrm_cloud_gogle_com_v1beta1.AddToScheme(scheme)
+	bigquery_nais_io_v1.AddToScheme(scheme)
+	liberator_aiven_io_v1alpha1.AddToScheme(scheme)
 	unleash_nais_io_v1.AddToScheme(scheme)
 	return scheme
 }
@@ -115,9 +125,8 @@ func parseCluster(path string) string {
 func parseResources(scheme *runtime.Scheme, dir fs.FS, path string) clusterResources {
 	b, err := fs.ReadFile(dir, path)
 	if err != nil {
-		return clusterResources{}
+		panic(err.Error())
 	}
-
 	parts := bytes.Split(b, []byte("\n---"))
 	ns := strings.Trim(filepath.Base(filepath.Dir(path)), string(filepath.Separator))
 
@@ -171,10 +180,10 @@ func parseResources(scheme *runtime.Scheme, dir fs.FS, path string) clusterResou
 // This is a hack around how k8s unsafeGuesses resource plurals
 func depluralized(s string) string {
 	switch s {
-	case "unleashs":
-		return "unleashes"
-	case "remoteunleashs":
-		return "remoteunleashes"
+	case "redises":
+		return "redis"
+	case "opensearchs":
+		return "opensearch"
 	}
 
 	return s
@@ -187,8 +196,8 @@ func newDynamicClient(scheme *runtime.Scheme, objs ...runtime.Object) dynamic.In
 
 	fc := dynfake.NewSimpleDynamicClientWithCustomListKinds(scheme,
 		map[schema.GroupVersionResource]string{
-			unleash_nais_io_v1.GroupVersion.WithResource("unleashes"):       "UnleashList",
-			unleash_nais_io_v1.GroupVersion.WithResource("remoteunleashes"): "RemoteUnleashList",
+			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("redis"):      "RedisList",
+			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("opensearch"): "OpenSearchList",
 		})
 
 	for _, obj := range objs {

@@ -38,6 +38,9 @@ debug:
 	env bash -c 'source local.env; dlv debug --headless --listen=:2345 --api-version=2 ./cmd/api'
 
 test:
+	go test ./...
+
+test-with-cc:
 	go test -cover --race ./...
 
 check: staticcheck vulncheck deadcode

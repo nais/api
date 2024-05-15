@@ -25,6 +25,12 @@ type DeploymentResponse interface {
 	IsDeploymentResponse()
 }
 
+type Persistence interface {
+	IsPersistence()
+	GetName() string
+	GetID() scalar.Ident
+}
+
 type SearchNode interface {
 	IsSearchNode()
 }
@@ -35,11 +41,6 @@ type StateError interface {
 	GetLevel() ErrorLevel
 }
 
-type Storage interface {
-	IsStorage()
-	GetName() string
-}
-
 type Workload interface {
 	IsWorkload()
 }
@@ -47,12 +48,6 @@ type Workload interface {
 type AccessPolicy struct {
 	Inbound  Inbound  `json:"inbound"`
 	Outbound Outbound `json:"outbound"`
-}
-
-type ACL struct {
-	Access      string    `json:"access"`
-	Application string    `json:"application"`
-	Team        slug.Slug `json:"team"`
 }
 
 // App cost type.
@@ -68,11 +63,6 @@ type AppCost struct {
 type AppList struct {
 	Nodes    []*App   `json:"nodes"`
 	PageInfo PageInfo `json:"pageInfo"`
-}
-
-type AppState struct {
-	State  State        `json:"state"`
-	Errors []StateError `json:"errors"`
 }
 
 // Resource utilization overage cost for an app.
@@ -147,26 +137,20 @@ type AzureApplication struct {
 	Tenant                string   `json:"tenant"`
 }
 
-type BigQueryDataset struct {
-	CascadingDelete bool   `json:"cascadingDelete"`
-	Description     string `json:"description"`
-	Name            string `json:"name"`
-	Permission      string `json:"permission"`
+type BigQueryDatasetAccess struct {
+	Role  string `json:"role"`
+	Email string `json:"email"`
 }
 
-func (BigQueryDataset) IsStorage()           {}
-func (this BigQueryDataset) GetName() string { return this.Name }
-
-type Bucket struct {
-	CascadingDelete          bool   `json:"cascadingDelete"`
-	Name                     string `json:"name"`
-	PublicAccessPrevention   bool   `json:"publicAccessPrevention"`
-	RetentionPeriodDays      int    `json:"retentionPeriodDays"`
-	UniformBucketLevelAccess bool   `json:"uniformBucketLevelAccess"`
+type BigQueryDatasetList struct {
+	Nodes    []*BigQueryDataset `json:"nodes"`
+	PageInfo PageInfo           `json:"pageInfo"`
 }
 
-func (Bucket) IsStorage()           {}
-func (this Bucket) GetName() string { return this.Name }
+type BucketsList struct {
+	Nodes    []*Bucket `json:"nodes"`
+	PageInfo PageInfo  `json:"pageInfo"`
+}
 
 type Claims struct {
 	Extra  []string `json:"extra"`
@@ -446,11 +430,13 @@ func (this InboundAccessError) GetRevision() string  { return this.Revision }
 func (this InboundAccessError) GetLevel() ErrorLevel { return this.Level }
 
 type InfluxDb struct {
-	Name string `json:"name"`
+	Name string       `json:"name"`
+	ID   scalar.Ident `json:"id"`
 }
 
-func (InfluxDb) IsStorage()           {}
-func (this InfluxDb) GetName() string { return this.Name }
+func (InfluxDb) IsPersistence()           {}
+func (this InfluxDb) GetName() string     { return this.Name }
+func (this InfluxDb) GetID() scalar.Ident { return this.ID }
 
 type Insights struct {
 	Enabled               bool `json:"enabled"`
@@ -469,26 +455,33 @@ func (InvalidNaisYamlError) IsStateError()             {}
 func (this InvalidNaisYamlError) GetRevision() string  { return this.Revision }
 func (this InvalidNaisYamlError) GetLevel() ErrorLevel { return this.Level }
 
-type JobState struct {
-	State  State        `json:"state"`
-	Errors []StateError `json:"errors"`
-}
-
 // Team status for jobs.
 type JobsStatus struct {
 	Total   int `json:"total"`
 	Failing int `json:"failing"`
 }
 
-type Kafka struct {
-	// The kafka pool name
-	Name    string   `json:"name"`
-	Streams bool     `json:"streams"`
-	Topics  []*Topic `json:"topics"`
+type KafkaTopicACL struct {
+	Access      string    `json:"access"`
+	Application string    `json:"application"`
+	Team        slug.Slug `json:"team"`
 }
 
-func (Kafka) IsStorage()           {}
-func (this Kafka) GetName() string { return this.Name }
+type KafkaTopicConfig struct {
+	CleanupPolicy         *string `json:"cleanupPolicy,omitempty"`
+	MaxMessageBytes       *int    `json:"maxMessageBytes,omitempty"`
+	MinimumInSyncReplicas *int    `json:"minimumInSyncReplicas,omitempty"`
+	Partitions            *int    `json:"partitions,omitempty"`
+	Replication           *int    `json:"replication,omitempty"`
+	RetentionBytes        *int    `json:"retentionBytes,omitempty"`
+	RetentionHours        *int    `json:"retentionHours,omitempty"`
+	SegmentHours          *int    `json:"segmentHours,omitempty"`
+}
+
+type KafkaTopicList struct {
+	Nodes    []*KafkaTopic `json:"nodes"`
+	PageInfo PageInfo      `json:"pageInfo"`
+}
 
 type Limits struct {
 	CPU    string `json:"cpu"`
@@ -580,14 +573,10 @@ func (NoRunningInstancesError) IsStateError()             {}
 func (this NoRunningInstancesError) GetRevision() string  { return this.Revision }
 func (this NoRunningInstancesError) GetLevel() ErrorLevel { return this.Level }
 
-type OpenSearch struct {
-	// The opensearch instance name
-	Name   string `json:"name"`
-	Access string `json:"access"`
+type OpenSearchList struct {
+	Nodes    []*OpenSearch `json:"nodes"`
+	PageInfo PageInfo      `json:"pageInfo"`
 }
-
-func (OpenSearch) IsStorage()           {}
-func (this OpenSearch) GetName() string { return this.Name }
 
 type OrderBy struct {
 	// Order direction.
@@ -661,13 +650,10 @@ type ReconcilerList struct {
 	PageInfo PageInfo `json:"pageInfo"`
 }
 
-type Redis struct {
-	Name   string `json:"name"`
-	Access string `json:"access"`
+type RedisList struct {
+	Nodes    []*Redis `json:"nodes"`
+	PageInfo PageInfo `json:"pageInfo"`
 }
-
-func (Redis) IsStorage()           {}
-func (this Redis) GetName() string { return this.Name }
 
 type Requests struct {
 	CPU    string `json:"cpu"`
@@ -901,11 +887,6 @@ type TokenX struct {
 }
 
 func (TokenX) IsAuthz() {}
-
-type Topic struct {
-	Name string `json:"name"`
-	ACL  []*ACL `json:"acl"`
-}
 
 // Input for updating an existing team.
 type UpdateTeamInput struct {

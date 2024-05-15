@@ -1,0 +1,16 @@
+apiVersion: google.nais.io/v1
+kind: BigQueryDataset
+metadata:
+  name: bigquerydataset-sample
+  namespace: devteam
+spec:
+  access:
+    - role: READER
+      userByEmail: frode.sundby@nav.no
+    - role: OWNER
+      userByEmail: thomas.siegfried.krampl@nav.no
+  cascadingDelete: true
+  description: Supert datasett som har data fra tidenes morgen
+  location: europe-north1
+  name: bqrater_test_set2
+  project: nada-dev-db2e

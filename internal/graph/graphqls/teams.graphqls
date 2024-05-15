@@ -310,9 +310,64 @@ type Team {
     "Returns the last n entries from the list."
     limit: Int
 
-    "Order SQL instances by"
+		"Order entries by"
+		orderBy: OrderBy
+	): SqlInstancesList!
+
+  buckets(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order entries by"
     orderBy: OrderBy
-  ): SqlInstancesList!
+  ): BucketsList!
+  
+  redis(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order entries by"
+    orderBy: OrderBy
+  ): RedisList!
+  
+  openSearch(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order entries by"
+    orderBy: OrderBy
+  ): OpenSearchList!
+
+  kafkaTopics(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order entries by"
+    orderBy: OrderBy
+  ): KafkaTopicList!
+ 
+  bigQuery(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order entries by"
+    orderBy: OrderBy
+  ): BigQueryDatasetList!
 
   "The NAIS applications owned by the team."
   apps(
@@ -322,7 +377,7 @@ type Team {
     "Returns the last n entries from the list."
     limit: Int
 
-    "Order apps by"
+    "Order entries by"
     orderBy: OrderBy
   ): AppList!
 
@@ -337,7 +392,7 @@ type Team {
     "Returns the last n entries from the list."
     limit: Int
 
-    "Order naisjobs by"
+    "Order entries by"
     orderBy: OrderBy
   ): NaisJobList!
 
@@ -358,7 +413,7 @@ type Team {
     "Returns the last n entries from the list."
     limit: Int
 
-    "Order apps by"
+    "Order entries by"
     orderBy: OrderBy
 
     filter: VulnerabilityFilter

@@ -1008,7 +1008,7 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 		}
 		failingApps := 0
 		for _, app := range apps {
-			if app.AppState.State == model.StateFailing {
+			if app.Status.State == model.StateFailing {
 				failingApps++
 			}
 		}
@@ -1025,7 +1025,7 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 		}
 		failingJobs := 0
 		for _, job := range jobs {
-			if job.JobState.State == model.StateFailing {
+			if job.Status.State == model.StateFailing {
 				failingJobs++
 			}
 		}
@@ -1148,6 +1148,151 @@ func (r *teamResolver) SQLInstances(ctx context.Context, obj *model.Team, offset
 	}, nil
 }
 
+// Buckets is the resolver for the buckets field.
+func (r *teamResolver) Buckets(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BucketsList, error) {
+	buckets, err := r.bucketClient.Buckets(obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case model.OrderByFieldName:
+			model.SortWith(buckets, func(a, b *model.Bucket) bool {
+				return model.Compare(a.Name, b.Name, orderBy.Direction)
+			})
+		case model.OrderByFieldEnv:
+			model.SortWith(buckets, func(a, b *model.Bucket) bool {
+				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
+			})
+		}
+	}
+
+	pagination := model.NewPagination(offset, limit)
+	buckets, pageInfo := model.PaginatedSlice(buckets, pagination)
+
+	return &model.BucketsList{
+		Nodes:    buckets,
+		PageInfo: pageInfo,
+	}, nil
+}
+
+// Redis is the resolver for the redis field.
+func (r *teamResolver) Redis(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.RedisList, error) {
+	redis, err := r.redisClient.Redis(obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case model.OrderByFieldName:
+			model.SortWith(redis, func(a, b *model.Redis) bool {
+				return model.Compare(a.Name, b.Name, orderBy.Direction)
+			})
+		case model.OrderByFieldEnv:
+			model.SortWith(redis, func(a, b *model.Redis) bool {
+				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
+			})
+		}
+	}
+
+	pagination := model.NewPagination(offset, limit)
+	redis, pageInfo := model.PaginatedSlice(redis, pagination)
+
+	return &model.RedisList{
+		Nodes:    redis,
+		PageInfo: pageInfo,
+	}, nil
+}
+
+// OpenSearch is the resolver for the openSearch field.
+func (r *teamResolver) OpenSearch(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.OpenSearchList, error) {
+	openSearch, err := r.openSearchClient.OpenSearch(obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case model.OrderByFieldName:
+			model.SortWith(openSearch, func(a, b *model.OpenSearch) bool {
+				return model.Compare(a.Name, b.Name, orderBy.Direction)
+			})
+		case model.OrderByFieldEnv:
+			model.SortWith(openSearch, func(a, b *model.OpenSearch) bool {
+				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
+			})
+		}
+	}
+
+	pagination := model.NewPagination(offset, limit)
+	openSearch, pageInfo := model.PaginatedSlice(openSearch, pagination)
+
+	return &model.OpenSearchList{
+		Nodes:    openSearch,
+		PageInfo: pageInfo,
+	}, nil
+}
+
+// KafkaTopics is the resolver for the kafkaTopics field.
+func (r *teamResolver) KafkaTopics(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.KafkaTopicList, error) {
+	kts, err := r.kafkaClient.Topics(obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case model.OrderByFieldName:
+			model.SortWith(kts, func(a, b *model.KafkaTopic) bool {
+				return model.Compare(a.Name, b.Name, orderBy.Direction)
+			})
+		case model.OrderByFieldEnv:
+			model.SortWith(kts, func(a, b *model.KafkaTopic) bool {
+				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
+			})
+		}
+	}
+
+	pagination := model.NewPagination(offset, limit)
+	kts, pageInfo := model.PaginatedSlice(kts, pagination)
+
+	return &model.KafkaTopicList{
+		Nodes:    kts,
+		PageInfo: pageInfo,
+	}, nil
+}
+
+// BigQuery is the resolver for the bigQuery field.
+func (r *teamResolver) BigQuery(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BigQueryDatasetList, error) {
+	bqs, err := r.bigQueryDatasetClient.BigQueryDatasets(obj.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case model.OrderByFieldName:
+			model.SortWith(bqs, func(a, b *model.BigQueryDataset) bool {
+				return model.Compare(a.Name, b.Name, orderBy.Direction)
+			})
+		case model.OrderByFieldEnv:
+			model.SortWith(bqs, func(a, b *model.BigQueryDataset) bool {
+				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
+			})
+		}
+	}
+
+	pagination := model.NewPagination(offset, limit)
+	bqs, pageInfo := model.PaginatedSlice(bqs, pagination)
+
+	return &model.BigQueryDatasetList{
+		Nodes:    bqs,
+		PageInfo: pageInfo,
+	}, nil
+}
+
 // Apps is the resolver for the apps field.
 func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.AppList, error) {
 	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
@@ -1180,10 +1325,10 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 				aIndex := -1
 				bIndex := -1
 				for i, s := range sortOrder {
-					if a.AppState.State == s {
+					if a.Status.State == s {
 						aIndex = i
 					}
-					if b.AppState.State == s {
+					if b.Status.State == s {
 						bIndex = i
 					}
 				}
@@ -1203,7 +1348,7 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 	pagination := model.NewPagination(offset, limit)
 	apps, pageInfo := model.PaginatedSlice(apps, pagination)
 	for _, app := range apps {
-		app.GQLVars = model.AppGQLVars{Team: obj.Slug}
+		app.GQLVars = model.WorkloadBaseGQLVars{Team: obj.Slug}
 	}
 
 	return &model.AppList{
@@ -1269,10 +1414,10 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 				aIndex := -1
 				bIndex := -1
 				for i, s := range sortOrder {
-					if a.JobState.State == s {
+					if a.Status.State == s {
 						aIndex = i
 					}
-					if b.JobState.State == s {
+					if b.Status.State == s {
 						bIndex = i
 					}
 				}
@@ -1293,7 +1438,7 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 	pagination := model.NewPagination(offset, limit)
 	jobs, pageInfo := model.PaginatedSlice(naisjobs, pagination)
 	for _, job := range jobs {
-		job.GQLVars = model.NaisJobGQLVars{Team: obj.Slug}
+		job.GQLVars = model.WorkloadBaseGQLVars{Team: obj.Slug}
 	}
 
 	return &model.NaisJobList{

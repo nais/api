@@ -27,6 +27,7 @@ type SQLUser struct {
 }
 
 type SQLInstance struct {
+	ID                  scalar.Ident         `json:"id"`
 	BackupConfiguration *BackupConfiguration `json:"backupConfiguration"`
 	CascadingDelete     bool                 `json:"cascadingDelete"`
 	ConnectionName      string               `json:"connectionName"`
@@ -35,7 +36,6 @@ type SQLInstance struct {
 	Env                 Env                  `json:"env"`
 	Flags               []*Flag              `json:"flags"`
 	HighAvailability    bool                 `json:"highAvailability"`
-	ID                  scalar.Ident         `json:"id"`
 	MaintenanceWindow   *MaintenanceWindow   `json:"maintenanceWindow"`
 	MaintenanceVersion  *string              `json:"maintenanceVersion"`
 	Metrics             *SQLInstanceMetrics  `json:"metrics"`
@@ -56,10 +56,11 @@ type SQLInstanceGQLVars struct {
 	OwnerReference *v1.OwnerReference
 }
 
-func (SQLInstance) IsStorage()    {}
-func (SQLInstance) IsSearchNode() {}
+func (SQLInstance) IsPersistence() {}
+func (SQLInstance) IsSearchNode()  {}
 
-func (i SQLInstance) GetName() string { return i.Name }
+func (i SQLInstance) GetName() string     { return i.Name }
+func (i SQLInstance) GetID() scalar.Ident { return i.ID }
 
 func (i SQLInstance) IsHealthy() bool {
 	for _, cond := range i.Status.Conditions {
@@ -192,26 +193,10 @@ func ToSqlInstance(u *unstructured.Unstructured, env string) (*SQLInstance, erro
 			return *sqlInstance.Spec.Settings.DiskAutoresizeLimit
 		}(),
 		GQLVars: SQLInstanceGQLVars{
-			TeamSlug:    slug.Slug(teamSlug),
-			Labels:      sqlInstance.GetLabels(),
-			Annotations: sqlInstance.GetAnnotations(),
-			OwnerReference: func(refs []v1.OwnerReference) *v1.OwnerReference {
-				if len(refs) == 0 {
-					return nil
-				}
-
-				for _, o := range refs {
-					if o.Kind == "Naisjob" || o.Kind == "Application" {
-						return &v1.OwnerReference{
-							APIVersion: o.APIVersion,
-							Kind:       o.Kind,
-							Name:       o.Name,
-							UID:        o.UID,
-						}
-					}
-				}
-				return nil
-			}(sqlInstance.OwnerReferences),
+			TeamSlug:       slug.Slug(teamSlug),
+			Labels:         sqlInstance.GetLabels(),
+			Annotations:    sqlInstance.GetAnnotations(),
+			OwnerReference: OwnerReference(sqlInstance.OwnerReferences),
 		},
 	}, nil
 }

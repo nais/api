@@ -9,6 +9,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/nais/api/internal/bigquery"
+	"github.com/nais/api/internal/kafka"
+	"github.com/nais/api/internal/opensearch"
+
 	"github.com/nais/api/internal/unleash"
 
 	"cloud.google.com/go/pubsub"
@@ -16,6 +20,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auth/authn"
+	"github.com/nais/api/internal/bucket"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/fixtures"
 	"github.com/nais/api/internal/graph"
@@ -25,6 +30,7 @@ import (
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/k8s/fake"
 	"github.com/nais/api/internal/logger"
+	"github.com/nais/api/internal/redis"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
@@ -125,6 +131,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		cfg.Tenant,
 		cfg.K8s.PkgConfig(),
 		db,
+		cfg.WithFakeClients,
 		log.WithField("client", "k8s"),
 		k8sOpts...,
 	)
@@ -195,6 +202,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		pubsubTopic,
 		log,
 		sqlInstanceClient,
+		bucket.NewClient(k8sClient.Informers(), log),
+		redis.NewClient(k8sClient.Informers(), log),
+		bigquery.NewClient(k8sClient.Informers(), log),
+		opensearch.NewClient(k8sClient.Informers(), log),
+		kafka.NewClient(k8sClient.Informers(), log),
 		unleashMgr,
 	)
 

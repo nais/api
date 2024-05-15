@@ -18,19 +18,26 @@ type IdentType string
 const (
 	IdentTypeApp                IdentType = "app"
 	IdentTypeAuditLog           IdentType = "auditLog"
+	IdentTypeBigQueryDataset    IdentType = "bigQueryDataset"
+	IdentTypeBucket             IdentType = "bucket"
 	IdentTypeCorrelationID      IdentType = "correlationID"
 	IdentTypeDeployKey          IdentType = "deployKey"
 	IdentTypeDeployment         IdentType = "deployment"
 	IdentTypeDeploymentResource IdentType = "deploymentResource"
 	IdentTypeDeploymentStatus   IdentType = "deploymentStatus"
 	IdentTypeEnv                IdentType = "env"
+	IdentTypeGitHubRepo         IdentType = "githubRepo"
 	IdentTypeJob                IdentType = "job"
+	IdentTypeOpenSearch         IdentType = "openSearch"
 	IdentTypePod                IdentType = "pod"
+	IdentTypeRedis              IdentType = "redis"
 	IdentTypeSecret             IdentType = "secret"
+	IdentTypeSqlDatabase        IdentType = "sqlDatabase"
 	IdentTypeSqlInstance        IdentType = "sqlInstance"
 	IdentTypeTeam               IdentType = "team"
+	IdentTypeUser               IdentType = "user"
 	IdentTypeVulnerabilities    IdentType = "vulnerabilities"
-	IdentTypeGitHubRepo         IdentType = "githubRepo"
+	IdentTypeKafkaTopic         IdentType = "kafkaTopic"
 )
 
 type Ident struct {
@@ -128,7 +135,7 @@ func CorrelationID(id uuid.UUID) Ident {
 }
 
 func UserIdent(id uuid.UUID) Ident {
-	return newIdent(id.String(), "user")
+	return newIdent(id.String(), IdentTypeUser)
 }
 
 func GitHubRepository(name string) Ident {
@@ -137,6 +144,30 @@ func GitHubRepository(name string) Ident {
 
 func SqlInstanceIdent(id string) Ident {
 	return newIdent(id, IdentTypeSqlInstance)
+}
+
+func SqlDatabaseIdent(id string) Ident {
+	return newIdent(id, IdentTypeSqlDatabase)
+}
+
+func BucketIdent(id string) Ident {
+	return newIdent(id, IdentTypeBucket)
+}
+
+func BigQueryDatasetIdent(id string) Ident {
+	return newIdent(id, IdentTypeBigQueryDataset)
+}
+
+func RedisIdent(id string) Ident {
+	return newIdent(id, IdentTypeRedis)
+}
+
+func KafkaTopicIdent(id string) Ident {
+	return newIdent(id, IdentTypeKafkaTopic)
+}
+
+func OpenSearchIdent(id string) Ident {
+	return newIdent(id, IdentTypeOpenSearch)
 }
 
 func newIdent(id string, t IdentType) Ident {

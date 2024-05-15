@@ -10,62 +10,107 @@ extend type Query {
     "The environment the instance runs in."
     env: String!
   ): SqlInstance!
+
+  "Get a Kafka topic by name, team and env."
+  kafkaTopic(
+    "The name of the topic."
+    name: String!
+
+    "The name of the team who owns the topic."
+    team: Slug!
+
+    "The environment the topic exists in."
+    env: String!
+  ): KafkaTopic!
 }
 
-interface Storage {
+interface Persistence {
   name: String!
+  id: ID!
 }
 
-type InfluxDb implements Storage {
+type InfluxDb implements Persistence {
   name: String!
+  id: ID!
 }
 
-type Redis implements Storage {
+type Redis implements Persistence {
+  id: ID!
   name: String!
   access: String!
+  team: Team!
+  env: Env!
+  workload: Workload
 }
 
-type BigQueryDataset implements Storage {
+type BigQueryDataset implements Persistence {
   cascadingDelete: Boolean!
   description: String!
   name: String!
-  permission: String!
+  Access: [BigQueryDatasetAccess!]!
+  id: ID!
+  team: Team!
+  env: Env!
+  workload: Workload
 }
 
-type Bucket implements Storage {
+type BigQueryDatasetAccess {
+  role: String!
+  email: String!
+}
+
+type Bucket implements Persistence {
+  id: ID!
   cascadingDelete: Boolean!
   name: String!
-  publicAccessPrevention: Boolean!
-  retentionPeriodDays: Int!
-  uniformBucketLevelAccess: Boolean!
+  # publicAccessPrevention: Boolean!
+  # retentionPeriodDays: Int!
+  # uniformBucketLevelAccess: Boolean!
+
+  projectId: String!
+  team: Team!
+  env: Env!
+  workload: Workload
 }
 
-type Kafka implements Storage {
-  """
-  The kafka pool name
-  """
+type KafkaTopic implements Persistence {
   name: String!
-  streams: Boolean!
-  topics: [Topic!]!
+  id: ID!
+  acl: [KafkaTopicAcl!]!
+  config: KafkaTopicConfig
+  pool: String!
+  team: Team!
+  env: Env!
+  workload: Workload
 }
 
-type Topic {
-  name: String!
-  acl: [Acl!]!
+type KafkaTopicConfig {
+    cleanupPolicy: String
+    maxMessageBytes: Int
+    minimumInSyncReplicas: Int
+    partitions: Int
+    replication: Int
+    retentionBytes: Int
+    retentionHours: Int
+    segmentHours: Int
 }
 
-type Acl {
+type KafkaTopicAcl {
   access: String!
   application: String!
   team: Slug!
 }
 
-type OpenSearch implements Storage {
+type OpenSearch implements Persistence {
   """
   The opensearch instance name
   """
   name: String!
   access: String!
+  id: ID!
+  team: Team!
+  env: Env!
+  workload: Workload
 }
 
 type Flag {
@@ -85,13 +130,14 @@ type MaintenanceWindow {
   hour: Int!
 }
 
-type SqlDatabase implements Storage{
+type SqlDatabase implements Persistence{
   name: String!
   charset: String!
   collation: String!
   deletionPolicy: String!
   healthy: Boolean!
   conditions: [Condition!]!
+  id: ID!
 }
 
 type SqlInstancesList {
@@ -100,7 +146,32 @@ type SqlInstancesList {
   metrics: SqlInstancesMetrics!
 }
 
-type SqlInstance implements Storage {
+type BucketsList {
+  nodes: [Bucket!]!
+  pageInfo: PageInfo!
+}
+
+type RedisList {
+  nodes: [Redis!]!
+  pageInfo: PageInfo!
+}
+
+type OpenSearchList {
+  nodes: [OpenSearch!]!
+  pageInfo: PageInfo!
+}
+
+type BigQueryDatasetList {
+  nodes: [BigQueryDataset!]!
+  pageInfo: PageInfo!
+}
+
+type KafkaTopicList {
+  nodes: [KafkaTopic!]!
+  pageInfo: PageInfo!
+}
+
+type SqlInstance implements Persistence {
   id: ID!
   backupConfiguration: BackupConfiguration!
   cascadingDelete: Boolean!

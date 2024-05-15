@@ -55,17 +55,17 @@ type App {
   accessPolicy: AccessPolicy!
   resources: Resources!
   autoScaling: AutoScaling!
-  storage: [Storage!]!
+  persistence: [Persistence!]!
   variables: [Variable!]!
   authz: [Authz!]!
   manifest: String!
   team: Team!
-  appState: AppState!
+  status: WorkloadStatus!
   vulnerabilities: Vulnerability
   secrets: [Secret!]!
 }
 
-type AppState {
+type WorkloadStatus {
   state: State!
   errors: [StateError!]!
 }

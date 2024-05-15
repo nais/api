@@ -1,0 +1,24 @@
+apiVersion: aiven.io/v1alpha1
+kind: Redis
+metadata:
+  annotations:
+    controllers.aiven.io/generation-was-processed: "1"
+    controllers.aiven.io/instance-is-running: "true"
+    nais.io/deploymentCorrelationID: 61ad0b73-e30f-401a-949c-b8810c2b509a
+  labels:
+    app: contests
+    team: devteam
+  name: redis-devteam-contests
+  namespace: devteam
+spec:
+  cloudName: google-europe-north1
+  connInfoSecretTarget:
+    name: ""
+  plan: startup-4
+  project: nav-dev
+  projectVpcId: d405e36a-a577-4dce-af0e-6d217fc47a5c
+  tags:
+    environment: dev
+    team: devteam
+    tenant: nav
+  terminationProtection: true

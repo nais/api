@@ -1,0 +1,45 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  labels:
+    team: ddd
+  name: proper-topic-name
+  namespace: devteam
+  ownerReferences:
+    - apiVersion: nais.io/v1
+      kind: Application
+      name: app-w-all-storage
+      uid: 6957e4dd-2997-46b3-8f6f-b6d1e0606b1d
+spec:
+  acl:
+  - access: write
+    application: xxx
+    team: yyy
+  - access: readwrite
+    application: syfosmregister
+    team: teamsykmelding
+  - access: read
+    application: syfosmvarsel
+    team: teamsykmelding
+  - access: read
+    application: syfosmsak-stream
+    team: teamsykmelding
+  - access: read
+    application: sykmeldinger-backend-kafka
+    team: teamsykmelding
+  - access: read
+    application: k143566
+    team: teamsykmelding
+  - access: read
+    application: migrator
+    team: tsm
+  config:
+    cleanupPolicy: delete
+    maxMessageBytes: 1048588
+    minimumInSyncReplicas: 3
+    partitions: 10
+    replication: 3
+    retentionBytes: -1
+    retentionHours: -1
+    segmentHours: 168
+  pool: nav-dev

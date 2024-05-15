@@ -8,21 +8,11 @@ import (
 )
 
 type NaisJob struct {
-	ID           scalar.Ident   `json:"id"`
-	AccessPolicy AccessPolicy   `json:"accessPolicy"`
-	DeployInfo   DeployInfo     `json:"deployInfo"`
-	Env          Env            `json:"env"`
-	Image        string         `json:"image"`
-	Name         string         `json:"name"`
-	Resources    Resources      `json:"resources"`
-	Schedule     string         `json:"schedule"`
-	Storage      []Storage      `json:"storage"`
-	Authz        []Authz        `json:"authz"`
-	Completions  int            `json:"completions"`
-	Parallelism  int            `json:"parallelism"`
-	Retries      int            `json:"retries"`
-	JobState     JobState       `json:"jobState"`
-	GQLVars      NaisJobGQLVars `json:"-"`
+	WorkloadBase
+	Schedule    string `json:"schedule"`
+	Completions int    `json:"completions"`
+	Parallelism int    `json:"parallelism"`
+	Retries     int    `json:"retries"`
 }
 
 func (NaisJob) IsSearchNode() {}
@@ -39,11 +29,6 @@ type Run struct {
 	Message        string       `json:"message"`
 	Failed         bool         `json:"failed"`
 	GQLVars        RunGQLVars   `json:"-"`
-}
-
-type NaisJobGQLVars struct {
-	SecretNames []string
-	Team        slug.Slug
 }
 
 type RunGQLVars struct {

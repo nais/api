@@ -54,6 +54,11 @@ func (r *naisJobResolver) Team(ctx context.Context, obj *model.NaisJob) (*model.
 	return loader.GetTeam(ctx, obj.GQLVars.Team)
 }
 
+// Persistence is the resolver for the persistence field.
+func (r *naisJobResolver) Persistence(ctx context.Context, obj *model.NaisJob) ([]model.Persistence, error) {
+	return r.k8sClient.Persistence(ctx, obj.WorkloadBase)
+}
+
 // Secrets is the resolver for the secrets field.
 func (r *naisJobResolver) Secrets(ctx context.Context, obj *model.NaisJob) ([]*model.Secret, error) {
 	actor := authz.ActorFromContext(ctx)

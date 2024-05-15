@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	sync_states "github.com/nais/liberator/pkg/events"
 	"gopkg.in/yaml.v2"
@@ -71,7 +70,7 @@ func (c *Client) AppExists(env, team, app string) bool {
 		return false
 	}
 
-	_, err := c.informers[env].AppInformer.Lister().ByNamespace(team).Get(app)
+	_, err := c.informers[env].App.Lister().ByNamespace(team).Get(app)
 	return err == nil
 }
 
@@ -81,7 +80,7 @@ func (c *Client) App(ctx context.Context, name, team, env string) (*model.App, e
 	}
 
 	c.log.Debugf("getting app %q in namespace %q in env %q", name, team, env)
-	obj, err := c.informers[env].AppInformer.Lister().ByNamespace(team).Get(name)
+	obj, err := c.informers[env].App.Lister().ByNamespace(team).Get(name)
 	if err != nil {
 		return nil, c.error(ctx, err, "getting application "+name+"."+team+"."+env)
 	}
@@ -106,18 +105,6 @@ func (c *Client) App(ctx context.Context, name, team, env string) (*model.App, e
 		}
 		app.AccessPolicy.Inbound.Rules[i] = rule
 	}
-
-	topics, err := c.getTopics(ctx, name, team, env)
-	if err != nil {
-		return nil, c.error(ctx, err, "getting topics")
-	}
-
-	storage, err := appStorage(obj.(*unstructured.Unstructured), topics, env)
-	if err != nil {
-		return nil, c.error(ctx, err, "converting to app storage")
-	}
-
-	app.Storage = storage
 
 	instances, err := c.Instances(ctx, team, env, name)
 	if err != nil {
@@ -364,7 +351,7 @@ func checkNoZeroTrust(env string, rule *model.Rule) bool {
 }
 
 func (c *Client) getApp(ctx context.Context, inf *Informers, env string, team string, app string) (*model.App, error) {
-	obj, err := inf.AppInformer.Lister().ByNamespace(team).Get(app)
+	obj, err := inf.App.Lister().ByNamespace(team).Get(app)
 	if err != nil {
 		if notFoundError(err) {
 			return nil, nil
@@ -380,7 +367,7 @@ func (c *Client) getApp(ctx context.Context, inf *Informers, env string, team st
 }
 
 func (c *Client) getNaisJob(ctx context.Context, inf *Informers, env, team, job string) (*model.NaisJob, error) {
-	obj, err := inf.NaisjobInformer.Lister().ByNamespace(team).Get(job)
+	obj, err := inf.Naisjob.Lister().ByNamespace(team).Get(job)
 	if err != nil {
 		if notFoundError(err) {
 			return nil, nil
@@ -395,7 +382,9 @@ func (c *Client) getNaisJob(ctx context.Context, inf *Informers, env, team, job 
 	return naisjob, nil
 }
 
-func (c *Client) getTopics(ctx context.Context, name, team, env string) ([]*model.Topic, error) {
+/*
+func (c *Client) getTopics(ctx context.Context, name, team, env string) ([]*model.KafkaTopic, error) {
+	// TODO: Copy the ifs below somewhere?
 	// HACK: dev-fss and prod-fss have topic resources in dev-gcp and prod-gcp respectively.
 	topicEnv := env
 	if env == "dev-fss" {
@@ -405,16 +394,16 @@ func (c *Client) getTopics(ctx context.Context, name, team, env string) ([]*mode
 		topicEnv = "prod-gcp"
 	}
 
-	if c.informers[topicEnv].TopicInformer == nil {
-		return []*model.Topic{}, nil
+	if c.informers[topicEnv].KafkaTopic == nil {
+		return []*model.KafkaTopic{}, nil
 	}
 
-	topics, err := c.informers[topicEnv].TopicInformer.Lister().List(labels.Everything())
+	topics, err := c.informers[topicEnv].KafkaTopic.Lister().List(labels.Everything())
 	if err != nil {
 		return nil, c.error(ctx, err, "listing topics")
 	}
 
-	ret := make([]*model.Topic, 0)
+	ret := make([]*model.KafkaTopic, 0)
 	for _, topic := range topics {
 		u := topic.(*unstructured.Unstructured)
 		t, err := toTopic(u, name, team)
@@ -432,8 +421,10 @@ func (c *Client) getTopics(ctx context.Context, name, team, env string) ([]*mode
 	return ret, nil
 }
 
+*/
+
 func (c *Client) Manifest(ctx context.Context, name, team, env string) (string, error) {
-	obj, err := c.informers[env].AppInformer.Lister().ByNamespace(team).Get(name)
+	obj, err := c.informers[env].App.Lister().ByNamespace(team).Get(name)
 	if err != nil {
 		return "", c.error(ctx, err, "getting application "+name+"."+team+"."+env)
 	}
@@ -492,7 +483,7 @@ func (c *Client) Apps(ctx context.Context, team string, filter ...EnvFilter) ([]
 			continue
 		}
 
-		objs, err := infs.AppInformer.Lister().ByNamespace(team).List(labels.Everything())
+		objs, err := infs.App.Lister().ByNamespace(team).List(labels.Everything())
 		if err != nil {
 			return nil, c.error(ctx, err, "listing applications")
 		}
@@ -550,7 +541,7 @@ func (c *Client) Instances(ctx context.Context, team, env, name string) ([]*mode
 	}
 
 	selector := labels.NewSelector().Add(*req)
-	pods, err := c.informers[env].PodInformer.Lister().Pods(team).List(selector)
+	pods, err := c.informers[env].Pod.Lister().Pods(team).List(selector)
 	if err != nil {
 		return nil, c.error(ctx, err, "listing pods")
 	}
@@ -673,6 +664,13 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 	ret.DeployInfo.GQLVars.Env = env
 	ret.DeployInfo.GQLVars.Team = slug.Slug(app.GetNamespace())
 	ret.GQLVars.Team = slug.Slug(app.GetNamespace())
+	ret.GQLVars.Spec = model.WorkloadSpec{
+		GCP:        app.Spec.GCP,
+		Influx:     app.Spec.Influx,
+		Kafka:      app.Spec.Kafka,
+		OpenSearch: app.Spec.OpenSearch,
+		Redis:      app.Spec.Redis,
+	}
 
 	ret.Image = app.Spec.Image
 
@@ -741,37 +739,10 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 	return ret, nil
 }
 
-func toTopic(u *unstructured.Unstructured, name, team string) (*model.Topic, error) {
-	topic := &kafka_nais_io_v1.Topic{}
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, topic); err != nil {
-		return nil, fmt.Errorf("converting to application: %w", err)
-	}
-
-	ret := &model.Topic{}
-
-	if topic.Status != nil && topic.Status.FullyQualifiedName != "" {
-		ret.Name = topic.Status.FullyQualifiedName
-	} else {
-		ret.Name = topic.GetName()
-	}
-
-	for _, v := range topic.Spec.ACL {
-		acl := &model.ACL{}
-		if err := convert(v, acl); err != nil {
-			return nil, fmt.Errorf("converting acl: %w", err)
-		}
-		if acl.Team.String() == team && acl.Application == name {
-			ret.ACL = append(ret.ACL, acl)
-		}
-	}
-
-	return ret, nil
-}
-
 func setStatus(app *model.App, conditions []metav1.Condition, instances []*model.Instance) {
 	currentCondition := synchronizationStateCondition(conditions)
 	numFailing := failing(instances)
-	appState := model.AppState{
+	appState := model.WorkloadStatus{
 		State:  model.StateNais,
 		Errors: []model.StateError{},
 	}
@@ -906,7 +877,7 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 		}
 	}
 
-	app.AppState = appState
+	app.Status = appState
 }
 
 func failing(instances []*model.Instance) int {
@@ -926,82 +897,6 @@ func synchronizationStateCondition(conditions []metav1.Condition) *metav1.Condit
 		}
 	}
 	return nil
-}
-
-func appStorage(u *unstructured.Unstructured, topics []*model.Topic, env string) ([]model.Storage, error) {
-	app := &naisv1alpha1.Application{}
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, app); err != nil {
-		return nil, fmt.Errorf("converting to application: %w", err)
-	}
-
-	ret := make([]model.Storage, 0)
-
-	if app.Spec.GCP != nil {
-		for _, v := range app.Spec.GCP.Buckets {
-			bucket := model.Bucket{}
-			if err := convert(v, &bucket); err != nil {
-				return nil, fmt.Errorf("converting buckets: %w", err)
-			}
-			ret = append(ret, bucket)
-		}
-
-		// TODO: Use SqlInstance informer for this instead?
-		for _, v := range app.Spec.GCP.SqlInstances {
-			sqlInstance := model.SQLInstance{}
-			if err := convert(v, &sqlInstance); err != nil {
-				return nil, fmt.Errorf("converting sqlInstance: %w", err)
-			}
-			if sqlInstance.Name == "" {
-				sqlInstance.Name = app.Name
-			}
-			sqlInstance.ID = scalar.SqlInstanceIdent("sqlInstance_" + env + "_" + app.GetNamespace() + "_" + sqlInstance.GetName())
-			ret = append(ret, sqlInstance)
-		}
-
-		for _, v := range app.Spec.GCP.BigQueryDatasets {
-			bqDataset := model.BigQueryDataset{}
-			if err := convert(v, &bqDataset); err != nil {
-				return nil, fmt.Errorf("converting bigQueryDataset: %w", err)
-			}
-			ret = append(ret, bqDataset)
-		}
-	}
-
-	if app.Spec.OpenSearch != nil {
-		os := model.OpenSearch{
-			Name:   app.Spec.OpenSearch.Instance,
-			Access: app.Spec.OpenSearch.Access,
-		}
-		ret = append(ret, os)
-	}
-
-	if app.Spec.Kafka != nil {
-		kafka := model.Kafka{
-			Name:    app.Spec.Kafka.Pool,
-			Streams: app.Spec.Kafka.Streams,
-			Topics:  topics,
-		}
-
-		ret = append(ret, kafka)
-	}
-
-	if len(app.Spec.Redis) > 0 {
-		for _, v := range app.Spec.Redis {
-			redis := model.Redis{
-				Name:   v.Instance,
-				Access: v.Access,
-			}
-			ret = append(ret, redis)
-		}
-	}
-
-	if app.Spec.Influx != nil {
-		influx := model.InfluxDb{
-			Name: app.Spec.Influx.Instance,
-		}
-		ret = append(ret, influx)
-	}
-	return ret, nil
 }
 
 func appAuthz(app *naisv1alpha1.Application) ([]model.Authz, error) {
