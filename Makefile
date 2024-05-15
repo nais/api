@@ -35,7 +35,7 @@ local:
 	env bash -c 'source local.env; go run ./cmd/api'
 
 debug:
-	env bash -c 'source local.env; dlv debug --headless --listen=:2345 --api-version=2 ./cmd/api
+	env bash -c 'source local.env; dlv debug --headless --listen=:2345 --api-version=2 ./cmd/api'
 
 test:
 	go test -cover --race ./...

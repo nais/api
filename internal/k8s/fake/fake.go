@@ -170,7 +170,6 @@ func parseResources(scheme *runtime.Scheme, dir fs.FS, path string) clusterResou
 
 // This is a hack around how k8s unsafeGuesses resource plurals
 func depluralized(s string) string {
-	fmt.Println(s)
 	switch s {
 	case "unleashs":
 		return "unleashes"
