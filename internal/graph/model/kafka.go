@@ -14,7 +14,7 @@ import (
 type KafkaTopic struct {
 	Name    string            `json:"name"`
 	ID      scalar.Ident      `json:"id"`
-	ACL     []*ACL            `json:"acl"`
+	ACL     []*KafkaTopicACL  `json:"acl"`
 	Config  *KafkaTopicConfig `json:"config"`
 	Pool    string            `json:"pool"`
 	Env     Env               `json:"env"`
@@ -25,9 +25,9 @@ type KafkaTopicGQLVars struct {
 	OwnerReference *v1.OwnerReference
 }
 
-func (KafkaTopic) IsPersistence()           {}
-func (this KafkaTopic) GetName() string     { return this.Name }
-func (this KafkaTopic) GetID() scalar.Ident { return this.ID }
+func (KafkaTopic) IsPersistence()        {}
+func (t KafkaTopic) GetName() string     { return t.Name }
+func (t KafkaTopic) GetID() scalar.Ident { return t.ID }
 
 func ToKafkaTopic(u *unstructured.Unstructured, env string) (*KafkaTopic, error) {
 	kt := &kafka_nais_io_v1.Topic{}
@@ -56,10 +56,10 @@ func ToKafkaTopic(u *unstructured.Unstructured, env string) (*KafkaTopic, error)
 				SegmentHours:          cfg.SegmentHours,
 			}
 		}(kt.Spec.Config),
-		ACL: func(as []kafka_nais_io_v1.TopicACL) []*ACL {
-			ret := make([]*ACL, len(as))
+		ACL: func(as []kafka_nais_io_v1.TopicACL) []*KafkaTopicACL {
+			ret := make([]*KafkaTopicACL, len(as))
 			for i, a := range as {
-				ret[i] = &ACL{
+				ret[i] = &KafkaTopicACL{
 					Access:      a.Access,
 					Application: a.Application,
 					Team:        slug.Slug(a.Team),

@@ -50,12 +50,6 @@ type AccessPolicy struct {
 	Outbound Outbound `json:"outbound"`
 }
 
-type ACL struct {
-	Access      string    `json:"access"`
-	Application string    `json:"application"`
-	Team        slug.Slug `json:"team"`
-}
-
 // App cost type.
 type AppCost struct {
 	// The name of the application.
@@ -465,6 +459,12 @@ func (this InvalidNaisYamlError) GetLevel() ErrorLevel { return this.Level }
 type JobsStatus struct {
 	Total   int `json:"total"`
 	Failing int `json:"failing"`
+}
+
+type KafkaTopicACL struct {
+	Access      string    `json:"access"`
+	Application string    `json:"application"`
+	Team        slug.Slug `json:"team"`
 }
 
 type KafkaTopicConfig struct {
@@ -887,11 +887,6 @@ type TokenX struct {
 }
 
 func (TokenX) IsAuthz() {}
-
-type Topic struct {
-	Name string `json:"name"`
-	ACL  []*ACL `json:"acl"`
-}
 
 // Input for updating an existing team.
 type UpdateTeamInput struct {

@@ -92,7 +92,7 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 			ret = append(ret, o)
 		}
 	}
-	
+
 	if inf := c.informers[cluster].KafkaTopic; inf != nil {
 		objs, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
 		if err != nil {

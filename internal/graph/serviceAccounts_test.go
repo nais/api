@@ -38,7 +38,7 @@ func TestMutationResolver_Roles(t *testing.T) {
 	log, _ := test.NewNullLogger()
 	userSync := make(chan<- uuid.UUID)
 	resolver := graph.
-		NewResolver(nil, nil, nil, nil, db, "example.com", userSync, auditLogger, nil, userSyncRuns, nil, log, nil, nil, nil, nil, nil).
+		NewResolver(nil, nil, nil, nil, db, "example.com", userSync, auditLogger, nil, userSyncRuns, nil, log, nil, nil, nil, nil, nil, nil).
 		ServiceAccount()
 
 	t.Run("get roles for serviceAccount", func(t *testing.T) {

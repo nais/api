@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	sync_states "github.com/nais/liberator/pkg/events"
 	"gopkg.in/yaml.v2"
@@ -383,7 +382,9 @@ func (c *Client) getNaisJob(ctx context.Context, inf *Informers, env, team, job 
 	return naisjob, nil
 }
 
-func (c *Client) getTopics(ctx context.Context, name, team, env string) ([]*model.Topic, error) {
+/*
+func (c *Client) getTopics(ctx context.Context, name, team, env string) ([]*model.KafkaTopic, error) {
+	// TODO: Copy the ifs below somewhere?
 	// HACK: dev-fss and prod-fss have topic resources in dev-gcp and prod-gcp respectively.
 	topicEnv := env
 	if env == "dev-fss" {
@@ -394,7 +395,7 @@ func (c *Client) getTopics(ctx context.Context, name, team, env string) ([]*mode
 	}
 
 	if c.informers[topicEnv].KafkaTopic == nil {
-		return []*model.Topic{}, nil
+		return []*model.KafkaTopic{}, nil
 	}
 
 	topics, err := c.informers[topicEnv].KafkaTopic.Lister().List(labels.Everything())
@@ -402,7 +403,7 @@ func (c *Client) getTopics(ctx context.Context, name, team, env string) ([]*mode
 		return nil, c.error(ctx, err, "listing topics")
 	}
 
-	ret := make([]*model.Topic, 0)
+	ret := make([]*model.KafkaTopic, 0)
 	for _, topic := range topics {
 		u := topic.(*unstructured.Unstructured)
 		t, err := toTopic(u, name, team)
@@ -419,6 +420,8 @@ func (c *Client) getTopics(ctx context.Context, name, team, env string) ([]*mode
 
 	return ret, nil
 }
+
+*/
 
 func (c *Client) Manifest(ctx context.Context, name, team, env string) (string, error) {
 	obj, err := c.informers[env].App.Lister().ByNamespace(team).Get(name)
@@ -732,33 +735,6 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 
 	slices.Sort(secrets)
 	ret.GQLVars.SecretNames = slices.Compact(secrets)
-
-	return ret, nil
-}
-// TODO: Replace with informer 🙈
-func toTopic(u *unstructured.Unstructured, name, team string) (*model.Topic, error) {
-	topic := &kafka_nais_io_v1.Topic{}
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, topic); err != nil {
-		return nil, fmt.Errorf("converting to application: %w", err)
-	}
-
-	ret := &model.Topic{}
-
-	if topic.Status != nil && topic.Status.FullyQualifiedName != "" {
-		ret.Name = topic.Status.FullyQualifiedName
-	} else {
-		ret.Name = topic.GetName()
-	}
-
-	for _, v := range topic.Spec.ACL {
-		acl := &model.ACL{}
-		if err := convert(v, acl); err != nil {
-			return nil, fmt.Errorf("converting acl: %w", err)
-		}
-		if acl.Team.String() == team && acl.Application == name {
-			ret.ACL = append(ret.ACL, acl)
-		}
-	}
 
 	return ret, nil
 }

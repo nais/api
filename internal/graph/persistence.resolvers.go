@@ -59,6 +59,11 @@ func (r *queryResolver) SQLInstance(ctx context.Context, name string, team slug.
 	return r.sqlInstanceClient.SqlInstance(ctx, env, team, name)
 }
 
+// KafkaTopic is the resolver for the kafkaTopic field.
+func (r *queryResolver) KafkaTopic(ctx context.Context, name string, team slug.Slug, env string) (*model.KafkaTopic, error) {
+	return r.kafkaClient.Topic(env, team, name)
+}
+
 // Team is the resolver for the team field.
 func (r *redisResolver) Team(ctx context.Context, obj *model.Redis) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)

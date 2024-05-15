@@ -80,12 +80,6 @@ type ComplexityRoot struct {
 		Outbound func(childComplexity int) int
 	}
 
-	Acl struct {
-		Access      func(childComplexity int) int
-		Application func(childComplexity int) int
-		Team        func(childComplexity int) int
-	}
-
 	App struct {
 		AccessPolicy    func(childComplexity int) int
 		Authz           func(childComplexity int) int
@@ -476,6 +470,12 @@ type ComplexityRoot struct {
 		Workload func(childComplexity int) int
 	}
 
+	KafkaTopicAcl struct {
+		Access      func(childComplexity int) int
+		Application func(childComplexity int) int
+		Team        func(childComplexity int) int
+	}
+
 	KafkaTopicConfig struct {
 		CleanupPolicy         func(childComplexity int) int
 		MaxMessageBytes       func(childComplexity int) int
@@ -639,6 +639,7 @@ type ComplexityRoot struct {
 		DailyCostForTeam                    func(childComplexity int, team slug.Slug, from scalar.Date, to scalar.Date) int
 		Deployments                         func(childComplexity int, offset *int, limit *int) int
 		EnvCost                             func(childComplexity int, filter model.EnvCostFilter) int
+		KafkaTopic                          func(childComplexity int, name string, team slug.Slug, env string) int
 		Me                                  func(childComplexity int) int
 		MonthlyCost                         func(childComplexity int, filter model.MonthlyCostFilter) int
 		Naisjob                             func(childComplexity int, name string, team slug.Slug, env string) int
@@ -1002,11 +1003,6 @@ type ComplexityRoot struct {
 		MountSecretsAsFilesOnly func(childComplexity int) int
 	}
 
-	Topic struct {
-		ACL  func(childComplexity int) int
-		Name func(childComplexity int) int
-	}
-
 	User struct {
 		Email      func(childComplexity int) int
 		ExternalID func(childComplexity int) int
@@ -1177,6 +1173,7 @@ type QueryResolver interface {
 	Deployments(ctx context.Context, offset *int, limit *int) (*model.DeploymentList, error)
 	Naisjob(ctx context.Context, name string, team slug.Slug, env string) (*model.NaisJob, error)
 	SQLInstance(ctx context.Context, name string, team slug.Slug, env string) (*model.SQLInstance, error)
+	KafkaTopic(ctx context.Context, name string, team slug.Slug, env string) (*model.KafkaTopic, error)
 	Reconcilers(ctx context.Context, offset *int, limit *int) (*model.ReconcilerList, error)
 	ResourceUtilizationTrendForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationTrend, error)
 	CurrentResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.CurrentResourceUtilization, error)
@@ -1319,27 +1316,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AccessPolicy.Outbound(childComplexity), true
-
-	case "Acl.access":
-		if e.complexity.Acl.Access == nil {
-			break
-		}
-
-		return e.complexity.Acl.Access(childComplexity), true
-
-	case "Acl.application":
-		if e.complexity.Acl.Application == nil {
-			break
-		}
-
-		return e.complexity.Acl.Application(childComplexity), true
-
-	case "Acl.team":
-		if e.complexity.Acl.Team == nil {
-			break
-		}
-
-		return e.complexity.Acl.Team(childComplexity), true
 
 	case "App.accessPolicy":
 		if e.complexity.App.AccessPolicy == nil {
@@ -2900,6 +2876,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.KafkaTopic.Workload(childComplexity), true
 
+	case "KafkaTopicAcl.access":
+		if e.complexity.KafkaTopicAcl.Access == nil {
+			break
+		}
+
+		return e.complexity.KafkaTopicAcl.Access(childComplexity), true
+
+	case "KafkaTopicAcl.application":
+		if e.complexity.KafkaTopicAcl.Application == nil {
+			break
+		}
+
+		return e.complexity.KafkaTopicAcl.Application(childComplexity), true
+
+	case "KafkaTopicAcl.team":
+		if e.complexity.KafkaTopicAcl.Team == nil {
+			break
+		}
+
+		return e.complexity.KafkaTopicAcl.Team(childComplexity), true
+
 	case "KafkaTopicConfig.cleanupPolicy":
 		if e.complexity.KafkaTopicConfig.CleanupPolicy == nil {
 			break
@@ -3778,6 +3775,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.EnvCost(childComplexity, args["filter"].(model.EnvCostFilter)), true
+
+	case "Query.kafkaTopic":
+		if e.complexity.Query.KafkaTopic == nil {
+			break
+		}
+
+		args, err := ec.field_Query_kafkaTopic_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.KafkaTopic(childComplexity, args["name"].(string), args["team"].(slug.Slug), args["env"].(string)), true
 
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
@@ -5531,20 +5540,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TokenX.MountSecretsAsFilesOnly(childComplexity), true
 
-	case "Topic.acl":
-		if e.complexity.Topic.ACL == nil {
-			break
-		}
-
-		return e.complexity.Topic.ACL(childComplexity), true
-
-	case "Topic.name":
-		if e.complexity.Topic.Name == nil {
-			break
-		}
-
-		return e.complexity.Topic.Name(childComplexity), true
-
 	case "User.email":
 		if e.complexity.User.Email == nil {
 			break
@@ -6744,6 +6739,18 @@ type NaisJobList {
     "The environment the instance runs in."
     env: String!
   ): SqlInstance!
+
+  "Get a Kafka topic by name, team and env."
+  kafkaTopic(
+    "The name of the topic."
+    name: String!
+
+    "The name of the team who owns the topic."
+    team: Slug!
+
+    "The environment the topic exists in."
+    env: String!
+  ): KafkaTopic!
 }
 
 interface Persistence {
@@ -6798,7 +6805,7 @@ type Bucket implements Persistence {
 type KafkaTopic implements Persistence {
   name: String!
   id: ID!
-  acl: [Acl!]!
+  acl: [KafkaTopicAcl!]!
   config: KafkaTopicConfig
   pool: String!
   team: Team!
@@ -6817,12 +6824,7 @@ type KafkaTopicConfig {
     segmentHours: Int
 }
 
-type Topic {
-  name: String!
-  acl: [Acl!]!
-}
-
-type Acl {
+type KafkaTopicAcl {
   access: String!
   application: String!
   team: Slug!
@@ -9240,6 +9242,39 @@ func (ec *executionContext) field_Query_envCost_args(ctx context.Context, rawArg
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_kafkaTopic_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["name"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["name"] = arg0
+	var arg1 slug.Slug
+	if tmp, ok := rawArgs["team"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
+		arg1, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["team"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["env"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("env"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["env"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_monthlyCost_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -10361,138 +10396,6 @@ func (ec *executionContext) fieldContext_AccessPolicy_outbound(ctx context.Conte
 				return ec.fieldContext_Outbound_external(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Outbound", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Acl_access(ctx context.Context, field graphql.CollectedField, obj *model.ACL) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Acl_access(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Access, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Acl_access(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Acl",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Acl_application(ctx context.Context, field graphql.CollectedField, obj *model.ACL) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Acl_application(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Application, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Acl_application(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Acl",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Acl_team(ctx context.Context, field graphql.CollectedField, obj *model.ACL) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Acl_team(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Team, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(slug.Slug)
-	fc.Result = res
-	return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Acl_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Acl",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
 		},
 	}
 	return fc, nil
@@ -20769,9 +20672,9 @@ func (ec *executionContext) _KafkaTopic_acl(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.ACL)
+	res := resTmp.([]*model.KafkaTopicACL)
 	fc.Result = res
-	return ec.marshalNAcl2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐACLᚄ(ctx, field.Selections, res)
+	return ec.marshalNKafkaTopicAcl2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐKafkaTopicACLᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_KafkaTopic_acl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -20783,13 +20686,13 @@ func (ec *executionContext) fieldContext_KafkaTopic_acl(ctx context.Context, fie
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "access":
-				return ec.fieldContext_Acl_access(ctx, field)
+				return ec.fieldContext_KafkaTopicAcl_access(ctx, field)
 			case "application":
-				return ec.fieldContext_Acl_application(ctx, field)
+				return ec.fieldContext_KafkaTopicAcl_application(ctx, field)
 			case "team":
-				return ec.fieldContext_Acl_team(ctx, field)
+				return ec.fieldContext_KafkaTopicAcl_team(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Acl", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type KafkaTopicAcl", field.Name)
 		},
 	}
 	return fc, nil
@@ -21104,6 +21007,138 @@ func (ec *executionContext) fieldContext_KafkaTopic_workload(ctx context.Context
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Workload does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _KafkaTopicAcl_access(ctx context.Context, field graphql.CollectedField, obj *model.KafkaTopicACL) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaTopicAcl_access(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Access, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_KafkaTopicAcl_access(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaTopicAcl",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _KafkaTopicAcl_application(ctx context.Context, field graphql.CollectedField, obj *model.KafkaTopicACL) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaTopicAcl_application(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Application, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_KafkaTopicAcl_application(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaTopicAcl",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _KafkaTopicAcl_team(ctx context.Context, field graphql.CollectedField, obj *model.KafkaTopicACL) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaTopicAcl_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Team, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(slug.Slug)
+	fc.Result = res
+	return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_KafkaTopicAcl_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaTopicAcl",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
 		},
 	}
 	return fc, nil
@@ -27800,6 +27835,79 @@ func (ec *executionContext) fieldContext_Query_sqlInstance(ctx context.Context, 
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_sqlInstance_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_kafkaTopic(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_kafkaTopic(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().KafkaTopic(rctx, fc.Args["name"].(string), fc.Args["team"].(slug.Slug), fc.Args["env"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.KafkaTopic)
+	fc.Result = res
+	return ec.marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐKafkaTopic(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_kafkaTopic(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_KafkaTopic_name(ctx, field)
+			case "id":
+				return ec.fieldContext_KafkaTopic_id(ctx, field)
+			case "acl":
+				return ec.fieldContext_KafkaTopic_acl(ctx, field)
+			case "config":
+				return ec.fieldContext_KafkaTopic_config(ctx, field)
+			case "pool":
+				return ec.fieldContext_KafkaTopic_pool(ctx, field)
+			case "team":
+				return ec.fieldContext_KafkaTopic_team(ctx, field)
+			case "env":
+				return ec.fieldContext_KafkaTopic_env(ctx, field)
+			case "workload":
+				return ec.fieldContext_KafkaTopic_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type KafkaTopic", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_kafkaTopic_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -39878,102 +39986,6 @@ func (ec *executionContext) fieldContext_TokenX_mountSecretsAsFilesOnly(ctx cont
 	return fc, nil
 }
 
-func (ec *executionContext) _Topic_name(ctx context.Context, field graphql.CollectedField, obj *model.Topic) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Topic_name(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Topic_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Topic",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Topic_acl(ctx context.Context, field graphql.CollectedField, obj *model.Topic) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Topic_acl(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ACL, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.ACL)
-	fc.Result = res
-	return ec.marshalNAcl2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐACLᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Topic_acl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Topic",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "access":
-				return ec.fieldContext_Acl_access(ctx, field)
-			case "application":
-				return ec.fieldContext_Acl_application(ctx, field)
-			case "team":
-				return ec.fieldContext_Acl_team(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Acl", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_id(ctx, field)
 	if err != nil {
@@ -44756,55 +44768,6 @@ func (ec *executionContext) _AccessPolicy(ctx context.Context, sel ast.Selection
 	return out
 }
 
-var aclImplementors = []string{"Acl"}
-
-func (ec *executionContext) _Acl(ctx context.Context, sel ast.SelectionSet, obj *model.ACL) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, aclImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Acl")
-		case "access":
-			out.Values[i] = ec._Acl_access(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "application":
-			out.Values[i] = ec._Acl_application(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "team":
-			out.Values[i] = ec._Acl_team(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var appImplementors = []string{"App", "Workload", "SearchNode"}
 
 func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj *model.App) graphql.Marshaler {
@@ -48293,6 +48256,55 @@ func (ec *executionContext) _KafkaTopic(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
+var kafkaTopicAclImplementors = []string{"KafkaTopicAcl"}
+
+func (ec *executionContext) _KafkaTopicAcl(ctx context.Context, sel ast.SelectionSet, obj *model.KafkaTopicACL) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaTopicAclImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("KafkaTopicAcl")
+		case "access":
+			out.Values[i] = ec._KafkaTopicAcl_access(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "application":
+			out.Values[i] = ec._KafkaTopicAcl_application(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "team":
+			out.Values[i] = ec._KafkaTopicAcl_team(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var kafkaTopicConfigImplementors = []string{"KafkaTopicConfig"}
 
 func (ec *executionContext) _KafkaTopicConfig(ctx context.Context, sel ast.SelectionSet, obj *model.KafkaTopicConfig) graphql.Marshaler {
@@ -49907,6 +49919,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_sqlInstance(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "kafkaTopic":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_kafkaTopic(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -54368,50 +54402,6 @@ func (ec *executionContext) _TokenX(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
-var topicImplementors = []string{"Topic"}
-
-func (ec *executionContext) _Topic(ctx context.Context, sel ast.SelectionSet, obj *model.Topic) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, topicImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Topic")
-		case "name":
-			out.Values[i] = ec._Topic_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "acl":
-			out.Values[i] = ec._Topic_acl(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var userImplementors = []string{"User", "AuthenticatedUser"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *model.User) graphql.Marshaler {
@@ -55478,60 +55468,6 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 func (ec *executionContext) marshalNAccessPolicy2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAccessPolicy(ctx context.Context, sel ast.SelectionSet, v model.AccessPolicy) graphql.Marshaler {
 	return ec._AccessPolicy(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNAcl2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐACLᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ACL) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNAcl2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐACL(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNAcl2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐACL(ctx context.Context, sel ast.SelectionSet, v *model.ACL) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Acl(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNApp2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐApp(ctx context.Context, sel ast.SelectionSet, v model.App) graphql.Marshaler {
@@ -57256,6 +57192,10 @@ func (ec *executionContext) marshalNJobsStatus2githubᚗcomᚋnaisᚋapiᚋinter
 	return ec._JobsStatus(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalNKafkaTopic2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐKafkaTopic(ctx context.Context, sel ast.SelectionSet, v model.KafkaTopic) graphql.Marshaler {
+	return ec._KafkaTopic(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNKafkaTopic2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐKafkaTopicᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.KafkaTopic) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -57308,6 +57248,60 @@ func (ec *executionContext) marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 		return graphql.Null
 	}
 	return ec._KafkaTopic(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNKafkaTopicAcl2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐKafkaTopicACLᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.KafkaTopicACL) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNKafkaTopicAcl2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐKafkaTopicACL(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNKafkaTopicAcl2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐKafkaTopicACL(ctx context.Context, sel ast.SelectionSet, v *model.KafkaTopicACL) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._KafkaTopicAcl(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNKafkaTopicList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐKafkaTopicList(ctx context.Context, sel ast.SelectionSet, v model.KafkaTopicList) graphql.Marshaler {

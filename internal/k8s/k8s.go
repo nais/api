@@ -9,16 +9,15 @@ import (
 
 	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
 	storage_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/storage/v1beta1"
-
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/slug"
-	aiven_nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
-	bigquery_nais_io_v1 "github.com/nais/liberator/pkg/apis/google.nais.io/v1"
+	aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
+	google_nais_io_v1 "github.com/nais/liberator/pkg/apis/google.nais.io/v1"
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
-	naisv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
-	naisv1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"github.com/sirupsen/logrus"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
@@ -47,41 +46,37 @@ func (c ClusterInformers) Start(ctx context.Context, log logrus.FieldLogger) err
 		go informer.Job.Informer().Run(ctx.Done())
 
 		if informer.Bucket != nil {
-			log.WithField("informer", "bucket").Info("started informer")
+			log.WithField("informer", "bucket").Debugf("started informer")
 			go informer.Bucket.Informer().Run(ctx.Done())
 		}
 
 		if informer.BigQuery != nil {
-			log.WithField("informer", "bigquerydataset").Info("started informer")
-
+			log.WithField("informer", "bigquerydataset").Debugf("started informer")
 			go informer.BigQuery.Informer().Run(ctx.Done())
 		}
 
 		if informer.SqlInstance != nil {
-			log.WithField("informer", "sqlinstance").Info("started informer")
-
+			log.WithField("informer", "sqlinstance").Debugf("started informer")
 			go informer.SqlInstance.Informer().Run(ctx.Done())
 		}
 
 		if informer.SqlDatabase != nil {
-			log.WithField("informer", "sqldatabase").Info("started informer")
-
+			log.WithField("informer", "sqldatabase").Debugf("started informer")
 			go informer.SqlDatabase.Informer().Run(ctx.Done())
 		}
 
 		if informer.KafkaTopic != nil {
-			log.WithField("informer", "kafkatopic").Info("started informer")
-
+			log.WithField("informer", "kafkatopic").Debugf("started informer")
 			go informer.KafkaTopic.Informer().Run(ctx.Done())
 		}
 
 		if informer.Redis != nil {
-			log.WithField("informer", "redis").Info("started informer")
+			log.WithField("informer", "redis").Debugf("started informer")
 			go informer.Redis.Informer().Run(ctx.Done())
 		}
 
 		if informer.OpenSearch != nil {
-			log.WithField("informer", "opensearch").Info("started informer")
+			log.WithField("informer", "opensearch").Debugf("started informer")
 			go informer.OpenSearch.Informer().Run(ctx.Done())
 		}
 	}
@@ -230,27 +225,18 @@ func New(tenant string, cfg Config, db Database, fake bool, log logrus.FieldLogg
 		inf := informers.NewSharedInformerFactoryWithOptions(clientSet, 4*time.Hour)
 
 		infs[cluster].Pod = inf.Core().V1().Pods()
-		infs[cluster].App = dinf.ForResource(naisv1alpha1.GroupVersion.WithResource("applications"))
-		infs[cluster].Naisjob = dinf.ForResource(naisv1.GroupVersion.WithResource("naisjobs"))
+		infs[cluster].App = dinf.ForResource(nais_io_v1alpha1.GroupVersion.WithResource("applications"))
+		infs[cluster].Naisjob = dinf.ForResource(nais_io_v1.GroupVersion.WithResource("naisjobs"))
 		infs[cluster].Job = inf.Batch().V1().Jobs()
+		infs[cluster].Redis = dinf.ForResource(aiven_io_v1alpha1.GroupVersion.WithResource("redis"))
+		infs[cluster].OpenSearch = dinf.ForResource(aiven_io_v1alpha1.GroupVersion.WithResource("opensearch"))
 
 		if cfg.IsGcp(cluster) {
 			infs[cluster].SqlInstance = dinf.ForResource(sql_cnrm_cloud_google_com_v1beta1.SchemeGroupVersion.WithResource("sqlinstances"))
 			infs[cluster].SqlDatabase = dinf.ForResource(sql_cnrm_cloud_google_com_v1beta1.SchemeGroupVersion.WithResource("sqldatabases"))
 			infs[cluster].Bucket = dinf.ForResource(storage_cnrm_cloud_google_com_v1beta1.SchemeGroupVersion.WithResource("storagebuckets"))
-			infs[cluster].BigQuery = dinf.ForResource(bigquery_nais_io_v1.GroupVersion.WithResource("bigquerydatasets"))
+			infs[cluster].BigQuery = dinf.ForResource(google_nais_io_v1.GroupVersion.WithResource("bigquerydatasets"))
 		}
-
-		// These assignments and the fake param are introduced to deal with an impedance mismatch between the fake.go stuff
-		// and the actual environment. K8s guesses retardedly at plurals, and we haven't found a way of turning that off.
-		redisString := "redis"
-		openSearchString := "opensearch"
-
-		redis := aiven_nais_io_v1alpha1.GroupVersion.WithResource(redisString)
-		infs[cluster].Redis = dinf.ForResource(redis)
-
-		openSearch := aiven_nais_io_v1alpha1.GroupVersion.WithResource(openSearchString)
-		infs[cluster].OpenSearch = dinf.ForResource(openSearch)
 
 		clientSets[cluster] = clients{
 			client:        clientSet,
@@ -269,10 +255,9 @@ func New(tenant string, cfg Config, db Database, fake bool, log logrus.FieldLogg
 					}
 				}
 			}
-		} else if fake { // Again, this is about the fake-real disparity
+		} else if fake {
 			infs[cluster].KafkaTopic = dinf.ForResource(kafka_nais_io_v1.GroupVersion.WithResource("topics"))
 		}
-
 	}
 
 	if impersonationClientCreator == nil {

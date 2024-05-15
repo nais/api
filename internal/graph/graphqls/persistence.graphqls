@@ -10,6 +10,18 @@ extend type Query {
     "The environment the instance runs in."
     env: String!
   ): SqlInstance!
+
+  "Get a Kafka topic by name, team and env."
+  kafkaTopic(
+    "The name of the topic."
+    name: String!
+
+    "The name of the team who owns the topic."
+    team: Slug!
+
+    "The environment the topic exists in."
+    env: String!
+  ): KafkaTopic!
 }
 
 interface Persistence {
@@ -64,7 +76,7 @@ type Bucket implements Persistence {
 type KafkaTopic implements Persistence {
   name: String!
   id: ID!
-  acl: [Acl!]!
+  acl: [KafkaTopicAcl!]!
   config: KafkaTopicConfig
   pool: String!
   team: Team!
@@ -83,12 +95,7 @@ type KafkaTopicConfig {
     segmentHours: Int
 }
 
-type Topic {
-  name: String!
-  acl: [Acl!]!
-}
-
-type Acl {
+type KafkaTopicAcl {
   access: String!
   application: String!
   team: Slug!

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/nais/api/internal/graph/apierror"
+
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -38,4 +40,22 @@ func (c *Client) Topics(teamSlug slug.Slug) ([]*model.KafkaTopic, error) {
 	})
 
 	return ret, nil
+}
+
+func (c *Client) Topic(env string, teamSlug slug.Slug, topicName string) (*model.KafkaTopic, error) {
+	inf, exists := c.informers[env]
+	if !exists {
+		return nil, fmt.Errorf("unknown env: %q", env)
+	}
+
+	if inf.KafkaTopic == nil {
+		return nil, apierror.Errorf("Kafka topic informer not supported in env: %q", env)
+	}
+
+	obj, err := inf.KafkaTopic.Lister().ByNamespace(string(teamSlug)).Get(topicName)
+	if err != nil {
+		return nil, fmt.Errorf("get Kafka topic: %w", err)
+	}
+
+	return model.ToKafkaTopic(obj.(*unstructured.Unstructured), env)
 }

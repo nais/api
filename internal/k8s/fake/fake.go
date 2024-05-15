@@ -131,7 +131,6 @@ func parseResources(scheme *runtime.Scheme, dir fs.FS, path string) clusterResou
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("%v\n", path)
 	parts := bytes.Split(b, []byte("\n---"))
 	ns := strings.Trim(filepath.Base(filepath.Dir(path)), string(filepath.Separator))
 
