@@ -100,7 +100,7 @@ func (r *Resolver) workload(ctx context.Context, ownerReference *v1.OwnerReferen
 		}
 		return job, nil
 	case "Application":
-		app, err :=  r.k8sClient.App(ctx, ownerReference.Name, string(teamSlug), env)
+		app, err := r.k8sClient.App(ctx, ownerReference.Name, string(teamSlug), env)
 		if err != nil {
 			r.log.WithField("appname", ownerReference.Name).WithField("team", teamSlug).Debug("unable to find app")
 			return nil, nil
