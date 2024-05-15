@@ -119,7 +119,7 @@ func tenantClusters(tenant string, clusters []string, opts ...Opt) (clusterClien
 	clients := clusterClients{}
 	for _, cluster := range clusters {
 		c, err := createClient(
-			fmt.Sprintf("https://apiserver.%s.%s.cloud.nais.io", tenant, cluster),
+			fmt.Sprintf("https://apiserver.%s.%s.cloud.nais.io", cluster, tenant),
 			cluster,
 			[]schema.GroupVersionResource{
 				unleash_nais_io_v1.GroupVersion.WithResource("remoteunleashes"),
