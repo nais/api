@@ -200,10 +200,10 @@ func newDynamicClient(scheme *runtime.Scheme, objs ...runtime.Object) dynamic.In
 
 	fc := dynfake.NewSimpleDynamicClientWithCustomListKinds(scheme,
 		map[schema.GroupVersionResource]string{
-			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("redis"):      "RedisList",
-			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("opensearch"): "OpenSearchList",
-			unleash_nais_io_v1.GroupVersion.WithResource("unleashes"):           "UnleashList",
-			unleash_nais_io_v1.GroupVersion.WithResource("remoteunleashes"):     "RemoteUnleashList",
+			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("redis"):        "RedisList",
+			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("opensearches"): "OpenSearchList",
+			unleash_nais_io_v1.GroupVersion.WithResource("unleashes"):             "UnleashList",
+			unleash_nais_io_v1.GroupVersion.WithResource("remoteunleashes"):       "RemoteUnleashList",
 		})
 
 	for _, obj := range objs {
