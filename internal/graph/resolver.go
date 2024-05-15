@@ -93,9 +93,19 @@ func (r *Resolver) workload(ctx context.Context, ownerReference *v1.OwnerReferen
 
 	switch ownerReference.Kind {
 	case "Naisjob":
-		return r.k8sClient.NaisJob(ctx, ownerReference.Name, string(teamSlug), env)
+		job, err := r.k8sClient.NaisJob(ctx, ownerReference.Name, string(teamSlug), env)
+		if err != nil {
+			r.log.WithField("jobname", ownerReference.Name).WithField("team", teamSlug).Debug("unable to find job")
+			return nil, nil
+		}
+		return job, nil
 	case "Application":
-		return r.k8sClient.App(ctx, ownerReference.Name, string(teamSlug), env)
+		app, err :=  r.k8sClient.App(ctx, ownerReference.Name, string(teamSlug), env)
+		if err != nil {
+			r.log.WithField("appname", ownerReference.Name).WithField("team", teamSlug).Debug("unable to find app")
+			return nil, nil
+		}
+		return app, nil
 	default:
 		r.log.WithField("kind", ownerReference.Kind).Warnf("Unknown owner reference kind")
 	}
