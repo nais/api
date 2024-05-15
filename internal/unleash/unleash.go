@@ -187,8 +187,10 @@ func createClient(apiServer, clusterName string, resources []schema.GroupVersion
 	}, nil
 }
 
+// @TODO: use namespace from config
 func createInformers(clientSet kubernetes.Interface, dynamicClient dynamic.Interface, resources []schema.GroupVersionResource) []informers.GenericInformer {
-	dinf := dynamicinformer.NewDynamicSharedInformerFactory(dynamicClient, 4*time.Hour)
+	dinf := dynamicinformer.NewFilteredDynamicSharedInformerFactory(dynamicClient, 4*time.Hour, "bifrost-unleash", nil)
+
 	infs := make([]informers.GenericInformer, 0)
 	for _, resources := range resources {
 		if supportsResource(clientSet, resources) {
