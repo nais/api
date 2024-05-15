@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io/fs"
-	"k8s.io/apimachinery/pkg/api/meta"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -20,13 +19,17 @@ import (
 
 	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
 	storage_cnrm_cloud_gogle_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/storage/v1beta1"
+	liberator_aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
+	bigquery_nais_io_v1 "github.com/nais/liberator/pkg/apis/google.nais.io/v1"
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	dynfake "k8s.io/client-go/dynamic/fake"
 	"k8s.io/client-go/kubernetes"
@@ -192,6 +195,10 @@ func depluralized(s string) string {
 }
 
 func newDynamicClient(scheme *runtime.Scheme, objs ...runtime.Object) dynamic.Interface {
+	type namespaced interface {
+		GetNamespace() string
+	}
+
 	fc := dynfake.NewSimpleDynamicClientWithCustomListKinds(scheme,
 		map[schema.GroupVersionResource]string{
 			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("redis"):      "RedisList",
@@ -210,7 +217,9 @@ func newDynamicClient(scheme *runtime.Scheme, objs ...runtime.Object) dynamic.In
 		for _, gvk := range gvks {
 			gvr, _ := meta.UnsafeGuessKindToResource(gvk)
 			gvr.Resource = depluralized(gvr.Resource)
-			fc.Tracker().Create(gvr, obj, "devteam")
+			// Get namespace from object
+			ns := obj.(namespaced).GetNamespace()
+			fc.Tracker().Create(gvr, obj, ns)
 		}
 	}
 	return fc
