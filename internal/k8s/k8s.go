@@ -229,7 +229,7 @@ func New(tenant string, cfg Config, db Database, fake bool, log logrus.FieldLogg
 		infs[cluster].Naisjob = dinf.ForResource(nais_io_v1.GroupVersion.WithResource("naisjobs"))
 		infs[cluster].Job = inf.Batch().V1().Jobs()
 		infs[cluster].Redis = dinf.ForResource(aiven_io_v1alpha1.GroupVersion.WithResource("redis"))
-		infs[cluster].OpenSearch = dinf.ForResource(aiven_io_v1alpha1.GroupVersion.WithResource("opensearch"))
+		infs[cluster].OpenSearch = dinf.ForResource(aiven_io_v1alpha1.GroupVersion.WithResource("opensearches"))
 
 		if cfg.IsGcp(cluster) {
 			infs[cluster].SqlInstance = dinf.ForResource(sql_cnrm_cloud_google_com_v1beta1.SchemeGroupVersion.WithResource("sqlinstances"))
