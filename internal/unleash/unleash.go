@@ -152,15 +152,15 @@ func createClient(apiServer, clusterName string, resources []schema.GroupVersion
 		},
 	}
 
-	var err error
-	if clusterName == "management" {
-		restConfig, err = rest.InClusterConfig()
-		if err != nil {
-			return nil, fmt.Errorf("failed to get kubeconfig: %w", err)
-		}
-	}
-
 	if s.clientsCreator == nil {
+		var err error
+		if clusterName == "management" {
+			restConfig, err = rest.InClusterConfig()
+			if err != nil {
+				return nil, fmt.Errorf("failed to get kubeconfig: %w", err)
+			}
+		}
+
 		s.clientsCreator = func(cluster string) (kubernetes.Interface, dynamic.Interface, error) {
 			clientSet, err := kubernetes.NewForConfig(restConfig)
 			if err != nil {
