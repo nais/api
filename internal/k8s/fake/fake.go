@@ -17,8 +17,10 @@ import (
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	dynfake "k8s.io/client-go/dynamic/fake"
 	"k8s.io/client-go/kubernetes"
@@ -75,7 +77,7 @@ func Clients(dir fs.FS) func(cluster string) (kubernetes.Interface, dynamic.Inte
 	for cluster, objs := range resources {
 		ret[cluster] = clients{
 			ClientSet: fake.NewSimpleClientset(objs.core...),
-			Dynamic:   dynfake.NewSimpleDynamicClient(scheme, objs.dynamic...),
+			Dynamic:   newDynamicClient(scheme, objs.dynamic...),
 		}
 	}
 
@@ -164,4 +166,48 @@ func parseResources(scheme *runtime.Scheme, dir fs.FS, path string) clusterResou
 	}
 
 	return ret
+}
+
+// This is a hack around how k8s unsafeGuesses resource plurals
+func depluralized(s string) string {
+	fmt.Println(s)
+	switch s {
+	case "unleashs":
+		return "unleashes"
+	case "remoteunleashs":
+		return "remoteunleashes"
+	}
+
+	return s
+}
+
+func newDynamicClient(scheme *runtime.Scheme, objs ...runtime.Object) dynamic.Interface {
+	type namespaced interface {
+		GetNamespace() string
+	}
+
+	fc := dynfake.NewSimpleDynamicClientWithCustomListKinds(scheme,
+		map[schema.GroupVersionResource]string{
+			unleash_nais_io_v1.GroupVersion.WithResource("unleashes"):       "UnleashList",
+			unleash_nais_io_v1.GroupVersion.WithResource("remoteunleashes"): "RemoteUnleashList",
+		})
+
+	for _, obj := range objs {
+		gvks, _, err := scheme.ObjectKinds(obj)
+		if err != nil {
+			panic(err)
+		}
+
+		if len(gvks) == 0 {
+			panic(fmt.Errorf("no registered kinds for %v", obj))
+		}
+		for _, gvk := range gvks {
+			gvr, _ := meta.UnsafeGuessKindToResource(gvk)
+			gvr.Resource = depluralized(gvr.Resource)
+			// Get namespace from object
+			ns := obj.(namespaced).GetNamespace()
+			fc.Tracker().Create(gvr, obj, ns)
+		}
+	}
+	return fc
 }
