@@ -19,7 +19,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auditlogger"
-	"github.com/nais/api/internal/bigquery"
 	"github.com/nais/api/internal/bucket"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
@@ -29,7 +28,6 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/kafka"
-	"github.com/nais/api/internal/opensearch"
 	"github.com/nais/api/internal/redis"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/search"
@@ -136,7 +134,6 @@ type Resolver struct {
 	openSearchClient      *opensearch.Client
 	kafkaClient           *kafka.Client
 	unleashMgr            *unleash.Manager
-
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies

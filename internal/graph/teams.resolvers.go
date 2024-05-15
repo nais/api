@@ -1266,7 +1266,7 @@ func (r *teamResolver) KafkaTopics(ctx context.Context, obj *model.Team, offset 
 
 // BigQuery is the resolver for the bigQuery field.
 func (r *teamResolver) BigQuery(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BigQueryDatasetList, error) {
-	bqs, err := r.bigQueryClient.BigQueryDatasets(obj.Slug)
+	bqs, err := r.bigQueryDatasetClient.BigQueryDatasets(obj.Slug)
 	if err != nil {
 		return nil, err
 	}
