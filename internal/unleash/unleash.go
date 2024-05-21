@@ -38,6 +38,7 @@ type (
 	clusterClients map[string]*k8sClient
 	settings       struct {
 		clientsCreator func(cluster string) (kubernetes.Interface, dynamic.Interface, error)
+		bifrostEnabled bool
 	}
 )
 
@@ -46,6 +47,12 @@ type Opt func(*settings)
 func WithClientsCreator(f func(cluster string) (kubernetes.Interface, dynamic.Interface, error)) Opt {
 	return func(s *settings) {
 		s.clientsCreator = f
+	}
+}
+
+func WithBifrostEnabled() Opt {
+	return func(s *settings) {
+		s.bifrostEnabled = true
 	}
 }
 
@@ -105,12 +112,25 @@ func (m Manager) Start(ctx context.Context, log logrus.FieldLogger) error {
 }
 
 func mgmtCluster(opts ...Opt) (*k8sClient, error) {
+	s := settings{}
+	for _, opt := range opts {
+		opt(&s)
+	}
+	if s.bifrostEnabled {
+		return createClient(
+			"",
+			"management",
+			[]schema.GroupVersionResource{
+				unleash_nais_io_v1.GroupVersion.WithResource("unleashes"),
+			},
+			opts...,
+		)
+	}
+
 	return createClient(
 		"",
 		"management",
-		[]schema.GroupVersionResource{
-			unleash_nais_io_v1.GroupVersion.WithResource("unleashes"),
-		},
+		[]schema.GroupVersionResource{},
 		opts...,
 	)
 }
