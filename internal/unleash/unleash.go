@@ -26,6 +26,7 @@ type Manager struct {
 	mgmCluster     *k8sClient
 	mgmtNamespace  string
 	prometheus     promv1.API
+	bifrostClient  BifrostClient
 }
 
 type k8sClient struct {
@@ -57,6 +58,11 @@ func WithBifrostEnabled() Opt {
 }
 
 func NewManager(tenant, namespace string, clusters []string, opts ...Opt) (*Manager, error) {
+	s := &settings{}
+	for _, opt := range opts {
+		opt(s)
+	}
+
 	clientMap, err := tenantClusters(tenant, clusters, opts...)
 	if err != nil {
 		return nil, err
@@ -74,11 +80,19 @@ func NewManager(tenant, namespace string, clusters []string, opts ...Opt) (*Mana
 		return nil, err
 	}
 
+	// TODO: setup logger outside of this package
+	bifrost := NewBifrostClient("", logrus.New())
+	// if clientsCreator is set, it means that faking is enabled. should probably send in the flag itself to avoid this comment
+	if s.clientsCreator != nil {
+		bifrost = NewFakeBifrostClient(mgmt.dynamicClient)
+	}
+
 	return &Manager{
 		mgmtNamespace:  namespace,
 		tenantClusters: clientMap,
 		mgmCluster:     mgmt,
 		prometheus:     promv1.NewAPI(promClient),
+		bifrostClient:  bifrost,
 	}, nil
 }
 

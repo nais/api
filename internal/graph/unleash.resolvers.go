@@ -6,13 +6,10 @@ package graph
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
-	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -24,11 +21,12 @@ func (r *mutationResolver) CreateUnleashForTeam(ctx context.Context, team slug.S
 	//	return nil, err
 	//}
 
-	ret, err := r.unleashMgr.CreateUnleash(ctx, team)
-	if errors.Is(err, k8s.ErrSecretUnmanaged) {
-		return nil, apierror.ErrSecretUnmanaged
+	err := r.unleashMgr.NewUnleash(ctx, team.String(), []string{team.String()})
+	if err != nil {
+		return nil, err
 	}
-	return ret, err
+
+	return r.unleashMgr.Unleash(team.String())
 }
 
 // Toggles is the resolver for the toggles field.
