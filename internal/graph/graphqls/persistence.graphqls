@@ -22,6 +22,31 @@ extend type Query {
     "The environment the topic exists in."
     env: String!
   ): KafkaTopic!
+
+  "Get a Bucket by name, team and env."
+  bucket(
+    "The name of the bucket."
+    name: String!
+
+    "The name of the team who owns the bucket."
+    team: Slug!
+
+    "The environment the bucket exists in."
+    env: String!
+  ): Bucket!
+
+  "Get a Bucket by name, team and env."
+  redis(
+    "The name of the redis."
+    name: String!
+
+    "The name of the team who owns the redis."
+    team: Slug!
+
+    "The environment the redis exists in."
+    env: String!
+  ): Redis!
+
 }
 
 interface Persistence {

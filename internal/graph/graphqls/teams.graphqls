@@ -324,7 +324,12 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): BucketsList!
-  
+
+  redisInstance(
+    name: String
+    env: String 
+  ): Redis!
+
   redis(
     "Returns the first n entries from the list."
     offset: Int

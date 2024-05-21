@@ -64,6 +64,16 @@ func (r *queryResolver) KafkaTopic(ctx context.Context, name string, team slug.S
 	return r.kafkaClient.Topic(env, team, name)
 }
 
+// Bucket is the resolver for the bucket field.
+func (r *queryResolver) Bucket(ctx context.Context, name string, team slug.Slug, env string) (*model.Bucket, error) {
+	panic(fmt.Errorf("not implemented: Bucket - bucket"))
+}
+
+// Redis is the resolver for the redis field.
+func (r *queryResolver) Redis(ctx context.Context, name string, team slug.Slug, env string) (*model.Redis, error) {
+	return r.redisClient.Redis(team)
+}
+
 // Team is the resolver for the team field.
 func (r *redisResolver) Team(ctx context.Context, obj *model.Redis) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
@@ -114,14 +124,12 @@ func (r *Resolver) Redis() gengql.RedisResolver { return &redisResolver{r} }
 // SqlInstance returns gengql.SqlInstanceResolver implementation.
 func (r *Resolver) SqlInstance() gengql.SqlInstanceResolver { return &sqlInstanceResolver{r} }
 
-type (
-	bigQueryDatasetResolver struct{ *Resolver }
-	bucketResolver          struct{ *Resolver }
-	kafkaTopicResolver      struct{ *Resolver }
-	openSearchResolver      struct{ *Resolver }
-	redisResolver           struct{ *Resolver }
-	sqlInstanceResolver     struct{ *Resolver }
-)
+type bigQueryDatasetResolver struct{ *Resolver }
+type bucketResolver struct{ *Resolver }
+type kafkaTopicResolver struct{ *Resolver }
+type openSearchResolver struct{ *Resolver }
+type redisResolver struct{ *Resolver }
+type sqlInstanceResolver struct{ *Resolver }
 
 // !!! WARNING !!!
 // The code below was going to be deleted when updating resolvers. It has been copied here so you have

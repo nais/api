@@ -1177,6 +1177,11 @@ func (r *teamResolver) Buckets(ctx context.Context, obj *model.Team, offset *int
 	}, nil
 }
 
+// RedisInstance is the resolver for the redisInstance field.
+func (r *teamResolver) RedisInstance(ctx context.Context, obj *model.Team, name *string, env *string) (*model.Redis, error) {
+	panic(fmt.Errorf("not implemented: RedisInstance - redisInstance"))
+}
+
 // Redis is the resolver for the redis field.
 func (r *teamResolver) Redis(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.RedisList, error) {
 	redis, err := r.redisClient.Redis(obj.Slug)
@@ -1766,9 +1771,7 @@ func (r *Resolver) TeamMemberReconciler() gengql.TeamMemberReconcilerResolver {
 	return &teamMemberReconcilerResolver{r}
 }
 
-type (
-	teamResolver                 struct{ *Resolver }
-	teamDeleteKeyResolver        struct{ *Resolver }
-	teamMemberResolver           struct{ *Resolver }
-	teamMemberReconcilerResolver struct{ *Resolver }
-)
+type teamResolver struct{ *Resolver }
+type teamDeleteKeyResolver struct{ *Resolver }
+type teamMemberResolver struct{ *Resolver }
+type teamMemberReconcilerResolver struct{ *Resolver }

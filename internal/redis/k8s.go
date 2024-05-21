@@ -2,6 +2,7 @@ package redis
 
 import (
 	"fmt"
+	"github.com/nais/api/internal/graph/apierror"
 	"sort"
 
 	"github.com/nais/api/internal/graph/model"
@@ -38,4 +39,22 @@ func (c *Client) Redis(teamSlug slug.Slug) ([]*model.Redis, error) {
 	})
 
 	return ret, nil
+}
+
+func (c *Client) RedisInstance(teamSlug slug.Slug, redisName string, env string) (*model.Redis, error) {
+	inf, exists := c.informers[env]
+	if !exists {
+		return nil, fmt.Errorf("unknown env: %q", env)
+	}
+
+	if inf.Redis == nil {
+		return nil, apierror.Errorf("redis informer not supported in env: %q", env)
+	}
+
+	obj, err := inf.Redis.Lister().ByNamespace(string(teamSlug)).Get(redisName)
+	if err != nil {
+		return nil, fmt.Errorf("get redis: %w", err)
+	}
+
+	return model.ToRedis(obj.(*unstructured.Unstructured), env)
 }
