@@ -10,7 +10,6 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/slug"
 )
 
 // Team is the resolver for the team field.
@@ -51,16 +50,6 @@ func (r *openSearchResolver) Team(ctx context.Context, obj *model.OpenSearch) (*
 // Workload is the resolver for the workload field.
 func (r *openSearchResolver) Workload(ctx context.Context, obj *model.OpenSearch) (model.Workload, error) {
 	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
-}
-
-// SQLInstance is the resolver for the sqlInstance field.
-func (r *queryResolver) SQLInstance(ctx context.Context, name string, team slug.Slug, env string) (*model.SQLInstance, error) {
-	return r.sqlInstanceClient.SqlInstance(ctx, env, team, name)
-}
-
-// KafkaTopic is the resolver for the kafkaTopic field.
-func (r *queryResolver) KafkaTopic(ctx context.Context, name string, team slug.Slug, env string) (*model.KafkaTopic, error) {
-	return r.kafkaClient.Topic(env, team, name)
 }
 
 // Team is the resolver for the team field.

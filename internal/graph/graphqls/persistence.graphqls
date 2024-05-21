@@ -1,29 +1,3 @@
-extend type Query {
-  "Get an SQL instance by name, team and env."
-  sqlInstance(
-    "The name of the instance."
-    name: String!
-
-    "The name of the team who owns the instance."
-    team: Slug!
-
-    "The environment the instance runs in."
-    env: String!
-  ): SqlInstance!
-
-  "Get a Kafka topic by name, team and env."
-  kafkaTopic(
-    "The name of the topic."
-    name: String!
-
-    "The name of the team who owns the topic."
-    team: Slug!
-
-    "The environment the topic exists in."
-    env: String!
-  ): KafkaTopic!
-}
-
 interface Persistence {
   name: String!
   id: ID!
