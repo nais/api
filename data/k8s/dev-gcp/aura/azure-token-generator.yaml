@@ -1,0 +1,36 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: azure-token-generator
+spec:
+  azure:
+    application:
+      allowAllUsers: true
+      enabled: true
+    sidecar:
+      enabled: true
+  image: europe-north1-docker.pkg.dev/nais-io/nais/images/wonderwalled-azure:2024-04-17-111826-09e0051
+  ingresses:
+  - https://azure-token-generator.intern.dev.nav.no
+  liveness:
+    failureThreshold: 30
+    initialDelay: 5
+    path: /internal/is_alive
+    periodSeconds: 5
+  port: 8080
+  prometheus: {}
+  readiness:
+    failureThreshold: 30
+    initialDelay: 5
+    path: /internal/is_ready
+    periodSeconds: 5
+  replicas:
+    max: 1
+    min: 1
+  resources:
+    limits:
+      cpu: 200m
+      memory: 512Mi
+    requests:
+      cpu: 5m
+      memory: 128Mi

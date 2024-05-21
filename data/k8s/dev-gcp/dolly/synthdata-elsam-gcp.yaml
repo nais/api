@@ -1,0 +1,48 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: synthdata-elsam-gcp
+spec:
+  accessPolicy:
+    inbound:
+      rules:
+      - application: testnorge-sykemelding-api
+        cluster: dev-fss
+      - application: testnav-synt-sykemelding-api
+        cluster: dev-gcp
+      - application: testnav-oversikt-frontend
+        cluster: dev-gcp
+      - application: team-dolly-lokal-app
+        cluster: dev-fss
+  azure:
+    application:
+      allowAllUsers: true
+      enabled: true
+      tenant: nav.no
+  gcp:
+    buckets:
+    - name: synthdata-elsam-model-bucket
+  image: europe-north1-docker.pkg.dev/nais-management-233d/dolly/testnorge-syntetiseringspakker:2024.04.22-11.40-36cf3b3
+  ingresses:
+  - https://synthdata-elsam-gcp.intern.dev.nav.no
+  liveness:
+    initialDelay: 480
+    path: /internal/isAlive
+    port: 8080
+    timeout: 60
+  readiness:
+    initialDelay: 480
+    path: /internal/isReady
+    port: 8080
+    timeout: 60
+  replicas:
+    cpuThresholdPercentage: 50
+    max: 2
+    min: 1
+  resources:
+    limits:
+      cpu: 200m
+      memory: 8Gi
+    requests:
+      cpu: 200m
+      memory: 6Gi

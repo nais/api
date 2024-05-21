@@ -1,0 +1,84 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  labels:
+    team: arbeidsforhold
+  name: aareg-dist-online-gcp
+  namespace: arbeidsforhold
+spec:
+  accessPolicy:
+    inbound:
+      rules:
+      - application: aareg-status
+    outbound:
+      external:
+      - host: aareg-dist-online-api.dev-fss-pub.nais.io
+      - host: idporten.no
+  azure:
+    application:
+      enabled: true
+  env:
+  - name: STACK
+    value: gcp-dev
+  - name: APP_NAME
+    value: aareg-dist-online-gcp
+  - name: POST_LOGOUT_REDIRECT_URI
+    value: https://aareg-dist-online.ekstern.dev.nav.no
+  - name: APP_URL_AAREG_DIST_ONLINE_API
+    value: https://aareg-dist-online-api.dev-fss-pub.nais.io
+  - name: APP_SCOPE_AAREG_DIST_ONLINE_API
+    value: api://dev-fss.arbeidsforhold.aareg-dist-online-api/.default
+  - name: APP_URL_AZUREAD_TOKEN_ENDPOINT
+    value: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/oauth2/v2.0/token
+  - name: TOKEN_X_AUDIENCE
+    value: dev-fss:arbeidsforhold:aareg-dist-online-api
+  - name: JAVA_OPTS
+    value: -XX:MinRAMPercentage=25.0 -XX:MaxRAMPercentage=75.0 -XX:+HeapDumpOnOutOfMemoryError
+  - name: SPRING_PROFILES_ACTIVE
+    value: log-logstash,k8s
+  - name: INGRESS
+    value: https://aareg-dist-online.ekstern.dev.nav.no
+  - name: APP_SECURITY_OIDC_IDP_IDPORTEN_ISSUERURL
+    value: https://test.idporten.no
+  - name: APP_SECURITY_OIDC_IDP_IDPORTEN_JWKSETURI
+    value: https://test.idporten.no/jwks.json
+  - name: APP_SECURITY_OIDC_IDP_AZUREAD_ISSUERURL
+    value: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0
+  - name: APP_SECURITY_OIDC_IDP_AZUREAD_JWKSETURI
+    value: https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/discovery/v2.0/keys
+  idporten:
+    enabled: true
+    sidecar:
+      enabled: true
+  image: europe-north1-docker.pkg.dev/nais-management-233d/arbeidsforhold/aareg-aareg-dist-online:2024.05.15-07.38-def128a
+  ingresses:
+  - https://aareg-dist-online.ekstern.dev.nav.no
+  liveness:
+    failureThreshold: 30
+    initialDelay: 60
+    path: /internal/isAlive
+    periodSeconds: 2
+  port: 8080
+  preStopHookPath: internal/shutdown
+  prometheus:
+    enabled: true
+    path: actuator/prometheus
+  readiness:
+    failureThreshold: 30
+    initialDelay: 60
+    path: /internal/isReady
+    periodSeconds: 2
+  replicas:
+    cpuThresholdPercentage: 50
+    max: 1
+    min: 1
+  resources:
+    limits:
+      memory: 2000Mi
+    requests:
+      cpu: 20m
+      memory: 300Mi
+  secureLogs:
+    enabled: true
+  tokenx:
+    enabled: true
