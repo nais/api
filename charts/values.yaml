@@ -59,3 +59,4 @@ usersync:
 
 unleash:
   namespace: "bifrost-unleash"
+  enabled: false
