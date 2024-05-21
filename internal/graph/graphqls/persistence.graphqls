@@ -29,11 +29,6 @@ interface Persistence {
   id: ID!
 }
 
-type InfluxDb implements Persistence {
-  name: String!
-  id: ID!
-}
-
 type Redis implements Persistence {
   id: ID!
   name: String!

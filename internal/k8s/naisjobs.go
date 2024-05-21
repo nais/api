@@ -603,7 +603,6 @@ func (c *Client) ToNaisJob(u *unstructured.Unstructured, env string) (*model.Nai
 	ret.GQLVars.SecretNames = slices.Compact(secrets)
 	ret.GQLVars.Spec = model.WorkloadSpec{
 		GCP:        naisjob.Spec.GCP,
-		Influx:     naisjob.Spec.Influx,
 		Kafka:      naisjob.Spec.Kafka,
 		OpenSearch: naisjob.Spec.OpenSearch,
 		Redis:      naisjob.Spec.Redis,

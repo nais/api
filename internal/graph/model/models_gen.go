@@ -429,15 +429,6 @@ func (InboundAccessError) IsStateError()             {}
 func (this InboundAccessError) GetRevision() string  { return this.Revision }
 func (this InboundAccessError) GetLevel() ErrorLevel { return this.Level }
 
-type InfluxDb struct {
-	Name string       `json:"name"`
-	ID   scalar.Ident `json:"id"`
-}
-
-func (InfluxDb) IsPersistence()           {}
-func (this InfluxDb) GetName() string     { return this.Name }
-func (this InfluxDb) GetID() scalar.Ident { return this.ID }
-
 type Insights struct {
 	Enabled               bool `json:"enabled"`
 	QueryStringLength     int  `json:"queryStringLength"`

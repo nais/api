@@ -28,7 +28,6 @@ type WorkloadStatus struct {
 
 type WorkloadSpec struct {
 	GCP        *nais_io_v1.GCP
-	Influx     *nais_io_v1.Influx
 	Kafka      *nais_io_v1.Kafka
 	OpenSearch *nais_io_v1.OpenSearch
 	Redis      []nais_io_v1.Redis

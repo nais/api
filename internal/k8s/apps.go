@@ -666,7 +666,6 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 	ret.GQLVars.Team = slug.Slug(app.GetNamespace())
 	ret.GQLVars.Spec = model.WorkloadSpec{
 		GCP:        app.Spec.GCP,
-		Influx:     app.Spec.Influx,
 		Kafka:      app.Spec.Kafka,
 		OpenSearch: app.Spec.OpenSearch,
 		Redis:      app.Spec.Redis,

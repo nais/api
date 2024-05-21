@@ -27,8 +27,6 @@ spec:
       - name: donotdelete_bucket
   kafka:
     pool: team-a
-  influx:
-    instance: influxdb
   redis:
     - name: contests
       size: 100Mi

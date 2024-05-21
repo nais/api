@@ -118,7 +118,6 @@ type Informers struct {
 	SqlDatabase informers.GenericInformer
 	OpenSearch  informers.GenericInformer
 	Redis       informers.GenericInformer
-	InfluxDb    informers.GenericInformer
 }
 
 type settings struct {
