@@ -12,10 +12,16 @@ extend type Query {
   ): TeamList! @auth
 
   "Get a specific team."
-  team("Slug of the team." slug: Slug!): Team! @auth
+  team(
+    "Slug of the team."
+    slug: Slug!
+  ): Team! @auth
 
   "Get a team delete key."
-  teamDeleteKey("The key to get." key: String!): TeamDeleteKey! @auth
+  teamDeleteKey(
+    "The key to get."
+    key: String!
+  ): TeamDeleteKey! @auth
 }
 
 extend type Mutation {
@@ -268,7 +274,10 @@ type Team {
   ): TeamMemberList!
 
   "Single team member"
-  member("The ID of the user." userId: ID!): TeamMember!
+  member(
+    "The ID of the user."
+    userId: ID!
+  ): TeamMember!
 
   "Possible issues related to synchronization of the team to configured external systems. If there are no entries the team can be considered fully synchronized."
   syncErrors: [SyncError!]!
