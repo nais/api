@@ -22,7 +22,7 @@ func New(log logrus.FieldLogger) *FakeDependencytrackClient {
 	f := &FakeDependencytrackClient{}
 	f.cache = cache.New(24*time.Hour, 24*time.Hour)
 	f.client = dependencytrack.
-		New("endpoint", "username", "password", "frontend", log.WithField("client", "fake_dependencytrack")).
+		New("https://endpoint", "username", "password", "frontend", log.WithField("client", "fake_dependencytrack")).
 		WithCache(f.cache)
 
 	return f
@@ -40,6 +40,19 @@ func (f *FakeDependencytrackClient) GetVulnerabilities(ctx context.Context, apps
 		f.setCacheEntryForApp(app)
 	}
 	return f.client.GetVulnerabilities(ctx, apps, filters...)
+}
+
+func (f *FakeDependencytrackClient) GetFindingsForImage(ctx context.Context, app *dependencytrack.AppInstance) (*model.Image, error) {
+	f.setCacheEntryForApp(app)
+	return f.client.GetFindingsForImage(ctx, app)
+}
+
+func (f *FakeDependencytrackClient) GetFindingsForImageByProjectID(ctx context.Context, projectID string) (*model.Image, error) {
+	return f.client.GetFindingsForImageByProjectID(ctx, projectID)
+}
+
+func (f *FakeDependencytrackClient) GetFindingsForTeam(ctx context.Context, team string) ([]*model.Image, error) {
+	return f.client.GetFindingsForTeam(ctx, team)
 }
 
 // TODO: Should use the cache so that we can call the innter client GetProjectMetrics function

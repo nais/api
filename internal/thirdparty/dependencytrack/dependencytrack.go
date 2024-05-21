@@ -209,17 +209,12 @@ func (c *Client) findingsForApp(ctx context.Context, app *AppInstance) (*model.V
 
 	if !v.HasBom {
 		c.log.Debugf("no bom found in DependencyTrack for project %s", p.Name)
-		v.Summary = c.createSummary([]*dependencytrack.Finding{}, v.HasBom)
+		v.Summary = c.createSummary(p, v.HasBom)
 		c.cache.Set(app.ID(), v, cache.DefaultExpiration)
 		return v, nil
 	}
 
-	f, err := c.retrieveFindings(ctx, p.Uuid)
-	if err != nil {
-		return nil, err
-	}
-
-	v.Summary = c.createSummary(f, v.HasBom)
+	v.Summary = c.createSummary(p, v.HasBom)
 
 	c.cache.Set(app.ID(), v, cache.DefaultExpiration)
 	return v, nil
@@ -241,7 +236,7 @@ func (c *Client) retrieveFindings(ctx context.Context, uuid string) ([]*dependen
 	return findings, nil
 }
 
-func (c *Client) createSummary(findings []*dependencytrack.Finding, hasBom bool) *model.VulnerabilitySummary {
+func (c *Client) createSummary(project *dependencytrack.Project, hasBom bool) *model.VulnerabilitySummary {
 	if !hasBom {
 		return &model.VulnerabilitySummary{
 			RiskScore:  -1,
@@ -254,49 +249,34 @@ func (c *Client) createSummary(findings []*dependencytrack.Finding, hasBom bool)
 		}
 	}
 
-	cves := make(map[string]*dependencytrack.Finding)
-	for _, finding := range findings {
-		cves[finding.Vulnerability.VulnId+":"+finding.Component.UUID] = finding
-	}
-
-	severities := map[string]int{}
-	total := 0
-	for _, finding := range findings {
-
-		if finding.Vulnerability.Source == "NVD" {
-			severities[finding.Vulnerability.Severity] += 1
-			total++
-			continue
-		}
-
-		if len(finding.Vulnerability.Aliases) == 0 {
-			severities[finding.Vulnerability.Severity] += 1
-			total++
-		}
-
-		for _, cve := range finding.Vulnerability.Aliases {
-			nvdId := cve.CveId + ":" + finding.Component.UUID
-			if _, found := cves[nvdId]; !found {
-				severities[finding.Vulnerability.Severity] += 1
-				total++
-			}
-		}
-	}
-
 	return &model.VulnerabilitySummary{
-		Total:      total,
-		RiskScore:  calcRiskScore(severities),
-		Critical:   severities["CRITICAL"],
-		High:       severities["HIGH"],
-		Medium:     severities["MEDIUM"],
-		Low:        severities["LOW"],
-		Unassigned: severities["UNASSIGNED"],
+		Total:      project.Metrics.FindingsTotal,
+		RiskScore:  int(project.Metrics.InheritedRiskScore),
+		Critical:   project.Metrics.Critical,
+		High:       project.Metrics.High,
+		Medium:     project.Metrics.Medium,
+		Low:        project.Metrics.Low,
+		Unassigned: project.Metrics.Unassigned,
 	}
 }
 
-func calcRiskScore(severities map[string]int) int {
-	// algorithm: https://github.com/DependencyTrack/dependency-track/blob/41e2ba8afb15477ff2b7b53bd9c19130ba1053c0/src/main/java/org/dependencytrack/metrics/Metrics.java#L31-L33
-	return (severities["CRITICAL"] * 10) + (severities["HIGH"] * 5) + (severities["MEDIUM"] * 3) + (severities["LOW"] * 1) + (severities["UNASSIGNED"] * 5)
+func (c *Client) retrieveProjectById(ctx context.Context, projectId string) (*dependencytrack.Project, error) {
+	project, err := c.client.GetProjectById(ctx, projectId)
+	if err != nil {
+		return nil, fmt.Errorf("getting projects from DependencyTrack: %w", err)
+	}
+
+	return project, nil
+}
+
+func (c *Client) retrieveProjectsForTeam(ctx context.Context, team string) ([]*dependencytrack.Project, error) {
+	tag := url.QueryEscape("team:" + team)
+	projects, err := c.client.GetProjectsByTag(ctx, tag)
+	if err != nil {
+		return nil, fmt.Errorf("getting projects from DependencyTrack: %w", err)
+	}
+
+	return projects, nil
 }
 
 func (c *Client) retrieveProject(ctx context.Context, app *AppInstance) (*dependencytrack.Project, error) {
@@ -317,6 +297,267 @@ func (c *Client) retrieveProject(ctx context.Context, app *AppInstance) (*depend
 		}
 	}
 	return p, nil
+}
+
+func (c *Client) retrieveProjects(ctx context.Context, app *AppInstance) ([]*dependencytrack.Project, error) {
+	tag := url.QueryEscape(app.Image)
+
+	projects, err := c.client.GetProjectsByTag(ctx, tag)
+	if err != nil {
+		return nil, fmt.Errorf("getting projects from DependencyTrack: %w", err)
+	}
+
+	if len(projects) == 0 {
+		return nil, nil
+	}
+	return projects, nil
+}
+
+func (c *Client) GetFindingsForImageByProjectID(ctx context.Context, projectId string) (*model.Image, error) {
+	p, _ := c.retrieveProjectById(ctx, projectId)
+
+	var digest string
+	var rekor string
+	for _, tag := range p.Tags {
+		if strings.Contains(tag.Name, "digest:") {
+			digest = strings.TrimPrefix(tag.Name, "digest:")
+		}
+		if strings.Contains(tag.Name, "rekor:") {
+			rekor = strings.TrimPrefix(tag.Name, "rekor:")
+		}
+	}
+
+	summary := c.createSummary(p, true)
+
+	findings, err := c.retrieveFindings(ctx, p.Uuid)
+	if err != nil {
+		return nil, fmt.Errorf("retrieving findings for project %s: %w", p.Uuid, err)
+	}
+
+	retFindings := make([]*model.Finding, 0)
+	for _, f := range findings {
+		if f.Vulnerability.Severity == "UNASSIGNED" {
+			continue
+		}
+		cveId := ""
+		ghsaId := ""
+		osvId := ""
+
+		for _, alias := range f.Vulnerability.Aliases {
+			cveId = alias.CveId
+			ghsaId = alias.GhsaId
+		}
+
+		if f.Vulnerability.Source == "OSV" {
+			osvId = f.Vulnerability.VulnId
+		}
+
+		retFindings = append(retFindings, &model.Finding{
+			ID:              scalar.FindingIdent(f.Vulnerability.VulnId),
+			ComponentID:     f.Component.UUID,
+			Severity:        f.Vulnerability.Severity,
+			Description:     f.Vulnerability.Title,
+			CveID:           cveId,
+			GhsaID:          ghsaId,
+			OsvID:           osvId,
+			PackageURL:      f.Component.PURL,
+			VulnerabilityID: f.Vulnerability.VulnId,
+		})
+	}
+
+	return &model.Image{
+		Findings:  retFindings,
+		Digest:    digest,
+		RekorID:   rekor,
+		Critical:  summary.Critical,
+		RiskScore: summary.RiskScore,
+		Name:      p.Name + ":" + p.Version,
+		ID:        scalar.ImageIdent(p.Name),
+	}, nil
+}
+
+func (c *Client) GetFindingsForTeam(ctx context.Context, team string) ([]*model.Image, error) {
+	projects, err := c.retrieveProjectsForTeam(ctx, team)
+	if err != nil {
+		return nil, fmt.Errorf("getting projects by team %s: %w", team, err)
+	}
+
+	if projects == nil {
+		return nil, nil
+	}
+
+	images := make([]*model.Image, 0)
+
+	for _, project := range projects {
+		if project == nil {
+			continue
+		}
+		if strings.Contains(project.Name, "nais-io") {
+			continue
+		}
+
+		var digest string
+		var rekor string
+		var version string
+		var workloads []*model.WorkloadReference
+
+		for _, tag := range project.Tags {
+			if strings.Contains(tag.Name, "digest:") {
+				digest = strings.TrimPrefix(tag.Name, "digest:")
+			}
+			if strings.Contains(tag.Name, "rekor:") {
+				rekor = strings.TrimPrefix(tag.Name, "rekor:")
+			}
+			if strings.Contains(tag.Name, "version:") {
+				version = strings.TrimPrefix(tag.Name, "version:")
+			}
+			if strings.Contains(tag.Name, "workload:") {
+				w := strings.TrimPrefix(tag.Name, "workload:")
+				workload := strings.Split(w, "|")
+
+				workloads = append(workloads, &model.WorkloadReference{
+					ID:           scalar.WorkloadIdent(w),
+					Environment:  workload[0],
+					Team:         workload[1],
+					WorkloadType: workload[2],
+					Name:         workload[3]})
+			}
+		}
+
+		findings, err := c.retrieveFindings(ctx, project.Uuid)
+		if err != nil {
+			return nil, fmt.Errorf("retrieving findings for project %s: %w", project.Uuid, err)
+		}
+
+		retFindings := make([]*model.Finding, 0)
+		for _, f := range findings {
+			if f.Vulnerability.Severity == "UNASSIGNED" {
+				continue
+			}
+			cveId := ""
+			ghsaId := ""
+			osvId := ""
+
+			for _, alias := range f.Vulnerability.Aliases {
+				cveId = alias.CveId
+				ghsaId = alias.GhsaId
+			}
+
+			if f.Vulnerability.Source == "OSV" {
+				osvId = f.Vulnerability.VulnId
+			}
+
+			retFindings = append(retFindings, &model.Finding{
+				ID:              scalar.FindingIdent(f.Vulnerability.VulnId),
+				ComponentID:     f.Component.UUID,
+				Severity:        f.Vulnerability.Severity,
+				Description:     f.Vulnerability.Title,
+				CveID:           cveId,
+				GhsaID:          ghsaId,
+				OsvID:           osvId,
+				PackageURL:      f.Component.PURL,
+				VulnerabilityID: f.Vulnerability.VulnId,
+			})
+		}
+		summary := c.createSummary(project, true)
+
+		image := &model.Image{
+			ID:                 scalar.DependencyTrackProjectIdent(project.Uuid),
+			ProjectID:          project.Uuid,
+			Name:               project.Name,
+			Critical:           summary.Critical,
+			Digest:             digest,
+			Findings:           retFindings,
+			RekorID:            rekor,
+			RiskScore:          summary.RiskScore,
+			Version:            version,
+			WorkloadReferences: workloads,
+		}
+		images = append(images, image)
+
+	}
+
+	return images, nil
+}
+
+func (c *Client) GetFindingsForImage(ctx context.Context, app *AppInstance) (*model.Image, error) {
+	projects, err := c.retrieveProjects(ctx, app) // 4 prosjekter
+	if err != nil {
+		return nil, fmt.Errorf("getting project by app %s: %w", app.ID(), err)
+	}
+
+	if projects == nil {
+		return nil, nil
+	}
+
+	// Finds index of project with latest bom import
+	var lastBomImport int64
+	var projectIndex int
+	for i, project := range projects {
+		if project.LastBomImport > lastBomImport {
+			lastBomImport = project.LastBomImport
+			projectIndex = i
+		}
+	}
+
+	var digest string
+	var rekor string
+	for _, tag := range projects[projectIndex].Tags {
+		if strings.Contains(tag.Name, "digest:") {
+			digest = strings.TrimPrefix(tag.Name, "digest:")
+		}
+		if strings.Contains(tag.Name, "rekor:") {
+			rekor = strings.TrimPrefix(tag.Name, "rekor:")
+		}
+	}
+
+	findings, err := c.retrieveFindings(ctx, projects[projectIndex].Uuid)
+	if err != nil {
+		return nil, fmt.Errorf("retrieving findings for project %s: %w", projects[projectIndex].Uuid, err)
+	}
+
+	retFindings := make([]*model.Finding, 0)
+	for _, f := range findings {
+		if f.Vulnerability.Severity == "UNASSIGNED" {
+			continue
+		}
+		cveId := ""
+		ghsaId := ""
+		osvId := ""
+
+		for _, alias := range f.Vulnerability.Aliases {
+			cveId = alias.CveId
+			ghsaId = alias.GhsaId
+		}
+
+		if f.Vulnerability.Source == "OSV" {
+			osvId = f.Vulnerability.VulnId
+		}
+
+		retFindings = append(retFindings, &model.Finding{
+			ID:              scalar.FindingIdent(f.Vulnerability.VulnId),
+			ComponentID:     f.Component.UUID,
+			Severity:        f.Vulnerability.Severity,
+			Description:     f.Vulnerability.Title,
+			CveID:           cveId,
+			GhsaID:          ghsaId,
+			OsvID:           osvId,
+			PackageURL:      f.Component.PURL,
+			VulnerabilityID: f.Vulnerability.VulnId,
+		})
+	}
+
+	summary := c.createSummary(projects[projectIndex], true)
+
+	return &model.Image{
+		Findings:  retFindings,
+		Digest:    digest,
+		RekorID:   rekor,
+		Critical:  summary.Critical,
+		RiskScore: summary.RiskScore,
+		Name:      app.Image,
+		ID:        scalar.ImageIdent(app.Image),
+	}, nil
 }
 
 func containsAllTags(tags []dependencytrack.Tag, s ...string) bool {

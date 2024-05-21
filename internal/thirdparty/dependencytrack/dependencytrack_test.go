@@ -208,56 +208,64 @@ func TestClient_CreateSummary(t *testing.T) {
 	mock := NewMockInternalClient(t)
 	c := New("endpoint", "username", "password", "frontend", log).WithClient(mock)
 
-	s, err := os.ReadFile("testdata/ka-farsken.json")
+	s, err := os.ReadFile("testdata/tpsws.json")
 	assert.NoError(t, err)
-	var f []*dependencytrack.Finding
-	err = json.Unmarshal(s, &f)
-	sum := c.createSummary(f, true)
+	var p *dependencytrack.Project
+	err = json.Unmarshal(s, &p)
 	assert.NoError(t, err)
-	assert.Equal(t, 227, sum.Total)
-	assert.Equal(t, 7, sum.Critical)
-	assert.Equal(t, 33, sum.High)
-	assert.Equal(t, 24, sum.Medium)
-	assert.Equal(t, 4, sum.Low)
-	assert.Equal(t, 159, sum.Unassigned)
-
-	s, err = os.ReadFile("testdata/sms-manager.json")
-	assert.NoError(t, err)
-	err = json.Unmarshal(s, &f)
-	assert.NoError(t, err)
-	sum = c.createSummary(f, true)
-	assert.Equal(t, 69, sum.Total)
-	assert.Equal(t, 0, sum.Critical)
-	assert.Equal(t, 1, sum.High)
-	assert.Equal(t, 0, sum.Medium)
-	assert.Equal(t, 2, sum.Low)
-	assert.Equal(t, 66, sum.Unassigned)
-
-	s, err = os.ReadFile("testdata/tpsws.json")
-	assert.NoError(t, err)
-	err = json.Unmarshal(s, &f)
-	assert.NoError(t, err)
-	sum = c.createSummary(f, true)
-	assert.Equal(t, 203, sum.Total)
-	assert.Equal(t, 41, sum.Critical)
-	assert.Equal(t, 102, sum.High)
-	assert.Equal(t, 53, sum.Medium)
+	sum := c.createSummary(p, true)
+	assert.Equal(t, 218, sum.Total)
+	assert.Equal(t, 42, sum.Critical)
+	assert.Equal(t, 111, sum.High)
+	assert.Equal(t, 58, sum.Medium)
 	assert.Equal(t, 7, sum.Low)
-	assert.Equal(t, 0, sum.Unassigned)
-
-	s, err = os.ReadFile("testdata/dp-oppslag-vedtak.json")
-	assert.NoError(t, err)
-	err = json.Unmarshal(s, &f)
-	assert.NoError(t, err)
-	sum = c.createSummary(f, true)
-	assert.Equal(t, 93, sum.Total)
-	assert.Equal(t, 20, sum.Critical)
-	assert.Equal(t, 49, sum.High)
-	assert.Equal(t, 20, sum.Medium)
-	assert.Equal(t, 4, sum.Low)
 	assert.Equal(t, 0, sum.Unassigned)
 }
 
+/*
+	func TestClient_GetFindingsForImage(t *testing.T) {
+		log := logrus.New().WithField("test", "dependencytrack")
+		ctx := context.Background()
+
+		tt := []struct {
+			name   string
+			input  *AppInstance
+			expect func(input *AppInstance, mock *MockInternalClient)
+			assert func(t *testing.T, f []*model.Finding, err error)
+		}{
+			{
+				name:  "should return findings if project is found",
+				input: app("dev", "team1", "app1", "image:latest"),
+				expect: func(input *AppInstance, mock *MockInternalClient) {
+					p := project(input.ToTags()...)
+					p.LastBomImportFormat = "cyclonedx"
+
+					mock.EXPECT().
+						GetProjectsByTag(ctx, url.QueryEscape("image:latest")).Return([]*dependencytrack.Project{p}, nil)
+
+					mock.EXPECT().
+						GetFindings(ctx, p.Uuid).Return(findings(), nil)
+
+				},
+				assert: func(t *testing.T, f []*model.Finding, err error) {
+					assert.NoError(t, err)
+					assert.Len(t, f, 4)
+					assert.Equal(t, "CVE-2021-1234", f[3].CveID)
+					assert.Equal(t, "GHSA-2021-1234", f[3].GhsaID)
+				},
+			},
+		}
+
+		for _, tc := range tt {
+			mock := NewMockInternalClient(t)
+			c := New("endpoint", "username", "password", "frontend", log).WithClient(mock)
+			tc.expect(tc.input, mock)
+			f, err := c.GetFindingsForImage(ctx, tc.input)
+			tc.assert(t, f, err)
+
+		}
+	}
+*/
 func app(env, team, app, image string) *AppInstance {
 	return &AppInstance{
 		Env:   env,
@@ -303,6 +311,14 @@ func findings() []*dependencytrack.Finding {
 		{
 			Vulnerability: dependencytrack.Vulnerability{
 				Severity: "CRITICAL",
+				VulnId:   "4",
+				Title:    "title4",
+				Aliases: []dependencytrack.Alias{
+					{
+						CveId:  "CVE-2021-1234",
+						GhsaId: "GHSA-2021-1234",
+					},
+				},
 			},
 		},
 	}

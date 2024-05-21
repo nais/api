@@ -310,9 +310,9 @@ type Team {
     "Returns the last n entries from the list."
     limit: Int
 
-		"Order entries by"
-		orderBy: OrderBy
-	): SqlInstancesList!
+    "Order entries by"
+    orderBy: OrderBy
+  ): SqlInstancesList!
 
   buckets(
     "Returns the first n entries from the list."
@@ -324,7 +324,7 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): BucketsList!
-  
+
   redis(
     "Returns the first n entries from the list."
     offset: Int
@@ -335,7 +335,7 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): RedisList!
-  
+
   openSearch(
     "Returns the first n entries from the list."
     offset: Int
@@ -357,7 +357,7 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): KafkaTopicList!
- 
+
   bigQuery(
     "Returns the first n entries from the list."
     offset: Int
@@ -404,6 +404,18 @@ type Team {
     "Limit the number of entries returned."
     limit: Int
   ): DeploymentList!
+
+  "The images for the team's applications."
+  images(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Limit the number of entries returned."
+    limit: Int
+
+    "Order images by"
+    orderBy: OrderBy
+  ): ImageList!
 
   "The vulnerabilities for the team's applications."
   vulnerabilities(

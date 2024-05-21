@@ -1466,6 +1466,40 @@ func (r *teamResolver) Deployments(ctx context.Context, obj *model.Team, offset 
 	}, nil
 }
 
+// Images is the resolver for the images field.
+func (r *teamResolver) Images(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.ImageList, error) {
+	images, err := r.dependencyTrackClient.GetFindingsForTeam(ctx, obj.Slug.String())
+	if err != nil {
+		return nil, fmt.Errorf("getting images from DependencyTrack: %w", err)
+	}
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case "NAME":
+			model.SortWith(images, func(a, b *model.Image) bool {
+				return model.Compare(a.Name, b.Name, orderBy.Direction)
+			})
+		case "SEVERITY_CRITICAL":
+			model.SortWith(images, func(a, b *model.Image) bool {
+				return model.Compare(a.Critical, b.Critical, orderBy.Direction)
+			})
+		case "RISK_SCORE":
+			model.SortWith(images, func(a, b *model.Image) bool {
+				return model.Compare(a.RiskScore, b.RiskScore, orderBy.Direction)
+			})
+
+		}
+	}
+
+	pagination := model.NewPagination(offset, limit)
+	images, pageInfo := model.PaginatedSlice(images, pagination)
+
+	return &model.ImageList{
+		Nodes:    images,
+		PageInfo: pageInfo,
+	}, nil
+}
+
 // Vulnerabilities is the resolver for the vulnerabilities field.
 func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy, filter *model.VulnerabilityFilter) (*model.VulnerabilityList, error) {
 	var envFilter []k8s.EnvFilter

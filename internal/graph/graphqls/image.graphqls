@@ -1,0 +1,42 @@
+type Image {
+  id: ID!
+  projectId: String!
+  name: String!
+  version: String!
+  digest: String!
+  rekorId: String!
+  critical: Int!
+  riskScore: Int!
+  findings: [Finding!]!
+  workloadReferences: [WorkloadReference!]!
+}
+
+type Finding {
+  id: ID!
+  componentId: String!
+  cveId: String!
+  ghsaId: String!
+  osvId: String!
+  severity: String!
+  description: String!
+  packageUrl: String!
+  vulnerabilityId: String!
+}
+
+type WorkloadReference {
+  id: ID!
+  name: String!
+  team: String!
+  workloadType: String!
+  environment: String!
+}
+
+type ImageList {
+  nodes: [Image!]!
+  pageInfo: PageInfo!
+}
+
+extend type Query {
+  "Get image by dependency track project id."
+  dependencyTrackProject(projectId: String!): Image!
+}

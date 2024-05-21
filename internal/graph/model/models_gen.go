@@ -351,6 +351,18 @@ func (FailedRunError) IsStateError()             {}
 func (this FailedRunError) GetRevision() string  { return this.Revision }
 func (this FailedRunError) GetLevel() ErrorLevel { return this.Level }
 
+type Finding struct {
+	ID              scalar.Ident `json:"id"`
+	ComponentID     string       `json:"componentId"`
+	CveID           string       `json:"cveId"`
+	GhsaID          string       `json:"ghsaId"`
+	OsvID           string       `json:"osvId"`
+	Severity        string       `json:"severity"`
+	Description     string       `json:"description"`
+	PackageURL      string       `json:"packageUrl"`
+	VulnerabilityID string       `json:"vulnerabilityId"`
+}
+
 type Flag struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
@@ -413,6 +425,24 @@ type IDPortenSidecar struct {
 	Level                *string    `json:"level,omitempty"`
 	Locale               *string    `json:"locale,omitempty"`
 	Resources            *Resources `json:"resources,omitempty"`
+}
+
+type Image struct {
+	ID                 scalar.Ident         `json:"id"`
+	ProjectID          string               `json:"projectId"`
+	Name               string               `json:"name"`
+	Version            string               `json:"version"`
+	Digest             string               `json:"digest"`
+	RekorID            string               `json:"rekorId"`
+	Critical           int                  `json:"critical"`
+	RiskScore          int                  `json:"riskScore"`
+	Findings           []*Finding           `json:"findings"`
+	WorkloadReferences []*WorkloadReference `json:"workloadReferences"`
+}
+
+type ImageList struct {
+	Nodes    []*Image `json:"nodes"`
+	PageInfo PageInfo `json:"pageInfo"`
 }
 
 type Inbound struct {
@@ -962,6 +992,14 @@ type VulnerabilitySummary struct {
 	Low        int `json:"low"`
 	Unassigned int `json:"unassigned"`
 	BomCount   int `json:"bomCount"`
+}
+
+type WorkloadReference struct {
+	ID           scalar.Ident `json:"id"`
+	Name         string       `json:"name"`
+	Team         string       `json:"team"`
+	WorkloadType string       `json:"workloadType"`
+	Environment  string       `json:"environment"`
 }
 
 type ErrorLevel string

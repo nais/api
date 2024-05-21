@@ -39,7 +39,7 @@ import (
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // This file will not be regenerated automatically.
@@ -121,6 +121,9 @@ type HookdClient interface {
 type DependencytrackClient interface {
 	VulnerabilitySummary(ctx context.Context, app *dependencytrack.AppInstance) (*model.Vulnerability, error)
 	GetVulnerabilities(ctx context.Context, apps []*dependencytrack.AppInstance, filters ...dependencytrack.Filter) ([]*model.Vulnerability, error)
+	GetFindingsForImage(ctx context.Context, app *dependencytrack.AppInstance) (*model.Image, error)
+	GetFindingsForImageByProjectID(ctx context.Context, projectID string) (*model.Image, error)
+	GetFindingsForTeam(ctx context.Context, team string) ([]*model.Image, error)
 }
 
 type Resolver struct {
