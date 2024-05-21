@@ -148,7 +148,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		unleashOpts = append(unleashOpts, unleash.WithClientsCreator(fake.Clients(os.DirFS("./data/k8s"))))
 	}
 
-	//TODO: Hack to only enable for nav, until we have a better solution
+	// TODO: Hack to only enable for nav, until we have a better solution
 	if cfg.Tenant == "nav" {
 		unleashOpts = append(unleashOpts, unleash.WithBifrostEnabled())
 	}
