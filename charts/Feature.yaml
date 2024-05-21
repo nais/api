@@ -164,7 +164,7 @@ values:
     displayName: Unleash feature flag
     description: Enable Unleash feature flag
     config:
-      type: boolean
+      type: bool
     default: false
 
   unleash.namespace:
