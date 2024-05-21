@@ -7,12 +7,13 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
-	dsse "github.com/sigstore/rekor/pkg/types/dsse/v0.0.1"
 	"log"
 	"strconv"
 	"strings"
 	"time"
 	"unicode"
+
+	dsse "github.com/sigstore/rekor/pkg/types/dsse/v0.0.1"
 
 	"github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"

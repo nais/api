@@ -601,7 +601,6 @@ func (c *Client) SuppressFinding(ctx context.Context, analysisState, comment, co
 }
 
 func parseComments(trail *dependencytrack.Analysis) []*model.Comment {
-
 	comments := make([]*model.Comment, 0)
 	for _, comment := range trail.AnalysisComments {
 		timestamp := time.Unix(int64(comment.Timestamp)/1000, 0).Local()
