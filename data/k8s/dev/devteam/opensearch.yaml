@@ -13,9 +13,10 @@ metadata:
       https://github.com/navikt/testnorge/actions/runs/7828725220"
     nais.io/deploymentCorrelationID: ad95b24f-439b-43fd-97b1-d53956f18502
   labels:
-    team: dolly
+    team: devteam
+    app: app-w-all-storage
   name: my-cool-opensearch-instance
-  namespace: dolly
+  namespace: devteam
 spec:
   cloudName: google-europe-north1
   connInfoSecretTarget:
@@ -25,6 +26,6 @@ spec:
   projectVpcId: dd346648-b919-4b24-a8dd-30ea6d2db53b
   tags:
     environment: dev
-    team: dolly
+    team: devteam
     tenant: nav
   terminationProtection: true

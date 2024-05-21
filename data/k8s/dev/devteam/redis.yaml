@@ -6,7 +6,7 @@ metadata:
     controllers.aiven.io/instance-is-running: "true"
     nais.io/deploymentCorrelationID: 61ad0b73-e30f-401a-949c-b8810c2b509a
   labels:
-    app: contests
+    app: app-w-all-storage
     team: devteam
   name: redis-devteam-contests
   namespace: devteam

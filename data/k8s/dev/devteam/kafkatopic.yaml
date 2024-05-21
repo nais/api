@@ -2,7 +2,8 @@ apiVersion: kafka.nais.io/v1
 kind: Topic
 metadata:
   labels:
-    team: ddd
+    team: devteam
+    app: app-w-all-storage
   name: proper-topic-name
   namespace: devteam
   ownerReferences:

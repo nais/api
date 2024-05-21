@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/selection"
 )
 
 func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) ([]model.Persistence, error) {
@@ -15,8 +16,15 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 	spec := workload.GQLVars.Spec
 	ret := make([]model.Persistence, 0)
 
+	req, err := labels.NewRequirement("app", selection.Equals, []string{workload.Name})
+	if err != nil {
+		return nil, c.error(ctx, err, "creating label selector")
+	}
+
+	byAppLabel := labels.NewSelector().Add(*req)
+
 	if inf := c.informers[cluster].Bucket; inf != nil {
-		buckets, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
+		buckets, err := inf.Lister().ByNamespace(string(teamSlug)).List(byAppLabel)
 		if err != nil {
 			return nil, fmt.Errorf("listing buckets: %w", err)
 		}
@@ -30,7 +38,7 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 	}
 
 	if inf := c.informers[cluster].BigQuery; inf != nil {
-		bqs, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
+		bqs, err := inf.Lister().ByNamespace(string(teamSlug)).List(byAppLabel)
 		if err != nil {
 			return nil, fmt.Errorf("listing bigquerydatasets: %w", err)
 		}
@@ -44,7 +52,7 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 	}
 
 	if inf := c.informers[cluster].Redis; inf != nil {
-		redises, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
+		redises, err := inf.Lister().ByNamespace(string(teamSlug)).List(byAppLabel)
 		if err != nil {
 			return nil, fmt.Errorf("getting redis: %w", err)
 		}
@@ -66,7 +74,7 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 	}
 
 	if inf := c.informers[cluster].SqlInstance; inf != nil {
-		objs, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
+		objs, err := inf.Lister().ByNamespace(string(teamSlug)).List(byAppLabel)
 		if err != nil {
 			return nil, fmt.Errorf("listing SQL instances: %w", err)
 		}
@@ -80,7 +88,7 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 	}
 
 	if inf := c.informers[cluster].OpenSearch; inf != nil {
-		objs, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
+		objs, err := inf.Lister().ByNamespace(string(teamSlug)).List(byAppLabel)
 		if err != nil {
 			return nil, fmt.Errorf("listing OpenSearch instances: %w", err)
 		}
@@ -94,7 +102,7 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 	}
 
 	if inf := c.informers[cluster].KafkaTopic; inf != nil {
-		objs, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
+		objs, err := inf.Lister().ByNamespace(string(teamSlug)).List(byAppLabel)
 		if err != nil {
 			return nil, fmt.Errorf("listing KafkaTopic instances: %w", err)
 		}
@@ -107,11 +115,5 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 		}
 	}
 
-	if spec.Influx != nil {
-		influx := model.InfluxDb{
-			Name: spec.Influx.Instance,
-		}
-		ret = append(ret, influx)
-	}
 	return ret, nil
 }

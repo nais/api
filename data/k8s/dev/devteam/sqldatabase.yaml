@@ -8,7 +8,7 @@ metadata:
     cnrm.cloud.google.com/state-into-spec: merge
     nais.io/deploymentCorrelationID: c28520a3-4232-4ece-ae48-330deb16c853
   labels:
-    app: contests
+    app: app-w-all-storage
     app.kubernetes.io/instance: contests
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: contests
