@@ -636,7 +636,6 @@ type ComplexityRoot struct {
 		DailyCostForTeam                    func(childComplexity int, team slug.Slug, from scalar.Date, to scalar.Date) int
 		Deployments                         func(childComplexity int, offset *int, limit *int) int
 		EnvCost                             func(childComplexity int, filter model.EnvCostFilter) int
-		KafkaTopic                          func(childComplexity int, name string, team slug.Slug, env string) int
 		Me                                  func(childComplexity int) int
 		MonthlyCost                         func(childComplexity int, filter model.MonthlyCostFilter) int
 		Naisjob                             func(childComplexity int, name string, team slug.Slug, env string) int
@@ -647,7 +646,6 @@ type ComplexityRoot struct {
 		ResourceUtilizationForTeam          func(childComplexity int, team slug.Slug, from *scalar.Date, to *scalar.Date) int
 		ResourceUtilizationOverageForTeam   func(childComplexity int, team slug.Slug) int
 		ResourceUtilizationTrendForTeam     func(childComplexity int, team slug.Slug) int
-		SQLInstance                         func(childComplexity int, name string, team slug.Slug, env string) int
 		Search                              func(childComplexity int, query string, filter *model.SearchFilter, offset *int, limit *int) int
 		Team                                func(childComplexity int, slug slug.Slug) int
 		TeamDeleteKey                       func(childComplexity int, key string) int
@@ -1191,8 +1189,6 @@ type QueryResolver interface {
 	EnvCost(ctx context.Context, filter model.EnvCostFilter) ([]*model.EnvCost, error)
 	Deployments(ctx context.Context, offset *int, limit *int) (*model.DeploymentList, error)
 	Naisjob(ctx context.Context, name string, team slug.Slug, env string) (*model.NaisJob, error)
-	SQLInstance(ctx context.Context, name string, team slug.Slug, env string) (*model.SQLInstance, error)
-	KafkaTopic(ctx context.Context, name string, team slug.Slug, env string) (*model.KafkaTopic, error)
 	Reconcilers(ctx context.Context, offset *int, limit *int) (*model.ReconcilerList, error)
 	ResourceUtilizationTrendForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationTrend, error)
 	CurrentResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.CurrentResourceUtilization, error)
@@ -3803,18 +3799,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.EnvCost(childComplexity, args["filter"].(model.EnvCostFilter)), true
 
-	case "Query.kafkaTopic":
-		if e.complexity.Query.KafkaTopic == nil {
-			break
-		}
-
-		args, err := ec.field_Query_kafkaTopic_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.KafkaTopic(childComplexity, args["name"].(string), args["team"].(slug.Slug), args["env"].(string)), true
-
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
 			break
@@ -3929,18 +3913,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.ResourceUtilizationTrendForTeam(childComplexity, args["team"].(slug.Slug)), true
-
-	case "Query.sqlInstance":
-		if e.complexity.Query.SQLInstance == nil {
-			break
-		}
-
-		args, err := ec.field_Query_sqlInstance_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.SQLInstance(childComplexity, args["name"].(string), args["team"].(slug.Slug), args["env"].(string)), true
 
 	case "Query.search":
 		if e.complexity.Query.Search == nil {
@@ -6869,33 +6841,7 @@ type NaisJobList {
   pageInfo: PageInfo!
 }
 `, BuiltIn: false},
-	{Name: "../graphqls/persistence.graphqls", Input: `extend type Query {
-  "Get an SQL instance by name, team and env."
-  sqlInstance(
-    "The name of the instance."
-    name: String!
-
-    "The name of the team who owns the instance."
-    team: Slug!
-
-    "The environment the instance runs in."
-    env: String!
-  ): SqlInstance!
-
-  "Get a Kafka topic by name, team and env."
-  kafkaTopic(
-    "The name of the topic."
-    name: String!
-
-    "The name of the team who owns the topic."
-    team: Slug!
-
-    "The environment the topic exists in."
-    env: String!
-  ): KafkaTopic!
-}
-
-interface Persistence {
+	{Name: "../graphqls/persistence.graphqls", Input: `interface Persistence {
   name: String!
   id: ID!
 }
@@ -9452,39 +9398,6 @@ func (ec *executionContext) field_Query_envCost_args(ctx context.Context, rawArg
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_kafkaTopic_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["name"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["name"] = arg0
-	var arg1 slug.Slug
-	if tmp, ok := rawArgs["team"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-		arg1, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["team"] = arg1
-	var arg2 string
-	if tmp, ok := rawArgs["env"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("env"))
-		arg2, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["env"] = arg2
-	return args, nil
-}
-
 func (ec *executionContext) field_Query_monthlyCost_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -9758,39 +9671,6 @@ func (ec *executionContext) field_Query_search_args(ctx context.Context, rawArgs
 		}
 	}
 	args["limit"] = arg3
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_sqlInstance_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["name"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["name"] = arg0
-	var arg1 slug.Slug
-	if tmp, ok := rawArgs["team"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-		arg1, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["team"] = arg1
-	var arg2 string
-	if tmp, ok := rawArgs["env"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("env"))
-		arg2, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["env"] = arg2
 	return args, nil
 }
 
@@ -28081,182 +27961,6 @@ func (ec *executionContext) fieldContext_Query_naisjob(ctx context.Context, fiel
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_naisjob_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_sqlInstance(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_sqlInstance(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().SQLInstance(rctx, fc.Args["name"].(string), fc.Args["team"].(slug.Slug), fc.Args["env"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.SQLInstance)
-	fc.Result = res
-	return ec.marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLInstance(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_sqlInstance(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_SqlInstance_id(ctx, field)
-			case "backupConfiguration":
-				return ec.fieldContext_SqlInstance_backupConfiguration(ctx, field)
-			case "cascadingDelete":
-				return ec.fieldContext_SqlInstance_cascadingDelete(ctx, field)
-			case "connectionName":
-				return ec.fieldContext_SqlInstance_connectionName(ctx, field)
-			case "database":
-				return ec.fieldContext_SqlInstance_database(ctx, field)
-			case "diskAutoresize":
-				return ec.fieldContext_SqlInstance_diskAutoresize(ctx, field)
-			case "diskAutoresizeLimit":
-				return ec.fieldContext_SqlInstance_diskAutoresizeLimit(ctx, field)
-			case "env":
-				return ec.fieldContext_SqlInstance_env(ctx, field)
-			case "flags":
-				return ec.fieldContext_SqlInstance_flags(ctx, field)
-			case "highAvailability":
-				return ec.fieldContext_SqlInstance_highAvailability(ctx, field)
-			case "isHealthy":
-				return ec.fieldContext_SqlInstance_isHealthy(ctx, field)
-			case "maintenanceWindow":
-				return ec.fieldContext_SqlInstance_maintenanceWindow(ctx, field)
-			case "maintenanceVersion":
-				return ec.fieldContext_SqlInstance_maintenanceVersion(ctx, field)
-			case "metrics":
-				return ec.fieldContext_SqlInstance_metrics(ctx, field)
-			case "name":
-				return ec.fieldContext_SqlInstance_name(ctx, field)
-			case "projectId":
-				return ec.fieldContext_SqlInstance_projectId(ctx, field)
-			case "team":
-				return ec.fieldContext_SqlInstance_team(ctx, field)
-			case "tier":
-				return ec.fieldContext_SqlInstance_tier(ctx, field)
-			case "type":
-				return ec.fieldContext_SqlInstance_type(ctx, field)
-			case "status":
-				return ec.fieldContext_SqlInstance_status(ctx, field)
-			case "state":
-				return ec.fieldContext_SqlInstance_state(ctx, field)
-			case "users":
-				return ec.fieldContext_SqlInstance_users(ctx, field)
-			case "workload":
-				return ec.fieldContext_SqlInstance_workload(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type SqlInstance", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_sqlInstance_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_kafkaTopic(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_kafkaTopic(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().KafkaTopic(rctx, fc.Args["name"].(string), fc.Args["team"].(slug.Slug), fc.Args["env"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.KafkaTopic)
-	fc.Result = res
-	return ec.marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐKafkaTopic(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_kafkaTopic(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "name":
-				return ec.fieldContext_KafkaTopic_name(ctx, field)
-			case "id":
-				return ec.fieldContext_KafkaTopic_id(ctx, field)
-			case "acl":
-				return ec.fieldContext_KafkaTopic_acl(ctx, field)
-			case "config":
-				return ec.fieldContext_KafkaTopic_config(ctx, field)
-			case "pool":
-				return ec.fieldContext_KafkaTopic_pool(ctx, field)
-			case "team":
-				return ec.fieldContext_KafkaTopic_team(ctx, field)
-			case "env":
-				return ec.fieldContext_KafkaTopic_env(ctx, field)
-			case "workload":
-				return ec.fieldContext_KafkaTopic_workload(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type KafkaTopic", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_kafkaTopic_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -51023,50 +50727,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_naisjob(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "sqlInstance":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_sqlInstance(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "kafkaTopic":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_kafkaTopic(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
