@@ -203,6 +203,7 @@ type ComplexityRoot struct {
 		ProjectID                func(childComplexity int) int
 		PublicAccessPrevention   func(childComplexity int) int
 		RetentionPeriodDays      func(childComplexity int) int
+		SelfLink                 func(childComplexity int) int
 		Team                     func(childComplexity int) int
 		UniformBucketLevelAccess func(childComplexity int) int
 		Workload                 func(childComplexity int) int
@@ -1904,6 +1905,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Bucket.RetentionPeriodDays(childComplexity), true
+
+	case "Bucket.selfLink":
+		if e.complexity.Bucket.SelfLink == nil {
+			break
+		}
+
+		return e.complexity.Bucket.SelfLink(childComplexity), true
 
 	case "Bucket.team":
 		if e.complexity.Bucket.Team == nil {
@@ -6967,6 +6975,7 @@ type Bucket implements Persistence {
   retentionPeriodDays: Int!
   uniformBucketLevelAccess: Boolean!
   cors: String!
+  selfLink: String!
   projectId: String!
   team: Team!
   env: Env!
@@ -6985,14 +6994,14 @@ type KafkaTopic implements Persistence {
 }
 
 type KafkaTopicConfig {
-    cleanupPolicy: String
-    maxMessageBytes: Int
-    minimumInSyncReplicas: Int
-    partitions: Int
-    replication: Int
-    retentionBytes: Int
-    retentionHours: Int
-    segmentHours: Int
+  cleanupPolicy: String
+  maxMessageBytes: Int
+  minimumInSyncReplicas: Int
+  partitions: Int
+  replication: Int
+  retentionBytes: Int
+  retentionHours: Int
+  segmentHours: Int
 }
 
 type KafkaTopicAcl {
@@ -7030,7 +7039,7 @@ type MaintenanceWindow {
   hour: Int!
 }
 
-type SqlDatabase implements Persistence{
+type SqlDatabase implements Persistence {
   name: String!
   charset: String!
   collation: String!
@@ -7178,7 +7187,8 @@ extend enum OrderByField {
 
   "Order by disk utilization"
   DISK
-}`, BuiltIn: false},
+}
+`, BuiltIn: false},
 	{Name: "../graphqls/reconcilers.graphqls", Input: `extend type Mutation {
   """
   Enable a reconciler
@@ -14482,6 +14492,50 @@ func (ec *executionContext) fieldContext_Bucket_cors(ctx context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Bucket_selfLink(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Bucket_selfLink(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SelfLink, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Bucket_selfLink(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Bucket",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Bucket_projectId(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Bucket_projectId(ctx, field)
 	if err != nil {
@@ -14800,6 +14854,8 @@ func (ec *executionContext) fieldContext_BucketsList_nodes(ctx context.Context, 
 				return ec.fieldContext_Bucket_uniformBucketLevelAccess(ctx, field)
 			case "cors":
 				return ec.fieldContext_Bucket_cors(ctx, field)
+			case "selfLink":
+				return ec.fieldContext_Bucket_selfLink(ctx, field)
 			case "projectId":
 				return ec.fieldContext_Bucket_projectId(ctx, field)
 			case "team":
@@ -38582,6 +38638,8 @@ func (ec *executionContext) fieldContext_Team_bucket(ctx context.Context, field 
 				return ec.fieldContext_Bucket_uniformBucketLevelAccess(ctx, field)
 			case "cors":
 				return ec.fieldContext_Bucket_cors(ctx, field)
+			case "selfLink":
+				return ec.fieldContext_Bucket_selfLink(ctx, field)
 			case "projectId":
 				return ec.fieldContext_Bucket_projectId(ctx, field)
 			case "team":
@@ -47409,6 +47467,11 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 			}
 		case "cors":
 			out.Values[i] = ec._Bucket_cors(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "selfLink":
+			out.Values[i] = ec._Bucket_selfLink(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

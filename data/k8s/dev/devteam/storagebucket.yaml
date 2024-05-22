@@ -28,6 +28,11 @@ spec:
   publicAccessPrevention: inherited
   resourceID: uniquebucketname-bucket
   storageClass: STANDARD
+  cors:
+    - origin: ["http://example.appspot.com"]
+      responseHeader: ["Content-Type"]
+      method: ["GET", "HEAD", "DELETE"]
+      maxAgeSeconds: 3600
 status:
   conditions:
     - lastTransitionTime: "2023-03-29T09:16:41Z"

@@ -66,8 +66,9 @@ func ToBucket(u *unstructured.Unstructured, env string) (*Bucket, error) {
 			ret := ""
 			for _, c := range cors {
 				for _, origin := range c.Origin {
+					ret += origin
 					for _, method := range c.Method {
-						ret += origin + " - " + method
+						ret += " - " + method
 					}
 				}
 			}
