@@ -14,7 +14,6 @@ type App struct {
 }
 
 func (App) IsSearchNode() {}
-func (App) IsWorkload()   {}
 
 type Instance struct {
 	ID       scalar.Ident  `json:"id"`

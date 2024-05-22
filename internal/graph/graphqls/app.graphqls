@@ -44,23 +44,24 @@ extend type Query {
   ): App!
 }
 
-type App {
+type App implements Workload {
   id: ID!
   name: String!
   image: String!
   deployInfo: DeployInfo!
   env: Env!
+  accessPolicy: AccessPolicy!
+  status: WorkloadStatus!
+  authz: [Authz!]!
+  variables: [Variable!]!
+  resources: Resources!
+
   ingresses: [String!]!
   instances: [Instance!]!
-  accessPolicy: AccessPolicy!
-  resources: Resources!
   autoScaling: AutoScaling!
   persistence: [Persistence!]!
-  variables: [Variable!]!
-  authz: [Authz!]!
   manifest: String!
   team: Team!
-  status: WorkloadStatus!
   vulnerabilities: Vulnerability
   secrets: [Secret!]!
 }

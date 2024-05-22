@@ -1,0 +1,12 @@
+interface Workload {
+  id: ID!
+  name: String!
+  image: String!
+  deployInfo: DeployInfo!
+  env: Env!
+  accessPolicy: AccessPolicy!
+  status: WorkloadStatus!
+  authz: [Authz!]!
+  variables: [Variable!]!
+  resources: Resources!
+}

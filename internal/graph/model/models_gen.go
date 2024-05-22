@@ -43,6 +43,16 @@ type StateError interface {
 
 type Workload interface {
 	IsWorkload()
+	GetID() scalar.Ident
+	GetName() string
+	GetImage() string
+	GetDeployInfo() DeployInfo
+	GetEnv() Env
+	GetAccessPolicy() AccessPolicy
+	GetStatus() WorkloadStatus
+	GetAuthz() []Authz
+	GetVariables() []*Variable
+	GetResources() Resources
 }
 
 type AccessPolicy struct {

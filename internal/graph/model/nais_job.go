@@ -16,7 +16,6 @@ type NaisJob struct {
 }
 
 func (NaisJob) IsSearchNode() {}
-func (NaisJob) IsWorkload()   {}
 
 type Run struct {
 	ID             scalar.Ident `json:"id"`
