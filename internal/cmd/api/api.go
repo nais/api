@@ -16,6 +16,8 @@ import (
 	"github.com/nais/api/internal/unleash"
 
 	"cloud.google.com/go/pubsub"
+	gcpStorage "cloud.google.com/go/storage"
+
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/auditlogger"
@@ -187,6 +189,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		)
 	}
 
+	gcpStorageClient, err := gcpStorage.NewClient(ctx)
+	if err != nil {
+		log.WithError(err).Errorf("gcp storage client")
+	}
+
 	userSyncRuns := usersync.NewRunsHandler(cfg.UserSync.RunsToPersist)
 	resourceUsageClient := resourceusage.NewClient(cfg.K8s.AllClusterNames(), db, log)
 	sqlInstanceClient, err := sqlinstance.NewClient(ctx, db, k8sClient.Informers(), log)
@@ -208,7 +215,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		pubsubTopic,
 		log,
 		sqlInstanceClient,
-		bucket.NewClient(k8sClient.Informers(), log),
+		bucket.NewClient(k8sClient.Informers(), log, *gcpStorageClient),
 		redis.NewClient(k8sClient.Informers(), log),
 		bigquery.NewClient(k8sClient.Informers(), log),
 		opensearch.NewClient(k8sClient.Informers(), log),
