@@ -1128,6 +1128,7 @@ type ComplexityRoot struct {
 	}
 
 	WorkloadReference struct {
+		DeployInfo   func(childComplexity int) int
 		Environment  func(childComplexity int) int
 		ID           func(childComplexity int) int
 		Name         func(childComplexity int) int
@@ -6205,6 +6206,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.VulnerabilitySummary.Unassigned(childComplexity), true
 
+	case "WorkloadReference.deployInfo":
+		if e.complexity.WorkloadReference.DeployInfo == nil {
+			break
+		}
+
+		return e.complexity.WorkloadReference.DeployInfo(childComplexity), true
+
 	case "WorkloadReference.environment":
 		if e.complexity.WorkloadReference.Environment == nil {
 			break
@@ -7042,6 +7050,7 @@ type WorkloadReference {
   team: String!
   workloadType: String!
   environment: String!
+  deployInfo: DeployInfo!
 }
 
 type ImageList {
@@ -21105,6 +21114,8 @@ func (ec *executionContext) fieldContext_Image_workloadReferences(ctx context.Co
 				return ec.fieldContext_WorkloadReference_workloadType(ctx, field)
 			case "environment":
 				return ec.fieldContext_WorkloadReference_environment(ctx, field)
+			case "deployInfo":
+				return ec.fieldContext_WorkloadReference_deployInfo(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type WorkloadReference", field.Name)
 		},
@@ -44726,6 +44737,62 @@ func (ec *executionContext) fieldContext_WorkloadReference_environment(ctx conte
 	return fc, nil
 }
 
+func (ec *executionContext) _WorkloadReference_deployInfo(ctx context.Context, field graphql.CollectedField, obj *model.WorkloadReference) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadReference_deployInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeployInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.DeployInfo)
+	fc.Result = res
+	return ec.marshalNDeployInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐDeployInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadReference_deployInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadReference",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "deployer":
+				return ec.fieldContext_DeployInfo_deployer(ctx, field)
+			case "timestamp":
+				return ec.fieldContext_DeployInfo_timestamp(ctx, field)
+			case "commitSha":
+				return ec.fieldContext_DeployInfo_commitSha(ctx, field)
+			case "url":
+				return ec.fieldContext_DeployInfo_url(ctx, field)
+			case "history":
+				return ec.fieldContext_DeployInfo_history(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeployInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _WorkloadStatus_state(ctx context.Context, field graphql.CollectedField, obj *model.WorkloadStatus) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_WorkloadStatus_state(ctx, field)
 	if err != nil {
@@ -58401,6 +58468,11 @@ func (ec *executionContext) _WorkloadReference(ctx context.Context, sel ast.Sele
 			}
 		case "environment":
 			out.Values[i] = ec._WorkloadReference_environment(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deployInfo":
+			out.Values[i] = ec._WorkloadReference_deployInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

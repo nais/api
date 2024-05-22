@@ -54,7 +54,23 @@ func (r *imageResolver) Findings(ctx context.Context, obj *model.Image, offset *
 
 // DependencyTrackProject is the resolver for the dependencyTrackProject field.
 func (r *queryResolver) DependencyTrackProject(ctx context.Context, projectID string) (*model.Image, error) {
-	return r.dependencyTrackClient.GetMetadataForImageByProjectID(ctx, projectID)
+	image, err := r.dependencyTrackClient.GetMetadataForImageByProjectID(ctx, projectID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, ref := range image.WorkloadReferences {
+		app, err := r.k8sClient.App(ctx, ref.Name, ref.Team, ref.Environment)
+		if err != nil {
+			continue
+		}
+		if app == nil {
+			continue
+		}
+		ref.DeployInfo = app.DeployInfo
+	}
+
+	return image, nil
 }
 
 // Image returns gengql.ImageResolver implementation.

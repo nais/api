@@ -992,6 +992,7 @@ type WorkloadReference struct {
 	Team         string       `json:"team"`
 	WorkloadType string       `json:"workloadType"`
 	Environment  string       `json:"environment"`
+	DeployInfo   DeployInfo   `json:"deployInfo"`
 }
 
 type ErrorLevel string

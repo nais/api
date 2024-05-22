@@ -25,6 +25,7 @@ type WorkloadReference {
   team: String!
   workloadType: String!
   environment: String!
+  deployInfo: DeployInfo!
 }
 
 type ImageList {
