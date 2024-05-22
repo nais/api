@@ -9,16 +9,16 @@ metadata:
     kubernetes.io/change-cause: 'nais deploy: commit 09e0051360b4f68e3b248a7757a949f0f50fff39:
       https://github.com/nais/wonderwalled/actions/runs/8719413760'
     nais.io/deploymentCorrelationID: 92a42b26-cf3d-47d1-88f2-6ebac09c3a5e
-  creationTimestamp: "2023-05-24T11:10:27Z"
+  creationTimestamp: "2023-03-15T18:12:02Z"
   finalizers:
   - naiserator.nais.io/finalizer
-  generation: 89
+  generation: 261
   labels:
     team: aura
-  name: azure-token-generator
+  name: wonderwalled-azure
   namespace: aura
-  resourceVersion: "4631362666"
-  uid: 7c5935ce-46a6-4776-9eec-c3d396d1dd14
+  resourceVersion: "4717728103"
+  uid: 3c394703-abf2-46a8-a81d-6a014907506d
 spec:
   azure:
     application:
@@ -28,7 +28,8 @@ spec:
       enabled: true
   image: europe-north1-docker.pkg.dev/nais-io/nais/images/wonderwalled-azure:2024-04-17-111826-09e0051
   ingresses:
-  - https://azure-token-generator.intern.dev.nav.no
+  - https://wonderwalled-azure.intern.dev.nav.no
+  - https://wonderwalled-azure.ansatt.dev.nav.no
   liveness:
     failureThreshold: 30
     initialDelay: 5
@@ -53,14 +54,14 @@ spec:
       memory: 128Mi
 status:
   conditions:
-  - lastTransitionTime: "2024-04-17T09:19:40Z"
+  - lastTransitionTime: "2024-05-02T11:52:52Z"
     message: Successfully deployed.
     reason: RolloutComplete
     status: "True"
     type: SynchronizationState
   correlationID: 92a42b26-cf3d-47d1-88f2-6ebac09c3a5e
   deploymentRolloutStatus: complete
-  rolloutCompleteTime: 1713345618482502508
-  synchronizationHash: 7bbd7236fa679434
+  rolloutCompleteTime: 1714650828377527620
+  synchronizationHash: c1f453cd3d127371
   synchronizationState: RolloutComplete
-  synchronizationTime: 1713345580092557065
+  synchronizationTime: 1714650772821355343
