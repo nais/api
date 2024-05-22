@@ -37,10 +37,11 @@ type Bucket implements Persistence {
   id: ID!
   cascadingDelete: Boolean!
   name: String!
-  # publicAccessPrevention: Boolean!
-  # retentionPeriodDays: Int!
-  # uniformBucketLevelAccess: Boolean!
-
+  publicAccessPrevention: String!
+  retentionPeriodDays: Int!
+  uniformBucketLevelAccess: Boolean!
+  cors: String!
+  selfLink: String!
   projectId: String!
   team: Team!
   env: Env!
@@ -59,14 +60,14 @@ type KafkaTopic implements Persistence {
 }
 
 type KafkaTopicConfig {
-    cleanupPolicy: String
-    maxMessageBytes: Int
-    minimumInSyncReplicas: Int
-    partitions: Int
-    replication: Int
-    retentionBytes: Int
-    retentionHours: Int
-    segmentHours: Int
+  cleanupPolicy: String
+  maxMessageBytes: Int
+  minimumInSyncReplicas: Int
+  partitions: Int
+  replication: Int
+  retentionBytes: Int
+  retentionHours: Int
+  segmentHours: Int
 }
 
 type KafkaTopicAcl {
@@ -104,7 +105,7 @@ type MaintenanceWindow {
   hour: Int!
 }
 
-type SqlDatabase implements Persistence{
+type SqlDatabase implements Persistence {
   name: String!
   charset: String!
   collation: String!

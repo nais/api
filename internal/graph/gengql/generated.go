@@ -195,13 +195,17 @@ type ComplexityRoot struct {
 	}
 
 	Bucket struct {
-		CascadingDelete func(childComplexity int) int
-		Env             func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Name            func(childComplexity int) int
-		ProjectID       func(childComplexity int) int
-		Team            func(childComplexity int) int
-		Workload        func(childComplexity int) int
+		CascadingDelete          func(childComplexity int) int
+		Cors                     func(childComplexity int) int
+		Env                      func(childComplexity int) int
+		ID                       func(childComplexity int) int
+		Name                     func(childComplexity int) int
+		ProjectID                func(childComplexity int) int
+		PublicAccessPrevention   func(childComplexity int) int
+		RetentionPeriodDays      func(childComplexity int) int
+		Team                     func(childComplexity int) int
+		UniformBucketLevelAccess func(childComplexity int) int
+		Workload                 func(childComplexity int) int
 	}
 
 	BucketsList struct {
@@ -1852,6 +1856,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Bucket.CascadingDelete(childComplexity), true
 
+	case "Bucket.cors":
+		if e.complexity.Bucket.Cors == nil {
+			break
+		}
+
+		return e.complexity.Bucket.Cors(childComplexity), true
+
 	case "Bucket.env":
 		if e.complexity.Bucket.Env == nil {
 			break
@@ -1880,12 +1891,33 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Bucket.ProjectID(childComplexity), true
 
+	case "Bucket.publicAccessPrevention":
+		if e.complexity.Bucket.PublicAccessPrevention == nil {
+			break
+		}
+
+		return e.complexity.Bucket.PublicAccessPrevention(childComplexity), true
+
+	case "Bucket.retentionPeriodDays":
+		if e.complexity.Bucket.RetentionPeriodDays == nil {
+			break
+		}
+
+		return e.complexity.Bucket.RetentionPeriodDays(childComplexity), true
+
 	case "Bucket.team":
 		if e.complexity.Bucket.Team == nil {
 			break
 		}
 
 		return e.complexity.Bucket.Team(childComplexity), true
+
+	case "Bucket.uniformBucketLevelAccess":
+		if e.complexity.Bucket.UniformBucketLevelAccess == nil {
+			break
+		}
+
+		return e.complexity.Bucket.UniformBucketLevelAccess(childComplexity), true
 
 	case "Bucket.workload":
 		if e.complexity.Bucket.Workload == nil {
@@ -6931,10 +6963,10 @@ type Bucket implements Persistence {
   id: ID!
   cascadingDelete: Boolean!
   name: String!
-  # publicAccessPrevention: Boolean!
-  # retentionPeriodDays: Int!
-  # uniformBucketLevelAccess: Boolean!
-
+  publicAccessPrevention: String!
+  retentionPeriodDays: Int!
+  uniformBucketLevelAccess: Boolean!
+  cors: String!
   projectId: String!
   team: Team!
   env: Env!
@@ -14274,6 +14306,182 @@ func (ec *executionContext) fieldContext_Bucket_name(ctx context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Bucket_publicAccessPrevention(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Bucket_publicAccessPrevention(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PublicAccessPrevention, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Bucket_publicAccessPrevention(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Bucket",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Bucket_retentionPeriodDays(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Bucket_retentionPeriodDays(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RetentionPeriodDays, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Bucket_retentionPeriodDays(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Bucket",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Bucket_uniformBucketLevelAccess(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Bucket_uniformBucketLevelAccess(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UniformBucketLevelAccess, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Bucket_uniformBucketLevelAccess(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Bucket",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Bucket_cors(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Bucket_cors(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cors, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Bucket_cors(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Bucket",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Bucket_projectId(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Bucket_projectId(ctx, field)
 	if err != nil {
@@ -14584,6 +14792,14 @@ func (ec *executionContext) fieldContext_BucketsList_nodes(ctx context.Context, 
 				return ec.fieldContext_Bucket_cascadingDelete(ctx, field)
 			case "name":
 				return ec.fieldContext_Bucket_name(ctx, field)
+			case "publicAccessPrevention":
+				return ec.fieldContext_Bucket_publicAccessPrevention(ctx, field)
+			case "retentionPeriodDays":
+				return ec.fieldContext_Bucket_retentionPeriodDays(ctx, field)
+			case "uniformBucketLevelAccess":
+				return ec.fieldContext_Bucket_uniformBucketLevelAccess(ctx, field)
+			case "cors":
+				return ec.fieldContext_Bucket_cors(ctx, field)
 			case "projectId":
 				return ec.fieldContext_Bucket_projectId(ctx, field)
 			case "team":
@@ -38358,6 +38574,14 @@ func (ec *executionContext) fieldContext_Team_bucket(ctx context.Context, field 
 				return ec.fieldContext_Bucket_cascadingDelete(ctx, field)
 			case "name":
 				return ec.fieldContext_Bucket_name(ctx, field)
+			case "publicAccessPrevention":
+				return ec.fieldContext_Bucket_publicAccessPrevention(ctx, field)
+			case "retentionPeriodDays":
+				return ec.fieldContext_Bucket_retentionPeriodDays(ctx, field)
+			case "uniformBucketLevelAccess":
+				return ec.fieldContext_Bucket_uniformBucketLevelAccess(ctx, field)
+			case "cors":
+				return ec.fieldContext_Bucket_cors(ctx, field)
 			case "projectId":
 				return ec.fieldContext_Bucket_projectId(ctx, field)
 			case "team":
@@ -47165,6 +47389,26 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 			}
 		case "name":
 			out.Values[i] = ec._Bucket_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "publicAccessPrevention":
+			out.Values[i] = ec._Bucket_publicAccessPrevention(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "retentionPeriodDays":
+			out.Values[i] = ec._Bucket_retentionPeriodDays(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "uniformBucketLevelAccess":
+			out.Values[i] = ec._Bucket_uniformBucketLevelAccess(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "cors":
+			out.Values[i] = ec._Bucket_cors(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
