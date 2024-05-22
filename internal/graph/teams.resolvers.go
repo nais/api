@@ -1153,6 +1153,11 @@ func (r *teamResolver) SQLInstances(ctx context.Context, obj *model.Team, offset
 	}, nil
 }
 
+// Bucket is the resolver for the bucket field.
+func (r *teamResolver) Bucket(ctx context.Context, obj *model.Team, name string, env string) (*model.Bucket, error) {
+	return r.bucketClient.Bucket(env, obj.Slug, name)
+}
+
 // Buckets is the resolver for the buckets field.
 func (r *teamResolver) Buckets(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BucketsList, error) {
 	buckets, err := r.bucketClient.Buckets(obj.Slug)
@@ -1183,8 +1188,8 @@ func (r *teamResolver) Buckets(ctx context.Context, obj *model.Team, offset *int
 }
 
 // RedisInstance is the resolver for the redisInstance field.
-func (r *teamResolver) RedisInstance(ctx context.Context, obj *model.Team, name *string, env *string) (*model.Redis, error) {
-	panic(fmt.Errorf("not implemented: RedisInstance - redisInstance"))
+func (r *teamResolver) RedisInstance(ctx context.Context, obj *model.Team, name string, env string) (*model.Redis, error) {
+	return r.redisClient.RedisInstance(env, obj.Slug, name)
 }
 
 // Redis is the resolver for the redis field.

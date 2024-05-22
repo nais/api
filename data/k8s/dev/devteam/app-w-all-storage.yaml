@@ -28,9 +28,8 @@ spec:
   kafka:
     pool: team-a
   redis:
-    - name: contests
-      size: 100Mi
-      instance: contests
+    - instance: redis-devteam-contests
+      access: admin
   openSearch:
     instance: opensearch
   filesFrom:

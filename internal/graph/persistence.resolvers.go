@@ -6,12 +6,10 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/slug"
 )
 
 // Team is the resolver for the team field.
@@ -54,16 +52,6 @@ func (r *openSearchResolver) Workload(ctx context.Context, obj *model.OpenSearch
 	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
 }
 
-// Bucket is the resolver for the bucket field.
-func (r *queryResolver) Bucket(ctx context.Context, name string, team slug.Slug, env string) (*model.Bucket, error) {
-	panic(fmt.Errorf("not implemented: Bucket - bucket"))
-}
-
-// Redis is the resolver for the redis field.
-func (r *queryResolver) Redis(ctx context.Context, name string, team slug.Slug, env string) (*model.Redis, error) {
-	return r.redisClient.RedisInstance(team, name, env)
-}
-
 // Team is the resolver for the team field.
 func (r *redisResolver) Team(ctx context.Context, obj *model.Redis) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
@@ -72,6 +60,11 @@ func (r *redisResolver) Team(ctx context.Context, obj *model.Redis) (*model.Team
 // Workload is the resolver for the workload field.
 func (r *redisResolver) Workload(ctx context.Context, obj *model.Redis) (model.Workload, error) {
 	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
+}
+
+// Workload is the resolver for the workload field.
+func (r *redisInstanceAccessResolver) Workload(ctx context.Context, obj *model.RedisInstanceAccess) (model.Workload, error) {
+	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.GQLVars.Env.Name)
 }
 
 // Database is the resolver for the database field.
@@ -111,14 +104,20 @@ func (r *Resolver) OpenSearch() gengql.OpenSearchResolver { return &openSearchRe
 // Redis returns gengql.RedisResolver implementation.
 func (r *Resolver) Redis() gengql.RedisResolver { return &redisResolver{r} }
 
+// RedisInstanceAccess returns gengql.RedisInstanceAccessResolver implementation.
+func (r *Resolver) RedisInstanceAccess() gengql.RedisInstanceAccessResolver {
+	return &redisInstanceAccessResolver{r}
+}
+
 // SqlInstance returns gengql.SqlInstanceResolver implementation.
 func (r *Resolver) SqlInstance() gengql.SqlInstanceResolver { return &sqlInstanceResolver{r} }
 
 type (
-	bigQueryDatasetResolver struct{ *Resolver }
-	bucketResolver          struct{ *Resolver }
-	kafkaTopicResolver      struct{ *Resolver }
-	openSearchResolver      struct{ *Resolver }
-	redisResolver           struct{ *Resolver }
-	sqlInstanceResolver     struct{ *Resolver }
+	bigQueryDatasetResolver     struct{ *Resolver }
+	bucketResolver              struct{ *Resolver }
+	kafkaTopicResolver          struct{ *Resolver }
+	openSearchResolver          struct{ *Resolver }
+	redisResolver               struct{ *Resolver }
+	redisInstanceAccessResolver struct{ *Resolver }
+	sqlInstanceResolver         struct{ *Resolver }
 )
