@@ -271,10 +271,16 @@ func (c *Client) retrieveProjectById(ctx context.Context, projectId string) (*de
 
 func (c *Client) retrieveProjectsForTeam(ctx context.Context, team string) ([]*dependencytrack.Project, error) {
 	tag := url.QueryEscape("team:" + team)
+	if v, ok := c.cache.Get(tag); ok {
+		return v.([]*dependencytrack.Project), nil
+	}
+
 	projects, err := c.client.GetProjectsByTag(ctx, tag)
 	if err != nil {
 		return nil, fmt.Errorf("getting projects from DependencyTrack: %w", err)
 	}
+
+	c.cache.Set(tag, projects, cache.DefaultExpiration)
 
 	return projects, nil
 }
@@ -366,13 +372,22 @@ func (c *Client) GetFindingsForImageByProjectID(ctx context.Context, projectId s
 	}
 
 	return &model.Image{
+		Name:      p.Name + ":" + p.Version,
+		ID:        scalar.ImageIdent(p.Name),
 		Findings:  retFindings,
 		Digest:    digest,
 		RekorID:   rekor,
-		Critical:  summary.Critical,
-		RiskScore: summary.RiskScore,
-		Name:      p.Name + ":" + p.Version,
-		ID:        scalar.ImageIdent(p.Name),
+		Version:   p.Version,
+		ProjectID: p.Uuid,
+		Summary: model.VulnerabilitySummary{
+			Total:      summary.Total,
+			Critical:   summary.Critical,
+			RiskScore:  summary.RiskScore,
+			High:       summary.High,
+			Medium:     summary.Medium,
+			Low:        summary.Low,
+			Unassigned: summary.Unassigned,
+		},
 	}, nil
 }
 
@@ -465,11 +480,10 @@ func (c *Client) GetFindingsForTeam(ctx context.Context, team string) ([]*model.
 			ID:                 scalar.DependencyTrackProjectIdent(project.Uuid),
 			ProjectID:          project.Uuid,
 			Name:               project.Name,
-			Critical:           summary.Critical,
+			Summary:            *summary,
 			Digest:             digest,
 			Findings:           retFindings,
 			RekorID:            rekor,
-			RiskScore:          summary.RiskScore,
 			Version:            version,
 			WorkloadReferences: workloads,
 		}
@@ -550,13 +564,12 @@ func (c *Client) GetFindingsForImage(ctx context.Context, app *AppInstance) (*mo
 	summary := c.createSummary(projects[projectIndex], true)
 
 	return &model.Image{
-		Findings:  retFindings,
-		Digest:    digest,
-		RekorID:   rekor,
-		Critical:  summary.Critical,
-		RiskScore: summary.RiskScore,
-		Name:      app.Image,
-		ID:        scalar.ImageIdent(app.Image),
+		Findings: retFindings,
+		Digest:   digest,
+		RekorID:  rekor,
+		Summary:  *summary,
+		Name:     app.Image,
+		ID:       scalar.ImageIdent(app.Image),
 	}, nil
 }
 

@@ -5,8 +5,7 @@ type Image {
   version: String!
   digest: String!
   rekorId: String!
-  critical: Int!
-  riskScore: Int!
+  summary: VulnerabilitySummary!
   findings: [Finding!]!
   workloadReferences: [WorkloadReference!]!
 }

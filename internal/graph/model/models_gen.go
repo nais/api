@@ -434,8 +434,7 @@ type Image struct {
 	Version            string               `json:"version"`
 	Digest             string               `json:"digest"`
 	RekorID            string               `json:"rekorId"`
-	Critical           int                  `json:"critical"`
-	RiskScore          int                  `json:"riskScore"`
+	Summary            VulnerabilitySummary `json:"summary"`
 	Findings           []*Finding           `json:"findings"`
 	WorkloadReferences []*WorkloadReference `json:"workloadReferences"`
 }

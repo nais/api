@@ -1481,11 +1481,11 @@ func (r *teamResolver) Images(ctx context.Context, obj *model.Team, offset *int,
 			})
 		case "SEVERITY_CRITICAL":
 			model.SortWith(images, func(a, b *model.Image) bool {
-				return model.Compare(a.Critical, b.Critical, orderBy.Direction)
+				return model.Compare(a.Summary.Critical, b.Summary.Critical, orderBy.Direction)
 			})
 		case "RISK_SCORE":
 			model.SortWith(images, func(a, b *model.Image) bool {
-				return model.Compare(a.RiskScore, b.RiskScore, orderBy.Direction)
+				return model.Compare(a.Summary.RiskScore, b.Summary.RiskScore, orderBy.Direction)
 			})
 
 		}

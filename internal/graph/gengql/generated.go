@@ -430,14 +430,13 @@ type ComplexityRoot struct {
 	}
 
 	Image struct {
-		Critical           func(childComplexity int) int
 		Digest             func(childComplexity int) int
 		Findings           func(childComplexity int) int
 		ID                 func(childComplexity int) int
 		Name               func(childComplexity int) int
 		ProjectID          func(childComplexity int) int
 		RekorID            func(childComplexity int) int
-		RiskScore          func(childComplexity int) int
+		Summary            func(childComplexity int) int
 		Version            func(childComplexity int) int
 		WorkloadReferences func(childComplexity int) int
 	}
@@ -2796,13 +2795,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.IDPortenSidecar.Resources(childComplexity), true
 
-	case "Image.critical":
-		if e.complexity.Image.Critical == nil {
-			break
-		}
-
-		return e.complexity.Image.Critical(childComplexity), true
-
 	case "Image.digest":
 		if e.complexity.Image.Digest == nil {
 			break
@@ -2845,12 +2837,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Image.RekorID(childComplexity), true
 
-	case "Image.riskScore":
-		if e.complexity.Image.RiskScore == nil {
+	case "Image.summary":
+		if e.complexity.Image.Summary == nil {
 			break
 		}
 
-		return e.complexity.Image.RiskScore(childComplexity), true
+		return e.complexity.Image.Summary(childComplexity), true
 
 	case "Image.version":
 		if e.complexity.Image.Version == nil {
@@ -7002,8 +6994,7 @@ input GitHubRepositoriesFilter {
   version: String!
   digest: String!
   rekorId: String!
-  critical: Int!
-  riskScore: Int!
+  summary: VulnerabilitySummary!
   findings: [Finding!]!
   workloadReferences: [WorkloadReference!]!
 }
@@ -20744,8 +20735,8 @@ func (ec *executionContext) fieldContext_Image_rekorId(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Image_critical(ctx context.Context, field graphql.CollectedField, obj *model.Image) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Image_critical(ctx, field)
+func (ec *executionContext) _Image_summary(ctx context.Context, field graphql.CollectedField, obj *model.Image) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Image_summary(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -20758,7 +20749,7 @@ func (ec *executionContext) _Image_critical(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Critical, nil
+		return obj.Summary, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20770,63 +20761,37 @@ func (ec *executionContext) _Image_critical(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(model.VulnerabilitySummary)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalNVulnerabilitySummary2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilitySummary(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Image_critical(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Image_summary(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Image",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Image_riskScore(ctx context.Context, field graphql.CollectedField, obj *model.Image) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Image_riskScore(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.RiskScore, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Image_riskScore(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Image",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_VulnerabilitySummary_total(ctx, field)
+			case "riskScore":
+				return ec.fieldContext_VulnerabilitySummary_riskScore(ctx, field)
+			case "critical":
+				return ec.fieldContext_VulnerabilitySummary_critical(ctx, field)
+			case "high":
+				return ec.fieldContext_VulnerabilitySummary_high(ctx, field)
+			case "medium":
+				return ec.fieldContext_VulnerabilitySummary_medium(ctx, field)
+			case "low":
+				return ec.fieldContext_VulnerabilitySummary_low(ctx, field)
+			case "unassigned":
+				return ec.fieldContext_VulnerabilitySummary_unassigned(ctx, field)
+			case "bomCount":
+				return ec.fieldContext_VulnerabilitySummary_bomCount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type VulnerabilitySummary", field.Name)
 		},
 	}
 	return fc, nil
@@ -21003,10 +20968,8 @@ func (ec *executionContext) fieldContext_ImageList_nodes(ctx context.Context, fi
 				return ec.fieldContext_Image_digest(ctx, field)
 			case "rekorId":
 				return ec.fieldContext_Image_rekorId(ctx, field)
-			case "critical":
-				return ec.fieldContext_Image_critical(ctx, field)
-			case "riskScore":
-				return ec.fieldContext_Image_riskScore(ctx, field)
+			case "summary":
+				return ec.fieldContext_Image_summary(ctx, field)
 			case "findings":
 				return ec.fieldContext_Image_findings(ctx, field)
 			case "workloadReferences":
@@ -29249,10 +29212,8 @@ func (ec *executionContext) fieldContext_Query_dependencyTrackProject(ctx contex
 				return ec.fieldContext_Image_digest(ctx, field)
 			case "rekorId":
 				return ec.fieldContext_Image_rekorId(ctx, field)
-			case "critical":
-				return ec.fieldContext_Image_critical(ctx, field)
-			case "riskScore":
-				return ec.fieldContext_Image_riskScore(ctx, field)
+			case "summary":
+				return ec.fieldContext_Image_summary(ctx, field)
 			case "findings":
 				return ec.fieldContext_Image_findings(ctx, field)
 			case "workloadReferences":
@@ -50431,13 +50392,8 @@ func (ec *executionContext) _Image(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "critical":
-			out.Values[i] = ec._Image_critical(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "riskScore":
-			out.Values[i] = ec._Image_riskScore(ctx, field, obj)
+		case "summary":
+			out.Values[i] = ec._Image_summary(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
