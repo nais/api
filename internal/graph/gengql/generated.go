@@ -8374,7 +8374,6 @@ type UnleashMetrics {
   memoryUtilization: Float!
   memoryRequests: Float!
 }
-
 `, BuiltIn: false},
 	{Name: "../graphqls/users.graphqls", Input: `extend type Query {
   "Get a collection of users, sorted by name."

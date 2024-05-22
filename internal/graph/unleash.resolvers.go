@@ -21,12 +21,7 @@ func (r *mutationResolver) CreateUnleashForTeam(ctx context.Context, team slug.S
 	//	return nil, err
 	//}
 
-	err := r.unleashMgr.NewUnleash(ctx, team.String(), []string{team.String()})
-	if err != nil {
-		return nil, err
-	}
-
-	return r.unleashMgr.Unleash(team.String())
+	return r.unleashMgr.NewUnleash(ctx, team.String(), []string{team.String()})
 }
 
 // Toggles is the resolver for the toggles field.
@@ -50,7 +45,7 @@ func (r *unleashMetricsResolver) APITokens(ctx context.Context, obj *model.Unlea
 // CPUUtilization is the resolver for the cpuUtilization field.
 func (r *unleashMetricsResolver) CPUUtilization(ctx context.Context, obj *model.UnleashMetrics) (float64, error) {
 	cpu, err := r.unleashMgr.PromQuery(ctx, fmt.Sprintf("irate(process_cpu_user_seconds_total{job=\"%s\", namespace=\"%s\"}[2m])", obj.GQLVars.InstanceName, obj.GQLVars.Namespace))
-	if err != nil {
+	if err != nil || cpu == 0 {
 		return 0, err
 	}
 	return float64(cpu) / obj.CpuRequests * 100, nil
@@ -59,7 +54,7 @@ func (r *unleashMetricsResolver) CPUUtilization(ctx context.Context, obj *model.
 // MemoryUtilization is the resolver for the memoryUtilization field.
 func (r *unleashMetricsResolver) MemoryUtilization(ctx context.Context, obj *model.UnleashMetrics) (float64, error) {
 	memory, err := r.unleashMgr.PromQuery(ctx, fmt.Sprintf("process_resident_memory_bytes{job=\"%s\", namespace=\"%s\"}", obj.GQLVars.InstanceName, obj.GQLVars.Namespace))
-	if err != nil {
+	if err != nil || memory == 0 {
 		return 0, err
 	}
 	return float64(memory) / obj.MemoryRequests * 100, nil

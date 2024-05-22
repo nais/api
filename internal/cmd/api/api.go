@@ -148,10 +148,8 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		unleashOpts = append(unleashOpts, unleash.WithClientsCreator(fake.Clients(os.DirFS("./data/k8s"))))
 	}
 
-	// TODO: Hack to only enable for nav, until we have a better solution
-	if cfg.Tenant == "nav" {
-		unleashOpts = append(unleashOpts, unleash.WithBifrostEnabled())
-	}
+	// @TODO feature flag for enabling Unleash
+	unleashOpts = append(unleashOpts, unleash.WithBifrostEnabled())
 
 	unleashMgr, err := unleash.NewManager(cfg.Tenant, cfg.Unleash.Namespace, cfg.K8s.PkgConfig().Clusters, unleashOpts...)
 	if err != nil {

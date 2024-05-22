@@ -25,4 +25,3 @@ type UnleashMetrics {
   memoryUtilization: Float!
   memoryRequests: Float!
 }
-

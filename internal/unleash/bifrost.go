@@ -5,12 +5,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	bifrost "github.com/nais/bifrost/pkg/unleash"
-	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/nais/api/internal/graph/model"
+	bifrost "github.com/nais/bifrost/pkg/unleash"
+	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
+	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 type BifrostClient interface {
@@ -38,31 +41,45 @@ func (b *bifrostClient) WithClient(client *http.Client) {
 	b.client = client
 }
 
-func (m *Manager) NewUnleash(ctx context.Context, name string, allowedTeams []string) error {
+func (m *Manager) NewUnleash(ctx context.Context, name string, allowedTeams []string) (*model.Unleash, error) {
 	// TODO implement auth, set iap header with actor from context or use psk - must update bifrost to support this
 	teams := strings.Join(allowedTeams, ",")
 	bi := bifrost.UnleashConfig{
 		Name:         name,
 		AllowedTeams: teams,
 	}
-	_, err := m.bifrostClient.Post(ctx, "/unleash/new", bi)
+	unleashResponse, err := m.bifrostClient.Post(ctx, "/unleash/new", bi)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	var unleashInstance unleash_nais_io_v1.Unleash
+	err = json.NewDecoder(unleashResponse.Body).Decode(&unleashInstance)
+	if err != nil {
+		return nil, fmt.Errorf("decoding unleash instance: %w", err)
+	}
+
+	return model.ToUnleashInstance(&unleashInstance), nil
 }
 
-func (m *Manager) UpdateUnleash(ctx context.Context, name string, allowedTeams []string) error {
+func (m *Manager) UpdateUnleash(ctx context.Context, name string, allowedTeams []string) (*model.Unleash, error) {
 	teams := strings.Join(allowedTeams, ",")
 	bi := bifrost.UnleashConfig{
 		Name:         name,
 		AllowedTeams: teams,
 	}
-	_, err := m.bifrostClient.Post(ctx, "/unleash/edit", bi)
+	unleashResponse, err := m.bifrostClient.Post(ctx, "/unleash/edit", bi)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	var unleashInstance unleash_nais_io_v1.Unleash
+	err = json.NewDecoder(unleashResponse.Body).Decode(&unleashInstance)
+	if err != nil {
+		return nil, fmt.Errorf("decoding unleash instance: %w", err)
+	}
+
+	return model.ToUnleashInstance(&unleashInstance), nil
 }
 
 func (b *bifrostClient) Post(ctx context.Context, path string, v any) (*http.Response, error) {
