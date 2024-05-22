@@ -1,28 +1,4 @@
 extend type Query {
-  "Get an SQL instance by name, team and env."
-  sqlInstance(
-    "The name of the instance."
-    name: String!
-
-    "The name of the team who owns the instance."
-    team: Slug!
-
-    "The environment the instance runs in."
-    env: String!
-  ): SqlInstance!
-
-  "Get a Kafka topic by name, team and env."
-  kafkaTopic(
-    "The name of the topic."
-    name: String!
-
-    "The name of the team who owns the topic."
-    team: Slug!
-
-    "The environment the topic exists in."
-    env: String!
-  ): KafkaTopic!
-
   "Get a Bucket by name, team and env."
   bucket(
     "The name of the bucket."
@@ -33,7 +9,7 @@ extend type Query {
 
     "The environment the bucket exists in."
     env: String!
-  ): Bucket!
+  ): Bucket! @deprecated(reason: "use team.bucket() instead")
 
   "Get a Bucket by name, team and env."
   redis(
@@ -45,7 +21,7 @@ extend type Query {
 
     "The environment the redis exists in."
     env: String!
-  ): Redis!
+  ): Redis! @deprecated(reason: "use team.redisInstance() instead")
 
 }
 

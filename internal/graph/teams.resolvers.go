@@ -1090,6 +1090,11 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 	return ret, nil
 }
 
+// SQLInstance is the resolver for the sqlInstance field.
+func (r *teamResolver) SQLInstance(ctx context.Context, obj *model.Team, name string, env string) (*model.SQLInstance, error) {
+	return r.sqlInstanceClient.SqlInstance(ctx, env, obj.Slug, name)
+}
+
 // SQLInstances is the resolver for the sqlInstances field.
 func (r *teamResolver) SQLInstances(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.SQLInstancesList, error) {
 	dbEnvs, _, err := r.database.GetTeamEnvironments(ctx, obj.Slug, database.Page{Limit: 50})
@@ -1238,6 +1243,11 @@ func (r *teamResolver) OpenSearch(ctx context.Context, obj *model.Team, offset *
 		Nodes:    openSearch,
 		PageInfo: pageInfo,
 	}, nil
+}
+
+// KafkaTopic is the resolver for the kafkaTopic field.
+func (r *teamResolver) KafkaTopic(ctx context.Context, obj *model.Team, name string, env string) (*model.KafkaTopic, error) {
+	return r.kafkaClient.Topic(env, obj.Slug, name)
 }
 
 // KafkaTopics is the resolver for the kafkaTopics field.

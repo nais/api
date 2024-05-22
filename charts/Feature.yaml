@@ -159,3 +159,17 @@ values:
     description: The prefix of the admin group in GSuite
     config:
       type: string
+
+  unleash.enabled:
+    displayName: Unleash feature flag
+    description: Enable Unleash feature flag
+    config:
+      type: bool
+    default: false
+
+  unleash.namespace:
+    displayName: Unleash namespace
+    description: Namespace for Unleash
+    config:
+      type: string
+    default: "bifrost-unleash"

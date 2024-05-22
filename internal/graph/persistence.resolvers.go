@@ -54,16 +54,6 @@ func (r *openSearchResolver) Workload(ctx context.Context, obj *model.OpenSearch
 	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
 }
 
-// SQLInstance is the resolver for the sqlInstance field.
-func (r *queryResolver) SQLInstance(ctx context.Context, name string, team slug.Slug, env string) (*model.SQLInstance, error) {
-	return r.sqlInstanceClient.SqlInstance(ctx, env, team, name)
-}
-
-// KafkaTopic is the resolver for the kafkaTopic field.
-func (r *queryResolver) KafkaTopic(ctx context.Context, name string, team slug.Slug, env string) (*model.KafkaTopic, error) {
-	return r.kafkaClient.Topic(env, team, name)
-}
-
 // Bucket is the resolver for the bucket field.
 func (r *queryResolver) Bucket(ctx context.Context, name string, team slug.Slug, env string) (*model.Bucket, error) {
 	panic(fmt.Errorf("not implemented: Bucket - bucket"))
@@ -132,13 +122,3 @@ type (
 	redisResolver           struct{ *Resolver }
 	sqlInstanceResolver     struct{ *Resolver }
 )
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *kafkaTopicResolver) Env(ctx context.Context, obj *model.KafkaTopic) (*model.Env, error) {
-	panic(fmt.Errorf("not implemented: Env - env"))
-}
