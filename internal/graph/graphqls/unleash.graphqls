@@ -9,6 +9,14 @@ extend type Mutation {
 }
 
 type Unleash {
+  instance: UnleashInstance
+
+  """
+  If Unleash feature is enabled for this tenant
+  """
+  enabled: Boolean!
+}
+type UnleashInstance {
   name: String!
   version: String!
   allowedTeams: [String!]!

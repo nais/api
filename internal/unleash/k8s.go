@@ -34,7 +34,7 @@ func hasAccessToUnleash(team string, unleash *unleash_nais_io_v1.Unleash) bool {
 
 func (m *Manager) Unleash(team string) (*model.Unleash, error) {
 	for _, informer := range m.mgmCluster.informers {
-		objs, err := informer.Lister().ByNamespace(m.mgmtNamespace).List(labels.Everything())
+		objs, err := informer.Lister().List(labels.Everything())
 		if err != nil {
 			return nil, err
 		}
@@ -55,9 +55,14 @@ func (m *Manager) Unleash(team string) (*model.Unleash, error) {
 						InstanceName: unleashInstance.Name,
 					},
 				}
-				return u, nil
+				return &model.Unleash{
+					Instance: u,
+					Enabled:  m.settings.unleashEnabled,
+				}, nil
 			}
 		}
 	}
-	return nil, nil
+	return &model.Unleash{
+		Enabled: m.settings.unleashEnabled,
+	}, nil
 }

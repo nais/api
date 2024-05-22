@@ -7,6 +7,11 @@ import (
 )
 
 type Unleash struct {
+	Instance *UnleashInstance `json:"instance"`
+	Enabled  bool             `json:"enabled"`
+}
+
+type UnleashInstance struct {
 	Name         string         `json:"name"`
 	Version      string         `json:"version"`
 	AllowedTeams []string       `json:"allowedTeams"`
@@ -26,7 +31,7 @@ type UnleashGQLVars struct {
 	InstanceName string
 }
 
-func ToUnleashInstance(u *unleash_nais_io_v1.Unleash) *Unleash {
+func ToUnleashInstance(u *unleash_nais_io_v1.Unleash) *UnleashInstance {
 	teams := []string{}
 	for _, env := range u.Spec.ExtraEnvVars {
 		if env.Name == "TEAMS_ALLOWED_TEAMS" {
@@ -34,7 +39,7 @@ func ToUnleashInstance(u *unleash_nais_io_v1.Unleash) *Unleash {
 		}
 	}
 
-	return &Unleash{
+	return &UnleashInstance{
 		Name:         u.Name,
 		Version:      u.Status.Version,
 		AllowedTeams: teams,

@@ -1002,6 +1002,11 @@ type ComplexityRoot struct {
 	}
 
 	Unleash struct {
+		Enabled  func(childComplexity int) int
+		Instance func(childComplexity int) int
+	}
+
+	UnleashInstance struct {
 		APIIngress   func(childComplexity int) int
 		AllowedTeams func(childComplexity int) int
 		Metrics      func(childComplexity int) int
@@ -5570,47 +5575,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TokenX.MountSecretsAsFilesOnly(childComplexity), true
 
-	case "Unleash.apiIngress":
-		if e.complexity.Unleash.APIIngress == nil {
+	case "Unleash.enabled":
+		if e.complexity.Unleash.Enabled == nil {
 			break
 		}
 
-		return e.complexity.Unleash.APIIngress(childComplexity), true
+		return e.complexity.Unleash.Enabled(childComplexity), true
 
-	case "Unleash.allowedTeams":
-		if e.complexity.Unleash.AllowedTeams == nil {
+	case "Unleash.instance":
+		if e.complexity.Unleash.Instance == nil {
 			break
 		}
 
-		return e.complexity.Unleash.AllowedTeams(childComplexity), true
+		return e.complexity.Unleash.Instance(childComplexity), true
 
-	case "Unleash.metrics":
-		if e.complexity.Unleash.Metrics == nil {
+	case "UnleashInstance.apiIngress":
+		if e.complexity.UnleashInstance.APIIngress == nil {
 			break
 		}
 
-		return e.complexity.Unleash.Metrics(childComplexity), true
+		return e.complexity.UnleashInstance.APIIngress(childComplexity), true
 
-	case "Unleash.name":
-		if e.complexity.Unleash.Name == nil {
+	case "UnleashInstance.allowedTeams":
+		if e.complexity.UnleashInstance.AllowedTeams == nil {
 			break
 		}
 
-		return e.complexity.Unleash.Name(childComplexity), true
+		return e.complexity.UnleashInstance.AllowedTeams(childComplexity), true
 
-	case "Unleash.version":
-		if e.complexity.Unleash.Version == nil {
+	case "UnleashInstance.metrics":
+		if e.complexity.UnleashInstance.Metrics == nil {
 			break
 		}
 
-		return e.complexity.Unleash.Version(childComplexity), true
+		return e.complexity.UnleashInstance.Metrics(childComplexity), true
 
-	case "Unleash.webIngress":
-		if e.complexity.Unleash.WebIngress == nil {
+	case "UnleashInstance.name":
+		if e.complexity.UnleashInstance.Name == nil {
 			break
 		}
 
-		return e.complexity.Unleash.WebIngress(childComplexity), true
+		return e.complexity.UnleashInstance.Name(childComplexity), true
+
+	case "UnleashInstance.version":
+		if e.complexity.UnleashInstance.Version == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstance.Version(childComplexity), true
+
+	case "UnleashInstance.webIngress":
+		if e.complexity.UnleashInstance.WebIngress == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstance.WebIngress(childComplexity), true
 
 	case "UnleashMetrics.apiTokens":
 		if e.complexity.UnleashMetrics.APITokens == nil {
@@ -7659,16 +7678,10 @@ type Role {
   ): TeamList! @auth
 
   "Get a specific team."
-  team(
-    "Slug of the team."
-    slug: Slug!
-  ): Team! @auth
+  team("Slug of the team." slug: Slug!): Team! @auth
 
   "Get a team delete key."
-  teamDeleteKey(
-    "The key to get."
-    key: String!
-  ): TeamDeleteKey! @auth
+  teamDeleteKey("The key to get." key: String!): TeamDeleteKey! @auth
 }
 
 extend type Mutation {
@@ -7921,10 +7934,7 @@ type Team {
   ): TeamMemberList!
 
   "Single team member"
-  member(
-    "The ID of the user."
-    userId: ID!
-  ): TeamMember!
+  member("The ID of the user." userId: ID!): TeamMember!
 
   "Possible issues related to synchronization of the team to configured external systems. If there are no entries the team can be considered fully synchronized."
   syncErrors: [SyncError!]!
@@ -7975,9 +7985,9 @@ type Team {
     "Returns the last n entries from the list."
     limit: Int
 
-		"Order entries by"
-		orderBy: OrderBy
-	): SqlInstancesList!
+    "Order entries by"
+    orderBy: OrderBy
+  ): SqlInstancesList!
 
   buckets(
     "Returns the first n entries from the list."
@@ -7989,7 +7999,7 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): BucketsList!
-  
+
   redis(
     "Returns the first n entries from the list."
     offset: Int
@@ -8000,7 +8010,7 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): RedisList!
-  
+
   openSearch(
     "Returns the first n entries from the list."
     offset: Int
@@ -8031,7 +8041,7 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): KafkaTopicList!
- 
+
   bigQuery(
     "Returns the first n entries from the list."
     offset: Int
@@ -8117,7 +8127,7 @@ type Team {
   "The environments available for the team."
   environments: [Env!]!
 
-  unleash: Unleash
+  unleash: Unleash!
 }
 
 type SqlInstancesStatus {
@@ -8358,6 +8368,14 @@ enum RepositoryAuthorization {
 }
 
 type Unleash {
+  instance: UnleashInstance
+
+  """
+  If Unleash feature is enabled for this tenant
+  """
+  enabled: Boolean!
+}
+type UnleashInstance {
   name: String!
   version: String!
   allowedTeams: [String!]!
@@ -25034,18 +25052,10 @@ func (ec *executionContext) fieldContext_Mutation_createUnleashForTeam(ctx conte
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "name":
-				return ec.fieldContext_Unleash_name(ctx, field)
-			case "version":
-				return ec.fieldContext_Unleash_version(ctx, field)
-			case "allowedTeams":
-				return ec.fieldContext_Unleash_allowedTeams(ctx, field)
-			case "webIngress":
-				return ec.fieldContext_Unleash_webIngress(ctx, field)
-			case "apiIngress":
-				return ec.fieldContext_Unleash_apiIngress(ctx, field)
-			case "metrics":
-				return ec.fieldContext_Unleash_metrics(ctx, field)
+			case "instance":
+				return ec.fieldContext_Unleash_instance(ctx, field)
+			case "enabled":
+				return ec.fieldContext_Unleash_enabled(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Unleash", field.Name)
 		},
@@ -39073,11 +39083,14 @@ func (ec *executionContext) _Team_unleash(ctx context.Context, field graphql.Col
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.Unleash)
 	fc.Result = res
-	return ec.marshalOUnleash2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleash(ctx, field.Selections, res)
+	return ec.marshalNUnleash2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleash(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Team_unleash(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -39088,18 +39101,10 @@ func (ec *executionContext) fieldContext_Team_unleash(ctx context.Context, field
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "name":
-				return ec.fieldContext_Unleash_name(ctx, field)
-			case "version":
-				return ec.fieldContext_Unleash_version(ctx, field)
-			case "allowedTeams":
-				return ec.fieldContext_Unleash_allowedTeams(ctx, field)
-			case "webIngress":
-				return ec.fieldContext_Unleash_webIngress(ctx, field)
-			case "apiIngress":
-				return ec.fieldContext_Unleash_apiIngress(ctx, field)
-			case "metrics":
-				return ec.fieldContext_Unleash_metrics(ctx, field)
+			case "instance":
+				return ec.fieldContext_Unleash_instance(ctx, field)
+			case "enabled":
+				return ec.fieldContext_Unleash_enabled(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Unleash", field.Name)
 		},
@@ -40317,8 +40322,107 @@ func (ec *executionContext) fieldContext_TokenX_mountSecretsAsFilesOnly(ctx cont
 	return fc, nil
 }
 
-func (ec *executionContext) _Unleash_name(ctx context.Context, field graphql.CollectedField, obj *model.Unleash) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Unleash_name(ctx, field)
+func (ec *executionContext) _Unleash_instance(ctx context.Context, field graphql.CollectedField, obj *model.Unleash) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unleash_instance(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Instance, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.UnleashInstance)
+	fc.Result = res
+	return ec.marshalOUnleashInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleashInstance(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unleash_instance(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unleash",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_UnleashInstance_name(ctx, field)
+			case "version":
+				return ec.fieldContext_UnleashInstance_version(ctx, field)
+			case "allowedTeams":
+				return ec.fieldContext_UnleashInstance_allowedTeams(ctx, field)
+			case "webIngress":
+				return ec.fieldContext_UnleashInstance_webIngress(ctx, field)
+			case "apiIngress":
+				return ec.fieldContext_UnleashInstance_apiIngress(ctx, field)
+			case "metrics":
+				return ec.fieldContext_UnleashInstance_metrics(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UnleashInstance", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Unleash_enabled(ctx context.Context, field graphql.CollectedField, obj *model.Unleash) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Unleash_enabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Enabled, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Unleash_enabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Unleash",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstance_name(ctx context.Context, field graphql.CollectedField, obj *model.UnleashInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstance_name(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -40348,9 +40452,9 @@ func (ec *executionContext) _Unleash_name(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Unleash_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstance_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Unleash",
+		Object:     "UnleashInstance",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -40361,8 +40465,8 @@ func (ec *executionContext) fieldContext_Unleash_name(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Unleash_version(ctx context.Context, field graphql.CollectedField, obj *model.Unleash) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Unleash_version(ctx, field)
+func (ec *executionContext) _UnleashInstance_version(ctx context.Context, field graphql.CollectedField, obj *model.UnleashInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstance_version(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -40392,9 +40496,9 @@ func (ec *executionContext) _Unleash_version(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Unleash_version(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstance_version(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Unleash",
+		Object:     "UnleashInstance",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -40405,8 +40509,8 @@ func (ec *executionContext) fieldContext_Unleash_version(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Unleash_allowedTeams(ctx context.Context, field graphql.CollectedField, obj *model.Unleash) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Unleash_allowedTeams(ctx, field)
+func (ec *executionContext) _UnleashInstance_allowedTeams(ctx context.Context, field graphql.CollectedField, obj *model.UnleashInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstance_allowedTeams(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -40436,9 +40540,9 @@ func (ec *executionContext) _Unleash_allowedTeams(ctx context.Context, field gra
 	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Unleash_allowedTeams(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstance_allowedTeams(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Unleash",
+		Object:     "UnleashInstance",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -40449,8 +40553,8 @@ func (ec *executionContext) fieldContext_Unleash_allowedTeams(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _Unleash_webIngress(ctx context.Context, field graphql.CollectedField, obj *model.Unleash) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Unleash_webIngress(ctx, field)
+func (ec *executionContext) _UnleashInstance_webIngress(ctx context.Context, field graphql.CollectedField, obj *model.UnleashInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstance_webIngress(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -40480,9 +40584,9 @@ func (ec *executionContext) _Unleash_webIngress(ctx context.Context, field graph
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Unleash_webIngress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstance_webIngress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Unleash",
+		Object:     "UnleashInstance",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -40493,8 +40597,8 @@ func (ec *executionContext) fieldContext_Unleash_webIngress(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Unleash_apiIngress(ctx context.Context, field graphql.CollectedField, obj *model.Unleash) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Unleash_apiIngress(ctx, field)
+func (ec *executionContext) _UnleashInstance_apiIngress(ctx context.Context, field graphql.CollectedField, obj *model.UnleashInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstance_apiIngress(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -40524,9 +40628,9 @@ func (ec *executionContext) _Unleash_apiIngress(ctx context.Context, field graph
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Unleash_apiIngress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstance_apiIngress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Unleash",
+		Object:     "UnleashInstance",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -40537,8 +40641,8 @@ func (ec *executionContext) fieldContext_Unleash_apiIngress(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Unleash_metrics(ctx context.Context, field graphql.CollectedField, obj *model.Unleash) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Unleash_metrics(ctx, field)
+func (ec *executionContext) _UnleashInstance_metrics(ctx context.Context, field graphql.CollectedField, obj *model.UnleashInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstance_metrics(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -40568,9 +40672,9 @@ func (ec *executionContext) _Unleash_metrics(ctx context.Context, field graphql.
 	return ec.marshalNUnleashMetrics2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleashMetrics(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Unleash_metrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UnleashInstance_metrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Unleash",
+		Object:     "UnleashInstance",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -54657,6 +54761,9 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Team_unleash(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -55303,33 +55410,74 @@ func (ec *executionContext) _Unleash(ctx context.Context, sel ast.SelectionSet, 
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Unleash")
+		case "instance":
+			out.Values[i] = ec._Unleash_instance(ctx, field, obj)
+		case "enabled":
+			out.Values[i] = ec._Unleash_enabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var unleashInstanceImplementors = []string{"UnleashInstance"}
+
+func (ec *executionContext) _UnleashInstance(ctx context.Context, sel ast.SelectionSet, obj *model.UnleashInstance) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, unleashInstanceImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UnleashInstance")
 		case "name":
-			out.Values[i] = ec._Unleash_name(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstance_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "version":
-			out.Values[i] = ec._Unleash_version(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstance_version(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "allowedTeams":
-			out.Values[i] = ec._Unleash_allowedTeams(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstance_allowedTeams(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "webIngress":
-			out.Values[i] = ec._Unleash_webIngress(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstance_webIngress(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "apiIngress":
-			out.Values[i] = ec._Unleash_apiIngress(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstance_apiIngress(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "metrics":
-			out.Values[i] = ec._Unleash_metrics(ctx, field, obj)
+			out.Values[i] = ec._UnleashInstance_metrics(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -61204,11 +61352,11 @@ func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel
 	return res
 }
 
-func (ec *executionContext) marshalOUnleash2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleash(ctx context.Context, sel ast.SelectionSet, v *model.Unleash) graphql.Marshaler {
+func (ec *executionContext) marshalOUnleashInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleashInstance(ctx context.Context, sel ast.SelectionSet, v *model.UnleashInstance) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._Unleash(ctx, sel, v)
+	return ec._UnleashInstance(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {

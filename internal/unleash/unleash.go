@@ -12,7 +12,6 @@ import (
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/informers"
@@ -27,6 +26,7 @@ type Manager struct {
 	mgmtNamespace  string
 	prometheus     promv1.API
 	bifrostClient  BifrostClient
+	settings       *settings
 }
 
 type k8sClient struct {
@@ -39,7 +39,7 @@ type (
 	clusterClients map[string]*k8sClient
 	settings       struct {
 		clientsCreator func(cluster string) (kubernetes.Interface, dynamic.Interface, error)
-		bifrostEnabled bool
+		unleashEnabled bool
 	}
 )
 
@@ -51,9 +51,9 @@ func WithClientsCreator(f func(cluster string) (kubernetes.Interface, dynamic.In
 	}
 }
 
-func WithBifrostEnabled() Opt {
+func WithUnleashEnabled() Opt {
 	return func(s *settings) {
-		s.bifrostEnabled = true
+		s.unleashEnabled = true
 	}
 }
 
@@ -68,7 +68,7 @@ func NewManager(tenant, namespace string, clusters []string, opts ...Opt) (*Mana
 		return nil, err
 	}
 
-	mgmt, err := mgmtCluster(opts...)
+	mgmt, err := mgmtCluster(namespace, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -93,28 +93,19 @@ func NewManager(tenant, namespace string, clusters []string, opts ...Opt) (*Mana
 		mgmCluster:     mgmt,
 		prometheus:     promv1.NewAPI(promClient),
 		bifrostClient:  bifrost,
+		settings:       s,
 	}, nil
 }
 
 func (m Manager) Start(ctx context.Context, log logrus.FieldLogger) error {
-	for cluster, informers := range m.tenantClusters {
-		log.WithField("cluster", cluster).Infof("starting informers")
-		for _, informer := range informers.informers {
-			go informer.Informer().Run(ctx.Done())
-		}
+	if !m.settings.unleashEnabled {
+		log.Info("unleash is disabled, skipping informers")
+		return nil
 	}
 
-	log.WithField("cluster", "management").Infof("starting informers")
 	for _, informer := range m.mgmCluster.informers {
+		log.WithField("cluster", "management").WithField("informer", "unleash").Info("started informer")
 		go informer.Informer().Run(ctx.Done())
-	}
-
-	for env, informers := range m.tenantClusters {
-		for _, informer := range informers.informers {
-			if err := hasSynced(ctx, env, informer, log); err != nil {
-				return err
-			}
-		}
 	}
 
 	for _, informer := range m.mgmCluster.informers {
@@ -125,50 +116,54 @@ func (m Manager) Start(ctx context.Context, log logrus.FieldLogger) error {
 	return nil
 }
 
-func mgmtCluster(opts ...Opt) (*k8sClient, error) {
+func mgmtCluster(namespace string, opts ...Opt) (*k8sClient, error) {
 	s := settings{}
 	for _, opt := range opts {
 		opt(&s)
 	}
-	if s.bifrostEnabled {
-		return createClient(
-			"",
-			"management",
-			[]schema.GroupVersionResource{
-				unleash_nais_io_v1.GroupVersion.WithResource("unleashes"),
-			},
-			opts...,
-		)
-	}
 
-	return createClient(
+	client, dynamicClient, err := createClients(
 		"",
 		"management",
-		[]schema.GroupVersionResource{},
 		opts...,
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	dinf := dynamicinformer.NewFilteredDynamicSharedInformerFactory(dynamicClient, 4*time.Hour, namespace, nil)
+
+	infs := make([]informers.GenericInformer, 0)
+	infs = append(infs, dinf.ForResource(unleash_nais_io_v1.GroupVersion.WithResource("unleashes")))
+
+	return &k8sClient{
+		clientSet:     client,
+		dynamicClient: dynamicClient,
+		informers:     infs,
+	}, nil
 }
 
 func tenantClusters(tenant string, clusters []string, opts ...Opt) (clusterClients, error) {
 	clients := clusterClients{}
 	for _, cluster := range clusters {
-		c, err := createClient(
+		client, dynamicClient, err := createClients(
 			fmt.Sprintf("https://apiserver.%s.%s.cloud.nais.io", cluster, tenant),
 			cluster,
-			[]schema.GroupVersionResource{
-				unleash_nais_io_v1.GroupVersion.WithResource("remoteunleashes"),
-			},
 			opts...,
 		)
 		if err != nil {
 			return nil, err
 		}
-		clients[cluster] = c
+		clients[cluster] = &k8sClient{
+			clientSet:     client,
+			dynamicClient: dynamicClient,
+			informers:     []informers.GenericInformer{},
+		}
 	}
 	return clients, nil
 }
 
-func createClient(apiServer, clusterName string, resources []schema.GroupVersionResource, opts ...Opt) (*k8sClient, error) {
+func createClients(apiServer, clusterName string, opts ...Opt) (kubernetes.Interface, dynamic.Interface, error) {
 	s := &settings{}
 	for _, opt := range opts {
 		opt(s)
@@ -189,7 +184,7 @@ func createClient(apiServer, clusterName string, resources []schema.GroupVersion
 		if clusterName == "management" {
 			restConfig, err = rest.InClusterConfig()
 			if err != nil {
-				return nil, fmt.Errorf("failed to get kubeconfig: %w", err)
+				return nil, nil, fmt.Errorf("failed to get kubeconfig: %w", err)
 			}
 		}
 
@@ -207,27 +202,7 @@ func createClient(apiServer, clusterName string, resources []schema.GroupVersion
 		}
 	}
 
-	clientSet, dynamicClient, err := s.clientsCreator(clusterName)
-	if err != nil {
-		return nil, fmt.Errorf("create clientsets: %w", err)
-	}
-
-	return &k8sClient{
-		clientSet:     clientSet,
-		dynamicClient: dynamicClient,
-		informers:     createInformers(dynamicClient, resources),
-	}, nil
-}
-
-// @TODO: use namespace from config
-func createInformers(dynamicClient dynamic.Interface, resources []schema.GroupVersionResource) []informers.GenericInformer {
-	dinf := dynamicinformer.NewFilteredDynamicSharedInformerFactory(dynamicClient, 4*time.Hour, "bifrost-unleash", nil)
-
-	infs := make([]informers.GenericInformer, 0)
-	for _, resources := range resources {
-		infs = append(infs, dinf.ForResource(resources))
-	}
-	return infs
+	return s.clientsCreator(clusterName)
 }
 
 func hasSynced(ctx context.Context, cluster string, informer informers.GenericInformer, log logrus.FieldLogger) error {

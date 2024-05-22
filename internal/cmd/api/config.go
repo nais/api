@@ -148,8 +148,14 @@ type oAuthConfig struct {
 }
 
 type unleashConfig struct {
+	// Enabled When set to true, the Unleash feature flag service will be enabled.
+	Enabled bool `env:"UNLEASH_ENABLED"`
+
 	// Namespace is the namespace where the Unleash servers are running
 	Namespace string `env:"UNLEASH_NAMESPACE,default=bifrost-unleash"`
+
+	// BifrostApiEndpoint is the endpoint for the Bifrost API
+	BifrostApiUrl string `env:"UNLEASH_BIFROST_API_URL,default=http://bifrost-backend"`
 }
 
 type Config struct {

@@ -12,16 +12,10 @@ extend type Query {
   ): TeamList! @auth
 
   "Get a specific team."
-  team(
-    "Slug of the team."
-    slug: Slug!
-  ): Team! @auth
+  team("Slug of the team." slug: Slug!): Team! @auth
 
   "Get a team delete key."
-  teamDeleteKey(
-    "The key to get."
-    key: String!
-  ): TeamDeleteKey! @auth
+  teamDeleteKey("The key to get." key: String!): TeamDeleteKey! @auth
 }
 
 extend type Mutation {
@@ -274,10 +268,7 @@ type Team {
   ): TeamMemberList!
 
   "Single team member"
-  member(
-    "The ID of the user."
-    userId: ID!
-  ): TeamMember!
+  member("The ID of the user." userId: ID!): TeamMember!
 
   "Possible issues related to synchronization of the team to configured external systems. If there are no entries the team can be considered fully synchronized."
   syncErrors: [SyncError!]!
@@ -328,9 +319,9 @@ type Team {
     "Returns the last n entries from the list."
     limit: Int
 
-		"Order entries by"
-		orderBy: OrderBy
-	): SqlInstancesList!
+    "Order entries by"
+    orderBy: OrderBy
+  ): SqlInstancesList!
 
   buckets(
     "Returns the first n entries from the list."
@@ -342,7 +333,7 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): BucketsList!
-  
+
   redis(
     "Returns the first n entries from the list."
     offset: Int
@@ -353,7 +344,7 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): RedisList!
-  
+
   openSearch(
     "Returns the first n entries from the list."
     offset: Int
@@ -384,7 +375,7 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): KafkaTopicList!
- 
+
   bigQuery(
     "Returns the first n entries from the list."
     offset: Int
@@ -470,7 +461,7 @@ type Team {
   "The environments available for the team."
   environments: [Env!]!
 
-  unleash: Unleash
+  unleash: Unleash!
 }
 
 type SqlInstancesStatus {

@@ -42,6 +42,12 @@ func (b *bifrostClient) WithClient(client *http.Client) {
 }
 
 func (m *Manager) NewUnleash(ctx context.Context, name string, allowedTeams []string) (*model.Unleash, error) {
+	if !m.settings.unleashEnabled {
+		return &model.Unleash{
+			Enabled: false,
+		}, fmt.Errorf("unleash is not enabled")
+	}
+
 	// TODO implement auth, set iap header with actor from context or use psk - must update bifrost to support this
 	teams := strings.Join(allowedTeams, ",")
 	bi := bifrost.UnleashConfig{
@@ -59,10 +65,17 @@ func (m *Manager) NewUnleash(ctx context.Context, name string, allowedTeams []st
 		return nil, fmt.Errorf("decoding unleash instance: %w", err)
 	}
 
-	return model.ToUnleashInstance(&unleashInstance), nil
+	return &model.Unleash{
+		Instance: model.ToUnleashInstance(&unleashInstance),
+		Enabled:  true,
+	}, nil
 }
 
 func (m *Manager) UpdateUnleash(ctx context.Context, name string, allowedTeams []string) (*model.Unleash, error) {
+	if !m.settings.unleashEnabled {
+		return &model.Unleash{Enabled: false}, fmt.Errorf("unleash is not enabled")
+	}
+
 	teams := strings.Join(allowedTeams, ",")
 	bi := bifrost.UnleashConfig{
 		Name:         name,
@@ -79,7 +92,10 @@ func (m *Manager) UpdateUnleash(ctx context.Context, name string, allowedTeams [
 		return nil, fmt.Errorf("decoding unleash instance: %w", err)
 	}
 
-	return model.ToUnleashInstance(&unleashInstance), nil
+	return &model.Unleash{
+		Instance: model.ToUnleashInstance(&unleashInstance),
+		Enabled:  true,
+	}, nil
 }
 
 func (b *bifrostClient) Post(ctx context.Context, path string, v any) (*http.Response, error) {
