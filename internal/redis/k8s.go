@@ -2,8 +2,9 @@ package redis
 
 import (
 	"fmt"
-	"github.com/nais/api/internal/graph/apierror"
 	"sort"
+
+	"github.com/nais/api/internal/graph/apierror"
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
