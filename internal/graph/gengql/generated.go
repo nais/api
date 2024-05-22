@@ -49,6 +49,7 @@ type ResolverRoot interface {
 	DeployInfo() DeployInfoResolver
 	Env() EnvResolver
 	GitHubRepository() GitHubRepositoryResolver
+	Image() ImageResolver
 	KafkaTopic() KafkaTopicResolver
 	Mutation() MutationResolver
 	NaisJob() NaisJobResolver
@@ -374,6 +375,11 @@ type ComplexityRoot struct {
 		VulnerabilityID func(childComplexity int) int
 	}
 
+	FindingList struct {
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
 	Flag struct {
 		Name  func(childComplexity int) int
 		Value func(childComplexity int) int
@@ -431,7 +437,7 @@ type ComplexityRoot struct {
 
 	Image struct {
 		Digest             func(childComplexity int) int
-		Findings           func(childComplexity int) int
+		Findings           func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		ID                 func(childComplexity int) int
 		Name               func(childComplexity int) int
 		ProjectID          func(childComplexity int) int
@@ -1168,6 +1174,9 @@ type EnvResolver interface {
 }
 type GitHubRepositoryResolver interface {
 	Authorizations(ctx context.Context, obj *model.GitHubRepository) ([]model.RepositoryAuthorization, error)
+}
+type ImageResolver interface {
+	Findings(ctx context.Context, obj *model.Image, offset *int, limit *int, orderBy *model.OrderBy) (*model.FindingList, error)
 }
 type KafkaTopicResolver interface {
 	Team(ctx context.Context, obj *model.KafkaTopic) (*model.Team, error)
@@ -2578,6 +2587,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Finding.VulnerabilityID(childComplexity), true
 
+	case "FindingList.nodes":
+		if e.complexity.FindingList.Nodes == nil {
+			break
+		}
+
+		return e.complexity.FindingList.Nodes(childComplexity), true
+
+	case "FindingList.pageInfo":
+		if e.complexity.FindingList.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.FindingList.PageInfo(childComplexity), true
+
 	case "Flag.name":
 		if e.complexity.Flag.Name == nil {
 			break
@@ -2807,7 +2830,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Image.Findings(childComplexity), true
+		args, err := ec.field_Image_findings_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Image.Findings(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy)), true
 
 	case "Image.id":
 		if e.complexity.Image.ID == nil {
@@ -6995,8 +7023,30 @@ input GitHubRepositoriesFilter {
   digest: String!
   rekorId: String!
   summary: VulnerabilitySummary!
-  findings: [Finding!]!
+  findings(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Limit the number of entries returned."
+    limit: Int
+
+    "Order findings by"
+    orderBy: OrderBy
+  ): FindingList!
   workloadReferences: [WorkloadReference!]!
+}
+
+type WorkloadReference {
+  id: ID!
+  name: String!
+  team: String!
+  workloadType: String!
+  environment: String!
+}
+
+type ImageList {
+  nodes: [Image!]!
+  pageInfo: PageInfo!
 }
 
 type Finding {
@@ -7011,16 +7061,15 @@ type Finding {
   vulnerabilityId: String!
 }
 
-type WorkloadReference {
-  id: ID!
-  name: String!
-  team: String!
-  workloadType: String!
-  environment: String!
+extend enum OrderByField {
+  "Order by severity."
+  SEVERITY
+  "Order by packageUrl"
+  PACKAGE_URL
 }
 
-type ImageList {
-  nodes: [Image!]!
+type FindingList {
+  nodes: [Finding!]!
   pageInfo: PageInfo!
 }
 
@@ -8785,6 +8834,39 @@ func (ec *executionContext) field_DeployInfo_history_args(ctx context.Context, r
 		}
 	}
 	args["limit"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Image_findings_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	var arg2 *model.OrderBy
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg2, err = ec.unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderBy(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg2
 	return args, nil
 }
 
@@ -19104,6 +19186,122 @@ func (ec *executionContext) fieldContext_Finding_vulnerabilityId(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _FindingList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.FindingList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FindingList_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Finding)
+	fc.Result = res
+	return ec.marshalNFinding2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐFindingᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FindingList_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FindingList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Finding_id(ctx, field)
+			case "componentId":
+				return ec.fieldContext_Finding_componentId(ctx, field)
+			case "cveId":
+				return ec.fieldContext_Finding_cveId(ctx, field)
+			case "ghsaId":
+				return ec.fieldContext_Finding_ghsaId(ctx, field)
+			case "osvId":
+				return ec.fieldContext_Finding_osvId(ctx, field)
+			case "severity":
+				return ec.fieldContext_Finding_severity(ctx, field)
+			case "description":
+				return ec.fieldContext_Finding_description(ctx, field)
+			case "packageUrl":
+				return ec.fieldContext_Finding_packageUrl(ctx, field)
+			case "vulnerabilityId":
+				return ec.fieldContext_Finding_vulnerabilityId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Finding", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FindingList_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.FindingList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FindingList_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FindingList_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FindingList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Flag_name(ctx context.Context, field graphql.CollectedField, obj *model.Flag) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Flag_name(ctx, field)
 	if err != nil {
@@ -20811,7 +21009,7 @@ func (ec *executionContext) _Image_findings(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Findings, nil
+		return ec.resolvers.Image().Findings(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["orderBy"].(*model.OrderBy))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20823,40 +21021,37 @@ func (ec *executionContext) _Image_findings(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Finding)
+	res := resTmp.(*model.FindingList)
 	fc.Result = res
-	return ec.marshalNFinding2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐFindingᚄ(ctx, field.Selections, res)
+	return ec.marshalNFindingList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐFindingList(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Image_findings(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Image",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Finding_id(ctx, field)
-			case "componentId":
-				return ec.fieldContext_Finding_componentId(ctx, field)
-			case "cveId":
-				return ec.fieldContext_Finding_cveId(ctx, field)
-			case "ghsaId":
-				return ec.fieldContext_Finding_ghsaId(ctx, field)
-			case "osvId":
-				return ec.fieldContext_Finding_osvId(ctx, field)
-			case "severity":
-				return ec.fieldContext_Finding_severity(ctx, field)
-			case "description":
-				return ec.fieldContext_Finding_description(ctx, field)
-			case "packageUrl":
-				return ec.fieldContext_Finding_packageUrl(ctx, field)
-			case "vulnerabilityId":
-				return ec.fieldContext_Finding_vulnerabilityId(ctx, field)
+			case "nodes":
+				return ec.fieldContext_FindingList_nodes(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_FindingList_pageInfo(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Finding", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type FindingList", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Image_findings_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -49938,6 +50133,50 @@ func (ec *executionContext) _Finding(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
+var findingListImplementors = []string{"FindingList"}
+
+func (ec *executionContext) _FindingList(ctx context.Context, sel ast.SelectionSet, obj *model.FindingList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, findingListImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FindingList")
+		case "nodes":
+			out.Values[i] = ec._FindingList_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pageInfo":
+			out.Values[i] = ec._FindingList_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var flagImplementors = []string{"Flag"}
 
 func (ec *executionContext) _Flag(ctx context.Context, sel ast.SelectionSet, obj *model.Flag) graphql.Marshaler {
@@ -50365,47 +50604,78 @@ func (ec *executionContext) _Image(ctx context.Context, sel ast.SelectionSet, ob
 		case "id":
 			out.Values[i] = ec._Image_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "projectId":
 			out.Values[i] = ec._Image_projectId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
 			out.Values[i] = ec._Image_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "version":
 			out.Values[i] = ec._Image_version(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "digest":
 			out.Values[i] = ec._Image_digest(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "rekorId":
 			out.Values[i] = ec._Image_rekorId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "summary":
 			out.Values[i] = ec._Image_summary(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "findings":
-			out.Values[i] = ec._Image_findings(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Image_findings(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "workloadReferences":
 			out.Values[i] = ec._Image_workloadReferences(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -59896,6 +60166,20 @@ func (ec *executionContext) marshalNFinding2ᚖgithubᚗcomᚋnaisᚋapiᚋinter
 		return graphql.Null
 	}
 	return ec._Finding(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNFindingList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐFindingList(ctx context.Context, sel ast.SelectionSet, v model.FindingList) graphql.Marshaler {
+	return ec._FindingList(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNFindingList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐFindingList(ctx context.Context, sel ast.SelectionSet, v *model.FindingList) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._FindingList(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNFlag2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐFlagᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Flag) graphql.Marshaler {

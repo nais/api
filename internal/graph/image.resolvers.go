@@ -7,10 +7,57 @@ package graph
 import (
 	"context"
 
+	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 )
 
+// Findings is the resolver for the findings field.
+func (r *imageResolver) Findings(ctx context.Context, obj *model.Image, offset *int, limit *int, orderBy *model.OrderBy) (*model.FindingList, error) {
+	findings, err := r.dependencyTrackClient.GetFindingsForImageByProjectID(ctx, obj.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case model.OrderByFieldSeverity:
+			model.SortWith(findings, func(a, b *model.Finding) bool {
+				severityToScore := map[string]int{
+					"CRITICAL":   5,
+					"HIGH":       4,
+					"MEDIUM":     3,
+					"LOW":        2,
+					"UNASSIGNED": 1,
+				}
+
+				if orderBy.Direction == model.SortOrderAsc {
+					return severityToScore[a.Severity] < severityToScore[b.Severity]
+				}
+
+				return severityToScore[a.Severity] > severityToScore[b.Severity]
+			})
+		case model.OrderByFieldPackageURL:
+			model.SortWith(findings, func(a, b *model.Finding) bool {
+				return model.Compare(a.PackageURL, b.PackageURL, orderBy.Direction)
+			})
+		}
+	}
+
+	pagination := model.NewPagination(offset, limit)
+	findings, pageInfo := model.PaginatedSlice(findings, pagination)
+
+	return &model.FindingList{
+		Nodes:    findings,
+		PageInfo: pageInfo,
+	}, nil
+}
+
 // DependencyTrackProject is the resolver for the dependencyTrackProject field.
 func (r *queryResolver) DependencyTrackProject(ctx context.Context, projectID string) (*model.Image, error) {
-	return r.dependencyTrackClient.GetFindingsForImageByProjectID(ctx, projectID)
+	return r.dependencyTrackClient.GetMetadataForImageByProjectID(ctx, projectID)
 }
+
+// Image returns gengql.ImageResolver implementation.
+func (r *Resolver) Image() gengql.ImageResolver { return &imageResolver{r} }
+
+type imageResolver struct{ *Resolver }

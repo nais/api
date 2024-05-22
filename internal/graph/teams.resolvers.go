@@ -1468,7 +1468,7 @@ func (r *teamResolver) Deployments(ctx context.Context, obj *model.Team, offset 
 
 // Images is the resolver for the images field.
 func (r *teamResolver) Images(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.ImageList, error) {
-	images, err := r.dependencyTrackClient.GetFindingsForTeam(ctx, obj.Slug.String())
+	images, err := r.dependencyTrackClient.GetMetadataForTeam(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting images from DependencyTrack: %w", err)
 	}

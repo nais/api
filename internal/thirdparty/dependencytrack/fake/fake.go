@@ -42,17 +42,25 @@ func (f *FakeDependencytrackClient) GetVulnerabilities(ctx context.Context, apps
 	return f.client.GetVulnerabilities(ctx, apps, filters...)
 }
 
-func (f *FakeDependencytrackClient) GetFindingsForImage(ctx context.Context, app *dependencytrack.AppInstance) (*model.Image, error) {
+/*func (f *FakeDependencytrackClient) GetFindingsForImage(ctx context.Context, app *dependencytrack.AppInstance) (*model.Image, error) {
 	f.setCacheEntryForApp(app)
 	return f.client.GetFindingsForImage(ctx, app)
-}
+}*/
 
-func (f *FakeDependencytrackClient) GetFindingsForImageByProjectID(ctx context.Context, projectID string) (*model.Image, error) {
+func (f *FakeDependencytrackClient) GetFindingsForImageByProjectID(ctx context.Context, projectID string) ([]*model.Finding, error) {
 	return f.client.GetFindingsForImageByProjectID(ctx, projectID)
 }
 
 func (f *FakeDependencytrackClient) GetFindingsForTeam(ctx context.Context, team string) ([]*model.Image, error) {
-	return f.client.GetFindingsForTeam(ctx, team)
+	return f.client.GetMetadataForTeam(ctx, team)
+}
+
+func (f *FakeDependencytrackClient) GetMetadataForTeam(ctx context.Context, team string) ([]*model.Image, error) {
+	return f.client.GetMetadataForTeam(ctx, team)
+}
+
+func (f *FakeDependencytrackClient) GetMetadataForImageByProjectID(ctx context.Context, projectID string) (*model.Image, error) {
+	return f.client.GetMetadataForImageByProjectID(ctx, projectID)
 }
 
 // TODO: Should use the cache so that we can call the innter client GetProjectMetrics function

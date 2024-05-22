@@ -319,25 +319,10 @@ func (c *Client) retrieveProjects(ctx context.Context, app *AppInstance) ([]*dep
 	return projects, nil
 }
 
-func (c *Client) GetFindingsForImageByProjectID(ctx context.Context, projectId string) (*model.Image, error) {
-	p, _ := c.retrieveProjectById(ctx, projectId)
-
-	var digest string
-	var rekor string
-	for _, tag := range p.Tags {
-		if strings.Contains(tag.Name, "digest:") {
-			digest = strings.TrimPrefix(tag.Name, "digest:")
-		}
-		if strings.Contains(tag.Name, "rekor:") {
-			rekor = strings.TrimPrefix(tag.Name, "rekor:")
-		}
-	}
-
-	summary := c.createSummary(p, true)
-
-	findings, err := c.retrieveFindings(ctx, p.Uuid)
+func (c *Client) GetFindingsForImageByProjectID(ctx context.Context, projectId string) ([]*model.Finding, error) {
+	findings, err := c.retrieveFindings(ctx, projectId)
 	if err != nil {
-		return nil, fmt.Errorf("retrieving findings for project %s: %w", p.Uuid, err)
+		return nil, fmt.Errorf("retrieving findings for project %s: %w", projectId, err)
 	}
 
 	retFindings := make([]*model.Finding, 0)
@@ -370,11 +355,48 @@ func (c *Client) GetFindingsForImageByProjectID(ctx context.Context, projectId s
 			VulnerabilityID: f.Vulnerability.VulnId,
 		})
 	}
+	return retFindings, nil
+}
+
+func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId string) (*model.Image, error) {
+	p, err := c.retrieveProjectById(ctx, projectId)
+	if err != nil {
+		return nil, fmt.Errorf("getting project by id %s: %w", projectId, err)
+	}
+
+	if p == nil {
+		return nil, fmt.Errorf("project not found: %s", projectId)
+	}
+
+	var digest string
+	var rekor string
+	var workloads []*model.WorkloadReference
+	for _, tag := range p.Tags {
+		if strings.Contains(tag.Name, "digest:") {
+			digest = strings.TrimPrefix(tag.Name, "digest:")
+		}
+		if strings.Contains(tag.Name, "rekor:") {
+			rekor = strings.TrimPrefix(tag.Name, "rekor:")
+		}
+		if strings.Contains(tag.Name, "workload:") {
+			w := strings.TrimPrefix(tag.Name, "workload:")
+			workload := strings.Split(w, "|")
+
+			workloads = append(workloads, &model.WorkloadReference{
+				ID:           scalar.WorkloadIdent(w),
+				Environment:  workload[0],
+				Team:         workload[1],
+				WorkloadType: workload[2],
+				Name:         workload[3]})
+
+		}
+	}
+
+	summary := c.createSummary(p, true)
 
 	return &model.Image{
 		Name:      p.Name + ":" + p.Version,
 		ID:        scalar.ImageIdent(p.Name),
-		Findings:  retFindings,
 		Digest:    digest,
 		RekorID:   rekor,
 		Version:   p.Version,
@@ -388,10 +410,11 @@ func (c *Client) GetFindingsForImageByProjectID(ctx context.Context, projectId s
 			Low:        summary.Low,
 			Unassigned: summary.Unassigned,
 		},
+		WorkloadReferences: workloads,
 	}, nil
 }
 
-func (c *Client) GetFindingsForTeam(ctx context.Context, team string) ([]*model.Image, error) {
+func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.Image, error) {
 	projects, err := c.retrieveProjectsForTeam(ctx, team)
 	if err != nil {
 		return nil, fmt.Errorf("getting projects by team %s: %w", team, err)
@@ -439,9 +462,60 @@ func (c *Client) GetFindingsForTeam(ctx context.Context, team string) ([]*model.
 			}
 		}
 
-		findings, err := c.retrieveFindings(ctx, project.Uuid)
+		summary := c.createSummary(project, true)
+
+		image := &model.Image{
+			ID:                 scalar.DependencyTrackProjectIdent(project.Uuid),
+			ProjectID:          project.Uuid,
+			Name:               project.Name,
+			Summary:            *summary,
+			Digest:             digest,
+			RekorID:            rekor,
+			Version:            version,
+			WorkloadReferences: workloads,
+		}
+		images = append(images, image)
+
+	}
+
+	return images, nil
+}
+
+/*
+	func (c *Client) GetFindingsForImage(ctx context.Context, app *AppInstance) (*model.Image, error) {
+		projects, err := c.retrieveProjects(ctx, app) // 4 prosjekter
 		if err != nil {
-			return nil, fmt.Errorf("retrieving findings for project %s: %w", project.Uuid, err)
+			return nil, fmt.Errorf("getting project by app %s: %w", app.ID(), err)
+		}
+
+		if projects == nil {
+			return nil, nil
+		}
+
+		// Finds index of project with latest bom import
+		var lastBomImport int64
+		var projectIndex int
+		for i, project := range projects {
+			if project.LastBomImport > lastBomImport {
+				lastBomImport = project.LastBomImport
+				projectIndex = i
+			}
+		}
+
+		var digest string
+		var rekor string
+		for _, tag := range projects[projectIndex].Tags {
+			if strings.Contains(tag.Name, "digest:") {
+				digest = strings.TrimPrefix(tag.Name, "digest:")
+			}
+			if strings.Contains(tag.Name, "rekor:") {
+				rekor = strings.TrimPrefix(tag.Name, "rekor:")
+			}
+		}
+
+		findings, err := c.retrieveFindings(ctx, projects[projectIndex].Uuid)
+		if err != nil {
+			return nil, fmt.Errorf("retrieving findings for project %s: %w", projects[projectIndex].Uuid, err)
 		}
 
 		retFindings := make([]*model.Finding, 0)
@@ -474,105 +548,24 @@ func (c *Client) GetFindingsForTeam(ctx context.Context, team string) ([]*model.
 				VulnerabilityID: f.Vulnerability.VulnId,
 			})
 		}
-		summary := c.createSummary(project, true)
 
-		image := &model.Image{
-			ID:                 scalar.DependencyTrackProjectIdent(project.Uuid),
-			ProjectID:          project.Uuid,
-			Name:               project.Name,
-			Summary:            *summary,
-			Digest:             digest,
-			Findings:           retFindings,
-			RekorID:            rekor,
-			Version:            version,
-			WorkloadReferences: workloads,
-		}
-		images = append(images, image)
+		summary := c.createSummary(projects[projectIndex], true)
 
+		return &model.Image{
+			Findings: model.FindingList{
+				Nodes: retFindings,
+				PageInfo: model.PageInfo{
+					TotalCount: len(retFindings),
+				},
+			},
+			Digest:  digest,
+			RekorID: rekor,
+			Summary: *summary,
+			Name:    app.Image,
+			ID:      scalar.ImageIdent(app.Image),
+		}, nil
 	}
-
-	return images, nil
-}
-
-func (c *Client) GetFindingsForImage(ctx context.Context, app *AppInstance) (*model.Image, error) {
-	projects, err := c.retrieveProjects(ctx, app) // 4 prosjekter
-	if err != nil {
-		return nil, fmt.Errorf("getting project by app %s: %w", app.ID(), err)
-	}
-
-	if projects == nil {
-		return nil, nil
-	}
-
-	// Finds index of project with latest bom import
-	var lastBomImport int64
-	var projectIndex int
-	for i, project := range projects {
-		if project.LastBomImport > lastBomImport {
-			lastBomImport = project.LastBomImport
-			projectIndex = i
-		}
-	}
-
-	var digest string
-	var rekor string
-	for _, tag := range projects[projectIndex].Tags {
-		if strings.Contains(tag.Name, "digest:") {
-			digest = strings.TrimPrefix(tag.Name, "digest:")
-		}
-		if strings.Contains(tag.Name, "rekor:") {
-			rekor = strings.TrimPrefix(tag.Name, "rekor:")
-		}
-	}
-
-	findings, err := c.retrieveFindings(ctx, projects[projectIndex].Uuid)
-	if err != nil {
-		return nil, fmt.Errorf("retrieving findings for project %s: %w", projects[projectIndex].Uuid, err)
-	}
-
-	retFindings := make([]*model.Finding, 0)
-	for _, f := range findings {
-		if f.Vulnerability.Severity == "UNASSIGNED" {
-			continue
-		}
-		cveId := ""
-		ghsaId := ""
-		osvId := ""
-
-		for _, alias := range f.Vulnerability.Aliases {
-			cveId = alias.CveId
-			ghsaId = alias.GhsaId
-		}
-
-		if f.Vulnerability.Source == "OSV" {
-			osvId = f.Vulnerability.VulnId
-		}
-
-		retFindings = append(retFindings, &model.Finding{
-			ID:              scalar.FindingIdent(f.Vulnerability.VulnId),
-			ComponentID:     f.Component.UUID,
-			Severity:        f.Vulnerability.Severity,
-			Description:     f.Vulnerability.Title,
-			CveID:           cveId,
-			GhsaID:          ghsaId,
-			OsvID:           osvId,
-			PackageURL:      f.Component.PURL,
-			VulnerabilityID: f.Vulnerability.VulnId,
-		})
-	}
-
-	summary := c.createSummary(projects[projectIndex], true)
-
-	return &model.Image{
-		Findings: retFindings,
-		Digest:   digest,
-		RekorID:  rekor,
-		Summary:  *summary,
-		Name:     app.Image,
-		ID:       scalar.ImageIdent(app.Image),
-	}, nil
-}
-
+*/
 func containsAllTags(tags []dependencytrack.Tag, s ...string) bool {
 	found := 0
 	for _, t := range s {
