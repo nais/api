@@ -110,6 +110,8 @@ func (b *bifrostClient) Post(ctx context.Context, path string, v any) (*http.Res
 		return nil, b.error(err, "create request")
 	}
 
+	request.Header.Set("Content-Type", "application/json")
+
 	resp, err := b.client.Do(request)
 	if err != nil {
 		return nil, b.error(err, "calling bifrost")
