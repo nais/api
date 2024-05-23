@@ -29,12 +29,23 @@ extend type Query {
     to: Date!
   ): DailyCost!
 
+#  "Get the monthly cost for the team across all apps and environments"
+#  monthlyCostForInstance(
+#    "The name of the team"
+#    name: String!
+#    "The env that the application runs in"
+#    env: String!
+#
+#    "The type of the cost"
+#    costType: String!
+#  ):!
   "Get monthly costs."
   monthlyCost(filter: MonthlyCostFilter!): MonthlyCost!
 
   "Get env cost for a team."
   envCost(filter: EnvCostFilter!): [EnvCost!]!
 }
+
 
 "Env cost filter input type."
 input EnvCostFilter {
@@ -84,7 +95,7 @@ type AppCost {
   cost: [CostEntry!]!
 }
 
-"Montly cost type."
+"Monthly cost type."
 type MonthlyCost {
   "Sum for all months in the series in euros."
   sum: Float!

@@ -17,6 +17,7 @@ type Redis struct {
 	Access  []RedisInstanceAccess `json:"access"`
 	ID      scalar.Ident          `json:"id"`
 	Env     Env                   `json:"env"`
+	Cost    string                `json:"cost"`
 	GQLVars RedisGQLVars          `json:"-"`
 }
 

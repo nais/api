@@ -10,7 +10,7 @@ import (
 )
 
 type CostRepo interface {
-	CostForSqlInstance(ctx context.Context, fromDate, toDate pgtype.Date, teamSlug slug.Slug, appName, environment string) (float32, error)
+	CostForInstance(ctx context.Context, costType string, fromDate, toDate pgtype.Date, teamSlug slug.Slug, appName, environment string) (float32, error)
 	CostRefresh(ctx context.Context) error
 	CostUpsert(ctx context.Context, arg []gensql.CostUpsertParams) *gensql.CostUpsertBatchResults
 	CurrentSqlInstancesCostForTeam(ctx context.Context, teamSlug slug.Slug) (float32, error)
@@ -28,6 +28,21 @@ func (d *database) CostUpsert(ctx context.Context, arg []gensql.CostUpsertParams
 	return d.querier.CostUpsert(ctx, arg)
 }
 
+func (d *database) CostForInstance(ctx context.Context, costType string, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug, appName, environment string) (float32, error) {
+	cost, err := d.querier.CostForInstance(ctx, gensql.CostForInstanceParams{
+		FromDate:    fromDate,
+		ToDate:      toDate,
+		TeamSlug:    teamSlug,
+		AppName:     appName,
+		Environment: environment,
+		CostType:    costType,
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	return cost, nil
+}
 func (d *database) DailyCostForApp(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment string, teamSlug slug.Slug, app string) ([]*gensql.Cost, error) {
 	return d.querier.DailyCostForApp(ctx, gensql.DailyCostForAppParams{
 		FromDate:    fromDate,
@@ -69,21 +84,6 @@ func (d *database) MonthlyCostForApp(ctx context.Context, teamSlug slug.Slug, ap
 
 func (d *database) MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*gensql.CostMonthlyTeam, error) {
 	return d.querier.MonthlyCostForTeam(ctx, teamSlug)
-}
-
-func (d *database) CostForSqlInstance(ctx context.Context, fromDate, toDate pgtype.Date, teamSlug slug.Slug, appName, environment string) (float32, error) {
-	cost, err := d.querier.CostForSqlInstance(ctx, gensql.CostForSqlInstanceParams{
-		FromDate:    fromDate,
-		ToDate:      toDate,
-		TeamSlug:    teamSlug,
-		AppName:     appName,
-		Environment: environment,
-	})
-	if err != nil {
-		return 0, err
-	}
-
-	return cost, nil
 }
 
 func (d *database) CurrentSqlInstancesCostForTeam(ctx context.Context, teamSlug slug.Slug) (float32, error) {

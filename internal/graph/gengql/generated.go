@@ -701,6 +701,7 @@ type ComplexityRoot struct {
 
 	Redis struct {
 		Access   func(childComplexity int) int
+		Cost     func(childComplexity int) int
 		Env      func(childComplexity int) int
 		ID       func(childComplexity int) int
 		Name     func(childComplexity int) int
@@ -4230,6 +4231,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Redis.Access(childComplexity), true
 
+	case "Redis.cost":
+		if e.complexity.Redis.Cost == nil {
+			break
+		}
+
+		return e.complexity.Redis.Cost(childComplexity), true
+
 	case "Redis.env":
 		if e.complexity.Redis.Env == nil {
 			break
@@ -6631,12 +6639,23 @@ type TokenX {
     to: Date!
   ): DailyCost!
 
+#  "Get the monthly cost for the team across all apps and environments"
+#  monthlyCostForInstance(
+#    "The name of the team"
+#    name: String!
+#    "The env that the application runs in"
+#    env: String!
+#
+#    "The type of the cost"
+#    costType: String!
+#  ):!
   "Get monthly costs."
   monthlyCost(filter: MonthlyCostFilter!): MonthlyCost!
 
   "Get env cost for a team."
   envCost(filter: EnvCostFilter!): [EnvCost!]!
 }
+
 
 "Env cost filter input type."
 input EnvCostFilter {
@@ -6686,7 +6705,7 @@ type AppCost {
   cost: [CostEntry!]!
 }
 
-"Montly cost type."
+"Monthly cost type."
 type MonthlyCost {
   "Sum for all months in the series in euros."
   sum: Float!
@@ -7006,6 +7025,7 @@ type Redis implements Persistence {
   access: [RedisInstanceAccess!]!
   team: Team!
   env: Env!
+  cost: String! 
   workload: Workload
 }
 
@@ -31336,6 +31356,50 @@ func (ec *executionContext) fieldContext_Redis_env(ctx context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _Redis_cost(ctx context.Context, field graphql.CollectedField, obj *model.Redis) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Redis_cost(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cost, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Redis_cost(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Redis",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Redis_workload(ctx context.Context, field graphql.CollectedField, obj *model.Redis) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Redis_workload(ctx, field)
 	if err != nil {
@@ -31514,6 +31578,8 @@ func (ec *executionContext) fieldContext_RedisList_nodes(ctx context.Context, fi
 				return ec.fieldContext_Redis_team(ctx, field)
 			case "env":
 				return ec.fieldContext_Redis_env(ctx, field)
+			case "cost":
+				return ec.fieldContext_Redis_cost(ctx, field)
 			case "workload":
 				return ec.fieldContext_Redis_workload(ctx, field)
 			}
@@ -39207,6 +39273,8 @@ func (ec *executionContext) fieldContext_Team_redisInstance(ctx context.Context,
 				return ec.fieldContext_Redis_team(ctx, field)
 			case "env":
 				return ec.fieldContext_Redis_env(ctx, field)
+			case "cost":
+				return ec.fieldContext_Redis_cost(ctx, field)
 			case "workload":
 				return ec.fieldContext_Redis_workload(ctx, field)
 			}
@@ -52744,6 +52812,11 @@ func (ec *executionContext) _Redis(ctx context.Context, sel ast.SelectionSet, ob
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "env":
 			out.Values[i] = ec._Redis_env(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "cost":
+			out.Values[i] = ec._Redis_cost(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

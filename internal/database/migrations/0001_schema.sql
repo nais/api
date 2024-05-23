@@ -76,7 +76,7 @@ CREATE TABLE cost (
     environment text,
     team_slug slug,
     app text NOT NULL,
-    cost_type text NOT NULL,
+    cost_type text NOT NULL, -- some sort of string describing a cost center, maybe "redis"
     date date NOT NULL,
     daily_cost real NOT NULL,
     CONSTRAINT daily_cost_key UNIQUE (environment, team_slug, app, cost_type, date)

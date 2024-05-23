@@ -532,7 +532,7 @@ type MaskinportenScope struct {
 	Exposes  []*Expose  `json:"exposes"`
 }
 
-// Montly cost type.
+// Monthly cost type.
 type MonthlyCost struct {
 	// Sum for all months in the series in euros.
 	Sum float64 `json:"sum"`

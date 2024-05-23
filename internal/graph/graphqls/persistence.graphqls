@@ -9,6 +9,7 @@ type Redis implements Persistence {
   access: [RedisInstanceAccess!]!
   team: Team!
   env: Env!
+  cost: String!
   workload: Workload
 }
 

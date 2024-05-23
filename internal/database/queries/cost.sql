@@ -93,18 +93,19 @@ GROUP BY
 ORDER BY
     date, app ASC;
 
--- name: CostForSqlInstance :one
+-- name: CostForInstance :one
 SELECT
     COALESCE(SUM(daily_cost), 0)::real
 FROM
     cost
 WHERE
     team_slug = @team_slug
-    AND cost_type = 'Cloud SQL'
-    AND app = @app_name
-    AND date >= @from_date
-    AND date <= @to_date
-    AND environment = @environment::text;
+  AND cost_type = @cost_type
+  AND app = @app_name
+  AND date >= @from_date
+  AND date <= @to_date
+  AND environment = @environment::text;
+
 
 -- name: CurrentSqlInstancesCostForTeam :one
 SELECT

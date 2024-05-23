@@ -247,7 +247,7 @@ func (m *Metrics) costForSqlInstance(ctx context.Context, instance *model.SQLIns
 		_ = to.Scan(now)
 		_ = from.Scan(now.AddDate(0, 0, -30))
 
-		if sum, err := m.costRepo.CostForSqlInstance(ctx, from, to, instance.GQLVars.TeamSlug, appName, instance.Env.Name); err != nil {
+		if sum, err := m.costRepo.CostForInstance(ctx, "Cloud SQL", from, to, instance.GQLVars.TeamSlug, appName, instance.Env.Name); err != nil {
 			m.log.WithError(err).Errorf("fetching cost")
 		} else {
 			cost = float64(sum)

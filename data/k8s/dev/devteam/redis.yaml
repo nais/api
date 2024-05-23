@@ -10,6 +10,11 @@ metadata:
     team: devteam
   name: redis-devteam-contests
   namespace: devteam
+  ownerReferences:
+    - apiVersion: nais.io/v1alpha1
+      kind: Application
+      name: app-w-all-storage
+      uid: 5d684281-5621-4c87-aee7-fca257550790
 spec:
   cloudName: google-europe-north1
   connInfoSecretTarget:

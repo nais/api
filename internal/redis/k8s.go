@@ -1,12 +1,13 @@
 package redis
 
 import (
+	"context"
 	"fmt"
-	"sort"
-
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"sort"
+	"strconv"
 
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/model"
@@ -110,7 +111,7 @@ func (c *Client) Redis(teamSlug slug.Slug) ([]*model.Redis, error) {
 	return ret, nil
 }
 
-func (c *Client) RedisInstance(env string, teamSlug slug.Slug, redisName string) (*model.Redis, error) {
+func (c *Client) RedisInstance(ctx context.Context, env string, teamSlug slug.Slug, redisName string) (*model.Redis, error) {
 	inf, exists := c.informers[env]
 	if !exists {
 		return nil, fmt.Errorf("unknown env: %q", env)
@@ -139,5 +140,15 @@ func (c *Client) RedisInstance(env string, teamSlug slug.Slug, redisName string)
 		return nil, fmt.Errorf("getting access for redis instance: %w", err)
 	}
 
-	return model.ToRedis(obj.(*unstructured.Unstructured), access, env)
+	ret, err := model.ToRedis(obj.(*unstructured.Unstructured), access, env)
+	if err != nil {
+		return nil, err
+	}
+
+	if ret.GQLVars.OwnerReference != nil {
+		cost := c.metrics.CostForRedisInstance(ctx, env, teamSlug, ret.GQLVars.OwnerReference.Name)
+		ret.Cost = strconv.FormatFloat(cost, 'f', -1, 64)
+	}
+
+	return ret, nil
 }

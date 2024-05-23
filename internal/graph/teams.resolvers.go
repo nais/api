@@ -1189,7 +1189,7 @@ func (r *teamResolver) Buckets(ctx context.Context, obj *model.Team, offset *int
 
 // RedisInstance is the resolver for the redisInstance field.
 func (r *teamResolver) RedisInstance(ctx context.Context, obj *model.Team, name string, env string) (*model.Redis, error) {
-	return r.redisClient.RedisInstance(env, obj.Slug, name)
+	return r.redisClient.RedisInstance(ctx, env, obj.Slug, name)
 }
 
 // Redis is the resolver for the redis field.

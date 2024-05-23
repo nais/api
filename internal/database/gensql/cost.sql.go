@@ -10,31 +10,33 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-const costForSqlInstance = `-- name: CostForSqlInstance :one
+const costForInstance = `-- name: CostForInstance :one
 SELECT
     COALESCE(SUM(daily_cost), 0)::real
 FROM
     cost
 WHERE
     team_slug = $1
-    AND cost_type = 'Cloud SQL'
-    AND app = $2
-    AND date >= $3
-    AND date <= $4
-    AND environment = $5::text
+  AND cost_type = $2
+  AND app = $3
+  AND date >= $4
+  AND date <= $5
+  AND environment = $6::text
 `
 
-type CostForSqlInstanceParams struct {
+type CostForInstanceParams struct {
 	TeamSlug    slug.Slug
+	CostType    string
 	AppName     string
 	FromDate    pgtype.Date
 	ToDate      pgtype.Date
 	Environment string
 }
 
-func (q *Queries) CostForSqlInstance(ctx context.Context, arg CostForSqlInstanceParams) (float32, error) {
-	row := q.db.QueryRow(ctx, costForSqlInstance,
+func (q *Queries) CostForInstance(ctx context.Context, arg CostForInstanceParams) (float32, error) {
+	row := q.db.QueryRow(ctx, costForInstance,
 		arg.TeamSlug,
+		arg.CostType,
 		arg.AppName,
 		arg.FromDate,
 		arg.ToDate,
