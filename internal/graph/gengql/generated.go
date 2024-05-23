@@ -203,10 +203,22 @@ type ComplexityRoot struct {
 		ProjectID                func(childComplexity int) int
 		PublicAccessPrevention   func(childComplexity int) int
 		RetentionPeriodDays      func(childComplexity int) int
-		SelfLink                 func(childComplexity int) int
+		Status                   func(childComplexity int) int
 		Team                     func(childComplexity int) int
 		UniformBucketLevelAccess func(childComplexity int) int
 		Workload                 func(childComplexity int) int
+	}
+
+	BucketCors struct {
+		MaxAgeSeconds   func(childComplexity int) int
+		Methods         func(childComplexity int) int
+		Origins         func(childComplexity int) int
+		ResponseHeaders func(childComplexity int) int
+	}
+
+	BucketStatus struct {
+		Conditions func(childComplexity int) int
+		SelfLink   func(childComplexity int) int
 	}
 
 	BucketsList struct {
@@ -1905,12 +1917,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Bucket.RetentionPeriodDays(childComplexity), true
 
-	case "Bucket.selfLink":
-		if e.complexity.Bucket.SelfLink == nil {
+	case "Bucket.status":
+		if e.complexity.Bucket.Status == nil {
 			break
 		}
 
-		return e.complexity.Bucket.SelfLink(childComplexity), true
+		return e.complexity.Bucket.Status(childComplexity), true
 
 	case "Bucket.team":
 		if e.complexity.Bucket.Team == nil {
@@ -1932,6 +1944,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Bucket.Workload(childComplexity), true
+
+	case "BucketCors.maxAgeSeconds":
+		if e.complexity.BucketCors.MaxAgeSeconds == nil {
+			break
+		}
+
+		return e.complexity.BucketCors.MaxAgeSeconds(childComplexity), true
+
+	case "BucketCors.methods":
+		if e.complexity.BucketCors.Methods == nil {
+			break
+		}
+
+		return e.complexity.BucketCors.Methods(childComplexity), true
+
+	case "BucketCors.origins":
+		if e.complexity.BucketCors.Origins == nil {
+			break
+		}
+
+		return e.complexity.BucketCors.Origins(childComplexity), true
+
+	case "BucketCors.responseHeaders":
+		if e.complexity.BucketCors.ResponseHeaders == nil {
+			break
+		}
+
+		return e.complexity.BucketCors.ResponseHeaders(childComplexity), true
+
+	case "BucketStatus.conditions":
+		if e.complexity.BucketStatus.Conditions == nil {
+			break
+		}
+
+		return e.complexity.BucketStatus.Conditions(childComplexity), true
+
+	case "BucketStatus.selfLink":
+		if e.complexity.BucketStatus.SelfLink == nil {
+			break
+		}
+
+		return e.complexity.BucketStatus.SelfLink(childComplexity), true
 
 	case "BucketsList.nodes":
 		if e.complexity.BucketsList.Nodes == nil {
@@ -6983,12 +7037,25 @@ type Bucket implements Persistence {
   publicAccessPrevention: String!
   retentionPeriodDays: Int!
   uniformBucketLevelAccess: Boolean!
-  cors: String!
-  selfLink: String!
+  cors: [BucketCors!]!
+
   projectId: String!
   team: Team!
   env: Env!
   workload: Workload
+  status: BucketStatus!
+}
+
+type BucketStatus {
+  conditions: [Condition!]!
+  selfLink: String!
+}
+
+type BucketCors {
+  maxAgeSeconds: Int
+  methods: [String!]!
+  origins: [String!]!
+  responseHeaders: [String!]!
 }
 
 type KafkaTopic implements Persistence {
@@ -7178,7 +7245,7 @@ type Condition {
   reason: String!
   status: String!
   type: String!
-  lastTransitionTime: String!
+  lastTransitionTime: Time!
 }
 
 extend enum OrderByField {
@@ -14493,9 +14560,9 @@ func (ec *executionContext) _Bucket_cors(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.([]model.BucketCors)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNBucketCors2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketCorsᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Bucket_cors(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14505,51 +14572,17 @@ func (ec *executionContext) fieldContext_Bucket_cors(ctx context.Context, field 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Bucket_selfLink(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Bucket_selfLink(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.SelfLink, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Bucket_selfLink(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Bucket",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "maxAgeSeconds":
+				return ec.fieldContext_BucketCors_maxAgeSeconds(ctx, field)
+			case "methods":
+				return ec.fieldContext_BucketCors_methods(ctx, field)
+			case "origins":
+				return ec.fieldContext_BucketCors_origins(ctx, field)
+			case "responseHeaders":
+				return ec.fieldContext_BucketCors_responseHeaders(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BucketCors", field.Name)
 		},
 	}
 	return fc, nil
@@ -14820,6 +14853,329 @@ func (ec *executionContext) fieldContext_Bucket_workload(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Bucket_status(ctx context.Context, field graphql.CollectedField, obj *model.Bucket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Bucket_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.BucketStatus)
+	fc.Result = res
+	return ec.marshalNBucketStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Bucket_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Bucket",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "conditions":
+				return ec.fieldContext_BucketStatus_conditions(ctx, field)
+			case "selfLink":
+				return ec.fieldContext_BucketStatus_selfLink(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BucketStatus", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BucketCors_maxAgeSeconds(ctx context.Context, field graphql.CollectedField, obj *model.BucketCors) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BucketCors_maxAgeSeconds(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxAgeSeconds, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BucketCors_maxAgeSeconds(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BucketCors",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BucketCors_methods(ctx context.Context, field graphql.CollectedField, obj *model.BucketCors) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BucketCors_methods(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Methods, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BucketCors_methods(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BucketCors",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BucketCors_origins(ctx context.Context, field graphql.CollectedField, obj *model.BucketCors) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BucketCors_origins(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Origins, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BucketCors_origins(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BucketCors",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BucketCors_responseHeaders(ctx context.Context, field graphql.CollectedField, obj *model.BucketCors) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BucketCors_responseHeaders(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResponseHeaders, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BucketCors_responseHeaders(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BucketCors",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BucketStatus_conditions(ctx context.Context, field graphql.CollectedField, obj *model.BucketStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BucketStatus_conditions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Conditions, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Condition)
+	fc.Result = res
+	return ec.marshalNCondition2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐConditionᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BucketStatus_conditions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BucketStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "message":
+				return ec.fieldContext_Condition_message(ctx, field)
+			case "reason":
+				return ec.fieldContext_Condition_reason(ctx, field)
+			case "status":
+				return ec.fieldContext_Condition_status(ctx, field)
+			case "type":
+				return ec.fieldContext_Condition_type(ctx, field)
+			case "lastTransitionTime":
+				return ec.fieldContext_Condition_lastTransitionTime(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Condition", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BucketStatus_selfLink(ctx context.Context, field graphql.CollectedField, obj *model.BucketStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BucketStatus_selfLink(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SelfLink, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BucketStatus_selfLink(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BucketStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _BucketsList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.BucketsList) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_BucketsList_nodes(ctx, field)
 	if err != nil {
@@ -14873,8 +15229,6 @@ func (ec *executionContext) fieldContext_BucketsList_nodes(ctx context.Context, 
 				return ec.fieldContext_Bucket_uniformBucketLevelAccess(ctx, field)
 			case "cors":
 				return ec.fieldContext_Bucket_cors(ctx, field)
-			case "selfLink":
-				return ec.fieldContext_Bucket_selfLink(ctx, field)
 			case "projectId":
 				return ec.fieldContext_Bucket_projectId(ctx, field)
 			case "team":
@@ -14883,6 +15237,8 @@ func (ec *executionContext) fieldContext_BucketsList_nodes(ctx context.Context, 
 				return ec.fieldContext_Bucket_env(ctx, field)
 			case "workload":
 				return ec.fieldContext_Bucket_workload(ctx, field)
+			case "status":
+				return ec.fieldContext_Bucket_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Bucket", field.Name)
 		},
@@ -15236,9 +15592,9 @@ func (ec *executionContext) _Condition_lastTransitionTime(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Condition_lastTransitionTime(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -15248,7 +15604,7 @@ func (ec *executionContext) fieldContext_Condition_lastTransitionTime(ctx contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -38713,8 +39069,6 @@ func (ec *executionContext) fieldContext_Team_bucket(ctx context.Context, field 
 				return ec.fieldContext_Bucket_uniformBucketLevelAccess(ctx, field)
 			case "cors":
 				return ec.fieldContext_Bucket_cors(ctx, field)
-			case "selfLink":
-				return ec.fieldContext_Bucket_selfLink(ctx, field)
 			case "projectId":
 				return ec.fieldContext_Bucket_projectId(ctx, field)
 			case "team":
@@ -38723,6 +39077,8 @@ func (ec *executionContext) fieldContext_Team_bucket(ctx context.Context, field 
 				return ec.fieldContext_Bucket_env(ctx, field)
 			case "workload":
 				return ec.fieldContext_Bucket_workload(ctx, field)
+			case "status":
+				return ec.fieldContext_Bucket_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Bucket", field.Name)
 		},
@@ -47545,11 +47901,6 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "selfLink":
-			out.Values[i] = ec._Bucket_selfLink(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "projectId":
 			out.Values[i] = ec._Bucket_projectId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -47629,6 +47980,106 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "status":
+			out.Values[i] = ec._Bucket_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var bucketCorsImplementors = []string{"BucketCors"}
+
+func (ec *executionContext) _BucketCors(ctx context.Context, sel ast.SelectionSet, obj *model.BucketCors) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, bucketCorsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("BucketCors")
+		case "maxAgeSeconds":
+			out.Values[i] = ec._BucketCors_maxAgeSeconds(ctx, field, obj)
+		case "methods":
+			out.Values[i] = ec._BucketCors_methods(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "origins":
+			out.Values[i] = ec._BucketCors_origins(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "responseHeaders":
+			out.Values[i] = ec._BucketCors_responseHeaders(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var bucketStatusImplementors = []string{"BucketStatus"}
+
+func (ec *executionContext) _BucketStatus(ctx context.Context, sel ast.SelectionSet, obj *model.BucketStatus) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, bucketStatusImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("BucketStatus")
+		case "conditions":
+			out.Values[i] = ec._BucketStatus_conditions(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "selfLink":
+			out.Values[i] = ec._BucketStatus_selfLink(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -58112,6 +58563,58 @@ func (ec *executionContext) marshalNBucket2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 		return graphql.Null
 	}
 	return ec._Bucket(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNBucketCors2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketCors(ctx context.Context, sel ast.SelectionSet, v model.BucketCors) graphql.Marshaler {
+	return ec._BucketCors(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNBucketCors2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketCorsᚄ(ctx context.Context, sel ast.SelectionSet, v []model.BucketCors) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBucketCors2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketCors(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNBucketStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketStatus(ctx context.Context, sel ast.SelectionSet, v model.BucketStatus) graphql.Marshaler {
+	return ec._BucketStatus(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNBucketsList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketsList(ctx context.Context, sel ast.SelectionSet, v model.BucketsList) graphql.Marshaler {

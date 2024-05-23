@@ -2,6 +2,9 @@ package model
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/k8s/v1alpha1"
 
 	"k8s.io/utils/ptr"
 
@@ -14,18 +17,17 @@ import (
 )
 
 type Bucket struct {
-	ID              scalar.Ident  `json:"id"`
-	Env             Env           `json:"env"`
-	Name            string        `json:"name"`
-	ProjectID       string        `json:"projectId"`
-	CascadingDelete bool          `json:"cascadingDelete"`
-	GQLVars         BucketGQLVars `json:"-"`
-
-	PublicAccessPrevention   string `json:"publicAccessPrevention"`
-	RetentionPeriodDays      int    `json:"retentionPeriodDays"`
-	UniformBucketLevelAccess bool   `json:"uniformBucketLevelAccess"`
-	Cors                     string `json:"cors"`
-	SelfLink                 string `json:"selfLink"`
+	ID                       scalar.Ident  `json:"id"`
+	Env                      Env           `json:"env"`
+	Name                     string        `json:"name"`
+	ProjectID                string        `json:"projectId"`
+	CascadingDelete          bool          `json:"cascadingDelete"`
+	Status                   BucketStatus  `json:"status"`
+	PublicAccessPrevention   string        `json:"publicAccessPrevention"`
+	RetentionPeriodDays      int           `json:"retentionPeriodDays"`
+	UniformBucketLevelAccess bool          `json:"uniformBucketLevelAccess"`
+	Cors                     []BucketCors  `json:"cors"`
+	GQLVars                  BucketGQLVars `json:"-"`
 }
 
 type BucketGQLVars struct {
@@ -62,19 +64,39 @@ func ToBucket(u *unstructured.Unstructured, env string) (*Bucket, error) {
 		CascadingDelete:          bucket.Annotations["cnrm.cloud.google.com/deletion-policy"] == "abandon",
 		PublicAccessPrevention:   ptr.Deref(bucket.Spec.PublicAccessPrevention, ""),
 		UniformBucketLevelAccess: ptr.Deref(bucket.Spec.UniformBucketLevelAccess, false),
-		Cors: func(cors []storage_cnrm_cloud_google_com_v1beta1.BucketCors) string {
-			ret := ""
-			for _, c := range cors {
-				for _, origin := range c.Origin {
-					ret += origin
-					for _, method := range c.Method {
-						ret += " - " + method
-					}
+		Cors: func(cors []storage_cnrm_cloud_google_com_v1beta1.BucketCors) []BucketCors {
+			ret := make([]BucketCors, len(cors))
+			for i, c := range cors {
+				ret[i] = BucketCors{
+					MaxAgeSeconds:   c.MaxAgeSeconds,
+					Origins:         c.Origin,
+					Methods:         c.Method,
+					ResponseHeaders: c.ResponseHeader,
 				}
 			}
 			return ret
 		}(bucket.Spec.Cors),
-		SelfLink: ptr.Deref(bucket.Status.SelfLink, ""),
+		Status: BucketStatus{
+			Conditions: func(conditions []v1alpha1.Condition) []*Condition {
+				ret := make([]*Condition, len(conditions))
+				for i, c := range conditions {
+					t, err := time.Parse(time.RFC3339, c.LastTransitionTime)
+					if err != nil {
+						t = time.Unix(0, 0)
+					}
+					ret[i] = &Condition{
+						Type:               c.Type,
+						Status:             string(c.Status),
+						LastTransitionTime: t,
+						Reason:             c.Reason,
+						Message:            c.Message,
+					}
+				}
+
+				return ret
+			}(bucket.Status.Conditions),
+			SelfLink: ptr.Deref(bucket.Status.SelfLink, ""),
+		},
 		GQLVars: BucketGQLVars{
 			TeamSlug:       slug.Slug(teamSlug),
 			OwnerReference: OwnerReference(bucket.OwnerReferences),

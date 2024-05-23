@@ -157,6 +157,18 @@ type BigQueryDatasetList struct {
 	PageInfo PageInfo           `json:"pageInfo"`
 }
 
+type BucketCors struct {
+	MaxAgeSeconds   *int     `json:"maxAgeSeconds,omitempty"`
+	Methods         []string `json:"methods"`
+	Origins         []string `json:"origins"`
+	ResponseHeaders []string `json:"responseHeaders"`
+}
+
+type BucketStatus struct {
+	Conditions []*Condition `json:"conditions"`
+	SelfLink   string       `json:"selfLink"`
+}
+
 type BucketsList struct {
 	Nodes    []*Bucket `json:"nodes"`
 	PageInfo PageInfo  `json:"pageInfo"`
@@ -168,11 +180,11 @@ type Claims struct {
 }
 
 type Condition struct {
-	Message            string `json:"message"`
-	Reason             string `json:"reason"`
-	Status             string `json:"status"`
-	Type               string `json:"type"`
-	LastTransitionTime string `json:"lastTransitionTime"`
+	Message            string    `json:"message"`
+	Reason             string    `json:"reason"`
+	Status             string    `json:"status"`
+	Type               string    `json:"type"`
+	LastTransitionTime time.Time `json:"lastTransitionTime"`
 }
 
 type Consume struct {

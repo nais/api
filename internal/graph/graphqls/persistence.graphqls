@@ -40,12 +40,25 @@ type Bucket implements Persistence {
   publicAccessPrevention: String!
   retentionPeriodDays: Int!
   uniformBucketLevelAccess: Boolean!
-  cors: String!
-  selfLink: String!
+  cors: [BucketCors!]!
+
   projectId: String!
   team: Team!
   env: Env!
   workload: Workload
+  status: BucketStatus!
+}
+
+type BucketStatus {
+  conditions: [Condition!]!
+  selfLink: String!
+}
+
+type BucketCors {
+  maxAgeSeconds: Int
+  methods: [String!]!
+  origins: [String!]!
+  responseHeaders: [String!]!
 }
 
 type KafkaTopic implements Persistence {
@@ -235,7 +248,7 @@ type Condition {
   reason: String!
   status: String!
   type: String!
-  lastTransitionTime: String!
+  lastTransitionTime: Time!
 }
 
 extend enum OrderByField {

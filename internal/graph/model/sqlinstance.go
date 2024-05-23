@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
 	"github.com/nais/api/internal/graph/scalar"
@@ -141,12 +142,16 @@ func ToSqlInstance(u *unstructured.Unstructured, env string) (*SQLInstance, erro
 			Conditions: func() []*Condition {
 				ret := make([]*Condition, 0)
 				for _, condition := range sqlInstance.Status.Conditions {
+					t, err := time.Parse(time.RFC3339, condition.LastTransitionTime)
+					if err != nil {
+						t = time.Unix(0, 0)
+					}
 					ret = append(ret, &Condition{
 						Type:               condition.Type,
 						Status:             string(condition.Status),
 						Reason:             condition.Reason,
 						Message:            formatMessage(condition.Message),
-						LastTransitionTime: condition.LastTransitionTime,
+						LastTransitionTime: t,
 					})
 				}
 				return ret
