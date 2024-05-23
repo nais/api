@@ -20,13 +20,22 @@ import (
 	"k8s.io/client-go/tools/clientcmd/api"
 )
 
+const PrometheusUrl = "https://nais-prometheus.%s.cloud.nais.io"
+
 type Manager struct {
 	tenantClusters clusterClients
 	mgmCluster     *k8sClient
 	mgmtNamespace  string
-	prometheus     promv1.API
+	prometheus     Prometheus
 	bifrostClient  BifrostClient
 	settings       *settings
+	log            logrus.FieldLogger
+}
+
+type Config struct {
+	Enabled       bool
+	Namespace     string
+	BifrostApiUrl string
 }
 
 type k8sClient struct {
@@ -51,50 +60,49 @@ func WithClientsCreator(f func(cluster string) (kubernetes.Interface, dynamic.In
 	}
 }
 
-func WithUnleashEnabled() Opt {
-	return func(s *settings) {
-		s.unleashEnabled = true
-	}
-}
-
-func NewManager(tenant, namespace string, clusters []string, opts ...Opt) (*Manager, error) {
+func NewManager(tenant string, clusters []string, config Config, log logrus.FieldLogger, opts ...Opt) (*Manager, error) {
 	s := &settings{}
 	for _, opt := range opts {
 		opt(s)
 	}
+
+	s.unleashEnabled = config.Enabled
 
 	clientMap, err := tenantClusters(tenant, clusters, opts...)
 	if err != nil {
 		return nil, err
 	}
 
-	mgmt, err := mgmtCluster(namespace, opts...)
+	mgmt, err := mgmtCluster(config.Namespace, opts...)
 	if err != nil {
 		return nil, err
 	}
 
+	m := &Manager{
+		mgmtNamespace:  config.Namespace,
+		tenantClusters: clientMap,
+		mgmCluster:     mgmt,
+		settings:       s,
+		log:            log,
+	}
+
+	m.bifrostClient = NewBifrostClient(config.BifrostApiUrl, log)
+
 	promClient, err := promapi.NewClient(promapi.Config{
-		Address: fmt.Sprintf("https://nais-prometheus.%s.cloud.nais.io", tenant),
+		Address: fmt.Sprintf(PrometheusUrl, tenant),
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: setup logger outside of this package
-	bifrost := NewBifrostClient("", logrus.New())
+	m.prometheus = promv1.NewAPI(promClient)
 	// if clientsCreator is set, it means that faking is enabled. should probably send in the flag itself to avoid this comment
 	if s.clientsCreator != nil {
-		bifrost = NewFakeBifrostClient(mgmt.dynamicClient)
+		m.bifrostClient = NewFakeBifrostClient(mgmt.dynamicClient)
+		m.prometheus = NewFakePrometheusClient()
 	}
 
-	return &Manager{
-		mgmtNamespace:  namespace,
-		tenantClusters: clientMap,
-		mgmCluster:     mgmt,
-		prometheus:     promv1.NewAPI(promClient),
-		bifrostClient:  bifrost,
-		settings:       s,
-	}, nil
+	return m, nil
 }
 
 func (m Manager) Start(ctx context.Context, log logrus.FieldLogger) error {

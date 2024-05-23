@@ -148,11 +148,13 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		unleashOpts = append(unleashOpts, unleash.WithClientsCreator(fake.Clients(os.DirFS("./data/k8s"))))
 	}
 
-	if cfg.Unleash.Enabled {
-		unleashOpts = append(unleashOpts, unleash.WithUnleashEnabled())
-	}
-
-	unleashMgr, err := unleash.NewManager(cfg.Tenant, cfg.Unleash.Namespace, cfg.K8s.PkgConfig().Clusters, unleashOpts...)
+	unleashMgr, err := unleash.NewManager(
+		cfg.Tenant,
+		cfg.K8s.PkgConfig().Clusters,
+		cfg.Unleash.PkgConfig(),
+		log.WithField("client", "unleash"),
+		unleashOpts...,
+	)
 	if err != nil {
 		return fmt.Errorf("unable to create unleash manager: %w", err)
 	}
