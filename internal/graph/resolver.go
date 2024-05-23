@@ -123,6 +123,7 @@ type DependencytrackClient interface {
 	GetVulnerabilities(ctx context.Context, apps []*dependencytrack.AppInstance, filters ...dependencytrack.Filter) ([]*model.Vulnerability, error)
 	/*GetFindingsForImage(ctx context.Context, app *dependencytrack.AppInstance) (*model.Image, error)*/
 	GetMetadataForImageByProjectID(ctx context.Context, projectID string) (*model.Image, error)
+	GetMetadataForImage(ctx context.Context, name, version string) (*model.Image, error)
 	GetFindingsForImageByProjectID(ctx context.Context, projectID string) ([]*model.Finding, error)
 	GetMetadataForTeam(ctx context.Context, team string) ([]*model.Image, error)
 }

@@ -319,6 +319,62 @@ func (c *Client) retrieveProjects(ctx context.Context, app *AppInstance) ([]*dep
 	return projects, nil
 }
 
+func (c *Client) GetMetadataForImage(ctx context.Context, name, version string) (*model.Image, error) {
+	p, err := c.client.GetProject(ctx, name, version)
+	if err != nil {
+		return nil, fmt.Errorf("getting project by name %s and version %s: %w", name, version, err)
+	}
+
+	if p == nil {
+		return nil, fmt.Errorf("project not found: %s:%s", name, version)
+	}
+
+	var digest string
+	var rekor string
+	var workloads []*model.WorkloadReference
+	for _, tag := range p.Tags {
+		if strings.Contains(tag.Name, "digest:") {
+			digest = strings.TrimPrefix(tag.Name, "digest:")
+		}
+		if strings.Contains(tag.Name, "rekor:") {
+			rekor = strings.TrimPrefix(tag.Name, "rekor:")
+		}
+		if strings.Contains(tag.Name, "workload:") {
+			w := strings.TrimPrefix(tag.Name, "workload:")
+			workload := strings.Split(w, "|")
+
+			workloads = append(workloads, &model.WorkloadReference{
+				ID:           scalar.WorkloadIdent(w),
+				Environment:  workload[0],
+				Team:         workload[1],
+				WorkloadType: workload[2],
+				Name:         workload[3]})
+
+		}
+	}
+
+	summary := c.createSummary(p, true)
+
+	return &model.Image{
+		Name:      p.Name + ":" + p.Version,
+		ID:        scalar.ImageIdent(p.Name),
+		Digest:    digest,
+		RekorID:   rekor,
+		Version:   p.Version,
+		ProjectID: p.Uuid,
+		Summary: model.VulnerabilitySummary{
+			Total:      summary.Total,
+			Critical:   summary.Critical,
+			RiskScore:  summary.RiskScore,
+			High:       summary.High,
+			Medium:     summary.Medium,
+			Low:        summary.Low,
+			Unassigned: summary.Unassigned,
+		},
+		WorkloadReferences: workloads,
+	}, nil
+}
+
 func (c *Client) GetFindingsForImageByProjectID(ctx context.Context, projectId string) ([]*model.Finding, error) {
 	findings, err := c.retrieveFindings(ctx, projectId)
 	if err != nil {
@@ -430,7 +486,7 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 		if project == nil {
 			continue
 		}
-		if strings.Contains(project.Name, "nais-io") {
+		if strings.Contains(project.Name, "/nais-io/") {
 			continue
 		}
 

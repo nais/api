@@ -1151,6 +1151,8 @@ type AppResolver interface {
 
 	Persistence(ctx context.Context, obj *model.App) ([]model.Persistence, error)
 
+	Image(ctx context.Context, obj *model.App) (*model.Image, error)
+
 	Manifest(ctx context.Context, obj *model.App) (string, error)
 	Team(ctx context.Context, obj *model.App) (*model.Team, error)
 
@@ -6491,7 +6493,6 @@ extend type Query {
 type App {
   id: ID!
   name: String!
-  image: String!
   deployInfo: DeployInfo!
   env: Env!
   ingresses: [String!]!
@@ -6501,6 +6502,7 @@ type App {
   autoScaling: AutoScaling!
   persistence: [Persistence!]!
   variables: [Variable!]!
+  image: Image!
   authz: [Authz!]!
   manifest: String!
   team: Team!
@@ -11180,50 +11182,6 @@ func (ec *executionContext) fieldContext_App_name(ctx context.Context, field gra
 	return fc, nil
 }
 
-func (ec *executionContext) _App_image(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_App_image(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Image, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_App_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "App",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _App_deployInfo(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_App_deployInfo(ctx, field)
 	if err != nil {
@@ -11683,6 +11641,70 @@ func (ec *executionContext) fieldContext_App_variables(ctx context.Context, fiel
 				return ec.fieldContext_Variable_value(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Variable", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _App_image(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_App_image(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.App().Image(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Image)
+	fc.Result = res
+	return ec.marshalNImage2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐImage(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_App_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "App",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Image_id(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Image_projectId(ctx, field)
+			case "name":
+				return ec.fieldContext_Image_name(ctx, field)
+			case "version":
+				return ec.fieldContext_Image_version(ctx, field)
+			case "digest":
+				return ec.fieldContext_Image_digest(ctx, field)
+			case "rekorId":
+				return ec.fieldContext_Image_rekorId(ctx, field)
+			case "summary":
+				return ec.fieldContext_Image_summary(ctx, field)
+			case "findings":
+				return ec.fieldContext_Image_findings(ctx, field)
+			case "workloadReferences":
+				return ec.fieldContext_Image_workloadReferences(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Image", field.Name)
 		},
 	}
 	return fc, nil
@@ -12244,8 +12266,6 @@ func (ec *executionContext) fieldContext_AppList_nodes(ctx context.Context, fiel
 				return ec.fieldContext_App_id(ctx, field)
 			case "name":
 				return ec.fieldContext_App_name(ctx, field)
-			case "image":
-				return ec.fieldContext_App_image(ctx, field)
 			case "deployInfo":
 				return ec.fieldContext_App_deployInfo(ctx, field)
 			case "env":
@@ -12264,6 +12284,8 @@ func (ec *executionContext) fieldContext_AppList_nodes(ctx context.Context, fiel
 				return ec.fieldContext_App_persistence(ctx, field)
 			case "variables":
 				return ec.fieldContext_App_variables(ctx, field)
+			case "image":
+				return ec.fieldContext_App_image(ctx, field)
 			case "authz":
 				return ec.fieldContext_App_authz(ctx, field)
 			case "manifest":
@@ -29009,8 +29031,6 @@ func (ec *executionContext) fieldContext_Query_app(ctx context.Context, field gr
 				return ec.fieldContext_App_id(ctx, field)
 			case "name":
 				return ec.fieldContext_App_name(ctx, field)
-			case "image":
-				return ec.fieldContext_App_image(ctx, field)
 			case "deployInfo":
 				return ec.fieldContext_App_deployInfo(ctx, field)
 			case "env":
@@ -29029,6 +29049,8 @@ func (ec *executionContext) fieldContext_Query_app(ctx context.Context, field gr
 				return ec.fieldContext_App_persistence(ctx, field)
 			case "variables":
 				return ec.fieldContext_App_variables(ctx, field)
+			case "image":
+				return ec.fieldContext_App_image(ctx, field)
 			case "authz":
 				return ec.fieldContext_App_authz(ctx, field)
 			case "manifest":
@@ -35177,8 +35199,6 @@ func (ec *executionContext) fieldContext_Secret_apps(ctx context.Context, field 
 				return ec.fieldContext_App_id(ctx, field)
 			case "name":
 				return ec.fieldContext_App_name(ctx, field)
-			case "image":
-				return ec.fieldContext_App_image(ctx, field)
 			case "deployInfo":
 				return ec.fieldContext_App_deployInfo(ctx, field)
 			case "env":
@@ -35197,6 +35217,8 @@ func (ec *executionContext) fieldContext_Secret_apps(ctx context.Context, field 
 				return ec.fieldContext_App_persistence(ctx, field)
 			case "variables":
 				return ec.fieldContext_App_variables(ctx, field)
+			case "image":
+				return ec.fieldContext_App_image(ctx, field)
 			case "authz":
 				return ec.fieldContext_App_authz(ctx, field)
 			case "manifest":
@@ -47652,11 +47674,6 @@ func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "image":
-			out.Values[i] = ec._App_image(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "deployInfo":
 			out.Values[i] = ec._App_deployInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -47764,6 +47781,42 @@ func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "image":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._App_image(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "authz":
 			out.Values[i] = ec._App_authz(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

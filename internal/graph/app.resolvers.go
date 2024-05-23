@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
@@ -31,6 +32,15 @@ func (r *appResolver) Instances(ctx context.Context, obj *model.App) ([]*model.I
 // Persistence is the resolver for the persistence field.
 func (r *appResolver) Persistence(ctx context.Context, obj *model.App) ([]model.Persistence, error) {
 	return r.k8sClient.Persistence(ctx, obj.WorkloadBase)
+}
+
+// Image is the resolver for the image field.
+func (r *appResolver) Image(ctx context.Context, obj *model.App) (*model.Image, error) {
+	name, version, found := strings.Cut(obj.Image, ":")
+	if !found {
+		return nil, fmt.Errorf("could not extract project ID from image name")
+	}
+	return r.dependencyTrackClient.GetMetadataForImage(ctx, name, version)
 }
 
 // Manifest is the resolver for the manifest field.
