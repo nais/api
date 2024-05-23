@@ -20,6 +20,10 @@ func (r *imageResolver) Findings(ctx context.Context, obj *model.Image, offset *
 
 	if orderBy != nil {
 		switch orderBy.Field {
+		case model.OrderByFieldName:
+			model.SortWith(findings, func(a, b *model.Finding) bool {
+				return model.Compare(a.VulnerabilityID, b.VulnerabilityID, orderBy.Direction)
+			})
 		case model.OrderByFieldSeverity:
 			model.SortWith(findings, func(a, b *model.Finding) bool {
 				severityToScore := map[string]int{

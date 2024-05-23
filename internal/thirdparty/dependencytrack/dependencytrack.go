@@ -327,32 +327,32 @@ func (c *Client) GetFindingsForImageByProjectID(ctx context.Context, projectId s
 
 	retFindings := make([]*model.Finding, 0)
 	for _, f := range findings {
-		if f.Vulnerability.Severity == "UNASSIGNED" {
-			continue
-		}
-		cveId := ""
-		ghsaId := ""
-		osvId := ""
+		aliases := []*model.Alias{}
 
 		for _, alias := range f.Vulnerability.Aliases {
-			cveId = alias.CveId
-			ghsaId = alias.GhsaId
-		}
-
-		if f.Vulnerability.Source == "OSV" {
-			osvId = f.Vulnerability.VulnId
+			if alias.CveId != "" {
+				aliases = append(aliases, &model.Alias{
+					Name:   alias.CveId,
+					Source: "NVD",
+				})
+			}
+			if alias.GhsaId != "" {
+				aliases = append(aliases, &model.Alias{
+					Name:   alias.GhsaId,
+					Source: "GHSA",
+				})
+			}
 		}
 
 		retFindings = append(retFindings, &model.Finding{
 			ID:              scalar.FindingIdent(f.Vulnerability.VulnId),
+			VulnerabilityID: f.Vulnerability.VulnId,
+			Source:          f.Vulnerability.Source,
 			ComponentID:     f.Component.UUID,
 			Severity:        f.Vulnerability.Severity,
 			Description:     f.Vulnerability.Title,
-			CveID:           cveId,
-			GhsaID:          ghsaId,
-			OsvID:           osvId,
 			PackageURL:      f.Component.PURL,
-			VulnerabilityID: f.Vulnerability.VulnId,
+			Aliases:         aliases,
 		})
 	}
 	return retFindings, nil

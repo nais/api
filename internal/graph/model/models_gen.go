@@ -50,6 +50,11 @@ type AccessPolicy struct {
 	Outbound Outbound `json:"outbound"`
 }
 
+type Alias struct {
+	Name   string `json:"name"`
+	Source string `json:"source"`
+}
+
 // App cost type.
 type AppCost struct {
 	// The name of the application.
@@ -353,14 +358,13 @@ func (this FailedRunError) GetLevel() ErrorLevel { return this.Level }
 
 type Finding struct {
 	ID              scalar.Ident `json:"id"`
+	VulnerabilityID string       `json:"vulnerabilityId"`
+	Source          string       `json:"source"`
 	ComponentID     string       `json:"componentId"`
-	CveID           string       `json:"cveId"`
-	GhsaID          string       `json:"ghsaId"`
-	OsvID           string       `json:"osvId"`
 	Severity        string       `json:"severity"`
 	Description     string       `json:"description"`
 	PackageURL      string       `json:"packageUrl"`
-	VulnerabilityID string       `json:"vulnerabilityId"`
+	Aliases         []*Alias     `json:"aliases"`
 }
 
 type FindingList struct {

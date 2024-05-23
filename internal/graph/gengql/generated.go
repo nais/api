@@ -82,6 +82,11 @@ type ComplexityRoot struct {
 		Outbound func(childComplexity int) int
 	}
 
+	Alias struct {
+		Name   func(childComplexity int) int
+		Source func(childComplexity int) int
+	}
+
 	App struct {
 		AccessPolicy    func(childComplexity int) int
 		Authz           func(childComplexity int) int
@@ -364,14 +369,13 @@ type ComplexityRoot struct {
 	}
 
 	Finding struct {
+		Aliases         func(childComplexity int) int
 		ComponentID     func(childComplexity int) int
-		CveID           func(childComplexity int) int
 		Description     func(childComplexity int) int
-		GhsaID          func(childComplexity int) int
 		ID              func(childComplexity int) int
-		OsvID           func(childComplexity int) int
 		PackageURL      func(childComplexity int) int
 		Severity        func(childComplexity int) int
+		Source          func(childComplexity int) int
 		VulnerabilityID func(childComplexity int) int
 	}
 
@@ -1392,6 +1396,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AccessPolicy.Outbound(childComplexity), true
+
+	case "Alias.name":
+		if e.complexity.Alias.Name == nil {
+			break
+		}
+
+		return e.complexity.Alias.Name(childComplexity), true
+
+	case "Alias.source":
+		if e.complexity.Alias.Source == nil {
+			break
+		}
+
+		return e.complexity.Alias.Source(childComplexity), true
 
 	case "App.accessPolicy":
 		if e.complexity.App.AccessPolicy == nil {
@@ -2525,19 +2543,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.FailedRunError.RunName(childComplexity), true
 
+	case "Finding.aliases":
+		if e.complexity.Finding.Aliases == nil {
+			break
+		}
+
+		return e.complexity.Finding.Aliases(childComplexity), true
+
 	case "Finding.componentId":
 		if e.complexity.Finding.ComponentID == nil {
 			break
 		}
 
 		return e.complexity.Finding.ComponentID(childComplexity), true
-
-	case "Finding.cveId":
-		if e.complexity.Finding.CveID == nil {
-			break
-		}
-
-		return e.complexity.Finding.CveID(childComplexity), true
 
 	case "Finding.description":
 		if e.complexity.Finding.Description == nil {
@@ -2546,26 +2564,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Finding.Description(childComplexity), true
 
-	case "Finding.ghsaId":
-		if e.complexity.Finding.GhsaID == nil {
-			break
-		}
-
-		return e.complexity.Finding.GhsaID(childComplexity), true
-
 	case "Finding.id":
 		if e.complexity.Finding.ID == nil {
 			break
 		}
 
 		return e.complexity.Finding.ID(childComplexity), true
-
-	case "Finding.osvId":
-		if e.complexity.Finding.OsvID == nil {
-			break
-		}
-
-		return e.complexity.Finding.OsvID(childComplexity), true
 
 	case "Finding.packageUrl":
 		if e.complexity.Finding.PackageURL == nil {
@@ -2580,6 +2584,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Finding.Severity(childComplexity), true
+
+	case "Finding.source":
+		if e.complexity.Finding.Source == nil {
+			break
+		}
+
+		return e.complexity.Finding.Source(childComplexity), true
 
 	case "Finding.vulnerabilityId":
 		if e.complexity.Finding.VulnerabilityID == nil {
@@ -7060,14 +7071,18 @@ type ImageList {
 
 type Finding {
   id: ID!
+  vulnerabilityId: String!
+  source: String!
   componentId: String!
-  cveId: String!
-  ghsaId: String!
-  osvId: String!
   severity: String!
   description: String!
   packageUrl: String!
-  vulnerabilityId: String!
+  aliases: [Alias!]!
+}
+
+type Alias {
+  name: String!
+  source: String!
 }
 
 extend enum OrderByField {
@@ -10984,6 +10999,94 @@ func (ec *executionContext) fieldContext_AccessPolicy_outbound(ctx context.Conte
 				return ec.fieldContext_Outbound_external(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Outbound", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Alias_name(ctx context.Context, field graphql.CollectedField, obj *model.Alias) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Alias_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Alias_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Alias",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Alias_source(ctx context.Context, field graphql.CollectedField, obj *model.Alias) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Alias_source(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Source, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Alias_source(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Alias",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -18843,6 +18946,94 @@ func (ec *executionContext) fieldContext_Finding_id(ctx context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Finding_vulnerabilityId(ctx context.Context, field graphql.CollectedField, obj *model.Finding) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Finding_vulnerabilityId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VulnerabilityID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Finding_vulnerabilityId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Finding",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Finding_source(ctx context.Context, field graphql.CollectedField, obj *model.Finding) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Finding_source(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Source, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Finding_source(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Finding",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Finding_componentId(ctx context.Context, field graphql.CollectedField, obj *model.Finding) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Finding_componentId(ctx, field)
 	if err != nil {
@@ -18875,138 +19066,6 @@ func (ec *executionContext) _Finding_componentId(ctx context.Context, field grap
 }
 
 func (ec *executionContext) fieldContext_Finding_componentId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Finding",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Finding_cveId(ctx context.Context, field graphql.CollectedField, obj *model.Finding) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Finding_cveId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CveID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Finding_cveId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Finding",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Finding_ghsaId(ctx context.Context, field graphql.CollectedField, obj *model.Finding) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Finding_ghsaId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.GhsaID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Finding_ghsaId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Finding",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Finding_osvId(ctx context.Context, field graphql.CollectedField, obj *model.Finding) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Finding_osvId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.OsvID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Finding_osvId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Finding",
 		Field:      field,
@@ -19151,8 +19210,8 @@ func (ec *executionContext) fieldContext_Finding_packageUrl(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Finding_vulnerabilityId(ctx context.Context, field graphql.CollectedField, obj *model.Finding) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Finding_vulnerabilityId(ctx, field)
+func (ec *executionContext) _Finding_aliases(ctx context.Context, field graphql.CollectedField, obj *model.Finding) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Finding_aliases(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -19165,7 +19224,7 @@ func (ec *executionContext) _Finding_vulnerabilityId(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.VulnerabilityID, nil
+		return obj.Aliases, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19177,19 +19236,25 @@ func (ec *executionContext) _Finding_vulnerabilityId(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.([]*model.Alias)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNAlias2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAliasᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Finding_vulnerabilityId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Finding_aliases(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Finding",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_Alias_name(ctx, field)
+			case "source":
+				return ec.fieldContext_Alias_source(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Alias", field.Name)
 		},
 	}
 	return fc, nil
@@ -19236,22 +19301,20 @@ func (ec *executionContext) fieldContext_FindingList_nodes(ctx context.Context, 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Finding_id(ctx, field)
+			case "vulnerabilityId":
+				return ec.fieldContext_Finding_vulnerabilityId(ctx, field)
+			case "source":
+				return ec.fieldContext_Finding_source(ctx, field)
 			case "componentId":
 				return ec.fieldContext_Finding_componentId(ctx, field)
-			case "cveId":
-				return ec.fieldContext_Finding_cveId(ctx, field)
-			case "ghsaId":
-				return ec.fieldContext_Finding_ghsaId(ctx, field)
-			case "osvId":
-				return ec.fieldContext_Finding_osvId(ctx, field)
 			case "severity":
 				return ec.fieldContext_Finding_severity(ctx, field)
 			case "description":
 				return ec.fieldContext_Finding_description(ctx, field)
 			case "packageUrl":
 				return ec.fieldContext_Finding_packageUrl(ctx, field)
-			case "vulnerabilityId":
-				return ec.fieldContext_Finding_vulnerabilityId(ctx, field)
+			case "aliases":
+				return ec.fieldContext_Finding_aliases(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Finding", field.Name)
 		},
@@ -47524,6 +47587,50 @@ func (ec *executionContext) _AccessPolicy(ctx context.Context, sel ast.Selection
 	return out
 }
 
+var aliasImplementors = []string{"Alias"}
+
+func (ec *executionContext) _Alias(ctx context.Context, sel ast.SelectionSet, obj *model.Alias) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, aliasImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Alias")
+		case "name":
+			out.Values[i] = ec._Alias_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "source":
+			out.Values[i] = ec._Alias_source(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var appImplementors = []string{"App", "Workload", "SearchNode"}
 
 func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj *model.App) graphql.Marshaler {
@@ -50137,23 +50244,18 @@ func (ec *executionContext) _Finding(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "vulnerabilityId":
+			out.Values[i] = ec._Finding_vulnerabilityId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "source":
+			out.Values[i] = ec._Finding_source(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "componentId":
 			out.Values[i] = ec._Finding_componentId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "cveId":
-			out.Values[i] = ec._Finding_cveId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "ghsaId":
-			out.Values[i] = ec._Finding_ghsaId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "osvId":
-			out.Values[i] = ec._Finding_osvId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -50172,8 +50274,8 @@ func (ec *executionContext) _Finding(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "vulnerabilityId":
-			out.Values[i] = ec._Finding_vulnerabilityId(ctx, field, obj)
+		case "aliases":
+			out.Values[i] = ec._Finding_aliases(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -58871,6 +58973,60 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 func (ec *executionContext) marshalNAccessPolicy2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAccessPolicy(ctx context.Context, sel ast.SelectionSet, v model.AccessPolicy) graphql.Marshaler {
 	return ec._AccessPolicy(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAlias2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAliasᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Alias) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAlias2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAlias(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNAlias2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAlias(ctx context.Context, sel ast.SelectionSet, v *model.Alias) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Alias(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNApp2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐApp(ctx context.Context, sel ast.SelectionSet, v model.App) graphql.Marshaler {

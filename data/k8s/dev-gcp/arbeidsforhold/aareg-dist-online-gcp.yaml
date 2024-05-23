@@ -1,10 +1,24 @@
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
+  annotations:
+    deploy.nais.io/client-version: 2023-08-24-ef68bd7
+    deploy.nais.io/github-actor: KnutArildSlaatsve
+    deploy.nais.io/github-sha: def128ad35d3960b236f63f0b2c5086f5c69e55e
+    deploy.nais.io/github-workflow-run-url: https://github.com/navikt/aareg/actions/runs/9091778942
+    kubernetes.io/change-cause: 'nais deploy: commit def128ad35d3960b236f63f0b2c5086f5c69e55e:
+      https://github.com/navikt/aareg/actions/runs/9091778942'
+    nais.io/deploymentCorrelationID: 0937ca99-5ad2-4197-81db-75f54797f271
+  creationTimestamp: "2021-10-13T14:17:24Z"
+  finalizers:
+  - naiserator.nais.io/finalizer
+  generation: 632
   labels:
     team: arbeidsforhold
   name: aareg-dist-online-gcp
   namespace: arbeidsforhold
+  resourceVersion: "4789924838"
+  uid: 2dc0cd25-e656-47fd-bc05-056f6495d44c
 spec:
   accessPolicy:
     inbound:
@@ -82,3 +96,16 @@ spec:
     enabled: true
   tokenx:
     enabled: true
+status:
+  conditions:
+  - lastTransitionTime: "2024-05-15T07:41:06Z"
+    message: Successfully deployed.
+    reason: RolloutComplete
+    status: "True"
+    type: SynchronizationState
+  correlationID: 0937ca99-5ad2-4197-81db-75f54797f271
+  deploymentRolloutStatus: complete
+  rolloutCompleteTime: 1715758952829687966
+  synchronizationHash: d5c6f6883a1bdbfb
+  synchronizationState: RolloutComplete
+  synchronizationTime: 1715758866528055949

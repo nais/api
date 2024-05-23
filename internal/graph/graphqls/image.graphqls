@@ -35,14 +35,18 @@ type ImageList {
 
 type Finding {
   id: ID!
+  vulnerabilityId: String!
+  source: String!
   componentId: String!
-  cveId: String!
-  ghsaId: String!
-  osvId: String!
   severity: String!
   description: String!
   packageUrl: String!
-  vulnerabilityId: String!
+  aliases: [Alias!]!
+}
+
+type Alias {
+  name: String!
+  source: String!
 }
 
 extend enum OrderByField {
