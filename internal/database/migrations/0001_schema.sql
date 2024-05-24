@@ -71,12 +71,25 @@ CREATE TABLE audit_logs (
     target_identifier text NOT NULL
 );
 
+
+-- Cost_type is one of these
+-- Cloud Key Management Service (KMS)
+-- Compute Engine
+-- InfluxDB
+-- OpenSearch
+-- Secret Manager
+-- Cloud SQL
+-- BigQuery
+-- Kubernetes Engine
+-- Redis
+-- Cloud Storage
+-- V and it should really, really be an enum.
 CREATE TABLE cost (
     id serial PRIMARY KEY,
     environment text,
     team_slug slug,
     app text NOT NULL,
-    cost_type text NOT NULL, -- some sort of string describing a cost center, maybe "redis"
+    cost_type text NOT NULL, --  some sort of string describing a cost center, maybe "redis"
     date date NOT NULL,
     daily_cost real NOT NULL,
     CONSTRAINT daily_cost_key UNIQUE (environment, team_slug, app, cost_type, date)
