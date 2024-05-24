@@ -41,7 +41,7 @@ type Bucket implements Persistence {
   publicAccessPrevention: String!
   retentionPeriodDays: Int!
   uniformBucketLevelAccess: Boolean!
-  cors: [BucketCors!]!
+  cors: [BucketCors!]
 
   projectId: String!
   team: Team!

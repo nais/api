@@ -7025,7 +7025,7 @@ type Redis implements Persistence {
   access: [RedisInstanceAccess!]!
   team: Team!
   env: Env!
-  cost: String! 
+  cost: String!
   workload: Workload
 }
 
@@ -7057,7 +7057,7 @@ type Bucket implements Persistence {
   publicAccessPrevention: String!
   retentionPeriodDays: Int!
   uniformBucketLevelAccess: Boolean!
-  cors: [BucketCors!]!
+  cors: [BucketCors!]
 
   projectId: String!
   team: Team!
@@ -14575,14 +14575,11 @@ func (ec *executionContext) _Bucket_cors(ctx context.Context, field graphql.Coll
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.([]model.BucketCors)
 	fc.Result = res
-	return ec.marshalNBucketCors2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketCorsᚄ(ctx, field.Selections, res)
+	return ec.marshalOBucketCors2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketCorsᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Bucket_cors(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -47966,9 +47963,6 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 			}
 		case "cors":
 			out.Values[i] = ec._Bucket_cors(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "projectId":
 			out.Values[i] = ec._Bucket_projectId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -58642,50 +58636,6 @@ func (ec *executionContext) marshalNBucketCors2githubᚗcomᚋnaisᚋapiᚋinter
 	return ec._BucketCors(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNBucketCors2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketCorsᚄ(ctx context.Context, sel ast.SelectionSet, v []model.BucketCors) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNBucketCors2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketCors(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
 func (ec *executionContext) marshalNBucketStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketStatus(ctx context.Context, sel ast.SelectionSet, v model.BucketStatus) graphql.Marshaler {
 	return ec._BucketStatus(ctx, sel, &v)
 }
@@ -62521,6 +62471,53 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOBucketCors2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketCorsᚄ(ctx context.Context, sel ast.SelectionSet, v []model.BucketCors) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBucketCors2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketCors(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx context.Context, v interface{}) (*scalar.Date, error) {

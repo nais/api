@@ -216,7 +216,9 @@ func newDynamicClient(scheme *runtime.Scheme, objs ...runtime.Object) dynamic.In
 			panic(fmt.Errorf("no registered kinds for %v", obj))
 		}
 		for _, gvk := range gvks {
+
 			gvr, _ := meta.UnsafeGuessKindToResource(gvk)
+
 			gvr.Resource = depluralized(gvr.Resource)
 			// Get namespace from object
 			ns := obj.(namespaced).GetNamespace()
