@@ -13,26 +13,16 @@ import (
 	"github.com/nais/api/internal/graph/model"
 )
 
+// AnalysisTrail is the resolver for the analysisTrail field.
+func (r *findingResolver) AnalysisTrail(ctx context.Context, obj *model.Finding, projectID string) (*model.AnalysisTrail, error) {
+	return r.dependencyTrackClient.GetAnalysisTrailForImage(ctx, projectID, obj.ComponentID, obj.VulnerabilityID)
+}
+
 // Findings is the resolver for the findings field.
 func (r *imageResolver) Findings(ctx context.Context, obj *model.Image, offset *int, limit *int, orderBy *model.OrderBy) (*model.FindingList, error) {
 	findings, err := r.dependencyTrackClient.GetFindingsForImageByProjectID(ctx, obj.ProjectID, true)
 	if err != nil {
 		return nil, err
-	}
-
-	for _, f := range findings {
-		trail, err := r.dependencyTrackClient.GetAnalysisTrailForImage(ctx, f.ComponentID, obj.ProjectID, f.VulnerabilityID)
-		if err != nil {
-			return nil, err
-		}
-
-		if trail != nil {
-			f.AnalysisTrail = &model.AnalysisTrail{
-				State:        trail.State,
-				Comments:     trail.Comments,
-				IsSuppressed: trail.IsSuppressed,
-			}
-		}
 	}
 
 	if orderBy != nil {
@@ -137,7 +127,11 @@ func (r *queryResolver) DependencyTrackProject(ctx context.Context, projectID st
 	return image, nil
 }
 
+// Finding returns gengql.FindingResolver implementation.
+func (r *Resolver) Finding() gengql.FindingResolver { return &findingResolver{r} }
+
 // Image returns gengql.ImageResolver implementation.
 func (r *Resolver) Image() gengql.ImageResolver { return &imageResolver{r} }
 
+type findingResolver struct{ *Resolver }
 type imageResolver struct{ *Resolver }

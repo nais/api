@@ -531,7 +531,7 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 }
 
 func (c *Client) SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.AnalysisTrail, error) {
-	comment = "Suppressed on-behalf-of:" + suppressedBy + ": - " + comment
+	comment = "Suppressed on-behalf-of:" + suppressedBy + "|" + comment
 	analysisRequest := &dependencytrack.AnalysisRequest{
 		Vulnerability:         vulnerabilityID,
 		Component:             componentID,
@@ -553,55 +553,69 @@ func (c *Client) SuppressFinding(ctx context.Context, analysisState, comment, co
 	}
 
 	comments := make([]*model.Comment, 0)
-	for _, c := range trail.AnalysisComments {
-		timestamp := time.Unix(0, int64(c.Timestamp)).Local()
+	for _, comment := range trail.AnalysisComments {
+		timestamp := time.Unix(int64(comment.Timestamp)/1000, 0).Local()
+		tmp, found := strings.CutPrefix(comment.Comment, "Suppressed on-behalf-of:")
+		onBehalfOf := ""
+		theComment := ""
 
-		comment := &model.Comment{
-			Comment:   c.Comment,
-			Commenter: c.Commenter,
-			Timestamp: timestamp,
+		if found {
+			onBehalfOf = strings.Split(tmp, ":")[0]
+			theComment = strings.Split(tmp, "|")[1]
+			comment := &model.Comment{
+				Comment:    theComment,
+				Timestamp:  timestamp,
+				OnBehalfOf: onBehalfOf,
+			}
+			comments = append(comments, comment)
 		}
-
-		comments = append(comments, comment)
 	}
+
 	return &model.AnalysisTrail{
+		ID:           scalar.AnalysisTrailIdent(projectID, componentID, vulnerabilityID),
 		State:        trail.AnalysisState,
 		Comments:     comments,
 		IsSuppressed: trail.IsSuppressed,
 	}, nil
 }
 
-func (c *Client) GetAnalysisTrailForImage(ctx context.Context, componentID, projectID, vulnerabilityID string) (*model.AnalysisTrail, error) {
-	trail, err := c.client.GetAnalysisTrail(ctx, componentID, projectID, vulnerabilityID)
-	if err != nil && dependencytrack.IsNotFound(err) {
-		return nil, nil
-	} else if err != nil {
+func (c *Client) GetAnalysisTrailForImage(ctx context.Context, projectID, componentID, vulnerabilityID string) (*model.AnalysisTrail, error) {
+	trail, err := c.client.GetAnalysisTrail(ctx, projectID, componentID, vulnerabilityID)
+
+	if err != nil {
 		return nil, fmt.Errorf("getting analysis trail: %w", err)
 	}
 
 	if trail == nil {
-		return nil, nil
+		return &model.AnalysisTrail{ID: scalar.AnalysisTrailIdent(projectID, componentID, vulnerabilityID)}, nil
 	}
 
 	retAnalysisTrail := &model.AnalysisTrail{
+		ID:           scalar.AnalysisTrailIdent(projectID, componentID, vulnerabilityID),
 		State:        trail.AnalysisState,
 		IsSuppressed: trail.IsSuppressed,
 	}
-	for _, c := range trail.AnalysisComments {
-		timestamp := time.Unix(0, int64(c.Timestamp)).Local()
 
-		comment := &model.Comment{
-			Comment:   c.Comment,
-			Commenter: c.Commenter,
-			Timestamp: timestamp,
-		}
+	comments := make([]*model.Comment, 0)
+	for _, comment := range trail.AnalysisComments {
+		timestamp := time.Unix(int64(comment.Timestamp)/1000, 0).Local()
+		tmp, found := strings.CutPrefix(comment.Comment, "Suppressed on-behalf-of:")
+		onBehalfOf := ""
+		theComment := ""
 
-		onBehalf := strings.Split(c.Comment, ":")
-		if len(onBehalf) > 1 {
-			comment.OnBehalfOf = &onBehalf[1]
+		if found {
+			onBehalfOf = strings.Split(tmp, ":")[0]
+			theComment = strings.Split(tmp, "|")[1]
+			comment := &model.Comment{
+				Comment:    theComment,
+				Timestamp:  timestamp,
+				OnBehalfOf: onBehalfOf,
+			}
+			comments = append(comments, comment)
 		}
-		retAnalysisTrail.Comments = append(retAnalysisTrail.Comments, comment)
 	}
+
+	retAnalysisTrail.Comments = comments
 	return retAnalysisTrail, nil
 }
 

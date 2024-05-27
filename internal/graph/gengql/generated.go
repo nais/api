@@ -48,6 +48,7 @@ type ResolverRoot interface {
 	Bucket() BucketResolver
 	DeployInfo() DeployInfoResolver
 	Env() EnvResolver
+	Finding() FindingResolver
 	GitHubRepository() GitHubRepositoryResolver
 	Image() ImageResolver
 	KafkaTopic() KafkaTopicResolver
@@ -89,6 +90,7 @@ type ComplexityRoot struct {
 
 	AnalysisTrail struct {
 		Comments     func(childComplexity int) int
+		ID           func(childComplexity int) int
 		IsSuppressed func(childComplexity int) int
 		State        func(childComplexity int) int
 	}
@@ -227,7 +229,6 @@ type ComplexityRoot struct {
 
 	Comment struct {
 		Comment    func(childComplexity int) int
-		Commenter  func(childComplexity int) int
 		OnBehalfOf func(childComplexity int) int
 		Timestamp  func(childComplexity int) int
 	}
@@ -383,7 +384,7 @@ type ComplexityRoot struct {
 
 	Finding struct {
 		Aliases         func(childComplexity int) int
-		AnalysisTrail   func(childComplexity int) int
+		AnalysisTrail   func(childComplexity int, projectID string) int
 		ComponentID     func(childComplexity int) int
 		Description     func(childComplexity int) int
 		ID              func(childComplexity int) int
@@ -1197,6 +1198,9 @@ type EnvResolver interface {
 	SlackAlertsChannel(ctx context.Context, obj *model.Env) (string, error)
 	Secrets(ctx context.Context, obj *model.Env) ([]*model.Secret, error)
 }
+type FindingResolver interface {
+	AnalysisTrail(ctx context.Context, obj *model.Finding, projectID string) (*model.AnalysisTrail, error)
+}
 type GitHubRepositoryResolver interface {
 	Authorizations(ctx context.Context, obj *model.GitHubRepository) ([]model.RepositoryAuthorization, error)
 }
@@ -1438,6 +1442,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AnalysisTrail.Comments(childComplexity), true
+
+	case "AnalysisTrail.id":
+		if e.complexity.AnalysisTrail.ID == nil {
+			break
+		}
+
+		return e.complexity.AnalysisTrail.ID(childComplexity), true
 
 	case "AnalysisTrail.isSuppressed":
 		if e.complexity.AnalysisTrail.IsSuppressed == nil {
@@ -2026,13 +2037,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Comment.Comment(childComplexity), true
-
-	case "Comment.commenter":
-		if e.complexity.Comment.Commenter == nil {
-			break
-		}
-
-		return e.complexity.Comment.Commenter(childComplexity), true
 
 	case "Comment.onBehalfOf":
 		if e.complexity.Comment.OnBehalfOf == nil {
@@ -2625,7 +2629,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Finding.AnalysisTrail(childComplexity), true
+		args, err := ec.field_Finding_analysisTrail_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Finding.AnalysisTrail(childComplexity, args["projectId"].(string)), true
 
 	case "Finding.componentId":
 		if e.complexity.Finding.ComponentID == nil {
@@ -7215,7 +7224,7 @@ type Finding {
   aliases: [Alias!]!
   isSuppressed: Boolean!
   state: String!
-  analysisTrail: AnalysisTrail
+  analysisTrail(projectId: String!): AnalysisTrail!
 }
 
 type Alias {
@@ -7243,6 +7252,7 @@ extend type Query {
 }
 
 type AnalysisTrail {
+  id: ID!
   state: String!
   comments: [Comment]!
   isSuppressed: Boolean!
@@ -7251,8 +7261,7 @@ type AnalysisTrail {
 type Comment {
   comment: String!
   timestamp: Time!
-  commenter: String!
-  onBehalfOf: String
+  onBehalfOf: String!
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/log.graphqls", Input: `type Subscription {
@@ -9011,6 +9020,21 @@ func (ec *executionContext) field_DeployInfo_history_args(ctx context.Context, r
 		}
 	}
 	args["limit"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Finding_analysisTrail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["projectId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["projectId"] = arg0
 	return args, nil
 }
 
@@ -11314,6 +11338,50 @@ func (ec *executionContext) fieldContext_Alias_source(ctx context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _AnalysisTrail_id(ctx context.Context, field graphql.CollectedField, obj *model.AnalysisTrail) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AnalysisTrail_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AnalysisTrail_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AnalysisTrail",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AnalysisTrail_state(ctx context.Context, field graphql.CollectedField, obj *model.AnalysisTrail) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AnalysisTrail_state(ctx, field)
 	if err != nil {
@@ -11401,8 +11469,6 @@ func (ec *executionContext) fieldContext_AnalysisTrail_comments(ctx context.Cont
 				return ec.fieldContext_Comment_comment(ctx, field)
 			case "timestamp":
 				return ec.fieldContext_Comment_timestamp(ctx, field)
-			case "commenter":
-				return ec.fieldContext_Comment_commenter(ctx, field)
 			case "onBehalfOf":
 				return ec.fieldContext_Comment_onBehalfOf(ctx, field)
 			}
@@ -15628,50 +15694,6 @@ func (ec *executionContext) fieldContext_Comment_timestamp(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Comment_commenter(ctx context.Context, field graphql.CollectedField, obj *model.Comment) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Comment_commenter(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Commenter, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Comment_commenter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Comment",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Comment_onBehalfOf(ctx context.Context, field graphql.CollectedField, obj *model.Comment) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Comment_onBehalfOf(ctx, field)
 	if err != nil {
@@ -15693,11 +15715,14 @@ func (ec *executionContext) _Comment_onBehalfOf(ctx context.Context, field graph
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Comment_onBehalfOf(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -19963,28 +19988,33 @@ func (ec *executionContext) _Finding_analysisTrail(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.AnalysisTrail, nil
+		return ec.resolvers.Finding().AnalysisTrail(rctx, obj, fc.Args["projectId"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.AnalysisTrail)
 	fc.Result = res
-	return ec.marshalOAnalysisTrail2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisTrail(ctx, field.Selections, res)
+	return ec.marshalNAnalysisTrail2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisTrail(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Finding_analysisTrail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Finding",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_AnalysisTrail_id(ctx, field)
 			case "state":
 				return ec.fieldContext_AnalysisTrail_state(ctx, field)
 			case "comments":
@@ -19994,6 +20024,17 @@ func (ec *executionContext) fieldContext_Finding_analysisTrail(ctx context.Conte
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AnalysisTrail", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Finding_analysisTrail_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -24927,6 +24968,8 @@ func (ec *executionContext) fieldContext_Mutation_suppressFinding(ctx context.Co
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_AnalysisTrail_id(ctx, field)
 			case "state":
 				return ec.fieldContext_AnalysisTrail_state(ctx, field)
 			case "comments":
@@ -48451,6 +48494,11 @@ func (ec *executionContext) _AnalysisTrail(ctx context.Context, sel ast.Selectio
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("AnalysisTrail")
+		case "id":
+			out.Values[i] = ec._AnalysisTrail_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "state":
 			out.Values[i] = ec._AnalysisTrail_state(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -49816,13 +49864,11 @@ func (ec *executionContext) _Comment(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "commenter":
-			out.Values[i] = ec._Comment_commenter(ctx, field, obj)
+		case "onBehalfOf":
+			out.Values[i] = ec._Comment_onBehalfOf(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "onBehalfOf":
-			out.Values[i] = ec._Comment_onBehalfOf(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -51182,60 +51228,94 @@ func (ec *executionContext) _Finding(ctx context.Context, sel ast.SelectionSet, 
 		case "id":
 			out.Values[i] = ec._Finding_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "vulnerabilityId":
 			out.Values[i] = ec._Finding_vulnerabilityId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "vulnId":
 			out.Values[i] = ec._Finding_vulnId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "source":
 			out.Values[i] = ec._Finding_source(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "componentId":
 			out.Values[i] = ec._Finding_componentId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "severity":
 			out.Values[i] = ec._Finding_severity(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "description":
 			out.Values[i] = ec._Finding_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "packageUrl":
 			out.Values[i] = ec._Finding_packageUrl(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "aliases":
 			out.Values[i] = ec._Finding_aliases(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "isSuppressed":
 			out.Values[i] = ec._Finding_isSuppressed(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "state":
 			out.Values[i] = ec._Finding_state(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "analysisTrail":
-			out.Values[i] = ec._Finding_analysisTrail(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Finding_analysisTrail(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -64490,13 +64570,6 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) marshalOAnalysisTrail2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisTrail(ctx context.Context, sel ast.SelectionSet, v *model.AnalysisTrail) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._AnalysisTrail(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOAzureApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAzureApplication(ctx context.Context, sel ast.SelectionSet, v *model.AzureApplication) graphql.Marshaler {

@@ -69,7 +69,7 @@ type Finding {
   aliases: [Alias!]!
   isSuppressed: Boolean!
   state: String!
-  analysisTrail: AnalysisTrail
+  analysisTrail(projectId: String!): AnalysisTrail!
 }
 
 type Alias {
@@ -97,6 +97,7 @@ extend type Query {
 }
 
 type AnalysisTrail {
+  id: ID!
   state: String!
   comments: [Comment]!
   isSuppressed: Boolean!
@@ -105,6 +106,5 @@ type AnalysisTrail {
 type Comment {
   comment: String!
   timestamp: Time!
-  commenter: String!
-  onBehalfOf: String
+  onBehalfOf: String!
 }

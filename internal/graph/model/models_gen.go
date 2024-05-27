@@ -55,6 +55,13 @@ type Alias struct {
 	Source string `json:"source"`
 }
 
+type AnalysisTrail struct {
+	ID           scalar.Ident `json:"id"`
+	State        string       `json:"state"`
+	Comments     []*Comment   `json:"comments"`
+	IsSuppressed bool         `json:"isSuppressed"`
+}
+
 // App cost type.
 type AppCost struct {
 	// The name of the application.
@@ -165,8 +172,7 @@ type Claims struct {
 type Comment struct {
 	Comment    string    `json:"comment"`
 	Timestamp  time.Time `json:"timestamp"`
-	Commenter  string    `json:"commenter"`
-	OnBehalfOf *string   `json:"onBehalfOf,omitempty"`
+	OnBehalfOf string    `json:"onBehalfOf"`
 }
 
 type Condition struct {
@@ -362,26 +368,6 @@ type FailedRunError struct {
 func (FailedRunError) IsStateError()             {}
 func (this FailedRunError) GetRevision() string  { return this.Revision }
 func (this FailedRunError) GetLevel() ErrorLevel { return this.Level }
-
-type Finding struct {
-	ID              scalar.Ident   `json:"id"`
-	VulnerabilityID string         `json:"vulnerabilityId"`
-	VulnID          string         `json:"vulnId"`
-	Source          string         `json:"source"`
-	ComponentID     string         `json:"componentId"`
-	Severity        string         `json:"severity"`
-	Description     string         `json:"description"`
-	PackageURL      string         `json:"packageUrl"`
-	Aliases         []*Alias       `json:"aliases"`
-	IsSuppressed    bool           `json:"isSuppressed"`
-	State           string         `json:"state"`
-	AnalysisTrail   *AnalysisTrail `json:"analysisTrail,omitempty"`
-}
-
-type FindingList struct {
-	Nodes    []*Finding `json:"nodes"`
-	PageInfo PageInfo   `json:"pageInfo"`
-}
 
 type Flag struct {
 	Name  string `json:"name"`
