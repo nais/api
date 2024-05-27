@@ -182,8 +182,8 @@ func depluralized(s string) string {
 	switch s {
 	case "redises":
 		return "redis"
-	case "opensearchs":
-		return "opensearch"
+	case "opensearchs", "opensearches":
+		return "opensearches"
 	case "unleashs":
 		return "unleashes"
 	case "remoteunleashs":
