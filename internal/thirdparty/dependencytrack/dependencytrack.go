@@ -227,8 +227,8 @@ func hasBom(p *dependencytrack.Project) bool {
 	return p.LastBomImportFormat != "" || p.Metrics != nil && p.Metrics.Components > 0
 }
 
-func (c *Client) retrieveFindings(ctx context.Context, uuid string) ([]*dependencytrack.Finding, error) {
-	findings, err := c.client.GetFindings(ctx, uuid)
+func (c *Client) retrieveFindings(ctx context.Context, uuid string, suppressed bool) ([]*dependencytrack.Finding, error) {
+	findings, err := c.client.GetFindings(ctx, uuid, suppressed)
 	if err != nil {
 		return nil, fmt.Errorf("retrieveFindings from DependencyTrack: %w", err)
 	}
@@ -286,7 +286,8 @@ func (c *Client) retrieveProjectsForTeam(ctx context.Context, team string) ([]*d
 }
 
 func (c *Client) retrieveProject(ctx context.Context, app *AppInstance) (*dependencytrack.Project, error) {
-	tag := url.QueryEscape(app.Image)
+	appImageTag := dependencytrack.ImageTagPrefix.With(app.Image)
+	tag := url.QueryEscape(appImageTag)
 	projects, err := c.client.GetProjectsByTag(ctx, tag)
 	if err != nil {
 		return nil, fmt.Errorf("getting projects from DependencyTrack: %w", err)
@@ -295,28 +296,15 @@ func (c *Client) retrieveProject(ctx context.Context, app *AppInstance) (*depend
 	if len(projects) == 0 {
 		return nil, nil
 	}
+
 	var p *dependencytrack.Project
 	for _, project := range projects {
-		if containsAllTags(project.Tags, app.Env, app.Team, app.App) {
+		if containsAllTags(project.Tags, dependencytrack.WorkloadTagPrefix.With(app.Env+"|"+app.Team+"|app|"+app.App)) {
 			p = project
 			break
 		}
 	}
 	return p, nil
-}
-
-func (c *Client) retrieveProjects(ctx context.Context, app *AppInstance) ([]*dependencytrack.Project, error) {
-	tag := url.QueryEscape(app.Image)
-
-	projects, err := c.client.GetProjectsByTag(ctx, tag)
-	if err != nil {
-		return nil, fmt.Errorf("getting projects from DependencyTrack: %w", err)
-	}
-
-	if len(projects) == 0 {
-		return nil, nil
-	}
-	return projects, nil
 }
 
 func (c *Client) GetMetadataForImage(ctx context.Context, name, version string) (*model.Image, error) {
@@ -375,8 +363,8 @@ func (c *Client) GetMetadataForImage(ctx context.Context, name, version string) 
 	}, nil
 }
 
-func (c *Client) GetFindingsForImageByProjectID(ctx context.Context, projectId string) ([]*model.Finding, error) {
-	findings, err := c.retrieveFindings(ctx, projectId)
+func (c *Client) GetFindingsForImageByProjectID(ctx context.Context, projectId string, suppressed bool) ([]*model.Finding, error) {
+	findings, err := c.retrieveFindings(ctx, projectId, suppressed)
 	if err != nil {
 		return nil, fmt.Errorf("retrieving findings for project %s: %w", projectId, err)
 	}
@@ -402,13 +390,16 @@ func (c *Client) GetFindingsForImageByProjectID(ctx context.Context, projectId s
 
 		retFindings = append(retFindings, &model.Finding{
 			ID:              scalar.FindingIdent(f.Vulnerability.VulnId),
-			VulnerabilityID: f.Vulnerability.VulnId,
+			VulnID:          f.Vulnerability.VulnId,
+			VulnerabilityID: f.Vulnerability.UUID,
 			Source:          f.Vulnerability.Source,
 			ComponentID:     f.Component.UUID,
 			Severity:        f.Vulnerability.Severity,
 			Description:     f.Vulnerability.Title,
 			PackageURL:      f.Component.PURL,
 			Aliases:         aliases,
+			IsSuppressed:    f.Analysis.IsSuppressed,
+			State:           f.Analysis.State,
 		})
 	}
 	return retFindings, nil
@@ -428,14 +419,14 @@ func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId s
 	var rekor string
 	var workloads []*model.WorkloadReference
 	for _, tag := range p.Tags {
-		if strings.Contains(tag.Name, "digest:") {
-			digest = strings.TrimPrefix(tag.Name, "digest:")
+		if strings.Contains(tag.Name, dependencytrack.DigestTagPrefix.String()) {
+			digest = strings.TrimPrefix(tag.Name, dependencytrack.DigestTagPrefix.String())
 		}
-		if strings.Contains(tag.Name, "rekor:") {
-			rekor = strings.TrimPrefix(tag.Name, "rekor:")
+		if strings.Contains(tag.Name, dependencytrack.RekorTagPrefix.String()) {
+			rekor = strings.TrimPrefix(tag.Name, dependencytrack.RekorTagPrefix.String())
 		}
-		if strings.Contains(tag.Name, "workload:") {
-			w := strings.TrimPrefix(tag.Name, "workload:")
+		if strings.Contains(tag.Name, dependencytrack.WorkloadTagPrefix.String()) {
+			w := strings.TrimPrefix(tag.Name, dependencytrack.WorkloadTagPrefix.String())
 			workload := strings.Split(w, "|")
 
 			workloads = append(workloads, &model.WorkloadReference{
@@ -443,7 +434,8 @@ func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId s
 				Environment:  workload[0],
 				Team:         workload[1],
 				WorkloadType: workload[2],
-				Name:         workload[3]})
+				Name:         workload[3],
+			})
 
 		}
 	}
@@ -496,17 +488,17 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 		var workloads []*model.WorkloadReference
 
 		for _, tag := range project.Tags {
-			if strings.Contains(tag.Name, "digest:") {
-				digest = strings.TrimPrefix(tag.Name, "digest:")
+			if strings.Contains(tag.Name, dependencytrack.DigestTagPrefix.String()) {
+				digest = strings.TrimPrefix(tag.Name, dependencytrack.DigestTagPrefix.String())
 			}
-			if strings.Contains(tag.Name, "rekor:") {
-				rekor = strings.TrimPrefix(tag.Name, "rekor:")
+			if strings.Contains(tag.Name, dependencytrack.RekorTagPrefix.String()) {
+				rekor = strings.TrimPrefix(tag.Name, dependencytrack.RekorTagPrefix.String())
 			}
-			if strings.Contains(tag.Name, "version:") {
-				version = strings.TrimPrefix(tag.Name, "version:")
+			if strings.Contains(tag.Name, dependencytrack.VersionTagPrefix.String()) {
+				version = strings.TrimPrefix(tag.Name, dependencytrack.VersionTagPrefix.String())
 			}
-			if strings.Contains(tag.Name, "workload:") {
-				w := strings.TrimPrefix(tag.Name, "workload:")
+			if strings.Contains(tag.Name, dependencytrack.WorkloadTagPrefix.String()) {
+				w := strings.TrimPrefix(tag.Name, dependencytrack.WorkloadTagPrefix.String())
 				workload := strings.Split(w, "|")
 
 				workloads = append(workloads, &model.WorkloadReference{
@@ -514,11 +506,12 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 					Environment:  workload[0],
 					Team:         workload[1],
 					WorkloadType: workload[2],
-					Name:         workload[3]})
+					Name:         workload[3],
+				})
 			}
 		}
 
-		summary := c.createSummary(project, true)
+		summary := c.createSummary(project, project.Metrics != nil)
 
 		image := &model.Image{
 			ID:                 scalar.DependencyTrackProjectIdent(project.Uuid),
@@ -535,6 +528,65 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 	}
 
 	return images, nil
+}
+
+func (c *Client) SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.SuppressFindingResult, error) {
+	comment = "Suppressed on-behalf-of:" + suppressedBy + ": - " + comment
+	analysisRequest := &dependencytrack.AnalysisRequest{
+		Vulnerability:         vulnerabilityID,
+		Component:             componentID,
+		Project:               projectID,
+		AnalysisState:         analysisState,
+		AnalysisJustification: "NOT_SET",
+		AnalysisResponse:      "NOT_SET",
+		Comment:               comment,
+		IsSuppressed:          suppress,
+	}
+	err := c.client.RecordAnalysis(ctx, analysisRequest)
+	if err != nil {
+		return nil, fmt.Errorf("suppressing finding: %w", err)
+	}
+
+	return &model.SuppressFindingResult{
+		IsSuppressed: suppress,
+		Error: func() *string {
+			if err != nil {
+				s := err.Error()
+				return &s
+			}
+			return nil
+		}(),
+	}, nil
+}
+
+func (c *Client) GetAnalysisTrailForImage(ctx context.Context, componentID, projectID, vulnerabilityID string) ([]*model.AnalysisTrail, error) {
+	trails, err := c.client.GetAnalysisTrail(ctx, componentID, projectID, vulnerabilityID)
+	if err != nil {
+		return nil, fmt.Errorf("getting analysis trail: %w", err)
+	}
+
+	retTrails := make([]*model.AnalysisTrail, 0)
+	for _, t := range trails {
+		a := &model.AnalysisTrail{
+			State:        t.AnalysisState,
+			IsSuppressed: t.IsSuppressed,
+		}
+		for _, c := range t.AnalysisComments {
+			comment := &model.Comment{
+				Comment:   c.Comment,
+				Commenter: c.Commenter,
+				Timestamp: c.Timestamp,
+			}
+
+			onBehalf := strings.Split(c.Comment, ":")
+			if len(onBehalf) > 1 {
+				comment.OnBehalfOf = &onBehalf[1]
+			}
+			a.Comments = append(a.Comments, comment)
+		}
+		retTrails = append(retTrails, a)
+	}
+	return retTrails, nil
 }
 
 /*

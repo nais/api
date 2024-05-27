@@ -6,14 +6,16 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 )
 
 // Findings is the resolver for the findings field.
 func (r *imageResolver) Findings(ctx context.Context, obj *model.Image, offset *int, limit *int, orderBy *model.OrderBy) (*model.FindingList, error) {
-	findings, err := r.dependencyTrackClient.GetFindingsForImageByProjectID(ctx, obj.ProjectID)
+	findings, err := r.dependencyTrackClient.GetFindingsForImageByProjectID(ctx, obj.ProjectID, true)
 	if err != nil {
 		return nil, err
 	}
@@ -44,6 +46,10 @@ func (r *imageResolver) Findings(ctx context.Context, obj *model.Image, offset *
 			model.SortWith(findings, func(a, b *model.Finding) bool {
 				return model.Compare(a.PackageURL, b.PackageURL, orderBy.Direction)
 			})
+		case model.OrderByFieldState:
+			model.SortWith(findings, func(a, b *model.Finding) bool {
+				return model.Compare(a.State, b.State, orderBy.Direction)
+			})
 		}
 	}
 
@@ -54,6 +60,41 @@ func (r *imageResolver) Findings(ctx context.Context, obj *model.Image, offset *
 		Nodes:    findings,
 		PageInfo: pageInfo,
 	}, nil
+}
+
+// SuppressFinding is the resolver for the suppressFinding field.
+func (r *mutationResolver) SuppressFinding(ctx context.Context, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool) (*model.SuppressFindingResult, error) {
+	options := []string{
+		"IN_TRIAGE",
+		"RESOLVED",
+		"FALSE_POSITIVE",
+		"NOT_AFFECTED",
+	}
+
+	var valid bool
+	for _, o := range options {
+		if analysisState == o {
+			valid = true
+			break
+		}
+	}
+
+	_, err := uuid.Parse(componentID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid component ID: %s", componentID)
+	}
+	if _, err := uuid.Parse(projectID); err != nil {
+		return nil, fmt.Errorf("invalid project ID: %s", projectID)
+	}
+	if _, err := uuid.Parse(vulnerabilityID); err != nil {
+		return nil, fmt.Errorf("invalid vulnerability ID: %s", vulnerabilityID)
+	}
+
+	if !valid {
+		return nil, fmt.Errorf("invalid analysis state: %s", analysisState)
+	}
+
+	return r.dependencyTrackClient.SuppressFinding(ctx, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy, suppress)
 }
 
 // DependencyTrackProject is the resolver for the dependencyTrackProject field.
@@ -75,6 +116,11 @@ func (r *queryResolver) DependencyTrackProject(ctx context.Context, projectID st
 	}
 
 	return image, nil
+}
+
+// AnalysisTrail is the resolver for the analysisTrail field.
+func (r *queryResolver) AnalysisTrail(ctx context.Context, componentID string, projectID string, vulnerabilityID string) ([]*model.AnalysisTrail, error) {
+	return r.dependencyTrackClient.GetAnalysisTrailForImage(ctx, componentID, projectID, vulnerabilityID)
 }
 
 // Image returns gengql.ImageResolver implementation.

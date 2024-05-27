@@ -55,6 +55,12 @@ type Alias struct {
 	Source string `json:"source"`
 }
 
+type AnalysisTrail struct {
+	State        string     `json:"state"`
+	Comments     []*Comment `json:"comments"`
+	IsSuppressed bool       `json:"isSuppressed"`
+}
+
 // App cost type.
 type AppCost struct {
 	// The name of the application.
@@ -160,6 +166,13 @@ type BucketsList struct {
 type Claims struct {
 	Extra  []string `json:"extra"`
 	Groups []*Group `json:"groups"`
+}
+
+type Comment struct {
+	Comment    string    `json:"comment"`
+	Timestamp  time.Time `json:"timestamp"`
+	Commenter  string    `json:"commenter"`
+	OnBehalfOf *string   `json:"onBehalfOf,omitempty"`
 }
 
 type Condition struct {
@@ -359,12 +372,15 @@ func (this FailedRunError) GetLevel() ErrorLevel { return this.Level }
 type Finding struct {
 	ID              scalar.Ident `json:"id"`
 	VulnerabilityID string       `json:"vulnerabilityId"`
+	VulnID          string       `json:"vulnId"`
 	Source          string       `json:"source"`
 	ComponentID     string       `json:"componentId"`
 	Severity        string       `json:"severity"`
 	Description     string       `json:"description"`
 	PackageURL      string       `json:"packageUrl"`
 	Aliases         []*Alias     `json:"aliases"`
+	IsSuppressed    bool         `json:"isSuppressed"`
+	State           string       `json:"state"`
 }
 
 type FindingList struct {
@@ -837,6 +853,12 @@ type SQLInstancesStatus struct {
 type Subscription struct {
 }
 
+type SuppressFindingResult struct {
+	// Whether the finding was suppressed or not.
+	IsSuppressed bool    `json:"isSuppressed"`
+	Error        *string `json:"error,omitempty"`
+}
+
 // Sync error type.
 type SyncError struct {
 	// Creation time of the error.
@@ -1116,6 +1138,8 @@ const (
 	OrderByFieldSeverity OrderByField = "SEVERITY"
 	// Order by packageUrl
 	OrderByFieldPackageURL OrderByField = "PACKAGE_URL"
+	// Order by state.
+	OrderByFieldState OrderByField = "STATE"
 	// Order by PostgreSQL version
 	OrderByFieldVersion OrderByField = "VERSION"
 	// Order by cost
@@ -1143,6 +1167,7 @@ var AllOrderByField = []OrderByField{
 	OrderByFieldSeverityUnassigned,
 	OrderByFieldSeverity,
 	OrderByFieldPackageURL,
+	OrderByFieldState,
 	OrderByFieldVersion,
 	OrderByFieldCost,
 	OrderByFieldCPU,
@@ -1152,7 +1177,7 @@ var AllOrderByField = []OrderByField{
 
 func (e OrderByField) IsValid() bool {
 	switch e {
-	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned, OrderByFieldSeverity, OrderByFieldPackageURL, OrderByFieldVersion, OrderByFieldCost, OrderByFieldCPU, OrderByFieldMemory, OrderByFieldDisk:
+	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned, OrderByFieldSeverity, OrderByFieldPackageURL, OrderByFieldState, OrderByFieldVersion, OrderByFieldCost, OrderByFieldCPU, OrderByFieldMemory, OrderByFieldDisk:
 		return true
 	}
 	return false

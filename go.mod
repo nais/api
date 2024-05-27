@@ -1,6 +1,6 @@
 module github.com/nais/api
 
-go 1.22.2
+go 1.22.3
 
 require (
 	cloud.google.com/go v0.112.2
@@ -18,7 +18,7 @@ require (
 	github.com/jackc/pgx/v5 v5.5.4
 	github.com/joho/godotenv v1.5.1
 	github.com/lithammer/fuzzysearch v1.1.8
-	github.com/nais/dependencytrack v0.0.0-20240513050033-19aebdb51cb0
+	github.com/nais/dependencytrack v0.0.0-20240526113039-c377f1d8c237
 	github.com/nais/liberator v0.0.0-20240513134459-37eb7a65f8a3
 	github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1
 	github.com/patrickmn/go-cache v2.1.0+incompatible

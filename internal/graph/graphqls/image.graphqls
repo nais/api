@@ -1,3 +1,34 @@
+extend type Mutation {
+  suppressFinding(
+    "The analysis state of the finding."
+    analysisState: String!
+
+    "The a comment for suppressing the finding."
+    comment: String!
+
+    "The component id of the finding to suppress."
+    componentId: String!
+    "The project id of the image."
+    projectId: String!
+
+    "The id of the finding to suppress."
+    vulnerabilityId: String!
+
+    "Suppressed by user."
+    suppressedBy: String!
+
+    "Should the finding be suppressed."
+    suppress: Boolean!
+
+  ): SuppressFindingResult!
+}
+
+type SuppressFindingResult {
+  "Whether the finding was suppressed or not."
+  isSuppressed: Boolean!
+  error: String
+}
+
 type Image {
   id: ID!
   projectId: String!
@@ -36,12 +67,15 @@ type ImageList {
 type Finding {
   id: ID!
   vulnerabilityId: String!
+  vulnId: String!
   source: String!
   componentId: String!
   severity: String!
   description: String!
   packageUrl: String!
   aliases: [Alias!]!
+  isSuppressed: Boolean!
+  state: String!
 }
 
 type Alias {
@@ -54,6 +88,8 @@ extend enum OrderByField {
   SEVERITY
   "Order by packageUrl"
   PACKAGE_URL
+  "Order by state."
+  STATE
 }
 
 type FindingList {
@@ -64,4 +100,31 @@ type FindingList {
 extend type Query {
   "Get image by dependency track project id."
   dependencyTrackProject(projectId: String!): Image!
+}
+
+extend type Query {
+  "Get analysis trail for a finding."
+  analysisTrail(
+    "The component id of the finding."
+    componentId: String!
+
+    "The project id of the image."
+    projectId: String!
+
+    "The id of the finding."
+    vulnerabilityId: String!
+  ): [AnalysisTrail]!
+}
+
+type AnalysisTrail {
+  state: String!
+  comments: [Comment]!
+  isSuppressed: Boolean!
+}
+
+type Comment {
+  comment: String!
+  timestamp: Time!
+  commenter: String!
+  onBehalfOf: String
 }

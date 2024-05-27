@@ -47,8 +47,8 @@ func (f *FakeDependencytrackClient) GetVulnerabilities(ctx context.Context, apps
 	return f.client.GetFindingsForImage(ctx, app)
 }*/
 
-func (f *FakeDependencytrackClient) GetFindingsForImageByProjectID(ctx context.Context, projectID string) ([]*model.Finding, error) {
-	return f.client.GetFindingsForImageByProjectID(ctx, projectID)
+func (f *FakeDependencytrackClient) GetFindingsForImageByProjectID(ctx context.Context, projectID string, suppressed bool) ([]*model.Finding, error) {
+	return f.client.GetFindingsForImageByProjectID(ctx, projectID, suppressed)
 }
 
 func (f *FakeDependencytrackClient) GetFindingsForTeam(ctx context.Context, team string) ([]*model.Image, error) {
@@ -63,7 +63,18 @@ func (f *FakeDependencytrackClient) GetMetadataForImageByProjectID(ctx context.C
 	return f.client.GetMetadataForImageByProjectID(ctx, projectID)
 }
 
-// TODO: Should use the cache so that we can call the innter client GetProjectMetrics function
+func (f *FakeDependencytrackClient) SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.SuppressFindingResult, error) {
+	return f.client.SuppressFinding(ctx, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy, suppress)
+}
+
+func (f *FakeDependencytrackClient) GetAnalysisTrailForImage(ctx context.Context, componentID, projectID, vulnerabilityID string) ([]*model.AnalysisTrail, error) {
+	return f.client.GetAnalysisTrailForImage(ctx, componentID, projectID, vulnerabilityID)
+}
+
+func (f *FakeDependencytrackClient) GetMetadataForImage(ctx context.Context, name string, version string) (*model.Image, error) {
+	return f.client.GetMetadataForImage(ctx, name, version)
+}
+
 func (f *FakeDependencytrackClient) GetProjectMetrics(ctx context.Context, app *dependencytrack.AppInstance, date string) (*dependencytrack.ProjectMetric, error) {
 	id, ok := mapOfApps[app.ID()]
 	if !ok {
