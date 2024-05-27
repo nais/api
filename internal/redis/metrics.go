@@ -2,11 +2,11 @@ package redis
 
 import (
 	"context"
-	"github.com/nais/api/internal/slug"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/slug"
 	log "github.com/sirupsen/logrus"
 )
 

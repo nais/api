@@ -43,6 +43,7 @@ func (d *database) CostForInstance(ctx context.Context, costType string, fromDat
 
 	return cost, nil
 }
+
 func (d *database) DailyCostForApp(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment string, teamSlug slug.Slug, app string) ([]*gensql.Cost, error) {
 	return d.querier.DailyCostForApp(ctx, gensql.DailyCostForAppParams{
 		FromDate:    fromDate,
