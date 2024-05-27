@@ -572,6 +572,10 @@ func (c *Client) SuppressFinding(ctx context.Context, analysisState, comment, co
 		}
 	}
 
+	if err = c.client.TriggerAnalysis(ctx, projectID); err != nil {
+		return nil, fmt.Errorf("triggering analysis: %w", err)
+	}
+
 	return &model.AnalysisTrail{
 		ID:           scalar.AnalysisTrailIdent(projectID, componentID, vulnerabilityID),
 		State:        trail.AnalysisState,
