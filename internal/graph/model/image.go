@@ -12,3 +12,9 @@ type Image struct {
 	Summary            VulnerabilitySummary `json:"summary"`
 	WorkloadReferences []*WorkloadReference `json:"workloadReferences"`
 }
+
+type AnalysisTrail struct {
+	State        string     `json:"state"`
+	Comments     []*Comment `json:"comments"`
+	IsSuppressed bool       `json:"isSuppressed"`
+}

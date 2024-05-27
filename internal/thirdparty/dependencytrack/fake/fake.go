@@ -67,7 +67,7 @@ func (f *FakeDependencytrackClient) SuppressFinding(ctx context.Context, analysi
 	return f.client.SuppressFinding(ctx, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy, suppress)
 }
 
-func (f *FakeDependencytrackClient) GetAnalysisTrailForImage(ctx context.Context, componentID, projectID, vulnerabilityID string) ([]*model.AnalysisTrail, error) {
+func (f *FakeDependencytrackClient) GetAnalysisTrailForImage(ctx context.Context, componentID, projectID, vulnerabilityID string) (*model.AnalysisTrail, error) {
 	return f.client.GetAnalysisTrailForImage(ctx, componentID, projectID, vulnerabilityID)
 }
 

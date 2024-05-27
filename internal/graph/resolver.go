@@ -126,8 +126,8 @@ type DependencytrackClient interface {
 	GetMetadataForImage(ctx context.Context, name, version string) (*model.Image, error)
 	GetFindingsForImageByProjectID(ctx context.Context, projectID string, suppressed bool) ([]*model.Finding, error)
 	GetMetadataForTeam(ctx context.Context, team string) ([]*model.Image, error)
-	SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.SuppressFindingResult, error)
-	GetAnalysisTrailForImage(ctx context.Context, componentID, projectID, vulnerabilityID string) ([]*model.AnalysisTrail, error)
+	SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.AnalysisTrail, error)
+	GetAnalysisTrailForImage(ctx context.Context, componentID, projectID, vulnerabilityID string) (*model.AnalysisTrail, error)
 }
 
 type Resolver struct {

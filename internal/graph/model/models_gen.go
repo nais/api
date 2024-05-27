@@ -55,12 +55,6 @@ type Alias struct {
 	Source string `json:"source"`
 }
 
-type AnalysisTrail struct {
-	State        string     `json:"state"`
-	Comments     []*Comment `json:"comments"`
-	IsSuppressed bool       `json:"isSuppressed"`
-}
-
 // App cost type.
 type AppCost struct {
 	// The name of the application.
@@ -370,17 +364,18 @@ func (this FailedRunError) GetRevision() string  { return this.Revision }
 func (this FailedRunError) GetLevel() ErrorLevel { return this.Level }
 
 type Finding struct {
-	ID              scalar.Ident `json:"id"`
-	VulnerabilityID string       `json:"vulnerabilityId"`
-	VulnID          string       `json:"vulnId"`
-	Source          string       `json:"source"`
-	ComponentID     string       `json:"componentId"`
-	Severity        string       `json:"severity"`
-	Description     string       `json:"description"`
-	PackageURL      string       `json:"packageUrl"`
-	Aliases         []*Alias     `json:"aliases"`
-	IsSuppressed    bool         `json:"isSuppressed"`
-	State           string       `json:"state"`
+	ID              scalar.Ident   `json:"id"`
+	VulnerabilityID string         `json:"vulnerabilityId"`
+	VulnID          string         `json:"vulnId"`
+	Source          string         `json:"source"`
+	ComponentID     string         `json:"componentId"`
+	Severity        string         `json:"severity"`
+	Description     string         `json:"description"`
+	PackageURL      string         `json:"packageUrl"`
+	Aliases         []*Alias       `json:"aliases"`
+	IsSuppressed    bool           `json:"isSuppressed"`
+	State           string         `json:"state"`
+	AnalysisTrail   *AnalysisTrail `json:"analysisTrail,omitempty"`
 }
 
 type FindingList struct {
@@ -851,12 +846,6 @@ type SQLInstancesStatus struct {
 }
 
 type Subscription struct {
-}
-
-type SuppressFindingResult struct {
-	// Whether the finding was suppressed or not.
-	IsSuppressed bool    `json:"isSuppressed"`
-	Error        *string `json:"error,omitempty"`
 }
 
 // Sync error type.

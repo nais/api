@@ -383,6 +383,7 @@ type ComplexityRoot struct {
 
 	Finding struct {
 		Aliases         func(childComplexity int) int
+		AnalysisTrail   func(childComplexity int) int
 		ComponentID     func(childComplexity int) int
 		Description     func(childComplexity int) int
 		ID              func(childComplexity int) int
@@ -685,7 +686,6 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AnalysisTrail                       func(childComplexity int, componentID string, projectID string, vulnerabilityID string) int
 		App                                 func(childComplexity int, name string, team slug.Slug, env string) int
 		CurrentResourceUtilizationForApp    func(childComplexity int, env string, team slug.Slug, app string) int
 		CurrentResourceUtilizationForTeam   func(childComplexity int, team slug.Slug) int
@@ -965,11 +965,6 @@ type ComplexityRoot struct {
 		Log func(childComplexity int, input *model.LogSubscriptionInput) int
 	}
 
-	SuppressFindingResult struct {
-		Error        func(childComplexity int) int
-		IsSuppressed func(childComplexity int) int
-	}
-
 	SyncError struct {
 		CreatedAt  func(childComplexity int) int
 		Error      func(childComplexity int) int
@@ -1218,7 +1213,7 @@ type MutationResolver interface {
 	RestartApp(ctx context.Context, name string, team slug.Slug, env string) (*model.RestartAppResult, error)
 	AuthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.GitHubRepository, error)
 	DeauthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.GitHubRepository, error)
-	SuppressFinding(ctx context.Context, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool) (*model.SuppressFindingResult, error)
+	SuppressFinding(ctx context.Context, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool) (*model.AnalysisTrail, error)
 	DeleteJob(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteJobResult, error)
 	EnableReconciler(ctx context.Context, name string) (*model.Reconciler, error)
 	DisableReconciler(ctx context.Context, name string) (*model.Reconciler, error)
@@ -1268,7 +1263,6 @@ type QueryResolver interface {
 	EnvCost(ctx context.Context, filter model.EnvCostFilter) ([]*model.EnvCost, error)
 	Deployments(ctx context.Context, offset *int, limit *int) (*model.DeploymentList, error)
 	DependencyTrackProject(ctx context.Context, projectID string) (*model.Image, error)
-	AnalysisTrail(ctx context.Context, componentID string, projectID string, vulnerabilityID string) ([]*model.AnalysisTrail, error)
 	Naisjob(ctx context.Context, name string, team slug.Slug, env string) (*model.NaisJob, error)
 	SQLInstance(ctx context.Context, name string, team slug.Slug, env string) (*model.SQLInstance, error)
 	KafkaTopic(ctx context.Context, name string, team slug.Slug, env string) (*model.KafkaTopic, error)
@@ -2625,6 +2619,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Finding.Aliases(childComplexity), true
+
+	case "Finding.analysisTrail":
+		if e.complexity.Finding.AnalysisTrail == nil {
+			break
+		}
+
+		return e.complexity.Finding.AnalysisTrail(childComplexity), true
 
 	case "Finding.componentId":
 		if e.complexity.Finding.ComponentID == nil {
@@ -4045,18 +4046,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Port.Port(childComplexity), true
 
-	case "Query.analysisTrail":
-		if e.complexity.Query.AnalysisTrail == nil {
-			break
-		}
-
-		args, err := ec.field_Query_analysisTrail_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.AnalysisTrail(childComplexity, args["componentId"].(string), args["projectId"].(string), args["vulnerabilityId"].(string)), true
-
 	case "Query.app":
 		if e.complexity.Query.App == nil {
 			break
@@ -5416,20 +5405,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Subscription.Log(childComplexity, args["input"].(*model.LogSubscriptionInput)), true
-
-	case "SuppressFindingResult.error":
-		if e.complexity.SuppressFindingResult.Error == nil {
-			break
-		}
-
-		return e.complexity.SuppressFindingResult.Error(childComplexity), true
-
-	case "SuppressFindingResult.isSuppressed":
-		if e.complexity.SuppressFindingResult.IsSuppressed == nil {
-			break
-		}
-
-		return e.complexity.SuppressFindingResult.IsSuppressed(childComplexity), true
 
 	case "SyncError.createdAt":
 		if e.complexity.SyncError.CreatedAt == nil {
@@ -7190,14 +7165,7 @@ input GitHubRepositoriesFilter {
 
     "Should the finding be suppressed."
     suppress: Boolean!
-
-  ): SuppressFindingResult!
-}
-
-type SuppressFindingResult {
-  "Whether the finding was suppressed or not."
-  isSuppressed: Boolean!
-  error: String
+  ): AnalysisTrail!
 }
 
 type Image {
@@ -7247,6 +7215,7 @@ type Finding {
   aliases: [Alias!]!
   isSuppressed: Boolean!
   state: String!
+  analysisTrail: AnalysisTrail
 }
 
 type Alias {
@@ -7271,20 +7240,6 @@ type FindingList {
 extend type Query {
   "Get image by dependency track project id."
   dependencyTrackProject(projectId: String!): Image!
-}
-
-extend type Query {
-  "Get analysis trail for a finding."
-  analysisTrail(
-    "The component id of the finding."
-    componentId: String!
-
-    "The project id of the image."
-    projectId: String!
-
-    "The id of the finding."
-    vulnerabilityId: String!
-  ): [AnalysisTrail]!
 }
 
 type AnalysisTrail {
@@ -9857,39 +9812,6 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_analysisTrail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["componentId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("componentId"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["componentId"] = arg0
-	var arg1 string
-	if tmp, ok := rawArgs["projectId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["projectId"] = arg1
-	var arg2 string
-	if tmp, ok := rawArgs["vulnerabilityId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vulnerabilityId"))
-		arg2, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["vulnerabilityId"] = arg2
 	return args, nil
 }
 
@@ -20027,6 +19949,55 @@ func (ec *executionContext) fieldContext_Finding_state(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Finding_analysisTrail(ctx context.Context, field graphql.CollectedField, obj *model.Finding) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Finding_analysisTrail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AnalysisTrail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.AnalysisTrail)
+	fc.Result = res
+	return ec.marshalOAnalysisTrail2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisTrail(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Finding_analysisTrail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Finding",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "state":
+				return ec.fieldContext_AnalysisTrail_state(ctx, field)
+			case "comments":
+				return ec.fieldContext_AnalysisTrail_comments(ctx, field)
+			case "isSuppressed":
+				return ec.fieldContext_AnalysisTrail_isSuppressed(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AnalysisTrail", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _FindingList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.FindingList) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_FindingList_nodes(ctx, field)
 	if err != nil {
@@ -20088,6 +20059,8 @@ func (ec *executionContext) fieldContext_FindingList_nodes(ctx context.Context, 
 				return ec.fieldContext_Finding_isSuppressed(ctx, field)
 			case "state":
 				return ec.fieldContext_Finding_state(ctx, field)
+			case "analysisTrail":
+				return ec.fieldContext_Finding_analysisTrail(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Finding", field.Name)
 		},
@@ -24941,9 +24914,9 @@ func (ec *executionContext) _Mutation_suppressFinding(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.SuppressFindingResult)
+	res := resTmp.(*model.AnalysisTrail)
 	fc.Result = res
-	return ec.marshalNSuppressFindingResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSuppressFindingResult(ctx, field.Selections, res)
+	return ec.marshalNAnalysisTrail2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisTrail(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_suppressFinding(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -24954,12 +24927,14 @@ func (ec *executionContext) fieldContext_Mutation_suppressFinding(ctx context.Co
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "state":
+				return ec.fieldContext_AnalysisTrail_state(ctx, field)
+			case "comments":
+				return ec.fieldContext_AnalysisTrail_comments(ctx, field)
 			case "isSuppressed":
-				return ec.fieldContext_SuppressFindingResult_isSuppressed(ctx, field)
-			case "error":
-				return ec.fieldContext_SuppressFindingResult_error(ctx, field)
+				return ec.fieldContext_AnalysisTrail_isSuppressed(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type SuppressFindingResult", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type AnalysisTrail", field.Name)
 		},
 	}
 	defer func() {
@@ -30333,69 +30308,6 @@ func (ec *executionContext) fieldContext_Query_dependencyTrackProject(ctx contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_dependencyTrackProject_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_analysisTrail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_analysisTrail(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AnalysisTrail(rctx, fc.Args["componentId"].(string), fc.Args["projectId"].(string), fc.Args["vulnerabilityId"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.AnalysisTrail)
-	fc.Result = res
-	return ec.marshalNAnalysisTrail2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisTrail(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_analysisTrail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "state":
-				return ec.fieldContext_AnalysisTrail_state(ctx, field)
-			case "comments":
-				return ec.fieldContext_AnalysisTrail_comments(ctx, field)
-			case "isSuppressed":
-				return ec.fieldContext_AnalysisTrail_isSuppressed(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type AnalysisTrail", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_analysisTrail_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -39412,91 +39324,6 @@ func (ec *executionContext) fieldContext_Subscription_log(ctx context.Context, f
 	if fc.Args, err = ec.field_Subscription_log_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SuppressFindingResult_isSuppressed(ctx context.Context, field graphql.CollectedField, obj *model.SuppressFindingResult) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SuppressFindingResult_isSuppressed(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.IsSuppressed, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SuppressFindingResult_isSuppressed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SuppressFindingResult",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SuppressFindingResult_error(ctx context.Context, field graphql.CollectedField, obj *model.SuppressFindingResult) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SuppressFindingResult_error(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Error, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SuppressFindingResult_error(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SuppressFindingResult",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
 	}
 	return fc, nil
 }
@@ -51407,6 +51234,8 @@ func (ec *executionContext) _Finding(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "analysisTrail":
+			out.Values[i] = ec._Finding_analysisTrail(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -54130,28 +53959,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_dependencyTrackProject(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "analysisTrail":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_analysisTrail(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -56995,47 +56802,6 @@ func (ec *executionContext) _Subscription(ctx context.Context, sel ast.Selection
 	default:
 		panic("unknown field " + strconv.Quote(fields[0].Name))
 	}
-}
-
-var suppressFindingResultImplementors = []string{"SuppressFindingResult"}
-
-func (ec *executionContext) _SuppressFindingResult(ctx context.Context, sel ast.SelectionSet, obj *model.SuppressFindingResult) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, suppressFindingResultImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("SuppressFindingResult")
-		case "isSuppressed":
-			out.Values[i] = ec._SuppressFindingResult_isSuppressed(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "error":
-			out.Values[i] = ec._SuppressFindingResult_error(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
 }
 
 var syncErrorImplementors = []string{"SyncError"}
@@ -60227,42 +59993,18 @@ func (ec *executionContext) marshalNAlias2ᚖgithubᚗcomᚋnaisᚋapiᚋinterna
 	return ec._Alias(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAnalysisTrail2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisTrail(ctx context.Context, sel ast.SelectionSet, v []*model.AnalysisTrail) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOAnalysisTrail2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisTrail(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
+func (ec *executionContext) marshalNAnalysisTrail2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisTrail(ctx context.Context, sel ast.SelectionSet, v model.AnalysisTrail) graphql.Marshaler {
+	return ec._AnalysisTrail(ctx, sel, &v)
+}
 
+func (ec *executionContext) marshalNAnalysisTrail2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisTrail(ctx context.Context, sel ast.SelectionSet, v *model.AnalysisTrail) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
 	}
-	wg.Wait()
-
-	return ret
+	return ec._AnalysisTrail(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNApp2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐApp(ctx context.Context, sel ast.SelectionSet, v model.App) graphql.Marshaler {
@@ -63728,20 +63470,6 @@ func (ec *executionContext) marshalNString2ᚖstring(ctx context.Context, sel as
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) marshalNSuppressFindingResult2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSuppressFindingResult(ctx context.Context, sel ast.SelectionSet, v model.SuppressFindingResult) graphql.Marshaler {
-	return ec._SuppressFindingResult(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNSuppressFindingResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSuppressFindingResult(ctx context.Context, sel ast.SelectionSet, v *model.SuppressFindingResult) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._SuppressFindingResult(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNSyncError2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSyncErrorᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.SyncError) graphql.Marshaler {

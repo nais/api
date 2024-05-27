@@ -19,14 +19,7 @@ extend type Mutation {
 
     "Should the finding be suppressed."
     suppress: Boolean!
-
-  ): SuppressFindingResult!
-}
-
-type SuppressFindingResult {
-  "Whether the finding was suppressed or not."
-  isSuppressed: Boolean!
-  error: String
+  ): AnalysisTrail!
 }
 
 type Image {
@@ -76,6 +69,7 @@ type Finding {
   aliases: [Alias!]!
   isSuppressed: Boolean!
   state: String!
+  analysisTrail: AnalysisTrail
 }
 
 type Alias {
@@ -100,20 +94,6 @@ type FindingList {
 extend type Query {
   "Get image by dependency track project id."
   dependencyTrackProject(projectId: String!): Image!
-}
-
-extend type Query {
-  "Get analysis trail for a finding."
-  analysisTrail(
-    "The component id of the finding."
-    componentId: String!
-
-    "The project id of the image."
-    projectId: String!
-
-    "The id of the finding."
-    vulnerabilityId: String!
-  ): [AnalysisTrail]!
 }
 
 type AnalysisTrail {

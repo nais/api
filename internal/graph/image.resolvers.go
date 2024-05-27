@@ -20,6 +20,21 @@ func (r *imageResolver) Findings(ctx context.Context, obj *model.Image, offset *
 		return nil, err
 	}
 
+	for _, f := range findings {
+		trail, err := r.dependencyTrackClient.GetAnalysisTrailForImage(ctx, f.ComponentID, obj.ProjectID, f.VulnerabilityID)
+		if err != nil {
+			return nil, err
+		}
+
+		if trail != nil {
+			f.AnalysisTrail = &model.AnalysisTrail{
+				State:        trail.State,
+				Comments:     trail.Comments,
+				IsSuppressed: trail.IsSuppressed,
+			}
+		}
+	}
+
 	if orderBy != nil {
 		switch orderBy.Field {
 		case model.OrderByFieldName:
@@ -63,7 +78,7 @@ func (r *imageResolver) Findings(ctx context.Context, obj *model.Image, offset *
 }
 
 // SuppressFinding is the resolver for the suppressFinding field.
-func (r *mutationResolver) SuppressFinding(ctx context.Context, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool) (*model.SuppressFindingResult, error) {
+func (r *mutationResolver) SuppressFinding(ctx context.Context, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool) (*model.AnalysisTrail, error) {
 	options := []string{
 		"IN_TRIAGE",
 		"RESOLVED",
@@ -79,8 +94,7 @@ func (r *mutationResolver) SuppressFinding(ctx context.Context, analysisState st
 		}
 	}
 
-	_, err := uuid.Parse(componentID)
-	if err != nil {
+	if _, err := uuid.Parse(componentID); err != nil {
 		return nil, fmt.Errorf("invalid component ID: %s", componentID)
 	}
 	if _, err := uuid.Parse(projectID); err != nil {
@@ -94,7 +108,12 @@ func (r *mutationResolver) SuppressFinding(ctx context.Context, analysisState st
 		return nil, fmt.Errorf("invalid analysis state: %s", analysisState)
 	}
 
-	return r.dependencyTrackClient.SuppressFinding(ctx, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy, suppress)
+	trail, err := r.dependencyTrackClient.SuppressFinding(ctx, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy, suppress)
+	if err != nil {
+		return nil, err
+	}
+
+	return trail, nil
 }
 
 // DependencyTrackProject is the resolver for the dependencyTrackProject field.
@@ -116,11 +135,6 @@ func (r *queryResolver) DependencyTrackProject(ctx context.Context, projectID st
 	}
 
 	return image, nil
-}
-
-// AnalysisTrail is the resolver for the analysisTrail field.
-func (r *queryResolver) AnalysisTrail(ctx context.Context, componentID string, projectID string, vulnerabilityID string) ([]*model.AnalysisTrail, error) {
-	return r.dependencyTrackClient.GetAnalysisTrailForImage(ctx, componentID, projectID, vulnerabilityID)
 }
 
 // Image returns gengql.ImageResolver implementation.

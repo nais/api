@@ -850,23 +850,23 @@ func (_c *MockInternalClient_GenerateApiKey_Call) RunAndReturn(run func(context.
 }
 
 // GetAnalysisTrail provides a mock function with given fields: ctx, projectUuid, componentUuid, vulnerabilityUuid
-func (_m *MockInternalClient) GetAnalysisTrail(ctx context.Context, projectUuid string, componentUuid string, vulnerabilityUuid string) ([]*client.Analysis, error) {
+func (_m *MockInternalClient) GetAnalysisTrail(ctx context.Context, projectUuid string, componentUuid string, vulnerabilityUuid string) (*client.Analysis, error) {
 	ret := _m.Called(ctx, projectUuid, componentUuid, vulnerabilityUuid)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAnalysisTrail")
 	}
 
-	var r0 []*client.Analysis
+	var r0 *client.Analysis
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) ([]*client.Analysis, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) (*client.Analysis, error)); ok {
 		return rf(ctx, projectUuid, componentUuid, vulnerabilityUuid)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) []*client.Analysis); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) *client.Analysis); ok {
 		r0 = rf(ctx, projectUuid, componentUuid, vulnerabilityUuid)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*client.Analysis)
+			r0 = ret.Get(0).(*client.Analysis)
 		}
 	}
 
@@ -900,12 +900,12 @@ func (_c *MockInternalClient_GetAnalysisTrail_Call) Run(run func(ctx context.Con
 	return _c
 }
 
-func (_c *MockInternalClient_GetAnalysisTrail_Call) Return(_a0 []*client.Analysis, _a1 error) *MockInternalClient_GetAnalysisTrail_Call {
+func (_c *MockInternalClient_GetAnalysisTrail_Call) Return(_a0 *client.Analysis, _a1 error) *MockInternalClient_GetAnalysisTrail_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockInternalClient_GetAnalysisTrail_Call) RunAndReturn(run func(context.Context, string, string, string) ([]*client.Analysis, error)) *MockInternalClient_GetAnalysisTrail_Call {
+func (_c *MockInternalClient_GetAnalysisTrail_Call) RunAndReturn(run func(context.Context, string, string, string) (*client.Analysis, error)) *MockInternalClient_GetAnalysisTrail_Call {
 	_c.Call.Return(run)
 	return _c
 }
