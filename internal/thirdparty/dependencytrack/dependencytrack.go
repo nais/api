@@ -542,6 +542,7 @@ func (c *Client) SuppressFinding(ctx context.Context, analysisState, comment, co
 		Comment:               comment,
 		IsSuppressed:          suppress,
 	}
+
 	err := c.client.RecordAnalysis(ctx, analysisRequest)
 	if err != nil {
 		return nil, fmt.Errorf("suppressing finding: %w", err)
