@@ -3,6 +3,8 @@ package opensearch
 import (
 	"context"
 	"fmt"
+	"strconv"
+
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/model"
@@ -15,7 +17,6 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
-	"strconv"
 )
 
 type Client struct {
@@ -31,6 +32,7 @@ func NewClient(informers k8s.ClusterInformers, log logrus.FieldLogger, costRepo 
 		metrics:   Metrics{log: log, costRepo: costRepo},
 	}
 }
+
 func getAccess(apps []runtime.Object, naisJobs []runtime.Object, openSearchInstance string) (*model.Access, error) {
 	access := &model.Access{}
 
