@@ -668,6 +668,11 @@ type RedisList struct {
 	PageInfo PageInfo `json:"pageInfo"`
 }
 
+type RedisStatus struct {
+	Conditions []*Condition `json:"conditions"`
+	State      string       `json:"state"`
+}
+
 type Requests struct {
 	CPU    string `json:"cpu"`
 	Memory string `json:"memory"`

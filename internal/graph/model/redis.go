@@ -19,6 +19,7 @@ type Redis struct {
 	Env     Env                   `json:"env"`
 	Cost    string                `json:"cost"`
 	GQLVars RedisGQLVars          `json:"-"`
+	Status  RedisStatus           `json:"status"`
 }
 
 type RedisInstanceAccess struct {
@@ -70,6 +71,23 @@ func ToRedis(u *unstructured.Unstructured, access *Access, envName string) (*Red
 		ID:   scalar.RedisIdent("redis_" + envName + "_" + teamSlug + "_" + redis.GetName()),
 		Name: redis.Name,
 		Env:  env,
+		Status: RedisStatus{
+			Conditions: func(conditions []v1.Condition) []*Condition {
+				ret := make([]*Condition, len(conditions))
+				for i, c := range conditions {
+					ret[i] = &Condition{
+						Type:               c.Type,
+						Status:             string(c.Status),
+						LastTransitionTime: c.LastTransitionTime.Time,
+						Reason:             c.Reason,
+						Message:            c.Message,
+					}
+				}
+
+				return ret
+			}(redis.Status.Conditions),
+			State: redis.Status.State,
+		},
 		Access: func(a *Access) []RedisInstanceAccess {
 			ret := make([]RedisInstanceAccess, 0)
 			for _, w := range a.Workloads {

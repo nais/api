@@ -11,6 +11,12 @@ type Redis implements Persistence {
   env: Env!
   cost: String!
   workload: Workload
+  status: RedisStatus!
+}
+
+type RedisStatus {
+  conditions: [Condition!]!
+  state: String!
 }
 
 type RedisInstanceAccess {

@@ -705,6 +705,7 @@ type ComplexityRoot struct {
 		Env      func(childComplexity int) int
 		ID       func(childComplexity int) int
 		Name     func(childComplexity int) int
+		Status   func(childComplexity int) int
 		Team     func(childComplexity int) int
 		Workload func(childComplexity int) int
 	}
@@ -717,6 +718,11 @@ type ComplexityRoot struct {
 	RedisList struct {
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
+	}
+
+	RedisStatus struct {
+		Conditions func(childComplexity int) int
+		State      func(childComplexity int) int
 	}
 
 	Requests struct {
@@ -4259,6 +4265,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Redis.Name(childComplexity), true
 
+	case "Redis.status":
+		if e.complexity.Redis.Status == nil {
+			break
+		}
+
+		return e.complexity.Redis.Status(childComplexity), true
+
 	case "Redis.team":
 		if e.complexity.Redis.Team == nil {
 			break
@@ -4300,6 +4313,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RedisList.PageInfo(childComplexity), true
+
+	case "RedisStatus.conditions":
+		if e.complexity.RedisStatus.Conditions == nil {
+			break
+		}
+
+		return e.complexity.RedisStatus.Conditions(childComplexity), true
+
+	case "RedisStatus.state":
+		if e.complexity.RedisStatus.State == nil {
+			break
+		}
+
+		return e.complexity.RedisStatus.State(childComplexity), true
 
 	case "Requests.cpu":
 		if e.complexity.Requests.CPU == nil {
@@ -7027,6 +7054,12 @@ type Redis implements Persistence {
   env: Env!
   cost: String!
   workload: Workload
+  status: RedisStatus!
+}
+
+type RedisStatus {
+  conditions: [Condition!]!
+  state: String!
 }
 
 type RedisInstanceAccess {
@@ -31438,6 +31471,56 @@ func (ec *executionContext) fieldContext_Redis_workload(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Redis_status(ctx context.Context, field graphql.CollectedField, obj *model.Redis) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Redis_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.RedisStatus)
+	fc.Result = res
+	return ec.marshalNRedisStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Redis_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Redis",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "conditions":
+				return ec.fieldContext_RedisStatus_conditions(ctx, field)
+			case "state":
+				return ec.fieldContext_RedisStatus_state(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RedisStatus", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _RedisInstanceAccess_workload(ctx context.Context, field graphql.CollectedField, obj *model.RedisInstanceAccess) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_RedisInstanceAccess_workload(ctx, field)
 	if err != nil {
@@ -31579,6 +31662,8 @@ func (ec *executionContext) fieldContext_RedisList_nodes(ctx context.Context, fi
 				return ec.fieldContext_Redis_cost(ctx, field)
 			case "workload":
 				return ec.fieldContext_Redis_workload(ctx, field)
+			case "status":
+				return ec.fieldContext_Redis_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Redis", field.Name)
 		},
@@ -31633,6 +31718,106 @@ func (ec *executionContext) fieldContext_RedisList_pageInfo(ctx context.Context,
 				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RedisStatus_conditions(ctx context.Context, field graphql.CollectedField, obj *model.RedisStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisStatus_conditions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Conditions, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Condition)
+	fc.Result = res
+	return ec.marshalNCondition2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐConditionᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedisStatus_conditions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedisStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "message":
+				return ec.fieldContext_Condition_message(ctx, field)
+			case "reason":
+				return ec.fieldContext_Condition_reason(ctx, field)
+			case "status":
+				return ec.fieldContext_Condition_status(ctx, field)
+			case "type":
+				return ec.fieldContext_Condition_type(ctx, field)
+			case "lastTransitionTime":
+				return ec.fieldContext_Condition_lastTransitionTime(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Condition", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RedisStatus_state(ctx context.Context, field graphql.CollectedField, obj *model.RedisStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisStatus_state(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.State, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedisStatus_state(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedisStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -39274,6 +39459,8 @@ func (ec *executionContext) fieldContext_Team_redisInstance(ctx context.Context,
 				return ec.fieldContext_Redis_cost(ctx, field)
 			case "workload":
 				return ec.fieldContext_Redis_workload(ctx, field)
+			case "status":
+				return ec.fieldContext_Redis_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Redis", field.Name)
 		},
@@ -52847,6 +53034,11 @@ func (ec *executionContext) _Redis(ctx context.Context, sel ast.SelectionSet, ob
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "status":
+			out.Values[i] = ec._Redis_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -52963,6 +53155,50 @@ func (ec *executionContext) _RedisList(ctx context.Context, sel ast.SelectionSet
 			}
 		case "pageInfo":
 			out.Values[i] = ec._RedisList_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var redisStatusImplementors = []string{"RedisStatus"}
+
+func (ec *executionContext) _RedisStatus(ctx context.Context, sel ast.SelectionSet, obj *model.RedisStatus) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, redisStatusImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RedisStatus")
+		case "conditions":
+			out.Values[i] = ec._RedisStatus_conditions(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "state":
+			out.Values[i] = ec._RedisStatus_state(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -60546,6 +60782,10 @@ func (ec *executionContext) marshalNRedisList2ᚖgithubᚗcomᚋnaisᚋapiᚋint
 		return graphql.Null
 	}
 	return ec._RedisList(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRedisStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisStatus(ctx context.Context, sel ast.SelectionSet, v model.RedisStatus) graphql.Marshaler {
+	return ec._RedisStatus(ctx, sel, &v)
 }
 
 func (ec *executionContext) unmarshalNRepositoryAuthorization2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorization(ctx context.Context, v interface{}) (model.RepositoryAuthorization, error) {
