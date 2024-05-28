@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
@@ -50,6 +49,11 @@ func (r *openSearchResolver) Team(ctx context.Context, obj *model.OpenSearch) (*
 // Workload is the resolver for the workload field.
 func (r *openSearchResolver) Workload(ctx context.Context, obj *model.OpenSearch) (model.Workload, error) {
 	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
+}
+
+// Workload is the resolver for the workload field.
+func (r *openSearchInstanceAccessResolver) Workload(ctx context.Context, obj *model.OpenSearchInstanceAccess) (model.Workload, error) {
+	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.GQLVars.Env.Name)
 }
 
 // Team is the resolver for the team field.
@@ -101,6 +105,11 @@ func (r *Resolver) KafkaTopic() gengql.KafkaTopicResolver { return &kafkaTopicRe
 // OpenSearch returns gengql.OpenSearchResolver implementation.
 func (r *Resolver) OpenSearch() gengql.OpenSearchResolver { return &openSearchResolver{r} }
 
+// OpenSearchInstanceAccess returns gengql.OpenSearchInstanceAccessResolver implementation.
+func (r *Resolver) OpenSearchInstanceAccess() gengql.OpenSearchInstanceAccessResolver {
+	return &openSearchInstanceAccessResolver{r}
+}
+
 // Redis returns gengql.RedisResolver implementation.
 func (r *Resolver) Redis() gengql.RedisResolver { return &redisResolver{r} }
 
@@ -113,11 +122,12 @@ func (r *Resolver) RedisInstanceAccess() gengql.RedisInstanceAccessResolver {
 func (r *Resolver) SqlInstance() gengql.SqlInstanceResolver { return &sqlInstanceResolver{r} }
 
 type (
-	bigQueryDatasetResolver     struct{ *Resolver }
-	bucketResolver              struct{ *Resolver }
-	kafkaTopicResolver          struct{ *Resolver }
-	openSearchResolver          struct{ *Resolver }
-	redisResolver               struct{ *Resolver }
-	redisInstanceAccessResolver struct{ *Resolver }
-	sqlInstanceResolver         struct{ *Resolver }
+	bigQueryDatasetResolver          struct{ *Resolver }
+	bucketResolver                   struct{ *Resolver }
+	kafkaTopicResolver               struct{ *Resolver }
+	openSearchResolver               struct{ *Resolver }
+	openSearchInstanceAccessResolver struct{ *Resolver }
+	redisResolver                    struct{ *Resolver }
+	redisInstanceAccessResolver      struct{ *Resolver }
+	sqlInstanceResolver              struct{ *Resolver }
 )

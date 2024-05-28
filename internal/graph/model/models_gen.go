@@ -591,6 +591,11 @@ type OpenSearchList struct {
 	PageInfo PageInfo      `json:"pageInfo"`
 }
 
+type OpenSearchStatus struct {
+	Conditions []*Condition `json:"conditions"`
+	State      string       `json:"state"`
+}
+
 type OrderBy struct {
 	// Order direction.
 	Direction SortOrder `json:"direction"`

@@ -11,10 +11,16 @@ metadata:
   generation: 2
   labels:
     team: teampam
-  name: opensearch-teampam-stilling
+  name: opensearch-2
   namespace: teampam
   resourceVersion: "3990043290"
   uid: 2a8d4d8a-2bf4-4b2f-99fc-814f6a937ecd
+
+  ownerReferences:
+    - apiVersion: nais.io/v1alpha1
+      kind: Application
+      name: app-w-all-storage
+      uid: 5d684281-5621-4c87-aee7-fca257550790
 spec:
   cloudName: google-europe-north1
   connInfoSecretTarget:

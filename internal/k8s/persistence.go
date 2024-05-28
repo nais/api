@@ -56,6 +56,7 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 			return nil, fmt.Errorf("getting redis: %w", err)
 		}
 		for _, redis := range redises {
+			// TODO: The access is sent down empty so it will be empty at inopportune moments
 			r, err := model.ToRedis(redis.(*unstructured.Unstructured), &model.Access{}, cluster)
 			if err != nil {
 				return nil, fmt.Errorf("converting to redis: %w", err)
@@ -84,7 +85,8 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 			return nil, fmt.Errorf("listing OpenSearch instances: %w", err)
 		}
 		for _, obj := range objs {
-			o, err := model.ToOpenSearch(obj.(*unstructured.Unstructured), cluster)
+			// TODO: The access is sent down empty so it will be empty at inopportune moments
+			o, err := model.ToOpenSearch(obj.(*unstructured.Unstructured), &model.Access{}, cluster)
 			if err != nil {
 				return nil, fmt.Errorf("converting OpenSearch instance: %w", err)
 			}

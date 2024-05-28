@@ -1221,6 +1221,11 @@ func (r *teamResolver) Redis(ctx context.Context, obj *model.Team, offset *int, 
 	}, nil
 }
 
+// OpenSearchInstance is the resolver for the openSearchInstance field.
+func (r *teamResolver) OpenSearchInstance(ctx context.Context, obj *model.Team, name string, env string) (*model.OpenSearch, error) {
+	return r.openSearchClient.OpenSearchInstance(ctx, env, obj.Slug, name)
+}
+
 // OpenSearch is the resolver for the openSearch field.
 func (r *teamResolver) OpenSearch(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.OpenSearchList, error) {
 	openSearch, err := r.openSearchClient.OpenSearch(obj.Slug)

@@ -372,6 +372,15 @@ type Team {
     orderBy: OrderBy
   ): RedisList!
   
+  "Get a OpenSearch instance by name and env."
+  openSearchInstance(
+    "The name of the OpenSearch instance."
+    name: String!
+
+    "The environment the instance exists in."
+    env: String!
+  ): OpenSearch!
+
   openSearch(
     "Returns the first n entries from the list."
     offset: Int

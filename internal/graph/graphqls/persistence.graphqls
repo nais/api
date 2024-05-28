@@ -101,11 +101,22 @@ type OpenSearch implements Persistence {
   The opensearch instance name
   """
   name: String!
-  access: String!
+  access: [OpenSearchInstanceAccess!]!
   id: ID!
   team: Team!
+  cost: String!
   env: Env!
   workload: Workload
+}
+
+type OpenSearchStatus {
+  conditions: [Condition!]!
+  state: String!
+}
+
+type OpenSearchInstanceAccess {
+  workload: Workload!
+  role: String!
 }
 
 type Flag {
