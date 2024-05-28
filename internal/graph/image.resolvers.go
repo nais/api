@@ -133,5 +133,7 @@ func (r *Resolver) Finding() gengql.FindingResolver { return &findingResolver{r}
 // Image returns gengql.ImageResolver implementation.
 func (r *Resolver) Image() gengql.ImageResolver { return &imageResolver{r} }
 
-type findingResolver struct{ *Resolver }
-type imageResolver struct{ *Resolver }
+type (
+	findingResolver struct{ *Resolver }
+	imageResolver   struct{ *Resolver }
+)

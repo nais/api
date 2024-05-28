@@ -1143,6 +1143,7 @@ type ComplexityRoot struct {
 		BomCount   func(childComplexity int) int
 		Critical   func(childComplexity int) int
 		High       func(childComplexity int) int
+		ID         func(childComplexity int) int
 		Low        func(childComplexity int) int
 		Medium     func(childComplexity int) int
 		RiskScore  func(childComplexity int) int
@@ -6301,6 +6302,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.VulnerabilitySummary.High(childComplexity), true
 
+	case "VulnerabilitySummary.id":
+		if e.complexity.VulnerabilitySummary.ID == nil {
+			break
+		}
+
+		return e.complexity.VulnerabilitySummary.ID(childComplexity), true
+
 	case "VulnerabilitySummary.low":
 		if e.complexity.VulnerabilitySummary.Low == nil {
 			break
@@ -7008,6 +7016,7 @@ type Vulnerability {
 }
 
 type VulnerabilitySummary {
+  id: ID!
   total: Int!
   riskScore: Int!
   critical: Int!
@@ -21831,6 +21840,8 @@ func (ec *executionContext) fieldContext_Image_summary(ctx context.Context, fiel
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_VulnerabilitySummary_id(ctx, field)
 			case "total":
 				return ec.fieldContext_VulnerabilitySummary_total(ctx, field)
 			case "riskScore":
@@ -41266,6 +41277,8 @@ func (ec *executionContext) fieldContext_Team_vulnerabilitiesSummary(ctx context
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_VulnerabilitySummary_id(ctx, field)
 			case "total":
 				return ec.fieldContext_VulnerabilitySummary_total(ctx, field)
 			case "riskScore":
@@ -44407,6 +44420,8 @@ func (ec *executionContext) fieldContext_Vulnerability_summary(ctx context.Conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_VulnerabilitySummary_id(ctx, field)
 			case "total":
 				return ec.fieldContext_VulnerabilitySummary_total(ctx, field)
 			case "riskScore":
@@ -45075,6 +45090,50 @@ func (ec *executionContext) fieldContext_VulnerabilityMetrics_data(ctx context.C
 				return ec.fieldContext_VulnerabilityMetric_count(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type VulnerabilityMetric", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VulnerabilitySummary_id(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilitySummary) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilitySummary_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VulnerabilitySummary_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnerabilitySummary",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -59518,6 +59577,11 @@ func (ec *executionContext) _VulnerabilitySummary(ctx context.Context, sel ast.S
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("VulnerabilitySummary")
+		case "id":
+			out.Values[i] = ec._VulnerabilitySummary_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "total":
 			out.Values[i] = ec._VulnerabilitySummary_total(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

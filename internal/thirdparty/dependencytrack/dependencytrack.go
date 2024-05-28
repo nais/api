@@ -239,6 +239,7 @@ func (c *Client) retrieveFindings(ctx context.Context, uuid string, suppressed b
 func (c *Client) createSummary(project *dependencytrack.Project, hasBom bool) *model.VulnerabilitySummary {
 	if !hasBom {
 		return &model.VulnerabilitySummary{
+			ID:         scalar.VulnerabilitySummaryIdent(project.Uuid),
 			RiskScore:  -1,
 			Total:      -1,
 			Critical:   -1,
@@ -250,6 +251,7 @@ func (c *Client) createSummary(project *dependencytrack.Project, hasBom bool) *m
 	}
 
 	return &model.VulnerabilitySummary{
+		ID:         scalar.VulnerabilitySummaryIdent(project.Uuid),
 		Total:      project.Metrics.FindingsTotal,
 		RiskScore:  int(project.Metrics.InheritedRiskScore),
 		Critical:   project.Metrics.Critical,
@@ -450,6 +452,7 @@ func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId s
 		Version:   p.Version,
 		ProjectID: p.Uuid,
 		Summary: model.VulnerabilitySummary{
+			ID:         scalar.VulnerabilitySummaryIdent(p.Uuid),
 			Total:      summary.Total,
 			Critical:   summary.Critical,
 			RiskScore:  summary.RiskScore,

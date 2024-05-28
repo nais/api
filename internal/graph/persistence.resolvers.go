@@ -114,12 +114,14 @@ func (r *Resolver) Redis() gengql.RedisResolver { return &redisResolver{r} }
 // SqlInstance returns gengql.SqlInstanceResolver implementation.
 func (r *Resolver) SqlInstance() gengql.SqlInstanceResolver { return &sqlInstanceResolver{r} }
 
-type bigQueryDatasetResolver struct{ *Resolver }
-type bucketResolver struct{ *Resolver }
-type kafkaTopicResolver struct{ *Resolver }
-type openSearchResolver struct{ *Resolver }
-type redisResolver struct{ *Resolver }
-type sqlInstanceResolver struct{ *Resolver }
+type (
+	bigQueryDatasetResolver struct{ *Resolver }
+	bucketResolver          struct{ *Resolver }
+	kafkaTopicResolver      struct{ *Resolver }
+	openSearchResolver      struct{ *Resolver }
+	redisResolver           struct{ *Resolver }
+	sqlInstanceResolver     struct{ *Resolver }
+)
 
 // !!! WARNING !!!
 // The code below was going to be deleted when updating resolvers. It has been copied here so you have

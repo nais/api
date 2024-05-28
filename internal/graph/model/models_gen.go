@@ -977,14 +977,15 @@ type VulnerabilityMetrics struct {
 }
 
 type VulnerabilitySummary struct {
-	Total      int `json:"total"`
-	RiskScore  int `json:"riskScore"`
-	Critical   int `json:"critical"`
-	High       int `json:"high"`
-	Medium     int `json:"medium"`
-	Low        int `json:"low"`
-	Unassigned int `json:"unassigned"`
-	BomCount   int `json:"bomCount"`
+	ID         scalar.Ident `json:"id"`
+	Total      int          `json:"total"`
+	RiskScore  int          `json:"riskScore"`
+	Critical   int          `json:"critical"`
+	High       int          `json:"high"`
+	Medium     int          `json:"medium"`
+	Low        int          `json:"low"`
+	Unassigned int          `json:"unassigned"`
+	BomCount   int          `json:"bomCount"`
 }
 
 type WorkloadReference struct {

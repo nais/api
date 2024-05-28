@@ -27,6 +27,7 @@ type Vulnerability {
 }
 
 type VulnerabilitySummary {
+  id: ID!
   total: Int!
   riskScore: Int!
   critical: Int!

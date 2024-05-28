@@ -43,6 +43,7 @@ const (
 	IdentTypeDependencyTrackProjectIdent IdentType = "dependencyTrackProjectIdent"
 	IdentTypeWorkload                    IdentType = "workload"
 	IdentTypeAnalysisTrail               IdentType = "analysisTrail"
+	IdentTypeVulnerabilitySummary        IdentType = "vulnerabilitySummary"
 )
 
 type Ident struct {
@@ -193,6 +194,11 @@ func WorkloadIdent(id string) Ident {
 
 func AnalysisTrailIdent(projectID, componentID, vulnerabilityID string) Ident {
 	return newIdent(fmt.Sprintf("%s-%s-%s", projectID, componentID, vulnerabilityID), IdentTypeAnalysisTrail)
+}
+
+func VulnerabilitySummaryIdent(id string) Ident {
+	return newIdent(id, IdentTypeVulnerabilitySummary)
+
 }
 
 func newIdent(id string, t IdentType) Ident {
