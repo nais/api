@@ -4,6 +4,7 @@ import "github.com/nais/api/internal/graph/scalar"
 
 type Finding struct {
 	ID              scalar.Ident `json:"id"`
+	ParentID        string       `json:"parentId"`
 	VulnerabilityID string       `json:"vulnerabilityId"`
 	VulnID          string       `json:"vulnId"`
 	Source          string       `json:"source"`

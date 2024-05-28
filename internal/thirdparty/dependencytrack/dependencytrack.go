@@ -347,12 +347,13 @@ func (c *Client) GetMetadataForImage(ctx context.Context, name, version string) 
 
 	return &model.Image{
 		Name:      p.Name + ":" + p.Version,
-		ID:        scalar.ImageIdent(p.Name),
+		ID:        scalar.ImageIdent(p.Name, p.Version),
 		Digest:    digest,
 		RekorID:   rekor,
 		Version:   p.Version,
 		ProjectID: p.Uuid,
 		Summary: model.VulnerabilitySummary{
+			ID:         scalar.VulnerabilitySummaryIdent(p.Uuid),
 			Total:      summary.Total,
 			Critical:   summary.Critical,
 			RiskScore:  summary.RiskScore,
@@ -392,6 +393,7 @@ func (c *Client) GetFindingsForImageByProjectID(ctx context.Context, projectId s
 
 		retFindings = append(retFindings, &model.Finding{
 			ID:              scalar.FindingIdent(f.Vulnerability.VulnId),
+			ParentID:        projectId,
 			VulnID:          f.Vulnerability.VulnId,
 			VulnerabilityID: f.Vulnerability.UUID,
 			Source:          f.Vulnerability.Source,
@@ -446,7 +448,7 @@ func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId s
 
 	return &model.Image{
 		Name:      p.Name + ":" + p.Version,
-		ID:        scalar.ImageIdent(p.Name),
+		ID:        scalar.ImageIdent(p.Name, p.Version),
 		Digest:    digest,
 		RekorID:   rekor,
 		Version:   p.Version,
@@ -517,7 +519,7 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 		summary := c.createSummary(project, hasBom(project))
 
 		image := &model.Image{
-			ID:                 scalar.DependencyTrackProjectIdent(project.Uuid),
+			ID:                 scalar.ImageIdent(project.Name, project.Version),
 			ProjectID:          project.Uuid,
 			Name:               project.Name,
 			Summary:            *summary,
@@ -556,24 +558,7 @@ func (c *Client) SuppressFinding(ctx context.Context, analysisState, comment, co
 		return nil, fmt.Errorf("getting analysis trail: %w", err)
 	}
 
-	comments := make([]*model.Comment, 0)
-	for _, comment := range trail.AnalysisComments {
-		timestamp := time.Unix(int64(comment.Timestamp)/1000, 0).Local()
-		tmp, found := strings.CutPrefix(comment.Comment, "Suppressed on-behalf-of:")
-		onBehalfOf := ""
-		theComment := ""
-
-		if found {
-			onBehalfOf = strings.Split(tmp, ":")[0]
-			theComment = strings.Split(tmp, "|")[1]
-			comment := &model.Comment{
-				Comment:    theComment,
-				Timestamp:  timestamp,
-				OnBehalfOf: onBehalfOf,
-			}
-			comments = append(comments, comment)
-		}
-	}
+	comments := parseComments(trail)
 
 	if err = c.client.TriggerAnalysis(ctx, projectID); err != nil {
 		return nil, fmt.Errorf("triggering analysis: %w", err)
@@ -585,6 +570,27 @@ func (c *Client) SuppressFinding(ctx context.Context, analysisState, comment, co
 		Comments:     comments,
 		IsSuppressed: trail.IsSuppressed,
 	}, nil
+}
+
+func parseComments(trail *dependencytrack.Analysis) []*model.Comment {
+	comments := make([]*model.Comment, 0)
+	for _, comment := range trail.AnalysisComments {
+		timestamp := time.Unix(int64(comment.Timestamp)/1000, 0).Local()
+		tmp, found := strings.CutPrefix(comment.Comment, "Suppressed on-behalf-of:")
+
+		if found {
+			whoMadeWhatComment := strings.Split(tmp, "|")
+			onBehalfOf := whoMadeWhatComment[0]
+			theComment := whoMadeWhatComment[1]
+			comment := &model.Comment{
+				Comment:    theComment,
+				Timestamp:  timestamp,
+				OnBehalfOf: onBehalfOf,
+			}
+			comments = append(comments, comment)
+		}
+	}
+	return comments
 }
 
 func (c *Client) GetAnalysisTrailForImage(ctx context.Context, projectID, componentID, vulnerabilityID string) (*model.AnalysisTrail, error) {
@@ -604,24 +610,7 @@ func (c *Client) GetAnalysisTrailForImage(ctx context.Context, projectID, compon
 		IsSuppressed: trail.IsSuppressed,
 	}
 
-	comments := make([]*model.Comment, 0)
-	for _, comment := range trail.AnalysisComments {
-		timestamp := time.Unix(int64(comment.Timestamp)/1000, 0).Local()
-		tmp, found := strings.CutPrefix(comment.Comment, "Suppressed on-behalf-of:")
-		onBehalfOf := ""
-		theComment := ""
-
-		if found {
-			onBehalfOf = strings.Split(tmp, ":")[0]
-			theComment = strings.Split(tmp, "|")[1]
-			comment := &model.Comment{
-				Comment:    theComment,
-				Timestamp:  timestamp,
-				OnBehalfOf: onBehalfOf,
-			}
-			comments = append(comments, comment)
-		}
-	}
+	comments := parseComments(trail)
 
 	retAnalysisTrail.Comments = comments
 	return retAnalysisTrail, nil

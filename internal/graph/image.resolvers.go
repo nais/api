@@ -14,8 +14,8 @@ import (
 )
 
 // AnalysisTrail is the resolver for the analysisTrail field.
-func (r *findingResolver) AnalysisTrail(ctx context.Context, obj *model.Finding, projectID string) (*model.AnalysisTrail, error) {
-	return r.dependencyTrackClient.GetAnalysisTrailForImage(ctx, projectID, obj.ComponentID, obj.VulnerabilityID)
+func (r *findingResolver) AnalysisTrail(ctx context.Context, obj *model.Finding) (*model.AnalysisTrail, error) {
+	return r.dependencyTrackClient.GetAnalysisTrailForImage(ctx, obj.ParentID, obj.ComponentID, obj.VulnerabilityID)
 }
 
 // Findings is the resolver for the findings field.
@@ -137,3 +137,13 @@ type (
 	findingResolver struct{ *Resolver }
 	imageResolver   struct{ *Resolver }
 )
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *imageResolver) ID(ctx context.Context, obj *model.Image) (string, error) {
+	panic(fmt.Errorf("not implemented: ID - id"))
+}

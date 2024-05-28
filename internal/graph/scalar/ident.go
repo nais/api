@@ -180,12 +180,8 @@ func FindingIdent(id string) Ident {
 	return newIdent(id, IdentTypeFinding)
 }
 
-func ImageIdent(id string) Ident {
-	return newIdent(id, IdentTypeImage)
-}
-
-func DependencyTrackProjectIdent(id string) Ident {
-	return newIdent(id, IdentTypeDependencyTrackProjectIdent)
+func ImageIdent(name, version string) Ident {
+	return newIdent(fmt.Sprintf("%s-%s", name, version), IdentTypeImage)
 }
 
 func WorkloadIdent(id string) Ident {
@@ -198,7 +194,6 @@ func AnalysisTrailIdent(projectID, componentID, vulnerabilityID string) Ident {
 
 func VulnerabilitySummaryIdent(id string) Ident {
 	return newIdent(id, IdentTypeVulnerabilitySummary)
-
 }
 
 func newIdent(id string, t IdentType) Ident {

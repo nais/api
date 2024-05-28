@@ -1,0 +1,45 @@
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  annotations:
+    deploy.nais.io/client-version: 2023-12-19-bbbb39b
+    deploy.nais.io/github-actor: thokra-nav
+    deploy.nais.io/github-sha: c81ba85beb7a3c7def99c07141b0f2f9655babc8
+    deploy.nais.io/github-workflow-run-url: https://github.com/nais/dataproduct-apps/actions/runs/9170821186
+    kubernetes.io/change-cause: 'nais deploy: commit c81ba85beb7a3c7def99c07141b0f2f9655babc8:
+      https://github.com/nais/dataproduct-apps/actions/runs/9170821186'
+    nais.io/deploymentCorrelationID: d16ef3f1-2079-4042-8f45-ebd9274e1c1a
+  creationTimestamp: "2021-10-27T08:55:52Z"
+  finalizers:
+  - naiserator.nais.io/finalizer
+  generation: 387
+  labels:
+    team: aura
+  name: dataproduct-apps-collect
+  namespace: aura
+  resourceVersion: "4823338120"
+  uid: d794a3b8-8824-48bc-92b1-60131f9db1f7
+spec:
+  command:
+  - dataproduct-apps-collect
+  image: europe-north1-docker.pkg.dev/nais-io/nais/images/dataproduct-apps:20240521074317-c81ba85
+  kafka:
+    pool: nav-infrastructure
+  liveness:
+    path: /isHealthy
+  readiness:
+    path: /isReady
+  schedule: 13 4 * * *
+status:
+  conditions:
+  - lastTransitionTime: "2024-05-21T07:44:30Z"
+    message: Successfully deployed.
+    reason: RolloutComplete
+    status: "True"
+    type: SynchronizationState
+  correlationID: d16ef3f1-2079-4042-8f45-ebd9274e1c1a
+  deploymentRolloutStatus: complete
+  rolloutCompleteTime: 1716277477987234622
+  synchronizationHash: 11e2a723c0860e1c
+  synchronizationState: RolloutComplete
+  synchronizationTime: 1716277470756636364

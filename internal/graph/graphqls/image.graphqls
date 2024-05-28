@@ -59,6 +59,7 @@ type ImageList {
 
 type Finding {
   id: ID!
+  parentId: String!
   vulnerabilityId: String!
   vulnId: String!
   source: String!
@@ -69,7 +70,7 @@ type Finding {
   aliases: [Alias!]!
   isSuppressed: Boolean!
   state: String!
-  analysisTrail(projectId: String!): AnalysisTrail!
+  analysisTrail: AnalysisTrail!
 }
 
 type Alias {

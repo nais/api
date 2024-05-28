@@ -384,12 +384,13 @@ type ComplexityRoot struct {
 
 	Finding struct {
 		Aliases         func(childComplexity int) int
-		AnalysisTrail   func(childComplexity int, projectID string) int
+		AnalysisTrail   func(childComplexity int) int
 		ComponentID     func(childComplexity int) int
 		Description     func(childComplexity int) int
 		ID              func(childComplexity int) int
 		IsSuppressed    func(childComplexity int) int
 		PackageURL      func(childComplexity int) int
+		ParentID        func(childComplexity int) int
 		Severity        func(childComplexity int) int
 		Source          func(childComplexity int) int
 		State           func(childComplexity int) int
@@ -1200,7 +1201,7 @@ type EnvResolver interface {
 	Secrets(ctx context.Context, obj *model.Env) ([]*model.Secret, error)
 }
 type FindingResolver interface {
-	AnalysisTrail(ctx context.Context, obj *model.Finding, projectID string) (*model.AnalysisTrail, error)
+	AnalysisTrail(ctx context.Context, obj *model.Finding) (*model.AnalysisTrail, error)
 }
 type GitHubRepositoryResolver interface {
 	Authorizations(ctx context.Context, obj *model.GitHubRepository) ([]model.RepositoryAuthorization, error)
@@ -2630,12 +2631,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Finding_analysisTrail_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Finding.AnalysisTrail(childComplexity, args["projectId"].(string)), true
+		return e.complexity.Finding.AnalysisTrail(childComplexity), true
 
 	case "Finding.componentId":
 		if e.complexity.Finding.ComponentID == nil {
@@ -2671,6 +2667,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Finding.PackageURL(childComplexity), true
+
+	case "Finding.parentId":
+		if e.complexity.Finding.ParentID == nil {
+			break
+		}
+
+		return e.complexity.Finding.ParentID(childComplexity), true
 
 	case "Finding.severity":
 		if e.complexity.Finding.Severity == nil {
@@ -7223,6 +7226,7 @@ type ImageList {
 
 type Finding {
   id: ID!
+  parentId: String!
   vulnerabilityId: String!
   vulnId: String!
   source: String!
@@ -7233,7 +7237,7 @@ type Finding {
   aliases: [Alias!]!
   isSuppressed: Boolean!
   state: String!
-  analysisTrail(projectId: String!): AnalysisTrail!
+  analysisTrail: AnalysisTrail!
 }
 
 type Alias {
@@ -9029,21 +9033,6 @@ func (ec *executionContext) field_DeployInfo_history_args(ctx context.Context, r
 		}
 	}
 	args["limit"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_Finding_analysisTrail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["projectId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("projectId"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["projectId"] = arg0
 	return args, nil
 }
 
@@ -19537,6 +19526,50 @@ func (ec *executionContext) fieldContext_Finding_id(ctx context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Finding_parentId(ctx context.Context, field graphql.CollectedField, obj *model.Finding) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Finding_parentId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ParentID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Finding_parentId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Finding",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Finding_vulnerabilityId(ctx context.Context, field graphql.CollectedField, obj *model.Finding) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Finding_vulnerabilityId(ctx, field)
 	if err != nil {
@@ -19997,7 +20030,7 @@ func (ec *executionContext) _Finding_analysisTrail(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Finding().AnalysisTrail(rctx, obj, fc.Args["projectId"].(string))
+		return ec.resolvers.Finding().AnalysisTrail(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20033,17 +20066,6 @@ func (ec *executionContext) fieldContext_Finding_analysisTrail(ctx context.Conte
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AnalysisTrail", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Finding_analysisTrail_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -20089,6 +20111,8 @@ func (ec *executionContext) fieldContext_FindingList_nodes(ctx context.Context, 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Finding_id(ctx, field)
+			case "parentId":
+				return ec.fieldContext_Finding_parentId(ctx, field)
 			case "vulnerabilityId":
 				return ec.fieldContext_Finding_vulnerabilityId(ctx, field)
 			case "vulnId":
@@ -51286,6 +51310,11 @@ func (ec *executionContext) _Finding(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = graphql.MarshalString("Finding")
 		case "id":
 			out.Values[i] = ec._Finding_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "parentId":
+			out.Values[i] = ec._Finding_parentId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
