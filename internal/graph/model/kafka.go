@@ -18,6 +18,7 @@ type KafkaTopic struct {
 	Config  *KafkaTopicConfig `json:"config"`
 	Pool    string            `json:"pool"`
 	Env     Env               `json:"env"`
+	Status  *KafkaTopicStatus `json:"status"`
 	GQLVars KafkaTopicGQLVars `json:"-"`
 }
 type KafkaTopicGQLVars struct {
@@ -75,5 +76,14 @@ func ToKafkaTopic(u *unstructured.Unstructured, env string) (*KafkaTopic, error)
 			TeamSlug:       slug.Slug(teamSlug),
 			OwnerReference: OwnerReference(kt.OwnerReferences),
 		},
+		Status: func(s *kafka_nais_io_v1.TopicStatus) *KafkaTopicStatus {
+			if s == nil {
+				return nil
+			}
+
+			return &KafkaTopicStatus{
+				// TODO: Add fields
+			}
+		}(kt.Status),
 	}, nil
 }

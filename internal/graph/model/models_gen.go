@@ -496,6 +496,13 @@ type KafkaTopicList struct {
 	PageInfo PageInfo      `json:"pageInfo"`
 }
 
+type KafkaTopicStatus struct {
+	FullyQualifiedName   string    `json:"fullyQualifiedName"`
+	Message              string    `json:"message"`
+	SynchronizationState State     `json:"synchronizationState"`
+	SynchronizationTime  time.Time `json:"synchronizationTime"`
+}
+
 type Limits struct {
 	CPU    string `json:"cpu"`
 	Memory string `json:"memory"`

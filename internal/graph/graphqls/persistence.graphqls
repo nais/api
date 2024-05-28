@@ -77,6 +77,14 @@ type KafkaTopic implements Persistence {
   team: Team!
   env: Env!
   workload: Workload
+  status: KafkaTopicStatus
+}
+
+type KafkaTopicStatus {
+  fullyQualifiedName: String!
+  message: String!
+  synchronizationState: State!
+  synchronizationTime: Time!
 }
 
 type KafkaTopicConfig {
