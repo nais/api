@@ -619,6 +619,7 @@ type ComplexityRoot struct {
 		Env      func(childComplexity int) int
 		ID       func(childComplexity int) int
 		Name     func(childComplexity int) int
+		Status   func(childComplexity int) int
 		Team     func(childComplexity int) int
 		Workload func(childComplexity int) int
 	}
@@ -3767,6 +3768,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.OpenSearch.Name(childComplexity), true
+
+	case "OpenSearch.status":
+		if e.complexity.OpenSearch.Status == nil {
+			break
+		}
+
+		return e.complexity.OpenSearch.Status(childComplexity), true
 
 	case "OpenSearch.team":
 		if e.complexity.OpenSearch.Team == nil {
@@ -7214,6 +7222,7 @@ type OpenSearch implements Persistence {
   cost: String!
   env: Env!
   workload: Workload
+  status: OpenSearchStatus!
 }
 
 type OpenSearchStatus {
@@ -27989,6 +27998,56 @@ func (ec *executionContext) fieldContext_OpenSearch_workload(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _OpenSearch_status(ctx context.Context, field graphql.CollectedField, obj *model.OpenSearch) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_OpenSearch_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.OpenSearchStatus)
+	fc.Result = res
+	return ec.marshalNOpenSearchStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOpenSearchStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_OpenSearch_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearch",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "conditions":
+				return ec.fieldContext_OpenSearchStatus_conditions(ctx, field)
+			case "state":
+				return ec.fieldContext_OpenSearchStatus_state(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type OpenSearchStatus", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _OpenSearchInstanceAccess_workload(ctx context.Context, field graphql.CollectedField, obj *model.OpenSearchInstanceAccess) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_OpenSearchInstanceAccess_workload(ctx, field)
 	if err != nil {
@@ -28130,6 +28189,8 @@ func (ec *executionContext) fieldContext_OpenSearchList_nodes(ctx context.Contex
 				return ec.fieldContext_OpenSearch_env(ctx, field)
 			case "workload":
 				return ec.fieldContext_OpenSearch_workload(ctx, field)
+			case "status":
+				return ec.fieldContext_OpenSearch_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type OpenSearch", field.Name)
 		},
@@ -39981,6 +40042,8 @@ func (ec *executionContext) fieldContext_Team_openSearchInstance(ctx context.Con
 				return ec.fieldContext_OpenSearch_env(ctx, field)
 			case "workload":
 				return ec.fieldContext_OpenSearch_workload(ctx, field)
+			case "status":
+				return ec.fieldContext_OpenSearch_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type OpenSearch", field.Name)
 		},
@@ -52301,6 +52364,11 @@ func (ec *executionContext) _OpenSearch(ctx context.Context, sel ast.SelectionSe
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "status":
+			out.Values[i] = ec._OpenSearch_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -61065,6 +61133,10 @@ func (ec *executionContext) marshalNOpenSearchList2ᚖgithubᚗcomᚋnaisᚋapi�
 		return graphql.Null
 	}
 	return ec._OpenSearchList(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNOpenSearchStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOpenSearchStatus(ctx context.Context, sel ast.SelectionSet, v model.OpenSearchStatus) graphql.Marshaler {
+	return ec._OpenSearchStatus(ctx, sel, &v)
 }
 
 func (ec *executionContext) unmarshalNOrderByField2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderByField(ctx context.Context, v interface{}) (model.OrderByField, error) {

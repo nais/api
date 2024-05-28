@@ -107,6 +107,7 @@ type OpenSearch implements Persistence {
   cost: String!
   env: Env!
   workload: Workload
+  status: OpenSearchStatus!
 }
 
 type OpenSearchStatus {

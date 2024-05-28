@@ -19,6 +19,7 @@ type OpenSearch struct {
 	Env     Env                        `json:"env"`
 	Cost    string                     `json:"cost"`
 	GQLVars OpenSearchGQLVars          `json:"-"`
+	Status  OpenSearchStatus           `json:"status"`
 }
 
 type OpenSearchInstanceAccess struct {
@@ -42,7 +43,7 @@ func (o OpenSearch) GetName() string     { return o.Name }
 func (o OpenSearch) GetID() scalar.Ident { return o.ID }
 
 func ToOpenSearch(u *unstructured.Unstructured, access *Access, envName string) (*OpenSearch, error) {
-	openSearch := &aiven_io_v1alpha1.Redis{}
+	openSearch := &aiven_io_v1alpha1.OpenSearch{}
 
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, openSearch); err != nil {
 		return nil, fmt.Errorf("converting to Bucket: %w", err)
@@ -71,6 +72,23 @@ func ToOpenSearch(u *unstructured.Unstructured, access *Access, envName string) 
 			}
 			return ret
 		}(access),
+		Status: OpenSearchStatus{
+			Conditions: func(conditions []v1.Condition) []*Condition {
+				ret := make([]*Condition, len(conditions))
+				for i, c := range conditions {
+					ret[i] = &Condition{
+						Type:               c.Type,
+						Status:             string(c.Status),
+						LastTransitionTime: c.LastTransitionTime.Time,
+						Reason:             c.Reason,
+						Message:            c.Message,
+					}
+				}
+
+				return ret
+			}(openSearch.Status.Conditions),
+			State: openSearch.Status.State,
+		},
 		GQLVars: OpenSearchGQLVars{
 			TeamSlug:       slug.Slug(teamSlug),
 			OwnerReference: OwnerReference(openSearch.OwnerReferences),
