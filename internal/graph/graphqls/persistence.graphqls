@@ -85,6 +85,9 @@ type KafkaTopicStatus {
   message: String!
   synchronizationState: State!
   synchronizationTime: Time!
+  credentialsExpiryTime: Time!
+  errors: [String!]
+  latestAivenSyncFailure: Time!
 }
 
 type KafkaTopicConfig {

@@ -509,10 +509,13 @@ type ComplexityRoot struct {
 	}
 
 	KafkaTopicStatus struct {
-		FullyQualifiedName   func(childComplexity int) int
-		Message              func(childComplexity int) int
-		SynchronizationState func(childComplexity int) int
-		SynchronizationTime  func(childComplexity int) int
+		CredentialsExpiryTime  func(childComplexity int) int
+		Errors                 func(childComplexity int) int
+		FullyQualifiedName     func(childComplexity int) int
+		LatestAivenSyncFailure func(childComplexity int) int
+		Message                func(childComplexity int) int
+		SynchronizationState   func(childComplexity int) int
+		SynchronizationTime    func(childComplexity int) int
 	}
 
 	Limits struct {
@@ -3124,12 +3127,33 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.KafkaTopicList.PageInfo(childComplexity), true
 
+	case "KafkaTopicStatus.credentialsExpiryTime":
+		if e.complexity.KafkaTopicStatus.CredentialsExpiryTime == nil {
+			break
+		}
+
+		return e.complexity.KafkaTopicStatus.CredentialsExpiryTime(childComplexity), true
+
+	case "KafkaTopicStatus.errors":
+		if e.complexity.KafkaTopicStatus.Errors == nil {
+			break
+		}
+
+		return e.complexity.KafkaTopicStatus.Errors(childComplexity), true
+
 	case "KafkaTopicStatus.fullyQualifiedName":
 		if e.complexity.KafkaTopicStatus.FullyQualifiedName == nil {
 			break
 		}
 
 		return e.complexity.KafkaTopicStatus.FullyQualifiedName(childComplexity), true
+
+	case "KafkaTopicStatus.latestAivenSyncFailure":
+		if e.complexity.KafkaTopicStatus.LatestAivenSyncFailure == nil {
+			break
+		}
+
+		return e.complexity.KafkaTopicStatus.LatestAivenSyncFailure(childComplexity), true
 
 	case "KafkaTopicStatus.message":
 		if e.complexity.KafkaTopicStatus.Message == nil {
@@ -7243,6 +7267,9 @@ type KafkaTopicStatus {
   message: String!
   synchronizationState: State!
   synchronizationTime: Time!
+  credentialsExpiryTime: Time!
+  errors: [String!]
+  latestAivenSyncFailure: Time!
 }
 
 type KafkaTopicConfig {
@@ -22153,6 +22180,12 @@ func (ec *executionContext) fieldContext_KafkaTopic_status(ctx context.Context, 
 				return ec.fieldContext_KafkaTopicStatus_synchronizationState(ctx, field)
 			case "synchronizationTime":
 				return ec.fieldContext_KafkaTopicStatus_synchronizationTime(ctx, field)
+			case "credentialsExpiryTime":
+				return ec.fieldContext_KafkaTopicStatus_credentialsExpiryTime(ctx, field)
+			case "errors":
+				return ec.fieldContext_KafkaTopicStatus_errors(ctx, field)
+			case "latestAivenSyncFailure":
+				return ec.fieldContext_KafkaTopicStatus_latestAivenSyncFailure(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type KafkaTopicStatus", field.Name)
 		},
@@ -22900,6 +22933,135 @@ func (ec *executionContext) _KafkaTopicStatus_synchronizationTime(ctx context.Co
 }
 
 func (ec *executionContext) fieldContext_KafkaTopicStatus_synchronizationTime(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaTopicStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _KafkaTopicStatus_credentialsExpiryTime(ctx context.Context, field graphql.CollectedField, obj *model.KafkaTopicStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaTopicStatus_credentialsExpiryTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CredentialsExpiryTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_KafkaTopicStatus_credentialsExpiryTime(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaTopicStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _KafkaTopicStatus_errors(ctx context.Context, field graphql.CollectedField, obj *model.KafkaTopicStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaTopicStatus_errors(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Errors, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_KafkaTopicStatus_errors(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaTopicStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _KafkaTopicStatus_latestAivenSyncFailure(ctx context.Context, field graphql.CollectedField, obj *model.KafkaTopicStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaTopicStatus_latestAivenSyncFailure(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LatestAivenSyncFailure, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_KafkaTopicStatus_latestAivenSyncFailure(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicStatus",
 		Field:      field,
@@ -51592,6 +51754,18 @@ func (ec *executionContext) _KafkaTopicStatus(ctx context.Context, sel ast.Selec
 			}
 		case "synchronizationTime":
 			out.Values[i] = ec._KafkaTopicStatus_synchronizationTime(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "credentialsExpiryTime":
+			out.Values[i] = ec._KafkaTopicStatus_credentialsExpiryTime(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "errors":
+			out.Values[i] = ec._KafkaTopicStatus_errors(ctx, field, obj)
+		case "latestAivenSyncFailure":
+			out.Values[i] = ec._KafkaTopicStatus_latestAivenSyncFailure(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

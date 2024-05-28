@@ -2,11 +2,12 @@ package model
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -80,9 +81,26 @@ func ToKafkaTopic(u *unstructured.Unstructured, env string) (*KafkaTopic, error)
 			if s == nil {
 				return nil
 			}
+			syncTime, err := time.Parse(time.RFC3339, s.SynchronizationTime)
+			if err != nil {
+				syncTime = time.Unix(0, 0)
+			}
+			expTime, err := time.Parse(time.RFC3339, s.SynchronizationTime)
+			if err != nil {
+				expTime = time.Unix(0, 0)
+			}
+			lastSyncTime, err := time.Parse(time.RFC3339, s.SynchronizationTime)
+			if err != nil {
+				lastSyncTime = time.Unix(0, 0)
+			}
 
 			return &KafkaTopicStatus{
-				// TODO: Add fields
+				FullyQualifiedName:     s.FullyQualifiedName,
+				Message:                s.Message,
+				SynchronizationTime:    syncTime,
+				CredentialsExpiryTime:  expTime,
+				Errors:                 s.Errors,
+				LatestAivenSyncFailure: lastSyncTime,
 			}
 		}(kt.Status),
 	}, nil

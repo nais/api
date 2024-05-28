@@ -50,3 +50,35 @@ status:
   synchronizationHash: 84fff3af06b36ee6
   synchronizationState: RolloutComplete
   synchronizationTime: "2024-05-27T15:54:11Z"
+---
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  labels:
+    team: devteam
+    app: app-w-all-storage
+  name: error-topic
+  namespace: devteam
+spec:
+  acl:
+  - access: read
+    application: migrator
+    team: tsm
+  config:
+    cleanupPolicy: delete
+    maxMessageBytes: 1048588
+    minimumInSyncReplicas: 3
+    partitions: 10
+    replication: 3
+    retentionBytes: -1
+    retentionHours: -1
+    segmentHours: 168
+  pool: nav-dev
+status:
+  errors:
+  - pool 'nav-prod' cannot be used in this cluster
+  fullyQualifiedName: yrkesskade.privat-yrkesskade-skadeforklaringinnsendt
+  latestAivenSyncFailure: "2023-12-04T13:31:21Z"
+  message: pool 'nav-prod' cannot be used in this cluster
+  synchronizationHash: reset
+  synchronizationState: FailedPrepare
