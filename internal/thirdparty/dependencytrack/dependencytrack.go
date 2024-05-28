@@ -343,7 +343,7 @@ func (c *Client) GetMetadataForImage(ctx context.Context, name, version string) 
 		}
 	}
 
-	summary := c.createSummary(p, true)
+	summary := c.createSummary(p, hasBom(p))
 
 	return &model.Image{
 		Name:      p.Name + ":" + p.Version,
@@ -442,7 +442,7 @@ func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId s
 		}
 	}
 
-	summary := c.createSummary(p, true)
+	summary := c.createSummary(p, hasBom(p))
 
 	return &model.Image{
 		Name:      p.Name + ":" + p.Version,
@@ -514,7 +514,7 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 			}
 		}
 
-		summary := c.createSummary(project, project.Metrics != nil)
+		summary := c.createSummary(project, hasBom(project))
 
 		image := &model.Image{
 			ID:                 scalar.DependencyTrackProjectIdent(project.Uuid),

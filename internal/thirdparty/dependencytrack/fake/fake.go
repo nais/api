@@ -63,7 +63,7 @@ func (f *FakeDependencytrackClient) GetMetadataForImageByProjectID(ctx context.C
 	return f.client.GetMetadataForImageByProjectID(ctx, projectID)
 }
 
-func (f *FakeDependencytrackClient) SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.SuppressFindingResult, error) {
+func (f *FakeDependencytrackClient) SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.AnalysisTrail, error) {
 	return f.client.SuppressFinding(ctx, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy, suppress)
 }
 
