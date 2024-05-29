@@ -1,0 +1,32 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"nais.io/v1alpha1","kind":"Application","metadata":{"annotations":{},"labels":{"team":"aura"},"name":"kimfoo","namespace":"aura"},"spec":{"image":"nginx","port":80}}
+  creationTimestamp: "2024-04-24T13:02:39Z"
+  finalizers:
+  - naiserator.nais.io/finalizer
+  generation: 13
+  labels:
+    team: aura
+  name: kimfoo
+  namespace: aura
+  resourceVersion: "4672608101"
+  uid: bcf78696-d977-4a24-a229-0ffe2896ee8f
+spec:
+  image: nginx
+  port: 80
+status:
+  conditions:
+  - lastTransitionTime: "2024-04-24T13:11:28Z"
+    message: Deployment has been processed; waiting for completion...
+    reason: Synchronized
+    status: "True"
+    type: SynchronizationState
+  correlationID: 40b3d5c2-c5d9-4d93-87ee-cf1702d92fe2
+  deploymentRolloutStatus: complete
+  rolloutCompleteTime: 1713964211576382495
+  synchronizationHash: 7605a80e51c351c1
+  synchronizationState: Synchronized
+  synchronizationTime: 1713964288855428736

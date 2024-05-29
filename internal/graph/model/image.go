@@ -10,5 +10,6 @@ type Image struct {
 	Digest             string               `json:"digest"`
 	RekorID            string               `json:"rekorId"`
 	Summary            VulnerabilitySummary `json:"summary"`
+	HasSbom            bool                 `json:"hasSbom"`
 	WorkloadReferences []*WorkloadReference `json:"workloadReferences"`
 }

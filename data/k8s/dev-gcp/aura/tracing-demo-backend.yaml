@@ -1,7 +1,25 @@
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
+  annotations:
+    deploy.nais.io/client-version: 2023-08-24-ef68bd7
+    deploy.nais.io/github-actor: jksolbakken
+    deploy.nais.io/github-sha: f6cbece282f401580898d280212796c4b91c5737
+    deploy.nais.io/github-workflow-run-url: https://github.com/nais/tracing-demo/actions/runs/7607633340
+    foobar: barfoo
+    kubernetes.io/change-cause: 'nais deploy: commit f6cbece282f401580898d280212796c4b91c5737:
+      https://github.com/nais/tracing-demo/actions/runs/7607633340'
+    nais.io/deploymentCorrelationID: 1034817f-66c5-477e-8f0b-059018fbca47
+  creationTimestamp: "2023-10-12T06:26:56Z"
+  finalizers:
+  - naiserator.nais.io/finalizer
+  generation: 35
+  labels:
+    team: aura
   name: tracing-demo-backend
+  namespace: aura
+  resourceVersion: "4434023318"
+  uid: 73e01823-b430-4934-9a2b-b623a11b093a
 spec:
   env:
   - name: LISTEN_ADDR
@@ -17,3 +35,16 @@ spec:
     cpuThresholdPercentage: 50
     max: 1
     min: 1
+status:
+  conditions:
+  - lastTransitionTime: "2024-03-13T10:03:09Z"
+    message: Successfully deployed.
+    reason: RolloutComplete
+    status: "True"
+    type: SynchronizationState
+  correlationID: 1034817f-66c5-477e-8f0b-059018fbca47
+  deploymentRolloutStatus: complete
+  rolloutCompleteTime: 1710324194536107161
+  synchronizationHash: d8127bd74a0ee5ac
+  synchronizationState: RolloutComplete
+  synchronizationTime: 1710324189347706566

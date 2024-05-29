@@ -311,10 +311,13 @@ func (c *Client) retrieveProject(ctx context.Context, app *AppInstance) (*depend
 }
 
 func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.Image, error) {
-	name, version, found := strings.Cut(image, ":")
-	if !found {
-		return nil, fmt.Errorf("could not extract name version from image: %s", image)
-	}
+	name, version, _ := strings.Cut(image, ":")
+
+	// TODO: remove if not needed
+	//if !found {
+	//return nil, fmt.Errorf("could not extract name version from image: %s", image)
+	//	return nil, nil
+	//}
 	p, err := c.client.GetProject(ctx, name, version)
 	if err != nil {
 		return nil, fmt.Errorf("getting project by name %s and version %s: %w", name, version, err)
@@ -362,6 +365,7 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 		Digest:    digest,
 		RekorID:   rekor,
 		Version:   p.Version,
+		HasSbom:   hasBom(p),
 		ProjectID: p.Uuid,
 		Summary: model.VulnerabilitySummary{
 			ID:         scalar.VulnerabilitySummaryIdent(p.Uuid),
@@ -464,6 +468,7 @@ func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId s
 		RekorID:   rekor,
 		Version:   p.Version,
 		ProjectID: p.Uuid,
+		HasSbom:   hasBom(p),
 		Summary: model.VulnerabilitySummary{
 			ID:         scalar.VulnerabilitySummaryIdent(p.Uuid),
 			Total:      summary.Total,

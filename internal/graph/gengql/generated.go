@@ -461,6 +461,7 @@ type ComplexityRoot struct {
 	Image struct {
 		Digest             func(childComplexity int) int
 		Findings           func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
+		HasSbom            func(childComplexity int) int
 		ID                 func(childComplexity int) int
 		Name               func(childComplexity int) int
 		ProjectID          func(childComplexity int) int
@@ -2957,6 +2958,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Image.Findings(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy)), true
+
+	case "Image.hasSbom":
+		if e.complexity.Image.HasSbom == nil {
+			break
+		}
+
+		return e.complexity.Image.HasSbom(childComplexity), true
 
 	case "Image.id":
 		if e.complexity.Image.ID == nil {
@@ -7195,6 +7203,7 @@ type Image {
   digest: String!
   rekorId: String!
   summary: VulnerabilitySummary!
+  hasSbom: Boolean!
   findings(
     "Returns the first n entries from the list."
     offset: Int
@@ -12123,6 +12132,8 @@ func (ec *executionContext) fieldContext_App_image(ctx context.Context, field gr
 				return ec.fieldContext_Image_rekorId(ctx, field)
 			case "summary":
 				return ec.fieldContext_Image_summary(ctx, field)
+			case "hasSbom":
+				return ec.fieldContext_Image_hasSbom(ctx, field)
 			case "findings":
 				return ec.fieldContext_Image_findings(ctx, field)
 			case "workloadReferences":
@@ -21887,6 +21898,50 @@ func (ec *executionContext) fieldContext_Image_summary(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Image_hasSbom(ctx context.Context, field graphql.CollectedField, obj *model.Image) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Image_hasSbom(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.HasSbom, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Image_hasSbom(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Image",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Image_findings(ctx context.Context, field graphql.CollectedField, obj *model.Image) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Image_findings(ctx, field)
 	if err != nil {
@@ -22059,6 +22114,8 @@ func (ec *executionContext) fieldContext_ImageList_nodes(ctx context.Context, fi
 				return ec.fieldContext_Image_rekorId(ctx, field)
 			case "summary":
 				return ec.fieldContext_Image_summary(ctx, field)
+			case "hasSbom":
+				return ec.fieldContext_Image_hasSbom(ctx, field)
 			case "findings":
 				return ec.fieldContext_Image_findings(ctx, field)
 			case "workloadReferences":
@@ -27833,6 +27890,8 @@ func (ec *executionContext) fieldContext_NaisJob_image(ctx context.Context, fiel
 				return ec.fieldContext_Image_rekorId(ctx, field)
 			case "summary":
 				return ec.fieldContext_Image_summary(ctx, field)
+			case "hasSbom":
+				return ec.fieldContext_Image_hasSbom(ctx, field)
 			case "findings":
 				return ec.fieldContext_Image_findings(ctx, field)
 			case "workloadReferences":
@@ -30388,6 +30447,8 @@ func (ec *executionContext) fieldContext_Query_dependencyTrackProject(ctx contex
 				return ec.fieldContext_Image_rekorId(ctx, field)
 			case "summary":
 				return ec.fieldContext_Image_summary(ctx, field)
+			case "hasSbom":
+				return ec.fieldContext_Image_hasSbom(ctx, field)
 			case "findings":
 				return ec.fieldContext_Image_findings(ctx, field)
 			case "workloadReferences":
@@ -51914,6 +51975,11 @@ func (ec *executionContext) _Image(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "summary":
 			out.Values[i] = ec._Image_summary(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "hasSbom":
+			out.Values[i] = ec._Image_hasSbom(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

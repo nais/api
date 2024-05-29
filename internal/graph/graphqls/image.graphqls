@@ -30,6 +30,7 @@ type Image {
   digest: String!
   rekorId: String!
   summary: VulnerabilitySummary!
+  hasSbom: Boolean!
   findings(
     "Returns the first n entries from the list."
     offset: Int

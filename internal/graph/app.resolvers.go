@@ -109,7 +109,9 @@ func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, en
 	if err != nil {
 		return nil, fmt.Errorf("getting metadata for image %q: %w", app.GQLVars.Spec.ImageName, err)
 	}
-	app.Image = *image
+	if image != nil {
+		app.Image = *image
+	}
 	return app, nil
 }
 
