@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
@@ -9,6 +10,7 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/utils/ptr"
 )
 
 type BigQueryDataset struct {
@@ -65,6 +67,8 @@ func ToBigQueryDataset(u *unstructured.Unstructured, env string) (*BigQueryDatas
 			Name: env,
 		},
 		Status: BigQueryDatasetStatus{
+			LastModifiedTime: ptr.To(time.Unix(int64(bqs.Status.LastModifiedTime), 0)),
+			CreationTime: ptr.To(time.Unix(int64(bqs.Status.CreationTime), 0)),
 			Conditions: func(conditions []v1.Condition) []*Condition {
 				ret := make([]*Condition, len(conditions))
 				for i, c := range conditions {
