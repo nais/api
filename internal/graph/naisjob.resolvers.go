@@ -86,6 +86,17 @@ func (r *queryResolver) Naisjob(ctx context.Context, name string, team slug.Slug
 		job.Image = *image
 	}
 
+	for _, ref := range image.WorkloadReferences {
+		job, err := r.k8sClient.NaisJob(ctx, ref.Name, ref.Team, ref.Environment)
+		if err != nil {
+			continue
+		}
+		if job == nil {
+			continue
+		}
+		ref.DeployInfo = job.DeployInfo
+	}
+
 	return job, nil
 }
 

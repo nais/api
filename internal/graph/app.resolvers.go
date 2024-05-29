@@ -112,6 +112,16 @@ func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, en
 	if image != nil {
 		app.Image = *image
 	}
+	for _, ref := range image.WorkloadReferences {
+		app, err := r.k8sClient.App(ctx, ref.Name, ref.Team, ref.Environment)
+		if err != nil {
+			continue
+		}
+		if app == nil {
+			continue
+		}
+		ref.DeployInfo = app.DeployInfo
+	}
 	return app, nil
 }
 
