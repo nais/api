@@ -21,6 +21,7 @@ type BigQueryDataset struct {
 	Access          []BigQueryDatasetAccess `json:"access"` // TODO: There's some incongruency with what we have in the cluster here.
 	ProjectID       string                  `json:"projectId"`
 	Location        string                  `json:"location"`
+	Status          BigQueryDatasetStatus   `json:"status"`
 }
 
 type BigQueryDatasetGQLVars struct {
@@ -62,6 +63,24 @@ func ToBigQueryDataset(u *unstructured.Unstructured, env string) (*BigQueryDatas
 		Env: Env{
 			Team: teamSlug,
 			Name: env,
+		},
+		Status: BigQueryDatasetStatus{
+			
+			Conditions: func(conditions []v1.Condition) []*Condition {
+				ret := make([]*Condition, len(conditions))
+				for i, c := range conditions {
+					t := c.LastTransitionTime.Time
+					ret[i] = &Condition{
+						Type:               c.Type,
+						Status:             string(c.Status),
+						LastTransitionTime: t,
+						Reason:             c.Reason,
+						Message:            c.Message,
+					}
+				}
+
+				return ret
+			}(bqs.Status.Conditions),
 		},
 		GQLVars: BigQueryDatasetGQLVars{
 			TeamSlug:       slug.Slug(teamSlug),

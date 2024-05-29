@@ -423,6 +423,15 @@ type Team {
     orderBy: OrderBy
   ): BigQueryDatasetList!
 
+  "Get a BigQueryDataset by name and env."
+  bigQueryDataset(
+    "The name of the dataset."
+    name: String!
+
+    "The environment the dataset exists in."
+    env: String!
+  ): BigQueryDataset!
+
   "The NAIS applications owned by the team."
   apps(
     "Returns the first n entries from the list."

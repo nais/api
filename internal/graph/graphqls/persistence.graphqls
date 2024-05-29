@@ -28,11 +28,18 @@ type BigQueryDataset implements Persistence {
   cascadingDelete: Boolean!
   description: String!
   name: String!
-  Access: [BigQueryDatasetAccess!]!
+  access: [BigQueryDatasetAccess!]!
   id: ID!
   team: Team!
   env: Env!
+  status: BigQueryDatasetStatus!
   workload: Workload
+}
+
+type BigQueryDatasetStatus {
+  conditions: [Condition!]!
+  creationTime: Time
+  lastModifiedTime: Time
 }
 
 type BigQueryDatasetAccess {

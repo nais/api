@@ -157,6 +157,12 @@ type BigQueryDatasetList struct {
 	PageInfo PageInfo           `json:"pageInfo"`
 }
 
+type BigQueryDatasetStatus struct {
+	Conditions       []*Condition `json:"conditions"`
+	CreationTime     *time.Time   `json:"creationTime,omitempty"`
+	LastModifiedTime *time.Time   `json:"lastModifiedTime,omitempty"`
+}
+
 type BucketCors struct {
 	MaxAgeSeconds   *int     `json:"maxAgeSeconds,omitempty"`
 	Methods         []string `json:"methods"`

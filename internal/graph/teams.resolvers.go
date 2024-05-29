@@ -1318,6 +1318,11 @@ func (r *teamResolver) BigQuery(ctx context.Context, obj *model.Team, offset *in
 	}, nil
 }
 
+// BigQueryDataset is the resolver for the bigQueryDataset field.
+func (r *teamResolver) BigQueryDataset(ctx context.Context, obj *model.Team, name string, env string) (*model.BigQueryDataset, error) {
+	return r.bigQueryDatasetClient.BigQueryDataset(env, obj.Slug, name)
+}
+
 // Apps is the resolver for the apps field.
 func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.AppList, error) {
 	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
