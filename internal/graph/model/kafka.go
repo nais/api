@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
+	sync_states "github.com/nais/liberator/pkg/events"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -81,17 +82,31 @@ func ToKafkaTopic(u *unstructured.Unstructured, env string) (*KafkaTopic, error)
 			if s == nil {
 				return nil
 			}
-			syncTime, err := time.Parse(time.RFC3339, s.SynchronizationTime)
-			if err != nil {
-				syncTime = time.Unix(0, 0)
+
+			var syncTime, expTime, lastSyncTime *time.Time
+			if t, err := time.Parse(time.RFC3339, s.SynchronizationTime); err == nil {
+				syncTime = &t
 			}
-			expTime, err := time.Parse(time.RFC3339, s.SynchronizationTime)
-			if err != nil {
-				expTime = time.Unix(0, 0)
+
+			if t, err := time.Parse(time.RFC3339, s.CredentialsExpiryTime); err == nil {
+				expTime = &t
 			}
-			lastSyncTime, err := time.Parse(time.RFC3339, s.SynchronizationTime)
-			if err != nil {
-				lastSyncTime = time.Unix(0, 0)
+
+			if t, err := time.Parse(time.RFC3339, s.LatestAivenSyncFailure); err == nil {
+				lastSyncTime = &t
+			}
+
+			state := StateUnknown
+			switch s.SynchronizationState {
+			case sync_states.FailedPrepare,
+				sync_states.FailedGenerate,
+				sync_states.FailedSynchronization,
+				sync_states.FailedStatusUpdate,
+				sync_states.Retrying:
+				state = StateNotnais
+			case sync_states.Synchronized,
+				sync_states.RolloutComplete:
+				state = StateNais
 			}
 
 			return &KafkaTopicStatus{
@@ -101,6 +116,7 @@ func ToKafkaTopic(u *unstructured.Unstructured, env string) (*KafkaTopic, error)
 				CredentialsExpiryTime:  expTime,
 				Errors:                 s.Errors,
 				LatestAivenSyncFailure: lastSyncTime,
+				SynchronizationState:   state,
 			}
 		}(kt.Status),
 	}, nil

@@ -497,13 +497,13 @@ type KafkaTopicList struct {
 }
 
 type KafkaTopicStatus struct {
-	FullyQualifiedName     string    `json:"fullyQualifiedName"`
-	Message                string    `json:"message"`
-	SynchronizationState   State     `json:"synchronizationState"`
-	SynchronizationTime    time.Time `json:"synchronizationTime"`
-	CredentialsExpiryTime  time.Time `json:"credentialsExpiryTime"`
-	Errors                 []string  `json:"errors,omitempty"`
-	LatestAivenSyncFailure time.Time `json:"latestAivenSyncFailure"`
+	FullyQualifiedName     string     `json:"fullyQualifiedName"`
+	Message                string     `json:"message"`
+	SynchronizationState   State      `json:"synchronizationState"`
+	SynchronizationTime    *time.Time `json:"synchronizationTime,omitempty"`
+	CredentialsExpiryTime  *time.Time `json:"credentialsExpiryTime,omitempty"`
+	Errors                 []string   `json:"errors,omitempty"`
+	LatestAivenSyncFailure *time.Time `json:"latestAivenSyncFailure,omitempty"`
 }
 
 type Limits struct {

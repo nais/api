@@ -7266,10 +7266,10 @@ type KafkaTopicStatus {
   fullyQualifiedName: String!
   message: String!
   synchronizationState: State!
-  synchronizationTime: Time!
-  credentialsExpiryTime: Time!
+  synchronizationTime: Time
+  credentialsExpiryTime: Time
   errors: [String!]
-  latestAivenSyncFailure: Time!
+  latestAivenSyncFailure: Time
 }
 
 type KafkaTopicConfig {
@@ -22922,14 +22922,11 @@ func (ec *executionContext) _KafkaTopicStatus_synchronizationTime(ctx context.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(time.Time)
+	res := resTmp.(*time.Time)
 	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_KafkaTopicStatus_synchronizationTime(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -22966,14 +22963,11 @@ func (ec *executionContext) _KafkaTopicStatus_credentialsExpiryTime(ctx context.
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(time.Time)
+	res := resTmp.(*time.Time)
 	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_KafkaTopicStatus_credentialsExpiryTime(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -23051,14 +23045,11 @@ func (ec *executionContext) _KafkaTopicStatus_latestAivenSyncFailure(ctx context
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(time.Time)
+	res := resTmp.(*time.Time)
 	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_KafkaTopicStatus_latestAivenSyncFailure(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -51754,21 +51745,12 @@ func (ec *executionContext) _KafkaTopicStatus(ctx context.Context, sel ast.Selec
 			}
 		case "synchronizationTime":
 			out.Values[i] = ec._KafkaTopicStatus_synchronizationTime(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "credentialsExpiryTime":
 			out.Values[i] = ec._KafkaTopicStatus_credentialsExpiryTime(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "errors":
 			out.Values[i] = ec._KafkaTopicStatus_errors(ctx, field, obj)
 		case "latestAivenSyncFailure":
 			out.Values[i] = ec._KafkaTopicStatus_latestAivenSyncFailure(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

@@ -76,7 +76,8 @@ spec:
   pool: nav-dev
 status:
   errors:
-  - pool 'nav-prod' cannot be used in this cluster
+    - pool 'nav-prod' cannot be used in this cluster
+    - some other error
   fullyQualifiedName: yrkesskade.privat-yrkesskade-skadeforklaringinnsendt
   latestAivenSyncFailure: "2023-12-04T13:31:21Z"
   message: pool 'nav-prod' cannot be used in this cluster

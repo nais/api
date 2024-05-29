@@ -84,10 +84,10 @@ type KafkaTopicStatus {
   fullyQualifiedName: String!
   message: String!
   synchronizationState: State!
-  synchronizationTime: Time!
-  credentialsExpiryTime: Time!
+  synchronizationTime: Time
+  credentialsExpiryTime: Time
   errors: [String!]
-  latestAivenSyncFailure: Time!
+  latestAivenSyncFailure: Time
 }
 
 type KafkaTopicConfig {
