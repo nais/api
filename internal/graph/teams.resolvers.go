@@ -1469,6 +1469,14 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 				}
 				return aIndex > bIndex
 			})
+		case model.OrderByFieldSeverityCritical:
+			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
+				return model.Compare(a.Image.Summary.Critical, b.Image.Summary.Critical, orderBy.Direction)
+			})
+		case model.OrderByFieldRiskScore:
+			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
+				return model.Compare(a.Image.Summary.RiskScore, b.Image.Summary.RiskScore, orderBy.Direction)
+			})
 		}
 	}
 
