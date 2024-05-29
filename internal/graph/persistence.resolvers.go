@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
@@ -55,6 +56,32 @@ func (r *openSearchResolver) Workload(ctx context.Context, obj *model.OpenSearch
 // Workload is the resolver for the workload field.
 func (r *openSearchInstanceAccessResolver) Workload(ctx context.Context, obj *model.OpenSearchInstanceAccess) (model.Workload, error) {
 	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.GQLVars.Env.Name)
+}
+
+// Access is the resolver for the access field.
+func (r *redisResolver) Access(ctx context.Context, obj *model.Redis) ([]*model.RedisInstanceAccess, error) {
+	infs, exists := r.k8sClient.Informers()[obj.Env.Name]
+	if !exists {
+		return nil, apierror.Errorf("Unknown env: %q", obj.Env.Name)
+	}
+
+	access, err := getRedisAccess(infs.App, infs.Naisjob, obj.Name, obj.GQLVars.TeamSlug)
+	if err != nil {
+		return nil, apierror.Errorf("Unable to get Redis instance access")
+	}
+
+	ret := make([]*model.RedisInstanceAccess, len(access.Workloads))
+	for i, w := range access.Workloads {
+		ret[i] = &model.RedisInstanceAccess{
+			Role: w.Role,
+			GQLVars: model.RedisInstanceAccessGQLVars{
+				TeamSlug:       obj.GQLVars.TeamSlug,
+				OwnerReference: w.OwnerReference,
+				Env:            obj.Env,
+			},
+		}
+	}
+	return ret, nil
 }
 
 // Team is the resolver for the team field.

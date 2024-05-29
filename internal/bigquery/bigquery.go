@@ -2,6 +2,7 @@ package bigquery
 
 import (
 	"fmt"
+
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/k8s"
@@ -31,7 +32,6 @@ func (c *Client) BigQueryDataset(env string, slug slug.Slug, name string) (*mode
 	}
 
 	return model.ToBigQueryDataset(obj.(*unstructured.Unstructured), env)
-
 }
 
 func NewClient(informers k8s.ClusterInformers, log logrus.FieldLogger) *Client {

@@ -1279,6 +1279,7 @@ type ReconcilerResolver interface {
 	AuditLogs(ctx context.Context, obj *model.Reconciler, offset *int, limit *int) (*model.AuditLogList, error)
 }
 type RedisResolver interface {
+	Access(ctx context.Context, obj *model.Redis) ([]*model.RedisInstanceAccess, error)
 	Team(ctx context.Context, obj *model.Redis) (*model.Team, error)
 
 	Workload(ctx context.Context, obj *model.Redis) (model.Workload, error)
@@ -32357,7 +32358,7 @@ func (ec *executionContext) _Redis_access(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Access, nil
+		return ec.resolvers.Redis().Access(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -32369,17 +32370,17 @@ func (ec *executionContext) _Redis_access(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]model.RedisInstanceAccess)
+	res := resTmp.([]*model.RedisInstanceAccess)
 	fc.Result = res
-	return ec.marshalNRedisInstanceAccess2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisInstanceAccessᚄ(ctx, field.Selections, res)
+	return ec.marshalNRedisInstanceAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisInstanceAccessᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Redis_access(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Redis",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "workload":
@@ -54552,10 +54553,41 @@ func (ec *executionContext) _Redis(ctx context.Context, sel ast.SelectionSet, ob
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "access":
-			out.Values[i] = ec._Redis_access(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Redis_access(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "team":
 			field := field
 
@@ -62459,11 +62491,7 @@ func (ec *executionContext) marshalNRedis2ᚖgithubᚗcomᚋnaisᚋapiᚋinterna
 	return ec._Redis(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNRedisInstanceAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisInstanceAccess(ctx context.Context, sel ast.SelectionSet, v model.RedisInstanceAccess) graphql.Marshaler {
-	return ec._RedisInstanceAccess(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNRedisInstanceAccess2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisInstanceAccessᚄ(ctx context.Context, sel ast.SelectionSet, v []model.RedisInstanceAccess) graphql.Marshaler {
+func (ec *executionContext) marshalNRedisInstanceAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisInstanceAccessᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.RedisInstanceAccess) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -62487,7 +62515,7 @@ func (ec *executionContext) marshalNRedisInstanceAccess2ᚕgithubᚗcomᚋnais�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNRedisInstanceAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisInstanceAccess(ctx, sel, v[i])
+			ret[i] = ec.marshalNRedisInstanceAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisInstanceAccess(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -62505,6 +62533,16 @@ func (ec *executionContext) marshalNRedisInstanceAccess2ᚕgithubᚗcomᚋnais�
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNRedisInstanceAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisInstanceAccess(ctx context.Context, sel ast.SelectionSet, v *model.RedisInstanceAccess) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RedisInstanceAccess(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNRedisList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisList(ctx context.Context, sel ast.SelectionSet, v model.RedisList) graphql.Marshaler {

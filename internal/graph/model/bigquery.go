@@ -65,7 +65,6 @@ func ToBigQueryDataset(u *unstructured.Unstructured, env string) (*BigQueryDatas
 			Name: env,
 		},
 		Status: BigQueryDatasetStatus{
-			
 			Conditions: func(conditions []v1.Condition) []*Condition {
 				ret := make([]*Condition, len(conditions))
 				for i, c := range conditions {

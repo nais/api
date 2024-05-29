@@ -56,8 +56,7 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 			return nil, fmt.Errorf("getting redis: %w", err)
 		}
 		for _, redis := range redises {
-			// TODO: The access is sent down empty so it will be empty at inopportune moments
-			r, err := model.ToRedis(redis.(*unstructured.Unstructured), &model.Access{}, cluster)
+			r, err := model.ToRedis(redis.(*unstructured.Unstructured), cluster)
 			if err != nil {
 				return nil, fmt.Errorf("converting to redis: %w", err)
 			}
