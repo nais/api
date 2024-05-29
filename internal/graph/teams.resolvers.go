@@ -1322,15 +1322,15 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 	}
 	if orderBy != nil {
 		switch orderBy.Field {
-		case "NAME":
+		case model.OrderByFieldName:
 			model.SortWith(apps, func(a, b *model.App) bool {
 				return model.Compare(a.Name, b.Name, orderBy.Direction)
 			})
-		case "ENV":
+		case model.OrderByFieldEnv:
 			model.SortWith(apps, func(a, b *model.App) bool {
 				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
 			})
-		case "DEPLOYED":
+		case model.OrderByFieldDeployed:
 			model.SortWith(apps, func(a, b *model.App) bool {
 				if a.DeployInfo.Timestamp == nil {
 					return false
@@ -1340,7 +1340,7 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 				}
 				return model.Compare(b.DeployInfo.Timestamp.UnixMilli(), a.DeployInfo.Timestamp.UnixMilli(), orderBy.Direction)
 			})
-		case "STATUS":
+		case model.OrderByFieldStatus:
 			model.SortWith(apps, func(a, b *model.App) bool {
 				sortOrder := []model.State{model.StateFailing, model.StateNotnais, model.StateUnknown, model.StateNais}
 				aIndex := -1
@@ -1427,15 +1427,15 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 
 	if orderBy != nil {
 		switch orderBy.Field {
-		case "NAME":
+		case model.OrderByFieldName:
 			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
 				return model.Compare(a.Name, b.Name, orderBy.Direction)
 			})
-		case "ENV":
+		case model.OrderByFieldEnv:
 			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
 				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
 			})
-		case "DEPLOYED":
+		case model.OrderByFieldDeployed:
 			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
 				if a.DeployInfo.Timestamp == nil {
 					return false
@@ -1445,7 +1445,7 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 				}
 				return model.Compare(b.DeployInfo.Timestamp.UnixMilli(), a.DeployInfo.Timestamp.UnixMilli(), orderBy.Direction)
 			})
-		case "STATUS":
+		case model.OrderByFieldStatus:
 			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
 				sortOrder := []model.State{model.StateFailing, model.StateNotnais, model.StateUnknown, model.StateNais}
 				aIndex := -1
