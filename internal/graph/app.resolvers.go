@@ -40,7 +40,20 @@ func (r *appResolver) Image(ctx context.Context, obj *model.App) (*model.Image, 
 	if !found {
 		return nil, fmt.Errorf("could not extract project ID from image name")
 	}
-	return r.dependencyTrackClient.GetMetadataForImage(ctx, name, version)
+	image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, name, version)
+	if err != nil {
+		return nil, fmt.Errorf("getting image metadata from Dependency-Track: %w", err)
+	}
+
+	for _, ref := range image.WorkloadReferences {
+		a, err := r.k8sClient.App(ctx, ref.Name, ref.Team, ref.Environment)
+		if err != nil {
+			return nil, fmt.Errorf("getting app from Kubernetes: %w", err)
+		}
+		ref.DeployInfo = a.DeployInfo
+	}
+
+	return image, nil
 }
 
 // Manifest is the resolver for the manifest field.
