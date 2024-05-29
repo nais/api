@@ -19,29 +19,13 @@ func (c *Client) OpenSearch(teamSlug slug.Slug) ([]*model.OpenSearch, error) {
 			continue
 		}
 
-		apps, err := infs.App.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
-		if err != nil {
-			c.log.WithError(err).Errorf("listing team apps")
-		}
-		naisJobs, err := infs.Naisjob.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
-		if err != nil {
-			c.log.WithError(err).Errorf("listing team jobs")
-		}
-
 		objs, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
 		if err != nil {
 			return nil, fmt.Errorf("listing OpenSearches: %w", err)
 		}
 
 		for _, obj := range objs {
-			o := obj.(*unstructured.Unstructured)
-
-			access, err := getAccess(apps, naisJobs, o.GetName())
-			if err != nil {
-				return nil, fmt.Errorf("getting access for openSearch instance: %w", err)
-			}
-
-			openSearch, err := model.ToOpenSearch(obj.(*unstructured.Unstructured), access, env)
+			openSearch, err := model.ToOpenSearch(obj.(*unstructured.Unstructured), env)
 			if err != nil {
 				return nil, fmt.Errorf("converting to OpenSearch: %w", err)
 			}

@@ -43,6 +43,32 @@ func (r *kafkaTopicResolver) Workload(ctx context.Context, obj *model.KafkaTopic
 	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
 }
 
+// Access is the resolver for the access field.
+func (r *openSearchResolver) Access(ctx context.Context, obj *model.OpenSearch) ([]*model.OpenSearchInstanceAccess, error) {
+	infs, exists := r.k8sClient.Informers()[obj.Env.Name]
+	if !exists {
+		return nil, apierror.Errorf("Unknown env: %q", obj.Env.Name)
+	}
+
+	access, err := getOpenSearchAccess(infs.App, infs.Naisjob, obj.Name, obj.GQLVars.TeamSlug)
+	if err != nil {
+		return nil, apierror.Errorf("Unable to get OpenSearch instance access")
+	}
+
+	ret := make([]*model.OpenSearchInstanceAccess, len(access.Workloads))
+	for i, w := range access.Workloads {
+		ret[i] = &model.OpenSearchInstanceAccess{
+			Role: w.Role,
+			GQLVars: model.OpenSearchInstanceAccessGQLVars{
+				TeamSlug:       obj.GQLVars.TeamSlug,
+				OwnerReference: w.OwnerReference,
+				Env:            obj.Env,
+			},
+		}
+	}
+	return ret, nil
+}
+
 // Team is the resolver for the team field.
 func (r *openSearchResolver) Team(ctx context.Context, obj *model.OpenSearch) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)

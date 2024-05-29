@@ -6,20 +6,18 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
 	aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
 type OpenSearch struct {
-	// The opensearch instance name
-	Name    string                     `json:"name"`
-	Access  []OpenSearchInstanceAccess `json:"access"`
-	ID      scalar.Ident               `json:"id"`
-	Env     Env                        `json:"env"`
-	Cost    string                     `json:"cost"`
-	GQLVars OpenSearchGQLVars          `json:"-"`
-	Status  OpenSearchStatus           `json:"status"`
+	Name    string            `json:"name"`
+	ID      scalar.Ident      `json:"id"`
+	Env     Env               `json:"env"`
+	Cost    string            `json:"cost"`
+	Status  OpenSearchStatus  `json:"status"`
+	GQLVars OpenSearchGQLVars `json:"-"`
 }
 
 type OpenSearchInstanceAccess struct {
@@ -42,7 +40,7 @@ func (OpenSearch) IsPersistence()        {}
 func (o OpenSearch) GetName() string     { return o.Name }
 func (o OpenSearch) GetID() scalar.Ident { return o.ID }
 
-func ToOpenSearch(u *unstructured.Unstructured, access *Access, envName string) (*OpenSearch, error) {
+func ToOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, error) {
 	openSearch := &aiven_io_v1alpha1.OpenSearch{}
 
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, openSearch); err != nil {
@@ -58,20 +56,6 @@ func ToOpenSearch(u *unstructured.Unstructured, access *Access, envName string) 
 		ID:   scalar.OpenSearchIdent("opensearch_" + envName + "_" + teamSlug + "_" + openSearch.GetName()),
 		Name: openSearch.Name,
 		Env:  env,
-		Access: func(a *Access) []OpenSearchInstanceAccess {
-			ret := make([]OpenSearchInstanceAccess, 0)
-			for _, w := range a.Workloads {
-				ret = append(ret, OpenSearchInstanceAccess{
-					Role: w.Role,
-					GQLVars: OpenSearchInstanceAccessGQLVars{
-						TeamSlug:       slug.Slug(teamSlug),
-						OwnerReference: w.OwnerReference,
-						Env:            env,
-					},
-				})
-			}
-			return ret
-		}(access),
 		Status: OpenSearchStatus{
 			Conditions: func(conditions []v1.Condition) []*Condition {
 				ret := make([]*Condition, len(conditions))
