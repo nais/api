@@ -29,7 +29,7 @@ type Image {
   version: String!
   digest: String!
   rekorId: String!
-  summary: VulnerabilitySummary!
+  summary: ImageVulnerabilitySummary!
   hasSbom: Boolean!
   findings(
     "Returns the first n entries from the list."
@@ -42,6 +42,18 @@ type Image {
     orderBy: OrderBy
   ): FindingList!
   workloadReferences: [WorkloadReference!]!
+}
+
+type ImageVulnerabilitySummary {
+  id: ID!
+  total: Int!
+  riskScore: Int!
+  critical: Int!
+  high: Int!
+  medium: Int!
+  low: Int!
+  unassigned: Int!
+  bomCount: Int!
 }
 
 type WorkloadReference {

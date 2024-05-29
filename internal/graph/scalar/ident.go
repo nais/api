@@ -192,7 +192,7 @@ func AnalysisTrailIdent(projectID, componentID, vulnerabilityID string) Ident {
 	return newIdent(fmt.Sprintf("%s-%s-%s", projectID, componentID, vulnerabilityID), IdentTypeAnalysisTrail)
 }
 
-func VulnerabilitySummaryIdent(id string) Ident {
+func ImageVulnerabilitySummaryIdent(id string) Ident {
 	return newIdent(id, IdentTypeVulnerabilitySummary)
 }
 
