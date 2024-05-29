@@ -81,7 +81,10 @@ func (r *queryResolver) Naisjob(ctx context.Context, name string, team slug.Slug
 	if err != nil {
 		return nil, fmt.Errorf("getting metadata for image %q: %w", job.GQLVars.Spec.ImageName, err)
 	}
-	job.Image = *image
+
+	if image != nil {
+		job.Image = *image
+	}
 
 	return job, nil
 }
