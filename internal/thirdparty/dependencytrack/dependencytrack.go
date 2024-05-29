@@ -237,9 +237,10 @@ func (c *Client) retrieveFindings(ctx context.Context, uuid string, suppressed b
 }
 
 func (c *Client) createSummary(project *dependencytrack.Project, hasBom bool) *model.VulnerabilitySummary {
-	if !hasBom {
+	if !hasBom || project.Metrics == nil {
+		nullUuid := uuid.NullUUID{}
 		return &model.VulnerabilitySummary{
-			ID:         scalar.VulnerabilitySummaryIdent(project.Uuid),
+			ID:         scalar.VulnerabilitySummaryIdent(nullUuid.UUID.String()),
 			RiskScore:  -1,
 			Total:      -1,
 			Critical:   -1,
@@ -309,14 +310,24 @@ func (c *Client) retrieveProject(ctx context.Context, app *AppInstance) (*depend
 	return p, nil
 }
 
-func (c *Client) GetMetadataForImage(ctx context.Context, name, version string) (*model.Image, error) {
+func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.Image, error) {
+	name, version, found := strings.Cut(image, ":")
+	if !found {
+		return nil, fmt.Errorf("could not extract name version from image: %s", image)
+	}
 	p, err := c.client.GetProject(ctx, name, version)
 	if err != nil {
 		return nil, fmt.Errorf("getting project by name %s and version %s: %w", name, version, err)
 	}
 
 	if p == nil {
-		return nil, fmt.Errorf("project not found: %s:%s", name, version)
+		summary := c.createSummary(nil, false)
+		return &model.Image{
+			ID:      scalar.ImageIdent(image),
+			Name:    image,
+			Version: version,
+			Summary: *summary,
+		}, nil
 	}
 
 	var digest string
@@ -347,7 +358,7 @@ func (c *Client) GetMetadataForImage(ctx context.Context, name, version string) 
 
 	return &model.Image{
 		Name:      p.Name + ":" + p.Version,
-		ID:        scalar.ImageIdent(p.Name, p.Version),
+		ID:        scalar.ImageIdent(p.Name),
 		Digest:    digest,
 		RekorID:   rekor,
 		Version:   p.Version,
@@ -448,7 +459,7 @@ func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId s
 
 	return &model.Image{
 		Name:      p.Name + ":" + p.Version,
-		ID:        scalar.ImageIdent(p.Name, p.Version),
+		ID:        scalar.ImageIdent(p.Name),
 		Digest:    digest,
 		RekorID:   rekor,
 		Version:   p.Version,
@@ -519,7 +530,7 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 		summary := c.createSummary(project, hasBom(project))
 
 		image := &model.Image{
-			ID:                 scalar.ImageIdent(project.Name, project.Version),
+			ID:                 scalar.ImageIdent(project.Name),
 			ProjectID:          project.Uuid,
 			Name:               project.Name,
 			Summary:            *summary,

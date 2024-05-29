@@ -10,7 +10,7 @@ import (
 type WorkloadBase struct {
 	ID           scalar.Ident        `json:"id"`
 	Name         string              `json:"name"`
-	Image        string              `json:"image"`
+	Image        Image               `json:"image"`
 	DeployInfo   DeployInfo          `json:"deployInfo"`
 	Env          Env                 `json:"env"`
 	AccessPolicy AccessPolicy        `json:"accessPolicy"`
@@ -31,6 +31,7 @@ type WorkloadSpec struct {
 	Kafka      *nais_io_v1.Kafka
 	OpenSearch *nais_io_v1.OpenSearch
 	Redis      []nais_io_v1.Redis
+	ImageName  string
 }
 
 type WorkloadBaseGQLVars struct {

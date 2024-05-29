@@ -20,6 +20,16 @@ func (r *findingResolver) AnalysisTrail(ctx context.Context, obj *model.Finding)
 
 // Findings is the resolver for the findings field.
 func (r *imageResolver) Findings(ctx context.Context, obj *model.Image, offset *int, limit *int, orderBy *model.OrderBy) (*model.FindingList, error) {
+	if obj.ProjectID == "" {
+		return &model.FindingList{
+			Nodes: []*model.Finding{},
+			PageInfo: model.PageInfo{
+				HasNextPage:     false,
+				HasPreviousPage: false,
+				TotalCount:      0,
+			},
+		}, nil
+	}
 	findings, err := r.dependencyTrackClient.GetFindingsForImageByProjectID(ctx, obj.ProjectID, true)
 	if err != nil {
 		return nil, err
@@ -137,13 +147,3 @@ type (
 	findingResolver struct{ *Resolver }
 	imageResolver   struct{ *Resolver }
 )
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *imageResolver) ID(ctx context.Context, obj *model.Image) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
-}

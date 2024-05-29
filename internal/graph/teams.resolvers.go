@@ -1299,6 +1299,17 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 	if err != nil {
 		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
 	}
+
+	for _, app := range apps {
+		if app.GQLVars.Spec.ImageName == "" {
+			fmt.Println("app.GQLVars.Spec.ImageName is empty")
+		}
+		image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, app.GQLVars.Spec.ImageName)
+		if err != nil {
+			return nil, fmt.Errorf("getting metadata for image %q: %w", app.GQLVars.Spec.ImageName, err)
+		}
+		app.Image = *image
+	}
 	if orderBy != nil {
 		switch orderBy.Field {
 		case "NAME":
@@ -1343,6 +1354,15 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 				}
 				return aIndex > bIndex
 			})
+		case model.OrderByFieldSeverityCritical:
+			model.SortWith(apps, func(a, b *model.App) bool {
+				return model.Compare(a.Image.Summary.Critical, b.Image.Summary.Critical, orderBy.Direction)
+			})
+		case model.OrderByFieldRiskScore:
+			model.SortWith(apps, func(a, b *model.App) bool {
+				return model.Compare(a.Image.Summary.RiskScore, b.Image.Summary.RiskScore, orderBy.Direction)
+			})
+
 		}
 	}
 	pagination := model.NewPagination(offset, limit)
@@ -1386,6 +1406,13 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 	naisjobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
+	}
+	for _, job := range naisjobs {
+		image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, job.GQLVars.Spec.ImageName)
+		if err != nil {
+			return nil, fmt.Errorf("getting metadata for image %q: %w", job.GQLVars.Spec.ImageName, err)
+		}
+		job.Image = *image
 	}
 
 	if orderBy != nil {
@@ -1517,7 +1544,7 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 		instances = append(instances, &dependencytrack.AppInstance{
 			Env:   app.Env.Name,
 			App:   app.Name,
-			Image: app.Image,
+			Image: app.GQLVars.Spec.ImageName,
 			Team:  obj.Slug.String(),
 		})
 	}
@@ -1557,7 +1584,7 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		instances = append(instances, &dependencytrack.AppInstance{
 			Env:   app.Env.Name,
 			App:   app.Name,
-			Image: app.Image,
+			Image: app.GQLVars.Spec.ImageName,
 			Team:  obj.Slug.String(),
 		})
 	}

@@ -53,7 +53,7 @@ type NaisJob {
   accessPolicy: AccessPolicy!
   deployInfo: DeployInfo!
   env: Env!
-  image: String!
+  image: Image!
   runs: [Run!]!
   manifest: String!
   name: String!

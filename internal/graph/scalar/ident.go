@@ -180,8 +180,8 @@ func FindingIdent(id string) Ident {
 	return newIdent(id, IdentTypeFinding)
 }
 
-func ImageIdent(name, version string) Ident {
-	return newIdent(fmt.Sprintf("%s-%s", name, version), IdentTypeImage)
+func ImageIdent(name string) Ident {
+	return newIdent(name, IdentTypeImage)
 }
 
 func WorkloadIdent(id string) Ident {

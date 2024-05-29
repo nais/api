@@ -7,7 +7,6 @@ package graph
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
@@ -34,28 +33,6 @@ func (r *appResolver) Persistence(ctx context.Context, obj *model.App) ([]model.
 	return r.k8sClient.Persistence(ctx, obj.WorkloadBase)
 }
 
-// Image is the resolver for the image field.
-func (r *appResolver) Image(ctx context.Context, obj *model.App) (*model.Image, error) {
-	name, version, found := strings.Cut(obj.Image, ":")
-	if !found {
-		return nil, fmt.Errorf("could not extract project ID from image name")
-	}
-	image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, name, version)
-	if err != nil {
-		return nil, fmt.Errorf("getting image metadata from Dependency-Track: %w", err)
-	}
-
-	for _, ref := range image.WorkloadReferences {
-		a, err := r.k8sClient.App(ctx, ref.Name, ref.Team, ref.Environment)
-		if err != nil {
-			return nil, fmt.Errorf("getting app from Kubernetes: %w", err)
-		}
-		ref.DeployInfo = a.DeployInfo
-	}
-
-	return image, nil
-}
-
 // Manifest is the resolver for the manifest field.
 func (r *appResolver) Manifest(ctx context.Context, obj *model.App) (string, error) {
 	app, err := r.k8sClient.Manifest(ctx, obj.Name, obj.GQLVars.Team.String(), obj.Env.Name)
@@ -72,7 +49,7 @@ func (r *appResolver) Team(ctx context.Context, obj *model.App) (*model.Team, er
 
 // Vulnerabilities is the resolver for the vulnerabilities field.
 func (r *appResolver) Vulnerabilities(ctx context.Context, obj *model.App) (*model.Vulnerability, error) {
-	return r.dependencyTrackClient.VulnerabilitySummary(ctx, &dependencytrack.AppInstance{Env: obj.Env.Name, Team: obj.GQLVars.Team.String(), App: obj.Name, Image: obj.Image})
+	return r.dependencyTrackClient.VulnerabilitySummary(ctx, &dependencytrack.AppInstance{Env: obj.Env.Name, Team: obj.GQLVars.Team.String(), App: obj.Name, Image: obj.GQLVars.Spec.ImageName})
 }
 
 // Secrets is the resolver for the secrets field.
@@ -128,6 +105,11 @@ func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, en
 	if err != nil {
 		return nil, apierror.ErrAppNotFound
 	}
+	image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, app.GQLVars.Spec.ImageName)
+	if err != nil {
+		return nil, fmt.Errorf("getting metadata for image %q: %w", app.GQLVars.Spec.ImageName, err)
+	}
+	app.Image = *image
 	return app, nil
 }
 
