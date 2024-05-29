@@ -1,7 +1,27 @@
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
+  annotations:
+    deploy.nais.io/client-version: 2023-12-19-bbbb39b
+    deploy.nais.io/github-actor: rfc3092
+    deploy.nais.io/github-sha: 36cf3b3dafbbb2f9e164e530248a4c6586989229
+    deploy.nais.io/github-workflow-run-url: https://github.com/navikt/testnorge-syntetiseringspakker/actions/runs/8783388344
+    kubernetes.io/change-cause: 'nais deploy: commit 36cf3b3dafbbb2f9e164e530248a4c6586989229:
+      https://github.com/navikt/testnorge-syntetiseringspakker/actions/runs/8783388344'
+    nais.io/deploymentCorrelationID: 1f7128f1-da26-49fa-bb68-738a0d77497c
+    nginx.ingress.kubernetes.io/proxy-connection-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+  creationTimestamp: "2021-09-29T13:02:13Z"
+  finalizers:
+  - naiserator.nais.io/finalizer
+  generation: 145
+  labels:
+    team: dolly
   name: synthdata-elsam-gcp
+  namespace: dolly
+  resourceVersion: "4660678694"
+  uid: 0f172f91-739d-4a46-b7f6-b2e3a841feca
 spec:
   accessPolicy:
     inbound:
@@ -46,3 +66,16 @@ spec:
     requests:
       cpu: 200m
       memory: 6Gi
+status:
+  conditions:
+  - lastTransitionTime: "2024-04-22T11:43:14Z"
+    message: Successfully deployed.
+    reason: RolloutComplete
+    status: "True"
+    type: SynchronizationState
+  correlationID: 1f7128f1-da26-49fa-bb68-738a0d77497c
+  deploymentRolloutStatus: complete
+  rolloutCompleteTime: 1713786719273497701
+  synchronizationHash: c6d48ecec44e66f3
+  synchronizationState: RolloutComplete
+  synchronizationTime: 1713786194121174297
