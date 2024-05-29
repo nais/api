@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"k8s.io/apimachinery/pkg/api/resource"
 	"net/http"
 	"strings"
 	"time"
@@ -39,7 +40,7 @@ func NewFakePrometheusClient() Prometheus {
 	return &FakePrometheusClient{}
 }
 
-func (f FakePrometheusClient) Query(ctx context.Context, query string, _ time.Time, _ ...promv1.Option) (model.Value, promv1.Warnings, error) {
+func (f FakePrometheusClient) Query(_ context.Context, query string, _ time.Time, _ ...promv1.Option) (model.Value, promv1.Warnings, error) {
 	val := model.Vector{
 		&model.Sample{
 			Metric: model.Metric{
@@ -69,7 +70,7 @@ func NewFakeBifrostClient(k8sClient dynamic.Interface) BifrostClient {
 
 func (f FakeBifrostClient) Post(ctx context.Context, path string, v any) (*http.Response, error) {
 	unleashConfig := v.(bifrost.UnleashConfig)
-	unleashInstance, err := f.CreateUnleash(ctx, unleashConfig)
+	unleashInstance, err := f.createUnleash(ctx, unleashConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +86,7 @@ func (f FakeBifrostClient) Post(ctx context.Context, path string, v any) (*http.
 func (f FakeBifrostClient) WithClient(_ *http.Client) {
 }
 
-func (m *FakeBifrostClient) CreateUnleash(ctx context.Context, unleashConfig bifrost.UnleashConfig) (*unleash_nais_io_v1.Unleash, error) {
+func (m *FakeBifrostClient) createUnleash(ctx context.Context, unleashConfig bifrost.UnleashConfig) (*unleash_nais_io_v1.Unleash, error) {
 	client := m.k8sClient
 
 	unleashSpec := unleashSpec(unleashConfig)
@@ -128,6 +129,12 @@ func unleashSpec(unleashConfig bifrost.UnleashConfig) *unleash_nais_io_v1.Unleas
 				Name:  "TEAMS_ALLOWED_TEAMS",
 				Value: unleashConfig.AllowedTeams,
 			}},
+			Resources: corev1.ResourceRequirements{
+				Requests: corev1.ResourceList{
+					corev1.ResourceCPU:    resource.MustParse("100m"),
+					corev1.ResourceMemory: resource.MustParse("128Mi"),
+				},
+			},
 		},
 		Status: unleash_nais_io_v1.UnleashStatus{
 			Reconciled: true,

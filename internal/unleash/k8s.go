@@ -13,7 +13,6 @@ import (
 
 const (
 	UnleashTeamsEnvVar = "TEAMS_ALLOWED_TEAMS"
-	// @TODO this should be moved to config
 )
 
 // @TODO decide how we want to specify which team can manage Unleash from Console
