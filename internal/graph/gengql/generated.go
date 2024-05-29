@@ -1006,6 +1006,7 @@ type ComplexityRoot struct {
 		GoogleGroupEmail       func(childComplexity int) int
 		ID                     func(childComplexity int) int
 		Images                 func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
+		KafkaTopic             func(childComplexity int, name string, env string) int
 		KafkaTopics            func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		LastSuccessfulSync     func(childComplexity int) int
 		Member                 func(childComplexity int, userID scalar.Ident) int
@@ -5655,6 +5656,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Team.Images(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy)), true
+
+	case "Team.kafkaTopic":
+		if e.complexity.Team.KafkaTopic == nil {
+			break
+		}
+
+		args, err := ec.field_Team_kafkaTopic_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Team.KafkaTopic(childComplexity, args["name"].(string), args["env"].(string)), true
 
 	case "Team.kafkaTopics":
 		if e.complexity.Team.KafkaTopics == nil {
@@ -10765,6 +10778,30 @@ func (ec *executionContext) field_Team_images_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["orderBy"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Team_kafkaTopic_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["name"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["name"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["env"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("env"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["env"] = arg1
 	return args, nil
 }
 
