@@ -1084,7 +1084,6 @@ type ComplexityRoot struct {
 		GoogleArtifactRegistry func(childComplexity int) int
 		GoogleGroupEmail       func(childComplexity int) int
 		ID                     func(childComplexity int) int
-		Images                 func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		KafkaTopic             func(childComplexity int, name string, env string) int
 		KafkaTopics            func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		LastSuccessfulSync     func(childComplexity int) int
@@ -1451,7 +1450,6 @@ type TeamResolver interface {
 	DeployKey(ctx context.Context, obj *model.Team) (*model.DeploymentKey, error)
 	Naisjobs(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.NaisJobList, error)
 	Deployments(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.DeploymentList, error)
-	Images(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.ImageDetailsList, error)
 	Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy, filter *model.VulnerabilityFilter) (*model.VulnerabilityList, error)
 	VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummaryForTeam, error)
 	VulnerabilityMetrics(ctx context.Context, obj *model.Team, from scalar.Date, to scalar.Date, environment *string) (*model.VulnerabilityMetrics, error)
@@ -6091,18 +6089,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.ID(childComplexity), true
 
-	case "Team.images":
-		if e.complexity.Team.Images == nil {
-			break
-		}
-
-		args, err := ec.field_Team_images_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Team.Images(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy)), true
-
 	case "Team.kafkaTopic":
 		if e.complexity.Team.KafkaTopic == nil {
 			break
@@ -8832,16 +8818,10 @@ type Role {
   ): TeamList! @auth
 
   "Get a specific team."
-  team(
-    "Slug of the team."
-    slug: Slug!
-  ): Team! @auth
+  team("Slug of the team." slug: Slug!): Team! @auth
 
   "Get a team delete key."
-  teamDeleteKey(
-    "The key to get."
-    key: String!
-  ): TeamDeleteKey! @auth
+  teamDeleteKey("The key to get." key: String!): TeamDeleteKey! @auth
 }
 
 extend type Mutation {
@@ -9094,10 +9074,7 @@ type Team {
   ): TeamMemberList!
 
   "Single team member"
-  member(
-    "The ID of the user."
-    userId: ID!
-  ): TeamMember!
+  member("The ID of the user." userId: ID!): TeamMember!
 
   "Possible issues related to synchronization of the team to configured external systems. If there are no entries the team can be considered fully synchronized."
   syncErrors: [SyncError!]!
@@ -9288,18 +9265,6 @@ type Team {
     limit: Int
   ): DeploymentList!
 
-  "The images for the team's applications."
-  images(
-    "Returns the first n entries from the list."
-    offset: Int
-
-    "Limit the number of entries returned."
-    limit: Int
-
-    "Order images by"
-    orderBy: OrderBy
-  ): ImageDetailsList!
-
   "The vulnerabilities for the team's applications."
   vulnerabilities(
     "Returns the first n entries from the list."
@@ -9338,7 +9303,7 @@ type Team {
   "The environments available for the team."
   environments: [Env!]!
 
-  unleash: Unleash
+  unleash: Unleash!
 }
 
 type SqlInstancesStatus {
@@ -11395,39 +11360,6 @@ func (ec *executionContext) field_Team_githubRepositories_args(ctx context.Conte
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_images_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *int
-	if tmp, ok := rawArgs["offset"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["offset"] = arg0
-	var arg1 *int
-	if tmp, ok := rawArgs["limit"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["limit"] = arg1
-	var arg2 *model.OrderBy
-	if tmp, ok := rawArgs["orderBy"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
-		arg2, err = ec.unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderBy(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["orderBy"] = arg2
-	return args, nil
-}
-
 func (ec *executionContext) field_Team_kafkaTopic_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -13232,8 +13164,6 @@ func (ec *executionContext) fieldContext_App_team(ctx context.Context, field gra
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -15566,8 +15496,6 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(ctx context.Contex
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -16549,8 +16477,6 @@ func (ec *executionContext) fieldContext_Bucket_team(ctx context.Context, field 
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -18729,8 +18655,6 @@ func (ec *executionContext) fieldContext_Deployment_team(ctx context.Context, fi
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -25367,8 +25291,6 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(ctx context.Context, fi
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -28336,8 +28258,6 @@ func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -28497,8 +28417,6 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -28658,8 +28576,6 @@ func (ec *executionContext) fieldContext_Mutation_removeUsersFromTeam(ctx contex
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -28819,8 +28735,6 @@ func (ec *executionContext) fieldContext_Mutation_removeUserFromTeam(ctx context
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -29127,8 +29041,6 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMembers(ctx context.Con
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -29288,8 +29200,6 @@ func (ec *executionContext) fieldContext_Mutation_addTeamOwners(ctx context.Cont
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -29449,8 +29359,6 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -29610,8 +29518,6 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -30879,8 +30785,6 @@ func (ec *executionContext) fieldContext_NaisJob_team(ctx context.Context, field
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -31835,8 +31739,6 @@ func (ec *executionContext) fieldContext_OpenSearch_team(ctx context.Context, fi
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -34204,8 +34106,6 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -35767,8 +35667,6 @@ func (ec *executionContext) fieldContext_Redis_team(ctx context.Context, field g
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -38435,8 +38333,6 @@ func (ec *executionContext) fieldContext_Role_targetTeam(ctx context.Context, fi
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -39459,8 +39355,6 @@ func (ec *executionContext) fieldContext_Secret_team(ctx context.Context, field 
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -41356,8 +41250,6 @@ func (ec *executionContext) fieldContext_SqlInstance_team(ctx context.Context, f
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -45153,67 +45045,6 @@ func (ec *executionContext) fieldContext_Team_deployments(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_images(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_images(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().Images(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["orderBy"].(*model.OrderBy))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.ImageDetailsList)
-	fc.Result = res
-	return ec.marshalNImageDetailsList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐImageDetailsList(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Team_images(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Team",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "nodes":
-				return ec.fieldContext_ImageDetailsList_nodes(ctx, field)
-			case "pageInfo":
-				return ec.fieldContext_ImageDetailsList_pageInfo(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ImageDetailsList", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_images_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Team_vulnerabilities(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_vulnerabilities(ctx, field)
 	if err != nil {
@@ -45656,11 +45487,14 @@ func (ec *executionContext) _Team_unleash(ctx context.Context, field graphql.Col
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.Unleash)
 	fc.Result = res
-	return ec.marshalOUnleash2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleash(ctx, field.Selections, res)
+	return ec.marshalNUnleash2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleash(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Team_unleash(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -45989,8 +45823,6 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(ctx context.Context,
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -46119,8 +45951,6 @@ func (ec *executionContext) fieldContext_TeamList_nodes(ctx context.Context, fie
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -46301,8 +46131,6 @@ func (ec *executionContext) fieldContext_TeamMember_team(ctx context.Context, fi
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "images":
-				return ec.fieldContext_Team_images(ctx, field)
 			case "vulnerabilities":
 				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
@@ -62720,42 +62548,6 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "images":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Team_images(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "vulnerabilities":
 			field := field
 
@@ -62982,6 +62774,9 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Team_unleash(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -66888,20 +66683,6 @@ func (ec *executionContext) marshalNImageDetails2ᚖgithubᚗcomᚋnaisᚋapiᚋ
 	return ec._ImageDetails(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNImageDetailsList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐImageDetailsList(ctx context.Context, sel ast.SelectionSet, v model.ImageDetailsList) graphql.Marshaler {
-	return ec._ImageDetailsList(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNImageDetailsList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐImageDetailsList(ctx context.Context, sel ast.SelectionSet, v *model.ImageDetailsList) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._ImageDetailsList(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalNInbound2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐInbound(ctx context.Context, sel ast.SelectionSet, v model.Inbound) graphql.Marshaler {
 	return ec._Inbound(ctx, sel, &v)
 }
@@ -70127,13 +69908,6 @@ func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel
 	}
 	res := graphql.MarshalTime(*v)
 	return res
-}
-
-func (ec *executionContext) marshalOUnleash2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleash(ctx context.Context, sel ast.SelectionSet, v *model.Unleash) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Unleash(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {

@@ -10,6 +10,7 @@ type Client struct {
 	informers k8s.ClusterInformers
 	db        redisClientDatabase
 	log       logrus.FieldLogger
+	metrics   Metrics
 }
 
 type redisClientDatabase interface {
