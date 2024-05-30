@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/nais/api/internal/graph/scalar"
 	"k8s.io/utils/ptr"
@@ -48,12 +49,16 @@ func ToSqlDatabase(u *unstructured.Unstructured, sqlInstanceName, env string) (*
 		Conditions: func() []*Condition {
 			ret := make([]*Condition, 0)
 			for _, condition := range sqlDatabase.Status.Conditions {
+				t, err := time.Parse(time.RFC3339, condition.LastTransitionTime)
+				if err != nil {
+					t = time.Unix(0, 0)
+				}
 				ret = append(ret, &Condition{
 					Type:               condition.Type,
 					Status:             string(condition.Status),
 					Reason:             condition.Reason,
 					Message:            condition.Message,
-					LastTransitionTime: condition.LastTransitionTime,
+					LastTransitionTime: t,
 				})
 			}
 			return ret

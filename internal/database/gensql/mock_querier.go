@@ -461,26 +461,26 @@ func (_c *MockQuerier_ConfirmTeamDeleteKey_Call) RunAndReturn(run func(context.C
 	return _c
 }
 
-// CostForSqlInstance provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) CostForSqlInstance(ctx context.Context, arg CostForSqlInstanceParams) (float32, error) {
+// CostForInstance provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) CostForInstance(ctx context.Context, arg CostForInstanceParams) (float32, error) {
 	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
-		panic("no return value specified for CostForSqlInstance")
+		panic("no return value specified for CostForInstance")
 	}
 
 	var r0 float32
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, CostForSqlInstanceParams) (float32, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, CostForInstanceParams) (float32, error)); ok {
 		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, CostForSqlInstanceParams) float32); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, CostForInstanceParams) float32); ok {
 		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Get(0).(float32)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, CostForSqlInstanceParams) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, CostForInstanceParams) error); ok {
 		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
@@ -489,31 +489,31 @@ func (_m *MockQuerier) CostForSqlInstance(ctx context.Context, arg CostForSqlIns
 	return r0, r1
 }
 
-// MockQuerier_CostForSqlInstance_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CostForSqlInstance'
-type MockQuerier_CostForSqlInstance_Call struct {
+// MockQuerier_CostForInstance_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CostForInstance'
+type MockQuerier_CostForInstance_Call struct {
 	*mock.Call
 }
 
-// CostForSqlInstance is a helper method to define mock.On call
+// CostForInstance is a helper method to define mock.On call
 //   - ctx context.Context
-//   - arg CostForSqlInstanceParams
-func (_e *MockQuerier_Expecter) CostForSqlInstance(ctx interface{}, arg interface{}) *MockQuerier_CostForSqlInstance_Call {
-	return &MockQuerier_CostForSqlInstance_Call{Call: _e.mock.On("CostForSqlInstance", ctx, arg)}
+//   - arg CostForInstanceParams
+func (_e *MockQuerier_Expecter) CostForInstance(ctx interface{}, arg interface{}) *MockQuerier_CostForInstance_Call {
+	return &MockQuerier_CostForInstance_Call{Call: _e.mock.On("CostForInstance", ctx, arg)}
 }
 
-func (_c *MockQuerier_CostForSqlInstance_Call) Run(run func(ctx context.Context, arg CostForSqlInstanceParams)) *MockQuerier_CostForSqlInstance_Call {
+func (_c *MockQuerier_CostForInstance_Call) Run(run func(ctx context.Context, arg CostForInstanceParams)) *MockQuerier_CostForInstance_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(CostForSqlInstanceParams))
+		run(args[0].(context.Context), args[1].(CostForInstanceParams))
 	})
 	return _c
 }
 
-func (_c *MockQuerier_CostForSqlInstance_Call) Return(_a0 float32, _a1 error) *MockQuerier_CostForSqlInstance_Call {
+func (_c *MockQuerier_CostForInstance_Call) Return(_a0 float32, _a1 error) *MockQuerier_CostForInstance_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockQuerier_CostForSqlInstance_Call) RunAndReturn(run func(context.Context, CostForSqlInstanceParams) (float32, error)) *MockQuerier_CostForSqlInstance_Call {
+func (_c *MockQuerier_CostForInstance_Call) RunAndReturn(run func(context.Context, CostForInstanceParams) (float32, error)) *MockQuerier_CostForInstance_Call {
 	_c.Call.Return(run)
 	return _c
 }

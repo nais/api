@@ -1,0 +1,36 @@
+apiVersion: google.nais.io/v1
+kind: BigQueryDataset
+metadata:
+  creationTimestamp: "2023-03-10T07:01:50Z"
+  finalizers:
+  - bqrator.nais.io/finalizer
+  generation: 1
+  labels:
+    app: app-w-all-storage
+    team: devteam
+  name: devteam-blobstorage
+  namespace: devteam
+  ownerReferences:
+  - apiVersion: nais.io/v1alpha1
+    kind: Application
+    name: app-w-all-storage
+    uid: 96158447-9ef4-4b46-a8f5-ee28fe4119e8
+  resourceVersion: "2439099958"
+  uid: 48223a3d-d822-474c-81b0-1a68efab322e
+spec:
+  access:
+  - role: WRITER
+    userByEmail: devteam--devteam-xwdklji@nais-dev-xyza.iam.gserviceaccount.com
+  location: europe-north1
+  name: devteam_metrikker
+  project: devteam-dev-1234
+status:
+  conditions:
+  - lastTransitionTime: "2023-03-10T07:01:50Z"
+    message: The resource is up to date
+    reason: UpToDate
+    status: "True"
+    type: Ready
+  creationTime: 1678431710
+  lastModifiedTime: 1678431711
+  synchronizationHash: d8bc6666b699e617

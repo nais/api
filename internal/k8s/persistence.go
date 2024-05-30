@@ -13,7 +13,6 @@ import (
 func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) ([]model.Persistence, error) {
 	cluster := workload.Env.Name
 	teamSlug := workload.GQLVars.Team
-	spec := workload.GQLVars.Spec
 	ret := make([]model.Persistence, 0)
 
 	req, err := labels.NewRequirement("app", selection.Equals, []string{workload.Name})
@@ -60,14 +59,6 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 			r, err := model.ToRedis(redis.(*unstructured.Unstructured), cluster)
 			if err != nil {
 				return nil, fmt.Errorf("converting to redis: %w", err)
-			}
-
-			// TODO: maybe make this an informer 🙃
-			for _, specRedis := range spec.Redis {
-				if specRedis.Instance != r.Name {
-					continue
-				}
-				r.Access = specRedis.Access
 			}
 			ret = append(ret, r)
 		}

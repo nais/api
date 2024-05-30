@@ -48,24 +48,27 @@ type FailedRunError implements StateError {
   runName: String!
 }
 
-type NaisJob {
+type NaisJob implements Workload {
   id: ID!
-  accessPolicy: AccessPolicy!
+  name: String!
+  image: String!
   deployInfo: DeployInfo!
   env: Env!
-  image: String!
+  accessPolicy: AccessPolicy!
+  status: WorkloadStatus!
+  authz: [Authz!]!
+  variables: [Variable!]!
+  resources: Resources!
+  type: WorkloadType!
+
   runs: [Run!]!
   manifest: String!
-  name: String!
-  resources: Resources!
   schedule: String!
   team: Team!
   persistence: [Persistence!]!
-  authz: [Authz!]!
   completions: Int!
   parallelism: Int!
   retries: Int!
-  status: WorkloadStatus!
   secrets: [Secret!]!
 }
 
