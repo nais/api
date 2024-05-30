@@ -105,11 +105,6 @@ type FindingList {
   pageInfo: PageInfo!
 }
 
-extend type Query {
-  "Get image by dependency track project id."
-  dependencyTrackProject(projectId: String!): Image!
-}
-
 type AnalysisTrail {
   id: ID!
   state: String!
