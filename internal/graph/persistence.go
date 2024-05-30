@@ -29,7 +29,7 @@ func getRedisAccess(appInformer, jobInformer informers.GenericInformer, redisIns
 		}
 
 		for _, r := range app.Spec.Redis {
-			if r.Instance == redisInstance {
+			if "redis-"+string(teamSlug)+"-"+r.Instance == redisInstance {
 				access.Workloads = append(access.Workloads, model.AccessEntry{
 					OwnerReference: &v1.OwnerReference{
 						APIVersion: app.APIVersion,
@@ -55,7 +55,7 @@ func getRedisAccess(appInformer, jobInformer informers.GenericInformer, redisIns
 		}
 
 		for _, r := range job.Spec.Redis {
-			if r.Instance == redisInstance {
+			if "redis-"+string(teamSlug)+"-"+r.Instance == redisInstance {
 				access.Workloads = append(access.Workloads, model.AccessEntry{
 					OwnerReference: &v1.OwnerReference{
 						APIVersion: job.APIVersion,
@@ -86,7 +86,8 @@ func getOpenSearchAccess(appInformer, jobInformer informers.GenericInformer, ope
 			return nil, fmt.Errorf("converting to application: %w", err)
 		}
 
-		if app.Spec.OpenSearch != nil && app.Spec.OpenSearch.Instance == openSearchInstance {
+		if app.Spec.OpenSearch != nil &&
+			"opensearch-"+string(teamSlug)+"-"+app.Spec.OpenSearch.Instance == openSearchInstance {
 			access.Workloads = append(access.Workloads, model.AccessEntry{
 				OwnerReference: &v1.OwnerReference{
 					APIVersion: app.APIVersion,
@@ -110,7 +111,8 @@ func getOpenSearchAccess(appInformer, jobInformer informers.GenericInformer, ope
 			return nil, fmt.Errorf("converting to job: %w", err)
 		}
 
-		if job.Spec.OpenSearch != nil && job.Spec.OpenSearch.Instance == openSearchInstance {
+		if job.Spec.OpenSearch != nil &&
+			"opensearch-"+string(teamSlug)+"-"+job.Spec.OpenSearch.Instance == openSearchInstance {
 			access.Workloads = append(access.Workloads, model.AccessEntry{
 				OwnerReference: &v1.OwnerReference{
 					APIVersion: job.APIVersion,

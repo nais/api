@@ -20,7 +20,7 @@ metadata:
   labels:
     team: devteam
     app: app-w-all-storage
-  name: opensearch-1
+  name: opensearch-devteam-opensearch-1
   namespace: devteam
 spec:
   cloudName: google-europe-north1
