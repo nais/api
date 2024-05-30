@@ -44,7 +44,7 @@ spec:
       memory: 128Mi
   skipCaBundle: true
   redis:
-    - instance: redis-devteam-contests
+    - instance: contests
       access: readwrite
 status:
   conditions:

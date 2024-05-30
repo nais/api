@@ -28,7 +28,7 @@ spec:
   kafka:
     pool: team-a
   redis:
-    - instance: redis-devteam-contests
+    - instance: contests
       access: admin
   openSearch:
     instance: opensearch-1
