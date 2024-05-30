@@ -564,7 +564,7 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 }
 
 func (c *Client) SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.AnalysisTrail, error) {
-	comment = "Suppressed on-behalf-of:" + suppressedBy + "|" + comment
+	comment = fmt.Sprintf("on-behalf-of:%s|suppressed:%t|state:%s|comment:%s", suppressedBy, suppress, analysisState, comment)
 	analysisRequest := &dependencytrack.AnalysisRequest{
 		Vulnerability:         vulnerabilityID,
 		Component:             componentID,
@@ -601,13 +601,15 @@ func (c *Client) SuppressFinding(ctx context.Context, analysisState, comment, co
 }
 
 func parseComments(trail *dependencytrack.Analysis) []*model.Comment {
+
 	comments := make([]*model.Comment, 0)
 	for _, comment := range trail.AnalysisComments {
 		timestamp := time.Unix(int64(comment.Timestamp)/1000, 0).Local()
-		tmp, found := strings.CutPrefix(comment.Comment, "Suppressed on-behalf-of:")
+		//"on-behalf-of:%s|suppressed:%t|state:%s|comment:%s"
+		after, found := strings.CutPrefix(comment.Comment, "on-behalf-of:")
 
 		if found {
-			onBehalfOf, theComment, _ := strings.Cut(tmp, "|")
+			onBehalfOf, theComment, _ := strings.Cut(after, "|")
 			comment := &model.Comment{
 				Comment:    theComment,
 				Timestamp:  timestamp,
