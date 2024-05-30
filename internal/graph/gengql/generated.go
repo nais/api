@@ -8008,7 +8008,7 @@ input VariableInput {
   ): SearchList!
 }
 
-union SearchNode = App | Team | NaisJob | SqlInstance
+union SearchNode = App | Team | NaisJob | SqlInstance | Redis | OpenSearch | KafkaTopic | Secret | Bucket | BigQueryDataset
 
 input SearchFilter {
   type: SearchType
@@ -8024,6 +8024,12 @@ enum SearchType {
   TEAM
   NAISJOB
   SQLINSTANCE
+  REDIS
+  OPENSEARCH
+  KAFKATOPIC
+  SECRET
+  BUCKET
+  BIGQUERY
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/secrets.graphqls", Input: `extend type Mutation {
@@ -48388,6 +48394,41 @@ func (ec *executionContext) _SearchNode(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._SqlInstance(ctx, sel, obj)
+	case model.Redis:
+		return ec._Redis(ctx, sel, &obj)
+	case *model.Redis:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Redis(ctx, sel, obj)
+	case model.OpenSearch:
+		return ec._OpenSearch(ctx, sel, &obj)
+	case *model.OpenSearch:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._OpenSearch(ctx, sel, obj)
+	case model.KafkaTopic:
+		return ec._KafkaTopic(ctx, sel, &obj)
+	case *model.KafkaTopic:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._KafkaTopic(ctx, sel, obj)
+	case model.Bucket:
+		return ec._Bucket(ctx, sel, &obj)
+	case *model.Bucket:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Bucket(ctx, sel, obj)
+	case model.BigQueryDataset:
+		return ec._BigQueryDataset(ctx, sel, &obj)
+	case *model.BigQueryDataset:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._BigQueryDataset(ctx, sel, obj)
 	case model.Team:
 		return ec._Team(ctx, sel, &obj)
 	case *model.Team:
@@ -48395,6 +48436,13 @@ func (ec *executionContext) _SearchNode(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._Team(ctx, sel, obj)
+	case model.Secret:
+		return ec._Secret(ctx, sel, &obj)
+	case *model.Secret:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Secret(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -49386,7 +49434,7 @@ func (ec *executionContext) _BackupConfiguration(ctx context.Context, sel ast.Se
 	return out
 }
 
-var bigQueryDatasetImplementors = []string{"BigQueryDataset", "Persistence"}
+var bigQueryDatasetImplementors = []string{"BigQueryDataset", "Persistence", "SearchNode"}
 
 func (ec *executionContext) _BigQueryDataset(ctx context.Context, sel ast.SelectionSet, obj *model.BigQueryDataset) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, bigQueryDatasetImplementors)
@@ -49658,7 +49706,7 @@ func (ec *executionContext) _BigQueryDatasetStatus(ctx context.Context, sel ast.
 	return out
 }
 
-var bucketImplementors = []string{"Bucket", "Persistence"}
+var bucketImplementors = []string{"Bucket", "Persistence", "SearchNode"}
 
 func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, obj *model.Bucket) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, bucketImplementors)
@@ -52030,7 +52078,7 @@ func (ec *executionContext) _JobsStatus(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
-var kafkaTopicImplementors = []string{"KafkaTopic", "Persistence"}
+var kafkaTopicImplementors = []string{"KafkaTopic", "Persistence", "SearchNode"}
 
 func (ec *executionContext) _KafkaTopic(ctx context.Context, sel ast.SelectionSet, obj *model.KafkaTopic) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaTopicImplementors)
@@ -53346,7 +53394,7 @@ func (ec *executionContext) _NoRunningInstancesError(ctx context.Context, sel as
 	return out
 }
 
-var openSearchImplementors = []string{"OpenSearch", "Persistence"}
+var openSearchImplementors = []string{"OpenSearch", "Persistence", "SearchNode"}
 
 func (ec *executionContext) _OpenSearch(ctx context.Context, sel ast.SelectionSet, obj *model.OpenSearch) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, openSearchImplementors)
@@ -54704,7 +54752,7 @@ func (ec *executionContext) _ReconcilerList(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var redisImplementors = []string{"Redis", "Persistence"}
+var redisImplementors = []string{"Redis", "Persistence", "SearchNode"}
 
 func (ec *executionContext) _Redis(ctx context.Context, sel ast.SelectionSet, obj *model.Redis) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, redisImplementors)
@@ -55769,7 +55817,7 @@ func (ec *executionContext) _SearchList(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
-var secretImplementors = []string{"Secret"}
+var secretImplementors = []string{"Secret", "SearchNode"}
 
 func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, obj *model.Secret) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretImplementors)

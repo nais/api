@@ -48,6 +48,7 @@ type Access struct {
 }
 
 func (Redis) IsPersistence()        {}
+func (Redis) IsSearchNode()         {}
 func (r Redis) GetName() string     { return r.Name }
 func (r Redis) GetID() scalar.Ident { return r.ID }
 

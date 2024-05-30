@@ -7,7 +7,7 @@ extend type Query {
   ): SearchList!
 }
 
-union SearchNode = App | Team | NaisJob | SqlInstance
+union SearchNode = App | Team | NaisJob | SqlInstance | Redis | OpenSearch | KafkaTopic | Secret | Bucket | BigQueryDataset
 
 input SearchFilter {
   type: SearchType
@@ -23,4 +23,10 @@ enum SearchType {
   TEAM
   NAISJOB
   SQLINSTANCE
+  REDIS
+  OPENSEARCH
+  KAFKATOPIC
+  SECRET
+  BUCKET
+  BIGQUERY
 }

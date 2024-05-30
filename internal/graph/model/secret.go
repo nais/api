@@ -7,6 +7,8 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
+func (Secret) IsSearchNode() {}
+
 type Secret struct {
 	ID             scalar.Ident      `json:"id"` // This is a graphql ID, cahcing, deduplication etc
 	Name           string            `json:"name"`

@@ -6,7 +6,7 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
 	aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -37,6 +37,7 @@ type OpenSearchInstanceAccessGQLVars struct {
 }
 
 func (OpenSearch) IsPersistence()        {}
+func (OpenSearch) IsSearchNode()         {}
 func (o OpenSearch) GetName() string     { return o.Name }
 func (o OpenSearch) GetID() scalar.Ident { return o.ID }
 

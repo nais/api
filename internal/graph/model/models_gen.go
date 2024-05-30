@@ -1277,6 +1277,12 @@ const (
 	SearchTypeTeam        SearchType = "TEAM"
 	SearchTypeNaisjob     SearchType = "NAISJOB"
 	SearchTypeSQLInstance SearchType = "SQLINSTANCE"
+	SearchTypeRedis       SearchType = "REDIS"
+	SearchTypeOpensearch  SearchType = "OPENSEARCH"
+	SearchTypeKafkatopic  SearchType = "KAFKATOPIC"
+	SearchTypeSecret      SearchType = "SECRET"
+	SearchTypeBucket      SearchType = "BUCKET"
+	SearchTypeBigquery    SearchType = "BIGQUERY"
 )
 
 var AllSearchType = []SearchType{
@@ -1284,11 +1290,17 @@ var AllSearchType = []SearchType{
 	SearchTypeTeam,
 	SearchTypeNaisjob,
 	SearchTypeSQLInstance,
+	SearchTypeRedis,
+	SearchTypeOpensearch,
+	SearchTypeKafkatopic,
+	SearchTypeSecret,
+	SearchTypeBucket,
+	SearchTypeBigquery,
 }
 
 func (e SearchType) IsValid() bool {
 	switch e {
-	case SearchTypeApp, SearchTypeTeam, SearchTypeNaisjob, SearchTypeSQLInstance:
+	case SearchTypeApp, SearchTypeTeam, SearchTypeNaisjob, SearchTypeSQLInstance, SearchTypeRedis, SearchTypeOpensearch, SearchTypeKafkatopic, SearchTypeSecret, SearchTypeBucket, SearchTypeBigquery:
 		return true
 	}
 	return false

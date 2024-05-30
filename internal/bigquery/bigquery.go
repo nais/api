@@ -3,6 +3,7 @@ package bigquery
 import (
 	"fmt"
 
+	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/k8s"
@@ -14,6 +15,20 @@ import (
 type Client struct {
 	informers k8s.ClusterInformers
 	log       logrus.FieldLogger
+	db        clientDatabase
+}
+
+type clientDatabase interface {
+	database.CostRepo
+	database.TeamRepo
+}
+
+func NewClient(informers k8s.ClusterInformers, log logrus.FieldLogger, db clientDatabase) *Client {
+	return &Client{
+		informers: informers,
+		log:       log,
+		db:        db,
+	}
 }
 
 func (c *Client) BigQueryDataset(env string, slug slug.Slug, name string) (*model.BigQueryDataset, error) {
@@ -32,11 +47,4 @@ func (c *Client) BigQueryDataset(env string, slug slug.Slug, name string) (*mode
 	}
 
 	return model.ToBigQueryDataset(obj.(*unstructured.Unstructured), env)
-}
-
-func NewClient(informers k8s.ClusterInformers, log logrus.FieldLogger) *Client {
-	return &Client{
-		informers: informers,
-		log:       log,
-	}
 }

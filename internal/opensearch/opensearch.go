@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/model"
@@ -17,14 +19,19 @@ import (
 type Client struct {
 	informers k8s.ClusterInformers
 	log       logrus.FieldLogger
-	metrics   Metrics
+	db        openSearchClientDatabase
 }
 
-func NewClient(informers k8s.ClusterInformers, log logrus.FieldLogger, costRepo database.CostRepo) *Client {
+type openSearchClientDatabase interface {
+	database.CostRepo
+	database.TeamRepo
+}
+
+func NewClient(informers k8s.ClusterInformers, log logrus.FieldLogger, db openSearchClientDatabase) *Client {
 	return &Client{
 		informers: informers,
 		log:       log,
-		metrics:   Metrics{log: log, costRepo: costRepo},
+		db: db,
 	}
 }
 
@@ -49,9 +56,24 @@ func (c *Client) OpenSearchInstance(ctx context.Context, env string, teamSlug sl
 	}
 
 	if ret.GQLVars.OwnerReference != nil {
-		cost := c.metrics.CostForOpenSearchInstance(ctx, env, teamSlug, ret.GQLVars.OwnerReference.Name)
+		cost := c.CostForOpenSearchInstance(ctx, env, teamSlug, ret.GQLVars.OwnerReference.Name)
 		ret.Cost = strconv.FormatFloat(cost, 'f', -1, 64)
 	}
 
 	return ret, nil
+}
+
+func (c *Client) CostForOpenSearchInstance(ctx context.Context, env string, teamSlug slug.Slug, ownerName string) float64 {
+	cost := 0.0
+	now := time.Now()
+	var from, to pgtype.Date
+	_ = to.Scan(now)
+	_ = from.Scan(now.AddDate(0, 0, -30))
+
+	if sum, err := c.db.CostForInstance(ctx, "OpenSearch", from, to, teamSlug, ownerName, env); err != nil {
+		c.log.WithError(err).Errorf("fetching cost")
+	} else {
+		cost = float64(sum)
+	}
+	return cost
 }
