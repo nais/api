@@ -81,7 +81,7 @@ func (m *Manager) UpdateUnleash(ctx context.Context, name string, allowedTeams [
 		Name:         name,
 		AllowedTeams: teams,
 	}
-	unleashResponse, err := m.bifrostClient.Post(ctx, "/unleash/edit", bi)
+	unleashResponse, err := m.bifrostClient.Post(ctx, fmt.Sprintf("/unleash/%s/edit", name), bi)
 	if err != nil {
 		return nil, err
 	}

@@ -76,7 +76,7 @@ func (f FakeBifrostClient) Post(ctx context.Context, path string, v any) (*http.
 	switch path {
 	case "/unleash/new":
 		unleashInstance, err = f.createOrUpdateUnleash(ctx, unleashConfig)
-	case "/unleash/edit":
+	case fmt.Sprintf("/unleash/%s/edit", unleashConfig.Name):
 		unleashInstance, err = f.createOrUpdateUnleash(ctx, unleashConfig)
 	default:
 		return nil, fmt.Errorf("unknown path: %s", path)
