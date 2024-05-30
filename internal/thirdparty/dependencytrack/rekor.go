@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
+	dsse "github.com/sigstore/rekor/pkg/types/dsse/v0.0.1"
 	"log"
 	"strconv"
 	"strings"
@@ -21,7 +22,6 @@ import (
 	"github.com/sigstore/rekor/pkg/generated/client/entries"
 	"github.com/sigstore/rekor/pkg/generated/models"
 	"github.com/sigstore/rekor/pkg/pki"
-	intoto "github.com/sigstore/rekor/pkg/types/intoto/v0.0.1"
 	"github.com/sirupsen/logrus"
 )
 
@@ -143,13 +143,13 @@ func logEntryToPubKey(logEntry models.LogEntryAnon) ([]byte, error) {
 		return nil, fmt.Errorf("failed to unmarshal log entry payload: %w", err)
 	}
 
-	intotoData := intoto.V001Entry{}
-	err = json.Unmarshal(logEntryPayload.Spec, &intotoData.IntotoObj)
+	dsseData := dsse.V001Entry{}
+	err = json.Unmarshal(logEntryPayload.Spec, &dsseData.DSSEObj)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal intoto data: %w", err)
 	}
 
-	verifiers, err := intotoData.Verifiers()
+	verifiers, err := dsseData.Verifiers()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get verifiers: %w", err)
 	}
