@@ -3,21 +3,26 @@ package model
 import (
 	"fmt"
 
-	"github.com/nais/api/internal/slug"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 	aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
 type Redis struct {
 	Name    string       `json:"name"`
-	Access  string       `json:"access"`
 	ID      scalar.Ident `json:"id"`
 	Env     Env          `json:"env"`
+	Cost    string       `json:"cost"`
+	Status  RedisStatus  `json:"status"`
 	GQLVars RedisGQLVars `json:"-"`
+}
+
+type RedisInstanceAccess struct {
+	Role    string                     `json:"role"`
+	GQLVars RedisInstanceAccessGQLVars `json:"-"`
 }
 
 type RedisGQLVars struct {
@@ -25,12 +30,28 @@ type RedisGQLVars struct {
 	OwnerReference *v1.OwnerReference
 }
 
-func (Redis) IsPersistence()    {}
-func (r Redis) GetName() string { return r.Name }
+type RedisInstanceAccessGQLVars struct {
+	TeamSlug       slug.Slug
+	OwnerReference *v1.OwnerReference
+	Env            Env
+}
 
+// TODO: Needs better name
+type AccessEntry struct {
+	OwnerReference *v1.OwnerReference
+	Role           string
+}
+
+// TODO: Needs better name
+type Access struct {
+	Workloads []AccessEntry
+}
+
+func (Redis) IsPersistence()        {}
+func (r Redis) GetName() string     { return r.Name }
 func (r Redis) GetID() scalar.Ident { return r.ID }
 
-func ToRedis(u *unstructured.Unstructured, env string) (*Redis, error) {
+func ToRedis(u *unstructured.Unstructured, envName string) (*Redis, error) {
 	redis := &aiven_io_v1alpha1.Redis{}
 
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, redis); err != nil {
@@ -39,16 +60,36 @@ func ToRedis(u *unstructured.Unstructured, env string) (*Redis, error) {
 
 	teamSlug := redis.GetNamespace()
 
-	return &Redis{
-		ID:   scalar.RedisIdent("redis_" + env + "_" + teamSlug + "_" + redis.GetName()),
+	env := Env{
+		Name: envName,
+		Team: teamSlug,
+	}
+	r := &Redis{
+		ID:   scalar.RedisIdent("redis_" + envName + "_" + teamSlug + "_" + redis.GetName()),
 		Name: redis.Name,
-		Env: Env{
-			Name: env,
-			Team: teamSlug,
+		Env:  env,
+		Status: RedisStatus{
+			Conditions: func(conditions []v1.Condition) []*Condition {
+				ret := make([]*Condition, len(conditions))
+				for i, c := range conditions {
+					ret[i] = &Condition{
+						Type:               c.Type,
+						Status:             string(c.Status),
+						LastTransitionTime: c.LastTransitionTime.Time,
+						Reason:             c.Reason,
+						Message:            c.Message,
+					}
+				}
+
+				return ret
+			}(redis.Status.Conditions),
+			State: redis.Status.State,
 		},
 		GQLVars: RedisGQLVars{
 			TeamSlug:       slug.Slug(teamSlug),
 			OwnerReference: OwnerReference(redis.OwnerReferences),
 		},
-	}, nil
+	}
+
+	return r, nil
 }

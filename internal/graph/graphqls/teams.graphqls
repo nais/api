@@ -12,16 +12,10 @@ extend type Query {
   ): TeamList! @auth
 
   "Get a specific team."
-  team(
-    "Slug of the team."
-    slug: Slug!
-  ): Team! @auth
+  team("Slug of the team." slug: Slug!): Team! @auth
 
   "Get a team delete key."
-  teamDeleteKey(
-    "The key to get."
-    key: String!
-  ): TeamDeleteKey! @auth
+  teamDeleteKey("The key to get." key: String!): TeamDeleteKey! @auth
 }
 
 extend type Mutation {
@@ -274,10 +268,7 @@ type Team {
   ): TeamMemberList!
 
   "Single team member"
-  member(
-    "The ID of the user."
-    userId: ID!
-  ): TeamMember!
+  member("The ID of the user." userId: ID!): TeamMember!
 
   "Possible issues related to synchronization of the team to configured external systems. If there are no entries the team can be considered fully synchronized."
   syncErrors: [SyncError!]!
@@ -331,6 +322,15 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): SqlInstancesList!
+
+  "Get a Bucket by name and env."
+  bucket(
+    "The name of the bucket."
+    name: String!
+
+    "The environment the bucket exists in."
+    env: String!
+  ): Bucket!
 
   buckets(
     "Returns the first n entries from the list."
@@ -395,6 +395,15 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): BigQueryDatasetList!
+
+  "Get a BigQueryDataset by name and env."
+  bigQueryDataset(
+    "The name of the dataset."
+    name: String!
+
+    "The environment the dataset exists in."
+    env: String!
+  ): BigQueryDataset!
 
   "The NAIS applications owned by the team."
   apps(

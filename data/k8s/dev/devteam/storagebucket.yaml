@@ -9,7 +9,7 @@ metadata:
   annotations:
     cnrm.cloud.google.com/deletion-policy: abandon
     cnrm.cloud.google.com/management-conflict-prevention-policy: none
-    cnrm.cloud.google.com/project-id:  nais-dev-2e7b
+    cnrm.cloud.google.com/project-id: nais-dev-2e7b
     cnrm.cloud.google.com/state-into-spec: merge
     nais.io/deploymentCorrelationID: a78ca402-6ce7-45b9-811b-23c62048cbdb
   labels:
@@ -28,3 +28,44 @@ spec:
   publicAccessPrevention: inherited
   resourceID: uniquebucketname-bucket
   storageClass: STANDARD
+  cors:
+    - origin: ["http://example.appspot.com", "http://example2.appspot.com"]
+      responseHeader: ["Content-Type"]
+      method: ["GET", "HEAD", "DELETE", "PUT", "POST", "OPTIONS", "PATCH"]
+      maxAgeSeconds: 3600
+    - origin: [ "http://example.com" ]
+      responseHeader: [ "Content-Type" ]
+      method: [ "POST" ]
+      maxAgeSeconds: 7200
+    - origin: [ "*" ]
+      responseHeader: [ "Content-Type" ]
+      method: [ "*" ]
+      maxAgeSeconds: 7200
+status:
+  conditions:
+    - lastTransitionTime: "2023-03-29T09:16:41Z"
+      message: The resource is up to date
+      reason: UpToDate
+      status: "True"
+      type: Ready
+    - lastTransitionTime: "2023-06-07T09:18:05Z"
+      message: 'Delete call failed: error deleting resource: [{0 could not delete non-empty
+          bucket due to error when listing contents: googleapi: Error 403: nais-sa-cnrm@teampam-dev-429f.iam.gserviceaccount.com
+          does not have storage.objects.list access to the Google Cloud Storage bucket.
+          Permission ''storage.objects.list'' denied on resource (or it may not exist).,
+          forbidden  []}]'
+      reason: DeleteFailed
+      status: "False"
+      type: Ready
+    - lastTransitionTime: "2022-11-25T08:40:03Z"
+      message: 'Update call failed: error fetching live state: error reading underlying
+        resource: summary: Error when reading or editing Storage Bucket "dataproduct-apps-topics2":
+        googleapi: Error 403: nais-sa-cnrm@aura-dev-d9f5.iam.gserviceaccount.com does
+        not have storage.buckets.get access to the Google Cloud Storage bucket. Permission
+        ''storage.buckets.get'' denied on resource (or it may not exist)., forbidden'
+      reason: UpdateFailed
+      status: "False"
+      type: Ready
+  observedGeneration: 575
+  selfLink: https://www.googleapis.com/storage/v1/b/dev-team-fake-url
+  url: gs://fake-bucket-devteam

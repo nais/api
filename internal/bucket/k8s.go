@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/nais/api/internal/graph/apierror"
+
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -38,4 +40,22 @@ func (c *Client) Buckets(teamSlug slug.Slug) ([]*model.Bucket, error) {
 	})
 
 	return ret, nil
+}
+
+func (c *Client) Bucket(env string, teamSlug slug.Slug, bucketName string) (*model.Bucket, error) {
+	inf, exists := c.informers[env]
+	if !exists {
+		return nil, fmt.Errorf("unknown env: %q", env)
+	}
+
+	if inf.Bucket == nil {
+		return nil, apierror.Errorf("bucket informer not supported in env: %q", env)
+	}
+
+	obj, err := inf.Bucket.Lister().ByNamespace(string(teamSlug)).Get(bucketName)
+	if err != nil {
+		return nil, fmt.Errorf("get bucket: %w", err)
+	}
+
+	return model.ToBucket(obj.(*unstructured.Unstructured), env)
 }

@@ -13,8 +13,11 @@ type App struct {
 	AutoScaling AutoScaling `json:"autoScaling"`
 }
 
-func (App) IsSearchNode() {}
-func (App) IsWorkload()   {}
+func (App) IsSearchNode()         {}
+func (App) GetType() WorkloadType { return WorkloadTypeApp }
+func (a App) Type() WorkloadType  { return a.GetType() }
+
+var _ Workload = (*App)(nil)
 
 type Instance struct {
 	ID       scalar.Ident  `json:"id"`

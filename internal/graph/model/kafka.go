@@ -2,11 +2,13 @@ package model
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	sync_states "github.com/nais/liberator/pkg/events"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -18,6 +20,7 @@ type KafkaTopic struct {
 	Config  *KafkaTopicConfig `json:"config"`
 	Pool    string            `json:"pool"`
 	Env     Env               `json:"env"`
+	Status  *KafkaTopicStatus `json:"status"`
 	GQLVars KafkaTopicGQLVars `json:"-"`
 }
 type KafkaTopicGQLVars struct {
@@ -75,5 +78,46 @@ func ToKafkaTopic(u *unstructured.Unstructured, env string) (*KafkaTopic, error)
 			TeamSlug:       slug.Slug(teamSlug),
 			OwnerReference: OwnerReference(kt.OwnerReferences),
 		},
+		Status: func(s *kafka_nais_io_v1.TopicStatus) *KafkaTopicStatus {
+			if s == nil {
+				return nil
+			}
+
+			var syncTime, expTime, lastSyncTime *time.Time
+			if t, err := time.Parse(time.RFC3339, s.SynchronizationTime); err == nil {
+				syncTime = &t
+			}
+
+			if t, err := time.Parse(time.RFC3339, s.CredentialsExpiryTime); err == nil {
+				expTime = &t
+			}
+
+			if t, err := time.Parse(time.RFC3339, s.LatestAivenSyncFailure); err == nil {
+				lastSyncTime = &t
+			}
+
+			state := StateUnknown
+			switch s.SynchronizationState {
+			case sync_states.FailedPrepare,
+				sync_states.FailedGenerate,
+				sync_states.FailedSynchronization,
+				sync_states.FailedStatusUpdate,
+				sync_states.Retrying:
+				state = StateNotnais
+			case sync_states.Synchronized,
+				sync_states.RolloutComplete:
+				state = StateNais
+			}
+
+			return &KafkaTopicStatus{
+				FullyQualifiedName:     s.FullyQualifiedName,
+				Message:                s.Message,
+				SynchronizationTime:    syncTime,
+				CredentialsExpiryTime:  expTime,
+				Errors:                 s.Errors,
+				LatestAivenSyncFailure: lastSyncTime,
+				SynchronizationState:   state,
+			}
+		}(kt.Status),
 	}, nil
 }

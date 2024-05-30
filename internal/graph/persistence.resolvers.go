@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
@@ -42,6 +43,32 @@ func (r *kafkaTopicResolver) Workload(ctx context.Context, obj *model.KafkaTopic
 	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
 }
 
+// Access is the resolver for the access field.
+func (r *openSearchResolver) Access(ctx context.Context, obj *model.OpenSearch) ([]*model.OpenSearchInstanceAccess, error) {
+	infs, exists := r.k8sClient.Informers()[obj.Env.Name]
+	if !exists {
+		return nil, apierror.Errorf("Unknown env: %q", obj.Env.Name)
+	}
+
+	access, err := getOpenSearchAccess(infs.App, infs.Naisjob, obj.Name, obj.GQLVars.TeamSlug)
+	if err != nil {
+		return nil, apierror.Errorf("Unable to get OpenSearch instance access")
+	}
+
+	ret := make([]*model.OpenSearchInstanceAccess, len(access.Workloads))
+	for i, w := range access.Workloads {
+		ret[i] = &model.OpenSearchInstanceAccess{
+			Role: w.Role,
+			GQLVars: model.OpenSearchInstanceAccessGQLVars{
+				TeamSlug:       obj.GQLVars.TeamSlug,
+				OwnerReference: w.OwnerReference,
+				Env:            obj.Env,
+			},
+		}
+	}
+	return ret, nil
+}
+
 // Team is the resolver for the team field.
 func (r *openSearchResolver) Team(ctx context.Context, obj *model.OpenSearch) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
@@ -52,6 +79,37 @@ func (r *openSearchResolver) Workload(ctx context.Context, obj *model.OpenSearch
 	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
 }
 
+// Workload is the resolver for the workload field.
+func (r *openSearchInstanceAccessResolver) Workload(ctx context.Context, obj *model.OpenSearchInstanceAccess) (model.Workload, error) {
+	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.GQLVars.Env.Name)
+}
+
+// Access is the resolver for the access field.
+func (r *redisResolver) Access(ctx context.Context, obj *model.Redis) ([]*model.RedisInstanceAccess, error) {
+	infs, exists := r.k8sClient.Informers()[obj.Env.Name]
+	if !exists {
+		return nil, apierror.Errorf("Unknown env: %q", obj.Env.Name)
+	}
+
+	access, err := getRedisAccess(infs.App, infs.Naisjob, obj.Name, obj.GQLVars.TeamSlug)
+	if err != nil {
+		return nil, apierror.Errorf("Unable to get Redis instance access")
+	}
+
+	ret := make([]*model.RedisInstanceAccess, len(access.Workloads))
+	for i, w := range access.Workloads {
+		ret[i] = &model.RedisInstanceAccess{
+			Role: w.Role,
+			GQLVars: model.RedisInstanceAccessGQLVars{
+				TeamSlug:       obj.GQLVars.TeamSlug,
+				OwnerReference: w.OwnerReference,
+				Env:            obj.Env,
+			},
+		}
+	}
+	return ret, nil
+}
+
 // Team is the resolver for the team field.
 func (r *redisResolver) Team(ctx context.Context, obj *model.Redis) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
@@ -60,6 +118,11 @@ func (r *redisResolver) Team(ctx context.Context, obj *model.Redis) (*model.Team
 // Workload is the resolver for the workload field.
 func (r *redisResolver) Workload(ctx context.Context, obj *model.Redis) (model.Workload, error) {
 	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
+}
+
+// Workload is the resolver for the workload field.
+func (r *redisInstanceAccessResolver) Workload(ctx context.Context, obj *model.RedisInstanceAccess) (model.Workload, error) {
+	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.GQLVars.Env.Name)
 }
 
 // Database is the resolver for the database field.
@@ -96,17 +159,29 @@ func (r *Resolver) KafkaTopic() gengql.KafkaTopicResolver { return &kafkaTopicRe
 // OpenSearch returns gengql.OpenSearchResolver implementation.
 func (r *Resolver) OpenSearch() gengql.OpenSearchResolver { return &openSearchResolver{r} }
 
+// OpenSearchInstanceAccess returns gengql.OpenSearchInstanceAccessResolver implementation.
+func (r *Resolver) OpenSearchInstanceAccess() gengql.OpenSearchInstanceAccessResolver {
+	return &openSearchInstanceAccessResolver{r}
+}
+
 // Redis returns gengql.RedisResolver implementation.
 func (r *Resolver) Redis() gengql.RedisResolver { return &redisResolver{r} }
+
+// RedisInstanceAccess returns gengql.RedisInstanceAccessResolver implementation.
+func (r *Resolver) RedisInstanceAccess() gengql.RedisInstanceAccessResolver {
+	return &redisInstanceAccessResolver{r}
+}
 
 // SqlInstance returns gengql.SqlInstanceResolver implementation.
 func (r *Resolver) SqlInstance() gengql.SqlInstanceResolver { return &sqlInstanceResolver{r} }
 
 type (
-	bigQueryDatasetResolver struct{ *Resolver }
-	bucketResolver          struct{ *Resolver }
-	kafkaTopicResolver      struct{ *Resolver }
-	openSearchResolver      struct{ *Resolver }
-	redisResolver           struct{ *Resolver }
-	sqlInstanceResolver     struct{ *Resolver }
+	bigQueryDatasetResolver          struct{ *Resolver }
+	bucketResolver                   struct{ *Resolver }
+	kafkaTopicResolver               struct{ *Resolver }
+	openSearchResolver               struct{ *Resolver }
+	openSearchInstanceAccessResolver struct{ *Resolver }
+	redisResolver                    struct{ *Resolver }
+	redisInstanceAccessResolver      struct{ *Resolver }
+	sqlInstanceResolver              struct{ *Resolver }
 )

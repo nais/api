@@ -21,7 +21,7 @@ type Querier interface {
 	ClearReconcilerErrorsForTeam(ctx context.Context, arg ClearReconcilerErrorsForTeamParams) error
 	ConfigureReconciler(ctx context.Context, arg ConfigureReconcilerParams) error
 	ConfirmTeamDeleteKey(ctx context.Context, key uuid.UUID) error
-	CostForSqlInstance(ctx context.Context, arg CostForSqlInstanceParams) (float32, error)
+	CostForInstance(ctx context.Context, arg CostForInstanceParams) (float32, error)
 	// CostUpsert will insert or update a cost record. If there is a conflict on the daily_cost_key constrant, the
 	// daily_cost column will be updated.
 	CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults

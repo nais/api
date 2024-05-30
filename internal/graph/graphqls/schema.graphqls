@@ -55,5 +55,3 @@ input VariableInput {
   name: String!
   value: String!
 }
-
-union Workload = App | NaisJob

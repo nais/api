@@ -182,8 +182,8 @@ func depluralized(s string) string {
 	switch s {
 	case "redises":
 		return "redis"
-	case "opensearchs":
-		return "opensearch"
+	case "opensearchs", "opensearches":
+		return "opensearches"
 	case "unleashs":
 		return "unleashes"
 	case "remoteunleashs":
@@ -216,7 +216,9 @@ func newDynamicClient(scheme *runtime.Scheme, objs ...runtime.Object) dynamic.In
 			panic(fmt.Errorf("no registered kinds for %v", obj))
 		}
 		for _, gvk := range gvks {
+
 			gvr, _ := meta.UnsafeGuessKindToResource(gvk)
+
 			gvr.Resource = depluralized(gvr.Resource)
 			// Get namespace from object
 			ns := obj.(namespaced).GetNamespace()

@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
@@ -9,6 +10,7 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/utils/ptr"
 )
 
 type BigQueryDataset struct {
@@ -21,6 +23,7 @@ type BigQueryDataset struct {
 	Access          []BigQueryDatasetAccess `json:"access"` // TODO: There's some incongruency with what we have in the cluster here.
 	ProjectID       string                  `json:"projectId"`
 	Location        string                  `json:"location"`
+	Status          BigQueryDatasetStatus   `json:"status"`
 }
 
 type BigQueryDatasetGQLVars struct {
@@ -62,6 +65,30 @@ func ToBigQueryDataset(u *unstructured.Unstructured, env string) (*BigQueryDatas
 		Env: Env{
 			Team: teamSlug,
 			Name: env,
+		},
+		Status: BigQueryDatasetStatus{
+			CreationTime: time.Unix(int64(bqs.Status.CreationTime), 0),
+			LastModifiedTime: func(ts int) *time.Time {
+				if ts == 0 {
+					return nil
+				}
+				return ptr.To(time.Unix(int64(ts), 0))
+			}(bqs.Status.LastModifiedTime),
+			Conditions: func(conditions []v1.Condition) []*Condition {
+				ret := make([]*Condition, len(conditions))
+				for i, c := range conditions {
+					t := c.LastTransitionTime.Time
+					ret[i] = &Condition{
+						Type:               c.Type,
+						Status:             string(c.Status),
+						LastTransitionTime: t,
+						Reason:             c.Reason,
+						Message:            c.Message,
+					}
+				}
+
+				return ret
+			}(bqs.Status.Conditions),
 		},
 		GQLVars: BigQueryDatasetGQLVars{
 			TeamSlug:       slug.Slug(teamSlug),

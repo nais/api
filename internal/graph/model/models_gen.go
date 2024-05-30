@@ -43,6 +43,17 @@ type StateError interface {
 
 type Workload interface {
 	IsWorkload()
+	GetID() scalar.Ident
+	GetName() string
+	GetImage() string
+	GetDeployInfo() DeployInfo
+	GetEnv() Env
+	GetAccessPolicy() AccessPolicy
+	GetStatus() WorkloadStatus
+	GetAuthz() []Authz
+	GetVariables() []*Variable
+	GetResources() Resources
+	GetType() WorkloadType
 }
 
 type AccessPolicy struct {
@@ -159,6 +170,24 @@ type BigQueryDatasetList struct {
 	PageInfo PageInfo           `json:"pageInfo"`
 }
 
+type BigQueryDatasetStatus struct {
+	Conditions       []*Condition `json:"conditions"`
+	CreationTime     time.Time    `json:"creationTime"`
+	LastModifiedTime *time.Time   `json:"lastModifiedTime,omitempty"`
+}
+
+type BucketCors struct {
+	MaxAgeSeconds   *int     `json:"maxAgeSeconds,omitempty"`
+	Methods         []string `json:"methods"`
+	Origins         []string `json:"origins"`
+	ResponseHeaders []string `json:"responseHeaders"`
+}
+
+type BucketStatus struct {
+	Conditions []*Condition `json:"conditions"`
+	SelfLink   string       `json:"selfLink"`
+}
+
 type BucketsList struct {
 	Nodes    []*Bucket `json:"nodes"`
 	PageInfo PageInfo  `json:"pageInfo"`
@@ -176,11 +205,11 @@ type Comment struct {
 }
 
 type Condition struct {
-	Message            string `json:"message"`
-	Reason             string `json:"reason"`
-	Status             string `json:"status"`
-	Type               string `json:"type"`
-	LastTransitionTime string `json:"lastTransitionTime"`
+	Message            string    `json:"message"`
+	Reason             string    `json:"reason"`
+	Status             string    `json:"status"`
+	Type               string    `json:"type"`
+	LastTransitionTime time.Time `json:"lastTransitionTime"`
 }
 
 type Consume struct {
@@ -509,6 +538,16 @@ type KafkaTopicList struct {
 	PageInfo PageInfo      `json:"pageInfo"`
 }
 
+type KafkaTopicStatus struct {
+	FullyQualifiedName     string     `json:"fullyQualifiedName"`
+	Message                string     `json:"message"`
+	SynchronizationState   State      `json:"synchronizationState"`
+	SynchronizationTime    *time.Time `json:"synchronizationTime,omitempty"`
+	CredentialsExpiryTime  *time.Time `json:"credentialsExpiryTime,omitempty"`
+	Errors                 []string   `json:"errors,omitempty"`
+	LatestAivenSyncFailure *time.Time `json:"latestAivenSyncFailure,omitempty"`
+}
+
 type Limits struct {
 	CPU    string `json:"cpu"`
 	Memory string `json:"memory"`
@@ -545,7 +584,7 @@ type MaskinportenScope struct {
 	Exposes  []*Expose  `json:"exposes"`
 }
 
-// Montly cost type.
+// Monthly cost type.
 type MonthlyCost struct {
 	// Sum for all months in the series in euros.
 	Sum float64 `json:"sum"`
@@ -602,6 +641,11 @@ func (this NoRunningInstancesError) GetLevel() ErrorLevel { return this.Level }
 type OpenSearchList struct {
 	Nodes    []*OpenSearch `json:"nodes"`
 	PageInfo PageInfo      `json:"pageInfo"`
+}
+
+type OpenSearchStatus struct {
+	Conditions []*Condition `json:"conditions"`
+	State      string       `json:"state"`
 }
 
 type OrderBy struct {
@@ -679,6 +723,11 @@ type ReconcilerList struct {
 type RedisList struct {
 	Nodes    []*Redis `json:"nodes"`
 	PageInfo PageInfo `json:"pageInfo"`
+}
+
+type RedisStatus struct {
+	Conditions []*Condition `json:"conditions"`
+	State      string       `json:"state"`
 }
 
 type Rekor struct {
@@ -1559,5 +1608,46 @@ func (e *UserSyncRunStatus) UnmarshalGQL(v interface{}) error {
 }
 
 func (e UserSyncRunStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type WorkloadType string
+
+const (
+	WorkloadTypeApp     WorkloadType = "APP"
+	WorkloadTypeNaisjob WorkloadType = "NAISJOB"
+)
+
+var AllWorkloadType = []WorkloadType{
+	WorkloadTypeApp,
+	WorkloadTypeNaisjob,
+}
+
+func (e WorkloadType) IsValid() bool {
+	switch e {
+	case WorkloadTypeApp, WorkloadTypeNaisjob:
+		return true
+	}
+	return false
+}
+
+func (e WorkloadType) String() string {
+	return string(e)
+}
+
+func (e *WorkloadType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = WorkloadType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid WorkloadType", str)
+	}
+	return nil
+}
+
+func (e WorkloadType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
