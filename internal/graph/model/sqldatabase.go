@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/graph/scalar"
+	"k8s.io/utils/ptr"
 
 	"github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/k8s/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -39,7 +40,7 @@ func ToSqlDatabase(u *unstructured.Unstructured, sqlInstanceName, env string) (*
 	teamSlug := sqlDatabase.GetNamespace()
 	return &SQLDatabase{
 		ID:             scalar.SqlDatabaseIdent("sqldatabase_" + env + "_" + teamSlug + "_" + sqlDatabase.GetName()),
-		Name:           sqlDatabase.Name,
+		Name:           ptr.Deref(sqlDatabase.Spec.ResourceID, "UNKNOWN"), // actual postgresql database name
 		Charset:        sqlDatabase.Spec.Charset,
 		Collation:      sqlDatabase.Spec.Collation,
 		DeletionPolicy: sqlDatabase.Spec.DeletionPolicy,

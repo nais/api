@@ -29,6 +29,11 @@ omit_gqlgen_version_in_file_notice: true
 # Setting this to false will generate type instances for required struct fields, and type pointers for optional fields
 struct_fields_always_pointers: false
 
+# Because we're using gofumpt, and in general run our code often enough, we can disable building and running go mod tidy during gqlgen generate
+# This will speed up the generation process
+skip_mod_tidy: true
+skip_validation: true
+
 # This section declares type mapping between the GraphQL and go type systems
 #
 # The first line in each type will be used as defaults for resolver arguments and
