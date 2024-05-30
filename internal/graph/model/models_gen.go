@@ -681,6 +681,19 @@ type RedisList struct {
 	PageInfo PageInfo `json:"pageInfo"`
 }
 
+type Rekor struct {
+	BuildTrigger             string `json:"buildTrigger"`
+	BuildConfigURI           string `json:"buildConfigURI"`
+	GitHubWorkflowName       string `json:"gitHubWorkflowName"`
+	GitHubWorkflowRef        string `json:"gitHubWorkflowRef"`
+	LogIndex                 string `json:"logIndex"`
+	OIDCIssuer               string `json:"oIDCIssuer"`
+	RunInvocationURI         string `json:"runInvocationURI"`
+	RunnerEnvironment        string `json:"runnerEnvironment"`
+	SourceRepositoryOwnerURI string `json:"sourceRepositoryOwnerURI"`
+	IntegratedTime           int    `json:"integratedTime"`
+}
+
 type Requests struct {
 	CPU    string `json:"cpu"`
 	Memory string `json:"memory"`

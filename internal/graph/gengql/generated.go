@@ -465,7 +465,7 @@ type ComplexityRoot struct {
 		ID                 func(childComplexity int) int
 		Name               func(childComplexity int) int
 		ProjectID          func(childComplexity int) int
-		RekorID            func(childComplexity int) int
+		Rekor              func(childComplexity int) int
 		Summary            func(childComplexity int) int
 		Version            func(childComplexity int) int
 		WorkloadReferences func(childComplexity int) int
@@ -764,6 +764,19 @@ type ComplexityRoot struct {
 	RedisList struct {
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
+	}
+
+	Rekor struct {
+		BuildConfigURI           func(childComplexity int) int
+		BuildTrigger             func(childComplexity int) int
+		GitHubWorkflowName       func(childComplexity int) int
+		GitHubWorkflowRef        func(childComplexity int) int
+		IntegratedTime           func(childComplexity int) int
+		LogIndex                 func(childComplexity int) int
+		OIDCIssuer               func(childComplexity int) int
+		RunInvocationURI         func(childComplexity int) int
+		RunnerEnvironment        func(childComplexity int) int
+		SourceRepositoryOwnerURI func(childComplexity int) int
 	}
 
 	Requests struct {
@@ -2996,12 +3009,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Image.ProjectID(childComplexity), true
 
-	case "Image.rekorId":
-		if e.complexity.Image.RekorID == nil {
+	case "Image.rekor":
+		if e.complexity.Image.Rekor == nil {
 			break
 		}
 
-		return e.complexity.Image.RekorID(childComplexity), true
+		return e.complexity.Image.Rekor(childComplexity), true
 
 	case "Image.summary":
 		if e.complexity.Image.Summary == nil {
@@ -4587,6 +4600,76 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RedisList.PageInfo(childComplexity), true
+
+	case "Rekor.buildConfigURI":
+		if e.complexity.Rekor.BuildConfigURI == nil {
+			break
+		}
+
+		return e.complexity.Rekor.BuildConfigURI(childComplexity), true
+
+	case "Rekor.buildTrigger":
+		if e.complexity.Rekor.BuildTrigger == nil {
+			break
+		}
+
+		return e.complexity.Rekor.BuildTrigger(childComplexity), true
+
+	case "Rekor.gitHubWorkflowName":
+		if e.complexity.Rekor.GitHubWorkflowName == nil {
+			break
+		}
+
+		return e.complexity.Rekor.GitHubWorkflowName(childComplexity), true
+
+	case "Rekor.gitHubWorkflowRef":
+		if e.complexity.Rekor.GitHubWorkflowRef == nil {
+			break
+		}
+
+		return e.complexity.Rekor.GitHubWorkflowRef(childComplexity), true
+
+	case "Rekor.integratedTime":
+		if e.complexity.Rekor.IntegratedTime == nil {
+			break
+		}
+
+		return e.complexity.Rekor.IntegratedTime(childComplexity), true
+
+	case "Rekor.logIndex":
+		if e.complexity.Rekor.LogIndex == nil {
+			break
+		}
+
+		return e.complexity.Rekor.LogIndex(childComplexity), true
+
+	case "Rekor.oIDCIssuer":
+		if e.complexity.Rekor.OIDCIssuer == nil {
+			break
+		}
+
+		return e.complexity.Rekor.OIDCIssuer(childComplexity), true
+
+	case "Rekor.runInvocationURI":
+		if e.complexity.Rekor.RunInvocationURI == nil {
+			break
+		}
+
+		return e.complexity.Rekor.RunInvocationURI(childComplexity), true
+
+	case "Rekor.runnerEnvironment":
+		if e.complexity.Rekor.RunnerEnvironment == nil {
+			break
+		}
+
+		return e.complexity.Rekor.RunnerEnvironment(childComplexity), true
+
+	case "Rekor.sourceRepositoryOwnerURI":
+		if e.complexity.Rekor.SourceRepositoryOwnerURI == nil {
+			break
+		}
+
+		return e.complexity.Rekor.SourceRepositoryOwnerURI(childComplexity), true
 
 	case "Requests.cpu":
 		if e.complexity.Requests.CPU == nil {
@@ -7253,7 +7336,7 @@ type Image {
   name: String!
   version: String!
   digest: String!
-  rekorId: String!
+  rekor: Rekor!
   summary: ImageVulnerabilitySummary!
   hasSbom: Boolean!
   findings(
@@ -7341,6 +7424,19 @@ type Comment {
   comment: String!
   timestamp: Time!
   onBehalfOf: String!
+}
+
+type Rekor {
+  buildTrigger: String!
+  buildConfigURI: String!
+  gitHubWorkflowName: String!
+  gitHubWorkflowRef: String!
+  logIndex: String!
+  oIDCIssuer: String!
+  runInvocationURI: String!
+  runnerEnvironment: String!
+  sourceRepositoryOwnerURI: String!
+  integratedTime: Int!
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/log.graphqls", Input: `type Subscription {
@@ -12146,8 +12242,8 @@ func (ec *executionContext) fieldContext_App_image(ctx context.Context, field gr
 				return ec.fieldContext_Image_version(ctx, field)
 			case "digest":
 				return ec.fieldContext_Image_digest(ctx, field)
-			case "rekorId":
-				return ec.fieldContext_Image_rekorId(ctx, field)
+			case "rekor":
+				return ec.fieldContext_Image_rekor(ctx, field)
 			case "summary":
 				return ec.fieldContext_Image_summary(ctx, field)
 			case "hasSbom":
@@ -21824,8 +21920,8 @@ func (ec *executionContext) fieldContext_Image_digest(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Image_rekorId(ctx context.Context, field graphql.CollectedField, obj *model.Image) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Image_rekorId(ctx, field)
+func (ec *executionContext) _Image_rekor(ctx context.Context, field graphql.CollectedField, obj *model.Image) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Image_rekor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -21838,7 +21934,7 @@ func (ec *executionContext) _Image_rekorId(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.RekorID, nil
+		return obj.Rekor, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21850,19 +21946,41 @@ func (ec *executionContext) _Image_rekorId(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*model.Rekor)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNRekor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRekor(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Image_rekorId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Image_rekor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Image",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "buildTrigger":
+				return ec.fieldContext_Rekor_buildTrigger(ctx, field)
+			case "buildConfigURI":
+				return ec.fieldContext_Rekor_buildConfigURI(ctx, field)
+			case "gitHubWorkflowName":
+				return ec.fieldContext_Rekor_gitHubWorkflowName(ctx, field)
+			case "gitHubWorkflowRef":
+				return ec.fieldContext_Rekor_gitHubWorkflowRef(ctx, field)
+			case "logIndex":
+				return ec.fieldContext_Rekor_logIndex(ctx, field)
+			case "oIDCIssuer":
+				return ec.fieldContext_Rekor_oIDCIssuer(ctx, field)
+			case "runInvocationURI":
+				return ec.fieldContext_Rekor_runInvocationURI(ctx, field)
+			case "runnerEnvironment":
+				return ec.fieldContext_Rekor_runnerEnvironment(ctx, field)
+			case "sourceRepositoryOwnerURI":
+				return ec.fieldContext_Rekor_sourceRepositoryOwnerURI(ctx, field)
+			case "integratedTime":
+				return ec.fieldContext_Rekor_integratedTime(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Rekor", field.Name)
 		},
 	}
 	return fc, nil
@@ -22144,8 +22262,8 @@ func (ec *executionContext) fieldContext_ImageList_nodes(ctx context.Context, fi
 				return ec.fieldContext_Image_version(ctx, field)
 			case "digest":
 				return ec.fieldContext_Image_digest(ctx, field)
-			case "rekorId":
-				return ec.fieldContext_Image_rekorId(ctx, field)
+			case "rekor":
+				return ec.fieldContext_Image_rekor(ctx, field)
 			case "summary":
 				return ec.fieldContext_Image_summary(ctx, field)
 			case "hasSbom":
@@ -28352,8 +28470,8 @@ func (ec *executionContext) fieldContext_NaisJob_image(ctx context.Context, fiel
 				return ec.fieldContext_Image_version(ctx, field)
 			case "digest":
 				return ec.fieldContext_Image_digest(ctx, field)
-			case "rekorId":
-				return ec.fieldContext_Image_rekorId(ctx, field)
+			case "rekor":
+				return ec.fieldContext_Image_rekor(ctx, field)
 			case "summary":
 				return ec.fieldContext_Image_summary(ctx, field)
 			case "hasSbom":
@@ -33583,6 +33701,446 @@ func (ec *executionContext) fieldContext_RedisList_pageInfo(ctx context.Context,
 				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Rekor_buildTrigger(ctx context.Context, field graphql.CollectedField, obj *model.Rekor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Rekor_buildTrigger(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.BuildTrigger, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Rekor_buildTrigger(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Rekor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Rekor_buildConfigURI(ctx context.Context, field graphql.CollectedField, obj *model.Rekor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Rekor_buildConfigURI(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.BuildConfigURI, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Rekor_buildConfigURI(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Rekor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Rekor_gitHubWorkflowName(ctx context.Context, field graphql.CollectedField, obj *model.Rekor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Rekor_gitHubWorkflowName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GitHubWorkflowName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Rekor_gitHubWorkflowName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Rekor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Rekor_gitHubWorkflowRef(ctx context.Context, field graphql.CollectedField, obj *model.Rekor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Rekor_gitHubWorkflowRef(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GitHubWorkflowRef, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Rekor_gitHubWorkflowRef(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Rekor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Rekor_logIndex(ctx context.Context, field graphql.CollectedField, obj *model.Rekor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Rekor_logIndex(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LogIndex, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Rekor_logIndex(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Rekor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Rekor_oIDCIssuer(ctx context.Context, field graphql.CollectedField, obj *model.Rekor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Rekor_oIDCIssuer(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OIDCIssuer, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Rekor_oIDCIssuer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Rekor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Rekor_runInvocationURI(ctx context.Context, field graphql.CollectedField, obj *model.Rekor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Rekor_runInvocationURI(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RunInvocationURI, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Rekor_runInvocationURI(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Rekor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Rekor_runnerEnvironment(ctx context.Context, field graphql.CollectedField, obj *model.Rekor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Rekor_runnerEnvironment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RunnerEnvironment, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Rekor_runnerEnvironment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Rekor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Rekor_sourceRepositoryOwnerURI(ctx context.Context, field graphql.CollectedField, obj *model.Rekor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Rekor_sourceRepositoryOwnerURI(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SourceRepositoryOwnerURI, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Rekor_sourceRepositoryOwnerURI(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Rekor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Rekor_integratedTime(ctx context.Context, field graphql.CollectedField, obj *model.Rekor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Rekor_integratedTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IntegratedTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Rekor_integratedTime(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Rekor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -52349,8 +52907,8 @@ func (ec *executionContext) _Image(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "rekorId":
-			out.Values[i] = ec._Image_rekorId(ctx, field, obj)
+		case "rekor":
+			out.Values[i] = ec._Image_rekor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -55448,6 +56006,90 @@ func (ec *executionContext) _RedisList(ctx context.Context, sel ast.SelectionSet
 			}
 		case "pageInfo":
 			out.Values[i] = ec._RedisList_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var rekorImplementors = []string{"Rekor"}
+
+func (ec *executionContext) _Rekor(ctx context.Context, sel ast.SelectionSet, obj *model.Rekor) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, rekorImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Rekor")
+		case "buildTrigger":
+			out.Values[i] = ec._Rekor_buildTrigger(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "buildConfigURI":
+			out.Values[i] = ec._Rekor_buildConfigURI(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "gitHubWorkflowName":
+			out.Values[i] = ec._Rekor_gitHubWorkflowName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "gitHubWorkflowRef":
+			out.Values[i] = ec._Rekor_gitHubWorkflowRef(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "logIndex":
+			out.Values[i] = ec._Rekor_logIndex(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "oIDCIssuer":
+			out.Values[i] = ec._Rekor_oIDCIssuer(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "runInvocationURI":
+			out.Values[i] = ec._Rekor_runInvocationURI(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "runnerEnvironment":
+			out.Values[i] = ec._Rekor_runnerEnvironment(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "sourceRepositoryOwnerURI":
+			out.Values[i] = ec._Rekor_sourceRepositoryOwnerURI(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "integratedTime":
+			out.Values[i] = ec._Rekor_integratedTime(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -63245,6 +63887,16 @@ func (ec *executionContext) marshalNRedisList2ᚖgithubᚗcomᚋnaisᚋapiᚋint
 		return graphql.Null
 	}
 	return ec._RedisList(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRekor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRekor(ctx context.Context, sel ast.SelectionSet, v *model.Rekor) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Rekor(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNRepositoryAuthorization2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorization(ctx context.Context, v interface{}) (model.RepositoryAuthorization, error) {

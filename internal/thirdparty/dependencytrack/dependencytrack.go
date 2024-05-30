@@ -50,6 +50,7 @@ type VulnerabilityMetrics struct {
 }
 
 type Client struct {
+	rekorClient RekorClient
 	client      dependencytrack.Client
 	frontendUrl string
 	log         logrus.FieldLogger
@@ -69,6 +70,7 @@ func New(endpoint, username, password, frontend string, log *logrus.Entry) *Clie
 	ch := cache.New(30*time.Minute, 10*time.Minute)
 
 	return &Client{
+		rekorClient: NewRekor("rekor.sigstore.dev"),
 		client:      c,
 		frontendUrl: frontend,
 		log:         log,
@@ -370,16 +372,22 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 				Environment:  workload[0],
 				Team:         workload[1],
 				WorkloadType: workload[2],
-				Name:         workload[3]})
+				Name:         workload[3],
+			})
 
 		}
+	}
+
+	rekorMetadata, err := c.rekorClient.GetRekorMetadata(ctx, rekor)
+	if err != nil {
+		c.log.Errorf("getting rekor metadata: %v", err)
 	}
 
 	return &model.Image{
 		Name:               p.Name + ":" + p.Version,
 		ID:                 scalar.ImageIdent(p.Name, p.Version),
 		Digest:             digest,
-		RekorID:            rekor,
+		Rekor:              rekorMetadata,
 		Version:            p.Version,
 		HasSbom:            hasBom(p),
 		ProjectID:          p.Uuid,
@@ -466,11 +474,16 @@ func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId s
 		}
 	}
 
+	rekorMetadata, err := c.rekorClient.GetRekorMetadata(ctx, rekor)
+	if err != nil {
+		c.log.Errorf("getting rekor metadata: %v", err)
+	}
+
 	return &model.Image{
 		Name:               p.Name + ":" + p.Version,
 		ID:                 scalar.ImageIdent(p.Name, p.Version),
 		Digest:             digest,
-		RekorID:            rekor,
+		Rekor:              rekorMetadata,
 		Version:            p.Version,
 		ProjectID:          p.Uuid,
 		HasSbom:            hasBom(p),
@@ -528,13 +541,18 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 			}
 		}
 
+		rekorMetadata, err := c.rekorClient.GetRekorMetadata(ctx, rekor)
+		if err != nil {
+			c.log.Errorf("getting rekor metadata: %v", err)
+		}
+
 		image := &model.Image{
 			ID:                 scalar.ImageIdent(project.Name, project.Version),
 			ProjectID:          project.Uuid,
 			Name:               project.Name,
 			Summary:            c.createSummaryForImage(project, hasBom(project)),
 			Digest:             digest,
-			RekorID:            rekor,
+			Rekor:              rekorMetadata,
 			Version:            version,
 			WorkloadReferences: workloads,
 		}
@@ -603,7 +621,6 @@ func parseComments(trail *dependencytrack.Analysis) []*model.Comment {
 
 func (c *Client) GetAnalysisTrailForImage(ctx context.Context, projectID, componentID, vulnerabilityID string) (*model.AnalysisTrail, error) {
 	trail, err := c.client.GetAnalysisTrail(ctx, projectID, componentID, vulnerabilityID)
-
 	if err != nil {
 		return nil, fmt.Errorf("getting analysis trail: %w", err)
 	}
