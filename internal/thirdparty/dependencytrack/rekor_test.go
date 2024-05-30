@@ -4,17 +4,13 @@ import (
 	"os"
 	"testing"
 
-	"github.com/sigstore/rekor/pkg/generated/models"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestLogEntryToPubKey(t *testing.T) {
-	entry, err := os.ReadFile("testdata/log-entry-anon.json")
+	entry, err := os.ReadFile("testdata/dsse-envelope.json")
 	assert.NoError(t, err)
-	logEntryAnon := models.LogEntryAnon{}
-	err = logEntryAnon.UnmarshalBinary(entry)
-	assert.NoError(t, err)
-	pubKey, err := logEntryToPubKey(logEntryAnon)
+	pubKey, err := logEntryToPubKey(entry)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, pubKey)
 }
@@ -33,5 +29,5 @@ func TestCertToRekorMetadata(t *testing.T) {
 	assert.Equalf(t, "github-hosted", data.RunnerEnvironment, "data.RunnerEnvironment")
 	assert.Equalf(t, "https://github.com/nais", data.SourceRepositoryOwnerURI, "data.SourceRepositoryOwnerURI")
 	assert.Equalf(t, "https://github.com/nais/picante/.github/workflows/build.yml@refs/heads/main", data.BuildConfigURI, "data.BuildConfigURI")
-	assert.Equalf(t, int64(1629780000), data.IntegratedTime, "data.IntegratedTime")
+	assert.Equalf(t, 1629780000, data.IntegratedTime, "data.IntegratedTime")
 }

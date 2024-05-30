@@ -116,7 +116,12 @@ func (r *RClient) parseRekorMetadata(rekorLogIndex models.LogEntry) (*model.Reko
 		return nil, fmt.Errorf("log entry not found")
 	}
 
-	canonicalValue, err := logEntryToPubKey(entryAnon)
+	decoded, err := base64.StdEncoding.DecodeString(entryAnon.Body.(string))
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode log entry: %w", err)
+	}
+
+	canonicalValue, err := logEntryToPubKey(decoded)
 	if err != nil {
 		log.Fatalf("failed to get verifier: %v", err)
 	}
@@ -129,16 +134,11 @@ func (r *RClient) parseRekorMetadata(rekorLogIndex models.LogEntry) (*model.Reko
 	return metadata, nil
 }
 
-func logEntryToPubKey(logEntry models.LogEntryAnon) ([]byte, error) {
-	decoded, err := base64.StdEncoding.DecodeString(logEntry.Body.(string))
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode log entry: %w", err)
-	}
-
+func logEntryToPubKey(decodedAnon []byte) ([]byte, error) {
 	logEntryPayload := struct {
 		Spec json.RawMessage `json:"spec"`
 	}{}
-	err = json.Unmarshal(decoded, &logEntryPayload)
+	err := json.Unmarshal(decodedAnon, &logEntryPayload)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal log entry payload: %w", err)
 	}
