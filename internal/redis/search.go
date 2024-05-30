@@ -26,36 +26,36 @@ func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilte
 	}
 
 	for env, infs := range c.informers {
-			if infs.Redis == nil {
+		if infs.Redis == nil {
+			continue
+		}
+
+		redisInstances, err := infs.Redis.Lister().List(labels.Everything())
+		if err != nil {
+			c.log.WithError(err).Error("listing Redis instances")
+			return nil
+		}
+
+		for _, obj := range redisInstances {
+			u := obj.(*unstructured.Unstructured)
+			rank := search.Match(q, u.GetName())
+			if rank == -1 {
 				continue
 			}
 
-			redisInstances, err := infs.Redis.Lister().List(labels.Everything())
+			redisInstance, err := model.ToRedis(u, env)
 			if err != nil {
-				c.log.WithError(err).Error("listing Redis instances")
+				c.log.WithError(err).Error("converting Redis instances")
 				return nil
+			} else if ok, _ := c.db.TeamExists(ctx, redisInstance.GQLVars.TeamSlug); !ok {
+				continue
 			}
 
-			for _, obj := range redisInstances {
-				u := obj.(*unstructured.Unstructured)
-				rank := search.Match(q, u.GetName())
-				if rank == -1 {
-					continue
-				}
-
-				redisInstance, err := model.ToRedis(u, env)
-				if err != nil {
-					c.log.WithError(err).Error("converting Redis instances")
-					return nil
-				} else if ok, _ := c.db.TeamExists(ctx, redisInstance.GQLVars.TeamSlug); !ok {
-					continue
-				}
-
-				ret = append(ret, &search.Result{
-					Node: redisInstance,
-					Rank: rank,
-				})
-			}
+			ret = append(ret, &search.Result{
+				Node: redisInstance,
+				Rank: rank,
+			})
+		}
 	}
 	return ret
 }

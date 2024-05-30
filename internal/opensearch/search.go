@@ -26,36 +26,36 @@ func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilte
 	}
 
 	for env, infs := range c.informers {
-			if infs.OpenSearch == nil {
+		if infs.OpenSearch == nil {
+			continue
+		}
+
+		osInstances, err := infs.OpenSearch.Lister().List(labels.Everything())
+		if err != nil {
+			c.log.WithError(err).Error("listing OpenSearch instances")
+			return nil
+		}
+
+		for _, obj := range osInstances {
+			u := obj.(*unstructured.Unstructured)
+			rank := search.Match(q, u.GetName())
+			if rank == -1 {
 				continue
 			}
 
-			osInstances, err := infs.OpenSearch.Lister().List(labels.Everything())
+			openSearchInstance, err := model.ToOpenSearch(u, env)
 			if err != nil {
-				c.log.WithError(err).Error("listing OpenSearch instances")
+				c.log.WithError(err).Error("converting OpenSearch instances")
 				return nil
+			} else if ok, _ := c.db.TeamExists(ctx, openSearchInstance.GQLVars.TeamSlug); !ok {
+				continue
 			}
 
-			for _, obj := range osInstances {
-				u := obj.(*unstructured.Unstructured)
-				rank := search.Match(q, u.GetName())
-				if rank == -1 {
-					continue
-				}
-
-				openSearchInstance, err := model.ToOpenSearch(u, env)
-				if err != nil {
-					c.log.WithError(err).Error("converting OpenSearch instances")
-					return nil
-				} else if ok, _ := c.db.TeamExists(ctx, openSearchInstance.GQLVars.TeamSlug); !ok {
-					continue
-				}
-
-				ret = append(ret, &search.Result{
-					Node: openSearchInstance,
-					Rank: rank,
-				})
-			}
+			ret = append(ret, &search.Result{
+				Node: openSearchInstance,
+				Rank: rank,
+			})
+		}
 	}
 	return ret
 }

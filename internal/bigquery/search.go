@@ -17,10 +17,6 @@ func (c *Client) SupportsSearchFilter(filter *model.SearchFilter) bool {
 	return *filter.Type == model.SearchTypeBigquery
 }
 
-
-
-
-
 func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilter) []*search.Result {
 	ret := make([]*search.Result, 0)
 
@@ -30,36 +26,36 @@ func (c *Client) Search(ctx context.Context, q string, filter *model.SearchFilte
 	}
 
 	for env, infs := range c.informers {
-			if infs.BigQuery == nil {
+		if infs.BigQuery == nil {
+			continue
+		}
+
+		bqs, err := infs.BigQuery.Lister().List(labels.Everything())
+		if err != nil {
+			c.log.WithError(err).Error("listing BigQuery datasets")
+			return nil
+		}
+
+		for _, obj := range bqs {
+			u := obj.(*unstructured.Unstructured)
+			rank := search.Match(q, u.GetName())
+			if rank == -1 {
 				continue
 			}
 
-			bqs, err := infs.BigQuery.Lister().List(labels.Everything())
+			bq, err := model.ToBigQueryDataset(u, env)
 			if err != nil {
-				c.log.WithError(err).Error("listing BigQuery datasets")
+				c.log.WithError(err).Error("converting Bigquery dataset")
 				return nil
+			} else if ok, _ := c.db.TeamExists(ctx, bq.GQLVars.TeamSlug); !ok {
+				continue
 			}
 
-			for _, obj := range bqs {
-				u := obj.(*unstructured.Unstructured)
-				rank := search.Match(q, u.GetName())
-				if rank == -1 {
-					continue
-				}
-
-				bq, err := model.ToBigQueryDataset(u, env)
-				if err != nil {
-					c.log.WithError(err).Error("converting Bigquery dataset")
-					return nil
-				} else if ok, _ := c.db.TeamExists(ctx, bq.GQLVars.TeamSlug); !ok {
-					continue
-				}
-
-				ret = append(ret, &search.Result{
-					Node: bq,
-					Rank: rank,
-				})
-			}
+			ret = append(ret, &search.Result{
+				Node: bq,
+				Rank: rank,
+			})
+		}
 	}
 	return ret
 }

@@ -31,7 +31,7 @@ func NewClient(informers k8s.ClusterInformers, log logrus.FieldLogger, db openSe
 	return &Client{
 		informers: informers,
 		log:       log,
-		db: db,
+		db:        db,
 	}
 }
 
