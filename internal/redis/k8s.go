@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"time"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
@@ -64,9 +66,26 @@ func (c *Client) RedisInstance(ctx context.Context, env string, teamSlug slug.Sl
 	}
 
 	if ret.GQLVars.OwnerReference != nil {
-		cost := c.metrics.CostForRedisInstance(ctx, env, teamSlug, ret.GQLVars.OwnerReference.Name)
+		cost := c.CostForRedisInstance(ctx, env, teamSlug, ret.GQLVars.OwnerReference.Name)
 		ret.Cost = strconv.FormatFloat(cost, 'f', -1, 64)
 	}
 
 	return ret, nil
+}
+
+func (c *Client) CostForRedisInstance(ctx context.Context, env string, teamSlug slug.Slug, ownerName string) float64 {
+	cost := 0.0
+
+	now := time.Now()
+	var from, to pgtype.Date
+	_ = to.Scan(now)
+	_ = from.Scan(now.AddDate(0, 0, -30))
+
+	if sum, err := c.db.CostForInstance(ctx, "Redis", from, to, teamSlug, ownerName, env); err != nil {
+		c.log.WithError(err).Errorf("fetching cost")
+	} else {
+		cost = float64(sum)
+	}
+
+	return cost
 }

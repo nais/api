@@ -215,9 +215,9 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		sqlInstanceClient,
 		bucket.NewClient(k8sClient.Informers(), log),
 		redis.NewClient(k8sClient.Informers(), log, db),
-		bigquery.NewClient(k8sClient.Informers(), log),
+		bigquery.NewClient(k8sClient.Informers(), log, db),
 		opensearch.NewClient(k8sClient.Informers(), log, db),
-		kafka.NewClient(k8sClient.Informers(), log),
+		kafka.NewClient(k8sClient.Informers(), log, db),
 		unleashMgr,
 	)
 

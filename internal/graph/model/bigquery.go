@@ -31,10 +31,9 @@ type BigQueryDatasetGQLVars struct {
 	OwnerReference *v1.OwnerReference
 }
 
-func (BigQueryDataset) IsPersistence() {}
-
-func (in BigQueryDataset) GetName() string { return in.Name }
-
+func (BigQueryDataset) IsPersistence()         {}
+func (BigQueryDataset) IsSearchNode()          {}
+func (in BigQueryDataset) GetName() string     { return in.Name }
 func (in BigQueryDataset) GetID() scalar.Ident { return in.ID }
 
 func ToBigQueryDataset(u *unstructured.Unstructured, env string) (*BigQueryDataset, error) {

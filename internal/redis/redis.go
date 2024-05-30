@@ -8,14 +8,19 @@ import (
 
 type Client struct {
 	informers k8s.ClusterInformers
+	db        redisClientDatabase
 	log       logrus.FieldLogger
-	metrics   Metrics
 }
 
-func NewClient(informers k8s.ClusterInformers, log logrus.FieldLogger, costRepo database.CostRepo) *Client {
+type redisClientDatabase interface {
+	database.CostRepo
+	database.TeamRepo
+}
+
+func NewClient(informers k8s.ClusterInformers, log logrus.FieldLogger, db redisClientDatabase) *Client {
 	return &Client{
 		informers: informers,
 		log:       log,
-		metrics:   Metrics{log: log, costRepo: costRepo},
+		db:        db,
 	}
 }

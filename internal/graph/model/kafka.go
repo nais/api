@@ -29,6 +29,7 @@ type KafkaTopicGQLVars struct {
 }
 
 func (KafkaTopic) IsPersistence()        {}
+func (KafkaTopic) IsSearchNode()         {}
 func (t KafkaTopic) GetName() string     { return t.Name }
 func (t KafkaTopic) GetID() scalar.Ident { return t.ID }
 

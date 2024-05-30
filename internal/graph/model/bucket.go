@@ -36,6 +36,7 @@ type BucketGQLVars struct {
 }
 
 func (Bucket) IsPersistence()    {}
+func (Bucket) IsSearchNode()     {}
 func (b Bucket) GetName() string { return b.Name }
 
 func (b Bucket) GetID() scalar.Ident { return b.ID }
