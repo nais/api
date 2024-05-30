@@ -27,6 +27,7 @@ var (
 	ErrUserIsNotTeamMember             = Errorf("The user is not a member of the team.")
 	ErrSecretUnmanaged                 = Errorf("The secret name conflicts with a secret managed by another service. Please try again with a different name.")
 	ErrGoogleCloudMonitoringMetricsApi = Errorf("Unable to fetch SQL instance metrics from the Google Cloud Monitoring API")
+	ErrUnleashEmptyAllowedTeams        = Errorf("You must specify at least one team that is allowed to access the Unleash instance.")
 )
 
 // Error is an error that can be presented to end-users

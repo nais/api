@@ -6,6 +6,11 @@ extend type Mutation {
   will be set as owner of the Unleash instance and will be able to manage it.
   """
   createUnleashForTeam(team: Slug!): Unleash! @auth
+
+  """
+  Update Unleash instance with allowed teams.
+  """
+  updateUnleashForTeam(team: Slug!, name: String!, allowedTeams: [String!]): Unleash! @auth
 }
 
 type Unleash {

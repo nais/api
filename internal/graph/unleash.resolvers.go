@@ -7,8 +7,9 @@ package graph
 import (
 	"context"
 	"fmt"
-	"github.com/nais/api/internal/auth/authz"
 
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
@@ -23,6 +24,21 @@ func (r *mutationResolver) CreateUnleashForTeam(ctx context.Context, team slug.S
 	}
 
 	return r.unleashMgr.NewUnleash(ctx, team.String(), []string{team.String()})
+}
+
+// UpdateUnleashForTeam is the resolver for the updateUnleashForTeam field.
+func (r *mutationResolver) UpdateUnleashForTeam(ctx context.Context, team slug.Slug, name string, allowedTeams []string) (*model.Unleash, error) {
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamMembership(actor, team)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(allowedTeams) == 0 {
+		return nil, apierror.ErrUnleashEmptyAllowedTeams
+	}
+
+	return r.unleashMgr.UpdateUnleash(ctx, name, allowedTeams)
 }
 
 // Toggles is the resolver for the toggles field.

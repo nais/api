@@ -549,6 +549,7 @@ type ComplexityRoot struct {
 		SynchronizeUsers       func(childComplexity int) int
 		UpdateSecret           func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
 		UpdateTeam             func(childComplexity int, slug slug.Slug, input model.UpdateTeamInput) int
+		UpdateUnleashForTeam   func(childComplexity int, team slug.Slug, name string, allowedTeams []string) int
 	}
 
 	NaisJob struct {
@@ -1169,6 +1170,7 @@ type MutationResolver interface {
 	ConfirmTeamDeletion(ctx context.Context, key string) (bool, error)
 	ChangeDeployKey(ctx context.Context, team slug.Slug) (*model.DeploymentKey, error)
 	CreateUnleashForTeam(ctx context.Context, team slug.Slug) (*model.Unleash, error)
+	UpdateUnleashForTeam(ctx context.Context, team slug.Slug, name string, allowedTeams []string) (*model.Unleash, error)
 	SynchronizeUsers(ctx context.Context) (string, error)
 }
 type NaisJobResolver interface {
@@ -3411,6 +3413,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateTeam(childComplexity, args["slug"].(slug.Slug), args["input"].(model.UpdateTeamInput)), true
+
+	case "Mutation.updateUnleashForTeam":
+		if e.complexity.Mutation.UpdateUnleashForTeam == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateUnleashForTeam_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateUnleashForTeam(childComplexity, args["team"].(slug.Slug), args["name"].(string), args["allowedTeams"].([]string)), true
 
 	case "NaisJob.accessPolicy":
 		if e.complexity.NaisJob.AccessPolicy == nil {
@@ -8365,6 +8379,11 @@ enum RepositoryAuthorization {
   will be set as owner of the Unleash instance and will be able to manage it.
   """
   createUnleashForTeam(team: Slug!): Unleash! @auth
+
+  """
+  Update Unleash instance with allowed teams.
+  """
+  updateUnleashForTeam(team: Slug!, name: String!, allowedTeams: [String!]): Unleash! @auth
 }
 
 type Unleash {
@@ -9193,6 +9212,39 @@ func (ec *executionContext) field_Mutation_updateTeam_args(ctx context.Context, 
 		}
 	}
 	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateUnleashForTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 slug.Slug
+	if tmp, ok := rawArgs["team"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
+		arg0, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["team"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["name"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["name"] = arg1
+	var arg2 []string
+	if tmp, ok := rawArgs["allowedTeams"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("allowedTeams"))
+		arg2, err = ec.unmarshalOString2ᚕstringᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["allowedTeams"] = arg2
 	return args, nil
 }
 
@@ -25068,6 +25120,87 @@ func (ec *executionContext) fieldContext_Mutation_createUnleashForTeam(ctx conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createUnleashForTeam_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateUnleashForTeam(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateUnleashForTeam(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateUnleashForTeam(rctx, fc.Args["team"].(slug.Slug), fc.Args["name"].(string), fc.Args["allowedTeams"].([]string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Unleash); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.Unleash`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Unleash)
+	fc.Result = res
+	return ec.marshalNUnleash2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUnleash(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateUnleashForTeam(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "instance":
+				return ec.fieldContext_Unleash_instance(ctx, field)
+			case "enabled":
+				return ec.fieldContext_Unleash_enabled(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Unleash", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateUnleashForTeam_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -49805,6 +49938,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "createUnleashForTeam":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createUnleashForTeam(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateUnleashForTeam":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateUnleashForTeam(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

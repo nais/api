@@ -70,7 +70,18 @@ func NewFakeBifrostClient(k8sClient dynamic.Interface) BifrostClient {
 
 func (f FakeBifrostClient) Post(ctx context.Context, path string, v any) (*http.Response, error) {
 	unleashConfig := v.(bifrost.UnleashConfig)
-	unleashInstance, err := f.createUnleash(ctx, unleashConfig)
+
+	var unleashInstance *unleash_nais_io_v1.Unleash
+	var err error
+	switch path {
+	case "/unleash/new":
+		unleashInstance, err = f.createOrUpdateUnleash(ctx, unleashConfig)
+	case "/unleash/edit":
+		unleashInstance, err = f.createOrUpdateUnleash(ctx, unleashConfig)
+	default:
+		return nil, fmt.Errorf("unknown path: %s", path)
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -86,16 +97,28 @@ func (f FakeBifrostClient) Post(ctx context.Context, path string, v any) (*http.
 func (f FakeBifrostClient) WithClient(_ *http.Client) {
 }
 
-func (m *FakeBifrostClient) createUnleash(ctx context.Context, unleashConfig bifrost.UnleashConfig) (*unleash_nais_io_v1.Unleash, error) {
-	client := m.k8sClient
+func (f FakeBifrostClient) createOrUpdateUnleash(ctx context.Context, config bifrost.UnleashConfig) (*unleash_nais_io_v1.Unleash, error) {
+	client := f.k8sClient
 
-	unleashSpec := unleashSpec(unleashConfig)
+	unleashSpec := unleashSpec(config)
 	unleashObject, err := runtime.DefaultUnstructuredConverter.ToUnstructured(unleashSpec)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = client.Resource(unleash_nais_io_v1.GroupVersion.WithResource("unleashes")).Namespace("bifrost-unleash").Create(ctx, &unstructured.Unstructured{Object: unleashObject}, metav1.CreateOptions{})
+	resource := client.Resource(unleash_nais_io_v1.GroupVersion.WithResource("unleashes")).Namespace("bifrost-unleash")
+
+	if _, err = resource.Get(ctx, config.Name, metav1.GetOptions{}); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			_, err = resource.Create(ctx, &unstructured.Unstructured{Object: unleashObject}, metav1.CreateOptions{})
+			if err != nil {
+				return nil, err
+			}
+			return nil, err
+		}
+	}
+
+	_, err = resource.Update(ctx, &unstructured.Unstructured{Object: unleashObject}, metav1.UpdateOptions{})
 	if err != nil {
 		return nil, err
 	}
