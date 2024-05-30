@@ -55,6 +55,7 @@ type App implements Workload {
   authz: [Authz!]!
   variables: [Variable!]!
   resources: Resources!
+  type: WorkloadType!
 
   ingresses: [String!]!
   instances: [Instance!]!

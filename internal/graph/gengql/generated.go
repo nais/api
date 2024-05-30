@@ -100,6 +100,7 @@ type ComplexityRoot struct {
 		Secrets         func(childComplexity int) int
 		Status          func(childComplexity int) int
 		Team            func(childComplexity int) int
+		Type            func(childComplexity int) int
 		Variables       func(childComplexity int) int
 		Vulnerabilities func(childComplexity int) int
 	}
@@ -607,6 +608,7 @@ type ComplexityRoot struct {
 		Secrets      func(childComplexity int) int
 		Status       func(childComplexity int) int
 		Team         func(childComplexity int) int
+		Type         func(childComplexity int) int
 		Variables    func(childComplexity int) int
 	}
 
@@ -1530,6 +1532,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.App.Team(childComplexity), true
+
+	case "App.type":
+		if e.complexity.App.Type == nil {
+			break
+		}
+
+		return e.complexity.App.Type(childComplexity), true
 
 	case "App.variables":
 		if e.complexity.App.Variables == nil {
@@ -3770,6 +3779,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.NaisJob.Team(childComplexity), true
+
+	case "NaisJob.type":
+		if e.complexity.NaisJob.Type == nil {
+			break
+		}
+
+		return e.complexity.NaisJob.Type(childComplexity), true
 
 	case "NaisJob.variables":
 		if e.complexity.NaisJob.Variables == nil {
@@ -6589,6 +6605,7 @@ type App implements Workload {
   authz: [Authz!]!
   variables: [Variable!]!
   resources: Resources!
+  type: WorkloadType!
 
   ingresses: [String!]!
   instances: [Instance!]!
@@ -7215,6 +7232,7 @@ type NaisJob implements Workload {
   authz: [Authz!]!
   variables: [Variable!]!
   resources: Resources!
+  type: WorkloadType!
 
   runs: [Run!]!
   manifest: String!
@@ -7272,7 +7290,7 @@ type BigQueryDataset implements Persistence {
 
 type BigQueryDatasetStatus {
   conditions: [Condition!]!
-  creationTime: Time
+  creationTime: Time!
   lastModifiedTime: Time
 }
 
@@ -8957,6 +8975,12 @@ type TeamMemberList {
   authz: [Authz!]!
   variables: [Variable!]!
   resources: Resources!
+  type: WorkloadType!
+}
+
+enum WorkloadType {
+  APP
+  NAISJOB
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -11617,6 +11641,50 @@ func (ec *executionContext) fieldContext_App_resources(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _App_type(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_App_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.WorkloadType)
+	fc.Result = res
+	return ec.marshalNWorkloadType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkloadType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_App_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "App",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type WorkloadType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _App_ingresses(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_App_ingresses(ctx, field)
 	if err != nil {
@@ -12307,6 +12375,8 @@ func (ec *executionContext) fieldContext_AppList_nodes(ctx context.Context, fiel
 				return ec.fieldContext_App_variables(ctx, field)
 			case "resources":
 				return ec.fieldContext_App_resources(ctx, field)
+			case "type":
+				return ec.fieldContext_App_type(ctx, field)
 			case "ingresses":
 				return ec.fieldContext_App_ingresses(ctx, field)
 			case "instances":
@@ -14749,11 +14819,14 @@ func (ec *executionContext) _BigQueryDatasetStatus_creationTime(ctx context.Cont
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*time.Time)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_BigQueryDatasetStatus_creationTime(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -27374,6 +27447,50 @@ func (ec *executionContext) fieldContext_NaisJob_resources(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _NaisJob_type(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NaisJob_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.WorkloadType)
+	fc.Result = res
+	return ec.marshalNWorkloadType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkloadType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NaisJob_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NaisJob",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type WorkloadType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _NaisJob_runs(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_NaisJob_runs(ctx, field)
 	if err != nil {
@@ -27953,6 +28070,8 @@ func (ec *executionContext) fieldContext_NaisJobList_nodes(ctx context.Context, 
 				return ec.fieldContext_NaisJob_variables(ctx, field)
 			case "resources":
 				return ec.fieldContext_NaisJob_resources(ctx, field)
+			case "type":
+				return ec.fieldContext_NaisJob_type(ctx, field)
 			case "runs":
 				return ec.fieldContext_NaisJob_runs(ctx, field)
 			case "manifest":
@@ -29586,6 +29705,8 @@ func (ec *executionContext) fieldContext_Query_app(ctx context.Context, field gr
 				return ec.fieldContext_App_variables(ctx, field)
 			case "resources":
 				return ec.fieldContext_App_resources(ctx, field)
+			case "type":
+				return ec.fieldContext_App_type(ctx, field)
 			case "ingresses":
 				return ec.fieldContext_App_ingresses(ctx, field)
 			case "instances":
@@ -30050,6 +30171,8 @@ func (ec *executionContext) fieldContext_Query_naisjob(ctx context.Context, fiel
 				return ec.fieldContext_NaisJob_variables(ctx, field)
 			case "resources":
 				return ec.fieldContext_NaisJob_resources(ctx, field)
+			case "type":
+				return ec.fieldContext_NaisJob_type(ctx, field)
 			case "runs":
 				return ec.fieldContext_NaisJob_runs(ctx, field)
 			case "manifest":
@@ -35837,6 +35960,8 @@ func (ec *executionContext) fieldContext_Secret_apps(ctx context.Context, field 
 				return ec.fieldContext_App_variables(ctx, field)
 			case "resources":
 				return ec.fieldContext_App_resources(ctx, field)
+			case "type":
+				return ec.fieldContext_App_type(ctx, field)
 			case "ingresses":
 				return ec.fieldContext_App_ingresses(ctx, field)
 			case "instances":
@@ -35919,6 +36044,8 @@ func (ec *executionContext) fieldContext_Secret_jobs(ctx context.Context, field 
 				return ec.fieldContext_NaisJob_variables(ctx, field)
 			case "resources":
 				return ec.fieldContext_NaisJob_resources(ctx, field)
+			case "type":
+				return ec.fieldContext_NaisJob_type(ctx, field)
 			case "runs":
 				return ec.fieldContext_NaisJob_runs(ctx, field)
 			case "manifest":
@@ -48477,6 +48604,11 @@ func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "type":
+			out.Values[i] = ec._App_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "ingresses":
 			out.Values[i] = ec._App_ingresses(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -49498,6 +49630,9 @@ func (ec *executionContext) _BigQueryDatasetStatus(ctx context.Context, sel ast.
 			}
 		case "creationTime":
 			out.Values[i] = ec._BigQueryDatasetStatus_creationTime(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "lastModifiedTime":
 			out.Values[i] = ec._BigQueryDatasetStatus_lastModifiedTime(ctx, field, obj)
 		default:
@@ -52799,6 +52934,11 @@ func (ec *executionContext) _NaisJob(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "resources":
 			out.Values[i] = ec._NaisJob_resources(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "type":
+			out.Values[i] = ec._NaisJob_type(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -64239,6 +64379,16 @@ func (ec *executionContext) marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinterna
 
 func (ec *executionContext) marshalNWorkloadStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkloadStatus(ctx context.Context, sel ast.SelectionSet, v model.WorkloadStatus) graphql.Marshaler {
 	return ec._WorkloadStatus(ctx, sel, &v)
+}
+
+func (ec *executionContext) unmarshalNWorkloadType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkloadType(ctx context.Context, v interface{}) (model.WorkloadType, error) {
+	var res model.WorkloadType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNWorkloadType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkloadType(ctx context.Context, sel ast.SelectionSet, v model.WorkloadType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

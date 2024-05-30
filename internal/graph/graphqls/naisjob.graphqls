@@ -59,6 +59,7 @@ type NaisJob implements Workload {
   authz: [Authz!]!
   variables: [Variable!]!
   resources: Resources!
+  type: WorkloadType!
 
   runs: [Run!]!
   manifest: String!

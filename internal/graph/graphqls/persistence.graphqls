@@ -38,7 +38,7 @@ type BigQueryDataset implements Persistence {
 
 type BigQueryDatasetStatus {
   conditions: [Condition!]!
-  creationTime: Time
+  creationTime: Time!
   lastModifiedTime: Time
 }
 

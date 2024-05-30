@@ -15,7 +15,11 @@ type NaisJob struct {
 	Retries     int    `json:"retries"`
 }
 
-func (NaisJob) IsSearchNode() {}
+func (NaisJob) IsSearchNode()         {}
+func (NaisJob) GetType() WorkloadType { return WorkloadTypeNaisjob }
+func (j NaisJob) Type() WorkloadType  { return j.GetType() }
+
+var _ Workload = (*NaisJob)(nil)
 
 type Run struct {
 	ID             scalar.Ident `json:"id"`

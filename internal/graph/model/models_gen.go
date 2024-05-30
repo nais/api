@@ -53,6 +53,7 @@ type Workload interface {
 	GetAuthz() []Authz
 	GetVariables() []*Variable
 	GetResources() Resources
+	GetType() WorkloadType
 }
 
 type AccessPolicy struct {
@@ -159,7 +160,7 @@ type BigQueryDatasetList struct {
 
 type BigQueryDatasetStatus struct {
 	Conditions       []*Condition `json:"conditions"`
-	CreationTime     *time.Time   `json:"creationTime,omitempty"`
+	CreationTime     time.Time    `json:"creationTime"`
 	LastModifiedTime *time.Time   `json:"lastModifiedTime,omitempty"`
 }
 
@@ -1541,5 +1542,46 @@ func (e *UserSyncRunStatus) UnmarshalGQL(v interface{}) error {
 }
 
 func (e UserSyncRunStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type WorkloadType string
+
+const (
+	WorkloadTypeApp     WorkloadType = "APP"
+	WorkloadTypeNaisjob WorkloadType = "NAISJOB"
+)
+
+var AllWorkloadType = []WorkloadType{
+	WorkloadTypeApp,
+	WorkloadTypeNaisjob,
+}
+
+func (e WorkloadType) IsValid() bool {
+	switch e {
+	case WorkloadTypeApp, WorkloadTypeNaisjob:
+		return true
+	}
+	return false
+}
+
+func (e WorkloadType) String() string {
+	return string(e)
+}
+
+func (e *WorkloadType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = WorkloadType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid WorkloadType", str)
+	}
+	return nil
+}
+
+func (e WorkloadType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

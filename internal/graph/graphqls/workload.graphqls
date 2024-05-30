@@ -9,4 +9,10 @@ interface Workload {
   authz: [Authz!]!
   variables: [Variable!]!
   resources: Resources!
+  type: WorkloadType!
+}
+
+enum WorkloadType {
+  APP
+  NAISJOB
 }

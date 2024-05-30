@@ -67,8 +67,13 @@ func ToBigQueryDataset(u *unstructured.Unstructured, env string) (*BigQueryDatas
 			Name: env,
 		},
 		Status: BigQueryDatasetStatus{
-			LastModifiedTime: ptr.To(time.Unix(int64(bqs.Status.LastModifiedTime), 0)),
-			CreationTime: ptr.To(time.Unix(int64(bqs.Status.CreationTime), 0)),
+			CreationTime: time.Unix(int64(bqs.Status.CreationTime), 0),
+			LastModifiedTime: func(ts int) *time.Time {
+				if ts == 0 {
+					return nil
+				}
+				return ptr.To(time.Unix(int64(ts), 0))
+			}(bqs.Status.LastModifiedTime),
 			Conditions: func(conditions []v1.Condition) []*Condition {
 				ret := make([]*Condition, len(conditions))
 				for i, c := range conditions {
