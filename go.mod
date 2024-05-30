@@ -7,7 +7,6 @@ require (
 	cloud.google.com/go/bigquery v1.60.0
 	cloud.google.com/go/monitoring v1.18.1
 	cloud.google.com/go/pubsub v1.37.0
-	cloud.google.com/go/storage v1.39.1
 	github.com/99designs/gqlgen v0.17.43
 	github.com/GoogleCloudPlatform/k8s-config-connector v1.113.0
 	github.com/bombsimon/logrusr/v4 v4.1.0
