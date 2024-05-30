@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
@@ -1591,58 +1592,44 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 }
 
 // VulnerabilitiesSummary is the resolver for the vulnerabilitiesSummary field.
-func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummary, error) {
-	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
+func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummaryForTeam, error) {
+	images, err := r.dependencyTrackClient.GetMetadataForTeam(ctx, obj.Slug.String())
 	if err != nil {
-		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
+		return nil, fmt.Errorf("getting metadata for team %q: %w", obj.Slug.String(), err)
 	}
 
-	instances := make([]*dependencytrack.AppInstance, 0)
-	for _, app := range apps {
-		instances = append(instances, &dependencytrack.AppInstance{
-			Env:   app.Env.Name,
-			App:   app.Name,
-			Image: app.GQLVars.Spec.ImageName,
-			Team:  obj.Slug.String(),
-		})
-	}
-
-	nodes, err := r.dependencyTrackClient.GetVulnerabilities(ctx, instances)
-	if err != nil {
-		return nil, fmt.Errorf("getting vulnerabilities from DependencyTrack: %w", err)
-	}
-
-	retVal := &model.VulnerabilitySummary{}
-	for _, n := range nodes {
-		if n.Summary == nil {
+	retVal := &model.VulnerabilitySummaryForTeam{}
+	for _, image := range images {
+		// do not count plattform images used in init containers and sidecars
+		if strings.Contains(image.Name, "/nais-io/") {
 			continue
 		}
-		if n.Summary.Critical > 0 {
-			retVal.Critical += n.Summary.Critical
+		if image.Summary.Critical > 0 {
+			retVal.Critical += image.Summary.Critical
 		}
-		if n.Summary.High > 0 {
-			retVal.High += n.Summary.High
+		if image.Summary.High > 0 {
+			retVal.High += image.Summary.High
 		}
-		if n.Summary.Medium > 0 {
-			retVal.Medium += n.Summary.Medium
+		if image.Summary.Medium > 0 {
+			retVal.Medium += image.Summary.Medium
 		}
-		if n.Summary.Low > 0 {
-			retVal.Low += n.Summary.Low
+		if image.Summary.Low > 0 {
+			retVal.Low += image.Summary.Low
 		}
-		if n.Summary.Unassigned > 0 {
-			retVal.Unassigned += n.Summary.Unassigned
+		if image.Summary.Unassigned > 0 {
+			retVal.Unassigned += image.Summary.Unassigned
 		}
-		if n.Summary.RiskScore > 0 {
-			retVal.RiskScore += n.Summary.RiskScore
+		if image.Summary.RiskScore > 0 {
+			retVal.RiskScore += image.Summary.RiskScore
 		}
-		if n.Summary.Total > 0 {
-			retVal.Total += n.Summary.Total
+		if image.Summary.Total > 0 {
+			retVal.Total += image.Summary.Total
 		}
-		if n.HasBom {
+		if image.HasSbom {
 			retVal.BomCount += 1
 		}
-
 	}
+
 	return retVal, nil
 }
 
