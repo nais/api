@@ -71,8 +71,8 @@ func (f *FakeDependencytrackClient) GetAnalysisTrailForImage(ctx context.Context
 	return f.client.GetAnalysisTrailForImage(ctx, componentID, projectID, vulnerabilityID)
 }
 
-func (f *FakeDependencytrackClient) GetMetadataForImage(ctx context.Context, name string, version string) (*model.Image, error) {
-	return f.client.GetMetadataForImage(ctx, name, version)
+func (f *FakeDependencytrackClient) GetMetadataForImage(ctx context.Context, name string) (*model.Image, error) {
+	return f.client.GetMetadataForImage(ctx, name)
 }
 
 func (f *FakeDependencytrackClient) GetProjectMetrics(ctx context.Context, app *dependencytrack.AppInstance, date string) (*dependencytrack.ProjectMetric, error) {
@@ -118,7 +118,7 @@ func (f *FakeDependencytrackClient) setCacheEntryForApp(app *dependencytrack.App
 		v.HasBom = false
 	case 1:
 		v.HasBom = false
-		v.Summary = &model.VulnerabilitySummary{
+		v.Summary = &model.VulnerabilitySummaryForTeam{
 			RiskScore:  -1,
 			Total:      -1,
 			Critical:   -1,
@@ -134,7 +134,7 @@ func (f *FakeDependencytrackClient) setCacheEntryForApp(app *dependencytrack.App
 		low := rand.Intn(10)
 		unassigned := rand.Intn(10)
 
-		v.Summary = &model.VulnerabilitySummary{
+		v.Summary = &model.VulnerabilitySummaryForTeam{
 			Total:      critical + high + medium + low + unassigned,
 			RiskScore:  (critical * 10) + (high * 5) + (medium * 3) + (low * 1) + (unassigned * 5),
 			Critical:   critical,

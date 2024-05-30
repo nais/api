@@ -14,7 +14,7 @@ type testCase struct {
 	name           string
 	appCondition   string
 	instanceStates []model.InstanceState
-	image          model.Image
+	image          string
 	ingresses      []string
 	expectedState  model.State
 	expectedErrors []model.StateError
@@ -26,9 +26,7 @@ func TestSetStatus(t *testing.T) {
 			name:           "app is rolloutcomplete and has running instances",
 			appCondition:   sync_states.RolloutComplete,
 			instanceStates: []model.InstanceState{model.InstanceStateRunning},
-			image: model.Image{
-				Name: "europe-north1-docker.pkg.dev/nais-io/nais/images/myapp:1.0.0",
-			},
+			image:          "europe-north1-docker.pkg.dev/nais-io/nais/images/myapp:1.0.0",
 			ingresses:      []string{"myapp.nav.cloud.nais.io"},
 			expectedState:  model.StateNais,
 			expectedErrors: []model.StateError{},
@@ -37,11 +35,9 @@ func TestSetStatus(t *testing.T) {
 			name:           "app is rolloutcomplete and has failing instances",
 			appCondition:   sync_states.RolloutComplete,
 			instanceStates: []model.InstanceState{model.InstanceStateFailing},
-			image: model.Image{
-				Name: "europe-north1-docker.pkg.dev/nais-io/nais/images/myapp:1.0.0",
-			},
-			ingresses:     []string{"myapp.nav.cloud.nais.io"},
-			expectedState: model.StateFailing,
+			image:          "europe-north1-docker.pkg.dev/nais-io/nais/images/myapp:1.0.0",
+			ingresses:      []string{"myapp.nav.cloud.nais.io"},
+			expectedState:  model.StateFailing,
 			expectedErrors: []model.StateError{
 				&model.NoRunningInstancesError{
 					Revision: "1",
@@ -53,11 +49,9 @@ func TestSetStatus(t *testing.T) {
 			name:           "app failed synchronization and has running instances",
 			appCondition:   sync_states.FailedSynchronization,
 			instanceStates: []model.InstanceState{model.InstanceStateRunning},
-			image: model.Image{
-				Name: "europe-north1-docker.pkg.dev/nais-io/nais/images/myapp:1.0.0",
-			},
-			ingresses:     []string{"myapp.nav.cloud.nais.io"},
-			expectedState: model.StateNotnais,
+			image:          "europe-north1-docker.pkg.dev/nais-io/nais/images/myapp:1.0.0",
+			ingresses:      []string{"myapp.nav.cloud.nais.io"},
+			expectedState:  model.StateNotnais,
 			expectedErrors: []model.StateError{
 				&model.SynchronizationFailingError{
 					Revision: "1",
@@ -69,11 +63,9 @@ func TestSetStatus(t *testing.T) {
 			name:           "app failed synchronization and has failing instances",
 			appCondition:   sync_states.FailedSynchronization,
 			instanceStates: []model.InstanceState{model.InstanceStateFailing},
-			image: model.Image{
-				Name: "europe-north1-docker.pkg.dev/nais-io/nais/images/myapp:1.0.0",
-			},
-			ingresses:     []string{"myapp.nav.cloud.nais.io"},
-			expectedState: model.StateFailing,
+			image:          "europe-north1-docker.pkg.dev/nais-io/nais/images/myapp:1.0.0",
+			ingresses:      []string{"myapp.nav.cloud.nais.io"},
+			expectedState:  model.StateFailing,
 			expectedErrors: []model.StateError{
 				&model.NoRunningInstancesError{
 					Revision: "1",
@@ -88,11 +80,9 @@ func TestSetStatus(t *testing.T) {
 			name:           "app is synchronized and has running and failing instances",
 			appCondition:   sync_states.Synchronized,
 			instanceStates: []model.InstanceState{model.InstanceStateRunning, model.InstanceStateFailing},
-			image: model.Image{
-				Name: "europe-north1-docker.pkg.dev/nais-io/nais/images/myapp:1.0.0",
-			},
-			ingresses:     []string{"myapp.nav.cloud.nais.io"},
-			expectedState: model.StateNotnais,
+			image:          "europe-north1-docker.pkg.dev/nais-io/nais/images/myapp:1.0.0",
+			ingresses:      []string{"myapp.nav.cloud.nais.io"},
+			expectedState:  model.StateNotnais,
 			expectedErrors: []model.StateError{
 				&model.NewInstancesFailingError{
 					Revision: "1",
@@ -104,11 +94,9 @@ func TestSetStatus(t *testing.T) {
 			name:           "app is synchronized and has multiple failing instances",
 			appCondition:   sync_states.Synchronized,
 			instanceStates: []model.InstanceState{model.InstanceStateFailing, model.InstanceStateFailing},
-			image: model.Image{
-				Name: "europe-north1-docker.pkg.dev/nais-io/nais/images/myapp:1.0.0",
-			},
-			ingresses:     []string{"myapp.nav.cloud.nais.io"},
-			expectedState: model.StateFailing,
+			image:          "europe-north1-docker.pkg.dev/nais-io/nais/images/myapp:1.0.0",
+			ingresses:      []string{"myapp.nav.cloud.nais.io"},
+			expectedState:  model.StateFailing,
 			expectedErrors: []model.StateError{
 				&model.NewInstancesFailingError{
 					Revision: "1",
@@ -123,11 +111,9 @@ func TestSetStatus(t *testing.T) {
 			name:           "app is rolloutcomplete and has no instances",
 			appCondition:   sync_states.RolloutComplete,
 			instanceStates: []model.InstanceState{},
-			image: model.Image{
-				Name: "europe-north1-docker.pkg.dev/nais-io/nais/images/myapp:1.0.0",
-			},
-			ingresses:     []string{"myapp.nav.cloud.nais.io"},
-			expectedState: model.StateFailing,
+			image:          "europe-north1-docker.pkg.dev/nais-io/nais/images/myapp:1.0.0",
+			ingresses:      []string{"myapp.nav.cloud.nais.io"},
+			expectedState:  model.StateFailing,
 			expectedErrors: []model.StateError{&model.NoRunningInstancesError{
 				Revision: "1",
 				Level:    model.ErrorLevelError,
@@ -137,11 +123,9 @@ func TestSetStatus(t *testing.T) {
 			name:           "app image is from deprecated registry",
 			appCondition:   sync_states.RolloutComplete,
 			instanceStates: []model.InstanceState{model.InstanceStateRunning, model.InstanceStateRunning},
-			image: model.Image{
-				Name: "docker.pkg.github.com/nais/myapp/myapp:1.0.0",
-			},
-			ingresses:     []string{"myapp.nav.cloud.nais.io"},
-			expectedState: model.StateNais,
+			image:          "docker.pkg.github.com/nais/myapp/myapp:1.0.0",
+			ingresses:      []string{"myapp.nav.cloud.nais.io"},
+			expectedState:  model.StateNais,
 			expectedErrors: []model.StateError{&model.DeprecatedRegistryError{
 				Revision: "1",
 				Level:    model.ErrorLevelTodo,
@@ -151,11 +135,9 @@ func TestSetStatus(t *testing.T) {
 			name:           "app has deprecated ingress",
 			appCondition:   sync_states.RolloutComplete,
 			instanceStates: []model.InstanceState{model.InstanceStateRunning, model.InstanceStateRunning},
-			image: model.Image{
-				Name: "europe-north1-docker.pkg.dev/nais-io/nais/images/myapp:1.0.0",
-			},
-			ingresses:     []string{"myapp.prod-gcp.nais.io"},
-			expectedState: model.StateNais,
+			image:          "europe-north1-docker.pkg.dev/nais-io/nais/images/myapp:1.0.0",
+			ingresses:      []string{"myapp.prod-gcp.nais.io"},
+			expectedState:  model.StateNais,
 			expectedErrors: []model.StateError{&model.DeprecatedIngressError{
 				Revision: "1",
 				Level:    model.ErrorLevelTodo,
@@ -166,18 +148,25 @@ func TestSetStatus(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			app := &model.App{
-				WorkloadBase: model.WorkloadBase{Image: tc.image, Env: model.Env{Name: "prod-gcp"}},
-				Ingresses:    tc.ingresses,
-				AutoScaling:  model.AutoScaling{Min: 1, Max: 2},
+				WorkloadBase: model.WorkloadBase{
+					Env: model.Env{Name: "prod-gcp"},
+					GQLVars: model.WorkloadBaseGQLVars{
+						Spec: model.WorkloadSpec{
+							ImageName: tc.image,
+						},
+					},
+				},
+				Ingresses:   tc.ingresses,
+				AutoScaling: model.AutoScaling{Min: 1, Max: 2},
 			}
 
 			setStatus(app, []metav1.Condition{{Status: metav1.ConditionTrue, Reason: tc.appCondition, Type: "SynchronizationState"}}, asInstances(tc.instanceStates))
 
 			if app.Status.State != tc.expectedState {
-				t.Errorf("%s\ngot state: %v, want: %v", tc.name, app.Status.State, tc.expectedState)
+				t.Errorf("%s\ngot state: %s, want: %s", tc.name, app.Status.State, tc.expectedState)
 			}
 			if !hasError(app.Status.Errors, tc.expectedErrors) {
-				t.Errorf("%s\ngot error: %v, want: %v", tc.name, app.Status.Errors, tc.expectedErrors)
+				t.Errorf("%s\ngot error: %s, want: %s", tc.name, app.Status.Errors, tc.expectedErrors)
 			}
 		})
 	}

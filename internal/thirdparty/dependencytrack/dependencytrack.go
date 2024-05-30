@@ -337,11 +337,6 @@ func (c *Client) retrieveProject(ctx context.Context, app *AppInstance) (*depend
 func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.Image, error) {
 	name, version, _ := strings.Cut(image, ":")
 
-	// TODO: remove if not needed
-	//if !found {
-	//return nil, fmt.Errorf("could not extract name version from image: %s", image)
-	//	return nil, nil
-	//}
 	p, err := c.client.GetProject(ctx, name, version)
 	if err != nil {
 		return nil, fmt.Errorf("getting project by name %s and version %s: %w", name, version, err)
@@ -349,7 +344,7 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 
 	if p == nil {
 		return &model.Image{
-			ID:      scalar.ImageIdent(image),
+			ID:      scalar.ImageIdent(name, version),
 			Name:    image,
 			Version: version,
 			Summary: c.createSummaryForImage(nil, false),
@@ -382,7 +377,7 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 
 	return &model.Image{
 		Name:               p.Name + ":" + p.Version,
-		ID:                 scalar.ImageIdent(p.Name),
+		ID:                 scalar.ImageIdent(p.Name, p.Version),
 		Digest:             digest,
 		RekorID:            rekor,
 		Version:            p.Version,
@@ -473,7 +468,7 @@ func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId s
 
 	return &model.Image{
 		Name:               p.Name + ":" + p.Version,
-		ID:                 scalar.ImageIdent(p.Name),
+		ID:                 scalar.ImageIdent(p.Name, p.Version),
 		Digest:             digest,
 		RekorID:            rekor,
 		Version:            p.Version,
@@ -534,7 +529,7 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 		}
 
 		image := &model.Image{
-			ID:                 scalar.ImageIdent(project.Name),
+			ID:                 scalar.ImageIdent(project.Name, project.Version),
 			ProjectID:          project.Uuid,
 			Name:               project.Name,
 			Summary:            c.createSummaryForImage(project, hasBom(project)),
@@ -594,9 +589,7 @@ func parseComments(trail *dependencytrack.Analysis) []*model.Comment {
 		tmp, found := strings.CutPrefix(comment.Comment, "Suppressed on-behalf-of:")
 
 		if found {
-			whoMadeWhatComment := strings.Split(tmp, "|")
-			onBehalfOf := whoMadeWhatComment[0]
-			theComment := whoMadeWhatComment[1]
+			onBehalfOf, theComment, _ := strings.Cut(tmp, "|")
 			comment := &model.Comment{
 				Comment:    theComment,
 				Timestamp:  timestamp,
@@ -631,91 +624,6 @@ func (c *Client) GetAnalysisTrailForImage(ctx context.Context, projectID, compon
 	return retAnalysisTrail, nil
 }
 
-/*
-	func (c *Client) GetFindingsForImage(ctx context.Context, app *AppInstance) (*model.Image, error) {
-		projects, err := c.retrieveProjects(ctx, app) // 4 prosjekter
-		if err != nil {
-			return nil, fmt.Errorf("getting project by app %s: %w", app.ID(), err)
-		}
-
-		if projects == nil {
-			return nil, nil
-		}
-
-		// Finds index of project with latest bom import
-		var lastBomImport int64
-		var projectIndex int
-		for i, project := range projects {
-			if project.LastBomImport > lastBomImport {
-				lastBomImport = project.LastBomImport
-				projectIndex = i
-			}
-		}
-
-		var digest string
-		var rekor string
-		for _, tag := range projects[projectIndex].Tags {
-			if strings.Contains(tag.Name, "digest:") {
-				digest = strings.TrimPrefix(tag.Name, "digest:")
-			}
-			if strings.Contains(tag.Name, "rekor:") {
-				rekor = strings.TrimPrefix(tag.Name, "rekor:")
-			}
-		}
-
-		findings, err := c.retrieveFindings(ctx, projects[projectIndex].Uuid)
-		if err != nil {
-			return nil, fmt.Errorf("retrieving findings for project %s: %w", projects[projectIndex].Uuid, err)
-		}
-
-		retFindings := make([]*model.Finding, 0)
-		for _, f := range findings {
-			if f.Vulnerability.Severity == "UNASSIGNED" {
-				continue
-			}
-			cveId := ""
-			ghsaId := ""
-			osvId := ""
-
-			for _, alias := range f.Vulnerability.Aliases {
-				cveId = alias.CveId
-				ghsaId = alias.GhsaId
-			}
-
-			if f.Vulnerability.Source == "OSV" {
-				osvId = f.Vulnerability.VulnId
-			}
-
-			retFindings = append(retFindings, &model.Finding{
-				ID:              scalar.FindingIdent(f.Vulnerability.VulnId),
-				ComponentID:     f.Component.UUID,
-				Severity:        f.Vulnerability.Severity,
-				Description:     f.Vulnerability.Title,
-				CveID:           cveId,
-				GhsaID:          ghsaId,
-				OsvID:           osvId,
-				PackageURL:      f.Component.PURL,
-				VulnerabilityID: f.Vulnerability.VulnId,
-			})
-		}
-
-		summary := c.createSummary(projects[projectIndex], true)
-
-		return &model.Image{
-			Findings: model.FindingList{
-				Nodes: retFindings,
-				PageInfo: model.PageInfo{
-					TotalCount: len(retFindings),
-				},
-			},
-			Digest:  digest,
-			RekorID: rekor,
-			Summary: *summary,
-			Name:    app.Image,
-			ID:      scalar.ImageIdent(app.Image),
-		}, nil
-	}
-*/
 func containsAllTags(tags []dependencytrack.Tag, s ...string) bool {
 	found := 0
 	for _, t := range s {

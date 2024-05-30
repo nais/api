@@ -1521,15 +1521,31 @@ func (r *teamResolver) Images(ctx context.Context, obj *model.Team, offset *int,
 
 	if orderBy != nil {
 		switch orderBy.Field {
-		case "NAME":
+		case model.OrderByFieldName:
 			model.SortWith(images, func(a, b *model.Image) bool {
 				return model.Compare(a.Name, b.Name, orderBy.Direction)
 			})
-		case "SEVERITY_CRITICAL":
+		case model.OrderByFieldSeverityCritical:
 			model.SortWith(images, func(a, b *model.Image) bool {
 				return model.Compare(a.Summary.Critical, b.Summary.Critical, orderBy.Direction)
 			})
-		case "RISK_SCORE":
+		case model.OrderByFieldSeverityHigh:
+			model.SortWith(images, func(a, b *model.Image) bool {
+				return model.Compare(a.Summary.High, b.Summary.High, orderBy.Direction)
+			})
+		case model.OrderByFieldSeverityMedium:
+			model.SortWith(images, func(a, b *model.Image) bool {
+				return model.Compare(a.Summary.Medium, b.Summary.Medium, orderBy.Direction)
+			})
+		case model.OrderByFieldSeverityLow:
+			model.SortWith(images, func(a, b *model.Image) bool {
+				return model.Compare(a.Summary.Low, b.Summary.Low, orderBy.Direction)
+			})
+		case model.OrderByFieldSeverityUnassigned:
+			model.SortWith(images, func(a, b *model.Image) bool {
+				return model.Compare(a.Summary.Unassigned, b.Summary.Unassigned, orderBy.Direction)
+			})
+		case model.OrderByFieldRiskScore:
 			model.SortWith(images, func(a, b *model.Image) bool {
 				return model.Compare(a.Summary.RiskScore, b.Summary.RiskScore, orderBy.Direction)
 			})

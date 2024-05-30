@@ -224,7 +224,7 @@ func TestClient_VulnerabilitySummary(t *testing.T) {
 	}
 }
 
-func TestClient_CreateSummary(t *testing.T) {
+func TestClient_CreateSummaryForTeam(t *testing.T) {
 	log := logrus.New().WithField("test", "dependencytrack")
 	mock := NewMockInternalClient(t)
 	c := New("endpoint", "username", "password", "frontend", log).WithClient(mock)

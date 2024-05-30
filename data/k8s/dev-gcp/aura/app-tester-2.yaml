@@ -1,0 +1,57 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    deploy.nais.io/client-version: 2023-12-19-bbbb39b
+    deploy.nais.io/github-actor: thokra-nav
+    deploy.nais.io/github-sha: 378fefb429cdbe29a02d951b753faeb158a3a3e3
+    deploy.nais.io/github-workflow-run-url: https://github.com/navikt/nais-debugapp/actions/runs/8555145090
+    kubernetes.io/change-cause: 'nais deploy: commit 378fefb429cdbe29a02d951b753faeb158a3a3e3:
+      https://github.com/navikt/nais-debugapp/actions/runs/8555145090'
+    nais.io/deploymentCorrelationID: 8d0c2932-f135-485a-ac67-56527eb700c3
+  creationTimestamp: "2024-01-18T14:17:50Z"
+  finalizers:
+  - naiserator.nais.io/finalizer
+  generation: 42
+  labels:
+    team: aura
+  name: app-tester-2
+  namespace: aura
+  resourceVersion: "4556238412"
+  uid: dfb99342-a82f-4ae1-af01-81f26b352413
+spec:
+  image: europe-north1-docker.pkg.dev/nais-management-233d/aura/nais-debugapp:2024.04.04-13.03-378fefb
+  ingresses:
+  - https://app-tester.intern.dev.nav.no
+  - https://debug.ansatt.dev.nav.no
+  liveness:
+    path: /_healthz
+    periodSeconds: 5
+    port: 8080
+    timeout: 1
+  port: 5000
+  readiness:
+    path: /_healthz
+    periodSeconds: 5
+    port: 8080
+    timeout: 1
+  replicas:
+    max: 1
+    min: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 32Mi
+status:
+  conditions:
+  - lastTransitionTime: "2024-04-04T13:04:36Z"
+    message: Successfully deployed.
+    reason: RolloutComplete
+    status: "True"
+    type: SynchronizationState
+  correlationID: 8d0c2932-f135-485a-ac67-56527eb700c3
+  deploymentRolloutStatus: complete
+  rolloutCompleteTime: 1712235886049259323
+  synchronizationHash: 1aaed81421251c2f
+  synchronizationState: RolloutComplete
+  synchronizationTime: 1712235876980677356

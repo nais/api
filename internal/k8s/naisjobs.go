@@ -268,8 +268,6 @@ func setJobStatus(job *model.NaisJob, conditions []metav1.Condition, runs []*mod
 		repository := ""
 		if len(parts) > 2 {
 			repository = strings.Join(parts[1:len(parts)-1], "/")
-		} else {
-			repository = "confusus"
 		}
 		jobState.Errors = append(jobState.Errors, &model.DeprecatedRegistryError{
 			Revision:   job.DeployInfo.CommitSha,
