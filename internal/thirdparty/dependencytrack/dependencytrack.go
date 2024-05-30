@@ -209,12 +209,12 @@ func (c *Client) findingsForApp(ctx context.Context, app *AppInstance) (*model.V
 
 	if !v.HasBom {
 		c.log.Debugf("no bom found in DependencyTrack for project %s", p.Name)
-		v.Summary = c.createSummary(p, v.HasBom)
+		v.Summary = c.createSummaryForTeam(p, v.HasBom)
 		c.cache.Set(app.ID(), v, cache.DefaultExpiration)
 		return v, nil
 	}
 
-	v.Summary = c.createSummary(p, v.HasBom)
+	v.Summary = c.createSummaryForTeam(p, v.HasBom)
 
 	c.cache.Set(app.ID(), v, cache.DefaultExpiration)
 	return v, nil
@@ -236,9 +236,9 @@ func (c *Client) retrieveFindings(ctx context.Context, uuid string, suppressed b
 	return findings, nil
 }
 
-func (c *Client) createSummary(project *dependencytrack.Project, hasBom bool) *model.VulnerabilitySummary {
+func (c *Client) createSummaryForTeam(project *dependencytrack.Project, hasBom bool) *model.VulnerabilitySummaryForTeam {
 	if !hasBom || project.Metrics == nil {
-		return &model.VulnerabilitySummary{
+		return &model.VulnerabilitySummaryForTeam{
 			RiskScore:  -1,
 			Total:      -1,
 			Critical:   -1,
@@ -249,7 +249,7 @@ func (c *Client) createSummary(project *dependencytrack.Project, hasBom bool) *m
 		}
 	}
 
-	return &model.VulnerabilitySummary{
+	return &model.VulnerabilitySummaryForTeam{
 		Total:      project.Metrics.FindingsTotal,
 		RiskScore:  int(project.Metrics.InheritedRiskScore),
 		Critical:   project.Metrics.Critical,
@@ -260,7 +260,7 @@ func (c *Client) createSummary(project *dependencytrack.Project, hasBom bool) *m
 	}
 }
 
-func (c *Client) createImageSummary(project *dependencytrack.Project, hasBom bool) model.ImageVulnerabilitySummary {
+func (c *Client) createSummaryForImage(project *dependencytrack.Project, hasBom bool) model.ImageVulnerabilitySummary {
 	if !hasBom || project.Metrics == nil {
 		nullUuid := uuid.NullUUID{}
 		return model.ImageVulnerabilitySummary{
@@ -352,7 +352,7 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 			ID:      scalar.ImageIdent(image),
 			Name:    image,
 			Version: version,
-			Summary: c.createImageSummary(nil, false),
+			Summary: c.createSummaryForImage(nil, false),
 		}, nil
 	}
 
@@ -388,7 +388,7 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 		Version:            p.Version,
 		HasSbom:            hasBom(p),
 		ProjectID:          p.Uuid,
-		Summary:            c.createImageSummary(p, hasBom(p)),
+		Summary:            c.createSummaryForImage(p, hasBom(p)),
 		WorkloadReferences: workloads,
 	}, nil
 }
@@ -479,7 +479,7 @@ func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId s
 		Version:            p.Version,
 		ProjectID:          p.Uuid,
 		HasSbom:            hasBom(p),
-		Summary:            c.createImageSummary(p, hasBom(p)),
+		Summary:            c.createSummaryForImage(p, hasBom(p)),
 		WorkloadReferences: workloads,
 	}, nil
 }
@@ -537,7 +537,7 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 			ID:                 scalar.ImageIdent(project.Name),
 			ProjectID:          project.Uuid,
 			Name:               project.Name,
-			Summary:            c.createImageSummary(project, hasBom(project)),
+			Summary:            c.createSummaryForImage(project, hasBom(project)),
 			Digest:             digest,
 			RekorID:            rekor,
 			Version:            version,

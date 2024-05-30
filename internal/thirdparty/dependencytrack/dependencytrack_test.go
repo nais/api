@@ -234,7 +234,7 @@ func TestClient_CreateSummary(t *testing.T) {
 	var p *dependencytrack.Project
 	err = json.Unmarshal(s, &p)
 	assert.NoError(t, err)
-	sum := c.createSummary(p, true)
+	sum := c.createSummaryForTeam(p, true)
 	assert.Equal(t, 218, sum.Total)
 	assert.Equal(t, 42, sum.Critical)
 	assert.Equal(t, 111, sum.High)

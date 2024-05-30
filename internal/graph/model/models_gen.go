@@ -940,12 +940,12 @@ type VariableInput struct {
 }
 
 type Vulnerability struct {
-	ID           scalar.Ident          `json:"id"`
-	AppName      string                `json:"appName"`
-	Env          string                `json:"env"`
-	FindingsLink string                `json:"findingsLink"`
-	Summary      *VulnerabilitySummary `json:"summary,omitempty"`
-	HasBom       bool                  `json:"hasBom"`
+	ID           scalar.Ident                 `json:"id"`
+	AppName      string                       `json:"appName"`
+	Env          string                       `json:"env"`
+	FindingsLink string                       `json:"findingsLink"`
+	Summary      *VulnerabilitySummaryForTeam `json:"summary,omitempty"`
+	HasBom       bool                         `json:"hasBom"`
 }
 
 type VulnerabilityFilter struct {
@@ -988,7 +988,7 @@ type VulnerabilityMetrics struct {
 	Data []*VulnerabilityMetric `json:"data"`
 }
 
-type VulnerabilitySummary struct {
+type VulnerabilitySummaryForTeam struct {
 	Total      int `json:"total"`
 	RiskScore  int `json:"riskScore"`
 	Critical   int `json:"critical"`
