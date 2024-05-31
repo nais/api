@@ -45,7 +45,8 @@ type Workload interface {
 	IsWorkload()
 	GetID() scalar.Ident
 	GetName() string
-	GetImage() Image
+	GetImage() string
+	GetImageDetails() ImageDetails
 	GetDeployInfo() DeployInfo
 	GetEnv() Env
 	GetAccessPolicy() AccessPolicy
@@ -462,9 +463,9 @@ type IDPortenSidecar struct {
 	Resources            *Resources `json:"resources,omitempty"`
 }
 
-type ImageList struct {
-	Nodes    []*Image `json:"nodes"`
-	PageInfo PageInfo `json:"pageInfo"`
+type ImageDetailsList struct {
+	Nodes    []*ImageDetails `json:"nodes"`
+	PageInfo PageInfo        `json:"pageInfo"`
 }
 
 type ImageVulnerabilitySummary struct {

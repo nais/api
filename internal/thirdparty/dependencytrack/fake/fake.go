@@ -51,15 +51,15 @@ func (f *FakeDependencytrackClient) GetFindingsForImageByProjectID(ctx context.C
 	return f.client.GetFindingsForImageByProjectID(ctx, projectID, suppressed)
 }
 
-func (f *FakeDependencytrackClient) GetFindingsForTeam(ctx context.Context, team string) ([]*model.Image, error) {
+func (f *FakeDependencytrackClient) GetFindingsForTeam(ctx context.Context, team string) ([]*model.ImageDetails, error) {
 	return f.client.GetMetadataForTeam(ctx, team)
 }
 
-func (f *FakeDependencytrackClient) GetMetadataForTeam(ctx context.Context, team string) ([]*model.Image, error) {
+func (f *FakeDependencytrackClient) GetMetadataForTeam(ctx context.Context, team string) ([]*model.ImageDetails, error) {
 	return f.client.GetMetadataForTeam(ctx, team)
 }
 
-func (f *FakeDependencytrackClient) GetMetadataForImageByProjectID(ctx context.Context, projectID string) (*model.Image, error) {
+func (f *FakeDependencytrackClient) GetMetadataForImageByProjectID(ctx context.Context, projectID string) (*model.ImageDetails, error) {
 	return f.client.GetMetadataForImageByProjectID(ctx, projectID)
 }
 
@@ -71,7 +71,7 @@ func (f *FakeDependencytrackClient) GetAnalysisTrailForImage(ctx context.Context
 	return f.client.GetAnalysisTrailForImage(ctx, componentID, projectID, vulnerabilityID)
 }
 
-func (f *FakeDependencytrackClient) GetMetadataForImage(ctx context.Context, name string) (*model.Image, error) {
+func (f *FakeDependencytrackClient) GetMetadataForImage(ctx context.Context, name string) (*model.ImageDetails, error) {
 	return f.client.GetMetadataForImage(ctx, name)
 }
 

@@ -83,7 +83,7 @@ func (r *queryResolver) Naisjob(ctx context.Context, name string, team slug.Slug
 	}
 
 	if image != nil {
-		job.Image = *image
+		job.ImageDetails = *image
 	}
 
 	for _, ref := range image.WorkloadReferences {

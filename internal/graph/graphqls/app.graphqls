@@ -59,7 +59,8 @@ type App implements Workload {
   instances: [Instance!]!
   autoScaling: AutoScaling!
   persistence: [Persistence!]!
-  image: Image!
+  image: String!
+  imageDetails: ImageDetails!
   manifest: String!
   team: Team!
   vulnerabilities: Vulnerability

@@ -336,7 +336,7 @@ func (c *Client) retrieveProject(ctx context.Context, app *AppInstance) (*depend
 	return p, nil
 }
 
-func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.Image, error) {
+func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.ImageDetails, error) {
 	name, version, _ := strings.Cut(image, ":")
 
 	p, err := c.client.GetProject(ctx, name, version)
@@ -345,7 +345,7 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 	}
 
 	if p == nil {
-		return &model.Image{
+		return &model.ImageDetails{
 			ID:      scalar.ImageIdent(name, version),
 			Name:    image,
 			Version: version,
@@ -354,7 +354,7 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 		}, nil
 	}
 
-	return &model.Image{
+	return &model.ImageDetails{
 		Name:               p.Name + ":" + p.Version,
 		ID:                 scalar.ImageIdent(p.Name, p.Version),
 		Rekor:              parseRekorTags(p.Tags),
@@ -465,7 +465,7 @@ func (c *Client) GetFindingsForImageByProjectID(ctx context.Context, projectId s
 	return retFindings, nil
 }
 
-func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId string) (*model.Image, error) {
+func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId string) (*model.ImageDetails, error) {
 	p, err := c.retrieveProjectById(ctx, projectId)
 	if err != nil {
 		return nil, fmt.Errorf("getting project by id %s: %w", projectId, err)
@@ -475,7 +475,7 @@ func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId s
 		return nil, fmt.Errorf("project not found: %s", projectId)
 	}
 
-	return &model.Image{
+	return &model.ImageDetails{
 		Name:               p.Name + ":" + p.Version,
 		ID:                 scalar.ImageIdent(p.Name, p.Version),
 		Rekor:              parseRekorTags(p.Tags),
@@ -487,7 +487,7 @@ func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId s
 	}, nil
 }
 
-func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.Image, error) {
+func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.ImageDetails, error) {
 	projects, err := c.retrieveProjectsForTeam(ctx, team)
 	if err != nil {
 		return nil, fmt.Errorf("getting projects by team %s: %w", team, err)
@@ -497,7 +497,7 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 		return nil, nil
 	}
 
-	images := make([]*model.Image, 0)
+	images := make([]*model.ImageDetails, 0)
 	for _, project := range projects {
 		if project == nil {
 			continue
@@ -506,7 +506,7 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 			continue
 		}
 
-		image := &model.Image{
+		image := &model.ImageDetails{
 			ID:                 scalar.ImageIdent(project.Name, project.Version),
 			ProjectID:          project.Uuid,
 			Name:               project.Name,

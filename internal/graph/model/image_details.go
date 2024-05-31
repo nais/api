@@ -2,7 +2,7 @@ package model
 
 import "github.com/nais/api/internal/graph/scalar"
 
-type Image struct {
+type ImageDetails struct {
 	ID                 scalar.Ident              `json:"id"`
 	ProjectID          string                    `json:"projectId"`
 	Name               string                    `json:"name"`
@@ -11,5 +11,6 @@ type Image struct {
 	Rekor              *Rekor                    `json:"rekor"`
 	Summary            ImageVulnerabilitySummary `json:"summary"`
 	HasSbom            bool                      `json:"hasSbom"`
+	Findings           FindingList               `json:"findings"`
 	WorkloadReferences []*WorkloadReference      `json:"workloadReferences"`
 }

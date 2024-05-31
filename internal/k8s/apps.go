@@ -571,13 +571,13 @@ func Instance(pod *corev1.Pod, env string) *model.Instance {
 	}
 
 	ret := &model.Instance{
-		ID:        scalar.PodIdent(pod.GetUID()),
-		Name:      pod.GetName(),
-		ImageName: image,
-		Restarts:  restarts,
-		Message:   messageFromCS(appCS),
-		State:     stateFromCS(appCS),
-		Created:   pod.GetCreationTimestamp().Time,
+		ID:       scalar.PodIdent(pod.GetUID()),
+		Name:     pod.GetName(),
+		Image:    image,
+		Restarts: restarts,
+		Message:  messageFromCS(appCS),
+		State:    stateFromCS(appCS),
+		Created:  pod.GetCreationTimestamp().Time,
 		GQLVars: model.InstanceGQLVars{
 			Env:     env,
 			Team:    slug.Slug(pod.GetNamespace()),

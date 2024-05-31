@@ -1339,7 +1339,7 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 		if err != nil {
 			return nil, fmt.Errorf("getting metadata for image %q: %w", app.GQLVars.Spec.ImageName, err)
 		}
-		app.Image = *image
+		app.ImageDetails = *image
 	}
 	if orderBy != nil {
 		switch orderBy.Field {
@@ -1387,11 +1387,11 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 			})
 		case model.OrderByFieldSeverityCritical:
 			model.SortWith(apps, func(a, b *model.App) bool {
-				return model.Compare(a.Image.Summary.Critical, b.Image.Summary.Critical, orderBy.Direction)
+				return model.Compare(a.ImageDetails.Summary.Critical, b.ImageDetails.Summary.Critical, orderBy.Direction)
 			})
 		case model.OrderByFieldRiskScore:
 			model.SortWith(apps, func(a, b *model.App) bool {
-				return model.Compare(a.Image.Summary.RiskScore, b.Image.Summary.RiskScore, orderBy.Direction)
+				return model.Compare(a.ImageDetails.Summary.RiskScore, b.ImageDetails.Summary.RiskScore, orderBy.Direction)
 			})
 
 		}
@@ -1443,7 +1443,7 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 		if err != nil {
 			return nil, fmt.Errorf("getting metadata for image %q: %w", job.GQLVars.Spec.ImageName, err)
 		}
-		job.Image = *image
+		job.ImageDetails = *image
 	}
 
 	if orderBy != nil {
@@ -1492,11 +1492,11 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 			})
 		case model.OrderByFieldSeverityCritical:
 			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
-				return model.Compare(a.Image.Summary.Critical, b.Image.Summary.Critical, orderBy.Direction)
+				return model.Compare(a.ImageDetails.Summary.Critical, b.ImageDetails.Summary.Critical, orderBy.Direction)
 			})
 		case model.OrderByFieldRiskScore:
 			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
-				return model.Compare(a.Image.Summary.RiskScore, b.Image.Summary.RiskScore, orderBy.Direction)
+				return model.Compare(a.ImageDetails.Summary.RiskScore, b.ImageDetails.Summary.RiskScore, orderBy.Direction)
 			})
 		}
 	}
@@ -1533,7 +1533,7 @@ func (r *teamResolver) Deployments(ctx context.Context, obj *model.Team, offset 
 }
 
 // Images is the resolver for the images field.
-func (r *teamResolver) Images(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.ImageList, error) {
+func (r *teamResolver) Images(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.ImageDetailsList, error) {
 	images, err := r.dependencyTrackClient.GetMetadataForTeam(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting images from DependencyTrack: %w", err)
@@ -1542,31 +1542,31 @@ func (r *teamResolver) Images(ctx context.Context, obj *model.Team, offset *int,
 	if orderBy != nil {
 		switch orderBy.Field {
 		case model.OrderByFieldName:
-			model.SortWith(images, func(a, b *model.Image) bool {
+			model.SortWith(images, func(a, b *model.ImageDetails) bool {
 				return model.Compare(a.Name, b.Name, orderBy.Direction)
 			})
 		case model.OrderByFieldSeverityCritical:
-			model.SortWith(images, func(a, b *model.Image) bool {
+			model.SortWith(images, func(a, b *model.ImageDetails) bool {
 				return model.Compare(a.Summary.Critical, b.Summary.Critical, orderBy.Direction)
 			})
 		case model.OrderByFieldSeverityHigh:
-			model.SortWith(images, func(a, b *model.Image) bool {
+			model.SortWith(images, func(a, b *model.ImageDetails) bool {
 				return model.Compare(a.Summary.High, b.Summary.High, orderBy.Direction)
 			})
 		case model.OrderByFieldSeverityMedium:
-			model.SortWith(images, func(a, b *model.Image) bool {
+			model.SortWith(images, func(a, b *model.ImageDetails) bool {
 				return model.Compare(a.Summary.Medium, b.Summary.Medium, orderBy.Direction)
 			})
 		case model.OrderByFieldSeverityLow:
-			model.SortWith(images, func(a, b *model.Image) bool {
+			model.SortWith(images, func(a, b *model.ImageDetails) bool {
 				return model.Compare(a.Summary.Low, b.Summary.Low, orderBy.Direction)
 			})
 		case model.OrderByFieldSeverityUnassigned:
-			model.SortWith(images, func(a, b *model.Image) bool {
+			model.SortWith(images, func(a, b *model.ImageDetails) bool {
 				return model.Compare(a.Summary.Unassigned, b.Summary.Unassigned, orderBy.Direction)
 			})
 		case model.OrderByFieldRiskScore:
-			model.SortWith(images, func(a, b *model.Image) bool {
+			model.SortWith(images, func(a, b *model.ImageDetails) bool {
 				return model.Compare(a.Summary.RiskScore, b.Summary.RiskScore, orderBy.Direction)
 			})
 
@@ -1576,7 +1576,7 @@ func (r *teamResolver) Images(ctx context.Context, obj *model.Team, offset *int,
 	pagination := model.NewPagination(offset, limit)
 	images, pageInfo := model.PaginatedSlice(images, pagination)
 
-	return &model.ImageList{
+	return &model.ImageDetailsList{
 		Nodes:    images,
 		PageInfo: pageInfo,
 	}, nil

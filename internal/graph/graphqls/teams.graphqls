@@ -469,7 +469,7 @@ type Team {
 
     "Order images by"
     orderBy: OrderBy
-  ): ImageList!
+  ): ImageDetailsList!
 
   "The vulnerabilities for the team's applications."
   vulnerabilities(

@@ -63,6 +63,11 @@ func (r *appResolver) Secrets(ctx context.Context, obj *model.App) ([]*model.Sec
 	return r.k8sClient.SecretsForApp(ctx, obj)
 }
 
+// ImageName is the resolver for the imageName field.
+func (r *instanceResolver) ImageName(ctx context.Context, obj *model.Instance) (string, error) {
+	panic(fmt.Errorf("not implemented: ImageName - imageName"))
+}
+
 // DeleteApp is the resolver for the deleteApp field.
 func (r *mutationResolver) DeleteApp(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteAppResult, error) {
 	actor := authz.ActorFromContext(ctx)
@@ -110,7 +115,7 @@ func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, en
 		return nil, fmt.Errorf("getting metadata for image %q: %w", app.GQLVars.Spec.ImageName, err)
 	}
 	if image != nil {
-		app.Image = *image
+		app.ImageDetails = *image
 	}
 	for _, ref := range image.WorkloadReferences {
 		app, err := r.k8sClient.App(ctx, ref.Name, ref.Team, ref.Environment)
@@ -128,4 +133,10 @@ func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, en
 // App returns gengql.AppResolver implementation.
 func (r *Resolver) App() gengql.AppResolver { return &appResolver{r} }
 
-type appResolver struct{ *Resolver }
+// Instance returns gengql.InstanceResolver implementation.
+func (r *Resolver) Instance() gengql.InstanceResolver { return &instanceResolver{r} }
+
+type (
+	appResolver      struct{ *Resolver }
+	instanceResolver struct{ *Resolver }
+)

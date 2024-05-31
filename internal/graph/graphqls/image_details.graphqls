@@ -22,7 +22,7 @@ extend type Mutation {
   ): AnalysisTrail!
 }
 
-type Image {
+type ImageDetails {
   id: ID!
   projectId: String!
   name: String!
@@ -64,8 +64,8 @@ type WorkloadReference {
   deployInfo: DeployInfo!
 }
 
-type ImageList {
-  nodes: [Image!]!
+type ImageDetailsList {
+  nodes: [ImageDetails!]!
   pageInfo: PageInfo!
 }
 
