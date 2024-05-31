@@ -20,13 +20,13 @@ func (a App) Type() WorkloadType  { return a.GetType() }
 var _ Workload = (*App)(nil)
 
 type Instance struct {
-	ID       scalar.Ident  `json:"id"`
-	Name     string        `json:"name"`
-	State    InstanceState `json:"state"`
-	Message  string        `json:"message"`
-	Image    string        `json:"image"`
-	Restarts int           `json:"restarts"`
-	Created  time.Time     `json:"created"`
+	ID        scalar.Ident  `json:"id"`
+	Name      string        `json:"name"`
+	State     InstanceState `json:"state"`
+	Message   string        `json:"message"`
+	ImageName string        `json:"imageName"`
+	Restarts  int           `json:"restarts"`
+	Created   time.Time     `json:"created"`
 
 	GQLVars InstanceGQLVars `json:"-"`
 }

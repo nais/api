@@ -533,13 +533,13 @@ type ComplexityRoot struct {
 	}
 
 	Instance struct {
-		Created  func(childComplexity int) int
-		ID       func(childComplexity int) int
-		Image    func(childComplexity int) int
-		Message  func(childComplexity int) int
-		Name     func(childComplexity int) int
-		Restarts func(childComplexity int) int
-		State    func(childComplexity int) int
+		Created   func(childComplexity int) int
+		ID        func(childComplexity int) int
+		ImageName func(childComplexity int) int
+		Message   func(childComplexity int) int
+		Name      func(childComplexity int) int
+		Restarts  func(childComplexity int) int
+		State     func(childComplexity int) int
 	}
 
 	InvalidNaisYamlError struct {
@@ -916,7 +916,7 @@ type ComplexityRoot struct {
 		Duration       func(childComplexity int) int
 		Failed         func(childComplexity int) int
 		ID             func(childComplexity int) int
-		Image          func(childComplexity int) int
+		ImageName      func(childComplexity int) int
 		Message        func(childComplexity int) int
 		Name           func(childComplexity int) int
 		PodNames       func(childComplexity int) int
@@ -3370,12 +3370,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Instance.ID(childComplexity), true
 
-	case "Instance.image":
-		if e.complexity.Instance.Image == nil {
+	case "Instance.imageName":
+		if e.complexity.Instance.ImageName == nil {
 			break
 		}
 
-		return e.complexity.Instance.Image(childComplexity), true
+		return e.complexity.Instance.ImageName(childComplexity), true
 
 	case "Instance.message":
 		if e.complexity.Instance.Message == nil {
@@ -5305,12 +5305,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Run.ID(childComplexity), true
 
-	case "Run.image":
-		if e.complexity.Run.Image == nil {
+	case "Run.imageName":
+		if e.complexity.Run.ImageName == nil {
 			break
 		}
 
-		return e.complexity.Run.Image(childComplexity), true
+		return e.complexity.Run.ImageName(childComplexity), true
 
 	case "Run.message":
 		if e.complexity.Run.Message == nil {
@@ -7229,7 +7229,7 @@ type Instance {
   name: String!
   state: InstanceState!
   message: String!
-  image: String!
+  imageName: String!
   restarts: Int!
   created: Time!
 }
@@ -7884,7 +7884,7 @@ type Run {
   startTime: Time
   completionTime: Time
   duration: String!
-  image: String!
+  imageName: String!
   message: String!
   failed: Boolean!
 }
@@ -12817,8 +12817,8 @@ func (ec *executionContext) fieldContext_App_instances(ctx context.Context, fiel
 				return ec.fieldContext_Instance_state(ctx, field)
 			case "message":
 				return ec.fieldContext_Instance_message(ctx, field)
-			case "image":
-				return ec.fieldContext_Instance_image(ctx, field)
+			case "imageName":
+				return ec.fieldContext_Instance_imageName(ctx, field)
 			case "restarts":
 				return ec.fieldContext_Instance_restarts(ctx, field)
 			case "created":
@@ -24673,8 +24673,8 @@ func (ec *executionContext) fieldContext_Instance_message(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Instance_image(ctx context.Context, field graphql.CollectedField, obj *model.Instance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Instance_image(ctx, field)
+func (ec *executionContext) _Instance_imageName(ctx context.Context, field graphql.CollectedField, obj *model.Instance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Instance_imageName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -24704,7 +24704,7 @@ func (ec *executionContext) _Instance_image(ctx context.Context, field graphql.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Instance_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Instance_imageName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Instance",
 		Field:      field,
@@ -30631,8 +30631,8 @@ func (ec *executionContext) fieldContext_NaisJob_runs(ctx context.Context, field
 				return ec.fieldContext_Run_completionTime(ctx, field)
 			case "duration":
 				return ec.fieldContext_Run_duration(ctx, field)
-			case "image":
-				return ec.fieldContext_Run_image(ctx, field)
+			case "imageName":
+				return ec.fieldContext_Run_imageName(ctx, field)
 			case "message":
 				return ec.fieldContext_Run_message(ctx, field)
 			case "failed":
@@ -38794,8 +38794,8 @@ func (ec *executionContext) fieldContext_Run_duration(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Run_image(ctx context.Context, field graphql.CollectedField, obj *model.Run) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Run_image(ctx, field)
+func (ec *executionContext) _Run_imageName(ctx context.Context, field graphql.CollectedField, obj *model.Run) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Run_imageName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -38808,7 +38808,7 @@ func (ec *executionContext) _Run_image(ctx context.Context, field graphql.Collec
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Image, nil
+		return obj.ImageName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -38825,7 +38825,7 @@ func (ec *executionContext) _Run_image(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Run_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Run_imageName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Run",
 		Field:      field,
@@ -60139,8 +60139,8 @@ func (ec *executionContext) _Run(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "image":
-			out.Values[i] = ec._Run_image(ctx, field, obj)
+		case "imageName":
+			out.Values[i] = ec._Run_imageName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

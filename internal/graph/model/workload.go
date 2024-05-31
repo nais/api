@@ -24,7 +24,7 @@ type WorkloadBase struct {
 func (WorkloadBase) IsWorkload()                     {}
 func (w WorkloadBase) GetID() scalar.Ident           { return w.ID }
 func (w WorkloadBase) GetName() string               { return w.Name }
-func (w WorkloadBase) GetImage() string              { return w.Image }
+func (w WorkloadBase) GetImage() Image               { return w.Image }
 func (w WorkloadBase) GetDeployInfo() DeployInfo     { return w.DeployInfo }
 func (w WorkloadBase) GetEnv() Env                   { return w.Env }
 func (w WorkloadBase) GetAccessPolicy() AccessPolicy { return w.AccessPolicy }

@@ -28,7 +28,7 @@ type Run struct {
 	StartTime      *time.Time   `json:"startTime,omitempty"`
 	CompletionTime *time.Time   `json:"completionTime,omitempty"`
 	Duration       string       `json:"duration"`
-	Image          string       `json:"image"`
+	ImageName      string       `json:"imageName"`
 	Message        string       `json:"message"`
 	Failed         bool         `json:"failed"`
 	GQLVars        RunGQLVars   `json:"-"`
