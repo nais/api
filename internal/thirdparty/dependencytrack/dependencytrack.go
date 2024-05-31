@@ -350,6 +350,7 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 			Name:    image,
 			Version: version,
 			Summary: c.createSummaryForImage(nil, false),
+			Rekor:   &model.Rekor{},
 		}, nil
 	}
 
