@@ -8,6 +8,7 @@ import (
 	"github.com/nais/api/internal/fixtures"
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/k8s"
+	"github.com/nais/api/internal/unleash"
 	"github.com/sethvargo/go-envconfig"
 )
 
@@ -58,6 +59,14 @@ func (k *k8sConfig) PkgConfig() k8s.Config {
 			}
 			return clusters
 		}(),
+	}
+}
+
+func (u *unleashConfig) PkgConfig() unleash.Config {
+	return unleash.Config{
+		Enabled:       u.Enabled,
+		Namespace:     u.Namespace,
+		BifrostApiUrl: u.BifrostApiUrl,
 	}
 }
 
@@ -148,8 +157,14 @@ type oAuthConfig struct {
 }
 
 type unleashConfig struct {
+	// Enabled When set to true, the Unleash feature flag service will be enabled.
+	Enabled bool `env:"UNLEASH_ENABLED"`
+
 	// Namespace is the namespace where the Unleash servers are running
 	Namespace string `env:"UNLEASH_NAMESPACE,default=bifrost-unleash"`
+
+	// BifrostApiEndpoint is the endpoint for the Bifrost API
+	BifrostApiUrl string `env:"UNLEASH_BIFROST_API_URL,default=http://bifrost-backend"`
 }
 
 type Config struct {

@@ -6,15 +6,33 @@ extend type Mutation {
   will be set as owner of the Unleash instance and will be able to manage it.
   """
   createUnleashForTeam(team: Slug!): Unleash! @auth
+
+  """
+  Update Unleash instance with allowed teams.
+  """
+  updateUnleashForTeam(
+    team: Slug!
+    name: String!
+    allowedTeams: [String!]
+  ): Unleash! @auth
 }
 
 type Unleash {
+  instance: UnleashInstance
+
+  """
+  If Unleash feature is enabled for this tenant
+  """
+  enabled: Boolean!
+}
+type UnleashInstance {
   name: String!
   version: String!
   allowedTeams: [String!]!
   webIngress: String!
   apiIngress: String!
   metrics: UnleashMetrics!
+  ready: Boolean!
 }
 
 type UnleashMetrics {
@@ -25,4 +43,3 @@ type UnleashMetrics {
   memoryUtilization: Float!
   memoryRequests: Float!
 }
-
