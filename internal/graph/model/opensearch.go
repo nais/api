@@ -15,7 +15,6 @@ type OpenSearch struct {
 	Name    string            `json:"name"`
 	ID      scalar.Ident      `json:"id"`
 	Env     Env               `json:"env"`
-	Cost    string            `json:"cost"`
 	Status  OpenSearchStatus  `json:"status"`
 	GQLVars OpenSearchGQLVars `json:"-"`
 }

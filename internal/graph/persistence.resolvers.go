@@ -23,6 +23,15 @@ func (r *bigQueryDatasetResolver) Workload(ctx context.Context, obj *model.BigQu
 	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
 }
 
+// Cost is the resolver for the cost field.
+func (r *bigQueryDatasetResolver) Cost(ctx context.Context, obj *model.BigQueryDataset) (float64, error) {
+	if obj.GQLVars.OwnerReference == nil {
+		return 0, nil
+	}
+
+	return r.bigQueryDatasetClient.CostForBiqQueryDataset(ctx, obj.Env.Name, obj.GQLVars.TeamSlug, obj.GQLVars.OwnerReference.Name), nil
+}
+
 // Team is the resolver for the team field.
 func (r *bucketResolver) Team(ctx context.Context, obj *model.Bucket) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
@@ -74,6 +83,15 @@ func (r *openSearchResolver) Team(ctx context.Context, obj *model.OpenSearch) (*
 	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
 }
 
+// Cost is the resolver for the cost field.
+func (r *openSearchResolver) Cost(ctx context.Context, obj *model.OpenSearch) (float64, error) {
+	if obj.GQLVars.OwnerReference == nil {
+		return 0, nil
+	}
+
+	return r.openSearchClient.CostForOpenSearchInstance(ctx, obj.Env.Name, obj.GQLVars.TeamSlug, obj.GQLVars.OwnerReference.Name), nil
+}
+
 // Workload is the resolver for the workload field.
 func (r *openSearchResolver) Workload(ctx context.Context, obj *model.OpenSearch) (model.Workload, error) {
 	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
@@ -113,6 +131,15 @@ func (r *redisResolver) Access(ctx context.Context, obj *model.Redis) ([]*model.
 // Team is the resolver for the team field.
 func (r *redisResolver) Team(ctx context.Context, obj *model.Redis) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
+}
+
+// Cost is the resolver for the cost field.
+func (r *redisResolver) Cost(ctx context.Context, obj *model.Redis) (float64, error) {
+	if obj.GQLVars.OwnerReference == nil {
+		return 0, nil
+	}
+
+	return r.redisClient.CostForRedisInstance(ctx, obj.Env.Name, obj.GQLVars.TeamSlug, obj.GQLVars.OwnerReference.Name), nil
 }
 
 // Workload is the resolver for the workload field.
