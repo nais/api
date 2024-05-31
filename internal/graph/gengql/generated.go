@@ -178,6 +178,7 @@ type ComplexityRoot struct {
 	BigQueryDataset struct {
 		Access          func(childComplexity int) int
 		CascadingDelete func(childComplexity int) int
+		Cost            func(childComplexity int) int
 		Description     func(childComplexity int) int
 		Env             func(childComplexity int) int
 		ID              func(childComplexity int) int
@@ -1177,6 +1178,7 @@ type BigQueryDatasetResolver interface {
 	Team(ctx context.Context, obj *model.BigQueryDataset) (*model.Team, error)
 
 	Workload(ctx context.Context, obj *model.BigQueryDataset) (model.Workload, error)
+	Cost(ctx context.Context, obj *model.BigQueryDataset) (float64, error)
 }
 type BucketResolver interface {
 	Team(ctx context.Context, obj *model.Bucket) (*model.Team, error)
@@ -1245,6 +1247,7 @@ type OpenSearchResolver interface {
 	Access(ctx context.Context, obj *model.OpenSearch) ([]*model.OpenSearchInstanceAccess, error)
 
 	Team(ctx context.Context, obj *model.OpenSearch) (*model.Team, error)
+	Cost(ctx context.Context, obj *model.OpenSearch) (float64, error)
 
 	Workload(ctx context.Context, obj *model.OpenSearch) (model.Workload, error)
 }
@@ -1286,6 +1289,7 @@ type RedisResolver interface {
 	Access(ctx context.Context, obj *model.Redis) ([]*model.RedisInstanceAccess, error)
 	Team(ctx context.Context, obj *model.Redis) (*model.Team, error)
 
+	Cost(ctx context.Context, obj *model.Redis) (float64, error)
 	Workload(ctx context.Context, obj *model.Redis) (model.Workload, error)
 }
 type RedisInstanceAccessResolver interface {
@@ -1847,6 +1851,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BigQueryDataset.CascadingDelete(childComplexity), true
+
+	case "BigQueryDataset.cost":
+		if e.complexity.BigQueryDataset.Cost == nil {
+			break
+		}
+
+		return e.complexity.BigQueryDataset.Cost(childComplexity), true
 
 	case "BigQueryDataset.description":
 		if e.complexity.BigQueryDataset.Description == nil {
@@ -7261,7 +7272,7 @@ type Redis implements Persistence {
   access: [RedisInstanceAccess!]!
   team: Team!
   env: Env!
-  cost: String!
+  cost: Float!
   workload: Workload
   status: RedisStatus!
 }
@@ -7286,6 +7297,7 @@ type BigQueryDataset implements Persistence {
   env: Env!
   status: BigQueryDatasetStatus!
   workload: Workload
+  cost: Float!
 }
 
 type BigQueryDatasetStatus {
@@ -7374,7 +7386,7 @@ type OpenSearch implements Persistence {
   access: [OpenSearchInstanceAccess!]!
   id: ID!
   team: Team!
-  cost: String!
+  cost: Float!
   env: Env!
   workload: Workload
   status: OpenSearchStatus!
@@ -14544,6 +14556,50 @@ func (ec *executionContext) fieldContext_BigQueryDataset_workload(ctx context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _BigQueryDataset_cost(ctx context.Context, field graphql.CollectedField, obj *model.BigQueryDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDataset_cost(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.BigQueryDataset().Cost(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDataset_cost(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDataset",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _BigQueryDatasetAccess_role(ctx context.Context, field graphql.CollectedField, obj *model.BigQueryDatasetAccess) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_BigQueryDatasetAccess_role(ctx, field)
 	if err != nil {
@@ -14689,6 +14745,8 @@ func (ec *executionContext) fieldContext_BigQueryDatasetList_nodes(ctx context.C
 				return ec.fieldContext_BigQueryDataset_status(ctx, field)
 			case "workload":
 				return ec.fieldContext_BigQueryDataset_workload(ctx, field)
+			case "cost":
+				return ec.fieldContext_BigQueryDataset_cost(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type BigQueryDataset", field.Name)
 		},
@@ -28743,7 +28801,7 @@ func (ec *executionContext) _OpenSearch_cost(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Cost, nil
+		return ec.resolvers.OpenSearch().Cost(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -28755,19 +28813,19 @@ func (ec *executionContext) _OpenSearch_cost(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(float64)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_OpenSearch_cost(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "OpenSearch",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -32723,7 +32781,7 @@ func (ec *executionContext) _Redis_cost(ctx context.Context, field graphql.Colle
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Cost, nil
+		return ec.resolvers.Redis().Cost(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -32735,19 +32793,19 @@ func (ec *executionContext) _Redis_cost(ctx context.Context, field graphql.Colle
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(float64)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Redis_cost(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Redis",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -41267,6 +41325,8 @@ func (ec *executionContext) fieldContext_Team_bigQueryDataset(ctx context.Contex
 				return ec.fieldContext_BigQueryDataset_status(ctx, field)
 			case "workload":
 				return ec.fieldContext_BigQueryDataset_workload(ctx, field)
+			case "cost":
+				return ec.fieldContext_BigQueryDataset_cost(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type BigQueryDataset", field.Name)
 		},
@@ -49549,6 +49609,42 @@ func (ec *executionContext) _BigQueryDataset(ctx context.Context, sel ast.Select
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "cost":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._BigQueryDataset_cost(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -53488,10 +53584,41 @@ func (ec *executionContext) _OpenSearch(ctx context.Context, sel ast.SelectionSe
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "cost":
-			out.Values[i] = ec._OpenSearch_cost(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OpenSearch_cost(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "env":
 			out.Values[i] = ec._OpenSearch_env(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -54851,10 +54978,41 @@ func (ec *executionContext) _Redis(ctx context.Context, sel ast.SelectionSet, ob
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "cost":
-			out.Values[i] = ec._Redis_cost(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Redis_cost(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "workload":
 			field := field
 

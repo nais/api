@@ -1,8 +1,11 @@
 package bigquery
 
 import (
+	"context"
 	"fmt"
+	"time"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/model"
@@ -47,4 +50,21 @@ func (c *Client) BigQueryDataset(env string, slug slug.Slug, name string) (*mode
 	}
 
 	return model.ToBigQueryDataset(obj.(*unstructured.Unstructured), env)
+}
+
+func (c *Client) CostForBiqQueryDataset(ctx context.Context, env string, teamSlug slug.Slug, ownerName string) float64 {
+	cost := 0.0
+
+	now := time.Now()
+	var from, to pgtype.Date
+	_ = to.Scan(now)
+	_ = from.Scan(now.AddDate(0, 0, -30))
+
+	if sum, err := c.db.CostForInstance(ctx, "BigQuery", from, to, teamSlug, ownerName, env); err != nil {
+		c.log.WithError(err).Errorf("fetching cost")
+	} else {
+		cost = float64(sum)
+	}
+
+	return cost
 }

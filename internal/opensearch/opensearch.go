@@ -3,7 +3,6 @@ package opensearch
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -53,11 +52,6 @@ func (c *Client) OpenSearchInstance(ctx context.Context, env string, teamSlug sl
 	ret, err := model.ToOpenSearch(obj.(*unstructured.Unstructured), env)
 	if err != nil {
 		return nil, err
-	}
-
-	if ret.GQLVars.OwnerReference != nil {
-		cost := c.CostForOpenSearchInstance(ctx, env, teamSlug, ret.GQLVars.OwnerReference.Name)
-		ret.Cost = strconv.FormatFloat(cost, 'f', -1, 64)
 	}
 
 	return ret, nil

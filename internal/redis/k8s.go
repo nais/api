@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"sort"
-	"strconv"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -63,11 +62,6 @@ func (c *Client) RedisInstance(ctx context.Context, env string, teamSlug slug.Sl
 	ret, err := model.ToRedis(obj.(*unstructured.Unstructured), env)
 	if err != nil {
 		return nil, err
-	}
-
-	if ret.GQLVars.OwnerReference != nil {
-		cost := c.CostForRedisInstance(ctx, env, teamSlug, ret.GQLVars.OwnerReference.Name)
-		ret.Cost = strconv.FormatFloat(cost, 'f', -1, 64)
 	}
 
 	return ret, nil

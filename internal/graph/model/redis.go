@@ -15,7 +15,6 @@ type Redis struct {
 	Name    string       `json:"name"`
 	ID      scalar.Ident `json:"id"`
 	Env     Env          `json:"env"`
-	Cost    string       `json:"cost"`
 	Status  RedisStatus  `json:"status"`
 	GQLVars RedisGQLVars `json:"-"`
 }

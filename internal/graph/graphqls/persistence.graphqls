@@ -9,7 +9,7 @@ type Redis implements Persistence {
   access: [RedisInstanceAccess!]!
   team: Team!
   env: Env!
-  cost: String!
+  cost: Float!
   workload: Workload
   status: RedisStatus!
 }
@@ -34,6 +34,7 @@ type BigQueryDataset implements Persistence {
   env: Env!
   status: BigQueryDatasetStatus!
   workload: Workload
+  cost: Float!
 }
 
 type BigQueryDatasetStatus {
@@ -122,7 +123,7 @@ type OpenSearch implements Persistence {
   access: [OpenSearchInstanceAccess!]!
   id: ID!
   team: Team!
-  cost: String!
+  cost: Float!
   env: Env!
   workload: Workload
   status: OpenSearchStatus!
