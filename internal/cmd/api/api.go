@@ -213,7 +213,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		pubsubTopic,
 		log,
 		sqlInstanceClient,
-		bucket.NewClient(k8sClient.Informers(), log),
+		bucket.NewClient(k8sClient.Informers(), log, db),
 		redis.NewClient(k8sClient.Informers(), log, db),
 		bigquery.NewClient(k8sClient.Informers(), log, db),
 		opensearch.NewClient(k8sClient.Informers(), log, db),
