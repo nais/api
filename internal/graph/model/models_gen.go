@@ -735,6 +735,7 @@ type Rekor struct {
 	BuildConfigURI           string `json:"buildConfigURI"`
 	GitHubWorkflowName       string `json:"gitHubWorkflowName"`
 	GitHubWorkflowRef        string `json:"gitHubWorkflowRef"`
+	GitHubWorkflowSha        string `json:"gitHubWorkflowSHA"`
 	LogIndex                 string `json:"logIndex"`
 	OIDCIssuer               string `json:"oIDCIssuer"`
 	RunInvocationURI         string `json:"runInvocationURI"`

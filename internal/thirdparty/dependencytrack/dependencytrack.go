@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -51,7 +52,6 @@ type VulnerabilityMetrics struct {
 }
 
 type Client struct {
-	rekorClient RekorClient
 	client      dependencytrack.Client
 	frontendUrl string
 	log         logrus.FieldLogger
@@ -71,7 +71,6 @@ func New(endpoint, username, password, frontend string, log *logrus.Entry) *Clie
 	ch := cache.New(30*time.Minute, 10*time.Minute)
 
 	return &Client{
-		rekorClient: NewRekor("rekor.sigstore.dev"),
 		client:      c,
 		frontendUrl: frontend,
 		log:         log,
@@ -355,18 +354,60 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 		}, nil
 	}
 
-	var digest string
-	var rekor string
+	return &model.Image{
+		Name:               p.Name + ":" + p.Version,
+		ID:                 scalar.ImageIdent(p.Name, p.Version),
+		Rekor:              parseRekorTags(p.Tags),
+		Version:            p.Version,
+		HasSbom:            hasBom(p),
+		ProjectID:          p.Uuid,
+		Summary:            c.createSummaryForImage(p, hasBom(p)),
+		WorkloadReferences: parseWorkloadRefTags(p.Tags),
+	}, nil
+}
+
+func parseRekorTags(tags []dependencytrack.Tag) *model.Rekor {
+	var rekor *model.Rekor
+	for _, tag := range tags {
+		switch {
+		case strings.Contains(tag.Name, dependencytrack.RekorBuildConfigURITagPrefix.String()):
+			rekor.BuildConfigURI = tag.Name
+		case strings.Contains(tag.Name, dependencytrack.RekorGitHubWorkflowSHATagPrefix.String()):
+			rekor.GitHubWorkflowSha = strings.TrimPrefix(tag.Name, dependencytrack.RekorGitHubWorkflowSHATagPrefix.String())
+		case strings.Contains(tag.Name, dependencytrack.RekorGitHubWorkflowNameTagPrefix.String()):
+			rekor.GitHubWorkflowName = strings.TrimPrefix(tag.Name, dependencytrack.RekorGitHubWorkflowNameTagPrefix.String())
+		case strings.Contains(tag.Name, dependencytrack.RekorGitHubWorkflowRefTagPrefix.String()):
+			rekor.GitHubWorkflowRef = strings.TrimPrefix(tag.Name, dependencytrack.RekorGitHubWorkflowRefTagPrefix.String())
+		case strings.Contains(tag.Name, dependencytrack.RekorIntegratedTimeTagPrefix.String()):
+			trimedIntegratedTime := strings.TrimPrefix(tag.Name, dependencytrack.RekorIntegratedTimeTagPrefix.String())
+			// parse string to int
+			if integratedTime, err := strconv.ParseInt(trimedIntegratedTime, 10, 64); err == nil {
+				rekor.IntegratedTime = int(integratedTime)
+			} else {
+				rekor.IntegratedTime = 0
+			}
+		case strings.Contains(tag.Name, dependencytrack.RekorOIDCIssuerTagPrefix.String()):
+			rekor.OIDCIssuer = strings.TrimPrefix(tag.Name, dependencytrack.RekorOIDCIssuerTagPrefix.String())
+		case strings.Contains(tag.Name, dependencytrack.RekorRunInvocationURITagPrefix.String()):
+			rekor.RunInvocationURI = strings.TrimPrefix(tag.Name, dependencytrack.RekorRunInvocationURITagPrefix.String())
+		case strings.Contains(tag.Name, dependencytrack.RekorSourceRepositoryOwnerURITagPrefix.String()):
+			rekor.SourceRepositoryOwnerURI = strings.TrimPrefix(tag.Name, dependencytrack.RekorSourceRepositoryOwnerURITagPrefix.String())
+		case strings.Contains(tag.Name, dependencytrack.RekorBuildTriggerTagPrefix.String()):
+			rekor.BuildTrigger = strings.TrimPrefix(tag.Name, dependencytrack.RekorBuildTriggerTagPrefix.String())
+		case strings.Contains(tag.Name, dependencytrack.RekorRunnerEnvironmentTagPrefix.String()):
+			rekor.RunnerEnvironment = strings.TrimPrefix(tag.Name, dependencytrack.RekorRunnerEnvironmentTagPrefix.String())
+		case strings.Contains(tag.Name, dependencytrack.RekorTagPrefix.String()):
+			rekor.LogIndex = strings.TrimPrefix(tag.Name, dependencytrack.RekorTagPrefix.String())
+		}
+	}
+	return rekor
+}
+
+func parseWorkloadRefTags(tags []dependencytrack.Tag) []*model.WorkloadReference {
 	var workloads []*model.WorkloadReference
-	for _, tag := range p.Tags {
-		if strings.Contains(tag.Name, "digest:") {
-			digest = strings.TrimPrefix(tag.Name, "digest:")
-		}
-		if strings.Contains(tag.Name, "rekor:") {
-			rekor = strings.TrimPrefix(tag.Name, "rekor:")
-		}
-		if strings.Contains(tag.Name, "workload:") {
-			w := strings.TrimPrefix(tag.Name, "workload:")
+	for _, tag := range tags {
+		if strings.Contains(tag.Name, dependencytrack.WorkloadTagPrefix.String()) {
+			w := strings.TrimPrefix(tag.Name, dependencytrack.WorkloadTagPrefix.String())
 			workload := strings.Split(w, "|")
 
 			workloads = append(workloads, &model.WorkloadReference{
@@ -376,26 +417,9 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 				WorkloadType: workload[2],
 				Name:         workload[3],
 			})
-
 		}
 	}
-
-	rekorMetadata, err := c.rekorClient.GetRekorMetadata(ctx, rekor)
-	if err != nil {
-		c.log.Errorf("getting rekor metadata: %v", err)
-	}
-
-	return &model.Image{
-		Name:               p.Name + ":" + p.Version,
-		ID:                 scalar.ImageIdent(p.Name, p.Version),
-		Digest:             digest,
-		Rekor:              rekorMetadata,
-		Version:            p.Version,
-		HasSbom:            hasBom(p),
-		ProjectID:          p.Uuid,
-		Summary:            c.createSummaryForImage(p, hasBom(p)),
-		WorkloadReferences: workloads,
-	}, nil
+	return workloads
 }
 
 func (c *Client) GetFindingsForImageByProjectID(ctx context.Context, projectId string, suppressed bool) ([]*model.Finding, error) {
@@ -451,46 +475,15 @@ func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId s
 		return nil, fmt.Errorf("project not found: %s", projectId)
 	}
 
-	var digest string
-	var rekor string
-	var workloads []*model.WorkloadReference
-	for _, tag := range p.Tags {
-		if strings.Contains(tag.Name, dependencytrack.DigestTagPrefix.String()) {
-			digest = strings.TrimPrefix(tag.Name, dependencytrack.DigestTagPrefix.String())
-		}
-		if strings.Contains(tag.Name, dependencytrack.RekorTagPrefix.String()) {
-			rekor = strings.TrimPrefix(tag.Name, dependencytrack.RekorTagPrefix.String())
-		}
-		if strings.Contains(tag.Name, dependencytrack.WorkloadTagPrefix.String()) {
-			w := strings.TrimPrefix(tag.Name, dependencytrack.WorkloadTagPrefix.String())
-			workload := strings.Split(w, "|")
-
-			workloads = append(workloads, &model.WorkloadReference{
-				ID:           scalar.WorkloadIdent(w),
-				Environment:  workload[0],
-				Team:         workload[1],
-				WorkloadType: workload[2],
-				Name:         workload[3],
-			})
-
-		}
-	}
-
-	rekorMetadata, err := c.rekorClient.GetRekorMetadata(ctx, rekor)
-	if err != nil {
-		c.log.Errorf("getting rekor metadata: %v", err)
-	}
-
 	return &model.Image{
 		Name:               p.Name + ":" + p.Version,
 		ID:                 scalar.ImageIdent(p.Name, p.Version),
-		Digest:             digest,
-		Rekor:              rekorMetadata,
+		Rekor:              parseRekorTags(p.Tags),
 		Version:            p.Version,
 		ProjectID:          p.Uuid,
 		HasSbom:            hasBom(p),
 		Summary:            c.createSummaryForImage(p, hasBom(p)),
-		WorkloadReferences: workloads,
+		WorkloadReferences: parseWorkloadRefTags(p.Tags),
 	}, nil
 }
 
@@ -505,7 +498,6 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 	}
 
 	images := make([]*model.Image, 0)
-
 	for _, project := range projects {
 		if project == nil {
 			continue
@@ -514,52 +506,16 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 			continue
 		}
 
-		var digest string
-		var rekor string
-		var version string
-		var workloads []*model.WorkloadReference
-
-		for _, tag := range project.Tags {
-			if strings.Contains(tag.Name, dependencytrack.DigestTagPrefix.String()) {
-				digest = strings.TrimPrefix(tag.Name, dependencytrack.DigestTagPrefix.String())
-			}
-			if strings.Contains(tag.Name, dependencytrack.RekorTagPrefix.String()) {
-				rekor = strings.TrimPrefix(tag.Name, dependencytrack.RekorTagPrefix.String())
-			}
-			if strings.Contains(tag.Name, dependencytrack.VersionTagPrefix.String()) {
-				version = strings.TrimPrefix(tag.Name, dependencytrack.VersionTagPrefix.String())
-			}
-			if strings.Contains(tag.Name, dependencytrack.WorkloadTagPrefix.String()) {
-				w := strings.TrimPrefix(tag.Name, dependencytrack.WorkloadTagPrefix.String())
-				workload := strings.Split(w, "|")
-
-				workloads = append(workloads, &model.WorkloadReference{
-					ID:           scalar.WorkloadIdent(w),
-					Environment:  workload[0],
-					Team:         workload[1],
-					WorkloadType: workload[2],
-					Name:         workload[3],
-				})
-			}
-		}
-
-		rekorMetadata, err := c.rekorClient.GetRekorMetadata(ctx, rekor)
-		if err != nil {
-			c.log.Errorf("getting rekor metadata: %v", err)
-		}
-
 		image := &model.Image{
 			ID:                 scalar.ImageIdent(project.Name, project.Version),
 			ProjectID:          project.Uuid,
 			Name:               project.Name,
 			Summary:            c.createSummaryForImage(project, hasBom(project)),
-			Digest:             digest,
-			Rekor:              rekorMetadata,
-			Version:            version,
-			WorkloadReferences: workloads,
+			Rekor:              parseRekorTags(project.Tags),
+			Version:            project.Version,
+			WorkloadReferences: parseWorkloadRefTags(project.Tags),
 		}
 		images = append(images, image)
-
 	}
 
 	return images, nil

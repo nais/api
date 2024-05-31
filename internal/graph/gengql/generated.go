@@ -486,7 +486,6 @@ type ComplexityRoot struct {
 	}
 
 	Image struct {
-		Digest             func(childComplexity int) int
 		Findings           func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		HasSbom            func(childComplexity int) int
 		ID                 func(childComplexity int) int
@@ -835,6 +834,7 @@ type ComplexityRoot struct {
 		BuildTrigger             func(childComplexity int) int
 		GitHubWorkflowName       func(childComplexity int) int
 		GitHubWorkflowRef        func(childComplexity int) int
+		GitHubWorkflowSha        func(childComplexity int) int
 		IntegratedTime           func(childComplexity int) int
 		LogIndex                 func(childComplexity int) int
 		OIDCIssuer               func(childComplexity int) int
@@ -3154,13 +3154,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.IDPortenSidecar.Resources(childComplexity), true
 
-	case "Image.digest":
-		if e.complexity.Image.Digest == nil {
-			break
-		}
-
-		return e.complexity.Image.Digest(childComplexity), true
-
 	case "Image.findings":
 		if e.complexity.Image.Findings == nil {
 			break
@@ -4974,6 +4967,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Rekor.GitHubWorkflowRef(childComplexity), true
+
+	case "Rekor.gitHubWorkflowSHA":
+		if e.complexity.Rekor.GitHubWorkflowSha == nil {
+			break
+		}
+
+		return e.complexity.Rekor.GitHubWorkflowSha(childComplexity), true
 
 	case "Rekor.integratedTime":
 		if e.complexity.Rekor.IntegratedTime == nil {
@@ -7741,7 +7741,6 @@ type Image {
   projectId: String!
   name: String!
   version: String!
-  digest: String!
   rekor: Rekor!
   summary: ImageVulnerabilitySummary!
   hasSbom: Boolean!
@@ -7839,6 +7838,7 @@ type Rekor {
   buildConfigURI: String!
   gitHubWorkflowName: String!
   gitHubWorkflowRef: String!
+  gitHubWorkflowSHA: String!
   logIndex: String!
   oIDCIssuer: String!
   runInvocationURI: String!
@@ -13001,8 +13001,6 @@ func (ec *executionContext) fieldContext_App_image(ctx context.Context, field gr
 				return ec.fieldContext_Image_name(ctx, field)
 			case "version":
 				return ec.fieldContext_Image_version(ctx, field)
-			case "digest":
-				return ec.fieldContext_Image_digest(ctx, field)
 			case "rekor":
 				return ec.fieldContext_Image_rekor(ctx, field)
 			case "summary":
@@ -23288,50 +23286,6 @@ func (ec *executionContext) fieldContext_Image_version(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Image_digest(ctx context.Context, field graphql.CollectedField, obj *model.Image) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Image_digest(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Digest, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Image_digest(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Image",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Image_rekor(ctx context.Context, field graphql.CollectedField, obj *model.Image) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Image_rekor(ctx, field)
 	if err != nil {
@@ -23379,6 +23333,8 @@ func (ec *executionContext) fieldContext_Image_rekor(ctx context.Context, field 
 				return ec.fieldContext_Rekor_gitHubWorkflowName(ctx, field)
 			case "gitHubWorkflowRef":
 				return ec.fieldContext_Rekor_gitHubWorkflowRef(ctx, field)
+			case "gitHubWorkflowSHA":
+				return ec.fieldContext_Rekor_gitHubWorkflowSHA(ctx, field)
 			case "logIndex":
 				return ec.fieldContext_Rekor_logIndex(ctx, field)
 			case "oIDCIssuer":
@@ -23672,8 +23628,6 @@ func (ec *executionContext) fieldContext_ImageList_nodes(ctx context.Context, fi
 				return ec.fieldContext_Image_name(ctx, field)
 			case "version":
 				return ec.fieldContext_Image_version(ctx, field)
-			case "digest":
-				return ec.fieldContext_Image_digest(ctx, field)
 			case "rekor":
 				return ec.fieldContext_Image_rekor(ctx, field)
 			case "summary":
@@ -30301,8 +30255,6 @@ func (ec *executionContext) fieldContext_NaisJob_image(ctx context.Context, fiel
 				return ec.fieldContext_Image_name(ctx, field)
 			case "version":
 				return ec.fieldContext_Image_version(ctx, field)
-			case "digest":
-				return ec.fieldContext_Image_digest(ctx, field)
 			case "rekor":
 				return ec.fieldContext_Image_rekor(ctx, field)
 			case "summary":
@@ -36429,6 +36381,50 @@ func (ec *executionContext) _Rekor_gitHubWorkflowRef(ctx context.Context, field 
 }
 
 func (ec *executionContext) fieldContext_Rekor_gitHubWorkflowRef(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Rekor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Rekor_gitHubWorkflowSHA(ctx context.Context, field graphql.CollectedField, obj *model.Rekor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Rekor_gitHubWorkflowSHA(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GitHubWorkflowSha, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Rekor_gitHubWorkflowSHA(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Rekor",
 		Field:      field,
@@ -56034,11 +56030,6 @@ func (ec *executionContext) _Image(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "digest":
-			out.Values[i] = ec._Image_digest(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "rekor":
 			out.Values[i] = ec._Image_rekor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -59581,6 +59572,11 @@ func (ec *executionContext) _Rekor(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "gitHubWorkflowRef":
 			out.Values[i] = ec._Rekor_gitHubWorkflowRef(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "gitHubWorkflowSHA":
+			out.Values[i] = ec._Rekor_gitHubWorkflowSHA(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

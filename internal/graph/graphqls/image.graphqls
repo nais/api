@@ -27,7 +27,6 @@ type Image {
   projectId: String!
   name: String!
   version: String!
-  digest: String!
   rekor: Rekor!
   summary: ImageVulnerabilitySummary!
   hasSbom: Boolean!
@@ -125,6 +124,7 @@ type Rekor {
   buildConfigURI: String!
   gitHubWorkflowName: String!
   gitHubWorkflowRef: String!
+  gitHubWorkflowSHA: String!
   logIndex: String!
   oIDCIssuer: String!
   runInvocationURI: String!
