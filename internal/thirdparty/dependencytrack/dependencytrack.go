@@ -350,7 +350,7 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 			Name:    image,
 			Version: version,
 			Summary: c.createSummaryForImage(nil, false),
-			Rekor:   &model.Rekor{},
+			Rekor:   model.Rekor{},
 		}, nil
 	}
 
@@ -366,8 +366,8 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 	}, nil
 }
 
-func parseRekorTags(tags []dependencytrack.Tag) *model.Rekor {
-	var rekor *model.Rekor
+func parseRekorTags(tags []dependencytrack.Tag) model.Rekor {
+	var rekor model.Rekor
 	for _, tag := range tags {
 		switch {
 		case strings.Contains(tag.Name, dependencytrack.RekorBuildConfigURITagPrefix.String()):

@@ -8,7 +8,7 @@ type ImageDetails struct {
 	Name               string                    `json:"name"`
 	Version            string                    `json:"version"`
 	Digest             string                    `json:"digest"`
-	Rekor              *Rekor                    `json:"rekor"`
+	Rekor              Rekor                     `json:"rekor"`
 	Summary            ImageVulnerabilitySummary `json:"summary"`
 	HasSbom            bool                      `json:"hasSbom"`
 	Findings           FindingList               `json:"findings"`
