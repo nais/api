@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -618,6 +619,12 @@ func parseComments(trail *dependencytrack.Analysis) []*model.Comment {
 			comments = append(comments, comment)
 		}
 	}
+
+	// sort comments on timestamp desc
+	slices.SortFunc(comments, func(i, j *model.Comment) int {
+		return int(j.Timestamp.Sub(i.Timestamp).Seconds())
+	})
+
 	return comments
 }
 
