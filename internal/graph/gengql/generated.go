@@ -7812,6 +7812,8 @@ extend enum OrderByField {
   PACKAGE_URL
   "Order by state."
   STATE
+  "Order by isSuppressed."
+  IS_SUPPRESSED
 }
 
 type FindingList {

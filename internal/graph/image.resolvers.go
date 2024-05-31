@@ -65,6 +65,13 @@ func (r *imageResolver) Findings(ctx context.Context, obj *model.Image, offset *
 			model.SortWith(findings, func(a, b *model.Finding) bool {
 				return model.Compare(a.State, b.State, orderBy.Direction)
 			})
+		case model.OrderByFieldIsSuppressed:
+			model.SortWith(findings, func(a, b *model.Finding) bool {
+				if a.IsSuppressed && !b.IsSuppressed {
+					return orderBy.Direction == model.SortOrderDesc
+				}
+				return orderBy.Direction == model.SortOrderAsc
+			})
 		}
 	}
 

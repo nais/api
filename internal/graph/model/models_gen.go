@@ -1189,6 +1189,8 @@ const (
 	OrderByFieldPackageURL OrderByField = "PACKAGE_URL"
 	// Order by state.
 	OrderByFieldState OrderByField = "STATE"
+	// Order by isSuppressed.
+	OrderByFieldIsSuppressed OrderByField = "IS_SUPPRESSED"
 	// Order by PostgreSQL version
 	OrderByFieldVersion OrderByField = "VERSION"
 	// Order by cost
@@ -1217,6 +1219,7 @@ var AllOrderByField = []OrderByField{
 	OrderByFieldSeverity,
 	OrderByFieldPackageURL,
 	OrderByFieldState,
+	OrderByFieldIsSuppressed,
 	OrderByFieldVersion,
 	OrderByFieldCost,
 	OrderByFieldCPU,
@@ -1226,7 +1229,7 @@ var AllOrderByField = []OrderByField{
 
 func (e OrderByField) IsValid() bool {
 	switch e {
-	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned, OrderByFieldSeverity, OrderByFieldPackageURL, OrderByFieldState, OrderByFieldVersion, OrderByFieldCost, OrderByFieldCPU, OrderByFieldMemory, OrderByFieldDisk:
+	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned, OrderByFieldSeverity, OrderByFieldPackageURL, OrderByFieldState, OrderByFieldIsSuppressed, OrderByFieldVersion, OrderByFieldCost, OrderByFieldCPU, OrderByFieldMemory, OrderByFieldDisk:
 		return true
 	}
 	return false
