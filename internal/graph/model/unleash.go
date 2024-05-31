@@ -18,6 +18,7 @@ type UnleashInstance struct {
 	WebIngress   string         `json:"webIngress"`
 	APIIngress   string         `json:"apiIngress"`
 	Metrics      UnleashMetrics `json:"metrics"`
+	Ready        bool           `json:"ready"`
 }
 
 type UnleashMetrics struct {
@@ -45,5 +46,6 @@ func ToUnleashInstance(u *unleash_nais_io_v1.Unleash) *UnleashInstance {
 		AllowedTeams: teams,
 		WebIngress:   u.Spec.WebIngress.Host,
 		APIIngress:   u.Spec.ApiIngress.Host,
+		Ready:        u.Status.Reconciled && u.Status.Connected,
 	}
 }

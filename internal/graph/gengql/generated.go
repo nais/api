@@ -1012,6 +1012,7 @@ type ComplexityRoot struct {
 		AllowedTeams func(childComplexity int) int
 		Metrics      func(childComplexity int) int
 		Name         func(childComplexity int) int
+		Ready        func(childComplexity int) int
 		Version      func(childComplexity int) int
 		WebIngress   func(childComplexity int) int
 	}
@@ -5631,6 +5632,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UnleashInstance.Name(childComplexity), true
 
+	case "UnleashInstance.ready":
+		if e.complexity.UnleashInstance.Ready == nil {
+			break
+		}
+
+		return e.complexity.UnleashInstance.Ready(childComplexity), true
+
 	case "UnleashInstance.version":
 		if e.complexity.UnleashInstance.Version == nil {
 			break
@@ -8383,7 +8391,11 @@ enum RepositoryAuthorization {
   """
   Update Unleash instance with allowed teams.
   """
-  updateUnleashForTeam(team: Slug!, name: String!, allowedTeams: [String!]): Unleash! @auth
+  updateUnleashForTeam(
+    team: Slug!
+    name: String!
+    allowedTeams: [String!]
+  ): Unleash! @auth
 }
 
 type Unleash {
@@ -8401,6 +8413,7 @@ type UnleashInstance {
   webIngress: String!
   apiIngress: String!
   metrics: UnleashMetrics!
+  ready: Boolean!
 }
 
 type UnleashMetrics {
@@ -40503,6 +40516,8 @@ func (ec *executionContext) fieldContext_Unleash_instance(ctx context.Context, f
 				return ec.fieldContext_UnleashInstance_apiIngress(ctx, field)
 			case "metrics":
 				return ec.fieldContext_UnleashInstance_metrics(ctx, field)
+			case "ready":
+				return ec.fieldContext_UnleashInstance_ready(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UnleashInstance", field.Name)
 		},
@@ -40827,6 +40842,50 @@ func (ec *executionContext) fieldContext_UnleashInstance_metrics(ctx context.Con
 				return ec.fieldContext_UnleashMetrics_memoryRequests(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UnleashMetrics", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UnleashInstance_ready(ctx context.Context, field graphql.CollectedField, obj *model.UnleashInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UnleashInstance_ready(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Ready, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UnleashInstance_ready(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UnleashInstance",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -55618,6 +55677,11 @@ func (ec *executionContext) _UnleashInstance(ctx context.Context, sel ast.Select
 			}
 		case "metrics":
 			out.Values[i] = ec._UnleashInstance_metrics(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "ready":
+			out.Values[i] = ec._UnleashInstance_ready(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
