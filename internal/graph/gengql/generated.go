@@ -825,6 +825,11 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
+	RedisStatus struct {
+		Conditions func(childComplexity int) int
+		State      func(childComplexity int) int
+	}
+
 	Rekor struct {
 		BuildConfigURI           func(childComplexity int) int
 		BuildTrigger             func(childComplexity int) int
@@ -1258,6 +1263,7 @@ type AppResolver interface {
 	Instances(ctx context.Context, obj *model.App) ([]*model.Instance, error)
 
 	Persistence(ctx context.Context, obj *model.App) ([]model.Persistence, error)
+
 	Manifest(ctx context.Context, obj *model.App) (string, error)
 	Team(ctx context.Context, obj *model.App) (*model.Team, error)
 	Vulnerabilities(ctx context.Context, obj *model.App) (*model.Vulnerability, error)
@@ -4927,6 +4933,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RedisList.PageInfo(childComplexity), true
 
+	case "RedisStatus.conditions":
+		if e.complexity.RedisStatus.Conditions == nil {
+			break
+		}
+
+		return e.complexity.RedisStatus.Conditions(childComplexity), true
+
+	case "RedisStatus.state":
+		if e.complexity.RedisStatus.State == nil {
+			break
+		}
+
+		return e.complexity.RedisStatus.State(childComplexity), true
+
 	case "Rekor.buildConfigURI":
 		if e.complexity.Rekor.BuildConfigURI == nil {
 			break
@@ -7145,14 +7165,11 @@ type App implements Workload {
   variables: [Variable!]!
   resources: Resources!
   type: WorkloadType!
-
   ingresses: [String!]!
   instances: [Instance!]!
   autoScaling: AutoScaling!
   persistence: [Persistence!]!
-  variables: [Variable!]!
   image: Image!
-  authz: [Authz!]!
   manifest: String!
   team: Team!
   vulnerabilities: Vulnerability
@@ -7899,10 +7916,16 @@ type FailedRunError implements StateError {
 type NaisJob implements Workload {
   id: ID!
   name: String!
-  image: String!
   deployInfo: DeployInfo!
   env: Env!
   image: Image!
+  accessPolicy: AccessPolicy!
+  status: WorkloadStatus!
+  authz: [Authz!]!
+  variables: [Variable!]!
+  resources: Resources!
+  type: WorkloadType!
+
   runs: [Run!]!
   manifest: String!
   schedule: String!
@@ -8798,16 +8821,10 @@ type Role {
   ): TeamList! @auth
 
   "Get a specific team."
-  team(
-    "Slug of the team."
-    slug: Slug!
-  ): Team! @auth
+  team("Slug of the team." slug: Slug!): Team! @auth
 
   "Get a team delete key."
-  teamDeleteKey(
-    "The key to get."
-    key: String!
-  ): TeamDeleteKey! @auth
+  teamDeleteKey("The key to get." key: String!): TeamDeleteKey! @auth
 }
 
 extend type Mutation {
@@ -9060,10 +9077,7 @@ type Team {
   ): TeamMemberList!
 
   "Single team member"
-  member(
-    "The ID of the user."
-    userId: ID!
-  ): TeamMember!
+  member("The ID of the user." userId: ID!): TeamMember!
 
   "Possible issues related to synchronization of the team to configured external systems. If there are no entries the team can be considered fully synchronized."
   syncErrors: [SyncError!]!
@@ -9117,6 +9131,15 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): SqlInstancesList!
+
+  "Get a Bucket by name and env."
+  bucket(
+    "The name of the bucket."
+    name: String!
+
+    "The environment the bucket exists in."
+    env: String!
+  ): Bucket!
 
   buckets(
     "Returns the first n entries from the list."
@@ -9645,7 +9668,7 @@ type TeamMemberList {
 	{Name: "../graphqls/workload.graphqls", Input: `interface Workload {
   id: ID!
   name: String!
-  image: String!
+  image: Image!
   deployInfo: DeployInfo!
   env: Env!
   accessPolicy: AccessPolicy!
@@ -9659,7 +9682,8 @@ type TeamMemberList {
 enum WorkloadType {
   APP
   NAISJOB
-}`, BuiltIn: false},
+}
+`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -12884,6 +12908,50 @@ func (ec *executionContext) fieldContext_App_autoScaling(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _App_persistence(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_App_persistence(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.App().Persistence(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]model.Persistence)
+	fc.Result = res
+	return ec.marshalNPersistence2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPersistenceᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_App_persistence(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "App",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _App_image(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_App_image(ctx, field)
 	if err != nil {
@@ -12945,50 +13013,6 @@ func (ec *executionContext) fieldContext_App_image(ctx context.Context, field gr
 				return ec.fieldContext_Image_workloadReferences(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Image", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _App_authz(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_App_authz(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Authz, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]model.Authz)
-	fc.Result = res
-	return ec.marshalNAuthz2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuthzᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_App_authz(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "App",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Authz does not have child fields")
 		},
 	}
 	return fc, nil
@@ -13492,12 +13516,8 @@ func (ec *executionContext) fieldContext_AppList_nodes(ctx context.Context, fiel
 				return ec.fieldContext_App_autoScaling(ctx, field)
 			case "persistence":
 				return ec.fieldContext_App_persistence(ctx, field)
-			case "variables":
-				return ec.fieldContext_App_variables(ctx, field)
 			case "image":
 				return ec.fieldContext_App_image(ctx, field)
-			case "authz":
-				return ec.fieldContext_App_authz(ctx, field)
 			case "manifest":
 				return ec.fieldContext_App_manifest(ctx, field)
 			case "team":
@@ -24687,7 +24707,7 @@ func (ec *executionContext) _Instance_imageName(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Image, nil
+		return obj.ImageName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -30120,50 +30140,6 @@ func (ec *executionContext) fieldContext_NaisJob_name(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _NaisJob_image(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_NaisJob_image(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Image, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_NaisJob_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "NaisJob",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _NaisJob_deployInfo(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_NaisJob_deployInfo(ctx, field)
 	if err != nil {
@@ -30276,8 +30252,8 @@ func (ec *executionContext) fieldContext_NaisJob_env(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _NaisJob_accessPolicy(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_NaisJob_accessPolicy(ctx, field)
+func (ec *executionContext) _NaisJob_image(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NaisJob_image(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -30290,7 +30266,7 @@ func (ec *executionContext) _NaisJob_accessPolicy(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.AccessPolicy, nil
+		return obj.Image, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -30307,7 +30283,7 @@ func (ec *executionContext) _NaisJob_accessPolicy(ctx context.Context, field gra
 	return ec.marshalNImage2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐImage(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_NaisJob_accessPolicy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_NaisJob_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "NaisJob",
 		Field:      field,
@@ -30337,6 +30313,56 @@ func (ec *executionContext) fieldContext_NaisJob_accessPolicy(ctx context.Contex
 				return ec.fieldContext_Image_workloadReferences(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Image", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NaisJob_accessPolicy(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NaisJob_accessPolicy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AccessPolicy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AccessPolicy)
+	fc.Result = res
+	return ec.marshalNAccessPolicy2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAccessPolicy(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NaisJob_accessPolicy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NaisJob",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "inbound":
+				return ec.fieldContext_AccessPolicy_inbound(ctx, field)
+			case "outbound":
+				return ec.fieldContext_AccessPolicy_outbound(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AccessPolicy", field.Name)
 		},
 	}
 	return fc, nil
@@ -31145,12 +31171,12 @@ func (ec *executionContext) fieldContext_NaisJobList_nodes(ctx context.Context, 
 				return ec.fieldContext_NaisJob_id(ctx, field)
 			case "name":
 				return ec.fieldContext_NaisJob_name(ctx, field)
-			case "image":
-				return ec.fieldContext_NaisJob_image(ctx, field)
 			case "deployInfo":
 				return ec.fieldContext_NaisJob_deployInfo(ctx, field)
 			case "env":
 				return ec.fieldContext_NaisJob_env(ctx, field)
+			case "image":
+				return ec.fieldContext_NaisJob_image(ctx, field)
 			case "accessPolicy":
 				return ec.fieldContext_NaisJob_accessPolicy(ctx, field)
 			case "status":
@@ -32806,12 +32832,8 @@ func (ec *executionContext) fieldContext_Query_app(ctx context.Context, field gr
 				return ec.fieldContext_App_autoScaling(ctx, field)
 			case "persistence":
 				return ec.fieldContext_App_persistence(ctx, field)
-			case "variables":
-				return ec.fieldContext_App_variables(ctx, field)
 			case "image":
 				return ec.fieldContext_App_image(ctx, field)
-			case "authz":
-				return ec.fieldContext_App_authz(ctx, field)
 			case "manifest":
 				return ec.fieldContext_App_manifest(ctx, field)
 			case "team":
@@ -33252,12 +33274,12 @@ func (ec *executionContext) fieldContext_Query_naisjob(ctx context.Context, fiel
 				return ec.fieldContext_NaisJob_id(ctx, field)
 			case "name":
 				return ec.fieldContext_NaisJob_name(ctx, field)
-			case "image":
-				return ec.fieldContext_NaisJob_image(ctx, field)
 			case "deployInfo":
 				return ec.fieldContext_NaisJob_deployInfo(ctx, field)
 			case "env":
 				return ec.fieldContext_NaisJob_env(ctx, field)
+			case "image":
+				return ec.fieldContext_NaisJob_image(ctx, field)
 			case "accessPolicy":
 				return ec.fieldContext_NaisJob_accessPolicy(ctx, field)
 			case "status":
@@ -36136,6 +36158,106 @@ func (ec *executionContext) fieldContext_RedisList_pageInfo(ctx context.Context,
 				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RedisStatus_conditions(ctx context.Context, field graphql.CollectedField, obj *model.RedisStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisStatus_conditions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Conditions, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Condition)
+	fc.Result = res
+	return ec.marshalNCondition2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐConditionᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedisStatus_conditions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedisStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "message":
+				return ec.fieldContext_Condition_message(ctx, field)
+			case "reason":
+				return ec.fieldContext_Condition_reason(ctx, field)
+			case "status":
+				return ec.fieldContext_Condition_status(ctx, field)
+			case "type":
+				return ec.fieldContext_Condition_type(ctx, field)
+			case "lastTransitionTime":
+				return ec.fieldContext_Condition_lastTransitionTime(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Condition", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RedisStatus_state(ctx context.Context, field graphql.CollectedField, obj *model.RedisStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisStatus_state(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.State, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedisStatus_state(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedisStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -39413,12 +39535,8 @@ func (ec *executionContext) fieldContext_Secret_apps(ctx context.Context, field 
 				return ec.fieldContext_App_autoScaling(ctx, field)
 			case "persistence":
 				return ec.fieldContext_App_persistence(ctx, field)
-			case "variables":
-				return ec.fieldContext_App_variables(ctx, field)
 			case "image":
 				return ec.fieldContext_App_image(ctx, field)
-			case "authz":
-				return ec.fieldContext_App_authz(ctx, field)
 			case "manifest":
 				return ec.fieldContext_App_manifest(ctx, field)
 			case "team":
@@ -39477,12 +39595,12 @@ func (ec *executionContext) fieldContext_Secret_jobs(ctx context.Context, field 
 				return ec.fieldContext_NaisJob_id(ctx, field)
 			case "name":
 				return ec.fieldContext_NaisJob_name(ctx, field)
-			case "image":
-				return ec.fieldContext_NaisJob_image(ctx, field)
 			case "deployInfo":
 				return ec.fieldContext_NaisJob_deployInfo(ctx, field)
 			case "env":
 				return ec.fieldContext_NaisJob_env(ctx, field)
+			case "image":
+				return ec.fieldContext_NaisJob_image(ctx, field)
 			case "accessPolicy":
 				return ec.fieldContext_NaisJob_accessPolicy(ctx, field)
 			case "status":
@@ -52620,18 +52738,8 @@ func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "variables":
-			out.Values[i] = ec._App_variables(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "image":
 			out.Values[i] = ec._App_image(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "authz":
-			out.Values[i] = ec._App_authz(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -56304,8 +56412,8 @@ func (ec *executionContext) _Instance(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "image":
-			out.Values[i] = ec._Instance_image(ctx, field, obj)
+		case "imageName":
+			out.Values[i] = ec._Instance_imageName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -57309,11 +57417,6 @@ func (ec *executionContext) _NaisJob(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "image":
-			out.Values[i] = ec._NaisJob_image(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "deployInfo":
 			out.Values[i] = ec._NaisJob_deployInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -57321,6 +57424,11 @@ func (ec *executionContext) _NaisJob(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "env":
 			out.Values[i] = ec._NaisJob_env(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "image":
+			out.Values[i] = ec._NaisJob_image(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -59373,6 +59481,50 @@ func (ec *executionContext) _RedisList(ctx context.Context, sel ast.SelectionSet
 			}
 		case "pageInfo":
 			out.Values[i] = ec._RedisList_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var redisStatusImplementors = []string{"RedisStatus"}
+
+func (ec *executionContext) _RedisStatus(ctx context.Context, sel ast.SelectionSet, obj *model.RedisStatus) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, redisStatusImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RedisStatus")
+		case "conditions":
+			out.Values[i] = ec._RedisStatus_conditions(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "state":
+			out.Values[i] = ec._RedisStatus_state(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -67540,6 +67692,10 @@ func (ec *executionContext) marshalNRedisList2ᚖgithubᚗcomᚋnaisᚋapiᚋint
 	return ec._RedisList(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNRedisStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisStatus(ctx context.Context, sel ast.SelectionSet, v model.RedisStatus) graphql.Marshaler {
+	return ec._RedisStatus(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNRekor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRekor(ctx context.Context, sel ast.SelectionSet, v *model.Rekor) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -69175,6 +69331,16 @@ func (ec *executionContext) marshalNVulnerabilitySummaryForTeam2ᚖgithubᚗcom�
 	return ec._VulnerabilitySummaryForTeam(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkload(ctx context.Context, sel ast.SelectionSet, v model.Workload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Workload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNWorkloadReference2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkloadReferenceᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.WorkloadReference) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -69527,6 +69693,53 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOBucketCors2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketCorsᚄ(ctx context.Context, sel ast.SelectionSet, v []model.BucketCors) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBucketCors2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketCors(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalOComment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐComment(ctx context.Context, sel ast.SelectionSet, v *model.Comment) graphql.Marshaler {

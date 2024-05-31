@@ -60,7 +60,6 @@ type App implements Workload {
   autoScaling: AutoScaling!
   persistence: [Persistence!]!
   image: Image!
-  authz: [Authz!]!
   manifest: String!
   team: Team!
   vulnerabilities: Vulnerability

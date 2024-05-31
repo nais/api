@@ -45,7 +45,7 @@ type Workload interface {
 	IsWorkload()
 	GetID() scalar.Ident
 	GetName() string
-	GetImage() string
+	GetImage() Image
 	GetDeployInfo() DeployInfo
 	GetEnv() Env
 	GetAccessPolicy() AccessPolicy

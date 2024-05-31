@@ -51,7 +51,6 @@ type FailedRunError implements StateError {
 type NaisJob implements Workload {
   id: ID!
   name: String!
-  image: String!
   deployInfo: DeployInfo!
   env: Env!
   image: Image!
