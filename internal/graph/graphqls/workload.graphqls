@@ -1,7 +1,7 @@
 interface Workload {
   id: ID!
   name: String!
-  image: String!
+  image: Image!
   deployInfo: DeployInfo!
   env: Env!
   accessPolicy: AccessPolicy!

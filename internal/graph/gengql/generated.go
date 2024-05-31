@@ -9129,6 +9129,15 @@ type Team {
     orderBy: OrderBy
   ): BucketsList!
 
+  "Get a Redis instance by name and env."
+  redisInstance(
+    "The name of the Redis instance."
+    name: String!
+
+    "The environment the instance exists in."
+    env: String!
+  ): Redis!
+
   redis(
     "Returns the first n entries from the list."
     offset: Int
@@ -9139,6 +9148,15 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): RedisList!
+
+  "Get a OpenSearch instance by name and env."
+  openSearchInstance(
+    "The name of the OpenSearch instance."
+    name: String!
+
+    "The environment the instance exists in."
+    env: String!
+  ): OpenSearch!
 
   openSearch(
     "Returns the first n entries from the list."

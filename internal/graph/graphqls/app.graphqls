@@ -55,7 +55,6 @@ type App implements Workload {
   variables: [Variable!]!
   resources: Resources!
   type: WorkloadType!
-
   ingresses: [String!]!
   instances: [Instance!]!
   autoScaling: AutoScaling!
