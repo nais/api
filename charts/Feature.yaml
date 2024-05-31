@@ -172,4 +172,5 @@ values:
     description: Namespace for Unleash
     config:
       type: string
-    default: "bifrost-unleash"
+    computed:
+      template: '"{{ .Management.bifrost_unleash_namespace}}"'

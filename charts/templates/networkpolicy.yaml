@@ -25,6 +25,10 @@ spec:
         - podSelector:
             matchLabels:
               app.kubernetes.io/name: dependencytrack
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: bifrost
   ingress:
     - from:
         - namespaceSelector:

@@ -58,5 +58,6 @@ usersync:
   adminGroupPrefix: null # Config in fasit
 
 unleash:
-  namespace: "bifrost-unleash"
   enabled: false
+  namespace: "bifrost-unleash"
+  bifrostApiUrl: "http://bifrost-backend"
