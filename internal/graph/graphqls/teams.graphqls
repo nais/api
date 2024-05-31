@@ -323,6 +323,15 @@ type Team {
     orderBy: OrderBy
   ): SqlInstancesList!
 
+  "Get a Bucket by name and env."
+  bucket(
+    "The name of the bucket."
+    name: String!
+
+    "The environment the bucket exists in."
+    env: String!
+  ): Bucket!
+
   buckets(
     "Returns the first n entries from the list."
     offset: Int
@@ -334,6 +343,15 @@ type Team {
     orderBy: OrderBy
   ): BucketsList!
 
+  "Get a Redis instance by name and env."
+  redisInstance(
+    "The name of the Redis instance."
+    name: String!
+
+    "The environment the instance exists in."
+    env: String!
+  ): Redis!
+
   redis(
     "Returns the first n entries from the list."
     offset: Int
@@ -344,6 +362,15 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): RedisList!
+
+  "Get a OpenSearch instance by name and env."
+  openSearchInstance(
+    "The name of the OpenSearch instance."
+    name: String!
+
+    "The environment the instance exists in."
+    env: String!
+  ): OpenSearch!
 
   openSearch(
     "Returns the first n entries from the list."
@@ -386,6 +413,15 @@ type Team {
     "Order entries by"
     orderBy: OrderBy
   ): BigQueryDatasetList!
+
+  "Get a BigQueryDataset by name and env."
+  bigQueryDataset(
+    "The name of the dataset."
+    name: String!
+
+    "The environment the dataset exists in."
+    env: String!
+  ): BigQueryDataset!
 
   "The NAIS applications owned by the team."
   apps(

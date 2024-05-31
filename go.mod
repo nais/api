@@ -20,7 +20,7 @@ require (
 	github.com/lithammer/fuzzysearch v1.1.8
 	github.com/nais/bifrost v0.0.0-20240521085955-c2d2e61bfcd0
 	github.com/nais/dependencytrack v0.0.0-20240301095153-b46382e6a8be
-	github.com/nais/liberator v0.0.0-20240513134459-37eb7a65f8a3
+	github.com/nais/liberator v0.0.0-20240528123634-b97124ebbbbb
 	github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.18.0

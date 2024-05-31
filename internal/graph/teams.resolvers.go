@@ -1153,6 +1153,11 @@ func (r *teamResolver) SQLInstances(ctx context.Context, obj *model.Team, offset
 	}, nil
 }
 
+// Bucket is the resolver for the bucket field.
+func (r *teamResolver) Bucket(ctx context.Context, obj *model.Team, name string, env string) (*model.Bucket, error) {
+	return r.bucketClient.Bucket(env, obj.Slug, name)
+}
+
 // Buckets is the resolver for the buckets field.
 func (r *teamResolver) Buckets(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BucketsList, error) {
 	buckets, err := r.bucketClient.Buckets(obj.Slug)
@@ -1182,6 +1187,11 @@ func (r *teamResolver) Buckets(ctx context.Context, obj *model.Team, offset *int
 	}, nil
 }
 
+// RedisInstance is the resolver for the redisInstance field.
+func (r *teamResolver) RedisInstance(ctx context.Context, obj *model.Team, name string, env string) (*model.Redis, error) {
+	return r.redisClient.RedisInstance(ctx, env, obj.Slug, name)
+}
+
 // Redis is the resolver for the redis field.
 func (r *teamResolver) Redis(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.RedisList, error) {
 	redis, err := r.redisClient.Redis(obj.Slug)
@@ -1209,6 +1219,11 @@ func (r *teamResolver) Redis(ctx context.Context, obj *model.Team, offset *int, 
 		Nodes:    redis,
 		PageInfo: pageInfo,
 	}, nil
+}
+
+// OpenSearchInstance is the resolver for the openSearchInstance field.
+func (r *teamResolver) OpenSearchInstance(ctx context.Context, obj *model.Team, name string, env string) (*model.OpenSearch, error) {
+	return r.openSearchClient.OpenSearchInstance(ctx, env, obj.Slug, name)
 }
 
 // OpenSearch is the resolver for the openSearch field.
@@ -1301,6 +1316,11 @@ func (r *teamResolver) BigQuery(ctx context.Context, obj *model.Team, offset *in
 		Nodes:    bqs,
 		PageInfo: pageInfo,
 	}, nil
+}
+
+// BigQueryDataset is the resolver for the bigQueryDataset field.
+func (r *teamResolver) BigQueryDataset(ctx context.Context, obj *model.Team, name string, env string) (*model.BigQueryDataset, error) {
+	return r.bigQueryDatasetClient.BigQueryDataset(env, obj.Slug, name)
 }
 
 // Apps is the resolver for the apps field.

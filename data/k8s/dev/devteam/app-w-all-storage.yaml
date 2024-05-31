@@ -28,10 +28,10 @@ spec:
   kafka:
     pool: team-a
   redis:
-    - name: contests
-      size: 100Mi
-      instance: contests
+    - instance: contests
+      access: admin
   openSearch:
-    instance: opensearch
+    instance: opensearch-1
+    access: readwrite
   filesFrom:
     - persistentVolumeClaim: asdf

@@ -39,7 +39,7 @@ import (
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // This file will not be regenerated automatically.
@@ -175,7 +175,7 @@ func NewResolver(hookdClient HookdClient,
 		tenantDomain:          tenantDomain,
 		userSync:              userSync,
 		auditLogger:           auditLogger,
-		searcher:              search.New(teamsearch.New(db), k8sClient),
+		searcher:              search.New(teamsearch.New(db), k8sClient, redisClient, openSearchClient, kafkaClient, bigQueryDatasetClient, bucketClient),
 		log:                   log,
 		database:              db,
 		userSyncRuns:          userSyncRuns,

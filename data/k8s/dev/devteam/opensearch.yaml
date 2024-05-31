@@ -12,10 +12,15 @@ metadata:
       "nais deploy: commit 6de0163bab2db379ed7b51af3c6ac94338b5f840:
       https://github.com/navikt/testnorge/actions/runs/7828725220"
     nais.io/deploymentCorrelationID: ad95b24f-439b-43fd-97b1-d53956f18502
+  ownerReferences:
+    - apiVersion: nais.io/v1alpha1
+      kind: Application
+      name: app-w-all-storage
+      uid: 5d684281-5621-4c87-aee7-fca257550790
   labels:
     team: devteam
     app: app-w-all-storage
-  name: my-cool-opensearch-instance
+  name: opensearch-devteam-opensearch-1
   namespace: devteam
 spec:
   cloudName: google-europe-north1
@@ -29,3 +34,16 @@ spec:
     team: devteam
     tenant: nav
   terminationProtection: true
+status:
+  conditions:
+    - lastTransitionTime: "2023-11-08T10:24:54Z"
+      message: Instance was created or update on Aiven side
+      reason: Updated
+      status: "True"
+      type: Initialized
+    - lastTransitionTime: "2023-11-08T10:24:54Z"
+      message: Instance is running on Aiven side
+      reason: CheckRunning
+      status: "True"
+      type: Running
+  state: RUNNING

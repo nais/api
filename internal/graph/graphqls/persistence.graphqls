@@ -6,21 +6,41 @@ interface Persistence {
 type Redis implements Persistence {
   id: ID!
   name: String!
-  access: String!
+  access: [RedisInstanceAccess!]!
   team: Team!
   env: Env!
+  cost: Float!
   workload: Workload
+  status: RedisStatus!
+}
+
+type RedisStatus {
+  conditions: [Condition!]!
+  state: String!
+}
+
+type RedisInstanceAccess {
+  workload: Workload!
+  role: String!
 }
 
 type BigQueryDataset implements Persistence {
   cascadingDelete: Boolean!
   description: String!
   name: String!
-  Access: [BigQueryDatasetAccess!]!
+  access: [BigQueryDatasetAccess!]!
   id: ID!
   team: Team!
   env: Env!
+  status: BigQueryDatasetStatus!
   workload: Workload
+  cost: Float!
+}
+
+type BigQueryDatasetStatus {
+  conditions: [Condition!]!
+  creationTime: Time!
+  lastModifiedTime: Time
 }
 
 type BigQueryDatasetAccess {
@@ -32,14 +52,28 @@ type Bucket implements Persistence {
   id: ID!
   cascadingDelete: Boolean!
   name: String!
-  # publicAccessPrevention: Boolean!
-  # retentionPeriodDays: Int!
-  # uniformBucketLevelAccess: Boolean!
+  publicAccessPrevention: String!
+  retentionPeriodDays: Int!
+  uniformBucketLevelAccess: Boolean!
+  cors: [BucketCors!]
 
   projectId: String!
   team: Team!
   env: Env!
   workload: Workload
+  status: BucketStatus!
+}
+
+type BucketStatus {
+  conditions: [Condition!]!
+  selfLink: String!
+}
+
+type BucketCors {
+  maxAgeSeconds: Int
+  methods: [String!]!
+  origins: [String!]!
+  responseHeaders: [String!]!
 }
 
 type KafkaTopic implements Persistence {
@@ -51,17 +85,28 @@ type KafkaTopic implements Persistence {
   team: Team!
   env: Env!
   workload: Workload
+  status: KafkaTopicStatus
+}
+
+type KafkaTopicStatus {
+  fullyQualifiedName: String!
+  message: String!
+  synchronizationState: State!
+  synchronizationTime: Time
+  credentialsExpiryTime: Time
+  errors: [String!]
+  latestAivenSyncFailure: Time
 }
 
 type KafkaTopicConfig {
-    cleanupPolicy: String
-    maxMessageBytes: Int
-    minimumInSyncReplicas: Int
-    partitions: Int
-    replication: Int
-    retentionBytes: Int
-    retentionHours: Int
-    segmentHours: Int
+  cleanupPolicy: String
+  maxMessageBytes: Int
+  minimumInSyncReplicas: Int
+  partitions: Int
+  replication: Int
+  retentionBytes: Int
+  retentionHours: Int
+  segmentHours: Int
 }
 
 type KafkaTopicAcl {
@@ -75,11 +120,23 @@ type OpenSearch implements Persistence {
   The opensearch instance name
   """
   name: String!
-  access: String!
+  access: [OpenSearchInstanceAccess!]!
   id: ID!
   team: Team!
+  cost: Float!
   env: Env!
   workload: Workload
+  status: OpenSearchStatus!
+}
+
+type OpenSearchStatus {
+  conditions: [Condition!]!
+  state: String!
+}
+
+type OpenSearchInstanceAccess {
+  workload: Workload!
+  role: String!
 }
 
 type Flag {
@@ -99,7 +156,7 @@ type MaintenanceWindow {
   hour: Int!
 }
 
-type SqlDatabase implements Persistence{
+type SqlDatabase implements Persistence {
   name: String!
   charset: String!
   collation: String!
@@ -229,7 +286,7 @@ type Condition {
   reason: String!
   status: String!
   type: String!
-  lastTransitionTime: String!
+  lastTransitionTime: Time!
 }
 
 extend enum OrderByField {
