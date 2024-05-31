@@ -50,7 +50,6 @@ type ResolverRoot interface {
 	Env() EnvResolver
 	Finding() FindingResolver
 	GitHubRepository() GitHubRepositoryResolver
-	Instance() InstanceResolver
 	KafkaTopic() KafkaTopicResolver
 	Mutation() MutationResolver
 	NaisJob() NaisJobResolver
@@ -533,13 +532,13 @@ type ComplexityRoot struct {
 	}
 
 	Instance struct {
-		Created   func(childComplexity int) int
-		ID        func(childComplexity int) int
-		ImageName func(childComplexity int) int
-		Message   func(childComplexity int) int
-		Name      func(childComplexity int) int
-		Restarts  func(childComplexity int) int
-		State     func(childComplexity int) int
+		Created  func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Image    func(childComplexity int) int
+		Message  func(childComplexity int) int
+		Name     func(childComplexity int) int
+		Restarts func(childComplexity int) int
+		State    func(childComplexity int) int
 	}
 
 	InvalidNaisYamlError struct {
@@ -923,7 +922,7 @@ type ComplexityRoot struct {
 		Duration       func(childComplexity int) int
 		Failed         func(childComplexity int) int
 		ID             func(childComplexity int) int
-		ImageName      func(childComplexity int) int
+		Image          func(childComplexity int) int
 		Message        func(childComplexity int) int
 		Name           func(childComplexity int) int
 		PodNames       func(childComplexity int) int
@@ -1296,9 +1295,6 @@ type FindingResolver interface {
 }
 type GitHubRepositoryResolver interface {
 	Authorizations(ctx context.Context, obj *model.GitHubRepository) ([]model.RepositoryAuthorization, error)
-}
-type InstanceResolver interface {
-	ImageName(ctx context.Context, obj *model.Instance) (string, error)
 }
 type KafkaTopicResolver interface {
 	Team(ctx context.Context, obj *model.KafkaTopic) (*model.Team, error)
@@ -3378,12 +3374,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Instance.ID(childComplexity), true
 
-	case "Instance.imageName":
-		if e.complexity.Instance.ImageName == nil {
+	case "Instance.image":
+		if e.complexity.Instance.Image == nil {
 			break
 		}
 
-		return e.complexity.Instance.ImageName(childComplexity), true
+		return e.complexity.Instance.Image(childComplexity), true
 
 	case "Instance.message":
 		if e.complexity.Instance.Message == nil {
@@ -5341,12 +5337,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Run.ID(childComplexity), true
 
-	case "Run.imageName":
-		if e.complexity.Run.ImageName == nil {
+	case "Run.image":
+		if e.complexity.Run.Image == nil {
 			break
 		}
 
-		return e.complexity.Run.ImageName(childComplexity), true
+		return e.complexity.Run.Image(childComplexity), true
 
 	case "Run.message":
 		if e.complexity.Run.Message == nil {
@@ -7263,7 +7259,7 @@ type Instance {
   name: String!
   state: InstanceState!
   message: String!
-  imageName: String!
+  image: String!
   restarts: Int!
   created: Time!
 }
@@ -7920,7 +7916,7 @@ type Run {
   startTime: Time
   completionTime: Time
   duration: String!
-  imageName: String!
+  image: String!
   message: String!
   failed: Boolean!
 }
@@ -7945,7 +7941,6 @@ type NaisJob implements Workload {
   variables: [Variable!]!
   resources: Resources!
   type: WorkloadType!
-
   runs: [Run!]!
   manifest: String!
   schedule: String!
@@ -12862,8 +12857,8 @@ func (ec *executionContext) fieldContext_App_instances(ctx context.Context, fiel
 				return ec.fieldContext_Instance_state(ctx, field)
 			case "message":
 				return ec.fieldContext_Instance_message(ctx, field)
-			case "imageName":
-				return ec.fieldContext_Instance_imageName(ctx, field)
+			case "image":
+				return ec.fieldContext_Instance_image(ctx, field)
 			case "restarts":
 				return ec.fieldContext_Instance_restarts(ctx, field)
 			case "created":
@@ -23377,9 +23372,9 @@ func (ec *executionContext) _ImageDetails_rekor(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Rekor)
+	res := resTmp.(model.Rekor)
 	fc.Result = res
-	return ec.marshalNRekor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRekor(ctx, field.Selections, res)
+	return ec.marshalNRekor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRekor(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ImageDetails_rekor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -24714,8 +24709,8 @@ func (ec *executionContext) fieldContext_Instance_message(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Instance_imageName(ctx context.Context, field graphql.CollectedField, obj *model.Instance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Instance_imageName(ctx, field)
+func (ec *executionContext) _Instance_image(ctx context.Context, field graphql.CollectedField, obj *model.Instance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Instance_image(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -24728,7 +24723,7 @@ func (ec *executionContext) _Instance_imageName(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Instance().ImageName(rctx, obj)
+		return obj.Image, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24745,12 +24740,12 @@ func (ec *executionContext) _Instance_imageName(ctx context.Context, field graph
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Instance_imageName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Instance_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Instance",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
@@ -30720,8 +30715,8 @@ func (ec *executionContext) fieldContext_NaisJob_runs(ctx context.Context, field
 				return ec.fieldContext_Run_completionTime(ctx, field)
 			case "duration":
 				return ec.fieldContext_Run_duration(ctx, field)
-			case "imageName":
-				return ec.fieldContext_Run_imageName(ctx, field)
+			case "image":
+				return ec.fieldContext_Run_image(ctx, field)
 			case "message":
 				return ec.fieldContext_Run_message(ctx, field)
 			case "failed":
@@ -39029,8 +39024,8 @@ func (ec *executionContext) fieldContext_Run_duration(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Run_imageName(ctx context.Context, field graphql.CollectedField, obj *model.Run) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Run_imageName(ctx, field)
+func (ec *executionContext) _Run_image(ctx context.Context, field graphql.CollectedField, obj *model.Run) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Run_image(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -39043,7 +39038,7 @@ func (ec *executionContext) _Run_imageName(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ImageName, nil
+		return obj.Image, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -39060,7 +39055,7 @@ func (ec *executionContext) _Run_imageName(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Run_imageName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Run_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Run",
 		Field:      field,
@@ -56481,68 +56476,37 @@ func (ec *executionContext) _Instance(ctx context.Context, sel ast.SelectionSet,
 		case "id":
 			out.Values[i] = ec._Instance_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "name":
 			out.Values[i] = ec._Instance_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "state":
 			out.Values[i] = ec._Instance_state(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "message":
 			out.Values[i] = ec._Instance_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
-		case "imageName":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Instance_imageName(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+		case "image":
+			out.Values[i] = ec._Instance_image(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "restarts":
 			out.Values[i] = ec._Instance_restarts(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "created":
 			out.Values[i] = ec._Instance_created(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -60418,8 +60382,8 @@ func (ec *executionContext) _Run(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "imageName":
-			out.Values[i] = ec._Run_imageName(ctx, field, obj)
+		case "image":
+			out.Values[i] = ec._Run_image(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -67813,14 +67777,8 @@ func (ec *executionContext) marshalNRedisStatus2githubᚗcomᚋnaisᚋapiᚋinte
 	return ec._RedisStatus(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNRekor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRekor(ctx context.Context, sel ast.SelectionSet, v *model.Rekor) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Rekor(ctx, sel, v)
+func (ec *executionContext) marshalNRekor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRekor(ctx context.Context, sel ast.SelectionSet, v model.Rekor) graphql.Marshaler {
+	return ec._Rekor(ctx, sel, &v)
 }
 
 func (ec *executionContext) unmarshalNRepositoryAuthorization2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorization(ctx context.Context, v interface{}) (model.RepositoryAuthorization, error) {

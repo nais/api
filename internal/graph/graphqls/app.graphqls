@@ -137,7 +137,7 @@ type Instance {
   name: String!
   state: InstanceState!
   message: String!
-  imageName: String!
+  image: String!
   restarts: Int!
   created: Time!
 }

@@ -438,7 +438,7 @@ func (c *Client) Runs(ctx context.Context, team, env, name string) ([]*model.Run
 			CompletionTime: completionTime,
 			Failed:         failed(job),
 			Duration:       duration(job).String(),
-			ImageName:      job.Spec.Template.Spec.Containers[0].Image,
+			Image:          job.Spec.Template.Spec.Containers[0].Image,
 			Message:        Message(job),
 			GQLVars: model.RunGQLVars{
 				Env:     env,

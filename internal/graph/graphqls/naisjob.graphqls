@@ -36,7 +36,7 @@ type Run {
   startTime: Time
   completionTime: Time
   duration: String!
-  imageName: String!
+  image: String!
   message: String!
   failed: Boolean!
 }

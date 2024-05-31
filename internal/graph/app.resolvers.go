@@ -63,11 +63,6 @@ func (r *appResolver) Secrets(ctx context.Context, obj *model.App) ([]*model.Sec
 	return r.k8sClient.SecretsForApp(ctx, obj)
 }
 
-// ImageName is the resolver for the imageName field.
-func (r *instanceResolver) ImageName(ctx context.Context, obj *model.Instance) (string, error) {
-	panic(fmt.Errorf("not implemented: ImageName - imageName"))
-}
-
 // DeleteApp is the resolver for the deleteApp field.
 func (r *mutationResolver) DeleteApp(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteAppResult, error) {
 	actor := authz.ActorFromContext(ctx)
@@ -133,10 +128,4 @@ func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, en
 // App returns gengql.AppResolver implementation.
 func (r *Resolver) App() gengql.AppResolver { return &appResolver{r} }
 
-// Instance returns gengql.InstanceResolver implementation.
-func (r *Resolver) Instance() gengql.InstanceResolver { return &instanceResolver{r} }
-
-type (
-	appResolver      struct{ *Resolver }
-	instanceResolver struct{ *Resolver }
-)
+type appResolver struct{ *Resolver }
