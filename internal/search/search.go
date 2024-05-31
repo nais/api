@@ -3,6 +3,7 @@ package search
 import (
 	"context"
 	"sort"
+	"strings"
 
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/nais/api/internal/graph/model"
@@ -28,6 +29,12 @@ func New(s ...Searchable) *Searcher {
 
 func (s *Searcher) Search(ctx context.Context, q string, filter *model.SearchFilter) []*Result {
 	ret := make([]*Result, 0)
+
+	q = strings.TrimSpace(q)
+	if q == "" {
+		return nil
+	}
+
 	for _, searchable := range s.searchables {
 		if !searchable.SupportsSearchFilter(filter) {
 			continue
