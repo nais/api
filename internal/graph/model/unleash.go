@@ -33,7 +33,7 @@ type UnleashGQLVars struct {
 }
 
 func ToUnleashInstance(u *unleash_nais_io_v1.Unleash) *UnleashInstance {
-	teams := []string{}
+	var teams []string
 	for _, env := range u.Spec.ExtraEnvVars {
 		if env.Name == "TEAMS_ALLOWED_TEAMS" {
 			teams = strings.Split(env.Value, ",")
@@ -47,5 +47,13 @@ func ToUnleashInstance(u *unleash_nais_io_v1.Unleash) *UnleashInstance {
 		WebIngress:   u.Spec.WebIngress.Host,
 		APIIngress:   u.Spec.ApiIngress.Host,
 		Ready:        u.Status.Reconciled && u.Status.Connected,
+		Metrics: UnleashMetrics{
+			CpuRequests:    u.Spec.Resources.Requests.Cpu().AsApproximateFloat64(),
+			MemoryRequests: u.Spec.Resources.Requests.Memory().AsApproximateFloat64(),
+			GQLVars: UnleashGQLVars{
+				Namespace:    u.Namespace,
+				InstanceName: u.Name,
+			},
+		},
 	}
 }

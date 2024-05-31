@@ -45,17 +45,8 @@ func (m *Manager) Unleash(team string) (*model.Unleash, error) {
 			}
 
 			if hasAccessToUnleash(team, unleashInstance) {
-				u := model.ToUnleashInstance(unleashInstance)
-				u.Metrics = model.UnleashMetrics{
-					CpuRequests:    unleashInstance.Spec.Resources.Requests.Cpu().AsApproximateFloat64(),
-					MemoryRequests: unleashInstance.Spec.Resources.Requests.Memory().AsApproximateFloat64(),
-					GQLVars: model.UnleashGQLVars{
-						Namespace:    m.mgmtNamespace,
-						InstanceName: unleashInstance.Name,
-					},
-				}
 				return &model.Unleash{
-					Instance: u,
+					Instance: model.ToUnleashInstance(unleashInstance),
 					Enabled:  m.settings.unleashEnabled,
 				}, nil
 			}
