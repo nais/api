@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
@@ -1636,10 +1635,6 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 
 	retVal := &model.VulnerabilitySummaryForTeam{}
 	for _, image := range images {
-		// do not count plattform images used in init containers and sidecars
-		if strings.Contains(image.Name, "/nais-io/") {
-			continue
-		}
 		if image.Summary.Critical > 0 {
 			retVal.Critical += image.Summary.Critical
 		}

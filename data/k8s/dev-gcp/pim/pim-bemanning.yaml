@@ -1,0 +1,95 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    deploy.nais.io/client-version: 2023-12-19-bbbb39b
+    deploy.nais.io/github-actor: balderriiserhaugerud
+    deploy.nais.io/github-sha: fab9ff1c6b907952a9c5a383e39982a081c80d55
+    deploy.nais.io/github-workflow-run-url: https://github.com/navikt/pim-bemanning/actions/runs/8733607628
+    kubernetes.io/change-cause: 'nais deploy: commit fab9ff1c6b907952a9c5a383e39982a081c80d55:
+      https://github.com/navikt/pim-bemanning/actions/runs/8733607628'
+    nais.io/deploymentCorrelationID: 6052eb7c-3bc5-4463-82a4-e861223c9f9b
+    nginx.ingress.kubernetes.io/proxy-body-size: 5M
+  creationTimestamp: "2023-08-15T07:11:02Z"
+  finalizers:
+  - naiserator.nais.io/finalizer
+  generation: 445
+  labels:
+    team: pim
+  name: pim-bemanning
+  namespace: pim
+  resourceVersion: "4636532531"
+  uid: cf404823-aab9-482c-ac35-848a5b471fc9
+spec:
+  accessPolicy:
+    outbound:
+      rules:
+      - application: bemanningsbehov
+      - application: nedbemanning
+      - application: ferdig-utprovd
+      - application: prim-brukerstyring
+  azure:
+    application:
+      allowAllUsers: true
+      claims:
+        extra:
+        - NAVident
+        - azp_name
+      enabled: true
+      tenant: trygdeetaten.no
+    sidecar:
+      autoLogin: true
+      autoLoginIgnorePaths:
+      - /static/media/*
+      enabled: true
+  env:
+  - name: PRIM_BEMANNINGSBEHOV_URL
+    value: https://prim-bemanningsbehov.ekstern.dev.nav.no
+  - name: BEMANNINGSBEHOV_REST_URL
+    value: http://bemanningsbehov
+  - name: NEDBEMANNING_REST_URL
+    value: http://nedbemanning
+  - name: FERDIG_UTPROVD_REST_URL
+    value: http://ferdig-utprovd
+  - name: BRUKERSTYRING_REST_URL
+    value: http://prim-brukerstyring
+  - name: ER_TEST
+    value: "false"
+  - name: TOKEN_SCOPE
+    value: dev-gcp
+  image: europe-north1-docker.pkg.dev/nais-management-233d/pim/pim-bemanning:2024.04.18-06.51-fab9ff1
+  ingresses:
+  - https://prim.ekstern.dev.nav.no
+  liveness:
+    initialDelay: 20
+    path: /index.html
+    port: 3001
+  port: 3001
+  readiness:
+    initialDelay: 20
+    path: /index.html
+    port: 3001
+  replicas:
+    cpuThresholdPercentage: 50
+    max: 3
+    min: 2
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+    requests:
+      cpu: 400m
+      memory: 512Mi
+status:
+  conditions:
+  - lastTransitionTime: "2024-04-18T06:53:57Z"
+    message: Successfully deployed.
+    reason: RolloutComplete
+    status: "True"
+    type: SynchronizationState
+  correlationID: 6052eb7c-3bc5-4463-82a4-e861223c9f9b
+  deploymentRolloutStatus: complete
+  rolloutCompleteTime: 1713423303772744224
+  synchronizationHash: ca332b06e5bf7be2
+  synchronizationState: RolloutComplete
+  synchronizationTime: 1713423237191638672

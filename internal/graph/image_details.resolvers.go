@@ -18,6 +18,65 @@ func (r *findingResolver) AnalysisTrail(ctx context.Context, obj *model.Finding)
 	return r.dependencyTrackClient.GetAnalysisTrailForImage(ctx, obj.ParentID, obj.ComponentID, obj.VulnerabilityID)
 }
 
+// Findings is the resolver for the findings field.
+func (r *imageDetailsResolver) Findings(ctx context.Context, obj *model.ImageDetails, offset *int, limit *int, orderBy *model.OrderBy) (*model.FindingList, error) {
+	if obj.ProjectID == "" {
+		return &model.FindingList{
+			Nodes: []*model.Finding{},
+			PageInfo: model.PageInfo{
+				HasNextPage:     false,
+				HasPreviousPage: false,
+				TotalCount:      0,
+			},
+		}, nil
+	}
+	findings, err := r.dependencyTrackClient.GetFindingsForImageByProjectID(ctx, obj.ProjectID, true)
+	if err != nil {
+		return nil, err
+	}
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case model.OrderByFieldName:
+			model.SortWith(findings, func(a, b *model.Finding) bool {
+				return model.Compare(a.VulnerabilityID, b.VulnerabilityID, orderBy.Direction)
+			})
+		case model.OrderByFieldSeverity:
+			model.SortWith(findings, func(a, b *model.Finding) bool {
+				severityToScore := map[string]int{
+					"CRITICAL":   5,
+					"HIGH":       4,
+					"MEDIUM":     3,
+					"LOW":        2,
+					"UNASSIGNED": 1,
+				}
+
+				if orderBy.Direction == model.SortOrderAsc {
+					return severityToScore[a.Severity] < severityToScore[b.Severity]
+				}
+
+				return severityToScore[a.Severity] > severityToScore[b.Severity]
+			})
+		case model.OrderByFieldPackageURL:
+			model.SortWith(findings, func(a, b *model.Finding) bool {
+				return model.Compare(a.PackageURL, b.PackageURL, orderBy.Direction)
+			})
+		case model.OrderByFieldState:
+			model.SortWith(findings, func(a, b *model.Finding) bool {
+				return model.Compare(a.State, b.State, orderBy.Direction)
+			})
+		}
+	}
+
+	pagination := model.NewPagination(offset, limit)
+	findings, pageInfo := model.PaginatedSlice(findings, pagination)
+
+	return &model.FindingList{
+		Nodes:    findings,
+		PageInfo: pageInfo,
+	}, nil
+}
+
 // SuppressFinding is the resolver for the suppressFinding field.
 func (r *mutationResolver) SuppressFinding(ctx context.Context, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool) (*model.AnalysisTrail, error) {
 	options := []string{
@@ -60,4 +119,10 @@ func (r *mutationResolver) SuppressFinding(ctx context.Context, analysisState st
 // Finding returns gengql.FindingResolver implementation.
 func (r *Resolver) Finding() gengql.FindingResolver { return &findingResolver{r} }
 
-type findingResolver struct{ *Resolver }
+// ImageDetails returns gengql.ImageDetailsResolver implementation.
+func (r *Resolver) ImageDetails() gengql.ImageDetailsResolver { return &imageDetailsResolver{r} }
+
+type (
+	findingResolver      struct{ *Resolver }
+	imageDetailsResolver struct{ *Resolver }
+)

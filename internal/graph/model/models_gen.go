@@ -477,7 +477,6 @@ type ImageVulnerabilitySummary struct {
 	Medium     int          `json:"medium"`
 	Low        int          `json:"low"`
 	Unassigned int          `json:"unassigned"`
-	BomCount   int          `json:"bomCount"`
 }
 
 type Inbound struct {

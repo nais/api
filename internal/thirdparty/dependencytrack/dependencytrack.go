@@ -240,15 +240,7 @@ func (c *Client) retrieveFindings(ctx context.Context, uuid string, suppressed b
 
 func (c *Client) createSummaryForTeam(project *dependencytrack.Project, hasBom bool) *model.VulnerabilitySummaryForTeam {
 	if !hasBom || project.Metrics == nil {
-		return &model.VulnerabilitySummaryForTeam{
-			RiskScore:  -1,
-			Total:      -1,
-			Critical:   -1,
-			High:       -1,
-			Medium:     -1,
-			Low:        -1,
-			Unassigned: -1,
-		}
+		return nil
 	}
 
 	return &model.VulnerabilitySummaryForTeam{
@@ -259,25 +251,16 @@ func (c *Client) createSummaryForTeam(project *dependencytrack.Project, hasBom b
 		Medium:     project.Metrics.Medium,
 		Low:        project.Metrics.Low,
 		Unassigned: project.Metrics.Unassigned,
+		BomCount:   1,
 	}
 }
 
-func (c *Client) createSummaryForImage(project *dependencytrack.Project, hasBom bool) model.ImageVulnerabilitySummary {
+func (c *Client) createSummaryForImage(project *dependencytrack.Project, hasBom bool) *model.ImageVulnerabilitySummary {
 	if !hasBom || project.Metrics == nil {
-		nullUuid := uuid.NullUUID{}
-		return model.ImageVulnerabilitySummary{
-			ID:         scalar.ImageVulnerabilitySummaryIdent(nullUuid.UUID.String()),
-			RiskScore:  -1,
-			Total:      -1,
-			Critical:   -1,
-			High:       -1,
-			Medium:     -1,
-			Low:        -1,
-			Unassigned: -1,
-		}
+		return nil
 	}
 
-	return model.ImageVulnerabilitySummary{
+	return &model.ImageVulnerabilitySummary{
 		ID:         scalar.ImageVulnerabilitySummaryIdent(project.Uuid),
 		Total:      project.Metrics.FindingsTotal,
 		RiskScore:  int(project.Metrics.InheritedRiskScore),
@@ -502,7 +485,7 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 		if project == nil {
 			continue
 		}
-		if strings.Contains(project.Name, "/nais-io/") {
+		if project.Name == "europe-north1-docker.pkg.dev/nais-io/nais/images/wonderwall" {
 			continue
 		}
 
@@ -514,6 +497,7 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 			Rekor:              parseRekorTags(project.Tags),
 			Version:            project.Version,
 			WorkloadReferences: parseWorkloadRefTags(project.Tags),
+			HasSbom:            hasBom(project),
 		}
 		images = append(images, image)
 	}

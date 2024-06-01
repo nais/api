@@ -28,7 +28,7 @@ type ImageDetails {
   name: String!
   version: String!
   rekor: Rekor!
-  summary: ImageVulnerabilitySummary!
+  summary: ImageVulnerabilitySummary
   hasSbom: Boolean!
   findings(
     "Returns the first n entries from the list."
@@ -52,7 +52,6 @@ type ImageVulnerabilitySummary {
   medium: Int!
   low: Int!
   unassigned: Int!
-  bomCount: Int!
 }
 
 type WorkloadReference {
