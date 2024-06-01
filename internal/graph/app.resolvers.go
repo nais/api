@@ -49,7 +49,7 @@ func (r *appResolver) Team(ctx context.Context, obj *model.App) (*model.Team, er
 
 // Vulnerabilities is the resolver for the vulnerabilities field.
 func (r *appResolver) Vulnerabilities(ctx context.Context, obj *model.App) (*model.Vulnerability, error) {
-	return r.dependencyTrackClient.VulnerabilitySummary(ctx, &dependencytrack.AppInstance{Env: obj.Env.Name, Team: obj.GQLVars.Team.String(), App: obj.Name, Image: obj.GQLVars.Spec.ImageName})
+	return r.dependencyTrackClient.VulnerabilitySummary(ctx, &dependencytrack.AppInstance{Env: obj.Env.Name, Team: obj.GQLVars.Team.String(), App: obj.Name, Image: obj.Image})
 }
 
 // Secrets is the resolver for the secrets field.
@@ -105,9 +105,9 @@ func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, en
 	if err != nil {
 		return nil, apierror.ErrAppNotFound
 	}
-	image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, app.GQLVars.Spec.ImageName)
+	image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, app.Image)
 	if err != nil {
-		return nil, fmt.Errorf("getting metadata for image %q: %w", app.GQLVars.Spec.ImageName, err)
+		return nil, fmt.Errorf("getting metadata for image %q: %w", app.Image, err)
 	}
 	if image != nil {
 		app.ImageDetails = *image

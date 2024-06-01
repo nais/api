@@ -1331,12 +1331,12 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 	}
 
 	for _, app := range apps {
-		if app.GQLVars.Spec.ImageName == "" {
-			fmt.Println("app.GQLVars.Spec.ImageName is empty")
+		if app.Image == "" {
+			fmt.Println("app.Image is empty")
 		}
-		image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, app.GQLVars.Spec.ImageName)
+		image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, app.Image)
 		if err != nil {
-			return nil, fmt.Errorf("getting metadata for image %q: %w", app.GQLVars.Spec.ImageName, err)
+			return nil, fmt.Errorf("getting metadata for image %q: %w", app.Image, err)
 		}
 		app.ImageDetails = *image
 	}
@@ -1438,9 +1438,9 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
 	}
 	for _, job := range naisjobs {
-		image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, job.GQLVars.Spec.ImageName)
+		image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, job.Image)
 		if err != nil {
-			return nil, fmt.Errorf("getting metadata for image %q: %w", job.GQLVars.Spec.ImageName, err)
+			return nil, fmt.Errorf("getting metadata for image %q: %w", job.Image, err)
 		}
 		job.ImageDetails = *image
 	}
@@ -1598,7 +1598,7 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 		instances = append(instances, &dependencytrack.AppInstance{
 			Env:   app.Env.Name,
 			App:   app.Name,
-			Image: app.GQLVars.Spec.ImageName,
+			Image: app.Image,
 			Team:  obj.Slug.String(),
 		})
 	}

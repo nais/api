@@ -45,7 +45,6 @@ type WorkloadSpec struct {
 	Kafka      *nais_io_v1.Kafka
 	OpenSearch *nais_io_v1.OpenSearch
 	Redis      []nais_io_v1.Redis
-	ImageName  string
 }
 
 type WorkloadBaseGQLVars struct {

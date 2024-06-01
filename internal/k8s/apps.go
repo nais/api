@@ -669,8 +669,9 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 		Kafka:      app.Spec.Kafka,
 		OpenSearch: app.Spec.OpenSearch,
 		Redis:      app.Spec.Redis,
-		ImageName:  app.Spec.Image,
 	}
+
+	ret.Image = app.Spec.Image
 
 	ingresses := make([]string, 0)
 	if err := convert(app.Spec.Ingresses, &ingresses); err != nil {
@@ -796,8 +797,8 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 		appState.State = model.StateFailing
 	}
 
-	if !strings.Contains(app.GQLVars.Spec.ImageName, "europe-north1-docker.pkg.dev") {
-		parts := strings.Split(app.GQLVars.Spec.ImageName, ":")
+	if !strings.Contains(app.Image, "europe-north1-docker.pkg.dev") {
+		parts := strings.Split(app.Image, ":")
 		tag := "unknown"
 		if len(parts) > 1 {
 			tag = parts[1]

@@ -256,8 +256,8 @@ func setJobStatus(job *model.NaisJob, conditions []metav1.Condition, runs []*mod
 		}
 	}
 
-	if !strings.Contains(job.GQLVars.Spec.ImageName, "europe-north1-docker.pkg.dev") {
-		parts := strings.Split(job.GQLVars.Spec.ImageName, ":")
+	if !strings.Contains(job.Image, "europe-north1-docker.pkg.dev") {
+		parts := strings.Split(job.Image, ":")
 		tag := "unknown"
 		if len(parts) > 1 {
 			tag = parts[1]
@@ -603,7 +603,6 @@ func (c *Client) ToNaisJob(u *unstructured.Unstructured, env string) (*model.Nai
 		Kafka:      naisjob.Spec.Kafka,
 		OpenSearch: naisjob.Spec.OpenSearch,
 		Redis:      naisjob.Spec.Redis,
-		ImageName:  naisjob.Spec.Image,
 	}
 
 	return ret, nil

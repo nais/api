@@ -77,9 +77,9 @@ func (r *queryResolver) Naisjob(ctx context.Context, name string, team slug.Slug
 	if err != nil {
 		return nil, err
 	}
-	image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, job.GQLVars.Spec.ImageName)
+	image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, job.Image)
 	if err != nil {
-		return nil, fmt.Errorf("getting metadata for image %q: %w", job.GQLVars.Spec.ImageName, err)
+		return nil, fmt.Errorf("getting metadata for image %q: %w", job.Image, err)
 	}
 
 	if image != nil {

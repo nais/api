@@ -149,12 +149,8 @@ func TestSetStatus(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			app := &model.App{
 				WorkloadBase: model.WorkloadBase{
-					Env: model.Env{Name: "prod-gcp"},
-					GQLVars: model.WorkloadBaseGQLVars{
-						Spec: model.WorkloadSpec{
-							ImageName: tc.image,
-						},
-					},
+					Env:   model.Env{Name: "prod-gcp"},
+					Image: tc.image,
 				},
 				Ingresses:   tc.ingresses,
 				AutoScaling: model.AutoScaling{Min: 1, Max: 2},
