@@ -153,7 +153,7 @@ func TestClient_VulnerabilitySummary(t *testing.T) {
 		assert func(t *testing.T, v *model.Vulnerability, err error)
 	}{
 		{
-			name:  "should return empty summary if no bom is found",
+			name:  "should return nil if no bom is found",
 			input: app("dev", "team1", "app1", "test/image:latest"),
 			expect: func(input *AppInstance, mock *MockInternalClient) {
 				metrics := &dependencytrack.ProjectMetric{}
@@ -162,11 +162,12 @@ func TestClient_VulnerabilitySummary(t *testing.T) {
 			},
 			assert: func(t *testing.T, v *model.Vulnerability, err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, -1, v.Summary.Critical)
+				assert.Nil(t, v.Summary)
+				/*assert.Equal(t, -1, v.Summary.Critical)
 				assert.Equal(t, -1, v.Summary.High)
 				assert.Equal(t, -1, v.Summary.Medium)
 				assert.Equal(t, -1, v.Summary.Low)
-				assert.Equal(t, -1, v.Summary.Unassigned)
+				assert.Equal(t, -1, v.Summary.Unassigned)*/
 			},
 		},
 		{
