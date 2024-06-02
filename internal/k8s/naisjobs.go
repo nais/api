@@ -552,6 +552,8 @@ func (c *Client) ToNaisJob(u *unstructured.Unstructured, env string) (*model.Nai
 	ret.DeployInfo.GQLVars.Env = env
 	ret.DeployInfo.GQLVars.Team = slug.Slug(naisjob.GetNamespace())
 
+	ret.Image = naisjob.Spec.Image
+
 	timestamp := time.Unix(0, naisjob.GetStatus().RolloutCompleteTime)
 	ret.DeployInfo.Timestamp = &timestamp
 	ret.GQLVars.Team = slug.Slug(naisjob.GetNamespace())
