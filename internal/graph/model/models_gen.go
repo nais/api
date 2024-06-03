@@ -62,16 +62,17 @@ type AccessPolicy struct {
 	Outbound Outbound `json:"outbound"`
 }
 
-type Alias struct {
-	Name   string `json:"name"`
-	Source string `json:"source"`
+type AnalysisComment struct {
+	Comment    string    `json:"comment"`
+	Timestamp  time.Time `json:"timestamp"`
+	OnBehalfOf string    `json:"onBehalfOf"`
 }
 
 type AnalysisTrail struct {
-	ID           scalar.Ident `json:"id"`
-	State        string       `json:"state"`
-	Comments     []*Comment   `json:"comments"`
-	IsSuppressed bool         `json:"isSuppressed"`
+	ID           scalar.Ident       `json:"id"`
+	State        string             `json:"state"`
+	Comments     []*AnalysisComment `json:"comments"`
+	IsSuppressed bool               `json:"isSuppressed"`
 }
 
 // App cost type.
@@ -197,12 +198,6 @@ type BucketsList struct {
 type Claims struct {
 	Extra  []string `json:"extra"`
 	Groups []*Group `json:"groups"`
-}
-
-type Comment struct {
-	Comment    string    `json:"comment"`
-	Timestamp  time.Time `json:"timestamp"`
-	OnBehalfOf string    `json:"onBehalfOf"`
 }
 
 type Condition struct {
@@ -1000,6 +995,11 @@ type Variable struct {
 type VariableInput struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
+}
+
+type VulnIDAlias struct {
+	Name   string `json:"name"`
+	Source string `json:"source"`
 }
 
 type Vulnerability struct {

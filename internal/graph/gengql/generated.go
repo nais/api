@@ -85,9 +85,10 @@ type ComplexityRoot struct {
 		Outbound func(childComplexity int) int
 	}
 
-	Alias struct {
-		Name   func(childComplexity int) int
-		Source func(childComplexity int) int
+	AnalysisComment struct {
+		Comment    func(childComplexity int) int
+		OnBehalfOf func(childComplexity int) int
+		Timestamp  func(childComplexity int) int
 	}
 
 	AnalysisTrail struct {
@@ -254,12 +255,6 @@ type ComplexityRoot struct {
 	Claims struct {
 		Extra  func(childComplexity int) int
 		Groups func(childComplexity int) int
-	}
-
-	Comment struct {
-		Comment    func(childComplexity int) int
-		OnBehalfOf func(childComplexity int) int
-		Timestamp  func(childComplexity int) int
 	}
 
 	Condition struct {
@@ -1210,6 +1205,11 @@ type ComplexityRoot struct {
 		Value func(childComplexity int) int
 	}
 
+	VulnIdAlias struct {
+		Name   func(childComplexity int) int
+		Source func(childComplexity int) int
+	}
+
 	Vulnerability struct {
 		AppName      func(childComplexity int) int
 		Env          func(childComplexity int) int
@@ -1535,19 +1535,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AccessPolicy.Outbound(childComplexity), true
 
-	case "Alias.name":
-		if e.complexity.Alias.Name == nil {
+	case "AnalysisComment.comment":
+		if e.complexity.AnalysisComment.Comment == nil {
 			break
 		}
 
-		return e.complexity.Alias.Name(childComplexity), true
+		return e.complexity.AnalysisComment.Comment(childComplexity), true
 
-	case "Alias.source":
-		if e.complexity.Alias.Source == nil {
+	case "AnalysisComment.onBehalfOf":
+		if e.complexity.AnalysisComment.OnBehalfOf == nil {
 			break
 		}
 
-		return e.complexity.Alias.Source(childComplexity), true
+		return e.complexity.AnalysisComment.OnBehalfOf(childComplexity), true
+
+	case "AnalysisComment.timestamp":
+		if e.complexity.AnalysisComment.Timestamp == nil {
+			break
+		}
+
+		return e.complexity.AnalysisComment.Timestamp(childComplexity), true
 
 	case "AnalysisTrail.comments":
 		if e.complexity.AnalysisTrail.Comments == nil {
@@ -2269,27 +2276,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Claims.Groups(childComplexity), true
-
-	case "Comment.comment":
-		if e.complexity.Comment.Comment == nil {
-			break
-		}
-
-		return e.complexity.Comment.Comment(childComplexity), true
-
-	case "Comment.onBehalfOf":
-		if e.complexity.Comment.OnBehalfOf == nil {
-			break
-		}
-
-		return e.complexity.Comment.OnBehalfOf(childComplexity), true
-
-	case "Comment.timestamp":
-		if e.complexity.Comment.Timestamp == nil {
-			break
-		}
-
-		return e.complexity.Comment.Timestamp(childComplexity), true
 
 	case "Condition.lastTransitionTime":
 		if e.complexity.Condition.LastTransitionTime == nil {
@@ -6739,6 +6725,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Variable.Value(childComplexity), true
 
+	case "VulnIdAlias.name":
+		if e.complexity.VulnIdAlias.Name == nil {
+			break
+		}
+
+		return e.complexity.VulnIdAlias.Name(childComplexity), true
+
+	case "VulnIdAlias.source":
+		if e.complexity.VulnIdAlias.Source == nil {
+			break
+		}
+
+		return e.complexity.VulnIdAlias.Source(childComplexity), true
+
 	case "Vulnerability.appName":
 		if e.complexity.Vulnerability.AppName == nil {
 			break
@@ -7839,13 +7839,13 @@ type Finding {
   severity: String!
   description: String!
   packageUrl: String!
-  aliases: [Alias!]!
+  aliases: [VulnIdAlias!]!
   isSuppressed: Boolean!
   state: String!
   analysisTrail: AnalysisTrail!
 }
 
-type Alias {
+type VulnIdAlias {
   name: String!
   source: String!
 }
@@ -7869,11 +7869,11 @@ type FindingList {
 type AnalysisTrail {
   id: ID!
   state: String!
-  comments: [Comment]!
+  comments: [AnalysisComment]!
   isSuppressed: Boolean!
 }
 
-type Comment {
+type AnalysisComment {
   comment: String!
   timestamp: Time!
   onBehalfOf: String!
@@ -12046,8 +12046,8 @@ func (ec *executionContext) fieldContext_AccessPolicy_outbound(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Alias_name(ctx context.Context, field graphql.CollectedField, obj *model.Alias) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Alias_name(ctx, field)
+func (ec *executionContext) _AnalysisComment_comment(ctx context.Context, field graphql.CollectedField, obj *model.AnalysisComment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AnalysisComment_comment(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -12060,7 +12060,7 @@ func (ec *executionContext) _Alias_name(ctx context.Context, field graphql.Colle
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
+		return obj.Comment, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12077,9 +12077,9 @@ func (ec *executionContext) _Alias_name(ctx context.Context, field graphql.Colle
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Alias_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AnalysisComment_comment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Alias",
+		Object:     "AnalysisComment",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -12090,8 +12090,8 @@ func (ec *executionContext) fieldContext_Alias_name(ctx context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Alias_source(ctx context.Context, field graphql.CollectedField, obj *model.Alias) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Alias_source(ctx, field)
+func (ec *executionContext) _AnalysisComment_timestamp(ctx context.Context, field graphql.CollectedField, obj *model.AnalysisComment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AnalysisComment_timestamp(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -12104,7 +12104,51 @@ func (ec *executionContext) _Alias_source(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Source, nil
+		return obj.Timestamp, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AnalysisComment_timestamp(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AnalysisComment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AnalysisComment_onBehalfOf(ctx context.Context, field graphql.CollectedField, obj *model.AnalysisComment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AnalysisComment_onBehalfOf(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OnBehalfOf, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12121,9 +12165,9 @@ func (ec *executionContext) _Alias_source(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Alias_source(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AnalysisComment_onBehalfOf(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Alias",
+		Object:     "AnalysisComment",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -12248,9 +12292,9 @@ func (ec *executionContext) _AnalysisTrail_comments(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Comment)
+	res := resTmp.([]*model.AnalysisComment)
 	fc.Result = res
-	return ec.marshalNComment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐComment(ctx, field.Selections, res)
+	return ec.marshalNAnalysisComment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisComment(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AnalysisTrail_comments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -12262,13 +12306,13 @@ func (ec *executionContext) fieldContext_AnalysisTrail_comments(ctx context.Cont
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "comment":
-				return ec.fieldContext_Comment_comment(ctx, field)
+				return ec.fieldContext_AnalysisComment_comment(ctx, field)
 			case "timestamp":
-				return ec.fieldContext_Comment_timestamp(ctx, field)
+				return ec.fieldContext_AnalysisComment_timestamp(ctx, field)
 			case "onBehalfOf":
-				return ec.fieldContext_Comment_onBehalfOf(ctx, field)
+				return ec.fieldContext_AnalysisComment_onBehalfOf(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Comment", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type AnalysisComment", field.Name)
 		},
 	}
 	return fc, nil
@@ -17281,138 +17325,6 @@ func (ec *executionContext) fieldContext_Claims_groups(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Comment_comment(ctx context.Context, field graphql.CollectedField, obj *model.Comment) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Comment_comment(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Comment, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Comment_comment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Comment",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Comment_timestamp(ctx context.Context, field graphql.CollectedField, obj *model.Comment) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Comment_timestamp(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Timestamp, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Comment_timestamp(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Comment",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Comment_onBehalfOf(ctx context.Context, field graphql.CollectedField, obj *model.Comment) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Comment_onBehalfOf(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.OnBehalfOf, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Comment_onBehalfOf(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Comment",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Condition_message(ctx context.Context, field graphql.CollectedField, obj *model.Condition) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Condition_message(ctx, field)
 	if err != nil {
@@ -21591,9 +21503,9 @@ func (ec *executionContext) _Finding_aliases(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Alias)
+	res := resTmp.([]*model.VulnIDAlias)
 	fc.Result = res
-	return ec.marshalNAlias2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAliasᚄ(ctx, field.Selections, res)
+	return ec.marshalNVulnIdAlias2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnIDAliasᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Finding_aliases(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -21605,11 +21517,11 @@ func (ec *executionContext) fieldContext_Finding_aliases(ctx context.Context, fi
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "name":
-				return ec.fieldContext_Alias_name(ctx, field)
+				return ec.fieldContext_VulnIdAlias_name(ctx, field)
 			case "source":
-				return ec.fieldContext_Alias_source(ctx, field)
+				return ec.fieldContext_VulnIdAlias_source(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Alias", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type VulnIdAlias", field.Name)
 		},
 	}
 	return fc, nil
@@ -48468,6 +48380,94 @@ func (ec *executionContext) fieldContext_Variable_value(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _VulnIdAlias_name(ctx context.Context, field graphql.CollectedField, obj *model.VulnIDAlias) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnIdAlias_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VulnIdAlias_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnIdAlias",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VulnIdAlias_source(ctx context.Context, field graphql.CollectedField, obj *model.VulnIDAlias) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnIdAlias_source(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Source, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VulnIdAlias_source(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnIdAlias",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Vulnerability_id(ctx context.Context, field graphql.CollectedField, obj *model.Vulnerability) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Vulnerability_id(ctx, field)
 	if err != nil {
@@ -52754,24 +52754,29 @@ func (ec *executionContext) _AccessPolicy(ctx context.Context, sel ast.Selection
 	return out
 }
 
-var aliasImplementors = []string{"Alias"}
+var analysisCommentImplementors = []string{"AnalysisComment"}
 
-func (ec *executionContext) _Alias(ctx context.Context, sel ast.SelectionSet, obj *model.Alias) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, aliasImplementors)
+func (ec *executionContext) _AnalysisComment(ctx context.Context, sel ast.SelectionSet, obj *model.AnalysisComment) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, analysisCommentImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Alias")
-		case "name":
-			out.Values[i] = ec._Alias_name(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("AnalysisComment")
+		case "comment":
+			out.Values[i] = ec._AnalysisComment_comment(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "source":
-			out.Values[i] = ec._Alias_source(ctx, field, obj)
+		case "timestamp":
+			out.Values[i] = ec._AnalysisComment_timestamp(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "onBehalfOf":
+			out.Values[i] = ec._AnalysisComment_onBehalfOf(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -54315,55 +54320,6 @@ func (ec *executionContext) _Claims(ctx context.Context, sel ast.SelectionSet, o
 			}
 		case "groups":
 			out.Values[i] = ec._Claims_groups(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var commentImplementors = []string{"Comment"}
-
-func (ec *executionContext) _Comment(ctx context.Context, sel ast.SelectionSet, obj *model.Comment) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, commentImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Comment")
-		case "comment":
-			out.Values[i] = ec._Comment_comment(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "timestamp":
-			out.Values[i] = ec._Comment_timestamp(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "onBehalfOf":
-			out.Values[i] = ec._Comment_onBehalfOf(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -64574,6 +64530,50 @@ func (ec *executionContext) _Variable(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var vulnIdAliasImplementors = []string{"VulnIdAlias"}
+
+func (ec *executionContext) _VulnIdAlias(ctx context.Context, sel ast.SelectionSet, obj *model.VulnIDAlias) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, vulnIdAliasImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("VulnIdAlias")
+		case "name":
+			out.Values[i] = ec._VulnIdAlias_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "source":
+			out.Values[i] = ec._VulnIdAlias_source(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var vulnerabilityImplementors = []string{"Vulnerability"}
 
 func (ec *executionContext) _Vulnerability(ctx context.Context, sel ast.SelectionSet, obj *model.Vulnerability) graphql.Marshaler {
@@ -65308,7 +65308,7 @@ func (ec *executionContext) marshalNAccessPolicy2githubᚗcomᚋnaisᚋapiᚋint
 	return ec._AccessPolicy(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAlias2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAliasᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Alias) graphql.Marshaler {
+func (ec *executionContext) marshalNAnalysisComment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisComment(ctx context.Context, sel ast.SelectionSet, v []*model.AnalysisComment) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -65332,7 +65332,7 @@ func (ec *executionContext) marshalNAlias2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinte
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAlias2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAlias(ctx, sel, v[i])
+			ret[i] = ec.marshalOAnalysisComment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisComment(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -65343,23 +65343,7 @@ func (ec *executionContext) marshalNAlias2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinte
 	}
 	wg.Wait()
 
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
 	return ret
-}
-
-func (ec *executionContext) marshalNAlias2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAlias(ctx context.Context, sel ast.SelectionSet, v *model.Alias) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Alias(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNAnalysisTrail2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisTrail(ctx context.Context, sel ast.SelectionSet, v model.AnalysisTrail) graphql.Marshaler {
@@ -65927,44 +65911,6 @@ func (ec *executionContext) marshalNBucketsList2ᚖgithubᚗcomᚋnaisᚋapiᚋi
 
 func (ec *executionContext) marshalNClaims2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐClaims(ctx context.Context, sel ast.SelectionSet, v model.Claims) graphql.Marshaler {
 	return ec._Claims(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNComment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐComment(ctx context.Context, sel ast.SelectionSet, v []*model.Comment) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOComment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐComment(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
 }
 
 func (ec *executionContext) marshalNCondition2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐConditionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Condition) graphql.Marshaler {
@@ -69534,6 +69480,60 @@ func (ec *executionContext) unmarshalNVariableInput2ᚖgithubᚗcomᚋnaisᚋapi
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNVulnIdAlias2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnIDAliasᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.VulnIDAlias) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNVulnIdAlias2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnIDAlias(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNVulnIdAlias2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnIDAlias(ctx context.Context, sel ast.SelectionSet, v *model.VulnIDAlias) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._VulnIdAlias(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNVulnerability2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Vulnerability) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -70015,6 +70015,13 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
+func (ec *executionContext) marshalOAnalysisComment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisComment(ctx context.Context, sel ast.SelectionSet, v *model.AnalysisComment) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._AnalysisComment(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOAzureApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAzureApplication(ctx context.Context, sel ast.SelectionSet, v *model.AzureApplication) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -70093,13 +70100,6 @@ func (ec *executionContext) marshalOBucketCors2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalOComment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐComment(ctx context.Context, sel ast.SelectionSet, v *model.Comment) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Comment(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx context.Context, v interface{}) (*scalar.Date, error) {

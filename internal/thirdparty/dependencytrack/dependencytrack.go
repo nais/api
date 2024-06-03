@@ -413,17 +413,17 @@ func (c *Client) GetFindingsForImageByProjectID(ctx context.Context, projectId s
 
 	retFindings := make([]*model.Finding, 0)
 	for _, f := range findings {
-		aliases := []*model.Alias{}
+		aliases := []*model.VulnIDAlias{}
 
 		for _, alias := range f.Vulnerability.Aliases {
 			if alias.CveId != "" {
-				aliases = append(aliases, &model.Alias{
+				aliases = append(aliases, &model.VulnIDAlias{
 					Name:   alias.CveId,
 					Source: "NVD",
 				})
 			}
 			if alias.GhsaId != "" {
-				aliases = append(aliases, &model.Alias{
+				aliases = append(aliases, &model.VulnIDAlias{
 					Name:   alias.GhsaId,
 					Source: "GHSA",
 				})
@@ -542,8 +542,8 @@ func (c *Client) SuppressFinding(ctx context.Context, analysisState, comment, co
 	}, nil
 }
 
-func parseComments(trail *dependencytrack.Analysis) []*model.Comment {
-	comments := make([]*model.Comment, 0)
+func parseComments(trail *dependencytrack.Analysis) []*model.AnalysisComment {
+	comments := make([]*model.AnalysisComment, 0)
 	for _, comment := range trail.AnalysisComments {
 		timestamp := time.Unix(int64(comment.Timestamp)/1000, 0).Local()
 		//"on-behalf-of:%s|suppressed:%t|state:%s|comment:%s"
@@ -551,7 +551,7 @@ func parseComments(trail *dependencytrack.Analysis) []*model.Comment {
 
 		if found {
 			onBehalfOf, theComment, _ := strings.Cut(after, "|")
-			comment := &model.Comment{
+			comment := &model.AnalysisComment{
 				Comment:    theComment,
 				Timestamp:  timestamp,
 				OnBehalfOf: onBehalfOf,
@@ -561,7 +561,7 @@ func parseComments(trail *dependencytrack.Analysis) []*model.Comment {
 	}
 
 	// sort comments on timestamp desc
-	slices.SortFunc(comments, func(i, j *model.Comment) int {
+	slices.SortFunc(comments, func(i, j *model.AnalysisComment) int {
 		return int(j.Timestamp.Sub(i.Timestamp).Seconds())
 	})
 

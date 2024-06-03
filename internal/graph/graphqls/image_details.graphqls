@@ -78,13 +78,13 @@ type Finding {
   severity: String!
   description: String!
   packageUrl: String!
-  aliases: [Alias!]!
+  aliases: [VulnIdAlias!]!
   isSuppressed: Boolean!
   state: String!
   analysisTrail: AnalysisTrail!
 }
 
-type Alias {
+type VulnIdAlias {
   name: String!
   source: String!
 }
@@ -108,11 +108,11 @@ type FindingList {
 type AnalysisTrail {
   id: ID!
   state: String!
-  comments: [Comment]!
+  comments: [AnalysisComment]!
   isSuppressed: Boolean!
 }
 
-type Comment {
+type AnalysisComment {
   comment: String!
   timestamp: Time!
   onBehalfOf: String!
