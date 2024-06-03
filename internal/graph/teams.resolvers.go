@@ -1395,7 +1395,13 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 
 			model.SortWith(apps, func(a, b *model.App) bool {
 				if orderBy.Direction == model.SortOrderAsc {
+					if severities[a.Image] == severities[b.Image] {
+						return a.Name < b.Name
+					}
 					return severities[a.Image] < severities[b.Image]
+				}
+				if severities[a.Image] == severities[b.Image] {
+					return a.Name > b.Name
 				}
 				return severities[a.Image] > severities[b.Image]
 			})
@@ -1421,7 +1427,13 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 
 			model.SortWith(apps, func(a, b *model.App) bool {
 				if orderBy.Direction == model.SortOrderAsc {
+					if riskScores[a.Image] == riskScores[b.Image] {
+						return a.Name < b.Name
+					}
 					return riskScores[a.Image] < riskScores[b.Image]
+				}
+				if riskScores[a.Image] == riskScores[b.Image] {
+					return a.Name > b.Name
 				}
 				return riskScores[a.Image] > riskScores[b.Image]
 			})
@@ -1518,10 +1530,10 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 		case model.OrderByFieldSeverityCritical:
 			severities := map[string]int{}
 			images := []*model.ImageDetails{}
-			for _, app := range naisjobs {
-				image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, app.Image)
+			for _, job := range naisjobs {
+				image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, job.Image)
 				if err != nil {
-					return nil, fmt.Errorf("getting metadata for image %q: %w", app.Image, err)
+					return nil, fmt.Errorf("getting metadata for image %q: %w", job.Image, err)
 				}
 				images = append(images, image)
 			}
@@ -1536,7 +1548,13 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 
 			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
 				if orderBy.Direction == model.SortOrderAsc {
+					if severities[a.Image] == severities[b.Image] {
+						return a.Name < b.Name
+					}
 					return severities[a.Image] < severities[b.Image]
+				}
+				if severities[a.Image] == severities[b.Image] {
+					return a.Name > b.Name
 				}
 				return severities[a.Image] > severities[b.Image]
 			})
@@ -1562,7 +1580,13 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 
 			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
 				if orderBy.Direction == model.SortOrderAsc {
+					if riskScores[a.Image] == riskScores[b.Image] {
+						return a.Name < b.Name
+					}
 					return riskScores[a.Image] < riskScores[b.Image]
+				}
+				if riskScores[a.Image] == riskScores[b.Image] {
+					return a.Name > b.Name
 				}
 				return riskScores[a.Image] > riskScores[b.Image]
 			})
