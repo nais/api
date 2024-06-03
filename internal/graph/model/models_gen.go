@@ -53,6 +53,7 @@ type Workload interface {
 	GetAuthz() []Authz
 	GetVariables() []*Variable
 	GetResources() Resources
+	GetTeam() Team
 	GetType() WorkloadType
 }
 

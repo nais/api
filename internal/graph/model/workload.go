@@ -18,6 +18,7 @@ type WorkloadBase struct {
 	Authz        []Authz             `json:"authz"`
 	Variables    []*Variable         `json:"variables"`
 	Resources    Resources           `json:"resources"`
+	Team         Team                `json:"team"`
 	GQLVars      WorkloadBaseGQLVars `json:"-"`
 }
 
@@ -32,6 +33,7 @@ func (w WorkloadBase) GetStatus() WorkloadStatus     { return w.Status }
 func (w WorkloadBase) GetAuthz() []Authz             { return w.Authz }
 func (w WorkloadBase) GetVariables() []*Variable     { return w.Variables }
 func (w WorkloadBase) GetResources() Resources       { return w.Resources }
+func (w WorkloadBase) GetTeam() Team                 { return w.Team }
 
 type WorkloadStatus struct {
 	State  State        `json:"state"`

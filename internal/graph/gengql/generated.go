@@ -9736,6 +9736,7 @@ type TeamMemberList {
   authz: [Authz!]!
   variables: [Variable!]!
   resources: Resources!
+  team: Team!
   type: WorkloadType!
 }
 
