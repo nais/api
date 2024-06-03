@@ -1330,16 +1330,6 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
 	}
 
-	for _, app := range apps {
-		if app.Image == "" {
-			fmt.Println("app.Image is empty")
-		}
-		image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, app.Image)
-		if err != nil {
-			return nil, fmt.Errorf("getting metadata for image %q: %w", app.Image, err)
-		}
-		app.ImageDetails = *image
-	}
 	if orderBy != nil {
 		switch orderBy.Field {
 		case model.OrderByFieldName:
@@ -1385,16 +1375,59 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 				return aIndex > bIndex
 			})
 		case model.OrderByFieldSeverityCritical:
+			severities := map[string]int{}
+			images := []*model.ImageDetails{}
+			for _, app := range apps {
+				image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, app.Image)
+				if err != nil {
+					return nil, fmt.Errorf("getting metadata for image %q: %w", app.Image, err)
+				}
+				images = append(images, image)
+			}
+
+			for _, image := range images {
+				if image == nil || image.Summary == nil {
+					severities[image.Name] = -1
+					continue
+				}
+				severities[image.Name] = image.Summary.RiskScore
+			}
+
 			model.SortWith(apps, func(a, b *model.App) bool {
-				return model.Compare(a.ImageDetails.Summary.Critical, b.ImageDetails.Summary.Critical, orderBy.Direction)
-			})
-		case model.OrderByFieldRiskScore:
-			model.SortWith(apps, func(a, b *model.App) bool {
-				return model.Compare(a.ImageDetails.Summary.RiskScore, b.ImageDetails.Summary.RiskScore, orderBy.Direction)
+				if orderBy.Direction == model.SortOrderAsc {
+					return severities[a.Image] < severities[b.Image]
+				}
+				return severities[a.Image] > severities[b.Image]
 			})
 
+		case model.OrderByFieldRiskScore:
+			riskScores := map[string]int{}
+			images := []*model.ImageDetails{}
+			for _, app := range apps {
+				image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, app.Image)
+				if err != nil {
+					return nil, fmt.Errorf("getting metadata for image %q: %w", app.Image, err)
+				}
+				images = append(images, image)
+			}
+
+			for _, image := range images {
+				if image == nil || image.Summary == nil {
+					riskScores[image.Name] = -1
+					continue
+				}
+				riskScores[image.Name] = image.Summary.RiskScore
+			}
+
+			model.SortWith(apps, func(a, b *model.App) bool {
+				if orderBy.Direction == model.SortOrderAsc {
+					return riskScores[a.Image] < riskScores[b.Image]
+				}
+				return riskScores[a.Image] > riskScores[b.Image]
+			})
 		}
 	}
+
 	pagination := model.NewPagination(offset, limit)
 	apps, pageInfo := model.PaginatedSlice(apps, pagination)
 	for _, app := range apps {
@@ -1437,13 +1470,6 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 	if err != nil {
 		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
 	}
-	for _, job := range naisjobs {
-		image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, job.Image)
-		if err != nil {
-			return nil, fmt.Errorf("getting metadata for image %q: %w", job.Image, err)
-		}
-		job.ImageDetails = *image
-	}
 
 	if orderBy != nil {
 		switch orderBy.Field {
@@ -1490,12 +1516,55 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 				return aIndex > bIndex
 			})
 		case model.OrderByFieldSeverityCritical:
+			severities := map[string]int{}
+			images := []*model.ImageDetails{}
+			for _, app := range naisjobs {
+				image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, app.Image)
+				if err != nil {
+					return nil, fmt.Errorf("getting metadata for image %q: %w", app.Image, err)
+				}
+				images = append(images, image)
+			}
+
+			for _, image := range images {
+				if image == nil || image.Summary == nil {
+					severities[image.Name] = -1
+					continue
+				}
+				severities[image.Name] = image.Summary.RiskScore
+			}
+
 			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
-				return model.Compare(a.ImageDetails.Summary.Critical, b.ImageDetails.Summary.Critical, orderBy.Direction)
+				if orderBy.Direction == model.SortOrderAsc {
+					return severities[a.Image] < severities[b.Image]
+				}
+				return severities[a.Image] > severities[b.Image]
 			})
+
 		case model.OrderByFieldRiskScore:
+			riskScores := map[string]int{}
+			images := []*model.ImageDetails{}
+			for _, job := range naisjobs {
+				image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, job.Image)
+				if err != nil {
+					return nil, fmt.Errorf("getting metadata for image %q: %w", job.Image, err)
+				}
+				images = append(images, image)
+			}
+
+			for _, image := range images {
+				if image == nil || image.Summary == nil {
+					riskScores[image.Name] = -1
+					continue
+				}
+				riskScores[image.Name] = image.Summary.RiskScore
+			}
+
 			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
-				return model.Compare(a.ImageDetails.Summary.RiskScore, b.ImageDetails.Summary.RiskScore, orderBy.Direction)
+				if orderBy.Direction == model.SortOrderAsc {
+					return riskScores[a.Image] < riskScores[b.Image]
+				}
+				return riskScores[a.Image] > riskScores[b.Image]
 			})
 		}
 	}

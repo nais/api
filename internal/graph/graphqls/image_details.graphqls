@@ -40,7 +40,8 @@ type ImageDetails {
     "Order findings by"
     orderBy: OrderBy
   ): FindingList!
-  workloadReferences: [WorkloadReference!]!
+  #workloadReferences: [WorkloadReference!]!
+  workloadReferences: [Workload!]!
 }
 
 type ImageVulnerabilitySummary {

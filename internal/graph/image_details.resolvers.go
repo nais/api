@@ -77,6 +77,33 @@ func (r *imageDetailsResolver) Findings(ctx context.Context, obj *model.ImageDet
 	}, nil
 }
 
+// WorkloadReferences is the resolver for the workloadReferences field.
+func (r *imageDetailsResolver) WorkloadReferences(ctx context.Context, obj *model.ImageDetails) ([]model.Workload, error) {
+	ret := make([]model.Workload, 0, len(obj.GQLVars.WorkloadReferences))
+	for _, ref := range obj.GQLVars.WorkloadReferences {
+		var workload model.Workload
+		var err error
+
+		switch ref.WorkloadType {
+		case "app":
+			workload, err = r.k8sClient.App(ctx, ref.Name, ref.Team, ref.Environment)
+		case "job":
+			workload, err = r.k8sClient.NaisJob(ctx, ref.Name, ref.Team, ref.Environment)
+		default:
+			err = fmt.Errorf("unknown workload type: %s", ref.WorkloadType)
+		}
+		if err != nil {
+			return nil, err
+		}
+		if workload == nil {
+			continue
+		}
+
+		ret = append(ret, workload)
+	}
+	return ret, nil
+}
+
 // SuppressFinding is the resolver for the suppressFinding field.
 func (r *mutationResolver) SuppressFinding(ctx context.Context, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool) (*model.AnalysisTrail, error) {
 	options := []string{

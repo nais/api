@@ -338,14 +338,16 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 	}
 
 	return &model.ImageDetails{
-		Name:               p.Name + ":" + p.Version,
-		ID:                 scalar.ImageIdent(p.Name, p.Version),
-		Rekor:              parseRekorTags(p.Tags),
-		Version:            p.Version,
-		HasSbom:            hasBom(p),
-		ProjectID:          p.Uuid,
-		Summary:            c.createSummaryForImage(p, hasBom(p)),
-		WorkloadReferences: parseWorkloadRefTags(p.Tags),
+		Name:      p.Name + ":" + p.Version,
+		ID:        scalar.ImageIdent(p.Name, p.Version),
+		Rekor:     parseRekorTags(p.Tags),
+		Version:   p.Version,
+		HasSbom:   hasBom(p),
+		ProjectID: p.Uuid,
+		Summary:   c.createSummaryForImage(p, hasBom(p)),
+		GQLVars: model.ImageDetailsGQLVars{
+			WorkloadReferences: parseWorkloadRefTags(p.Tags),
+		},
 	}, nil
 }
 
@@ -459,14 +461,16 @@ func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId s
 	}
 
 	return &model.ImageDetails{
-		Name:               p.Name + ":" + p.Version,
-		ID:                 scalar.ImageIdent(p.Name, p.Version),
-		Rekor:              parseRekorTags(p.Tags),
-		Version:            p.Version,
-		ProjectID:          p.Uuid,
-		HasSbom:            hasBom(p),
-		Summary:            c.createSummaryForImage(p, hasBom(p)),
-		WorkloadReferences: parseWorkloadRefTags(p.Tags),
+		Name:      p.Name + ":" + p.Version,
+		ID:        scalar.ImageIdent(p.Name, p.Version),
+		Rekor:     parseRekorTags(p.Tags),
+		Version:   p.Version,
+		ProjectID: p.Uuid,
+		HasSbom:   hasBom(p),
+		Summary:   c.createSummaryForImage(p, hasBom(p)),
+		GQLVars: model.ImageDetailsGQLVars{
+			WorkloadReferences: parseWorkloadRefTags(p.Tags),
+		},
 	}, nil
 }
 
@@ -481,23 +485,25 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 	}
 
 	images := make([]*model.ImageDetails, 0)
-	for _, project := range projects {
-		if project == nil {
+	for _, p := range projects {
+		if p == nil {
 			continue
 		}
-		if project.Name == "europe-north1-docker.pkg.dev/nais-io/nais/images/wonderwall" {
+		if p.Name == "europe-north1-docker.pkg.dev/nais-io/nais/images/wonderwall" {
 			continue
 		}
 
 		image := &model.ImageDetails{
-			ID:                 scalar.ImageIdent(project.Name, project.Version),
-			ProjectID:          project.Uuid,
-			Name:               project.Name,
-			Summary:            c.createSummaryForImage(project, hasBom(project)),
-			Rekor:              parseRekorTags(project.Tags),
-			Version:            project.Version,
-			WorkloadReferences: parseWorkloadRefTags(project.Tags),
-			HasSbom:            hasBom(project),
+			ID:        scalar.ImageIdent(p.Name, p.Version),
+			ProjectID: p.Uuid,
+			Name:      p.Name,
+			Summary:   c.createSummaryForImage(p, hasBom(p)),
+			Rekor:     parseRekorTags(p.Tags),
+			Version:   p.Version,
+			HasSbom:   hasBom(p),
+			GQLVars: model.ImageDetailsGQLVars{
+				WorkloadReferences: parseWorkloadRefTags(p.Tags),
+			},
 		}
 		images = append(images, image)
 	}

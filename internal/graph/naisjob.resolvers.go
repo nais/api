@@ -36,6 +36,16 @@ func (r *mutationResolver) DeleteJob(ctx context.Context, name string, team slug
 	}, nil
 }
 
+// ImageDetails is the resolver for the imageDetails field.
+func (r *naisJobResolver) ImageDetails(ctx context.Context, obj *model.NaisJob) (*model.ImageDetails, error) {
+	image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, obj.Image)
+	if err != nil {
+		return nil, fmt.Errorf("getting metadata for image %q: %w", obj.Image, err)
+	}
+
+	return image, nil
+}
+
 // Runs is the resolver for the runs field.
 func (r *naisJobResolver) Runs(ctx context.Context, obj *model.NaisJob) ([]*model.Run, error) {
 	runs, err := r.k8sClient.Runs(ctx, obj.GQLVars.Team.String(), obj.Env.Name, obj.Name)
@@ -76,25 +86,6 @@ func (r *queryResolver) Naisjob(ctx context.Context, name string, team slug.Slug
 	job, err := r.k8sClient.NaisJob(ctx, name, team.String(), env)
 	if err != nil {
 		return nil, err
-	}
-	image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, job.Image)
-	if err != nil {
-		return nil, fmt.Errorf("getting metadata for image %q: %w", job.Image, err)
-	}
-
-	if image != nil {
-		job.ImageDetails = *image
-	}
-
-	for _, ref := range image.WorkloadReferences {
-		job, err := r.k8sClient.NaisJob(ctx, ref.Name, ref.Team, ref.Environment)
-		if err != nil {
-			continue
-		}
-		if job == nil {
-			continue
-		}
-		ref.DeployInfo = job.DeployInfo
 	}
 
 	return job, nil
