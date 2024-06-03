@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
@@ -72,7 +73,31 @@ func (r *naisJobResolver) Secrets(ctx context.Context, obj *model.NaisJob) ([]*m
 
 // Naisjob is the resolver for the naisjob field.
 func (r *queryResolver) Naisjob(ctx context.Context, name string, team slug.Slug, env string) (*model.NaisJob, error) {
-	return r.k8sClient.NaisJob(ctx, name, team.String(), env)
+	job, err := r.k8sClient.NaisJob(ctx, name, team.String(), env)
+	if err != nil {
+		return nil, err
+	}
+	image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, job.Image)
+	if err != nil {
+		return nil, fmt.Errorf("getting metadata for image %q: %w", job.Image, err)
+	}
+
+	if image != nil {
+		job.ImageDetails = *image
+	}
+
+	for _, ref := range image.WorkloadReferences {
+		job, err := r.k8sClient.NaisJob(ctx, ref.Name, ref.Team, ref.Environment)
+		if err != nil {
+			continue
+		}
+		if job == nil {
+			continue
+		}
+		ref.DeployInfo = job.DeployInfo
+	}
+
+	return job, nil
 }
 
 // NaisJob returns gengql.NaisJobResolver implementation.

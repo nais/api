@@ -16,28 +16,34 @@ import (
 type IdentType string
 
 const (
-	IdentTypeApp                IdentType = "app"
-	IdentTypeAuditLog           IdentType = "auditLog"
-	IdentTypeBigQueryDataset    IdentType = "bigQueryDataset"
-	IdentTypeBucket             IdentType = "bucket"
-	IdentTypeCorrelationID      IdentType = "correlationID"
-	IdentTypeDeployKey          IdentType = "deployKey"
-	IdentTypeDeployment         IdentType = "deployment"
-	IdentTypeDeploymentResource IdentType = "deploymentResource"
-	IdentTypeDeploymentStatus   IdentType = "deploymentStatus"
-	IdentTypeEnv                IdentType = "env"
-	IdentTypeGitHubRepo         IdentType = "githubRepo"
-	IdentTypeJob                IdentType = "job"
-	IdentTypeOpenSearch         IdentType = "openSearch"
-	IdentTypePod                IdentType = "pod"
-	IdentTypeRedis              IdentType = "redis"
-	IdentTypeSecret             IdentType = "secret"
-	IdentTypeSqlDatabase        IdentType = "sqlDatabase"
-	IdentTypeSqlInstance        IdentType = "sqlInstance"
-	IdentTypeTeam               IdentType = "team"
-	IdentTypeUser               IdentType = "user"
-	IdentTypeVulnerabilities    IdentType = "vulnerabilities"
-	IdentTypeKafkaTopic         IdentType = "kafkaTopic"
+	IdentTypeApp                         IdentType = "app"
+	IdentTypeAuditLog                    IdentType = "auditLog"
+	IdentTypeBigQueryDataset             IdentType = "bigQueryDataset"
+	IdentTypeBucket                      IdentType = "bucket"
+	IdentTypeCorrelationID               IdentType = "correlationID"
+	IdentTypeDeployKey                   IdentType = "deployKey"
+	IdentTypeDeployment                  IdentType = "deployment"
+	IdentTypeDeploymentResource          IdentType = "deploymentResource"
+	IdentTypeDeploymentStatus            IdentType = "deploymentStatus"
+	IdentTypeEnv                         IdentType = "env"
+	IdentTypeGitHubRepo                  IdentType = "githubRepo"
+	IdentTypeJob                         IdentType = "job"
+	IdentTypeOpenSearch                  IdentType = "openSearch"
+	IdentTypePod                         IdentType = "pod"
+	IdentTypeRedis                       IdentType = "redis"
+	IdentTypeSecret                      IdentType = "secret"
+	IdentTypeSqlDatabase                 IdentType = "sqlDatabase"
+	IdentTypeSqlInstance                 IdentType = "sqlInstance"
+	IdentTypeTeam                        IdentType = "team"
+	IdentTypeUser                        IdentType = "user"
+	IdentTypeVulnerabilities             IdentType = "vulnerabilities"
+	IdentTypeKafkaTopic                  IdentType = "kafkaTopic"
+	IdentTypeFinding                     IdentType = "finding"
+	IdentTypeImage                       IdentType = "image"
+	IdentTypeDependencyTrackProjectIdent IdentType = "dependencyTrackProjectIdent"
+	IdentTypeWorkload                    IdentType = "workload"
+	IdentTypeAnalysisTrail               IdentType = "analysisTrail"
+	IdentTypeVulnerabilitySummary        IdentType = "vulnerabilitySummary"
 )
 
 type Ident struct {
@@ -168,6 +174,26 @@ func KafkaTopicIdent(id string) Ident {
 
 func OpenSearchIdent(id string) Ident {
 	return newIdent(id, IdentTypeOpenSearch)
+}
+
+func FindingIdent(id string) Ident {
+	return newIdent(id, IdentTypeFinding)
+}
+
+func ImageIdent(name, version string) Ident {
+	return newIdent(fmt.Sprintf("%s-%s", name, version), IdentTypeImage)
+}
+
+func WorkloadIdent(id string) Ident {
+	return newIdent(id, IdentTypeWorkload)
+}
+
+func AnalysisTrailIdent(projectID, componentID, vulnerabilityID string) Ident {
+	return newIdent(fmt.Sprintf("%s-%s-%s", projectID, componentID, vulnerabilityID), IdentTypeAnalysisTrail)
+}
+
+func ImageVulnerabilitySummaryIdent(id string) Ident {
+	return newIdent(id, IdentTypeVulnerabilitySummary)
 }
 
 func newIdent(id string, t IdentType) Ident {

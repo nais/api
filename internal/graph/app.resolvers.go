@@ -105,6 +105,23 @@ func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, en
 	if err != nil {
 		return nil, apierror.ErrAppNotFound
 	}
+	image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, app.Image)
+	if err != nil {
+		return nil, fmt.Errorf("getting metadata for image %q: %w", app.Image, err)
+	}
+	if image != nil {
+		app.ImageDetails = *image
+	}
+	for _, ref := range image.WorkloadReferences {
+		app, err := r.k8sClient.App(ctx, ref.Name, ref.Team, ref.Environment)
+		if err != nil {
+			continue
+		}
+		if app == nil {
+			continue
+		}
+		ref.DeployInfo = app.DeployInfo
+	}
 	return app, nil
 }
 

@@ -1329,17 +1329,28 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 	if err != nil {
 		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
 	}
+
+	for _, app := range apps {
+		if app.Image == "" {
+			fmt.Println("app.Image is empty")
+		}
+		image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, app.Image)
+		if err != nil {
+			return nil, fmt.Errorf("getting metadata for image %q: %w", app.Image, err)
+		}
+		app.ImageDetails = *image
+	}
 	if orderBy != nil {
 		switch orderBy.Field {
-		case "NAME":
+		case model.OrderByFieldName:
 			model.SortWith(apps, func(a, b *model.App) bool {
 				return model.Compare(a.Name, b.Name, orderBy.Direction)
 			})
-		case "ENV":
+		case model.OrderByFieldEnv:
 			model.SortWith(apps, func(a, b *model.App) bool {
 				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
 			})
-		case "DEPLOYED":
+		case model.OrderByFieldDeployed:
 			model.SortWith(apps, func(a, b *model.App) bool {
 				if a.DeployInfo.Timestamp == nil {
 					return false
@@ -1349,7 +1360,7 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 				}
 				return model.Compare(b.DeployInfo.Timestamp.UnixMilli(), a.DeployInfo.Timestamp.UnixMilli(), orderBy.Direction)
 			})
-		case "STATUS":
+		case model.OrderByFieldStatus:
 			model.SortWith(apps, func(a, b *model.App) bool {
 				sortOrder := []model.State{model.StateFailing, model.StateNotnais, model.StateUnknown, model.StateNais}
 				aIndex := -1
@@ -1373,6 +1384,15 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 				}
 				return aIndex > bIndex
 			})
+		case model.OrderByFieldSeverityCritical:
+			model.SortWith(apps, func(a, b *model.App) bool {
+				return model.Compare(a.ImageDetails.Summary.Critical, b.ImageDetails.Summary.Critical, orderBy.Direction)
+			})
+		case model.OrderByFieldRiskScore:
+			model.SortWith(apps, func(a, b *model.App) bool {
+				return model.Compare(a.ImageDetails.Summary.RiskScore, b.ImageDetails.Summary.RiskScore, orderBy.Direction)
+			})
+
 		}
 	}
 	pagination := model.NewPagination(offset, limit)
@@ -1417,18 +1437,25 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 	if err != nil {
 		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
 	}
+	for _, job := range naisjobs {
+		image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, job.Image)
+		if err != nil {
+			return nil, fmt.Errorf("getting metadata for image %q: %w", job.Image, err)
+		}
+		job.ImageDetails = *image
+	}
 
 	if orderBy != nil {
 		switch orderBy.Field {
-		case "NAME":
+		case model.OrderByFieldName:
 			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
 				return model.Compare(a.Name, b.Name, orderBy.Direction)
 			})
-		case "ENV":
+		case model.OrderByFieldEnv:
 			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
 				return model.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
 			})
-		case "DEPLOYED":
+		case model.OrderByFieldDeployed:
 			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
 				if a.DeployInfo.Timestamp == nil {
 					return false
@@ -1438,7 +1465,7 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 				}
 				return model.Compare(b.DeployInfo.Timestamp.UnixMilli(), a.DeployInfo.Timestamp.UnixMilli(), orderBy.Direction)
 			})
-		case "STATUS":
+		case model.OrderByFieldStatus:
 			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
 				sortOrder := []model.State{model.StateFailing, model.StateNotnais, model.StateUnknown, model.StateNais}
 				aIndex := -1
@@ -1461,6 +1488,14 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 					return aIndex < bIndex
 				}
 				return aIndex > bIndex
+			})
+		case model.OrderByFieldSeverityCritical:
+			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
+				return model.Compare(a.ImageDetails.Summary.Critical, b.ImageDetails.Summary.Critical, orderBy.Direction)
+			})
+		case model.OrderByFieldRiskScore:
+			model.SortWith(naisjobs, func(a, b *model.NaisJob) bool {
+				return model.Compare(a.ImageDetails.Summary.RiskScore, b.ImageDetails.Summary.RiskScore, orderBy.Direction)
 			})
 		}
 	}
@@ -1542,58 +1577,40 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 }
 
 // VulnerabilitiesSummary is the resolver for the vulnerabilitiesSummary field.
-func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummary, error) {
-	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
+func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummaryForTeam, error) {
+	images, err := r.dependencyTrackClient.GetMetadataForTeam(ctx, obj.Slug.String())
 	if err != nil {
-		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
+		return nil, fmt.Errorf("getting metadata for team %q: %w", obj.Slug.String(), err)
 	}
 
-	instances := make([]*dependencytrack.AppInstance, 0)
-	for _, app := range apps {
-		instances = append(instances, &dependencytrack.AppInstance{
-			Env:   app.Env.Name,
-			App:   app.Name,
-			Image: app.Image,
-			Team:  obj.Slug.String(),
-		})
-	}
-
-	nodes, err := r.dependencyTrackClient.GetVulnerabilities(ctx, instances)
-	if err != nil {
-		return nil, fmt.Errorf("getting vulnerabilities from DependencyTrack: %w", err)
-	}
-
-	retVal := &model.VulnerabilitySummary{}
-	for _, n := range nodes {
-		if n.Summary == nil {
-			continue
+	retVal := &model.VulnerabilitySummaryForTeam{}
+	for _, image := range images {
+		if image.Summary.Critical > 0 {
+			retVal.Critical += image.Summary.Critical
 		}
-		if n.Summary.Critical > 0 {
-			retVal.Critical += n.Summary.Critical
+		if image.Summary.High > 0 {
+			retVal.High += image.Summary.High
 		}
-		if n.Summary.High > 0 {
-			retVal.High += n.Summary.High
+		if image.Summary.Medium > 0 {
+			retVal.Medium += image.Summary.Medium
 		}
-		if n.Summary.Medium > 0 {
-			retVal.Medium += n.Summary.Medium
+		if image.Summary.Low > 0 {
+			retVal.Low += image.Summary.Low
 		}
-		if n.Summary.Low > 0 {
-			retVal.Low += n.Summary.Low
+		if image.Summary.Unassigned > 0 {
+			retVal.Unassigned += image.Summary.Unassigned
 		}
-		if n.Summary.Unassigned > 0 {
-			retVal.Unassigned += n.Summary.Unassigned
+		if image.Summary.RiskScore > 0 {
+			retVal.RiskScore += image.Summary.RiskScore
 		}
-		if n.Summary.RiskScore > 0 {
-			retVal.RiskScore += n.Summary.RiskScore
+		if image.Summary.Total > 0 {
+			retVal.Total += image.Summary.Total
 		}
-		if n.Summary.Total > 0 {
-			retVal.Total += n.Summary.Total
-		}
-		if n.HasBom {
+		if image.HasSbom {
 			retVal.BomCount += 1
 		}
-
 	}
+
 	return retVal, nil
 }
 

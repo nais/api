@@ -46,6 +46,7 @@ type Workload interface {
 	GetID() scalar.Ident
 	GetName() string
 	GetImage() string
+	GetImageDetails() ImageDetails
 	GetDeployInfo() DeployInfo
 	GetEnv() Env
 	GetAccessPolicy() AccessPolicy
@@ -59,6 +60,18 @@ type Workload interface {
 type AccessPolicy struct {
 	Inbound  Inbound  `json:"inbound"`
 	Outbound Outbound `json:"outbound"`
+}
+
+type Alias struct {
+	Name   string `json:"name"`
+	Source string `json:"source"`
+}
+
+type AnalysisTrail struct {
+	ID           scalar.Ident `json:"id"`
+	State        string       `json:"state"`
+	Comments     []*Comment   `json:"comments"`
+	IsSuppressed bool         `json:"isSuppressed"`
 }
 
 // App cost type.
@@ -184,6 +197,12 @@ type BucketsList struct {
 type Claims struct {
 	Extra  []string `json:"extra"`
 	Groups []*Group `json:"groups"`
+}
+
+type Comment struct {
+	Comment    string    `json:"comment"`
+	Timestamp  time.Time `json:"timestamp"`
+	OnBehalfOf string    `json:"onBehalfOf"`
 }
 
 type Condition struct {
@@ -444,6 +463,22 @@ type IDPortenSidecar struct {
 	Resources            *Resources `json:"resources,omitempty"`
 }
 
+type ImageDetailsList struct {
+	Nodes    []*ImageDetails `json:"nodes"`
+	PageInfo PageInfo        `json:"pageInfo"`
+}
+
+type ImageVulnerabilitySummary struct {
+	ID         scalar.Ident `json:"id"`
+	Total      int          `json:"total"`
+	RiskScore  int          `json:"riskScore"`
+	Critical   int          `json:"critical"`
+	High       int          `json:"high"`
+	Medium     int          `json:"medium"`
+	Low        int          `json:"low"`
+	Unassigned int          `json:"unassigned"`
+}
+
 type Inbound struct {
 	Rules []*Rule `json:"rules"`
 }
@@ -693,6 +728,20 @@ type RedisList struct {
 type RedisStatus struct {
 	Conditions []*Condition `json:"conditions"`
 	State      string       `json:"state"`
+}
+
+type Rekor struct {
+	BuildTrigger             string `json:"buildTrigger"`
+	BuildConfigURI           string `json:"buildConfigURI"`
+	GitHubWorkflowName       string `json:"gitHubWorkflowName"`
+	GitHubWorkflowRef        string `json:"gitHubWorkflowRef"`
+	GitHubWorkflowSha        string `json:"gitHubWorkflowSHA"`
+	LogIndex                 string `json:"logIndex"`
+	OIDCIssuer               string `json:"oIDCIssuer"`
+	RunInvocationURI         string `json:"runInvocationURI"`
+	RunnerEnvironment        string `json:"runnerEnvironment"`
+	SourceRepositoryOwnerURI string `json:"sourceRepositoryOwnerURI"`
+	IntegratedTime           int    `json:"integratedTime"`
 }
 
 type Requests struct {
@@ -954,12 +1003,12 @@ type VariableInput struct {
 }
 
 type Vulnerability struct {
-	ID           scalar.Ident          `json:"id"`
-	AppName      string                `json:"appName"`
-	Env          string                `json:"env"`
-	FindingsLink string                `json:"findingsLink"`
-	Summary      *VulnerabilitySummary `json:"summary,omitempty"`
-	HasBom       bool                  `json:"hasBom"`
+	ID           scalar.Ident                 `json:"id"`
+	AppName      string                       `json:"appName"`
+	Env          string                       `json:"env"`
+	FindingsLink string                       `json:"findingsLink"`
+	Summary      *VulnerabilitySummaryForTeam `json:"summary,omitempty"`
+	HasBom       bool                         `json:"hasBom"`
 }
 
 type VulnerabilityFilter struct {
@@ -1002,7 +1051,7 @@ type VulnerabilityMetrics struct {
 	Data []*VulnerabilityMetric `json:"data"`
 }
 
-type VulnerabilitySummary struct {
+type VulnerabilitySummaryForTeam struct {
 	Total      int `json:"total"`
 	RiskScore  int `json:"riskScore"`
 	Critical   int `json:"critical"`
@@ -1011,6 +1060,15 @@ type VulnerabilitySummary struct {
 	Low        int `json:"low"`
 	Unassigned int `json:"unassigned"`
 	BomCount   int `json:"bomCount"`
+}
+
+type WorkloadReference struct {
+	ID           scalar.Ident `json:"id"`
+	Name         string       `json:"name"`
+	Team         string       `json:"team"`
+	WorkloadType string       `json:"workloadType"`
+	Environment  string       `json:"environment"`
+	DeployInfo   DeployInfo   `json:"deployInfo"`
 }
 
 type ErrorLevel string
@@ -1126,6 +1184,14 @@ const (
 	OrderByFieldSeverityLow OrderByField = "SEVERITY_LOW"
 	// Order apps by vulnerability severity unassigned
 	OrderByFieldSeverityUnassigned OrderByField = "SEVERITY_UNASSIGNED"
+	// Order by severity.
+	OrderByFieldSeverity OrderByField = "SEVERITY"
+	// Order by packageUrl
+	OrderByFieldPackageURL OrderByField = "PACKAGE_URL"
+	// Order by state.
+	OrderByFieldState OrderByField = "STATE"
+	// Order by isSuppressed.
+	OrderByFieldIsSuppressed OrderByField = "IS_SUPPRESSED"
 	// Order by PostgreSQL version
 	OrderByFieldVersion OrderByField = "VERSION"
 	// Order by cost
@@ -1151,6 +1217,10 @@ var AllOrderByField = []OrderByField{
 	OrderByFieldSeverityMedium,
 	OrderByFieldSeverityLow,
 	OrderByFieldSeverityUnassigned,
+	OrderByFieldSeverity,
+	OrderByFieldPackageURL,
+	OrderByFieldState,
+	OrderByFieldIsSuppressed,
 	OrderByFieldVersion,
 	OrderByFieldCost,
 	OrderByFieldCPU,
@@ -1160,7 +1230,7 @@ var AllOrderByField = []OrderByField{
 
 func (e OrderByField) IsValid() bool {
 	switch e {
-	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned, OrderByFieldVersion, OrderByFieldCost, OrderByFieldCPU, OrderByFieldMemory, OrderByFieldDisk:
+	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned, OrderByFieldSeverity, OrderByFieldPackageURL, OrderByFieldState, OrderByFieldIsSuppressed, OrderByFieldVersion, OrderByFieldCost, OrderByFieldCPU, OrderByFieldMemory, OrderByFieldDisk:
 		return true
 	}
 	return false
