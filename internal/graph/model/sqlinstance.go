@@ -50,18 +50,15 @@ type SQLInstance struct {
 	GQLVars             SQLInstanceGQLVars   `json:"-"`
 }
 
+func (SQLInstance) IsPersistence() {}
+func (SQLInstance) IsSearchNode()  {}
+
 type SQLInstanceGQLVars struct {
 	TeamSlug       slug.Slug
 	Labels         map[string]string
 	Annotations    map[string]string
 	OwnerReference *v1.OwnerReference
 }
-
-func (SQLInstance) IsPersistence() {}
-func (SQLInstance) IsSearchNode()  {}
-
-func (i SQLInstance) GetName() string     { return i.Name }
-func (i SQLInstance) GetID() scalar.Ident { return i.ID }
 
 func (i SQLInstance) IsHealthy() bool {
 	for _, cond := range i.Status.Conditions {

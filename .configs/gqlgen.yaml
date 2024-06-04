@@ -24,6 +24,9 @@ resolver:
 autobind:
   - "github.com/nais/api/internal/graph/model"
 
+# Don't generate Get<FieldName> functions for fields included in the GraphQL interfaces
+omit_getters: true
+
 # Optional: turn on to not generate any file notice comments in generated files
 omit_gqlgen_file_notice: true
 
