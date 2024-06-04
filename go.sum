@@ -348,8 +348,8 @@ github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f h1:KUppIJq7/+
 github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/nais/bifrost v0.0.0-20240521085955-c2d2e61bfcd0 h1:S5sE9MV3ZKw/clcZ4onjcxtz3v9apWZsqgyAj0jcsZ8=
 github.com/nais/bifrost v0.0.0-20240521085955-c2d2e61bfcd0/go.mod h1:n0dtyRfvZJR7wNlu9sErBErad2bBMDiM/U2cHCU4XLU=
-github.com/nais/dependencytrack v0.0.0-20240531090306-2fe8375b3235 h1:tU3Zw+CViUfGBS8ex43bZOXmrNZRidLm6V+OYF8HHls=
-github.com/nais/dependencytrack v0.0.0-20240531090306-2fe8375b3235/go.mod h1:a5YSLDbU+Qnb6160hYoeV/hM5BK1NyoBv6SWNWLXFqw=
+github.com/nais/dependencytrack v0.0.0-20240604131747-4598ef10fd9b h1:nRvrkzIy8uhiRN7Da6ir7ePYLsDVu8PnQblGvf6A6Dw=
+github.com/nais/dependencytrack v0.0.0-20240604131747-4598ef10fd9b/go.mod h1:bwvAaEfohiQAb7KjfJe4h8amiojA7NwgiGjjJiD9ICY=
 github.com/nais/liberator v0.0.0-20240528123634-b97124ebbbbb h1:57VHHQkxn+5Jv0y87klUYLlqfWMSuHqBV5sF/FXM2pw=
 github.com/nais/liberator v0.0.0-20240528123634-b97124ebbbbb/go.mod h1:XKTg3yJM1diohS8cmdEDviRgrKMQFV6TtU9SNnMF6kM=
 github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1 h1:Ei6o4MzKnaGys+uVHNcZd1ttV9lcmHGX3whH1GyPV8E=
