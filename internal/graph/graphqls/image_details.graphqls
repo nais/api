@@ -40,7 +40,6 @@ type ImageDetails {
     "Order findings by"
     orderBy: OrderBy
   ): FindingList!
-  #workloadReferences: [WorkloadReference!]!
   workloadReferences: [Workload!]!
 }
 
@@ -53,15 +52,6 @@ type ImageVulnerabilitySummary {
   medium: Int!
   low: Int!
   unassigned: Int!
-}
-
-type WorkloadReference {
-  id: ID!
-  name: String!
-  team: String!
-  workloadType: String!
-  environment: String!
-  deployInfo: DeployInfo!
 }
 
 type ImageDetailsList {
@@ -109,8 +99,13 @@ type FindingList {
 type AnalysisTrail {
   id: ID!
   state: String!
-  comments: [AnalysisComment]!
+  comments(offset: Int, limit: Int): AnalysisCommentList!
   isSuppressed: Boolean!
+}
+
+type AnalysisCommentList {
+  pageInfo: PageInfo!
+  nodes: [AnalysisComment]!
 }
 
 type AnalysisComment {

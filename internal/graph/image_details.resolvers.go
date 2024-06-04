@@ -13,6 +13,17 @@ import (
 	"github.com/nais/api/internal/graph/model"
 )
 
+// Comments is the resolver for the comments field.
+func (r *analysisTrailResolver) Comments(ctx context.Context, obj *model.AnalysisTrail, offset *int, limit *int) (*model.AnalysisCommentList, error) {
+	page := model.NewPagination(offset, limit)
+
+	nodes, pageInfo := model.PaginatedSlice(obj.GQLVars.Comments, page)
+	return &model.AnalysisCommentList{
+		Nodes:    nodes,
+		PageInfo: pageInfo,
+	}, nil
+}
+
 // AnalysisTrail is the resolver for the analysisTrail field.
 func (r *findingResolver) AnalysisTrail(ctx context.Context, obj *model.Finding) (*model.AnalysisTrail, error) {
 	return r.dependencyTrackClient.GetAnalysisTrailForImage(ctx, obj.ParentID, obj.ComponentID, obj.VulnerabilityID)
@@ -143,6 +154,9 @@ func (r *mutationResolver) SuppressFinding(ctx context.Context, analysisState st
 	return trail, nil
 }
 
+// AnalysisTrail returns gengql.AnalysisTrailResolver implementation.
+func (r *Resolver) AnalysisTrail() gengql.AnalysisTrailResolver { return &analysisTrailResolver{r} }
+
 // Finding returns gengql.FindingResolver implementation.
 func (r *Resolver) Finding() gengql.FindingResolver { return &findingResolver{r} }
 
@@ -150,6 +164,7 @@ func (r *Resolver) Finding() gengql.FindingResolver { return &findingResolver{r}
 func (r *Resolver) ImageDetails() gengql.ImageDetailsResolver { return &imageDetailsResolver{r} }
 
 type (
-	findingResolver      struct{ *Resolver }
-	imageDetailsResolver struct{ *Resolver }
+	analysisTrailResolver struct{ *Resolver }
+	findingResolver       struct{ *Resolver }
+	imageDetailsResolver  struct{ *Resolver }
 )

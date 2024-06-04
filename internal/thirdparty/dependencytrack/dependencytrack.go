@@ -534,8 +534,6 @@ func (c *Client) SuppressFinding(ctx context.Context, analysisState, comment, co
 		return nil, fmt.Errorf("getting analysis trail: %w", err)
 	}
 
-	comments := parseComments(trail)
-
 	if err = c.client.TriggerAnalysis(ctx, projectID); err != nil {
 		return nil, fmt.Errorf("triggering analysis: %w", err)
 	}
@@ -543,8 +541,10 @@ func (c *Client) SuppressFinding(ctx context.Context, analysisState, comment, co
 	return &model.AnalysisTrail{
 		ID:           scalar.AnalysisTrailIdent(projectID, componentID, vulnerabilityID),
 		State:        trail.AnalysisState,
-		Comments:     comments,
 		IsSuppressed: trail.IsSuppressed,
+		GQLVars: model.AnalysisTrailGQLVars{
+			Comments: parseComments(trail),
+		},
 	}, nil
 }
 
@@ -552,7 +552,6 @@ func parseComments(trail *dependencytrack.Analysis) []*model.AnalysisComment {
 	comments := make([]*model.AnalysisComment, 0)
 	for _, comment := range trail.AnalysisComments {
 		timestamp := time.Unix(int64(comment.Timestamp)/1000, 0).Local()
-		//"on-behalf-of:%s|suppressed:%t|state:%s|comment:%s"
 		after, found := strings.CutPrefix(comment.Comment, "on-behalf-of:")
 
 		if found {
@@ -588,11 +587,11 @@ func (c *Client) GetAnalysisTrailForImage(ctx context.Context, projectID, compon
 		ID:           scalar.AnalysisTrailIdent(projectID, componentID, vulnerabilityID),
 		State:        trail.AnalysisState,
 		IsSuppressed: trail.IsSuppressed,
+		GQLVars: model.AnalysisTrailGQLVars{
+			Comments: parseComments(trail),
+		},
 	}
 
-	comments := parseComments(trail)
-
-	retAnalysisTrail.Comments = comments
 	return retAnalysisTrail, nil
 }
 

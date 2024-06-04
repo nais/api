@@ -68,11 +68,9 @@ type AnalysisComment struct {
 	OnBehalfOf string    `json:"onBehalfOf"`
 }
 
-type AnalysisTrail struct {
-	ID           scalar.Ident       `json:"id"`
-	State        string             `json:"state"`
-	Comments     []*AnalysisComment `json:"comments"`
-	IsSuppressed bool               `json:"isSuppressed"`
+type AnalysisCommentList struct {
+	PageInfo PageInfo           `json:"pageInfo"`
+	Nodes    []*AnalysisComment `json:"nodes"`
 }
 
 // App cost type.
@@ -1060,15 +1058,6 @@ type VulnerabilitySummaryForTeam struct {
 	Low        int `json:"low"`
 	Unassigned int `json:"unassigned"`
 	BomCount   int `json:"bomCount"`
-}
-
-type WorkloadReference struct {
-	ID           scalar.Ident `json:"id"`
-	Name         string       `json:"name"`
-	Team         string       `json:"team"`
-	WorkloadType string       `json:"workloadType"`
-	Environment  string       `json:"environment"`
-	DeployInfo   DeployInfo   `json:"deployInfo"`
 }
 
 type ErrorLevel string

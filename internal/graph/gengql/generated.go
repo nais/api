@@ -43,6 +43,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	AnalysisTrail() AnalysisTrailResolver
 	App() AppResolver
 	BigQueryDataset() BigQueryDatasetResolver
 	Bucket() BucketResolver
@@ -91,8 +92,13 @@ type ComplexityRoot struct {
 		Timestamp  func(childComplexity int) int
 	}
 
+	AnalysisCommentList struct {
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
 	AnalysisTrail struct {
-		Comments     func(childComplexity int) int
+		Comments     func(childComplexity int, offset *int, limit *int) int
 		ID           func(childComplexity int) int
 		IsSuppressed func(childComplexity int) int
 		State        func(childComplexity int) int
@@ -1252,21 +1258,15 @@ type ComplexityRoot struct {
 		Unassigned func(childComplexity int) int
 	}
 
-	WorkloadReference struct {
-		DeployInfo   func(childComplexity int) int
-		Environment  func(childComplexity int) int
-		ID           func(childComplexity int) int
-		Name         func(childComplexity int) int
-		Team         func(childComplexity int) int
-		WorkloadType func(childComplexity int) int
-	}
-
 	WorkloadStatus struct {
 		Errors func(childComplexity int) int
 		State  func(childComplexity int) int
 	}
 }
 
+type AnalysisTrailResolver interface {
+	Comments(ctx context.Context, obj *model.AnalysisTrail, offset *int, limit *int) (*model.AnalysisCommentList, error)
+}
 type AppResolver interface {
 	ImageDetails(ctx context.Context, obj *model.App) (*model.ImageDetails, error)
 
@@ -1560,12 +1560,31 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AnalysisComment.Timestamp(childComplexity), true
 
+	case "AnalysisCommentList.nodes":
+		if e.complexity.AnalysisCommentList.Nodes == nil {
+			break
+		}
+
+		return e.complexity.AnalysisCommentList.Nodes(childComplexity), true
+
+	case "AnalysisCommentList.pageInfo":
+		if e.complexity.AnalysisCommentList.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.AnalysisCommentList.PageInfo(childComplexity), true
+
 	case "AnalysisTrail.comments":
 		if e.complexity.AnalysisTrail.Comments == nil {
 			break
 		}
 
-		return e.complexity.AnalysisTrail.Comments(childComplexity), true
+		args, err := ec.field_AnalysisTrail_comments_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AnalysisTrail.Comments(childComplexity, args["offset"].(*int), args["limit"].(*int)), true
 
 	case "AnalysisTrail.id":
 		if e.complexity.AnalysisTrail.ID == nil {
@@ -6932,48 +6951,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.VulnerabilitySummaryForTeam.Unassigned(childComplexity), true
 
-	case "WorkloadReference.deployInfo":
-		if e.complexity.WorkloadReference.DeployInfo == nil {
-			break
-		}
-
-		return e.complexity.WorkloadReference.DeployInfo(childComplexity), true
-
-	case "WorkloadReference.environment":
-		if e.complexity.WorkloadReference.Environment == nil {
-			break
-		}
-
-		return e.complexity.WorkloadReference.Environment(childComplexity), true
-
-	case "WorkloadReference.id":
-		if e.complexity.WorkloadReference.ID == nil {
-			break
-		}
-
-		return e.complexity.WorkloadReference.ID(childComplexity), true
-
-	case "WorkloadReference.name":
-		if e.complexity.WorkloadReference.Name == nil {
-			break
-		}
-
-		return e.complexity.WorkloadReference.Name(childComplexity), true
-
-	case "WorkloadReference.team":
-		if e.complexity.WorkloadReference.Team == nil {
-			break
-		}
-
-		return e.complexity.WorkloadReference.Team(childComplexity), true
-
-	case "WorkloadReference.workloadType":
-		if e.complexity.WorkloadReference.WorkloadType == nil {
-			break
-		}
-
-		return e.complexity.WorkloadReference.WorkloadType(childComplexity), true
-
 	case "WorkloadStatus.errors":
 		if e.complexity.WorkloadStatus.Errors == nil {
 			break
@@ -7805,7 +7782,6 @@ type ImageDetails {
     "Order findings by"
     orderBy: OrderBy
   ): FindingList!
-  #workloadReferences: [WorkloadReference!]!
   workloadReferences: [Workload!]!
 }
 
@@ -7818,15 +7794,6 @@ type ImageVulnerabilitySummary {
   medium: Int!
   low: Int!
   unassigned: Int!
-}
-
-type WorkloadReference {
-  id: ID!
-  name: String!
-  team: String!
-  workloadType: String!
-  environment: String!
-  deployInfo: DeployInfo!
 }
 
 type ImageDetailsList {
@@ -7874,8 +7841,13 @@ type FindingList {
 type AnalysisTrail {
   id: ID!
   state: String!
-  comments: [AnalysisComment]!
+  comments(offset: Int, limit: Int): AnalysisCommentList!
   isSuppressed: Boolean!
+}
+
+type AnalysisCommentList {
+  pageInfo: PageInfo!
+  nodes: [AnalysisComment]!
 }
 
 type AnalysisComment {
@@ -9751,6 +9723,30 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_AnalysisTrail_comments_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	return args, nil
+}
 
 func (ec *executionContext) field_DeployInfo_history_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -12183,6 +12179,110 @@ func (ec *executionContext) fieldContext_AnalysisComment_onBehalfOf(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _AnalysisCommentList_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.AnalysisCommentList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AnalysisCommentList_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AnalysisCommentList_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AnalysisCommentList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AnalysisCommentList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.AnalysisCommentList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AnalysisCommentList_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.AnalysisComment)
+	fc.Result = res
+	return ec.marshalNAnalysisComment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisComment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AnalysisCommentList_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AnalysisCommentList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "comment":
+				return ec.fieldContext_AnalysisComment_comment(ctx, field)
+			case "timestamp":
+				return ec.fieldContext_AnalysisComment_timestamp(ctx, field)
+			case "onBehalfOf":
+				return ec.fieldContext_AnalysisComment_onBehalfOf(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AnalysisComment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AnalysisTrail_id(ctx context.Context, field graphql.CollectedField, obj *model.AnalysisTrail) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AnalysisTrail_id(ctx, field)
 	if err != nil {
@@ -12285,7 +12385,7 @@ func (ec *executionContext) _AnalysisTrail_comments(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Comments, nil
+		return ec.resolvers.AnalysisTrail().Comments(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12297,28 +12397,37 @@ func (ec *executionContext) _AnalysisTrail_comments(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.AnalysisComment)
+	res := resTmp.(*model.AnalysisCommentList)
 	fc.Result = res
-	return ec.marshalNAnalysisComment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisComment(ctx, field.Selections, res)
+	return ec.marshalNAnalysisCommentList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisCommentList(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AnalysisTrail_comments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AnalysisTrail",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "comment":
-				return ec.fieldContext_AnalysisComment_comment(ctx, field)
-			case "timestamp":
-				return ec.fieldContext_AnalysisComment_timestamp(ctx, field)
-			case "onBehalfOf":
-				return ec.fieldContext_AnalysisComment_onBehalfOf(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_AnalysisCommentList_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_AnalysisCommentList_nodes(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type AnalysisComment", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type AnalysisCommentList", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AnalysisTrail_comments_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -49696,282 +49805,6 @@ func (ec *executionContext) fieldContext_VulnerabilitySummaryForTeam_bomCount(ct
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadReference_id(ctx context.Context, field graphql.CollectedField, obj *model.WorkloadReference) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkloadReference_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(scalar.Ident)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WorkloadReference_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadReference",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WorkloadReference_name(ctx context.Context, field graphql.CollectedField, obj *model.WorkloadReference) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkloadReference_name(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WorkloadReference_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadReference",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WorkloadReference_team(ctx context.Context, field graphql.CollectedField, obj *model.WorkloadReference) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkloadReference_team(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Team, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WorkloadReference_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadReference",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WorkloadReference_workloadType(ctx context.Context, field graphql.CollectedField, obj *model.WorkloadReference) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkloadReference_workloadType(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.WorkloadType, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WorkloadReference_workloadType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadReference",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WorkloadReference_environment(ctx context.Context, field graphql.CollectedField, obj *model.WorkloadReference) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkloadReference_environment(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Environment, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WorkloadReference_environment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadReference",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _WorkloadReference_deployInfo(ctx context.Context, field graphql.CollectedField, obj *model.WorkloadReference) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WorkloadReference_deployInfo(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DeployInfo, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.DeployInfo)
-	fc.Result = res
-	return ec.marshalNDeployInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐDeployInfo(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_WorkloadReference_deployInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "WorkloadReference",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "deployer":
-				return ec.fieldContext_DeployInfo_deployer(ctx, field)
-			case "timestamp":
-				return ec.fieldContext_DeployInfo_timestamp(ctx, field)
-			case "commitSha":
-				return ec.fieldContext_DeployInfo_commitSha(ctx, field)
-			case "url":
-				return ec.fieldContext_DeployInfo_url(ctx, field)
-			case "history":
-				return ec.fieldContext_DeployInfo_history(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type DeployInfo", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _WorkloadStatus_state(ctx context.Context, field graphql.CollectedField, obj *model.WorkloadStatus) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_WorkloadStatus_state(ctx, field)
 	if err != nil {
@@ -52794,6 +52627,50 @@ func (ec *executionContext) _AnalysisComment(ctx context.Context, sel ast.Select
 	return out
 }
 
+var analysisCommentListImplementors = []string{"AnalysisCommentList"}
+
+func (ec *executionContext) _AnalysisCommentList(ctx context.Context, sel ast.SelectionSet, obj *model.AnalysisCommentList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, analysisCommentListImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AnalysisCommentList")
+		case "pageInfo":
+			out.Values[i] = ec._AnalysisCommentList_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._AnalysisCommentList_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var analysisTrailImplementors = []string{"AnalysisTrail"}
 
 func (ec *executionContext) _AnalysisTrail(ctx context.Context, sel ast.SelectionSet, obj *model.AnalysisTrail) graphql.Marshaler {
@@ -52808,22 +52685,53 @@ func (ec *executionContext) _AnalysisTrail(ctx context.Context, sel ast.Selectio
 		case "id":
 			out.Values[i] = ec._AnalysisTrail_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "state":
 			out.Values[i] = ec._AnalysisTrail_state(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "comments":
-			out.Values[i] = ec._AnalysisTrail_comments(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AnalysisTrail_comments(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "isSuppressed":
 			out.Values[i] = ec._AnalysisTrail_isSuppressed(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -64954,70 +64862,6 @@ func (ec *executionContext) _VulnerabilitySummaryForTeam(ctx context.Context, se
 	return out
 }
 
-var workloadReferenceImplementors = []string{"WorkloadReference"}
-
-func (ec *executionContext) _WorkloadReference(ctx context.Context, sel ast.SelectionSet, obj *model.WorkloadReference) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, workloadReferenceImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("WorkloadReference")
-		case "id":
-			out.Values[i] = ec._WorkloadReference_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "name":
-			out.Values[i] = ec._WorkloadReference_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "team":
-			out.Values[i] = ec._WorkloadReference_team(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "workloadType":
-			out.Values[i] = ec._WorkloadReference_workloadType(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "environment":
-			out.Values[i] = ec._WorkloadReference_environment(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "deployInfo":
-			out.Values[i] = ec._WorkloadReference_deployInfo(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var workloadStatusImplementors = []string{"WorkloadStatus"}
 
 func (ec *executionContext) _WorkloadStatus(ctx context.Context, sel ast.SelectionSet, obj *model.WorkloadStatus) graphql.Marshaler {
@@ -65428,6 +65272,20 @@ func (ec *executionContext) marshalNAnalysisComment2ᚕᚖgithubᚗcomᚋnaisᚋ
 	wg.Wait()
 
 	return ret
+}
+
+func (ec *executionContext) marshalNAnalysisCommentList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisCommentList(ctx context.Context, sel ast.SelectionSet, v model.AnalysisCommentList) graphql.Marshaler {
+	return ec._AnalysisCommentList(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAnalysisCommentList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisCommentList(ctx context.Context, sel ast.SelectionSet, v *model.AnalysisCommentList) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AnalysisCommentList(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNAnalysisTrail2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAnalysisTrail(ctx context.Context, sel ast.SelectionSet, v model.AnalysisTrail) graphql.Marshaler {
