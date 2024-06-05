@@ -5,13 +5,7 @@ RETURNING *;
 
 -- name: GetActiveTeams :many
 SELECT teams.* FROM teams
-WHERE NOT EXISTS (
-    SELECT team_delete_keys.team_slug
-    FROM team_delete_keys
-    WHERE
-        team_delete_keys.team_slug = teams.slug
-        AND team_delete_keys.confirmed_at IS NOT NULL
-)
+WHERE deleted_at IS NULL
 ORDER BY teams.slug ASC;
 
 -- name: GetTeamEnvironments :many
@@ -57,35 +51,35 @@ RETURNING *;
 
 -- name: GetAllTeamSlugs :many
 SELECT teams.slug FROM teams
+WHERE deleted_at IS NULL
 ORDER BY teams.slug ASC;
 
 -- name: GetTeams :many
 SELECT teams.* FROM teams
+WHERE deleted_at IS NULL
 ORDER BY teams.slug ASC
 LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
 -- name: GetTeamsCount :one
-SELECT COUNT(*) as total FROM teams;
+SELECT COUNT(*) as total
+FROM teams
+WHERE deleted_at IS NULL
+;
 
 -- name: GetActiveTeamBySlug :one
 SELECT teams.* FROM teams
-WHERE
-    teams.slug = @slug
-    AND NOT EXISTS (
-        SELECT team_delete_keys.team_slug
-        FROM team_delete_keys
-        WHERE
-            team_delete_keys.team_slug = @slug
-            AND team_delete_keys.confirmed_at IS NOT NULL
-    );
+WHERE deleted_at IS NULL
+AND teams.slug = @slug;
 
 -- name: GetTeamBySlug :one
+-- FIXME: consider removing one of either this one or the one above
 SELECT teams.* FROM teams
 WHERE teams.slug = @slug;
 
 -- name: GetTeamBySlugs :many
 SELECT * FROM teams
 WHERE slug = ANY(@slugs::slug[])
+AND deleted_at IS NULL
 ORDER BY slug ASC;
 
 -- name: GetAllTeamMembers :many
@@ -134,6 +128,7 @@ UPDATE teams
 SET purpose = COALESCE(sqlc.narg(purpose), purpose),
     slack_channel = COALESCE(sqlc.narg(slack_channel), slack_channel)
 WHERE slug = @slug
+AND deleted_at IS NULL
 RETURNING *;
 
 -- name: UpdateTeamExternalReferences :one
@@ -168,9 +163,11 @@ SET confirmed_at = NOW()
 WHERE key = @key;
 
 -- name: DeleteTeam :exec
-DELETE FROM teams
+UPDATE teams
+SET deleted_at = NOW()
 WHERE
     teams.slug = @slug
+    AND deleted_at IS NULL
     AND EXISTS(
         SELECT team_delete_keys.team_slug
         FROM team_delete_keys
@@ -194,4 +191,5 @@ ORDER BY reconcilers.name ASC;
 SELECT EXISTS(
     SELECT 1 FROM teams
     WHERE slug = @slug
+    AND deleted_at IS NULL
 ) AS exists;
