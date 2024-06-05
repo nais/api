@@ -28,10 +28,8 @@ type KafkaTopicGQLVars struct {
 	OwnerReference *v1.OwnerReference
 }
 
-func (KafkaTopic) IsPersistence()        {}
-func (KafkaTopic) IsSearchNode()         {}
-func (t KafkaTopic) GetName() string     { return t.Name }
-func (t KafkaTopic) GetID() scalar.Ident { return t.ID }
+func (KafkaTopic) IsPersistence() {}
+func (KafkaTopic) IsSearchNode()  {}
 
 func ToKafkaTopic(u *unstructured.Unstructured, env string) (*KafkaTopic, error) {
 	kt := &kafka_nais_io_v1.Topic{}

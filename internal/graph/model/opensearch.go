@@ -35,10 +35,8 @@ type OpenSearchInstanceAccessGQLVars struct {
 	Env            Env
 }
 
-func (OpenSearch) IsPersistence()        {}
-func (OpenSearch) IsSearchNode()         {}
-func (o OpenSearch) GetName() string     { return o.Name }
-func (o OpenSearch) GetID() scalar.Ident { return o.ID }
+func (OpenSearch) IsPersistence() {}
+func (OpenSearch) IsSearchNode()  {}
 
 func ToOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, error) {
 	openSearch := &aiven_io_v1alpha1.OpenSearch{}

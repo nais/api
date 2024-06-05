@@ -26,6 +26,8 @@ type SQLDatabase struct {
 	ID             scalar.Ident `json:"id"`
 }
 
+func (SQLDatabase) IsPersistence() {}
+
 func ToSqlDatabase(u *unstructured.Unstructured, sqlInstanceName, env string) (*SQLDatabase, error) {
 	sqlDatabase := &sql_cnrm_cloud_google_com_v1beta1.SQLDatabase{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, sqlDatabase); err != nil {
@@ -65,10 +67,6 @@ func ToSqlDatabase(u *unstructured.Unstructured, sqlInstanceName, env string) (*
 		}(),
 	}, nil
 }
-
-func (SQLDatabase) IsPersistence()        {}
-func (i SQLDatabase) GetName() string     { return i.Name }
-func (i SQLDatabase) GetID() scalar.Ident { return i.ID }
 
 func IsHealthy(cs []v1alpha1.Condition) bool {
 	for _, cond := range cs {
