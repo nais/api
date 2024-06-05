@@ -19,6 +19,9 @@ extend type Mutation {
 
     "Should the finding be suppressed."
     suppress: Boolean!
+
+    "The team slug."
+    team: Slug!
   ): AnalysisTrail!
 }
 
@@ -30,6 +33,7 @@ type ImageDetails {
   rekor: Rekor!
   summary: ImageVulnerabilitySummary
   hasSbom: Boolean!
+  projectUrl: String!
   findings(
     "Returns the first n entries from the list."
     offset: Int

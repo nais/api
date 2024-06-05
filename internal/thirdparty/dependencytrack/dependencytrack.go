@@ -338,13 +338,14 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 	}
 
 	return &model.ImageDetails{
-		Name:      p.Name + ":" + p.Version,
-		ID:        scalar.ImageIdent(p.Name, p.Version),
-		Rekor:     parseRekorTags(p.Tags),
-		Version:   p.Version,
-		HasSbom:   hasBom(p),
-		ProjectID: p.Uuid,
-		Summary:   c.createSummaryForImage(p, hasBom(p)),
+		Name:       p.Name + ":" + p.Version,
+		ID:         scalar.ImageIdent(p.Name, p.Version),
+		Rekor:      parseRekorTags(p.Tags),
+		Version:    p.Version,
+		HasSbom:    hasBom(p),
+		ProjectID:  p.Uuid,
+		Summary:    c.createSummaryForImage(p, hasBom(p)),
+		ProjectURL: c.frontendUrl + "/projects/" + p.Uuid,
 		GQLVars: model.ImageDetailsGQLVars{
 			WorkloadReferences: parseWorkloadRefTags(p.Tags),
 		},

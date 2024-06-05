@@ -494,6 +494,7 @@ type ComplexityRoot struct {
 		ID                 func(childComplexity int) int
 		Name               func(childComplexity int) int
 		ProjectID          func(childComplexity int) int
+		ProjectURL         func(childComplexity int) int
 		Rekor              func(childComplexity int) int
 		Summary            func(childComplexity int) int
 		Version            func(childComplexity int) int
@@ -654,7 +655,7 @@ type ComplexityRoot struct {
 		ResetReconciler        func(childComplexity int, name string) int
 		RestartApp             func(childComplexity int, name string, team slug.Slug, env string) int
 		SetTeamMemberRole      func(childComplexity int, slug slug.Slug, userID scalar.Ident, role model.TeamRole) int
-		SuppressFinding        func(childComplexity int, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool) int
+		SuppressFinding        func(childComplexity int, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool, team slug.Slug) int
 		SynchronizeAllTeams    func(childComplexity int) int
 		SynchronizeTeam        func(childComplexity int, slug slug.Slug) int
 		SynchronizeUsers       func(childComplexity int) int
@@ -1319,7 +1320,7 @@ type MutationResolver interface {
 	RestartApp(ctx context.Context, name string, team slug.Slug, env string) (*model.RestartAppResult, error)
 	AuthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.GitHubRepository, error)
 	DeauthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.GitHubRepository, error)
-	SuppressFinding(ctx context.Context, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool) (*model.AnalysisTrail, error)
+	SuppressFinding(ctx context.Context, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool, team slug.Slug) (*model.AnalysisTrail, error)
 	DeleteJob(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteJobResult, error)
 	EnableReconciler(ctx context.Context, name string) (*model.Reconciler, error)
 	DisableReconciler(ctx context.Context, name string) (*model.Reconciler, error)
@@ -3227,6 +3228,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ImageDetails.ProjectID(childComplexity), true
 
+	case "ImageDetails.projectUrl":
+		if e.complexity.ImageDetails.ProjectURL == nil {
+			break
+		}
+
+		return e.complexity.ImageDetails.ProjectURL(childComplexity), true
+
 	case "ImageDetails.rekor":
 		if e.complexity.ImageDetails.Rekor == nil {
 			break
@@ -4057,7 +4065,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.SuppressFinding(childComplexity, args["analysisState"].(string), args["comment"].(string), args["componentId"].(string), args["projectId"].(string), args["vulnerabilityId"].(string), args["suppressedBy"].(string), args["suppress"].(bool)), true
+		return e.complexity.Mutation.SuppressFinding(childComplexity, args["analysisState"].(string), args["comment"].(string), args["componentId"].(string), args["projectId"].(string), args["vulnerabilityId"].(string), args["suppressedBy"].(string), args["suppress"].(bool), args["team"].(slug.Slug)), true
 
 	case "Mutation.synchronizeAllTeams":
 		if e.complexity.Mutation.SynchronizeAllTeams == nil {
@@ -7761,6 +7769,9 @@ input GitHubRepositoriesFilter {
 
     "Should the finding be suppressed."
     suppress: Boolean!
+
+    "The team slug."
+    team: Slug!
   ): AnalysisTrail!
 }
 
@@ -7772,6 +7783,7 @@ type ImageDetails {
   rekor: Rekor!
   summary: ImageVulnerabilitySummary
   hasSbom: Boolean!
+  projectUrl: String!
   findings(
     "Returns the first n entries from the list."
     offset: Int
@@ -10474,6 +10486,15 @@ func (ec *executionContext) field_Mutation_suppressFinding_args(ctx context.Cont
 		}
 	}
 	args["suppress"] = arg6
+	var arg7 slug.Slug
+	if tmp, ok := rawArgs["team"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
+		arg7, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["team"] = arg7
 	return args, nil
 }
 
@@ -13061,6 +13082,8 @@ func (ec *executionContext) fieldContext_App_imageDetails(ctx context.Context, f
 				return ec.fieldContext_ImageDetails_summary(ctx, field)
 			case "hasSbom":
 				return ec.fieldContext_ImageDetails_hasSbom(ctx, field)
+			case "projectUrl":
+				return ec.fieldContext_ImageDetails_projectUrl(ctx, field)
 			case "findings":
 				return ec.fieldContext_ImageDetails_findings(ctx, field)
 			case "workloadReferences":
@@ -23621,6 +23644,50 @@ func (ec *executionContext) fieldContext_ImageDetails_hasSbom(ctx context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _ImageDetails_projectUrl(ctx context.Context, field graphql.CollectedField, obj *model.ImageDetails) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ImageDetails_projectUrl(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProjectURL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ImageDetails_projectUrl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImageDetails",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ImageDetails_findings(ctx context.Context, field graphql.CollectedField, obj *model.ImageDetails) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ImageDetails_findings(ctx, field)
 	if err != nil {
@@ -23779,6 +23846,8 @@ func (ec *executionContext) fieldContext_ImageDetailsList_nodes(ctx context.Cont
 				return ec.fieldContext_ImageDetails_summary(ctx, field)
 			case "hasSbom":
 				return ec.fieldContext_ImageDetails_hasSbom(ctx, field)
+			case "projectUrl":
+				return ec.fieldContext_ImageDetails_projectUrl(ctx, field)
 			case "findings":
 				return ec.fieldContext_ImageDetails_findings(ctx, field)
 			case "workloadReferences":
@@ -27413,7 +27482,7 @@ func (ec *executionContext) _Mutation_suppressFinding(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().SuppressFinding(rctx, fc.Args["analysisState"].(string), fc.Args["comment"].(string), fc.Args["componentId"].(string), fc.Args["projectId"].(string), fc.Args["vulnerabilityId"].(string), fc.Args["suppressedBy"].(string), fc.Args["suppress"].(bool))
+		return ec.resolvers.Mutation().SuppressFinding(rctx, fc.Args["analysisState"].(string), fc.Args["comment"].(string), fc.Args["componentId"].(string), fc.Args["projectId"].(string), fc.Args["vulnerabilityId"].(string), fc.Args["suppressedBy"].(string), fc.Args["suppress"].(bool), fc.Args["team"].(slug.Slug))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -30749,6 +30818,8 @@ func (ec *executionContext) fieldContext_NaisJob_imageDetails(ctx context.Contex
 				return ec.fieldContext_ImageDetails_summary(ctx, field)
 			case "hasSbom":
 				return ec.fieldContext_ImageDetails_hasSbom(ctx, field)
+			case "projectUrl":
+				return ec.fieldContext_ImageDetails_projectUrl(ctx, field)
 			case "findings":
 				return ec.fieldContext_ImageDetails_findings(ctx, field)
 			case "workloadReferences":
@@ -56225,6 +56296,11 @@ func (ec *executionContext) _ImageDetails(ctx context.Context, sel ast.Selection
 			out.Values[i] = ec._ImageDetails_summary(ctx, field, obj)
 		case "hasSbom":
 			out.Values[i] = ec._ImageDetails_hasSbom(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "projectUrl":
+			out.Values[i] = ec._ImageDetails_projectUrl(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

@@ -5,8 +5,10 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/slug"
 )
 
 func (r *analysisTrailResolver) Comments(ctx context.Context, obj *model.AnalysisTrail, offset *int, limit *int) (*model.AnalysisCommentList, error) {
@@ -107,7 +109,13 @@ func (r *imageDetailsResolver) WorkloadReferences(ctx context.Context, obj *mode
 	return ret, nil
 }
 
-func (r *mutationResolver) SuppressFinding(ctx context.Context, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool) (*model.AnalysisTrail, error) {
+func (r *mutationResolver) SuppressFinding(ctx context.Context, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool, team slug.Slug) (*model.AnalysisTrail, error) {
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamMembership(actor, team)
+	if err != nil {
+		return nil, err
+	}
+
 	options := []string{
 		"IN_TRIAGE",
 		"RESOLVED",
