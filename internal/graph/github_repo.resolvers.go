@@ -75,6 +75,12 @@ func (r *mutationResolver) AuthorizeRepository(ctx context.Context, authorizatio
 		return nil, err
 	}
 
+	if err := r.database.CreateAuditEvent(ctx, teamSlug, actor.User, "authorize_repository", teamSlug.String(), "team", map[string]string{
+		"repository": repoName,
+	}); err != nil {
+		return nil, err
+	}
+
 	return repo, nil
 }
 
@@ -116,6 +122,12 @@ func (r *mutationResolver) DeauthorizeRepository(ctx context.Context, authorizat
 	}
 
 	if err := r.database.RemoveRepositoryAuthorization(ctx, teamSlug, repoName, repoAuthorization); err != nil {
+		return nil, err
+	}
+
+	if err := r.database.CreateAuditEvent(ctx, teamSlug, actor.User, "deauthorize_repository", teamSlug.String(), "team", map[string]string{
+		"repository": repoName,
+	}); err != nil {
 		return nil, err
 	}
 

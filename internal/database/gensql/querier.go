@@ -26,6 +26,8 @@ type Querier interface {
 	// daily_cost column will be updated.
 	CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults
 	CreateAPIKey(ctx context.Context, arg CreateAPIKeyParams) error
+	CreateAuditEvent(ctx context.Context, arg CreateAuditEventParams) (uuid.UUID, error)
+	CreateAuditEventData(ctx context.Context, arg CreateAuditEventDataParams) error
 	CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) error
 	CreateDependencytrackProject(ctx context.Context, arg CreateDependencytrackProjectParams) error
 	CreateRepositoryAuthorization(ctx context.Context, arg CreateRepositoryAuthorizationParams) error
@@ -60,6 +62,7 @@ type Querier interface {
 	GetAllTeamMembers(ctx context.Context, teamSlug *slug.Slug) ([]*User, error)
 	GetAllTeamSlugs(ctx context.Context) ([]slug.Slug, error)
 	GetAllUserRoles(ctx context.Context) ([]*UserRole, error)
+	GetAuditEventsForTeam(ctx context.Context, arg GetAuditEventsForTeamParams) ([]*AuditEvent, error)
 	GetAuditLogsForCorrelationID(ctx context.Context, arg GetAuditLogsForCorrelationIDParams) ([]*AuditLog, error)
 	GetAuditLogsForCorrelationIDCount(ctx context.Context, correlationID uuid.UUID) (int64, error)
 	GetAuditLogsForReconciler(ctx context.Context, arg GetAuditLogsForReconcilerParams) ([]*AuditLog, error)

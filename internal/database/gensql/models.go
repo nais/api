@@ -209,6 +209,16 @@ func AllRoleNameValues() []RoleName {
 	}
 }
 
+type AuditEvent struct {
+	ID           uuid.UUID
+	CreatedAt    pgtype.Timestamptz
+	Actor        string
+	Action       string
+	ResourceType string
+	ResourceName string
+	TeamSlug     *slug.Slug
+}
+
 type AuditLog struct {
 	ID               uuid.UUID
 	CreatedAt        pgtype.Timestamptz
