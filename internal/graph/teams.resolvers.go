@@ -1630,6 +1630,9 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 
 	retVal := &model.VulnerabilitySummaryForTeam{}
 	for _, image := range images {
+		if image.Summary == nil {
+			continue
+		}
 		if image.Summary.Critical > 0 {
 			retVal.Critical += image.Summary.Critical
 		}
