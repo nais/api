@@ -17,11 +17,18 @@ resolver:
   layout: follow-schema
   dir: internal/graph
   package: graph
+  omit_template_comment: true
 
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
 autobind:
   - "github.com/nais/api/internal/graph/model"
+
+# Don't generate Get<FieldName> functions for fields included in the GraphQL interfaces
+omit_getters: true
+
+# Optional: turn on to not generate any file notice comments in generated files
+omit_gqlgen_file_notice: true
 
 # Optional: turn on to exclude the gqlgen version in the generated file notice. No effect if `omit_gqlgen_file_notice` is true.
 omit_gqlgen_version_in_file_notice: true

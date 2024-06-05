@@ -13,9 +13,8 @@ type App struct {
 	AutoScaling AutoScaling `json:"autoScaling"`
 }
 
-func (App) IsSearchNode()         {}
-func (App) GetType() WorkloadType { return WorkloadTypeApp }
-func (a App) Type() WorkloadType  { return a.GetType() }
+func (App) IsSearchNode()        {}
+func (a App) Type() WorkloadType { return WorkloadTypeApp }
 
 var _ Workload = (*App)(nil)
 
