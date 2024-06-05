@@ -22,7 +22,7 @@ func New(log logrus.FieldLogger) *FakeDependencytrackClient {
 	f := &FakeDependencytrackClient{}
 	f.cache = cache.New(24*time.Hour, 24*time.Hour)
 	f.client = dependencytrack.
-		New("endpoint", "username", "password", "frontend", log.WithField("client", "fake_dependencytrack")).
+		New("https://endpoint", "username", "password", "frontend", log.WithField("client", "fake_dependencytrack")).
 		WithCache(f.cache)
 
 	return f
@@ -42,7 +42,39 @@ func (f *FakeDependencytrackClient) GetVulnerabilities(ctx context.Context, apps
 	return f.client.GetVulnerabilities(ctx, apps, filters...)
 }
 
-// TODO: Should use the cache so that we can call the innter client GetProjectMetrics function
+/*func (f *FakeDependencytrackClient) GetFindingsForImage(ctx context.Context, app *dependencytrack.AppInstance) (*model.Image, error) {
+	f.setCacheEntryForApp(app)
+	return f.client.GetFindingsForImage(ctx, app)
+}*/
+
+func (f *FakeDependencytrackClient) GetFindingsForImageByProjectID(ctx context.Context, projectID string, suppressed bool) ([]*model.Finding, error) {
+	return f.client.GetFindingsForImageByProjectID(ctx, projectID, suppressed)
+}
+
+func (f *FakeDependencytrackClient) GetFindingsForTeam(ctx context.Context, team string) ([]*model.ImageDetails, error) {
+	return f.client.GetMetadataForTeam(ctx, team)
+}
+
+func (f *FakeDependencytrackClient) GetMetadataForTeam(ctx context.Context, team string) ([]*model.ImageDetails, error) {
+	return f.client.GetMetadataForTeam(ctx, team)
+}
+
+func (f *FakeDependencytrackClient) GetMetadataForImageByProjectID(ctx context.Context, projectID string) (*model.ImageDetails, error) {
+	return f.client.GetMetadataForImageByProjectID(ctx, projectID)
+}
+
+func (f *FakeDependencytrackClient) SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.AnalysisTrail, error) {
+	return f.client.SuppressFinding(ctx, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy, suppress)
+}
+
+func (f *FakeDependencytrackClient) GetAnalysisTrailForImage(ctx context.Context, componentID, projectID, vulnerabilityID string) (*model.AnalysisTrail, error) {
+	return f.client.GetAnalysisTrailForImage(ctx, componentID, projectID, vulnerabilityID)
+}
+
+func (f *FakeDependencytrackClient) GetMetadataForImage(ctx context.Context, name string) (*model.ImageDetails, error) {
+	return f.client.GetMetadataForImage(ctx, name)
+}
+
 func (f *FakeDependencytrackClient) GetProjectMetrics(ctx context.Context, app *dependencytrack.AppInstance, date string) (*dependencytrack.ProjectMetric, error) {
 	id, ok := mapOfApps[app.ID()]
 	if !ok {
@@ -86,7 +118,7 @@ func (f *FakeDependencytrackClient) setCacheEntryForApp(app *dependencytrack.App
 		v.HasBom = false
 	case 1:
 		v.HasBom = false
-		v.Summary = &model.VulnerabilitySummary{
+		v.Summary = &model.VulnerabilitySummaryForTeam{
 			RiskScore:  -1,
 			Total:      -1,
 			Critical:   -1,
@@ -102,7 +134,7 @@ func (f *FakeDependencytrackClient) setCacheEntryForApp(app *dependencytrack.App
 		low := rand.Intn(10)
 		unassigned := rand.Intn(10)
 
-		v.Summary = &model.VulnerabilitySummary{
+		v.Summary = &model.VulnerabilitySummaryForTeam{
 			Total:      critical + high + medium + low + unassigned,
 			RiskScore:  (critical * 10) + (high * 5) + (medium * 3) + (low * 1) + (unassigned * 5),
 			Critical:   critical,

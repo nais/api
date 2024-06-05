@@ -809,9 +809,6 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 		repository := ""
 		if len(parts) > 2 {
 			repository = strings.Join(parts[1:len(parts)-1], "/")
-		} else {
-			// fixme: wtf does this mean?
-			repository = "confusus"
 		}
 		appState.Errors = append(appState.Errors, &model.DeprecatedRegistryError{
 			Revision:   app.DeployInfo.CommitSha,

@@ -121,6 +121,13 @@ type HookdClient interface {
 type DependencytrackClient interface {
 	VulnerabilitySummary(ctx context.Context, app *dependencytrack.AppInstance) (*model.Vulnerability, error)
 	GetVulnerabilities(ctx context.Context, apps []*dependencytrack.AppInstance, filters ...dependencytrack.Filter) ([]*model.Vulnerability, error)
+	/*GetFindingsForImage(ctx context.Context, app *dependencytrack.AppInstance) (*model.Image, error)*/
+	GetMetadataForImageByProjectID(ctx context.Context, projectID string) (*model.ImageDetails, error)
+	GetMetadataForImage(ctx context.Context, image string) (*model.ImageDetails, error)
+	GetFindingsForImageByProjectID(ctx context.Context, projectID string, suppressed bool) ([]*model.Finding, error)
+	GetMetadataForTeam(ctx context.Context, team string) ([]*model.ImageDetails, error)
+	SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.AnalysisTrail, error)
+	GetAnalysisTrailForImage(ctx context.Context, projectID, componentID, vulnerabilityID string) (*model.AnalysisTrail, error)
 }
 
 type Resolver struct {

@@ -473,7 +473,7 @@ type Team {
     filter: VulnerabilityFilter
   ): VulnerabilityList!
 
-  vulnerabilitiesSummary: VulnerabilitySummary!
+  vulnerabilitiesSummary: VulnerabilitySummaryForTeam!
 
   "The vulnerabilities for the team's applications over time."
   vulnerabilityMetrics(

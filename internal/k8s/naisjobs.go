@@ -268,8 +268,6 @@ func setJobStatus(job *model.NaisJob, conditions []metav1.Condition, runs []*mod
 		repository := ""
 		if len(parts) > 2 {
 			repository = strings.Join(parts[1:len(parts)-1], "/")
-		} else {
-			repository = "confusus"
 		}
 		jobState.Errors = append(jobState.Errors, &model.DeprecatedRegistryError{
 			Revision:   job.DeployInfo.CommitSha,
@@ -554,10 +552,11 @@ func (c *Client) ToNaisJob(u *unstructured.Unstructured, env string) (*model.Nai
 	ret.DeployInfo.GQLVars.Env = env
 	ret.DeployInfo.GQLVars.Team = slug.Slug(naisjob.GetNamespace())
 
+	ret.Image = naisjob.Spec.Image
+
 	timestamp := time.Unix(0, naisjob.GetStatus().RolloutCompleteTime)
 	ret.DeployInfo.Timestamp = &timestamp
 	ret.GQLVars.Team = slug.Slug(naisjob.GetNamespace())
-	ret.Image = naisjob.Spec.Image
 
 	ap := model.AccessPolicy{}
 	if err := convert(naisjob.Spec.AccessPolicy, &ap); err != nil {

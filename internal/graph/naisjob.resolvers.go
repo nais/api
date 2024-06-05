@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
@@ -28,6 +29,15 @@ func (r *mutationResolver) DeleteJob(ctx context.Context, name string, team slug
 	return &model.DeleteJobResult{
 		Deleted: true,
 	}, nil
+}
+
+func (r *naisJobResolver) ImageDetails(ctx context.Context, obj *model.NaisJob) (*model.ImageDetails, error) {
+	image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, obj.Image)
+	if err != nil {
+		return nil, fmt.Errorf("getting metadata for image %q: %w", obj.Image, err)
+	}
+
+	return image, nil
 }
 
 func (r *naisJobResolver) Runs(ctx context.Context, obj *model.NaisJob) ([]*model.Run, error) {
@@ -61,7 +71,12 @@ func (r *naisJobResolver) Secrets(ctx context.Context, obj *model.NaisJob) ([]*m
 }
 
 func (r *queryResolver) Naisjob(ctx context.Context, name string, team slug.Slug, env string) (*model.NaisJob, error) {
-	return r.k8sClient.NaisJob(ctx, name, team.String(), env)
+	job, err := r.k8sClient.NaisJob(ctx, name, team.String(), env)
+	if err != nil {
+		return nil, err
+	}
+
+	return job, nil
 }
 
 func (r *Resolver) NaisJob() gengql.NaisJobResolver { return &naisJobResolver{r} }

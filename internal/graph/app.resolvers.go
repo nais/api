@@ -14,6 +14,15 @@ import (
 	"k8s.io/utils/ptr"
 )
 
+func (r *appResolver) ImageDetails(ctx context.Context, obj *model.App) (*model.ImageDetails, error) {
+	image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, obj.Image)
+	if err != nil {
+		return nil, fmt.Errorf("getting metadata for image %q: %w", obj.Image, err)
+	}
+
+	return image, nil
+}
+
 func (r *appResolver) Instances(ctx context.Context, obj *model.App) ([]*model.Instance, error) {
 	instances, err := r.k8sClient.Instances(ctx, obj.GQLVars.Team.String(), obj.Env.Name, obj.Name)
 	if err != nil {
@@ -92,6 +101,7 @@ func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, en
 	if err != nil {
 		return nil, apierror.ErrAppNotFound
 	}
+
 	return app, nil
 }
 
