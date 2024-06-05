@@ -574,7 +574,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 
 func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug, userID scalar.Ident, role model.TeamRole) (*model.Team, error) {
 	actor := authz.ActorFromContext(ctx)
-	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationUsersUpdate, slug)
+	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMembersAdmin, slug)
 	if err != nil {
 		return nil, err
 	}
