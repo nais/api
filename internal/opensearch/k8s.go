@@ -3,10 +3,11 @@ package opensearch
 import (
 	"context"
 	"fmt"
-	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/nais/api/internal/graph/apierror"
 	"sort"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/nais/api/internal/graph/apierror"
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
