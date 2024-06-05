@@ -1,0 +1,25 @@
+"Audit event type."
+type AuditEvent {
+  "ID of the event."
+  id: ID!
+
+  "String representation of the action performed."
+  action: String!
+
+  "The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+  actor: String
+
+  "Message that summarizes the event."
+  message: String!
+
+  "Creation time of the event."
+  createdAt: Time!
+
+  "Type of the resource that was affected by the action."
+  resourceType: String!
+}
+
+type AuditEventList {
+  nodes: [AuditEvent!]!
+  pageInfo: PageInfo!
+}

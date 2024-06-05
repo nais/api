@@ -48,19 +48,6 @@ extend type Mutation {
   ): Team! @auth
 
   """
-  Remove one or more users from a team
-
-  The updated team will be returned on success.
-  """
-  removeUsersFromTeam(
-    "Team slug that users should be removed from."
-    slug: Slug!
-
-    "List of user IDs that should be removed from the team."
-    userIds: [ID!]!
-  ): Team! @auth
-
-  """
   Remove a user from a team
 
   The updated team will be returned on success.
@@ -93,38 +80,6 @@ extend type Mutation {
   is asynchronous. The operation can take a while, depending on the amount of teams currently managed.
   """
   synchronizeAllTeams: TeamSync! @auth
-
-  """
-  Add users to a team as regular team members
-
-  If one or more users are already added to the team they will not be updated. If a user is already an owner of the
-  team the user will not lose ownership. Regular team members will get read-only access to the team.
-
-  The updated team will be returned on success.
-  """
-  addTeamMembers(
-    "Slug of the team that should receive new members."
-    slug: Slug!
-
-    "List of user IDs that should be added to the team as members."
-    userIds: [ID!]!
-  ): Team! @auth
-
-  """
-  Add users to a team as team owners
-
-  If one or more users are already added to the team, they will be granted ownership of the team. If one or more users
-  are already owners of the team, they will not be updated. Team owners will get read/write access to the team.
-
-  The updated team will be returned on success.
-  """
-  addTeamOwners(
-    "Slug of the team that should receive new owners."
-    slug: Slug!
-
-    "List of user IDs that should be added to the team as owners."
-    userIds: [ID!]!
-  ): Team! @auth
 
   """
   Add a user to a team
@@ -257,6 +212,17 @@ type Team {
     "Limit the number of audit log entries to return. Default is 20."
     limit: Int
   ): AuditLogList!
+
+  "Audit events for this team."
+  auditEvents(
+    "Offset to start listing audit events from. Default is 0."
+    offset: Int
+
+    "Limit the number of audit events to return. Default is 20."
+    limit: Int
+
+    # TODO: add filter?
+  ): AuditEventList!
 
   "Team members."
   members(

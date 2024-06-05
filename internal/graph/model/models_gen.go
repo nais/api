@@ -96,6 +96,27 @@ type AppsStatus struct {
 	Failing int `json:"failing"`
 }
 
+// Audit event type.
+type AuditEvent struct {
+	// ID of the event.
+	ID scalar.Ident `json:"id"`
+	// String representation of the action performed.
+	Action string `json:"action"`
+	// The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
+	Actor *string `json:"actor,omitempty"`
+	// Message that summarizes the event.
+	Message string `json:"message"`
+	// Creation time of the event.
+	CreatedAt time.Time `json:"createdAt"`
+	// Type of the resource that was affected by the action.
+	ResourceType string `json:"resourceType"`
+}
+
+type AuditEventList struct {
+	Nodes    []*AuditEvent `json:"nodes"`
+	PageInfo PageInfo      `json:"pageInfo"`
+}
+
 // Audit log type.
 type AuditLog struct {
 	// ID of the log entry.

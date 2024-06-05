@@ -12,3 +12,7 @@ RETURNING id;
 -- name: CreateAuditEventData :exec
 INSERT INTO audit_events_data (event_id, key, value)
 VALUES (@event_id, @key, @value);
+
+-- name: GetAuditEventsCountForTeam :one
+SELECT COUNT(*) FROM audit_events
+WHERE team_slug = @team;

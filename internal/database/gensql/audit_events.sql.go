@@ -53,6 +53,18 @@ func (q *Queries) CreateAuditEventData(ctx context.Context, arg CreateAuditEvent
 	return err
 }
 
+const getAuditEventsCountForTeam = `-- name: GetAuditEventsCountForTeam :one
+SELECT COUNT(*) FROM audit_events
+WHERE team_slug = $1
+`
+
+func (q *Queries) GetAuditEventsCountForTeam(ctx context.Context, team *slug.Slug) (int64, error) {
+	row := q.db.QueryRow(ctx, getAuditEventsCountForTeam, team)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getAuditEventsForTeam = `-- name: GetAuditEventsForTeam :many
 SELECT id, created_at, actor, action, resource_type, resource_name, team_slug FROM audit_events
 WHERE team_slug = $1
