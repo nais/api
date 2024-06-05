@@ -302,6 +302,7 @@ type Team struct {
 	AzureGroupID       *uuid.UUID
 	GithubTeamSlug     *string
 	GarRepository      *string
+	DeletedAt          pgtype.Timestamptz
 }
 
 type TeamAllEnvironment struct {
