@@ -171,7 +171,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	pubsubTopic := pubsubClient.Topic("nais-api")
 
 	var hookdClient graph.HookdClient
-	var dependencyTrackClient = dependencytrack.New(
+	dependencyTrackClient := dependencytrack.New(
 		cfg.DependencyTrack.Endpoint,
 		cfg.DependencyTrack.Username,
 		cfg.DependencyTrack.Password,
