@@ -34,11 +34,9 @@ import (
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
-	faketrack "github.com/nais/api/internal/thirdparty/dependencytrack/fake"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/usersync"
-	"github.com/nais/api/internal/vulnerability"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2/google"
@@ -173,26 +171,17 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	pubsubTopic := pubsubClient.Topic("nais-api")
 
 	var hookdClient graph.HookdClient
-	var dependencyTrackClient vulnerability.DependencytrackClient
+	var dependencyTrackClient = dependencytrack.New(
+		cfg.DependencyTrack.Endpoint,
+		cfg.DependencyTrack.Username,
+		cfg.DependencyTrack.Password,
+		cfg.DependencyTrack.Frontend,
+		log.WithField("client", "dependencytrack"),
+	)
 	if cfg.WithFakeClients {
 		hookdClient = fakehookd.New()
-		dependencyTrackClient = faketrack.New(log)
-		/*dependencyTrackClient = dependencytrack.New(
-			cfg.DependencyTrack.Endpoint,
-			cfg.DependencyTrack.Username,
-			cfg.DependencyTrack.Password,
-			cfg.DependencyTrack.Frontend,
-			log.WithField("client", "dependencytrack"),
-		)*/
 	} else {
 		hookdClient = hookd.New(cfg.Hookd.Endpoint, cfg.Hookd.PSK, log.WithField("client", "hookd"))
-		dependencyTrackClient = dependencytrack.New(
-			cfg.DependencyTrack.Endpoint,
-			cfg.DependencyTrack.Username,
-			cfg.DependencyTrack.Password,
-			cfg.DependencyTrack.Frontend,
-			log.WithField("client", "dependencytrack"),
-		)
 	}
 
 	userSyncRuns := usersync.NewRunsHandler(cfg.UserSync.RunsToPersist)

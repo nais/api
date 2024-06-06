@@ -130,11 +130,10 @@ type costConfig struct {
 
 // dependencyTrackConfig is the configuration for the dependency track service
 type dependencyTrackConfig struct {
-	Endpoint string `env:"DEPENDENCYTRACK_ENDPOINT,default=http://dependencytrack-backend:8080"`
-	Frontend string `env:"DEPENDENCYTRACK_FRONTEND"`
-	// TODO: change default value to something other than console
+	Endpoint string `env:"DEPENDENCYTRACK_ENDPOINT,default=http://localhost:9010"`
+	Frontend string `env:"DEPENDENCYTRACK_FRONTEND,default=http://localhost:9020"`
 	Username string `env:"DEPENDENCYTRACK_USERNAME,default=console"`
-	Password string `env:"DEPENDENCYTRACK_PASSWORD"`
+	Password string `env:"DEPENDENCYTRACK_PASSWORD,default=yolo"`
 	// VulnerabilityMetricsImportEnabled is the configuration for the vulnerability metrics service
 	VulnerabilityMetricsImportEnabled bool `env:"VULNERABILITY_METRICS_IMPORT_ENABLED"`
 }
