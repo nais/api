@@ -741,7 +741,7 @@ func (r *mutationResolver) ChangeDeployKey(ctx context.Context, team slug.Slug) 
 		return nil, fmt.Errorf("changing deploy key in Hookd: %w", err)
 	}
 	return &model.DeploymentKey{
-		ID:      scalar.DeployKeyIdent(team.String()),
+		ID:      scalar.DeployKeyIdent(team),
 		Key:     deployKey.Key,
 		Created: deployKey.Created,
 		Expires: deployKey.Expires,
@@ -1425,7 +1425,7 @@ func (r *teamResolver) DeployKey(ctx context.Context, obj *model.Team) (*model.D
 	}
 
 	return &model.DeploymentKey{
-		ID:      scalar.DeployKeyIdent(obj.Slug.String()),
+		ID:      scalar.DeployKeyIdent(obj.Slug),
 		Key:     key.Key,
 		Created: key.Created,
 		Expires: key.Expires,

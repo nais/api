@@ -41,7 +41,7 @@ func ToKafkaTopic(u *unstructured.Unstructured, env string) (*KafkaTopic, error)
 	teamSlug := kt.GetNamespace()
 
 	return &KafkaTopic{
-		ID:   scalar.KafkaTopicIdent("kafkatopic_" + env + "_" + teamSlug + "_" + kt.GetName()),
+		ID:   scalar.KafkaTopicIdent(env, slug.Slug(teamSlug), kt.GetName()),
 		Name: kt.Name,
 		Config: func(cfg *kafka_nais_io_v1.Config) *KafkaTopicConfig {
 			if cfg == nil {
