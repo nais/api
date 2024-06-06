@@ -172,8 +172,8 @@ func KafkaTopicIdent(id string) Ident {
 	return newIdent(id, IdentTypeKafkaTopic)
 }
 
-func OpenSearchIdent(id string) Ident {
-	return newIdent(id, IdentTypeOpenSearch)
+func OpenSearchIdent(envName string, teamSlug slug.Slug, instanceName string) Ident {
+	return newIdent(envName+"-"+string(teamSlug)+"-"+instanceName, IdentTypeOpenSearch)
 }
 
 func FindingIdent(id string) Ident {

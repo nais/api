@@ -1,9 +1,10 @@
 package model_test
 
 import (
+	"testing"
+
 	"github.com/nais/api/internal/graph/model"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"testing"
 )
 
 func TestOwnerReference(t *testing.T) {
