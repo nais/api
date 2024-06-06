@@ -270,7 +270,7 @@ func New(tenant string, cfg Config, db Database, fake bool, log logrus.FieldLogg
 			}
 		} else if fake {
 			for _, externalResourceInformer := range externalResourceInformers {
-				infs[cluster].KafkaTopic = dinf.ForResource(externalResourceInformer.GroupVersion.WithResource(externalResourceInformer.Resource))
+				externalResourceInformer.Informer = dinf.ForResource(externalResourceInformer.GroupVersion.WithResource(externalResourceInformer.Resource))
 			}
 		}
 	}
