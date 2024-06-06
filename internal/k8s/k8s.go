@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"strings"
 	"time"
+
+	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
 	storage_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/storage/v1beta1"
@@ -287,7 +288,8 @@ func externalInformerResources(externalResourceInformers []struct {
 	GroupVersion schema.GroupVersion
 	Resource     string
 	Informer     informers.GenericInformer
-}, clientSet *kubernetes.Clientset, dinf dynamicinformer.DynamicSharedInformerFactory) error {
+}, clientSet *kubernetes.Clientset, dinf dynamicinformer.DynamicSharedInformerFactory,
+) error {
 	for _, externalResourceInformer := range externalResourceInformers {
 		resources, err := discovery.NewDiscoveryClient(clientSet.RESTClient()).ServerResourcesForGroupVersion(externalResourceInformer.GroupVersion.String())
 		if err != nil && !strings.Contains(err.Error(), "the server could not find the requested resource") {
