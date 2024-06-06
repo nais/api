@@ -264,9 +264,8 @@ func New(tenant string, cfg Config, db Database, fake bool, log logrus.FieldLogg
 		}
 
 		if clientSet, ok := clientSet.(*kubernetes.Clientset); ok {
-			client, err := externalInformerResources(externalResourceInformers, clientSet, dinf)
-			if err != nil {
-				return client, err
+			if err := externalInformerResources(externalResourceInformers, clientSet, dinf); err != nil {
+				return nil, err
 			}
 		} else if fake {
 			for _, externalResourceInformer := range externalResourceInformers {
@@ -288,11 +287,11 @@ func externalInformerResources(externalResourceInformers []struct {
 	GroupVersion schema.GroupVersion
 	Resource     string
 	Informer     informers.GenericInformer
-}, clientSet *kubernetes.Clientset, dinf dynamicinformer.DynamicSharedInformerFactory) (*Client, error) {
+}, clientSet *kubernetes.Clientset, dinf dynamicinformer.DynamicSharedInformerFactory) error {
 	for _, externalResourceInformer := range externalResourceInformers {
 		resources, err := discovery.NewDiscoveryClient(clientSet.RESTClient()).ServerResourcesForGroupVersion(externalResourceInformer.GroupVersion.String())
 		if err != nil && !strings.Contains(err.Error(), "the server could not find the requested resource") {
-			return nil, fmt.Errorf("get server resources for group version: %w", err)
+			return fmt.Errorf("get server resources for group version: %w", err)
 		}
 		if err == nil {
 			for _, r := range resources.APIResources {
@@ -303,7 +302,7 @@ func externalInformerResources(externalResourceInformers []struct {
 			}
 		}
 	}
-	return nil, nil
+	return nil
 }
 
 // Informers returns a map of informers, keyed by environment
