@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database/gensql"
@@ -17,41 +18,32 @@ var _ AuditEventsRepo = (*database)(nil)
 
 type AuditEvent struct {
 	*gensql.AuditEvent
+	Data map[string]string
 }
 
 func (d *database) CreateAuditEvent(ctx context.Context, team slug.Slug, actor authz.AuthenticatedUser, action, resourceName, resourceType string, data map[string]string) error {
 	return d.querier.Transaction(ctx, func(ctx context.Context, querier Querier) error {
-		id, err := querier.CreateAuditEvent(ctx, gensql.CreateAuditEventParams{
+		params := gensql.CreateAuditEventParams{
 			Team:         &team,
 			Action:       action,
 			Actor:        actor.Identity(),
 			ResourceName: resourceName,
 			ResourceType: resourceType,
-		})
-		if err != nil {
-			return err
 		}
 
-		if data == nil {
-			return nil
-		}
-
-		for key, value := range data {
-			if err := querier.CreateAuditEventData(ctx, gensql.CreateAuditEventDataParams{
-				EventID: id,
-				Key:     key,
-				Value:   value,
-			}); err != nil {
+		if data != nil {
+			b, err := json.Marshal(data)
+			if err != nil {
 				return err
 			}
+			params.Data = b
 		}
 
-		return nil
+		return querier.CreateAuditEvent(ctx, params)
 	})
 }
 
 func (d *database) GetAuditEventsForTeam(ctx context.Context, teamSlug slug.Slug, p Page) ([]*AuditEvent, int, error) {
-	// TODO - join data for each event
 	rows, err := d.querier.GetAuditEventsForTeam(ctx, gensql.GetAuditEventsForTeamParams{
 		Team:   &teamSlug,
 		Offset: int32(p.Offset),
@@ -63,7 +55,16 @@ func (d *database) GetAuditEventsForTeam(ctx context.Context, teamSlug slug.Slug
 
 	entries := make([]*AuditEvent, len(rows))
 	for i, row := range rows {
-		entries[i] = &AuditEvent{AuditEvent: row}
+		entries[i] = &AuditEvent{
+			AuditEvent: row,
+			Data:       make(map[string]string),
+		}
+
+		if row.Data != nil {
+			if err := json.Unmarshal(row.Data, &entries[i].Data); err != nil {
+				return nil, 0, err
+			}
+		}
 	}
 
 	total, err := d.querier.GetAuditEventsCountForTeam(ctx, &teamSlug)

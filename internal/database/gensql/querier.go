@@ -26,8 +26,7 @@ type Querier interface {
 	// daily_cost column will be updated.
 	CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults
 	CreateAPIKey(ctx context.Context, arg CreateAPIKeyParams) error
-	CreateAuditEvent(ctx context.Context, arg CreateAuditEventParams) (uuid.UUID, error)
-	CreateAuditEventData(ctx context.Context, arg CreateAuditEventDataParams) error
+	CreateAuditEvent(ctx context.Context, arg CreateAuditEventParams) error
 	CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) error
 	CreateDependencytrackProject(ctx context.Context, arg CreateDependencytrackProjectParams) error
 	CreateRepositoryAuthorization(ctx context.Context, arg CreateRepositoryAuthorizationParams) error

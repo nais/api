@@ -6,14 +6,12 @@ package gensql
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/nais/api/internal/slug"
 )
 
-const createAuditEvent = `-- name: CreateAuditEvent :one
-INSERT INTO audit_events (actor, action, resource_type, resource_name, team_slug)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id
+const createAuditEvent = `-- name: CreateAuditEvent :exec
+INSERT INTO audit_events (actor, action, resource_type, resource_name, team_slug, data)
+VALUES ($1, $2, $3, $4, $5, $6)
 `
 
 type CreateAuditEventParams struct {
@@ -22,34 +20,18 @@ type CreateAuditEventParams struct {
 	ResourceType string
 	ResourceName string
 	Team         *slug.Slug
+	Data         []byte
 }
 
-func (q *Queries) CreateAuditEvent(ctx context.Context, arg CreateAuditEventParams) (uuid.UUID, error) {
-	row := q.db.QueryRow(ctx, createAuditEvent,
+func (q *Queries) CreateAuditEvent(ctx context.Context, arg CreateAuditEventParams) error {
+	_, err := q.db.Exec(ctx, createAuditEvent,
 		arg.Actor,
 		arg.Action,
 		arg.ResourceType,
 		arg.ResourceName,
 		arg.Team,
+		arg.Data,
 	)
-	var id uuid.UUID
-	err := row.Scan(&id)
-	return id, err
-}
-
-const createAuditEventData = `-- name: CreateAuditEventData :exec
-INSERT INTO audit_events_data (event_id, key, value)
-VALUES ($1, $2, $3)
-`
-
-type CreateAuditEventDataParams struct {
-	EventID uuid.UUID
-	Key     string
-	Value   string
-}
-
-func (q *Queries) CreateAuditEventData(ctx context.Context, arg CreateAuditEventDataParams) error {
-	_, err := q.db.Exec(ctx, createAuditEventData, arg.EventID, arg.Key, arg.Value)
 	return err
 }
 
@@ -66,7 +48,7 @@ func (q *Queries) GetAuditEventsCountForTeam(ctx context.Context, team *slug.Slu
 }
 
 const getAuditEventsForTeam = `-- name: GetAuditEventsForTeam :many
-SELECT id, created_at, actor, action, resource_type, resource_name, team_slug FROM audit_events
+SELECT id, created_at, actor, action, resource_type, resource_name, team_slug, data FROM audit_events
 WHERE team_slug = $1
 ORDER BY created_at DESC
 LIMIT $3 OFFSET $2
@@ -95,6 +77,7 @@ func (q *Queries) GetAuditEventsForTeam(ctx context.Context, arg GetAuditEventsF
 			&i.ResourceType,
 			&i.ResourceName,
 			&i.TeamSlug,
+			&i.Data,
 		); err != nil {
 			return nil, err
 		}

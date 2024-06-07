@@ -7,13 +7,6 @@ CREATE TABLE audit_events (
 	action text NOT NULL,
 	resource_type text NOT NULL,
 	resource_name text NOT NULL,
-	team_slug slug
-);
-
-CREATE TABLE audit_events_data (
-	event_id uuid NOT NULL,
-	key text NOT NULL,
-	value text NOT NULL,
-	PRIMARY KEY (event_id, key),
-	FOREIGN KEY (event_id) REFERENCES audit_events (id)
+	team_slug slug,
+	data bytea
 );
