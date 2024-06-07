@@ -490,7 +490,13 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 		if p == nil {
 			continue
 		}
+
+		// TODO: Find a better way to filter out these images
 		if p.Name == "europe-north1-docker.pkg.dev/nais-io/nais/images/wonderwall" {
+			continue
+		}
+
+		if p.Name == "europe-north1-docker.pkg.dev/nais-io/nais/images/elector" {
 			continue
 		}
 
