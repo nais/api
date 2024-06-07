@@ -1654,9 +1654,13 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		if image.Summary.Total > 0 {
 			retVal.Total += image.Summary.Total
 		}
-		if image.HasSbom {
-			retVal.BomCount += len(image.GQLVars.WorkloadReferences)
+
+		for _, reference := range image.GQLVars.WorkloadReferences {
+			if reference.Team == obj.Slug.String() {
+				retVal.BomCount += 1
+			}
 		}
+
 	}
 
 	return retVal, nil
