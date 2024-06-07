@@ -108,8 +108,6 @@ services:
       - DEFAULT_ADMIN_PASSWORD=admin
       - ADMIN_PASSWORD=yolo
       - USERS_FILE=/app/users.yaml
-    env_file:
-      - .env
     volumes:
       - type: bind
         source: ./data/bootstrap/users.yaml
