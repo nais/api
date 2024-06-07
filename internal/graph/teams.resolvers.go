@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/nais/api/internal/auditevent"
 	"strconv"
 
 	"github.com/google/uuid"
@@ -200,13 +201,8 @@ func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slu
 			Message: fmt.Sprintf("Removed user: %q", member.Email),
 		})
 
-		if err := dbtx.CreateAuditEvent(ctx, slug, actor.User, "remove_member", slug.String(), "team", map[string]string{
-			"member_email": member.Email,
-		}); err != nil {
-			return err
-		}
-
-		return nil
+		// TODO - should we store correlation_id as well?
+		return dbtx.CreateAuditEvent(ctx, auditevent.TeamRemoveMember(actor.User, slug, member.Email))
 	})
 	if err != nil {
 		return nil, err
@@ -371,14 +367,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 			Message: msg,
 		})
 
-		if err := dbtx.CreateAuditEvent(ctx, slug, actor.User, "add_member", slug.String(), "team", map[string]string{
-			"member_email": user.Email,
-			"role":         string(member.Role),
-		}); err != nil {
-			return err
-		}
-
-		return nil
+		return dbtx.CreateAuditEvent(ctx, auditevent.TeamAddMember(actor.User, slug, user.Email, string(member.Role)))
 	})
 	if err != nil {
 		return nil, err
@@ -444,10 +433,14 @@ func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug
 			return err
 		}
 
+		return nil
+
+		/* TODO
 		return dbtx.CreateAuditEvent(ctx, slug, actor.User, "set_member_role", slug.String(), "team", map[string]string{
 			"member_email": member.Email,
 			"role":         string(role),
 		})
+		*/
 	})
 	if err != nil {
 		return nil, err

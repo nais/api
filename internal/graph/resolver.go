@@ -142,6 +142,7 @@ type Resolver struct {
 	tenantDomain          string
 	userSync              chan<- uuid.UUID
 	auditLogger           auditlogger.AuditLogger
+	// TODO - add global auditEvent...thingy here
 	userSyncRuns          *usersync.RunsHandler
 	pubsubTopic           *pubsub.Topic
 	sqlInstanceClient     *sqlinstance.Client
