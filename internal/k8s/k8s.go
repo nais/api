@@ -292,7 +292,8 @@ func externalInformerResources(externalResourceInformers []struct {
 	GroupVersion schema.GroupVersion
 	Resource     string
 	Informer     informers.GenericInformer
-}, clientSet *kubernetes.Clientset, inf *Informers, dinf dynamicinformer.DynamicSharedInformerFactory) error {
+}, clientSet *kubernetes.Clientset, inf *Informers, dinf dynamicinformer.DynamicSharedInformerFactory,
+) error {
 	for _, externalResourceInformer := range externalResourceInformers {
 		resources, err := discovery.NewDiscoveryClient(clientSet.RESTClient()).ServerResourcesForGroupVersion(externalResourceInformer.GroupVersion.String())
 		if err != nil && !strings.Contains(err.Error(), "the server could not find the requested resource") {
