@@ -4,7 +4,7 @@ DELETE FROM dependencytrack_projects T1
 WHERE   T1.created_at < T2.created_at  -- delete the older versions
     AND T1.environment = T2.environment
     AND T1.team_slug = T2.team_slug
-    AND T1.workload = T2.workload;
+    AND T1.app = T2.app;
 
 CREATE TYPE workload_type AS ENUM (
     'app',
