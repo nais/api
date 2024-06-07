@@ -250,27 +250,31 @@ func New(tenant string, cfg Config, db Database, fake bool, log logrus.FieldLogg
 			{
 				GroupVersion: kafka_nais_io_v1.GroupVersion,
 				Resource:     "topics",
-				Informer:     infs[cluster].KafkaTopic,
 			},
 			{
 				GroupVersion: aiven_io_v1alpha1.GroupVersion,
 				Resource:     "redis",
-				Informer:     infs[cluster].Redis,
 			},
 			{
 				GroupVersion: aiven_io_v1alpha1.GroupVersion,
 				Resource:     "opensearches",
-				Informer:     infs[cluster].OpenSearch,
 			},
 		}
 
 		if clientSet, ok := clientSet.(*kubernetes.Clientset); ok {
-			if err := externalInformerResources(externalResourceInformers, clientSet, dinf); err != nil {
+			if err := externalInformerResources(externalResourceInformers, clientSet, infs[cluster], dinf); err != nil {
 				return nil, err
 			}
 		} else if fake {
 			for _, externalResourceInformer := range externalResourceInformers {
-				externalResourceInformer.Informer = dinf.ForResource(externalResourceInformer.GroupVersion.WithResource(externalResourceInformer.Resource))
+				switch externalResourceInformer.Resource {
+				case "topics":
+					infs[cluster].KafkaTopic = dinf.ForResource(externalResourceInformer.GroupVersion.WithResource(externalResourceInformer.Resource))
+				case "redis":
+					infs[cluster].Redis = dinf.ForResource(externalResourceInformer.GroupVersion.WithResource(externalResourceInformer.Resource))
+				case "opensearches":
+					infs[cluster].OpenSearch = dinf.ForResource(externalResourceInformer.GroupVersion.WithResource(externalResourceInformer.Resource))
+				}
 			}
 		}
 	}
@@ -288,8 +292,7 @@ func externalInformerResources(externalResourceInformers []struct {
 	GroupVersion schema.GroupVersion
 	Resource     string
 	Informer     informers.GenericInformer
-}, clientSet *kubernetes.Clientset, dinf dynamicinformer.DynamicSharedInformerFactory,
-) error {
+}, clientSet *kubernetes.Clientset, inf *Informers, dinf dynamicinformer.DynamicSharedInformerFactory) error {
 	for _, externalResourceInformer := range externalResourceInformers {
 		resources, err := discovery.NewDiscoveryClient(clientSet.RESTClient()).ServerResourcesForGroupVersion(externalResourceInformer.GroupVersion.String())
 		if err != nil && !strings.Contains(err.Error(), "the server could not find the requested resource") {
@@ -300,7 +303,14 @@ func externalInformerResources(externalResourceInformers []struct {
 				if r.Name != externalResourceInformer.Resource {
 					continue
 				}
-				externalResourceInformer.Informer = dinf.ForResource(externalResourceInformer.GroupVersion.WithResource(externalResourceInformer.Resource))
+				switch externalResourceInformer.Resource {
+				case "topics":
+					inf.KafkaTopic = dinf.ForResource(externalResourceInformer.GroupVersion.WithResource(externalResourceInformer.Resource))
+				case "redis":
+					inf.Redis = dinf.ForResource(externalResourceInformer.GroupVersion.WithResource(externalResourceInformer.Resource))
+				case "opensearches":
+					inf.OpenSearch = dinf.ForResource(externalResourceInformer.GroupVersion.WithResource(externalResourceInformer.Resource))
+				}
 			}
 		}
 	}
