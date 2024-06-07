@@ -1589,11 +1589,11 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
 	}
 
-	instances := make([]*dependencytrack.AppInstance, 0)
+	instances := make([]*dependencytrack.WorkloadInstance, 0)
 	for _, app := range apps {
-		instances = append(instances, &dependencytrack.AppInstance{
+		instances = append(instances, &dependencytrack.WorkloadInstance{
 			Env:   app.Env.Name,
-			App:   app.Name,
+			Name:  app.Name,
 			Image: app.Image,
 			Team:  obj.Slug.String(),
 		})

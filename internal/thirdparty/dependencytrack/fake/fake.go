@@ -30,22 +30,17 @@ func New(log logrus.FieldLogger) *FakeDependencytrackClient {
 
 var mapOfApps = map[string]uuid.UUID{}
 
-func (f *FakeDependencytrackClient) VulnerabilitySummary(ctx context.Context, app *dependencytrack.AppInstance) (*model.Vulnerability, error) {
+func (f *FakeDependencytrackClient) VulnerabilitySummary(ctx context.Context, app *dependencytrack.WorkloadInstance) (*model.Vulnerability, error) {
 	f.setCacheEntryForApp(app)
 	return f.client.VulnerabilitySummary(ctx, app)
 }
 
-func (f *FakeDependencytrackClient) GetVulnerabilities(ctx context.Context, apps []*dependencytrack.AppInstance, filters ...dependencytrack.Filter) ([]*model.Vulnerability, error) {
+func (f *FakeDependencytrackClient) GetVulnerabilities(ctx context.Context, apps []*dependencytrack.WorkloadInstance, filters ...dependencytrack.Filter) ([]*model.Vulnerability, error) {
 	for _, app := range apps {
 		f.setCacheEntryForApp(app)
 	}
 	return f.client.GetVulnerabilities(ctx, apps, filters...)
 }
-
-/*func (f *FakeDependencytrackClient) GetFindingsForImage(ctx context.Context, app *dependencytrack.AppInstance) (*model.Image, error) {
-	f.setCacheEntryForApp(app)
-	return f.client.GetFindingsForImage(ctx, app)
-}*/
 
 func (f *FakeDependencytrackClient) GetFindingsForImageByProjectID(ctx context.Context, projectID string, suppressed bool) ([]*model.Finding, error) {
 	return f.client.GetFindingsForImageByProjectID(ctx, projectID, suppressed)
@@ -75,7 +70,7 @@ func (f *FakeDependencytrackClient) GetMetadataForImage(ctx context.Context, nam
 	return f.client.GetMetadataForImage(ctx, name)
 }
 
-func (f *FakeDependencytrackClient) GetProjectMetrics(ctx context.Context, app *dependencytrack.AppInstance, date string) (*dependencytrack.ProjectMetric, error) {
+func (f *FakeDependencytrackClient) GetProjectMetrics(ctx context.Context, app *dependencytrack.WorkloadInstance, date string) (*dependencytrack.ProjectMetric, error) {
 	id, ok := mapOfApps[app.ID()]
 	if !ok {
 		id = uuid.New()
@@ -105,10 +100,10 @@ func (f *FakeDependencytrackClient) GetProjectMetrics(ctx context.Context, app *
 	}, nil
 }
 
-func (f *FakeDependencytrackClient) setCacheEntryForApp(app *dependencytrack.AppInstance) {
+func (f *FakeDependencytrackClient) setCacheEntryForApp(app *dependencytrack.WorkloadInstance) {
 	v := &model.Vulnerability{
 		ID:           scalar.VulnerabilitiesIdent(app.ID()),
-		AppName:      app.App,
+		AppName:      app.Name,
 		Env:          app.Env,
 		FindingsLink: "https://dependencytrack.example.com",
 	}

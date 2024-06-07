@@ -22,16 +22,16 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
-type AppInstance struct {
-	Env, Team, App, Image string
+type WorkloadInstance struct {
+	Env, Team, Name, Image, Kind string
 }
 
-func (a *AppInstance) ID() string {
-	return fmt.Sprintf("%s:%s:%s:%s", a.Env, a.Team, a.App, a.Image)
+func (a *WorkloadInstance) ID() string {
+	return fmt.Sprintf("%s:%s:%s:%s", a.Env, a.Team, a.Name, a.Image)
 }
 
-func (a *AppInstance) ProjectName() string {
-	return fmt.Sprintf("%s:%s:%s", a.Env, a.Team, a.App)
+func (a *WorkloadInstance) ProjectName() string {
+	return fmt.Sprintf("%s:%s:%s", a.Env, a.Team, a.Name)
 }
 
 type ProjectMetric struct {
@@ -96,10 +96,10 @@ func (c *Client) WithCache(cache *cache.Cache) *Client {
 	return c
 }
 
-func (c *Client) GetProjectMetrics(ctx context.Context, app *AppInstance, date string) (*ProjectMetric, error) {
-	p, err := c.retrieveProject(ctx, app)
+func (c *Client) GetProjectMetrics(ctx context.Context, instance *WorkloadInstance, date string) (*ProjectMetric, error) {
+	p, err := c.retrieveProject(ctx, instance)
 	if err != nil {
-		return nil, fmt.Errorf("getting project by app %s: %w", app.ID(), err)
+		return nil, fmt.Errorf("getting project by workload %s: %w", instance.ID(), err)
 	}
 	if p == nil {
 		return nil, nil
@@ -141,8 +141,8 @@ func (c *Client) GetProjectMetrics(ctx context.Context, app *AppInstance, date s
 	}, nil
 }
 
-func (c *Client) VulnerabilitySummary(ctx context.Context, app *AppInstance) (*model.Vulnerability, error) {
-	return c.findingsForApp(ctx, app)
+func (c *Client) VulnerabilitySummary(ctx context.Context, instance *WorkloadInstance) (*model.Vulnerability, error) {
+	return c.findingsForWorkload(ctx, instance)
 }
 
 type Filter = func(vulnerability *model.Vulnerability) bool
@@ -153,29 +153,29 @@ func RequireSbom() Filter {
 	}
 }
 
-func (c *Client) GetVulnerabilities(ctx context.Context, apps []*AppInstance, filters ...Filter) ([]*model.Vulnerability, error) {
+func (c *Client) GetVulnerabilities(ctx context.Context, instances []*WorkloadInstance, filters ...Filter) ([]*model.Vulnerability, error) {
 	now := time.Now()
 	nodes := make([]*model.Vulnerability, 0)
 	lock := sync.Mutex{}
 	p := pool.New().WithMaxGoroutines(10)
-	for _, app := range apps {
+	for _, instance := range instances {
 		p.Go(func() {
-			appVulnNode, err := c.findingsForApp(ctx, app)
+			instanceVulnNode, err := c.findingsForWorkload(ctx, instance)
 			if err != nil {
-				c.log.Errorf("retrieveFindings for app %q: %v", app.ID(), err)
+				c.log.Errorf("retrieveFindings for workload %q: %v", instance.ID(), err)
 				return
 			}
-			if appVulnNode == nil {
-				c.log.Debugf("no findings found in DependencyTrack for app %q", app.ID())
+			if instanceVulnNode == nil {
+				c.log.Debugf("no findings found in DependencyTrack for workload %q", instance.ID())
 				return
 			}
 			for _, f := range filters {
-				if !f(appVulnNode) {
+				if !f(instanceVulnNode) {
 					return
 				}
 			}
 			lock.Lock()
-			nodes = append(nodes, appVulnNode)
+			nodes = append(nodes, instanceVulnNode)
 			lock.Unlock()
 		})
 	}
@@ -184,20 +184,20 @@ func (c *Client) GetVulnerabilities(ctx context.Context, apps []*AppInstance, fi
 	return nodes, nil
 }
 
-func (c *Client) findingsForApp(ctx context.Context, app *AppInstance) (*model.Vulnerability, error) {
-	if v, ok := c.cache.Get(app.ID()); ok {
+func (c *Client) findingsForWorkload(ctx context.Context, instance *WorkloadInstance) (*model.Vulnerability, error) {
+	if v, ok := c.cache.Get(instance.ID()); ok {
 		return v.(*model.Vulnerability), nil
 	}
 
 	v := &model.Vulnerability{
-		ID:      scalar.VulnerabilitiesIdent(app.ID()),
-		AppName: app.App,
-		Env:     app.Env,
+		ID:      scalar.VulnerabilitiesIdent(instance.ID()),
+		AppName: instance.Name,
+		Env:     instance.Env,
 	}
 
-	p, err := c.retrieveProject(ctx, app)
+	p, err := c.retrieveProject(ctx, instance)
 	if err != nil {
-		return nil, fmt.Errorf("getting project by app %s: %w", app.ID(), err)
+		return nil, fmt.Errorf("getting project by instance %s: %w", instance.ID(), err)
 	}
 	if p == nil {
 		return v, nil
@@ -212,13 +212,13 @@ func (c *Client) findingsForApp(ctx context.Context, app *AppInstance) (*model.V
 	if !v.HasBom {
 		c.log.Debugf("no bom found in DependencyTrack for project %s", p.Name)
 		v.Summary = c.createSummaryForTeam(p, v.HasBom)
-		c.cache.Set(app.ID(), v, cache.DefaultExpiration)
+		c.cache.Set(instance.ID(), v, cache.DefaultExpiration)
 		return v, nil
 	}
 
 	v.Summary = c.createSummaryForTeam(p, v.HasBom)
 
-	c.cache.Set(app.ID(), v, cache.DefaultExpiration)
+	c.cache.Set(instance.ID(), v, cache.DefaultExpiration)
 	return v, nil
 }
 
@@ -297,9 +297,9 @@ func (c *Client) retrieveProjectsForTeam(ctx context.Context, team string) ([]*d
 	return projects, nil
 }
 
-func (c *Client) retrieveProject(ctx context.Context, app *AppInstance) (*dependencytrack.Project, error) {
-	appImageTag := dependencytrack.ImageTagPrefix.With(app.Image)
-	tag := url.QueryEscape(appImageTag)
+func (c *Client) retrieveProject(ctx context.Context, instance *WorkloadInstance) (*dependencytrack.Project, error) {
+	instanceImageTag := dependencytrack.ImageTagPrefix.With(instance.Image)
+	tag := url.QueryEscape(instanceImageTag)
 	projects, err := c.client.GetProjectsByTag(ctx, tag)
 	if err != nil {
 		return nil, fmt.Errorf("getting projects from DependencyTrack: %w", err)
@@ -311,7 +311,7 @@ func (c *Client) retrieveProject(ctx context.Context, app *AppInstance) (*depend
 
 	var p *dependencytrack.Project
 	for _, project := range projects {
-		if containsAllTags(project.Tags, dependencytrack.WorkloadTagPrefix.With(app.Env+"|"+app.Team+"|app|"+app.App)) {
+		if containsAllTags(project.Tags, instanceImageTag) {
 			p = project
 			break
 		}

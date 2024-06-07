@@ -665,27 +665,28 @@ type ComplexityRoot struct {
 	}
 
 	NaisJob struct {
-		AccessPolicy func(childComplexity int) int
-		Authz        func(childComplexity int) int
-		Completions  func(childComplexity int) int
-		DeployInfo   func(childComplexity int) int
-		Env          func(childComplexity int) int
-		ID           func(childComplexity int) int
-		Image        func(childComplexity int) int
-		ImageDetails func(childComplexity int) int
-		Manifest     func(childComplexity int) int
-		Name         func(childComplexity int) int
-		Parallelism  func(childComplexity int) int
-		Persistence  func(childComplexity int) int
-		Resources    func(childComplexity int) int
-		Retries      func(childComplexity int) int
-		Runs         func(childComplexity int) int
-		Schedule     func(childComplexity int) int
-		Secrets      func(childComplexity int) int
-		Status       func(childComplexity int) int
-		Team         func(childComplexity int) int
-		Type         func(childComplexity int) int
-		Variables    func(childComplexity int) int
+		AccessPolicy    func(childComplexity int) int
+		Authz           func(childComplexity int) int
+		Completions     func(childComplexity int) int
+		DeployInfo      func(childComplexity int) int
+		Env             func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Image           func(childComplexity int) int
+		ImageDetails    func(childComplexity int) int
+		Manifest        func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Parallelism     func(childComplexity int) int
+		Persistence     func(childComplexity int) int
+		Resources       func(childComplexity int) int
+		Retries         func(childComplexity int) int
+		Runs            func(childComplexity int) int
+		Schedule        func(childComplexity int) int
+		Secrets         func(childComplexity int) int
+		Status          func(childComplexity int) int
+		Team            func(childComplexity int) int
+		Type            func(childComplexity int) int
+		Variables       func(childComplexity int) int
+		Vulnerabilities func(childComplexity int) int
 	}
 
 	NaisJobList struct {
@@ -1357,6 +1358,7 @@ type NaisJobResolver interface {
 	Persistence(ctx context.Context, obj *model.NaisJob) ([]model.Persistence, error)
 
 	Secrets(ctx context.Context, obj *model.NaisJob) ([]*model.Secret, error)
+	Vulnerabilities(ctx context.Context, obj *model.NaisJob) (*model.Vulnerability, error)
 }
 type OpenSearchResolver interface {
 	Access(ctx context.Context, obj *model.OpenSearch) ([]*model.OpenSearchInstanceAccess, error)
@@ -4275,6 +4277,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.NaisJob.Variables(childComplexity), true
+
+	case "NaisJob.vulnerabilities":
+		if e.complexity.NaisJob.Vulnerabilities == nil {
+			break
+		}
+
+		return e.complexity.NaisJob.Vulnerabilities(childComplexity), true
 
 	case "NaisJobList.nodes":
 		if e.complexity.NaisJobList.Nodes == nil {
@@ -7973,6 +7982,7 @@ type NaisJob implements Workload {
   parallelism: Int!
   retries: Int!
   secrets: [Secret!]!
+  vulnerabilities: Vulnerability
 }
 
 type NaisJobList {
@@ -31351,6 +31361,61 @@ func (ec *executionContext) fieldContext_NaisJob_secrets(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _NaisJob_vulnerabilities(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NaisJob_vulnerabilities(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.NaisJob().Vulnerabilities(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Vulnerability)
+	fc.Result = res
+	return ec.marshalOVulnerability2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerability(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NaisJob_vulnerabilities(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NaisJob",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Vulnerability_id(ctx, field)
+			case "appName":
+				return ec.fieldContext_Vulnerability_appName(ctx, field)
+			case "env":
+				return ec.fieldContext_Vulnerability_env(ctx, field)
+			case "findingsLink":
+				return ec.fieldContext_Vulnerability_findingsLink(ctx, field)
+			case "summary":
+				return ec.fieldContext_Vulnerability_summary(ctx, field)
+			case "hasBom":
+				return ec.fieldContext_Vulnerability_hasBom(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Vulnerability", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _NaisJobList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.NaisJobList) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_NaisJobList_nodes(ctx, field)
 	if err != nil {
@@ -31432,6 +31497,8 @@ func (ec *executionContext) fieldContext_NaisJobList_nodes(ctx context.Context, 
 				return ec.fieldContext_NaisJob_retries(ctx, field)
 			case "secrets":
 				return ec.fieldContext_NaisJob_secrets(ctx, field)
+			case "vulnerabilities":
+				return ec.fieldContext_NaisJob_vulnerabilities(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type NaisJob", field.Name)
 		},
@@ -33537,6 +33604,8 @@ func (ec *executionContext) fieldContext_Query_naisjob(ctx context.Context, fiel
 				return ec.fieldContext_NaisJob_retries(ctx, field)
 			case "secrets":
 				return ec.fieldContext_NaisJob_secrets(ctx, field)
+			case "vulnerabilities":
+				return ec.fieldContext_NaisJob_vulnerabilities(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type NaisJob", field.Name)
 		},
@@ -39898,6 +39967,8 @@ func (ec *executionContext) fieldContext_Secret_jobs(ctx context.Context, field 
 				return ec.fieldContext_NaisJob_retries(ctx, field)
 			case "secrets":
 				return ec.fieldContext_NaisJob_secrets(ctx, field)
+			case "vulnerabilities":
+				return ec.fieldContext_NaisJob_vulnerabilities(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type NaisJob", field.Name)
 		},
@@ -57960,6 +58031,39 @@ func (ec *executionContext) _NaisJob(ctx context.Context, sel ast.SelectionSet, 
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "vulnerabilities":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._NaisJob_vulnerabilities(ctx, field, obj)
 				return res
 			}
 

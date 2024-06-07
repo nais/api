@@ -49,7 +49,7 @@ func (r *appResolver) Team(ctx context.Context, obj *model.App) (*model.Team, er
 }
 
 func (r *appResolver) Vulnerabilities(ctx context.Context, obj *model.App) (*model.Vulnerability, error) {
-	return r.dependencyTrackClient.VulnerabilitySummary(ctx, &dependencytrack.AppInstance{Env: obj.Env.Name, Team: obj.GQLVars.Team.String(), App: obj.Name, Image: obj.Image})
+	return r.dependencyTrackClient.VulnerabilitySummary(ctx, &dependencytrack.WorkloadInstance{Env: obj.Env.Name, Team: obj.GQLVars.Team.String(), Name: obj.Name, Image: obj.Image, Kind: "app"})
 }
 
 func (r *appResolver) Secrets(ctx context.Context, obj *model.App) ([]*model.Secret, error) {
