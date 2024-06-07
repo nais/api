@@ -245,7 +245,6 @@ func New(tenant string, cfg Config, db Database, fake bool, log logrus.FieldLogg
 		externalResourceInformers := []struct {
 			GroupVersion schema.GroupVersion
 			Resource     string
-			Informer     informers.GenericInformer
 		}{
 			{
 				GroupVersion: kafka_nais_io_v1.GroupVersion,
@@ -291,7 +290,6 @@ func New(tenant string, cfg Config, db Database, fake bool, log logrus.FieldLogg
 func externalInformerResources(externalResourceInformers []struct {
 	GroupVersion schema.GroupVersion
 	Resource     string
-	Informer     informers.GenericInformer
 }, clientSet *kubernetes.Clientset, inf *Informers, dinf dynamicinformer.DynamicSharedInformerFactory,
 ) error {
 	for _, externalResourceInformer := range externalResourceInformers {
