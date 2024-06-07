@@ -27,7 +27,7 @@ type WorkloadInstance struct {
 }
 
 func (a *WorkloadInstance) ID() string {
-	return fmt.Sprintf("%s:%s:%s:%s", a.Env, a.Team, a.Name, a.Image)
+	return fmt.Sprintf("%s:%s:%s:%s:%s", a.Env, a.Team, a.Name, a.Kind, a.Image)
 }
 
 func (a *WorkloadInstance) ProjectName() string {
