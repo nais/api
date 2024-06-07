@@ -119,9 +119,8 @@ type HookdClient interface {
 }
 
 type DependencytrackClient interface {
-	VulnerabilitySummary(ctx context.Context, app *dependencytrack.AppInstance) (*model.Vulnerability, error)
-	GetVulnerabilities(ctx context.Context, apps []*dependencytrack.AppInstance, filters ...dependencytrack.Filter) ([]*model.Vulnerability, error)
-	/*GetFindingsForImage(ctx context.Context, app *dependencytrack.AppInstance) (*model.Image, error)*/
+	VulnerabilitySummary(ctx context.Context, app *dependencytrack.WorkloadInstance) (*model.Vulnerability, error)
+	GetVulnerabilities(ctx context.Context, apps []*dependencytrack.WorkloadInstance, filters ...dependencytrack.Filter) ([]*model.Vulnerability, error)
 	GetMetadataForImageByProjectID(ctx context.Context, projectID string) (*model.ImageDetails, error)
 	GetMetadataForImage(ctx context.Context, image string) (*model.ImageDetails, error)
 	GetFindingsForImageByProjectID(ctx context.Context, projectID string, suppressed bool) ([]*model.Finding, error)

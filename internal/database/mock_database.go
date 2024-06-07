@@ -6524,65 +6524,6 @@ func (_c *MockDatabase_UserIsTeamOwner_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
-// VulnerabilityMetricsDateRangeForTeam provides a mock function with given fields: ctx, teamSlug
-func (_m *MockDatabase) VulnerabilityMetricsDateRangeForTeam(ctx context.Context, teamSlug slug.Slug) (*gensql.VulnerabilityMetricsDateRangeForTeamRow, error) {
-	ret := _m.Called(ctx, teamSlug)
-
-	if len(ret) == 0 {
-		panic("no return value specified for VulnerabilityMetricsDateRangeForTeam")
-	}
-
-	var r0 *gensql.VulnerabilityMetricsDateRangeForTeamRow
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (*gensql.VulnerabilityMetricsDateRangeForTeamRow, error)); ok {
-		return rf(ctx, teamSlug)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) *gensql.VulnerabilityMetricsDateRangeForTeamRow); ok {
-		r0 = rf(ctx, teamSlug)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*gensql.VulnerabilityMetricsDateRangeForTeamRow)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
-		r1 = rf(ctx, teamSlug)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VulnerabilityMetricsDateRangeForTeam'
-type MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call struct {
-	*mock.Call
-}
-
-// VulnerabilityMetricsDateRangeForTeam is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-func (_e *MockDatabase_Expecter) VulnerabilityMetricsDateRangeForTeam(ctx interface{}, teamSlug interface{}) *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call {
-	return &MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call{Call: _e.mock.On("VulnerabilityMetricsDateRangeForTeam", ctx, teamSlug)}
-}
-
-func (_c *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call) Return(_a0 *gensql.VulnerabilityMetricsDateRangeForTeamRow, _a1 error) *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug) (*gensql.VulnerabilityMetricsDateRangeForTeamRow, error)) *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // VulnerabilityMetricsDateRangeForTeamAndEnvironment provides a mock function with given fields: ctx, fromDate, toDate, teamSlug, environment
 func (_m *MockDatabase) VulnerabilityMetricsDateRangeForTeamAndEnvironment(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug, environment string) ([]*gensql.DailyVulnerabilityForTeamAndEnvironmentRow, error) {
 	ret := _m.Called(ctx, fromDate, toDate, teamSlug, environment)
@@ -6645,9 +6586,9 @@ func (_c *MockDatabase_VulnerabilityMetricsDateRangeForTeamAndEnvironment_Call) 
 	return _c
 }
 
-// VulnerabilityMetricsMaxDate provides a mock function with given fields: ctx, environment, app, teamSlug
-func (_m *MockDatabase) VulnerabilityMetricsMaxDate(ctx context.Context, environment string, app string, teamSlug slug.Slug) (pgtype.Date, error) {
-	ret := _m.Called(ctx, environment, app, teamSlug)
+// VulnerabilityMetricsMaxDate provides a mock function with given fields: ctx, environment, workload, workloadType, teamSlug
+func (_m *MockDatabase) VulnerabilityMetricsMaxDate(ctx context.Context, environment string, workload string, workloadType gensql.WorkloadType, teamSlug slug.Slug) (pgtype.Date, error) {
+	ret := _m.Called(ctx, environment, workload, workloadType, teamSlug)
 
 	if len(ret) == 0 {
 		panic("no return value specified for VulnerabilityMetricsMaxDate")
@@ -6655,17 +6596,17 @@ func (_m *MockDatabase) VulnerabilityMetricsMaxDate(ctx context.Context, environ
 
 	var r0 pgtype.Date
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, slug.Slug) (pgtype.Date, error)); ok {
-		return rf(ctx, environment, app, teamSlug)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, gensql.WorkloadType, slug.Slug) (pgtype.Date, error)); ok {
+		return rf(ctx, environment, workload, workloadType, teamSlug)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, slug.Slug) pgtype.Date); ok {
-		r0 = rf(ctx, environment, app, teamSlug)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, gensql.WorkloadType, slug.Slug) pgtype.Date); ok {
+		r0 = rf(ctx, environment, workload, workloadType, teamSlug)
 	} else {
 		r0 = ret.Get(0).(pgtype.Date)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, slug.Slug) error); ok {
-		r1 = rf(ctx, environment, app, teamSlug)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, gensql.WorkloadType, slug.Slug) error); ok {
+		r1 = rf(ctx, environment, workload, workloadType, teamSlug)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -6681,15 +6622,16 @@ type MockDatabase_VulnerabilityMetricsMaxDate_Call struct {
 // VulnerabilityMetricsMaxDate is a helper method to define mock.On call
 //   - ctx context.Context
 //   - environment string
-//   - app string
+//   - workload string
+//   - workloadType gensql.WorkloadType
 //   - teamSlug slug.Slug
-func (_e *MockDatabase_Expecter) VulnerabilityMetricsMaxDate(ctx interface{}, environment interface{}, app interface{}, teamSlug interface{}) *MockDatabase_VulnerabilityMetricsMaxDate_Call {
-	return &MockDatabase_VulnerabilityMetricsMaxDate_Call{Call: _e.mock.On("VulnerabilityMetricsMaxDate", ctx, environment, app, teamSlug)}
+func (_e *MockDatabase_Expecter) VulnerabilityMetricsMaxDate(ctx interface{}, environment interface{}, workload interface{}, workloadType interface{}, teamSlug interface{}) *MockDatabase_VulnerabilityMetricsMaxDate_Call {
+	return &MockDatabase_VulnerabilityMetricsMaxDate_Call{Call: _e.mock.On("VulnerabilityMetricsMaxDate", ctx, environment, workload, workloadType, teamSlug)}
 }
 
-func (_c *MockDatabase_VulnerabilityMetricsMaxDate_Call) Run(run func(ctx context.Context, environment string, app string, teamSlug slug.Slug)) *MockDatabase_VulnerabilityMetricsMaxDate_Call {
+func (_c *MockDatabase_VulnerabilityMetricsMaxDate_Call) Run(run func(ctx context.Context, environment string, workload string, workloadType gensql.WorkloadType, teamSlug slug.Slug)) *MockDatabase_VulnerabilityMetricsMaxDate_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(slug.Slug))
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(gensql.WorkloadType), args[4].(slug.Slug))
 	})
 	return _c
 }
@@ -6699,7 +6641,7 @@ func (_c *MockDatabase_VulnerabilityMetricsMaxDate_Call) Return(_a0 pgtype.Date,
 	return _c
 }
 
-func (_c *MockDatabase_VulnerabilityMetricsMaxDate_Call) RunAndReturn(run func(context.Context, string, string, slug.Slug) (pgtype.Date, error)) *MockDatabase_VulnerabilityMetricsMaxDate_Call {
+func (_c *MockDatabase_VulnerabilityMetricsMaxDate_Call) RunAndReturn(run func(context.Context, string, string, gensql.WorkloadType, slug.Slug) (pgtype.Date, error)) *MockDatabase_VulnerabilityMetricsMaxDate_Call {
 	_c.Call.Return(run)
 	return _c
 }
