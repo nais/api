@@ -153,8 +153,6 @@ type Querier interface {
 	UpsertReconcilerConfig(ctx context.Context, arg UpsertReconcilerConfigParams) error
 	UpsertReconcilerState(ctx context.Context, arg UpsertReconcilerStateParams) (*ReconcilerState, error)
 	UpsertTeamEnvironment(ctx context.Context, arg UpsertTeamEnvironmentParams) (*TeamEnvironment, error)
-	// VulnerabilityMetricsDateRangeForTeam will return the first and last date that has a metrics.
-	VulnerabilityMetricsDateRangeForTeam(ctx context.Context, teamSlug slug.Slug) (*VulnerabilityMetricsDateRangeForTeamRow, error)
 	// VulnerabilityMetricsMaxDate will return the last date that has a metrics for the given project id.
 	VulnerabilityMetricsMaxDate(ctx context.Context, arg VulnerabilityMetricsMaxDateParams) (pgtype.Date, error)
 	VulnerabilityMetricsUpsert(ctx context.Context, arg []VulnerabilityMetricsUpsertParams) *VulnerabilityMetricsUpsertBatchResults

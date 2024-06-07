@@ -1007,10 +1007,6 @@ type VulnerabilityMetric struct {
 }
 
 type VulnerabilityMetrics struct {
-	// The minimum date for the metrics available in the database.
-	MinDate *scalar.Date `json:"minDate,omitempty"`
-	// The maximum date for the metrics available in the database.
-	MaxDate *scalar.Date `json:"maxDate,omitempty"`
 	// The metrics for the team's applications.
 	Data []*VulnerabilityMetric `json:"data"`
 }
