@@ -18,7 +18,7 @@ type AuditLogger interface {
 }
 
 type auditLogger struct {
-	db  database.Database
+	db  database.AuditLogsRepo
 	log logrus.FieldLogger
 }
 
@@ -44,7 +44,7 @@ type Entry struct {
 	Message string
 }
 
-func New(db database.Database, log logrus.FieldLogger) AuditLogger {
+func New(db database.AuditLogsRepo, log logrus.FieldLogger) AuditLogger {
 	return &auditLogger{
 		db:  db,
 		log: log,

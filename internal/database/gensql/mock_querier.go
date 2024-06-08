@@ -1050,6 +1050,53 @@ func (_c *MockQuerier_CreateUser_Call) RunAndReturn(run func(context.Context, Cr
 	return _c
 }
 
+// CreateUsersyncRun provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) CreateUsersyncRun(ctx context.Context, arg CreateUsersyncRunParams) error {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateUsersyncRun")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, CreateUsersyncRunParams) error); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockQuerier_CreateUsersyncRun_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateUsersyncRun'
+type MockQuerier_CreateUsersyncRun_Call struct {
+	*mock.Call
+}
+
+// CreateUsersyncRun is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg CreateUsersyncRunParams
+func (_e *MockQuerier_Expecter) CreateUsersyncRun(ctx interface{}, arg interface{}) *MockQuerier_CreateUsersyncRun_Call {
+	return &MockQuerier_CreateUsersyncRun_Call{Call: _e.mock.On("CreateUsersyncRun", ctx, arg)}
+}
+
+func (_c *MockQuerier_CreateUsersyncRun_Call) Run(run func(ctx context.Context, arg CreateUsersyncRunParams)) *MockQuerier_CreateUsersyncRun_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(CreateUsersyncRunParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_CreateUsersyncRun_Call) Return(_a0 error) *MockQuerier_CreateUsersyncRun_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockQuerier_CreateUsersyncRun_Call) RunAndReturn(run func(context.Context, CreateUsersyncRunParams) error) *MockQuerier_CreateUsersyncRun_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CurrentSqlInstancesCostForTeam provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) CurrentSqlInstancesCostForTeam(ctx context.Context, arg CurrentSqlInstancesCostForTeamParams) (float32, error) {
 	ret := _m.Called(ctx, arg)
@@ -4827,6 +4874,121 @@ func (_c *MockQuerier_GetUsersWithGloballyAssignedRole_Call) Return(_a0 []*User,
 }
 
 func (_c *MockQuerier_GetUsersWithGloballyAssignedRole_Call) RunAndReturn(run func(context.Context, RoleName) ([]*User, error)) *MockQuerier_GetUsersWithGloballyAssignedRole_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetUsersyncRuns provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetUsersyncRuns(ctx context.Context, arg GetUsersyncRunsParams) ([]*UsersyncRun, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUsersyncRuns")
+	}
+
+	var r0 []*UsersyncRun
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, GetUsersyncRunsParams) ([]*UsersyncRun, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, GetUsersyncRunsParams) []*UsersyncRun); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*UsersyncRun)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, GetUsersyncRunsParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetUsersyncRuns_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUsersyncRuns'
+type MockQuerier_GetUsersyncRuns_Call struct {
+	*mock.Call
+}
+
+// GetUsersyncRuns is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg GetUsersyncRunsParams
+func (_e *MockQuerier_Expecter) GetUsersyncRuns(ctx interface{}, arg interface{}) *MockQuerier_GetUsersyncRuns_Call {
+	return &MockQuerier_GetUsersyncRuns_Call{Call: _e.mock.On("GetUsersyncRuns", ctx, arg)}
+}
+
+func (_c *MockQuerier_GetUsersyncRuns_Call) Run(run func(ctx context.Context, arg GetUsersyncRunsParams)) *MockQuerier_GetUsersyncRuns_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(GetUsersyncRunsParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetUsersyncRuns_Call) Return(_a0 []*UsersyncRun, _a1 error) *MockQuerier_GetUsersyncRuns_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetUsersyncRuns_Call) RunAndReturn(run func(context.Context, GetUsersyncRunsParams) ([]*UsersyncRun, error)) *MockQuerier_GetUsersyncRuns_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetUsersyncRunsCount provides a mock function with given fields: ctx
+func (_m *MockQuerier) GetUsersyncRunsCount(ctx context.Context) (int64, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUsersyncRunsCount")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (int64, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) int64); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetUsersyncRunsCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUsersyncRunsCount'
+type MockQuerier_GetUsersyncRunsCount_Call struct {
+	*mock.Call
+}
+
+// GetUsersyncRunsCount is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockQuerier_Expecter) GetUsersyncRunsCount(ctx interface{}) *MockQuerier_GetUsersyncRunsCount_Call {
+	return &MockQuerier_GetUsersyncRunsCount_Call{Call: _e.mock.On("GetUsersyncRunsCount", ctx)}
+}
+
+func (_c *MockQuerier_GetUsersyncRunsCount_Call) Run(run func(ctx context.Context)) *MockQuerier_GetUsersyncRunsCount_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetUsersyncRunsCount_Call) Return(_a0 int64, _a1 error) *MockQuerier_GetUsersyncRunsCount_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetUsersyncRunsCount_Call) RunAndReturn(run func(context.Context) (int64, error)) *MockQuerier_GetUsersyncRunsCount_Call {
 	_c.Call.Return(run)
 	return _c
 }
