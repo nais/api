@@ -18,31 +18,31 @@ func TestClient_GetVulnerabilities(t *testing.T) {
 	log := logrus.New().WithField("test", "dependencytrack")
 	ctx := context.Background()
 
-	defaultInput := []*AppInstance{
+	defaultInput := []*WorkloadInstance{
 		{
 			Env:   "dev",
 			Team:  "team1",
-			App:   "app1",
+			Name:  "app1",
 			Image: "test/image:latest",
 		},
 		{
 			Env:   "dev",
 			Team:  "team1",
-			App:   "app2",
+			Name:  "app2",
 			Image: "test/image:latest",
 		},
 	}
 
 	tt := []struct {
 		name   string
-		input  []*AppInstance
-		expect func(input []*AppInstance, mock *MockInternalClient)
+		input  []*WorkloadInstance
+		expect func(input []*WorkloadInstance, mock *MockInternalClient)
 		assert func(t *testing.T, v []*model.Vulnerability, err error)
 	}{
 		{
 			name:  "should return list with summary null if no apps have a project",
 			input: defaultInput,
-			expect: func(input []*AppInstance, mock *MockInternalClient) {
+			expect: func(input []*WorkloadInstance, mock *MockInternalClient) {
 				mock.EXPECT().
 					GetProjectsByTag(ctx, url.QueryEscape("image:test/image:latest")).Return([]*dependencytrack.Project{}, nil)
 			},
@@ -55,21 +55,21 @@ func TestClient_GetVulnerabilities(t *testing.T) {
 		},
 		{
 			name: "list of appinstance should be equal lenght to list of vulnerabilities even though some apps have no project",
-			input: []*AppInstance{
+			input: []*WorkloadInstance{
 				{
 					Env:   "dev",
 					Team:  "team1",
-					App:   "app1",
+					Name:  "app1",
 					Image: "test/image:latest",
 				},
 				{
 					Env:   "env:dev",
 					Team:  "team:team1",
-					App:   "app2",
+					Name:  "app2",
 					Image: "test/image:notfound",
 				},
 			},
-			expect: func(input []*AppInstance, mock *MockInternalClient) {
+			expect: func(input []*WorkloadInstance, mock *MockInternalClient) {
 				metrics := &dependencytrack.ProjectMetric{
 					Critical:      1,
 					High:          1,
@@ -103,7 +103,7 @@ func TestClient_GetVulnerabilities(t *testing.T) {
 		{
 			name:  "should return list with summaries if apps have a project",
 			input: defaultInput,
-			expect: func(input []*AppInstance, mock *MockInternalClient) {
+			expect: func(input []*WorkloadInstance, mock *MockInternalClient) {
 				ps := make([]*dependencytrack.Project, 0)
 				for _, i := range input {
 					metrics := &dependencytrack.ProjectMetric{
@@ -148,14 +148,14 @@ func TestClient_VulnerabilitySummary(t *testing.T) {
 
 	tt := []struct {
 		name   string
-		input  *AppInstance
-		expect func(input *AppInstance, mock *MockInternalClient)
+		input  *WorkloadInstance
+		expect func(input *WorkloadInstance, mock *MockInternalClient)
 		assert func(t *testing.T, v *model.Vulnerability, err error)
 	}{
 		{
 			name:  "should return nil if no bom is found",
-			input: app("dev", "team1", "app1", "test/image:latest"),
-			expect: func(input *AppInstance, mock *MockInternalClient) {
+			input: workloadInstance("dev", "team1", "app1", "test/image:latest"),
+			expect: func(input *WorkloadInstance, mock *MockInternalClient) {
 				metrics := &dependencytrack.ProjectMetric{}
 				mock.EXPECT().
 					GetProjectsByTag(ctx, url.QueryEscape("image:test/image:latest")).Return([]*dependencytrack.Project{project(metrics, input.ToTags()...)}, nil)
@@ -172,8 +172,8 @@ func TestClient_VulnerabilitySummary(t *testing.T) {
 		},
 		{
 			name:  "should return nil summary if no project is found",
-			input: app("dev", "team1", "noProject", "test/image:latest"),
-			expect: func(input *AppInstance, mock *MockInternalClient) {
+			input: workloadInstance("dev", "team1", "noProject", "test/image:latest"),
+			expect: func(input *WorkloadInstance, mock *MockInternalClient) {
 				mock.EXPECT().
 					GetProjectsByTag(ctx, url.QueryEscape("image:test/image:latest")).Return([]*dependencytrack.Project{}, nil)
 			},
@@ -184,8 +184,8 @@ func TestClient_VulnerabilitySummary(t *testing.T) {
 		},
 		{
 			name:  "should return summary with n vulnerabilities",
-			input: app("dev", "team1", "app1", "test/image:latest"),
-			expect: func(input *AppInstance, mock *MockInternalClient) {
+			input: workloadInstance("dev", "team1", "app1", "test/image:latest"),
+			expect: func(input *WorkloadInstance, mock *MockInternalClient) {
 				metrics := &dependencytrack.ProjectMetric{
 					Critical:           1,
 					High:               1,
@@ -250,14 +250,14 @@ func TestClient_GetFindingsForImage(t *testing.T) {
 
 	tt := []struct {
 		name   string
-		input  *AppInstance
-		expect func(input *AppInstance, mock *MockInternalClient)
+		input  *WorkloadInstance
+		expect func(input *WorkloadInstance, mock *MockInternalClient)
 		assert func(t *testing.T, f []*model.Finding, err error)
 	}{
 		{
 			name:  "should return findings if project is found",
-			input: app("dev", "team1", "app1", "image:latest"),
-			expect: func(input *AppInstance, mock *MockInternalClient) {
+			input: workloadInstance("dev", "team1", "app1", "image:latest"),
+			expect: func(input *WorkloadInstance, mock *MockInternalClient) {
 				p := project(&dependencytrack.ProjectMetric{}, input.ToTags()...)
 				p.LastBomImportFormat = "cyclonedx"
 
@@ -285,20 +285,21 @@ func TestClient_GetFindingsForImage(t *testing.T) {
 	}
 }
 
-func app(env, team, app, image string) *AppInstance {
-	return &AppInstance{
+func workloadInstance(env, team, app, image string) *WorkloadInstance {
+	return &WorkloadInstance{
 		Env:   env,
 		Team:  team,
-		App:   app,
+		Name:  app,
 		Image: image,
+		Kind:  "app",
 	}
 }
 
-func (a *AppInstance) ToTags() []string {
+func (a *WorkloadInstance) ToTags() []string {
 	return []string{
 		dependencytrack.EnvironmentTagPrefix.With(a.Env),
 		dependencytrack.TeamTagPrefix.With(a.Team),
-		dependencytrack.WorkloadTagPrefix.With(a.Env + "|" + a.Team + "|app|" + a.App),
+		dependencytrack.WorkloadTagPrefix.With(a.Env + "|" + a.Team + "|" + a.Kind + "|" + a.Name),
 		dependencytrack.ImageTagPrefix.With(a.Image),
 	}
 }

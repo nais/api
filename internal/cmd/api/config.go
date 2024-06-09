@@ -103,13 +103,10 @@ func (c *StaticCluster) EnvDecode(value string) error {
 	return nil
 }
 
-type userSyncConfig struct {
+type usersyncConfig struct {
 	// Enabled When set to true api will keep the user database in sync with the connected Google
 	// organization. The Google organization will be treated as the master.
 	Enabled bool `env:"USERSYNC_ENABLED"`
-
-	// RunsToPersist Number of runs to store for the userSync GraphQL query.
-	RunsToPersist int `env:"USERSYNC_RUNS_TO_PERSIST,default=5"`
 
 	// AdminGroupPrefix The prefix of the admin group email address.
 	AdminGroupPrefix string `env:"USERSYNC_ADMIN_GROUP_PREFIX,default=nais-admins"`
@@ -199,7 +196,7 @@ type Config struct {
 	GRPCListenAddress string `env:"GRPC_LISTEN_ADDRESS,default=127.0.0.1:3001"`
 
 	K8s             k8sConfig
-	UserSync        userSyncConfig
+	Usersync        usersyncConfig
 	Cost            costConfig
 	DependencyTrack dependencyTrackConfig
 	Hookd           hookdConfig

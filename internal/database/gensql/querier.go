@@ -34,6 +34,7 @@ type Querier interface {
 	CreateTeam(ctx context.Context, arg CreateTeamParams) (*Team, error)
 	CreateTeamDeleteKey(ctx context.Context, arg CreateTeamDeleteKeyParams) (*TeamDeleteKey, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (*User, error)
+	CreateUsersyncRun(ctx context.Context, arg CreateUsersyncRunParams) error
 	CurrentSqlInstancesCostForTeam(ctx context.Context, arg CurrentSqlInstancesCostForTeamParams) (float32, error)
 	// DailyCostForApp will fetch the daily cost for a specific team app in a specific environment, across all cost types
 	// in a date range.
@@ -107,6 +108,8 @@ type Querier interface {
 	GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error)
 	GetUsersCount(ctx context.Context) (int64, error)
 	GetUsersWithGloballyAssignedRole(ctx context.Context, roleName RoleName) ([]*User, error)
+	GetUsersyncRuns(ctx context.Context, arg GetUsersyncRunsParams) ([]*UsersyncRun, error)
+	GetUsersyncRunsCount(ctx context.Context) (int64, error)
 	InsertEnvironment(ctx context.Context, arg InsertEnvironmentParams) error
 	// LastCostDate will return the last date that has a cost.
 	LastCostDate(ctx context.Context) (pgtype.Date, error)
@@ -153,8 +156,6 @@ type Querier interface {
 	UpsertReconcilerConfig(ctx context.Context, arg UpsertReconcilerConfigParams) error
 	UpsertReconcilerState(ctx context.Context, arg UpsertReconcilerStateParams) (*ReconcilerState, error)
 	UpsertTeamEnvironment(ctx context.Context, arg UpsertTeamEnvironmentParams) (*TeamEnvironment, error)
-	// VulnerabilityMetricsDateRangeForTeam will return the first and last date that has a metrics.
-	VulnerabilityMetricsDateRangeForTeam(ctx context.Context, teamSlug slug.Slug) (*VulnerabilityMetricsDateRangeForTeamRow, error)
 	// VulnerabilityMetricsMaxDate will return the last date that has a metrics for the given project id.
 	VulnerabilityMetricsMaxDate(ctx context.Context, arg VulnerabilityMetricsMaxDateParams) (pgtype.Date, error)
 	VulnerabilityMetricsUpsert(ctx context.Context, arg []VulnerabilityMetricsUpsertParams) *VulnerabilityMetricsUpsertBatchResults

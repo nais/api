@@ -951,6 +951,11 @@ type UserList struct {
 	PageInfo PageInfo `json:"pageInfo"`
 }
 
+type UsersyncRunList struct {
+	Nodes    []*UsersyncRun `json:"nodes"`
+	PageInfo PageInfo       `json:"pageInfo"`
+}
+
 type Variable struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
@@ -1007,10 +1012,6 @@ type VulnerabilityMetric struct {
 }
 
 type VulnerabilityMetrics struct {
-	// The minimum date for the metrics available in the database.
-	MinDate *scalar.Date `json:"minDate,omitempty"`
-	// The maximum date for the metrics available in the database.
-	MaxDate *scalar.Date `json:"maxDate,omitempty"`
 	// The metrics for the team's applications.
 	Data []*VulnerabilityMetric `json:"data"`
 }
@@ -1536,49 +1537,46 @@ func (e TeamRole) MarshalGQL(w io.Writer) {
 }
 
 // User sync run status.
-type UserSyncRunStatus string
+type UsersyncRunStatus string
 
 const (
-	// User sync run in progress.
-	UserSyncRunStatusInProgress UserSyncRunStatus = "IN_PROGRESS"
 	// Successful user sync run.
-	UserSyncRunStatusSuccess UserSyncRunStatus = "SUCCESS"
+	UsersyncRunStatusSuccess UsersyncRunStatus = "SUCCESS"
 	// Failed user sync run.
-	UserSyncRunStatusFailure UserSyncRunStatus = "FAILURE"
+	UsersyncRunStatusFailure UsersyncRunStatus = "FAILURE"
 )
 
-var AllUserSyncRunStatus = []UserSyncRunStatus{
-	UserSyncRunStatusInProgress,
-	UserSyncRunStatusSuccess,
-	UserSyncRunStatusFailure,
+var AllUsersyncRunStatus = []UsersyncRunStatus{
+	UsersyncRunStatusSuccess,
+	UsersyncRunStatusFailure,
 }
 
-func (e UserSyncRunStatus) IsValid() bool {
+func (e UsersyncRunStatus) IsValid() bool {
 	switch e {
-	case UserSyncRunStatusInProgress, UserSyncRunStatusSuccess, UserSyncRunStatusFailure:
+	case UsersyncRunStatusSuccess, UsersyncRunStatusFailure:
 		return true
 	}
 	return false
 }
 
-func (e UserSyncRunStatus) String() string {
+func (e UsersyncRunStatus) String() string {
 	return string(e)
 }
 
-func (e *UserSyncRunStatus) UnmarshalGQL(v interface{}) error {
+func (e *UsersyncRunStatus) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = UserSyncRunStatus(str)
+	*e = UsersyncRunStatus(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid UserSyncRunStatus", str)
+		return fmt.Errorf("%s is not a valid UsersyncRunStatus", str)
 	}
 	return nil
 }
 
-func (e UserSyncRunStatus) MarshalGQL(w io.Writer) {
+func (e UsersyncRunStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

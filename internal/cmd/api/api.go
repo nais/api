@@ -36,7 +36,7 @@ import (
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
-	"github.com/nais/api/internal/usersync"
+	"github.com/nais/api/internal/vulnerability"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2/google"
@@ -161,7 +161,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 
 	auditLogger := auditlogger.New(db, log)
-	userSync := make(chan uuid.UUID, 1)
+	usersyncTrigger := make(chan uuid.UUID, 1)
 
 	pubsubClient, err := pubsub.NewClient(ctx, cfg.GoogleManagementProjectID)
 	if err != nil {
@@ -184,7 +184,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		hookdClient = hookd.New(cfg.Hookd.Endpoint, cfg.Hookd.PSK, log.WithField("client", "hookd"))
 	}
 
-	userSyncRuns := usersync.NewRunsHandler(cfg.UserSync.RunsToPersist)
 	resourceUsageClient := resourceusage.NewClient(cfg.K8s.AllClusterNames(), db, log)
 	sqlInstanceClient, err := sqlinstance.NewClient(ctx, db, k8sClient.Informers(), log)
 	if err != nil {
@@ -198,10 +197,9 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		resourceUsageClient,
 		db,
 		cfg.TenantDomain,
-		userSync,
+		usersyncTrigger,
 		auditLogger,
 		cfg.K8s.GraphClusterList(),
-		userSyncRuns,
 		pubsubTopic,
 		log,
 		sqlInstanceClient,
@@ -227,7 +225,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	wg, ctx := errgroup.WithContext(ctx)
 
 	wg.Go(func() error {
-		return runUserSync(ctx, cfg, db, log, userSync, userSyncRuns)
+		return runUsersync(ctx, cfg, db, log, usersyncTrigger)
 	})
 
 	// k8s informers

@@ -209,6 +209,64 @@ func AllRoleNameValues() []RoleName {
 	}
 }
 
+type WorkloadType string
+
+const (
+	WorkloadTypeApp     WorkloadType = "app"
+	WorkloadTypeNaisjob WorkloadType = "naisjob"
+)
+
+func (e *WorkloadType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = WorkloadType(s)
+	case string:
+		*e = WorkloadType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for WorkloadType: %T", src)
+	}
+	return nil
+}
+
+type NullWorkloadType struct {
+	WorkloadType WorkloadType
+	Valid        bool // Valid is true if WorkloadType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullWorkloadType) Scan(value interface{}) error {
+	if value == nil {
+		ns.WorkloadType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.WorkloadType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullWorkloadType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.WorkloadType), nil
+}
+
+func (e WorkloadType) Valid() bool {
+	switch e {
+	case WorkloadTypeApp,
+		WorkloadTypeNaisjob:
+		return true
+	}
+	return false
+}
+
+func AllWorkloadTypeValues() []WorkloadType {
+	return []WorkloadType{
+		WorkloadTypeApp,
+		WorkloadTypeNaisjob,
+	}
+}
+
 type AuditLog struct {
 	ID               uuid.UUID
 	CreatedAt        pgtype.Timestamptz
@@ -342,4 +400,11 @@ type UserRole struct {
 	UserID                 uuid.UUID
 	TargetTeamSlug         *slug.Slug
 	TargetServiceAccountID *uuid.UUID
+}
+
+type UsersyncRun struct {
+	ID         uuid.UUID
+	StartedAt  pgtype.Timestamptz
+	FinishedAt pgtype.Timestamptz
+	Error      *string
 }
