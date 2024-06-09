@@ -18,6 +18,8 @@ import (
 
 	slug "github.com/nais/api/internal/slug"
 
+	time "time"
+
 	uuid "github.com/google/uuid"
 )
 
@@ -1082,6 +1084,56 @@ func (_c *MockDatabase_CreateUser_Call) Return(_a0 *User, _a1 error) *MockDataba
 }
 
 func (_c *MockDatabase_CreateUser_Call) RunAndReturn(run func(context.Context, string, string, string) (*User, error)) *MockDatabase_CreateUser_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateUsersyncRun provides a mock function with given fields: ctx, id, startedAt, finishedAt, err
+func (_m *MockDatabase) CreateUsersyncRun(ctx context.Context, id uuid.UUID, startedAt time.Time, finishedAt time.Time, err error) error {
+	ret := _m.Called(ctx, id, startedAt, finishedAt, err)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateUsersyncRun")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, time.Time, time.Time, error) error); ok {
+		r0 = rf(ctx, id, startedAt, finishedAt, err)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockDatabase_CreateUsersyncRun_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateUsersyncRun'
+type MockDatabase_CreateUsersyncRun_Call struct {
+	*mock.Call
+}
+
+// CreateUsersyncRun is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id uuid.UUID
+//   - startedAt time.Time
+//   - finishedAt time.Time
+//   - err error
+func (_e *MockDatabase_Expecter) CreateUsersyncRun(ctx interface{}, id interface{}, startedAt interface{}, finishedAt interface{}, err interface{}) *MockDatabase_CreateUsersyncRun_Call {
+	return &MockDatabase_CreateUsersyncRun_Call{Call: _e.mock.On("CreateUsersyncRun", ctx, id, startedAt, finishedAt, err)}
+}
+
+func (_c *MockDatabase_CreateUsersyncRun_Call) Run(run func(ctx context.Context, id uuid.UUID, startedAt time.Time, finishedAt time.Time, err error)) *MockDatabase_CreateUsersyncRun_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(time.Time), args[3].(time.Time), args[4].(error))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_CreateUsersyncRun_Call) Return(_a0 error) *MockDatabase_CreateUsersyncRun_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockDatabase_CreateUsersyncRun_Call) RunAndReturn(run func(context.Context, uuid.UUID, time.Time, time.Time, error) error) *MockDatabase_CreateUsersyncRun_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4501,6 +4553,72 @@ func (_c *MockDatabase_GetUsersWithGloballyAssignedRole_Call) Return(_a0 []*User
 }
 
 func (_c *MockDatabase_GetUsersWithGloballyAssignedRole_Call) RunAndReturn(run func(context.Context, gensql.RoleName) ([]*User, error)) *MockDatabase_GetUsersWithGloballyAssignedRole_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetUsersyncRuns provides a mock function with given fields: ctx, p
+func (_m *MockDatabase) GetUsersyncRuns(ctx context.Context, p Page) ([]*UsersyncRun, int, error) {
+	ret := _m.Called(ctx, p)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUsersyncRuns")
+	}
+
+	var r0 []*UsersyncRun
+	var r1 int
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, Page) ([]*UsersyncRun, int, error)); ok {
+		return rf(ctx, p)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, Page) []*UsersyncRun); ok {
+		r0 = rf(ctx, p)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*UsersyncRun)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, Page) int); ok {
+		r1 = rf(ctx, p)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, Page) error); ok {
+		r2 = rf(ctx, p)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// MockDatabase_GetUsersyncRuns_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUsersyncRuns'
+type MockDatabase_GetUsersyncRuns_Call struct {
+	*mock.Call
+}
+
+// GetUsersyncRuns is a helper method to define mock.On call
+//   - ctx context.Context
+//   - p Page
+func (_e *MockDatabase_Expecter) GetUsersyncRuns(ctx interface{}, p interface{}) *MockDatabase_GetUsersyncRuns_Call {
+	return &MockDatabase_GetUsersyncRuns_Call{Call: _e.mock.On("GetUsersyncRuns", ctx, p)}
+}
+
+func (_c *MockDatabase_GetUsersyncRuns_Call) Run(run func(ctx context.Context, p Page)) *MockDatabase_GetUsersyncRuns_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(Page))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_GetUsersyncRuns_Call) Return(_a0 []*UsersyncRun, _a1 int, _a2 error) *MockDatabase_GetUsersyncRuns_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *MockDatabase_GetUsersyncRuns_Call) RunAndReturn(run func(context.Context, Page) ([]*UsersyncRun, int, error)) *MockDatabase_GetUsersyncRuns_Call {
 	_c.Call.Return(run)
 	return _c
 }

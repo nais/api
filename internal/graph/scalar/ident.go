@@ -17,6 +17,7 @@ import (
 type IdentType string
 
 const (
+	IdentTypeAnalysisTrail        IdentType = "analysisTrail"
 	IdentTypeApp                  IdentType = "app"
 	IdentTypeAuditLog             IdentType = "auditLog"
 	IdentTypeBigQueryDataset      IdentType = "bigQueryDataset"
@@ -27,8 +28,11 @@ const (
 	IdentTypeDeploymentResource   IdentType = "deploymentResource"
 	IdentTypeDeploymentStatus     IdentType = "deploymentStatus"
 	IdentTypeEnv                  IdentType = "env"
+	IdentTypeFinding              IdentType = "finding"
 	IdentTypeGitHubRepo           IdentType = "githubRepo"
+	IdentTypeImage                IdentType = "image"
 	IdentTypeJob                  IdentType = "job"
+	IdentTypeKafkaTopic           IdentType = "kafkaTopic"
 	IdentTypeOpenSearch           IdentType = "openSearch"
 	IdentTypePod                  IdentType = "pod"
 	IdentTypeRedis                IdentType = "redis"
@@ -37,13 +41,10 @@ const (
 	IdentTypeSqlInstance          IdentType = "sqlInstance"
 	IdentTypeTeam                 IdentType = "team"
 	IdentTypeUser                 IdentType = "user"
+	IdentTypeUsersyncRun          IdentType = "usersyncRun"
 	IdentTypeVulnerabilities      IdentType = "vulnerabilities"
-	IdentTypeKafkaTopic           IdentType = "kafkaTopic"
-	IdentTypeFinding              IdentType = "finding"
-	IdentTypeImage                IdentType = "image"
-	IdentTypeWorkload             IdentType = "workload"
-	IdentTypeAnalysisTrail        IdentType = "analysisTrail"
 	IdentTypeVulnerabilitySummary IdentType = "vulnerabilitySummary"
+	IdentTypeWorkload             IdentType = "workload"
 
 	idSeparator = "-"
 )
@@ -144,6 +145,10 @@ func CorrelationID(id uuid.UUID) Ident {
 
 func UserIdent(userID uuid.UUID) Ident {
 	return newIdent(IdentTypeUser, userID.String())
+}
+
+func UsersyncRunIdent(id uuid.UUID) Ident {
+	return newIdent(IdentTypeUsersyncRun, id.String())
 }
 
 func GitHubRepository(repoName string) Ident {
