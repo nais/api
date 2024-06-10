@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   postgres:
     image: postgres:15-alpine
@@ -64,5 +63,59 @@ services:
     volumes:
       - ./hack/bigquery-emulator-data.yaml:/data.yaml
 
+  dtrack-apiserver:
+    image: dependencytrack/apiserver:4.11.3
+    deploy:
+      resources:
+        limits:
+          memory: 12288m
+        reservations:
+          memory: 8192m
+      restart_policy:
+        condition: on-failure
+    ports:
+      - '9010:8080'
+    environment:
+      - LOGGING_LEVEL=INFO
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8080 || exit 1
+      interval: 10s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
+    volumes:
+      # Optional volume mount to override default notification publisher templates
+      # - "/host/path/to/template/base/dir:/data/templates"
+      - 'dependency-track:/data'
+    restart: unless-stopped
+
+  dtrack-frontend:
+    image: dependencytrack/frontend:4.11.3
+    depends_on:
+      - dtrack-apiserver
+    environment:
+      - API_BASE_URL=http://localhost:9010
+    ports:
+      - "9020:8080"
+    restart: unless-stopped
+
+  bootstrap:
+    platform: linux/x86_64
+    image: europe-north1-docker.pkg.dev/nais-io/nais/images/dependencytrack:2024-06-05-123815-24637f8
+    environment:
+      - LOG_LEVEL=debug
+      - BASE_URL=http://dtrack-apiserver:8080/
+      - DEFAULT_ADMIN_PASSWORD=admin
+      - ADMIN_PASSWORD=yolo
+      - USERS_FILE=/app/users.yaml
+    volumes:
+      - type: bind
+        source: ./data/bootstrap/users.yaml
+        target: /app/users.yaml
+    depends_on:
+      dtrack-apiserver:
+        condition: service_healthy
+
 volumes:
   pgdata:
+  dependency-track:
