@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/nais/api/internal/auditevent/auditer"
+	"github.com/nais/api/internal/audit"
 
 	"github.com/nais/api/internal/opensearch"
 
@@ -153,7 +153,7 @@ type Resolver struct {
 	openSearchClient      *opensearch.Client
 	kafkaClient           *kafka.Client
 	unleashMgr            *unleash.Manager
-	auditer               *auditer.Auditer
+	auditer               *audit.Auditer
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
@@ -176,7 +176,7 @@ func NewResolver(hookdClient HookdClient,
 	openSearchClient *opensearch.Client,
 	kafkaClient *kafka.Client,
 	unleashMgr *unleash.Manager,
-	auditer *auditer.Auditer,
+	auditer *audit.Auditer,
 ) *Resolver {
 	return &Resolver{
 		hookdClient:           hookdClient,

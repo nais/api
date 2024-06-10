@@ -159,7 +159,6 @@ func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slu
 
 	correlationID := uuid.New()
 
-	auditLogEntries := make([]auditlogger.Entry, 0)
 	var member *database.User
 	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		members, err := dbtx.GetAllTeamMembers(ctx, slug)
@@ -186,29 +185,10 @@ func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slu
 			return err
 		}
 
-		targets := []auditlogger.Target{
-			auditlogger.TeamTarget(slug),
-			auditlogger.UserTarget(member.Email),
-		}
-		fields := auditlogger.Fields{
-			Action:        audittype.AuditActionGraphqlApiTeamRemoveMember,
-			CorrelationID: correlationID,
-			Actor:         actor,
-		}
-		auditLogEntries = append(auditLogEntries, auditlogger.Entry{
-			Targets: targets,
-			Fields:  fields,
-			Message: fmt.Sprintf("Removed user: %q", member.Email),
-		})
-
 		return nil
 	})
 	if err != nil {
 		return nil, err
-	}
-
-	for _, entry := range auditLogEntries {
-		r.auditLogger.Logf(ctx, entry.Targets, entry.Fields, entry.Message)
 	}
 
 	err = r.auditer.TeamRemoveMember(ctx, actor.User, slug, member.Email)
@@ -234,15 +214,9 @@ func (r *mutationResolver) SynchronizeTeam(ctx context.Context, slug slug.Slug) 
 
 	correlationID := uuid.New()
 
-	targets := []auditlogger.Target{
-		auditlogger.TeamTarget(slug),
+	if err := r.auditer.TeamSync(ctx, actor.User, slug); err != nil {
+		return nil, err
 	}
-	fields := auditlogger.Fields{
-		Action:        audittype.AuditActionGraphqlApiTeamSync,
-		CorrelationID: correlationID,
-		Actor:         actor,
-	}
-	r.auditLogger.Logf(ctx, targets, fields, "Manually scheduled for synchronization")
 
 	r.triggerTeamUpdatedEvent(ctx, slug, correlationID)
 
@@ -317,7 +291,6 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 
 	correlationID := uuid.New()
 
-	auditLogEntries := make([]auditlogger.Entry, 0)
 	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		teamMember, _ := dbtx.GetTeamMember(ctx, slug, user.ID)
 		if teamMember != nil {
@@ -341,44 +314,10 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 			}
 		}
 
-		targets := []auditlogger.Target{
-			auditlogger.TeamTarget(team.Slug),
-			auditlogger.UserTarget(user.Email),
-		}
-
-		var action audittype.AuditAction
-		var msg string
-
-		switch role {
-		case gensql.RoleNameTeamowner:
-			action = audittype.AuditActionGraphqlApiTeamAddOwner
-			msg = fmt.Sprintf("Add team owner: %q", user.Email)
-		case gensql.RoleNameTeammember:
-			action = audittype.AuditActionGraphqlApiTeamAddMember
-			msg = fmt.Sprintf("Add team member: %q", user.Email)
-		default:
-			return fmt.Errorf("unknown role: %q", role)
-		}
-
-		fields := auditlogger.Fields{
-			Action:        action,
-			CorrelationID: correlationID,
-			Actor:         actor,
-		}
-		auditLogEntries = append(auditLogEntries, auditlogger.Entry{
-			Targets: targets,
-			Fields:  fields,
-			Message: msg,
-		})
-
 		return nil
 	})
 	if err != nil {
 		return nil, err
-	}
-
-	for _, entry := range auditLogEntries {
-		r.auditLogger.Logf(ctx, entry.Targets, entry.Fields, entry.Message)
 	}
 
 	err = r.auditer.TeamAddMember(ctx, actor.User, slug, user.Email, string(member.Role))
@@ -443,30 +382,14 @@ func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug
 		}
 
 		return nil
-
-		/* TODO
-		return dbtx.CreateAuditEvent(ctx, slug, actor.User, "set_member_role", slug.String(), "team", map[string]string{
-			"member_email": member.Email,
-			"role":         string(role),
-		})
-		*/
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	targets := []auditlogger.Target{
-		auditlogger.TeamTarget(team.Slug),
-		auditlogger.UserTarget(member.Email),
+	if err := r.auditer.TeamSetMemberRole(ctx, actor.User, slug, member.Email, string(role)); err != nil {
+		return nil, err
 	}
-	fields := auditlogger.Fields{
-		Action:        audittype.AuditActionGraphqlApiTeamSetMemberRole,
-		CorrelationID: correlationID,
-		Actor:         actor,
-	}
-
-	r.auditLogger.Logf(ctx, targets, fields, "Assign %q to %s", desiredRole, member.Email)
-	r.auditer.TeamSetMemberRole(ctx, actor.User, slug, member.Email, string(role))
 
 	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 

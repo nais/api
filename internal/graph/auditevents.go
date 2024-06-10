@@ -1,14 +1,14 @@
 package graph
 
 import (
-	"github.com/nais/api/internal/auditevent"
+	"github.com/nais/api/internal/audit/events"
 	"k8s.io/utils/ptr"
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 )
 
-func toGraphAuditEvents(events []auditevent.Event) []*model.AuditEvent {
+func toGraphAuditEvents(events []audit.Event) []*model.AuditEvent {
 	graphEvents := make([]*model.AuditEvent, len(events))
 	for i, e := range events {
 		graphEvents[i] = &model.AuditEvent{

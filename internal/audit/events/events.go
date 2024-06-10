@@ -12,7 +12,6 @@ import (
 // Event represents an audit event:
 // Actor performed Action at CreatedAt on ResourceName with ResourceType owned by Team.
 // The event may contain additional data.
-// TODO - should we store correlation_id as well?
 type Event interface {
 	Action() string
 	Actor() string
@@ -61,6 +60,7 @@ const (
 	ActionTeamAddMember     Action = "add_member"
 	ActionTeamRemoveMember  Action = "remove_member"
 	ActionTeamSetMemberRole Action = "set_member_role"
+	ActionTeamSync          Action = "synchronize_team"
 )
 
 type (
@@ -73,6 +73,7 @@ var mappers = resourceActionMappers{
 		ActionTeamAddMember:     teamAddMemberFromRow,
 		ActionTeamRemoveMember:  teamRemoveMemberFromRow,
 		ActionTeamSetMemberRole: teamSetMemberRoleFromRow,
+		ActionTeamSync:          teamSyncFromRow,
 	},
 }
 
