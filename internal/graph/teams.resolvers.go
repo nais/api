@@ -1347,7 +1347,7 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 					severities[image.Name] = -1
 					continue
 				}
-				severities[image.Name] = image.Summary.RiskScore
+				severities[image.Name] = image.Summary.Critical
 			}
 
 			model.SortWith(apps, func(a, b *model.App) bool {
@@ -1654,13 +1654,7 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		if image.Summary.Total > 0 {
 			retVal.Total += image.Summary.Total
 		}
-
-		for _, reference := range image.GQLVars.WorkloadReferences {
-			if reference.Team == obj.Slug.String() {
-				retVal.BomCount += 1
-			}
-		}
-
+		retVal.BomCount += 1
 	}
 
 	return retVal, nil
