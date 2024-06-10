@@ -94,6 +94,8 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 	defer cancel()
 
 	if *cfg.ProvisionPubSub {
+		log.Infof("Provisioning pubsub")
+
 		if err := os.Setenv("PUBSUB_EMULATOR_HOST", "localhost:3004"); err != nil {
 			return err
 		}
@@ -103,11 +105,15 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			return err
 		}
 
+		log.Infof("creating topic")
+
 		if _, err := client.CreateTopic(ctx, "nais-api"); err != nil {
 			if s, ok := status.FromError(err); !ok || s.Code() != codes.AlreadyExists {
 				return err
 			}
 		}
+
+		log.Infof("creating subscription")
 
 		if _, err := client.CreateSubscription(ctx, "api-reconcilers-api-events", pubsub.SubscriptionConfig{
 			Topic:             client.Topic("nais-api"),
@@ -131,6 +137,8 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 	}
 	numLastNames := len(lastNames)
 
+	log.Infof("initializing database")
+
 	db, close, err := database.New(ctx, cfg.DatabaseURL, log)
 	if err != nil {
 		return err
@@ -142,11 +150,11 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 
 	if !*cfg.ForceSeed {
 		if existingUsers, err := getAllUsers(ctx, db); len(existingUsers) != 0 || err != nil {
-			return fmt.Errorf("database already has users, abort")
+			return fmt.Errorf("database already has users, abort: %w", err)
 		}
 
 		if existingTeams, err := getAllTeams(ctx, db); len(existingTeams) != 0 || err != nil {
-			return fmt.Errorf("database already has teams, abort")
+			return fmt.Errorf("database already has teams, abort: %w", err)
 		}
 	} else {
 		users, err := getAllUsers(ctx, db)
