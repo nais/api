@@ -3,6 +3,7 @@ package dependencytrack
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"os"
 	"testing"
@@ -17,33 +18,33 @@ func TestClient_GetVulnerabilities(t *testing.T) {
 	log := logrus.New().WithField("test", "dependencytrack")
 	ctx := context.Background()
 
-	defaultInput := []*AppInstance{
+	defaultInput := []*WorkloadInstance{
 		{
 			Env:   "dev",
 			Team:  "team1",
-			App:   "app1",
-			Image: "image:latest",
+			Name:  "app1",
+			Image: "test/image:latest",
 		},
 		{
 			Env:   "dev",
 			Team:  "team1",
-			App:   "app2",
-			Image: "image:latest",
+			Name:  "app2",
+			Image: "test/image:latest",
 		},
 	}
 
 	tt := []struct {
 		name   string
-		input  []*AppInstance
-		expect func(input []*AppInstance, mock *MockInternalClient)
+		input  []*WorkloadInstance
+		expect func(input []*WorkloadInstance, mock *MockInternalClient)
 		assert func(t *testing.T, v []*model.Vulnerability, err error)
 	}{
 		{
 			name:  "should return list with summary null if no apps have a project",
 			input: defaultInput,
-			expect: func(input []*AppInstance, mock *MockInternalClient) {
+			expect: func(input []*WorkloadInstance, mock *MockInternalClient) {
 				mock.EXPECT().
-					GetProjectsByTag(ctx, url.QueryEscape("image:latest")).Return([]*dependencytrack.Project{}, nil)
+					GetProjectsByTag(ctx, url.QueryEscape("image:test/image:latest")).Return([]*dependencytrack.Project{}, nil)
 			},
 			assert: func(t *testing.T, v []*model.Vulnerability, err error) {
 				assert.NoError(t, err)
@@ -54,36 +55,43 @@ func TestClient_GetVulnerabilities(t *testing.T) {
 		},
 		{
 			name: "list of appinstance should be equal lenght to list of vulnerabilities even though some apps have no project",
-			input: []*AppInstance{
+			input: []*WorkloadInstance{
 				{
 					Env:   "dev",
 					Team:  "team1",
-					App:   "app1",
-					Image: "image:latest",
+					Name:  "app1",
+					Image: "test/image:latest",
 				},
 				{
-					Env:   "dev",
-					Team:  "team1",
-					App:   "app2",
-					Image: "image:notfound",
+					Env:   "env:dev",
+					Team:  "team:team1",
+					Name:  "app2",
+					Image: "test/image:notfound",
 				},
 			},
-			expect: func(input []*AppInstance, mock *MockInternalClient) {
-				p1 := project(input[0].ToTags()...)
+			expect: func(input []*WorkloadInstance, mock *MockInternalClient) {
+				metrics := &dependencytrack.ProjectMetric{
+					Critical:      1,
+					High:          1,
+					Medium:        1,
+					Low:           1,
+					Unassigned:    0,
+					FindingsTotal: 4,
+				}
+				p1 := project(metrics, input[0].ToTags()...)
 				p1.LastBomImportFormat = "cyclonedx"
 
 				mock.EXPECT().
-					GetProjectsByTag(ctx, url.QueryEscape("image:latest")).Return([]*dependencytrack.Project{p1}, nil)
+					GetProjectsByTag(ctx, url.QueryEscape("image:test/image:latest")).Return([]*dependencytrack.Project{p1}, nil)
 				mock.EXPECT().
-					GetFindings(ctx, p1.Uuid).Return(findings(), nil)
-				mock.EXPECT().
-					GetProjectsByTag(ctx, url.QueryEscape("image:notfound")).Return([]*dependencytrack.Project{}, nil)
+					GetProjectsByTag(ctx, url.QueryEscape("image:test/image:notfound")).Return([]*dependencytrack.Project{}, nil)
 			},
 			assert: func(t *testing.T, v []*model.Vulnerability, err error) {
 				assert.NoError(t, err)
 				assert.Len(t, v, 2)
 				for _, vn := range v {
 					if vn.AppName == "app1" {
+						fmt.Println(vn.Summary)
 						assert.NotNil(t, vn.Summary)
 					}
 					if vn.AppName == "app2" {
@@ -95,18 +103,24 @@ func TestClient_GetVulnerabilities(t *testing.T) {
 		{
 			name:  "should return list with summaries if apps have a project",
 			input: defaultInput,
-			expect: func(input []*AppInstance, mock *MockInternalClient) {
+			expect: func(input []*WorkloadInstance, mock *MockInternalClient) {
 				ps := make([]*dependencytrack.Project, 0)
 				for _, i := range input {
-					p := project(i.ToTags()...)
+					metrics := &dependencytrack.ProjectMetric{
+						Critical:      1,
+						High:          1,
+						Medium:        1,
+						Low:           1,
+						Unassigned:    0,
+						FindingsTotal: 4,
+					}
+					p := project(metrics, i.ToTags()...)
 					p.LastBomImportFormat = "cyclonedx"
 					ps = append(ps, p)
 				}
 
 				mock.EXPECT().
-					GetProjectsByTag(ctx, url.QueryEscape("image:latest")).Return(ps, nil).Times(2)
-				mock.EXPECT().
-					GetFindings(ctx, ps[0].Uuid).Return(findings(), nil).Times(2)
+					GetProjectsByTag(ctx, url.QueryEscape("image:test/image:latest")).Return(ps, nil).Times(2)
 			},
 			assert: func(t *testing.T, v []*model.Vulnerability, err error) {
 				assert.NoError(t, err)
@@ -134,32 +148,34 @@ func TestClient_VulnerabilitySummary(t *testing.T) {
 
 	tt := []struct {
 		name   string
-		input  *AppInstance
-		expect func(input *AppInstance, mock *MockInternalClient)
+		input  *WorkloadInstance
+		expect func(input *WorkloadInstance, mock *MockInternalClient)
 		assert func(t *testing.T, v *model.Vulnerability, err error)
 	}{
 		{
-			name:  "should return empty summary if no bom is found",
-			input: app("dev", "team1", "app1", "image:latest"),
-			expect: func(input *AppInstance, mock *MockInternalClient) {
+			name:  "should return nil if no bom is found",
+			input: workloadInstance("dev", "team1", "app1", "test/image:latest"),
+			expect: func(input *WorkloadInstance, mock *MockInternalClient) {
+				metrics := &dependencytrack.ProjectMetric{}
 				mock.EXPECT().
-					GetProjectsByTag(ctx, url.QueryEscape("image:latest")).Return([]*dependencytrack.Project{project(input.ToTags()...)}, nil)
+					GetProjectsByTag(ctx, url.QueryEscape("image:test/image:latest")).Return([]*dependencytrack.Project{project(metrics, input.ToTags()...)}, nil)
 			},
 			assert: func(t *testing.T, v *model.Vulnerability, err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, -1, v.Summary.Critical)
+				assert.Nil(t, v.Summary)
+				/*assert.Equal(t, -1, v.Summary.Critical)
 				assert.Equal(t, -1, v.Summary.High)
 				assert.Equal(t, -1, v.Summary.Medium)
 				assert.Equal(t, -1, v.Summary.Low)
-				assert.Equal(t, -1, v.Summary.Unassigned)
+				assert.Equal(t, -1, v.Summary.Unassigned)*/
 			},
 		},
 		{
 			name:  "should return nil summary if no project is found",
-			input: app("dev", "team1", "noProject", "image:latest"),
-			expect: func(input *AppInstance, mock *MockInternalClient) {
+			input: workloadInstance("dev", "team1", "noProject", "test/image:latest"),
+			expect: func(input *WorkloadInstance, mock *MockInternalClient) {
 				mock.EXPECT().
-					GetProjectsByTag(ctx, url.QueryEscape("image:latest")).Return([]*dependencytrack.Project{}, nil)
+					GetProjectsByTag(ctx, url.QueryEscape("image:test/image:latest")).Return([]*dependencytrack.Project{}, nil)
 			},
 			assert: func(t *testing.T, v *model.Vulnerability, err error) {
 				assert.NoError(t, err)
@@ -168,16 +184,22 @@ func TestClient_VulnerabilitySummary(t *testing.T) {
 		},
 		{
 			name:  "should return summary with n vulnerabilities",
-			input: app("dev", "team1", "app1", "image:latest"),
-			expect: func(input *AppInstance, mock *MockInternalClient) {
-				p := []*dependencytrack.Project{project(input.ToTags()...)}
+			input: workloadInstance("dev", "team1", "app1", "test/image:latest"),
+			expect: func(input *WorkloadInstance, mock *MockInternalClient) {
+				metrics := &dependencytrack.ProjectMetric{
+					Critical:           1,
+					High:               1,
+					Medium:             1,
+					Low:                1,
+					Unassigned:         0,
+					FindingsTotal:      4,
+					InheritedRiskScore: 19,
+				}
+				p := []*dependencytrack.Project{project(metrics, input.ToTags()...)}
 				p[0].LastBomImportFormat = "cyclonedx"
 
 				mock.EXPECT().
-					GetProjectsByTag(ctx, url.QueryEscape("image:latest")).Return(p, nil)
-
-				mock.EXPECT().
-					GetFindings(ctx, p[0].Uuid).Return(findings(), nil)
+					GetProjectsByTag(ctx, url.QueryEscape("image:test/image:latest")).Return(p, nil)
 			},
 			assert: func(t *testing.T, v *model.Vulnerability, err error) {
 				assert.NoError(t, err)
@@ -203,79 +225,91 @@ func TestClient_VulnerabilitySummary(t *testing.T) {
 	}
 }
 
-func TestClient_CreateSummary(t *testing.T) {
+func TestClient_CreateSummaryForTeam(t *testing.T) {
 	log := logrus.New().WithField("test", "dependencytrack")
 	mock := NewMockInternalClient(t)
 	c := New("endpoint", "username", "password", "frontend", log).WithClient(mock)
 
-	s, err := os.ReadFile("testdata/ka-farsken.json")
+	s, err := os.ReadFile("testdata/tpsws.json")
 	assert.NoError(t, err)
-	var f []*dependencytrack.Finding
-	err = json.Unmarshal(s, &f)
-	sum := c.createSummary(f, true)
+	var p *dependencytrack.Project
+	err = json.Unmarshal(s, &p)
 	assert.NoError(t, err)
-	assert.Equal(t, 227, sum.Total)
-	assert.Equal(t, 7, sum.Critical)
-	assert.Equal(t, 33, sum.High)
-	assert.Equal(t, 24, sum.Medium)
-	assert.Equal(t, 4, sum.Low)
-	assert.Equal(t, 159, sum.Unassigned)
-
-	s, err = os.ReadFile("testdata/sms-manager.json")
-	assert.NoError(t, err)
-	err = json.Unmarshal(s, &f)
-	assert.NoError(t, err)
-	sum = c.createSummary(f, true)
-	assert.Equal(t, 69, sum.Total)
-	assert.Equal(t, 0, sum.Critical)
-	assert.Equal(t, 1, sum.High)
-	assert.Equal(t, 0, sum.Medium)
-	assert.Equal(t, 2, sum.Low)
-	assert.Equal(t, 66, sum.Unassigned)
-
-	s, err = os.ReadFile("testdata/tpsws.json")
-	assert.NoError(t, err)
-	err = json.Unmarshal(s, &f)
-	assert.NoError(t, err)
-	sum = c.createSummary(f, true)
-	assert.Equal(t, 203, sum.Total)
-	assert.Equal(t, 41, sum.Critical)
-	assert.Equal(t, 102, sum.High)
-	assert.Equal(t, 53, sum.Medium)
+	sum := c.createSummaryForTeam(p, true)
+	assert.Equal(t, 218, sum.Total)
+	assert.Equal(t, 42, sum.Critical)
+	assert.Equal(t, 111, sum.High)
+	assert.Equal(t, 58, sum.Medium)
 	assert.Equal(t, 7, sum.Low)
-	assert.Equal(t, 0, sum.Unassigned)
-
-	s, err = os.ReadFile("testdata/dp-oppslag-vedtak.json")
-	assert.NoError(t, err)
-	err = json.Unmarshal(s, &f)
-	assert.NoError(t, err)
-	sum = c.createSummary(f, true)
-	assert.Equal(t, 93, sum.Total)
-	assert.Equal(t, 20, sum.Critical)
-	assert.Equal(t, 49, sum.High)
-	assert.Equal(t, 20, sum.Medium)
-	assert.Equal(t, 4, sum.Low)
 	assert.Equal(t, 0, sum.Unassigned)
 }
 
-func app(env, team, app, image string) *AppInstance {
-	return &AppInstance{
-		Env:   env,
-		Team:  team,
-		App:   app,
-		Image: image,
+func TestClient_GetFindingsForImage(t *testing.T) {
+	log := logrus.New().WithField("test", "dependencytrack")
+	ctx := context.Background()
+
+	tt := []struct {
+		name   string
+		input  *WorkloadInstance
+		expect func(input *WorkloadInstance, mock *MockInternalClient)
+		assert func(t *testing.T, f []*model.Finding, err error)
+	}{
+		{
+			name:  "should return findings if project is found",
+			input: workloadInstance("dev", "team1", "app1", "image:latest"),
+			expect: func(input *WorkloadInstance, mock *MockInternalClient) {
+				p := project(&dependencytrack.ProjectMetric{}, input.ToTags()...)
+				p.LastBomImportFormat = "cyclonedx"
+
+				mock.EXPECT().
+					GetFindings(ctx, p.Uuid, false).Return(findings(), nil)
+			},
+			assert: func(t *testing.T, f []*model.Finding, err error) {
+				assert.NoError(t, err)
+				assert.Len(t, f, 4)
+				assert.Equal(t, "CVE-2021-1234", f[3].Aliases[0].Name)
+				assert.Equal(t, "NVD", f[3].Aliases[0].Source)
+				assert.Equal(t, "GHSA-2021-1234", f[3].Aliases[1].Name)
+				assert.Equal(t, "GHSA", f[3].Aliases[1].Source)
+			},
+		},
+	}
+
+	for _, tc := range tt {
+		mock := NewMockInternalClient(t)
+		c := New("endpoint", "username", "password", "frontend", log).WithClient(mock)
+		tc.expect(tc.input, mock)
+		f, err := c.GetFindingsForImageByProjectID(ctx, "uuid", false)
+		tc.assert(t, f, err)
+
 	}
 }
 
-func (a *AppInstance) ToTags() []string {
-	return []string{a.Env, a.Team, a.App, a.Image}
+func workloadInstance(env, team, app, image string) *WorkloadInstance {
+	return &WorkloadInstance{
+		Env:   env,
+		Team:  team,
+		Name:  app,
+		Image: image,
+		Kind:  "app",
+	}
 }
 
-func project(tags ...string) *dependencytrack.Project {
+func (a *WorkloadInstance) ToTags() []string {
+	return []string{
+		dependencytrack.EnvironmentTagPrefix.With(a.Env),
+		dependencytrack.TeamTagPrefix.With(a.Team),
+		dependencytrack.WorkloadTagPrefix.With(a.Env + "|" + a.Team + "|" + a.Kind + "|" + a.Name),
+		dependencytrack.ImageTagPrefix.With(a.Image),
+	}
+}
+
+func project(metrics *dependencytrack.ProjectMetric, tags ...string) *dependencytrack.Project {
 	p := &dependencytrack.Project{
-		Uuid: "uuid",
-		Name: "name",
-		Tags: make([]dependencytrack.Tag, 0),
+		Uuid:    "uuid",
+		Name:    "name",
+		Tags:    make([]dependencytrack.Tag, 0),
+		Metrics: metrics,
 	}
 	for _, tag := range tags {
 		p.Tags = append(p.Tags, dependencytrack.Tag{Name: tag})
@@ -303,6 +337,14 @@ func findings() []*dependencytrack.Finding {
 		{
 			Vulnerability: dependencytrack.Vulnerability{
 				Severity: "CRITICAL",
+				VulnId:   "4",
+				Title:    "title4",
+				Aliases: []dependencytrack.Alias{
+					{
+						CveId:  "CVE-2021-1234",
+						GhsaId: "GHSA-2021-1234",
+					},
+				},
 			},
 		},
 	}

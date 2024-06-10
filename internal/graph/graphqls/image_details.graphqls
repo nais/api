@@ -1,0 +1,133 @@
+extend type Mutation {
+  suppressFinding(
+    "The analysis state of the finding."
+    analysisState: String!
+
+    "The a comment for suppressing the finding."
+    comment: String!
+
+    "The component id of the finding to suppress."
+    componentId: String!
+    "The project id of the image."
+    projectId: String!
+
+    "The id of the finding to suppress."
+    vulnerabilityId: String!
+
+    "Suppressed by user."
+    suppressedBy: String!
+
+    "Should the finding be suppressed."
+    suppress: Boolean!
+
+    "The team slug."
+    team: Slug!
+  ): AnalysisTrail!
+}
+
+type ImageDetails {
+  id: ID!
+  projectId: String!
+  name: String!
+  version: String!
+  rekor: Rekor!
+  summary: ImageVulnerabilitySummary
+  hasSbom: Boolean!
+  projectUrl: String!
+  findings(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Limit the number of entries returned."
+    limit: Int
+
+    "Order findings by"
+    orderBy: OrderBy
+  ): FindingList!
+  workloadReferences: [Workload!]!
+}
+
+type ImageVulnerabilitySummary {
+  id: ID!
+  total: Int!
+  riskScore: Int!
+  critical: Int!
+  high: Int!
+  medium: Int!
+  low: Int!
+  unassigned: Int!
+}
+
+type ImageDetailsList {
+  nodes: [ImageDetails!]!
+  pageInfo: PageInfo!
+}
+
+type Finding {
+  id: ID!
+  parentId: String!
+  vulnerabilityId: String!
+  vulnId: String!
+  source: String!
+  componentId: String!
+  severity: String!
+  description: String!
+  packageUrl: String!
+  aliases: [VulnIdAlias!]!
+  isSuppressed: Boolean!
+  state: String!
+  analysisTrail: AnalysisTrail!
+}
+
+type VulnIdAlias {
+  name: String!
+  source: String!
+}
+
+extend enum OrderByField {
+  "Order by severity."
+  SEVERITY
+  "Order by packageUrl"
+  PACKAGE_URL
+  "Order by state."
+  STATE
+  "Order by isSuppressed."
+  IS_SUPPRESSED
+}
+
+type FindingList {
+  nodes: [Finding!]!
+  pageInfo: PageInfo!
+}
+
+type AnalysisTrail {
+  id: ID!
+  state: String!
+  comments(offset: Int, limit: Int): AnalysisCommentList!
+  isSuppressed: Boolean!
+}
+
+type AnalysisCommentList {
+  pageInfo: PageInfo!
+  nodes: [AnalysisComment]!
+}
+
+type AnalysisComment {
+  comment: String!
+  timestamp: Time!
+  onBehalfOf: String!
+}
+
+type Rekor {
+  buildTrigger: String!
+  buildConfigURI: String!
+  gitHubWorkflowName: String!
+  gitHubWorkflowRef: String!
+  gitHubWorkflowSHA: String!
+  logIndex: String!
+  oIDCIssuer: String!
+  runInvocationURI: String!
+  runnerEnvironment: String!
+  sourceRepositoryOwnerURI: String!
+  integratedTime: Int!
+}

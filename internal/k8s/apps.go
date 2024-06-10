@@ -636,7 +636,7 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 	}
 
 	ret := &model.App{}
-	ret.ID = scalar.AppIdent("app_" + env + "_" + app.GetNamespace() + "_" + app.GetName())
+	ret.ID = scalar.AppIdent(env, slug.Slug(app.GetNamespace()), app.GetName())
 	ret.Name = app.GetName()
 
 	ret.Env = model.Env{
@@ -809,9 +809,6 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 		repository := ""
 		if len(parts) > 2 {
 			repository = strings.Join(parts[1:len(parts)-1], "/")
-		} else {
-			// fixme: wtf does this mean?
-			repository = "confusus"
 		}
 		appState.Errors = append(appState.Errors, &model.DeprecatedRegistryError{
 			Revision:   app.DeployInfo.CommitSha,

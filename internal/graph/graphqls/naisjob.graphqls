@@ -61,6 +61,7 @@ type NaisJob implements Workload {
   resources: Resources!
   type: WorkloadType!
 
+  imageDetails: ImageDetails!
   runs: [Run!]!
   manifest: String!
   schedule: String!
@@ -70,6 +71,7 @@ type NaisJob implements Workload {
   parallelism: Int!
   retries: Int!
   secrets: [Secret!]!
+  vulnerabilities: Vulnerability
 }
 
 type NaisJobList {

@@ -50,18 +50,15 @@ type SQLInstance struct {
 	GQLVars             SQLInstanceGQLVars   `json:"-"`
 }
 
+func (SQLInstance) IsPersistence() {}
+func (SQLInstance) IsSearchNode()  {}
+
 type SQLInstanceGQLVars struct {
 	TeamSlug       slug.Slug
 	Labels         map[string]string
 	Annotations    map[string]string
 	OwnerReference *v1.OwnerReference
 }
-
-func (SQLInstance) IsPersistence() {}
-func (SQLInstance) IsSearchNode()  {}
-
-func (i SQLInstance) GetName() string     { return i.Name }
-func (i SQLInstance) GetID() scalar.Ident { return i.ID }
 
 func (i SQLInstance) IsHealthy() bool {
 	for _, cond := range i.Status.Conditions {
@@ -107,7 +104,7 @@ func ToSqlInstance(u *unstructured.Unstructured, env string) (*SQLInstance, erro
 	teamSlug := sqlInstance.GetNamespace()
 
 	return &SQLInstance{
-		ID:   scalar.SqlInstanceIdent("sqlInstance_" + env + "_" + sqlInstance.GetNamespace() + "_" + sqlInstance.GetName()),
+		ID:   scalar.SqlInstanceIdent(env, slug.Slug(sqlInstance.GetNamespace()), sqlInstance.GetName()),
 		Name: sqlInstance.Name,
 		Env: Env{
 			Name: env,

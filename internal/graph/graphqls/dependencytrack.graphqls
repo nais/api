@@ -22,11 +22,11 @@ type Vulnerability {
   appName: String!
   env: String!
   findingsLink: String!
-  summary: VulnerabilitySummary
+  summary: VulnerabilitySummaryForTeam
   hasBom: Boolean!
 }
 
-type VulnerabilitySummary {
+type VulnerabilitySummaryForTeam {
   total: Int!
   riskScore: Int!
   critical: Int!

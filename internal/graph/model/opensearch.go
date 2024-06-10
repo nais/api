@@ -35,27 +35,33 @@ type OpenSearchInstanceAccessGQLVars struct {
 	Env            Env
 }
 
-func (OpenSearch) IsPersistence()        {}
-func (OpenSearch) IsSearchNode()         {}
-func (o OpenSearch) GetName() string     { return o.Name }
-func (o OpenSearch) GetID() scalar.Ident { return o.ID }
+func (OpenSearch) IsPersistence() {}
+func (OpenSearch) IsSearchNode()  {}
 
 func ToOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, error) {
 	openSearch := &aiven_io_v1alpha1.OpenSearch{}
 
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, openSearch); err != nil {
-		return nil, fmt.Errorf("converting to Bucket: %w", err)
+		return nil, fmt.Errorf("converting to OpenSearch: %w", err)
 	}
 
 	teamSlug := openSearch.GetNamespace()
-	env := Env{
-		Name: envName,
-		Team: teamSlug,
+	if teamSlug == "" {
+		return nil, fmt.Errorf("missing namespace")
 	}
+
+	instanceName := openSearch.GetName()
+	if instanceName == "" {
+		return nil, fmt.Errorf("missing instance name")
+	}
+
 	return &OpenSearch{
-		ID:   scalar.OpenSearchIdent("opensearch_" + envName + "_" + teamSlug + "_" + openSearch.GetName()),
-		Name: openSearch.Name,
-		Env:  env,
+		ID:   scalar.OpenSearchIdent(envName, slug.Slug(teamSlug), instanceName),
+		Name: instanceName,
+		Env: Env{
+			Name: envName,
+			Team: teamSlug,
+		},
 		Status: OpenSearchStatus{
 			Conditions: func(conditions []v1.Condition) []*Condition {
 				ret := make([]*Condition, len(conditions))

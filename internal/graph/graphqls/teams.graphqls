@@ -473,7 +473,7 @@ type Team {
     filter: VulnerabilityFilter
   ): VulnerabilityList!
 
-  vulnerabilitiesSummary: VulnerabilitySummary!
+  vulnerabilitiesSummary: VulnerabilitySummaryForTeam!
 
   "The vulnerabilities for the team's applications over time."
   vulnerabilityMetrics(
@@ -515,10 +515,6 @@ input VulnerabilityFilter {
 }
 
 type VulnerabilityMetrics {
-  "The minimum date for the metrics available in the database."
-  minDate: Date
-  "The maximum date for the metrics available in the database."
-  maxDate: Date
   "The metrics for the team's applications."
   data: [VulnerabilityMetric!]!
 }

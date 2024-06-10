@@ -57,6 +57,7 @@ type App implements Workload {
   resources: Resources!
   type: WorkloadType!
 
+  imageDetails: ImageDetails!
   ingresses: [String!]!
   instances: [Instance!]!
   autoScaling: AutoScaling!

@@ -27,8 +27,6 @@ type DeploymentResponse interface {
 
 type Persistence interface {
 	IsPersistence()
-	GetName() string
-	GetID() scalar.Ident
 }
 
 type SearchNode interface {
@@ -37,28 +35,26 @@ type SearchNode interface {
 
 type StateError interface {
 	IsStateError()
-	GetRevision() string
-	GetLevel() ErrorLevel
 }
 
 type Workload interface {
 	IsWorkload()
-	GetID() scalar.Ident
-	GetName() string
-	GetImage() string
-	GetDeployInfo() DeployInfo
-	GetEnv() Env
-	GetAccessPolicy() AccessPolicy
-	GetStatus() WorkloadStatus
-	GetAuthz() []Authz
-	GetVariables() []*Variable
-	GetResources() Resources
-	GetType() WorkloadType
 }
 
 type AccessPolicy struct {
 	Inbound  Inbound  `json:"inbound"`
 	Outbound Outbound `json:"outbound"`
+}
+
+type AnalysisComment struct {
+	Comment    string    `json:"comment"`
+	Timestamp  time.Time `json:"timestamp"`
+	OnBehalfOf string    `json:"onBehalfOf"`
+}
+
+type AnalysisCommentList struct {
+	PageInfo PageInfo           `json:"pageInfo"`
+	Nodes    []*AnalysisComment `json:"nodes"`
 }
 
 // App cost type.
@@ -312,9 +308,7 @@ type DeprecatedIngressError struct {
 	Ingress  string     `json:"ingress"`
 }
 
-func (DeprecatedIngressError) IsStateError()             {}
-func (this DeprecatedIngressError) GetRevision() string  { return this.Revision }
-func (this DeprecatedIngressError) GetLevel() ErrorLevel { return this.Level }
+func (DeprecatedIngressError) IsStateError() {}
 
 type DeprecatedRegistryError struct {
 	Revision   string     `json:"revision"`
@@ -325,9 +319,7 @@ type DeprecatedRegistryError struct {
 	Tag        string     `json:"tag"`
 }
 
-func (DeprecatedRegistryError) IsStateError()             {}
-func (this DeprecatedRegistryError) GetRevision() string  { return this.Revision }
-func (this DeprecatedRegistryError) GetLevel() ErrorLevel { return this.Level }
+func (DeprecatedRegistryError) IsStateError() {}
 
 // Env cost type.
 type EnvCost struct {
@@ -376,9 +368,7 @@ type FailedRunError struct {
 	RunName    string     `json:"runName"`
 }
 
-func (FailedRunError) IsStateError()             {}
-func (this FailedRunError) GetRevision() string  { return this.Revision }
-func (this FailedRunError) GetLevel() ErrorLevel { return this.Level }
+func (FailedRunError) IsStateError() {}
 
 type Flag struct {
 	Name  string `json:"name"`
@@ -444,6 +434,22 @@ type IDPortenSidecar struct {
 	Resources            *Resources `json:"resources,omitempty"`
 }
 
+type ImageDetailsList struct {
+	Nodes    []*ImageDetails `json:"nodes"`
+	PageInfo PageInfo        `json:"pageInfo"`
+}
+
+type ImageVulnerabilitySummary struct {
+	ID         scalar.Ident `json:"id"`
+	Total      int          `json:"total"`
+	RiskScore  int          `json:"riskScore"`
+	Critical   int          `json:"critical"`
+	High       int          `json:"high"`
+	Medium     int          `json:"medium"`
+	Low        int          `json:"low"`
+	Unassigned int          `json:"unassigned"`
+}
+
 type Inbound struct {
 	Rules []*Rule `json:"rules"`
 }
@@ -454,9 +460,7 @@ type InboundAccessError struct {
 	Rule     Rule       `json:"rule"`
 }
 
-func (InboundAccessError) IsStateError()             {}
-func (this InboundAccessError) GetRevision() string  { return this.Revision }
-func (this InboundAccessError) GetLevel() ErrorLevel { return this.Level }
+func (InboundAccessError) IsStateError() {}
 
 type Insights struct {
 	Enabled               bool `json:"enabled"`
@@ -471,9 +475,7 @@ type InvalidNaisYamlError struct {
 	Detail   string     `json:"detail"`
 }
 
-func (InvalidNaisYamlError) IsStateError()             {}
-func (this InvalidNaisYamlError) GetRevision() string  { return this.Revision }
-func (this InvalidNaisYamlError) GetLevel() ErrorLevel { return this.Level }
+func (InvalidNaisYamlError) IsStateError() {}
 
 // Team status for jobs.
 type JobsStatus struct {
@@ -590,18 +592,14 @@ type NewInstancesFailingError struct {
 	FailingInstances []string   `json:"failingInstances"`
 }
 
-func (NewInstancesFailingError) IsStateError()             {}
-func (this NewInstancesFailingError) GetRevision() string  { return this.Revision }
-func (this NewInstancesFailingError) GetLevel() ErrorLevel { return this.Level }
+func (NewInstancesFailingError) IsStateError() {}
 
 type NoRunningInstancesError struct {
 	Revision string     `json:"revision"`
 	Level    ErrorLevel `json:"level"`
 }
 
-func (NoRunningInstancesError) IsStateError()             {}
-func (this NoRunningInstancesError) GetRevision() string  { return this.Revision }
-func (this NoRunningInstancesError) GetLevel() ErrorLevel { return this.Level }
+func (NoRunningInstancesError) IsStateError() {}
 
 type OpenSearchList struct {
 	Nodes    []*OpenSearch `json:"nodes"`
@@ -631,9 +629,7 @@ type OutboundAccessError struct {
 	Rule     Rule       `json:"rule"`
 }
 
-func (OutboundAccessError) IsStateError()             {}
-func (this OutboundAccessError) GetRevision() string  { return this.Revision }
-func (this OutboundAccessError) GetLevel() ErrorLevel { return this.Level }
+func (OutboundAccessError) IsStateError() {}
 
 // Pagination information.
 type PageInfo struct {
@@ -693,6 +689,20 @@ type RedisList struct {
 type RedisStatus struct {
 	Conditions []*Condition `json:"conditions"`
 	State      string       `json:"state"`
+}
+
+type Rekor struct {
+	BuildTrigger             string `json:"buildTrigger"`
+	BuildConfigURI           string `json:"buildConfigURI"`
+	GitHubWorkflowName       string `json:"gitHubWorkflowName"`
+	GitHubWorkflowRef        string `json:"gitHubWorkflowRef"`
+	GitHubWorkflowSha        string `json:"gitHubWorkflowSHA"`
+	LogIndex                 string `json:"logIndex"`
+	OIDCIssuer               string `json:"oIDCIssuer"`
+	RunInvocationURI         string `json:"runInvocationURI"`
+	RunnerEnvironment        string `json:"runnerEnvironment"`
+	SourceRepositoryOwnerURI string `json:"sourceRepositoryOwnerURI"`
+	IntegratedTime           int    `json:"integratedTime"`
 }
 
 type Requests struct {
@@ -876,9 +886,7 @@ type SynchronizationFailingError struct {
 	Detail   string     `json:"detail"`
 }
 
-func (SynchronizationFailingError) IsStateError()             {}
-func (this SynchronizationFailingError) GetRevision() string  { return this.Revision }
-func (this SynchronizationFailingError) GetLevel() ErrorLevel { return this.Level }
+func (SynchronizationFailingError) IsStateError() {}
 
 // Paginated teams type.
 type TeamList struct {
@@ -943,6 +951,11 @@ type UserList struct {
 	PageInfo PageInfo `json:"pageInfo"`
 }
 
+type UsersyncRunList struct {
+	Nodes    []*UsersyncRun `json:"nodes"`
+	PageInfo PageInfo       `json:"pageInfo"`
+}
+
 type Variable struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
@@ -953,13 +966,18 @@ type VariableInput struct {
 	Value string `json:"value"`
 }
 
+type VulnIDAlias struct {
+	Name   string `json:"name"`
+	Source string `json:"source"`
+}
+
 type Vulnerability struct {
-	ID           scalar.Ident          `json:"id"`
-	AppName      string                `json:"appName"`
-	Env          string                `json:"env"`
-	FindingsLink string                `json:"findingsLink"`
-	Summary      *VulnerabilitySummary `json:"summary,omitempty"`
-	HasBom       bool                  `json:"hasBom"`
+	ID           scalar.Ident                 `json:"id"`
+	AppName      string                       `json:"appName"`
+	Env          string                       `json:"env"`
+	FindingsLink string                       `json:"findingsLink"`
+	Summary      *VulnerabilitySummaryForTeam `json:"summary,omitempty"`
+	HasBom       bool                         `json:"hasBom"`
 }
 
 type VulnerabilityFilter struct {
@@ -994,15 +1012,11 @@ type VulnerabilityMetric struct {
 }
 
 type VulnerabilityMetrics struct {
-	// The minimum date for the metrics available in the database.
-	MinDate *scalar.Date `json:"minDate,omitempty"`
-	// The maximum date for the metrics available in the database.
-	MaxDate *scalar.Date `json:"maxDate,omitempty"`
 	// The metrics for the team's applications.
 	Data []*VulnerabilityMetric `json:"data"`
 }
 
-type VulnerabilitySummary struct {
+type VulnerabilitySummaryForTeam struct {
 	Total      int `json:"total"`
 	RiskScore  int `json:"riskScore"`
 	Critical   int `json:"critical"`
@@ -1126,6 +1140,14 @@ const (
 	OrderByFieldSeverityLow OrderByField = "SEVERITY_LOW"
 	// Order apps by vulnerability severity unassigned
 	OrderByFieldSeverityUnassigned OrderByField = "SEVERITY_UNASSIGNED"
+	// Order by severity.
+	OrderByFieldSeverity OrderByField = "SEVERITY"
+	// Order by packageUrl
+	OrderByFieldPackageURL OrderByField = "PACKAGE_URL"
+	// Order by state.
+	OrderByFieldState OrderByField = "STATE"
+	// Order by isSuppressed.
+	OrderByFieldIsSuppressed OrderByField = "IS_SUPPRESSED"
 	// Order by PostgreSQL version
 	OrderByFieldVersion OrderByField = "VERSION"
 	// Order by cost
@@ -1151,6 +1173,10 @@ var AllOrderByField = []OrderByField{
 	OrderByFieldSeverityMedium,
 	OrderByFieldSeverityLow,
 	OrderByFieldSeverityUnassigned,
+	OrderByFieldSeverity,
+	OrderByFieldPackageURL,
+	OrderByFieldState,
+	OrderByFieldIsSuppressed,
 	OrderByFieldVersion,
 	OrderByFieldCost,
 	OrderByFieldCPU,
@@ -1160,7 +1186,7 @@ var AllOrderByField = []OrderByField{
 
 func (e OrderByField) IsValid() bool {
 	switch e {
-	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned, OrderByFieldVersion, OrderByFieldCost, OrderByFieldCPU, OrderByFieldMemory, OrderByFieldDisk:
+	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned, OrderByFieldSeverity, OrderByFieldPackageURL, OrderByFieldState, OrderByFieldIsSuppressed, OrderByFieldVersion, OrderByFieldCost, OrderByFieldCPU, OrderByFieldMemory, OrderByFieldDisk:
 		return true
 	}
 	return false
@@ -1511,49 +1537,46 @@ func (e TeamRole) MarshalGQL(w io.Writer) {
 }
 
 // User sync run status.
-type UserSyncRunStatus string
+type UsersyncRunStatus string
 
 const (
-	// User sync run in progress.
-	UserSyncRunStatusInProgress UserSyncRunStatus = "IN_PROGRESS"
 	// Successful user sync run.
-	UserSyncRunStatusSuccess UserSyncRunStatus = "SUCCESS"
+	UsersyncRunStatusSuccess UsersyncRunStatus = "SUCCESS"
 	// Failed user sync run.
-	UserSyncRunStatusFailure UserSyncRunStatus = "FAILURE"
+	UsersyncRunStatusFailure UsersyncRunStatus = "FAILURE"
 )
 
-var AllUserSyncRunStatus = []UserSyncRunStatus{
-	UserSyncRunStatusInProgress,
-	UserSyncRunStatusSuccess,
-	UserSyncRunStatusFailure,
+var AllUsersyncRunStatus = []UsersyncRunStatus{
+	UsersyncRunStatusSuccess,
+	UsersyncRunStatusFailure,
 }
 
-func (e UserSyncRunStatus) IsValid() bool {
+func (e UsersyncRunStatus) IsValid() bool {
 	switch e {
-	case UserSyncRunStatusInProgress, UserSyncRunStatusSuccess, UserSyncRunStatusFailure:
+	case UsersyncRunStatusSuccess, UsersyncRunStatusFailure:
 		return true
 	}
 	return false
 }
 
-func (e UserSyncRunStatus) String() string {
+func (e UsersyncRunStatus) String() string {
 	return string(e)
 }
 
-func (e *UserSyncRunStatus) UnmarshalGQL(v interface{}) error {
+func (e *UsersyncRunStatus) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = UserSyncRunStatus(str)
+	*e = UsersyncRunStatus(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid UserSyncRunStatus", str)
+		return fmt.Errorf("%s is not a valid UsersyncRunStatus", str)
 	}
 	return nil
 }
 
-func (e UserSyncRunStatus) MarshalGQL(w io.Writer) {
+func (e UsersyncRunStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

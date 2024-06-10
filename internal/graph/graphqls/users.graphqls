@@ -1,12 +1,24 @@
 extend type Query {
   "Get a collection of users, sorted by name."
-  users(offset: Int, limit: Int): UserList! @auth
+  users(
+    offset: Int
+    limit: Int
+  ): UserList! @auth
 
   "Get a specific user."
-  user("ID of the user." id: ID, email: String): User! @auth
+  user(
+    "ID of the user."
+    id: ID
+
+    "Email of the user."
+    email: String
+  ): User! @auth
 
   "Get user sync status and logs."
-  userSync: [UserSyncRun!]! @auth
+  usersyncRuns(
+    limit: Int
+    offset: Int
+  ): UsersyncRunList! @auth
 }
 
 extend type Mutation {
@@ -20,31 +32,31 @@ extend type Mutation {
 }
 
 "User sync run type."
-type UserSyncRun {
-  "The correlation ID of the sync run."
-  correlationID: ID!
+type UsersyncRun {
+  "The ID of the sync run."
+  id: ID!
 
   "Timestamp of when the run started."
   startedAt: Time!
 
   "Timestamp of when the run finished."
-  finishedAt: Time
+  finishedAt: Time!
 
   "Log entries for the sync run."
-  auditLogs(limit: Int, offset: Int): AuditLogList!
+  auditLogs(
+    limit: Int,
+    offset: Int
+  ): AuditLogList!
 
   "The status of the sync run."
-  status: UserSyncRunStatus!
+  status: UsersyncRunStatus!
 
   "Optional error."
   error: String
 }
 
 "User sync run status."
-enum UserSyncRunStatus {
-  "User sync run in progress."
-  IN_PROGRESS
-
+enum UsersyncRunStatus {
   "Successful user sync run."
   SUCCESS
 
@@ -74,6 +86,11 @@ type User {
 
   "This field will only be populated via the me query"
   isAdmin: Boolean
+}
+
+type UsersyncRunList {
+  nodes: [UsersyncRun!]!
+  pageInfo: PageInfo!
 }
 
 type UserList {

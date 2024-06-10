@@ -28,10 +28,8 @@ type KafkaTopicGQLVars struct {
 	OwnerReference *v1.OwnerReference
 }
 
-func (KafkaTopic) IsPersistence()        {}
-func (KafkaTopic) IsSearchNode()         {}
-func (t KafkaTopic) GetName() string     { return t.Name }
-func (t KafkaTopic) GetID() scalar.Ident { return t.ID }
+func (KafkaTopic) IsPersistence() {}
+func (KafkaTopic) IsSearchNode()  {}
 
 func ToKafkaTopic(u *unstructured.Unstructured, env string) (*KafkaTopic, error) {
 	kt := &kafka_nais_io_v1.Topic{}
@@ -43,7 +41,7 @@ func ToKafkaTopic(u *unstructured.Unstructured, env string) (*KafkaTopic, error)
 	teamSlug := kt.GetNamespace()
 
 	return &KafkaTopic{
-		ID:   scalar.KafkaTopicIdent("kafkatopic_" + env + "_" + teamSlug + "_" + kt.GetName()),
+		ID:   scalar.KafkaTopicIdent(env, slug.Slug(teamSlug), kt.GetName()),
 		Name: kt.Name,
 		Config: func(cfg *kafka_nais_io_v1.Config) *KafkaTopicConfig {
 			if cfg == nil {

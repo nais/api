@@ -343,10 +343,11 @@ func seedVulnerabilities(ctx context.Context, cfg seedConfig, dbtx database.Data
 		appName := fmt.Sprintf("app-%d", j)
 		id := uuid.New()
 		err := dbtx.CreateDependencytrackProject(ctx, gensql.CreateDependencytrackProjectParams{
-			Environment: "dev",
-			TeamSlug:    team.Slug,
-			App:         appName,
-			ID:          id,
+			Environment:  "dev",
+			TeamSlug:     team.Slug,
+			Workload:     appName,
+			WorkloadType: gensql.WorkloadTypeApp,
+			ID:           id,
 		})
 		if err != nil {
 			return err

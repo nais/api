@@ -35,11 +35,9 @@ type BucketGQLVars struct {
 	OwnerReference *v1.OwnerReference
 }
 
-func (Bucket) IsPersistence()    {}
-func (Bucket) IsSearchNode()     {}
-func (b Bucket) GetName() string { return b.Name }
+func (Bucket) IsPersistence() {}
+func (Bucket) IsSearchNode()  {}
 
-func (b Bucket) GetID() scalar.Ident { return b.ID }
 func ToBucket(u *unstructured.Unstructured, env string) (*Bucket, error) {
 	bucket := &storage_cnrm_cloud_google_com_v1beta1.StorageBucket{}
 
@@ -55,7 +53,7 @@ func ToBucket(u *unstructured.Unstructured, env string) (*Bucket, error) {
 	teamSlug := bucket.GetNamespace()
 
 	return &Bucket{
-		ID: scalar.BucketIdent("bucket_" + env + "_" + teamSlug + "_" + bucket.GetName()),
+		ID: scalar.BucketIdent(env, slug.Slug(teamSlug), bucket.GetName()),
 		Env: Env{
 			Name: env,
 			Team: bucket.GetNamespace(),

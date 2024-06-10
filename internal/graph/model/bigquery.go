@@ -31,10 +31,8 @@ type BigQueryDatasetGQLVars struct {
 	OwnerReference *v1.OwnerReference
 }
 
-func (BigQueryDataset) IsPersistence()         {}
-func (BigQueryDataset) IsSearchNode()          {}
-func (in BigQueryDataset) GetName() string     { return in.Name }
-func (in BigQueryDataset) GetID() scalar.Ident { return in.ID }
+func (BigQueryDataset) IsPersistence() {}
+func (BigQueryDataset) IsSearchNode()  {}
 
 func ToBigQueryDataset(u *unstructured.Unstructured, env string) (*BigQueryDataset, error) {
 	bqs := &bigquery_nais_io_v1.BigQueryDataset{}
@@ -60,7 +58,7 @@ func ToBigQueryDataset(u *unstructured.Unstructured, env string) (*BigQueryDatas
 			}
 			return ret
 		}(bqs.Spec.Access),
-		ID: scalar.BigQueryDatasetIdent("bigquerydataset_" + env + "_" + teamSlug + "_" + bqs.GetName()),
+		ID: scalar.BigQueryDatasetIdent(env, slug.Slug(teamSlug), bqs.GetName()),
 		Env: Env{
 			Team: teamSlug,
 			Name: env,

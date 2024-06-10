@@ -46,10 +46,8 @@ type Access struct {
 	Workloads []AccessEntry
 }
 
-func (Redis) IsPersistence()        {}
-func (Redis) IsSearchNode()         {}
-func (r Redis) GetName() string     { return r.Name }
-func (r Redis) GetID() scalar.Ident { return r.ID }
+func (Redis) IsPersistence() {}
+func (Redis) IsSearchNode()  {}
 
 func ToRedis(u *unstructured.Unstructured, envName string) (*Redis, error) {
 	redis := &aiven_io_v1alpha1.Redis{}
@@ -65,7 +63,7 @@ func ToRedis(u *unstructured.Unstructured, envName string) (*Redis, error) {
 		Team: teamSlug,
 	}
 	r := &Redis{
-		ID:   scalar.RedisIdent("redis_" + envName + "_" + teamSlug + "_" + redis.GetName()),
+		ID:   scalar.RedisIdent(envName, slug.Slug(teamSlug), redis.GetName()),
 		Name: redis.Name,
 		Env:  env,
 		Status: RedisStatus{

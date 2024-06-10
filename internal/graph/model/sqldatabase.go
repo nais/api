@@ -4,15 +4,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/nais/api/internal/graph/scalar"
-	"k8s.io/utils/ptr"
-
 	"github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/k8s/v1alpha1"
-	corev1 "k8s.io/api/core/v1"
-
 	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
+	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/utils/ptr"
 )
 
 type SQLDatabase struct {
@@ -25,6 +24,8 @@ type SQLDatabase struct {
 	Conditions     []*Condition `json:"conditions"`
 	ID             scalar.Ident `json:"id"`
 }
+
+func (SQLDatabase) IsPersistence() {}
 
 func ToSqlDatabase(u *unstructured.Unstructured, sqlInstanceName, env string) (*SQLDatabase, error) {
 	sqlDatabase := &sql_cnrm_cloud_google_com_v1beta1.SQLDatabase{}
@@ -39,7 +40,7 @@ func ToSqlDatabase(u *unstructured.Unstructured, sqlInstanceName, env string) (*
 
 	teamSlug := sqlDatabase.GetNamespace()
 	return &SQLDatabase{
-		ID:             scalar.SqlDatabaseIdent("sqldatabase_" + env + "_" + teamSlug + "_" + sqlDatabase.GetName()),
+		ID:             scalar.SqlDatabaseIdent(env, slug.Slug(teamSlug), sqlDatabase.GetName()),
 		Name:           ptr.Deref(sqlDatabase.Spec.ResourceID, "UNKNOWN"), // actual postgresql database name
 		Charset:        sqlDatabase.Spec.Charset,
 		Collation:      sqlDatabase.Spec.Collation,
@@ -65,10 +66,6 @@ func ToSqlDatabase(u *unstructured.Unstructured, sqlInstanceName, env string) (*
 		}(),
 	}, nil
 }
-
-func (SQLDatabase) IsPersistence()        {}
-func (i SQLDatabase) GetName() string     { return i.Name }
-func (i SQLDatabase) GetID() scalar.Ident { return i.ID }
 
 func IsHealthy(cs []v1alpha1.Condition) bool {
 	for _, cond := range cs {
