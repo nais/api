@@ -3,12 +3,14 @@ package auditevent
 import (
 	"fmt"
 	"github.com/google/uuid"
-
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 	"time"
 )
 
+// Event represents an audit event:
+// Actor performed Action at CreatedAt on ResourceName with ResourceType owned by Team.
+// The event may contain additional data.
 type Event interface {
 	Action() string
 	Actor() string
@@ -26,20 +28,38 @@ type EventData interface {
 	Valid() bool
 }
 
+type Resource string
+
+const (
+	ResourceTeam Resource = "team"
+)
+
 type Action string
 
-func DbRowToAuditEvent(row *gensql.AuditEvent) (Event, error) {
-	switch row.ResourceType {
-	case "team":
-		switch row.Action {
-		case string(ActionTeamAddMember):
-			return teamAddMemberFromRow(row)
-		case string(ActionTeamRemoveMember):
-			return teamRemoveMemberFromRow(row)
-		case "set_member_role":
-			panic("TODO")
-		}
+const (
+	ActionTeamAddMember    Action = "add_member"
+	ActionTeamRemoveMember Action = "remove_member"
+)
+
+type RowMapper func(row *gensql.AuditEvent) (Event, error)
+
+var ResourceActions = map[Resource]map[Action]RowMapper{
+	ResourceTeam: {
+		ActionTeamAddMember:    teamAddMemberFromRow,
+		ActionTeamRemoveMember: teamRemoveMemberFromRow,
+	},
+}
+
+func MapDbRow(row *gensql.AuditEvent) (Event, error) {
+	resource, ok := ResourceActions[Resource(row.ResourceType)]
+	if !ok {
+		return nil, fmt.Errorf("unsupported resource type %q", row.ResourceType)
 	}
 
-	return nil, fmt.Errorf("unsupported audit event")
+	action, ok := resource[Action(row.Action)]
+	if !ok {
+		return nil, fmt.Errorf("unsupported action %q for resource %q", row.Action, row.ResourceType)
+	}
+
+	return action(row)
 }

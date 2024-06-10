@@ -10,11 +10,6 @@ import (
 	"time"
 )
 
-const (
-	ActionTeamAddMember    Action = "add_member"
-	ActionTeamRemoveMember Action = "remove_member"
-)
-
 // TODO - look into embedding common fields/member functions for reuse
 
 // TeamAddMember creates an Event for adding a member to a team.
@@ -30,7 +25,7 @@ func TeamAddMember(actor authz.AuthenticatedUser, team slug.Slug, memberEmail, r
 }
 
 // teamAddMemberFromRow converts a database row to an Event.
-func teamAddMemberFromRow(row *gensql.AuditEvent) (*teamAddMember, error) {
+func teamAddMemberFromRow(row *gensql.AuditEvent) (Event, error) {
 	var data teamAddMemberData
 	if row.Data != nil {
 		if err := json.Unmarshal(row.Data, &data); err != nil {
@@ -76,7 +71,7 @@ func (t teamAddMember) MarshalData() ([]byte, error) {
 }
 
 func (t teamAddMember) ResourceType() string {
-	return "team"
+	return string(ResourceTeam)
 }
 
 func (t teamAddMember) ResourceName() string {
@@ -96,10 +91,12 @@ type teamAddMemberData struct {
 	MemberEmail string `json:"member"`
 }
 
+// TODO - should this just be implemented in the Event instead?
 func (f teamAddMemberData) Marshal() ([]byte, error) {
 	return json.Marshal(f)
 }
 
+// TODO - this is unused
 func (f teamAddMemberData) Valid() bool {
 	return f.Role != "" && f.MemberEmail != ""
 }
@@ -116,7 +113,7 @@ func TeamRemoveMember(actor authz.AuthenticatedUser, team slug.Slug, memberEmail
 }
 
 // teamRemoveMemberFromRow converts a database row to an Event.
-func teamRemoveMemberFromRow(row *gensql.AuditEvent) (*teamRemoveMember, error) {
+func teamRemoveMemberFromRow(row *gensql.AuditEvent) (Event, error) {
 	var data teamRemoveMemberData
 	if row.Data != nil {
 		if err := json.Unmarshal(row.Data, &data); err != nil {
@@ -154,7 +151,7 @@ func (t teamRemoveMember) CreatedAt() time.Time {
 }
 
 func (t teamRemoveMember) ID() uuid.UUID {
-	return uuid.New()
+	return t.id
 }
 
 func (t teamRemoveMember) MarshalData() ([]byte, error) {
