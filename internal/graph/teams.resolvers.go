@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/nais/api/internal/auditevent"
 	"strconv"
 
 	"github.com/google/uuid"
@@ -161,6 +160,7 @@ func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slu
 	correlationID := uuid.New()
 
 	auditLogEntries := make([]auditlogger.Entry, 0)
+	var member *database.User
 	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		members, err := dbtx.GetAllTeamMembers(ctx, slug)
 		if err != nil {
@@ -176,7 +176,7 @@ func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slu
 			return nil
 		}
 
-		member := memberFromUserID(userUID)
+		member = memberFromUserID(userUID)
 		if member == nil {
 			return apierror.Errorf("The user %q is not a member of team %q.", userUID, slug)
 		}
@@ -201,8 +201,7 @@ func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slu
 			Message: fmt.Sprintf("Removed user: %q", member.Email),
 		})
 
-		// TODO - should we store correlation_id as well?
-		return dbtx.CreateAuditEvent(ctx, auditevent.TeamRemoveMember(actor.User, slug, member.Email))
+		return nil
 	})
 	if err != nil {
 		return nil, err
@@ -210,6 +209,11 @@ func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slu
 
 	for _, entry := range auditLogEntries {
 		r.auditLogger.Logf(ctx, entry.Targets, entry.Fields, entry.Message)
+	}
+
+	err = r.auditer.TeamRemoveMember(ctx, actor.User, slug, member.Email)
+	if err != nil {
+		return nil, err
 	}
 
 	r.triggerTeamUpdatedEvent(ctx, slug, correlationID)
@@ -367,7 +371,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 			Message: msg,
 		})
 
-		return dbtx.CreateAuditEvent(ctx, auditevent.TeamAddMember(actor.User, slug, user.Email, string(member.Role)))
+		return nil
 	})
 	if err != nil {
 		return nil, err
@@ -375,6 +379,11 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 
 	for _, entry := range auditLogEntries {
 		r.auditLogger.Logf(ctx, entry.Targets, entry.Fields, entry.Message)
+	}
+
+	err = r.auditer.TeamAddMember(ctx, actor.User, slug, user.Email, string(member.Role))
+	if err != nil {
+		return nil, err
 	}
 
 	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)

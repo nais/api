@@ -3,24 +3,58 @@ package auditevent
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
-	"time"
 )
 
-// TODO - look into embedding common fields/member functions for reuse
+type team struct {
+	base
+}
 
-// TeamAddMember creates an Event for adding a member to a team.
-func TeamAddMember(actor authz.AuthenticatedUser, team slug.Slug, memberEmail, role string) Event {
+func (t team) ResourceType() string {
+	return string(ResourceTeam)
+}
+
+func (t team) ResourceName() string {
+	return t.base.team.String()
+}
+
+type teamAddMember struct {
+	team
+	data teamAddMemberData
+}
+
+func (t teamAddMember) Action() string {
+	return string(ActionTeamAddMember)
+}
+
+func (t teamAddMember) MarshalData() ([]byte, error) {
+	return json.Marshal(t.data)
+}
+
+func (t teamAddMember) Message() string {
+	return fmt.Sprintf("%s added %s as %s to team", t.actor, t.data.MemberEmail, t.data.Role)
+}
+
+type teamAddMemberData struct {
+	Role        string `json:"role"`
+	MemberEmail string `json:"member"`
+}
+
+// NewTeamAddMember creates an Event for adding a member to a team.
+func NewTeamAddMember(actor authz.AuthenticatedUser, teamSlug slug.Slug, memberEmail, role string) Event {
 	return &teamAddMember{
-		actor: actor.Identity(),
 		data: teamAddMemberData{
 			MemberEmail: memberEmail,
 			Role:        role,
 		},
-		team: team,
+		team: team{
+			base{
+				actor: actor.Identity(),
+				team:  teamSlug,
+			},
+		},
 	}
 }
 
@@ -34,81 +68,51 @@ func teamAddMemberFromRow(row *gensql.AuditEvent) (Event, error) {
 	}
 
 	return &teamAddMember{
-		actor:     row.Actor,
-		createdAt: row.CreatedAt.Time,
-		data:      data,
-		id:        row.ID,
-		team:      *row.TeamSlug,
+		data: data,
+		team: team{
+			base{
+				actor:     row.Actor,
+				createdAt: row.CreatedAt.Time,
+				id:        row.ID,
+				team:      *row.TeamSlug,
+			},
+		},
 	}, nil
 }
 
-type teamAddMember struct {
-	actor     string
-	createdAt time.Time
-	data      teamAddMemberData
-	id        uuid.UUID
-	team      slug.Slug
+type teamRemoveMember struct {
+	team
+	data teamRemoveMemberData
 }
 
-func (t teamAddMember) Action() string {
-	return string(ActionTeamAddMember)
+func (t teamRemoveMember) Action() string {
+	return string(ActionTeamRemoveMember)
 }
 
-func (t teamAddMember) Actor() string {
-	return t.actor
+func (t teamRemoveMember) MarshalData() ([]byte, error) {
+	return json.Marshal(t.data)
 }
 
-func (t teamAddMember) CreatedAt() time.Time {
-	return t.createdAt
+func (t teamRemoveMember) Message() string {
+	return fmt.Sprintf("%s removed %s from team", t.actor, t.data.MemberEmail)
 }
 
-func (t teamAddMember) ID() uuid.UUID {
-	return t.id
-}
-
-func (t teamAddMember) MarshalData() ([]byte, error) {
-	return t.data.Marshal()
-}
-
-func (t teamAddMember) ResourceType() string {
-	return string(ResourceTeam)
-}
-
-func (t teamAddMember) ResourceName() string {
-	return t.team.String()
-}
-
-func (t teamAddMember) Team() slug.Slug {
-	return t.team
-}
-
-func (t teamAddMember) Message() string {
-	return fmt.Sprintf("%s added %s as %s to team", t.actor, t.data.MemberEmail, t.data.Role)
-}
-
-type teamAddMemberData struct {
-	Role        string `json:"role"`
+type teamRemoveMemberData struct {
 	MemberEmail string `json:"member"`
 }
 
-// TODO - should this just be implemented in the Event instead?
-func (f teamAddMemberData) Marshal() ([]byte, error) {
-	return json.Marshal(f)
-}
-
-// TODO - this is unused
-func (f teamAddMemberData) Valid() bool {
-	return f.Role != "" && f.MemberEmail != ""
-}
-
-// TeamRemoveMember creates an Event for removing a member from a team.
-func TeamRemoveMember(actor authz.AuthenticatedUser, team slug.Slug, memberEmail string) Event {
+// NewTeamRemoveMember creates an Event for removing a member from a team.
+func NewTeamRemoveMember(actor authz.AuthenticatedUser, teamSlug slug.Slug, memberEmail string) Event {
 	return &teamRemoveMember{
-		actor: actor.Identity(),
 		data: teamRemoveMemberData{
 			MemberEmail: memberEmail,
 		},
-		team: team,
+		team: team{
+			base{
+				actor: actor.Identity(),
+				team:  teamSlug,
+			},
+		},
 	}
 }
 
@@ -122,66 +126,14 @@ func teamRemoveMemberFromRow(row *gensql.AuditEvent) (Event, error) {
 	}
 
 	return &teamRemoveMember{
-		actor:     row.Actor,
-		createdAt: row.CreatedAt.Time,
-		data:      data,
-		id:        row.ID,
-		team:      *row.TeamSlug,
+		data: data,
+		team: team{
+			base{
+				actor:     row.Actor,
+				createdAt: row.CreatedAt.Time,
+				id:        row.ID,
+				team:      *row.TeamSlug,
+			},
+		},
 	}, nil
-}
-
-type teamRemoveMember struct {
-	actor     string
-	createdAt time.Time
-	data      teamRemoveMemberData
-	id        uuid.UUID
-	team      slug.Slug
-}
-
-func (t teamRemoveMember) Action() string {
-	return string(ActionTeamRemoveMember)
-}
-
-func (t teamRemoveMember) Actor() string {
-	return t.actor
-}
-
-func (t teamRemoveMember) CreatedAt() time.Time {
-	return t.createdAt
-}
-
-func (t teamRemoveMember) ID() uuid.UUID {
-	return t.id
-}
-
-func (t teamRemoveMember) MarshalData() ([]byte, error) {
-	return t.data.Marshal()
-}
-
-func (t teamRemoveMember) ResourceType() string {
-	return "team"
-}
-
-func (t teamRemoveMember) ResourceName() string {
-	return t.team.String()
-}
-
-func (t teamRemoveMember) Team() slug.Slug {
-	return t.team
-}
-
-func (t teamRemoveMember) Message() string {
-	return fmt.Sprintf("%s removed %s from team", t.actor, t.data.MemberEmail)
-}
-
-type teamRemoveMemberData struct {
-	MemberEmail string `json:"member"`
-}
-
-func (f teamRemoveMemberData) Marshal() ([]byte, error) {
-	return json.Marshal(f)
-}
-
-func (f teamRemoveMemberData) Valid() bool {
-	return f.MemberEmail != ""
 }

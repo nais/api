@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/nais/api/internal/auditevent/auditer"
 	"os"
 	"os/signal"
 	"syscall"
@@ -222,6 +223,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		opensearch.NewClient(k8sClient.Informers(), log, db),
 		kafka.NewClient(k8sClient.Informers(), log, db),
 		unleashMgr,
+		auditer.NewAuditer(db),
 	)
 
 	graphHandler, err := graph.NewHandler(gengql.Config{

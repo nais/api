@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/nais/api/internal/auditevent/auditer"
+
 	"github.com/nais/api/internal/opensearch"
 
 	"github.com/nais/api/internal/bigquery"
@@ -142,7 +144,6 @@ type Resolver struct {
 	tenantDomain          string
 	userSync              chan<- uuid.UUID
 	auditLogger           auditlogger.AuditLogger
-	// TODO - add global auditEvent...thingy here
 	userSyncRuns          *usersync.RunsHandler
 	pubsubTopic           *pubsub.Topic
 	sqlInstanceClient     *sqlinstance.Client
@@ -152,6 +153,7 @@ type Resolver struct {
 	openSearchClient      *opensearch.Client
 	kafkaClient           *kafka.Client
 	unleashMgr            *unleash.Manager
+	auditer               *auditer.Auditer
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
@@ -174,6 +176,7 @@ func NewResolver(hookdClient HookdClient,
 	openSearchClient *opensearch.Client,
 	kafkaClient *kafka.Client,
 	unleashMgr *unleash.Manager,
+	auditer *auditer.Auditer,
 ) *Resolver {
 	return &Resolver{
 		hookdClient:           hookdClient,
@@ -196,6 +199,7 @@ func NewResolver(hookdClient HookdClient,
 		openSearchClient:      openSearchClient,
 		kafkaClient:           kafkaClient,
 		unleashMgr:            unleashMgr,
+		auditer:               auditer,
 	}
 }
 

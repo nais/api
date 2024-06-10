@@ -50,7 +50,7 @@ func (d *database) GetAuditEventsForTeam(ctx context.Context, teamSlug slug.Slug
 
 	entries := make([]auditevent.Event, len(rows))
 	for i, row := range rows {
-		entries[i], err = auditevent.MapDbRow(row)
+		entries[i], err = auditevent.ToEvent(row)
 		if err != nil {
 			return nil, 0, err
 		}
