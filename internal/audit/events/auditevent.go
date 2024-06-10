@@ -1,11 +1,12 @@
-package auditevent
+package audit
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
-	"time"
 )
 
 // Event represents an audit event:
@@ -57,17 +58,21 @@ const (
 type Action string
 
 const (
-	ActionTeamAddMember    Action = "add_member"
-	ActionTeamRemoveMember Action = "remove_member"
+	ActionTeamAddMember     Action = "add_member"
+	ActionTeamRemoveMember  Action = "remove_member"
+	ActionTeamSetMemberRole Action = "set_member_role"
 )
 
-type resourceActionMappers map[Resource]map[Action]rowMapper
-type rowMapper func(row *gensql.AuditEvent) (Event, error)
+type (
+	resourceActionMappers map[Resource]map[Action]rowMapper
+	rowMapper             func(row *gensql.AuditEvent) (Event, error)
+)
 
 var mappers = resourceActionMappers{
 	ResourceTeam: {
-		ActionTeamAddMember:    teamAddMemberFromRow,
-		ActionTeamRemoveMember: teamRemoveMemberFromRow,
+		ActionTeamAddMember:     teamAddMemberFromRow,
+		ActionTeamRemoveMember:  teamRemoveMemberFromRow,
+		ActionTeamSetMemberRole: teamSetMemberRoleFromRow,
 	},
 }
 

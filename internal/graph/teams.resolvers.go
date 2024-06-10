@@ -466,6 +466,7 @@ func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug
 	}
 
 	r.auditLogger.Logf(ctx, targets, fields, "Assign %q to %s", desiredRole, member.Email)
+	r.auditer.TeamSetMemberRole(ctx, actor.User, slug, member.Email, string(role))
 
 	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 
