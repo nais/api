@@ -1085,7 +1085,7 @@ type ComplexityRoot struct {
 
 	Team struct {
 		Apps                   func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
-		AuditEvents            func(childComplexity int, offset *int, limit *int) int
+		AuditEvents            func(childComplexity int, offset *int, limit *int, filter *model.AuditEventsFilter) int
 		AuditLogs              func(childComplexity int, offset *int, limit *int) int
 		AzureGroupID           func(childComplexity int) int
 		BigQuery               func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
@@ -1455,7 +1455,7 @@ type TeamResolver interface {
 	ID(ctx context.Context, obj *model.Team) (*scalar.Ident, error)
 
 	AuditLogs(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.AuditLogList, error)
-	AuditEvents(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.AuditEventList, error)
+	AuditEvents(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.AuditEventsFilter) (*model.AuditEventList, error)
 	Members(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.TeamMemberList, error)
 	Member(ctx context.Context, obj *model.Team, userID scalar.Ident) (*model.TeamMember, error)
 	SyncErrors(ctx context.Context, obj *model.Team) ([]*model.SyncError, error)
@@ -6053,7 +6053,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Team.AuditEvents(childComplexity, args["offset"].(*int), args["limit"].(*int)), true
+		return e.complexity.Team.AuditEvents(childComplexity, args["offset"].(*int), args["limit"].(*int), args["filter"].(*model.AuditEventsFilter)), true
 
 	case "Team.auditLogs":
 		if e.complexity.Team.AuditLogs == nil {
@@ -7039,6 +7039,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputAuditEventsFilter,
 		ec.unmarshalInputCreateTeamInput,
 		ec.unmarshalInputEnvCostFilter,
 		ec.unmarshalInputGitHubRepositoriesFilter,
@@ -7383,7 +7384,7 @@ type AuditEvent {
   action: String!
 
   "The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
-  actor: String
+  actor: String!
 
   "Message that summarizes the event."
   message: String!
@@ -7392,12 +7393,22 @@ type AuditEvent {
   createdAt: Time!
 
   "Type of the resource that was affected by the action."
-  resourceType: String!
+  resourceType: AuditEventResourceType!
 }
 
 type AuditEventList {
   nodes: [AuditEvent!]!
   pageInfo: PageInfo!
+}
+
+input AuditEventsFilter {
+  "Filter by the type of the resource that was affected by the action."
+  resourceType: AuditEventResourceType
+}
+
+enum AuditEventResourceType {
+  TEAM
+  TEAM_MEMBERS
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/auditlogs.graphqls", Input: `"Audit log type."
@@ -9154,7 +9165,8 @@ type Team {
     "Limit the number of audit events to return. Default is 20."
     limit: Int
 
-    # TODO: add filter?
+    "Filter audit events."
+    filter: AuditEventsFilter
   ): AuditEventList!
 
   "Team members."
@@ -11327,6 +11339,15 @@ func (ec *executionContext) field_Team_auditEvents_args(ctx context.Context, raw
 		}
 	}
 	args["limit"] = arg1
+	var arg2 *model.AuditEventsFilter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg2, err = ec.unmarshalOAuditEventsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventsFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg2
 	return args, nil
 }
 
@@ -14411,11 +14432,14 @@ func (ec *executionContext) _AuditEvent_actor(ctx context.Context, field graphql
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuditEvent_actor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14545,9 +14569,9 @@ func (ec *executionContext) _AuditEvent_resourceType(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(model.AuditEventResourceType)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNAuditEventResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuditEvent_resourceType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14557,7 +14581,7 @@ func (ec *executionContext) fieldContext_AuditEvent_resourceType(ctx context.Con
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type AuditEventResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -43803,7 +43827,7 @@ func (ec *executionContext) _Team_auditEvents(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().AuditEvents(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int))
+		return ec.resolvers.Team().AuditEvents(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["filter"].(*model.AuditEventsFilter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -51863,6 +51887,33 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputAuditEventsFilter(ctx context.Context, obj interface{}) (model.AuditEventsFilter, error) {
+	var it model.AuditEventsFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"resourceType"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "resourceType":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceType"))
+			data, err := ec.unmarshalOAuditEventResourceType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ResourceType = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateTeamInput(ctx context.Context, obj interface{}) (model.CreateTeamInput, error) {
 	var it model.CreateTeamInput
 	asMap := map[string]interface{}{}
@@ -53530,6 +53581,9 @@ func (ec *executionContext) _AuditEvent(ctx context.Context, sel ast.SelectionSe
 			}
 		case "actor":
 			out.Values[i] = ec._AuditEvent_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "message":
 			out.Values[i] = ec._AuditEvent_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -65921,6 +65975,16 @@ func (ec *executionContext) marshalNAuditEventList2ᚖgithubᚗcomᚋnaisᚋapi�
 	return ec._AuditEventList(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNAuditEventResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx context.Context, v interface{}) (model.AuditEventResourceType, error) {
+	var res model.AuditEventResourceType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAuditEventResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx context.Context, sel ast.SelectionSet, v model.AuditEventResourceType) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNAuditLog2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditLogᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AuditLog) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -70369,6 +70433,30 @@ func (ec *executionContext) marshalOAnalysisComment2ᚖgithubᚗcomᚋnaisᚋapi
 		return graphql.Null
 	}
 	return ec._AnalysisComment(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOAuditEventResourceType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx context.Context, v interface{}) (*model.AuditEventResourceType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.AuditEventResourceType)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOAuditEventResourceType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx context.Context, sel ast.SelectionSet, v *model.AuditEventResourceType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalOAuditEventsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventsFilter(ctx context.Context, v interface{}) (*model.AuditEventsFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputAuditEventsFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOAzureApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAzureApplication(ctx context.Context, sel ast.SelectionSet, v *model.AzureApplication) graphql.Marshaler {

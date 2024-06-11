@@ -3,9 +3,10 @@ package audit
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/graph/model"
 
 	"github.com/nais/api/internal/auth/authz"
-	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -14,24 +15,24 @@ type teamAddMember struct {
 	data teamAddMemberData
 }
 
-func (t teamAddMember) ResourceType() string {
-	return string(ResourceTeam)
+func (t teamAddMember) Action() string {
+	return string(ActionTeamAddMember)
+}
+
+func (t teamAddMember) Data() any {
+	return t.data
+}
+
+func (t teamAddMember) Message() string {
+	return fmt.Sprintf("Added %q as %q", t.data.MemberEmail, t.data.Role)
 }
 
 func (t teamAddMember) ResourceName() string {
 	return t.team.String()
 }
 
-func (t teamAddMember) Action() string {
-	return string(ActionTeamAddMember)
-}
-
-func (t teamAddMember) MarshalData() ([]byte, error) {
-	return json.Marshal(t.data)
-}
-
-func (t teamAddMember) Message() string {
-	return fmt.Sprintf("%s added %s as %s to team", t.actor, t.data.MemberEmail, t.data.Role)
+func (t teamAddMember) ResourceType() string {
+	return string(model.AuditEventResourceTypeTeamMembers)
 }
 
 type teamAddMemberData struct {
@@ -54,7 +55,7 @@ func NewTeamAddMember(actor authz.AuthenticatedUser, teamSlug slug.Slug, memberE
 }
 
 // teamAddMemberFromRow converts a database row to an Event.
-func teamAddMemberFromRow(row *gensql.AuditEvent) (Event, error) {
+func teamAddMemberFromRow(row *database.AuditEvent) (Event, error) {
 	var data teamAddMemberData
 	if row.Data != nil {
 		if err := json.Unmarshal(row.Data, &data); err != nil {

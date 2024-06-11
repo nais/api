@@ -1,9 +1,7 @@
 package graph
 
 import (
-	"github.com/nais/api/internal/audit/events"
-	"k8s.io/utils/ptr"
-
+	audit "github.com/nais/api/internal/audit/events"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 )
@@ -14,10 +12,10 @@ func toGraphAuditEvents(events []audit.Event) []*model.AuditEvent {
 		graphEvents[i] = &model.AuditEvent{
 			ID:           scalar.AuditEventIdent(e.ID()),
 			Action:       e.Action(),
-			Actor:        ptr.To(e.Actor()),
+			Actor:        e.Actor(),
 			Message:      e.Message(),
 			CreatedAt:    e.CreatedAt(),
-			ResourceType: e.ResourceType(),
+			ResourceType: model.AuditEventResourceType(e.ResourceType()),
 		}
 	}
 	return graphEvents

@@ -103,18 +103,23 @@ type AuditEvent struct {
 	// String representation of the action performed.
 	Action string `json:"action"`
 	// The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
-	Actor *string `json:"actor,omitempty"`
+	Actor string `json:"actor"`
 	// Message that summarizes the event.
 	Message string `json:"message"`
 	// Creation time of the event.
 	CreatedAt time.Time `json:"createdAt"`
 	// Type of the resource that was affected by the action.
-	ResourceType string `json:"resourceType"`
+	ResourceType AuditEventResourceType `json:"resourceType"`
 }
 
 type AuditEventList struct {
 	Nodes    []*AuditEvent `json:"nodes"`
 	PageInfo PageInfo      `json:"pageInfo"`
+}
+
+type AuditEventsFilter struct {
+	// Filter by the type of the resource that was affected by the action.
+	ResourceType *AuditEventResourceType `json:"resourceType,omitempty"`
 }
 
 // Audit log type.
@@ -1046,6 +1051,47 @@ type VulnerabilitySummaryForTeam struct {
 	Low        int `json:"low"`
 	Unassigned int `json:"unassigned"`
 	BomCount   int `json:"bomCount"`
+}
+
+type AuditEventResourceType string
+
+const (
+	AuditEventResourceTypeTeam        AuditEventResourceType = "TEAM"
+	AuditEventResourceTypeTeamMembers AuditEventResourceType = "TEAM_MEMBERS"
+)
+
+var AllAuditEventResourceType = []AuditEventResourceType{
+	AuditEventResourceTypeTeam,
+	AuditEventResourceTypeTeamMembers,
+}
+
+func (e AuditEventResourceType) IsValid() bool {
+	switch e {
+	case AuditEventResourceTypeTeam, AuditEventResourceTypeTeamMembers:
+		return true
+	}
+	return false
+}
+
+func (e AuditEventResourceType) String() string {
+	return string(e)
+}
+
+func (e *AuditEventResourceType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AuditEventResourceType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AuditEventResourceType", str)
+	}
+	return nil
+}
+
+func (e AuditEventResourceType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type ErrorLevel string

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	audit "github.com/nais/api/internal/audit/events"
 	"strconv"
 
 	"github.com/google/uuid"
@@ -597,19 +598,47 @@ func (r *teamResolver) AuditLogs(ctx context.Context, obj *model.Team, offset *i
 	}, nil
 }
 
-func (r *teamResolver) AuditEvents(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.AuditEventList, error) {
+func (r *teamResolver) AuditEvents(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.AuditEventsFilter) (*model.AuditEventList, error) {
 	p := model.NewPagination(offset, limit)
-	entries, total, err := r.database.GetAuditEventsForTeam(ctx, obj.Slug, database.Page{
-		Limit:  p.Limit,
-		Offset: p.Offset,
-	})
-	if err != nil {
-		return nil, err
+
+	var entries []*database.AuditEvent
+	var total int
+	var err error
+	var pageInfo model.PageInfo
+
+	if filter != nil && filter.ResourceType != nil {
+		entries, total, err = r.database.GetAuditEventsForTeamByResource(ctx, obj.Slug, string(*filter.ResourceType), database.Page{
+			Limit:  p.Limit,
+			Offset: p.Offset,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		pageInfo = model.NewPageInfo(p, total)
+	} else {
+		entries, total, err = r.database.GetAuditEventsForTeam(ctx, obj.Slug, database.Page{
+			Limit:  p.Limit,
+			Offset: p.Offset,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		pageInfo = model.NewPageInfo(p, total)
+	}
+
+	events := make([]audit.Event, len(entries))
+	for i, e := range entries {
+		events[i], err = audit.ToEvent(e)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &model.AuditEventList{
-		Nodes:    toGraphAuditEvents(entries),
-		PageInfo: model.NewPageInfo(p, total),
+		Nodes:    toGraphAuditEvents(events),
+		PageInfo: pageInfo,
 	}, nil
 }
 

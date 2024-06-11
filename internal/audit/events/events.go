@@ -2,10 +2,11 @@ package audit
 
 import (
 	"fmt"
+	"github.com/nais/api/internal/database"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -16,8 +17,8 @@ type Event interface {
 	Action() string
 	Actor() string
 	CreatedAt() time.Time
+	Data() any
 	ID() uuid.UUID
-	MarshalData() ([]byte, error)
 	Message() string
 	ResourceType() string
 	ResourceName() string
@@ -48,37 +49,33 @@ func (b base) Team() slug.Slug {
 	return b.team
 }
 
-type Resource string
-
-const (
-	ResourceTeam Resource = "team"
-)
-
 type Action string
 
 const (
-	ActionTeamAddMember     Action = "add_member"
-	ActionTeamRemoveMember  Action = "remove_member"
-	ActionTeamSetMemberRole Action = "set_member_role"
-	ActionTeamSync          Action = "synchronize_team"
+	ActionTeamAddMember     Action = "ADD_MEMBER"
+	ActionTeamRemoveMember  Action = "REMOVE_MEMBER"
+	ActionTeamSetMemberRole Action = "SET_MEMBER_ROLE"
+	ActionTeamSync          Action = "SYNCHRONIZE_TEAM"
 )
 
 type (
-	resourceActionMappers map[Resource]map[Action]rowMapper
-	rowMapper             func(row *gensql.AuditEvent) (Event, error)
+	resourceActionMappers map[model.AuditEventResourceType]map[Action]rowMapper
+	rowMapper             func(row *database.AuditEvent) (Event, error)
 )
 
 var mappers = resourceActionMappers{
-	ResourceTeam: {
+	model.AuditEventResourceTypeTeam: {
+		ActionTeamSync: teamSyncFromRow,
+	},
+	model.AuditEventResourceTypeTeamMembers: {
 		ActionTeamAddMember:     teamAddMemberFromRow,
 		ActionTeamRemoveMember:  teamRemoveMemberFromRow,
 		ActionTeamSetMemberRole: teamSetMemberRoleFromRow,
-		ActionTeamSync:          teamSyncFromRow,
 	},
 }
 
-func ToEvent(row *gensql.AuditEvent) (Event, error) {
-	resource, ok := mappers[Resource(row.ResourceType)]
+func ToEvent(row *database.AuditEvent) (Event, error) {
+	resource, ok := mappers[model.AuditEventResourceType(row.ResourceType)]
 	if !ok {
 		return nil, fmt.Errorf("unsupported resource type %q", row.ResourceType)
 	}

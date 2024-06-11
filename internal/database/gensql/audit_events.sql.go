@@ -47,6 +47,24 @@ func (q *Queries) GetAuditEventsCountForTeam(ctx context.Context, team *slug.Slu
 	return count, err
 }
 
+const getAuditEventsCountForTeamByResource = `-- name: GetAuditEventsCountForTeamByResource :one
+SELECT COUNT(*) FROM audit_events
+WHERE team_slug = $1
+AND resource_type = $2
+`
+
+type GetAuditEventsCountForTeamByResourceParams struct {
+	Team         *slug.Slug
+	ResourceType string
+}
+
+func (q *Queries) GetAuditEventsCountForTeamByResource(ctx context.Context, arg GetAuditEventsCountForTeamByResourceParams) (int64, error) {
+	row := q.db.QueryRow(ctx, getAuditEventsCountForTeamByResource, arg.Team, arg.ResourceType)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getAuditEventsForTeam = `-- name: GetAuditEventsForTeam :many
 SELECT id, created_at, actor, action, resource_type, resource_name, team_slug, data FROM audit_events
 WHERE team_slug = $1
@@ -62,6 +80,56 @@ type GetAuditEventsForTeamParams struct {
 
 func (q *Queries) GetAuditEventsForTeam(ctx context.Context, arg GetAuditEventsForTeamParams) ([]*AuditEvent, error) {
 	rows, err := q.db.Query(ctx, getAuditEventsForTeam, arg.Team, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*AuditEvent{}
+	for rows.Next() {
+		var i AuditEvent
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.Actor,
+			&i.Action,
+			&i.ResourceType,
+			&i.ResourceName,
+			&i.TeamSlug,
+			&i.Data,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAuditEventsForTeamByResource = `-- name: GetAuditEventsForTeamByResource :many
+SELECT id, created_at, actor, action, resource_type, resource_name, team_slug, data FROM audit_events
+WHERE
+    team_slug = $1
+    AND resource_type = $2
+ORDER BY created_at DESC
+LIMIT $4 OFFSET $3
+`
+
+type GetAuditEventsForTeamByResourceParams struct {
+	Team         *slug.Slug
+	ResourceType string
+	Offset       int32
+	Limit        int32
+}
+
+func (q *Queries) GetAuditEventsForTeamByResource(ctx context.Context, arg GetAuditEventsForTeamByResourceParams) ([]*AuditEvent, error) {
+	rows, err := q.db.Query(ctx, getAuditEventsForTeamByResource,
+		arg.Team,
+		arg.ResourceType,
+		arg.Offset,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}

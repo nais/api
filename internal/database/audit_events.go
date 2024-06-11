@@ -2,16 +2,16 @@ package database
 
 import (
 	"context"
-	"k8s.io/utils/ptr"
-
-	"github.com/nais/api/internal/audit/events"
+	"encoding/json"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
+	"k8s.io/utils/ptr"
 )
 
 type AuditEventsRepo interface {
-	CreateAuditEvent(ctx context.Context, event audit.Event) error
-	GetAuditEventsForTeam(ctx context.Context, teamSlug slug.Slug, p Page) ([]audit.Event, int, error)
+	CreateAuditEvent(ctx context.Context, event AuditEventInput) error
+	GetAuditEventsForTeam(ctx context.Context, teamSlug slug.Slug, p Page) ([]*AuditEvent, int, error)
+	GetAuditEventsForTeamByResource(ctx context.Context, teamSlug slug.Slug, resourceType string, p Page) ([]*AuditEvent, int, error)
 }
 
 var _ AuditEventsRepo = (*database)(nil)
@@ -20,11 +20,25 @@ type AuditEvent struct {
 	*gensql.AuditEvent
 }
 
-func (d *database) CreateAuditEvent(ctx context.Context, event audit.Event) error {
+type AuditEventInput interface {
+	Action() string
+	Actor() string
+	Data() any
+	ResourceType() string
+	ResourceName() string
+	Team() slug.Slug
+}
+
+func (d *database) CreateAuditEvent(ctx context.Context, event AuditEventInput) error {
 	return d.querier.Transaction(ctx, func(ctx context.Context, querier Querier) error {
-		data, err := event.MarshalData()
-		if err != nil {
-			return err
+		var data []byte
+		if event.Data() != nil {
+			var err error
+
+			data, err = json.Marshal(event.Data())
+			if err != nil {
+				return err
+			}
 		}
 
 		return querier.CreateAuditEvent(ctx, gensql.CreateAuditEventParams{
@@ -38,7 +52,7 @@ func (d *database) CreateAuditEvent(ctx context.Context, event audit.Event) erro
 	})
 }
 
-func (d *database) GetAuditEventsForTeam(ctx context.Context, teamSlug slug.Slug, p Page) ([]audit.Event, int, error) {
+func (d *database) GetAuditEventsForTeam(ctx context.Context, teamSlug slug.Slug, p Page) ([]*AuditEvent, int, error) {
 	rows, err := d.querier.GetAuditEventsForTeam(ctx, gensql.GetAuditEventsForTeamParams{
 		Team:   &teamSlug,
 		Offset: int32(p.Offset),
@@ -48,15 +62,39 @@ func (d *database) GetAuditEventsForTeam(ctx context.Context, teamSlug slug.Slug
 		return nil, 0, err
 	}
 
-	entries := make([]audit.Event, len(rows))
+	entries := make([]*AuditEvent, len(rows))
 	for i, row := range rows {
-		entries[i], err = audit.ToEvent(row)
-		if err != nil {
-			return nil, 0, err
-		}
+		entries[i] = &AuditEvent{AuditEvent: row}
 	}
 
 	total, err := d.querier.GetAuditEventsCountForTeam(ctx, &teamSlug)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return entries, int(total), nil
+}
+
+func (d *database) GetAuditEventsForTeamByResource(ctx context.Context, teamSlug slug.Slug, resourceType string, p Page) ([]*AuditEvent, int, error) {
+	rows, err := d.querier.GetAuditEventsForTeamByResource(ctx, gensql.GetAuditEventsForTeamByResourceParams{
+		Team:         &teamSlug,
+		Offset:       int32(p.Offset),
+		Limit:        int32(p.Limit),
+		ResourceType: resourceType,
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+
+	entries := make([]*AuditEvent, len(rows))
+	for i, row := range rows {
+		entries[i] = &AuditEvent{AuditEvent: row}
+	}
+
+	total, err := d.querier.GetAuditEventsCountForTeamByResource(ctx, gensql.GetAuditEventsCountForTeamByResourceParams{
+		Team:         &teamSlug,
+		ResourceType: resourceType,
+	})
 	if err != nil {
 		return nil, 0, err
 	}

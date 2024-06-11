@@ -221,7 +221,8 @@ type Team {
     "Limit the number of audit events to return. Default is 20."
     limit: Int
 
-    # TODO: add filter?
+    "Filter audit events."
+    filter: AuditEventsFilter
   ): AuditEventList!
 
   "Team members."

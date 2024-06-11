@@ -7,7 +7,7 @@ type AuditEvent {
   action: String!
 
   "The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
-  actor: String
+  actor: String!
 
   "Message that summarizes the event."
   message: String!
@@ -16,10 +16,20 @@ type AuditEvent {
   createdAt: Time!
 
   "Type of the resource that was affected by the action."
-  resourceType: String!
+  resourceType: AuditEventResourceType!
 }
 
 type AuditEventList {
   nodes: [AuditEvent!]!
   pageInfo: PageInfo!
+}
+
+input AuditEventsFilter {
+  "Filter by the type of the resource that was affected by the action."
+  resourceType: AuditEventResourceType
+}
+
+enum AuditEventResourceType {
+  TEAM
+  TEAM_MEMBERS
 }
