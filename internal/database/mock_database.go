@@ -1949,12 +1949,12 @@ func (_c *MockDatabase_ExtendSession_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
-// GetActiveTeamBySlug provides a mock function with given fields: ctx, teamSlug
-func (_m *MockDatabase) GetActiveTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error) {
+// GetActiveOrDeletedTeamBySlug provides a mock function with given fields: ctx, teamSlug
+func (_m *MockDatabase) GetActiveOrDeletedTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error) {
 	ret := _m.Called(ctx, teamSlug)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetActiveTeamBySlug")
+		panic("no return value specified for GetActiveOrDeletedTeamBySlug")
 	}
 
 	var r0 *Team
@@ -1979,31 +1979,31 @@ func (_m *MockDatabase) GetActiveTeamBySlug(ctx context.Context, teamSlug slug.S
 	return r0, r1
 }
 
-// MockDatabase_GetActiveTeamBySlug_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetActiveTeamBySlug'
-type MockDatabase_GetActiveTeamBySlug_Call struct {
+// MockDatabase_GetActiveOrDeletedTeamBySlug_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetActiveOrDeletedTeamBySlug'
+type MockDatabase_GetActiveOrDeletedTeamBySlug_Call struct {
 	*mock.Call
 }
 
-// GetActiveTeamBySlug is a helper method to define mock.On call
+// GetActiveOrDeletedTeamBySlug is a helper method to define mock.On call
 //   - ctx context.Context
 //   - teamSlug slug.Slug
-func (_e *MockDatabase_Expecter) GetActiveTeamBySlug(ctx interface{}, teamSlug interface{}) *MockDatabase_GetActiveTeamBySlug_Call {
-	return &MockDatabase_GetActiveTeamBySlug_Call{Call: _e.mock.On("GetActiveTeamBySlug", ctx, teamSlug)}
+func (_e *MockDatabase_Expecter) GetActiveOrDeletedTeamBySlug(ctx interface{}, teamSlug interface{}) *MockDatabase_GetActiveOrDeletedTeamBySlug_Call {
+	return &MockDatabase_GetActiveOrDeletedTeamBySlug_Call{Call: _e.mock.On("GetActiveOrDeletedTeamBySlug", ctx, teamSlug)}
 }
 
-func (_c *MockDatabase_GetActiveTeamBySlug_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockDatabase_GetActiveTeamBySlug_Call {
+func (_c *MockDatabase_GetActiveOrDeletedTeamBySlug_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockDatabase_GetActiveOrDeletedTeamBySlug_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(slug.Slug))
 	})
 	return _c
 }
 
-func (_c *MockDatabase_GetActiveTeamBySlug_Call) Return(_a0 *Team, _a1 error) *MockDatabase_GetActiveTeamBySlug_Call {
+func (_c *MockDatabase_GetActiveOrDeletedTeamBySlug_Call) Return(_a0 *Team, _a1 error) *MockDatabase_GetActiveOrDeletedTeamBySlug_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockDatabase_GetActiveTeamBySlug_Call) RunAndReturn(run func(context.Context, slug.Slug) (*Team, error)) *MockDatabase_GetActiveTeamBySlug_Call {
+func (_c *MockDatabase_GetActiveOrDeletedTeamBySlug_Call) RunAndReturn(run func(context.Context, slug.Slug) (*Team, error)) *MockDatabase_GetActiveOrDeletedTeamBySlug_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -6,6 +6,8 @@ import (
 	"sort"
 	"time"
 
+	"k8s.io/utils/ptr"
+
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
@@ -34,11 +36,11 @@ type TeamRepo interface {
 	CreateTeam(ctx context.Context, teamSlug slug.Slug, purpose, slackChannel string) (*Team, error)
 	CreateTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*TeamDeleteKey, error)
 	DeleteTeam(ctx context.Context, teamSlug slug.Slug) error
-	GetActiveTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error)
 	GetTeams(ctx context.Context) ([]*Team, error)
 	GetAllTeamMembers(ctx context.Context, teamSlug slug.Slug) ([]*User, error)
 	GetAllTeamSlugs(ctx context.Context) ([]slug.Slug, error)
 	GetTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error)
+	GetActiveOrDeletedTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error)
 	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
 	GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, p Page) ([]*TeamEnvironment, int, error)
 	GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, keys []EnvSlugName) ([]*TeamEnvironment, error)
@@ -86,6 +88,10 @@ type Team struct {
 	*gensql.Team
 }
 
+type DeletedTeam struct {
+	*gensql.Team
+}
+
 func (d *database) RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error {
 	return d.querier.RemoveUserFromTeam(ctx, gensql.RemoveUserFromTeamParams{
 		UserID:   userID,
@@ -128,13 +134,13 @@ func (d *database) CreateTeam(ctx context.Context, teamSlug slug.Slug, purpose, 
 	return &Team{Team: team}, nil
 }
 
-func (d *database) GetActiveTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error) {
-	team, err := d.querier.GetActiveTeamBySlug(ctx, teamSlug)
+func (d *database) GetActiveOrDeletedTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error) {
+	team, err := d.querier.GetActiveOrDeletedTeamBySlug(ctx, teamSlug)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Team{Team: team}, nil
+	return &Team{Team: ptr.To(gensql.Team(*team))}, nil
 }
 
 func (d *database) GetTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error) {

@@ -708,9 +708,19 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, key string) 
 
 	correlationID := uuid.New()
 
-	err = r.database.ConfirmTeamDeleteKey(ctx, uid)
+	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
+		if err = r.database.ConfirmTeamDeleteKey(ctx, uid); err != nil {
+			return fmt.Errorf("confirm team delete key: %w", err)
+		}
+
+		if err = r.database.DeleteTeam(ctx, deleteKey.TeamSlug); err != nil {
+			return fmt.Errorf("mark team as deleted: %w", err)
+		}
+
+		return nil
+	})
 	if err != nil {
-		return false, fmt.Errorf("confirm team delete key: %w", err)
+		return false, fmt.Errorf("delete team: %w", err)
 	}
 
 	targets := []auditlogger.Target{
@@ -943,7 +953,7 @@ func (r *teamResolver) GithubRepositories(ctx context.Context, obj *model.Team, 
 }
 
 func (r *teamResolver) DeletionInProgress(ctx context.Context, obj *model.Team) (bool, error) {
-	_, err := r.database.GetActiveTeamBySlug(ctx, obj.Slug)
+	_, err := r.database.GetTeamBySlug(ctx, obj.Slug)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return true, nil
 	}

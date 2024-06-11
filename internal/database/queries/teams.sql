@@ -48,31 +48,30 @@ RETURNING *;
 SELECT teams.* FROM teams
 ORDER BY teams.slug ASC;
 
+-- GetPaginatedTeams returns a slice of teams, excluding deleted teams.
 -- name: GetPaginatedTeams :many
 SELECT teams.* FROM teams
 ORDER BY teams.slug ASC
 LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
+-- GetAllTeamSlugs returns all team slugs in ascending order, excluding deleted teams.
 -- name: GetAllTeamSlugs :many
 SELECT teams.slug FROM teams
 ORDER BY teams.slug ASC;
 
--- name: GetActiveAndDeletedTeams :many
-SELECT teams.* FROM active_and_deleted_teams teams
-ORDER BY teams.slug ASC;
-
+-- GetTeamsCount returns the total number of non-deleted teams.
 -- name: GetTeamsCount :one
 SELECT COUNT(*) as total
 FROM teams;
 
--- name: GetActiveTeamBySlug :one
+-- name: GetTeamBySlug :one
 SELECT teams.* FROM teams
 WHERE teams.slug = @slug;
 
--- name: GetTeamBySlug :one
--- FIXME: consider removing one of either this one or the one above
-SELECT teams.* FROM teams
-WHERE teams.slug = @slug;
+-- GetActiveOrDeletedTeamBySlug returns a team by its slug, whether the team is deleted or not.
+-- name: GetActiveOrDeletedTeamBySlug :one
+SELECT active_and_deleted_teams.* FROM active_and_deleted_teams
+WHERE active_and_deleted_teams.slug = @slug;
 
 -- name: GetTeamBySlugs :many
 SELECT * FROM teams
@@ -120,6 +119,7 @@ WHERE
     )
 ORDER BY users.name ASC;
 
+-- UpdateTeam updates the purpose and slack channel of a team when specified.
 -- name: UpdateTeam :one
 UPDATE teams
 SET purpose = COALESCE(sqlc.narg(purpose), purpose),
@@ -158,9 +158,10 @@ UPDATE team_delete_keys
 SET confirmed_at = NOW()
 WHERE key = @key;
 
+-- DeleteTeam marks a team as deleted. The team must have an already confirmed delete key for a successful deletion.
 -- name: DeleteTeam :exec
 UPDATE active_and_deleted_teams t
-SET deleted_at = NOW()
+SET t.deleted_at = NOW()
 WHERE
     t.slug = @slug
     AND t.deleted_at IS NULL
@@ -183,6 +184,7 @@ FROM reconcilers
 WHERE reconcilers.enabled = true
 ORDER BY reconcilers.name ASC;
 
+-- TeamExists checks is a team exists. Deleted teams are not considered.
 -- name: TeamExists :one
 SELECT EXISTS(
     SELECT 1 FROM teams

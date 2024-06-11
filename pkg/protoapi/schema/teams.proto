@@ -1,9 +1,10 @@
 syntax = "proto3";
 
+option go_package = "./pkg/protoapi";
+
 import "pagination.proto";
 import "users.proto";
-
-option go_package = "./pkg/protoapi";
+import "google/protobuf/timestamp.proto";
 
 message Team {
   string slug = 1;
@@ -13,6 +14,7 @@ message Team {
   optional string github_team_slug = 5;
   optional string google_group_email = 6;
   optional string gar_repository = 7;
+  google.protobuf.Timestamp deleted_at = 8;
 }
 
 message ListAuthorizedRepositoriesRequest {

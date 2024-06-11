@@ -52,13 +52,15 @@ type Querier interface {
 	DeleteReconcilerStateForTeam(ctx context.Context, arg DeleteReconcilerStateForTeamParams) error
 	DeleteServiceAccount(ctx context.Context, id uuid.UUID) error
 	DeleteSession(ctx context.Context, id uuid.UUID) error
+	// DeleteTeam marks a team as deleted. The team must have an already confirmed delete key for a successful deletion.
 	DeleteTeam(ctx context.Context, argSlug slug.Slug) error
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	DisableReconciler(ctx context.Context, name string) (*Reconciler, error)
 	EnableReconciler(ctx context.Context, name string) (*Reconciler, error)
-	GetActiveAndDeletedTeams(ctx context.Context) ([]*ActiveAndDeletedTeam, error)
-	GetActiveTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error)
+	// GetActiveOrDeletedTeamBySlug returns a team by its slug, whether the team is deleted or not.
+	GetActiveOrDeletedTeamBySlug(ctx context.Context, argSlug slug.Slug) (*ActiveAndDeletedTeam, error)
 	GetAllTeamMembers(ctx context.Context, teamSlug *slug.Slug) ([]*User, error)
+	// GetAllTeamSlugs returns all team slugs in ascending order, excluding deleted teams.
 	GetAllTeamSlugs(ctx context.Context) ([]slug.Slug, error)
 	GetAllUserRoles(ctx context.Context) ([]*UserRole, error)
 	GetAuditLogsForCorrelationID(ctx context.Context, arg GetAuditLogsForCorrelationIDParams) ([]*AuditLog, error)
@@ -68,6 +70,7 @@ type Querier interface {
 	GetAuditLogsForTeam(ctx context.Context, arg GetAuditLogsForTeamParams) ([]*AuditLog, error)
 	GetAuditLogsForTeamCount(ctx context.Context, targetIdentifier string) (int64, error)
 	GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error)
+	// GetPaginatedTeams returns a slice of teams, excluding deleted teams.
 	GetPaginatedTeams(ctx context.Context, arg GetPaginatedTeamsParams) ([]*Team, error)
 	GetReconciler(ctx context.Context, name string) (*Reconciler, error)
 	GetReconcilerConfig(ctx context.Context, arg GetReconcilerConfigParams) ([]*GetReconcilerConfigRow, error)
@@ -82,7 +85,6 @@ type Querier interface {
 	GetServiceAccounts(ctx context.Context) ([]*ServiceAccount, error)
 	GetServiceAccountsByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccount, error)
 	GetSessionByID(ctx context.Context, id uuid.UUID) (*Session, error)
-	// FIXME: consider removing one of either this one or the one above
 	GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	GetTeamBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)
 	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
@@ -97,6 +99,7 @@ type Querier interface {
 	GetTeamMembersForReconciler(ctx context.Context, arg GetTeamMembersForReconcilerParams) ([]*User, error)
 	GetTeamReconcilerErrors(ctx context.Context, teamSlug slug.Slug) ([]*ReconcilerError, error)
 	GetTeams(ctx context.Context) ([]*Team, error)
+	// GetTeamsCount returns the total number of non-deleted teams.
 	GetTeamsCount(ctx context.Context) (int64, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserByExternalID(ctx context.Context, externalID string) (*User, error)
@@ -150,7 +153,9 @@ type Querier interface {
 	// SpecificResourceUtilizationForTeam will return resource utilization for a team at a specific timestamp. Applications
 	// with a usage greater than request will be ignored.
 	SpecificResourceUtilizationForTeam(ctx context.Context, arg SpecificResourceUtilizationForTeamParams) ([]*SpecificResourceUtilizationForTeamRow, error)
+	// TeamExists checks is a team exists. Deleted teams are not considered.
 	TeamExists(ctx context.Context, argSlug slug.Slug) (bool, error)
+	// UpdateTeam updates the purpose and slack channel of a team when specified.
 	UpdateTeam(ctx context.Context, arg UpdateTeamParams) (*Team, error)
 	UpdateTeamExternalReferences(ctx context.Context, arg UpdateTeamExternalReferencesParams) (*Team, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (*User, error)

@@ -5,6 +5,8 @@ import (
 	"errors"
 	"slices"
 
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/database"
@@ -43,7 +45,7 @@ func (t *TeamsServer) Delete(ctx context.Context, req *protoapi.DeleteTeamReques
 }
 
 func (t *TeamsServer) Get(ctx context.Context, req *protoapi.GetTeamRequest) (*protoapi.GetTeamResponse, error) {
-	team, err := t.db.GetTeamBySlug(ctx, slug.Slug(req.Slug))
+	team, err := t.db.GetActiveOrDeletedTeamBySlug(ctx, slug.Slug(req.Slug))
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, status.Errorf(codes.NotFound, "team not found")
 	} else if err != nil {
@@ -204,6 +206,7 @@ func toProtoTeam(team *database.Team) *protoapi.Team {
 		GithubTeamSlug:   team.GithubTeamSlug,
 		GoogleGroupEmail: team.GoogleGroupEmail,
 		GarRepository:    team.GarRepository,
+		DeletedAt:        timestamppb.New(team.DeletedAt.Time),
 	}
 }
 

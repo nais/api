@@ -22,7 +22,7 @@ func TestTeamsServer_Get(t *testing.T) {
 	t.Run("team not found", func(t *testing.T) {
 		db := database.NewMockDatabase(t)
 		db.EXPECT().
-			GetTeamBySlug(ctx, slug.Slug("team-not-found")).
+			GetActiveOrDeletedTeamBySlug(ctx, slug.Slug("team-not-found")).
 			Return(nil, pgx.ErrNoRows).
 			Once()
 
@@ -39,7 +39,7 @@ func TestTeamsServer_Get(t *testing.T) {
 	t.Run("database error", func(t *testing.T) {
 		db := database.NewMockDatabase(t)
 		db.EXPECT().
-			GetTeamBySlug(ctx, slug.Slug("team-not-found")).
+			GetActiveOrDeletedTeamBySlug(ctx, slug.Slug("team-not-found")).
 			Return(nil, fmt.Errorf("some database error")).
 			Once()
 
@@ -67,7 +67,7 @@ func TestTeamsServer_Get(t *testing.T) {
 
 		db := database.NewMockDatabase(t)
 		db.EXPECT().
-			GetTeamBySlug(ctx, slug.Slug(teamSlug)).
+			GetActiveOrDeletedTeamBySlug(ctx, slug.Slug(teamSlug)).
 			Return(&database.Team{Team: &gensql.Team{
 				Slug:             teamSlug,
 				Purpose:          purpose,
