@@ -57,7 +57,7 @@ func (t *TeamsServer) Get(ctx context.Context, req *protoapi.GetTeamRequest) (*p
 
 func (t *TeamsServer) List(ctx context.Context, req *protoapi.ListTeamsRequest) (*protoapi.ListTeamsResponse, error) {
 	limit, offset := pagination(req)
-	teams, total, err := t.db.GetTeams(ctx, database.Page{
+	teams, total, err := t.db.GetPaginatedTeams(ctx, database.Page{
 		Limit:  limit,
 		Offset: offset,
 	})

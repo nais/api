@@ -330,7 +330,7 @@ func (r *mutationResolver) SynchronizeAllTeams(ctx context.Context) (*model.Team
 	limit, offset := 100, 0
 	teams := make([]*database.Team, 0)
 	for {
-		page, _, err := r.database.GetTeams(ctx, database.Page{
+		page, _, err := r.database.GetPaginatedTeams(ctx, database.Page{
 			Limit:  limit,
 			Offset: offset,
 		})
@@ -769,7 +769,7 @@ func (r *queryResolver) Teams(ctx context.Context, offset *int, limit *int, filt
 		teams, pageInfo = model.PaginatedSlice(teams, p)
 	} else {
 		var total int
-		teams, total, err = r.database.GetTeams(ctx, database.Page{
+		teams, total, err = r.database.GetPaginatedTeams(ctx, database.Page{
 			Limit:  p.Limit,
 			Offset: p.Offset,
 		})

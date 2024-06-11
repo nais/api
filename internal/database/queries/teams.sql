@@ -63,8 +63,7 @@ ORDER BY teams.slug ASC;
 
 -- name: GetTeamsCount :one
 SELECT COUNT(*) as total
-FROM teams
-;
+FROM teams;
 
 -- name: GetActiveTeamBySlug :one
 SELECT teams.* FROM teams

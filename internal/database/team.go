@@ -146,10 +146,10 @@ func (d *database) GetTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team
 	return &Team{Team: team}, nil
 }
 
-func (d *database) GetTeams(ctx context.Context, p Page) ([]*Team, int, error) {
+func (d *database) GetPaginatedTeams(ctx context.Context, p Page) ([]*Team, int, error) {
 	var teams []*gensql.Team
 	var err error
-	teams, err = d.querier.GetTeams(ctx, gensql.GetTeamsParams{
+	teams, err = d.querier.GetPaginatedTeams(ctx, gensql.GetPaginatedTeamsParams{
 		Offset: int32(p.Offset),
 		Limit:  int32(p.Limit),
 	})
@@ -168,6 +168,20 @@ func (d *database) GetTeams(ctx context.Context, p Page) ([]*Team, int, error) {
 	}
 
 	return collection, int(total), nil
+}
+
+func (d *database) GetTeams(ctx context.Context) ([]*Team, error) {
+	teams, err := d.querier.GetTeams(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := make([]*Team, len(teams))
+	for i, team := range teams {
+		ret[i] = &Team{Team: team}
+	}
+
+	return ret, nil
 }
 
 func (d *database) GetTeamsBySlugs(ctx context.Context, teamSlugs []slug.Slug) ([]*Team, error) {
