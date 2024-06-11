@@ -6,7 +6,11 @@ CREATE INDEX ON teams (deleted_at);
 
 ALTER TABLE teams RENAME TO active_and_deleted_teams;
 
-CREATE VIEW teams AS SELECT * FROM active_and_deleted_teams WHERE deleted_at IS NULL;
+CREATE VIEW teams AS (
+    SELECT *
+    FROM active_and_deleted_teams
+    WHERE deleted_at IS NULL
+);
 
 -- +goose Down
 
