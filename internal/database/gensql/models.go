@@ -267,6 +267,18 @@ func AllWorkloadTypeValues() []WorkloadType {
 	}
 }
 
+type ActiveAndDeletedTeam struct {
+	Slug               slug.Slug
+	Purpose            string
+	LastSuccessfulSync pgtype.Timestamp
+	SlackChannel       string
+	GoogleGroupEmail   *string
+	AzureGroupID       *uuid.UUID
+	GithubTeamSlug     *string
+	GarRepository      *string
+	DeletedAt          pgtype.Timestamptz
+}
+
 type AuditLog struct {
 	ID               uuid.UUID
 	CreatedAt        pgtype.Timestamptz

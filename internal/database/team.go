@@ -35,7 +35,7 @@ type TeamRepo interface {
 	CreateTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*TeamDeleteKey, error)
 	DeleteTeam(ctx context.Context, teamSlug slug.Slug) error
 	GetActiveTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error)
-	GetActiveTeams(ctx context.Context) ([]*Team, error)
+	GetTeams(ctx context.Context) ([]*Team, error)
 	GetAllTeamMembers(ctx context.Context, teamSlug slug.Slug) ([]*User, error)
 	GetAllTeamSlugs(ctx context.Context) ([]slug.Slug, error)
 	GetTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error)
@@ -46,7 +46,7 @@ type TeamRepo interface {
 	GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*gensql.GetTeamMemberOptOutsRow, error)
 	GetTeamMembers(ctx context.Context, teamSlug slug.Slug, p Page) ([]*User, int, error)
 	GetTeamMembersForReconciler(ctx context.Context, teamSlug slug.Slug, reconcilerName string) ([]*User, error)
-	GetTeams(ctx context.Context, p Page) ([]*Team, int, error)
+	GetPaginatedTeams(ctx context.Context, p Page) ([]*Team, int, error)
 	GetTeamsBySlugs(ctx context.Context, teamSlugs []slug.Slug) ([]*Team, error)
 	GetAllTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string) ([]*Team, error)
 	GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*UserTeam, error)
@@ -205,20 +205,6 @@ func (d *database) GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, 
 	}
 
 	return envs, int(total), nil
-}
-
-func (d *database) GetActiveTeams(ctx context.Context) ([]*Team, error) {
-	teams, err := d.querier.GetActiveTeams(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	collection := make([]*Team, len(teams))
-	for i, team := range teams {
-		collection[i] = &Team{Team: team}
-	}
-
-	return collection, nil
 }
 
 func (d *database) GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*UserTeam, error) {

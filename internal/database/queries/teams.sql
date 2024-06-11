@@ -3,15 +3,6 @@ INSERT INTO teams (slug, purpose, slack_channel)
 VALUES (@slug, @purpose, @slack_channel)
 RETURNING *;
 
--- name: GetActiveTeams :many
-SELECT teams.* FROM teams
-ORDER BY teams.slug ASC;
-
--- name: GetActiveAndDeletedTeams :many
-SELECT teams.* FROM active_and_deleted_teams teams
-ORDER BY teams.slug ASC
-LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
-
 -- name: GetTeamEnvironments :many
 SELECT *
 FROM team_all_environments
@@ -53,14 +44,22 @@ SET
     gcp_project_id = COALESCE(EXCLUDED.gcp_project_id, team_environments.gcp_project_id)
 RETURNING *;
 
+-- name: GetTeams :many
+SELECT teams.* FROM teams
+ORDER BY teams.slug ASC;
+
+-- name: GetPaginatedTeams :many
+SELECT teams.* FROM teams
+ORDER BY teams.slug ASC
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
 -- name: GetAllTeamSlugs :many
 SELECT teams.slug FROM teams
 ORDER BY teams.slug ASC;
 
--- name: GetTeams :many
-SELECT teams.* FROM teams
-ORDER BY teams.slug ASC
-LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+-- name: GetActiveAndDeletedTeams :many
+SELECT teams.* FROM active_and_deleted_teams teams
+ORDER BY teams.slug ASC;
 
 -- name: GetTeamsCount :one
 SELECT COUNT(*) as total
