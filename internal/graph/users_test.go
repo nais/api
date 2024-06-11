@@ -12,7 +12,6 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph"
-	"github.com/nais/api/internal/usersync"
 	"github.com/sirupsen/logrus/hooks/test"
 )
 
@@ -21,10 +20,9 @@ func TestQueryResolver_Users(t *testing.T) {
 	db := database.NewMockDatabase(t)
 	auditLogger := auditlogger.NewAuditLoggerForTesting()
 	log, _ := test.NewNullLogger()
-	userSync := make(chan<- uuid.UUID)
-	userSyncRuns := usersync.NewRunsHandler(5)
+	usersyncTrigger := make(chan<- uuid.UUID)
 	resolver := graph.
-		NewResolver(nil, nil, nil, nil, db, "example.com", userSync, auditLogger, nil, userSyncRuns, nil, log, nil, nil, nil, nil, nil, nil, nil, nil).
+		NewResolver(nil, nil, nil, nil, db, "example.com", usersyncTrigger, auditLogger, nil, nil, log, nil, nil, nil, nil, nil, nil, nil, nil).
 		Query()
 
 	t.Run("unauthenticated user", func(t *testing.T) {

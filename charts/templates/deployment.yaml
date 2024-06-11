@@ -64,6 +64,8 @@ spec:
               value: "true"
             - name: DEPENDENCYTRACK_FRONTEND
               value: "{{ .Values.dependencytrack.frontend }}"
+            - name: DEPENDENCYTRACK_ENDPOINT
+              value: "{{ .Values.dependencytrack.endpoint }}"
             - name: USERSYNC_ENABLED
               value: "true"
             - name: OAUTH_CLIENT_ID

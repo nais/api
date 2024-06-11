@@ -72,7 +72,7 @@ type ResolverRoot interface {
 	TeamMemberReconciler() TeamMemberReconcilerResolver
 	UnleashMetrics() UnleashMetricsResolver
 	User() UserResolver
-	UserSyncRun() UserSyncRunResolver
+	UsersyncRun() UsersyncRunResolver
 }
 
 type DirectiveRoot struct {
@@ -676,27 +676,28 @@ type ComplexityRoot struct {
 	}
 
 	NaisJob struct {
-		AccessPolicy func(childComplexity int) int
-		Authz        func(childComplexity int) int
-		Completions  func(childComplexity int) int
-		DeployInfo   func(childComplexity int) int
-		Env          func(childComplexity int) int
-		ID           func(childComplexity int) int
-		Image        func(childComplexity int) int
-		ImageDetails func(childComplexity int) int
-		Manifest     func(childComplexity int) int
-		Name         func(childComplexity int) int
-		Parallelism  func(childComplexity int) int
-		Persistence  func(childComplexity int) int
-		Resources    func(childComplexity int) int
-		Retries      func(childComplexity int) int
-		Runs         func(childComplexity int) int
-		Schedule     func(childComplexity int) int
-		Secrets      func(childComplexity int) int
-		Status       func(childComplexity int) int
-		Team         func(childComplexity int) int
-		Type         func(childComplexity int) int
-		Variables    func(childComplexity int) int
+		AccessPolicy    func(childComplexity int) int
+		Authz           func(childComplexity int) int
+		Completions     func(childComplexity int) int
+		DeployInfo      func(childComplexity int) int
+		Env             func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Image           func(childComplexity int) int
+		ImageDetails    func(childComplexity int) int
+		Manifest        func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Parallelism     func(childComplexity int) int
+		Persistence     func(childComplexity int) int
+		Resources       func(childComplexity int) int
+		Retries         func(childComplexity int) int
+		Runs            func(childComplexity int) int
+		Schedule        func(childComplexity int) int
+		Secrets         func(childComplexity int) int
+		Status          func(childComplexity int) int
+		Team            func(childComplexity int) int
+		Type            func(childComplexity int) int
+		Variables       func(childComplexity int) int
+		Vulnerabilities func(childComplexity int) int
 	}
 
 	NaisJobList struct {
@@ -790,8 +791,8 @@ type ComplexityRoot struct {
 		TeamDeleteKey                       func(childComplexity int, key string) int
 		Teams                               func(childComplexity int, offset *int, limit *int, filter *model.TeamsFilter) int
 		User                                func(childComplexity int, id *scalar.Ident, email *string) int
-		UserSync                            func(childComplexity int) int
 		Users                               func(childComplexity int, offset *int, limit *int) int
+		UsersyncRuns                        func(childComplexity int, limit *int, offset *int) int
 	}
 
 	Reconciler struct {
@@ -1210,13 +1211,18 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
-	UserSyncRun struct {
-		AuditLogs     func(childComplexity int, limit *int, offset *int) int
-		CorrelationID func(childComplexity int) int
-		Error         func(childComplexity int) int
-		FinishedAt    func(childComplexity int) int
-		StartedAt     func(childComplexity int) int
-		Status        func(childComplexity int) int
+	UsersyncRun struct {
+		AuditLogs  func(childComplexity int, limit *int, offset *int) int
+		Error      func(childComplexity int) int
+		FinishedAt func(childComplexity int) int
+		ID         func(childComplexity int) int
+		StartedAt  func(childComplexity int) int
+		Status     func(childComplexity int) int
+	}
+
+	UsersyncRunList struct {
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
 	}
 
 	Variable struct {
@@ -1255,9 +1261,7 @@ type ComplexityRoot struct {
 	}
 
 	VulnerabilityMetrics struct {
-		Data    func(childComplexity int) int
-		MaxDate func(childComplexity int) int
-		MinDate func(childComplexity int) int
+		Data func(childComplexity int) int
 	}
 
 	VulnerabilitySummaryForTeam struct {
@@ -1366,6 +1370,7 @@ type NaisJobResolver interface {
 	Persistence(ctx context.Context, obj *model.NaisJob) ([]model.Persistence, error)
 
 	Secrets(ctx context.Context, obj *model.NaisJob) ([]*model.Secret, error)
+	Vulnerabilities(ctx context.Context, obj *model.NaisJob) (*model.Vulnerability, error)
 }
 type OpenSearchResolver interface {
 	Access(ctx context.Context, obj *model.OpenSearch) ([]*model.OpenSearchInstanceAccess, error)
@@ -1402,7 +1407,7 @@ type QueryResolver interface {
 	TeamDeleteKey(ctx context.Context, key string) (*model.TeamDeleteKey, error)
 	Users(ctx context.Context, offset *int, limit *int) (*model.UserList, error)
 	User(ctx context.Context, id *scalar.Ident, email *string) (*model.User, error)
-	UserSync(ctx context.Context) ([]*model.UserSyncRun, error)
+	UsersyncRuns(ctx context.Context, limit *int, offset *int) (*model.UsersyncRunList, error)
 }
 type ReconcilerResolver interface {
 	Config(ctx context.Context, obj *model.Reconciler) ([]*model.ReconcilerConfig, error)
@@ -1511,10 +1516,9 @@ type UserResolver interface {
 
 	IsAdmin(ctx context.Context, obj *model.User) (*bool, error)
 }
-type UserSyncRunResolver interface {
-	AuditLogs(ctx context.Context, obj *model.UserSyncRun, limit *int, offset *int) (*model.AuditLogList, error)
-	Status(ctx context.Context, obj *model.UserSyncRun) (model.UserSyncRunStatus, error)
-	Error(ctx context.Context, obj *model.UserSyncRun) (*string, error)
+type UsersyncRunResolver interface {
+	AuditLogs(ctx context.Context, obj *model.UsersyncRun, limit *int, offset *int) (*model.AuditLogList, error)
+	Status(ctx context.Context, obj *model.UsersyncRun) (model.UsersyncRunStatus, error)
 }
 
 type executableSchema struct {
@@ -4306,6 +4310,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.NaisJob.Variables(childComplexity), true
 
+	case "NaisJob.vulnerabilities":
+		if e.complexity.NaisJob.Vulnerabilities == nil {
+			break
+		}
+
+		return e.complexity.NaisJob.Vulnerabilities(childComplexity), true
+
 	case "NaisJobList.nodes":
 		if e.complexity.NaisJobList.Nodes == nil {
 			break
@@ -4789,13 +4800,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.User(childComplexity, args["id"].(*scalar.Ident), args["email"].(*string)), true
 
-	case "Query.userSync":
-		if e.complexity.Query.UserSync == nil {
-			break
-		}
-
-		return e.complexity.Query.UserSync(childComplexity), true
-
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
 			break
@@ -4807,6 +4811,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Users(childComplexity, args["offset"].(*int), args["limit"].(*int)), true
+
+	case "Query.usersyncRuns":
+		if e.complexity.Query.UsersyncRuns == nil {
+			break
+		}
+
+		args, err := ec.field_Query_usersyncRuns_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.UsersyncRuns(childComplexity, args["limit"].(*int), args["offset"].(*int)), true
 
 	case "Reconciler.auditLogs":
 		if e.complexity.Reconciler.AuditLogs == nil {
@@ -6737,52 +6753,66 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserList.PageInfo(childComplexity), true
 
-	case "UserSyncRun.auditLogs":
-		if e.complexity.UserSyncRun.AuditLogs == nil {
+	case "UsersyncRun.auditLogs":
+		if e.complexity.UsersyncRun.AuditLogs == nil {
 			break
 		}
 
-		args, err := ec.field_UserSyncRun_auditLogs_args(context.TODO(), rawArgs)
+		args, err := ec.field_UsersyncRun_auditLogs_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.UserSyncRun.AuditLogs(childComplexity, args["limit"].(*int), args["offset"].(*int)), true
+		return e.complexity.UsersyncRun.AuditLogs(childComplexity, args["limit"].(*int), args["offset"].(*int)), true
 
-	case "UserSyncRun.correlationID":
-		if e.complexity.UserSyncRun.CorrelationID == nil {
+	case "UsersyncRun.error":
+		if e.complexity.UsersyncRun.Error == nil {
 			break
 		}
 
-		return e.complexity.UserSyncRun.CorrelationID(childComplexity), true
+		return e.complexity.UsersyncRun.Error(childComplexity), true
 
-	case "UserSyncRun.error":
-		if e.complexity.UserSyncRun.Error == nil {
+	case "UsersyncRun.finishedAt":
+		if e.complexity.UsersyncRun.FinishedAt == nil {
 			break
 		}
 
-		return e.complexity.UserSyncRun.Error(childComplexity), true
+		return e.complexity.UsersyncRun.FinishedAt(childComplexity), true
 
-	case "UserSyncRun.finishedAt":
-		if e.complexity.UserSyncRun.FinishedAt == nil {
+	case "UsersyncRun.id":
+		if e.complexity.UsersyncRun.ID == nil {
 			break
 		}
 
-		return e.complexity.UserSyncRun.FinishedAt(childComplexity), true
+		return e.complexity.UsersyncRun.ID(childComplexity), true
 
-	case "UserSyncRun.startedAt":
-		if e.complexity.UserSyncRun.StartedAt == nil {
+	case "UsersyncRun.startedAt":
+		if e.complexity.UsersyncRun.StartedAt == nil {
 			break
 		}
 
-		return e.complexity.UserSyncRun.StartedAt(childComplexity), true
+		return e.complexity.UsersyncRun.StartedAt(childComplexity), true
 
-	case "UserSyncRun.status":
-		if e.complexity.UserSyncRun.Status == nil {
+	case "UsersyncRun.status":
+		if e.complexity.UsersyncRun.Status == nil {
 			break
 		}
 
-		return e.complexity.UserSyncRun.Status(childComplexity), true
+		return e.complexity.UsersyncRun.Status(childComplexity), true
+
+	case "UsersyncRunList.nodes":
+		if e.complexity.UsersyncRunList.Nodes == nil {
+			break
+		}
+
+		return e.complexity.UsersyncRunList.Nodes(childComplexity), true
+
+	case "UsersyncRunList.pageInfo":
+		if e.complexity.UsersyncRunList.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.UsersyncRunList.PageInfo(childComplexity), true
 
 	case "Variable.name":
 		if e.complexity.Variable.Name == nil {
@@ -6930,20 +6960,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.VulnerabilityMetrics.Data(childComplexity), true
-
-	case "VulnerabilityMetrics.maxDate":
-		if e.complexity.VulnerabilityMetrics.MaxDate == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilityMetrics.MaxDate(childComplexity), true
-
-	case "VulnerabilityMetrics.minDate":
-		if e.complexity.VulnerabilityMetrics.MinDate == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilityMetrics.MinDate(childComplexity), true
 
 	case "VulnerabilitySummaryForTeam.bomCount":
 		if e.complexity.VulnerabilitySummaryForTeam.BomCount == nil {
@@ -8041,6 +8057,7 @@ type NaisJob implements Workload {
   parallelism: Int!
   retries: Int!
   secrets: [Secret!]!
+  vulnerabilities: Vulnerability
 }
 
 type NaisJobList {
@@ -9397,10 +9414,6 @@ input VulnerabilityFilter {
 }
 
 type VulnerabilityMetrics {
-  "The minimum date for the metrics available in the database."
-  minDate: Date
-  "The maximum date for the metrics available in the database."
-  maxDate: Date
   "The metrics for the team's applications."
   data: [VulnerabilityMetric!]!
 }
@@ -9657,13 +9670,25 @@ type UnleashMetrics {
 `, BuiltIn: false},
 	{Name: "../graphqls/users.graphqls", Input: `extend type Query {
   "Get a collection of users, sorted by name."
-  users(offset: Int, limit: Int): UserList! @auth
+  users(
+    offset: Int
+    limit: Int
+  ): UserList! @auth
 
   "Get a specific user."
-  user("ID of the user." id: ID, email: String): User! @auth
+  user(
+    "ID of the user."
+    id: ID
+
+    "Email of the user."
+    email: String
+  ): User! @auth
 
   "Get user sync status and logs."
-  userSync: [UserSyncRun!]! @auth
+  usersyncRuns(
+    limit: Int
+    offset: Int
+  ): UsersyncRunList! @auth
 }
 
 extend type Mutation {
@@ -9677,31 +9702,31 @@ extend type Mutation {
 }
 
 "User sync run type."
-type UserSyncRun {
-  "The correlation ID of the sync run."
-  correlationID: ID!
+type UsersyncRun {
+  "The ID of the sync run."
+  id: ID!
 
   "Timestamp of when the run started."
   startedAt: Time!
 
   "Timestamp of when the run finished."
-  finishedAt: Time
+  finishedAt: Time!
 
   "Log entries for the sync run."
-  auditLogs(limit: Int, offset: Int): AuditLogList!
+  auditLogs(
+    limit: Int,
+    offset: Int
+  ): AuditLogList!
 
   "The status of the sync run."
-  status: UserSyncRunStatus!
+  status: UsersyncRunStatus!
 
   "Optional error."
   error: String
 }
 
 "User sync run status."
-enum UserSyncRunStatus {
-  "User sync run in progress."
-  IN_PROGRESS
-
+enum UsersyncRunStatus {
   "Successful user sync run."
   SUCCESS
 
@@ -9731,6 +9756,11 @@ type User {
 
   "This field will only be populated via the me query"
   isAdmin: Boolean
+}
+
+type UsersyncRunList {
+  nodes: [UsersyncRun!]!
+  pageInfo: PageInfo!
 }
 
 type UserList {
@@ -11180,6 +11210,30 @@ func (ec *executionContext) field_Query_users_args(ctx context.Context, rawArgs 
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_usersyncRuns_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Reconciler_auditLogs_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -11870,7 +11924,7 @@ func (ec *executionContext) field_Team_vulnerabilityMetrics_args(ctx context.Con
 	return args, nil
 }
 
-func (ec *executionContext) field_UserSyncRun_auditLogs_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_User_teams_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *int
@@ -11894,7 +11948,7 @@ func (ec *executionContext) field_UserSyncRun_auditLogs_args(ctx context.Context
 	return args, nil
 }
 
-func (ec *executionContext) field_User_teams_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_UsersyncRun_auditLogs_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *int
@@ -31253,6 +31307,61 @@ func (ec *executionContext) fieldContext_NaisJob_secrets(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _NaisJob_vulnerabilities(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NaisJob_vulnerabilities(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.NaisJob().Vulnerabilities(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Vulnerability)
+	fc.Result = res
+	return ec.marshalOVulnerability2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerability(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NaisJob_vulnerabilities(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NaisJob",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Vulnerability_id(ctx, field)
+			case "appName":
+				return ec.fieldContext_Vulnerability_appName(ctx, field)
+			case "env":
+				return ec.fieldContext_Vulnerability_env(ctx, field)
+			case "findingsLink":
+				return ec.fieldContext_Vulnerability_findingsLink(ctx, field)
+			case "summary":
+				return ec.fieldContext_Vulnerability_summary(ctx, field)
+			case "hasBom":
+				return ec.fieldContext_Vulnerability_hasBom(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Vulnerability", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _NaisJobList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.NaisJobList) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_NaisJobList_nodes(ctx, field)
 	if err != nil {
@@ -31334,6 +31443,8 @@ func (ec *executionContext) fieldContext_NaisJobList_nodes(ctx context.Context, 
 				return ec.fieldContext_NaisJob_retries(ctx, field)
 			case "secrets":
 				return ec.fieldContext_NaisJob_secrets(ctx, field)
+			case "vulnerabilities":
+				return ec.fieldContext_NaisJob_vulnerabilities(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type NaisJob", field.Name)
 		},
@@ -33441,6 +33552,8 @@ func (ec *executionContext) fieldContext_Query_naisjob(ctx context.Context, fiel
 				return ec.fieldContext_NaisJob_retries(ctx, field)
 			case "secrets":
 				return ec.fieldContext_NaisJob_secrets(ctx, field)
+			case "vulnerabilities":
+				return ec.fieldContext_NaisJob_vulnerabilities(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type NaisJob", field.Name)
 		},
@@ -34608,8 +34721,8 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_userSync(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_userSync(ctx, field)
+func (ec *executionContext) _Query_usersyncRuns(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_usersyncRuns(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -34623,7 +34736,7 @@ func (ec *executionContext) _Query_userSync(ctx context.Context, field graphql.C
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().UserSync(rctx)
+			return ec.resolvers.Query().UsersyncRuns(rctx, fc.Args["limit"].(*int), fc.Args["offset"].(*int))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Auth == nil {
@@ -34639,10 +34752,10 @@ func (ec *executionContext) _Query_userSync(ctx context.Context, field graphql.C
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.([]*model.UserSyncRun); ok {
+		if data, ok := tmp.(*model.UsersyncRunList); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/nais/api/internal/graph/model.UserSyncRun`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.UsersyncRunList`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -34654,12 +34767,12 @@ func (ec *executionContext) _Query_userSync(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.UserSyncRun)
+	res := resTmp.(*model.UsersyncRunList)
 	fc.Result = res
-	return ec.marshalNUserSyncRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUserSyncRunᚄ(ctx, field.Selections, res)
+	return ec.marshalNUsersyncRunList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsersyncRunList(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_userSync(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_usersyncRuns(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -34667,21 +34780,24 @@ func (ec *executionContext) fieldContext_Query_userSync(ctx context.Context, fie
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "correlationID":
-				return ec.fieldContext_UserSyncRun_correlationID(ctx, field)
-			case "startedAt":
-				return ec.fieldContext_UserSyncRun_startedAt(ctx, field)
-			case "finishedAt":
-				return ec.fieldContext_UserSyncRun_finishedAt(ctx, field)
-			case "auditLogs":
-				return ec.fieldContext_UserSyncRun_auditLogs(ctx, field)
-			case "status":
-				return ec.fieldContext_UserSyncRun_status(ctx, field)
-			case "error":
-				return ec.fieldContext_UserSyncRun_error(ctx, field)
+			case "nodes":
+				return ec.fieldContext_UsersyncRunList_nodes(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_UsersyncRunList_pageInfo(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type UserSyncRun", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type UsersyncRunList", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_usersyncRuns_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -39810,6 +39926,8 @@ func (ec *executionContext) fieldContext_Secret_jobs(ctx context.Context, field 
 				return ec.fieldContext_NaisJob_retries(ctx, field)
 			case "secrets":
 				return ec.fieldContext_NaisJob_secrets(ctx, field)
+			case "vulnerabilities":
+				return ec.fieldContext_NaisJob_vulnerabilities(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type NaisJob", field.Name)
 		},
@@ -45489,10 +45607,6 @@ func (ec *executionContext) fieldContext_Team_vulnerabilityMetrics(ctx context.C
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "minDate":
-				return ec.fieldContext_VulnerabilityMetrics_minDate(ctx, field)
-			case "maxDate":
-				return ec.fieldContext_VulnerabilityMetrics_maxDate(ctx, field)
 			case "data":
 				return ec.fieldContext_VulnerabilityMetrics_data(ctx, field)
 			}
@@ -48169,8 +48283,8 @@ func (ec *executionContext) fieldContext_UserList_pageInfo(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSyncRun_correlationID(ctx context.Context, field graphql.CollectedField, obj *model.UserSyncRun) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserSyncRun_correlationID(ctx, field)
+func (ec *executionContext) _UsersyncRun_id(ctx context.Context, field graphql.CollectedField, obj *model.UsersyncRun) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UsersyncRun_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48183,7 +48297,7 @@ func (ec *executionContext) _UserSyncRun_correlationID(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CorrelationID, nil
+		return obj.ID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -48195,14 +48309,14 @@ func (ec *executionContext) _UserSyncRun_correlationID(ctx context.Context, fiel
 		}
 		return graphql.Null
 	}
-	res := resTmp.(uuid.UUID)
+	res := resTmp.(scalar.Ident)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserSyncRun_correlationID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UsersyncRun_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UserSyncRun",
+		Object:     "UsersyncRun",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48213,8 +48327,8 @@ func (ec *executionContext) fieldContext_UserSyncRun_correlationID(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSyncRun_startedAt(ctx context.Context, field graphql.CollectedField, obj *model.UserSyncRun) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserSyncRun_startedAt(ctx, field)
+func (ec *executionContext) _UsersyncRun_startedAt(ctx context.Context, field graphql.CollectedField, obj *model.UsersyncRun) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UsersyncRun_startedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48244,9 +48358,9 @@ func (ec *executionContext) _UserSyncRun_startedAt(ctx context.Context, field gr
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserSyncRun_startedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UsersyncRun_startedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UserSyncRun",
+		Object:     "UsersyncRun",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48257,8 +48371,8 @@ func (ec *executionContext) fieldContext_UserSyncRun_startedAt(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSyncRun_finishedAt(ctx context.Context, field graphql.CollectedField, obj *model.UserSyncRun) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserSyncRun_finishedAt(ctx, field)
+func (ec *executionContext) _UsersyncRun_finishedAt(ctx context.Context, field graphql.CollectedField, obj *model.UsersyncRun) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UsersyncRun_finishedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48278,16 +48392,19 @@ func (ec *executionContext) _UserSyncRun_finishedAt(ctx context.Context, field g
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*time.Time)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserSyncRun_finishedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UsersyncRun_finishedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UserSyncRun",
+		Object:     "UsersyncRun",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -48298,8 +48415,8 @@ func (ec *executionContext) fieldContext_UserSyncRun_finishedAt(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSyncRun_auditLogs(ctx context.Context, field graphql.CollectedField, obj *model.UserSyncRun) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserSyncRun_auditLogs(ctx, field)
+func (ec *executionContext) _UsersyncRun_auditLogs(ctx context.Context, field graphql.CollectedField, obj *model.UsersyncRun) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UsersyncRun_auditLogs(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48312,7 +48429,7 @@ func (ec *executionContext) _UserSyncRun_auditLogs(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UserSyncRun().AuditLogs(rctx, obj, fc.Args["limit"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.UsersyncRun().AuditLogs(rctx, obj, fc.Args["limit"].(*int), fc.Args["offset"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -48329,9 +48446,9 @@ func (ec *executionContext) _UserSyncRun_auditLogs(ctx context.Context, field gr
 	return ec.marshalNAuditLogList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditLogList(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserSyncRun_auditLogs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UsersyncRun_auditLogs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UserSyncRun",
+		Object:     "UsersyncRun",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
@@ -48352,15 +48469,15 @@ func (ec *executionContext) fieldContext_UserSyncRun_auditLogs(ctx context.Conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_UserSyncRun_auditLogs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_UsersyncRun_auditLogs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSyncRun_status(ctx context.Context, field graphql.CollectedField, obj *model.UserSyncRun) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserSyncRun_status(ctx, field)
+func (ec *executionContext) _UsersyncRun_status(ctx context.Context, field graphql.CollectedField, obj *model.UsersyncRun) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UsersyncRun_status(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48373,7 +48490,7 @@ func (ec *executionContext) _UserSyncRun_status(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UserSyncRun().Status(rctx, obj)
+		return ec.resolvers.UsersyncRun().Status(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -48385,26 +48502,26 @@ func (ec *executionContext) _UserSyncRun_status(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.UserSyncRunStatus)
+	res := resTmp.(model.UsersyncRunStatus)
 	fc.Result = res
-	return ec.marshalNUserSyncRunStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUserSyncRunStatus(ctx, field.Selections, res)
+	return ec.marshalNUsersyncRunStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsersyncRunStatus(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserSyncRun_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UsersyncRun_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UserSyncRun",
+		Object:     "UsersyncRun",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type UserSyncRunStatus does not have child fields")
+			return nil, errors.New("field of type UsersyncRunStatus does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _UserSyncRun_error(ctx context.Context, field graphql.CollectedField, obj *model.UserSyncRun) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserSyncRun_error(ctx, field)
+func (ec *executionContext) _UsersyncRun_error(ctx context.Context, field graphql.CollectedField, obj *model.UsersyncRun) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UsersyncRun_error(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -48417,7 +48534,7 @@ func (ec *executionContext) _UserSyncRun_error(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UserSyncRun().Error(rctx, obj)
+		return obj.Error, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -48431,14 +48548,124 @@ func (ec *executionContext) _UserSyncRun_error(ctx context.Context, field graphq
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserSyncRun_error(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UsersyncRun_error(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UserSyncRun",
+		Object:     "UsersyncRun",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UsersyncRunList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.UsersyncRunList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UsersyncRunList_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.UsersyncRun)
+	fc.Result = res
+	return ec.marshalNUsersyncRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsersyncRunᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UsersyncRunList_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UsersyncRunList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_UsersyncRun_id(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_UsersyncRun_startedAt(ctx, field)
+			case "finishedAt":
+				return ec.fieldContext_UsersyncRun_finishedAt(ctx, field)
+			case "auditLogs":
+				return ec.fieldContext_UsersyncRun_auditLogs(ctx, field)
+			case "status":
+				return ec.fieldContext_UsersyncRun_status(ctx, field)
+			case "error":
+				return ec.fieldContext_UsersyncRun_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UsersyncRun", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UsersyncRunList_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.UsersyncRunList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UsersyncRunList_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UsersyncRunList_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UsersyncRunList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
 	}
 	return fc, nil
@@ -49356,88 +49583,6 @@ func (ec *executionContext) fieldContext_VulnerabilityMetric_count(ctx context.C
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilityMetrics_minDate(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityMetrics) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityMetrics_minDate(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.MinDate, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*scalar.Date)
-	fc.Result = res
-	return ec.marshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilityMetrics_minDate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityMetrics",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Date does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilityMetrics_maxDate(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityMetrics) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityMetrics_maxDate(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.MaxDate, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*scalar.Date)
-	fc.Result = res
-	return ec.marshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilityMetrics_maxDate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityMetrics",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Date does not have child fields")
 		},
 	}
 	return fc, nil
@@ -58048,6 +58193,39 @@ func (ec *executionContext) _NaisJob(ctx context.Context, sel ast.SelectionSet, 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "vulnerabilities":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._NaisJob_vulnerabilities(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -59316,7 +59494,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "userSync":
+		case "usersyncRuns":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -59325,7 +59503,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_userSync(ctx, field)
+				res = ec._Query_usersyncRuns(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -64504,29 +64682,32 @@ func (ec *executionContext) _UserList(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var userSyncRunImplementors = []string{"UserSyncRun"}
+var usersyncRunImplementors = []string{"UsersyncRun"}
 
-func (ec *executionContext) _UserSyncRun(ctx context.Context, sel ast.SelectionSet, obj *model.UserSyncRun) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, userSyncRunImplementors)
+func (ec *executionContext) _UsersyncRun(ctx context.Context, sel ast.SelectionSet, obj *model.UsersyncRun) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, usersyncRunImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("UserSyncRun")
-		case "correlationID":
-			out.Values[i] = ec._UserSyncRun_correlationID(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("UsersyncRun")
+		case "id":
+			out.Values[i] = ec._UsersyncRun_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "startedAt":
-			out.Values[i] = ec._UserSyncRun_startedAt(ctx, field, obj)
+			out.Values[i] = ec._UsersyncRun_startedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "finishedAt":
-			out.Values[i] = ec._UserSyncRun_finishedAt(ctx, field, obj)
+			out.Values[i] = ec._UsersyncRun_finishedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "auditLogs":
 			field := field
 
@@ -64536,7 +64717,7 @@ func (ec *executionContext) _UserSyncRun(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._UserSyncRun_auditLogs(ctx, field, obj)
+				res = ec._UsersyncRun_auditLogs(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -64572,7 +64753,7 @@ func (ec *executionContext) _UserSyncRun(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._UserSyncRun_status(ctx, field, obj)
+				res = ec._UsersyncRun_status(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -64600,38 +64781,51 @@ func (ec *executionContext) _UserSyncRun(ctx context.Context, sel ast.SelectionS
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "error":
-			field := field
+			out.Values[i] = ec._UsersyncRun_error(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._UserSyncRun_error(ctx, field, obj)
-				return res
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var usersyncRunListImplementors = []string{"UsersyncRunList"}
+
+func (ec *executionContext) _UsersyncRunList(ctx context.Context, sel ast.SelectionSet, obj *model.UsersyncRunList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, usersyncRunListImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UsersyncRunList")
+		case "nodes":
+			out.Values[i] = ec._UsersyncRunList_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
+		case "pageInfo":
+			out.Values[i] = ec._UsersyncRunList_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
 			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -64933,10 +65127,6 @@ func (ec *executionContext) _VulnerabilityMetrics(ctx context.Context, sel ast.S
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("VulnerabilityMetrics")
-		case "minDate":
-			out.Values[i] = ec._VulnerabilityMetrics_minDate(ctx, field, obj)
-		case "maxDate":
-			out.Values[i] = ec._VulnerabilityMetrics_maxDate(ctx, field, obj)
 		case "data":
 			out.Values[i] = ec._VulnerabilityMetrics_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -69495,7 +69685,7 @@ func (ec *executionContext) marshalNUserList2ᚖgithubᚗcomᚋnaisᚋapiᚋinte
 	return ec._UserList(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUserSyncRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUserSyncRunᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.UserSyncRun) graphql.Marshaler {
+func (ec *executionContext) marshalNUsersyncRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsersyncRunᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.UsersyncRun) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -69519,7 +69709,7 @@ func (ec *executionContext) marshalNUserSyncRun2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUserSyncRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUserSyncRun(ctx, sel, v[i])
+			ret[i] = ec.marshalNUsersyncRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsersyncRun(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -69539,23 +69729,37 @@ func (ec *executionContext) marshalNUserSyncRun2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) marshalNUserSyncRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUserSyncRun(ctx context.Context, sel ast.SelectionSet, v *model.UserSyncRun) graphql.Marshaler {
+func (ec *executionContext) marshalNUsersyncRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsersyncRun(ctx context.Context, sel ast.SelectionSet, v *model.UsersyncRun) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._UserSyncRun(ctx, sel, v)
+	return ec._UsersyncRun(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUserSyncRunStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUserSyncRunStatus(ctx context.Context, v interface{}) (model.UserSyncRunStatus, error) {
-	var res model.UserSyncRunStatus
+func (ec *executionContext) marshalNUsersyncRunList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsersyncRunList(ctx context.Context, sel ast.SelectionSet, v model.UsersyncRunList) graphql.Marshaler {
+	return ec._UsersyncRunList(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUsersyncRunList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsersyncRunList(ctx context.Context, sel ast.SelectionSet, v *model.UsersyncRunList) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UsersyncRunList(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUsersyncRunStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsersyncRunStatus(ctx context.Context, v interface{}) (model.UsersyncRunStatus, error) {
+	var res model.UsersyncRunStatus
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUserSyncRunStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUserSyncRunStatus(ctx context.Context, sel ast.SelectionSet, v model.UserSyncRunStatus) graphql.Marshaler {
+func (ec *executionContext) marshalNUsersyncRunStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUsersyncRunStatus(ctx context.Context, sel ast.SelectionSet, v model.UsersyncRunStatus) graphql.Marshaler {
 	return v
 }
 

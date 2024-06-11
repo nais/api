@@ -11,62 +11,59 @@ import (
 )
 
 const (
-	userSyncInterval = time.Minute * 15
-	userSyncTimeout  = time.Second * 30
+	usersyncInterval = time.Minute * 15
+	usersyncTimeout  = time.Minute
 )
 
-func runUserSync(ctx context.Context, cfg *Config, db database.Database, log logrus.FieldLogger, userSync chan uuid.UUID, userSyncRuns *usersync.RunsHandler) error {
-	if !cfg.UserSync.Enabled {
-		log.Infof("user sync is disabled")
+func runUsersync(ctx context.Context, cfg *Config, db database.Database, log logrus.FieldLogger, usersyncTrigger chan uuid.UUID) error {
+	if !cfg.Usersync.Enabled {
+		log.Infof("usersync is not enabled")
 		for {
 			select {
 			case <-ctx.Done():
 				return nil
-			case cID := <-userSync:
-				// drain channel
-				log.Infof("draining user sync request with correlation ID %s", cID)
+			case correlationID := <-usersyncTrigger:
+				log.WithField("correlation_id", correlationID).Infof("usersync is not enabled, draining request")
 			}
 		}
 	}
 
-	userSyncer, err := usersync.NewFromConfig(ctx, cfg.UserSync.ServiceAccount, cfg.UserSync.SubjectEmail, cfg.TenantDomain, cfg.UserSync.AdminGroupPrefix, db, log, userSyncRuns)
+	usersyncer, err := usersync.NewFromConfig(ctx, cfg.Usersync.ServiceAccount, cfg.Usersync.SubjectEmail, cfg.TenantDomain, cfg.Usersync.AdminGroupPrefix, db, log)
 	if err != nil {
-		log.WithError(err).Errorf("unable to set up user syncer")
+		log.WithError(err).Errorf("unable to set up usersyncer")
 		return err
 	}
 
-	userSyncTimer := time.NewTimer(1 * time.Second)
+	usersyncTrigger <- uuid.New()
 
 	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
 
-		case correlationID := <-userSync:
-			if userSyncer == nil {
-				log.Infof("user sync is disabled")
-				break
-			}
+		case correlationID := <-usersyncTrigger:
+			func() {
+				log := log.WithField("correlation_id", correlationID)
+				log.Debugf("starting usersync...")
 
-			log.Debug("starting user synchronization...")
-			ctx, cancel := context.WithTimeout(ctx, userSyncTimeout)
-			err = userSyncer.Sync(ctx, correlationID)
-			cancel()
+				ctx, cancel := context.WithTimeout(ctx, usersyncTimeout)
+				defer cancel()
 
-			if err != nil {
-				log.WithError(err).Error("sync users")
-			}
+				start := time.Now()
+				err := usersyncer.Sync(ctx, correlationID)
+				if err != nil {
+					log.WithError(err).Errorf("sync users")
+				}
 
-			log.Debugf("user sync complete")
+				if err := db.CreateUsersyncRun(ctx, correlationID, start, time.Now(), err); err != nil {
+					log.WithError(err).Errorf("create usersync run")
+				}
 
-		case <-userSyncTimer.C:
-			nextUserSync := time.Now().Add(userSyncInterval)
-			userSyncTimer.Reset(userSyncInterval)
-			log.Debugf("scheduled user sync triggered; next run at %s", nextUserSync)
+				log.WithField("duration", time.Since(start)).Infof("usersync complete")
+			}()
 
-			correlationID := uuid.New()
-
-			userSync <- correlationID
+		case <-time.After(usersyncInterval):
+			usersyncTrigger <- uuid.New()
 		}
 	}
 }

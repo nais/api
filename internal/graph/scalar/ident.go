@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/slug"
@@ -16,35 +17,37 @@ import (
 type IdentType string
 
 const (
-	IdentTypeApp                         IdentType = "app"
-	IdentTypeAuditEvent                  IdentType = "auditEvent"
-	IdentTypeAuditLog                    IdentType = "auditLog"
-	IdentTypeBigQueryDataset             IdentType = "bigQueryDataset"
-	IdentTypeBucket                      IdentType = "bucket"
-	IdentTypeCorrelationID               IdentType = "correlationID"
-	IdentTypeDeployKey                   IdentType = "deployKey"
-	IdentTypeDeployment                  IdentType = "deployment"
-	IdentTypeDeploymentResource          IdentType = "deploymentResource"
-	IdentTypeDeploymentStatus            IdentType = "deploymentStatus"
-	IdentTypeEnv                         IdentType = "env"
-	IdentTypeGitHubRepo                  IdentType = "githubRepo"
-	IdentTypeJob                         IdentType = "job"
-	IdentTypeOpenSearch                  IdentType = "openSearch"
-	IdentTypePod                         IdentType = "pod"
-	IdentTypeRedis                       IdentType = "redis"
-	IdentTypeSecret                      IdentType = "secret"
-	IdentTypeSqlDatabase                 IdentType = "sqlDatabase"
-	IdentTypeSqlInstance                 IdentType = "sqlInstance"
-	IdentTypeTeam                        IdentType = "team"
-	IdentTypeUser                        IdentType = "user"
-	IdentTypeVulnerabilities             IdentType = "vulnerabilities"
-	IdentTypeKafkaTopic                  IdentType = "kafkaTopic"
-	IdentTypeFinding                     IdentType = "finding"
-	IdentTypeImage                       IdentType = "image"
-	IdentTypeDependencyTrackProjectIdent IdentType = "dependencyTrackProjectIdent"
-	IdentTypeWorkload                    IdentType = "workload"
-	IdentTypeAnalysisTrail               IdentType = "analysisTrail"
-	IdentTypeVulnerabilitySummary        IdentType = "vulnerabilitySummary"
+	IdentTypeAnalysisTrail        IdentType = "analysisTrail"
+	IdentTypeApp                  IdentType = "app"
+	IdentTypeAuditEvent           IdentType = "auditEvent"
+	IdentTypeAuditLog             IdentType = "auditLog"
+	IdentTypeBigQueryDataset      IdentType = "bigQueryDataset"
+	IdentTypeBucket               IdentType = "bucket"
+	IdentTypeCorrelationID        IdentType = "correlationID"
+	IdentTypeDeployKey            IdentType = "deployKey"
+	IdentTypeDeployment           IdentType = "deployment"
+	IdentTypeDeploymentResource   IdentType = "deploymentResource"
+	IdentTypeDeploymentStatus     IdentType = "deploymentStatus"
+	IdentTypeEnv                  IdentType = "env"
+	IdentTypeFinding              IdentType = "finding"
+	IdentTypeGitHubRepo           IdentType = "githubRepo"
+	IdentTypeImage                IdentType = "image"
+	IdentTypeJob                  IdentType = "job"
+	IdentTypeKafkaTopic           IdentType = "kafkaTopic"
+	IdentTypeOpenSearch           IdentType = "openSearch"
+	IdentTypePod                  IdentType = "pod"
+	IdentTypeRedis                IdentType = "redis"
+	IdentTypeSecret               IdentType = "secret"
+	IdentTypeSqlDatabase          IdentType = "sqlDatabase"
+	IdentTypeSqlInstance          IdentType = "sqlInstance"
+	IdentTypeTeam                 IdentType = "team"
+	IdentTypeUser                 IdentType = "user"
+	IdentTypeUsersyncRun          IdentType = "usersyncRun"
+	IdentTypeVulnerabilities      IdentType = "vulnerabilities"
+	IdentTypeVulnerabilitySummary IdentType = "vulnerabilitySummary"
+	IdentTypeWorkload             IdentType = "workload"
+
+	idSeparator = "-"
 )
 
 type Ident struct {
@@ -89,121 +92,125 @@ func (i *Ident) UnmarshalGQLContext(_ context.Context, v interface{}) error {
 	return nil
 }
 
-func AppIdent(id string) Ident {
-	return newIdent(id, IdentTypeApp)
+func AppIdent(envName string, teamSlug slug.Slug, appName string) Ident {
+	return newIdent(IdentTypeApp, envName, string(teamSlug), appName)
 }
 
-func DeployKeyIdent(id string) Ident {
-	return newIdent(id, IdentTypeDeployKey)
+func DeployKeyIdent(teamSlug slug.Slug) Ident {
+	return newIdent(IdentTypeDeployKey, string(teamSlug))
 }
 
-func EnvIdent(id string) Ident {
-	return newIdent(id, IdentTypeEnv)
+func EnvIdent(envName string) Ident {
+	return newIdent(IdentTypeEnv, envName)
 }
 
-func JobIdent(id string) Ident {
-	return newIdent(id, IdentTypeJob)
+func JobIdent(jobName string) Ident {
+	return newIdent(IdentTypeJob, jobName)
 }
 
 func PodIdent(id types.UID) Ident {
-	return newIdent(string(id), IdentTypePod)
+	return newIdent(IdentTypePod, string(id))
 }
 
-func TeamIdent(id slug.Slug) Ident {
-	return newIdent(id.String(), IdentTypeTeam)
+func TeamIdent(teamSlug slug.Slug) Ident {
+	return newIdent(IdentTypeTeam, string(teamSlug))
 }
 
 func DeploymentIdent(id string) Ident {
-	return newIdent(id, IdentTypeDeployment)
+	return newIdent(IdentTypeDeployment, id)
 }
 
 func DeploymentResourceIdent(id string) Ident {
-	return newIdent(id, IdentTypeDeploymentResource)
+	return newIdent(IdentTypeDeploymentResource, id)
 }
 
 func DeploymentStatusIdent(id string) Ident {
-	return newIdent(id, IdentTypeDeploymentStatus)
+	return newIdent(IdentTypeDeploymentStatus, id)
 }
 
 func VulnerabilitiesIdent(id string) Ident {
-	return newIdent(id, IdentTypeVulnerabilities)
+	return newIdent(IdentTypeVulnerabilities, id)
 }
 
-func SecretIdent(id string) Ident {
-	return newIdent(id, IdentTypeSecret)
+func SecretIdent(envName string, teamSlug slug.Slug, secretName string) Ident {
+	return newIdent(IdentTypeSecret, envName, string(teamSlug), secretName)
 }
 
 func AuditLogIdent(id uuid.UUID) Ident {
-	return newIdent(id.String(), IdentTypeAuditLog)
+	return newIdent(IdentTypeAuditLog, id.String())
 }
 
 func AuditEventIdent(id uuid.UUID) Ident {
-	return newIdent(id.String(), IdentTypeAuditEvent)
+	return newIdent(IdentTypeAuditEvent, id.String())
 }
 
 func CorrelationID(id uuid.UUID) Ident {
-	return newIdent(id.String(), IdentTypeCorrelationID)
+	return newIdent(IdentTypeCorrelationID, id.String())
 }
 
-func UserIdent(id uuid.UUID) Ident {
-	return newIdent(id.String(), IdentTypeUser)
+func UserIdent(userID uuid.UUID) Ident {
+	return newIdent(IdentTypeUser, userID.String())
 }
 
-func GitHubRepository(name string) Ident {
-	return newIdent(name, IdentTypeGitHubRepo)
+func UsersyncRunIdent(id uuid.UUID) Ident {
+	return newIdent(IdentTypeUsersyncRun, id.String())
 }
 
-func SqlInstanceIdent(id string) Ident {
-	return newIdent(id, IdentTypeSqlInstance)
+func GitHubRepository(repoName string) Ident {
+	return newIdent(IdentTypeGitHubRepo, repoName)
 }
 
-func SqlDatabaseIdent(id string) Ident {
-	return newIdent(id, IdentTypeSqlDatabase)
+func SqlInstanceIdent(envName string, teamSlug slug.Slug, instanceName string) Ident {
+	return newIdent(IdentTypeSqlInstance, envName, string(teamSlug), instanceName)
 }
 
-func BucketIdent(id string) Ident {
-	return newIdent(id, IdentTypeBucket)
+func SqlDatabaseIdent(envName string, teamSlug slug.Slug, databaseName string) Ident {
+	return newIdent(IdentTypeSqlDatabase, envName, string(teamSlug), databaseName)
 }
 
-func BigQueryDatasetIdent(id string) Ident {
-	return newIdent(id, IdentTypeBigQueryDataset)
+func BucketIdent(envName string, teamSlug slug.Slug, bucketName string) Ident {
+	return newIdent(IdentTypeBucket, envName, string(teamSlug), bucketName)
 }
 
-func RedisIdent(id string) Ident {
-	return newIdent(id, IdentTypeRedis)
+func BigQueryDatasetIdent(envName string, teamSlug slug.Slug, datasetName string) Ident {
+	return newIdent(IdentTypeBigQueryDataset, envName, string(teamSlug), datasetName)
 }
 
-func KafkaTopicIdent(id string) Ident {
-	return newIdent(id, IdentTypeKafkaTopic)
+func RedisIdent(envName string, teamSlug slug.Slug, instanceName string) Ident {
+	return newIdent(IdentTypeRedis, envName, string(teamSlug), instanceName)
 }
 
-func OpenSearchIdent(id string) Ident {
-	return newIdent(id, IdentTypeOpenSearch)
+func KafkaTopicIdent(envName string, teamSlug slug.Slug, topicName string) Ident {
+	return newIdent(IdentTypeKafkaTopic, envName, string(teamSlug), topicName)
+}
+
+func OpenSearchIdent(envName string, teamSlug slug.Slug, instanceName string) Ident {
+	return newIdent(IdentTypeOpenSearch, envName, string(teamSlug), instanceName)
 }
 
 func FindingIdent(id string) Ident {
-	return newIdent(id, IdentTypeFinding)
+	return newIdent(IdentTypeFinding, id)
 }
 
 func ImageIdent(name, version string) Ident {
-	return newIdent(fmt.Sprintf("%s-%s", name, version), IdentTypeImage)
+	return newIdent(IdentTypeImage, name, version)
 }
 
 func WorkloadIdent(id string) Ident {
-	return newIdent(id, IdentTypeWorkload)
+	return newIdent(IdentTypeWorkload, id)
 }
 
 func AnalysisTrailIdent(projectID, componentID, vulnerabilityID string) Ident {
-	return newIdent(fmt.Sprintf("%s-%s-%s", projectID, componentID, vulnerabilityID), IdentTypeAnalysisTrail)
+	return newIdent(IdentTypeAnalysisTrail, projectID, componentID, vulnerabilityID)
 }
 
 func ImageVulnerabilitySummaryIdent(id string) Ident {
-	return newIdent(id, IdentTypeVulnerabilitySummary)
+	return newIdent(IdentTypeVulnerabilitySummary, id)
 }
 
-func newIdent(id string, t IdentType) Ident {
+func newIdent(t IdentType, id ...string) Ident {
 	return Ident{
-		ID:   id,
+		ID:   strings.Join(id, idSeparator),
 		Type: t,
 	}
 }

@@ -341,14 +341,14 @@ func kubeSecret(name string, team slug.Slug, actor *authz.Actor, data []*model.V
 	}
 }
 
-func toGraphSecret(env string, team slug.Slug, obj *corev1.Secret) *model.Secret {
+func toGraphSecret(env string, teamSlug slug.Slug, obj *corev1.Secret) *model.Secret {
 	secret := &model.Secret{
-		ID:   makeSecretIdent(env, obj.GetNamespace(), obj.GetName()),
+		ID:   scalar.SecretIdent(env, teamSlug, obj.GetName()),
 		Name: obj.Name,
 		Data: secretBytesToString(obj.Data),
 		GQLVars: model.SecretGQLVars{
 			Env:  env,
-			Team: team,
+			Team: teamSlug,
 		},
 	}
 
@@ -381,10 +381,6 @@ func secretTupleToMap(data []*model.VariableInput) map[string][]byte {
 		ret[tuple.Name] = []byte(tuple.Value)
 	}
 	return ret
-}
-
-func makeSecretIdent(env, namespace, name string) scalar.Ident {
-	return scalar.SecretIdent("secret_" + env + "_" + namespace + "_" + name)
 }
 
 func validateSecretData(data []*model.VariableInput) error {

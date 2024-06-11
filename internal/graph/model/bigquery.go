@@ -58,7 +58,7 @@ func ToBigQueryDataset(u *unstructured.Unstructured, env string) (*BigQueryDatas
 			}
 			return ret
 		}(bqs.Spec.Access),
-		ID: scalar.BigQueryDatasetIdent("bigquerydataset_" + env + "_" + teamSlug + "_" + bqs.GetName()),
+		ID: scalar.BigQueryDatasetIdent(env, slug.Slug(teamSlug), bqs.GetName()),
 		Env: Env{
 			Team: teamSlug,
 			Name: env,

@@ -496,7 +496,7 @@ func (r *mutationResolver) ChangeDeployKey(ctx context.Context, team slug.Slug) 
 		return nil, fmt.Errorf("changing deploy key in Hookd: %w", err)
 	}
 	return &model.DeploymentKey{
-		ID:      scalar.DeployKeyIdent(team.String()),
+		ID:      scalar.DeployKeyIdent(team),
 		Key:     deployKey.Key,
 		Created: deployKey.Created,
 		Expires: deployKey.Expires,
@@ -1118,7 +1118,7 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 					severities[image.Name] = -1
 					continue
 				}
-				severities[image.Name] = image.Summary.RiskScore
+				severities[image.Name] = image.Summary.Critical
 			}
 
 			model.SortWith(apps, func(a, b *model.App) bool {
@@ -1196,7 +1196,7 @@ func (r *teamResolver) DeployKey(ctx context.Context, obj *model.Team) (*model.D
 	}
 
 	return &model.DeploymentKey{
-		ID:      scalar.DeployKeyIdent(obj.Slug.String()),
+		ID:      scalar.DeployKeyIdent(obj.Slug),
 		Key:     key.Key,
 		Created: key.Created,
 		Expires: key.Expires,
@@ -1360,11 +1360,11 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
 	}
 
-	instances := make([]*dependencytrack.AppInstance, 0)
+	instances := make([]*dependencytrack.WorkloadInstance, 0)
 	for _, app := range apps {
-		instances = append(instances, &dependencytrack.AppInstance{
+		instances = append(instances, &dependencytrack.WorkloadInstance{
 			Env:   app.Env.Name,
-			App:   app.Name,
+			Name:  app.Name,
 			Image: app.Image,
 			Team:  obj.Slug.String(),
 		})
@@ -1401,6 +1401,9 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 
 	retVal := &model.VulnerabilitySummaryForTeam{}
 	for _, image := range images {
+		if image.Summary == nil {
+			continue
+		}
 		if image.Summary.Critical > 0 {
 			retVal.Critical += image.Summary.Critical
 		}
@@ -1422,9 +1425,7 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		if image.Summary.Total > 0 {
 			retVal.Total += image.Summary.Total
 		}
-		if image.HasSbom {
-			retVal.BomCount += 1
-		}
+		retVal.BomCount += 1
 	}
 
 	return retVal, nil
@@ -1488,15 +1489,8 @@ func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team
 		return &model.VulnerabilityMetrics{}, nil
 	}
 
-	dateRange, err := r.database.VulnerabilityMetricsDateRangeForTeam(ctx, obj.Slug)
-	if err != nil {
-		return nil, err
-	}
-
 	return &model.VulnerabilityMetrics{
-		MinDate: ptr.To(scalar.NewDate(dateRange.FromDate.Time)),
-		MaxDate: ptr.To(scalar.NewDate(dateRange.ToDate.Time)),
-		Data:    metrics,
+		Data: metrics,
 	}, nil
 }
 

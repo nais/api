@@ -58,7 +58,6 @@ func Test_queryResolver_ResourceUtilizationForApp(t *testing.T) {
 				nil,
 				nil,
 				nil,
-				nil,
 			).
 			Query().
 			ResourceUtilizationForApp(ctx, "env", "team", "app", nil, nil)
@@ -97,7 +96,6 @@ func Test_queryResolver_ResourceUtilizationForApp(t *testing.T) {
 				resourceUsageClient,
 				nil,
 				"example.com",
-				nil,
 				nil,
 				nil,
 				nil,

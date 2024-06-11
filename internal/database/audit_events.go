@@ -4,14 +4,14 @@ import (
 	"context"
 	"k8s.io/utils/ptr"
 
-	"github.com/nais/api/internal/auditevent"
+	"github.com/nais/api/internal/audit/events"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 )
 
 type AuditEventsRepo interface {
-	CreateAuditEvent(ctx context.Context, event auditevent.Event) error
-	GetAuditEventsForTeam(ctx context.Context, teamSlug slug.Slug, p Page) ([]auditevent.Event, int, error)
+	CreateAuditEvent(ctx context.Context, event audit.Event) error
+	GetAuditEventsForTeam(ctx context.Context, teamSlug slug.Slug, p Page) ([]audit.Event, int, error)
 }
 
 var _ AuditEventsRepo = (*database)(nil)
@@ -20,7 +20,7 @@ type AuditEvent struct {
 	*gensql.AuditEvent
 }
 
-func (d *database) CreateAuditEvent(ctx context.Context, event auditevent.Event) error {
+func (d *database) CreateAuditEvent(ctx context.Context, event audit.Event) error {
 	return d.querier.Transaction(ctx, func(ctx context.Context, querier Querier) error {
 		data, err := event.MarshalData()
 		if err != nil {
@@ -38,7 +38,7 @@ func (d *database) CreateAuditEvent(ctx context.Context, event auditevent.Event)
 	})
 }
 
-func (d *database) GetAuditEventsForTeam(ctx context.Context, teamSlug slug.Slug, p Page) ([]auditevent.Event, int, error) {
+func (d *database) GetAuditEventsForTeam(ctx context.Context, teamSlug slug.Slug, p Page) ([]audit.Event, int, error) {
 	rows, err := d.querier.GetAuditEventsForTeam(ctx, gensql.GetAuditEventsForTeamParams{
 		Team:   &teamSlug,
 		Offset: int32(p.Offset),
@@ -48,9 +48,9 @@ func (d *database) GetAuditEventsForTeam(ctx context.Context, teamSlug slug.Slug
 		return nil, 0, err
 	}
 
-	entries := make([]auditevent.Event, len(rows))
+	entries := make([]audit.Event, len(rows))
 	for i, row := range rows {
-		entries[i], err = auditevent.ToEvent(row)
+		entries[i], err = audit.ToEvent(row)
 		if err != nil {
 			return nil, 0, err
 		}

@@ -481,10 +481,6 @@ input VulnerabilityFilter {
 }
 
 type VulnerabilityMetrics {
-  "The minimum date for the metrics available in the database."
-  minDate: Date
-  "The maximum date for the metrics available in the database."
-  maxDate: Date
   "The metrics for the team's applications."
   data: [VulnerabilityMetric!]!
 }

@@ -3,7 +3,7 @@
 package database
 
 import (
-	auditevent "github.com/nais/api/internal/auditevent"
+	audit "github.com/nais/api/internal/audit/events"
 	audittype "github.com/nais/api/internal/auditlogger/audittype"
 
 	authz "github.com/nais/api/internal/auth/authz"
@@ -19,6 +19,8 @@ import (
 	protoapi "github.com/nais/api/pkg/protoapi"
 
 	slug "github.com/nais/api/internal/slug"
+
+	time "time"
 
 	uuid "github.com/google/uuid"
 )
@@ -641,7 +643,7 @@ func (_c *MockDatabase_CreateAPIKey_Call) RunAndReturn(run func(context.Context,
 }
 
 // CreateAuditEvent provides a mock function with given fields: ctx, event
-func (_m *MockDatabase) CreateAuditEvent(ctx context.Context, event auditevent.Event) error {
+func (_m *MockDatabase) CreateAuditEvent(ctx context.Context, event audit.Event) error {
 	ret := _m.Called(ctx, event)
 
 	if len(ret) == 0 {
@@ -649,7 +651,7 @@ func (_m *MockDatabase) CreateAuditEvent(ctx context.Context, event auditevent.E
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, auditevent.Event) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, audit.Event) error); ok {
 		r0 = rf(ctx, event)
 	} else {
 		r0 = ret.Error(0)
@@ -665,14 +667,14 @@ type MockDatabase_CreateAuditEvent_Call struct {
 
 // CreateAuditEvent is a helper method to define mock.On call
 //   - ctx context.Context
-//   - event auditevent.Event
+//   - event audit.Event
 func (_e *MockDatabase_Expecter) CreateAuditEvent(ctx interface{}, event interface{}) *MockDatabase_CreateAuditEvent_Call {
 	return &MockDatabase_CreateAuditEvent_Call{Call: _e.mock.On("CreateAuditEvent", ctx, event)}
 }
 
-func (_c *MockDatabase_CreateAuditEvent_Call) Run(run func(ctx context.Context, event auditevent.Event)) *MockDatabase_CreateAuditEvent_Call {
+func (_c *MockDatabase_CreateAuditEvent_Call) Run(run func(ctx context.Context, event audit.Event)) *MockDatabase_CreateAuditEvent_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(auditevent.Event))
+		run(args[0].(context.Context), args[1].(audit.Event))
 	})
 	return _c
 }
@@ -682,7 +684,7 @@ func (_c *MockDatabase_CreateAuditEvent_Call) Return(_a0 error) *MockDatabase_Cr
 	return _c
 }
 
-func (_c *MockDatabase_CreateAuditEvent_Call) RunAndReturn(run func(context.Context, auditevent.Event) error) *MockDatabase_CreateAuditEvent_Call {
+func (_c *MockDatabase_CreateAuditEvent_Call) RunAndReturn(run func(context.Context, audit.Event) error) *MockDatabase_CreateAuditEvent_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1131,6 +1133,56 @@ func (_c *MockDatabase_CreateUser_Call) Return(_a0 *User, _a1 error) *MockDataba
 }
 
 func (_c *MockDatabase_CreateUser_Call) RunAndReturn(run func(context.Context, string, string, string) (*User, error)) *MockDatabase_CreateUser_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateUsersyncRun provides a mock function with given fields: ctx, id, startedAt, finishedAt, err
+func (_m *MockDatabase) CreateUsersyncRun(ctx context.Context, id uuid.UUID, startedAt time.Time, finishedAt time.Time, err error) error {
+	ret := _m.Called(ctx, id, startedAt, finishedAt, err)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateUsersyncRun")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, time.Time, time.Time, error) error); ok {
+		r0 = rf(ctx, id, startedAt, finishedAt, err)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockDatabase_CreateUsersyncRun_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateUsersyncRun'
+type MockDatabase_CreateUsersyncRun_Call struct {
+	*mock.Call
+}
+
+// CreateUsersyncRun is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id uuid.UUID
+//   - startedAt time.Time
+//   - finishedAt time.Time
+//   - err error
+func (_e *MockDatabase_Expecter) CreateUsersyncRun(ctx interface{}, id interface{}, startedAt interface{}, finishedAt interface{}, err interface{}) *MockDatabase_CreateUsersyncRun_Call {
+	return &MockDatabase_CreateUsersyncRun_Call{Call: _e.mock.On("CreateUsersyncRun", ctx, id, startedAt, finishedAt, err)}
+}
+
+func (_c *MockDatabase_CreateUsersyncRun_Call) Run(run func(ctx context.Context, id uuid.UUID, startedAt time.Time, finishedAt time.Time, err error)) *MockDatabase_CreateUsersyncRun_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(time.Time), args[3].(time.Time), args[4].(error))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_CreateUsersyncRun_Call) Return(_a0 error) *MockDatabase_CreateUsersyncRun_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockDatabase_CreateUsersyncRun_Call) RunAndReturn(run func(context.Context, uuid.UUID, time.Time, time.Time, error) error) *MockDatabase_CreateUsersyncRun_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2299,24 +2351,24 @@ func (_c *MockDatabase_GetAllUserRoles_Call) RunAndReturn(run func(context.Conte
 }
 
 // GetAuditEventsForTeam provides a mock function with given fields: ctx, teamSlug, p
-func (_m *MockDatabase) GetAuditEventsForTeam(ctx context.Context, teamSlug slug.Slug, p Page) ([]auditevent.Event, int, error) {
+func (_m *MockDatabase) GetAuditEventsForTeam(ctx context.Context, teamSlug slug.Slug, p Page) ([]audit.Event, int, error) {
 	ret := _m.Called(ctx, teamSlug, p)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAuditEventsForTeam")
 	}
 
-	var r0 []auditevent.Event
+	var r0 []audit.Event
 	var r1 int
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, Page) ([]auditevent.Event, int, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, Page) ([]audit.Event, int, error)); ok {
 		return rf(ctx, teamSlug, p)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, Page) []auditevent.Event); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, Page) []audit.Event); ok {
 		r0 = rf(ctx, teamSlug, p)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]auditevent.Event)
+			r0 = ret.Get(0).([]audit.Event)
 		}
 	}
 
@@ -2355,12 +2407,12 @@ func (_c *MockDatabase_GetAuditEventsForTeam_Call) Run(run func(ctx context.Cont
 	return _c
 }
 
-func (_c *MockDatabase_GetAuditEventsForTeam_Call) Return(_a0 []auditevent.Event, _a1 int, _a2 error) *MockDatabase_GetAuditEventsForTeam_Call {
+func (_c *MockDatabase_GetAuditEventsForTeam_Call) Return(_a0 []audit.Event, _a1 int, _a2 error) *MockDatabase_GetAuditEventsForTeam_Call {
 	_c.Call.Return(_a0, _a1, _a2)
 	return _c
 }
 
-func (_c *MockDatabase_GetAuditEventsForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug, Page) ([]auditevent.Event, int, error)) *MockDatabase_GetAuditEventsForTeam_Call {
+func (_c *MockDatabase_GetAuditEventsForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug, Page) ([]audit.Event, int, error)) *MockDatabase_GetAuditEventsForTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4621,6 +4673,72 @@ func (_c *MockDatabase_GetUsersWithGloballyAssignedRole_Call) RunAndReturn(run f
 	return _c
 }
 
+// GetUsersyncRuns provides a mock function with given fields: ctx, p
+func (_m *MockDatabase) GetUsersyncRuns(ctx context.Context, p Page) ([]*UsersyncRun, int, error) {
+	ret := _m.Called(ctx, p)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUsersyncRuns")
+	}
+
+	var r0 []*UsersyncRun
+	var r1 int
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, Page) ([]*UsersyncRun, int, error)); ok {
+		return rf(ctx, p)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, Page) []*UsersyncRun); ok {
+		r0 = rf(ctx, p)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*UsersyncRun)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, Page) int); ok {
+		r1 = rf(ctx, p)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, Page) error); ok {
+		r2 = rf(ctx, p)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// MockDatabase_GetUsersyncRuns_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUsersyncRuns'
+type MockDatabase_GetUsersyncRuns_Call struct {
+	*mock.Call
+}
+
+// GetUsersyncRuns is a helper method to define mock.On call
+//   - ctx context.Context
+//   - p Page
+func (_e *MockDatabase_Expecter) GetUsersyncRuns(ctx interface{}, p interface{}) *MockDatabase_GetUsersyncRuns_Call {
+	return &MockDatabase_GetUsersyncRuns_Call{Call: _e.mock.On("GetUsersyncRuns", ctx, p)}
+}
+
+func (_c *MockDatabase_GetUsersyncRuns_Call) Run(run func(ctx context.Context, p Page)) *MockDatabase_GetUsersyncRuns_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(Page))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_GetUsersyncRuns_Call) Return(_a0 []*UsersyncRun, _a1 int, _a2 error) *MockDatabase_GetUsersyncRuns_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *MockDatabase_GetUsersyncRuns_Call) RunAndReturn(run func(context.Context, Page) ([]*UsersyncRun, int, error)) *MockDatabase_GetUsersyncRuns_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // InsertEnvironment provides a mock function with given fields: ctx, name, gcp
 func (_m *MockDatabase) InsertEnvironment(ctx context.Context, name string, gcp bool) error {
 	ret := _m.Called(ctx, name, gcp)
@@ -6640,65 +6758,6 @@ func (_c *MockDatabase_UserIsTeamOwner_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
-// VulnerabilityMetricsDateRangeForTeam provides a mock function with given fields: ctx, teamSlug
-func (_m *MockDatabase) VulnerabilityMetricsDateRangeForTeam(ctx context.Context, teamSlug slug.Slug) (*gensql.VulnerabilityMetricsDateRangeForTeamRow, error) {
-	ret := _m.Called(ctx, teamSlug)
-
-	if len(ret) == 0 {
-		panic("no return value specified for VulnerabilityMetricsDateRangeForTeam")
-	}
-
-	var r0 *gensql.VulnerabilityMetricsDateRangeForTeamRow
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (*gensql.VulnerabilityMetricsDateRangeForTeamRow, error)); ok {
-		return rf(ctx, teamSlug)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) *gensql.VulnerabilityMetricsDateRangeForTeamRow); ok {
-		r0 = rf(ctx, teamSlug)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*gensql.VulnerabilityMetricsDateRangeForTeamRow)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
-		r1 = rf(ctx, teamSlug)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VulnerabilityMetricsDateRangeForTeam'
-type MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call struct {
-	*mock.Call
-}
-
-// VulnerabilityMetricsDateRangeForTeam is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-func (_e *MockDatabase_Expecter) VulnerabilityMetricsDateRangeForTeam(ctx interface{}, teamSlug interface{}) *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call {
-	return &MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call{Call: _e.mock.On("VulnerabilityMetricsDateRangeForTeam", ctx, teamSlug)}
-}
-
-func (_c *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call) Return(_a0 *gensql.VulnerabilityMetricsDateRangeForTeamRow, _a1 error) *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug) (*gensql.VulnerabilityMetricsDateRangeForTeamRow, error)) *MockDatabase_VulnerabilityMetricsDateRangeForTeam_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // VulnerabilityMetricsDateRangeForTeamAndEnvironment provides a mock function with given fields: ctx, fromDate, toDate, teamSlug, environment
 func (_m *MockDatabase) VulnerabilityMetricsDateRangeForTeamAndEnvironment(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug, environment string) ([]*gensql.DailyVulnerabilityForTeamAndEnvironmentRow, error) {
 	ret := _m.Called(ctx, fromDate, toDate, teamSlug, environment)
@@ -6761,9 +6820,9 @@ func (_c *MockDatabase_VulnerabilityMetricsDateRangeForTeamAndEnvironment_Call) 
 	return _c
 }
 
-// VulnerabilityMetricsMaxDate provides a mock function with given fields: ctx, environment, app, teamSlug
-func (_m *MockDatabase) VulnerabilityMetricsMaxDate(ctx context.Context, environment string, app string, teamSlug slug.Slug) (pgtype.Date, error) {
-	ret := _m.Called(ctx, environment, app, teamSlug)
+// VulnerabilityMetricsMaxDate provides a mock function with given fields: ctx, environment, workload, workloadType, teamSlug
+func (_m *MockDatabase) VulnerabilityMetricsMaxDate(ctx context.Context, environment string, workload string, workloadType gensql.WorkloadType, teamSlug slug.Slug) (pgtype.Date, error) {
+	ret := _m.Called(ctx, environment, workload, workloadType, teamSlug)
 
 	if len(ret) == 0 {
 		panic("no return value specified for VulnerabilityMetricsMaxDate")
@@ -6771,17 +6830,17 @@ func (_m *MockDatabase) VulnerabilityMetricsMaxDate(ctx context.Context, environ
 
 	var r0 pgtype.Date
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, slug.Slug) (pgtype.Date, error)); ok {
-		return rf(ctx, environment, app, teamSlug)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, gensql.WorkloadType, slug.Slug) (pgtype.Date, error)); ok {
+		return rf(ctx, environment, workload, workloadType, teamSlug)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, slug.Slug) pgtype.Date); ok {
-		r0 = rf(ctx, environment, app, teamSlug)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, gensql.WorkloadType, slug.Slug) pgtype.Date); ok {
+		r0 = rf(ctx, environment, workload, workloadType, teamSlug)
 	} else {
 		r0 = ret.Get(0).(pgtype.Date)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, slug.Slug) error); ok {
-		r1 = rf(ctx, environment, app, teamSlug)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, gensql.WorkloadType, slug.Slug) error); ok {
+		r1 = rf(ctx, environment, workload, workloadType, teamSlug)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -6797,15 +6856,16 @@ type MockDatabase_VulnerabilityMetricsMaxDate_Call struct {
 // VulnerabilityMetricsMaxDate is a helper method to define mock.On call
 //   - ctx context.Context
 //   - environment string
-//   - app string
+//   - workload string
+//   - workloadType gensql.WorkloadType
 //   - teamSlug slug.Slug
-func (_e *MockDatabase_Expecter) VulnerabilityMetricsMaxDate(ctx interface{}, environment interface{}, app interface{}, teamSlug interface{}) *MockDatabase_VulnerabilityMetricsMaxDate_Call {
-	return &MockDatabase_VulnerabilityMetricsMaxDate_Call{Call: _e.mock.On("VulnerabilityMetricsMaxDate", ctx, environment, app, teamSlug)}
+func (_e *MockDatabase_Expecter) VulnerabilityMetricsMaxDate(ctx interface{}, environment interface{}, workload interface{}, workloadType interface{}, teamSlug interface{}) *MockDatabase_VulnerabilityMetricsMaxDate_Call {
+	return &MockDatabase_VulnerabilityMetricsMaxDate_Call{Call: _e.mock.On("VulnerabilityMetricsMaxDate", ctx, environment, workload, workloadType, teamSlug)}
 }
 
-func (_c *MockDatabase_VulnerabilityMetricsMaxDate_Call) Run(run func(ctx context.Context, environment string, app string, teamSlug slug.Slug)) *MockDatabase_VulnerabilityMetricsMaxDate_Call {
+func (_c *MockDatabase_VulnerabilityMetricsMaxDate_Call) Run(run func(ctx context.Context, environment string, workload string, workloadType gensql.WorkloadType, teamSlug slug.Slug)) *MockDatabase_VulnerabilityMetricsMaxDate_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(slug.Slug))
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(gensql.WorkloadType), args[4].(slug.Slug))
 	})
 	return _c
 }
@@ -6815,7 +6875,7 @@ func (_c *MockDatabase_VulnerabilityMetricsMaxDate_Call) Return(_a0 pgtype.Date,
 	return _c
 }
 
-func (_c *MockDatabase_VulnerabilityMetricsMaxDate_Call) RunAndReturn(run func(context.Context, string, string, slug.Slug) (pgtype.Date, error)) *MockDatabase_VulnerabilityMetricsMaxDate_Call {
+func (_c *MockDatabase_VulnerabilityMetricsMaxDate_Call) RunAndReturn(run func(context.Context, string, string, gensql.WorkloadType, slug.Slug) (pgtype.Date, error)) *MockDatabase_VulnerabilityMetricsMaxDate_Call {
 	_c.Call.Return(run)
 	return _c
 }

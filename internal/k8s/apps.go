@@ -636,7 +636,7 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 	}
 
 	ret := &model.App{}
-	ret.ID = scalar.AppIdent("app_" + env + "_" + app.GetNamespace() + "_" + app.GetName())
+	ret.ID = scalar.AppIdent(env, slug.Slug(app.GetNamespace()), app.GetName())
 	ret.Name = app.GetName()
 
 	ret.Env = model.Env{
