@@ -673,6 +673,11 @@ type ReconcilerConfigInput struct {
 	Value string `json:"value"`
 }
 
+type ReconcilerErrorList struct {
+	Nodes    []*ReconcilerError `json:"nodes"`
+	PageInfo PageInfo           `json:"pageInfo"`
+}
+
 // Paginated reconcilers type.
 type ReconcilerList struct {
 	// The list of reconcilers.

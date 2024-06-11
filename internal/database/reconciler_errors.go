@@ -12,6 +12,7 @@ type ReconcilerErrorRepo interface {
 	ClearReconcilerErrorsForTeam(ctx context.Context, teamSlug slug.Slug, reconcilerName string) error
 	GetTeamReconcilerErrors(ctx context.Context, teamSlug slug.Slug) ([]*ReconcilerError, error)
 	SetReconcilerErrorForTeam(ctx context.Context, correlationID uuid.UUID, teamSlug slug.Slug, reconcilerName string, err error) error
+	GetReconcilerErrors(ctx context.Context, reconcilerName string, p Page) ([]*ReconcilerError, int, error)
 }
 
 var _ ReconcilerErrorRepo = (*database)(nil)
@@ -44,4 +45,27 @@ func (d *database) ClearReconcilerErrorsForTeam(ctx context.Context, teamSlug sl
 		TeamSlug:   teamSlug,
 		Reconciler: reconcilerName,
 	})
+}
+
+func (d *database) GetReconcilerErrors(ctx context.Context, reconcilerName string, p Page) ([]*ReconcilerError, int, error) {
+	errors, err := d.querier.GetReconcilerErrors(ctx, gensql.GetReconcilerErrorsParams{
+		Reconciler: reconcilerName,
+		Offset:     int32(p.Offset),
+		Limit:      int32(p.Limit),
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+
+	total, err := d.querier.GetReconcilerErrorsCount(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	ret := make([]*ReconcilerError, len(errors))
+	for i, row := range errors {
+		ret[i] = &ReconcilerError{ReconcilerError: &row.ReconcilerError}
+	}
+
+	return ret, int(total), nil
 }

@@ -59,6 +59,7 @@ type ResolverRoot interface {
 	OpenSearchInstanceAccess() OpenSearchInstanceAccessResolver
 	Query() QueryResolver
 	Reconciler() ReconcilerResolver
+	ReconcilerError() ReconcilerErrorResolver
 	Redis() RedisResolver
 	RedisInstanceAccess() RedisInstanceAccessResolver
 	Role() RoleResolver
@@ -791,6 +792,7 @@ type ComplexityRoot struct {
 		Description func(childComplexity int) int
 		DisplayName func(childComplexity int) int
 		Enabled     func(childComplexity int) int
+		Errors      func(childComplexity int, offset *int, limit *int) int
 		MemberAware func(childComplexity int) int
 		Name        func(childComplexity int) int
 	}
@@ -802,6 +804,19 @@ type ComplexityRoot struct {
 		Key         func(childComplexity int) int
 		Secret      func(childComplexity int) int
 		Value       func(childComplexity int) int
+	}
+
+	ReconcilerError struct {
+		CorrelationID func(childComplexity int) int
+		CreatedAt     func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Message       func(childComplexity int) int
+		Team          func(childComplexity int) int
+	}
+
+	ReconcilerErrorList struct {
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
 	}
 
 	ReconcilerList struct {
@@ -1404,6 +1419,10 @@ type ReconcilerResolver interface {
 	Config(ctx context.Context, obj *model.Reconciler) ([]*model.ReconcilerConfig, error)
 	Configured(ctx context.Context, obj *model.Reconciler) (bool, error)
 	AuditLogs(ctx context.Context, obj *model.Reconciler, offset *int, limit *int) (*model.AuditLogList, error)
+	Errors(ctx context.Context, obj *model.Reconciler, offset *int, limit *int) (*model.ReconcilerErrorList, error)
+}
+type ReconcilerErrorResolver interface {
+	Team(ctx context.Context, obj *model.ReconcilerError) (*model.Team, error)
 }
 type RedisResolver interface {
 	Access(ctx context.Context, obj *model.Redis) ([]*model.RedisInstanceAccess, error)
@@ -4841,6 +4860,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Reconciler.Enabled(childComplexity), true
 
+	case "Reconciler.errors":
+		if e.complexity.Reconciler.Errors == nil {
+			break
+		}
+
+		args, err := ec.field_Reconciler_errors_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Reconciler.Errors(childComplexity, args["offset"].(*int), args["limit"].(*int)), true
+
 	case "Reconciler.memberAware":
 		if e.complexity.Reconciler.MemberAware == nil {
 			break
@@ -4896,6 +4927,55 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ReconcilerConfig.Value(childComplexity), true
+
+	case "ReconcilerError.correlationId":
+		if e.complexity.ReconcilerError.CorrelationID == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerError.CorrelationID(childComplexity), true
+
+	case "ReconcilerError.createdAt":
+		if e.complexity.ReconcilerError.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerError.CreatedAt(childComplexity), true
+
+	case "ReconcilerError.id":
+		if e.complexity.ReconcilerError.ID == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerError.ID(childComplexity), true
+
+	case "ReconcilerError.message":
+		if e.complexity.ReconcilerError.Message == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerError.Message(childComplexity), true
+
+	case "ReconcilerError.team":
+		if e.complexity.ReconcilerError.Team == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerError.Team(childComplexity), true
+
+	case "ReconcilerErrorList.nodes":
+		if e.complexity.ReconcilerErrorList.Nodes == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerErrorList.Nodes(childComplexity), true
+
+	case "ReconcilerErrorList.pageInfo":
+		if e.complexity.ReconcilerErrorList.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.ReconcilerErrorList.PageInfo(childComplexity), true
 
 	case "ReconcilerList.nodes":
 		if e.complexity.ReconcilerList.Nodes == nil {
@@ -8405,6 +8485,22 @@ type Reconciler {
 
   "Audit logs for this reconciler."
   auditLogs(offset: Int, limit: Int): AuditLogList! @admin
+
+  "Potential errors that have occurred during the reconciler's operation."
+  errors(offset: Int, limit: Int): ReconcilerErrorList! @admin
+}
+
+type ReconcilerErrorList {
+  nodes: [ReconcilerError!]!
+  pageInfo: PageInfo!
+}
+
+type ReconcilerError {
+  id: ID!
+  correlationId: ID!
+  createdAt: Time!
+  message: String!
+  team: Team!
 }
 
 "Reconciler configuration type."
@@ -11273,6 +11369,30 @@ func (ec *executionContext) field_Query_usersyncRuns_args(ctx context.Context, r
 }
 
 func (ec *executionContext) field_Reconciler_auditLogs_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Reconciler_errors_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *int
@@ -27723,6 +27843,8 @@ func (ec *executionContext) fieldContext_Mutation_enableReconciler(ctx context.C
 				return ec.fieldContext_Reconciler_configured(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Reconciler_auditLogs(ctx, field)
+			case "errors":
+				return ec.fieldContext_Reconciler_errors(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Reconciler", field.Name)
 		},
@@ -27816,6 +27938,8 @@ func (ec *executionContext) fieldContext_Mutation_disableReconciler(ctx context.
 				return ec.fieldContext_Reconciler_configured(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Reconciler_auditLogs(ctx, field)
+			case "errors":
+				return ec.fieldContext_Reconciler_errors(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Reconciler", field.Name)
 		},
@@ -27909,6 +28033,8 @@ func (ec *executionContext) fieldContext_Mutation_configureReconciler(ctx contex
 				return ec.fieldContext_Reconciler_configured(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Reconciler_auditLogs(ctx, field)
+			case "errors":
+				return ec.fieldContext_Reconciler_errors(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Reconciler", field.Name)
 		},
@@ -28002,6 +28128,8 @@ func (ec *executionContext) fieldContext_Mutation_resetReconciler(ctx context.Co
 				return ec.fieldContext_Reconciler_configured(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Reconciler_auditLogs(ctx, field)
+			case "errors":
+				return ec.fieldContext_Reconciler_errors(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Reconciler", field.Name)
 		},
@@ -35468,6 +35596,87 @@ func (ec *executionContext) fieldContext_Reconciler_auditLogs(ctx context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _Reconciler_errors(ctx context.Context, field graphql.CollectedField, obj *model.Reconciler) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Reconciler_errors(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Reconciler().Errors(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Admin == nil {
+				return nil, errors.New("directive admin is not implemented")
+			}
+			return ec.directives.Admin(ctx, obj, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.ReconcilerErrorList); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.ReconcilerErrorList`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ReconcilerErrorList)
+	fc.Result = res
+	return ec.marshalNReconcilerErrorList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerErrorList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Reconciler_errors(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Reconciler",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "nodes":
+				return ec.fieldContext_ReconcilerErrorList_nodes(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_ReconcilerErrorList_pageInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ReconcilerErrorList", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Reconciler_errors_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ReconcilerConfig_key(ctx context.Context, field graphql.CollectedField, obj *model.ReconcilerConfig) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ReconcilerConfig_key(ctx, field)
 	if err != nil {
@@ -35729,6 +35938,418 @@ func (ec *executionContext) fieldContext_ReconcilerConfig_value(ctx context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _ReconcilerError_id(ctx context.Context, field graphql.CollectedField, obj *model.ReconcilerError) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerError_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerError_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerError",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerError_correlationId(ctx context.Context, field graphql.CollectedField, obj *model.ReconcilerError) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerError_correlationId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CorrelationID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uuid.UUID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerError_correlationId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerError",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerError_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.ReconcilerError) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerError_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerError_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerError",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerError_message(ctx context.Context, field graphql.CollectedField, obj *model.ReconcilerError) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerError_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerError_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerError",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerError_team(ctx context.Context, field graphql.CollectedField, obj *model.ReconcilerError) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerError_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ReconcilerError().Team(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Team)
+	fc.Result = res
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerError_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerError",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "auditLogs":
+				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
+			case "syncErrors":
+				return ec.fieldContext_Team_syncErrors(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "githubRepositories":
+				return ec.fieldContext_Team_githubRepositories(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "status":
+				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_Team_sqlInstance(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_Team_redisInstance(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_Team_openSearchInstance(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "bigQuery":
+				return ec.fieldContext_Team_bigQuery(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
+			case "apps":
+				return ec.fieldContext_Team_apps(ctx, field)
+			case "deployKey":
+				return ec.fieldContext_Team_deployKey(ctx, field)
+			case "naisjobs":
+				return ec.fieldContext_Team_naisjobs(ctx, field)
+			case "deployments":
+				return ec.fieldContext_Team_deployments(ctx, field)
+			case "vulnerabilities":
+				return ec.fieldContext_Team_vulnerabilities(ctx, field)
+			case "vulnerabilitiesSummary":
+				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
+			case "vulnerabilityMetrics":
+				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerErrorList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.ReconcilerErrorList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerErrorList_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.ReconcilerError)
+	fc.Result = res
+	return ec.marshalNReconcilerError2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerErrorᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerErrorList_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerErrorList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ReconcilerError_id(ctx, field)
+			case "correlationId":
+				return ec.fieldContext_ReconcilerError_correlationId(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_ReconcilerError_createdAt(ctx, field)
+			case "message":
+				return ec.fieldContext_ReconcilerError_message(ctx, field)
+			case "team":
+				return ec.fieldContext_ReconcilerError_team(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ReconcilerError", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReconcilerErrorList_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.ReconcilerErrorList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReconcilerErrorList_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReconcilerErrorList_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReconcilerErrorList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ReconcilerList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.ReconcilerList) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ReconcilerList_nodes(ctx, field)
 	if err != nil {
@@ -35784,6 +36405,8 @@ func (ec *executionContext) fieldContext_ReconcilerList_nodes(ctx context.Contex
 				return ec.fieldContext_Reconciler_configured(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Reconciler_auditLogs(ctx, field)
+			case "errors":
+				return ec.fieldContext_Reconciler_errors(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Reconciler", field.Name)
 		},
@@ -46880,6 +47503,8 @@ func (ec *executionContext) fieldContext_TeamMemberReconciler_reconciler(ctx con
 				return ec.fieldContext_Reconciler_configured(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Reconciler_auditLogs(ctx, field)
+			case "errors":
+				return ec.fieldContext_Reconciler_errors(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Reconciler", field.Name)
 		},
@@ -59626,6 +60251,42 @@ func (ec *executionContext) _Reconciler(ctx context.Context, sel ast.SelectionSe
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "errors":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Reconciler_errors(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -59687,6 +60348,140 @@ func (ec *executionContext) _ReconcilerConfig(ctx context.Context, sel ast.Selec
 			}
 		case "value":
 			out.Values[i] = ec._ReconcilerConfig_value(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var reconcilerErrorImplementors = []string{"ReconcilerError"}
+
+func (ec *executionContext) _ReconcilerError(ctx context.Context, sel ast.SelectionSet, obj *model.ReconcilerError) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerErrorImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ReconcilerError")
+		case "id":
+			out.Values[i] = ec._ReconcilerError_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "correlationId":
+			out.Values[i] = ec._ReconcilerError_correlationId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "createdAt":
+			out.Values[i] = ec._ReconcilerError_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "message":
+			out.Values[i] = ec._ReconcilerError_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ReconcilerError_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var reconcilerErrorListImplementors = []string{"ReconcilerErrorList"}
+
+func (ec *executionContext) _ReconcilerErrorList(ctx context.Context, sel ast.SelectionSet, obj *model.ReconcilerErrorList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, reconcilerErrorListImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ReconcilerErrorList")
+		case "nodes":
+			out.Values[i] = ec._ReconcilerErrorList_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pageInfo":
+			out.Values[i] = ec._ReconcilerErrorList_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -68063,6 +68858,74 @@ func (ec *executionContext) unmarshalNReconcilerConfigInput2ᚕᚖgithubᚗcom�
 func (ec *executionContext) unmarshalNReconcilerConfigInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerConfigInput(ctx context.Context, v interface{}) (*model.ReconcilerConfigInput, error) {
 	res, err := ec.unmarshalInputReconcilerConfigInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNReconcilerError2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerErrorᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ReconcilerError) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNReconcilerError2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerError(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNReconcilerError2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerError(ctx context.Context, sel ast.SelectionSet, v *model.ReconcilerError) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ReconcilerError(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNReconcilerErrorList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerErrorList(ctx context.Context, sel ast.SelectionSet, v model.ReconcilerErrorList) graphql.Marshaler {
+	return ec._ReconcilerErrorList(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNReconcilerErrorList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerErrorList(ctx context.Context, sel ast.SelectionSet, v *model.ReconcilerErrorList) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ReconcilerErrorList(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNReconcilerList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐReconcilerList(ctx context.Context, sel ast.SelectionSet, v model.ReconcilerList) graphql.Marshaler {

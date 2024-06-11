@@ -2711,6 +2711,121 @@ func (_c *MockQuerier_GetReconcilerConfig_Call) RunAndReturn(run func(context.Co
 	return _c
 }
 
+// GetReconcilerErrors provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetReconcilerErrors(ctx context.Context, arg GetReconcilerErrorsParams) ([]*GetReconcilerErrorsRow, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetReconcilerErrors")
+	}
+
+	var r0 []*GetReconcilerErrorsRow
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, GetReconcilerErrorsParams) ([]*GetReconcilerErrorsRow, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, GetReconcilerErrorsParams) []*GetReconcilerErrorsRow); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*GetReconcilerErrorsRow)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, GetReconcilerErrorsParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetReconcilerErrors_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetReconcilerErrors'
+type MockQuerier_GetReconcilerErrors_Call struct {
+	*mock.Call
+}
+
+// GetReconcilerErrors is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg GetReconcilerErrorsParams
+func (_e *MockQuerier_Expecter) GetReconcilerErrors(ctx interface{}, arg interface{}) *MockQuerier_GetReconcilerErrors_Call {
+	return &MockQuerier_GetReconcilerErrors_Call{Call: _e.mock.On("GetReconcilerErrors", ctx, arg)}
+}
+
+func (_c *MockQuerier_GetReconcilerErrors_Call) Run(run func(ctx context.Context, arg GetReconcilerErrorsParams)) *MockQuerier_GetReconcilerErrors_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(GetReconcilerErrorsParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetReconcilerErrors_Call) Return(_a0 []*GetReconcilerErrorsRow, _a1 error) *MockQuerier_GetReconcilerErrors_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetReconcilerErrors_Call) RunAndReturn(run func(context.Context, GetReconcilerErrorsParams) ([]*GetReconcilerErrorsRow, error)) *MockQuerier_GetReconcilerErrors_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetReconcilerErrorsCount provides a mock function with given fields: ctx
+func (_m *MockQuerier) GetReconcilerErrorsCount(ctx context.Context) (int64, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetReconcilerErrorsCount")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (int64, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) int64); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetReconcilerErrorsCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetReconcilerErrorsCount'
+type MockQuerier_GetReconcilerErrorsCount_Call struct {
+	*mock.Call
+}
+
+// GetReconcilerErrorsCount is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockQuerier_Expecter) GetReconcilerErrorsCount(ctx interface{}) *MockQuerier_GetReconcilerErrorsCount_Call {
+	return &MockQuerier_GetReconcilerErrorsCount_Call{Call: _e.mock.On("GetReconcilerErrorsCount", ctx)}
+}
+
+func (_c *MockQuerier_GetReconcilerErrorsCount_Call) Run(run func(ctx context.Context)) *MockQuerier_GetReconcilerErrorsCount_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetReconcilerErrorsCount_Call) Return(_a0 int64, _a1 error) *MockQuerier_GetReconcilerErrorsCount_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetReconcilerErrorsCount_Call) RunAndReturn(run func(context.Context) (int64, error)) *MockQuerier_GetReconcilerErrorsCount_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetReconcilerState provides a mock function with given fields: ctx, reconcilerName
 func (_m *MockQuerier) GetReconcilerState(ctx context.Context, reconcilerName string) ([]*GetReconcilerStateRow, error) {
 	ret := _m.Called(ctx, reconcilerName)

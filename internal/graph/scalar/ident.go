@@ -35,6 +35,7 @@ const (
 	IdentTypeKafkaTopic           IdentType = "kafkaTopic"
 	IdentTypeOpenSearch           IdentType = "openSearch"
 	IdentTypePod                  IdentType = "pod"
+	IdentTypeReconcilerError      IdentType = "reconcilerError"
 	IdentTypeRedis                IdentType = "redis"
 	IdentTypeSecret               IdentType = "secret"
 	IdentTypeSqlDatabase          IdentType = "sqlDatabase"
@@ -193,6 +194,10 @@ func ImageIdent(name, version string) Ident {
 
 func WorkloadIdent(id string) Ident {
 	return newIdent(IdentTypeWorkload, id)
+}
+
+func ReconcilerErrorIdent(id int) Ident {
+	return newIdent(IdentTypeReconcilerError, strconv.Itoa(id))
 }
 
 func AnalysisTrailIdent(projectID, componentID, vulnerabilityID string) Ident {
