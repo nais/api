@@ -15,6 +15,7 @@ import (
 	"github.com/patrickmn/go-cache"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/api/iterator"
+	"google.golang.org/api/option"
 	"google.golang.org/genproto/googleapis/api/metric"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -63,8 +64,8 @@ type DatabaseIDToMetricValues = map[DatabaseID]float64
 
 type TeamMetricsCache = map[MetricType]DatabaseIDToMetricValues
 
-func NewMetrics(ctx context.Context, costRepo database.CostRepo, log log.FieldLogger) (*Metrics, error) {
-	client, err := monitoring.NewMetricClient(ctx)
+func NewMetrics(ctx context.Context, costRepo database.CostRepo, log log.FieldLogger, opts ...option.ClientOption) (*Metrics, error) {
+	client, err := monitoring.NewMetricClient(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
