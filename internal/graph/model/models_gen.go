@@ -985,18 +985,6 @@ type Vulnerability struct {
 	HasBom       bool                         `json:"hasBom"`
 }
 
-type VulnerabilityFilter struct {
-	// Filter by environment
-	Envs []string `json:"envs,omitempty"`
-	// Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report.
-	RequireSbom *bool `json:"requireSbom,omitempty"`
-}
-
-type VulnerabilityList struct {
-	Nodes    []*Vulnerability `json:"nodes"`
-	PageInfo PageInfo         `json:"pageInfo"`
-}
-
 type VulnerabilityMetric struct {
 	// The date of the metric.
 	Date time.Time `json:"date"`
@@ -1030,6 +1018,7 @@ type VulnerabilitySummaryForTeam struct {
 	Low        int `json:"low"`
 	Unassigned int `json:"unassigned"`
 	BomCount   int `json:"bomCount"`
+	Coverage   int `json:"coverage"`
 }
 
 type ErrorLevel string

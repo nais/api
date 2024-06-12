@@ -459,20 +459,6 @@ type Team {
     limit: Int
   ): DeploymentList!
 
-  "The vulnerabilities for the team's applications."
-  vulnerabilities(
-    "Returns the first n entries from the list."
-    offset: Int
-
-    "Returns the last n entries from the list."
-    limit: Int
-
-    "Order entries by"
-    orderBy: OrderBy
-
-    filter: VulnerabilityFilter
-  ): VulnerabilityList!
-
   vulnerabilitiesSummary: VulnerabilitySummaryForTeam!
 
   "The vulnerabilities for the team's applications over time."
@@ -504,14 +490,6 @@ type SqlInstancesStatus {
   total: Int!
   failing: Int!
   otherConditions: Int!
-}
-
-input VulnerabilityFilter {
-  "Filter by environment"
-  envs: [String!]
-
-  "Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report."
-  requireSbom: Boolean
 }
 
 type VulnerabilityMetrics {
@@ -643,11 +621,6 @@ type DeploymentKey {
 
   "The date the deployment key expires."
   expires: Time!
-}
-
-type VulnerabilityList {
-  nodes: [Vulnerability!]!
-  pageInfo: PageInfo!
 }
 
 "Input for filtering teams."

@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/patrickmn/go-cache"
 	"github.com/sirupsen/logrus"
@@ -29,13 +28,6 @@ func New(log logrus.FieldLogger) *FakeDependencytrackClient {
 }
 
 var mapOfApps = map[string]uuid.UUID{}
-
-func (f *FakeDependencytrackClient) GetVulnerabilities(ctx context.Context, apps []*dependencytrack.WorkloadInstance, filters ...dependencytrack.Filter) ([]*model.Vulnerability, error) {
-	for _, app := range apps {
-		f.setCacheEntryForApp(app)
-	}
-	return f.client.GetVulnerabilities(ctx, apps, filters...)
-}
 
 func (f *FakeDependencytrackClient) GetFindingsForImageByProjectID(ctx context.Context, projectID string, suppressed bool) ([]*model.Finding, error) {
 	return f.client.GetFindingsForImageByProjectID(ctx, projectID, suppressed)
@@ -93,47 +85,4 @@ func (f *FakeDependencytrackClient) GetProjectMetrics(ctx context.Context, app *
 		ProjectID:            id,
 		VulnerabilityMetrics: vulnMetrics,
 	}, nil
-}
-
-func (f *FakeDependencytrackClient) setCacheEntryForApp(app *dependencytrack.WorkloadInstance) {
-	v := &model.Vulnerability{
-		ID:           scalar.VulnerabilitiesIdent(app.ID()),
-		AppName:      app.Name,
-		Env:          app.Env,
-		FindingsLink: "https://dependencytrack.example.com",
-	}
-
-	switch rand.Intn(4) {
-	case 0:
-		v.HasBom = false
-	case 1:
-		v.HasBom = false
-		v.Summary = &model.VulnerabilitySummaryForTeam{
-			RiskScore:  -1,
-			Total:      -1,
-			Critical:   -1,
-			High:       -1,
-			Medium:     -1,
-			Low:        -1,
-			Unassigned: -1,
-		}
-	default:
-		critical := rand.Intn(10)
-		high := rand.Intn(10)
-		medium := rand.Intn(10)
-		low := rand.Intn(10)
-		unassigned := rand.Intn(10)
-
-		v.Summary = &model.VulnerabilitySummaryForTeam{
-			Total:      critical + high + medium + low + unassigned,
-			RiskScore:  (critical * 10) + (high * 5) + (medium * 3) + (low * 1) + (unassigned * 5),
-			Critical:   critical,
-			High:       high,
-			Medium:     medium,
-			Low:        low,
-			Unassigned: unassigned,
-		}
-		v.HasBom = true
-	}
-	f.cache.Set(app.ID(), v, 24*time.Hour)
 }

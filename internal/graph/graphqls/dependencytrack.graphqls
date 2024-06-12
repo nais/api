@@ -35,4 +35,5 @@ type VulnerabilitySummaryForTeam {
   low: Int!
   unassigned: Int!
   bomCount: Int!
+  coverage: Int!
 }

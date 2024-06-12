@@ -18,11 +18,8 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/model/vulnerabilities"
 	"github.com/nais/api/internal/graph/scalar"
-	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/pkg/protoapi"
 	"github.com/sourcegraph/conc/pool"
@@ -1578,50 +1575,6 @@ func (r *teamResolver) Deployments(ctx context.Context, obj *model.Team, offset 
 	}, nil
 }
 
-func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy, filter *model.VulnerabilityFilter) (*model.VulnerabilityList, error) {
-	var envFilter []k8s.EnvFilter
-	if filter != nil && len(filter.Envs) > 0 {
-		envFilter = append(envFilter, k8s.WithEnvs(filter.Envs...))
-	}
-
-	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String(), envFilter...)
-	if err != nil {
-		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
-	}
-
-	instances := make([]*dependencytrack.WorkloadInstance, 0)
-	for _, app := range apps {
-		instances = append(instances, &dependencytrack.WorkloadInstance{
-			Env:   app.Env.Name,
-			Name:  app.Name,
-			Image: app.Image,
-			Team:  obj.Slug.String(),
-		})
-	}
-
-	requireSbom := make([]dependencytrack.Filter, 0)
-	if filter != nil && filter.RequireSbom != nil && *filter.RequireSbom {
-		requireSbom = append(requireSbom, dependencytrack.RequireSbom())
-	}
-
-	nodes, err := r.dependencyTrackClient.GetVulnerabilities(ctx, instances, requireSbom...)
-	if err != nil {
-		return nil, fmt.Errorf("getting vulnerabilities from DependencyTrack: %w", err)
-	}
-
-	if orderBy != nil {
-		vulnerabilities.Sort(nodes, orderBy.Field, orderBy.Direction)
-	}
-
-	pagination := model.NewPagination(offset, limit)
-	v, pi := model.PaginatedSlice(nodes, pagination)
-
-	return &model.VulnerabilityList{
-		Nodes:    v,
-		PageInfo: pi,
-	}, nil
-}
-
 func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummaryForTeam, error) {
 	images, err := r.dependencyTrackClient.GetMetadataForTeam(ctx, obj.Slug.String())
 	if err != nil {
@@ -1654,7 +1607,12 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		if image.Summary.Total > 0 {
 			retVal.Total += image.Summary.Total
 		}
-		retVal.BomCount += 1
+
+		for _, ref := range image.GQLVars.WorkloadReferences {
+			if ref.Team == obj.Slug.String() {
+				retVal.BomCount += 1
+			}
+		}
 	}
 
 	return retVal, nil
