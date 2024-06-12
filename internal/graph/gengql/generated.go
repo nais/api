@@ -9397,7 +9397,7 @@ type Team {
   ): AppList!
 
   "The deploy key of the team."
-  deployKey: DeploymentKey!
+  deployKey: DeploymentKey! @auth
 
   "The NAIS jobs owned by the team."
   naisjobs(
@@ -45930,8 +45930,28 @@ func (ec *executionContext) _Team_deployKey(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().DeployKey(rctx, obj)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Team().DeployKey(rctx, obj)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, obj, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.DeploymentKey); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.DeploymentKey`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
