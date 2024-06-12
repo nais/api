@@ -1612,7 +1612,20 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		}
 	}
 
-	retVal.Coverage = (retVal.BomCount / len(images)) * 100
+	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
+	if err != nil {
+		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
+	}
+	jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
+	if err != nil {
+		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
+	}
+
+	if len(apps) == 0 && len(jobs) == 0 {
+		retVal.Coverage = 0.0
+	} else {
+		retVal.Coverage = float64(retVal.BomCount) / float64(len(apps)+len(jobs)) * 100
+	}
 
 	return retVal, nil
 }

@@ -986,14 +986,14 @@ type Vulnerability struct {
 }
 
 type VulnerabilitySummaryForTeam struct {
-	RiskScore  int `json:"riskScore"`
-	Critical   int `json:"critical"`
-	High       int `json:"high"`
-	Medium     int `json:"medium"`
-	Low        int `json:"low"`
-	Unassigned int `json:"unassigned"`
-	BomCount   int `json:"bomCount"`
-	Coverage   int `json:"coverage"`
+	RiskScore  int     `json:"riskScore"`
+	Critical   int     `json:"critical"`
+	High       int     `json:"high"`
+	Medium     int     `json:"medium"`
+	Low        int     `json:"low"`
+	Unassigned int     `json:"unassigned"`
+	BomCount   int     `json:"bomCount"`
+	Coverage   float64 `json:"coverage"`
 }
 
 type ErrorLevel string
