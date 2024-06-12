@@ -56,6 +56,7 @@ message SetTeamEnvironmentExternalReferencesRequest {
   string environment_name = 2;
   // GCP project ID. If not set, no changes will be made. Set to empty string to remove the project ID.
   optional string gcp_project_id = 3;
+  optional string cdn_bucket_name = 4;
 }
 
 message SetTeamEnvironmentExternalReferencesResponse{}

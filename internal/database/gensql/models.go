@@ -327,6 +327,7 @@ type TeamEnvironment struct {
 	Environment        string
 	SlackAlertsChannel *string
 	GcpProjectID       *string
+	CdnBucket          *string
 }
 
 type User struct {

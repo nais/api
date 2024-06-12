@@ -731,7 +731,7 @@ ON CONFLICT (team_slug, environment) DO UPDATE
 SET
     slack_alerts_channel = COALESCE(EXCLUDED.slack_alerts_channel, team_environments.slack_alerts_channel),
     gcp_project_id = COALESCE(EXCLUDED.gcp_project_id, team_environments.gcp_project_id)
-RETURNING id, team_slug, environment, slack_alerts_channel, gcp_project_id
+RETURNING id, team_slug, environment, slack_alerts_channel, gcp_project_id, cdn_bucket
 `
 
 type UpsertTeamEnvironmentParams struct {
@@ -755,6 +755,7 @@ func (q *Queries) UpsertTeamEnvironment(ctx context.Context, arg UpsertTeamEnvir
 		&i.Environment,
 		&i.SlackAlertsChannel,
 		&i.GcpProjectID,
+		&i.CdnBucket,
 	)
 	return &i, err
 }
