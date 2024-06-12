@@ -65,7 +65,7 @@ func New(endpoint, username, password, frontend string, log *logrus.Entry) *Clie
 		dependencytrack.WithHttpClient(&http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}),
 	)
 
-	ch := cache.New(30*time.Minute, 10*time.Minute)
+	ch := cache.New(5*time.Minute, 3*time.Minute)
 
 	return &Client{
 		client:      c,
@@ -181,7 +181,7 @@ func (c *Client) retrieveProjectById(ctx context.Context, projectId string) (*de
 }
 
 func (c *Client) retrieveProjectsForTeam(ctx context.Context, team string) ([]*dependencytrack.Project, error) {
-	tag := url.QueryEscape("team:" + team)
+	tag := url.QueryEscape(dependencytrack.TeamTagPrefix.With(team))
 	if v, ok := c.cache.Get(tag); ok {
 		return v.([]*dependencytrack.Project), nil
 	}
@@ -192,7 +192,6 @@ func (c *Client) retrieveProjectsForTeam(ctx context.Context, team string) ([]*d
 	}
 
 	c.cache.Set(tag, projects, cache.DefaultExpiration)
-
 	return projects, nil
 }
 
