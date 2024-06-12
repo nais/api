@@ -30,11 +30,6 @@ func New(log logrus.FieldLogger) *FakeDependencytrackClient {
 
 var mapOfApps = map[string]uuid.UUID{}
 
-func (f *FakeDependencytrackClient) VulnerabilitySummary(ctx context.Context, app *dependencytrack.WorkloadInstance) (*model.Vulnerability, error) {
-	f.setCacheEntryForApp(app)
-	return f.client.VulnerabilitySummary(ctx, app)
-}
-
 func (f *FakeDependencytrackClient) GetVulnerabilities(ctx context.Context, apps []*dependencytrack.WorkloadInstance, filters ...dependencytrack.Filter) ([]*model.Vulnerability, error) {
 	for _, app := range apps {
 		f.setCacheEntryForApp(app)

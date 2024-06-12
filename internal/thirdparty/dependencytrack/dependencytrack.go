@@ -141,10 +141,6 @@ func (c *Client) GetProjectMetrics(ctx context.Context, instance *WorkloadInstan
 	}, nil
 }
 
-func (c *Client) VulnerabilitySummary(ctx context.Context, instance *WorkloadInstance) (*model.Vulnerability, error) {
-	return c.findingsForWorkload(ctx, instance)
-}
-
 type Filter = func(vulnerability *model.Vulnerability) bool
 
 func RequireSbom() Filter {
