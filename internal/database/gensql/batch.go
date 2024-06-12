@@ -7,7 +7,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/slug"
@@ -137,69 +136,6 @@ func (b *ResourceUtilizationUpsertBatchResults) Exec(f func(int, error)) {
 }
 
 func (b *ResourceUtilizationUpsertBatchResults) Close() error {
-	b.closed = true
-	return b.br.Close()
-}
-
-const vulnerabilityMetricsUpsert = `-- name: VulnerabilityMetricsUpsert :batchexec
-INSERT INTO vulnerability_metrics (date, dependencytrack_project_id, critical, high, medium, low, unassigned, risk_score)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-    ON CONFLICT ON CONSTRAINT vulnerability_metric DO NOTHING
-`
-
-type VulnerabilityMetricsUpsertBatchResults struct {
-	br     pgx.BatchResults
-	tot    int
-	closed bool
-}
-
-type VulnerabilityMetricsUpsertParams struct {
-	Date                     pgtype.Date
-	DependencytrackProjectID uuid.UUID
-	Critical                 int32
-	High                     int32
-	Medium                   int32
-	Low                      int32
-	Unassigned               int32
-	RiskScore                float64
-}
-
-func (q *Queries) VulnerabilityMetricsUpsert(ctx context.Context, arg []VulnerabilityMetricsUpsertParams) *VulnerabilityMetricsUpsertBatchResults {
-	batch := &pgx.Batch{}
-	for _, a := range arg {
-		vals := []interface{}{
-			a.Date,
-			a.DependencytrackProjectID,
-			a.Critical,
-			a.High,
-			a.Medium,
-			a.Low,
-			a.Unassigned,
-			a.RiskScore,
-		}
-		batch.Queue(vulnerabilityMetricsUpsert, vals...)
-	}
-	br := q.db.SendBatch(ctx, batch)
-	return &VulnerabilityMetricsUpsertBatchResults{br, len(arg), false}
-}
-
-func (b *VulnerabilityMetricsUpsertBatchResults) Exec(f func(int, error)) {
-	defer b.br.Close()
-	for t := 0; t < b.tot; t++ {
-		if b.closed {
-			if f != nil {
-				f(t, ErrBatchAlreadyClosed)
-			}
-			continue
-		}
-		_, err := b.br.Exec()
-		if f != nil {
-			f(t, err)
-		}
-	}
-}
-
-func (b *VulnerabilityMetricsUpsertBatchResults) Close() error {
 	b.closed = true
 	return b.br.Close()
 }

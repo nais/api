@@ -8,10 +8,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
-
-	"github.com/sourcegraph/conc/pool"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graph/model"
@@ -141,83 +138,6 @@ func (c *Client) GetProjectMetrics(ctx context.Context, instance *WorkloadInstan
 	}, nil
 }
 
-type Filter = func(vulnerability *model.Vulnerability) bool
-
-func RequireSbom() Filter {
-	return func(vulnerability *model.Vulnerability) bool {
-		return vulnerability.HasBom
-	}
-}
-
-func (c *Client) GetVulnerabilities(ctx context.Context, instances []*WorkloadInstance, filters ...Filter) ([]*model.Vulnerability, error) {
-	now := time.Now()
-	nodes := make([]*model.Vulnerability, 0)
-	lock := sync.Mutex{}
-	p := pool.New().WithMaxGoroutines(10)
-	for _, instance := range instances {
-		p.Go(func() {
-			instanceVulnNode, err := c.findingsForWorkload(ctx, instance)
-			if err != nil {
-				c.log.Errorf("retrieveFindings for workload %q: %v", instance.ID(), err)
-				return
-			}
-			if instanceVulnNode == nil {
-				c.log.Debugf("no findings found in DependencyTrack for workload %q", instance.ID())
-				return
-			}
-			for _, f := range filters {
-				if !f(instanceVulnNode) {
-					return
-				}
-			}
-			lock.Lock()
-			nodes = append(nodes, instanceVulnNode)
-			lock.Unlock()
-		})
-	}
-	p.Wait()
-	c.log.Debugf("DependencyTrack fetch: %v\n", time.Since(now))
-	return nodes, nil
-}
-
-func (c *Client) findingsForWorkload(ctx context.Context, instance *WorkloadInstance) (*model.Vulnerability, error) {
-	if v, ok := c.cache.Get(instance.ID()); ok {
-		return v.(*model.Vulnerability), nil
-	}
-
-	v := &model.Vulnerability{
-		ID:      scalar.VulnerabilitiesIdent(instance.ID()),
-		AppName: instance.Name,
-		Env:     instance.Env,
-	}
-
-	p, err := c.retrieveProject(ctx, instance)
-	if err != nil {
-		return nil, fmt.Errorf("getting project by instance %s: %w", instance.ID(), err)
-	}
-	if p == nil {
-		return v, nil
-	}
-
-	u := strings.TrimSuffix(c.frontendUrl, "/")
-	findingsLink := fmt.Sprintf("%s/projects/%s/findings", u, p.Uuid)
-
-	v.FindingsLink = findingsLink
-	v.HasBom = hasBom(p)
-
-	if !v.HasBom {
-		c.log.Debugf("no bom found in DependencyTrack for project %s", p.Name)
-		v.Summary = c.createSummaryForTeam(p, v.HasBom)
-		c.cache.Set(instance.ID(), v, cache.DefaultExpiration)
-		return v, nil
-	}
-
-	v.Summary = c.createSummaryForTeam(p, v.HasBom)
-
-	c.cache.Set(instance.ID(), v, cache.DefaultExpiration)
-	return v, nil
-}
-
 // Due to the nature of the DependencyTrack API, the 'LastBomImportFormat' is not reliable to determine if a project has a BOM.
 // The 'LastBomImportFormat' can be empty even if the project has a BOM.
 // As a fallback, we can check if projects has registered any components, then we assume that if a project has components, it has a BOM.
@@ -232,23 +152,6 @@ func (c *Client) retrieveFindings(ctx context.Context, uuid string, suppressed b
 	}
 
 	return findings, nil
-}
-
-func (c *Client) createSummaryForTeam(project *dependencytrack.Project, hasBom bool) *model.VulnerabilitySummaryForTeam {
-	if !hasBom || project.Metrics == nil {
-		return nil
-	}
-
-	return &model.VulnerabilitySummaryForTeam{
-		Total:      project.Metrics.FindingsTotal,
-		RiskScore:  int(project.Metrics.InheritedRiskScore),
-		Critical:   project.Metrics.Critical,
-		High:       project.Metrics.High,
-		Medium:     project.Metrics.Medium,
-		Low:        project.Metrics.Low,
-		Unassigned: project.Metrics.Unassigned,
-		BomCount:   1,
-	}
 }
 
 func (c *Client) createSummaryForImage(project *dependencytrack.Project, hasBom bool) *model.ImageVulnerabilitySummary {
