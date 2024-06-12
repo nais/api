@@ -461,13 +461,6 @@ type Team {
 
   vulnerabilitiesSummary: VulnerabilitySummaryForTeam!
 
-  "The vulnerabilities for the team's applications over time."
-  vulnerabilityMetrics(
-    from: Date!
-    to: Date!
-    environment: String
-  ): VulnerabilityMetrics!
-
   "Get all secrets for the team."
   secrets: [Secret!]! @auth
 
@@ -490,37 +483,6 @@ type SqlInstancesStatus {
   total: Int!
   failing: Int!
   otherConditions: Int!
-}
-
-type VulnerabilityMetrics {
-  "The metrics for the team's applications."
-  data: [VulnerabilityMetric!]!
-}
-
-type VulnerabilityMetric {
-  "The date of the metric."
-  date: Time!
-
-  "The number of critical vulnerabilities."
-  critical: Int!
-
-  "The number of high vulnerabilities."
-  high: Int!
-
-  "The number of medium vulnerabilities."
-  medium: Int!
-
-  "The number of low vulnerabilities."
-  low: Int!
-
-  "The number of unassigned vulnerabilities."
-  unassigned: Int!
-
-  "The weighted severity score calculated from the number of vulnerabilities."
-  riskScore: Int!
-
-  "The number of applications with vulnerabilities."
-  count: Int!
 }
 
 "Slack alerts channel type."

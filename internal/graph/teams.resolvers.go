@@ -1604,9 +1604,6 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		if image.Summary.RiskScore > 0 {
 			retVal.RiskScore += image.Summary.RiskScore
 		}
-		if image.Summary.Total > 0 {
-			retVal.Total += image.Summary.Total
-		}
 
 		for _, ref := range image.GQLVars.WorkloadReferences {
 			if ref.Team == obj.Slug.String() {
@@ -1615,70 +1612,9 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		}
 	}
 
+	retVal.Coverage = (retVal.BomCount / len(images)) * 100
+
 	return retVal, nil
-}
-
-func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team, from scalar.Date, to scalar.Date, environment *string) (*model.VulnerabilityMetrics, error) {
-	var metrics []*model.VulnerabilityMetric
-
-	if err := ValidateDateInterval(from, to); err != nil {
-		return nil, err
-	}
-
-	fromDate, err := from.PgDate()
-	if err != nil {
-		return nil, err
-	}
-
-	toDate, err := to.PgDate()
-	if err != nil {
-		return nil, err
-	}
-
-	if environment != nil {
-		rows, err := r.database.VulnerabilityMetricsDateRangeForTeamAndEnvironment(ctx, fromDate, toDate, obj.Slug, *environment)
-		if err != nil {
-			return nil, err
-		}
-		for _, row := range rows {
-			metrics = append(metrics, &model.VulnerabilityMetric{
-				Date:       row.Date.Time,
-				Critical:   int(row.Critical),
-				High:       int(row.High),
-				Medium:     int(row.Medium),
-				Low:        int(row.Low),
-				Unassigned: int(row.Unassigned),
-				RiskScore:  int(row.RiskScore),
-				Count:      int(row.Count),
-			})
-		}
-	} else {
-		rows, err := r.database.DailyVulnerabilityForTeam(ctx, fromDate, toDate, obj.Slug)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, row := range rows {
-			metrics = append(metrics, &model.VulnerabilityMetric{
-				Date:       row.Date.Time,
-				Critical:   int(row.Critical),
-				High:       int(row.High),
-				Medium:     int(row.Medium),
-				Low:        int(row.Low),
-				Unassigned: int(row.Unassigned),
-				RiskScore:  int(row.RiskScore),
-				Count:      int(row.Count),
-			})
-		}
-	}
-
-	if len(metrics) == 0 {
-		return &model.VulnerabilityMetrics{}, nil
-	}
-
-	return &model.VulnerabilityMetrics{
-		Data: metrics,
-	}, nil
 }
 
 func (r *teamResolver) Secrets(ctx context.Context, obj *model.Team) ([]*model.Secret, error) {

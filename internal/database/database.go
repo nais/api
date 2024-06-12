@@ -46,7 +46,6 @@ type Database interface {
 	TeamRepo
 	UserRepo
 	UsersyncRepo
-	VulnerabilityMetricsRepo
 	Transactioner
 }
 

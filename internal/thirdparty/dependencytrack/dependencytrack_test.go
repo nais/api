@@ -2,8 +2,6 @@ package dependencytrack
 
 import (
 	"context"
-	"encoding/json"
-	"os"
 	"testing"
 
 	"github.com/nais/api/internal/graph/model"
@@ -11,25 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
-
-func TestClient_CreateSummaryForTeam(t *testing.T) {
-	log := logrus.New().WithField("test", "dependencytrack")
-	mock := NewMockInternalClient(t)
-	c := New("endpoint", "username", "password", "frontend", log).WithClient(mock)
-
-	s, err := os.ReadFile("testdata/tpsws.json")
-	assert.NoError(t, err)
-	var p *dependencytrack.Project
-	err = json.Unmarshal(s, &p)
-	assert.NoError(t, err)
-	sum := c.createSummaryForTeam(p, true)
-	assert.Equal(t, 218, sum.Total)
-	assert.Equal(t, 42, sum.Critical)
-	assert.Equal(t, 111, sum.High)
-	assert.Equal(t, 58, sum.Medium)
-	assert.Equal(t, 7, sum.Low)
-	assert.Equal(t, 0, sum.Unassigned)
-}
 
 func TestClient_GetFindingsForImage(t *testing.T) {
 	log := logrus.New().WithField("test", "dependencytrack")

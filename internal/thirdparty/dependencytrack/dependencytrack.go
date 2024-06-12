@@ -138,14 +138,6 @@ func (c *Client) GetProjectMetrics(ctx context.Context, instance *WorkloadInstan
 	}, nil
 }
 
-type Filter = func(vulnerability *model.Vulnerability) bool
-
-func RequireSbom() Filter {
-	return func(vulnerability *model.Vulnerability) bool {
-		return vulnerability.HasBom
-	}
-}
-
 // Due to the nature of the DependencyTrack API, the 'LastBomImportFormat' is not reliable to determine if a project has a BOM.
 // The 'LastBomImportFormat' can be empty even if the project has a BOM.
 // As a fallback, we can check if projects has registered any components, then we assume that if a project has components, it has a BOM.
@@ -160,23 +152,6 @@ func (c *Client) retrieveFindings(ctx context.Context, uuid string, suppressed b
 	}
 
 	return findings, nil
-}
-
-func (c *Client) createSummaryForTeam(project *dependencytrack.Project, hasBom bool) *model.VulnerabilitySummaryForTeam {
-	if !hasBom || project.Metrics == nil {
-		return nil
-	}
-
-	return &model.VulnerabilitySummaryForTeam{
-		Total:      project.Metrics.FindingsTotal,
-		RiskScore:  int(project.Metrics.InheritedRiskScore),
-		Critical:   project.Metrics.Critical,
-		High:       project.Metrics.High,
-		Medium:     project.Metrics.Medium,
-		Low:        project.Metrics.Low,
-		Unassigned: project.Metrics.Unassigned,
-		BomCount:   1,
-	}
 }
 
 func (c *Client) createSummaryForImage(project *dependencytrack.Project, hasBom bool) *model.ImageVulnerabilitySummary {

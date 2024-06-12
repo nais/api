@@ -131,8 +131,6 @@ type dependencyTrackConfig struct {
 	Frontend string `env:"DEPENDENCYTRACK_FRONTEND,default=http://localhost:9020"`
 	Username string `env:"DEPENDENCYTRACK_USERNAME,default=console"`
 	Password string `env:"DEPENDENCYTRACK_PASSWORD,default=yolo"`
-	// VulnerabilityMetricsImportEnabled is the configuration for the vulnerability metrics service
-	VulnerabilityMetricsImportEnabled bool `env:"VULNERABILITY_METRICS_IMPORT_ENABLED"`
 }
 
 // hookdConfig is the configuration for the hookd service
