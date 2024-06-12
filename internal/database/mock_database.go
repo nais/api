@@ -2861,6 +2861,73 @@ func (_c *MockDatabase_GetReconcilerConfig_Call) RunAndReturn(run func(context.C
 	return _c
 }
 
+// GetReconcilerErrors provides a mock function with given fields: ctx, reconcilerName, p
+func (_m *MockDatabase) GetReconcilerErrors(ctx context.Context, reconcilerName string, p Page) ([]*ReconcilerError, int, error) {
+	ret := _m.Called(ctx, reconcilerName, p)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetReconcilerErrors")
+	}
+
+	var r0 []*ReconcilerError
+	var r1 int
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, Page) ([]*ReconcilerError, int, error)); ok {
+		return rf(ctx, reconcilerName, p)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, Page) []*ReconcilerError); ok {
+		r0 = rf(ctx, reconcilerName, p)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*ReconcilerError)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, Page) int); ok {
+		r1 = rf(ctx, reconcilerName, p)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, string, Page) error); ok {
+		r2 = rf(ctx, reconcilerName, p)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// MockDatabase_GetReconcilerErrors_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetReconcilerErrors'
+type MockDatabase_GetReconcilerErrors_Call struct {
+	*mock.Call
+}
+
+// GetReconcilerErrors is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reconcilerName string
+//   - p Page
+func (_e *MockDatabase_Expecter) GetReconcilerErrors(ctx interface{}, reconcilerName interface{}, p interface{}) *MockDatabase_GetReconcilerErrors_Call {
+	return &MockDatabase_GetReconcilerErrors_Call{Call: _e.mock.On("GetReconcilerErrors", ctx, reconcilerName, p)}
+}
+
+func (_c *MockDatabase_GetReconcilerErrors_Call) Run(run func(ctx context.Context, reconcilerName string, p Page)) *MockDatabase_GetReconcilerErrors_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(Page))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_GetReconcilerErrors_Call) Return(_a0 []*ReconcilerError, _a1 int, _a2 error) *MockDatabase_GetReconcilerErrors_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *MockDatabase_GetReconcilerErrors_Call) RunAndReturn(run func(context.Context, string, Page) ([]*ReconcilerError, int, error)) *MockDatabase_GetReconcilerErrors_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetReconcilerState provides a mock function with given fields: ctx, reconcilerName
 func (_m *MockDatabase) GetReconcilerState(ctx context.Context, reconcilerName string) ([]*ReconcilerStateWithTeam, error) {
 	ret := _m.Called(ctx, reconcilerName)

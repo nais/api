@@ -25,6 +25,72 @@ func (q *Queries) ClearReconcilerErrorsForTeam(ctx context.Context, arg ClearRec
 	return err
 }
 
+const getReconcilerErrors = `-- name: GetReconcilerErrors :many
+SELECT reconciler_errors.id, reconciler_errors.correlation_id, reconciler_errors.reconciler, reconciler_errors.created_at, reconciler_errors.error_message, reconciler_errors.team_slug, reconcilers.name, reconcilers.display_name, reconcilers.description, reconcilers.enabled, reconcilers.member_aware FROM reconciler_errors
+JOIN reconcilers ON reconcilers.name = reconciler_errors.reconciler
+WHERE
+    reconcilers.enabled = true
+    AND reconciler_errors.reconciler = $1
+ORDER BY
+    reconciler_errors.created_at DESC
+LIMIT $3
+OFFSET $2
+`
+
+type GetReconcilerErrorsParams struct {
+	Reconciler string
+	Offset     int32
+	Limit      int32
+}
+
+type GetReconcilerErrorsRow struct {
+	ReconcilerError ReconcilerError
+	Reconciler      Reconciler
+}
+
+func (q *Queries) GetReconcilerErrors(ctx context.Context, arg GetReconcilerErrorsParams) ([]*GetReconcilerErrorsRow, error) {
+	rows, err := q.db.Query(ctx, getReconcilerErrors, arg.Reconciler, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*GetReconcilerErrorsRow{}
+	for rows.Next() {
+		var i GetReconcilerErrorsRow
+		if err := rows.Scan(
+			&i.ReconcilerError.ID,
+			&i.ReconcilerError.CorrelationID,
+			&i.ReconcilerError.Reconciler,
+			&i.ReconcilerError.CreatedAt,
+			&i.ReconcilerError.ErrorMessage,
+			&i.ReconcilerError.TeamSlug,
+			&i.Reconciler.Name,
+			&i.Reconciler.DisplayName,
+			&i.Reconciler.Description,
+			&i.Reconciler.Enabled,
+			&i.Reconciler.MemberAware,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getReconcilerErrorsCount = `-- name: GetReconcilerErrorsCount :one
+SELECT COUNT(*) FROM reconciler_errors
+`
+
+func (q *Queries) GetReconcilerErrorsCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, getReconcilerErrorsCount)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getTeamReconcilerErrors = `-- name: GetTeamReconcilerErrors :many
 SELECT id, correlation_id, reconciler, created_at, error_message, team_slug FROM reconciler_errors
 WHERE team_slug = $1
