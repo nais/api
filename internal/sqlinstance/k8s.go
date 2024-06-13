@@ -76,6 +76,9 @@ func (c *Client) SqlInstances(ctx context.Context, teamSlug slug.Slug, teamEnvs 
 		instances := make([]*sqladmin.DatabaseInstance, 0)
 		for _, teamEnv := range teamEnvs {
 			if teamEnv.Environment == env {
+				if teamEnv.GcpProjectID == nil {
+					continue
+				}
 				i, err := c.admin.GetInstances(ctx, *teamEnv.GcpProjectID)
 				if err != nil {
 					SqlInstanceListErrorCounter.Add(context.Background(), 1)
