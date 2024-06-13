@@ -128,7 +128,7 @@ func (t *TeamsServer) SetTeamEnvironmentExternalReferences(ctx context.Context, 
 		return nil, status.Errorf(codes.InvalidArgument, "slug is required")
 	}
 
-	err := t.db.UpsertTeamEnvironment(ctx, slug.Slug(req.Slug), req.EnvironmentName, nil, req.GcpProjectId)
+	err := t.db.UpsertTeamEnvironment(ctx, slug.Slug(req.Slug), req.EnvironmentName, nil, req.GcpProjectId, req.CdnBucketName)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to update external references for team: %s", err)
 	}
