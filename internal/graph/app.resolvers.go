@@ -10,7 +10,6 @@ import (
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"k8s.io/utils/ptr"
 )
 
@@ -46,10 +45,6 @@ func (r *appResolver) Manifest(ctx context.Context, obj *model.App) (string, err
 
 func (r *appResolver) Team(ctx context.Context, obj *model.App) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.GQLVars.Team)
-}
-
-func (r *appResolver) Vulnerabilities(ctx context.Context, obj *model.App) (*model.Vulnerability, error) {
-	return r.dependencyTrackClient.VulnerabilitySummary(ctx, &dependencytrack.AppInstance{Env: obj.Env.Name, Team: obj.GQLVars.Team.String(), App: obj.Name, Image: obj.Image})
 }
 
 func (r *appResolver) Secrets(ctx context.Context, obj *model.App) ([]*model.Secret, error) {

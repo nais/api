@@ -63,7 +63,7 @@ func ToRedis(u *unstructured.Unstructured, envName string) (*Redis, error) {
 		Team: teamSlug,
 	}
 	r := &Redis{
-		ID:   scalar.RedisIdent("redis_" + envName + "_" + teamSlug + "_" + redis.GetName()),
+		ID:   scalar.RedisIdent(envName, slug.Slug(teamSlug), redis.GetName()),
 		Name: redis.Name,
 		Env:  env,
 		Status: RedisStatus{

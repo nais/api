@@ -21,6 +21,7 @@ hookd:
 dependencytrack:
   frontend: ""
   password: ""
+  endpoint: "http://dependencytrack-backend:8080"
 
 serviceaccount:
   email: ""

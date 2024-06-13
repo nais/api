@@ -45,8 +45,11 @@ type Database interface {
 	SessionRepo
 	TeamRepo
 	UserRepo
-	VulnerabilityMetricsRepo
+	UsersyncRepo
+	Transactioner
+}
 
+type Transactioner interface {
 	Transaction(ctx context.Context, fn DatabaseTransactionFunc) error
 }
 

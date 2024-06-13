@@ -249,11 +249,6 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 			}
 		})
 
-		err = seedVulnerabilities(ctx, *cfg, dbtx, devteam, log)
-		if err != nil {
-			return err
-		}
-
 		err = dbtx.SetTeamMemberRole(ctx, devUser.ID, devteam.Slug, gensql.RoleNameTeamowner)
 		if err != nil {
 			return err
@@ -335,57 +330,6 @@ func generateUtilizationData(env, team, app string, start, end time.Time) []gens
 		current = current.Add(time.Hour)
 	}
 	return ret
-}
-
-func seedVulnerabilities(ctx context.Context, cfg seedConfig, dbtx database.Database, team *database.Team, log logrus.FieldLogger) error {
-	numbOfErrors := 0
-	for j := 0; j < *cfg.VulnSeed.NumVulnAppsForTeam; j++ {
-		appName := fmt.Sprintf("app-%d", j)
-		id := uuid.New()
-		err := dbtx.CreateDependencytrackProject(ctx, gensql.CreateDependencytrackProjectParams{
-			Environment: "dev",
-			TeamSlug:    team.Slug,
-			App:         appName,
-			ID:          id,
-		})
-		if err != nil {
-			return err
-		}
-
-		var vulnbBatch []gensql.VulnerabilityMetricsUpsertParams
-		date := time.Now()
-		var critical int
-		var high int
-		var medium int
-		var low int
-		var unassigned int
-		for k := 0; k < *cfg.VulnSeed.NumVulnPerApp; k++ {
-			critical = rand.Intn(10)
-			high = rand.Intn(10)
-			medium = rand.Intn(10)
-			low = rand.Intn(10)
-			unassigned = rand.Intn(10)
-			vulnbBatch = append(vulnbBatch, gensql.VulnerabilityMetricsUpsertParams{
-				Date:                     pgtype.Date{Time: date.AddDate(0, 0, -k).UTC(), Valid: true},
-				DependencytrackProjectID: id,
-				RiskScore:                float64((critical * 10) + (high * 5) + (medium * 3) + (low * 1) + (unassigned * 5)),
-				Critical:                 int32(critical),
-				High:                     int32(high),
-				Medium:                   int32(medium),
-				Low:                      int32(low),
-				Unassigned:               int32(unassigned),
-			})
-		}
-
-		dbtx.VulnerabilityMetricsUpsert(ctx, vulnbBatch).Exec(func(i int, err error) {
-			if err != nil {
-				log.Errorf("error updating vulnerability metrics for team %s: %v", team.Slug, err)
-				numbOfErrors++
-			}
-		})
-	}
-	log.Infof("vulnerability metrics for team %s seeded", team.Slug)
-	return nil
 }
 
 func teamName() string {

@@ -27,7 +27,6 @@ type Vulnerability {
 }
 
 type VulnerabilitySummaryForTeam {
-  total: Int!
   riskScore: Int!
   critical: Int!
   high: Int!
@@ -35,4 +34,5 @@ type VulnerabilitySummaryForTeam {
   low: Int!
   unassigned: Int!
   bomCount: Int!
+  coverage: Float!
 }

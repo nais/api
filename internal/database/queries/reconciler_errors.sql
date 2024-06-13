@@ -12,3 +12,17 @@ ON CONFLICT(team_slug, reconciler) DO
 SELECT * FROM reconciler_errors
 WHERE team_slug = @team_slug
 ORDER BY created_at DESC;
+
+-- name: GetReconcilerErrors :many
+SELECT sqlc.embed(reconciler_errors), sqlc.embed(reconcilers) FROM reconciler_errors
+JOIN reconcilers ON reconcilers.name = reconciler_errors.reconciler
+WHERE
+    reconcilers.enabled = true
+    AND reconciler_errors.reconciler = @reconciler
+ORDER BY
+    reconciler_errors.created_at DESC
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
+
+-- name: GetReconcilerErrorsCount :one
+SELECT COUNT(*) FROM reconciler_errors;

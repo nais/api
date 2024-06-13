@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
@@ -75,6 +76,8 @@ func (r *mutationResolver) AuthorizeRepository(ctx context.Context, authorizatio
 		return nil, err
 	}
 
+	r.triggerTeamUpdatedEvent(ctx, teamSlug, uuid.New())
+
 	return repo, nil
 }
 
@@ -118,6 +121,8 @@ func (r *mutationResolver) DeauthorizeRepository(ctx context.Context, authorizat
 	if err := r.database.RemoveRepositoryAuthorization(ctx, teamSlug, repoName, repoAuthorization); err != nil {
 		return nil, err
 	}
+
+	r.triggerTeamUpdatedEvent(ctx, teamSlug, uuid.New())
 
 	return repo, nil
 }

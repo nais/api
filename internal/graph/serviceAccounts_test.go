@@ -12,7 +12,6 @@ import (
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/usersync"
 	"github.com/sirupsen/logrus/hooks/test"
 )
 
@@ -32,13 +31,12 @@ func TestMutationResolver_Roles(t *testing.T) {
 		},
 	})
 
-	userSyncRuns := usersync.NewRunsHandler(5)
 	auditLogger := auditlogger.NewAuditLoggerForTesting()
 	db := database.NewMockDatabase(t)
 	log, _ := test.NewNullLogger()
-	userSync := make(chan<- uuid.UUID)
+	usersyncTrigger := make(chan<- uuid.UUID)
 	resolver := graph.
-		NewResolver(nil, nil, nil, nil, db, "example.com", userSync, auditLogger, nil, userSyncRuns, nil, log, nil, nil, nil, nil, nil, nil, nil).
+		NewResolver(nil, nil, nil, nil, db, "example.com", usersyncTrigger, auditLogger, nil, nil, log, nil, nil, nil, nil, nil, nil, nil).
 		ServiceAccount()
 
 	t.Run("get roles for serviceAccount", func(t *testing.T) {

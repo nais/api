@@ -673,6 +673,11 @@ type ReconcilerConfigInput struct {
 	Value string `json:"value"`
 }
 
+type ReconcilerErrorList struct {
+	Nodes    []*ReconcilerError `json:"nodes"`
+	PageInfo PageInfo           `json:"pageInfo"`
+}
+
 // Paginated reconcilers type.
 type ReconcilerList struct {
 	// The list of reconcilers.
@@ -951,6 +956,11 @@ type UserList struct {
 	PageInfo PageInfo `json:"pageInfo"`
 }
 
+type UsersyncRunList struct {
+	Nodes    []*UsersyncRun `json:"nodes"`
+	PageInfo PageInfo       `json:"pageInfo"`
+}
+
 type Variable struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
@@ -975,55 +985,15 @@ type Vulnerability struct {
 	HasBom       bool                         `json:"hasBom"`
 }
 
-type VulnerabilityFilter struct {
-	// Filter by environment
-	Envs []string `json:"envs,omitempty"`
-	// Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report.
-	RequireSbom *bool `json:"requireSbom,omitempty"`
-}
-
-type VulnerabilityList struct {
-	Nodes    []*Vulnerability `json:"nodes"`
-	PageInfo PageInfo         `json:"pageInfo"`
-}
-
-type VulnerabilityMetric struct {
-	// The date of the metric.
-	Date time.Time `json:"date"`
-	// The number of critical vulnerabilities.
-	Critical int `json:"critical"`
-	// The number of high vulnerabilities.
-	High int `json:"high"`
-	// The number of medium vulnerabilities.
-	Medium int `json:"medium"`
-	// The number of low vulnerabilities.
-	Low int `json:"low"`
-	// The number of unassigned vulnerabilities.
-	Unassigned int `json:"unassigned"`
-	// The weighted severity score calculated from the number of vulnerabilities.
-	RiskScore int `json:"riskScore"`
-	// The number of applications with vulnerabilities.
-	Count int `json:"count"`
-}
-
-type VulnerabilityMetrics struct {
-	// The minimum date for the metrics available in the database.
-	MinDate *scalar.Date `json:"minDate,omitempty"`
-	// The maximum date for the metrics available in the database.
-	MaxDate *scalar.Date `json:"maxDate,omitempty"`
-	// The metrics for the team's applications.
-	Data []*VulnerabilityMetric `json:"data"`
-}
-
 type VulnerabilitySummaryForTeam struct {
-	Total      int `json:"total"`
-	RiskScore  int `json:"riskScore"`
-	Critical   int `json:"critical"`
-	High       int `json:"high"`
-	Medium     int `json:"medium"`
-	Low        int `json:"low"`
-	Unassigned int `json:"unassigned"`
-	BomCount   int `json:"bomCount"`
+	RiskScore  int     `json:"riskScore"`
+	Critical   int     `json:"critical"`
+	High       int     `json:"high"`
+	Medium     int     `json:"medium"`
+	Low        int     `json:"low"`
+	Unassigned int     `json:"unassigned"`
+	BomCount   int     `json:"bomCount"`
+	Coverage   float64 `json:"coverage"`
 }
 
 type ErrorLevel string
@@ -1536,49 +1506,46 @@ func (e TeamRole) MarshalGQL(w io.Writer) {
 }
 
 // User sync run status.
-type UserSyncRunStatus string
+type UsersyncRunStatus string
 
 const (
-	// User sync run in progress.
-	UserSyncRunStatusInProgress UserSyncRunStatus = "IN_PROGRESS"
 	// Successful user sync run.
-	UserSyncRunStatusSuccess UserSyncRunStatus = "SUCCESS"
+	UsersyncRunStatusSuccess UsersyncRunStatus = "SUCCESS"
 	// Failed user sync run.
-	UserSyncRunStatusFailure UserSyncRunStatus = "FAILURE"
+	UsersyncRunStatusFailure UsersyncRunStatus = "FAILURE"
 )
 
-var AllUserSyncRunStatus = []UserSyncRunStatus{
-	UserSyncRunStatusInProgress,
-	UserSyncRunStatusSuccess,
-	UserSyncRunStatusFailure,
+var AllUsersyncRunStatus = []UsersyncRunStatus{
+	UsersyncRunStatusSuccess,
+	UsersyncRunStatusFailure,
 }
 
-func (e UserSyncRunStatus) IsValid() bool {
+func (e UsersyncRunStatus) IsValid() bool {
 	switch e {
-	case UserSyncRunStatusInProgress, UserSyncRunStatusSuccess, UserSyncRunStatusFailure:
+	case UsersyncRunStatusSuccess, UsersyncRunStatusFailure:
 		return true
 	}
 	return false
 }
 
-func (e UserSyncRunStatus) String() string {
+func (e UsersyncRunStatus) String() string {
 	return string(e)
 }
 
-func (e *UserSyncRunStatus) UnmarshalGQL(v interface{}) error {
+func (e *UsersyncRunStatus) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = UserSyncRunStatus(str)
+	*e = UsersyncRunStatus(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid UserSyncRunStatus", str)
+		return fmt.Errorf("%s is not a valid UsersyncRunStatus", str)
 	}
 	return nil
 }
 
-func (e UserSyncRunStatus) MarshalGQL(w io.Writer) {
+func (e UsersyncRunStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

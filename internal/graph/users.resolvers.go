@@ -15,7 +15,6 @@ import (
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
-	"github.com/nais/api/internal/usersync"
 	"k8s.io/utils/ptr"
 )
 
@@ -37,7 +36,7 @@ func (r *mutationResolver) SynchronizeUsers(ctx context.Context) (string, error)
 		CorrelationID: correlationID,
 	}
 	r.auditLogger.Logf(ctx, targets, fields, "Trigger user sync")
-	r.userSync <- correlationID
+	r.usersyncTrigger <- correlationID
 
 	return correlationID.String(), nil
 }
@@ -93,14 +92,38 @@ func (r *queryResolver) User(ctx context.Context, id *scalar.Ident, email *strin
 	return nil, apierror.Errorf("Either id or email must be specified")
 }
 
-func (r *queryResolver) UserSync(ctx context.Context) ([]*model.UserSyncRun, error) {
+func (r *queryResolver) UsersyncRuns(ctx context.Context, limit *int, offset *int) (*model.UsersyncRunList, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationUsersyncSynchronize)
 	if err != nil {
 		return nil, err
 	}
+	p := model.NewPagination(offset, limit)
+	runs, total, err := r.database.GetUsersyncRuns(ctx, database.Page{
+		Limit:  p.Limit,
+		Offset: p.Offset,
+	})
+	if err != nil {
+		return nil, err
+	}
 
-	return toGraphUserSyncRuns(r.userSyncRuns.GetRuns()), nil
+	ret := make([]*model.UsersyncRun, len(runs))
+	for i, run := range runs {
+		ret[i] = &model.UsersyncRun{
+			ID:         scalar.UsersyncRunIdent(run.ID),
+			StartedAt:  run.StartedAt.Time,
+			FinishedAt: run.FinishedAt.Time,
+			Error:      run.Error,
+			GQLVars: model.UsersyncRunGQLVars{
+				CorrelationID: run.ID,
+			},
+		}
+	}
+
+	return &model.UsersyncRunList{
+		Nodes:    ret,
+		PageInfo: model.NewPageInfo(p, total),
+	}, nil
 }
 
 func (r *userResolver) Teams(ctx context.Context, obj *model.User, limit *int, offset *int) (*model.TeamMemberList, error) {
@@ -186,9 +209,9 @@ func (r *userResolver) IsAdmin(ctx context.Context, obj *model.User) (*bool, err
 	return ptr.To(false), nil
 }
 
-func (r *userSyncRunResolver) AuditLogs(ctx context.Context, obj *model.UserSyncRun, limit *int, offset *int) (*model.AuditLogList, error) {
+func (r *usersyncRunResolver) AuditLogs(ctx context.Context, obj *model.UsersyncRun, limit *int, offset *int) (*model.AuditLogList, error) {
 	p := model.NewPagination(offset, limit)
-	entries, total, err := r.database.GetAuditLogsForCorrelationID(ctx, obj.CorrelationID, database.Page{
+	entries, total, err := r.database.GetAuditLogsForCorrelationID(ctx, obj.GQLVars.CorrelationID, database.Page{
 		Limit:  p.Limit,
 		Offset: p.Offset,
 	})
@@ -202,32 +225,19 @@ func (r *userSyncRunResolver) AuditLogs(ctx context.Context, obj *model.UserSync
 	}, nil
 }
 
-func (r *userSyncRunResolver) Status(ctx context.Context, obj *model.UserSyncRun) (model.UserSyncRunStatus, error) {
-	switch obj.GQLVars.Status {
-	case usersync.RunSuccess:
-		return model.UserSyncRunStatusSuccess, nil
-	case usersync.RunFailure:
-		return model.UserSyncRunStatusFailure, nil
-	default:
-		return model.UserSyncRunStatusInProgress, nil
-	}
-}
-
-func (r *userSyncRunResolver) Error(ctx context.Context, obj *model.UserSyncRun) (*string, error) {
-	err := obj.GQLVars.Error
-	if err != nil {
-		msg := err.Error()
-		return &msg, nil
+func (r *usersyncRunResolver) Status(ctx context.Context, obj *model.UsersyncRun) (model.UsersyncRunStatus, error) {
+	if obj.Error == nil {
+		return model.UsersyncRunStatusSuccess, nil
 	}
 
-	return nil, nil
+	return model.UsersyncRunStatusFailure, nil
 }
 
 func (r *Resolver) User() gengql.UserResolver { return &userResolver{r} }
 
-func (r *Resolver) UserSyncRun() gengql.UserSyncRunResolver { return &userSyncRunResolver{r} }
+func (r *Resolver) UsersyncRun() gengql.UsersyncRunResolver { return &usersyncRunResolver{r} }
 
 type (
 	userResolver        struct{ *Resolver }
-	userSyncRunResolver struct{ *Resolver }
+	usersyncRunResolver struct{ *Resolver }
 )

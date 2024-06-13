@@ -18,14 +18,13 @@ import (
 )
 
 type (
-	UserSynchronizer struct {
-		database         database.Database
+	Usersynchronizer struct {
+		db               usersyncDatabase
 		auditLogger      auditlogger.AuditLogger
 		adminGroupPrefix string
 		tenantDomain     string
 		service          *admin_directory_v1.Service
 		log              logrus.FieldLogger
-		syncRuns         *RunsHandler
 	}
 
 	auditLogEntry struct {
@@ -45,6 +44,12 @@ type (
 
 	userByIDMap  map[uuid.UUID]*database.User
 	userRolesMap map[*database.User]map[gensql.RoleName]struct{}
+
+	usersyncDatabase interface {
+		database.AuditLogsRepo
+		database.Transactioner
+		database.UserRepo
+	}
 )
 
 var DefaultRoleNames = []gensql.RoleName{
@@ -54,19 +59,18 @@ var DefaultRoleNames = []gensql.RoleName{
 	gensql.RoleNameServiceaccountcreator,
 }
 
-func New(dbc database.Database, auditLogger auditlogger.AuditLogger, adminGroupPrefix, tenantDomain string, service *admin_directory_v1.Service, log logrus.FieldLogger, syncRuns *RunsHandler) *UserSynchronizer {
-	return &UserSynchronizer{
-		database:         dbc,
+func New(db usersyncDatabase, auditLogger auditlogger.AuditLogger, adminGroupPrefix, tenantDomain string, service *admin_directory_v1.Service, log logrus.FieldLogger) *Usersynchronizer {
+	return &Usersynchronizer{
+		db:               db,
 		auditLogger:      auditLogger,
 		adminGroupPrefix: adminGroupPrefix,
 		tenantDomain:     tenantDomain,
 		service:          service,
 		log:              log,
-		syncRuns:         syncRuns,
 	}
 }
 
-func NewFromConfig(ctx context.Context, serviceAccount, subjectEmail, tenantDomain, adminGroupPrefix string, db database.Database, log logrus.FieldLogger, syncRuns *RunsHandler) (*UserSynchronizer, error) {
+func NewFromConfig(ctx context.Context, serviceAccount, subjectEmail, tenantDomain, adminGroupPrefix string, db usersyncDatabase, log logrus.FieldLogger) (*Usersynchronizer, error) {
 	ts, err := impersonate.CredentialsTokenSource(ctx, impersonate.CredentialsConfig{
 		Scopes: []string{
 			admin_directory_v1.AdminDirectoryUserReadonlyScope,
@@ -84,26 +88,23 @@ func NewFromConfig(ctx context.Context, serviceAccount, subjectEmail, tenantDoma
 		return nil, fmt.Errorf("retrieve directory client: %w", err)
 	}
 
-	return New(db, auditlogger.New(db, log), adminGroupPrefix, tenantDomain, srv, log, syncRuns), nil
+	return New(db, auditlogger.New(db, log), adminGroupPrefix, tenantDomain, srv, log), nil
 }
 
 // Sync Fetch all users from the tenant and add them as local users in api. If a user already exists in
 // api the local user will get the name potentially updated. After all users have been upserted, local users
 // that matches the tenant domain that does not exist in the Google Directory will be removed.
-func (s *UserSynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) error {
+func (s *Usersynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) error {
 	log := s.log.WithField("correlation_id", correlationID)
-	syncRun := s.syncRuns.StartNewRun(correlationID)
-	defer syncRun.Finish()
 
 	remoteUserMapping := make(remoteUsersMap)
 	remoteUsers, err := getAllPaginatedUsers(ctx, s.service.Users, s.tenantDomain)
 	if err != nil {
-		syncRun.FinishWithError(err)
 		return fmt.Errorf("get remote users: %w", err)
 	}
 
 	auditLogEntries := make([]auditLogEntry, 0)
-	err = s.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
+	err = s.db.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		allUsersRows, err := getAllUsers(ctx, dbtx)
 		if err != nil {
 			return fmt.Errorf("get existing users: %w", err)
@@ -196,7 +197,6 @@ func (s *UserSynchronizer) Sync(ctx context.Context, correlationID uuid.UUID) er
 		return nil
 	})
 	if err != nil {
-		syncRun.FinishWithError(err)
 		return err
 	}
 

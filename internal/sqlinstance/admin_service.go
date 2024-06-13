@@ -6,6 +6,8 @@ import (
 	"sort"
 	"time"
 
+	"google.golang.org/api/option"
+
 	"github.com/patrickmn/go-cache"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/googleapi"
@@ -18,8 +20,8 @@ type SqlAdminService struct {
 	log    logrus.FieldLogger
 }
 
-func NewSqlAdminService(ctx context.Context, log logrus.FieldLogger) (*SqlAdminService, error) {
-	sqladminService, err := sqladmin.NewService(ctx)
+func NewSqlAdminService(ctx context.Context, log logrus.FieldLogger, opts ...option.ClientOption) (*SqlAdminService, error) {
+	sqladminService, err := sqladmin.NewService(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

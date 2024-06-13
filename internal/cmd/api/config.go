@@ -103,13 +103,10 @@ func (c *StaticCluster) EnvDecode(value string) error {
 	return nil
 }
 
-type userSyncConfig struct {
+type usersyncConfig struct {
 	// Enabled When set to true api will keep the user database in sync with the connected Google
 	// organization. The Google organization will be treated as the master.
 	Enabled bool `env:"USERSYNC_ENABLED"`
-
-	// RunsToPersist Number of runs to store for the userSync GraphQL query.
-	RunsToPersist int `env:"USERSYNC_RUNS_TO_PERSIST,default=5"`
 
 	// AdminGroupPrefix The prefix of the admin group email address.
 	AdminGroupPrefix string `env:"USERSYNC_ADMIN_GROUP_PREFIX,default=nais-admins"`
@@ -130,13 +127,10 @@ type costConfig struct {
 
 // dependencyTrackConfig is the configuration for the dependency track service
 type dependencyTrackConfig struct {
-	Endpoint string `env:"DEPENDENCYTRACK_ENDPOINT,default=http://dependencytrack-backend:8080"`
-	Frontend string `env:"DEPENDENCYTRACK_FRONTEND"`
-	// TODO: change default value to something other than console
+	Endpoint string `env:"DEPENDENCYTRACK_ENDPOINT,default=http://localhost:9010"`
+	Frontend string `env:"DEPENDENCYTRACK_FRONTEND,default=http://localhost:9020"`
 	Username string `env:"DEPENDENCYTRACK_USERNAME,default=console"`
-	Password string `env:"DEPENDENCYTRACK_PASSWORD"`
-	// VulnerabilityMetricsImportEnabled is the configuration for the vulnerability metrics service
-	VulnerabilityMetricsImportEnabled bool `env:"VULNERABILITY_METRICS_IMPORT_ENABLED"`
+	Password string `env:"DEPENDENCYTRACK_PASSWORD,default=yolo"`
 }
 
 // hookdConfig is the configuration for the hookd service
@@ -200,7 +194,7 @@ type Config struct {
 	GRPCListenAddress string `env:"GRPC_LISTEN_ADDRESS,default=127.0.0.1:3001"`
 
 	K8s             k8sConfig
-	UserSync        userSyncConfig
+	Usersync        usersyncConfig
 	Cost            costConfig
 	DependencyTrack dependencyTrackConfig
 	Hookd           hookdConfig

@@ -53,7 +53,7 @@ func ToBucket(u *unstructured.Unstructured, env string) (*Bucket, error) {
 	teamSlug := bucket.GetNamespace()
 
 	return &Bucket{
-		ID: scalar.BucketIdent("bucket_" + env + "_" + teamSlug + "_" + bucket.GetName()),
+		ID: scalar.BucketIdent(env, slug.Slug(teamSlug), bucket.GetName()),
 		Env: Env{
 			Name: env,
 			Team: bucket.GetNamespace(),

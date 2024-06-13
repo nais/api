@@ -104,7 +104,7 @@ func ToSqlInstance(u *unstructured.Unstructured, env string) (*SQLInstance, erro
 	teamSlug := sqlInstance.GetNamespace()
 
 	return &SQLInstance{
-		ID:   scalar.SqlInstanceIdent("sqlInstance_" + env + "_" + sqlInstance.GetNamespace() + "_" + sqlInstance.GetName()),
+		ID:   scalar.SqlInstanceIdent(env, slug.Slug(sqlInstance.GetNamespace()), sqlInstance.GetName()),
 		Name: sqlInstance.Name,
 		Env: Env{
 			Name: env,

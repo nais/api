@@ -661,53 +661,6 @@ func (_c *MockQuerier_CreateAuditLog_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
-// CreateDependencytrackProject provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) CreateDependencytrackProject(ctx context.Context, arg CreateDependencytrackProjectParams) error {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for CreateDependencytrackProject")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, CreateDependencytrackProjectParams) error); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockQuerier_CreateDependencytrackProject_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateDependencytrackProject'
-type MockQuerier_CreateDependencytrackProject_Call struct {
-	*mock.Call
-}
-
-// CreateDependencytrackProject is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg CreateDependencytrackProjectParams
-func (_e *MockQuerier_Expecter) CreateDependencytrackProject(ctx interface{}, arg interface{}) *MockQuerier_CreateDependencytrackProject_Call {
-	return &MockQuerier_CreateDependencytrackProject_Call{Call: _e.mock.On("CreateDependencytrackProject", ctx, arg)}
-}
-
-func (_c *MockQuerier_CreateDependencytrackProject_Call) Run(run func(ctx context.Context, arg CreateDependencytrackProjectParams)) *MockQuerier_CreateDependencytrackProject_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(CreateDependencytrackProjectParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_CreateDependencytrackProject_Call) Return(_a0 error) *MockQuerier_CreateDependencytrackProject_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockQuerier_CreateDependencytrackProject_Call) RunAndReturn(run func(context.Context, CreateDependencytrackProjectParams) error) *MockQuerier_CreateDependencytrackProject_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // CreateRepositoryAuthorization provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) CreateRepositoryAuthorization(ctx context.Context, arg CreateRepositoryAuthorizationParams) error {
 	ret := _m.Called(ctx, arg)
@@ -1050,6 +1003,53 @@ func (_c *MockQuerier_CreateUser_Call) RunAndReturn(run func(context.Context, Cr
 	return _c
 }
 
+// CreateUsersyncRun provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) CreateUsersyncRun(ctx context.Context, arg CreateUsersyncRunParams) error {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateUsersyncRun")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, CreateUsersyncRunParams) error); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockQuerier_CreateUsersyncRun_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateUsersyncRun'
+type MockQuerier_CreateUsersyncRun_Call struct {
+	*mock.Call
+}
+
+// CreateUsersyncRun is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg CreateUsersyncRunParams
+func (_e *MockQuerier_Expecter) CreateUsersyncRun(ctx interface{}, arg interface{}) *MockQuerier_CreateUsersyncRun_Call {
+	return &MockQuerier_CreateUsersyncRun_Call{Call: _e.mock.On("CreateUsersyncRun", ctx, arg)}
+}
+
+func (_c *MockQuerier_CreateUsersyncRun_Call) Run(run func(ctx context.Context, arg CreateUsersyncRunParams)) *MockQuerier_CreateUsersyncRun_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(CreateUsersyncRunParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_CreateUsersyncRun_Call) Return(_a0 error) *MockQuerier_CreateUsersyncRun_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockQuerier_CreateUsersyncRun_Call) RunAndReturn(run func(context.Context, CreateUsersyncRunParams) error) *MockQuerier_CreateUsersyncRun_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CurrentSqlInstancesCostForTeam provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) CurrentSqlInstancesCostForTeam(ctx context.Context, arg CurrentSqlInstancesCostForTeamParams) (float32, error) {
 	ret := _m.Called(ctx, arg)
@@ -1280,124 +1280,6 @@ func (_c *MockQuerier_DailyEnvCostForTeam_Call) Return(_a0 []*DailyEnvCostForTea
 }
 
 func (_c *MockQuerier_DailyEnvCostForTeam_Call) RunAndReturn(run func(context.Context, DailyEnvCostForTeamParams) ([]*DailyEnvCostForTeamRow, error)) *MockQuerier_DailyEnvCostForTeam_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// DailyVulnerabilityForTeam provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) DailyVulnerabilityForTeam(ctx context.Context, arg DailyVulnerabilityForTeamParams) ([]*DailyVulnerabilityForTeamRow, error) {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for DailyVulnerabilityForTeam")
-	}
-
-	var r0 []*DailyVulnerabilityForTeamRow
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, DailyVulnerabilityForTeamParams) ([]*DailyVulnerabilityForTeamRow, error)); ok {
-		return rf(ctx, arg)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, DailyVulnerabilityForTeamParams) []*DailyVulnerabilityForTeamRow); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*DailyVulnerabilityForTeamRow)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, DailyVulnerabilityForTeamParams) error); ok {
-		r1 = rf(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_DailyVulnerabilityForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DailyVulnerabilityForTeam'
-type MockQuerier_DailyVulnerabilityForTeam_Call struct {
-	*mock.Call
-}
-
-// DailyVulnerabilityForTeam is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg DailyVulnerabilityForTeamParams
-func (_e *MockQuerier_Expecter) DailyVulnerabilityForTeam(ctx interface{}, arg interface{}) *MockQuerier_DailyVulnerabilityForTeam_Call {
-	return &MockQuerier_DailyVulnerabilityForTeam_Call{Call: _e.mock.On("DailyVulnerabilityForTeam", ctx, arg)}
-}
-
-func (_c *MockQuerier_DailyVulnerabilityForTeam_Call) Run(run func(ctx context.Context, arg DailyVulnerabilityForTeamParams)) *MockQuerier_DailyVulnerabilityForTeam_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(DailyVulnerabilityForTeamParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_DailyVulnerabilityForTeam_Call) Return(_a0 []*DailyVulnerabilityForTeamRow, _a1 error) *MockQuerier_DailyVulnerabilityForTeam_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_DailyVulnerabilityForTeam_Call) RunAndReturn(run func(context.Context, DailyVulnerabilityForTeamParams) ([]*DailyVulnerabilityForTeamRow, error)) *MockQuerier_DailyVulnerabilityForTeam_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// DailyVulnerabilityForTeamAndEnvironment provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) DailyVulnerabilityForTeamAndEnvironment(ctx context.Context, arg DailyVulnerabilityForTeamAndEnvironmentParams) ([]*DailyVulnerabilityForTeamAndEnvironmentRow, error) {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for DailyVulnerabilityForTeamAndEnvironment")
-	}
-
-	var r0 []*DailyVulnerabilityForTeamAndEnvironmentRow
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, DailyVulnerabilityForTeamAndEnvironmentParams) ([]*DailyVulnerabilityForTeamAndEnvironmentRow, error)); ok {
-		return rf(ctx, arg)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, DailyVulnerabilityForTeamAndEnvironmentParams) []*DailyVulnerabilityForTeamAndEnvironmentRow); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*DailyVulnerabilityForTeamAndEnvironmentRow)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, DailyVulnerabilityForTeamAndEnvironmentParams) error); ok {
-		r1 = rf(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_DailyVulnerabilityForTeamAndEnvironment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DailyVulnerabilityForTeamAndEnvironment'
-type MockQuerier_DailyVulnerabilityForTeamAndEnvironment_Call struct {
-	*mock.Call
-}
-
-// DailyVulnerabilityForTeamAndEnvironment is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg DailyVulnerabilityForTeamAndEnvironmentParams
-func (_e *MockQuerier_Expecter) DailyVulnerabilityForTeamAndEnvironment(ctx interface{}, arg interface{}) *MockQuerier_DailyVulnerabilityForTeamAndEnvironment_Call {
-	return &MockQuerier_DailyVulnerabilityForTeamAndEnvironment_Call{Call: _e.mock.On("DailyVulnerabilityForTeamAndEnvironment", ctx, arg)}
-}
-
-func (_c *MockQuerier_DailyVulnerabilityForTeamAndEnvironment_Call) Run(run func(ctx context.Context, arg DailyVulnerabilityForTeamAndEnvironmentParams)) *MockQuerier_DailyVulnerabilityForTeamAndEnvironment_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(DailyVulnerabilityForTeamAndEnvironmentParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_DailyVulnerabilityForTeamAndEnvironment_Call) Return(_a0 []*DailyVulnerabilityForTeamAndEnvironmentRow, _a1 error) *MockQuerier_DailyVulnerabilityForTeamAndEnvironment_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_DailyVulnerabilityForTeamAndEnvironment_Call) RunAndReturn(run func(context.Context, DailyVulnerabilityForTeamAndEnvironmentParams) ([]*DailyVulnerabilityForTeamAndEnvironmentRow, error)) *MockQuerier_DailyVulnerabilityForTeamAndEnvironment_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2660,6 +2542,121 @@ func (_c *MockQuerier_GetReconcilerConfig_Call) Return(_a0 []*GetReconcilerConfi
 }
 
 func (_c *MockQuerier_GetReconcilerConfig_Call) RunAndReturn(run func(context.Context, GetReconcilerConfigParams) ([]*GetReconcilerConfigRow, error)) *MockQuerier_GetReconcilerConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetReconcilerErrors provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetReconcilerErrors(ctx context.Context, arg GetReconcilerErrorsParams) ([]*GetReconcilerErrorsRow, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetReconcilerErrors")
+	}
+
+	var r0 []*GetReconcilerErrorsRow
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, GetReconcilerErrorsParams) ([]*GetReconcilerErrorsRow, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, GetReconcilerErrorsParams) []*GetReconcilerErrorsRow); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*GetReconcilerErrorsRow)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, GetReconcilerErrorsParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetReconcilerErrors_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetReconcilerErrors'
+type MockQuerier_GetReconcilerErrors_Call struct {
+	*mock.Call
+}
+
+// GetReconcilerErrors is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg GetReconcilerErrorsParams
+func (_e *MockQuerier_Expecter) GetReconcilerErrors(ctx interface{}, arg interface{}) *MockQuerier_GetReconcilerErrors_Call {
+	return &MockQuerier_GetReconcilerErrors_Call{Call: _e.mock.On("GetReconcilerErrors", ctx, arg)}
+}
+
+func (_c *MockQuerier_GetReconcilerErrors_Call) Run(run func(ctx context.Context, arg GetReconcilerErrorsParams)) *MockQuerier_GetReconcilerErrors_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(GetReconcilerErrorsParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetReconcilerErrors_Call) Return(_a0 []*GetReconcilerErrorsRow, _a1 error) *MockQuerier_GetReconcilerErrors_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetReconcilerErrors_Call) RunAndReturn(run func(context.Context, GetReconcilerErrorsParams) ([]*GetReconcilerErrorsRow, error)) *MockQuerier_GetReconcilerErrors_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetReconcilerErrorsCount provides a mock function with given fields: ctx
+func (_m *MockQuerier) GetReconcilerErrorsCount(ctx context.Context) (int64, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetReconcilerErrorsCount")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (int64, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) int64); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetReconcilerErrorsCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetReconcilerErrorsCount'
+type MockQuerier_GetReconcilerErrorsCount_Call struct {
+	*mock.Call
+}
+
+// GetReconcilerErrorsCount is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockQuerier_Expecter) GetReconcilerErrorsCount(ctx interface{}) *MockQuerier_GetReconcilerErrorsCount_Call {
+	return &MockQuerier_GetReconcilerErrorsCount_Call{Call: _e.mock.On("GetReconcilerErrorsCount", ctx)}
+}
+
+func (_c *MockQuerier_GetReconcilerErrorsCount_Call) Run(run func(ctx context.Context)) *MockQuerier_GetReconcilerErrorsCount_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetReconcilerErrorsCount_Call) Return(_a0 int64, _a1 error) *MockQuerier_GetReconcilerErrorsCount_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetReconcilerErrorsCount_Call) RunAndReturn(run func(context.Context) (int64, error)) *MockQuerier_GetReconcilerErrorsCount_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4831,6 +4828,121 @@ func (_c *MockQuerier_GetUsersWithGloballyAssignedRole_Call) RunAndReturn(run fu
 	return _c
 }
 
+// GetUsersyncRuns provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetUsersyncRuns(ctx context.Context, arg GetUsersyncRunsParams) ([]*UsersyncRun, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUsersyncRuns")
+	}
+
+	var r0 []*UsersyncRun
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, GetUsersyncRunsParams) ([]*UsersyncRun, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, GetUsersyncRunsParams) []*UsersyncRun); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*UsersyncRun)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, GetUsersyncRunsParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetUsersyncRuns_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUsersyncRuns'
+type MockQuerier_GetUsersyncRuns_Call struct {
+	*mock.Call
+}
+
+// GetUsersyncRuns is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg GetUsersyncRunsParams
+func (_e *MockQuerier_Expecter) GetUsersyncRuns(ctx interface{}, arg interface{}) *MockQuerier_GetUsersyncRuns_Call {
+	return &MockQuerier_GetUsersyncRuns_Call{Call: _e.mock.On("GetUsersyncRuns", ctx, arg)}
+}
+
+func (_c *MockQuerier_GetUsersyncRuns_Call) Run(run func(ctx context.Context, arg GetUsersyncRunsParams)) *MockQuerier_GetUsersyncRuns_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(GetUsersyncRunsParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetUsersyncRuns_Call) Return(_a0 []*UsersyncRun, _a1 error) *MockQuerier_GetUsersyncRuns_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetUsersyncRuns_Call) RunAndReturn(run func(context.Context, GetUsersyncRunsParams) ([]*UsersyncRun, error)) *MockQuerier_GetUsersyncRuns_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetUsersyncRunsCount provides a mock function with given fields: ctx
+func (_m *MockQuerier) GetUsersyncRunsCount(ctx context.Context) (int64, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUsersyncRunsCount")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (int64, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) int64); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetUsersyncRunsCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUsersyncRunsCount'
+type MockQuerier_GetUsersyncRunsCount_Call struct {
+	*mock.Call
+}
+
+// GetUsersyncRunsCount is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockQuerier_Expecter) GetUsersyncRunsCount(ctx interface{}) *MockQuerier_GetUsersyncRunsCount_Call {
+	return &MockQuerier_GetUsersyncRunsCount_Call{Call: _e.mock.On("GetUsersyncRunsCount", ctx)}
+}
+
+func (_c *MockQuerier_GetUsersyncRunsCount_Call) Run(run func(ctx context.Context)) *MockQuerier_GetUsersyncRunsCount_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetUsersyncRunsCount_Call) Return(_a0 int64, _a1 error) *MockQuerier_GetUsersyncRunsCount_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetUsersyncRunsCount_Call) RunAndReturn(run func(context.Context) (int64, error)) *MockQuerier_GetUsersyncRunsCount_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // InsertEnvironment provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) InsertEnvironment(ctx context.Context, arg InsertEnvironmentParams) error {
 	ret := _m.Called(ctx, arg)
@@ -6657,171 +6769,6 @@ func (_c *MockQuerier_UpsertTeamEnvironment_Call) Return(_a0 *TeamEnvironment, _
 }
 
 func (_c *MockQuerier_UpsertTeamEnvironment_Call) RunAndReturn(run func(context.Context, UpsertTeamEnvironmentParams) (*TeamEnvironment, error)) *MockQuerier_UpsertTeamEnvironment_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// VulnerabilityMetricsDateRangeForTeam provides a mock function with given fields: ctx, teamSlug
-func (_m *MockQuerier) VulnerabilityMetricsDateRangeForTeam(ctx context.Context, teamSlug slug.Slug) (*VulnerabilityMetricsDateRangeForTeamRow, error) {
-	ret := _m.Called(ctx, teamSlug)
-
-	if len(ret) == 0 {
-		panic("no return value specified for VulnerabilityMetricsDateRangeForTeam")
-	}
-
-	var r0 *VulnerabilityMetricsDateRangeForTeamRow
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (*VulnerabilityMetricsDateRangeForTeamRow, error)); ok {
-		return rf(ctx, teamSlug)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) *VulnerabilityMetricsDateRangeForTeamRow); ok {
-		r0 = rf(ctx, teamSlug)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*VulnerabilityMetricsDateRangeForTeamRow)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
-		r1 = rf(ctx, teamSlug)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VulnerabilityMetricsDateRangeForTeam'
-type MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call struct {
-	*mock.Call
-}
-
-// VulnerabilityMetricsDateRangeForTeam is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-func (_e *MockQuerier_Expecter) VulnerabilityMetricsDateRangeForTeam(ctx interface{}, teamSlug interface{}) *MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call {
-	return &MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call{Call: _e.mock.On("VulnerabilityMetricsDateRangeForTeam", ctx, teamSlug)}
-}
-
-func (_c *MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call) Return(_a0 *VulnerabilityMetricsDateRangeForTeamRow, _a1 error) *MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug) (*VulnerabilityMetricsDateRangeForTeamRow, error)) *MockQuerier_VulnerabilityMetricsDateRangeForTeam_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// VulnerabilityMetricsMaxDate provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) VulnerabilityMetricsMaxDate(ctx context.Context, arg VulnerabilityMetricsMaxDateParams) (pgtype.Date, error) {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for VulnerabilityMetricsMaxDate")
-	}
-
-	var r0 pgtype.Date
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, VulnerabilityMetricsMaxDateParams) (pgtype.Date, error)); ok {
-		return rf(ctx, arg)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, VulnerabilityMetricsMaxDateParams) pgtype.Date); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		r0 = ret.Get(0).(pgtype.Date)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, VulnerabilityMetricsMaxDateParams) error); ok {
-		r1 = rf(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_VulnerabilityMetricsMaxDate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VulnerabilityMetricsMaxDate'
-type MockQuerier_VulnerabilityMetricsMaxDate_Call struct {
-	*mock.Call
-}
-
-// VulnerabilityMetricsMaxDate is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg VulnerabilityMetricsMaxDateParams
-func (_e *MockQuerier_Expecter) VulnerabilityMetricsMaxDate(ctx interface{}, arg interface{}) *MockQuerier_VulnerabilityMetricsMaxDate_Call {
-	return &MockQuerier_VulnerabilityMetricsMaxDate_Call{Call: _e.mock.On("VulnerabilityMetricsMaxDate", ctx, arg)}
-}
-
-func (_c *MockQuerier_VulnerabilityMetricsMaxDate_Call) Run(run func(ctx context.Context, arg VulnerabilityMetricsMaxDateParams)) *MockQuerier_VulnerabilityMetricsMaxDate_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(VulnerabilityMetricsMaxDateParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_VulnerabilityMetricsMaxDate_Call) Return(_a0 pgtype.Date, _a1 error) *MockQuerier_VulnerabilityMetricsMaxDate_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_VulnerabilityMetricsMaxDate_Call) RunAndReturn(run func(context.Context, VulnerabilityMetricsMaxDateParams) (pgtype.Date, error)) *MockQuerier_VulnerabilityMetricsMaxDate_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// VulnerabilityMetricsUpsert provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) VulnerabilityMetricsUpsert(ctx context.Context, arg []VulnerabilityMetricsUpsertParams) *VulnerabilityMetricsUpsertBatchResults {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for VulnerabilityMetricsUpsert")
-	}
-
-	var r0 *VulnerabilityMetricsUpsertBatchResults
-	if rf, ok := ret.Get(0).(func(context.Context, []VulnerabilityMetricsUpsertParams) *VulnerabilityMetricsUpsertBatchResults); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*VulnerabilityMetricsUpsertBatchResults)
-		}
-	}
-
-	return r0
-}
-
-// MockQuerier_VulnerabilityMetricsUpsert_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VulnerabilityMetricsUpsert'
-type MockQuerier_VulnerabilityMetricsUpsert_Call struct {
-	*mock.Call
-}
-
-// VulnerabilityMetricsUpsert is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg []VulnerabilityMetricsUpsertParams
-func (_e *MockQuerier_Expecter) VulnerabilityMetricsUpsert(ctx interface{}, arg interface{}) *MockQuerier_VulnerabilityMetricsUpsert_Call {
-	return &MockQuerier_VulnerabilityMetricsUpsert_Call{Call: _e.mock.On("VulnerabilityMetricsUpsert", ctx, arg)}
-}
-
-func (_c *MockQuerier_VulnerabilityMetricsUpsert_Call) Run(run func(ctx context.Context, arg []VulnerabilityMetricsUpsertParams)) *MockQuerier_VulnerabilityMetricsUpsert_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].([]VulnerabilityMetricsUpsertParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_VulnerabilityMetricsUpsert_Call) Return(_a0 *VulnerabilityMetricsUpsertBatchResults) *MockQuerier_VulnerabilityMetricsUpsert_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockQuerier_VulnerabilityMetricsUpsert_Call) RunAndReturn(run func(context.Context, []VulnerabilityMetricsUpsertParams) *VulnerabilityMetricsUpsertBatchResults) *MockQuerier_VulnerabilityMetricsUpsert_Call {
 	_c.Call.Return(run)
 	return _c
 }

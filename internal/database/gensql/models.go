@@ -343,3 +343,10 @@ type UserRole struct {
 	TargetTeamSlug         *slug.Slug
 	TargetServiceAccountID *uuid.UUID
 }
+
+type UsersyncRun struct {
+	ID         uuid.UUID
+	StartedAt  pgtype.Timestamptz
+	FinishedAt pgtype.Timestamptz
+	Error      *string
+}
