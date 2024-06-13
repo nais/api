@@ -33,7 +33,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0
 	github.com/sqlc-dev/sqlc v1.25.0
 	github.com/stretchr/testify v1.9.0
-	github.com/vektah/gqlparser/v2 v2.5.11
+	github.com/vektah/gqlparser/v2 v2.5.16
 	github.com/vektra/mockery/v2 v2.40.1
 	github.com/vikstrous/dataloadgen v0.0.6
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.50.0
