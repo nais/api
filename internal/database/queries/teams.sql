@@ -42,12 +42,13 @@ ORDER BY team_all_environments.environment ASC;
 ;
 
 -- name: UpsertTeamEnvironment :one
-INSERT INTO team_environments (team_slug, environment, slack_alerts_channel, gcp_project_id)
+INSERT INTO team_environments (team_slug, environment, slack_alerts_channel, gcp_project_id, cdn_bucket)
 VALUES (
     @team_slug,
     @environment,
     @slack_alerts_channel,
-    @gcp_project_id
+    @gcp_project_id,
+    @cdn_bucket
 )
 ON CONFLICT (team_slug, environment) DO UPDATE
 SET

@@ -6493,17 +6493,17 @@ func (_c *MockDatabase_UpsertReconcilerState_Call) RunAndReturn(run func(context
 	return _c
 }
 
-// UpsertTeamEnvironment provides a mock function with given fields: ctx, teamSlug, environment, slackChannel, gcpProjectID
-func (_m *MockDatabase) UpsertTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel *string, gcpProjectID *string) error {
-	ret := _m.Called(ctx, teamSlug, environment, slackChannel, gcpProjectID)
+// UpsertTeamEnvironment provides a mock function with given fields: ctx, teamSlug, environment, slackChannel, gcpProjectID, bucketNAme
+func (_m *MockDatabase) UpsertTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel *string, gcpProjectID *string, bucketNAme *string) error {
+	ret := _m.Called(ctx, teamSlug, environment, slackChannel, gcpProjectID, bucketNAme)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpsertTeamEnvironment")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, *string, *string) error); ok {
-		r0 = rf(ctx, teamSlug, environment, slackChannel, gcpProjectID)
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, *string, *string, *string) error); ok {
+		r0 = rf(ctx, teamSlug, environment, slackChannel, gcpProjectID, bucketNAme)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -6522,13 +6522,14 @@ type MockDatabase_UpsertTeamEnvironment_Call struct {
 //   - environment string
 //   - slackChannel *string
 //   - gcpProjectID *string
-func (_e *MockDatabase_Expecter) UpsertTeamEnvironment(ctx interface{}, teamSlug interface{}, environment interface{}, slackChannel interface{}, gcpProjectID interface{}) *MockDatabase_UpsertTeamEnvironment_Call {
-	return &MockDatabase_UpsertTeamEnvironment_Call{Call: _e.mock.On("UpsertTeamEnvironment", ctx, teamSlug, environment, slackChannel, gcpProjectID)}
+//   - bucketNAme *string
+func (_e *MockDatabase_Expecter) UpsertTeamEnvironment(ctx interface{}, teamSlug interface{}, environment interface{}, slackChannel interface{}, gcpProjectID interface{}, bucketNAme interface{}) *MockDatabase_UpsertTeamEnvironment_Call {
+	return &MockDatabase_UpsertTeamEnvironment_Call{Call: _e.mock.On("UpsertTeamEnvironment", ctx, teamSlug, environment, slackChannel, gcpProjectID, bucketNAme)}
 }
 
-func (_c *MockDatabase_UpsertTeamEnvironment_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel *string, gcpProjectID *string)) *MockDatabase_UpsertTeamEnvironment_Call {
+func (_c *MockDatabase_UpsertTeamEnvironment_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel *string, gcpProjectID *string, bucketNAme *string)) *MockDatabase_UpsertTeamEnvironment_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string), args[3].(*string), args[4].(*string))
+		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string), args[3].(*string), args[4].(*string), args[5].(*string))
 	})
 	return _c
 }
@@ -6538,7 +6539,7 @@ func (_c *MockDatabase_UpsertTeamEnvironment_Call) Return(_a0 error) *MockDataba
 	return _c
 }
 
-func (_c *MockDatabase_UpsertTeamEnvironment_Call) RunAndReturn(run func(context.Context, slug.Slug, string, *string, *string) error) *MockDatabase_UpsertTeamEnvironment_Call {
+func (_c *MockDatabase_UpsertTeamEnvironment_Call) RunAndReturn(run func(context.Context, slug.Slug, string, *string, *string, *string) error) *MockDatabase_UpsertTeamEnvironment_Call {
 	_c.Call.Return(run)
 	return _c
 }

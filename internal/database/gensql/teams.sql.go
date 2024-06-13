@@ -720,12 +720,13 @@ func (q *Queries) UpdateTeamExternalReferences(ctx context.Context, arg UpdateTe
 }
 
 const upsertTeamEnvironment = `-- name: UpsertTeamEnvironment :one
-INSERT INTO team_environments (team_slug, environment, slack_alerts_channel, gcp_project_id)
+INSERT INTO team_environments (team_slug, environment, slack_alerts_channel, gcp_project_id, cdn_bucket)
 VALUES (
     $1,
     $2,
     $3,
-    $4
+    $4,
+    $5
 )
 ON CONFLICT (team_slug, environment) DO UPDATE
 SET
@@ -739,6 +740,7 @@ type UpsertTeamEnvironmentParams struct {
 	Environment        string
 	SlackAlertsChannel *string
 	GcpProjectID       *string
+	CdnBucket          *string
 }
 
 func (q *Queries) UpsertTeamEnvironment(ctx context.Context, arg UpsertTeamEnvironmentParams) (*TeamEnvironment, error) {
@@ -747,6 +749,7 @@ func (q *Queries) UpsertTeamEnvironment(ctx context.Context, arg UpsertTeamEnvir
 		arg.Environment,
 		arg.SlackAlertsChannel,
 		arg.GcpProjectID,
+		arg.CdnBucket,
 	)
 	var i TeamEnvironment
 	err := row.Scan(
