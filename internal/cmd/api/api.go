@@ -209,7 +209,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		opensearch.NewClient(k8sClient.Informers(), log, db),
 		kafka.NewClient(k8sClient.Informers(), log, db),
 		unleashMgr,
-		audit.NewAuditer(db),
+		audit.NewAuditor(db),
 	)
 
 	graphHandler, err := graph.NewHandler(gengql.Config{

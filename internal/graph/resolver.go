@@ -150,7 +150,7 @@ type Resolver struct {
 	openSearchClient      *opensearch.Client
 	kafkaClient           *kafka.Client
 	unleashMgr            *unleash.Manager
-	auditer               *audit.Auditer
+	auditer               *audit.Auditor
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
@@ -172,7 +172,7 @@ func NewResolver(hookdClient HookdClient,
 	openSearchClient *opensearch.Client,
 	kafkaClient *kafka.Client,
 	unleashMgr *unleash.Manager,
-	auditer *audit.Auditer,
+	auditer *audit.Auditor,
 ) *Resolver {
 	return &Resolver{
 		hookdClient:           hookdClient,

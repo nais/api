@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	audit "github.com/nais/api/internal/audit/events"
 	"strconv"
 
 	"github.com/google/uuid"
@@ -19,6 +18,7 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/model/auditevent"
 	"github.com/nais/api/internal/graph/model/vulnerabilities"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/k8s"
@@ -63,15 +63,10 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTea
 		return nil, err
 	}
 
-	targets := []auditlogger.Target{
-		auditlogger.TeamTarget(team.Slug),
+	err = r.auditer.TeamCreated(ctx, actor.User, team.Slug)
+	if err != nil {
+		return nil, err
 	}
-	fields := auditlogger.Fields{
-		Action:        audittype.AuditActionGraphqlApiTeamCreate,
-		CorrelationID: correlationID,
-		Actor:         actor,
-	}
-	r.auditLogger.Logf(ctx, targets, fields, "Team created")
 
 	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 
@@ -96,7 +91,6 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 	}
 
 	correlationID := uuid.New()
-	auditLogEntries := make([]auditlogger.Entry, 0)
 	var team *database.Team
 	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		team, err = dbtx.UpdateTeam(ctx, slug, input.Purpose, input.SlackChannel)
@@ -113,27 +107,15 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 			}
 		}
 
-		targets := []auditlogger.Target{
-			auditlogger.TeamTarget(slug),
-		}
-		fields := auditlogger.Fields{
-			Action:        audittype.AuditActionGraphqlApiTeamUpdate,
-			CorrelationID: correlationID,
-			Actor:         actor,
-		}
-		auditLogEntries = append(auditLogEntries, auditlogger.Entry{
-			Targets: targets,
-			Fields:  fields,
-			Message: "Team configuration saved",
-		})
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	for _, entry := range auditLogEntries {
-		r.auditLogger.Logf(ctx, entry.Targets, entry.Fields, entry.Message)
+	err = r.auditer.TeamUpdated(ctx, actor.User, team.Slug)
+	if err != nil {
+		return nil, err
 	}
 
 	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
@@ -192,7 +174,7 @@ func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slu
 		return nil, err
 	}
 
-	err = r.auditer.TeamRemoveMember(ctx, actor.User, slug, member.Email)
+	err = r.auditer.TeamMemberRemoved(ctx, actor.User, slug, member.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +197,7 @@ func (r *mutationResolver) SynchronizeTeam(ctx context.Context, slug slug.Slug) 
 
 	correlationID := uuid.New()
 
-	if err := r.auditer.TeamSync(ctx, actor.User, slug); err != nil {
+	if err := r.auditer.TeamSynchronize(ctx, actor.User, slug); err != nil {
 		return nil, err
 	}
 
@@ -321,7 +303,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 		return nil, err
 	}
 
-	err = r.auditer.TeamAddMember(ctx, actor.User, slug, user.Email, string(member.Role))
+	err = r.auditer.TeamMemberAdded(ctx, actor.User, slug, user.Email, member.Role)
 	if err != nil {
 		return nil, err
 	}
@@ -388,7 +370,7 @@ func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug
 		return nil, err
 	}
 
-	if err := r.auditer.TeamSetMemberRole(ctx, actor.User, slug, member.Email, string(role)); err != nil {
+	if err := r.auditer.TeamMemberSetRole(ctx, actor.User, slug, member.Email, role); err != nil {
 		return nil, err
 	}
 
@@ -413,22 +395,15 @@ func (r *mutationResolver) RequestTeamDeletion(ctx context.Context, slug slug.Sl
 		return nil, err
 	}
 
-	correlationID := uuid.New()
-
 	deleteKey, err := r.database.CreateTeamDeleteKey(ctx, slug, actor.User.GetID())
 	if err != nil {
 		return nil, fmt.Errorf("create team delete key: %w", err)
 	}
 
-	targets := []auditlogger.Target{
-		auditlogger.TeamTarget(team.Slug),
+	err = r.auditer.TeamDeletionRequested(ctx, actor.User, team.Slug)
+	if err != nil {
+		return nil, err
 	}
-	fields := auditlogger.Fields{
-		Action:        audittype.AuditActionGraphqlApiTeamsRequestDelete,
-		Actor:         actor,
-		CorrelationID: correlationID,
-	}
-	r.auditLogger.Logf(ctx, targets, fields, "Request team deletion")
 
 	return toGraphTeamDeleteKey(deleteKey), nil
 }
@@ -469,15 +444,10 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, key string) 
 		return false, fmt.Errorf("confirm team delete key: %w", err)
 	}
 
-	targets := []auditlogger.Target{
-		auditlogger.TeamTarget(deleteKey.TeamSlug),
+	err = r.auditer.TeamDeletionConfirmed(ctx, actor.User, deleteKey.TeamSlug)
+	if err != nil {
+		return false, err
 	}
-	fields := auditlogger.Fields{
-		Action:        audittype.AuditActionGraphqlApiTeamsDelete,
-		Actor:         actor,
-		CorrelationID: correlationID,
-	}
-	r.auditLogger.Logf(ctx, targets, fields, "Delete team")
 
 	r.triggerTeamDeletedEvent(ctx, deleteKey.TeamSlug, correlationID)
 
@@ -496,6 +466,12 @@ func (r *mutationResolver) ChangeDeployKey(ctx context.Context, team slug.Slug) 
 	if err != nil {
 		return nil, fmt.Errorf("changing deploy key in Hookd: %w", err)
 	}
+
+	err = r.auditer.TeamRotatedDeployKey(ctx, actor.User, team)
+	if err != nil {
+		return nil, err
+	}
+
 	return &model.DeploymentKey{
 		ID:      scalar.DeployKeyIdent(team),
 		Key:     deployKey.Key,
@@ -598,7 +574,7 @@ func (r *teamResolver) AuditLogs(ctx context.Context, obj *model.Team, offset *i
 	}, nil
 }
 
-func (r *teamResolver) AuditEvents(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.AuditEventsFilter) (*model.AuditEventList, error) {
+func (r *teamResolver) AuditEvents(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.AuditEventsFilter) (*auditevent.AuditEventList, error) {
 	p := model.NewPagination(offset, limit)
 
 	var entries []*database.AuditEvent
@@ -628,16 +604,13 @@ func (r *teamResolver) AuditEvents(ctx context.Context, obj *model.Team, offset 
 		pageInfo = model.NewPageInfo(p, total)
 	}
 
-	events := make([]audit.Event, len(entries))
-	for i, e := range entries {
-		events[i], err = audit.ToEvent(e)
-		if err != nil {
-			return nil, err
-		}
+	nodes, err := toGraphAuditEvents(entries)
+	if err != nil {
+		return nil, err
 	}
 
-	return &model.AuditEventList{
-		Nodes:    toGraphAuditEvents(events),
+	return &auditevent.AuditEventList{
+		Nodes:    nodes,
 		PageInfo: pageInfo,
 	}, nil
 }

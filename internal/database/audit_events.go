@@ -21,33 +21,33 @@ type AuditEvent struct {
 }
 
 type AuditEventInput interface {
-	Action() string
-	Actor() string
-	Data() any
-	ResourceType() string
-	ResourceName() string
-	Team() slug.Slug
+	GetAction() string
+	GetActor() string
+	GetData() any
+	GetResourceType() string
+	GetResourceName() string
+	GetTeam() slug.Slug
 }
 
 func (d *database) CreateAuditEvent(ctx context.Context, event AuditEventInput) error {
 	return d.querier.Transaction(ctx, func(ctx context.Context, querier Querier) error {
 		var data []byte
-		if event.Data() != nil {
+		if event.GetData() != nil {
 			var err error
 
-			data, err = json.Marshal(event.Data())
+			data, err = json.Marshal(event.GetData())
 			if err != nil {
 				return err
 			}
 		}
 
 		return querier.CreateAuditEvent(ctx, gensql.CreateAuditEventParams{
-			Team:         ptr.To(event.Team()),
-			Action:       event.Action(),
-			Actor:        event.Actor(),
+			Team:         ptr.To(event.GetTeam()),
+			Action:       event.GetAction(),
+			Actor:        event.GetActor(),
 			Data:         data,
-			ResourceName: event.ResourceName(),
-			ResourceType: event.ResourceType(),
+			ResourceName: event.GetResourceName(),
+			ResourceType: event.GetResourceType(),
 		})
 	})
 }

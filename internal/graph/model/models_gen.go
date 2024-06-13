@@ -96,27 +96,6 @@ type AppsStatus struct {
 	Failing int `json:"failing"`
 }
 
-// Audit event type.
-type AuditEvent struct {
-	// ID of the event.
-	ID scalar.Ident `json:"id"`
-	// String representation of the action performed.
-	Action string `json:"action"`
-	// The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user.
-	Actor string `json:"actor"`
-	// Message that summarizes the event.
-	Message string `json:"message"`
-	// Creation time of the event.
-	CreatedAt time.Time `json:"createdAt"`
-	// Type of the resource that was affected by the action.
-	ResourceType AuditEventResourceType `json:"resourceType"`
-}
-
-type AuditEventList struct {
-	Nodes    []*AuditEvent `json:"nodes"`
-	PageInfo PageInfo      `json:"pageInfo"`
-}
-
 type AuditEventsFilter struct {
 	// Filter by the type of the resource that was affected by the action.
 	ResourceType *AuditEventResourceType `json:"resourceType,omitempty"`
@@ -1058,21 +1037,76 @@ type VulnerabilitySummaryForTeam struct {
 	BomCount   int `json:"bomCount"`
 }
 
+type AuditEventAction string
+
+const (
+	AuditEventActionTeamCreated           AuditEventAction = "TEAM_CREATED"
+	AuditEventActionTeamDeletionConfirmed AuditEventAction = "TEAM_DELETION_CONFIRMED"
+	AuditEventActionTeamDeletionRequested AuditEventAction = "TEAM_DELETION_REQUESTED"
+	AuditEventActionTeamRotatedDeployKey  AuditEventAction = "TEAM_ROTATED_DEPLOY_KEY"
+	AuditEventActionTeamSynchronized      AuditEventAction = "TEAM_SYNCHRONIZED"
+	AuditEventActionTeamUpdated           AuditEventAction = "TEAM_UPDATED"
+	AuditEventActionTeamMemberAdded       AuditEventAction = "TEAM_MEMBER_ADDED"
+	AuditEventActionTeamMemberRemoved     AuditEventAction = "TEAM_MEMBER_REMOVED"
+	AuditEventActionTeamMemberSetRole     AuditEventAction = "TEAM_MEMBER_SET_ROLE"
+)
+
+var AllAuditEventAction = []AuditEventAction{
+	AuditEventActionTeamCreated,
+	AuditEventActionTeamDeletionConfirmed,
+	AuditEventActionTeamDeletionRequested,
+	AuditEventActionTeamRotatedDeployKey,
+	AuditEventActionTeamSynchronized,
+	AuditEventActionTeamUpdated,
+	AuditEventActionTeamMemberAdded,
+	AuditEventActionTeamMemberRemoved,
+	AuditEventActionTeamMemberSetRole,
+}
+
+func (e AuditEventAction) IsValid() bool {
+	switch e {
+	case AuditEventActionTeamCreated, AuditEventActionTeamDeletionConfirmed, AuditEventActionTeamDeletionRequested, AuditEventActionTeamRotatedDeployKey, AuditEventActionTeamSynchronized, AuditEventActionTeamUpdated, AuditEventActionTeamMemberAdded, AuditEventActionTeamMemberRemoved, AuditEventActionTeamMemberSetRole:
+		return true
+	}
+	return false
+}
+
+func (e AuditEventAction) String() string {
+	return string(e)
+}
+
+func (e *AuditEventAction) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AuditEventAction(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AuditEventAction", str)
+	}
+	return nil
+}
+
+func (e AuditEventAction) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type AuditEventResourceType string
 
 const (
-	AuditEventResourceTypeTeam        AuditEventResourceType = "TEAM"
-	AuditEventResourceTypeTeamMembers AuditEventResourceType = "TEAM_MEMBERS"
+	AuditEventResourceTypeTeam       AuditEventResourceType = "TEAM"
+	AuditEventResourceTypeTeamMember AuditEventResourceType = "TEAM_MEMBER"
 )
 
 var AllAuditEventResourceType = []AuditEventResourceType{
 	AuditEventResourceTypeTeam,
-	AuditEventResourceTypeTeamMembers,
+	AuditEventResourceTypeTeamMember,
 }
 
 func (e AuditEventResourceType) IsValid() bool {
 	switch e {
-	case AuditEventResourceTypeTeam, AuditEventResourceTypeTeamMembers:
+	case AuditEventResourceTypeTeam, AuditEventResourceTypeTeamMember:
 		return true
 	}
 	return false

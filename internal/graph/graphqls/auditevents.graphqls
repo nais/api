@@ -1,22 +1,80 @@
 "Audit event type."
-type AuditEvent {
+interface AuditEvent {
   "ID of the event."
   id: ID!
 
   "String representation of the action performed."
-  action: String!
+  action: AuditEventAction!
 
   "The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
   actor: String!
 
-  "Message that summarizes the event."
-  message: String!
-
   "Creation time of the event."
   createdAt: Time!
 
+  "Message that summarizes the event."
+  message: String!
+
   "Type of the resource that was affected by the action."
   resourceType: AuditEventResourceType!
+
+  "Name of the resource that was affected by the action."
+  resourceName: String!
+
+  "The team that the event belongs to."
+  team: Slug!
+}
+
+type BaseAuditEvent implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  message: String!
+  createdAt: Time!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Slug!
+}
+
+type AuditEventAddMember implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  createdAt: Time!
+  message: String!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Slug!
+
+  memberEmail: String!
+  role: TeamRole!
+}
+
+type AuditEventRemoveMember implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  createdAt: Time!
+  message: String!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Slug!
+
+  memberEmail: String!
+}
+
+type AuditEventSetMemberRole implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  createdAt: Time!
+  message: String!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Slug!
+
+  memberEmail: String!
+  role: TeamRole!
 }
 
 type AuditEventList {
@@ -31,5 +89,18 @@ input AuditEventsFilter {
 
 enum AuditEventResourceType {
   TEAM
-  TEAM_MEMBERS
+  TEAM_MEMBER
+}
+
+enum AuditEventAction {
+  TEAM_CREATED
+  TEAM_DELETION_CONFIRMED
+  TEAM_DELETION_REQUESTED
+  TEAM_ROTATED_DEPLOY_KEY
+  TEAM_SYNCHRONIZED
+  TEAM_UPDATED
+
+  TEAM_MEMBER_ADDED
+  TEAM_MEMBER_REMOVED
+  TEAM_MEMBER_SET_ROLE
 }
