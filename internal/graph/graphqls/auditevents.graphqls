@@ -25,6 +25,36 @@ interface AuditEvent {
   team: Slug!
 }
 
+union AuditEventNode = BaseAuditEvent | AuditEventMemberAdded | AuditEventMemberRemoved | AuditEventMemberSetRole
+
+type AuditEventList {
+  nodes: [AuditEventNode!]!
+  pageInfo: PageInfo!
+}
+
+input AuditEventsFilter {
+  "Filter by the type of the resource that was affected by the action."
+  resourceType: AuditEventResourceType
+}
+
+enum AuditEventResourceType {
+  TEAM
+  TEAM_MEMBER
+}
+
+enum AuditEventAction {
+  TEAM_CREATED
+  TEAM_DELETION_CONFIRMED
+  TEAM_DELETION_REQUESTED
+  TEAM_DEPLOY_KEY_ROTATED
+  TEAM_SYNCHRONIZED
+  TEAM_UPDATED
+
+  TEAM_MEMBER_ADDED
+  TEAM_MEMBER_REMOVED
+  TEAM_MEMBER_SET_ROLE
+}
+
 type BaseAuditEvent implements AuditEvent {
   id: ID!
   action: AuditEventAction!
@@ -75,32 +105,4 @@ type AuditEventMemberSetRole implements AuditEvent {
 
   memberEmail: String!
   role: TeamRole!
-}
-
-type AuditEventList {
-  nodes: [AuditEvent!]!
-  pageInfo: PageInfo!
-}
-
-input AuditEventsFilter {
-  "Filter by the type of the resource that was affected by the action."
-  resourceType: AuditEventResourceType
-}
-
-enum AuditEventResourceType {
-  TEAM
-  TEAM_MEMBER
-}
-
-enum AuditEventAction {
-  TEAM_CREATED
-  TEAM_DELETION_CONFIRMED
-  TEAM_DELETION_REQUESTED
-  TEAM_DEPLOY_KEY_ROTATED
-  TEAM_SYNCHRONIZED
-  TEAM_UPDATED
-
-  TEAM_MEMBER_ADDED
-  TEAM_MEMBER_REMOVED
-  TEAM_MEMBER_SET_ROLE
 }

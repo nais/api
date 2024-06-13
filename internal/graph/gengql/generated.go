@@ -7740,6 +7740,36 @@ interface AuditEvent {
   team: Slug!
 }
 
+union AuditEventNode = BaseAuditEvent | AuditEventMemberAdded | AuditEventMemberRemoved | AuditEventMemberSetRole
+
+type AuditEventList {
+  nodes: [AuditEventNode!]!
+  pageInfo: PageInfo!
+}
+
+input AuditEventsFilter {
+  "Filter by the type of the resource that was affected by the action."
+  resourceType: AuditEventResourceType
+}
+
+enum AuditEventResourceType {
+  TEAM
+  TEAM_MEMBER
+}
+
+enum AuditEventAction {
+  TEAM_CREATED
+  TEAM_DELETION_CONFIRMED
+  TEAM_DELETION_REQUESTED
+  TEAM_DEPLOY_KEY_ROTATED
+  TEAM_SYNCHRONIZED
+  TEAM_UPDATED
+
+  TEAM_MEMBER_ADDED
+  TEAM_MEMBER_REMOVED
+  TEAM_MEMBER_SET_ROLE
+}
+
 type BaseAuditEvent implements AuditEvent {
   id: ID!
   action: AuditEventAction!
@@ -7790,34 +7820,6 @@ type AuditEventMemberSetRole implements AuditEvent {
 
   memberEmail: String!
   role: TeamRole!
-}
-
-type AuditEventList {
-  nodes: [AuditEvent!]!
-  pageInfo: PageInfo!
-}
-
-input AuditEventsFilter {
-  "Filter by the type of the resource that was affected by the action."
-  resourceType: AuditEventResourceType
-}
-
-enum AuditEventResourceType {
-  TEAM
-  TEAM_MEMBER
-}
-
-enum AuditEventAction {
-  TEAM_CREATED
-  TEAM_DELETION_CONFIRMED
-  TEAM_DELETION_REQUESTED
-  TEAM_DEPLOY_KEY_ROTATED
-  TEAM_SYNCHRONIZED
-  TEAM_UPDATED
-
-  TEAM_MEMBER_ADDED
-  TEAM_MEMBER_REMOVED
-  TEAM_MEMBER_SET_ROLE
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/auditlogs.graphqls", Input: `"Audit log type."
@@ -14798,9 +14800,9 @@ func (ec *executionContext) _AuditEventList_nodes(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]auditevent.AuditEvent)
+	res := resTmp.([]auditevent.AuditEventNode)
 	fc.Result = res
-	return ec.marshalNAuditEvent2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋauditeventᚐAuditEventᚄ(ctx, field.Selections, res)
+	return ec.marshalNAuditEventNode2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋauditeventᚐAuditEventNodeᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuditEventList_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14810,7 +14812,7 @@ func (ec *executionContext) fieldContext_AuditEventList_nodes(ctx context.Contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+			return nil, errors.New("field of type AuditEventNode does not have child fields")
 		},
 	}
 	return fc, nil
@@ -54806,6 +54808,43 @@ func (ec *executionContext) _AuditEvent(ctx context.Context, sel ast.SelectionSe
 	}
 }
 
+func (ec *executionContext) _AuditEventNode(ctx context.Context, sel ast.SelectionSet, obj auditevent.AuditEventNode) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case auditevent.BaseAuditEvent:
+		return ec._BaseAuditEvent(ctx, sel, &obj)
+	case *auditevent.BaseAuditEvent:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._BaseAuditEvent(ctx, sel, obj)
+	case auditevent.AuditEventMemberAdded:
+		return ec._AuditEventMemberAdded(ctx, sel, &obj)
+	case *auditevent.AuditEventMemberAdded:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AuditEventMemberAdded(ctx, sel, obj)
+	case auditevent.AuditEventMemberRemoved:
+		return ec._AuditEventMemberRemoved(ctx, sel, &obj)
+	case *auditevent.AuditEventMemberRemoved:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AuditEventMemberRemoved(ctx, sel, obj)
+	case auditevent.AuditEventMemberSetRole:
+		return ec._AuditEventMemberSetRole(ctx, sel, &obj)
+	case *auditevent.AuditEventMemberSetRole:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AuditEventMemberSetRole(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _AuthenticatedUser(ctx context.Context, sel ast.SelectionSet, obj model.AuthenticatedUser) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -55945,7 +55984,7 @@ func (ec *executionContext) _AuditEventList(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var auditEventMemberAddedImplementors = []string{"AuditEventMemberAdded", "AuditEvent"}
+var auditEventMemberAddedImplementors = []string{"AuditEventMemberAdded", "AuditEventNode", "AuditEvent"}
 
 func (ec *executionContext) _AuditEventMemberAdded(ctx context.Context, sel ast.SelectionSet, obj *auditevent.AuditEventMemberAdded) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventMemberAddedImplementors)
@@ -56029,7 +56068,7 @@ func (ec *executionContext) _AuditEventMemberAdded(ctx context.Context, sel ast.
 	return out
 }
 
-var auditEventMemberRemovedImplementors = []string{"AuditEventMemberRemoved", "AuditEvent"}
+var auditEventMemberRemovedImplementors = []string{"AuditEventMemberRemoved", "AuditEventNode", "AuditEvent"}
 
 func (ec *executionContext) _AuditEventMemberRemoved(ctx context.Context, sel ast.SelectionSet, obj *auditevent.AuditEventMemberRemoved) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventMemberRemovedImplementors)
@@ -56108,7 +56147,7 @@ func (ec *executionContext) _AuditEventMemberRemoved(ctx context.Context, sel as
 	return out
 }
 
-var auditEventMemberSetRoleImplementors = []string{"AuditEventMemberSetRole", "AuditEvent"}
+var auditEventMemberSetRoleImplementors = []string{"AuditEventMemberSetRole", "AuditEventNode", "AuditEvent"}
 
 func (ec *executionContext) _AuditEventMemberSetRole(ctx context.Context, sel ast.SelectionSet, obj *auditevent.AuditEventMemberSetRole) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventMemberSetRoleImplementors)
@@ -56517,7 +56556,7 @@ func (ec *executionContext) _BackupConfiguration(ctx context.Context, sel ast.Se
 	return out
 }
 
-var baseAuditEventImplementors = []string{"BaseAuditEvent", "AuditEvent"}
+var baseAuditEventImplementors = []string{"BaseAuditEvent", "AuditEventNode", "AuditEvent"}
 
 func (ec *executionContext) _BaseAuditEvent(ctx context.Context, sel ast.SelectionSet, obj *auditevent.BaseAuditEvent) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, baseAuditEventImplementors)
@@ -68677,17 +68716,41 @@ func (ec *executionContext) marshalNAppsStatus2githubᚗcomᚋnaisᚋapiᚋinter
 	return ec._AppsStatus(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAuditEvent2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋauditeventᚐAuditEvent(ctx context.Context, sel ast.SelectionSet, v auditevent.AuditEvent) graphql.Marshaler {
+func (ec *executionContext) unmarshalNAuditEventAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventAction(ctx context.Context, v interface{}) (model.AuditEventAction, error) {
+	var res model.AuditEventAction
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAuditEventAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventAction(ctx context.Context, sel ast.SelectionSet, v model.AuditEventAction) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNAuditEventList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋauditeventᚐAuditEventList(ctx context.Context, sel ast.SelectionSet, v auditevent.AuditEventList) graphql.Marshaler {
+	return ec._AuditEventList(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuditEventList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋauditeventᚐAuditEventList(ctx context.Context, sel ast.SelectionSet, v *auditevent.AuditEventList) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._AuditEvent(ctx, sel, v)
+	return ec._AuditEventList(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAuditEvent2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋauditeventᚐAuditEventᚄ(ctx context.Context, sel ast.SelectionSet, v []auditevent.AuditEvent) graphql.Marshaler {
+func (ec *executionContext) marshalNAuditEventNode2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋauditeventᚐAuditEventNode(ctx context.Context, sel ast.SelectionSet, v auditevent.AuditEventNode) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AuditEventNode(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAuditEventNode2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋauditeventᚐAuditEventNodeᚄ(ctx context.Context, sel ast.SelectionSet, v []auditevent.AuditEventNode) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -68711,7 +68774,7 @@ func (ec *executionContext) marshalNAuditEvent2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAuditEvent2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋauditeventᚐAuditEvent(ctx, sel, v[i])
+			ret[i] = ec.marshalNAuditEventNode2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋauditeventᚐAuditEventNode(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -68729,30 +68792,6 @@ func (ec *executionContext) marshalNAuditEvent2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 	}
 
 	return ret
-}
-
-func (ec *executionContext) unmarshalNAuditEventAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventAction(ctx context.Context, v interface{}) (model.AuditEventAction, error) {
-	var res model.AuditEventAction
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNAuditEventAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventAction(ctx context.Context, sel ast.SelectionSet, v model.AuditEventAction) graphql.Marshaler {
-	return v
-}
-
-func (ec *executionContext) marshalNAuditEventList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋauditeventᚐAuditEventList(ctx context.Context, sel ast.SelectionSet, v auditevent.AuditEventList) graphql.Marshaler {
-	return ec._AuditEventList(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNAuditEventList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋauditeventᚐAuditEventList(ctx context.Context, sel ast.SelectionSet, v *auditevent.AuditEventList) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._AuditEventList(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNAuditEventResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx context.Context, v interface{}) (model.AuditEventResourceType, error) {

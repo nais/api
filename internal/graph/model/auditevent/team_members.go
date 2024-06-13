@@ -20,11 +20,9 @@ func (a AuditEventMemberAdded) GetData() any {
 	return a.AuditEventMemberAddedData
 }
 
-func (a AuditEventMemberAdded) IsAuditEvent() {}
-
 func NewAuditEventMemberAdded(base BaseAuditEvent, data AuditEventMemberAddedData) AuditEventMemberAdded {
 	return AuditEventMemberAdded{
-		BaseAuditEvent:            base.WithMessage(fmt.Sprintf("Added %q with role %q", data.MemberEmail, data.Role)),
+		BaseAuditEvent:            base.WithMessage(fmt.Sprintf("Added %q as %q", data.MemberEmail, data.Role)),
 		AuditEventMemberAddedData: data,
 	}
 }
@@ -41,8 +39,6 @@ type AuditEventMemberRemovedData struct {
 func (a AuditEventMemberRemoved) GetData() any {
 	return a.AuditEventMemberRemovedData
 }
-
-func (a AuditEventMemberRemoved) IsAuditEvent() {}
 
 func NewAuditEventMemberRemoved(base BaseAuditEvent, data AuditEventMemberRemovedData) AuditEventMemberRemoved {
 	return AuditEventMemberRemoved{
@@ -64,8 +60,6 @@ type AuditEventMemberSetRoleData struct {
 func (a AuditEventMemberSetRole) GetData() any {
 	return a.AuditEventMemberSetRoleData
 }
-
-func (a AuditEventMemberSetRole) IsAuditEvent() {}
 
 func NewAuditEventMemberSetRole(base BaseAuditEvent, data AuditEventMemberSetRoleData) AuditEventMemberSetRole {
 	return AuditEventMemberSetRole{

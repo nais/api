@@ -12,52 +12,52 @@ import (
 
 type (
 	resourceActionMappers map[model.AuditEventResourceType]map[model.AuditEventAction]rowMapper
-	rowMapper             func(row *database.AuditEvent) (auditevent.AuditEvent, error)
+	rowMapper             func(row *database.AuditEvent) (auditevent.AuditEventNode, error)
 )
 
 var mappers = resourceActionMappers{
 	model.AuditEventResourceTypeTeam: {
-		model.AuditEventActionTeamCreated: func(row *database.AuditEvent) (auditevent.AuditEvent, error) {
+		model.AuditEventActionTeamCreated: func(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
 			return baseEvent(row, "Created team"), nil
 		},
-		model.AuditEventActionTeamDeletionRequested: func(row *database.AuditEvent) (auditevent.AuditEvent, error) {
+		model.AuditEventActionTeamDeletionRequested: func(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
 			return baseEvent(row, "Requested team deletion"), nil
 		},
-		model.AuditEventActionTeamDeletionConfirmed: func(row *database.AuditEvent) (auditevent.AuditEvent, error) {
+		model.AuditEventActionTeamDeletionConfirmed: func(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
 			return baseEvent(row, "Confirmed team deletion"), nil
 		},
-		model.AuditEventActionTeamDeployKeyRotated: func(row *database.AuditEvent) (auditevent.AuditEvent, error) {
+		model.AuditEventActionTeamDeployKeyRotated: func(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
 			return baseEvent(row, "Rotated deploy key"), nil
 		},
-		model.AuditEventActionTeamSynchronized: func(row *database.AuditEvent) (auditevent.AuditEvent, error) {
+		model.AuditEventActionTeamSynchronized: func(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
 			return baseEvent(row, "Scheduled team for synchronization"), nil
 		},
-		model.AuditEventActionTeamUpdated: func(row *database.AuditEvent) (auditevent.AuditEvent, error) {
+		model.AuditEventActionTeamUpdated: func(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
 			// TODO: should we split these into multiple events for each changed field? e.g. UpdatedPurpose, UpdatedSlackChannel, UpdatedSlackAlertsChannel?
 			return baseEvent(row, "Updated team"), nil
 		},
 	},
 	model.AuditEventResourceTypeTeamMember: {
 		model.AuditEventActionTeamMemberAdded: eventWithData(
-			func(data auditevent.AuditEventMemberAddedData, base auditevent.BaseAuditEvent) auditevent.AuditEvent {
+			func(data auditevent.AuditEventMemberAddedData, base auditevent.BaseAuditEvent) auditevent.AuditEventNode {
 				return auditevent.NewAuditEventMemberAdded(base, data)
 			},
 		),
 		model.AuditEventActionTeamMemberRemoved: eventWithData(
-			func(data auditevent.AuditEventMemberRemovedData, base auditevent.BaseAuditEvent) auditevent.AuditEvent {
+			func(data auditevent.AuditEventMemberRemovedData, base auditevent.BaseAuditEvent) auditevent.AuditEventNode {
 				return auditevent.NewAuditEventMemberRemoved(base, data)
 			},
 		),
 		model.AuditEventActionTeamMemberSetRole: eventWithData(
-			func(data auditevent.AuditEventMemberSetRoleData, base auditevent.BaseAuditEvent) auditevent.AuditEvent {
+			func(data auditevent.AuditEventMemberSetRoleData, base auditevent.BaseAuditEvent) auditevent.AuditEventNode {
 				return auditevent.NewAuditEventMemberSetRole(base, data)
 			},
 		),
 	},
 }
 
-func toGraphAuditEvents(rows []*database.AuditEvent) ([]auditevent.AuditEvent, error) {
-	graphEvents := make([]auditevent.AuditEvent, len(rows))
+func toGraphAuditEvents(rows []*database.AuditEvent) ([]auditevent.AuditEventNode, error) {
+	graphEvents := make([]auditevent.AuditEventNode, len(rows))
 	for i, row := range rows {
 		event, err := toEvent(row)
 		if err != nil {
@@ -69,7 +69,7 @@ func toGraphAuditEvents(rows []*database.AuditEvent) ([]auditevent.AuditEvent, e
 	return graphEvents, nil
 }
 
-func toEvent(row *database.AuditEvent) (auditevent.AuditEvent, error) {
+func toEvent(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
 	resource, ok := mappers[model.AuditEventResourceType(row.ResourceType)]
 	if !ok {
 		return nil, fmt.Errorf("unsupported resource type %q", row.ResourceType)
@@ -97,9 +97,9 @@ func baseEvent(row *database.AuditEvent, message string) auditevent.BaseAuditEve
 }
 
 func eventWithData[T any](
-	constructor func(data T, base auditevent.BaseAuditEvent) auditevent.AuditEvent,
-) func(row *database.AuditEvent) (auditevent.AuditEvent, error) {
-	return func(row *database.AuditEvent) (auditevent.AuditEvent, error) {
+	constructor func(data T, base auditevent.BaseAuditEvent) auditevent.AuditEventNode,
+) func(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
+	return func(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
 		var data T
 		if row.Data != nil { // TODO: should we expect data?
 			if err := json.Unmarshal(row.Data, &data); err != nil {

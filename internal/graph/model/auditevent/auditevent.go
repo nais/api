@@ -11,14 +11,21 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 )
 
+type AuditEventNode interface {
+	IsAuditEventNode()
+
+	AuditEvent
+}
+
 type AuditEvent interface {
-	database.AuditEventInput
 	IsAuditEvent()
+
+	database.AuditEventInput
 }
 
 type AuditEventList struct {
-	Nodes    []AuditEvent   `json:"nodes"`
-	PageInfo model.PageInfo `json:"pageInfo"`
+	Nodes    []AuditEventNode `json:"nodes"`
+	PageInfo model.PageInfo   `json:"pageInfo"`
 }
 
 type BaseAuditEvent struct {
@@ -66,3 +73,5 @@ func (e BaseAuditEvent) WithMessage(message string) BaseAuditEvent {
 }
 
 func (BaseAuditEvent) IsAuditEvent() {}
+
+func (BaseAuditEvent) IsAuditEventNode() {}
