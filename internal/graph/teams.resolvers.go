@@ -19,11 +19,8 @@ import (
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/model/auditevent"
-	"github.com/nais/api/internal/graph/model/vulnerabilities"
 	"github.com/nais/api/internal/graph/scalar"
-	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/pkg/protoapi"
 	"github.com/sourcegraph/conc/pool"
@@ -63,7 +60,7 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTea
 		return nil, err
 	}
 
-	err = r.auditer.TeamCreated(ctx, actor.User, team.Slug)
+	err = r.auditor.TeamCreated(ctx, actor.User, team.Slug)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +110,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 		return nil, err
 	}
 
-	err = r.auditer.TeamUpdated(ctx, actor.User, team.Slug)
+	err = r.auditor.TeamUpdated(ctx, actor.User, team.Slug)
 	if err != nil {
 		return nil, err
 	}
@@ -174,7 +171,7 @@ func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slu
 		return nil, err
 	}
 
-	err = r.auditer.TeamMemberRemoved(ctx, actor.User, slug, member.Email)
+	err = r.auditor.TeamMemberRemoved(ctx, actor.User, slug, member.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +194,7 @@ func (r *mutationResolver) SynchronizeTeam(ctx context.Context, slug slug.Slug) 
 
 	correlationID := uuid.New()
 
-	if err := r.auditer.TeamSynchronized(ctx, actor.User, slug); err != nil {
+	if err := r.auditor.TeamSynchronized(ctx, actor.User, slug); err != nil {
 		return nil, err
 	}
 
@@ -303,7 +300,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, slug slug.Slug, me
 		return nil, err
 	}
 
-	err = r.auditer.TeamMemberAdded(ctx, actor.User, slug, user.Email, member.Role)
+	err = r.auditor.TeamMemberAdded(ctx, actor.User, slug, user.Email, member.Role)
 	if err != nil {
 		return nil, err
 	}
@@ -370,7 +367,7 @@ func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, slug slug.Slug
 		return nil, err
 	}
 
-	if err := r.auditer.TeamMemberSetRole(ctx, actor.User, slug, member.Email, role); err != nil {
+	if err := r.auditor.TeamMemberSetRole(ctx, actor.User, slug, member.Email, role); err != nil {
 		return nil, err
 	}
 
@@ -400,7 +397,7 @@ func (r *mutationResolver) RequestTeamDeletion(ctx context.Context, slug slug.Sl
 		return nil, fmt.Errorf("create team delete key: %w", err)
 	}
 
-	err = r.auditer.TeamDeletionRequested(ctx, actor.User, team.Slug)
+	err = r.auditor.TeamDeletionRequested(ctx, actor.User, team.Slug)
 	if err != nil {
 		return nil, err
 	}
@@ -444,7 +441,7 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, key string) 
 		return false, fmt.Errorf("confirm team delete key: %w", err)
 	}
 
-	err = r.auditer.TeamDeletionConfirmed(ctx, actor.User, deleteKey.TeamSlug)
+	err = r.auditor.TeamDeletionConfirmed(ctx, actor.User, deleteKey.TeamSlug)
 	if err != nil {
 		return false, err
 	}
@@ -467,7 +464,7 @@ func (r *mutationResolver) ChangeDeployKey(ctx context.Context, team slug.Slug) 
 		return nil, fmt.Errorf("changing deploy key in Hookd: %w", err)
 	}
 
-	err = r.auditer.TeamRotatedDeployKey(ctx, actor.User, team)
+	err = r.auditor.TeamRotatedDeployKey(ctx, actor.User, team)
 	if err != nil {
 		return nil, err
 	}
@@ -1351,50 +1348,6 @@ func (r *teamResolver) Deployments(ctx context.Context, obj *model.Team, offset 
 	}, nil
 }
 
-func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy, filter *model.VulnerabilityFilter) (*model.VulnerabilityList, error) {
-	var envFilter []k8s.EnvFilter
-	if filter != nil && len(filter.Envs) > 0 {
-		envFilter = append(envFilter, k8s.WithEnvs(filter.Envs...))
-	}
-
-	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String(), envFilter...)
-	if err != nil {
-		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
-	}
-
-	instances := make([]*dependencytrack.WorkloadInstance, 0)
-	for _, app := range apps {
-		instances = append(instances, &dependencytrack.WorkloadInstance{
-			Env:   app.Env.Name,
-			Name:  app.Name,
-			Image: app.Image,
-			Team:  obj.Slug.String(),
-		})
-	}
-
-	requireSbom := make([]dependencytrack.Filter, 0)
-	if filter != nil && filter.RequireSbom != nil && *filter.RequireSbom {
-		requireSbom = append(requireSbom, dependencytrack.RequireSbom())
-	}
-
-	nodes, err := r.dependencyTrackClient.GetVulnerabilities(ctx, instances, requireSbom...)
-	if err != nil {
-		return nil, fmt.Errorf("getting vulnerabilities from DependencyTrack: %w", err)
-	}
-
-	if orderBy != nil {
-		vulnerabilities.Sort(nodes, orderBy.Field, orderBy.Direction)
-	}
-
-	pagination := model.NewPagination(offset, limit)
-	v, pi := model.PaginatedSlice(nodes, pagination)
-
-	return &model.VulnerabilityList{
-		Nodes:    v,
-		PageInfo: pi,
-	}, nil
-}
-
 func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummaryForTeam, error) {
 	images, err := r.dependencyTrackClient.GetMetadataForTeam(ctx, obj.Slug.String())
 	if err != nil {
@@ -1424,76 +1377,30 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		if image.Summary.RiskScore > 0 {
 			retVal.RiskScore += image.Summary.RiskScore
 		}
-		if image.Summary.Total > 0 {
-			retVal.Total += image.Summary.Total
+
+		for _, ref := range image.GQLVars.WorkloadReferences {
+			if ref.Team == obj.Slug.String() {
+				retVal.BomCount += 1
+			}
 		}
-		retVal.BomCount += 1
+	}
+
+	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
+	if err != nil {
+		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
+	}
+	jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
+	if err != nil {
+		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
+	}
+
+	if len(apps) == 0 && len(jobs) == 0 {
+		retVal.Coverage = 0.0
+	} else {
+		retVal.Coverage = float64(retVal.BomCount) / float64(len(apps)+len(jobs)) * 100
 	}
 
 	return retVal, nil
-}
-
-func (r *teamResolver) VulnerabilityMetrics(ctx context.Context, obj *model.Team, from scalar.Date, to scalar.Date, environment *string) (*model.VulnerabilityMetrics, error) {
-	var metrics []*model.VulnerabilityMetric
-
-	if err := ValidateDateInterval(from, to); err != nil {
-		return nil, err
-	}
-
-	fromDate, err := from.PgDate()
-	if err != nil {
-		return nil, err
-	}
-
-	toDate, err := to.PgDate()
-	if err != nil {
-		return nil, err
-	}
-
-	if environment != nil {
-		rows, err := r.database.VulnerabilityMetricsDateRangeForTeamAndEnvironment(ctx, fromDate, toDate, obj.Slug, *environment)
-		if err != nil {
-			return nil, err
-		}
-		for _, row := range rows {
-			metrics = append(metrics, &model.VulnerabilityMetric{
-				Date:       row.Date.Time,
-				Critical:   int(row.Critical),
-				High:       int(row.High),
-				Medium:     int(row.Medium),
-				Low:        int(row.Low),
-				Unassigned: int(row.Unassigned),
-				RiskScore:  int(row.RiskScore),
-				Count:      int(row.Count),
-			})
-		}
-	} else {
-		rows, err := r.database.DailyVulnerabilityForTeam(ctx, fromDate, toDate, obj.Slug)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, row := range rows {
-			metrics = append(metrics, &model.VulnerabilityMetric{
-				Date:       row.Date.Time,
-				Critical:   int(row.Critical),
-				High:       int(row.High),
-				Medium:     int(row.Medium),
-				Low:        int(row.Low),
-				Unassigned: int(row.Unassigned),
-				RiskScore:  int(row.RiskScore),
-				Count:      int(row.Count),
-			})
-		}
-	}
-
-	if len(metrics) == 0 {
-		return &model.VulnerabilityMetrics{}, nil
-	}
-
-	return &model.VulnerabilityMetrics{
-		Data: metrics,
-	}, nil
 }
 
 func (r *teamResolver) Secrets(ctx context.Context, obj *model.Team) ([]*model.Secret, error) {

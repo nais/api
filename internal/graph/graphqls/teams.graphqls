@@ -403,7 +403,7 @@ type Team {
   ): AppList!
 
   "The deploy key of the team."
-  deployKey: DeploymentKey!
+  deployKey: DeploymentKey! @auth
 
   "The NAIS jobs owned by the team."
   naisjobs(
@@ -426,28 +426,7 @@ type Team {
     limit: Int
   ): DeploymentList!
 
-  "The vulnerabilities for the team's applications."
-  vulnerabilities(
-    "Returns the first n entries from the list."
-    offset: Int
-
-    "Returns the last n entries from the list."
-    limit: Int
-
-    "Order entries by"
-    orderBy: OrderBy
-
-    filter: VulnerabilityFilter
-  ): VulnerabilityList!
-
   vulnerabilitiesSummary: VulnerabilitySummaryForTeam!
-
-  "The vulnerabilities for the team's applications over time."
-  vulnerabilityMetrics(
-    from: Date!
-    to: Date!
-    environment: String
-  ): VulnerabilityMetrics!
 
   "Get all secrets for the team."
   secrets: [Secret!]! @auth
@@ -471,45 +450,6 @@ type SqlInstancesStatus {
   total: Int!
   failing: Int!
   otherConditions: Int!
-}
-
-input VulnerabilityFilter {
-  "Filter by environment"
-  envs: [String!]
-
-  "Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report."
-  requireSbom: Boolean
-}
-
-type VulnerabilityMetrics {
-  "The metrics for the team's applications."
-  data: [VulnerabilityMetric!]!
-}
-
-type VulnerabilityMetric {
-  "The date of the metric."
-  date: Time!
-
-  "The number of critical vulnerabilities."
-  critical: Int!
-
-  "The number of high vulnerabilities."
-  high: Int!
-
-  "The number of medium vulnerabilities."
-  medium: Int!
-
-  "The number of low vulnerabilities."
-  low: Int!
-
-  "The number of unassigned vulnerabilities."
-  unassigned: Int!
-
-  "The weighted severity score calculated from the number of vulnerabilities."
-  riskScore: Int!
-
-  "The number of applications with vulnerabilities."
-  count: Int!
 }
 
 "Slack alerts channel type."
@@ -610,11 +550,6 @@ type DeploymentKey {
 
   "The date the deployment key expires."
   expires: Time!
-}
-
-type VulnerabilityList {
-  nodes: [Vulnerability!]!
-  pageInfo: PageInfo!
 }
 
 "Input for filtering teams."
