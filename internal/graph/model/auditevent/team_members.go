@@ -1,8 +1,6 @@
 package auditevent
 
 import (
-	"fmt"
-
 	"github.com/nais/api/internal/graph/model"
 )
 
@@ -22,7 +20,7 @@ func (a AuditEventMemberAdded) GetData() any {
 
 func NewAuditEventMemberAdded(base BaseAuditEvent, data AuditEventMemberAddedData) AuditEventMemberAdded {
 	return AuditEventMemberAdded{
-		BaseAuditEvent:            base.WithMessage(fmt.Sprintf("Added %q as %q", data.MemberEmail, data.Role)),
+		BaseAuditEvent:            base,
 		AuditEventMemberAddedData: data,
 	}
 }
@@ -42,7 +40,7 @@ func (a AuditEventMemberRemoved) GetData() any {
 
 func NewAuditEventMemberRemoved(base BaseAuditEvent, data AuditEventMemberRemovedData) AuditEventMemberRemoved {
 	return AuditEventMemberRemoved{
-		BaseAuditEvent:              base.WithMessage(fmt.Sprintf("Removed %q", data.MemberEmail)),
+		BaseAuditEvent:              base,
 		AuditEventMemberRemovedData: data,
 	}
 }
@@ -63,7 +61,7 @@ func (a AuditEventMemberSetRole) GetData() any {
 
 func NewAuditEventMemberSetRole(base BaseAuditEvent, data AuditEventMemberSetRoleData) AuditEventMemberSetRole {
 	return AuditEventMemberSetRole{
-		BaseAuditEvent:              base.WithMessage(fmt.Sprintf("Set %q to %q", data.MemberEmail, data.Role)),
+		BaseAuditEvent:              base,
 		AuditEventMemberSetRoleData: data,
 	}
 }

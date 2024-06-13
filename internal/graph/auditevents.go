@@ -10,52 +10,6 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 )
 
-type (
-	resourceActionMappers map[model.AuditEventResourceType]map[model.AuditEventAction]rowMapper
-	rowMapper             func(row *database.AuditEvent) (auditevent.AuditEventNode, error)
-)
-
-var mappers = resourceActionMappers{
-	model.AuditEventResourceTypeTeam: {
-		model.AuditEventActionTeamCreated: func(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
-			return baseEvent(row, "Created team"), nil
-		},
-		model.AuditEventActionTeamDeletionRequested: func(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
-			return baseEvent(row, "Requested team deletion"), nil
-		},
-		model.AuditEventActionTeamDeletionConfirmed: func(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
-			return baseEvent(row, "Confirmed team deletion"), nil
-		},
-		model.AuditEventActionTeamDeployKeyRotated: func(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
-			return baseEvent(row, "Rotated deploy key"), nil
-		},
-		model.AuditEventActionTeamSynchronized: func(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
-			return baseEvent(row, "Scheduled team for synchronization"), nil
-		},
-		model.AuditEventActionTeamUpdated: func(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
-			// TODO: should we split these into multiple events for each changed field? e.g. UpdatedPurpose, UpdatedSlackChannel, UpdatedSlackAlertsChannel?
-			return baseEvent(row, "Updated team"), nil
-		},
-	},
-	model.AuditEventResourceTypeTeamMember: {
-		model.AuditEventActionTeamMemberAdded: eventWithData(
-			func(data auditevent.AuditEventMemberAddedData, base auditevent.BaseAuditEvent) auditevent.AuditEventNode {
-				return auditevent.NewAuditEventMemberAdded(base, data)
-			},
-		),
-		model.AuditEventActionTeamMemberRemoved: eventWithData(
-			func(data auditevent.AuditEventMemberRemovedData, base auditevent.BaseAuditEvent) auditevent.AuditEventNode {
-				return auditevent.NewAuditEventMemberRemoved(base, data)
-			},
-		),
-		model.AuditEventActionTeamMemberSetRole: eventWithData(
-			func(data auditevent.AuditEventMemberSetRoleData, base auditevent.BaseAuditEvent) auditevent.AuditEventNode {
-				return auditevent.NewAuditEventMemberSetRole(base, data)
-			},
-		),
-	},
-}
-
 func toGraphAuditEvents(rows []*database.AuditEvent) ([]auditevent.AuditEventNode, error) {
 	graphEvents := make([]auditevent.AuditEventNode, len(rows))
 	for i, row := range rows {
@@ -70,44 +24,65 @@ func toGraphAuditEvents(rows []*database.AuditEvent) ([]auditevent.AuditEventNod
 }
 
 func toEvent(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
-	resource, ok := mappers[model.AuditEventResourceType(row.ResourceType)]
-	if !ok {
-		return nil, fmt.Errorf("unsupported resource type %q", row.ResourceType)
+	event := baseEvent(row)
+	switch model.AuditEventResourceType(row.ResourceType) {
+	case model.AuditEventResourceTypeTeam:
+		switch model.AuditEventAction(row.Action) {
+		case model.AuditEventActionTeamCreated:
+			return event.WithMessage("Created team"), nil
+		case model.AuditEventActionTeamDeletionRequested:
+			return event.WithMessage("Requested team deletion"), nil
+		case model.AuditEventActionTeamDeletionConfirmed:
+			return event.WithMessage("Confirmed team deletion"), nil
+		case model.AuditEventActionTeamDeployKeyRotated:
+			return event.WithMessage("Rotated deploy key"), nil
+		case model.AuditEventActionTeamSynchronized:
+			return event.WithMessage("Scheduled team for synchronization"), nil
+		case model.AuditEventActionTeamUpdated:
+			// TODO: should we split these into multiple events for each changed field? e.g. UpdatedPurpose, UpdatedSlackChannel, UpdatedSlackAlertsChannel?
+			return event.WithMessage("Updated team"), nil
+		}
+	case model.AuditEventResourceTypeTeamMember:
+		switch model.AuditEventAction(row.Action) {
+		case model.AuditEventActionTeamMemberAdded:
+			return withData(row, func(data auditevent.AuditEventMemberAddedData) auditevent.AuditEventNode {
+				msg := fmt.Sprintf("Added %q", data.MemberEmail)
+				return auditevent.NewAuditEventMemberAdded(event.WithMessage(msg), data)
+			})
+		case model.AuditEventActionTeamMemberRemoved:
+			return withData(row, func(data auditevent.AuditEventMemberRemovedData) auditevent.AuditEventNode {
+				msg := fmt.Sprintf("Removed %q", data.MemberEmail)
+				return auditevent.NewAuditEventMemberRemoved(event.WithMessage(msg), data)
+			})
+		case model.AuditEventActionTeamMemberSetRole:
+			return withData(row, func(data auditevent.AuditEventMemberSetRoleData) auditevent.AuditEventNode {
+				msg := fmt.Sprintf("Set %q to %q", data.MemberEmail, data.Role)
+				return auditevent.NewAuditEventMemberSetRole(event.WithMessage(msg), data)
+			})
+		}
 	}
-
-	action, ok := resource[model.AuditEventAction(row.Action)]
-	if !ok {
-		return nil, fmt.Errorf("unsupported action %q for resource %q", row.Action, row.ResourceType)
-	}
-
-	return action(row)
+	return nil, fmt.Errorf("unsupported action %q for resource %q", row.Action, row.ResourceType)
 }
 
-func baseEvent(row *database.AuditEvent, message string) auditevent.BaseAuditEvent {
+func baseEvent(row *database.AuditEvent) auditevent.BaseAuditEvent {
 	return auditevent.BaseAuditEvent{
 		ID:           scalar.AuditEventIdent(row.ID),
 		Action:       model.AuditEventAction(row.Action),
 		Actor:        row.Actor,
 		CreatedAt:    row.CreatedAt.Time,
-		Message:      message,
 		ResourceType: model.AuditEventResourceType(row.ResourceType),
 		ResourceName: row.ResourceName,
 		Team:         *row.TeamSlug,
 	}
 }
 
-func eventWithData[T any](
-	constructor func(data T, base auditevent.BaseAuditEvent) auditevent.AuditEventNode,
-) func(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
-	return func(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
-		var data T
-		if row.Data != nil { // TODO: should we expect data?
-			if err := json.Unmarshal(row.Data, &data); err != nil {
-				return nil, err
-			}
+func withData[T any](row *database.AuditEvent, callback func(data T) auditevent.AuditEventNode) (auditevent.AuditEventNode, error) {
+	var data T
+	if row.Data != nil { // TODO: should we expect data?
+		if err := json.Unmarshal(row.Data, &data); err != nil {
+			return nil, err
 		}
-
-		base := baseEvent(row, "")
-		return constructor(data, base), nil
 	}
+
+	return callback(data), nil
 }
