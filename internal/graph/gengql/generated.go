@@ -106,26 +106,25 @@ type ComplexityRoot struct {
 	}
 
 	App struct {
-		AccessPolicy    func(childComplexity int) int
-		Authz           func(childComplexity int) int
-		AutoScaling     func(childComplexity int) int
-		DeployInfo      func(childComplexity int) int
-		Env             func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Image           func(childComplexity int) int
-		ImageDetails    func(childComplexity int) int
-		Ingresses       func(childComplexity int) int
-		Instances       func(childComplexity int) int
-		Manifest        func(childComplexity int) int
-		Name            func(childComplexity int) int
-		Persistence     func(childComplexity int) int
-		Resources       func(childComplexity int) int
-		Secrets         func(childComplexity int) int
-		Status          func(childComplexity int) int
-		Team            func(childComplexity int) int
-		Type            func(childComplexity int) int
-		Variables       func(childComplexity int) int
-		Vulnerabilities func(childComplexity int) int
+		AccessPolicy func(childComplexity int) int
+		Authz        func(childComplexity int) int
+		AutoScaling  func(childComplexity int) int
+		DeployInfo   func(childComplexity int) int
+		Env          func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Image        func(childComplexity int) int
+		ImageDetails func(childComplexity int) int
+		Ingresses    func(childComplexity int) int
+		Instances    func(childComplexity int) int
+		Manifest     func(childComplexity int) int
+		Name         func(childComplexity int) int
+		Persistence  func(childComplexity int) int
+		Resources    func(childComplexity int) int
+		Secrets      func(childComplexity int) int
+		Status       func(childComplexity int) int
+		Team         func(childComplexity int) int
+		Type         func(childComplexity int) int
+		Variables    func(childComplexity int) int
 	}
 
 	AppCost struct {
@@ -666,28 +665,27 @@ type ComplexityRoot struct {
 	}
 
 	NaisJob struct {
-		AccessPolicy    func(childComplexity int) int
-		Authz           func(childComplexity int) int
-		Completions     func(childComplexity int) int
-		DeployInfo      func(childComplexity int) int
-		Env             func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Image           func(childComplexity int) int
-		ImageDetails    func(childComplexity int) int
-		Manifest        func(childComplexity int) int
-		Name            func(childComplexity int) int
-		Parallelism     func(childComplexity int) int
-		Persistence     func(childComplexity int) int
-		Resources       func(childComplexity int) int
-		Retries         func(childComplexity int) int
-		Runs            func(childComplexity int) int
-		Schedule        func(childComplexity int) int
-		Secrets         func(childComplexity int) int
-		Status          func(childComplexity int) int
-		Team            func(childComplexity int) int
-		Type            func(childComplexity int) int
-		Variables       func(childComplexity int) int
-		Vulnerabilities func(childComplexity int) int
+		AccessPolicy func(childComplexity int) int
+		Authz        func(childComplexity int) int
+		Completions  func(childComplexity int) int
+		DeployInfo   func(childComplexity int) int
+		Env          func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Image        func(childComplexity int) int
+		ImageDetails func(childComplexity int) int
+		Manifest     func(childComplexity int) int
+		Name         func(childComplexity int) int
+		Parallelism  func(childComplexity int) int
+		Persistence  func(childComplexity int) int
+		Resources    func(childComplexity int) int
+		Retries      func(childComplexity int) int
+		Runs         func(childComplexity int) int
+		Schedule     func(childComplexity int) int
+		Secrets      func(childComplexity int) int
+		Status       func(childComplexity int) int
+		Team         func(childComplexity int) int
+		Type         func(childComplexity int) int
+		Variables    func(childComplexity int) int
 	}
 
 	NaisJobList struct {
@@ -1126,9 +1124,7 @@ type ComplexityRoot struct {
 		Unleash                func(childComplexity int) int
 		ViewerIsMember         func(childComplexity int) int
 		ViewerIsOwner          func(childComplexity int) int
-		Vulnerabilities        func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy, filter *model.VulnerabilityFilter) int
 		VulnerabilitiesSummary func(childComplexity int) int
-		VulnerabilityMetrics   func(childComplexity int, from scalar.Date, to scalar.Date, environment *string) int
 	}
 
 	TeamDeleteKey struct {
@@ -1247,34 +1243,14 @@ type ComplexityRoot struct {
 		Summary      func(childComplexity int) int
 	}
 
-	VulnerabilityList struct {
-		Nodes    func(childComplexity int) int
-		PageInfo func(childComplexity int) int
-	}
-
-	VulnerabilityMetric struct {
-		Count      func(childComplexity int) int
-		Critical   func(childComplexity int) int
-		Date       func(childComplexity int) int
-		High       func(childComplexity int) int
-		Low        func(childComplexity int) int
-		Medium     func(childComplexity int) int
-		RiskScore  func(childComplexity int) int
-		Unassigned func(childComplexity int) int
-	}
-
-	VulnerabilityMetrics struct {
-		Data func(childComplexity int) int
-	}
-
 	VulnerabilitySummaryForTeam struct {
 		BomCount   func(childComplexity int) int
+		Coverage   func(childComplexity int) int
 		Critical   func(childComplexity int) int
 		High       func(childComplexity int) int
 		Low        func(childComplexity int) int
 		Medium     func(childComplexity int) int
 		RiskScore  func(childComplexity int) int
-		Total      func(childComplexity int) int
 		Unassigned func(childComplexity int) int
 	}
 
@@ -1295,7 +1271,6 @@ type AppResolver interface {
 	Persistence(ctx context.Context, obj *model.App) ([]model.Persistence, error)
 	Manifest(ctx context.Context, obj *model.App) (string, error)
 	Team(ctx context.Context, obj *model.App) (*model.Team, error)
-	Vulnerabilities(ctx context.Context, obj *model.App) (*model.Vulnerability, error)
 	Secrets(ctx context.Context, obj *model.App) ([]*model.Secret, error)
 }
 type BigQueryDatasetResolver interface {
@@ -1376,7 +1351,6 @@ type NaisJobResolver interface {
 	Persistence(ctx context.Context, obj *model.NaisJob) ([]model.Persistence, error)
 
 	Secrets(ctx context.Context, obj *model.NaisJob) ([]*model.Secret, error)
-	Vulnerabilities(ctx context.Context, obj *model.NaisJob) (*model.Vulnerability, error)
 }
 type OpenSearchResolver interface {
 	Access(ctx context.Context, obj *model.OpenSearch) ([]*model.OpenSearchInstanceAccess, error)
@@ -1491,9 +1465,7 @@ type TeamResolver interface {
 	DeployKey(ctx context.Context, obj *model.Team) (*model.DeploymentKey, error)
 	Naisjobs(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.NaisJobList, error)
 	Deployments(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.DeploymentList, error)
-	Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy, filter *model.VulnerabilityFilter) (*model.VulnerabilityList, error)
 	VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummaryForTeam, error)
-	VulnerabilityMetrics(ctx context.Context, obj *model.Team, from scalar.Date, to scalar.Date, environment *string) (*model.VulnerabilityMetrics, error)
 	Secrets(ctx context.Context, obj *model.Team) ([]*model.Secret, error)
 	Secret(ctx context.Context, obj *model.Team, name string, env string) (*model.Secret, error)
 	Environments(ctx context.Context, obj *model.Team) ([]*model.Env, error)
@@ -1763,13 +1735,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.App.Variables(childComplexity), true
-
-	case "App.vulnerabilities":
-		if e.complexity.App.Vulnerabilities == nil {
-			break
-		}
-
-		return e.complexity.App.Vulnerabilities(childComplexity), true
 
 	case "AppCost.app":
 		if e.complexity.AppCost.App == nil {
@@ -4299,13 +4264,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.NaisJob.Variables(childComplexity), true
 
-	case "NaisJob.vulnerabilities":
-		if e.complexity.NaisJob.Vulnerabilities == nil {
-			break
-		}
-
-		return e.complexity.NaisJob.Vulnerabilities(childComplexity), true
-
 	case "NaisJobList.nodes":
 		if e.complexity.NaisJobList.Nodes == nil {
 			break
@@ -6447,36 +6405,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.ViewerIsOwner(childComplexity), true
 
-	case "Team.vulnerabilities":
-		if e.complexity.Team.Vulnerabilities == nil {
-			break
-		}
-
-		args, err := ec.field_Team_vulnerabilities_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Team.Vulnerabilities(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy), args["filter"].(*model.VulnerabilityFilter)), true
-
 	case "Team.vulnerabilitiesSummary":
 		if e.complexity.Team.VulnerabilitiesSummary == nil {
 			break
 		}
 
 		return e.complexity.Team.VulnerabilitiesSummary(childComplexity), true
-
-	case "Team.vulnerabilityMetrics":
-		if e.complexity.Team.VulnerabilityMetrics == nil {
-			break
-		}
-
-		args, err := ec.field_Team_vulnerabilityMetrics_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Team.VulnerabilityMetrics(childComplexity, args["from"].(scalar.Date), args["to"].(scalar.Date), args["environment"].(*string)), true
 
 	case "TeamDeleteKey.createdAt":
 		if e.complexity.TeamDeleteKey.CreatedAt == nil {
@@ -6922,89 +6856,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Vulnerability.Summary(childComplexity), true
 
-	case "VulnerabilityList.nodes":
-		if e.complexity.VulnerabilityList.Nodes == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilityList.Nodes(childComplexity), true
-
-	case "VulnerabilityList.pageInfo":
-		if e.complexity.VulnerabilityList.PageInfo == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilityList.PageInfo(childComplexity), true
-
-	case "VulnerabilityMetric.count":
-		if e.complexity.VulnerabilityMetric.Count == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilityMetric.Count(childComplexity), true
-
-	case "VulnerabilityMetric.critical":
-		if e.complexity.VulnerabilityMetric.Critical == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilityMetric.Critical(childComplexity), true
-
-	case "VulnerabilityMetric.date":
-		if e.complexity.VulnerabilityMetric.Date == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilityMetric.Date(childComplexity), true
-
-	case "VulnerabilityMetric.high":
-		if e.complexity.VulnerabilityMetric.High == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilityMetric.High(childComplexity), true
-
-	case "VulnerabilityMetric.low":
-		if e.complexity.VulnerabilityMetric.Low == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilityMetric.Low(childComplexity), true
-
-	case "VulnerabilityMetric.medium":
-		if e.complexity.VulnerabilityMetric.Medium == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilityMetric.Medium(childComplexity), true
-
-	case "VulnerabilityMetric.riskScore":
-		if e.complexity.VulnerabilityMetric.RiskScore == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilityMetric.RiskScore(childComplexity), true
-
-	case "VulnerabilityMetric.unassigned":
-		if e.complexity.VulnerabilityMetric.Unassigned == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilityMetric.Unassigned(childComplexity), true
-
-	case "VulnerabilityMetrics.data":
-		if e.complexity.VulnerabilityMetrics.Data == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilityMetrics.Data(childComplexity), true
-
 	case "VulnerabilitySummaryForTeam.bomCount":
 		if e.complexity.VulnerabilitySummaryForTeam.BomCount == nil {
 			break
 		}
 
 		return e.complexity.VulnerabilitySummaryForTeam.BomCount(childComplexity), true
+
+	case "VulnerabilitySummaryForTeam.coverage":
+		if e.complexity.VulnerabilitySummaryForTeam.Coverage == nil {
+			break
+		}
+
+		return e.complexity.VulnerabilitySummaryForTeam.Coverage(childComplexity), true
 
 	case "VulnerabilitySummaryForTeam.critical":
 		if e.complexity.VulnerabilitySummaryForTeam.Critical == nil {
@@ -7040,13 +6904,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.VulnerabilitySummaryForTeam.RiskScore(childComplexity), true
-
-	case "VulnerabilitySummaryForTeam.total":
-		if e.complexity.VulnerabilitySummaryForTeam.Total == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilitySummaryForTeam.Total(childComplexity), true
 
 	case "VulnerabilitySummaryForTeam.unassigned":
 		if e.complexity.VulnerabilitySummaryForTeam.Unassigned == nil {
@@ -7091,7 +6948,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTeamsFilterGitHub,
 		ec.unmarshalInputUpdateTeamInput,
 		ec.unmarshalInputVariableInput,
-		ec.unmarshalInputVulnerabilityFilter,
 	)
 	first := true
 
@@ -7304,7 +7160,6 @@ type App implements Workload {
   persistence: [Persistence!]!
   manifest: String!
   team: Team!
-  vulnerabilities: Vulnerability
   secrets: [Secret!]!
 }
 
@@ -7699,7 +7554,6 @@ type Vulnerability {
 }
 
 type VulnerabilitySummaryForTeam {
-  total: Int!
   riskScore: Int!
   critical: Int!
   high: Int!
@@ -7707,6 +7561,7 @@ type VulnerabilitySummaryForTeam {
   low: Int!
   unassigned: Int!
   bomCount: Int!
+  coverage: Float!
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/deploy.graphqls", Input: `extend type Query {
@@ -8069,7 +7924,6 @@ type NaisJob implements Workload {
   parallelism: Int!
   retries: Int!
   secrets: [Secret!]!
-  vulnerabilities: Vulnerability
 }
 
 type NaisJobList {
@@ -9420,28 +9274,7 @@ type Team {
     limit: Int
   ): DeploymentList!
 
-  "The vulnerabilities for the team's applications."
-  vulnerabilities(
-    "Returns the first n entries from the list."
-    offset: Int
-
-    "Returns the last n entries from the list."
-    limit: Int
-
-    "Order entries by"
-    orderBy: OrderBy
-
-    filter: VulnerabilityFilter
-  ): VulnerabilityList!
-
   vulnerabilitiesSummary: VulnerabilitySummaryForTeam!
-
-  "The vulnerabilities for the team's applications over time."
-  vulnerabilityMetrics(
-    from: Date!
-    to: Date!
-    environment: String
-  ): VulnerabilityMetrics!
 
   "Get all secrets for the team."
   secrets: [Secret!]! @auth
@@ -9465,45 +9298,6 @@ type SqlInstancesStatus {
   total: Int!
   failing: Int!
   otherConditions: Int!
-}
-
-input VulnerabilityFilter {
-  "Filter by environment"
-  envs: [String!]
-
-  "Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report."
-  requireSbom: Boolean
-}
-
-type VulnerabilityMetrics {
-  "The metrics for the team's applications."
-  data: [VulnerabilityMetric!]!
-}
-
-type VulnerabilityMetric {
-  "The date of the metric."
-  date: Time!
-
-  "The number of critical vulnerabilities."
-  critical: Int!
-
-  "The number of high vulnerabilities."
-  high: Int!
-
-  "The number of medium vulnerabilities."
-  medium: Int!
-
-  "The number of low vulnerabilities."
-  low: Int!
-
-  "The number of unassigned vulnerabilities."
-  unassigned: Int!
-
-  "The weighted severity score calculated from the number of vulnerabilities."
-  riskScore: Int!
-
-  "The number of applications with vulnerabilities."
-  count: Int!
 }
 
 "Slack alerts channel type."
@@ -9604,11 +9398,6 @@ type DeploymentKey {
 
   "The date the deployment key expires."
   expires: Time!
-}
-
-type VulnerabilityList {
-  nodes: [Vulnerability!]!
-  pageInfo: PageInfo!
 }
 
 "Input for filtering teams."
@@ -11983,81 +11772,6 @@ func (ec *executionContext) field_Team_sqlInstances_args(ctx context.Context, ra
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_vulnerabilities_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *int
-	if tmp, ok := rawArgs["offset"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["offset"] = arg0
-	var arg1 *int
-	if tmp, ok := rawArgs["limit"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["limit"] = arg1
-	var arg2 *model.OrderBy
-	if tmp, ok := rawArgs["orderBy"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
-		arg2, err = ec.unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderBy(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["orderBy"] = arg2
-	var arg3 *model.VulnerabilityFilter
-	if tmp, ok := rawArgs["filter"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-		arg3, err = ec.unmarshalOVulnerabilityFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityFilter(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["filter"] = arg3
-	return args, nil
-}
-
-func (ec *executionContext) field_Team_vulnerabilityMetrics_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 scalar.Date
-	if tmp, ok := rawArgs["from"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("from"))
-		arg0, err = ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["from"] = arg0
-	var arg1 scalar.Date
-	if tmp, ok := rawArgs["to"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("to"))
-		arg1, err = ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["to"] = arg1
-	var arg2 *string
-	if tmp, ok := rawArgs["environment"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
-		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["environment"] = arg2
-	return args, nil
-}
-
 func (ec *executionContext) field_User_teams_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -13622,12 +13336,8 @@ func (ec *executionContext) fieldContext_App_team(ctx context.Context, field gra
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -13638,61 +13348,6 @@ func (ec *executionContext) fieldContext_App_team(ctx context.Context, field gra
 				return ec.fieldContext_Team_unleash(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _App_vulnerabilities(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_App_vulnerabilities(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.App().Vulnerabilities(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.Vulnerability)
-	fc.Result = res
-	return ec.marshalOVulnerability2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerability(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_App_vulnerabilities(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "App",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Vulnerability_id(ctx, field)
-			case "appName":
-				return ec.fieldContext_Vulnerability_appName(ctx, field)
-			case "env":
-				return ec.fieldContext_Vulnerability_env(ctx, field)
-			case "findingsLink":
-				return ec.fieldContext_Vulnerability_findingsLink(ctx, field)
-			case "summary":
-				return ec.fieldContext_Vulnerability_summary(ctx, field)
-			case "hasBom":
-				return ec.fieldContext_Vulnerability_hasBom(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Vulnerability", field.Name)
 		},
 	}
 	return fc, nil
@@ -13975,8 +13630,6 @@ func (ec *executionContext) fieldContext_AppList_nodes(ctx context.Context, fiel
 				return ec.fieldContext_App_manifest(ctx, field)
 			case "team":
 				return ec.fieldContext_App_team(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_App_vulnerabilities(ctx, field)
 			case "secrets":
 				return ec.fieldContext_App_secrets(ctx, field)
 			}
@@ -15954,12 +15607,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(ctx context.Contex
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -16981,12 +16630,8 @@ func (ec *executionContext) fieldContext_Bucket_team(ctx context.Context, field 
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -19027,12 +18672,8 @@ func (ec *executionContext) fieldContext_Deployment_team(ctx context.Context, fi
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -25695,12 +25336,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(ctx context.Context, fi
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -28670,12 +28307,8 @@ func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -28829,12 +28462,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -28988,12 +28617,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUsersFromTeam(ctx contex
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -29147,12 +28772,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUserFromTeam(ctx context
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -29453,12 +29074,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMembers(ctx context.Con
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -29612,12 +29229,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamOwners(ctx context.Cont
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -29771,12 +29384,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -29930,12 +29539,8 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -31272,12 +30877,8 @@ func (ec *executionContext) fieldContext_NaisJob_team(ctx context.Context, field
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -31533,61 +31134,6 @@ func (ec *executionContext) fieldContext_NaisJob_secrets(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _NaisJob_vulnerabilities(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_NaisJob_vulnerabilities(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.NaisJob().Vulnerabilities(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.Vulnerability)
-	fc.Result = res
-	return ec.marshalOVulnerability2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerability(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_NaisJob_vulnerabilities(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "NaisJob",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Vulnerability_id(ctx, field)
-			case "appName":
-				return ec.fieldContext_Vulnerability_appName(ctx, field)
-			case "env":
-				return ec.fieldContext_Vulnerability_env(ctx, field)
-			case "findingsLink":
-				return ec.fieldContext_Vulnerability_findingsLink(ctx, field)
-			case "summary":
-				return ec.fieldContext_Vulnerability_summary(ctx, field)
-			case "hasBom":
-				return ec.fieldContext_Vulnerability_hasBom(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Vulnerability", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _NaisJobList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.NaisJobList) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_NaisJobList_nodes(ctx, field)
 	if err != nil {
@@ -31669,8 +31215,6 @@ func (ec *executionContext) fieldContext_NaisJobList_nodes(ctx context.Context, 
 				return ec.fieldContext_NaisJob_retries(ctx, field)
 			case "secrets":
 				return ec.fieldContext_NaisJob_secrets(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_NaisJob_vulnerabilities(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type NaisJob", field.Name)
 		},
@@ -32283,12 +31827,8 @@ func (ec *executionContext) fieldContext_OpenSearch_team(ctx context.Context, fi
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -33302,8 +32842,6 @@ func (ec *executionContext) fieldContext_Query_app(ctx context.Context, field gr
 				return ec.fieldContext_App_manifest(ctx, field)
 			case "team":
 				return ec.fieldContext_App_team(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_App_vulnerabilities(ctx, field)
 			case "secrets":
 				return ec.fieldContext_App_secrets(ctx, field)
 			}
@@ -33776,8 +33314,6 @@ func (ec *executionContext) fieldContext_Query_naisjob(ctx context.Context, fiel
 				return ec.fieldContext_NaisJob_retries(ctx, field)
 			case "secrets":
 				return ec.fieldContext_NaisJob_secrets(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_NaisJob_vulnerabilities(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type NaisJob", field.Name)
 		},
@@ -34652,12 +34188,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -36221,12 +35753,8 @@ func (ec *executionContext) fieldContext_ReconcilerError_team(ctx context.Contex
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -36711,12 +36239,8 @@ func (ec *executionContext) fieldContext_Redis_team(ctx context.Context, field g
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -39377,12 +38901,8 @@ func (ec *executionContext) fieldContext_Role_targetTeam(ctx context.Context, fi
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -40399,12 +39919,8 @@ func (ec *executionContext) fieldContext_Secret_team(ctx context.Context, field 
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -40545,8 +40061,6 @@ func (ec *executionContext) fieldContext_Secret_apps(ctx context.Context, field 
 				return ec.fieldContext_App_manifest(ctx, field)
 			case "team":
 				return ec.fieldContext_App_team(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_App_vulnerabilities(ctx, field)
 			case "secrets":
 				return ec.fieldContext_App_secrets(ctx, field)
 			}
@@ -40637,8 +40151,6 @@ func (ec *executionContext) fieldContext_Secret_jobs(ctx context.Context, field 
 				return ec.fieldContext_NaisJob_retries(ctx, field)
 			case "secrets":
 				return ec.fieldContext_NaisJob_secrets(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_NaisJob_vulnerabilities(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type NaisJob", field.Name)
 		},
@@ -42296,12 +41808,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(ctx context.Context, f
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -46113,67 +45621,6 @@ func (ec *executionContext) fieldContext_Team_deployments(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_vulnerabilities(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_vulnerabilities(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().Vulnerabilities(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["orderBy"].(*model.OrderBy), fc.Args["filter"].(*model.VulnerabilityFilter))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.VulnerabilityList)
-	fc.Result = res
-	return ec.marshalNVulnerabilityList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityList(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Team_vulnerabilities(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Team",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "nodes":
-				return ec.fieldContext_VulnerabilityList_nodes(ctx, field)
-			case "pageInfo":
-				return ec.fieldContext_VulnerabilityList_pageInfo(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type VulnerabilityList", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_vulnerabilities_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Team_vulnerabilitiesSummary(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
 	if err != nil {
@@ -46213,8 +45660,6 @@ func (ec *executionContext) fieldContext_Team_vulnerabilitiesSummary(ctx context
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "total":
-				return ec.fieldContext_VulnerabilitySummaryForTeam_total(ctx, field)
 			case "riskScore":
 				return ec.fieldContext_VulnerabilitySummaryForTeam_riskScore(ctx, field)
 			case "critical":
@@ -46229,68 +45674,11 @@ func (ec *executionContext) fieldContext_Team_vulnerabilitiesSummary(ctx context
 				return ec.fieldContext_VulnerabilitySummaryForTeam_unassigned(ctx, field)
 			case "bomCount":
 				return ec.fieldContext_VulnerabilitySummaryForTeam_bomCount(ctx, field)
+			case "coverage":
+				return ec.fieldContext_VulnerabilitySummaryForTeam_coverage(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type VulnerabilitySummaryForTeam", field.Name)
 		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Team_vulnerabilityMetrics(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().VulnerabilityMetrics(rctx, obj, fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date), fc.Args["environment"].(*string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.VulnerabilityMetrics)
-	fc.Result = res
-	return ec.marshalNVulnerabilityMetrics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityMetrics(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Team_vulnerabilityMetrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Team",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "data":
-				return ec.fieldContext_VulnerabilityMetrics_data(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type VulnerabilityMetrics", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_vulnerabilityMetrics_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -46879,12 +46267,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(ctx context.Context,
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -47007,12 +46391,8 @@ func (ec *executionContext) fieldContext_TeamList_nodes(ctx context.Context, fie
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -47187,12 +46567,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(ctx context.Context, fi
 				return ec.fieldContext_Team_naisjobs(ctx, field)
 			case "deployments":
 				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilities":
-				return ec.fieldContext_Team_vulnerabilities(ctx, field)
 			case "vulnerabilitiesSummary":
 				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "vulnerabilityMetrics":
-				return ec.fieldContext_Team_vulnerabilityMetrics(ctx, field)
 			case "secrets":
 				return ec.fieldContext_Team_secrets(ctx, field)
 			case "secret":
@@ -49723,8 +49099,6 @@ func (ec *executionContext) fieldContext_Vulnerability_summary(ctx context.Conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "total":
-				return ec.fieldContext_VulnerabilitySummaryForTeam_total(ctx, field)
 			case "riskScore":
 				return ec.fieldContext_VulnerabilitySummaryForTeam_riskScore(ctx, field)
 			case "critical":
@@ -49739,6 +49113,8 @@ func (ec *executionContext) fieldContext_Vulnerability_summary(ctx context.Conte
 				return ec.fieldContext_VulnerabilitySummaryForTeam_unassigned(ctx, field)
 			case "bomCount":
 				return ec.fieldContext_VulnerabilitySummaryForTeam_bomCount(ctx, field)
+			case "coverage":
+				return ec.fieldContext_VulnerabilitySummaryForTeam_coverage(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type VulnerabilitySummaryForTeam", field.Name)
 		},
@@ -49785,574 +49161,6 @@ func (ec *executionContext) fieldContext_Vulnerability_hasBom(ctx context.Contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilityList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityList) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityList_nodes(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Nodes, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Vulnerability)
-	fc.Result = res
-	return ec.marshalNVulnerability2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilityList_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityList",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Vulnerability_id(ctx, field)
-			case "appName":
-				return ec.fieldContext_Vulnerability_appName(ctx, field)
-			case "env":
-				return ec.fieldContext_Vulnerability_env(ctx, field)
-			case "findingsLink":
-				return ec.fieldContext_Vulnerability_findingsLink(ctx, field)
-			case "summary":
-				return ec.fieldContext_Vulnerability_summary(ctx, field)
-			case "hasBom":
-				return ec.fieldContext_Vulnerability_hasBom(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Vulnerability", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilityList_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityList) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityList_pageInfo(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PageInfo, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.PageInfo)
-	fc.Result = res
-	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilityList_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityList",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "totalCount":
-				return ec.fieldContext_PageInfo_totalCount(ctx, field)
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilityMetric_date(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityMetric) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityMetric_date(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Date, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilityMetric_date(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityMetric",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilityMetric_critical(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityMetric) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityMetric_critical(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Critical, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilityMetric_critical(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityMetric",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilityMetric_high(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityMetric) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityMetric_high(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.High, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilityMetric_high(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityMetric",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilityMetric_medium(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityMetric) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityMetric_medium(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Medium, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilityMetric_medium(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityMetric",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilityMetric_low(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityMetric) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityMetric_low(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Low, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilityMetric_low(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityMetric",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilityMetric_unassigned(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityMetric) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityMetric_unassigned(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Unassigned, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilityMetric_unassigned(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityMetric",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilityMetric_riskScore(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityMetric) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityMetric_riskScore(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.RiskScore, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilityMetric_riskScore(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityMetric",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilityMetric_count(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityMetric) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityMetric_count(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Count, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilityMetric_count(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityMetric",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilityMetrics_data(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityMetrics) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilityMetrics_data(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.VulnerabilityMetric)
-	fc.Result = res
-	return ec.marshalNVulnerabilityMetric2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityMetricᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilityMetrics_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilityMetrics",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "date":
-				return ec.fieldContext_VulnerabilityMetric_date(ctx, field)
-			case "critical":
-				return ec.fieldContext_VulnerabilityMetric_critical(ctx, field)
-			case "high":
-				return ec.fieldContext_VulnerabilityMetric_high(ctx, field)
-			case "medium":
-				return ec.fieldContext_VulnerabilityMetric_medium(ctx, field)
-			case "low":
-				return ec.fieldContext_VulnerabilityMetric_low(ctx, field)
-			case "unassigned":
-				return ec.fieldContext_VulnerabilityMetric_unassigned(ctx, field)
-			case "riskScore":
-				return ec.fieldContext_VulnerabilityMetric_riskScore(ctx, field)
-			case "count":
-				return ec.fieldContext_VulnerabilityMetric_count(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type VulnerabilityMetric", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilitySummaryForTeam_total(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilitySummaryForTeam) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilitySummaryForTeam_total(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Total, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilitySummaryForTeam_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilitySummaryForTeam",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -50661,6 +49469,50 @@ func (ec *executionContext) fieldContext_VulnerabilitySummaryForTeam_bomCount(ct
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VulnerabilitySummaryForTeam_coverage(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilitySummaryForTeam) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilitySummaryForTeam_coverage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Coverage, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VulnerabilitySummaryForTeam_coverage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnerabilitySummaryForTeam",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -53038,40 +51890,6 @@ func (ec *executionContext) unmarshalInputVariableInput(ctx context.Context, obj
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputVulnerabilityFilter(ctx context.Context, obj interface{}) (model.VulnerabilityFilter, error) {
-	var it model.VulnerabilityFilter
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"envs", "requireSbom"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "envs":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("envs"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Envs = data
-		case "requireSbom":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requireSbom"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.RequireSbom = data
-		}
-	}
-
-	return it, nil
-}
-
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -53850,39 +52668,6 @@ func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj 
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "vulnerabilities":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._App_vulnerabilities(ctx, field, obj)
 				return res
 			}
 
@@ -58750,39 +57535,6 @@ func (ec *executionContext) _NaisJob(ctx context.Context, sel ast.SelectionSet, 
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "vulnerabilities":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._NaisJob_vulnerabilities(ctx, field, obj)
 				return res
 			}
 
@@ -64031,42 +62783,6 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "vulnerabilities":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Team_vulnerabilities(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "vulnerabilitiesSummary":
 			field := field
 
@@ -64077,42 +62793,6 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Team_vulnerabilitiesSummary(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "vulnerabilityMetrics":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Team_vulnerabilityMetrics(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -65712,163 +64392,6 @@ func (ec *executionContext) _Vulnerability(ctx context.Context, sel ast.Selectio
 	return out
 }
 
-var vulnerabilityListImplementors = []string{"VulnerabilityList"}
-
-func (ec *executionContext) _VulnerabilityList(ctx context.Context, sel ast.SelectionSet, obj *model.VulnerabilityList) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, vulnerabilityListImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("VulnerabilityList")
-		case "nodes":
-			out.Values[i] = ec._VulnerabilityList_nodes(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "pageInfo":
-			out.Values[i] = ec._VulnerabilityList_pageInfo(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var vulnerabilityMetricImplementors = []string{"VulnerabilityMetric"}
-
-func (ec *executionContext) _VulnerabilityMetric(ctx context.Context, sel ast.SelectionSet, obj *model.VulnerabilityMetric) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, vulnerabilityMetricImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("VulnerabilityMetric")
-		case "date":
-			out.Values[i] = ec._VulnerabilityMetric_date(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "critical":
-			out.Values[i] = ec._VulnerabilityMetric_critical(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "high":
-			out.Values[i] = ec._VulnerabilityMetric_high(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "medium":
-			out.Values[i] = ec._VulnerabilityMetric_medium(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "low":
-			out.Values[i] = ec._VulnerabilityMetric_low(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "unassigned":
-			out.Values[i] = ec._VulnerabilityMetric_unassigned(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "riskScore":
-			out.Values[i] = ec._VulnerabilityMetric_riskScore(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "count":
-			out.Values[i] = ec._VulnerabilityMetric_count(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var vulnerabilityMetricsImplementors = []string{"VulnerabilityMetrics"}
-
-func (ec *executionContext) _VulnerabilityMetrics(ctx context.Context, sel ast.SelectionSet, obj *model.VulnerabilityMetrics) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, vulnerabilityMetricsImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("VulnerabilityMetrics")
-		case "data":
-			out.Values[i] = ec._VulnerabilityMetrics_data(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var vulnerabilitySummaryForTeamImplementors = []string{"VulnerabilitySummaryForTeam"}
 
 func (ec *executionContext) _VulnerabilitySummaryForTeam(ctx context.Context, sel ast.SelectionSet, obj *model.VulnerabilitySummaryForTeam) graphql.Marshaler {
@@ -65880,11 +64403,6 @@ func (ec *executionContext) _VulnerabilitySummaryForTeam(ctx context.Context, se
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("VulnerabilitySummaryForTeam")
-		case "total":
-			out.Values[i] = ec._VulnerabilitySummaryForTeam_total(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "riskScore":
 			out.Values[i] = ec._VulnerabilitySummaryForTeam_riskScore(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -65917,6 +64435,11 @@ func (ec *executionContext) _VulnerabilitySummaryForTeam(ctx context.Context, se
 			}
 		case "bomCount":
 			out.Values[i] = ec._VulnerabilitySummaryForTeam_bomCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "coverage":
+			out.Values[i] = ec._VulnerabilitySummaryForTeam_coverage(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -70639,142 +69162,6 @@ func (ec *executionContext) marshalNVulnIdAlias2ᚖgithubᚗcomᚋnaisᚋapiᚋi
 	return ec._VulnIdAlias(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNVulnerability2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Vulnerability) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNVulnerability2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerability(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNVulnerability2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerability(ctx context.Context, sel ast.SelectionSet, v *model.Vulnerability) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Vulnerability(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNVulnerabilityList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityList(ctx context.Context, sel ast.SelectionSet, v model.VulnerabilityList) graphql.Marshaler {
-	return ec._VulnerabilityList(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNVulnerabilityList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityList(ctx context.Context, sel ast.SelectionSet, v *model.VulnerabilityList) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._VulnerabilityList(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNVulnerabilityMetric2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityMetricᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.VulnerabilityMetric) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNVulnerabilityMetric2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityMetric(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNVulnerabilityMetric2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityMetric(ctx context.Context, sel ast.SelectionSet, v *model.VulnerabilityMetric) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._VulnerabilityMetric(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNVulnerabilityMetrics2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityMetrics(ctx context.Context, sel ast.SelectionSet, v model.VulnerabilityMetrics) graphql.Marshaler {
-	return ec._VulnerabilityMetrics(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNVulnerabilityMetrics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityMetrics(ctx context.Context, sel ast.SelectionSet, v *model.VulnerabilityMetrics) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._VulnerabilityMetrics(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalNVulnerabilitySummaryForTeam2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilitySummaryForTeam(ctx context.Context, sel ast.SelectionSet, v model.VulnerabilitySummaryForTeam) graphql.Marshaler {
 	return ec._VulnerabilitySummaryForTeam(ctx, sel, &v)
 }
@@ -71529,21 +69916,6 @@ func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOVulnerability2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerability(ctx context.Context, sel ast.SelectionSet, v *model.Vulnerability) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Vulnerability(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOVulnerabilityFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilityFilter(ctx context.Context, v interface{}) (*model.VulnerabilityFilter, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputVulnerabilityFilter(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOVulnerabilitySummaryForTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilitySummaryForTeam(ctx context.Context, sel ast.SelectionSet, v *model.VulnerabilitySummaryForTeam) graphql.Marshaler {

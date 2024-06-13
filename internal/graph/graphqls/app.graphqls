@@ -64,7 +64,6 @@ type App implements Workload {
   persistence: [Persistence!]!
   manifest: String!
   team: Team!
-  vulnerabilities: Vulnerability
   secrets: [Secret!]!
 }
 

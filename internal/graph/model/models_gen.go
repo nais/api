@@ -985,51 +985,15 @@ type Vulnerability struct {
 	HasBom       bool                         `json:"hasBom"`
 }
 
-type VulnerabilityFilter struct {
-	// Filter by environment
-	Envs []string `json:"envs,omitempty"`
-	// Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report.
-	RequireSbom *bool `json:"requireSbom,omitempty"`
-}
-
-type VulnerabilityList struct {
-	Nodes    []*Vulnerability `json:"nodes"`
-	PageInfo PageInfo         `json:"pageInfo"`
-}
-
-type VulnerabilityMetric struct {
-	// The date of the metric.
-	Date time.Time `json:"date"`
-	// The number of critical vulnerabilities.
-	Critical int `json:"critical"`
-	// The number of high vulnerabilities.
-	High int `json:"high"`
-	// The number of medium vulnerabilities.
-	Medium int `json:"medium"`
-	// The number of low vulnerabilities.
-	Low int `json:"low"`
-	// The number of unassigned vulnerabilities.
-	Unassigned int `json:"unassigned"`
-	// The weighted severity score calculated from the number of vulnerabilities.
-	RiskScore int `json:"riskScore"`
-	// The number of applications with vulnerabilities.
-	Count int `json:"count"`
-}
-
-type VulnerabilityMetrics struct {
-	// The metrics for the team's applications.
-	Data []*VulnerabilityMetric `json:"data"`
-}
-
 type VulnerabilitySummaryForTeam struct {
-	Total      int `json:"total"`
-	RiskScore  int `json:"riskScore"`
-	Critical   int `json:"critical"`
-	High       int `json:"high"`
-	Medium     int `json:"medium"`
-	Low        int `json:"low"`
-	Unassigned int `json:"unassigned"`
-	BomCount   int `json:"bomCount"`
+	RiskScore  int     `json:"riskScore"`
+	Critical   int     `json:"critical"`
+	High       int     `json:"high"`
+	Medium     int     `json:"medium"`
+	Low        int     `json:"low"`
+	Unassigned int     `json:"unassigned"`
+	BomCount   int     `json:"bomCount"`
+	Coverage   float64 `json:"coverage"`
 }
 
 type ErrorLevel string

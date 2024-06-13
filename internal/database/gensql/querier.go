@@ -27,7 +27,6 @@ type Querier interface {
 	CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults
 	CreateAPIKey(ctx context.Context, arg CreateAPIKeyParams) error
 	CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) error
-	CreateDependencytrackProject(ctx context.Context, arg CreateDependencytrackProjectParams) error
 	CreateRepositoryAuthorization(ctx context.Context, arg CreateRepositoryAuthorizationParams) error
 	CreateServiceAccount(ctx context.Context, name string) (*ServiceAccount, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (*Session, error)
@@ -43,10 +42,6 @@ type Querier interface {
 	DailyCostForTeam(ctx context.Context, arg DailyCostForTeamParams) ([]*Cost, error)
 	// DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
 	DailyEnvCostForTeam(ctx context.Context, arg DailyEnvCostForTeamParams) ([]*DailyEnvCostForTeamRow, error)
-	// DailyVulnerabilityForTeam will return the metrics for the given team from first to last date.
-	DailyVulnerabilityForTeam(ctx context.Context, arg DailyVulnerabilityForTeamParams) ([]*DailyVulnerabilityForTeamRow, error)
-	// DailyVulnerabilityForTeamAndEnvironment will return the metrics for the given team and environment from first to last date.
-	DailyVulnerabilityForTeamAndEnvironment(ctx context.Context, arg DailyVulnerabilityForTeamAndEnvironmentParams) ([]*DailyVulnerabilityForTeamAndEnvironmentRow, error)
 	DeleteAllEnvironments(ctx context.Context) error
 	DeleteReconcilerConfig(ctx context.Context, arg DeleteReconcilerConfigParams) error
 	DeleteReconcilerStateForTeam(ctx context.Context, arg DeleteReconcilerStateForTeamParams) error
@@ -165,9 +160,6 @@ type Querier interface {
 	UpsertReconcilerConfig(ctx context.Context, arg UpsertReconcilerConfigParams) error
 	UpsertReconcilerState(ctx context.Context, arg UpsertReconcilerStateParams) (*ReconcilerState, error)
 	UpsertTeamEnvironment(ctx context.Context, arg UpsertTeamEnvironmentParams) (*TeamEnvironment, error)
-	// VulnerabilityMetricsMaxDate will return the last date that has a metrics for the given project id.
-	VulnerabilityMetricsMaxDate(ctx context.Context, arg VulnerabilityMetricsMaxDateParams) (pgtype.Date, error)
-	VulnerabilityMetricsUpsert(ctx context.Context, arg []VulnerabilityMetricsUpsertParams) *VulnerabilityMetricsUpsertBatchResults
 }
 
 var _ Querier = (*Queries)(nil)

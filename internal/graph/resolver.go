@@ -33,7 +33,6 @@ import (
 	"github.com/nais/api/internal/search"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/sqlinstance"
-	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
@@ -118,8 +117,6 @@ type HookdClient interface {
 }
 
 type DependencytrackClient interface {
-	VulnerabilitySummary(ctx context.Context, app *dependencytrack.WorkloadInstance) (*model.Vulnerability, error)
-	GetVulnerabilities(ctx context.Context, apps []*dependencytrack.WorkloadInstance, filters ...dependencytrack.Filter) ([]*model.Vulnerability, error)
 	GetMetadataForImageByProjectID(ctx context.Context, projectID string) (*model.ImageDetails, error)
 	GetMetadataForImage(ctx context.Context, image string) (*model.ImageDetails, error)
 	GetFindingsForImageByProjectID(ctx context.Context, projectID string, suppressed bool) ([]*model.Finding, error)

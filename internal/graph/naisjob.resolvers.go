@@ -9,7 +9,6 @@ import (
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"k8s.io/utils/ptr"
 )
 
@@ -69,10 +68,6 @@ func (r *naisJobResolver) Secrets(ctx context.Context, obj *model.NaisJob) ([]*m
 	}
 
 	return r.k8sClient.SecretsForNaisJob(ctx, obj)
-}
-
-func (r *naisJobResolver) Vulnerabilities(ctx context.Context, obj *model.NaisJob) (*model.Vulnerability, error) {
-	return r.dependencyTrackClient.VulnerabilitySummary(ctx, &dependencytrack.WorkloadInstance{Env: obj.Env.Name, Team: obj.GQLVars.Team.String(), Name: obj.Name, Image: obj.Image, Kind: "job"})
 }
 
 func (r *queryResolver) Naisjob(ctx context.Context, name string, team slug.Slug, env string) (*model.NaisJob, error) {

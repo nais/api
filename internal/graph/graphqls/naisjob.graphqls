@@ -71,7 +71,6 @@ type NaisJob implements Workload {
   parallelism: Int!
   retries: Int!
   secrets: [Secret!]!
-  vulnerabilities: Vulnerability
 }
 
 type NaisJobList {
