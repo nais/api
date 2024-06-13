@@ -36,7 +36,7 @@ type BaseAuditEvent implements AuditEvent {
   team: Slug!
 }
 
-type AuditEventAddMember implements AuditEvent {
+type AuditEventMemberAdded implements AuditEvent {
   id: ID!
   action: AuditEventAction!
   actor: String!
@@ -50,7 +50,7 @@ type AuditEventAddMember implements AuditEvent {
   role: TeamRole!
 }
 
-type AuditEventRemoveMember implements AuditEvent {
+type AuditEventMemberRemoved implements AuditEvent {
   id: ID!
   action: AuditEventAction!
   actor: String!
@@ -63,7 +63,7 @@ type AuditEventRemoveMember implements AuditEvent {
   memberEmail: String!
 }
 
-type AuditEventSetMemberRole implements AuditEvent {
+type AuditEventMemberSetRole implements AuditEvent {
   id: ID!
   action: AuditEventAction!
   actor: String!

@@ -39,18 +39,18 @@ var mappers = resourceActionMappers{
 	},
 	model.AuditEventResourceTypeTeamMember: {
 		model.AuditEventActionTeamMemberAdded: eventWithData(
-			func(data auditevent.AuditEventAddMemberData, base auditevent.BaseAuditEvent) auditevent.AuditEvent {
-				return auditevent.NewAuditEventAddMember(base, data)
+			func(data auditevent.AuditEventMemberAddedData, base auditevent.BaseAuditEvent) auditevent.AuditEvent {
+				return auditevent.NewAuditEventMemberAdded(base, data)
 			},
 		),
 		model.AuditEventActionTeamMemberRemoved: eventWithData(
-			func(data auditevent.AuditEventRemoveMemberData, base auditevent.BaseAuditEvent) auditevent.AuditEvent {
-				return auditevent.NewAuditEventRemoveMember(base, data)
+			func(data auditevent.AuditEventMemberRemovedData, base auditevent.BaseAuditEvent) auditevent.AuditEvent {
+				return auditevent.NewAuditEventMemberRemoved(base, data)
 			},
 		),
 		model.AuditEventActionTeamMemberSetRole: eventWithData(
-			func(data auditevent.AuditEventSetMemberRoleData, base auditevent.BaseAuditEvent) auditevent.AuditEvent {
-				return auditevent.NewAuditEventSetMemberRole(base, data)
+			func(data auditevent.AuditEventMemberSetRoleData, base auditevent.BaseAuditEvent) auditevent.AuditEvent {
+				return auditevent.NewAuditEventMemberSetRole(base, data)
 			},
 		),
 	},

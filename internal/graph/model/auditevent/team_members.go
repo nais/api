@@ -6,70 +6,70 @@ import (
 	"github.com/nais/api/internal/graph/model"
 )
 
-type AuditEventAddMember struct {
+type AuditEventMemberAdded struct {
 	BaseAuditEvent
-	AuditEventAddMemberData
+	AuditEventMemberAddedData
 }
 
-type AuditEventAddMemberData struct {
+type AuditEventMemberAddedData struct {
 	MemberEmail string         `json:"memberEmail"`
 	Role        model.TeamRole `json:"role"`
 }
 
-func (a AuditEventAddMember) GetData() any {
-	return a.AuditEventAddMemberData
+func (a AuditEventMemberAdded) GetData() any {
+	return a.AuditEventMemberAddedData
 }
 
-func (a AuditEventAddMember) IsAuditEvent() {}
+func (a AuditEventMemberAdded) IsAuditEvent() {}
 
-func NewAuditEventAddMember(base BaseAuditEvent, data AuditEventAddMemberData) AuditEventAddMember {
-	return AuditEventAddMember{
-		BaseAuditEvent:          base.WithMessage(fmt.Sprintf("Added %q with role %q", data.MemberEmail, data.Role)),
-		AuditEventAddMemberData: data,
+func NewAuditEventMemberAdded(base BaseAuditEvent, data AuditEventMemberAddedData) AuditEventMemberAdded {
+	return AuditEventMemberAdded{
+		BaseAuditEvent:            base.WithMessage(fmt.Sprintf("Added %q with role %q", data.MemberEmail, data.Role)),
+		AuditEventMemberAddedData: data,
 	}
 }
 
-type AuditEventRemoveMember struct {
+type AuditEventMemberRemoved struct {
 	BaseAuditEvent
-	AuditEventRemoveMemberData
+	AuditEventMemberRemovedData
 }
 
-type AuditEventRemoveMemberData struct {
+type AuditEventMemberRemovedData struct {
 	MemberEmail string `json:"memberEmail"`
 }
 
-func (a AuditEventRemoveMember) GetData() any {
-	return a.AuditEventRemoveMemberData
+func (a AuditEventMemberRemoved) GetData() any {
+	return a.AuditEventMemberRemovedData
 }
 
-func (a AuditEventRemoveMember) IsAuditEvent() {}
+func (a AuditEventMemberRemoved) IsAuditEvent() {}
 
-func NewAuditEventRemoveMember(base BaseAuditEvent, data AuditEventRemoveMemberData) AuditEventRemoveMember {
-	return AuditEventRemoveMember{
-		BaseAuditEvent:             base.WithMessage(fmt.Sprintf("Removed %q", data.MemberEmail)),
-		AuditEventRemoveMemberData: data,
+func NewAuditEventMemberRemoved(base BaseAuditEvent, data AuditEventMemberRemovedData) AuditEventMemberRemoved {
+	return AuditEventMemberRemoved{
+		BaseAuditEvent:              base.WithMessage(fmt.Sprintf("Removed %q", data.MemberEmail)),
+		AuditEventMemberRemovedData: data,
 	}
 }
 
-type AuditEventSetMemberRole struct {
+type AuditEventMemberSetRole struct {
 	BaseAuditEvent
-	AuditEventSetMemberRoleData
+	AuditEventMemberSetRoleData
 }
 
-type AuditEventSetMemberRoleData struct {
+type AuditEventMemberSetRoleData struct {
 	MemberEmail string         `json:"memberEmail"`
 	Role        model.TeamRole `json:"role"`
 }
 
-func (a AuditEventSetMemberRole) GetData() any {
-	return a.AuditEventSetMemberRoleData
+func (a AuditEventMemberSetRole) GetData() any {
+	return a.AuditEventMemberSetRoleData
 }
 
-func (a AuditEventSetMemberRole) IsAuditEvent() {}
+func (a AuditEventMemberSetRole) IsAuditEvent() {}
 
-func NewAuditEventSetMemberRole(base BaseAuditEvent, data AuditEventSetMemberRoleData) AuditEventSetMemberRole {
-	return AuditEventSetMemberRole{
+func NewAuditEventMemberSetRole(base BaseAuditEvent, data AuditEventMemberSetRoleData) AuditEventMemberSetRole {
+	return AuditEventMemberSetRole{
 		BaseAuditEvent:              base.WithMessage(fmt.Sprintf("Set %q to %q", data.MemberEmail, data.Role)),
-		AuditEventSetMemberRoleData: data,
+		AuditEventMemberSetRoleData: data,
 	}
 }

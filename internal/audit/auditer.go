@@ -19,7 +19,7 @@ func NewAuditor(db database.Database) *Auditor {
 }
 
 func (a *Auditor) TeamMemberAdded(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, memberEmail string, role model.TeamRole) error {
-	return a.db.CreateAuditEvent(ctx, auditevent.NewAuditEventAddMember(
+	return a.db.CreateAuditEvent(ctx, auditevent.NewAuditEventMemberAdded(
 		baseAuditEvent(
 			model.AuditEventResourceTypeTeamMember,
 			model.AuditEventActionTeamMemberAdded,
@@ -27,14 +27,14 @@ func (a *Auditor) TeamMemberAdded(ctx context.Context, actor authz.Authenticated
 			team,
 			team.String(),
 		),
-		auditevent.AuditEventAddMemberData{
+		auditevent.AuditEventMemberAddedData{
 			MemberEmail: memberEmail,
 			Role:        role,
 		}))
 }
 
 func (a *Auditor) TeamMemberRemoved(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, memberEmail string) error {
-	return a.db.CreateAuditEvent(ctx, auditevent.NewAuditEventRemoveMember(
+	return a.db.CreateAuditEvent(ctx, auditevent.NewAuditEventMemberRemoved(
 		baseAuditEvent(
 			model.AuditEventResourceTypeTeamMember,
 			model.AuditEventActionTeamMemberRemoved,
@@ -42,19 +42,19 @@ func (a *Auditor) TeamMemberRemoved(ctx context.Context, actor authz.Authenticat
 			team,
 			team.String(),
 		),
-		auditevent.AuditEventRemoveMemberData{
+		auditevent.AuditEventMemberRemovedData{
 			MemberEmail: memberEmail,
 		}))
 }
 
 func (a *Auditor) TeamMemberSetRole(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, memberEmail string, role model.TeamRole) error {
-	return a.db.CreateAuditEvent(ctx, auditevent.NewAuditEventSetMemberRole(baseAuditEvent(
+	return a.db.CreateAuditEvent(ctx, auditevent.NewAuditEventMemberSetRole(baseAuditEvent(
 		model.AuditEventResourceTypeTeamMember,
 		model.AuditEventActionTeamMemberSetRole,
 		actor,
 		team,
 		team.String(),
-	), auditevent.AuditEventSetMemberRoleData{
+	), auditevent.AuditEventMemberSetRoleData{
 		MemberEmail: memberEmail,
 		Role:        role,
 	}))
