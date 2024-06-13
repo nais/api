@@ -26,7 +26,7 @@ var mappers = resourceActionMappers{
 		model.AuditEventActionTeamDeletionConfirmed: func(row *database.AuditEvent) (auditevent.AuditEvent, error) {
 			return baseEvent(row, "Confirmed team deletion"), nil
 		},
-		model.AuditEventActionTeamRotatedDeployKey: func(row *database.AuditEvent) (auditevent.AuditEvent, error) {
+		model.AuditEventActionTeamDeployKeyRotated: func(row *database.AuditEvent) (auditevent.AuditEvent, error) {
 			return baseEvent(row, "Rotated deploy key"), nil
 		},
 		model.AuditEventActionTeamSynchronized: func(row *database.AuditEvent) (auditevent.AuditEvent, error) {

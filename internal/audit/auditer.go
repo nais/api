@@ -93,14 +93,14 @@ func (a *Auditor) TeamDeletionRequested(ctx context.Context, actor authz.Authent
 func (a *Auditor) TeamRotatedDeployKey(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug) error {
 	return a.db.CreateAuditEvent(ctx, baseAuditEvent(
 		model.AuditEventResourceTypeTeam,
-		model.AuditEventActionTeamRotatedDeployKey,
+		model.AuditEventActionTeamDeployKeyRotated,
 		actor,
 		team,
 		team.String(),
 	))
 }
 
-func (a *Auditor) TeamSynchronize(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug) error {
+func (a *Auditor) TeamSynchronized(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug) error {
 	return a.db.CreateAuditEvent(ctx, baseAuditEvent(
 		model.AuditEventResourceTypeTeam,
 		model.AuditEventActionTeamSynchronized,

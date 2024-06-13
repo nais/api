@@ -1043,7 +1043,7 @@ const (
 	AuditEventActionTeamCreated           AuditEventAction = "TEAM_CREATED"
 	AuditEventActionTeamDeletionConfirmed AuditEventAction = "TEAM_DELETION_CONFIRMED"
 	AuditEventActionTeamDeletionRequested AuditEventAction = "TEAM_DELETION_REQUESTED"
-	AuditEventActionTeamRotatedDeployKey  AuditEventAction = "TEAM_ROTATED_DEPLOY_KEY"
+	AuditEventActionTeamDeployKeyRotated  AuditEventAction = "TEAM_DEPLOY_KEY_ROTATED"
 	AuditEventActionTeamSynchronized      AuditEventAction = "TEAM_SYNCHRONIZED"
 	AuditEventActionTeamUpdated           AuditEventAction = "TEAM_UPDATED"
 	AuditEventActionTeamMemberAdded       AuditEventAction = "TEAM_MEMBER_ADDED"
@@ -1055,7 +1055,7 @@ var AllAuditEventAction = []AuditEventAction{
 	AuditEventActionTeamCreated,
 	AuditEventActionTeamDeletionConfirmed,
 	AuditEventActionTeamDeletionRequested,
-	AuditEventActionTeamRotatedDeployKey,
+	AuditEventActionTeamDeployKeyRotated,
 	AuditEventActionTeamSynchronized,
 	AuditEventActionTeamUpdated,
 	AuditEventActionTeamMemberAdded,
@@ -1065,7 +1065,7 @@ var AllAuditEventAction = []AuditEventAction{
 
 func (e AuditEventAction) IsValid() bool {
 	switch e {
-	case AuditEventActionTeamCreated, AuditEventActionTeamDeletionConfirmed, AuditEventActionTeamDeletionRequested, AuditEventActionTeamRotatedDeployKey, AuditEventActionTeamSynchronized, AuditEventActionTeamUpdated, AuditEventActionTeamMemberAdded, AuditEventActionTeamMemberRemoved, AuditEventActionTeamMemberSetRole:
+	case AuditEventActionTeamCreated, AuditEventActionTeamDeletionConfirmed, AuditEventActionTeamDeletionRequested, AuditEventActionTeamDeployKeyRotated, AuditEventActionTeamSynchronized, AuditEventActionTeamUpdated, AuditEventActionTeamMemberAdded, AuditEventActionTeamMemberRemoved, AuditEventActionTeamMemberSetRole:
 		return true
 	}
 	return false

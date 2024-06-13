@@ -197,7 +197,7 @@ func (r *mutationResolver) SynchronizeTeam(ctx context.Context, slug slug.Slug) 
 
 	correlationID := uuid.New()
 
-	if err := r.auditer.TeamSynchronize(ctx, actor.User, slug); err != nil {
+	if err := r.auditer.TeamSynchronized(ctx, actor.User, slug); err != nil {
 		return nil, err
 	}
 
