@@ -436,7 +436,7 @@ type Team {
   ): AppList!
 
   "The deploy key of the team."
-  deployKey: DeploymentKey!
+  deployKey: DeploymentKey! @auth
 
   "The NAIS jobs owned by the team."
   naisjobs(

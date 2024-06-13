@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
@@ -345,6 +346,45 @@ func (r *reconcilerResolver) AuditLogs(ctx context.Context, obj *model.Reconcile
 	}, nil
 }
 
+func (r *reconcilerResolver) Errors(ctx context.Context, obj *model.Reconciler, offset *int, limit *int) (*model.ReconcilerErrorList, error) {
+	p := model.NewPagination(offset, limit)
+	errors, total, err := r.database.GetReconcilerErrors(ctx, obj.Name, database.Page{
+		Limit:  p.Limit,
+		Offset: p.Offset,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.ReconcilerErrorList{
+		Nodes: func([]*database.ReconcilerError) []*model.ReconcilerError {
+			ret := make([]*model.ReconcilerError, len(errors))
+			for i, row := range errors {
+				ret[i] = &model.ReconcilerError{
+					ID:            scalar.ReconcilerErrorIdent(int(row.ID)),
+					CorrelationID: row.CorrelationID,
+					CreatedAt:     row.CreatedAt.Time,
+					Message:       row.ErrorMessage,
+					TeamSlug:      row.TeamSlug,
+				}
+			}
+			return ret
+		}(errors),
+		PageInfo: model.NewPageInfo(p, total),
+	}, nil
+}
+
+func (r *reconcilerErrorResolver) Team(ctx context.Context, obj *model.ReconcilerError) (*model.Team, error) {
+	return loader.GetTeam(ctx, obj.TeamSlug)
+}
+
 func (r *Resolver) Reconciler() gengql.ReconcilerResolver { return &reconcilerResolver{r} }
 
-type reconcilerResolver struct{ *Resolver }
+func (r *Resolver) ReconcilerError() gengql.ReconcilerErrorResolver {
+	return &reconcilerErrorResolver{r}
+}
+
+type (
+	reconcilerResolver      struct{ *Resolver }
+	reconcilerErrorResolver struct{ *Resolver }
+)

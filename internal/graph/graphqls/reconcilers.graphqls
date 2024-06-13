@@ -98,6 +98,22 @@ type Reconciler {
 
   "Audit logs for this reconciler."
   auditLogs(offset: Int, limit: Int): AuditLogList! @admin
+
+  "Potential errors that have occurred during the reconciler's operation."
+  errors(offset: Int, limit: Int): ReconcilerErrorList! @admin
+}
+
+type ReconcilerErrorList {
+  nodes: [ReconcilerError!]!
+  pageInfo: PageInfo!
+}
+
+type ReconcilerError {
+  id: ID!
+  correlationId: ID!
+  createdAt: Time!
+  message: String!
+  team: Team!
 }
 
 "Reconciler configuration type."
