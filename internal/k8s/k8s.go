@@ -38,6 +38,28 @@ type Database interface {
 
 type ClusterInformers map[string]*Informers
 
+type ExternalResourceInformers []struct {
+	GroupVersion schema.GroupVersion
+	Resource     string
+}
+
+func ExternalInformers() ExternalResourceInformers {
+	return ExternalResourceInformers{
+		{
+			GroupVersion: kafka_nais_io_v1.GroupVersion,
+			Resource:     "topics",
+		},
+		{
+			GroupVersion: aiven_io_v1alpha1.GroupVersion,
+			Resource:     "redis",
+		},
+		{
+			GroupVersion: aiven_io_v1alpha1.GroupVersion,
+			Resource:     "opensearches",
+		},
+	}
+}
+
 func (c ClusterInformers) Start(ctx context.Context, log logrus.FieldLogger) error {
 	for cluster, informer := range c {
 		log := log.WithField("cluster", cluster)
@@ -244,30 +266,12 @@ func New(tenant string, cfg Config, db Database, fake bool, log logrus.FieldLogg
 			dynamicClient: dynamicClient,
 		}
 
-		externalResourceInformers := []struct {
-			GroupVersion schema.GroupVersion
-			Resource     string
-		}{
-			{
-				GroupVersion: kafka_nais_io_v1.GroupVersion,
-				Resource:     "topics",
-			},
-			{
-				GroupVersion: aiven_io_v1alpha1.GroupVersion,
-				Resource:     "redis",
-			},
-			{
-				GroupVersion: aiven_io_v1alpha1.GroupVersion,
-				Resource:     "opensearches",
-			},
-		}
-
 		if clientSet, ok := clientSet.(*kubernetes.Clientset); ok {
-			if err := externalInformerResources(externalResourceInformers, clientSet, infs[cluster], dinf); err != nil {
+			if err := externalInformerResources(clientSet, infs[cluster], dinf); err != nil {
 				return nil, err
 			}
 		} else if fake {
-			for _, externalResourceInformer := range externalResourceInformers {
+			for _, externalResourceInformer := range ExternalInformers() {
 				switch externalResourceInformer.Resource {
 				case "topics":
 					infs[cluster].KafkaTopic = dinf.ForResource(externalResourceInformer.GroupVersion.WithResource(externalResourceInformer.Resource))
@@ -289,12 +293,9 @@ func New(tenant string, cfg Config, db Database, fake bool, log logrus.FieldLogg
 	}, nil
 }
 
-func externalInformerResources(externalResourceInformers []struct {
-	GroupVersion schema.GroupVersion
-	Resource     string
-}, clientSet *kubernetes.Clientset, inf *Informers, dinf dynamicinformer.DynamicSharedInformerFactory,
+func externalInformerResources(clientSet *kubernetes.Clientset, inf *Informers, dinf dynamicinformer.DynamicSharedInformerFactory,
 ) error {
-	for _, externalResourceInformer := range externalResourceInformers {
+	for _, externalResourceInformer := range ExternalInformers() {
 		resources, err := discovery.NewDiscoveryClient(clientSet.RESTClient()).ServerResourcesForGroupVersion(externalResourceInformer.GroupVersion.String())
 		if err != nil && !strings.Contains(err.Error(), "the server could not find the requested resource") {
 			return fmt.Errorf("get server resources for group version: %w", err)
