@@ -238,7 +238,7 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 	}
 
 	return &model.ImageDetails{
-		Name:       p.Name + ":" + p.Version,
+		Name:       image,
 		ID:         scalar.ImageIdent(p.Name, p.Version),
 		Rekor:      parseRekorTags(p.Tags),
 		Version:    p.Version,

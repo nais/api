@@ -1580,38 +1580,6 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 	if err != nil {
 		return nil, fmt.Errorf("getting metadata for team %q: %w", obj.Slug.String(), err)
 	}
-
-	retVal := &model.VulnerabilitySummaryForTeam{}
-	for _, image := range images {
-		if image.Summary == nil {
-			continue
-		}
-		if image.Summary.Critical > 0 {
-			retVal.Critical += image.Summary.Critical
-		}
-		if image.Summary.High > 0 {
-			retVal.High += image.Summary.High
-		}
-		if image.Summary.Medium > 0 {
-			retVal.Medium += image.Summary.Medium
-		}
-		if image.Summary.Low > 0 {
-			retVal.Low += image.Summary.Low
-		}
-		if image.Summary.Unassigned > 0 {
-			retVal.Unassigned += image.Summary.Unassigned
-		}
-		if image.Summary.RiskScore > 0 {
-			retVal.RiskScore += image.Summary.RiskScore
-		}
-
-		for _, ref := range image.GQLVars.WorkloadReferences {
-			if ref.Team == obj.Slug.String() {
-				retVal.BomCount += 1
-			}
-		}
-	}
-
 	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
@@ -1619,6 +1587,49 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 	jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
+	}
+
+	// Create maps for quick lookup
+	appImages := make(map[string]struct{})
+	jobImages := make(map[string]struct{})
+
+	for _, app := range apps {
+		appImages[app.Image] = struct{}{}
+	}
+
+	for _, job := range jobs {
+		jobImages[job.Image] = struct{}{}
+	}
+
+	retVal := &model.VulnerabilitySummaryForTeam{}
+	for _, image := range images {
+		if image.Summary == nil {
+			continue
+		}
+		_, appImageFound := appImages[image.Name]
+		_, jobImageFound := jobImages[image.Name]
+		if !appImageFound && !jobImageFound {
+			r.log.Debugf("Image: %s not found in apps or jobs", image.Name)
+			continue
+		}
+		switch {
+		case image.Summary.Critical > 0:
+			retVal.Critical += image.Summary.Critical
+		case image.Summary.High > 0:
+			retVal.High += image.Summary.High
+		case image.Summary.Medium > 0:
+			retVal.Medium += image.Summary.Medium
+		case image.Summary.Low > 0:
+			retVal.Low += image.Summary.Low
+		case image.Summary.Unassigned > 0:
+			retVal.Unassigned += image.Summary.Unassigned
+		}
+
+		for _, ref := range image.GQLVars.WorkloadReferences {
+			if ref.Team == obj.Slug.String() {
+				retVal.BomCount += 1
+			}
+		}
 	}
 
 	if len(apps) == 0 && len(jobs) == 0 {
