@@ -115,6 +115,7 @@ func (t *TeamsServer) SetTeamExternalReferences(ctx context.Context, req *protoa
 		GithubTeamSlug:   req.GithubTeamSlug,
 		GoogleGroupEmail: req.GoogleGroupEmail,
 		GarRepository:    req.GarRepository,
+		CdnBucket:        req.CdnBucket,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to update external references for team: %s", err)
@@ -204,6 +205,7 @@ func toProtoTeam(team *database.Team) *protoapi.Team {
 		GithubTeamSlug:   team.GithubTeamSlug,
 		GoogleGroupEmail: team.GoogleGroupEmail,
 		GarRepository:    team.GarRepository,
+		CdnBucket:        team.CdnBucket,
 	}
 }
 

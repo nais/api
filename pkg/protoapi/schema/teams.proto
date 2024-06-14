@@ -13,6 +13,7 @@ message Team {
   optional string github_team_slug = 5;
   optional string google_group_email = 6;
   optional string gar_repository = 7;
+  optional string cdn_bucket = 8;
 }
 
 message ListAuthorizedRepositoriesRequest {
@@ -47,6 +48,7 @@ message SetTeamExternalReferencesRequest {
   optional string github_team_slug = 3;
   optional string google_group_email = 4;
   optional string gar_repository = 5;
+  optional string cdn_bucket = 6;
 }
 
 message SetTeamExternalReferencesResponse{}

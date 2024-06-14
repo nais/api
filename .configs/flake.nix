@@ -17,8 +17,27 @@
 
       # Helper to provide system-specific attributes
       forAllSystems = f:
-        nixpkgs.lib.genAttrs allSystems
-        (system: f { pkgs = import nixpkgs { inherit system; }; });
+        nixpkgs.lib.genAttrs allSystems (system:
+          f {
+            pkgs = import nixpkgs {
+              inherit system;
+              overlays = [
+                (final: prev: {
+                  go = prev.go_1_22.overrideAttrs (old:
+                    old // {
+                      version = "1.22.4";
+                      src = prev.fetchurl {
+                        url = "https://go.dev/dl/go1.22.4.src.tar.gz";
+                        hash =
+                          "sha256-/tcgZ45yinyjC6jR3tHKr+J9FgKPqwIyuLqOIgCPt4Q=";
+                      };
+                    });
+
+                })
+              ];
+              # crossSystem = { config = "aarch64-unknown-linux-gnu"; };
+            };
+          });
     in {
       # Development environment output
       devShells = forAllSystems ({ pkgs }: {
@@ -28,7 +47,7 @@
             go
             gotools # Go tools like goimports, godoc, and others
             gopls
-            asdf
+            buf-language-server
           ];
         };
       });
