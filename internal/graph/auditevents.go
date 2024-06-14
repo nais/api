@@ -38,9 +38,21 @@ func toEvent(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
 			return event.WithMessage("Rotated deploy key"), nil
 		case model.AuditEventActionTeamSynchronized:
 			return event.WithMessage("Scheduled team for synchronization"), nil
-		case model.AuditEventActionTeamUpdated:
-			// TODO: should we split these into multiple events for each changed field? e.g. UpdatedPurpose, UpdatedSlackChannel, UpdatedSlackAlertsChannel?
-			return event.WithMessage("Updated team"), nil
+		case model.AuditEventActionTeamSetPurpose:
+			return withData(row, func(data auditevent.AuditEventTeamSetPurposeData) auditevent.AuditEventNode {
+				msg := fmt.Sprintf("Set purpose to %q", data.Purpose)
+				return auditevent.NewAuditEventTeamSetPurpose(event.WithMessage(msg), data)
+			})
+		case model.AuditEventActionTeamSetDefaultSLACkChannel:
+			return withData(row, func(data auditevent.AuditEventTeamSetDefaultSlackChannelData) auditevent.AuditEventNode {
+				msg := fmt.Sprintf("Set default Slack channel to %q", data.DefaultSlackChannel)
+				return auditevent.NewAuditEventTeamSetDefaultSlackChannel(event.WithMessage(msg), data)
+			})
+		case model.AuditEventActionTeamSetAlertsSLACkChannel:
+			return withData(row, func(data auditevent.AuditEventTeamSetAlertsSlackChannelData) auditevent.AuditEventNode {
+				msg := fmt.Sprintf("Set Slack alert channel to %q for %q", data.ChannelName, data.Environment)
+				return auditevent.NewAuditEventTeamSetAlertsSlackChannel(event.WithMessage(msg), data)
+			})
 		}
 	case model.AuditEventResourceTypeTeamMember:
 		switch model.AuditEventAction(row.Action) {

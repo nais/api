@@ -110,14 +110,41 @@ func (a *Auditor) TeamSynchronized(ctx context.Context, actor authz.Authenticate
 	))
 }
 
-func (a *Auditor) TeamUpdated(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug) error {
-	return a.db.CreateAuditEvent(ctx, baseAuditEvent(
+func (a *Auditor) TeamSetPurpose(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, purpose string) error {
+	return a.db.CreateAuditEvent(ctx, auditevent.NewAuditEventTeamSetPurpose(baseAuditEvent(
 		actor,
 		team,
-		model.AuditEventActionTeamUpdated,
+		model.AuditEventActionTeamSetPurpose,
 		model.AuditEventResourceTypeTeam,
 		team.String(),
-	))
+	), auditevent.AuditEventTeamSetPurposeData{
+		Purpose: purpose,
+	}))
+}
+
+func (a *Auditor) TeamSetDefaultSlackChannel(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, defaultSlackChannel string) error {
+	return a.db.CreateAuditEvent(ctx, auditevent.NewAuditEventTeamSetDefaultSlackChannel(baseAuditEvent(
+		actor,
+		team,
+		model.AuditEventActionTeamSetDefaultSLACkChannel,
+		model.AuditEventResourceTypeTeam,
+		team.String(),
+	), auditevent.AuditEventTeamSetDefaultSlackChannelData{
+		DefaultSlackChannel: defaultSlackChannel,
+	}))
+}
+
+func (a *Auditor) TeamSetAlertsSlackChannel(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, environment, channelName string) error {
+	return a.db.CreateAuditEvent(ctx, auditevent.NewAuditEventTeamSetAlertsSlackChannel(baseAuditEvent(
+		actor,
+		team,
+		model.AuditEventActionTeamSetAlertsSLACkChannel,
+		model.AuditEventResourceTypeTeam,
+		team.String(),
+	), auditevent.AuditEventTeamSetAlertsSlackChannelData{
+		Environment: environment,
+		ChannelName: channelName,
+	}))
 }
 
 func baseAuditEvent(

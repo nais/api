@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strconv"
-
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/auditlogger"
@@ -25,6 +23,7 @@ import (
 	"github.com/nais/api/pkg/protoapi"
 	"github.com/sourcegraph/conc/pool"
 	"k8s.io/utils/ptr"
+	"strconv"
 )
 
 func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTeamInput) (*model.Team, error) {
@@ -110,10 +109,39 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 		return nil, err
 	}
 
-	err = r.auditor.TeamUpdated(ctx, actor.User, team.Slug)
-	if err != nil {
-		return nil, err
+	if input.Purpose != nil {
+		err = r.auditor.TeamSetPurpose(ctx, actor.User, slug, *input.Purpose)
+		if err != nil {
+			return nil, err
+		}
 	}
+
+	if input.SlackChannel != nil {
+		err = r.auditor.TeamSetDefaultSlackChannel(ctx, actor.User, slug, *input.SlackChannel)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	/* TOOD: fix input in this mutation to only accept single environment and slack channel for easier state management
+	if len(input.SlackAlertsChannels) > 0 {
+		for _, channel := range input.SlackAlertsChannels {
+			existing, err := loader.GetTeamEnvironment(ctx, slug, channel.Environment)
+			if err != nil {
+				return nil, err
+			}
+
+			if existing.DBType != nil && strings.EqualFold(existing.DBType.SlackAlertsChannel, *channel.ChannelName) {
+				continue
+			}
+
+			err = r.auditor.TeamSetAlertsSlackChannel(ctx, actor.User, slug, channel.Environment, *channel.ChannelName)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	*/
 
 	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 
