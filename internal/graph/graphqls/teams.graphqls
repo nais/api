@@ -249,8 +249,9 @@ type Team {
   "The Google artifact registry for the team."
   googleArtifactRegistry: String
 
-  "The cdn bucket"
+  "The CDN bucket for the team."
   cdnBucket: String
+
   "Audit logs for this team."
   auditLogs(
     "Offset to start listing audit log entries from. Default is 0."
