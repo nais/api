@@ -21,10 +21,10 @@ func NewAuditor(db database.Database) *Auditor {
 func (a *Auditor) TeamMemberAdded(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, memberEmail string, role model.TeamRole) error {
 	return a.db.CreateAuditEvent(ctx, auditevent.NewAuditEventMemberAdded(
 		baseAuditEvent(
-			model.AuditEventResourceTypeTeamMember,
-			model.AuditEventActionTeamMemberAdded,
 			actor,
 			team,
+			model.AuditEventActionTeamMemberAdded,
+			model.AuditEventResourceTypeTeamMember,
 			team.String(),
 		),
 		auditevent.AuditEventMemberAddedData{
@@ -36,10 +36,10 @@ func (a *Auditor) TeamMemberAdded(ctx context.Context, actor authz.Authenticated
 func (a *Auditor) TeamMemberRemoved(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, memberEmail string) error {
 	return a.db.CreateAuditEvent(ctx, auditevent.NewAuditEventMemberRemoved(
 		baseAuditEvent(
-			model.AuditEventResourceTypeTeamMember,
-			model.AuditEventActionTeamMemberRemoved,
 			actor,
 			team,
+			model.AuditEventActionTeamMemberRemoved,
+			model.AuditEventResourceTypeTeamMember,
 			team.String(),
 		),
 		auditevent.AuditEventMemberRemovedData{
@@ -49,10 +49,10 @@ func (a *Auditor) TeamMemberRemoved(ctx context.Context, actor authz.Authenticat
 
 func (a *Auditor) TeamMemberSetRole(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, memberEmail string, role model.TeamRole) error {
 	return a.db.CreateAuditEvent(ctx, auditevent.NewAuditEventMemberSetRole(baseAuditEvent(
-		model.AuditEventResourceTypeTeamMember,
-		model.AuditEventActionTeamMemberSetRole,
 		actor,
 		team,
+		model.AuditEventActionTeamMemberSetRole,
+		model.AuditEventResourceTypeTeamMember,
 		team.String(),
 	), auditevent.AuditEventMemberSetRoleData{
 		MemberEmail: memberEmail,
@@ -62,69 +62,69 @@ func (a *Auditor) TeamMemberSetRole(ctx context.Context, actor authz.Authenticat
 
 func (a *Auditor) TeamCreated(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug) error {
 	return a.db.CreateAuditEvent(ctx, baseAuditEvent(
-		model.AuditEventResourceTypeTeam,
-		model.AuditEventActionTeamCreated,
 		actor,
 		team,
+		model.AuditEventActionTeamCreated,
+		model.AuditEventResourceTypeTeam,
 		team.String(),
 	))
 }
 
 func (a *Auditor) TeamDeletionConfirmed(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug) error {
 	return a.db.CreateAuditEvent(ctx, baseAuditEvent(
-		model.AuditEventResourceTypeTeam,
-		model.AuditEventActionTeamDeletionConfirmed,
 		actor,
 		team,
+		model.AuditEventActionTeamDeletionConfirmed,
+		model.AuditEventResourceTypeTeam,
 		team.String(),
 	))
 }
 
 func (a *Auditor) TeamDeletionRequested(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug) error {
 	return a.db.CreateAuditEvent(ctx, baseAuditEvent(
-		model.AuditEventResourceTypeTeam,
-		model.AuditEventActionTeamDeletionRequested,
 		actor,
 		team,
+		model.AuditEventActionTeamDeletionRequested,
+		model.AuditEventResourceTypeTeam,
 		team.String(),
 	))
 }
 
 func (a *Auditor) TeamRotatedDeployKey(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug) error {
 	return a.db.CreateAuditEvent(ctx, baseAuditEvent(
-		model.AuditEventResourceTypeTeam,
-		model.AuditEventActionTeamDeployKeyRotated,
 		actor,
 		team,
+		model.AuditEventActionTeamDeployKeyRotated,
+		model.AuditEventResourceTypeTeam,
 		team.String(),
 	))
 }
 
 func (a *Auditor) TeamSynchronized(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug) error {
 	return a.db.CreateAuditEvent(ctx, baseAuditEvent(
-		model.AuditEventResourceTypeTeam,
-		model.AuditEventActionTeamSynchronized,
 		actor,
 		team,
+		model.AuditEventActionTeamSynchronized,
+		model.AuditEventResourceTypeTeam,
 		team.String(),
 	))
 }
 
 func (a *Auditor) TeamUpdated(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug) error {
 	return a.db.CreateAuditEvent(ctx, baseAuditEvent(
-		model.AuditEventResourceTypeTeam,
-		model.AuditEventActionTeamUpdated,
 		actor,
 		team,
+		model.AuditEventActionTeamUpdated,
+		model.AuditEventResourceTypeTeam,
 		team.String(),
 	))
 }
 
 func baseAuditEvent(
-	resourceType model.AuditEventResourceType,
-	action model.AuditEventAction,
 	actor authz.AuthenticatedUser,
 	team slug.Slug,
+	action model.AuditEventAction,
+	resourceType model.AuditEventResourceType,
 	resourceName string,
 ) auditevent.BaseAuditEvent {
 	return auditevent.BaseAuditEvent{
