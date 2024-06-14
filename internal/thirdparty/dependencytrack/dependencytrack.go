@@ -65,7 +65,7 @@ func New(endpoint, username, password, frontend string, log *logrus.Entry) *Clie
 		dependencytrack.WithHttpClient(&http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}),
 	)
 
-	ch := cache.New(30*time.Minute, 10*time.Minute)
+	ch := cache.New(10*time.Minute, 5*time.Minute)
 
 	return &Client{
 		client:      c,
@@ -146,10 +146,16 @@ func hasBom(p *dependencytrack.Project) bool {
 }
 
 func (c *Client) retrieveFindings(ctx context.Context, uuid string, suppressed bool) ([]*dependencytrack.Finding, error) {
+	if v, ok := c.cache.Get(uuid); ok {
+		return v.([]*dependencytrack.Finding), nil
+	}
+
 	findings, err := c.client.GetFindings(ctx, uuid, suppressed)
 	if err != nil {
 		return nil, fmt.Errorf("retrieveFindings from DependencyTrack: %w", err)
 	}
+
+	c.cache.Set(uuid, findings, cache.DefaultExpiration)
 
 	return findings, nil
 }
@@ -182,16 +188,11 @@ func (c *Client) retrieveProjectById(ctx context.Context, projectId string) (*de
 
 func (c *Client) retrieveProjectsForTeam(ctx context.Context, team string) ([]*dependencytrack.Project, error) {
 	tag := url.QueryEscape("team:" + team)
-	if v, ok := c.cache.Get(tag); ok {
-		return v.([]*dependencytrack.Project), nil
-	}
 
 	projects, err := c.client.GetProjectsByTag(ctx, tag)
 	if err != nil {
 		return nil, fmt.Errorf("getting projects from DependencyTrack: %w", err)
 	}
-
-	c.cache.Set(tag, projects, cache.DefaultExpiration)
 
 	return projects, nil
 }

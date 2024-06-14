@@ -218,6 +218,7 @@ type ActiveAndDeletedTeam struct {
 	AzureGroupID       *uuid.UUID
 	GithubTeamSlug     *string
 	GarRepository      *string
+	CdnBucket          *string
 	DeletedAt          pgtype.Timestamptz
 }
 
@@ -314,6 +315,7 @@ type Team struct {
 	AzureGroupID       *uuid.UUID
 	GithubTeamSlug     *string
 	GarRepository      *string
+	CdnBucket          *string
 	DeletedAt          pgtype.Timestamptz
 }
 
