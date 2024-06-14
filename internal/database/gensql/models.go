@@ -302,6 +302,7 @@ type Team struct {
 	AzureGroupID       *uuid.UUID
 	GithubTeamSlug     *string
 	GarRepository      *string
+	CdnBucket          *string
 }
 
 type TeamAllEnvironment struct {
@@ -327,7 +328,6 @@ type TeamEnvironment struct {
 	Environment        string
 	SlackAlertsChannel *string
 	GcpProjectID       *string
-	CdnBucket          *string
 }
 
 type User struct {

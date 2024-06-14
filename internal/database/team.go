@@ -56,7 +56,7 @@ type TeamRepo interface {
 	TeamExists(ctx context.Context, team slug.Slug) (bool, error)
 	UpdateTeam(ctx context.Context, teamSlug slug.Slug, purpose, slackChannel *string) (*Team, error)
 	UpdateTeamExternalReferences(ctx context.Context, params gensql.UpdateTeamExternalReferencesParams) (*Team, error)
-	UpsertTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel, gcpProjectID *string, bucketNAme *string) error
+	UpsertTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel, gcpProjectID *string) error
 }
 
 var _ TeamRepo = (*database)(nil)
@@ -389,13 +389,12 @@ func (d *database) GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, ke
 	return envs, nil
 }
 
-func (d *database) UpsertTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel, gcpProjectID *string, bucketName *string) error {
+func (d *database) UpsertTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel, gcpProjectID *string) error {
 	_, err := d.querier.UpsertTeamEnvironment(ctx, gensql.UpsertTeamEnvironmentParams{
 		TeamSlug:           teamSlug,
 		Environment:        environment,
 		SlackAlertsChannel: slackChannel,
 		GcpProjectID:       gcpProjectID,
-		CdnBucket:          bucketName,
 	})
 
 	return err

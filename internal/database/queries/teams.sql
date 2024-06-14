@@ -42,13 +42,12 @@ ORDER BY team_all_environments.environment ASC;
 ;
 
 -- name: UpsertTeamEnvironment :one
-INSERT INTO team_environments (team_slug, environment, slack_alerts_channel, gcp_project_id, cdn_bucket)
+INSERT INTO team_environments (team_slug, environment, slack_alerts_channel, gcp_project_id)
 VALUES (
     @team_slug,
     @environment,
     @slack_alerts_channel,
-    @gcp_project_id,
-    @cdn_bucket
+    @gcp_project_id
 )
 ON CONFLICT (team_slug, environment) DO UPDATE
 SET
@@ -142,7 +141,8 @@ UPDATE teams
 SET google_group_email = COALESCE(@google_group_email, google_group_email),
     azure_group_id =  COALESCE(@azure_group_id, azure_group_id),
     github_team_slug = COALESCE(@github_team_slug, github_team_slug),
-    gar_repository = COALESCE(@gar_repository, gar_repository)
+    gar_repository = COALESCE(@gar_repository, gar_repository),
+    cdn_bucket = COALESCE(@cdn_bucket, cdn_bucket)
 WHERE slug = @slug
 RETURNING *;
 

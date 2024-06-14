@@ -102,7 +102,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 
 		if len(input.SlackAlertsChannels) > 0 {
 			for _, slackAlertsChannel := range input.SlackAlertsChannels {
-				err := dbtx.UpsertTeamEnvironment(ctx, slug, slackAlertsChannel.Environment, slackAlertsChannel.ChannelName, nil, nil)
+				err := dbtx.UpsertTeamEnvironment(ctx, slug, slackAlertsChannel.Environment, slackAlertsChannel.ChannelName, nil)
 				if err != nil {
 					return err
 				}
