@@ -59,7 +59,7 @@ func (t *TeamsServer) Get(ctx context.Context, req *protoapi.GetTeamRequest) (*p
 
 func (t *TeamsServer) List(ctx context.Context, req *protoapi.ListTeamsRequest) (*protoapi.ListTeamsResponse, error) {
 	limit, offset := pagination(req)
-	teams, total, err := t.db.GetPaginatedTeams(ctx, database.Page{
+	teams, total, err := t.db.GetActiveOrDeletedTeams(ctx, database.Page{
 		Limit:  limit,
 		Offset: offset,
 	})
@@ -193,7 +193,7 @@ func (t *TeamsServer) IsRepositoryAuthorized(ctx context.Context, req *protoapi.
 	return &protoapi.IsRepositoryAuthorizedResponse{IsAuthorized: false}, nil
 }
 
-func toProtoTeam(team *database.Team) *protoapi.Team {
+func toProtoTeam(team *database.ActiveOrDeletedTeam) *protoapi.Team {
 	var aID *string
 	if team.AzureGroupID != nil {
 		aID = ptr.To(team.AzureGroupID.String())

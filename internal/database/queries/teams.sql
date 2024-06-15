@@ -8,7 +8,8 @@ SELECT *
 FROM team_all_environments
 WHERE team_slug = @team_slug
 ORDER BY environment ASC
-LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
 
 -- name: GetTeamEnvironmentsCount :one
 SELECT COUNT(*) as total
@@ -28,7 +29,6 @@ JOIN input ON input.team_slug = team_all_environments.team_slug
 JOIN teams ON teams.slug = team_all_environments.team_slug
 WHERE team_all_environments.environment = input.environment
 ORDER BY team_all_environments.environment ASC;
-;
 
 -- name: UpsertTeamEnvironment :one
 INSERT INTO team_environments (team_slug, environment, slack_alerts_channel, gcp_project_id)
@@ -44,25 +44,32 @@ SET
     gcp_project_id = COALESCE(EXCLUDED.gcp_project_id, team_environments.gcp_project_id)
 RETURNING *;
 
+-- GetTeams returns a slice of teams, excluding deleted teams.
 -- name: GetTeams :many
 SELECT teams.* FROM teams
-ORDER BY teams.slug ASC;
-
--- GetPaginatedTeams returns a slice of teams, excluding deleted teams.
--- name: GetPaginatedTeams :many
-SELECT teams.* FROM teams
 ORDER BY teams.slug ASC
-LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
+
+-- GetTeamsCount returns the total number of non-deleted teams.
+-- name: GetTeamsCount :one
+SELECT COUNT(*) as total
+FROM teams;
 
 -- GetAllTeamSlugs returns all team slugs in ascending order, excluding deleted teams.
 -- name: GetAllTeamSlugs :many
 SELECT teams.slug FROM teams
 ORDER BY teams.slug ASC;
 
--- GetTeamsCount returns the total number of non-deleted teams.
--- name: GetTeamsCount :one
+-- name: GetActiveOrDeletedTeams :many
+SELECT t.* FROM active_or_deleted_teams t
+ORDER BY t.slug ASC
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
+
+-- name: GetActiveOrDeletedTeamsCount :one
 SELECT COUNT(*) as total
-FROM teams;
+FROM active_or_deleted_teams;
 
 -- name: GetTeamBySlug :one
 SELECT teams.* FROM teams
@@ -70,8 +77,8 @@ WHERE teams.slug = @slug;
 
 -- GetActiveOrDeletedTeamBySlug returns a team by its slug, whether the team is deleted or not.
 -- name: GetActiveOrDeletedTeamBySlug :one
-SELECT active_and_deleted_teams.* FROM active_and_deleted_teams
-WHERE active_and_deleted_teams.slug = @slug;
+SELECT t.* FROM active_or_deleted_teams t
+WHERE t.slug = @slug;
 
 -- name: GetTeamBySlugs :many
 SELECT * FROM teams
@@ -90,7 +97,9 @@ SELECT users.* FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 JOIN users ON users.id = user_roles.user_id
 WHERE user_roles.target_team_slug = @team_slug::slug
-ORDER BY users.name ASC LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+ORDER BY users.name ASC
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
 
 -- name: GetTeamMembersCount :one
 SELECT COUNT(*) FROM user_roles
@@ -161,7 +170,7 @@ WHERE key = @key;
 
 -- DeleteTeam marks a team as deleted. The team must have an already confirmed delete key for a successful deletion.
 -- name: DeleteTeam :exec
-UPDATE active_and_deleted_teams t
+UPDATE active_or_deleted_teams t
 SET t.deleted_at = NOW()
 WHERE
     t.slug = @slug
@@ -185,9 +194,21 @@ FROM reconcilers
 WHERE reconcilers.enabled = true
 ORDER BY reconcilers.name ASC;
 
--- TeamExists checks is a team exists. Deleted teams are not considered.
+-- TeamExists checks if a team exists. Deleted teams are not considered.
 -- name: TeamExists :one
 SELECT EXISTS(
     SELECT 1 FROM teams
     WHERE slug = @slug
+) AS exists;
+
+-- TeamHasConfirmedDeleteKey checks if a team has a confirmed delete key. This means that the team is currently being
+-- deleted. Already deleted teams are not considered.
+-- name: TeamHasConfirmedDeleteKey :one
+SELECT EXISTS(
+    SELECT tdk.team_slug
+    FROM team_delete_keys tdk
+    JOIN teams t ON t.slug = tdk.team_slug
+    WHERE
+        tdk.team_slug = @slug
+        AND tdk.confirmed_at IS NOT NULL
 ) AS exists;

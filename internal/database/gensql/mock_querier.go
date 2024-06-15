@@ -1731,23 +1731,23 @@ func (_c *MockQuerier_EnableReconciler_Call) RunAndReturn(run func(context.Conte
 }
 
 // GetActiveOrDeletedTeamBySlug provides a mock function with given fields: ctx, argSlug
-func (_m *MockQuerier) GetActiveOrDeletedTeamBySlug(ctx context.Context, argSlug slug.Slug) (*ActiveAndDeletedTeam, error) {
+func (_m *MockQuerier) GetActiveOrDeletedTeamBySlug(ctx context.Context, argSlug slug.Slug) (*ActiveOrDeletedTeam, error) {
 	ret := _m.Called(ctx, argSlug)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetActiveOrDeletedTeamBySlug")
 	}
 
-	var r0 *ActiveAndDeletedTeam
+	var r0 *ActiveOrDeletedTeam
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (*ActiveAndDeletedTeam, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (*ActiveOrDeletedTeam, error)); ok {
 		return rf(ctx, argSlug)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) *ActiveAndDeletedTeam); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) *ActiveOrDeletedTeam); ok {
 		r0 = rf(ctx, argSlug)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*ActiveAndDeletedTeam)
+			r0 = ret.Get(0).(*ActiveOrDeletedTeam)
 		}
 	}
 
@@ -1779,12 +1779,127 @@ func (_c *MockQuerier_GetActiveOrDeletedTeamBySlug_Call) Run(run func(ctx contex
 	return _c
 }
 
-func (_c *MockQuerier_GetActiveOrDeletedTeamBySlug_Call) Return(_a0 *ActiveAndDeletedTeam, _a1 error) *MockQuerier_GetActiveOrDeletedTeamBySlug_Call {
+func (_c *MockQuerier_GetActiveOrDeletedTeamBySlug_Call) Return(_a0 *ActiveOrDeletedTeam, _a1 error) *MockQuerier_GetActiveOrDeletedTeamBySlug_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockQuerier_GetActiveOrDeletedTeamBySlug_Call) RunAndReturn(run func(context.Context, slug.Slug) (*ActiveAndDeletedTeam, error)) *MockQuerier_GetActiveOrDeletedTeamBySlug_Call {
+func (_c *MockQuerier_GetActiveOrDeletedTeamBySlug_Call) RunAndReturn(run func(context.Context, slug.Slug) (*ActiveOrDeletedTeam, error)) *MockQuerier_GetActiveOrDeletedTeamBySlug_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetActiveOrDeletedTeams provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetActiveOrDeletedTeams(ctx context.Context, arg GetActiveOrDeletedTeamsParams) ([]*ActiveOrDeletedTeam, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetActiveOrDeletedTeams")
+	}
+
+	var r0 []*ActiveOrDeletedTeam
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, GetActiveOrDeletedTeamsParams) ([]*ActiveOrDeletedTeam, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, GetActiveOrDeletedTeamsParams) []*ActiveOrDeletedTeam); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*ActiveOrDeletedTeam)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, GetActiveOrDeletedTeamsParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetActiveOrDeletedTeams_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetActiveOrDeletedTeams'
+type MockQuerier_GetActiveOrDeletedTeams_Call struct {
+	*mock.Call
+}
+
+// GetActiveOrDeletedTeams is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg GetActiveOrDeletedTeamsParams
+func (_e *MockQuerier_Expecter) GetActiveOrDeletedTeams(ctx interface{}, arg interface{}) *MockQuerier_GetActiveOrDeletedTeams_Call {
+	return &MockQuerier_GetActiveOrDeletedTeams_Call{Call: _e.mock.On("GetActiveOrDeletedTeams", ctx, arg)}
+}
+
+func (_c *MockQuerier_GetActiveOrDeletedTeams_Call) Run(run func(ctx context.Context, arg GetActiveOrDeletedTeamsParams)) *MockQuerier_GetActiveOrDeletedTeams_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(GetActiveOrDeletedTeamsParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetActiveOrDeletedTeams_Call) Return(_a0 []*ActiveOrDeletedTeam, _a1 error) *MockQuerier_GetActiveOrDeletedTeams_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetActiveOrDeletedTeams_Call) RunAndReturn(run func(context.Context, GetActiveOrDeletedTeamsParams) ([]*ActiveOrDeletedTeam, error)) *MockQuerier_GetActiveOrDeletedTeams_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetActiveOrDeletedTeamsCount provides a mock function with given fields: ctx
+func (_m *MockQuerier) GetActiveOrDeletedTeamsCount(ctx context.Context) (int64, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetActiveOrDeletedTeamsCount")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (int64, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) int64); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetActiveOrDeletedTeamsCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetActiveOrDeletedTeamsCount'
+type MockQuerier_GetActiveOrDeletedTeamsCount_Call struct {
+	*mock.Call
+}
+
+// GetActiveOrDeletedTeamsCount is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockQuerier_Expecter) GetActiveOrDeletedTeamsCount(ctx interface{}) *MockQuerier_GetActiveOrDeletedTeamsCount_Call {
+	return &MockQuerier_GetActiveOrDeletedTeamsCount_Call{Call: _e.mock.On("GetActiveOrDeletedTeamsCount", ctx)}
+}
+
+func (_c *MockQuerier_GetActiveOrDeletedTeamsCount_Call) Run(run func(ctx context.Context)) *MockQuerier_GetActiveOrDeletedTeamsCount_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetActiveOrDeletedTeamsCount_Call) Return(_a0 int64, _a1 error) *MockQuerier_GetActiveOrDeletedTeamsCount_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetActiveOrDeletedTeamsCount_Call) RunAndReturn(run func(context.Context) (int64, error)) *MockQuerier_GetActiveOrDeletedTeamsCount_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2366,65 +2481,6 @@ func (_c *MockQuerier_GetEnabledReconcilers_Call) Return(_a0 []*Reconciler, _a1 
 }
 
 func (_c *MockQuerier_GetEnabledReconcilers_Call) RunAndReturn(run func(context.Context) ([]*Reconciler, error)) *MockQuerier_GetEnabledReconcilers_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetPaginatedTeams provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) GetPaginatedTeams(ctx context.Context, arg GetPaginatedTeamsParams) ([]*Team, error) {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetPaginatedTeams")
-	}
-
-	var r0 []*Team
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, GetPaginatedTeamsParams) ([]*Team, error)); ok {
-		return rf(ctx, arg)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, GetPaginatedTeamsParams) []*Team); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*Team)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, GetPaginatedTeamsParams) error); ok {
-		r1 = rf(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_GetPaginatedTeams_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPaginatedTeams'
-type MockQuerier_GetPaginatedTeams_Call struct {
-	*mock.Call
-}
-
-// GetPaginatedTeams is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg GetPaginatedTeamsParams
-func (_e *MockQuerier_Expecter) GetPaginatedTeams(ctx interface{}, arg interface{}) *MockQuerier_GetPaginatedTeams_Call {
-	return &MockQuerier_GetPaginatedTeams_Call{Call: _e.mock.On("GetPaginatedTeams", ctx, arg)}
-}
-
-func (_c *MockQuerier_GetPaginatedTeams_Call) Run(run func(ctx context.Context, arg GetPaginatedTeamsParams)) *MockQuerier_GetPaginatedTeams_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(GetPaginatedTeamsParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_GetPaginatedTeams_Call) Return(_a0 []*Team, _a1 error) *MockQuerier_GetPaginatedTeams_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_GetPaginatedTeams_Call) RunAndReturn(run func(context.Context, GetPaginatedTeamsParams) ([]*Team, error)) *MockQuerier_GetPaginatedTeams_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4011,9 +4067,9 @@ func (_c *MockQuerier_GetTeamReconcilerErrors_Call) RunAndReturn(run func(contex
 	return _c
 }
 
-// GetTeams provides a mock function with given fields: ctx
-func (_m *MockQuerier) GetTeams(ctx context.Context) ([]*Team, error) {
-	ret := _m.Called(ctx)
+// GetTeams provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetTeams(ctx context.Context, arg GetTeamsParams) ([]*Team, error) {
+	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTeams")
@@ -4021,19 +4077,19 @@ func (_m *MockQuerier) GetTeams(ctx context.Context) ([]*Team, error) {
 
 	var r0 []*Team
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]*Team, error)); ok {
-		return rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamsParams) ([]*Team, error)); ok {
+		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []*Team); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamsParams) []*Team); ok {
+		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*Team)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, GetTeamsParams) error); ok {
+		r1 = rf(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -4048,13 +4104,14 @@ type MockQuerier_GetTeams_Call struct {
 
 // GetTeams is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *MockQuerier_Expecter) GetTeams(ctx interface{}) *MockQuerier_GetTeams_Call {
-	return &MockQuerier_GetTeams_Call{Call: _e.mock.On("GetTeams", ctx)}
+//   - arg GetTeamsParams
+func (_e *MockQuerier_Expecter) GetTeams(ctx interface{}, arg interface{}) *MockQuerier_GetTeams_Call {
+	return &MockQuerier_GetTeams_Call{Call: _e.mock.On("GetTeams", ctx, arg)}
 }
 
-func (_c *MockQuerier_GetTeams_Call) Run(run func(ctx context.Context)) *MockQuerier_GetTeams_Call {
+func (_c *MockQuerier_GetTeams_Call) Run(run func(ctx context.Context, arg GetTeamsParams)) *MockQuerier_GetTeams_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
+		run(args[0].(context.Context), args[1].(GetTeamsParams))
 	})
 	return _c
 }
@@ -4064,7 +4121,7 @@ func (_c *MockQuerier_GetTeams_Call) Return(_a0 []*Team, _a1 error) *MockQuerier
 	return _c
 }
 
-func (_c *MockQuerier_GetTeams_Call) RunAndReturn(run func(context.Context) ([]*Team, error)) *MockQuerier_GetTeams_Call {
+func (_c *MockQuerier_GetTeams_Call) RunAndReturn(run func(context.Context, GetTeamsParams) ([]*Team, error)) *MockQuerier_GetTeams_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -6368,6 +6425,63 @@ func (_c *MockQuerier_TeamExists_Call) Return(_a0 bool, _a1 error) *MockQuerier_
 }
 
 func (_c *MockQuerier_TeamExists_Call) RunAndReturn(run func(context.Context, slug.Slug) (bool, error)) *MockQuerier_TeamExists_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// TeamHasConfirmedDeleteKey provides a mock function with given fields: ctx, argSlug
+func (_m *MockQuerier) TeamHasConfirmedDeleteKey(ctx context.Context, argSlug slug.Slug) (bool, error) {
+	ret := _m.Called(ctx, argSlug)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TeamHasConfirmedDeleteKey")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (bool, error)); ok {
+		return rf(ctx, argSlug)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) bool); ok {
+		r0 = rf(ctx, argSlug)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
+		r1 = rf(ctx, argSlug)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_TeamHasConfirmedDeleteKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TeamHasConfirmedDeleteKey'
+type MockQuerier_TeamHasConfirmedDeleteKey_Call struct {
+	*mock.Call
+}
+
+// TeamHasConfirmedDeleteKey is a helper method to define mock.On call
+//   - ctx context.Context
+//   - argSlug slug.Slug
+func (_e *MockQuerier_Expecter) TeamHasConfirmedDeleteKey(ctx interface{}, argSlug interface{}) *MockQuerier_TeamHasConfirmedDeleteKey_Call {
+	return &MockQuerier_TeamHasConfirmedDeleteKey_Call{Call: _e.mock.On("TeamHasConfirmedDeleteKey", ctx, argSlug)}
+}
+
+func (_c *MockQuerier_TeamHasConfirmedDeleteKey_Call) Run(run func(ctx context.Context, argSlug slug.Slug)) *MockQuerier_TeamHasConfirmedDeleteKey_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(slug.Slug))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_TeamHasConfirmedDeleteKey_Call) Return(_a0 bool, _a1 error) *MockQuerier_TeamHasConfirmedDeleteKey_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_TeamHasConfirmedDeleteKey_Call) RunAndReturn(run func(context.Context, slug.Slug) (bool, error)) *MockQuerier_TeamHasConfirmedDeleteKey_Call {
 	_c.Call.Return(run)
 	return _c
 }

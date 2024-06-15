@@ -400,7 +400,7 @@ func getAllTeams(ctx context.Context, db database.TeamRepo) ([]*database.Team, e
 	limit, offset := 100, 0
 	teams := make([]*database.Team, 0)
 	for {
-		page, _, err := db.GetPaginatedTeams(ctx, database.Page{
+		page, _, err := db.GetTeams(ctx, database.Page{
 			Limit:  limit,
 			Offset: offset,
 		})

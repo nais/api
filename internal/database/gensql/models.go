@@ -209,7 +209,7 @@ func AllRoleNameValues() []RoleName {
 	}
 }
 
-type ActiveAndDeletedTeam struct {
+type ActiveOrDeletedTeam struct {
 	Slug               slug.Slug
 	Purpose            string
 	LastSuccessfulSync pgtype.Timestamp
@@ -316,7 +316,6 @@ type Team struct {
 	GithubTeamSlug     *string
 	GarRepository      *string
 	CdnBucket          *string
-	DeletedAt          pgtype.Timestamptz
 }
 
 type TeamAllEnvironment struct {

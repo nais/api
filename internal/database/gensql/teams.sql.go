@@ -24,7 +24,7 @@ func (q *Queries) ConfirmTeamDeleteKey(ctx context.Context, key uuid.UUID) error
 const createTeam = `-- name: CreateTeam :one
 INSERT INTO teams (slug, purpose, slack_channel)
 VALUES ($1, $2, $3)
-RETURNING slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, deleted_at
+RETURNING slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket
 `
 
 type CreateTeamParams struct {
@@ -46,7 +46,6 @@ func (q *Queries) CreateTeam(ctx context.Context, arg CreateTeamParams) (*Team, 
 		&i.GithubTeamSlug,
 		&i.GarRepository,
 		&i.CdnBucket,
-		&i.DeletedAt,
 	)
 	return &i, err
 }
@@ -76,7 +75,7 @@ func (q *Queries) CreateTeamDeleteKey(ctx context.Context, arg CreateTeamDeleteK
 }
 
 const deleteTeam = `-- name: DeleteTeam :exec
-UPDATE active_and_deleted_teams t
+UPDATE active_or_deleted_teams t
 SET t.deleted_at = NOW()
 WHERE
     t.slug = $1
@@ -97,14 +96,14 @@ func (q *Queries) DeleteTeam(ctx context.Context, argSlug slug.Slug) error {
 }
 
 const getActiveOrDeletedTeamBySlug = `-- name: GetActiveOrDeletedTeamBySlug :one
-SELECT active_and_deleted_teams.slug, active_and_deleted_teams.purpose, active_and_deleted_teams.last_successful_sync, active_and_deleted_teams.slack_channel, active_and_deleted_teams.google_group_email, active_and_deleted_teams.azure_group_id, active_and_deleted_teams.github_team_slug, active_and_deleted_teams.gar_repository, active_and_deleted_teams.cdn_bucket, active_and_deleted_teams.deleted_at FROM active_and_deleted_teams
-WHERE active_and_deleted_teams.slug = $1
+SELECT t.slug, t.purpose, t.last_successful_sync, t.slack_channel, t.google_group_email, t.azure_group_id, t.github_team_slug, t.gar_repository, t.cdn_bucket, t.deleted_at FROM active_or_deleted_teams t
+WHERE t.slug = $1
 `
 
 // GetActiveOrDeletedTeamBySlug returns a team by its slug, whether the team is deleted or not.
-func (q *Queries) GetActiveOrDeletedTeamBySlug(ctx context.Context, argSlug slug.Slug) (*ActiveAndDeletedTeam, error) {
+func (q *Queries) GetActiveOrDeletedTeamBySlug(ctx context.Context, argSlug slug.Slug) (*ActiveOrDeletedTeam, error) {
 	row := q.db.QueryRow(ctx, getActiveOrDeletedTeamBySlug, argSlug)
-	var i ActiveAndDeletedTeam
+	var i ActiveOrDeletedTeam
 	err := row.Scan(
 		&i.Slug,
 		&i.Purpose,
@@ -118,6 +117,61 @@ func (q *Queries) GetActiveOrDeletedTeamBySlug(ctx context.Context, argSlug slug
 		&i.DeletedAt,
 	)
 	return &i, err
+}
+
+const getActiveOrDeletedTeams = `-- name: GetActiveOrDeletedTeams :many
+SELECT t.slug, t.purpose, t.last_successful_sync, t.slack_channel, t.google_group_email, t.azure_group_id, t.github_team_slug, t.gar_repository, t.cdn_bucket, t.deleted_at FROM active_or_deleted_teams t
+ORDER BY t.slug ASC
+LIMIT $2
+OFFSET $1
+`
+
+type GetActiveOrDeletedTeamsParams struct {
+	Offset int32
+	Limit  int32
+}
+
+func (q *Queries) GetActiveOrDeletedTeams(ctx context.Context, arg GetActiveOrDeletedTeamsParams) ([]*ActiveOrDeletedTeam, error) {
+	rows, err := q.db.Query(ctx, getActiveOrDeletedTeams, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ActiveOrDeletedTeam{}
+	for rows.Next() {
+		var i ActiveOrDeletedTeam
+		if err := rows.Scan(
+			&i.Slug,
+			&i.Purpose,
+			&i.LastSuccessfulSync,
+			&i.SlackChannel,
+			&i.GoogleGroupEmail,
+			&i.AzureGroupID,
+			&i.GithubTeamSlug,
+			&i.GarRepository,
+			&i.CdnBucket,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getActiveOrDeletedTeamsCount = `-- name: GetActiveOrDeletedTeamsCount :one
+SELECT COUNT(*) as total
+FROM active_or_deleted_teams
+`
+
+func (q *Queries) GetActiveOrDeletedTeamsCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, getActiveOrDeletedTeamsCount)
+	var total int64
+	err := row.Scan(&total)
+	return total, err
 }
 
 const getAllTeamMembers = `-- name: GetAllTeamMembers :many
@@ -179,51 +233,8 @@ func (q *Queries) GetAllTeamSlugs(ctx context.Context) ([]slug.Slug, error) {
 	return items, nil
 }
 
-const getPaginatedTeams = `-- name: GetPaginatedTeams :many
-SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.deleted_at FROM teams
-ORDER BY teams.slug ASC
-LIMIT $2 OFFSET $1
-`
-
-type GetPaginatedTeamsParams struct {
-	Offset int32
-	Limit  int32
-}
-
-// GetPaginatedTeams returns a slice of teams, excluding deleted teams.
-func (q *Queries) GetPaginatedTeams(ctx context.Context, arg GetPaginatedTeamsParams) ([]*Team, error) {
-	rows, err := q.db.Query(ctx, getPaginatedTeams, arg.Offset, arg.Limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*Team{}
-	for rows.Next() {
-		var i Team
-		if err := rows.Scan(
-			&i.Slug,
-			&i.Purpose,
-			&i.LastSuccessfulSync,
-			&i.SlackChannel,
-			&i.GoogleGroupEmail,
-			&i.AzureGroupID,
-			&i.GithubTeamSlug,
-			&i.GarRepository,
-			&i.CdnBucket,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getTeamBySlug = `-- name: GetTeamBySlug :one
-SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.deleted_at FROM teams
+SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket FROM teams
 WHERE teams.slug = $1
 `
 
@@ -240,13 +251,12 @@ func (q *Queries) GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, 
 		&i.GithubTeamSlug,
 		&i.GarRepository,
 		&i.CdnBucket,
-		&i.DeletedAt,
 	)
 	return &i, err
 }
 
 const getTeamBySlugs = `-- name: GetTeamBySlugs :many
-SELECT slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, deleted_at FROM teams
+SELECT slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket FROM teams
 WHERE slug = ANY($1::slug[])
 ORDER BY slug ASC
 `
@@ -270,7 +280,6 @@ func (q *Queries) GetTeamBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Tea
 			&i.GithubTeamSlug,
 			&i.GarRepository,
 			&i.CdnBucket,
-			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -305,7 +314,8 @@ SELECT team_slug, environment, gcp, gcp_project_id, id, slack_alerts_channel
 FROM team_all_environments
 WHERE team_slug = $1
 ORDER BY environment ASC
-LIMIT $3 OFFSET $2
+LIMIT $3
+OFFSET $2
 `
 
 type GetTeamEnvironmentsParams struct {
@@ -473,7 +483,9 @@ SELECT users.id, users.email, users.name, users.external_id FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 JOIN users ON users.id = user_roles.user_id
 WHERE user_roles.target_team_slug = $1::slug
-ORDER BY users.name ASC LIMIT $3 OFFSET $2
+ORDER BY users.name ASC
+LIMIT $3
+OFFSET $2
 `
 
 type GetTeamMembersParams struct {
@@ -567,12 +579,20 @@ func (q *Queries) GetTeamMembersForReconciler(ctx context.Context, arg GetTeamMe
 }
 
 const getTeams = `-- name: GetTeams :many
-SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.deleted_at FROM teams
+SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket FROM teams
 ORDER BY teams.slug ASC
+LIMIT $2
+OFFSET $1
 `
 
-func (q *Queries) GetTeams(ctx context.Context) ([]*Team, error) {
-	rows, err := q.db.Query(ctx, getTeams)
+type GetTeamsParams struct {
+	Offset int32
+	Limit  int32
+}
+
+// GetTeams returns a slice of teams, excluding deleted teams.
+func (q *Queries) GetTeams(ctx context.Context, arg GetTeamsParams) ([]*Team, error) {
+	rows, err := q.db.Query(ctx, getTeams, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -590,7 +610,6 @@ func (q *Queries) GetTeams(ctx context.Context) ([]*Team, error) {
 			&i.GithubTeamSlug,
 			&i.GarRepository,
 			&i.CdnBucket,
-			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -647,9 +666,29 @@ SELECT EXISTS(
 ) AS exists
 `
 
-// TeamExists checks is a team exists. Deleted teams are not considered.
+// TeamExists checks if a team exists. Deleted teams are not considered.
 func (q *Queries) TeamExists(ctx context.Context, argSlug slug.Slug) (bool, error) {
 	row := q.db.QueryRow(ctx, teamExists, argSlug)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const teamHasConfirmedDeleteKey = `-- name: TeamHasConfirmedDeleteKey :one
+SELECT EXISTS(
+    SELECT tdk.team_slug
+    FROM team_delete_keys tdk
+    JOIN teams t ON t.slug = tdk.team_slug
+    WHERE
+        tdk.team_slug = $1
+        AND tdk.confirmed_at IS NOT NULL
+) AS exists
+`
+
+// TeamHasConfirmedDeleteKey checks if a team has a confirmed delete key. This means that the team is currently being
+// deleted. Already deleted teams are not considered.
+func (q *Queries) TeamHasConfirmedDeleteKey(ctx context.Context, argSlug slug.Slug) (bool, error) {
+	row := q.db.QueryRow(ctx, teamHasConfirmedDeleteKey, argSlug)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
@@ -660,7 +699,7 @@ UPDATE teams
 SET purpose = COALESCE($1, purpose),
     slack_channel = COALESCE($2, slack_channel)
 WHERE slug = $3
-RETURNING slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, deleted_at
+RETURNING slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket
 `
 
 type UpdateTeamParams struct {
@@ -683,7 +722,6 @@ func (q *Queries) UpdateTeam(ctx context.Context, arg UpdateTeamParams) (*Team, 
 		&i.GithubTeamSlug,
 		&i.GarRepository,
 		&i.CdnBucket,
-		&i.DeletedAt,
 	)
 	return &i, err
 }
@@ -696,7 +734,7 @@ SET google_group_email = COALESCE($1, google_group_email),
     gar_repository = COALESCE($4, gar_repository),
     cdn_bucket = COALESCE($5, cdn_bucket)
 WHERE slug = $6
-RETURNING slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, deleted_at
+RETURNING slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket
 `
 
 type UpdateTeamExternalReferencesParams struct {
@@ -728,7 +766,6 @@ func (q *Queries) UpdateTeamExternalReferences(ctx context.Context, arg UpdateTe
 		&i.GithubTeamSlug,
 		&i.GarRepository,
 		&i.CdnBucket,
-		&i.DeletedAt,
 	)
 	return &i, err
 }

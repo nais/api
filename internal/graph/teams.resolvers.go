@@ -327,7 +327,7 @@ func (r *mutationResolver) SynchronizeAllTeams(ctx context.Context) (*model.Team
 	limit, offset := 100, 0
 	teams := make([]*database.Team, 0)
 	for {
-		page, _, err := r.database.GetPaginatedTeams(ctx, database.Page{
+		page, _, err := r.database.GetTeams(ctx, database.Page{
 			Limit:  limit,
 			Offset: offset,
 		})
@@ -705,19 +705,8 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, key string) 
 
 	correlationID := uuid.New()
 
-	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
-		if err = r.database.ConfirmTeamDeleteKey(ctx, uid); err != nil {
-			return fmt.Errorf("confirm team delete key: %w", err)
-		}
-
-		if err = r.database.DeleteTeam(ctx, deleteKey.TeamSlug); err != nil {
-			return fmt.Errorf("mark team as deleted: %w", err)
-		}
-
-		return nil
-	})
-	if err != nil {
-		return false, fmt.Errorf("delete team: %w", err)
+	if err := r.database.ConfirmTeamDeleteKey(ctx, uid); err != nil {
+		return false, fmt.Errorf("confirm team delete key: %w", err)
 	}
 
 	targets := []auditlogger.Target{
@@ -776,7 +765,7 @@ func (r *queryResolver) Teams(ctx context.Context, offset *int, limit *int, filt
 		teams, pageInfo = model.PaginatedSlice(teams, p)
 	} else {
 		var total int
-		teams, total, err = r.database.GetPaginatedTeams(ctx, database.Page{
+		teams, total, err = r.database.GetTeams(ctx, database.Page{
 			Limit:  p.Limit,
 			Offset: p.Offset,
 		})
@@ -950,12 +939,7 @@ func (r *teamResolver) GithubRepositories(ctx context.Context, obj *model.Team, 
 }
 
 func (r *teamResolver) DeletionInProgress(ctx context.Context, obj *model.Team) (bool, error) {
-	_, err := r.database.GetTeamBySlug(ctx, obj.Slug)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return true, nil
-	}
-
-	return false, err
+	return r.database.TeamHasConfirmedDeleteKey(ctx, obj.Slug)
 }
 
 func (r *teamResolver) ViewerIsOwner(ctx context.Context, obj *model.Team) (bool, error) {
