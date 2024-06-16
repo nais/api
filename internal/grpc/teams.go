@@ -5,8 +5,6 @@ import (
 	"errors"
 	"slices"
 
-	"google.golang.org/protobuf/types/known/timestamppb"
-
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/database"
@@ -15,6 +13,7 @@ import (
 	"github.com/nais/api/pkg/protoapi"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"k8s.io/utils/ptr"
 )
 
