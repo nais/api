@@ -209,19 +209,6 @@ func AllRoleNameValues() []RoleName {
 	}
 }
 
-type ActiveOrDeletedTeam struct {
-	Slug               slug.Slug
-	Purpose            string
-	LastSuccessfulSync pgtype.Timestamp
-	SlackChannel       string
-	GoogleGroupEmail   *string
-	AzureGroupID       *uuid.UUID
-	GithubTeamSlug     *string
-	GarRepository      *string
-	CdnBucket          *string
-	DeletedAt          pgtype.Timestamptz
-}
-
 type AuditLog struct {
 	ID               uuid.UUID
 	CreatedAt        pgtype.Timestamptz
@@ -316,6 +303,7 @@ type Team struct {
 	GithubTeamSlug     *string
 	GarRepository      *string
 	CdnBucket          *string
+	DeletedAt          pgtype.Timestamptz
 }
 
 type TeamAllEnvironment struct {

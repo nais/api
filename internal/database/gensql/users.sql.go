@@ -95,7 +95,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (*User, error) 
 }
 
 const getUserTeams = `-- name: GetUserTeams :many
-SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, user_roles.role_name FROM user_roles
+SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.deleted_at, user_roles.role_name FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 WHERE user_roles.user_id = $1
 ORDER BY teams.slug ASC
@@ -125,6 +125,7 @@ func (q *Queries) GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*GetUse
 			&i.Team.GithubTeamSlug,
 			&i.Team.GarRepository,
 			&i.Team.CdnBucket,
+			&i.Team.DeletedAt,
 			&i.RoleName,
 		); err != nil {
 			return nil, err
@@ -151,7 +152,7 @@ func (q *Queries) GetUserTeamsCount(ctx context.Context, userID uuid.UUID) (int6
 }
 
 const getUserTeamsPaginated = `-- name: GetUserTeamsPaginated :many
-SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, user_roles.role_name FROM user_roles
+SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.deleted_at, user_roles.role_name FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 WHERE user_roles.user_id = $1
 ORDER BY teams.slug ASC
@@ -188,6 +189,7 @@ func (q *Queries) GetUserTeamsPaginated(ctx context.Context, arg GetUserTeamsPag
 			&i.Team.GithubTeamSlug,
 			&i.Team.GarRepository,
 			&i.Team.CdnBucket,
+			&i.Team.DeletedAt,
 			&i.RoleName,
 		); err != nil {
 			return nil, err

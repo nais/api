@@ -193,7 +193,7 @@ func (t *TeamsServer) IsRepositoryAuthorized(ctx context.Context, req *protoapi.
 	return &protoapi.IsRepositoryAuthorizedResponse{IsAuthorized: false}, nil
 }
 
-func toProtoTeam(team *database.ActiveOrDeletedTeam) *protoapi.Team {
+func toProtoTeam(team *database.Team) *protoapi.Team {
 	var aID *string
 	if team.AzureGroupID != nil {
 		aID = ptr.To(team.AzureGroupID.String())

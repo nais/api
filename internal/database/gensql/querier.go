@@ -52,9 +52,10 @@ type Querier interface {
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	DisableReconciler(ctx context.Context, name string) (*Reconciler, error)
 	EnableReconciler(ctx context.Context, name string) (*Reconciler, error)
-	// GetActiveOrDeletedTeamBySlug returns a team by its slug, whether the team is deleted or not.
-	GetActiveOrDeletedTeamBySlug(ctx context.Context, argSlug slug.Slug) (*ActiveOrDeletedTeam, error)
-	GetActiveOrDeletedTeams(ctx context.Context, arg GetActiveOrDeletedTeamsParams) ([]*ActiveOrDeletedTeam, error)
+	GetActiveOrDeletedTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error)
+	// GetActiveOrDeletedTeams returns a slice of teams, including deleted teams.
+	GetActiveOrDeletedTeams(ctx context.Context, arg GetActiveOrDeletedTeamsParams) ([]*Team, error)
+	// GetActiveOrDeletedTeamsCount returns the total number or teams, including deleted teams.
 	GetActiveOrDeletedTeamsCount(ctx context.Context) (int64, error)
 	GetAllTeamMembers(ctx context.Context, teamSlug *slug.Slug) ([]*User, error)
 	// GetAllTeamSlugs returns all team slugs in ascending order, excluding deleted teams.
@@ -83,7 +84,6 @@ type Querier interface {
 	GetServiceAccountsByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccount, error)
 	GetSessionByID(ctx context.Context, id uuid.UUID) (*Session, error)
 	GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error)
-	GetTeamBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)
 	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
 	GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmentsParams) ([]*TeamAllEnvironment, error)
 	// Input is two arrays of equal length, one for slugs and one for names
@@ -93,11 +93,11 @@ type Querier interface {
 	GetTeamMemberOptOuts(ctx context.Context, arg GetTeamMemberOptOutsParams) ([]*GetTeamMemberOptOutsRow, error)
 	GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) ([]*User, error)
 	GetTeamMembersCount(ctx context.Context, teamSlug *slug.Slug) (int64, error)
-	GetTeamMembersForReconciler(ctx context.Context, arg GetTeamMembersForReconcilerParams) ([]*User, error)
 	GetTeamReconcilerErrors(ctx context.Context, teamSlug slug.Slug) ([]*ReconcilerError, error)
 	// GetTeams returns a slice of teams, excluding deleted teams.
 	GetTeams(ctx context.Context, arg GetTeamsParams) ([]*Team, error)
-	// GetTeamsCount returns the total number of non-deleted teams.
+	GetTeamsBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)
+	// GetTeamsCount returns the total number or teams, excluding deleted teams.
 	GetTeamsCount(ctx context.Context) (int64, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserByExternalID(ctx context.Context, externalID string) (*User, error)

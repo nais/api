@@ -6,8 +6,6 @@ import (
 	"sort"
 	"time"
 
-	"k8s.io/utils/ptr"
-
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
@@ -39,16 +37,15 @@ type TeamRepo interface {
 	GetAllTeamMembers(ctx context.Context, teamSlug slug.Slug) ([]*User, error)
 	GetAllTeamSlugs(ctx context.Context) ([]slug.Slug, error)
 	GetTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error)
-	GetActiveOrDeletedTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*ActiveOrDeletedTeam, error)
+	GetActiveOrDeletedTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error)
 	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
 	GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, p Page) ([]*TeamEnvironment, int, error)
 	GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, keys []EnvSlugName) ([]*TeamEnvironment, error)
 	GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*User, error)
 	GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*gensql.GetTeamMemberOptOutsRow, error)
 	GetTeamMembers(ctx context.Context, teamSlug slug.Slug, p Page) ([]*User, int, error)
-	GetTeamMembersForReconciler(ctx context.Context, teamSlug slug.Slug, reconcilerName string) ([]*User, error)
 	GetTeams(ctx context.Context, p Page) ([]*Team, int, error)
-	GetActiveOrDeletedTeams(ctx context.Context, p Page) ([]*ActiveOrDeletedTeam, int, error)
+	GetActiveOrDeletedTeams(ctx context.Context, p Page) ([]*Team, int, error)
 	GetTeamsBySlugs(ctx context.Context, teamSlugs []slug.Slug) ([]*Team, error)
 	GetAllTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string) ([]*Team, error)
 	GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*UserTeam, error)
@@ -87,10 +84,6 @@ func (k TeamDeleteKey) HasExpired() bool {
 
 type Team struct {
 	*gensql.Team
-}
-
-type ActiveOrDeletedTeam struct {
-	*gensql.ActiveOrDeletedTeam
 }
 
 func (d *database) RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error {
@@ -135,15 +128,6 @@ func (d *database) CreateTeam(ctx context.Context, teamSlug slug.Slug, purpose, 
 	return &Team{Team: team}, nil
 }
 
-func (d *database) GetActiveOrDeletedTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*ActiveOrDeletedTeam, error) {
-	team, err := d.querier.GetActiveOrDeletedTeamBySlug(ctx, teamSlug)
-	if err != nil {
-		return nil, err
-	}
-
-	return &ActiveOrDeletedTeam{ActiveOrDeletedTeam: ptr.To(*team)}, nil
-}
-
 func (d *database) GetTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error) {
 	team, err := d.querier.GetTeamBySlug(ctx, teamSlug)
 	if err != nil {
@@ -153,10 +137,17 @@ func (d *database) GetTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team
 	return &Team{Team: team}, nil
 }
 
+func (d *database) GetActiveOrDeletedTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error) {
+	team, err := d.querier.GetActiveOrDeletedTeamBySlug(ctx, teamSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Team{Team: team}, nil
+}
+
 func (d *database) GetTeams(ctx context.Context, p Page) ([]*Team, int, error) {
-	var teams []*gensql.Team
-	var err error
-	teams, err = d.querier.GetTeams(ctx, gensql.GetTeamsParams{
+	teams, err := d.querier.GetTeams(ctx, gensql.GetTeamsParams{
 		Offset: int32(p.Offset),
 		Limit:  int32(p.Limit),
 	})
@@ -177,7 +168,7 @@ func (d *database) GetTeams(ctx context.Context, p Page) ([]*Team, int, error) {
 	return collection, int(total), nil
 }
 
-func (d *database) GetActiveOrDeletedTeams(ctx context.Context, p Page) ([]*ActiveOrDeletedTeam, int, error) {
+func (d *database) GetActiveOrDeletedTeams(ctx context.Context, p Page) ([]*Team, int, error) {
 	teams, err := d.querier.GetActiveOrDeletedTeams(ctx, gensql.GetActiveOrDeletedTeamsParams{
 		Offset: int32(p.Offset),
 		Limit:  int32(p.Limit),
@@ -186,9 +177,9 @@ func (d *database) GetActiveOrDeletedTeams(ctx context.Context, p Page) ([]*Acti
 		return nil, 0, err
 	}
 
-	ret := make([]*ActiveOrDeletedTeam, len(teams))
+	ret := make([]*Team, len(teams))
 	for i, team := range teams {
-		ret[i] = &ActiveOrDeletedTeam{ActiveOrDeletedTeam: team}
+		ret[i] = &Team{Team: team}
 	}
 
 	total, err := d.querier.GetActiveOrDeletedTeamsCount(ctx)
@@ -200,7 +191,7 @@ func (d *database) GetActiveOrDeletedTeams(ctx context.Context, p Page) ([]*Acti
 }
 
 func (d *database) GetTeamsBySlugs(ctx context.Context, teamSlugs []slug.Slug) ([]*Team, error) {
-	teams, err := d.querier.GetTeamBySlugs(ctx, teamSlugs)
+	teams, err := d.querier.GetTeamsBySlugs(ctx, teamSlugs)
 	if err != nil {
 		return nil, err
 	}
@@ -323,23 +314,6 @@ func (d *database) GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID
 	}
 
 	return &User{User: user}, nil
-}
-
-func (d *database) GetTeamMembersForReconciler(ctx context.Context, teamSlug slug.Slug, reconcilerName string) ([]*User, error) {
-	rows, err := d.querier.GetTeamMembersForReconciler(ctx, gensql.GetTeamMembersForReconcilerParams{
-		TeamSlug:       teamSlug,
-		ReconcilerName: reconcilerName,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	members := make([]*User, len(rows))
-	for i, row := range rows {
-		members[i] = &User{User: row}
-	}
-
-	return members, nil
 }
 
 func (d *database) SetLastSuccessfulSyncForTeam(ctx context.Context, teamSlug slug.Slug) error {
