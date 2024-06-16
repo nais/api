@@ -20,6 +20,7 @@ type Querier interface {
 	AverageResourceUtilizationForTeam(ctx context.Context, arg AverageResourceUtilizationForTeamParams) (*AverageResourceUtilizationForTeamRow, error)
 	ClearReconcilerErrorsForTeam(ctx context.Context, arg ClearReconcilerErrorsForTeamParams) error
 	ConfigureReconciler(ctx context.Context, arg ConfigureReconcilerParams) error
+	// ConfirmTeamDeleteKey confirms a delete key for a team.
 	ConfirmTeamDeleteKey(ctx context.Context, key uuid.UUID) error
 	CostForInstance(ctx context.Context, arg CostForInstanceParams) (float32, error)
 	// CostUpsert will insert or update a cost record. If there is a conflict on the daily_cost_key constrant, the
@@ -30,7 +31,9 @@ type Querier interface {
 	CreateRepositoryAuthorization(ctx context.Context, arg CreateRepositoryAuthorizationParams) error
 	CreateServiceAccount(ctx context.Context, name string) (*ServiceAccount, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (*Session, error)
+	// CreateTeam creates a new team.
 	CreateTeam(ctx context.Context, arg CreateTeamParams) (*Team, error)
+	// CreateTeamDeleteKey creates a new delete key for a team.
 	CreateTeamDeleteKey(ctx context.Context, arg CreateTeamDeleteKeyParams) (*TeamDeleteKey, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (*User, error)
 	CreateUsersyncRun(ctx context.Context, arg CreateUsersyncRunParams) error
@@ -47,16 +50,18 @@ type Querier interface {
 	DeleteReconcilerStateForTeam(ctx context.Context, arg DeleteReconcilerStateForTeamParams) error
 	DeleteServiceAccount(ctx context.Context, id uuid.UUID) error
 	DeleteSession(ctx context.Context, id uuid.UUID) error
-	// DeleteTeam marks a team as deleted. The team must have an already confirmed delete key for a successful deletion.
+	// DeleteTeam marks a team as deleted. The team must have an already confirmed delete key for this to succeed.
 	DeleteTeam(ctx context.Context, argSlug slug.Slug) error
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	DisableReconciler(ctx context.Context, name string) (*Reconciler, error)
 	EnableReconciler(ctx context.Context, name string) (*Reconciler, error)
+	// GetActiveOrDeletedTeamBySlug returns a team by its slug, including deleted teams.
 	GetActiveOrDeletedTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	// GetActiveOrDeletedTeams returns a slice of teams, including deleted teams.
 	GetActiveOrDeletedTeams(ctx context.Context, arg GetActiveOrDeletedTeamsParams) ([]*Team, error)
 	// GetActiveOrDeletedTeamsCount returns the total number or teams, including deleted teams.
 	GetActiveOrDeletedTeamsCount(ctx context.Context) (int64, error)
+	// GetAllTeamMembers returns all team members of a non-deleted team.
 	GetAllTeamMembers(ctx context.Context, teamSlug *slug.Slug) ([]*User, error)
 	// GetAllTeamSlugs returns all team slugs in ascending order, excluding deleted teams.
 	GetAllTeamSlugs(ctx context.Context) ([]slug.Slug, error)
@@ -83,19 +88,30 @@ type Querier interface {
 	GetServiceAccounts(ctx context.Context) ([]*ServiceAccount, error)
 	GetServiceAccountsByIDs(ctx context.Context, ids []uuid.UUID) ([]*ServiceAccount, error)
 	GetSessionByID(ctx context.Context, id uuid.UUID) (*Session, error)
+	// GetTeamBySlug returns a team by its slug, excluding deleted teams.
 	GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error)
+	// GetTeamDeleteKey returns a delete key for a team.
 	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
+	// GetTeamEnvironments returns a slice of team environments, excluding deleted teams.
 	GetTeamEnvironments(ctx context.Context, arg GetTeamEnvironmentsParams) ([]*TeamAllEnvironment, error)
+	// GetTeamEnvironmentsBySlugsAndEnvNames returns a slice of team environments for a list of teams/envs, excluding
+	// deleted teams.
 	// Input is two arrays of equal length, one for slugs and one for names
 	GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamAllEnvironment, error)
+	// GetTeamEnvironmentsCount returns the total number of team environments, excluding deleted teams.
 	GetTeamEnvironmentsCount(ctx context.Context, teamSlug slug.Slug) (int64, error)
+	// GetTeamMember returns a specific team member of a non-deleted team.
 	GetTeamMember(ctx context.Context, arg GetTeamMemberParams) (*User, error)
+	// GetTeamMemberOptOuts returns a slice of team member opt-outs.
 	GetTeamMemberOptOuts(ctx context.Context, arg GetTeamMemberOptOutsParams) ([]*GetTeamMemberOptOutsRow, error)
+	// GetTeamMembers returns a slice of team members of a non-deleted team.
 	GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) ([]*User, error)
+	// GetTeamMembersCount returns the total number of team members of a non-deleted team.
 	GetTeamMembersCount(ctx context.Context, teamSlug *slug.Slug) (int64, error)
 	GetTeamReconcilerErrors(ctx context.Context, teamSlug slug.Slug) ([]*ReconcilerError, error)
 	// GetTeams returns a slice of teams, excluding deleted teams.
 	GetTeams(ctx context.Context, arg GetTeamsParams) ([]*Team, error)
+	// GetTeamsBySlugs returns a slice of teams by their slugs, excluding deleted teams.
 	GetTeamsBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)
 	// GetTeamsCount returns the total number or teams, excluding deleted teams.
 	GetTeamsCount(ctx context.Context) (int64, error)
@@ -128,6 +144,7 @@ type Querier interface {
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveReconcilerOptOut(ctx context.Context, arg RemoveReconcilerOptOutParams) error
 	RemoveRepositoryAuthorization(ctx context.Context, arg RemoveRepositoryAuthorizationParams) error
+	// RemoveUserFromTeam removes a user from a team.
 	RemoveUserFromTeam(ctx context.Context, arg RemoveUserFromTeamParams) error
 	ResetReconcilerConfig(ctx context.Context, reconcilerName string) error
 	// ResourceUtilizationForApp will return resource utilization records for a given app.
@@ -143,6 +160,7 @@ type Querier interface {
 	// ResourceUtilizationUpsert will insert or update resource utilization records.
 	ResourceUtilizationUpsert(ctx context.Context, arg []ResourceUtilizationUpsertParams) *ResourceUtilizationUpsertBatchResults
 	RevokeGlobalUserRole(ctx context.Context, arg RevokeGlobalUserRoleParams) error
+	// SetLastSuccessfulSyncForTeam sets the last successful sync time for a non-deleted team.
 	SetLastSuccessfulSyncForTeam(ctx context.Context, argSlug slug.Slug) error
 	SetReconcilerErrorForTeam(ctx context.Context, arg SetReconcilerErrorForTeamParams) error
 	SetSessionExpires(ctx context.Context, arg SetSessionExpiresParams) (*Session, error)
@@ -156,13 +174,15 @@ type Querier interface {
 	// TeamHasConfirmedDeleteKey checks if a team has a confirmed delete key. This means that the team is currently being
 	// deleted. Already deleted teams are not considered.
 	TeamHasConfirmedDeleteKey(ctx context.Context, argSlug slug.Slug) (bool, error)
-	// UpdateTeam updates the purpose and slack channel of a team when specified.
+	// UpdateTeam updates the purpose and slack channel of a non-deleted team.
 	UpdateTeam(ctx context.Context, arg UpdateTeamParams) (*Team, error)
+	// UpdateTeamExternalReferences updates the external references of a non-deleted team.
 	UpdateTeamExternalReferences(ctx context.Context, arg UpdateTeamExternalReferencesParams) (*Team, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (*User, error)
 	UpsertReconciler(ctx context.Context, arg UpsertReconcilerParams) (*Reconciler, error)
 	UpsertReconcilerConfig(ctx context.Context, arg UpsertReconcilerConfigParams) error
 	UpsertReconcilerState(ctx context.Context, arg UpsertReconcilerStateParams) (*ReconcilerState, error)
+	// UpsertTeamEnvironment creates or updates a team environment.
 	UpsertTeamEnvironment(ctx context.Context, arg UpsertTeamEnvironmentParams) (*TeamEnvironment, error)
 }
 
