@@ -15,7 +15,7 @@ message Team {
   optional string google_group_email = 6;
   optional string gar_repository = 7;
   optional string cdn_bucket = 8;
-  google.protobuf.Timestamp deleted_at = 9;
+  optional google.protobuf.Timestamp deleted_at = 9;
 }
 
 message ListAuthorizedRepositoriesRequest {
