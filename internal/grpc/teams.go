@@ -193,7 +193,7 @@ func (t *TeamsServer) IsRepositoryAuthorized(ctx context.Context, req *protoapi.
 	return &protoapi.IsRepositoryAuthorizedResponse{IsAuthorized: false}, nil
 }
 
-func toProtoTeam(team *database.Team) *protoapi.Team {
+func toProtoTeam(team *database.ActiveOrDeletedTeam) *protoapi.Team {
 	var aID *string
 	if team.AzureGroupID != nil {
 		aID = ptr.To(team.AzureGroupID.String())
@@ -208,6 +208,7 @@ func toProtoTeam(team *database.Team) *protoapi.Team {
 		GoogleGroupEmail: team.GoogleGroupEmail,
 		GarRepository:    team.GarRepository,
 		CdnBucket:        team.CdnBucket,
+		CanBeDeleted:     team.CanBeDeleted,
 		DeletedAt:        timestamppb.New(team.DeletedAt.Time),
 	}
 }

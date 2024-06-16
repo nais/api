@@ -1842,23 +1842,23 @@ func (_c *MockDatabase_ExtendSession_Call) RunAndReturn(run func(context.Context
 }
 
 // GetActiveOrDeletedTeamBySlug provides a mock function with given fields: ctx, teamSlug
-func (_m *MockDatabase) GetActiveOrDeletedTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error) {
+func (_m *MockDatabase) GetActiveOrDeletedTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*ActiveOrDeletedTeam, error) {
 	ret := _m.Called(ctx, teamSlug)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetActiveOrDeletedTeamBySlug")
 	}
 
-	var r0 *Team
+	var r0 *ActiveOrDeletedTeam
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (*Team, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (*ActiveOrDeletedTeam, error)); ok {
 		return rf(ctx, teamSlug)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) *Team); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) *ActiveOrDeletedTeam); ok {
 		r0 = rf(ctx, teamSlug)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Team)
+			r0 = ret.Get(0).(*ActiveOrDeletedTeam)
 		}
 	}
 
@@ -1890,35 +1890,35 @@ func (_c *MockDatabase_GetActiveOrDeletedTeamBySlug_Call) Run(run func(ctx conte
 	return _c
 }
 
-func (_c *MockDatabase_GetActiveOrDeletedTeamBySlug_Call) Return(_a0 *Team, _a1 error) *MockDatabase_GetActiveOrDeletedTeamBySlug_Call {
+func (_c *MockDatabase_GetActiveOrDeletedTeamBySlug_Call) Return(_a0 *ActiveOrDeletedTeam, _a1 error) *MockDatabase_GetActiveOrDeletedTeamBySlug_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockDatabase_GetActiveOrDeletedTeamBySlug_Call) RunAndReturn(run func(context.Context, slug.Slug) (*Team, error)) *MockDatabase_GetActiveOrDeletedTeamBySlug_Call {
+func (_c *MockDatabase_GetActiveOrDeletedTeamBySlug_Call) RunAndReturn(run func(context.Context, slug.Slug) (*ActiveOrDeletedTeam, error)) *MockDatabase_GetActiveOrDeletedTeamBySlug_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetActiveOrDeletedTeams provides a mock function with given fields: ctx, p
-func (_m *MockDatabase) GetActiveOrDeletedTeams(ctx context.Context, p Page) ([]*Team, int, error) {
+func (_m *MockDatabase) GetActiveOrDeletedTeams(ctx context.Context, p Page) ([]*ActiveOrDeletedTeam, int, error) {
 	ret := _m.Called(ctx, p)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetActiveOrDeletedTeams")
 	}
 
-	var r0 []*Team
+	var r0 []*ActiveOrDeletedTeam
 	var r1 int
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, Page) ([]*Team, int, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, Page) ([]*ActiveOrDeletedTeam, int, error)); ok {
 		return rf(ctx, p)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, Page) []*Team); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, Page) []*ActiveOrDeletedTeam); ok {
 		r0 = rf(ctx, p)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*Team)
+			r0 = ret.Get(0).([]*ActiveOrDeletedTeam)
 		}
 	}
 
@@ -1956,12 +1956,12 @@ func (_c *MockDatabase_GetActiveOrDeletedTeams_Call) Run(run func(ctx context.Co
 	return _c
 }
 
-func (_c *MockDatabase_GetActiveOrDeletedTeams_Call) Return(_a0 []*Team, _a1 int, _a2 error) *MockDatabase_GetActiveOrDeletedTeams_Call {
+func (_c *MockDatabase_GetActiveOrDeletedTeams_Call) Return(_a0 []*ActiveOrDeletedTeam, _a1 int, _a2 error) *MockDatabase_GetActiveOrDeletedTeams_Call {
 	_c.Call.Return(_a0, _a1, _a2)
 	return _c
 }
 
-func (_c *MockDatabase_GetActiveOrDeletedTeams_Call) RunAndReturn(run func(context.Context, Page) ([]*Team, int, error)) *MockDatabase_GetActiveOrDeletedTeams_Call {
+func (_c *MockDatabase_GetActiveOrDeletedTeams_Call) RunAndReturn(run func(context.Context, Page) ([]*ActiveOrDeletedTeam, int, error)) *MockDatabase_GetActiveOrDeletedTeams_Call {
 	_c.Call.Return(run)
 	return _c
 }

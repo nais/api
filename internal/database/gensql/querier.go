@@ -56,9 +56,9 @@ type Querier interface {
 	DisableReconciler(ctx context.Context, name string) (*Reconciler, error)
 	EnableReconciler(ctx context.Context, name string) (*Reconciler, error)
 	// GetActiveOrDeletedTeamBySlug returns a team by its slug, including deleted teams.
-	GetActiveOrDeletedTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error)
+	GetActiveOrDeletedTeamBySlug(ctx context.Context, argSlug slug.Slug) (*GetActiveOrDeletedTeamBySlugRow, error)
 	// GetActiveOrDeletedTeams returns a slice of teams, including deleted teams.
-	GetActiveOrDeletedTeams(ctx context.Context, arg GetActiveOrDeletedTeamsParams) ([]*Team, error)
+	GetActiveOrDeletedTeams(ctx context.Context, arg GetActiveOrDeletedTeamsParams) ([]*GetActiveOrDeletedTeamsRow, error)
 	// GetActiveOrDeletedTeamsCount returns the total number or teams, including deleted teams.
 	GetActiveOrDeletedTeamsCount(ctx context.Context) (int64, error)
 	// GetAllTeamMembers returns all team members of a non-deleted team.

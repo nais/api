@@ -75,8 +75,17 @@ WHERE teams.deleted_at IS NULL;
 
 -- GetActiveOrDeletedTeams returns a slice of teams, including deleted teams.
 -- name: GetActiveOrDeletedTeams :many
-SELECT teams.*
+SELECT
+    sqlc.embed(teams),
+    (
+        COUNT(team_delete_keys.*) > 0
+        AND teams.deleted_at IS NULL
+    )::BOOL AS canBeDeleted
 FROM teams
+LEFT JOIN team_delete_keys ON
+    team_delete_keys.team_slug = teams.slug
+    AND team_delete_keys.confirmed_at IS NOT NULL
+GROUP BY teams.slug
 ORDER BY teams.slug ASC
 LIMIT sqlc.arg('limit')
 OFFSET sqlc.arg('offset');
@@ -103,9 +112,18 @@ WHERE
 
 -- GetActiveOrDeletedTeamBySlug returns a team by its slug, including deleted teams.
 -- name: GetActiveOrDeletedTeamBySlug :one
-SELECT teams.*
+SELECT
+    sqlc.embed(teams),
+    (
+        COUNT(team_delete_keys.*) > 0
+        AND teams.deleted_at IS NULL
+    )::BOOL AS canBeDeleted
 FROM teams
-WHERE teams.slug = @slug;
+LEFT JOIN team_delete_keys ON
+    team_delete_keys.team_slug = teams.slug
+    AND team_delete_keys.confirmed_at IS NOT NULL
+WHERE teams.slug = @slug
+GROUP BY teams.slug;
 
 -- GetTeamsBySlugs returns a slice of teams by their slugs, excluding deleted teams.
 -- name: GetTeamsBySlugs :many

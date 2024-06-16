@@ -37,7 +37,7 @@ type TeamRepo interface {
 	GetAllTeamMembers(ctx context.Context, teamSlug slug.Slug) ([]*User, error)
 	GetAllTeamSlugs(ctx context.Context) ([]slug.Slug, error)
 	GetTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error)
-	GetActiveOrDeletedTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error)
+	GetActiveOrDeletedTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*ActiveOrDeletedTeam, error)
 	GetTeamDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
 	GetTeamEnvironments(ctx context.Context, teamSlug slug.Slug, p Page) ([]*TeamEnvironment, int, error)
 	GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, keys []EnvSlugName) ([]*TeamEnvironment, error)
@@ -45,7 +45,7 @@ type TeamRepo interface {
 	GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*gensql.GetTeamMemberOptOutsRow, error)
 	GetTeamMembers(ctx context.Context, teamSlug slug.Slug, p Page) ([]*User, int, error)
 	GetTeams(ctx context.Context, p Page) ([]*Team, int, error)
-	GetActiveOrDeletedTeams(ctx context.Context, p Page) ([]*Team, int, error)
+	GetActiveOrDeletedTeams(ctx context.Context, p Page) ([]*ActiveOrDeletedTeam, int, error)
 	GetTeamsBySlugs(ctx context.Context, teamSlugs []slug.Slug) ([]*Team, error)
 	GetAllTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string) ([]*Team, error)
 	GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*UserTeam, error)
@@ -84,6 +84,12 @@ func (k TeamDeleteKey) HasExpired() bool {
 
 type Team struct {
 	*gensql.Team
+}
+
+type ActiveOrDeletedTeam struct {
+	*gensql.Team
+	CanBeDeleted bool
+	IsDeleted    bool
 }
 
 func (d *database) RemoveUserFromTeam(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) error {
@@ -137,13 +143,17 @@ func (d *database) GetTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team
 	return &Team{Team: team}, nil
 }
 
-func (d *database) GetActiveOrDeletedTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error) {
-	team, err := d.querier.GetActiveOrDeletedTeamBySlug(ctx, teamSlug)
+func (d *database) GetActiveOrDeletedTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*ActiveOrDeletedTeam, error) {
+	row, err := d.querier.GetActiveOrDeletedTeamBySlug(ctx, teamSlug)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Team{Team: team}, nil
+	return &ActiveOrDeletedTeam{
+		Team:         &row.Team,
+		CanBeDeleted: row.Canbedeleted,
+		IsDeleted:    !row.Team.DeletedAt.Time.IsZero(),
+	}, nil
 }
 
 func (d *database) GetTeams(ctx context.Context, p Page) ([]*Team, int, error) {
@@ -168,8 +178,8 @@ func (d *database) GetTeams(ctx context.Context, p Page) ([]*Team, int, error) {
 	return collection, int(total), nil
 }
 
-func (d *database) GetActiveOrDeletedTeams(ctx context.Context, p Page) ([]*Team, int, error) {
-	teams, err := d.querier.GetActiveOrDeletedTeams(ctx, gensql.GetActiveOrDeletedTeamsParams{
+func (d *database) GetActiveOrDeletedTeams(ctx context.Context, p Page) ([]*ActiveOrDeletedTeam, int, error) {
+	rows, err := d.querier.GetActiveOrDeletedTeams(ctx, gensql.GetActiveOrDeletedTeamsParams{
 		Offset: int32(p.Offset),
 		Limit:  int32(p.Limit),
 	})
@@ -177,9 +187,13 @@ func (d *database) GetActiveOrDeletedTeams(ctx context.Context, p Page) ([]*Team
 		return nil, 0, err
 	}
 
-	ret := make([]*Team, len(teams))
-	for i, team := range teams {
-		ret[i] = &Team{Team: team}
+	ret := make([]*ActiveOrDeletedTeam, len(rows))
+	for i, row := range rows {
+		ret[i] = &ActiveOrDeletedTeam{
+			Team:         &row.Team,
+			CanBeDeleted: row.Canbedeleted,
+			IsDeleted:    !row.Team.DeletedAt.Time.IsZero(),
+		}
 	}
 
 	total, err := d.querier.GetActiveOrDeletedTeamsCount(ctx)

@@ -1,5 +1,6 @@
 package protoapi
 
 func (t *Team) IsDeleted() bool {
-	return t.GetDeletedAt() != nil
+	deletedAt := t.GetDeletedAt()
+	return deletedAt != nil && !deletedAt.AsTime().IsZero()
 }

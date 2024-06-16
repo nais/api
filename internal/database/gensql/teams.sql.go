@@ -100,33 +100,57 @@ func (q *Queries) DeleteTeam(ctx context.Context, argSlug slug.Slug) error {
 }
 
 const getActiveOrDeletedTeamBySlug = `-- name: GetActiveOrDeletedTeamBySlug :one
-SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.deleted_at
+SELECT
+    teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.deleted_at,
+    (
+        COUNT(team_delete_keys.*) > 0
+        AND teams.deleted_at IS NULL
+    )::BOOL AS canBeDeleted
 FROM teams
+LEFT JOIN team_delete_keys ON
+    team_delete_keys.team_slug = teams.slug
+    AND team_delete_keys.confirmed_at IS NOT NULL
 WHERE teams.slug = $1
+GROUP BY teams.slug
 `
 
+type GetActiveOrDeletedTeamBySlugRow struct {
+	Team         Team
+	Canbedeleted bool
+}
+
 // GetActiveOrDeletedTeamBySlug returns a team by its slug, including deleted teams.
-func (q *Queries) GetActiveOrDeletedTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error) {
+func (q *Queries) GetActiveOrDeletedTeamBySlug(ctx context.Context, argSlug slug.Slug) (*GetActiveOrDeletedTeamBySlugRow, error) {
 	row := q.db.QueryRow(ctx, getActiveOrDeletedTeamBySlug, argSlug)
-	var i Team
+	var i GetActiveOrDeletedTeamBySlugRow
 	err := row.Scan(
-		&i.Slug,
-		&i.Purpose,
-		&i.LastSuccessfulSync,
-		&i.SlackChannel,
-		&i.GoogleGroupEmail,
-		&i.AzureGroupID,
-		&i.GithubTeamSlug,
-		&i.GarRepository,
-		&i.CdnBucket,
-		&i.DeletedAt,
+		&i.Team.Slug,
+		&i.Team.Purpose,
+		&i.Team.LastSuccessfulSync,
+		&i.Team.SlackChannel,
+		&i.Team.GoogleGroupEmail,
+		&i.Team.AzureGroupID,
+		&i.Team.GithubTeamSlug,
+		&i.Team.GarRepository,
+		&i.Team.CdnBucket,
+		&i.Team.DeletedAt,
+		&i.Canbedeleted,
 	)
 	return &i, err
 }
 
 const getActiveOrDeletedTeams = `-- name: GetActiveOrDeletedTeams :many
-SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.deleted_at
+SELECT
+    teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.deleted_at,
+    (
+        COUNT(team_delete_keys.*) > 0
+        AND teams.deleted_at IS NULL
+    )::BOOL AS canBeDeleted
 FROM teams
+LEFT JOIN team_delete_keys ON
+    team_delete_keys.team_slug = teams.slug
+    AND team_delete_keys.confirmed_at IS NOT NULL
+GROUP BY teams.slug
 ORDER BY teams.slug ASC
 LIMIT $2
 OFFSET $1
@@ -137,27 +161,33 @@ type GetActiveOrDeletedTeamsParams struct {
 	Limit  int32
 }
 
+type GetActiveOrDeletedTeamsRow struct {
+	Team         Team
+	Canbedeleted bool
+}
+
 // GetActiveOrDeletedTeams returns a slice of teams, including deleted teams.
-func (q *Queries) GetActiveOrDeletedTeams(ctx context.Context, arg GetActiveOrDeletedTeamsParams) ([]*Team, error) {
+func (q *Queries) GetActiveOrDeletedTeams(ctx context.Context, arg GetActiveOrDeletedTeamsParams) ([]*GetActiveOrDeletedTeamsRow, error) {
 	rows, err := q.db.Query(ctx, getActiveOrDeletedTeams, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*Team{}
+	items := []*GetActiveOrDeletedTeamsRow{}
 	for rows.Next() {
-		var i Team
+		var i GetActiveOrDeletedTeamsRow
 		if err := rows.Scan(
-			&i.Slug,
-			&i.Purpose,
-			&i.LastSuccessfulSync,
-			&i.SlackChannel,
-			&i.GoogleGroupEmail,
-			&i.AzureGroupID,
-			&i.GithubTeamSlug,
-			&i.GarRepository,
-			&i.CdnBucket,
-			&i.DeletedAt,
+			&i.Team.Slug,
+			&i.Team.Purpose,
+			&i.Team.LastSuccessfulSync,
+			&i.Team.SlackChannel,
+			&i.Team.GoogleGroupEmail,
+			&i.Team.AzureGroupID,
+			&i.Team.GithubTeamSlug,
+			&i.Team.GarRepository,
+			&i.Team.CdnBucket,
+			&i.Team.DeletedAt,
+			&i.Canbedeleted,
 		); err != nil {
 			return nil, err
 		}

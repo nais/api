@@ -1731,23 +1731,23 @@ func (_c *MockQuerier_EnableReconciler_Call) RunAndReturn(run func(context.Conte
 }
 
 // GetActiveOrDeletedTeamBySlug provides a mock function with given fields: ctx, argSlug
-func (_m *MockQuerier) GetActiveOrDeletedTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, error) {
+func (_m *MockQuerier) GetActiveOrDeletedTeamBySlug(ctx context.Context, argSlug slug.Slug) (*GetActiveOrDeletedTeamBySlugRow, error) {
 	ret := _m.Called(ctx, argSlug)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetActiveOrDeletedTeamBySlug")
 	}
 
-	var r0 *Team
+	var r0 *GetActiveOrDeletedTeamBySlugRow
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (*Team, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (*GetActiveOrDeletedTeamBySlugRow, error)); ok {
 		return rf(ctx, argSlug)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) *Team); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) *GetActiveOrDeletedTeamBySlugRow); ok {
 		r0 = rf(ctx, argSlug)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Team)
+			r0 = ret.Get(0).(*GetActiveOrDeletedTeamBySlugRow)
 		}
 	}
 
@@ -1779,34 +1779,34 @@ func (_c *MockQuerier_GetActiveOrDeletedTeamBySlug_Call) Run(run func(ctx contex
 	return _c
 }
 
-func (_c *MockQuerier_GetActiveOrDeletedTeamBySlug_Call) Return(_a0 *Team, _a1 error) *MockQuerier_GetActiveOrDeletedTeamBySlug_Call {
+func (_c *MockQuerier_GetActiveOrDeletedTeamBySlug_Call) Return(_a0 *GetActiveOrDeletedTeamBySlugRow, _a1 error) *MockQuerier_GetActiveOrDeletedTeamBySlug_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockQuerier_GetActiveOrDeletedTeamBySlug_Call) RunAndReturn(run func(context.Context, slug.Slug) (*Team, error)) *MockQuerier_GetActiveOrDeletedTeamBySlug_Call {
+func (_c *MockQuerier_GetActiveOrDeletedTeamBySlug_Call) RunAndReturn(run func(context.Context, slug.Slug) (*GetActiveOrDeletedTeamBySlugRow, error)) *MockQuerier_GetActiveOrDeletedTeamBySlug_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetActiveOrDeletedTeams provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) GetActiveOrDeletedTeams(ctx context.Context, arg GetActiveOrDeletedTeamsParams) ([]*Team, error) {
+func (_m *MockQuerier) GetActiveOrDeletedTeams(ctx context.Context, arg GetActiveOrDeletedTeamsParams) ([]*GetActiveOrDeletedTeamsRow, error) {
 	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetActiveOrDeletedTeams")
 	}
 
-	var r0 []*Team
+	var r0 []*GetActiveOrDeletedTeamsRow
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, GetActiveOrDeletedTeamsParams) ([]*Team, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, GetActiveOrDeletedTeamsParams) ([]*GetActiveOrDeletedTeamsRow, error)); ok {
 		return rf(ctx, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, GetActiveOrDeletedTeamsParams) []*Team); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, GetActiveOrDeletedTeamsParams) []*GetActiveOrDeletedTeamsRow); ok {
 		r0 = rf(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*Team)
+			r0 = ret.Get(0).([]*GetActiveOrDeletedTeamsRow)
 		}
 	}
 
@@ -1838,12 +1838,12 @@ func (_c *MockQuerier_GetActiveOrDeletedTeams_Call) Run(run func(ctx context.Con
 	return _c
 }
 
-func (_c *MockQuerier_GetActiveOrDeletedTeams_Call) Return(_a0 []*Team, _a1 error) *MockQuerier_GetActiveOrDeletedTeams_Call {
+func (_c *MockQuerier_GetActiveOrDeletedTeams_Call) Return(_a0 []*GetActiveOrDeletedTeamsRow, _a1 error) *MockQuerier_GetActiveOrDeletedTeams_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockQuerier_GetActiveOrDeletedTeams_Call) RunAndReturn(run func(context.Context, GetActiveOrDeletedTeamsParams) ([]*Team, error)) *MockQuerier_GetActiveOrDeletedTeams_Call {
+func (_c *MockQuerier_GetActiveOrDeletedTeams_Call) RunAndReturn(run func(context.Context, GetActiveOrDeletedTeamsParams) ([]*GetActiveOrDeletedTeamsRow, error)) *MockQuerier_GetActiveOrDeletedTeams_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -68,7 +68,7 @@ func TestTeamsServer_Get(t *testing.T) {
 		db := database.NewMockDatabase(t)
 		db.EXPECT().
 			GetActiveOrDeletedTeamBySlug(ctx, slug.Slug(teamSlug)).
-			Return(&database.Team{Team: &gensql.Team{
+			Return(&database.ActiveOrDeletedTeam{Team: &gensql.Team{
 				Slug:             teamSlug,
 				Purpose:          purpose,
 				SlackChannel:     slackChannel,
@@ -172,7 +172,7 @@ func TestTeamsServer_List(t *testing.T) {
 	})
 
 	t.Run("fetch teams", func(t *testing.T) {
-		teamsFromDatabase := []*database.Team{
+		teamsFromDatabase := []*database.ActiveOrDeletedTeam{
 			{Team: &gensql.Team{Slug: "team1"}},
 			{Team: &gensql.Team{Slug: "team2"}},
 		}
