@@ -29,13 +29,13 @@ func (c *Client) Topics(teamSlug slug.Slug) ([]*model.KafkaTopic, error) {
 		}
 
 		for _, obj := range objs {
-			redis, err := model.ToKafkaTopic(obj.(*unstructured.Unstructured), env)
+			topic, err := model.ToKafkaTopic(obj.(*unstructured.Unstructured), env)
 			if err != nil {
 				KafkaListErrorCounter.Add(context.Background(), 1)
 				return nil, fmt.Errorf("converting to KafkaTopic: %w", err)
 			}
 
-			ret = append(ret, redis)
+			ret = append(ret, topic)
 		}
 	}
 	sort.Slice(ret, func(i, j int) bool {
