@@ -84,7 +84,6 @@ type KafkaTopic implements Persistence {
   pool: String!
   team: Team!
   env: Env!
-  workload: Workload
   status: KafkaTopicStatus
 }
 

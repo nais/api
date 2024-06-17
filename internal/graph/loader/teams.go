@@ -22,7 +22,6 @@ func GetTeam(ctx context.Context, teamSlug slug.Slug) (*model.Team, error) {
 }
 
 func ToGraphTeam(m *database.Team) *model.Team {
-
 	ret := &model.Team{
 		Slug:                   m.Slug,
 		Purpose:                m.Purpose,

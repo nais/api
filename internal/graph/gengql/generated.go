@@ -556,15 +556,14 @@ type ComplexityRoot struct {
 	}
 
 	KafkaTopic struct {
-		ACL      func(childComplexity int) int
-		Config   func(childComplexity int) int
-		Env      func(childComplexity int) int
-		ID       func(childComplexity int) int
-		Name     func(childComplexity int) int
-		Pool     func(childComplexity int) int
-		Status   func(childComplexity int) int
-		Team     func(childComplexity int) int
-		Workload func(childComplexity int) int
+		ACL    func(childComplexity int) int
+		Config func(childComplexity int) int
+		Env    func(childComplexity int) int
+		ID     func(childComplexity int) int
+		Name   func(childComplexity int) int
+		Pool   func(childComplexity int) int
+		Status func(childComplexity int) int
+		Team   func(childComplexity int) int
 	}
 
 	KafkaTopicAcl struct {
@@ -1307,8 +1306,6 @@ type ImageDetailsResolver interface {
 }
 type KafkaTopicResolver interface {
 	Team(ctx context.Context, obj *model.KafkaTopic) (*model.Team, error)
-
-	Workload(ctx context.Context, obj *model.KafkaTopic) (model.Workload, error)
 }
 type MutationResolver interface {
 	DeleteApp(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteAppResult, error)
@@ -3517,13 +3514,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.KafkaTopic.Team(childComplexity), true
-
-	case "KafkaTopic.workload":
-		if e.complexity.KafkaTopic.Workload == nil {
-			break
-		}
-
-		return e.complexity.KafkaTopic.Workload(childComplexity), true
 
 	case "KafkaTopicAcl.access":
 		if e.complexity.KafkaTopicAcl.Access == nil {
@@ -8025,7 +8015,6 @@ type KafkaTopic implements Persistence {
   pool: String!
   team: Team!
   env: Env!
-  workload: Workload
   status: KafkaTopicStatus
 }
 
@@ -25430,47 +25419,6 @@ func (ec *executionContext) fieldContext_KafkaTopic_env(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopic_workload(ctx context.Context, field graphql.CollectedField, obj *model.KafkaTopic) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_KafkaTopic_workload(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.KafkaTopic().Workload(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(model.Workload)
-	fc.Result = res
-	return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkload(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_KafkaTopic_workload(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopic",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _KafkaTopic_status(ctx context.Context, field graphql.CollectedField, obj *model.KafkaTopic) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_KafkaTopic_status(ctx, field)
 	if err != nil {
@@ -26041,8 +25989,6 @@ func (ec *executionContext) fieldContext_KafkaTopicList_nodes(ctx context.Contex
 				return ec.fieldContext_KafkaTopic_team(ctx, field)
 			case "env":
 				return ec.fieldContext_KafkaTopic_env(ctx, field)
-			case "workload":
-				return ec.fieldContext_KafkaTopic_workload(ctx, field)
 			case "status":
 				return ec.fieldContext_KafkaTopic_status(ctx, field)
 			}
@@ -45237,8 +45183,6 @@ func (ec *executionContext) fieldContext_Team_kafkaTopic(ctx context.Context, fi
 				return ec.fieldContext_KafkaTopic_team(ctx, field)
 			case "env":
 				return ec.fieldContext_KafkaTopic_env(ctx, field)
-			case "workload":
-				return ec.fieldContext_KafkaTopic_workload(ctx, field)
 			case "status":
 				return ec.fieldContext_KafkaTopic_status(ctx, field)
 			}
@@ -56570,39 +56514,6 @@ func (ec *executionContext) _KafkaTopic(ctx context.Context, sel ast.SelectionSe
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "workload":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._KafkaTopic_workload(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "status":
 			out.Values[i] = ec._KafkaTopic_status(ctx, field, obj)
 		default:
