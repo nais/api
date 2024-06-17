@@ -723,34 +723,35 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddReconcilerOptOut    func(childComplexity int, teamSlug slug.Slug, userID scalar.Ident, reconciler string) int
-		AddTeamMember          func(childComplexity int, slug slug.Slug, member model.TeamMemberInput) int
-		AuthorizeRepository    func(childComplexity int, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) int
-		ChangeDeployKey        func(childComplexity int, team slug.Slug) int
-		ConfigureReconciler    func(childComplexity int, name string, config []*model.ReconcilerConfigInput) int
-		ConfirmTeamDeletion    func(childComplexity int, key string) int
-		CreateSecret           func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
-		CreateTeam             func(childComplexity int, input model.CreateTeamInput) int
-		CreateUnleashForTeam   func(childComplexity int, team slug.Slug) int
-		DeauthorizeRepository  func(childComplexity int, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) int
-		DeleteApp              func(childComplexity int, name string, team slug.Slug, env string) int
-		DeleteJob              func(childComplexity int, name string, team slug.Slug, env string) int
-		DeleteSecret           func(childComplexity int, name string, team slug.Slug, env string) int
-		DisableReconciler      func(childComplexity int, name string) int
-		EnableReconciler       func(childComplexity int, name string) int
-		RemoveReconcilerOptOut func(childComplexity int, teamSlug slug.Slug, userID scalar.Ident, reconciler string) int
-		RemoveUserFromTeam     func(childComplexity int, slug slug.Slug, userID scalar.Ident) int
-		RequestTeamDeletion    func(childComplexity int, slug slug.Slug) int
-		ResetReconciler        func(childComplexity int, name string) int
-		RestartApp             func(childComplexity int, name string, team slug.Slug, env string) int
-		SetTeamMemberRole      func(childComplexity int, slug slug.Slug, userID scalar.Ident, role model.TeamRole) int
-		SuppressFinding        func(childComplexity int, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool, team slug.Slug) int
-		SynchronizeAllTeams    func(childComplexity int) int
-		SynchronizeTeam        func(childComplexity int, slug slug.Slug) int
-		SynchronizeUsers       func(childComplexity int) int
-		UpdateSecret           func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
-		UpdateTeam             func(childComplexity int, slug slug.Slug, input model.UpdateTeamInput) int
-		UpdateUnleashForTeam   func(childComplexity int, team slug.Slug, name string, allowedTeams []string) int
+		AddReconcilerOptOut          func(childComplexity int, teamSlug slug.Slug, userID scalar.Ident, reconciler string) int
+		AddTeamMember                func(childComplexity int, slug slug.Slug, member model.TeamMemberInput) int
+		AuthorizeRepository          func(childComplexity int, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) int
+		ChangeDeployKey              func(childComplexity int, team slug.Slug) int
+		ConfigureReconciler          func(childComplexity int, name string, config []*model.ReconcilerConfigInput) int
+		ConfirmTeamDeletion          func(childComplexity int, key string) int
+		CreateSecret                 func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
+		CreateTeam                   func(childComplexity int, input model.CreateTeamInput) int
+		CreateUnleashForTeam         func(childComplexity int, team slug.Slug) int
+		DeauthorizeRepository        func(childComplexity int, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) int
+		DeleteApp                    func(childComplexity int, name string, team slug.Slug, env string) int
+		DeleteJob                    func(childComplexity int, name string, team slug.Slug, env string) int
+		DeleteSecret                 func(childComplexity int, name string, team slug.Slug, env string) int
+		DisableReconciler            func(childComplexity int, name string) int
+		EnableReconciler             func(childComplexity int, name string) int
+		RemoveReconcilerOptOut       func(childComplexity int, teamSlug slug.Slug, userID scalar.Ident, reconciler string) int
+		RemoveUserFromTeam           func(childComplexity int, slug slug.Slug, userID scalar.Ident) int
+		RequestTeamDeletion          func(childComplexity int, slug slug.Slug) int
+		ResetReconciler              func(childComplexity int, name string) int
+		RestartApp                   func(childComplexity int, name string, team slug.Slug, env string) int
+		SetTeamMemberRole            func(childComplexity int, slug slug.Slug, userID scalar.Ident, role model.TeamRole) int
+		SuppressFinding              func(childComplexity int, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool, team slug.Slug) int
+		SynchronizeAllTeams          func(childComplexity int) int
+		SynchronizeTeam              func(childComplexity int, slug slug.Slug) int
+		SynchronizeUsers             func(childComplexity int) int
+		UpdateSecret                 func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
+		UpdateTeam                   func(childComplexity int, slug slug.Slug, input model.UpdateTeamInput) int
+		UpdateTeamSlackAlertsChannel func(childComplexity int, slug slug.Slug, input model.SlackAlertsChannelInput) int
+		UpdateUnleashForTeam         func(childComplexity int, team slug.Slug, name string, allowedTeams []string) int
 	}
 
 	NaisJob struct {
@@ -1417,6 +1418,7 @@ type MutationResolver interface {
 	DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) (bool, error)
 	CreateTeam(ctx context.Context, input model.CreateTeamInput) (*model.Team, error)
 	UpdateTeam(ctx context.Context, slug slug.Slug, input model.UpdateTeamInput) (*model.Team, error)
+	UpdateTeamSlackAlertsChannel(ctx context.Context, slug slug.Slug, input model.SlackAlertsChannelInput) (*model.Team, error)
 	RemoveUserFromTeam(ctx context.Context, slug slug.Slug, userID scalar.Ident) (*model.Team, error)
 	SynchronizeTeam(ctx context.Context, slug slug.Slug) (*model.TeamSync, error)
 	SynchronizeAllTeams(ctx context.Context) (*model.TeamSync, error)
@@ -4625,6 +4627,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateTeam(childComplexity, args["slug"].(slug.Slug), args["input"].(model.UpdateTeamInput)), true
+
+	case "Mutation.updateTeamSlackAlertsChannel":
+		if e.complexity.Mutation.UpdateTeamSlackAlertsChannel == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateTeamSlackAlertsChannel_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateTeamSlackAlertsChannel(childComplexity, args["slug"].(slug.Slug), args["input"].(model.SlackAlertsChannelInput)), true
 
 	case "Mutation.updateUnleashForTeam":
 		if e.complexity.Mutation.UpdateUnleashForTeam == nil {
@@ -9550,6 +9564,19 @@ extend type Mutation {
   ): Team! @auth
 
   """
+  Update an existing team's Slack alerts channel
+
+  The updated team will be returned on success.
+  """
+  updateTeamSlackAlertsChannel(
+    "Slug of the team to update."
+    slug: Slug!
+
+    "Input for updating the team."
+    input: SlackAlertsChannelInput!
+  ): Team! @auth
+
+  """
   Remove a user from a team
 
   The updated team will be returned on success.
@@ -10086,10 +10113,8 @@ input UpdateTeamInput {
 
   "Specify the Slack channel to update the existing value."
   slackChannel: String
-
-  "A list of Slack channels for NAIS alerts."
-  slackAlertsChannels: [SlackAlertsChannelInput!]
 }
+
 
 "Slack alerts channel input."
 input SlackAlertsChannelInput {
@@ -11049,6 +11074,30 @@ func (ec *executionContext) field_Mutation_updateSecret_args(ctx context.Context
 		}
 	}
 	args["data"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateTeamSlackAlertsChannel_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 slug.Slug
+	if tmp, ok := rawArgs["slug"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
+		arg0, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["slug"] = arg0
+	var arg1 model.SlackAlertsChannelInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNSlackAlertsChannelInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSlackAlertsChannelInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
 	return args, nil
 }
 
@@ -32069,6 +32118,163 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_updateTeam_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateTeamSlackAlertsChannel(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateTeamSlackAlertsChannel(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateTeamSlackAlertsChannel(rctx, fc.Args["slug"].(slug.Slug), fc.Args["input"].(model.SlackAlertsChannelInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Team); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.Team`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Team)
+	fc.Result = res
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateTeamSlackAlertsChannel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "auditLogs":
+				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
+			case "syncErrors":
+				return ec.fieldContext_Team_syncErrors(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "githubRepositories":
+				return ec.fieldContext_Team_githubRepositories(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "status":
+				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_Team_sqlInstance(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_Team_redisInstance(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_Team_openSearchInstance(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "bigQuery":
+				return ec.fieldContext_Team_bigQuery(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
+			case "apps":
+				return ec.fieldContext_Team_apps(ctx, field)
+			case "deployKey":
+				return ec.fieldContext_Team_deployKey(ctx, field)
+			case "naisjobs":
+				return ec.fieldContext_Team_naisjobs(ctx, field)
+			case "deployments":
+				return ec.fieldContext_Team_deployments(ctx, field)
+			case "vulnerabilitiesSummary":
+				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateTeamSlackAlertsChannel_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -55058,7 +55264,7 @@ func (ec *executionContext) unmarshalInputUpdateTeamInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"purpose", "slackChannel", "slackAlertsChannels"}
+	fieldsInOrder := [...]string{"purpose", "slackChannel"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -55079,13 +55285,6 @@ func (ec *executionContext) unmarshalInputUpdateTeamInput(ctx context.Context, o
 				return it, err
 			}
 			it.SlackChannel = data
-		case "slackAlertsChannels":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slackAlertsChannels"))
-			data, err := ec.unmarshalOSlackAlertsChannelInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSlackAlertsChannelInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.SlackAlertsChannels = data
 		}
 	}
 
@@ -61090,6 +61289,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "updateTeam":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_updateTeam(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateTeamSlackAlertsChannel":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateTeamSlackAlertsChannel(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -72202,9 +72408,9 @@ func (ec *executionContext) marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return ec._Secret(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNSlackAlertsChannelInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSlackAlertsChannelInput(ctx context.Context, v interface{}) (*model.SlackAlertsChannelInput, error) {
+func (ec *executionContext) unmarshalNSlackAlertsChannelInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSlackAlertsChannelInput(ctx context.Context, v interface{}) (model.SlackAlertsChannelInput, error) {
 	res, err := ec.unmarshalInputSlackAlertsChannelInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, v interface{}) (slug.Slug, error) {
@@ -73804,26 +74010,6 @@ func (ec *executionContext) marshalOSidecar2ᚖgithubᚗcomᚋnaisᚋapiᚋinter
 		return graphql.Null
 	}
 	return ec._Sidecar(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOSlackAlertsChannelInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSlackAlertsChannelInputᚄ(ctx context.Context, v interface{}) ([]*model.SlackAlertsChannelInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*model.SlackAlertsChannelInput, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNSlackAlertsChannelInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSlackAlertsChannelInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
 }
 
 func (ec *executionContext) marshalOSqlDatabase2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLDatabase(ctx context.Context, sel ast.SelectionSet, v *model.SQLDatabase) graphql.Marshaler {

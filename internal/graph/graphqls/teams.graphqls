@@ -48,6 +48,19 @@ extend type Mutation {
   ): Team! @auth
 
   """
+  Update an existing team's Slack alerts channel
+
+  The updated team will be returned on success.
+  """
+  updateTeamSlackAlertsChannel(
+    "Slug of the team to update."
+    slug: Slug!
+
+    "Input for updating the team."
+    input: SlackAlertsChannelInput!
+  ): Team! @auth
+
+  """
   Remove a user from a team
 
   The updated team will be returned on success.
@@ -584,10 +597,8 @@ input UpdateTeamInput {
 
   "Specify the Slack channel to update the existing value."
   slackChannel: String
-
-  "A list of Slack channels for NAIS alerts."
-  slackAlertsChannels: [SlackAlertsChannelInput!]
 }
+
 
 "Slack alerts channel input."
 input SlackAlertsChannelInput {

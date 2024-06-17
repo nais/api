@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
+
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/auditlogger"
@@ -23,7 +26,6 @@ import (
 	"github.com/nais/api/pkg/protoapi"
 	"github.com/sourcegraph/conc/pool"
 	"k8s.io/utils/ptr"
-	"strconv"
 )
 
 func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTeamInput) (*model.Team, error) {
@@ -80,31 +82,22 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 		return nil, err
 	}
 
-	input = input.Sanitize()
-	err = input.Validate(r.clusters.Names())
+	if input.Purpose != nil {
+		input.Purpose = ptr.To(strings.TrimSpace(*input.Purpose))
+	}
+
+	if input.SlackChannel != nil {
+		input.SlackChannel = ptr.To(strings.TrimSpace(*input.SlackChannel))
+	}
+
+	err = input.Validate()
 	if err != nil {
 		return nil, err
 	}
 
 	correlationID := uuid.New()
 	var team *database.Team
-	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
-		team, err = dbtx.UpdateTeam(ctx, slug, input.Purpose, input.SlackChannel)
-		if err != nil {
-			return err
-		}
-
-		if len(input.SlackAlertsChannels) > 0 {
-			for _, slackAlertsChannel := range input.SlackAlertsChannels {
-				err := dbtx.UpsertTeamEnvironment(ctx, slug, slackAlertsChannel.Environment, slackAlertsChannel.ChannelName, nil)
-				if err != nil {
-					return err
-				}
-			}
-		}
-
-		return nil
-	})
+	team, err = r.database.UpdateTeam(ctx, slug, input.Purpose, input.SlackChannel)
 	if err != nil {
 		return nil, err
 	}
@@ -123,25 +116,34 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 		}
 	}
 
-	/* TOOD: fix input in this mutation to only accept single environment and slack channel for easier state management
-	if len(input.SlackAlertsChannels) > 0 {
-		for _, channel := range input.SlackAlertsChannels {
-			existing, err := loader.GetTeamEnvironment(ctx, slug, channel.Environment)
-			if err != nil {
-				return nil, err
-			}
+	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 
-			if existing.DBType != nil && strings.EqualFold(existing.DBType.SlackAlertsChannel, *channel.ChannelName) {
-				continue
-			}
+	return loader.ToGraphTeam(team), nil
+}
 
-			err = r.auditor.TeamSetAlertsSlackChannel(ctx, actor.User, slug, channel.Environment, *channel.ChannelName)
-			if err != nil {
-				return nil, err
-			}
-		}
+func (r *mutationResolver) UpdateTeamSlackAlertsChannel(ctx context.Context, slug slug.Slug, input model.SlackAlertsChannelInput) (*model.Team, error) {
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMetadataUpdate, slug)
+	if err != nil {
+		return nil, err
 	}
-	*/
+
+	err = input.Validate(r.clusters.Names())
+	if err != nil {
+		return nil, err
+	}
+
+	correlationID := uuid.New()
+	var team *database.Team
+	err = r.database.UpsertTeamEnvironment(ctx, slug, input.Environment, input.ChannelName, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	err = r.auditor.TeamSetAlertsSlackChannel(ctx, actor.User, slug, input.Environment, *input.ChannelName)
+	if err != nil {
+		return nil, err
+	}
 
 	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 

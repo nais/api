@@ -952,8 +952,6 @@ type UpdateTeamInput struct {
 	Purpose *string `json:"purpose,omitempty"`
 	// Specify the Slack channel to update the existing value.
 	SlackChannel *string `json:"slackChannel,omitempty"`
-	// A list of Slack channels for NAIS alerts.
-	SlackAlertsChannels []*SlackAlertsChannelInput `json:"slackAlertsChannels,omitempty"`
 }
 
 type UserList struct {
