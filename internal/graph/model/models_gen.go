@@ -835,14 +835,6 @@ type SlackAlertsChannel struct {
 	ChannelName string `json:"channelName"`
 }
 
-// Slack alerts channel input.
-type SlackAlertsChannelInput struct {
-	// The environment for the alerts sent to the channel.
-	Environment string `json:"environment"`
-	// The name of the Slack channel.
-	ChannelName *string `json:"channelName,omitempty"`
-}
-
 type SQLInstanceCPU struct {
 	Cores       float64 `json:"cores"`
 	Utilization float64 `json:"utilization"`
@@ -952,6 +944,14 @@ type UpdateTeamInput struct {
 	Purpose *string `json:"purpose,omitempty"`
 	// Specify the Slack channel to update the existing value.
 	SlackChannel *string `json:"slackChannel,omitempty"`
+}
+
+// Slack alerts channel input.
+type UpdateTeamSlackAlertsChannelInput struct {
+	// The environment for the alerts sent to the channel.
+	Environment string `json:"environment"`
+	// The name of the Slack channel.
+	ChannelName *string `json:"channelName,omitempty"`
 }
 
 type UserList struct {

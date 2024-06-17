@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
@@ -82,14 +81,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 		return nil, err
 	}
 
-	if input.Purpose != nil {
-		input.Purpose = ptr.To(strings.TrimSpace(*input.Purpose))
-	}
-
-	if input.SlackChannel != nil {
-		input.SlackChannel = ptr.To(strings.TrimSpace(*input.SlackChannel))
-	}
-
+	input = input.Sanitize()
 	err = input.Validate()
 	if err != nil {
 		return nil, err
@@ -121,20 +113,20 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, slug slug.Slug, input
 	return loader.ToGraphTeam(team), nil
 }
 
-func (r *mutationResolver) UpdateTeamSlackAlertsChannel(ctx context.Context, slug slug.Slug, input model.SlackAlertsChannelInput) (*model.Team, error) {
+func (r *mutationResolver) UpdateTeamSlackAlertsChannel(ctx context.Context, slug slug.Slug, input model.UpdateTeamSlackAlertsChannelInput) (*model.Team, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMetadataUpdate, slug)
 	if err != nil {
 		return nil, err
 	}
 
+	input = input.Sanitize()
 	err = input.Validate(r.clusters.Names())
 	if err != nil {
 		return nil, err
 	}
 
 	correlationID := uuid.New()
-	var team *database.Team
 	err = r.database.UpsertTeamEnvironment(ctx, slug, input.Environment, input.ChannelName, nil)
 	if err != nil {
 		return nil, err
@@ -145,9 +137,9 @@ func (r *mutationResolver) UpdateTeamSlackAlertsChannel(ctx context.Context, slu
 		return nil, err
 	}
 
-	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
+	r.triggerTeamUpdatedEvent(ctx, slug, correlationID)
 
-	return loader.ToGraphTeam(team), nil
+	return loader.GetTeam(ctx, slug)
 }
 
 func (r *mutationResolver) RemoveUserFromTeam(ctx context.Context, slug slug.Slug, userID scalar.Ident) (*model.Team, error) {

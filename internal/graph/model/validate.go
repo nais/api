@@ -66,7 +66,7 @@ func (input UpdateTeamInput) Validate() error {
 	return nil
 }
 
-func (input SlackAlertsChannelInput) Validate(validEnvironments []string) error {
+func (input UpdateTeamSlackAlertsChannelInput) Validate(validEnvironments []string) error {
 	validEnvironment := func(env string) bool {
 		for _, environment := range validEnvironments {
 			if env == environment {

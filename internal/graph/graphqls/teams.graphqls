@@ -57,7 +57,7 @@ extend type Mutation {
     slug: Slug!
 
     "Input for updating the team."
-    input: SlackAlertsChannelInput!
+    input: UpdateTeamSlackAlertsChannelInput!
   ): Team! @auth
 
   """
@@ -601,7 +601,7 @@ input UpdateTeamInput {
 
 
 "Slack alerts channel input."
-input SlackAlertsChannelInput {
+input UpdateTeamSlackAlertsChannelInput {
   "The environment for the alerts sent to the channel."
   environment: String!
 

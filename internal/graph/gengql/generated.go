@@ -750,7 +750,7 @@ type ComplexityRoot struct {
 		SynchronizeUsers             func(childComplexity int) int
 		UpdateSecret                 func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
 		UpdateTeam                   func(childComplexity int, slug slug.Slug, input model.UpdateTeamInput) int
-		UpdateTeamSlackAlertsChannel func(childComplexity int, slug slug.Slug, input model.SlackAlertsChannelInput) int
+		UpdateTeamSlackAlertsChannel func(childComplexity int, slug slug.Slug, input model.UpdateTeamSlackAlertsChannelInput) int
 		UpdateUnleashForTeam         func(childComplexity int, team slug.Slug, name string, allowedTeams []string) int
 	}
 
@@ -1418,7 +1418,7 @@ type MutationResolver interface {
 	DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) (bool, error)
 	CreateTeam(ctx context.Context, input model.CreateTeamInput) (*model.Team, error)
 	UpdateTeam(ctx context.Context, slug slug.Slug, input model.UpdateTeamInput) (*model.Team, error)
-	UpdateTeamSlackAlertsChannel(ctx context.Context, slug slug.Slug, input model.SlackAlertsChannelInput) (*model.Team, error)
+	UpdateTeamSlackAlertsChannel(ctx context.Context, slug slug.Slug, input model.UpdateTeamSlackAlertsChannelInput) (*model.Team, error)
 	RemoveUserFromTeam(ctx context.Context, slug slug.Slug, userID scalar.Ident) (*model.Team, error)
 	SynchronizeTeam(ctx context.Context, slug slug.Slug) (*model.TeamSync, error)
 	SynchronizeAllTeams(ctx context.Context) (*model.TeamSync, error)
@@ -4638,7 +4638,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateTeamSlackAlertsChannel(childComplexity, args["slug"].(slug.Slug), args["input"].(model.SlackAlertsChannelInput)), true
+		return e.complexity.Mutation.UpdateTeamSlackAlertsChannel(childComplexity, args["slug"].(slug.Slug), args["input"].(model.UpdateTeamSlackAlertsChannelInput)), true
 
 	case "Mutation.updateUnleashForTeam":
 		if e.complexity.Mutation.UpdateUnleashForTeam == nil {
@@ -7490,11 +7490,11 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOrderBy,
 		ec.unmarshalInputReconcilerConfigInput,
 		ec.unmarshalInputSearchFilter,
-		ec.unmarshalInputSlackAlertsChannelInput,
 		ec.unmarshalInputTeamMemberInput,
 		ec.unmarshalInputTeamsFilter,
 		ec.unmarshalInputTeamsFilterGitHub,
 		ec.unmarshalInputUpdateTeamInput,
+		ec.unmarshalInputUpdateTeamSlackAlertsChannelInput,
 		ec.unmarshalInputVariableInput,
 	)
 	first := true
@@ -9573,7 +9573,7 @@ extend type Mutation {
     slug: Slug!
 
     "Input for updating the team."
-    input: SlackAlertsChannelInput!
+    input: UpdateTeamSlackAlertsChannelInput!
   ): Team! @auth
 
   """
@@ -10117,7 +10117,7 @@ input UpdateTeamInput {
 
 
 "Slack alerts channel input."
-input SlackAlertsChannelInput {
+input UpdateTeamSlackAlertsChannelInput {
   "The environment for the alerts sent to the channel."
   environment: String!
 
@@ -11089,10 +11089,10 @@ func (ec *executionContext) field_Mutation_updateTeamSlackAlertsChannel_args(ctx
 		}
 	}
 	args["slug"] = arg0
-	var arg1 model.SlackAlertsChannelInput
+	var arg1 model.UpdateTeamSlackAlertsChannelInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg1, err = ec.unmarshalNSlackAlertsChannelInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSlackAlertsChannelInput(ctx, tmp)
+		arg1, err = ec.unmarshalNUpdateTeamSlackAlertsChannelInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUpdateTeamSlackAlertsChannelInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -32139,7 +32139,7 @@ func (ec *executionContext) _Mutation_updateTeamSlackAlertsChannel(ctx context.C
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().UpdateTeamSlackAlertsChannel(rctx, fc.Args["slug"].(slug.Slug), fc.Args["input"].(model.SlackAlertsChannelInput))
+			return ec.resolvers.Mutation().UpdateTeamSlackAlertsChannel(rctx, fc.Args["slug"].(slug.Slug), fc.Args["input"].(model.UpdateTeamSlackAlertsChannelInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Auth == nil {
@@ -55121,40 +55121,6 @@ func (ec *executionContext) unmarshalInputSearchFilter(ctx context.Context, obj 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSlackAlertsChannelInput(ctx context.Context, obj interface{}) (model.SlackAlertsChannelInput, error) {
-	var it model.SlackAlertsChannelInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"environment", "channelName"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "environment":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Environment = data
-		case "channelName":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("channelName"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ChannelName = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputTeamMemberInput(ctx context.Context, obj interface{}) (model.TeamMemberInput, error) {
 	var it model.TeamMemberInput
 	asMap := map[string]interface{}{}
@@ -55285,6 +55251,40 @@ func (ec *executionContext) unmarshalInputUpdateTeamInput(ctx context.Context, o
 				return it, err
 			}
 			it.SlackChannel = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateTeamSlackAlertsChannelInput(ctx context.Context, obj interface{}) (model.UpdateTeamSlackAlertsChannelInput, error) {
+	var it model.UpdateTeamSlackAlertsChannelInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"environment", "channelName"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "environment":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Environment = data
+		case "channelName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("channelName"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ChannelName = data
 		}
 	}
 
@@ -72408,11 +72408,6 @@ func (ec *executionContext) marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return ec._Secret(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNSlackAlertsChannelInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSlackAlertsChannelInput(ctx context.Context, v interface{}) (model.SlackAlertsChannelInput, error) {
-	res, err := ec.unmarshalInputSlackAlertsChannelInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, v interface{}) (slug.Slug, error) {
 	var res slug.Slug
 	err := res.UnmarshalGQL(v)
@@ -73115,6 +73110,11 @@ func (ec *executionContext) marshalNUnleashMetrics2githubᚗcomᚋnaisᚋapiᚋi
 
 func (ec *executionContext) unmarshalNUpdateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUpdateTeamInput(ctx context.Context, v interface{}) (model.UpdateTeamInput, error) {
 	res, err := ec.unmarshalInputUpdateTeamInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpdateTeamSlackAlertsChannelInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUpdateTeamSlackAlertsChannelInput(ctx context.Context, v interface{}) (model.UpdateTeamSlackAlertsChannelInput, error) {
+	res, err := ec.unmarshalInputUpdateTeamSlackAlertsChannelInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
