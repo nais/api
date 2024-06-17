@@ -30,46 +30,56 @@ func toEvent(row *database.AuditEvent) (auditevent.AuditEventNode, error) {
 		switch model.AuditEventAction(row.Action) {
 		case model.AuditEventActionTeamCreated:
 			return event.WithMessage("Created team"), nil
+
 		case model.AuditEventActionTeamDeletionRequested:
 			return event.WithMessage("Requested team deletion"), nil
+
 		case model.AuditEventActionTeamDeletionConfirmed:
 			return event.WithMessage("Confirmed team deletion"), nil
+
 		case model.AuditEventActionTeamDeployKeyRotated:
 			return event.WithMessage("Rotated deploy key"), nil
+
 		case model.AuditEventActionTeamSynchronized:
 			return event.WithMessage("Scheduled team for synchronization"), nil
+
 		case model.AuditEventActionTeamSetPurpose:
-			return withData(row, func(data auditevent.AuditEventTeamSetPurposeData) auditevent.AuditEventNode {
+			return withData(row, func(data model.AuditEventTeamSetPurposeData) auditevent.AuditEventNode {
 				msg := fmt.Sprintf("Set purpose to %q", data.Purpose)
-				return auditevent.NewAuditEventTeamSetPurpose(event.WithMessage(msg), data)
+				return auditevent.AuditEventTeamSetPurpose{BaseAuditEvent: event.WithMessage(msg), Data: data}
 			})
+
 		case model.AuditEventActionTeamSetDefaultSLACkChannel:
-			return withData(row, func(data auditevent.AuditEventTeamSetDefaultSlackChannelData) auditevent.AuditEventNode {
+			return withData(row, func(data model.AuditEventTeamSetDefaultSlackChannelData) auditevent.AuditEventNode {
 				msg := fmt.Sprintf("Set default Slack channel to %q", data.DefaultSlackChannel)
-				return auditevent.NewAuditEventTeamSetDefaultSlackChannel(event.WithMessage(msg), data)
+				return auditevent.AuditEventTeamSetDefaultSlackChannel{BaseAuditEvent: event.WithMessage(msg), Data: data}
 			})
+
 		case model.AuditEventActionTeamSetAlertsSLACkChannel:
-			return withData(row, func(data auditevent.AuditEventTeamSetAlertsSlackChannelData) auditevent.AuditEventNode {
-				msg := fmt.Sprintf("Set Slack alert channel to %q for %q", data.ChannelName, data.Environment)
-				return auditevent.NewAuditEventTeamSetAlertsSlackChannel(event.WithMessage(msg), data)
+			return withData(row, func(data model.AuditEventTeamSetAlertsSlackChannelData) auditevent.AuditEventNode {
+				msg := fmt.Sprintf("Set Slack alert channel in %q to %q", data.Environment, data.ChannelName)
+				return auditevent.AuditEventTeamSetAlertsSlackChannel{BaseAuditEvent: event.WithMessage(msg), Data: data}
 			})
 		}
+
 	case model.AuditEventResourceTypeTeamMember:
 		switch model.AuditEventAction(row.Action) {
 		case model.AuditEventActionTeamMemberAdded:
-			return withData(row, func(data auditevent.AuditEventMemberAddedData) auditevent.AuditEventNode {
+			return withData(row, func(data model.AuditEventMemberAddedData) auditevent.AuditEventNode {
 				msg := fmt.Sprintf("Added %q", data.MemberEmail)
-				return auditevent.NewAuditEventMemberAdded(event.WithMessage(msg), data)
+				return auditevent.AuditEventMemberAdded{BaseAuditEvent: event.WithMessage(msg), Data: data}
 			})
+
 		case model.AuditEventActionTeamMemberRemoved:
-			return withData(row, func(data auditevent.AuditEventMemberRemovedData) auditevent.AuditEventNode {
+			return withData(row, func(data model.AuditEventMemberRemovedData) auditevent.AuditEventNode {
 				msg := fmt.Sprintf("Removed %q", data.MemberEmail)
-				return auditevent.NewAuditEventMemberRemoved(event.WithMessage(msg), data)
+				return auditevent.AuditEventMemberRemoved{BaseAuditEvent: event.WithMessage(msg), Data: data}
 			})
+
 		case model.AuditEventActionTeamMemberSetRole:
-			return withData(row, func(data auditevent.AuditEventMemberSetRoleData) auditevent.AuditEventNode {
+			return withData(row, func(data model.AuditEventMemberSetRoleData) auditevent.AuditEventNode {
 				msg := fmt.Sprintf("Set %q to %q", data.MemberEmail, data.Role)
-				return auditevent.NewAuditEventMemberSetRole(event.WithMessage(msg), data)
+				return auditevent.AuditEventMemberSetRole{BaseAuditEvent: event.WithMessage(msg), Data: data}
 			})
 		}
 	}

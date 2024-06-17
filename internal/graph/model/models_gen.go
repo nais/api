@@ -96,6 +96,33 @@ type AppsStatus struct {
 	Failing int `json:"failing"`
 }
 
+type AuditEventMemberAddedData struct {
+	MemberEmail string   `json:"memberEmail"`
+	Role        TeamRole `json:"role"`
+}
+
+type AuditEventMemberRemovedData struct {
+	MemberEmail string `json:"memberEmail"`
+}
+
+type AuditEventMemberSetRoleData struct {
+	MemberEmail string   `json:"memberEmail"`
+	Role        TeamRole `json:"role"`
+}
+
+type AuditEventTeamSetAlertsSlackChannelData struct {
+	Environment string `json:"environment"`
+	ChannelName string `json:"channelName"`
+}
+
+type AuditEventTeamSetDefaultSlackChannelData struct {
+	DefaultSlackChannel string `json:"defaultSlackChannel"`
+}
+
+type AuditEventTeamSetPurposeData struct {
+	Purpose string `json:"purpose"`
+}
+
 type AuditEventsFilter struct {
 	// Filter by the type of the resource that was affected by the action.
 	ResourceType *AuditEventResourceType `json:"resourceType,omitempty"`

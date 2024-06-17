@@ -1,62 +1,30 @@
 package auditevent
 
+import "github.com/nais/api/internal/graph/model"
+
 type AuditEventTeamSetAlertsSlackChannel struct {
 	BaseAuditEvent
-	AuditEventTeamSetAlertsSlackChannelData
-}
-
-type AuditEventTeamSetAlertsSlackChannelData struct {
-	Environment string `json:"environment"`
-	ChannelName string `json:"channelName"`
+	Data model.AuditEventTeamSetAlertsSlackChannelData
 }
 
 func (a AuditEventTeamSetAlertsSlackChannel) GetData() any {
-	return a.AuditEventTeamSetAlertsSlackChannelData
-}
-
-func (AuditEventTeamSetAlertsSlackChannel) IsAuditEvent() {}
-
-func (d AuditEventTeamSetAlertsSlackChannelData) String() {
-}
-
-func NewAuditEventTeamSetAlertsSlackChannel(base BaseAuditEvent, data AuditEventTeamSetAlertsSlackChannelData) *AuditEventTeamSetAlertsSlackChannel {
-	return &AuditEventTeamSetAlertsSlackChannel{BaseAuditEvent: base, AuditEventTeamSetAlertsSlackChannelData: data}
+	return a.Data
 }
 
 type AuditEventTeamSetDefaultSlackChannel struct {
 	BaseAuditEvent
-	AuditEventTeamSetDefaultSlackChannelData
-}
-
-type AuditEventTeamSetDefaultSlackChannelData struct {
-	DefaultSlackChannel string `json:"defaultSlackChannel"`
+	Data model.AuditEventTeamSetDefaultSlackChannelData
 }
 
 func (a AuditEventTeamSetDefaultSlackChannel) GetData() any {
-	return a.AuditEventTeamSetDefaultSlackChannelData
-}
-
-func (AuditEventTeamSetDefaultSlackChannel) IsAuditEvent() {}
-
-func NewAuditEventTeamSetDefaultSlackChannel(base BaseAuditEvent, data AuditEventTeamSetDefaultSlackChannelData) *AuditEventTeamSetDefaultSlackChannel {
-	return &AuditEventTeamSetDefaultSlackChannel{BaseAuditEvent: base, AuditEventTeamSetDefaultSlackChannelData: data}
+	return a.Data
 }
 
 type AuditEventTeamSetPurpose struct {
 	BaseAuditEvent
-	AuditEventTeamSetPurposeData
-}
-
-type AuditEventTeamSetPurposeData struct {
-	Purpose string `json:"purpose"`
+	Data model.AuditEventTeamSetPurposeData
 }
 
 func (a AuditEventTeamSetPurpose) GetData() any {
-	return a.AuditEventTeamSetPurposeData
-}
-
-func (AuditEventTeamSetPurpose) IsAuditEvent() {}
-
-func NewAuditEventTeamSetPurpose(base BaseAuditEvent, data AuditEventTeamSetPurposeData) *AuditEventTeamSetPurpose {
-	return &AuditEventTeamSetPurpose{BaseAuditEvent: base, AuditEventTeamSetPurposeData: data}
+	return a.Data
 }

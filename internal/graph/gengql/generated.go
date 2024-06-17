@@ -163,46 +163,57 @@ type ComplexityRoot struct {
 		Action       func(childComplexity int) int
 		Actor        func(childComplexity int) int
 		CreatedAt    func(childComplexity int) int
+		Data         func(childComplexity int) int
 		ID           func(childComplexity int) int
-		MemberEmail  func(childComplexity int) int
 		Message      func(childComplexity int) int
 		ResourceName func(childComplexity int) int
 		ResourceType func(childComplexity int) int
-		Role         func(childComplexity int) int
 		Team         func(childComplexity int) int
+	}
+
+	AuditEventMemberAddedData struct {
+		MemberEmail func(childComplexity int) int
+		Role        func(childComplexity int) int
 	}
 
 	AuditEventMemberRemoved struct {
 		Action       func(childComplexity int) int
 		Actor        func(childComplexity int) int
 		CreatedAt    func(childComplexity int) int
+		Data         func(childComplexity int) int
 		ID           func(childComplexity int) int
-		MemberEmail  func(childComplexity int) int
 		Message      func(childComplexity int) int
 		ResourceName func(childComplexity int) int
 		ResourceType func(childComplexity int) int
 		Team         func(childComplexity int) int
+	}
+
+	AuditEventMemberRemovedData struct {
+		MemberEmail func(childComplexity int) int
 	}
 
 	AuditEventMemberSetRole struct {
 		Action       func(childComplexity int) int
 		Actor        func(childComplexity int) int
 		CreatedAt    func(childComplexity int) int
+		Data         func(childComplexity int) int
 		ID           func(childComplexity int) int
-		MemberEmail  func(childComplexity int) int
 		Message      func(childComplexity int) int
 		ResourceName func(childComplexity int) int
 		ResourceType func(childComplexity int) int
-		Role         func(childComplexity int) int
 		Team         func(childComplexity int) int
+	}
+
+	AuditEventMemberSetRoleData struct {
+		MemberEmail func(childComplexity int) int
+		Role        func(childComplexity int) int
 	}
 
 	AuditEventTeamSetAlertsSlackChannel struct {
 		Action       func(childComplexity int) int
 		Actor        func(childComplexity int) int
-		ChannelName  func(childComplexity int) int
 		CreatedAt    func(childComplexity int) int
-		Environment  func(childComplexity int) int
+		Data         func(childComplexity int) int
 		ID           func(childComplexity int) int
 		Message      func(childComplexity int) int
 		ResourceName func(childComplexity int) int
@@ -210,28 +221,41 @@ type ComplexityRoot struct {
 		Team         func(childComplexity int) int
 	}
 
+	AuditEventTeamSetAlertsSlackChannelData struct {
+		ChannelName func(childComplexity int) int
+		Environment func(childComplexity int) int
+	}
+
 	AuditEventTeamSetDefaultSlackChannel struct {
-		Action              func(childComplexity int) int
-		Actor               func(childComplexity int) int
-		CreatedAt           func(childComplexity int) int
+		Action       func(childComplexity int) int
+		Actor        func(childComplexity int) int
+		CreatedAt    func(childComplexity int) int
+		Data         func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Message      func(childComplexity int) int
+		ResourceName func(childComplexity int) int
+		ResourceType func(childComplexity int) int
+		Team         func(childComplexity int) int
+	}
+
+	AuditEventTeamSetDefaultSlackChannelData struct {
 		DefaultSlackChannel func(childComplexity int) int
-		ID                  func(childComplexity int) int
-		Message             func(childComplexity int) int
-		ResourceName        func(childComplexity int) int
-		ResourceType        func(childComplexity int) int
-		Team                func(childComplexity int) int
 	}
 
 	AuditEventTeamSetPurpose struct {
 		Action       func(childComplexity int) int
 		Actor        func(childComplexity int) int
 		CreatedAt    func(childComplexity int) int
+		Data         func(childComplexity int) int
 		ID           func(childComplexity int) int
 		Message      func(childComplexity int) int
-		Purpose      func(childComplexity int) int
 		ResourceName func(childComplexity int) int
 		ResourceType func(childComplexity int) int
 		Team         func(childComplexity int) int
+	}
+
+	AuditEventTeamSetPurposeData struct {
+		Purpose func(childComplexity int) int
 	}
 
 	AuditLog struct {
@@ -1959,19 +1983,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AuditEventMemberAdded.CreatedAt(childComplexity), true
 
+	case "AuditEventMemberAdded.data":
+		if e.complexity.AuditEventMemberAdded.Data == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberAdded.Data(childComplexity), true
+
 	case "AuditEventMemberAdded.id":
 		if e.complexity.AuditEventMemberAdded.ID == nil {
 			break
 		}
 
 		return e.complexity.AuditEventMemberAdded.ID(childComplexity), true
-
-	case "AuditEventMemberAdded.memberEmail":
-		if e.complexity.AuditEventMemberAdded.MemberEmail == nil {
-			break
-		}
-
-		return e.complexity.AuditEventMemberAdded.MemberEmail(childComplexity), true
 
 	case "AuditEventMemberAdded.message":
 		if e.complexity.AuditEventMemberAdded.Message == nil {
@@ -1994,19 +2018,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AuditEventMemberAdded.ResourceType(childComplexity), true
 
-	case "AuditEventMemberAdded.role":
-		if e.complexity.AuditEventMemberAdded.Role == nil {
-			break
-		}
-
-		return e.complexity.AuditEventMemberAdded.Role(childComplexity), true
-
 	case "AuditEventMemberAdded.team":
 		if e.complexity.AuditEventMemberAdded.Team == nil {
 			break
 		}
 
 		return e.complexity.AuditEventMemberAdded.Team(childComplexity), true
+
+	case "AuditEventMemberAddedData.memberEmail":
+		if e.complexity.AuditEventMemberAddedData.MemberEmail == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberAddedData.MemberEmail(childComplexity), true
+
+	case "AuditEventMemberAddedData.role":
+		if e.complexity.AuditEventMemberAddedData.Role == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberAddedData.Role(childComplexity), true
 
 	case "AuditEventMemberRemoved.action":
 		if e.complexity.AuditEventMemberRemoved.Action == nil {
@@ -2029,19 +2060,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AuditEventMemberRemoved.CreatedAt(childComplexity), true
 
+	case "AuditEventMemberRemoved.data":
+		if e.complexity.AuditEventMemberRemoved.Data == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberRemoved.Data(childComplexity), true
+
 	case "AuditEventMemberRemoved.id":
 		if e.complexity.AuditEventMemberRemoved.ID == nil {
 			break
 		}
 
 		return e.complexity.AuditEventMemberRemoved.ID(childComplexity), true
-
-	case "AuditEventMemberRemoved.memberEmail":
-		if e.complexity.AuditEventMemberRemoved.MemberEmail == nil {
-			break
-		}
-
-		return e.complexity.AuditEventMemberRemoved.MemberEmail(childComplexity), true
 
 	case "AuditEventMemberRemoved.message":
 		if e.complexity.AuditEventMemberRemoved.Message == nil {
@@ -2071,6 +2102,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AuditEventMemberRemoved.Team(childComplexity), true
 
+	case "AuditEventMemberRemovedData.memberEmail":
+		if e.complexity.AuditEventMemberRemovedData.MemberEmail == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberRemovedData.MemberEmail(childComplexity), true
+
 	case "AuditEventMemberSetRole.action":
 		if e.complexity.AuditEventMemberSetRole.Action == nil {
 			break
@@ -2092,19 +2130,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AuditEventMemberSetRole.CreatedAt(childComplexity), true
 
+	case "AuditEventMemberSetRole.data":
+		if e.complexity.AuditEventMemberSetRole.Data == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberSetRole.Data(childComplexity), true
+
 	case "AuditEventMemberSetRole.id":
 		if e.complexity.AuditEventMemberSetRole.ID == nil {
 			break
 		}
 
 		return e.complexity.AuditEventMemberSetRole.ID(childComplexity), true
-
-	case "AuditEventMemberSetRole.memberEmail":
-		if e.complexity.AuditEventMemberSetRole.MemberEmail == nil {
-			break
-		}
-
-		return e.complexity.AuditEventMemberSetRole.MemberEmail(childComplexity), true
 
 	case "AuditEventMemberSetRole.message":
 		if e.complexity.AuditEventMemberSetRole.Message == nil {
@@ -2127,19 +2165,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AuditEventMemberSetRole.ResourceType(childComplexity), true
 
-	case "AuditEventMemberSetRole.role":
-		if e.complexity.AuditEventMemberSetRole.Role == nil {
-			break
-		}
-
-		return e.complexity.AuditEventMemberSetRole.Role(childComplexity), true
-
 	case "AuditEventMemberSetRole.team":
 		if e.complexity.AuditEventMemberSetRole.Team == nil {
 			break
 		}
 
 		return e.complexity.AuditEventMemberSetRole.Team(childComplexity), true
+
+	case "AuditEventMemberSetRoleData.memberEmail":
+		if e.complexity.AuditEventMemberSetRoleData.MemberEmail == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberSetRoleData.MemberEmail(childComplexity), true
+
+	case "AuditEventMemberSetRoleData.role":
+		if e.complexity.AuditEventMemberSetRoleData.Role == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberSetRoleData.Role(childComplexity), true
 
 	case "AuditEventTeamSetAlertsSlackChannel.action":
 		if e.complexity.AuditEventTeamSetAlertsSlackChannel.Action == nil {
@@ -2155,13 +2200,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AuditEventTeamSetAlertsSlackChannel.Actor(childComplexity), true
 
-	case "AuditEventTeamSetAlertsSlackChannel.channelName":
-		if e.complexity.AuditEventTeamSetAlertsSlackChannel.ChannelName == nil {
-			break
-		}
-
-		return e.complexity.AuditEventTeamSetAlertsSlackChannel.ChannelName(childComplexity), true
-
 	case "AuditEventTeamSetAlertsSlackChannel.createdAt":
 		if e.complexity.AuditEventTeamSetAlertsSlackChannel.CreatedAt == nil {
 			break
@@ -2169,12 +2207,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AuditEventTeamSetAlertsSlackChannel.CreatedAt(childComplexity), true
 
-	case "AuditEventTeamSetAlertsSlackChannel.environment":
-		if e.complexity.AuditEventTeamSetAlertsSlackChannel.Environment == nil {
+	case "AuditEventTeamSetAlertsSlackChannel.data":
+		if e.complexity.AuditEventTeamSetAlertsSlackChannel.Data == nil {
 			break
 		}
 
-		return e.complexity.AuditEventTeamSetAlertsSlackChannel.Environment(childComplexity), true
+		return e.complexity.AuditEventTeamSetAlertsSlackChannel.Data(childComplexity), true
 
 	case "AuditEventTeamSetAlertsSlackChannel.id":
 		if e.complexity.AuditEventTeamSetAlertsSlackChannel.ID == nil {
@@ -2211,6 +2249,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AuditEventTeamSetAlertsSlackChannel.Team(childComplexity), true
 
+	case "AuditEventTeamSetAlertsSlackChannelData.channelName":
+		if e.complexity.AuditEventTeamSetAlertsSlackChannelData.ChannelName == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetAlertsSlackChannelData.ChannelName(childComplexity), true
+
+	case "AuditEventTeamSetAlertsSlackChannelData.environment":
+		if e.complexity.AuditEventTeamSetAlertsSlackChannelData.Environment == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetAlertsSlackChannelData.Environment(childComplexity), true
+
 	case "AuditEventTeamSetDefaultSlackChannel.action":
 		if e.complexity.AuditEventTeamSetDefaultSlackChannel.Action == nil {
 			break
@@ -2232,12 +2284,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AuditEventTeamSetDefaultSlackChannel.CreatedAt(childComplexity), true
 
-	case "AuditEventTeamSetDefaultSlackChannel.defaultSlackChannel":
-		if e.complexity.AuditEventTeamSetDefaultSlackChannel.DefaultSlackChannel == nil {
+	case "AuditEventTeamSetDefaultSlackChannel.data":
+		if e.complexity.AuditEventTeamSetDefaultSlackChannel.Data == nil {
 			break
 		}
 
-		return e.complexity.AuditEventTeamSetDefaultSlackChannel.DefaultSlackChannel(childComplexity), true
+		return e.complexity.AuditEventTeamSetDefaultSlackChannel.Data(childComplexity), true
 
 	case "AuditEventTeamSetDefaultSlackChannel.id":
 		if e.complexity.AuditEventTeamSetDefaultSlackChannel.ID == nil {
@@ -2274,6 +2326,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AuditEventTeamSetDefaultSlackChannel.Team(childComplexity), true
 
+	case "AuditEventTeamSetDefaultSlackChannelData.defaultSlackChannel":
+		if e.complexity.AuditEventTeamSetDefaultSlackChannelData.DefaultSlackChannel == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetDefaultSlackChannelData.DefaultSlackChannel(childComplexity), true
+
 	case "AuditEventTeamSetPurpose.action":
 		if e.complexity.AuditEventTeamSetPurpose.Action == nil {
 			break
@@ -2295,6 +2354,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AuditEventTeamSetPurpose.CreatedAt(childComplexity), true
 
+	case "AuditEventTeamSetPurpose.data":
+		if e.complexity.AuditEventTeamSetPurpose.Data == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetPurpose.Data(childComplexity), true
+
 	case "AuditEventTeamSetPurpose.id":
 		if e.complexity.AuditEventTeamSetPurpose.ID == nil {
 			break
@@ -2308,13 +2374,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AuditEventTeamSetPurpose.Message(childComplexity), true
-
-	case "AuditEventTeamSetPurpose.purpose":
-		if e.complexity.AuditEventTeamSetPurpose.Purpose == nil {
-			break
-		}
-
-		return e.complexity.AuditEventTeamSetPurpose.Purpose(childComplexity), true
 
 	case "AuditEventTeamSetPurpose.resourceName":
 		if e.complexity.AuditEventTeamSetPurpose.ResourceName == nil {
@@ -2336,6 +2395,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AuditEventTeamSetPurpose.Team(childComplexity), true
+
+	case "AuditEventTeamSetPurposeData.purpose":
+		if e.complexity.AuditEventTeamSetPurposeData.Purpose == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetPurposeData.Purpose(childComplexity), true
 
 	case "AuditLog.action":
 		if e.complexity.AuditLog.Action == nil {
@@ -7897,6 +7963,10 @@ type AuditEventMemberAdded implements AuditEvent {
   resourceName: String!
   team: Slug!
 
+  data: AuditEventMemberAddedData!
+}
+
+type AuditEventMemberAddedData {
   memberEmail: String!
   role: TeamRole!
 }
@@ -7911,6 +7981,10 @@ type AuditEventMemberRemoved implements AuditEvent {
   resourceName: String!
   team: Slug!
 
+  data: AuditEventMemberRemovedData!
+}
+
+type AuditEventMemberRemovedData {
   memberEmail: String!
 }
 
@@ -7924,6 +7998,10 @@ type AuditEventMemberSetRole implements AuditEvent {
   resourceName: String!
   team: Slug!
 
+  data: AuditEventMemberSetRoleData!
+}
+
+type AuditEventMemberSetRoleData {
   memberEmail: String!
   role: TeamRole!
 }
@@ -7938,6 +8016,10 @@ type AuditEventTeamSetPurpose implements AuditEvent {
   resourceName: String!
   team: Slug!
 
+  data: AuditEventTeamSetPurposeData!
+}
+
+type AuditEventTeamSetPurposeData {
   purpose: String!
 }
 
@@ -7951,6 +8033,10 @@ type AuditEventTeamSetDefaultSlackChannel implements AuditEvent {
   resourceName: String!
   team: Slug!
 
+  data: AuditEventTeamSetDefaultSlackChannelData!
+}
+
+type AuditEventTeamSetDefaultSlackChannelData {
   defaultSlackChannel: String!
 }
 
@@ -7964,6 +8050,10 @@ type AuditEventTeamSetAlertsSlackChannel implements AuditEvent {
   resourceName: String!
   team: Slug!
 
+  data: AuditEventTeamSetAlertsSlackChannelData!
+}
+
+type AuditEventTeamSetAlertsSlackChannelData {
   environment: String!
   channelName: String!
 }
@@ -15201,8 +15291,58 @@ func (ec *executionContext) fieldContext_AuditEventMemberAdded_team(ctx context.
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditEventMemberAdded_memberEmail(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberAdded) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditEventMemberAdded_memberEmail(ctx, field)
+func (ec *executionContext) _AuditEventMemberAdded_data(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberAdded) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberAdded_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventMemberAddedData)
+	fc.Result = res
+	return ec.marshalNAuditEventMemberAddedData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventMemberAddedData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberAdded_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberAdded",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "memberEmail":
+				return ec.fieldContext_AuditEventMemberAddedData_memberEmail(ctx, field)
+			case "role":
+				return ec.fieldContext_AuditEventMemberAddedData_role(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuditEventMemberAddedData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberAddedData_memberEmail(ctx context.Context, field graphql.CollectedField, obj *model.AuditEventMemberAddedData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberAddedData_memberEmail(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -15232,9 +15372,9 @@ func (ec *executionContext) _AuditEventMemberAdded_memberEmail(ctx context.Conte
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuditEventMemberAdded_memberEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuditEventMemberAddedData_memberEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AuditEventMemberAdded",
+		Object:     "AuditEventMemberAddedData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -15245,8 +15385,8 @@ func (ec *executionContext) fieldContext_AuditEventMemberAdded_memberEmail(ctx c
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditEventMemberAdded_role(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberAdded) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditEventMemberAdded_role(ctx, field)
+func (ec *executionContext) _AuditEventMemberAddedData_role(ctx context.Context, field graphql.CollectedField, obj *model.AuditEventMemberAddedData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberAddedData_role(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -15276,9 +15416,9 @@ func (ec *executionContext) _AuditEventMemberAdded_role(ctx context.Context, fie
 	return ec.marshalNTeamRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamRole(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuditEventMemberAdded_role(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuditEventMemberAddedData_role(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AuditEventMemberAdded",
+		Object:     "AuditEventMemberAddedData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -15641,8 +15781,56 @@ func (ec *executionContext) fieldContext_AuditEventMemberRemoved_team(ctx contex
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditEventMemberRemoved_memberEmail(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberRemoved) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditEventMemberRemoved_memberEmail(ctx, field)
+func (ec *executionContext) _AuditEventMemberRemoved_data(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberRemoved) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberRemoved_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventMemberRemovedData)
+	fc.Result = res
+	return ec.marshalNAuditEventMemberRemovedData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventMemberRemovedData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberRemoved_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberRemoved",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "memberEmail":
+				return ec.fieldContext_AuditEventMemberRemovedData_memberEmail(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuditEventMemberRemovedData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberRemovedData_memberEmail(ctx context.Context, field graphql.CollectedField, obj *model.AuditEventMemberRemovedData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberRemovedData_memberEmail(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -15672,9 +15860,9 @@ func (ec *executionContext) _AuditEventMemberRemoved_memberEmail(ctx context.Con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuditEventMemberRemoved_memberEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuditEventMemberRemovedData_memberEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AuditEventMemberRemoved",
+		Object:     "AuditEventMemberRemovedData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -16037,8 +16225,58 @@ func (ec *executionContext) fieldContext_AuditEventMemberSetRole_team(ctx contex
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditEventMemberSetRole_memberEmail(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberSetRole) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditEventMemberSetRole_memberEmail(ctx, field)
+func (ec *executionContext) _AuditEventMemberSetRole_data(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberSetRole) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberSetRole_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventMemberSetRoleData)
+	fc.Result = res
+	return ec.marshalNAuditEventMemberSetRoleData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventMemberSetRoleData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberSetRole_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberSetRole",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "memberEmail":
+				return ec.fieldContext_AuditEventMemberSetRoleData_memberEmail(ctx, field)
+			case "role":
+				return ec.fieldContext_AuditEventMemberSetRoleData_role(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuditEventMemberSetRoleData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberSetRoleData_memberEmail(ctx context.Context, field graphql.CollectedField, obj *model.AuditEventMemberSetRoleData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberSetRoleData_memberEmail(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -16068,9 +16306,9 @@ func (ec *executionContext) _AuditEventMemberSetRole_memberEmail(ctx context.Con
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuditEventMemberSetRole_memberEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuditEventMemberSetRoleData_memberEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AuditEventMemberSetRole",
+		Object:     "AuditEventMemberSetRoleData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -16081,8 +16319,8 @@ func (ec *executionContext) fieldContext_AuditEventMemberSetRole_memberEmail(ctx
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditEventMemberSetRole_role(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberSetRole) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditEventMemberSetRole_role(ctx, field)
+func (ec *executionContext) _AuditEventMemberSetRoleData_role(ctx context.Context, field graphql.CollectedField, obj *model.AuditEventMemberSetRoleData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberSetRoleData_role(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -16112,9 +16350,9 @@ func (ec *executionContext) _AuditEventMemberSetRole_role(ctx context.Context, f
 	return ec.marshalNTeamRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamRole(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuditEventMemberSetRole_role(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuditEventMemberSetRoleData_role(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AuditEventMemberSetRole",
+		Object:     "AuditEventMemberSetRoleData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -16477,8 +16715,58 @@ func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannel_tea
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannel_environment(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetAlertsSlackChannel) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditEventTeamSetAlertsSlackChannel_environment(ctx, field)
+func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannel_data(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetAlertsSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetAlertsSlackChannel_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventTeamSetAlertsSlackChannelData)
+	fc.Result = res
+	return ec.marshalNAuditEventTeamSetAlertsSlackChannelData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventTeamSetAlertsSlackChannelData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannel_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetAlertsSlackChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "environment":
+				return ec.fieldContext_AuditEventTeamSetAlertsSlackChannelData_environment(ctx, field)
+			case "channelName":
+				return ec.fieldContext_AuditEventTeamSetAlertsSlackChannelData_channelName(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuditEventTeamSetAlertsSlackChannelData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannelData_environment(ctx context.Context, field graphql.CollectedField, obj *model.AuditEventTeamSetAlertsSlackChannelData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetAlertsSlackChannelData_environment(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -16508,9 +16796,9 @@ func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannel_environment(ctx
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannel_environment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannelData_environment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AuditEventTeamSetAlertsSlackChannel",
+		Object:     "AuditEventTeamSetAlertsSlackChannelData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -16521,8 +16809,8 @@ func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannel_env
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannel_channelName(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetAlertsSlackChannel) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditEventTeamSetAlertsSlackChannel_channelName(ctx, field)
+func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannelData_channelName(ctx context.Context, field graphql.CollectedField, obj *model.AuditEventTeamSetAlertsSlackChannelData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetAlertsSlackChannelData_channelName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -16552,9 +16840,9 @@ func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannel_channelName(ctx
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannel_channelName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannelData_channelName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AuditEventTeamSetAlertsSlackChannel",
+		Object:     "AuditEventTeamSetAlertsSlackChannelData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -16917,8 +17205,56 @@ func (ec *executionContext) fieldContext_AuditEventTeamSetDefaultSlackChannel_te
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditEventTeamSetDefaultSlackChannel_defaultSlackChannel(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetDefaultSlackChannel) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditEventTeamSetDefaultSlackChannel_defaultSlackChannel(ctx, field)
+func (ec *executionContext) _AuditEventTeamSetDefaultSlackChannel_data(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetDefaultSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetDefaultSlackChannel_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventTeamSetDefaultSlackChannelData)
+	fc.Result = res
+	return ec.marshalNAuditEventTeamSetDefaultSlackChannelData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventTeamSetDefaultSlackChannelData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetDefaultSlackChannel_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetDefaultSlackChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "defaultSlackChannel":
+				return ec.fieldContext_AuditEventTeamSetDefaultSlackChannelData_defaultSlackChannel(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuditEventTeamSetDefaultSlackChannelData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetDefaultSlackChannelData_defaultSlackChannel(ctx context.Context, field graphql.CollectedField, obj *model.AuditEventTeamSetDefaultSlackChannelData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetDefaultSlackChannelData_defaultSlackChannel(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -16948,9 +17284,9 @@ func (ec *executionContext) _AuditEventTeamSetDefaultSlackChannel_defaultSlackCh
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuditEventTeamSetDefaultSlackChannel_defaultSlackChannel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuditEventTeamSetDefaultSlackChannelData_defaultSlackChannel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AuditEventTeamSetDefaultSlackChannel",
+		Object:     "AuditEventTeamSetDefaultSlackChannelData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -17313,8 +17649,56 @@ func (ec *executionContext) fieldContext_AuditEventTeamSetPurpose_team(ctx conte
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditEventTeamSetPurpose_purpose(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetPurpose) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditEventTeamSetPurpose_purpose(ctx, field)
+func (ec *executionContext) _AuditEventTeamSetPurpose_data(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetPurpose) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetPurpose_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventTeamSetPurposeData)
+	fc.Result = res
+	return ec.marshalNAuditEventTeamSetPurposeData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventTeamSetPurposeData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetPurpose_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetPurpose",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "purpose":
+				return ec.fieldContext_AuditEventTeamSetPurposeData_purpose(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuditEventTeamSetPurposeData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetPurposeData_purpose(ctx context.Context, field graphql.CollectedField, obj *model.AuditEventTeamSetPurposeData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetPurposeData_purpose(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -17344,9 +17728,9 @@ func (ec *executionContext) _AuditEventTeamSetPurpose_purpose(ctx context.Contex
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuditEventTeamSetPurpose_purpose(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuditEventTeamSetPurposeData_purpose(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AuditEventTeamSetPurpose",
+		Object:     "AuditEventTeamSetPurposeData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -56602,13 +56986,52 @@ func (ec *executionContext) _AuditEventMemberAdded(ctx context.Context, sel ast.
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "data":
+			out.Values[i] = ec._AuditEventMemberAdded_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var auditEventMemberAddedDataImplementors = []string{"AuditEventMemberAddedData"}
+
+func (ec *executionContext) _AuditEventMemberAddedData(ctx context.Context, sel ast.SelectionSet, obj *model.AuditEventMemberAddedData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventMemberAddedDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventMemberAddedData")
 		case "memberEmail":
-			out.Values[i] = ec._AuditEventMemberAdded_memberEmail(ctx, field, obj)
+			out.Values[i] = ec._AuditEventMemberAddedData_memberEmail(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "role":
-			out.Values[i] = ec._AuditEventMemberAdded_role(ctx, field, obj)
+			out.Values[i] = ec._AuditEventMemberAddedData_role(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -56686,8 +57109,47 @@ func (ec *executionContext) _AuditEventMemberRemoved(ctx context.Context, sel as
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "data":
+			out.Values[i] = ec._AuditEventMemberRemoved_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var auditEventMemberRemovedDataImplementors = []string{"AuditEventMemberRemovedData"}
+
+func (ec *executionContext) _AuditEventMemberRemovedData(ctx context.Context, sel ast.SelectionSet, obj *model.AuditEventMemberRemovedData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventMemberRemovedDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventMemberRemovedData")
 		case "memberEmail":
-			out.Values[i] = ec._AuditEventMemberRemoved_memberEmail(ctx, field, obj)
+			out.Values[i] = ec._AuditEventMemberRemovedData_memberEmail(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -56765,13 +57227,52 @@ func (ec *executionContext) _AuditEventMemberSetRole(ctx context.Context, sel as
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "data":
+			out.Values[i] = ec._AuditEventMemberSetRole_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var auditEventMemberSetRoleDataImplementors = []string{"AuditEventMemberSetRoleData"}
+
+func (ec *executionContext) _AuditEventMemberSetRoleData(ctx context.Context, sel ast.SelectionSet, obj *model.AuditEventMemberSetRoleData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventMemberSetRoleDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventMemberSetRoleData")
 		case "memberEmail":
-			out.Values[i] = ec._AuditEventMemberSetRole_memberEmail(ctx, field, obj)
+			out.Values[i] = ec._AuditEventMemberSetRoleData_memberEmail(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "role":
-			out.Values[i] = ec._AuditEventMemberSetRole_role(ctx, field, obj)
+			out.Values[i] = ec._AuditEventMemberSetRoleData_role(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -56849,13 +57350,52 @@ func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannel(ctx context.Con
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "data":
+			out.Values[i] = ec._AuditEventTeamSetAlertsSlackChannel_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var auditEventTeamSetAlertsSlackChannelDataImplementors = []string{"AuditEventTeamSetAlertsSlackChannelData"}
+
+func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannelData(ctx context.Context, sel ast.SelectionSet, obj *model.AuditEventTeamSetAlertsSlackChannelData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventTeamSetAlertsSlackChannelDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventTeamSetAlertsSlackChannelData")
 		case "environment":
-			out.Values[i] = ec._AuditEventTeamSetAlertsSlackChannel_environment(ctx, field, obj)
+			out.Values[i] = ec._AuditEventTeamSetAlertsSlackChannelData_environment(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "channelName":
-			out.Values[i] = ec._AuditEventTeamSetAlertsSlackChannel_channelName(ctx, field, obj)
+			out.Values[i] = ec._AuditEventTeamSetAlertsSlackChannelData_channelName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -56933,8 +57473,47 @@ func (ec *executionContext) _AuditEventTeamSetDefaultSlackChannel(ctx context.Co
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "data":
+			out.Values[i] = ec._AuditEventTeamSetDefaultSlackChannel_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var auditEventTeamSetDefaultSlackChannelDataImplementors = []string{"AuditEventTeamSetDefaultSlackChannelData"}
+
+func (ec *executionContext) _AuditEventTeamSetDefaultSlackChannelData(ctx context.Context, sel ast.SelectionSet, obj *model.AuditEventTeamSetDefaultSlackChannelData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventTeamSetDefaultSlackChannelDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventTeamSetDefaultSlackChannelData")
 		case "defaultSlackChannel":
-			out.Values[i] = ec._AuditEventTeamSetDefaultSlackChannel_defaultSlackChannel(ctx, field, obj)
+			out.Values[i] = ec._AuditEventTeamSetDefaultSlackChannelData_defaultSlackChannel(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -57012,8 +57591,47 @@ func (ec *executionContext) _AuditEventTeamSetPurpose(ctx context.Context, sel a
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "data":
+			out.Values[i] = ec._AuditEventTeamSetPurpose_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var auditEventTeamSetPurposeDataImplementors = []string{"AuditEventTeamSetPurposeData"}
+
+func (ec *executionContext) _AuditEventTeamSetPurposeData(ctx context.Context, sel ast.SelectionSet, obj *model.AuditEventTeamSetPurposeData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventTeamSetPurposeDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventTeamSetPurposeData")
 		case "purpose":
-			out.Values[i] = ec._AuditEventTeamSetPurpose_purpose(ctx, field, obj)
+			out.Values[i] = ec._AuditEventTeamSetPurposeData_purpose(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -69294,6 +69912,18 @@ func (ec *executionContext) marshalNAuditEventList2ᚖgithubᚗcomᚋnaisᚋapi�
 	return ec._AuditEventList(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNAuditEventMemberAddedData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventMemberAddedData(ctx context.Context, sel ast.SelectionSet, v model.AuditEventMemberAddedData) graphql.Marshaler {
+	return ec._AuditEventMemberAddedData(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuditEventMemberRemovedData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventMemberRemovedData(ctx context.Context, sel ast.SelectionSet, v model.AuditEventMemberRemovedData) graphql.Marshaler {
+	return ec._AuditEventMemberRemovedData(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuditEventMemberSetRoleData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventMemberSetRoleData(ctx context.Context, sel ast.SelectionSet, v model.AuditEventMemberSetRoleData) graphql.Marshaler {
+	return ec._AuditEventMemberSetRoleData(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNAuditEventNode2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋauditeventᚐAuditEventNode(ctx context.Context, sel ast.SelectionSet, v auditevent.AuditEventNode) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -69356,6 +69986,18 @@ func (ec *executionContext) unmarshalNAuditEventResourceType2githubᚗcomᚋnais
 
 func (ec *executionContext) marshalNAuditEventResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx context.Context, sel ast.SelectionSet, v model.AuditEventResourceType) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) marshalNAuditEventTeamSetAlertsSlackChannelData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventTeamSetAlertsSlackChannelData(ctx context.Context, sel ast.SelectionSet, v model.AuditEventTeamSetAlertsSlackChannelData) graphql.Marshaler {
+	return ec._AuditEventTeamSetAlertsSlackChannelData(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuditEventTeamSetDefaultSlackChannelData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventTeamSetDefaultSlackChannelData(ctx context.Context, sel ast.SelectionSet, v model.AuditEventTeamSetDefaultSlackChannelData) graphql.Marshaler {
+	return ec._AuditEventTeamSetDefaultSlackChannelData(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuditEventTeamSetPurposeData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventTeamSetPurposeData(ctx context.Context, sel ast.SelectionSet, v model.AuditEventTeamSetPurposeData) graphql.Marshaler {
+	return ec._AuditEventTeamSetPurposeData(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNAuditLog2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditLogᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AuditLog) graphql.Marshaler {
