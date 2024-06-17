@@ -1,6 +1,6 @@
 # Audit Events
 
-An audit event (or activity log?) is a record of an event:
+An audit event is a record of an event:
 
 > Actor X performed action Y on resource Z with name A belonging to team B at time T.
 
@@ -17,7 +17,7 @@ An audit event consists of the following fields in the database:
 | resource_name | text      | The name of the affected resource.                                        |
 | created_at    | timestamp | The time of the event.                                                    |
 | team          | slug      | The slug associated with the team that owns the affected resource.        |
-| data          | bytea     | Optonal. Opaque blob of additional data associated with a concrete event. |
+| data          | bytea     | Optional. Opaque blob of additional data associated with a concrete event.|
 
 ## Conventions
 
