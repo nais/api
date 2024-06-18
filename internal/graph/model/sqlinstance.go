@@ -12,6 +12,7 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/utils/ptr"
 )
 
 type BackupConfiguration struct {
@@ -133,8 +134,8 @@ func ToSqlInstance(u *unstructured.Unstructured, env string) (*SQLInstance, erro
 			return backupCfg
 		}(sqlInstance.Spec.Settings.BackupConfiguration),
 		CascadingDelete: sqlInstance.GetAnnotations()["cnrm.cloud.google.com/deletion-policy"] != "abandon",
-		Type:            *sqlInstance.Spec.DatabaseVersion,
-		ConnectionName:  *sqlInstance.Status.ConnectionName,
+		Type:            ptr.Deref(sqlInstance.Spec.DatabaseVersion, ""),
+		ConnectionName:  ptr.Deref(sqlInstance.Status.ConnectionName, ""),
 		Status: SQLInstanceStatus{
 			Conditions: func() []*Condition {
 				ret := make([]*Condition, 0)
