@@ -2,6 +2,7 @@ package audit
 
 import (
 	"context"
+
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/model"

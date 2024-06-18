@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"encoding/json"
+
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 	"k8s.io/utils/ptr"
