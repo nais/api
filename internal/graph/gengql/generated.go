@@ -672,15 +672,14 @@ type ComplexityRoot struct {
 	}
 
 	KafkaTopic struct {
-		ACL      func(childComplexity int) int
-		Config   func(childComplexity int) int
-		Env      func(childComplexity int) int
-		ID       func(childComplexity int) int
-		Name     func(childComplexity int) int
-		Pool     func(childComplexity int) int
-		Status   func(childComplexity int) int
-		Team     func(childComplexity int) int
-		Workload func(childComplexity int) int
+		ACL    func(childComplexity int) int
+		Config func(childComplexity int) int
+		Env    func(childComplexity int) int
+		ID     func(childComplexity int) int
+		Name   func(childComplexity int) int
+		Pool   func(childComplexity int) int
+		Status func(childComplexity int) int
+		Team   func(childComplexity int) int
 	}
 
 	KafkaTopicAcl struct {
@@ -1208,6 +1207,7 @@ type ComplexityRoot struct {
 		BigQueryDataset        func(childComplexity int, name string, env string) int
 		Bucket                 func(childComplexity int, name string, env string) int
 		Buckets                func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
+		CdnBucket              func(childComplexity int) int
 		DeletionInProgress     func(childComplexity int) int
 		DeployKey              func(childComplexity int) int
 		Deployments            func(childComplexity int, offset *int, limit *int) int
@@ -1421,8 +1421,6 @@ type ImageDetailsResolver interface {
 }
 type KafkaTopicResolver interface {
 	Team(ctx context.Context, obj *model.KafkaTopic) (*model.Team, error)
-
-	Workload(ctx context.Context, obj *model.KafkaTopic) (model.Workload, error)
 }
 type MutationResolver interface {
 	DeleteApp(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteAppResult, error)
@@ -4142,13 +4140,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.KafkaTopic.Team(childComplexity), true
 
-	case "KafkaTopic.workload":
-		if e.complexity.KafkaTopic.Workload == nil {
-			break
-		}
-
-		return e.complexity.KafkaTopic.Workload(childComplexity), true
-
 	case "KafkaTopicAcl.access":
 		if e.complexity.KafkaTopicAcl.Access == nil {
 			break
@@ -6731,6 +6722,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.Buckets(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy)), true
 
+	case "Team.cdnBucket":
+		if e.complexity.Team.CdnBucket == nil {
+			break
+		}
+
+		return e.complexity.Team.CdnBucket(childComplexity), true
+
 	case "Team.deletionInProgress":
 		if e.complexity.Team.DeletionInProgress == nil {
 			break
@@ -8808,7 +8806,6 @@ type KafkaTopic implements Persistence {
   pool: String!
   team: Team!
   env: Env!
-  workload: Workload
   status: KafkaTopicStatus
 }
 
@@ -9822,6 +9819,9 @@ type Team {
 
   "The Google artifact registry for the team."
   googleArtifactRegistry: String
+
+  "The CDN bucket for the team."
+  cdnBucket: String
 
   "Audit logs for this team."
   auditLogs(
@@ -14036,6 +14036,8 @@ func (ec *executionContext) fieldContext_App_team(ctx context.Context, field gra
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -19559,6 +19561,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(ctx context.Contex
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -20584,6 +20588,8 @@ func (ec *executionContext) fieldContext_Bucket_team(ctx context.Context, field 
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -22628,6 +22634,8 @@ func (ec *executionContext) fieldContext_Deployment_team(ctx context.Context, fi
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -29294,6 +29302,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(ctx context.Context, fi
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -29418,47 +29428,6 @@ func (ec *executionContext) fieldContext_KafkaTopic_env(ctx context.Context, fie
 				return ec.fieldContext_Env_secrets(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Env", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _KafkaTopic_workload(ctx context.Context, field graphql.CollectedField, obj *model.KafkaTopic) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_KafkaTopic_workload(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.KafkaTopic().Workload(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(model.Workload)
-	fc.Result = res
-	return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkload(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_KafkaTopic_workload(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "KafkaTopic",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
 	}
 	return fc, nil
@@ -30034,8 +30003,6 @@ func (ec *executionContext) fieldContext_KafkaTopicList_nodes(ctx context.Contex
 				return ec.fieldContext_KafkaTopic_team(ctx, field)
 			case "env":
 				return ec.fieldContext_KafkaTopic_env(ctx, field)
-			case "workload":
-				return ec.fieldContext_KafkaTopic_workload(ctx, field)
 			case "status":
 				return ec.fieldContext_KafkaTopic_status(ctx, field)
 			}
@@ -32267,6 +32234,8 @@ func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -32424,6 +32393,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -32581,6 +32552,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeamSlackAlertsChannel(c
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -32738,6 +32711,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUserFromTeam(ctx context
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -33042,6 +33017,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -33199,6 +33176,8 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -34539,6 +34518,8 @@ func (ec *executionContext) fieldContext_NaisJob_team(ctx context.Context, field
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -35491,6 +35472,8 @@ func (ec *executionContext) fieldContext_OpenSearch_team(ctx context.Context, fi
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -37854,6 +37837,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -39421,6 +39406,8 @@ func (ec *executionContext) fieldContext_ReconcilerError_team(ctx context.Contex
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -39909,6 +39896,8 @@ func (ec *executionContext) fieldContext_Redis_team(ctx context.Context, field g
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -42573,6 +42562,8 @@ func (ec *executionContext) fieldContext_Role_targetTeam(ctx context.Context, fi
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -43593,6 +43584,8 @@ func (ec *executionContext) fieldContext_Secret_team(ctx context.Context, field 
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -45484,6 +45477,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(ctx context.Context, f
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -47677,6 +47672,47 @@ func (ec *executionContext) fieldContext_Team_googleArtifactRegistry(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_cdnBucket(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_cdnBucket(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CdnBucket, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_cdnBucket(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_auditLogs(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_auditLogs(ctx, field)
 	if err != nil {
@@ -48936,8 +48972,6 @@ func (ec *executionContext) fieldContext_Team_kafkaTopic(ctx context.Context, fi
 				return ec.fieldContext_KafkaTopic_team(ctx, field)
 			case "env":
 				return ec.fieldContext_KafkaTopic_env(ctx, field)
-			case "workload":
-				return ec.fieldContext_KafkaTopic_workload(ctx, field)
 			case "status":
 				return ec.fieldContext_KafkaTopic_status(ctx, field)
 			}
@@ -50006,6 +50040,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(ctx context.Context,
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -50132,6 +50168,8 @@ func (ec *executionContext) fieldContext_TeamList_nodes(ctx context.Context, fie
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -50310,6 +50348,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(ctx context.Context, fi
 				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
 			case "googleArtifactRegistry":
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
 			case "auditEvents":
@@ -61246,39 +61286,6 @@ func (ec *executionContext) _KafkaTopic(ctx context.Context, sel ast.SelectionSe
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "workload":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._KafkaTopic_workload(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "status":
 			out.Values[i] = ec._KafkaTopic_status(ctx, field, obj)
 		default:
@@ -66638,6 +66645,8 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Team_googleGroupEmail(ctx, field, obj)
 		case "googleArtifactRegistry":
 			out.Values[i] = ec._Team_googleArtifactRegistry(ctx, field, obj)
+		case "cdnBucket":
+			out.Values[i] = ec._Team_cdnBucket(ctx, field, obj)
 		case "auditLogs":
 			field := field
 

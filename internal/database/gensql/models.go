@@ -313,6 +313,7 @@ type Team struct {
 	AzureGroupID       *uuid.UUID
 	GithubTeamSlug     *string
 	GarRepository      *string
+	CdnBucket          *string
 }
 
 type TeamAllEnvironment struct {

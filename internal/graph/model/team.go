@@ -17,6 +17,7 @@ type Team struct {
 	GitHubTeamSlug         *string    `json:"gitHubTeamSlug"`
 	AzureGroupID           *uuid.UUID `json:"azureGroupID"`
 	GoogleArtifactRegistry *string    `json:"googleArtifactRegistry"`
+	CdnBucket              *string    `json:"cdnBucket"`
 }
 
 func (Team) IsSearchNode() {}

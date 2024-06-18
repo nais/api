@@ -37,10 +37,6 @@ func (r *kafkaTopicResolver) Team(ctx context.Context, obj *model.KafkaTopic) (*
 	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
 }
 
-func (r *kafkaTopicResolver) Workload(ctx context.Context, obj *model.KafkaTopic) (model.Workload, error) {
-	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
-}
-
 func (r *openSearchResolver) Access(ctx context.Context, obj *model.OpenSearch) ([]*model.OpenSearchInstanceAccess, error) {
 	infs, exists := r.k8sClient.Informers()[obj.Env.Name]
 	if !exists {

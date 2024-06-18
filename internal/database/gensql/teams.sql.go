@@ -24,7 +24,7 @@ func (q *Queries) ConfirmTeamDeleteKey(ctx context.Context, key uuid.UUID) error
 const createTeam = `-- name: CreateTeam :one
 INSERT INTO teams (slug, purpose, slack_channel)
 VALUES ($1, $2, $3)
-RETURNING slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository
+RETURNING slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket
 `
 
 type CreateTeamParams struct {
@@ -45,6 +45,7 @@ func (q *Queries) CreateTeam(ctx context.Context, arg CreateTeamParams) (*Team, 
 		&i.AzureGroupID,
 		&i.GithubTeamSlug,
 		&i.GarRepository,
+		&i.CdnBucket,
 	)
 	return &i, err
 }
@@ -92,7 +93,7 @@ func (q *Queries) DeleteTeam(ctx context.Context, argSlug slug.Slug) error {
 }
 
 const getActiveTeamBySlug = `-- name: GetActiveTeamBySlug :one
-SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository FROM teams
+SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket FROM teams
 WHERE
     teams.slug = $1
     AND NOT EXISTS (
@@ -116,12 +117,13 @@ func (q *Queries) GetActiveTeamBySlug(ctx context.Context, argSlug slug.Slug) (*
 		&i.AzureGroupID,
 		&i.GithubTeamSlug,
 		&i.GarRepository,
+		&i.CdnBucket,
 	)
 	return &i, err
 }
 
 const getActiveTeams = `-- name: GetActiveTeams :many
-SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository FROM teams
+SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket FROM teams
 WHERE NOT EXISTS (
     SELECT team_delete_keys.team_slug
     FROM team_delete_keys
@@ -150,6 +152,7 @@ func (q *Queries) GetActiveTeams(ctx context.Context) ([]*Team, error) {
 			&i.AzureGroupID,
 			&i.GithubTeamSlug,
 			&i.GarRepository,
+			&i.CdnBucket,
 		); err != nil {
 			return nil, err
 		}
@@ -220,7 +223,7 @@ func (q *Queries) GetAllTeamSlugs(ctx context.Context) ([]slug.Slug, error) {
 }
 
 const getTeamBySlug = `-- name: GetTeamBySlug :one
-SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository FROM teams
+SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket FROM teams
 WHERE teams.slug = $1
 `
 
@@ -236,12 +239,13 @@ func (q *Queries) GetTeamBySlug(ctx context.Context, argSlug slug.Slug) (*Team, 
 		&i.AzureGroupID,
 		&i.GithubTeamSlug,
 		&i.GarRepository,
+		&i.CdnBucket,
 	)
 	return &i, err
 }
 
 const getTeamBySlugs = `-- name: GetTeamBySlugs :many
-SELECT slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository FROM teams
+SELECT slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket FROM teams
 WHERE slug = ANY($1::slug[])
 ORDER BY slug ASC
 `
@@ -264,6 +268,7 @@ func (q *Queries) GetTeamBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Tea
 			&i.AzureGroupID,
 			&i.GithubTeamSlug,
 			&i.GarRepository,
+			&i.CdnBucket,
 		); err != nil {
 			return nil, err
 		}
@@ -560,7 +565,7 @@ func (q *Queries) GetTeamMembersForReconciler(ctx context.Context, arg GetTeamMe
 }
 
 const getTeams = `-- name: GetTeams :many
-SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository FROM teams
+SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket FROM teams
 ORDER BY teams.slug ASC
 LIMIT $2 OFFSET $1
 `
@@ -588,6 +593,7 @@ func (q *Queries) GetTeams(ctx context.Context, arg GetTeamsParams) ([]*Team, er
 			&i.AzureGroupID,
 			&i.GithubTeamSlug,
 			&i.GarRepository,
+			&i.CdnBucket,
 		); err != nil {
 			return nil, err
 		}
@@ -654,7 +660,7 @@ UPDATE teams
 SET purpose = COALESCE($1, purpose),
     slack_channel = COALESCE($2, slack_channel)
 WHERE slug = $3
-RETURNING slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository
+RETURNING slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket
 `
 
 type UpdateTeamParams struct {
@@ -675,6 +681,7 @@ func (q *Queries) UpdateTeam(ctx context.Context, arg UpdateTeamParams) (*Team, 
 		&i.AzureGroupID,
 		&i.GithubTeamSlug,
 		&i.GarRepository,
+		&i.CdnBucket,
 	)
 	return &i, err
 }
@@ -684,9 +691,10 @@ UPDATE teams
 SET google_group_email = COALESCE($1, google_group_email),
     azure_group_id =  COALESCE($2, azure_group_id),
     github_team_slug = COALESCE($3, github_team_slug),
-    gar_repository = COALESCE($4, gar_repository)
-WHERE slug = $5
-RETURNING slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository
+    gar_repository = COALESCE($4, gar_repository),
+    cdn_bucket = COALESCE($5, cdn_bucket)
+WHERE slug = $6
+RETURNING slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket
 `
 
 type UpdateTeamExternalReferencesParams struct {
@@ -694,6 +702,7 @@ type UpdateTeamExternalReferencesParams struct {
 	AzureGroupID     *uuid.UUID
 	GithubTeamSlug   *string
 	GarRepository    *string
+	CdnBucket        *string
 	Slug             slug.Slug
 }
 
@@ -703,6 +712,7 @@ func (q *Queries) UpdateTeamExternalReferences(ctx context.Context, arg UpdateTe
 		arg.AzureGroupID,
 		arg.GithubTeamSlug,
 		arg.GarRepository,
+		arg.CdnBucket,
 		arg.Slug,
 	)
 	var i Team
@@ -715,6 +725,7 @@ func (q *Queries) UpdateTeamExternalReferences(ctx context.Context, arg UpdateTe
 		&i.AzureGroupID,
 		&i.GithubTeamSlug,
 		&i.GarRepository,
+		&i.CdnBucket,
 	)
 	return &i, err
 }

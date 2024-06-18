@@ -8,7 +8,6 @@ import (
 	"github.com/nais/api/internal/slug"
 	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
 	sync_states "github.com/nais/liberator/pkg/events"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -24,8 +23,7 @@ type KafkaTopic struct {
 	GQLVars KafkaTopicGQLVars `json:"-"`
 }
 type KafkaTopicGQLVars struct {
-	TeamSlug       slug.Slug
-	OwnerReference *v1.OwnerReference
+	TeamSlug slug.Slug
 }
 
 func (KafkaTopic) IsPersistence() {}
@@ -74,8 +72,7 @@ func ToKafkaTopic(u *unstructured.Unstructured, env string) (*KafkaTopic, error)
 			Team: teamSlug,
 		},
 		GQLVars: KafkaTopicGQLVars{
-			TeamSlug:       slug.Slug(teamSlug),
-			OwnerReference: OwnerReference(kt.OwnerReferences),
+			TeamSlug: slug.Slug(teamSlug),
 		},
 		Status: func(s *kafka_nais_io_v1.TopicStatus) *KafkaTopicStatus {
 			if s == nil {
