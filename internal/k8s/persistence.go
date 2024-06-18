@@ -51,15 +51,17 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 	}
 
 	if inf := c.informers[cluster].Redis; inf != nil {
-		redises, err := inf.Lister().ByNamespace(string(teamSlug)).List(byAppLabel)
-		if err != nil {
-			return nil, fmt.Errorf("getting redis: %w", err)
-		}
-		for _, redis := range redises {
-			r, err := model.ToRedis(redis.(*unstructured.Unstructured), cluster)
+		for _, redis := range workload.GQLVars.Spec.Redis {
+			obj, err := inf.Lister().ByNamespace(string(teamSlug)).Get("redis-" + string(teamSlug) + "-" + redis.Instance)
+			if err != nil {
+				return nil, fmt.Errorf("getting redis: %w", err)
+			}
+
+			r, err := model.ToRedis(obj.(*unstructured.Unstructured), cluster)
 			if err != nil {
 				return nil, fmt.Errorf("converting to redis: %w", err)
 			}
+
 			ret = append(ret, r)
 		}
 	}
