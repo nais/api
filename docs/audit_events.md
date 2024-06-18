@@ -109,6 +109,16 @@ make generate-graphql
 
 Structure:
 
+```text
+internal/
+├─ graph/
+│  ├─ model/
+│  │  ├─ auditevent/
+│  │  │  ├─ auditevent.go
+│  │  │  ├─ <resource>.go
+│  │  ├─ model_gen.go
+```
+
 - [internal/graph/model/models_gen.go](../internal/graph/model/models_gen.go) - gqlgen generated models
 - [internal/graph/model/auditevent](../internal/graph/model/auditevent) - audit event models that override the gqlgen generated models
 - [internal/graph/model/auditevent/auditevent.go](../internal/graph/model/auditevent/auditevent.go) - base audit event model and implementation
@@ -153,7 +163,7 @@ make generate-graphql
 
 ### Add new branch(es) to the Graph resolver
 
-[internal/graph/resolvers/auditevents.go](../internal/graph/auditevents.go)
+[internal/graph/auditevents.go](../internal/graph/auditevents.go)
 
 ## Storing audit events
 
