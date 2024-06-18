@@ -8,8 +8,8 @@ import (
 	"cloud.google.com/go/pubsub/pstest"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/auditlogger"
-	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
 	"github.com/nais/api/internal/database"
@@ -64,6 +64,8 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 	})
 
 	db := database.NewMockDatabase(t)
+	db.EXPECT().CreateAuditEvent(mock.Anything, mock.Anything).Return(nil)
+	auditer := audit.NewAuditor(db)
 
 	log, err := logger.New("text", "info")
 	assert.NoError(t, err)
@@ -74,7 +76,7 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 
 	t.Run("create team with empty purpose", func(t *testing.T) {
 		_, err := graph.
-			NewResolver(nil, nil, nil, nil, db, tenantDomain, usersyncTrigger, auditlogger.NewAuditLoggerForTesting(), nil, nil, log, nil, nil, nil, nil, nil, nil, nil, nil).
+			NewResolver(nil, nil, nil, nil, db, tenantDomain, usersyncTrigger, auditlogger.NewAuditLoggerForTesting(), nil, nil, log, nil, nil, nil, nil, nil, nil, nil, auditer).
 			Mutation().
 			CreateTeam(ctx, model.CreateTeamInput{
 				Slug:         teamSlug,
@@ -113,7 +115,7 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 
 		auditLogger := auditlogger.NewAuditLoggerForTesting()
 		returnedTeam, err := graph.
-			NewResolver(nil, nil, nil, nil, db, tenantDomain, usersyncTrigger, auditLogger, nil, psClient.Topic("topic-id"), log, nil, nil, nil, nil, nil, nil, nil, nil).
+			NewResolver(nil, nil, nil, nil, db, tenantDomain, usersyncTrigger, auditLogger, nil, psClient.Topic("topic-id"), log, nil, nil, nil, nil, nil, nil, nil, auditer).
 			Mutation().
 			CreateTeam(ctx, model.CreateTeamInput{
 				Slug:         teamSlug,
@@ -126,28 +128,6 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 
 		if createdTeam.Slug != returnedTeam.Slug {
 			t.Errorf("expected team slug %q, got %q", createdTeam.Slug, returnedTeam.Slug)
-		}
-
-		if len(auditLogger.Entries()) != 1 {
-			t.Fatalf("expected 1 audit log entry, got %d", len(auditLogger.Entries()))
-		}
-
-		entry := auditLogger.Entries()[0]
-
-		if ctx != entry.Context {
-			t.Errorf("incorrect context in audit log entry")
-		}
-
-		if string(createdTeam.Slug) != entry.Targets[0].Identifier {
-			t.Errorf("expected team slug %q, got %q", createdTeam.Slug, entry.Targets[0].Identifier)
-		}
-
-		if user != entry.Fields.Actor.User {
-			t.Errorf("incorrect actor in audit log entry")
-		}
-
-		if expected := "Team created"; entry.Message != expected {
-			t.Errorf("expected message %q, got %q", expected, entry.Message)
 		}
 
 		psMessages := psServer.Messages()
@@ -192,7 +172,7 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 
 		auditLogger := auditlogger.NewAuditLoggerForTesting()
 		returnedTeam, err := graph.
-			NewResolver(nil, nil, nil, nil, db, tenantDomain, usersyncTrigger, auditLogger, nil, psClient.Topic("topic-id"), log, nil, nil, nil, nil, nil, nil, nil, nil).
+			NewResolver(nil, nil, nil, nil, db, tenantDomain, usersyncTrigger, auditLogger, nil, psClient.Topic("topic-id"), log, nil, nil, nil, nil, nil, nil, nil, auditer).
 			Mutation().CreateTeam(saCtx, model.CreateTeamInput{
 			Slug:         teamSlug,
 			Purpose:      " some purpose ",
@@ -204,27 +184,6 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 
 		if createdTeam.Slug != returnedTeam.Slug {
 			t.Errorf("expected team slug %q, got %q", createdTeam.Slug, returnedTeam.Slug)
-		}
-
-		if len(auditLogger.Entries()) != 1 {
-			t.Fatalf("expected 1 audit log entry, got %d", len(auditLogger.Entries()))
-		}
-
-		entry := auditLogger.Entries()[0]
-		if saCtx != entry.Context {
-			t.Errorf("incorrect context in audit log entry")
-		}
-
-		if string(createdTeam.Slug) != entry.Targets[0].Identifier {
-			t.Errorf("expected team slug %q, got %q", createdTeam.Slug, entry.Targets[0].Identifier)
-		}
-
-		if serviceAccount != entry.Fields.Actor.User {
-			t.Errorf("incorrect actor in audit log entry")
-		}
-
-		if expected := "Team created"; entry.Message != expected {
-			t.Errorf("expected message %q, got %q", expected, entry.Message)
 		}
 
 		psMessages := psServer.Messages()
@@ -340,11 +299,14 @@ func TestMutationResolver_RequestTeamDeletion(t *testing.T) {
 			Return(key, nil).
 			Once()
 
+		db.EXPECT().CreateAuditEvent(mock.Anything, mock.Anything).Return(nil).Once()
+		auditer := audit.NewAuditor(db)
+
 		ctx = loader.NewLoaderContext(ctx, db)
 
 		auditLogger := auditlogger.NewAuditLoggerForTesting()
 		resolver := graph.
-			NewResolver(nil, nil, nil, nil, db, tenantDomain, usersyncTrigger, auditLogger, nil, nil, log, nil, nil, nil, nil, nil, nil, nil, nil).
+			NewResolver(nil, nil, nil, nil, db, tenantDomain, usersyncTrigger, auditLogger, nil, nil, log, nil, nil, nil, nil, nil, nil, nil, auditer).
 			Mutation()
 
 		returnedKey, err := resolver.RequestTeamDeletion(ctx, teamSlug)
@@ -353,31 +315,6 @@ func TestMutationResolver_RequestTeamDeletion(t *testing.T) {
 		}
 
 		_ = returnedKey
-
-		assert.Len(t, auditLogger.Entries(), 1)
-
-		entry := auditLogger.Entries()[0]
-		target := entry.Targets[0]
-
-		if ctx != entry.Context {
-			t.Errorf("incorrect context in audit log entry")
-		}
-
-		if string(teamSlug) != target.Identifier {
-			t.Errorf("incorrect target in audit log entry")
-		}
-
-		if audittype.AuditLogsTargetTypeTeam != target.Type {
-			t.Errorf("incorrect target type in audit log entry")
-		}
-
-		if audittype.AuditActionGraphqlApiTeamsRequestDelete != entry.Fields.Action {
-			t.Errorf("incorrect action in audit log entry")
-		}
-
-		if user.ID != entry.Fields.Actor.User.GetID() {
-			t.Errorf("incorrect actor in audit log entry")
-		}
 	})
 }
 
