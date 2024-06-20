@@ -25,7 +25,7 @@ func (q *Queries) DeleteReconcilerStateForTeam(ctx context.Context, arg DeleteRe
 }
 
 const getReconcilerState = `-- name: GetReconcilerState :many
-SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.deleted_at, reconciler_states.id, reconciler_states.reconciler_name, reconciler_states.team_slug, reconciler_states.value, reconciler_states.created_at, reconciler_states.updated_at
+SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.deleted_at, teams.delete_key_confirmed_at, reconciler_states.id, reconciler_states.reconciler_name, reconciler_states.team_slug, reconciler_states.value, reconciler_states.created_at, reconciler_states.updated_at
 FROM reconciler_states
 JOIN teams ON teams.slug = reconciler_states.team_slug
 WHERE reconciler_name = $1
@@ -57,6 +57,7 @@ func (q *Queries) GetReconcilerState(ctx context.Context, reconcilerName string)
 			&i.Team.GarRepository,
 			&i.Team.CdnBucket,
 			&i.Team.DeletedAt,
+			&i.Team.DeleteKeyConfirmedAt,
 			&i.ReconcilerState.ID,
 			&i.ReconcilerState.ReconcilerName,
 			&i.ReconcilerState.TeamSlug,

@@ -22,7 +22,7 @@ func TestTeamsServer_Get(t *testing.T) {
 	t.Run("team not found", func(t *testing.T) {
 		db := database.NewMockDatabase(t)
 		db.EXPECT().
-			GetActiveOrDeletedTeamBySlug(ctx, slug.Slug("team-not-found")).
+			GetTeamBySlug(ctx, slug.Slug("team-not-found")).
 			Return(nil, pgx.ErrNoRows).
 			Once()
 
@@ -39,7 +39,7 @@ func TestTeamsServer_Get(t *testing.T) {
 	t.Run("database error", func(t *testing.T) {
 		db := database.NewMockDatabase(t)
 		db.EXPECT().
-			GetActiveOrDeletedTeamBySlug(ctx, slug.Slug("team-not-found")).
+			GetTeamBySlug(ctx, slug.Slug("team-not-found")).
 			Return(nil, fmt.Errorf("some database error")).
 			Once()
 
@@ -67,8 +67,8 @@ func TestTeamsServer_Get(t *testing.T) {
 
 		db := database.NewMockDatabase(t)
 		db.EXPECT().
-			GetActiveOrDeletedTeamBySlug(ctx, slug.Slug(teamSlug)).
-			Return(&database.ActiveOrDeletedTeam{Team: &gensql.Team{
+			GetTeamBySlug(ctx, slug.Slug(teamSlug)).
+			Return(&database.Team{Team: &gensql.Team{
 				Slug:             teamSlug,
 				Purpose:          purpose,
 				SlackChannel:     slackChannel,
@@ -155,7 +155,7 @@ func TestTeamsServer_List(t *testing.T) {
 	t.Run("error when fetching teams from database", func(t *testing.T) {
 		db := database.NewMockDatabase(t)
 		db.EXPECT().
-			GetActiveOrDeletedTeams(ctx, database.Page{Limit: 123, Offset: 2}).
+			GetTeams(ctx, database.Page{Limit: 123, Offset: 2}).
 			Return(nil, 0, fmt.Errorf("some error")).
 			Once()
 		resp, err := grpc.NewTeamsServer(db).List(ctx, &protoapi.ListTeamsRequest{
@@ -172,13 +172,13 @@ func TestTeamsServer_List(t *testing.T) {
 	})
 
 	t.Run("fetch teams", func(t *testing.T) {
-		teamsFromDatabase := []*database.ActiveOrDeletedTeam{
+		teamsFromDatabase := []*database.Team{
 			{Team: &gensql.Team{Slug: "team1"}},
 			{Team: &gensql.Team{Slug: "team2"}},
 		}
 		db := database.NewMockDatabase(t)
 		db.EXPECT().
-			GetActiveOrDeletedTeams(ctx, database.Page{Limit: 2, Offset: 0}).
+			GetTeams(ctx, database.Page{Limit: 2, Offset: 0}).
 			Return(teamsFromDatabase, 2, nil).
 			Once()
 		resp, err := grpc.NewTeamsServer(db).List(ctx, &protoapi.ListTeamsRequest{

@@ -456,18 +456,15 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, key string) 
 		return false, apierror.Errorf("Team delete key has expired, you need to request a new key.")
 	}
 
-	correlationID := uuid.New()
-
-	if err := r.database.ConfirmTeamDeleteKey(ctx, uid); err != nil {
+	if err := r.database.ConfirmTeamDeleteKey(ctx, deleteKey.TeamSlug, uid); err != nil {
 		return false, fmt.Errorf("confirm team delete key: %w", err)
 	}
 
-	err = r.auditor.TeamDeletionConfirmed(ctx, actor.User, deleteKey.TeamSlug)
-	if err != nil {
+	if err := r.auditor.TeamDeletionConfirmed(ctx, actor.User, deleteKey.TeamSlug); err != nil {
 		return false, err
 	}
 
-	r.triggerTeamDeletedEvent(ctx, deleteKey.TeamSlug, correlationID)
+	r.triggerTeamDeletedEvent(ctx, deleteKey.TeamSlug, uuid.New())
 
 	return true, nil
 }

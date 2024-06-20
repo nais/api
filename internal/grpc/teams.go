@@ -13,7 +13,6 @@ import (
 	"github.com/nais/api/pkg/protoapi"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"k8s.io/utils/ptr"
 )
 
@@ -44,7 +43,7 @@ func (t *TeamsServer) Delete(ctx context.Context, req *protoapi.DeleteTeamReques
 }
 
 func (t *TeamsServer) Get(ctx context.Context, req *protoapi.GetTeamRequest) (*protoapi.GetTeamResponse, error) {
-	team, err := t.db.GetActiveOrDeletedTeamBySlug(ctx, slug.Slug(req.Slug))
+	team, err := t.db.GetTeamBySlug(ctx, slug.Slug(req.Slug))
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, status.Errorf(codes.NotFound, "team not found")
 	} else if err != nil {
@@ -58,7 +57,7 @@ func (t *TeamsServer) Get(ctx context.Context, req *protoapi.GetTeamRequest) (*p
 
 func (t *TeamsServer) List(ctx context.Context, req *protoapi.ListTeamsRequest) (*protoapi.ListTeamsResponse, error) {
 	limit, offset := pagination(req)
-	teams, total, err := t.db.GetActiveOrDeletedTeams(ctx, database.Page{
+	teams, total, err := t.db.GetTeams(ctx, database.Page{
 		Limit:  limit,
 		Offset: offset,
 	})
@@ -192,7 +191,7 @@ func (t *TeamsServer) IsRepositoryAuthorized(ctx context.Context, req *protoapi.
 	return &protoapi.IsRepositoryAuthorizedResponse{IsAuthorized: false}, nil
 }
 
-func toProtoTeam(team *database.ActiveOrDeletedTeam) *protoapi.Team {
+func toProtoTeam(team *database.Team) *protoapi.Team {
 	var aID *string
 	if team.AzureGroupID != nil {
 		aID = ptr.To(team.AzureGroupID.String())
@@ -207,8 +206,6 @@ func toProtoTeam(team *database.ActiveOrDeletedTeam) *protoapi.Team {
 		GoogleGroupEmail: team.GoogleGroupEmail,
 		GarRepository:    team.GarRepository,
 		CdnBucket:        team.CdnBucket,
-		CanBeDeleted:     team.CanBeDeleted,
-		DeletedAt:        timestamppb.New(team.DeletedAt.Time),
 	}
 }
 

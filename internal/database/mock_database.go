@@ -388,17 +388,17 @@ func (_c *MockDatabase_ConfigureReconciler_Call) RunAndReturn(run func(context.C
 	return _c
 }
 
-// ConfirmTeamDeleteKey provides a mock function with given fields: ctx, key
-func (_m *MockDatabase) ConfirmTeamDeleteKey(ctx context.Context, key uuid.UUID) error {
-	ret := _m.Called(ctx, key)
+// ConfirmTeamDeleteKey provides a mock function with given fields: ctx, teamSlug, key
+func (_m *MockDatabase) ConfirmTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, key uuid.UUID) error {
+	ret := _m.Called(ctx, teamSlug, key)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ConfirmTeamDeleteKey")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
-		r0 = rf(ctx, key)
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, uuid.UUID) error); ok {
+		r0 = rf(ctx, teamSlug, key)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -413,14 +413,15 @@ type MockDatabase_ConfirmTeamDeleteKey_Call struct {
 
 // ConfirmTeamDeleteKey is a helper method to define mock.On call
 //   - ctx context.Context
+//   - teamSlug slug.Slug
 //   - key uuid.UUID
-func (_e *MockDatabase_Expecter) ConfirmTeamDeleteKey(ctx interface{}, key interface{}) *MockDatabase_ConfirmTeamDeleteKey_Call {
-	return &MockDatabase_ConfirmTeamDeleteKey_Call{Call: _e.mock.On("ConfirmTeamDeleteKey", ctx, key)}
+func (_e *MockDatabase_Expecter) ConfirmTeamDeleteKey(ctx interface{}, teamSlug interface{}, key interface{}) *MockDatabase_ConfirmTeamDeleteKey_Call {
+	return &MockDatabase_ConfirmTeamDeleteKey_Call{Call: _e.mock.On("ConfirmTeamDeleteKey", ctx, teamSlug, key)}
 }
 
-func (_c *MockDatabase_ConfirmTeamDeleteKey_Call) Run(run func(ctx context.Context, key uuid.UUID)) *MockDatabase_ConfirmTeamDeleteKey_Call {
+func (_c *MockDatabase_ConfirmTeamDeleteKey_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, key uuid.UUID)) *MockDatabase_ConfirmTeamDeleteKey_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID))
+		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(uuid.UUID))
 	})
 	return _c
 }
@@ -430,7 +431,7 @@ func (_c *MockDatabase_ConfirmTeamDeleteKey_Call) Return(_a0 error) *MockDatabas
 	return _c
 }
 
-func (_c *MockDatabase_ConfirmTeamDeleteKey_Call) RunAndReturn(run func(context.Context, uuid.UUID) error) *MockDatabase_ConfirmTeamDeleteKey_Call {
+func (_c *MockDatabase_ConfirmTeamDeleteKey_Call) RunAndReturn(run func(context.Context, slug.Slug, uuid.UUID) error) *MockDatabase_ConfirmTeamDeleteKey_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1884,131 +1885,6 @@ func (_c *MockDatabase_ExtendSession_Call) Return(_a0 *Session, _a1 error) *Mock
 }
 
 func (_c *MockDatabase_ExtendSession_Call) RunAndReturn(run func(context.Context, uuid.UUID) (*Session, error)) *MockDatabase_ExtendSession_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetActiveOrDeletedTeamBySlug provides a mock function with given fields: ctx, teamSlug
-func (_m *MockDatabase) GetActiveOrDeletedTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*ActiveOrDeletedTeam, error) {
-	ret := _m.Called(ctx, teamSlug)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetActiveOrDeletedTeamBySlug")
-	}
-
-	var r0 *ActiveOrDeletedTeam
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (*ActiveOrDeletedTeam, error)); ok {
-		return rf(ctx, teamSlug)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) *ActiveOrDeletedTeam); ok {
-		r0 = rf(ctx, teamSlug)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*ActiveOrDeletedTeam)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
-		r1 = rf(ctx, teamSlug)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_GetActiveOrDeletedTeamBySlug_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetActiveOrDeletedTeamBySlug'
-type MockDatabase_GetActiveOrDeletedTeamBySlug_Call struct {
-	*mock.Call
-}
-
-// GetActiveOrDeletedTeamBySlug is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-func (_e *MockDatabase_Expecter) GetActiveOrDeletedTeamBySlug(ctx interface{}, teamSlug interface{}) *MockDatabase_GetActiveOrDeletedTeamBySlug_Call {
-	return &MockDatabase_GetActiveOrDeletedTeamBySlug_Call{Call: _e.mock.On("GetActiveOrDeletedTeamBySlug", ctx, teamSlug)}
-}
-
-func (_c *MockDatabase_GetActiveOrDeletedTeamBySlug_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockDatabase_GetActiveOrDeletedTeamBySlug_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_GetActiveOrDeletedTeamBySlug_Call) Return(_a0 *ActiveOrDeletedTeam, _a1 error) *MockDatabase_GetActiveOrDeletedTeamBySlug_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockDatabase_GetActiveOrDeletedTeamBySlug_Call) RunAndReturn(run func(context.Context, slug.Slug) (*ActiveOrDeletedTeam, error)) *MockDatabase_GetActiveOrDeletedTeamBySlug_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetActiveOrDeletedTeams provides a mock function with given fields: ctx, p
-func (_m *MockDatabase) GetActiveOrDeletedTeams(ctx context.Context, p Page) ([]*ActiveOrDeletedTeam, int, error) {
-	ret := _m.Called(ctx, p)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetActiveOrDeletedTeams")
-	}
-
-	var r0 []*ActiveOrDeletedTeam
-	var r1 int
-	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, Page) ([]*ActiveOrDeletedTeam, int, error)); ok {
-		return rf(ctx, p)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, Page) []*ActiveOrDeletedTeam); ok {
-		r0 = rf(ctx, p)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*ActiveOrDeletedTeam)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, Page) int); ok {
-		r1 = rf(ctx, p)
-	} else {
-		r1 = ret.Get(1).(int)
-	}
-
-	if rf, ok := ret.Get(2).(func(context.Context, Page) error); ok {
-		r2 = rf(ctx, p)
-	} else {
-		r2 = ret.Error(2)
-	}
-
-	return r0, r1, r2
-}
-
-// MockDatabase_GetActiveOrDeletedTeams_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetActiveOrDeletedTeams'
-type MockDatabase_GetActiveOrDeletedTeams_Call struct {
-	*mock.Call
-}
-
-// GetActiveOrDeletedTeams is a helper method to define mock.On call
-//   - ctx context.Context
-//   - p Page
-func (_e *MockDatabase_Expecter) GetActiveOrDeletedTeams(ctx interface{}, p interface{}) *MockDatabase_GetActiveOrDeletedTeams_Call {
-	return &MockDatabase_GetActiveOrDeletedTeams_Call{Call: _e.mock.On("GetActiveOrDeletedTeams", ctx, p)}
-}
-
-func (_c *MockDatabase_GetActiveOrDeletedTeams_Call) Run(run func(ctx context.Context, p Page)) *MockDatabase_GetActiveOrDeletedTeams_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(Page))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_GetActiveOrDeletedTeams_Call) Return(_a0 []*ActiveOrDeletedTeam, _a1 int, _a2 error) *MockDatabase_GetActiveOrDeletedTeams_Call {
-	_c.Call.Return(_a0, _a1, _a2)
-	return _c
-}
-
-func (_c *MockDatabase_GetActiveOrDeletedTeams_Call) RunAndReturn(run func(context.Context, Page) ([]*ActiveOrDeletedTeam, int, error)) *MockDatabase_GetActiveOrDeletedTeams_Call {
 	_c.Call.Return(run)
 	return _c
 }
