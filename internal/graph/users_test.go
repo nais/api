@@ -22,7 +22,7 @@ func TestQueryResolver_Users(t *testing.T) {
 	log, _ := test.NewNullLogger()
 	usersyncTrigger := make(chan<- uuid.UUID)
 	resolver := graph.
-		NewResolver(nil, nil, nil, nil, db, "example.com", usersyncTrigger, auditLogger, nil, nil, log, nil, nil, nil, nil, nil, nil, nil).
+		NewResolver(nil, nil, nil, nil, db, "example.com", usersyncTrigger, auditLogger, nil, nil, log, nil, nil, nil, nil, nil, nil, nil, nil).
 		Query()
 
 	t.Run("unauthenticated user", func(t *testing.T) {

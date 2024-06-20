@@ -640,6 +640,53 @@ func (_c *MockDatabase_CreateAPIKey_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
+// CreateAuditEvent provides a mock function with given fields: ctx, event
+func (_m *MockDatabase) CreateAuditEvent(ctx context.Context, event AuditEventInput) error {
+	ret := _m.Called(ctx, event)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateAuditEvent")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, AuditEventInput) error); ok {
+		r0 = rf(ctx, event)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockDatabase_CreateAuditEvent_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateAuditEvent'
+type MockDatabase_CreateAuditEvent_Call struct {
+	*mock.Call
+}
+
+// CreateAuditEvent is a helper method to define mock.On call
+//   - ctx context.Context
+//   - event AuditEventInput
+func (_e *MockDatabase_Expecter) CreateAuditEvent(ctx interface{}, event interface{}) *MockDatabase_CreateAuditEvent_Call {
+	return &MockDatabase_CreateAuditEvent_Call{Call: _e.mock.On("CreateAuditEvent", ctx, event)}
+}
+
+func (_c *MockDatabase_CreateAuditEvent_Call) Run(run func(ctx context.Context, event AuditEventInput)) *MockDatabase_CreateAuditEvent_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(AuditEventInput))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_CreateAuditEvent_Call) Return(_a0 error) *MockDatabase_CreateAuditEvent_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockDatabase_CreateAuditEvent_Call) RunAndReturn(run func(context.Context, AuditEventInput) error) *MockDatabase_CreateAuditEvent_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateAuditLogEntry provides a mock function with given fields: ctx, correlationID, actor, targetType, targetIdentifier, action, message
 func (_m *MockDatabase) CreateAuditLogEntry(ctx context.Context, correlationID uuid.UUID, actor *string, targetType audittype.AuditLogsTargetType, targetIdentifier string, action audittype.AuditAction, message string) error {
 	ret := _m.Called(ctx, correlationID, actor, targetType, targetIdentifier, action, message)
@@ -2197,6 +2244,141 @@ func (_c *MockDatabase_GetAllUserRoles_Call) Return(_a0 []*UserRole, _a1 error) 
 }
 
 func (_c *MockDatabase_GetAllUserRoles_Call) RunAndReturn(run func(context.Context) ([]*UserRole, error)) *MockDatabase_GetAllUserRoles_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAuditEventsForTeam provides a mock function with given fields: ctx, teamSlug, p
+func (_m *MockDatabase) GetAuditEventsForTeam(ctx context.Context, teamSlug slug.Slug, p Page) ([]*AuditEvent, int, error) {
+	ret := _m.Called(ctx, teamSlug, p)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAuditEventsForTeam")
+	}
+
+	var r0 []*AuditEvent
+	var r1 int
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, Page) ([]*AuditEvent, int, error)); ok {
+		return rf(ctx, teamSlug, p)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, Page) []*AuditEvent); ok {
+		r0 = rf(ctx, teamSlug, p)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*AuditEvent)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, Page) int); ok {
+		r1 = rf(ctx, teamSlug, p)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, slug.Slug, Page) error); ok {
+		r2 = rf(ctx, teamSlug, p)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// MockDatabase_GetAuditEventsForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAuditEventsForTeam'
+type MockDatabase_GetAuditEventsForTeam_Call struct {
+	*mock.Call
+}
+
+// GetAuditEventsForTeam is a helper method to define mock.On call
+//   - ctx context.Context
+//   - teamSlug slug.Slug
+//   - p Page
+func (_e *MockDatabase_Expecter) GetAuditEventsForTeam(ctx interface{}, teamSlug interface{}, p interface{}) *MockDatabase_GetAuditEventsForTeam_Call {
+	return &MockDatabase_GetAuditEventsForTeam_Call{Call: _e.mock.On("GetAuditEventsForTeam", ctx, teamSlug, p)}
+}
+
+func (_c *MockDatabase_GetAuditEventsForTeam_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, p Page)) *MockDatabase_GetAuditEventsForTeam_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(Page))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_GetAuditEventsForTeam_Call) Return(_a0 []*AuditEvent, _a1 int, _a2 error) *MockDatabase_GetAuditEventsForTeam_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *MockDatabase_GetAuditEventsForTeam_Call) RunAndReturn(run func(context.Context, slug.Slug, Page) ([]*AuditEvent, int, error)) *MockDatabase_GetAuditEventsForTeam_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAuditEventsForTeamByResource provides a mock function with given fields: ctx, teamSlug, resourceType, p
+func (_m *MockDatabase) GetAuditEventsForTeamByResource(ctx context.Context, teamSlug slug.Slug, resourceType string, p Page) ([]*AuditEvent, int, error) {
+	ret := _m.Called(ctx, teamSlug, resourceType, p)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAuditEventsForTeamByResource")
+	}
+
+	var r0 []*AuditEvent
+	var r1 int
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, Page) ([]*AuditEvent, int, error)); ok {
+		return rf(ctx, teamSlug, resourceType, p)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, Page) []*AuditEvent); ok {
+		r0 = rf(ctx, teamSlug, resourceType, p)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*AuditEvent)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, string, Page) int); ok {
+		r1 = rf(ctx, teamSlug, resourceType, p)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, slug.Slug, string, Page) error); ok {
+		r2 = rf(ctx, teamSlug, resourceType, p)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// MockDatabase_GetAuditEventsForTeamByResource_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAuditEventsForTeamByResource'
+type MockDatabase_GetAuditEventsForTeamByResource_Call struct {
+	*mock.Call
+}
+
+// GetAuditEventsForTeamByResource is a helper method to define mock.On call
+//   - ctx context.Context
+//   - teamSlug slug.Slug
+//   - resourceType string
+//   - p Page
+func (_e *MockDatabase_Expecter) GetAuditEventsForTeamByResource(ctx interface{}, teamSlug interface{}, resourceType interface{}, p interface{}) *MockDatabase_GetAuditEventsForTeamByResource_Call {
+	return &MockDatabase_GetAuditEventsForTeamByResource_Call{Call: _e.mock.On("GetAuditEventsForTeamByResource", ctx, teamSlug, resourceType, p)}
+}
+
+func (_c *MockDatabase_GetAuditEventsForTeamByResource_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, resourceType string, p Page)) *MockDatabase_GetAuditEventsForTeamByResource_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string), args[3].(Page))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_GetAuditEventsForTeamByResource_Call) Return(_a0 []*AuditEvent, _a1 int, _a2 error) *MockDatabase_GetAuditEventsForTeamByResource_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *MockDatabase_GetAuditEventsForTeamByResource_Call) RunAndReturn(run func(context.Context, slug.Slug, string, Page) ([]*AuditEvent, int, error)) *MockDatabase_GetAuditEventsForTeamByResource_Call {
 	_c.Call.Return(run)
 	return _c
 }

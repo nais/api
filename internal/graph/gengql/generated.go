@@ -17,6 +17,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/model/auditevent"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
 	gqlparser "github.com/vektah/gqlparser/v2"
@@ -45,6 +46,14 @@ type Config struct {
 type ResolverRoot interface {
 	AnalysisTrail() AnalysisTrailResolver
 	App() AppResolver
+	AuditEventMemberAdded() AuditEventMemberAddedResolver
+	AuditEventMemberRemoved() AuditEventMemberRemovedResolver
+	AuditEventMemberSetRole() AuditEventMemberSetRoleResolver
+	AuditEventTeamSetAlertsSlackChannel() AuditEventTeamSetAlertsSlackChannelResolver
+	AuditEventTeamSetDefaultSlackChannel() AuditEventTeamSetDefaultSlackChannelResolver
+	AuditEventTeamSetPurpose() AuditEventTeamSetPurposeResolver
+	BaseAuditEvent() BaseAuditEventResolver
+	BaseTeamAuditEvent() BaseTeamAuditEventResolver
 	BigQueryDataset() BigQueryDatasetResolver
 	Bucket() BucketResolver
 	DeployInfo() DeployInfoResolver
@@ -153,6 +162,110 @@ type ComplexityRoot struct {
 		Total   func(childComplexity int) int
 	}
 
+	AuditEventList struct {
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	AuditEventMemberAdded struct {
+		Action       func(childComplexity int) int
+		Actor        func(childComplexity int) int
+		CreatedAt    func(childComplexity int) int
+		Data         func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Message      func(childComplexity int) int
+		ResourceName func(childComplexity int) int
+		ResourceType func(childComplexity int) int
+		Team         func(childComplexity int) int
+	}
+
+	AuditEventMemberAddedData struct {
+		MemberEmail func(childComplexity int) int
+		Role        func(childComplexity int) int
+	}
+
+	AuditEventMemberRemoved struct {
+		Action       func(childComplexity int) int
+		Actor        func(childComplexity int) int
+		CreatedAt    func(childComplexity int) int
+		Data         func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Message      func(childComplexity int) int
+		ResourceName func(childComplexity int) int
+		ResourceType func(childComplexity int) int
+		Team         func(childComplexity int) int
+	}
+
+	AuditEventMemberRemovedData struct {
+		MemberEmail func(childComplexity int) int
+	}
+
+	AuditEventMemberSetRole struct {
+		Action       func(childComplexity int) int
+		Actor        func(childComplexity int) int
+		CreatedAt    func(childComplexity int) int
+		Data         func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Message      func(childComplexity int) int
+		ResourceName func(childComplexity int) int
+		ResourceType func(childComplexity int) int
+		Team         func(childComplexity int) int
+	}
+
+	AuditEventMemberSetRoleData struct {
+		MemberEmail func(childComplexity int) int
+		Role        func(childComplexity int) int
+	}
+
+	AuditEventTeamSetAlertsSlackChannel struct {
+		Action       func(childComplexity int) int
+		Actor        func(childComplexity int) int
+		CreatedAt    func(childComplexity int) int
+		Data         func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Message      func(childComplexity int) int
+		ResourceName func(childComplexity int) int
+		ResourceType func(childComplexity int) int
+		Team         func(childComplexity int) int
+	}
+
+	AuditEventTeamSetAlertsSlackChannelData struct {
+		ChannelName func(childComplexity int) int
+		Environment func(childComplexity int) int
+	}
+
+	AuditEventTeamSetDefaultSlackChannel struct {
+		Action       func(childComplexity int) int
+		Actor        func(childComplexity int) int
+		CreatedAt    func(childComplexity int) int
+		Data         func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Message      func(childComplexity int) int
+		ResourceName func(childComplexity int) int
+		ResourceType func(childComplexity int) int
+		Team         func(childComplexity int) int
+	}
+
+	AuditEventTeamSetDefaultSlackChannelData struct {
+		DefaultSlackChannel func(childComplexity int) int
+	}
+
+	AuditEventTeamSetPurpose struct {
+		Action       func(childComplexity int) int
+		Actor        func(childComplexity int) int
+		CreatedAt    func(childComplexity int) int
+		Data         func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Message      func(childComplexity int) int
+		ResourceName func(childComplexity int) int
+		ResourceType func(childComplexity int) int
+		Team         func(childComplexity int) int
+	}
+
+	AuditEventTeamSetPurposeData struct {
+		Purpose func(childComplexity int) int
+	}
+
 	AuditLog struct {
 		Action           func(childComplexity int) int
 		Actor            func(childComplexity int) int
@@ -195,6 +308,28 @@ type ComplexityRoot struct {
 		RetainedBackups             func(childComplexity int) int
 		StartTime                   func(childComplexity int) int
 		TransactionLogRetentionDays func(childComplexity int) int
+	}
+
+	BaseAuditEvent struct {
+		Action       func(childComplexity int) int
+		Actor        func(childComplexity int) int
+		CreatedAt    func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Message      func(childComplexity int) int
+		ResourceName func(childComplexity int) int
+		ResourceType func(childComplexity int) int
+		Team         func(childComplexity int) int
+	}
+
+	BaseTeamAuditEvent struct {
+		Action       func(childComplexity int) int
+		Actor        func(childComplexity int) int
+		CreatedAt    func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Message      func(childComplexity int) int
+		ResourceName func(childComplexity int) int
+		ResourceType func(childComplexity int) int
+		Team         func(childComplexity int) int
 	}
 
 	BigQueryDataset struct {
@@ -630,37 +765,35 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddReconcilerOptOut    func(childComplexity int, teamSlug slug.Slug, userID scalar.Ident, reconciler string) int
-		AddTeamMember          func(childComplexity int, slug slug.Slug, member model.TeamMemberInput) int
-		AddTeamMembers         func(childComplexity int, slug slug.Slug, userIds []*scalar.Ident) int
-		AddTeamOwners          func(childComplexity int, slug slug.Slug, userIds []*scalar.Ident) int
-		AuthorizeRepository    func(childComplexity int, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) int
-		ChangeDeployKey        func(childComplexity int, team slug.Slug) int
-		ConfigureReconciler    func(childComplexity int, name string, config []*model.ReconcilerConfigInput) int
-		ConfirmTeamDeletion    func(childComplexity int, key string) int
-		CreateSecret           func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
-		CreateTeam             func(childComplexity int, input model.CreateTeamInput) int
-		CreateUnleashForTeam   func(childComplexity int, team slug.Slug) int
-		DeauthorizeRepository  func(childComplexity int, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) int
-		DeleteApp              func(childComplexity int, name string, team slug.Slug, env string) int
-		DeleteJob              func(childComplexity int, name string, team slug.Slug, env string) int
-		DeleteSecret           func(childComplexity int, name string, team slug.Slug, env string) int
-		DisableReconciler      func(childComplexity int, name string) int
-		EnableReconciler       func(childComplexity int, name string) int
-		RemoveReconcilerOptOut func(childComplexity int, teamSlug slug.Slug, userID scalar.Ident, reconciler string) int
-		RemoveUserFromTeam     func(childComplexity int, slug slug.Slug, userID scalar.Ident) int
-		RemoveUsersFromTeam    func(childComplexity int, slug slug.Slug, userIds []*scalar.Ident) int
-		RequestTeamDeletion    func(childComplexity int, slug slug.Slug) int
-		ResetReconciler        func(childComplexity int, name string) int
-		RestartApp             func(childComplexity int, name string, team slug.Slug, env string) int
-		SetTeamMemberRole      func(childComplexity int, slug slug.Slug, userID scalar.Ident, role model.TeamRole) int
-		SuppressFinding        func(childComplexity int, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool, team slug.Slug) int
-		SynchronizeAllTeams    func(childComplexity int) int
-		SynchronizeTeam        func(childComplexity int, slug slug.Slug) int
-		SynchronizeUsers       func(childComplexity int) int
-		UpdateSecret           func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
-		UpdateTeam             func(childComplexity int, slug slug.Slug, input model.UpdateTeamInput) int
-		UpdateUnleashForTeam   func(childComplexity int, team slug.Slug, name string, allowedTeams []string) int
+		AddReconcilerOptOut          func(childComplexity int, teamSlug slug.Slug, userID scalar.Ident, reconciler string) int
+		AddTeamMember                func(childComplexity int, slug slug.Slug, member model.TeamMemberInput) int
+		AuthorizeRepository          func(childComplexity int, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) int
+		ChangeDeployKey              func(childComplexity int, team slug.Slug) int
+		ConfigureReconciler          func(childComplexity int, name string, config []*model.ReconcilerConfigInput) int
+		ConfirmTeamDeletion          func(childComplexity int, key string) int
+		CreateSecret                 func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
+		CreateTeam                   func(childComplexity int, input model.CreateTeamInput) int
+		CreateUnleashForTeam         func(childComplexity int, team slug.Slug) int
+		DeauthorizeRepository        func(childComplexity int, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) int
+		DeleteApp                    func(childComplexity int, name string, team slug.Slug, env string) int
+		DeleteJob                    func(childComplexity int, name string, team slug.Slug, env string) int
+		DeleteSecret                 func(childComplexity int, name string, team slug.Slug, env string) int
+		DisableReconciler            func(childComplexity int, name string) int
+		EnableReconciler             func(childComplexity int, name string) int
+		RemoveReconcilerOptOut       func(childComplexity int, teamSlug slug.Slug, userID scalar.Ident, reconciler string) int
+		RemoveUserFromTeam           func(childComplexity int, slug slug.Slug, userID scalar.Ident) int
+		RequestTeamDeletion          func(childComplexity int, slug slug.Slug) int
+		ResetReconciler              func(childComplexity int, name string) int
+		RestartApp                   func(childComplexity int, name string, team slug.Slug, env string) int
+		SetTeamMemberRole            func(childComplexity int, slug slug.Slug, userID scalar.Ident, role model.TeamRole) int
+		SuppressFinding              func(childComplexity int, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool, team slug.Slug) int
+		SynchronizeAllTeams          func(childComplexity int) int
+		SynchronizeTeam              func(childComplexity int, slug slug.Slug) int
+		SynchronizeUsers             func(childComplexity int) int
+		UpdateSecret                 func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
+		UpdateTeam                   func(childComplexity int, slug slug.Slug, input model.UpdateTeamInput) int
+		UpdateTeamSlackAlertsChannel func(childComplexity int, slug slug.Slug, input model.UpdateTeamSlackAlertsChannelInput) int
+		UpdateUnleashForTeam         func(childComplexity int, team slug.Slug, name string, allowedTeams []string) int
 	}
 
 	NaisJob struct {
@@ -1086,6 +1219,7 @@ type ComplexityRoot struct {
 
 	Team struct {
 		Apps                   func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
+		AuditEvents            func(childComplexity int, offset *int, limit *int, filter *model.AuditEventsFilter) int
 		AuditLogs              func(childComplexity int, offset *int, limit *int) int
 		AzureGroupID           func(childComplexity int) int
 		BigQuery               func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
@@ -1273,6 +1407,30 @@ type AppResolver interface {
 	Team(ctx context.Context, obj *model.App) (*model.Team, error)
 	Secrets(ctx context.Context, obj *model.App) ([]*model.Secret, error)
 }
+type AuditEventMemberAddedResolver interface {
+	Team(ctx context.Context, obj *auditevent.AuditEventMemberAdded) (*model.Team, error)
+}
+type AuditEventMemberRemovedResolver interface {
+	Team(ctx context.Context, obj *auditevent.AuditEventMemberRemoved) (*model.Team, error)
+}
+type AuditEventMemberSetRoleResolver interface {
+	Team(ctx context.Context, obj *auditevent.AuditEventMemberSetRole) (*model.Team, error)
+}
+type AuditEventTeamSetAlertsSlackChannelResolver interface {
+	Team(ctx context.Context, obj *auditevent.AuditEventTeamSetAlertsSlackChannel) (*model.Team, error)
+}
+type AuditEventTeamSetDefaultSlackChannelResolver interface {
+	Team(ctx context.Context, obj *auditevent.AuditEventTeamSetDefaultSlackChannel) (*model.Team, error)
+}
+type AuditEventTeamSetPurposeResolver interface {
+	Team(ctx context.Context, obj *auditevent.AuditEventTeamSetPurpose) (*model.Team, error)
+}
+type BaseAuditEventResolver interface {
+	Team(ctx context.Context, obj *auditevent.BaseAuditEvent) (*model.Team, error)
+}
+type BaseTeamAuditEventResolver interface {
+	Team(ctx context.Context, obj *auditevent.BaseTeamAuditEvent) (*model.Team, error)
+}
 type BigQueryDatasetResolver interface {
 	Team(ctx context.Context, obj *model.BigQueryDataset) (*model.Team, error)
 
@@ -1325,12 +1483,10 @@ type MutationResolver interface {
 	DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) (bool, error)
 	CreateTeam(ctx context.Context, input model.CreateTeamInput) (*model.Team, error)
 	UpdateTeam(ctx context.Context, slug slug.Slug, input model.UpdateTeamInput) (*model.Team, error)
-	RemoveUsersFromTeam(ctx context.Context, slug slug.Slug, userIds []*scalar.Ident) (*model.Team, error)
+	UpdateTeamSlackAlertsChannel(ctx context.Context, slug slug.Slug, input model.UpdateTeamSlackAlertsChannelInput) (*model.Team, error)
 	RemoveUserFromTeam(ctx context.Context, slug slug.Slug, userID scalar.Ident) (*model.Team, error)
 	SynchronizeTeam(ctx context.Context, slug slug.Slug) (*model.TeamSync, error)
 	SynchronizeAllTeams(ctx context.Context) (*model.TeamSync, error)
-	AddTeamMembers(ctx context.Context, slug slug.Slug, userIds []*scalar.Ident) (*model.Team, error)
-	AddTeamOwners(ctx context.Context, slug slug.Slug, userIds []*scalar.Ident) (*model.Team, error)
 	AddTeamMember(ctx context.Context, slug slug.Slug, member model.TeamMemberInput) (*model.Team, error)
 	SetTeamMemberRole(ctx context.Context, slug slug.Slug, userID scalar.Ident, role model.TeamRole) (*model.Team, error)
 	RequestTeamDeletion(ctx context.Context, slug slug.Slug) (*model.TeamDeleteKey, error)
@@ -1437,6 +1593,7 @@ type TeamResolver interface {
 	ID(ctx context.Context, obj *model.Team) (*scalar.Ident, error)
 
 	AuditLogs(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.AuditLogList, error)
+	AuditEvents(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.AuditEventsFilter) (*auditevent.AuditEventList, error)
 	Members(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.TeamMemberList, error)
 	Member(ctx context.Context, obj *model.Team, userID scalar.Ident) (*model.TeamMember, error)
 	SyncErrors(ctx context.Context, obj *model.Team) ([]*model.SyncError, error)
@@ -1832,6 +1989,461 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AppsStatus.Total(childComplexity), true
 
+	case "AuditEventList.nodes":
+		if e.complexity.AuditEventList.Nodes == nil {
+			break
+		}
+
+		return e.complexity.AuditEventList.Nodes(childComplexity), true
+
+	case "AuditEventList.pageInfo":
+		if e.complexity.AuditEventList.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.AuditEventList.PageInfo(childComplexity), true
+
+	case "AuditEventMemberAdded.action":
+		if e.complexity.AuditEventMemberAdded.Action == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberAdded.Action(childComplexity), true
+
+	case "AuditEventMemberAdded.actor":
+		if e.complexity.AuditEventMemberAdded.Actor == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberAdded.Actor(childComplexity), true
+
+	case "AuditEventMemberAdded.createdAt":
+		if e.complexity.AuditEventMemberAdded.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberAdded.CreatedAt(childComplexity), true
+
+	case "AuditEventMemberAdded.data":
+		if e.complexity.AuditEventMemberAdded.Data == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberAdded.Data(childComplexity), true
+
+	case "AuditEventMemberAdded.id":
+		if e.complexity.AuditEventMemberAdded.ID == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberAdded.ID(childComplexity), true
+
+	case "AuditEventMemberAdded.message":
+		if e.complexity.AuditEventMemberAdded.Message == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberAdded.Message(childComplexity), true
+
+	case "AuditEventMemberAdded.resourceName":
+		if e.complexity.AuditEventMemberAdded.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberAdded.ResourceName(childComplexity), true
+
+	case "AuditEventMemberAdded.resourceType":
+		if e.complexity.AuditEventMemberAdded.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberAdded.ResourceType(childComplexity), true
+
+	case "AuditEventMemberAdded.team":
+		if e.complexity.AuditEventMemberAdded.Team == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberAdded.Team(childComplexity), true
+
+	case "AuditEventMemberAddedData.memberEmail":
+		if e.complexity.AuditEventMemberAddedData.MemberEmail == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberAddedData.MemberEmail(childComplexity), true
+
+	case "AuditEventMemberAddedData.role":
+		if e.complexity.AuditEventMemberAddedData.Role == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberAddedData.Role(childComplexity), true
+
+	case "AuditEventMemberRemoved.action":
+		if e.complexity.AuditEventMemberRemoved.Action == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberRemoved.Action(childComplexity), true
+
+	case "AuditEventMemberRemoved.actor":
+		if e.complexity.AuditEventMemberRemoved.Actor == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberRemoved.Actor(childComplexity), true
+
+	case "AuditEventMemberRemoved.createdAt":
+		if e.complexity.AuditEventMemberRemoved.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberRemoved.CreatedAt(childComplexity), true
+
+	case "AuditEventMemberRemoved.data":
+		if e.complexity.AuditEventMemberRemoved.Data == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberRemoved.Data(childComplexity), true
+
+	case "AuditEventMemberRemoved.id":
+		if e.complexity.AuditEventMemberRemoved.ID == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberRemoved.ID(childComplexity), true
+
+	case "AuditEventMemberRemoved.message":
+		if e.complexity.AuditEventMemberRemoved.Message == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberRemoved.Message(childComplexity), true
+
+	case "AuditEventMemberRemoved.resourceName":
+		if e.complexity.AuditEventMemberRemoved.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberRemoved.ResourceName(childComplexity), true
+
+	case "AuditEventMemberRemoved.resourceType":
+		if e.complexity.AuditEventMemberRemoved.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberRemoved.ResourceType(childComplexity), true
+
+	case "AuditEventMemberRemoved.team":
+		if e.complexity.AuditEventMemberRemoved.Team == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberRemoved.Team(childComplexity), true
+
+	case "AuditEventMemberRemovedData.memberEmail":
+		if e.complexity.AuditEventMemberRemovedData.MemberEmail == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberRemovedData.MemberEmail(childComplexity), true
+
+	case "AuditEventMemberSetRole.action":
+		if e.complexity.AuditEventMemberSetRole.Action == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberSetRole.Action(childComplexity), true
+
+	case "AuditEventMemberSetRole.actor":
+		if e.complexity.AuditEventMemberSetRole.Actor == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberSetRole.Actor(childComplexity), true
+
+	case "AuditEventMemberSetRole.createdAt":
+		if e.complexity.AuditEventMemberSetRole.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberSetRole.CreatedAt(childComplexity), true
+
+	case "AuditEventMemberSetRole.data":
+		if e.complexity.AuditEventMemberSetRole.Data == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberSetRole.Data(childComplexity), true
+
+	case "AuditEventMemberSetRole.id":
+		if e.complexity.AuditEventMemberSetRole.ID == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberSetRole.ID(childComplexity), true
+
+	case "AuditEventMemberSetRole.message":
+		if e.complexity.AuditEventMemberSetRole.Message == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberSetRole.Message(childComplexity), true
+
+	case "AuditEventMemberSetRole.resourceName":
+		if e.complexity.AuditEventMemberSetRole.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberSetRole.ResourceName(childComplexity), true
+
+	case "AuditEventMemberSetRole.resourceType":
+		if e.complexity.AuditEventMemberSetRole.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberSetRole.ResourceType(childComplexity), true
+
+	case "AuditEventMemberSetRole.team":
+		if e.complexity.AuditEventMemberSetRole.Team == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberSetRole.Team(childComplexity), true
+
+	case "AuditEventMemberSetRoleData.memberEmail":
+		if e.complexity.AuditEventMemberSetRoleData.MemberEmail == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberSetRoleData.MemberEmail(childComplexity), true
+
+	case "AuditEventMemberSetRoleData.role":
+		if e.complexity.AuditEventMemberSetRoleData.Role == nil {
+			break
+		}
+
+		return e.complexity.AuditEventMemberSetRoleData.Role(childComplexity), true
+
+	case "AuditEventTeamSetAlertsSlackChannel.action":
+		if e.complexity.AuditEventTeamSetAlertsSlackChannel.Action == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetAlertsSlackChannel.Action(childComplexity), true
+
+	case "AuditEventTeamSetAlertsSlackChannel.actor":
+		if e.complexity.AuditEventTeamSetAlertsSlackChannel.Actor == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetAlertsSlackChannel.Actor(childComplexity), true
+
+	case "AuditEventTeamSetAlertsSlackChannel.createdAt":
+		if e.complexity.AuditEventTeamSetAlertsSlackChannel.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetAlertsSlackChannel.CreatedAt(childComplexity), true
+
+	case "AuditEventTeamSetAlertsSlackChannel.data":
+		if e.complexity.AuditEventTeamSetAlertsSlackChannel.Data == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetAlertsSlackChannel.Data(childComplexity), true
+
+	case "AuditEventTeamSetAlertsSlackChannel.id":
+		if e.complexity.AuditEventTeamSetAlertsSlackChannel.ID == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetAlertsSlackChannel.ID(childComplexity), true
+
+	case "AuditEventTeamSetAlertsSlackChannel.message":
+		if e.complexity.AuditEventTeamSetAlertsSlackChannel.Message == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetAlertsSlackChannel.Message(childComplexity), true
+
+	case "AuditEventTeamSetAlertsSlackChannel.resourceName":
+		if e.complexity.AuditEventTeamSetAlertsSlackChannel.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetAlertsSlackChannel.ResourceName(childComplexity), true
+
+	case "AuditEventTeamSetAlertsSlackChannel.resourceType":
+		if e.complexity.AuditEventTeamSetAlertsSlackChannel.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetAlertsSlackChannel.ResourceType(childComplexity), true
+
+	case "AuditEventTeamSetAlertsSlackChannel.team":
+		if e.complexity.AuditEventTeamSetAlertsSlackChannel.Team == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetAlertsSlackChannel.Team(childComplexity), true
+
+	case "AuditEventTeamSetAlertsSlackChannelData.channelName":
+		if e.complexity.AuditEventTeamSetAlertsSlackChannelData.ChannelName == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetAlertsSlackChannelData.ChannelName(childComplexity), true
+
+	case "AuditEventTeamSetAlertsSlackChannelData.environment":
+		if e.complexity.AuditEventTeamSetAlertsSlackChannelData.Environment == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetAlertsSlackChannelData.Environment(childComplexity), true
+
+	case "AuditEventTeamSetDefaultSlackChannel.action":
+		if e.complexity.AuditEventTeamSetDefaultSlackChannel.Action == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetDefaultSlackChannel.Action(childComplexity), true
+
+	case "AuditEventTeamSetDefaultSlackChannel.actor":
+		if e.complexity.AuditEventTeamSetDefaultSlackChannel.Actor == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetDefaultSlackChannel.Actor(childComplexity), true
+
+	case "AuditEventTeamSetDefaultSlackChannel.createdAt":
+		if e.complexity.AuditEventTeamSetDefaultSlackChannel.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetDefaultSlackChannel.CreatedAt(childComplexity), true
+
+	case "AuditEventTeamSetDefaultSlackChannel.data":
+		if e.complexity.AuditEventTeamSetDefaultSlackChannel.Data == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetDefaultSlackChannel.Data(childComplexity), true
+
+	case "AuditEventTeamSetDefaultSlackChannel.id":
+		if e.complexity.AuditEventTeamSetDefaultSlackChannel.ID == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetDefaultSlackChannel.ID(childComplexity), true
+
+	case "AuditEventTeamSetDefaultSlackChannel.message":
+		if e.complexity.AuditEventTeamSetDefaultSlackChannel.Message == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetDefaultSlackChannel.Message(childComplexity), true
+
+	case "AuditEventTeamSetDefaultSlackChannel.resourceName":
+		if e.complexity.AuditEventTeamSetDefaultSlackChannel.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetDefaultSlackChannel.ResourceName(childComplexity), true
+
+	case "AuditEventTeamSetDefaultSlackChannel.resourceType":
+		if e.complexity.AuditEventTeamSetDefaultSlackChannel.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetDefaultSlackChannel.ResourceType(childComplexity), true
+
+	case "AuditEventTeamSetDefaultSlackChannel.team":
+		if e.complexity.AuditEventTeamSetDefaultSlackChannel.Team == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetDefaultSlackChannel.Team(childComplexity), true
+
+	case "AuditEventTeamSetDefaultSlackChannelData.defaultSlackChannel":
+		if e.complexity.AuditEventTeamSetDefaultSlackChannelData.DefaultSlackChannel == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetDefaultSlackChannelData.DefaultSlackChannel(childComplexity), true
+
+	case "AuditEventTeamSetPurpose.action":
+		if e.complexity.AuditEventTeamSetPurpose.Action == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetPurpose.Action(childComplexity), true
+
+	case "AuditEventTeamSetPurpose.actor":
+		if e.complexity.AuditEventTeamSetPurpose.Actor == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetPurpose.Actor(childComplexity), true
+
+	case "AuditEventTeamSetPurpose.createdAt":
+		if e.complexity.AuditEventTeamSetPurpose.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetPurpose.CreatedAt(childComplexity), true
+
+	case "AuditEventTeamSetPurpose.data":
+		if e.complexity.AuditEventTeamSetPurpose.Data == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetPurpose.Data(childComplexity), true
+
+	case "AuditEventTeamSetPurpose.id":
+		if e.complexity.AuditEventTeamSetPurpose.ID == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetPurpose.ID(childComplexity), true
+
+	case "AuditEventTeamSetPurpose.message":
+		if e.complexity.AuditEventTeamSetPurpose.Message == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetPurpose.Message(childComplexity), true
+
+	case "AuditEventTeamSetPurpose.resourceName":
+		if e.complexity.AuditEventTeamSetPurpose.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetPurpose.ResourceName(childComplexity), true
+
+	case "AuditEventTeamSetPurpose.resourceType":
+		if e.complexity.AuditEventTeamSetPurpose.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetPurpose.ResourceType(childComplexity), true
+
+	case "AuditEventTeamSetPurpose.team":
+		if e.complexity.AuditEventTeamSetPurpose.Team == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetPurpose.Team(childComplexity), true
+
+	case "AuditEventTeamSetPurposeData.purpose":
+		if e.complexity.AuditEventTeamSetPurposeData.Purpose == nil {
+			break
+		}
+
+		return e.complexity.AuditEventTeamSetPurposeData.Purpose(childComplexity), true
+
 	case "AuditLog.action":
 		if e.complexity.AuditLog.Action == nil {
 			break
@@ -2013,6 +2625,118 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BackupConfiguration.TransactionLogRetentionDays(childComplexity), true
+
+	case "BaseAuditEvent.action":
+		if e.complexity.BaseAuditEvent.Action == nil {
+			break
+		}
+
+		return e.complexity.BaseAuditEvent.Action(childComplexity), true
+
+	case "BaseAuditEvent.actor":
+		if e.complexity.BaseAuditEvent.Actor == nil {
+			break
+		}
+
+		return e.complexity.BaseAuditEvent.Actor(childComplexity), true
+
+	case "BaseAuditEvent.createdAt":
+		if e.complexity.BaseAuditEvent.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.BaseAuditEvent.CreatedAt(childComplexity), true
+
+	case "BaseAuditEvent.id":
+		if e.complexity.BaseAuditEvent.ID == nil {
+			break
+		}
+
+		return e.complexity.BaseAuditEvent.ID(childComplexity), true
+
+	case "BaseAuditEvent.message":
+		if e.complexity.BaseAuditEvent.Message == nil {
+			break
+		}
+
+		return e.complexity.BaseAuditEvent.Message(childComplexity), true
+
+	case "BaseAuditEvent.resourceName":
+		if e.complexity.BaseAuditEvent.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.BaseAuditEvent.ResourceName(childComplexity), true
+
+	case "BaseAuditEvent.resourceType":
+		if e.complexity.BaseAuditEvent.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.BaseAuditEvent.ResourceType(childComplexity), true
+
+	case "BaseAuditEvent.team":
+		if e.complexity.BaseAuditEvent.Team == nil {
+			break
+		}
+
+		return e.complexity.BaseAuditEvent.Team(childComplexity), true
+
+	case "BaseTeamAuditEvent.action":
+		if e.complexity.BaseTeamAuditEvent.Action == nil {
+			break
+		}
+
+		return e.complexity.BaseTeamAuditEvent.Action(childComplexity), true
+
+	case "BaseTeamAuditEvent.actor":
+		if e.complexity.BaseTeamAuditEvent.Actor == nil {
+			break
+		}
+
+		return e.complexity.BaseTeamAuditEvent.Actor(childComplexity), true
+
+	case "BaseTeamAuditEvent.createdAt":
+		if e.complexity.BaseTeamAuditEvent.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.BaseTeamAuditEvent.CreatedAt(childComplexity), true
+
+	case "BaseTeamAuditEvent.id":
+		if e.complexity.BaseTeamAuditEvent.ID == nil {
+			break
+		}
+
+		return e.complexity.BaseTeamAuditEvent.ID(childComplexity), true
+
+	case "BaseTeamAuditEvent.message":
+		if e.complexity.BaseTeamAuditEvent.Message == nil {
+			break
+		}
+
+		return e.complexity.BaseTeamAuditEvent.Message(childComplexity), true
+
+	case "BaseTeamAuditEvent.resourceName":
+		if e.complexity.BaseTeamAuditEvent.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.BaseTeamAuditEvent.ResourceName(childComplexity), true
+
+	case "BaseTeamAuditEvent.resourceType":
+		if e.complexity.BaseTeamAuditEvent.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.BaseTeamAuditEvent.ResourceType(childComplexity), true
+
+	case "BaseTeamAuditEvent.team":
+		if e.complexity.BaseTeamAuditEvent.Team == nil {
+			break
+		}
+
+		return e.complexity.BaseTeamAuditEvent.Team(childComplexity), true
 
 	case "BigQueryDataset.access":
 		if e.complexity.BigQueryDataset.Access == nil {
@@ -3770,30 +4494,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.AddTeamMember(childComplexity, args["slug"].(slug.Slug), args["member"].(model.TeamMemberInput)), true
 
-	case "Mutation.addTeamMembers":
-		if e.complexity.Mutation.AddTeamMembers == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_addTeamMembers_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.AddTeamMembers(childComplexity, args["slug"].(slug.Slug), args["userIds"].([]*scalar.Ident)), true
-
-	case "Mutation.addTeamOwners":
-		if e.complexity.Mutation.AddTeamOwners == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_addTeamOwners_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.AddTeamOwners(childComplexity, args["slug"].(slug.Slug), args["userIds"].([]*scalar.Ident)), true
-
 	case "Mutation.authorizeRepository":
 		if e.complexity.Mutation.AuthorizeRepository == nil {
 			break
@@ -3974,18 +4674,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.RemoveUserFromTeam(childComplexity, args["slug"].(slug.Slug), args["userId"].(scalar.Ident)), true
 
-	case "Mutation.removeUsersFromTeam":
-		if e.complexity.Mutation.RemoveUsersFromTeam == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_removeUsersFromTeam_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.RemoveUsersFromTeam(childComplexity, args["slug"].(slug.Slug), args["userIds"].([]*scalar.Ident)), true
-
 	case "Mutation.requestTeamDeletion":
 		if e.complexity.Mutation.RequestTeamDeletion == nil {
 			break
@@ -4095,6 +4783,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateTeam(childComplexity, args["slug"].(slug.Slug), args["input"].(model.UpdateTeamInput)), true
+
+	case "Mutation.updateTeamSlackAlertsChannel":
+		if e.complexity.Mutation.UpdateTeamSlackAlertsChannel == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateTeamSlackAlertsChannel_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateTeamSlackAlertsChannel(childComplexity, args["slug"].(slug.Slug), args["input"].(model.UpdateTeamSlackAlertsChannelInput)), true
 
 	case "Mutation.updateUnleashForTeam":
 		if e.complexity.Mutation.UpdateUnleashForTeam == nil {
@@ -6042,6 +6742,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.Apps(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy)), true
 
+	case "Team.auditEvents":
+		if e.complexity.Team.AuditEvents == nil {
+			break
+		}
+
+		args, err := ec.field_Team_auditEvents_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Team.AuditEvents(childComplexity, args["offset"].(*int), args["limit"].(*int), args["filter"].(*model.AuditEventsFilter)), true
+
 	case "Team.auditLogs":
 		if e.complexity.Team.AuditLogs == nil {
 			break
@@ -6932,6 +7644,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputAuditEventsFilter,
 		ec.unmarshalInputCreateTeamInput,
 		ec.unmarshalInputEnvCostFilter,
 		ec.unmarshalInputGitHubRepositoriesFilter,
@@ -6940,11 +7653,11 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOrderBy,
 		ec.unmarshalInputReconcilerConfigInput,
 		ec.unmarshalInputSearchFilter,
-		ec.unmarshalInputSlackAlertsChannelInput,
 		ec.unmarshalInputTeamMemberInput,
 		ec.unmarshalInputTeamsFilter,
 		ec.unmarshalInputTeamsFilterGitHub,
 		ec.unmarshalInputUpdateTeamInput,
+		ec.unmarshalInputUpdateTeamSlackAlertsChannelInput,
 		ec.unmarshalInputVariableInput,
 	)
 	first := true
@@ -7263,6 +7976,194 @@ enum State {
 type AppList {
   nodes: [App!]!
   pageInfo: PageInfo!
+}
+`, BuiltIn: false},
+	{Name: "../graphqls/auditevents.graphqls", Input: `"Audit event type."
+interface AuditEvent {
+  "ID of the event."
+  id: ID!
+
+  "String representation of the action performed."
+  action: AuditEventAction!
+
+  "The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+  actor: String!
+
+  "Creation time of the event."
+  createdAt: Time!
+
+  "Message that summarizes the event."
+  message: String!
+
+  "Type of the resource that was affected by the action."
+  resourceType: AuditEventResourceType!
+
+  "Name of the resource that was affected by the action."
+  resourceName: String!
+
+  "The team that the event belongs to."
+  team: Team
+}
+
+union AuditEventNode = BaseAuditEvent | BaseTeamAuditEvent
+  | AuditEventMemberAdded | AuditEventMemberRemoved | AuditEventMemberSetRole
+  | AuditEventTeamSetPurpose | AuditEventTeamSetDefaultSlackChannel | AuditEventTeamSetAlertsSlackChannel
+
+type AuditEventList {
+  nodes: [AuditEventNode!]!
+  pageInfo: PageInfo!
+}
+
+input AuditEventsFilter {
+  "Filter by the type of the resource that was affected by the action."
+  resourceType: AuditEventResourceType
+}
+
+enum AuditEventResourceType {
+  TEAM
+  TEAM_MEMBER
+}
+
+enum AuditEventAction {
+  TEAM_CREATED
+  TEAM_DELETION_CONFIRMED
+  TEAM_DELETION_REQUESTED
+  TEAM_DEPLOY_KEY_ROTATED
+  TEAM_SET_PURPOSE
+  TEAM_SET_DEFAULT_SLACK_CHANNEL
+  TEAM_SET_ALERTS_SLACK_CHANNEL
+  TEAM_SYNCHRONIZED
+
+  TEAM_MEMBER_ADDED
+  TEAM_MEMBER_REMOVED
+  TEAM_MEMBER_SET_ROLE
+}
+
+type BaseAuditEvent implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  message: String!
+  createdAt: Time!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team
+}
+
+type BaseTeamAuditEvent implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  message: String!
+  createdAt: Time!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team!
+}
+
+type AuditEventMemberAdded implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  createdAt: Time!
+  message: String!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team!
+
+  data: AuditEventMemberAddedData!
+}
+
+type AuditEventMemberAddedData {
+  memberEmail: String!
+  role: TeamRole!
+}
+
+type AuditEventMemberRemoved implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  createdAt: Time!
+  message: String!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team!
+
+  data: AuditEventMemberRemovedData!
+}
+
+type AuditEventMemberRemovedData {
+  memberEmail: String!
+}
+
+type AuditEventMemberSetRole implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  createdAt: Time!
+  message: String!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team!
+
+  data: AuditEventMemberSetRoleData!
+}
+
+type AuditEventMemberSetRoleData {
+  memberEmail: String!
+  role: TeamRole!
+}
+
+type AuditEventTeamSetPurpose implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  createdAt: Time!
+  message: String!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team!
+
+  data: AuditEventTeamSetPurposeData!
+}
+
+type AuditEventTeamSetPurposeData {
+  purpose: String!
+}
+
+type AuditEventTeamSetDefaultSlackChannel implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  createdAt: Time!
+  message: String!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team!
+
+  data: AuditEventTeamSetDefaultSlackChannelData!
+}
+
+type AuditEventTeamSetDefaultSlackChannelData {
+  defaultSlackChannel: String!
+}
+
+type AuditEventTeamSetAlertsSlackChannel implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  createdAt: Time!
+  message: String!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team!
+
+  data: AuditEventTeamSetAlertsSlackChannelData!
+}
+
+type AuditEventTeamSetAlertsSlackChannelData {
+  environment: String!
+  channelName: String!
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/auditlogs.graphqls", Input: `"Audit log type."
@@ -8860,16 +9761,16 @@ extend type Mutation {
   ): Team! @auth
 
   """
-  Remove one or more users from a team
+  Update an existing team's Slack alerts channel
 
   The updated team will be returned on success.
   """
-  removeUsersFromTeam(
-    "Team slug that users should be removed from."
+  updateTeamSlackAlertsChannel(
+    "Slug of the team to update."
     slug: Slug!
 
-    "List of user IDs that should be removed from the team."
-    userIds: [ID!]!
+    "Input for updating the team."
+    input: UpdateTeamSlackAlertsChannelInput!
   ): Team! @auth
 
   """
@@ -8905,38 +9806,6 @@ extend type Mutation {
   is asynchronous. The operation can take a while, depending on the amount of teams currently managed.
   """
   synchronizeAllTeams: TeamSync! @auth
-
-  """
-  Add users to a team as regular team members
-
-  If one or more users are already added to the team they will not be updated. If a user is already an owner of the
-  team the user will not lose ownership. Regular team members will get read-only access to the team.
-
-  The updated team will be returned on success.
-  """
-  addTeamMembers(
-    "Slug of the team that should receive new members."
-    slug: Slug!
-
-    "List of user IDs that should be added to the team as members."
-    userIds: [ID!]!
-  ): Team! @auth
-
-  """
-  Add users to a team as team owners
-
-  If one or more users are already added to the team, they will be granted ownership of the team. If one or more users
-  are already owners of the team, they will not be updated. Team owners will get read/write access to the team.
-
-  The updated team will be returned on success.
-  """
-  addTeamOwners(
-    "Slug of the team that should receive new owners."
-    slug: Slug!
-
-    "List of user IDs that should be added to the team as owners."
-    userIds: [ID!]!
-  ): Team! @auth
 
   """
   Add a user to a team
@@ -9072,6 +9941,18 @@ type Team {
     "Limit the number of audit log entries to return. Default is 20."
     limit: Int
   ): AuditLogList!
+
+  "Audit events for this team."
+  auditEvents(
+    "Offset to start listing audit events from. Default is 0."
+    offset: Int
+
+    "Limit the number of audit events to return. Default is 20."
+    limit: Int
+
+    "Filter audit events."
+    filter: AuditEventsFilter
+  ): AuditEventList!
 
   "Team members."
   members(
@@ -9432,13 +10313,11 @@ input UpdateTeamInput {
 
   "Specify the Slack channel to update the existing value."
   slackChannel: String
-
-  "A list of Slack channels for NAIS alerts."
-  slackAlertsChannels: [SlackAlertsChannelInput!]
 }
 
+
 "Slack alerts channel input."
-input SlackAlertsChannelInput {
+input UpdateTeamSlackAlertsChannelInput {
   "The environment for the alerts sent to the channel."
   environment: String!
 
@@ -9786,54 +10665,6 @@ func (ec *executionContext) field_Mutation_addTeamMember_args(ctx context.Contex
 		}
 	}
 	args["member"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_addTeamMembers_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 slug.Slug
-	if tmp, ok := rawArgs["slug"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
-		arg0, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["slug"] = arg0
-	var arg1 []*scalar.Ident
-	if tmp, ok := rawArgs["userIds"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userIds"))
-		arg1, err = ec.unmarshalNID2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdentᚄ(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["userIds"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_addTeamOwners_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 slug.Slug
-	if tmp, ok := rawArgs["slug"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
-		arg0, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["slug"] = arg0
-	var arg1 []*scalar.Ident
-	if tmp, ok := rawArgs["userIds"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userIds"))
-		arg1, err = ec.unmarshalNID2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdentᚄ(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["userIds"] = arg1
 	return args, nil
 }
 
@@ -10215,30 +11046,6 @@ func (ec *executionContext) field_Mutation_removeUserFromTeam_args(ctx context.C
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_removeUsersFromTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 slug.Slug
-	if tmp, ok := rawArgs["slug"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
-		arg0, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["slug"] = arg0
-	var arg1 []*scalar.Ident
-	if tmp, ok := rawArgs["userIds"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userIds"))
-		arg1, err = ec.unmarshalNID2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdentᚄ(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["userIds"] = arg1
-	return args, nil
-}
-
 func (ec *executionContext) field_Mutation_requestTeamDeletion_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -10467,6 +11274,30 @@ func (ec *executionContext) field_Mutation_updateSecret_args(ctx context.Context
 		}
 	}
 	args["data"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateTeamSlackAlertsChannel_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 slug.Slug
+	if tmp, ok := rawArgs["slug"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
+		arg0, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["slug"] = arg0
+	var arg1 model.UpdateTeamSlackAlertsChannelInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNUpdateTeamSlackAlertsChannelInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUpdateTeamSlackAlertsChannelInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
 	return args, nil
 }
 
@@ -11250,6 +12081,39 @@ func (ec *executionContext) field_Team_apps_args(ctx context.Context, rawArgs ma
 		}
 	}
 	args["orderBy"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Team_auditEvents_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	var arg2 *model.AuditEventsFilter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg2, err = ec.unmarshalOAuditEventsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventsFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg2
 	return args, nil
 }
 
@@ -13286,6 +14150,8 @@ func (ec *executionContext) fieldContext_App_team(ctx context.Context, field gra
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -14084,6 +14950,3408 @@ func (ec *executionContext) fieldContext_AppsStatus_failing(ctx context.Context,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventList_nodes(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventList_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]model.AuditEventNode)
+	fc.Result = res
+	return ec.marshalNAuditEventNode2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventNodeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventList_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditEventNode does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventList_pageInfo(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventList_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventList_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberAdded_id(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberAdded) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberAdded_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberAdded_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberAdded",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberAdded_action(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberAdded) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberAdded_action(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Action, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventAction)
+	fc.Result = res
+	return ec.marshalNAuditEventAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventAction(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberAdded_action(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberAdded",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditEventAction does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberAdded_actor(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberAdded) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberAdded_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberAdded_actor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberAdded",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberAdded_createdAt(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberAdded) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberAdded_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberAdded_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberAdded",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberAdded_message(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberAdded) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberAdded_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberAdded_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberAdded",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberAdded_resourceType(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberAdded) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberAdded_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventResourceType)
+	fc.Result = res
+	return ec.marshalNAuditEventResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberAdded_resourceType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberAdded",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditEventResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberAdded_resourceName(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberAdded) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberAdded_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberAdded_resourceName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberAdded",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberAdded_team(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberAdded) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberAdded_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.AuditEventMemberAdded().Team(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Team)
+	fc.Result = res
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberAdded_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberAdded",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "auditLogs":
+				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
+			case "syncErrors":
+				return ec.fieldContext_Team_syncErrors(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "githubRepositories":
+				return ec.fieldContext_Team_githubRepositories(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "status":
+				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_Team_sqlInstance(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_Team_redisInstance(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_Team_openSearchInstance(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "bigQuery":
+				return ec.fieldContext_Team_bigQuery(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
+			case "apps":
+				return ec.fieldContext_Team_apps(ctx, field)
+			case "deployKey":
+				return ec.fieldContext_Team_deployKey(ctx, field)
+			case "naisjobs":
+				return ec.fieldContext_Team_naisjobs(ctx, field)
+			case "deployments":
+				return ec.fieldContext_Team_deployments(ctx, field)
+			case "vulnerabilitiesSummary":
+				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberAdded_data(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberAdded) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberAdded_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventMemberAddedData)
+	fc.Result = res
+	return ec.marshalNAuditEventMemberAddedData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventMemberAddedData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberAdded_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberAdded",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "memberEmail":
+				return ec.fieldContext_AuditEventMemberAddedData_memberEmail(ctx, field)
+			case "role":
+				return ec.fieldContext_AuditEventMemberAddedData_role(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuditEventMemberAddedData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberAddedData_memberEmail(ctx context.Context, field graphql.CollectedField, obj *model.AuditEventMemberAddedData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberAddedData_memberEmail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MemberEmail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberAddedData_memberEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberAddedData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberAddedData_role(ctx context.Context, field graphql.CollectedField, obj *model.AuditEventMemberAddedData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberAddedData_role(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Role, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.TeamRole)
+	fc.Result = res
+	return ec.marshalNTeamRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamRole(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberAddedData_role(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberAddedData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TeamRole does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberRemoved_id(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberRemoved) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberRemoved_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberRemoved_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberRemoved",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberRemoved_action(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberRemoved) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberRemoved_action(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Action, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventAction)
+	fc.Result = res
+	return ec.marshalNAuditEventAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventAction(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberRemoved_action(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberRemoved",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditEventAction does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberRemoved_actor(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberRemoved) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberRemoved_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberRemoved_actor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberRemoved",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberRemoved_createdAt(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberRemoved) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberRemoved_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberRemoved_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberRemoved",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberRemoved_message(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberRemoved) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberRemoved_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberRemoved_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberRemoved",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberRemoved_resourceType(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberRemoved) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberRemoved_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventResourceType)
+	fc.Result = res
+	return ec.marshalNAuditEventResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberRemoved_resourceType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberRemoved",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditEventResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberRemoved_resourceName(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberRemoved) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberRemoved_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberRemoved_resourceName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberRemoved",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberRemoved_team(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberRemoved) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberRemoved_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.AuditEventMemberRemoved().Team(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Team)
+	fc.Result = res
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberRemoved_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberRemoved",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "auditLogs":
+				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
+			case "syncErrors":
+				return ec.fieldContext_Team_syncErrors(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "githubRepositories":
+				return ec.fieldContext_Team_githubRepositories(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "status":
+				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_Team_sqlInstance(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_Team_redisInstance(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_Team_openSearchInstance(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "bigQuery":
+				return ec.fieldContext_Team_bigQuery(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
+			case "apps":
+				return ec.fieldContext_Team_apps(ctx, field)
+			case "deployKey":
+				return ec.fieldContext_Team_deployKey(ctx, field)
+			case "naisjobs":
+				return ec.fieldContext_Team_naisjobs(ctx, field)
+			case "deployments":
+				return ec.fieldContext_Team_deployments(ctx, field)
+			case "vulnerabilitiesSummary":
+				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberRemoved_data(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberRemoved) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberRemoved_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventMemberRemovedData)
+	fc.Result = res
+	return ec.marshalNAuditEventMemberRemovedData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventMemberRemovedData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberRemoved_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberRemoved",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "memberEmail":
+				return ec.fieldContext_AuditEventMemberRemovedData_memberEmail(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuditEventMemberRemovedData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberRemovedData_memberEmail(ctx context.Context, field graphql.CollectedField, obj *model.AuditEventMemberRemovedData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberRemovedData_memberEmail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MemberEmail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberRemovedData_memberEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberRemovedData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberSetRole_id(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberSetRole) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberSetRole_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberSetRole_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberSetRole",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberSetRole_action(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberSetRole) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberSetRole_action(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Action, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventAction)
+	fc.Result = res
+	return ec.marshalNAuditEventAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventAction(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberSetRole_action(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberSetRole",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditEventAction does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberSetRole_actor(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberSetRole) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberSetRole_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberSetRole_actor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberSetRole",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberSetRole_createdAt(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberSetRole) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberSetRole_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberSetRole_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberSetRole",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberSetRole_message(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberSetRole) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberSetRole_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberSetRole_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberSetRole",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberSetRole_resourceType(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberSetRole) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberSetRole_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventResourceType)
+	fc.Result = res
+	return ec.marshalNAuditEventResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberSetRole_resourceType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberSetRole",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditEventResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberSetRole_resourceName(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberSetRole) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberSetRole_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberSetRole_resourceName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberSetRole",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberSetRole_team(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberSetRole) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberSetRole_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.AuditEventMemberSetRole().Team(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Team)
+	fc.Result = res
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberSetRole_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberSetRole",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "auditLogs":
+				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
+			case "syncErrors":
+				return ec.fieldContext_Team_syncErrors(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "githubRepositories":
+				return ec.fieldContext_Team_githubRepositories(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "status":
+				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_Team_sqlInstance(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_Team_redisInstance(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_Team_openSearchInstance(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "bigQuery":
+				return ec.fieldContext_Team_bigQuery(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
+			case "apps":
+				return ec.fieldContext_Team_apps(ctx, field)
+			case "deployKey":
+				return ec.fieldContext_Team_deployKey(ctx, field)
+			case "naisjobs":
+				return ec.fieldContext_Team_naisjobs(ctx, field)
+			case "deployments":
+				return ec.fieldContext_Team_deployments(ctx, field)
+			case "vulnerabilitiesSummary":
+				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberSetRole_data(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventMemberSetRole) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberSetRole_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventMemberSetRoleData)
+	fc.Result = res
+	return ec.marshalNAuditEventMemberSetRoleData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventMemberSetRoleData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberSetRole_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberSetRole",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "memberEmail":
+				return ec.fieldContext_AuditEventMemberSetRoleData_memberEmail(ctx, field)
+			case "role":
+				return ec.fieldContext_AuditEventMemberSetRoleData_role(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuditEventMemberSetRoleData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberSetRoleData_memberEmail(ctx context.Context, field graphql.CollectedField, obj *model.AuditEventMemberSetRoleData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberSetRoleData_memberEmail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MemberEmail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberSetRoleData_memberEmail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberSetRoleData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventMemberSetRoleData_role(ctx context.Context, field graphql.CollectedField, obj *model.AuditEventMemberSetRoleData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventMemberSetRoleData_role(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Role, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.TeamRole)
+	fc.Result = res
+	return ec.marshalNTeamRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeamRole(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventMemberSetRoleData_role(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventMemberSetRoleData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TeamRole does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannel_id(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetAlertsSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetAlertsSlackChannel_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannel_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetAlertsSlackChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannel_action(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetAlertsSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetAlertsSlackChannel_action(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Action, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventAction)
+	fc.Result = res
+	return ec.marshalNAuditEventAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventAction(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannel_action(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetAlertsSlackChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditEventAction does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannel_actor(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetAlertsSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetAlertsSlackChannel_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannel_actor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetAlertsSlackChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannel_createdAt(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetAlertsSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetAlertsSlackChannel_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannel_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetAlertsSlackChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannel_message(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetAlertsSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetAlertsSlackChannel_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannel_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetAlertsSlackChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannel_resourceType(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetAlertsSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetAlertsSlackChannel_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventResourceType)
+	fc.Result = res
+	return ec.marshalNAuditEventResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannel_resourceType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetAlertsSlackChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditEventResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannel_resourceName(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetAlertsSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetAlertsSlackChannel_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannel_resourceName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetAlertsSlackChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannel_team(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetAlertsSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetAlertsSlackChannel_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.AuditEventTeamSetAlertsSlackChannel().Team(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Team)
+	fc.Result = res
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannel_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetAlertsSlackChannel",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "auditLogs":
+				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
+			case "syncErrors":
+				return ec.fieldContext_Team_syncErrors(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "githubRepositories":
+				return ec.fieldContext_Team_githubRepositories(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "status":
+				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_Team_sqlInstance(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_Team_redisInstance(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_Team_openSearchInstance(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "bigQuery":
+				return ec.fieldContext_Team_bigQuery(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
+			case "apps":
+				return ec.fieldContext_Team_apps(ctx, field)
+			case "deployKey":
+				return ec.fieldContext_Team_deployKey(ctx, field)
+			case "naisjobs":
+				return ec.fieldContext_Team_naisjobs(ctx, field)
+			case "deployments":
+				return ec.fieldContext_Team_deployments(ctx, field)
+			case "vulnerabilitiesSummary":
+				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannel_data(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetAlertsSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetAlertsSlackChannel_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventTeamSetAlertsSlackChannelData)
+	fc.Result = res
+	return ec.marshalNAuditEventTeamSetAlertsSlackChannelData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventTeamSetAlertsSlackChannelData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannel_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetAlertsSlackChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "environment":
+				return ec.fieldContext_AuditEventTeamSetAlertsSlackChannelData_environment(ctx, field)
+			case "channelName":
+				return ec.fieldContext_AuditEventTeamSetAlertsSlackChannelData_channelName(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuditEventTeamSetAlertsSlackChannelData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannelData_environment(ctx context.Context, field graphql.CollectedField, obj *model.AuditEventTeamSetAlertsSlackChannelData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetAlertsSlackChannelData_environment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Environment, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannelData_environment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetAlertsSlackChannelData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannelData_channelName(ctx context.Context, field graphql.CollectedField, obj *model.AuditEventTeamSetAlertsSlackChannelData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetAlertsSlackChannelData_channelName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ChannelName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannelData_channelName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetAlertsSlackChannelData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetDefaultSlackChannel_id(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetDefaultSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetDefaultSlackChannel_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetDefaultSlackChannel_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetDefaultSlackChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetDefaultSlackChannel_action(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetDefaultSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetDefaultSlackChannel_action(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Action, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventAction)
+	fc.Result = res
+	return ec.marshalNAuditEventAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventAction(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetDefaultSlackChannel_action(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetDefaultSlackChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditEventAction does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetDefaultSlackChannel_actor(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetDefaultSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetDefaultSlackChannel_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetDefaultSlackChannel_actor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetDefaultSlackChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetDefaultSlackChannel_createdAt(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetDefaultSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetDefaultSlackChannel_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetDefaultSlackChannel_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetDefaultSlackChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetDefaultSlackChannel_message(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetDefaultSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetDefaultSlackChannel_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetDefaultSlackChannel_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetDefaultSlackChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetDefaultSlackChannel_resourceType(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetDefaultSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetDefaultSlackChannel_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventResourceType)
+	fc.Result = res
+	return ec.marshalNAuditEventResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetDefaultSlackChannel_resourceType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetDefaultSlackChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditEventResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetDefaultSlackChannel_resourceName(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetDefaultSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetDefaultSlackChannel_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetDefaultSlackChannel_resourceName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetDefaultSlackChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetDefaultSlackChannel_team(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetDefaultSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetDefaultSlackChannel_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.AuditEventTeamSetDefaultSlackChannel().Team(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Team)
+	fc.Result = res
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetDefaultSlackChannel_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetDefaultSlackChannel",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "auditLogs":
+				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
+			case "syncErrors":
+				return ec.fieldContext_Team_syncErrors(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "githubRepositories":
+				return ec.fieldContext_Team_githubRepositories(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "status":
+				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_Team_sqlInstance(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_Team_redisInstance(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_Team_openSearchInstance(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "bigQuery":
+				return ec.fieldContext_Team_bigQuery(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
+			case "apps":
+				return ec.fieldContext_Team_apps(ctx, field)
+			case "deployKey":
+				return ec.fieldContext_Team_deployKey(ctx, field)
+			case "naisjobs":
+				return ec.fieldContext_Team_naisjobs(ctx, field)
+			case "deployments":
+				return ec.fieldContext_Team_deployments(ctx, field)
+			case "vulnerabilitiesSummary":
+				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetDefaultSlackChannel_data(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetDefaultSlackChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetDefaultSlackChannel_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventTeamSetDefaultSlackChannelData)
+	fc.Result = res
+	return ec.marshalNAuditEventTeamSetDefaultSlackChannelData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventTeamSetDefaultSlackChannelData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetDefaultSlackChannel_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetDefaultSlackChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "defaultSlackChannel":
+				return ec.fieldContext_AuditEventTeamSetDefaultSlackChannelData_defaultSlackChannel(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuditEventTeamSetDefaultSlackChannelData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetDefaultSlackChannelData_defaultSlackChannel(ctx context.Context, field graphql.CollectedField, obj *model.AuditEventTeamSetDefaultSlackChannelData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetDefaultSlackChannelData_defaultSlackChannel(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DefaultSlackChannel, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetDefaultSlackChannelData_defaultSlackChannel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetDefaultSlackChannelData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetPurpose_id(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetPurpose) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetPurpose_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetPurpose_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetPurpose",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetPurpose_action(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetPurpose) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetPurpose_action(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Action, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventAction)
+	fc.Result = res
+	return ec.marshalNAuditEventAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventAction(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetPurpose_action(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetPurpose",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditEventAction does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetPurpose_actor(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetPurpose) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetPurpose_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetPurpose_actor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetPurpose",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetPurpose_createdAt(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetPurpose) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetPurpose_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetPurpose_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetPurpose",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetPurpose_message(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetPurpose) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetPurpose_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetPurpose_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetPurpose",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetPurpose_resourceType(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetPurpose) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetPurpose_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventResourceType)
+	fc.Result = res
+	return ec.marshalNAuditEventResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetPurpose_resourceType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetPurpose",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditEventResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetPurpose_resourceName(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetPurpose) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetPurpose_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetPurpose_resourceName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetPurpose",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetPurpose_team(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetPurpose) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetPurpose_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.AuditEventTeamSetPurpose().Team(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Team)
+	fc.Result = res
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetPurpose_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetPurpose",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "auditLogs":
+				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
+			case "syncErrors":
+				return ec.fieldContext_Team_syncErrors(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "githubRepositories":
+				return ec.fieldContext_Team_githubRepositories(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "status":
+				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_Team_sqlInstance(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_Team_redisInstance(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_Team_openSearchInstance(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "bigQuery":
+				return ec.fieldContext_Team_bigQuery(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
+			case "apps":
+				return ec.fieldContext_Team_apps(ctx, field)
+			case "deployKey":
+				return ec.fieldContext_Team_deployKey(ctx, field)
+			case "naisjobs":
+				return ec.fieldContext_Team_naisjobs(ctx, field)
+			case "deployments":
+				return ec.fieldContext_Team_deployments(ctx, field)
+			case "vulnerabilitiesSummary":
+				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetPurpose_data(ctx context.Context, field graphql.CollectedField, obj *auditevent.AuditEventTeamSetPurpose) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetPurpose_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventTeamSetPurposeData)
+	fc.Result = res
+	return ec.marshalNAuditEventTeamSetPurposeData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventTeamSetPurposeData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetPurpose_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetPurpose",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "purpose":
+				return ec.fieldContext_AuditEventTeamSetPurposeData_purpose(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuditEventTeamSetPurposeData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEventTeamSetPurposeData_purpose(ctx context.Context, field graphql.CollectedField, obj *model.AuditEventTeamSetPurposeData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEventTeamSetPurposeData_purpose(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Purpose, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEventTeamSetPurposeData_purpose(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEventTeamSetPurposeData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -15276,6 +19544,875 @@ func (ec *executionContext) fieldContext_BackupConfiguration_transactionLogReten
 	return fc, nil
 }
 
+func (ec *executionContext) _BaseAuditEvent_id(ctx context.Context, field graphql.CollectedField, obj *auditevent.BaseAuditEvent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BaseAuditEvent_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BaseAuditEvent_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BaseAuditEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BaseAuditEvent_action(ctx context.Context, field graphql.CollectedField, obj *auditevent.BaseAuditEvent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BaseAuditEvent_action(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Action, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventAction)
+	fc.Result = res
+	return ec.marshalNAuditEventAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventAction(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BaseAuditEvent_action(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BaseAuditEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditEventAction does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BaseAuditEvent_actor(ctx context.Context, field graphql.CollectedField, obj *auditevent.BaseAuditEvent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BaseAuditEvent_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BaseAuditEvent_actor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BaseAuditEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BaseAuditEvent_message(ctx context.Context, field graphql.CollectedField, obj *auditevent.BaseAuditEvent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BaseAuditEvent_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BaseAuditEvent_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BaseAuditEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BaseAuditEvent_createdAt(ctx context.Context, field graphql.CollectedField, obj *auditevent.BaseAuditEvent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BaseAuditEvent_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BaseAuditEvent_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BaseAuditEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BaseAuditEvent_resourceType(ctx context.Context, field graphql.CollectedField, obj *auditevent.BaseAuditEvent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BaseAuditEvent_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventResourceType)
+	fc.Result = res
+	return ec.marshalNAuditEventResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BaseAuditEvent_resourceType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BaseAuditEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditEventResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BaseAuditEvent_resourceName(ctx context.Context, field graphql.CollectedField, obj *auditevent.BaseAuditEvent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BaseAuditEvent_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BaseAuditEvent_resourceName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BaseAuditEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BaseAuditEvent_team(ctx context.Context, field graphql.CollectedField, obj *auditevent.BaseAuditEvent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BaseAuditEvent_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.BaseAuditEvent().Team(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Team)
+	fc.Result = res
+	return ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BaseAuditEvent_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BaseAuditEvent",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "auditLogs":
+				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
+			case "syncErrors":
+				return ec.fieldContext_Team_syncErrors(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "githubRepositories":
+				return ec.fieldContext_Team_githubRepositories(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "status":
+				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_Team_sqlInstance(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_Team_redisInstance(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_Team_openSearchInstance(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "bigQuery":
+				return ec.fieldContext_Team_bigQuery(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
+			case "apps":
+				return ec.fieldContext_Team_apps(ctx, field)
+			case "deployKey":
+				return ec.fieldContext_Team_deployKey(ctx, field)
+			case "naisjobs":
+				return ec.fieldContext_Team_naisjobs(ctx, field)
+			case "deployments":
+				return ec.fieldContext_Team_deployments(ctx, field)
+			case "vulnerabilitiesSummary":
+				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BaseTeamAuditEvent_id(ctx context.Context, field graphql.CollectedField, obj *auditevent.BaseTeamAuditEvent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BaseTeamAuditEvent_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(scalar.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BaseTeamAuditEvent_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BaseTeamAuditEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BaseTeamAuditEvent_action(ctx context.Context, field graphql.CollectedField, obj *auditevent.BaseTeamAuditEvent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BaseTeamAuditEvent_action(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Action, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventAction)
+	fc.Result = res
+	return ec.marshalNAuditEventAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventAction(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BaseTeamAuditEvent_action(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BaseTeamAuditEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditEventAction does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BaseTeamAuditEvent_actor(ctx context.Context, field graphql.CollectedField, obj *auditevent.BaseTeamAuditEvent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BaseTeamAuditEvent_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BaseTeamAuditEvent_actor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BaseTeamAuditEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BaseTeamAuditEvent_message(ctx context.Context, field graphql.CollectedField, obj *auditevent.BaseTeamAuditEvent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BaseTeamAuditEvent_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BaseTeamAuditEvent_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BaseTeamAuditEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BaseTeamAuditEvent_createdAt(ctx context.Context, field graphql.CollectedField, obj *auditevent.BaseTeamAuditEvent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BaseTeamAuditEvent_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BaseTeamAuditEvent_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BaseTeamAuditEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BaseTeamAuditEvent_resourceType(ctx context.Context, field graphql.CollectedField, obj *auditevent.BaseTeamAuditEvent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BaseTeamAuditEvent_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AuditEventResourceType)
+	fc.Result = res
+	return ec.marshalNAuditEventResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BaseTeamAuditEvent_resourceType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BaseTeamAuditEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditEventResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BaseTeamAuditEvent_resourceName(ctx context.Context, field graphql.CollectedField, obj *auditevent.BaseTeamAuditEvent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BaseTeamAuditEvent_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BaseTeamAuditEvent_resourceName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BaseTeamAuditEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BaseTeamAuditEvent_team(ctx context.Context, field graphql.CollectedField, obj *auditevent.BaseTeamAuditEvent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BaseTeamAuditEvent_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.BaseTeamAuditEvent().Team(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Team)
+	fc.Result = res
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BaseTeamAuditEvent_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BaseTeamAuditEvent",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "auditLogs":
+				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
+			case "syncErrors":
+				return ec.fieldContext_Team_syncErrors(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "githubRepositories":
+				return ec.fieldContext_Team_githubRepositories(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "status":
+				return ec.fieldContext_Team_status(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_Team_sqlInstance(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_Team_redisInstance(ctx, field)
+			case "redis":
+				return ec.fieldContext_Team_redis(ctx, field)
+			case "openSearchInstance":
+				return ec.fieldContext_Team_openSearchInstance(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "bigQuery":
+				return ec.fieldContext_Team_bigQuery(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
+			case "apps":
+				return ec.fieldContext_Team_apps(ctx, field)
+			case "deployKey":
+				return ec.fieldContext_Team_deployKey(ctx, field)
+			case "naisjobs":
+				return ec.fieldContext_Team_naisjobs(ctx, field)
+			case "deployments":
+				return ec.fieldContext_Team_deployments(ctx, field)
+			case "vulnerabilitiesSummary":
+				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Team_secrets(ctx, field)
+			case "secret":
+				return ec.fieldContext_Team_secret(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			case "unleash":
+				return ec.fieldContext_Team_unleash(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _BigQueryDataset_cascadingDelete(ctx context.Context, field graphql.CollectedField, obj *model.BigQueryDataset) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_BigQueryDataset_cascadingDelete(ctx, field)
 	if err != nil {
@@ -15559,6 +20696,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(ctx context.Contex
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -16584,6 +21723,8 @@ func (ec *executionContext) fieldContext_Bucket_team(ctx context.Context, field 
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -18628,6 +23769,8 @@ func (ec *executionContext) fieldContext_Deployment_team(ctx context.Context, fi
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -25294,6 +30437,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(ctx context.Context, fi
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -28224,6 +33369,8 @@ func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -28381,6 +33528,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -28461,8 +33610,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_removeUsersFromTeam(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_removeUsersFromTeam(ctx, field)
+func (ec *executionContext) _Mutation_updateTeamSlackAlertsChannel(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateTeamSlackAlertsChannel(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -28476,7 +33625,7 @@ func (ec *executionContext) _Mutation_removeUsersFromTeam(ctx context.Context, f
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().RemoveUsersFromTeam(rctx, fc.Args["slug"].(slug.Slug), fc.Args["userIds"].([]*scalar.Ident))
+			return ec.resolvers.Mutation().UpdateTeamSlackAlertsChannel(rctx, fc.Args["slug"].(slug.Slug), fc.Args["input"].(model.UpdateTeamSlackAlertsChannelInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Auth == nil {
@@ -28512,7 +33661,7 @@ func (ec *executionContext) _Mutation_removeUsersFromTeam(ctx context.Context, f
 	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_removeUsersFromTeam(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_updateTeamSlackAlertsChannel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -28538,6 +33687,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUsersFromTeam(ctx contex
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -28611,7 +33762,7 @@ func (ec *executionContext) fieldContext_Mutation_removeUsersFromTeam(ctx contex
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_removeUsersFromTeam_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_updateTeamSlackAlertsChannel_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -28695,6 +33846,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUserFromTeam(ctx context
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -28922,320 +34075,6 @@ func (ec *executionContext) fieldContext_Mutation_synchronizeAllTeams(ctx contex
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_addTeamMembers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_addTeamMembers(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().AddTeamMembers(rctx, fc.Args["slug"].(slug.Slug), fc.Args["userIds"].([]*scalar.Ident))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				return nil, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.Team); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.Team`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Team)
-	fc.Result = res
-	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_addTeamMembers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
-			case "auditLogs":
-				return ec.fieldContext_Team_auditLogs(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
-			case "syncErrors":
-				return ec.fieldContext_Team_syncErrors(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "githubRepositories":
-				return ec.fieldContext_Team_githubRepositories(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "status":
-				return ec.fieldContext_Team_status(ctx, field)
-			case "sqlInstance":
-				return ec.fieldContext_Team_sqlInstance(ctx, field)
-			case "sqlInstances":
-				return ec.fieldContext_Team_sqlInstances(ctx, field)
-			case "bucket":
-				return ec.fieldContext_Team_bucket(ctx, field)
-			case "buckets":
-				return ec.fieldContext_Team_buckets(ctx, field)
-			case "redisInstance":
-				return ec.fieldContext_Team_redisInstance(ctx, field)
-			case "redis":
-				return ec.fieldContext_Team_redis(ctx, field)
-			case "openSearchInstance":
-				return ec.fieldContext_Team_openSearchInstance(ctx, field)
-			case "openSearch":
-				return ec.fieldContext_Team_openSearch(ctx, field)
-			case "kafkaTopic":
-				return ec.fieldContext_Team_kafkaTopic(ctx, field)
-			case "kafkaTopics":
-				return ec.fieldContext_Team_kafkaTopics(ctx, field)
-			case "bigQuery":
-				return ec.fieldContext_Team_bigQuery(ctx, field)
-			case "bigQueryDataset":
-				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
-			case "apps":
-				return ec.fieldContext_Team_apps(ctx, field)
-			case "deployKey":
-				return ec.fieldContext_Team_deployKey(ctx, field)
-			case "naisjobs":
-				return ec.fieldContext_Team_naisjobs(ctx, field)
-			case "deployments":
-				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilitiesSummary":
-				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "secrets":
-				return ec.fieldContext_Team_secrets(ctx, field)
-			case "secret":
-				return ec.fieldContext_Team_secret(ctx, field)
-			case "environments":
-				return ec.fieldContext_Team_environments(ctx, field)
-			case "unleash":
-				return ec.fieldContext_Team_unleash(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_addTeamMembers_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_addTeamOwners(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_addTeamOwners(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().AddTeamOwners(rctx, fc.Args["slug"].(slug.Slug), fc.Args["userIds"].([]*scalar.Ident))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				return nil, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.Team); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.Team`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Team)
-	fc.Result = res
-	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐTeam(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_addTeamOwners(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
-			case "auditLogs":
-				return ec.fieldContext_Team_auditLogs(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "member":
-				return ec.fieldContext_Team_member(ctx, field)
-			case "syncErrors":
-				return ec.fieldContext_Team_syncErrors(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "githubRepositories":
-				return ec.fieldContext_Team_githubRepositories(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "status":
-				return ec.fieldContext_Team_status(ctx, field)
-			case "sqlInstance":
-				return ec.fieldContext_Team_sqlInstance(ctx, field)
-			case "sqlInstances":
-				return ec.fieldContext_Team_sqlInstances(ctx, field)
-			case "bucket":
-				return ec.fieldContext_Team_bucket(ctx, field)
-			case "buckets":
-				return ec.fieldContext_Team_buckets(ctx, field)
-			case "redisInstance":
-				return ec.fieldContext_Team_redisInstance(ctx, field)
-			case "redis":
-				return ec.fieldContext_Team_redis(ctx, field)
-			case "openSearchInstance":
-				return ec.fieldContext_Team_openSearchInstance(ctx, field)
-			case "openSearch":
-				return ec.fieldContext_Team_openSearch(ctx, field)
-			case "kafkaTopic":
-				return ec.fieldContext_Team_kafkaTopic(ctx, field)
-			case "kafkaTopics":
-				return ec.fieldContext_Team_kafkaTopics(ctx, field)
-			case "bigQuery":
-				return ec.fieldContext_Team_bigQuery(ctx, field)
-			case "bigQueryDataset":
-				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
-			case "apps":
-				return ec.fieldContext_Team_apps(ctx, field)
-			case "deployKey":
-				return ec.fieldContext_Team_deployKey(ctx, field)
-			case "naisjobs":
-				return ec.fieldContext_Team_naisjobs(ctx, field)
-			case "deployments":
-				return ec.fieldContext_Team_deployments(ctx, field)
-			case "vulnerabilitiesSummary":
-				return ec.fieldContext_Team_vulnerabilitiesSummary(ctx, field)
-			case "secrets":
-				return ec.fieldContext_Team_secrets(ctx, field)
-			case "secret":
-				return ec.fieldContext_Team_secret(ctx, field)
-			case "environments":
-				return ec.fieldContext_Team_environments(ctx, field)
-			case "unleash":
-				return ec.fieldContext_Team_unleash(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_addTeamOwners_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_addTeamMember(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_addTeamMember(ctx, field)
 	if err != nil {
@@ -29313,6 +34152,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -29470,6 +34311,8 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -30810,6 +35653,8 @@ func (ec *executionContext) fieldContext_NaisJob_team(ctx context.Context, field
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -31762,6 +36607,8 @@ func (ec *executionContext) fieldContext_OpenSearch_team(ctx context.Context, fi
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -34125,6 +38972,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -35692,6 +40541,8 @@ func (ec *executionContext) fieldContext_ReconcilerError_team(ctx context.Contex
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -36180,6 +41031,8 @@ func (ec *executionContext) fieldContext_Redis_team(ctx context.Context, field g
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -38844,6 +43697,8 @@ func (ec *executionContext) fieldContext_Role_targetTeam(ctx context.Context, fi
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -39864,6 +44719,8 @@ func (ec *executionContext) fieldContext_Secret_team(ctx context.Context, field 
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -41755,6 +46612,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(ctx context.Context, f
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -44046,6 +48905,67 @@ func (ec *executionContext) fieldContext_Team_auditLogs(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_auditEvents(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_auditEvents(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().AuditEvents(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["filter"].(*model.AuditEventsFilter))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*auditevent.AuditEventList)
+	fc.Result = res
+	return ec.marshalNAuditEventList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋauditeventᚐAuditEventList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_auditEvents(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "nodes":
+				return ec.fieldContext_AuditEventList_nodes(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_AuditEventList_pageInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuditEventList", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Team_auditEvents_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_members(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_members(ctx, field)
 	if err != nil {
@@ -46255,6 +51175,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(ctx context.Context,
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -46381,6 +51303,8 @@ func (ec *executionContext) fieldContext_TeamList_nodes(ctx context.Context, fie
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -46559,6 +51483,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(ctx context.Context, fi
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
 			case "auditLogs":
 				return ec.fieldContext_Team_auditLogs(ctx, field)
+			case "auditEvents":
+				return ec.fieldContext_Team_auditEvents(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "member":
@@ -51423,6 +56349,33 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputAuditEventsFilter(ctx context.Context, obj interface{}) (model.AuditEventsFilter, error) {
+	var it model.AuditEventsFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"resourceType"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "resourceType":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceType"))
+			data, err := ec.unmarshalOAuditEventResourceType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ResourceType = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateTeamInput(ctx context.Context, obj interface{}) (model.CreateTeamInput, error) {
 	var it model.CreateTeamInput
 	asMap := map[string]interface{}{}
@@ -51723,40 +56676,6 @@ func (ec *executionContext) unmarshalInputSearchFilter(ctx context.Context, obj 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSlackAlertsChannelInput(ctx context.Context, obj interface{}) (model.SlackAlertsChannelInput, error) {
-	var it model.SlackAlertsChannelInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"environment", "channelName"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "environment":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Environment = data
-		case "channelName":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("channelName"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ChannelName = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputTeamMemberInput(ctx context.Context, obj interface{}) (model.TeamMemberInput, error) {
 	var it model.TeamMemberInput
 	asMap := map[string]interface{}{}
@@ -51866,7 +56785,7 @@ func (ec *executionContext) unmarshalInputUpdateTeamInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"purpose", "slackChannel", "slackAlertsChannels"}
+	fieldsInOrder := [...]string{"purpose", "slackChannel"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -51887,13 +56806,40 @@ func (ec *executionContext) unmarshalInputUpdateTeamInput(ctx context.Context, o
 				return it, err
 			}
 			it.SlackChannel = data
-		case "slackAlertsChannels":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slackAlertsChannels"))
-			data, err := ec.unmarshalOSlackAlertsChannelInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSlackAlertsChannelInputᚄ(ctx, v)
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateTeamSlackAlertsChannelInput(ctx context.Context, obj interface{}) (model.UpdateTeamSlackAlertsChannelInput, error) {
+	var it model.UpdateTeamSlackAlertsChannelInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"environment", "channelName"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "environment":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.SlackAlertsChannels = data
+			it.Environment = data
+		case "channelName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("channelName"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ChannelName = data
 		}
 	}
 
@@ -51937,6 +56883,136 @@ func (ec *executionContext) unmarshalInputVariableInput(ctx context.Context, obj
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
+
+func (ec *executionContext) _AuditEvent(ctx context.Context, sel ast.SelectionSet, obj model.AuditEvent) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case auditevent.BaseAuditEvent:
+		return ec._BaseAuditEvent(ctx, sel, &obj)
+	case *auditevent.BaseAuditEvent:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._BaseAuditEvent(ctx, sel, obj)
+	case auditevent.BaseTeamAuditEvent:
+		return ec._BaseTeamAuditEvent(ctx, sel, &obj)
+	case *auditevent.BaseTeamAuditEvent:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._BaseTeamAuditEvent(ctx, sel, obj)
+	case auditevent.AuditEventMemberAdded:
+		return ec._AuditEventMemberAdded(ctx, sel, &obj)
+	case *auditevent.AuditEventMemberAdded:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AuditEventMemberAdded(ctx, sel, obj)
+	case auditevent.AuditEventMemberRemoved:
+		return ec._AuditEventMemberRemoved(ctx, sel, &obj)
+	case *auditevent.AuditEventMemberRemoved:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AuditEventMemberRemoved(ctx, sel, obj)
+	case auditevent.AuditEventMemberSetRole:
+		return ec._AuditEventMemberSetRole(ctx, sel, &obj)
+	case *auditevent.AuditEventMemberSetRole:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AuditEventMemberSetRole(ctx, sel, obj)
+	case auditevent.AuditEventTeamSetPurpose:
+		return ec._AuditEventTeamSetPurpose(ctx, sel, &obj)
+	case *auditevent.AuditEventTeamSetPurpose:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AuditEventTeamSetPurpose(ctx, sel, obj)
+	case auditevent.AuditEventTeamSetDefaultSlackChannel:
+		return ec._AuditEventTeamSetDefaultSlackChannel(ctx, sel, &obj)
+	case *auditevent.AuditEventTeamSetDefaultSlackChannel:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AuditEventTeamSetDefaultSlackChannel(ctx, sel, obj)
+	case auditevent.AuditEventTeamSetAlertsSlackChannel:
+		return ec._AuditEventTeamSetAlertsSlackChannel(ctx, sel, &obj)
+	case *auditevent.AuditEventTeamSetAlertsSlackChannel:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AuditEventTeamSetAlertsSlackChannel(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _AuditEventNode(ctx context.Context, sel ast.SelectionSet, obj model.AuditEventNode) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case auditevent.BaseAuditEvent:
+		return ec._BaseAuditEvent(ctx, sel, &obj)
+	case *auditevent.BaseAuditEvent:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._BaseAuditEvent(ctx, sel, obj)
+	case auditevent.BaseTeamAuditEvent:
+		return ec._BaseTeamAuditEvent(ctx, sel, &obj)
+	case *auditevent.BaseTeamAuditEvent:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._BaseTeamAuditEvent(ctx, sel, obj)
+	case auditevent.AuditEventMemberAdded:
+		return ec._AuditEventMemberAdded(ctx, sel, &obj)
+	case *auditevent.AuditEventMemberAdded:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AuditEventMemberAdded(ctx, sel, obj)
+	case auditevent.AuditEventMemberRemoved:
+		return ec._AuditEventMemberRemoved(ctx, sel, &obj)
+	case *auditevent.AuditEventMemberRemoved:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AuditEventMemberRemoved(ctx, sel, obj)
+	case auditevent.AuditEventMemberSetRole:
+		return ec._AuditEventMemberSetRole(ctx, sel, &obj)
+	case *auditevent.AuditEventMemberSetRole:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AuditEventMemberSetRole(ctx, sel, obj)
+	case auditevent.AuditEventTeamSetPurpose:
+		return ec._AuditEventTeamSetPurpose(ctx, sel, &obj)
+	case *auditevent.AuditEventTeamSetPurpose:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AuditEventTeamSetPurpose(ctx, sel, obj)
+	case auditevent.AuditEventTeamSetDefaultSlackChannel:
+		return ec._AuditEventTeamSetDefaultSlackChannel(ctx, sel, &obj)
+	case *auditevent.AuditEventTeamSetDefaultSlackChannel:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AuditEventTeamSetDefaultSlackChannel(ctx, sel, obj)
+	case auditevent.AuditEventTeamSetAlertsSlackChannel:
+		return ec._AuditEventTeamSetAlertsSlackChannel(ctx, sel, &obj)
+	case *auditevent.AuditEventTeamSetAlertsSlackChannel:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AuditEventTeamSetAlertsSlackChannel(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
 
 func (ec *executionContext) _AuthenticatedUser(ctx context.Context, sel ast.SelectionSet, obj model.AuthenticatedUser) graphql.Marshaler {
 	switch obj := (obj).(type) {
@@ -53000,6 +58076,959 @@ func (ec *executionContext) _AppsStatus(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
+var auditEventListImplementors = []string{"AuditEventList"}
+
+func (ec *executionContext) _AuditEventList(ctx context.Context, sel ast.SelectionSet, obj *auditevent.AuditEventList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventListImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventList")
+		case "nodes":
+			out.Values[i] = ec._AuditEventList_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pageInfo":
+			out.Values[i] = ec._AuditEventList_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var auditEventMemberAddedImplementors = []string{"AuditEventMemberAdded", "AuditEventNode", "AuditEvent"}
+
+func (ec *executionContext) _AuditEventMemberAdded(ctx context.Context, sel ast.SelectionSet, obj *auditevent.AuditEventMemberAdded) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventMemberAddedImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventMemberAdded")
+		case "id":
+			out.Values[i] = ec._AuditEventMemberAdded_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "action":
+			out.Values[i] = ec._AuditEventMemberAdded_action(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "actor":
+			out.Values[i] = ec._AuditEventMemberAdded_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "createdAt":
+			out.Values[i] = ec._AuditEventMemberAdded_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "message":
+			out.Values[i] = ec._AuditEventMemberAdded_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "resourceType":
+			out.Values[i] = ec._AuditEventMemberAdded_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "resourceName":
+			out.Values[i] = ec._AuditEventMemberAdded_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AuditEventMemberAdded_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "data":
+			out.Values[i] = ec._AuditEventMemberAdded_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var auditEventMemberAddedDataImplementors = []string{"AuditEventMemberAddedData"}
+
+func (ec *executionContext) _AuditEventMemberAddedData(ctx context.Context, sel ast.SelectionSet, obj *model.AuditEventMemberAddedData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventMemberAddedDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventMemberAddedData")
+		case "memberEmail":
+			out.Values[i] = ec._AuditEventMemberAddedData_memberEmail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "role":
+			out.Values[i] = ec._AuditEventMemberAddedData_role(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var auditEventMemberRemovedImplementors = []string{"AuditEventMemberRemoved", "AuditEventNode", "AuditEvent"}
+
+func (ec *executionContext) _AuditEventMemberRemoved(ctx context.Context, sel ast.SelectionSet, obj *auditevent.AuditEventMemberRemoved) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventMemberRemovedImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventMemberRemoved")
+		case "id":
+			out.Values[i] = ec._AuditEventMemberRemoved_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "action":
+			out.Values[i] = ec._AuditEventMemberRemoved_action(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "actor":
+			out.Values[i] = ec._AuditEventMemberRemoved_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "createdAt":
+			out.Values[i] = ec._AuditEventMemberRemoved_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "message":
+			out.Values[i] = ec._AuditEventMemberRemoved_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "resourceType":
+			out.Values[i] = ec._AuditEventMemberRemoved_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "resourceName":
+			out.Values[i] = ec._AuditEventMemberRemoved_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AuditEventMemberRemoved_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "data":
+			out.Values[i] = ec._AuditEventMemberRemoved_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var auditEventMemberRemovedDataImplementors = []string{"AuditEventMemberRemovedData"}
+
+func (ec *executionContext) _AuditEventMemberRemovedData(ctx context.Context, sel ast.SelectionSet, obj *model.AuditEventMemberRemovedData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventMemberRemovedDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventMemberRemovedData")
+		case "memberEmail":
+			out.Values[i] = ec._AuditEventMemberRemovedData_memberEmail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var auditEventMemberSetRoleImplementors = []string{"AuditEventMemberSetRole", "AuditEventNode", "AuditEvent"}
+
+func (ec *executionContext) _AuditEventMemberSetRole(ctx context.Context, sel ast.SelectionSet, obj *auditevent.AuditEventMemberSetRole) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventMemberSetRoleImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventMemberSetRole")
+		case "id":
+			out.Values[i] = ec._AuditEventMemberSetRole_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "action":
+			out.Values[i] = ec._AuditEventMemberSetRole_action(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "actor":
+			out.Values[i] = ec._AuditEventMemberSetRole_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "createdAt":
+			out.Values[i] = ec._AuditEventMemberSetRole_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "message":
+			out.Values[i] = ec._AuditEventMemberSetRole_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "resourceType":
+			out.Values[i] = ec._AuditEventMemberSetRole_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "resourceName":
+			out.Values[i] = ec._AuditEventMemberSetRole_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AuditEventMemberSetRole_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "data":
+			out.Values[i] = ec._AuditEventMemberSetRole_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var auditEventMemberSetRoleDataImplementors = []string{"AuditEventMemberSetRoleData"}
+
+func (ec *executionContext) _AuditEventMemberSetRoleData(ctx context.Context, sel ast.SelectionSet, obj *model.AuditEventMemberSetRoleData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventMemberSetRoleDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventMemberSetRoleData")
+		case "memberEmail":
+			out.Values[i] = ec._AuditEventMemberSetRoleData_memberEmail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "role":
+			out.Values[i] = ec._AuditEventMemberSetRoleData_role(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var auditEventTeamSetAlertsSlackChannelImplementors = []string{"AuditEventTeamSetAlertsSlackChannel", "AuditEventNode", "AuditEvent"}
+
+func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannel(ctx context.Context, sel ast.SelectionSet, obj *auditevent.AuditEventTeamSetAlertsSlackChannel) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventTeamSetAlertsSlackChannelImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventTeamSetAlertsSlackChannel")
+		case "id":
+			out.Values[i] = ec._AuditEventTeamSetAlertsSlackChannel_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "action":
+			out.Values[i] = ec._AuditEventTeamSetAlertsSlackChannel_action(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "actor":
+			out.Values[i] = ec._AuditEventTeamSetAlertsSlackChannel_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "createdAt":
+			out.Values[i] = ec._AuditEventTeamSetAlertsSlackChannel_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "message":
+			out.Values[i] = ec._AuditEventTeamSetAlertsSlackChannel_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "resourceType":
+			out.Values[i] = ec._AuditEventTeamSetAlertsSlackChannel_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "resourceName":
+			out.Values[i] = ec._AuditEventTeamSetAlertsSlackChannel_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AuditEventTeamSetAlertsSlackChannel_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "data":
+			out.Values[i] = ec._AuditEventTeamSetAlertsSlackChannel_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var auditEventTeamSetAlertsSlackChannelDataImplementors = []string{"AuditEventTeamSetAlertsSlackChannelData"}
+
+func (ec *executionContext) _AuditEventTeamSetAlertsSlackChannelData(ctx context.Context, sel ast.SelectionSet, obj *model.AuditEventTeamSetAlertsSlackChannelData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventTeamSetAlertsSlackChannelDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventTeamSetAlertsSlackChannelData")
+		case "environment":
+			out.Values[i] = ec._AuditEventTeamSetAlertsSlackChannelData_environment(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "channelName":
+			out.Values[i] = ec._AuditEventTeamSetAlertsSlackChannelData_channelName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var auditEventTeamSetDefaultSlackChannelImplementors = []string{"AuditEventTeamSetDefaultSlackChannel", "AuditEventNode", "AuditEvent"}
+
+func (ec *executionContext) _AuditEventTeamSetDefaultSlackChannel(ctx context.Context, sel ast.SelectionSet, obj *auditevent.AuditEventTeamSetDefaultSlackChannel) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventTeamSetDefaultSlackChannelImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventTeamSetDefaultSlackChannel")
+		case "id":
+			out.Values[i] = ec._AuditEventTeamSetDefaultSlackChannel_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "action":
+			out.Values[i] = ec._AuditEventTeamSetDefaultSlackChannel_action(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "actor":
+			out.Values[i] = ec._AuditEventTeamSetDefaultSlackChannel_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "createdAt":
+			out.Values[i] = ec._AuditEventTeamSetDefaultSlackChannel_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "message":
+			out.Values[i] = ec._AuditEventTeamSetDefaultSlackChannel_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "resourceType":
+			out.Values[i] = ec._AuditEventTeamSetDefaultSlackChannel_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "resourceName":
+			out.Values[i] = ec._AuditEventTeamSetDefaultSlackChannel_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AuditEventTeamSetDefaultSlackChannel_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "data":
+			out.Values[i] = ec._AuditEventTeamSetDefaultSlackChannel_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var auditEventTeamSetDefaultSlackChannelDataImplementors = []string{"AuditEventTeamSetDefaultSlackChannelData"}
+
+func (ec *executionContext) _AuditEventTeamSetDefaultSlackChannelData(ctx context.Context, sel ast.SelectionSet, obj *model.AuditEventTeamSetDefaultSlackChannelData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventTeamSetDefaultSlackChannelDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventTeamSetDefaultSlackChannelData")
+		case "defaultSlackChannel":
+			out.Values[i] = ec._AuditEventTeamSetDefaultSlackChannelData_defaultSlackChannel(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var auditEventTeamSetPurposeImplementors = []string{"AuditEventTeamSetPurpose", "AuditEventNode", "AuditEvent"}
+
+func (ec *executionContext) _AuditEventTeamSetPurpose(ctx context.Context, sel ast.SelectionSet, obj *auditevent.AuditEventTeamSetPurpose) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventTeamSetPurposeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventTeamSetPurpose")
+		case "id":
+			out.Values[i] = ec._AuditEventTeamSetPurpose_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "action":
+			out.Values[i] = ec._AuditEventTeamSetPurpose_action(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "actor":
+			out.Values[i] = ec._AuditEventTeamSetPurpose_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "createdAt":
+			out.Values[i] = ec._AuditEventTeamSetPurpose_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "message":
+			out.Values[i] = ec._AuditEventTeamSetPurpose_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "resourceType":
+			out.Values[i] = ec._AuditEventTeamSetPurpose_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "resourceName":
+			out.Values[i] = ec._AuditEventTeamSetPurpose_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AuditEventTeamSetPurpose_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "data":
+			out.Values[i] = ec._AuditEventTeamSetPurpose_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var auditEventTeamSetPurposeDataImplementors = []string{"AuditEventTeamSetPurposeData"}
+
+func (ec *executionContext) _AuditEventTeamSetPurposeData(ctx context.Context, sel ast.SelectionSet, obj *model.AuditEventTeamSetPurposeData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEventTeamSetPurposeDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuditEventTeamSetPurposeData")
+		case "purpose":
+			out.Values[i] = ec._AuditEventTeamSetPurposeData_purpose(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var auditLogImplementors = []string{"AuditLog"}
 
 func (ec *executionContext) _AuditLog(ctx context.Context, sel ast.SelectionSet, obj *model.AuditLog) graphql.Marshaler {
@@ -53302,6 +59331,213 @@ func (ec *executionContext) _BackupConfiguration(ctx context.Context, sel ast.Se
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var baseAuditEventImplementors = []string{"BaseAuditEvent", "AuditEventNode", "AuditEvent"}
+
+func (ec *executionContext) _BaseAuditEvent(ctx context.Context, sel ast.SelectionSet, obj *auditevent.BaseAuditEvent) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, baseAuditEventImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("BaseAuditEvent")
+		case "id":
+			out.Values[i] = ec._BaseAuditEvent_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "action":
+			out.Values[i] = ec._BaseAuditEvent_action(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "actor":
+			out.Values[i] = ec._BaseAuditEvent_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "message":
+			out.Values[i] = ec._BaseAuditEvent_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "createdAt":
+			out.Values[i] = ec._BaseAuditEvent_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "resourceType":
+			out.Values[i] = ec._BaseAuditEvent_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "resourceName":
+			out.Values[i] = ec._BaseAuditEvent_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._BaseAuditEvent_team(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var baseTeamAuditEventImplementors = []string{"BaseTeamAuditEvent", "AuditEventNode", "AuditEvent"}
+
+func (ec *executionContext) _BaseTeamAuditEvent(ctx context.Context, sel ast.SelectionSet, obj *auditevent.BaseTeamAuditEvent) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, baseTeamAuditEventImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("BaseTeamAuditEvent")
+		case "id":
+			out.Values[i] = ec._BaseTeamAuditEvent_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "action":
+			out.Values[i] = ec._BaseTeamAuditEvent_action(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "actor":
+			out.Values[i] = ec._BaseTeamAuditEvent_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "message":
+			out.Values[i] = ec._BaseTeamAuditEvent_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "createdAt":
+			out.Values[i] = ec._BaseTeamAuditEvent_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "resourceType":
+			out.Values[i] = ec._BaseTeamAuditEvent_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "resourceName":
+			out.Values[i] = ec._BaseTeamAuditEvent_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._BaseTeamAuditEvent_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -57146,9 +63382,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "removeUsersFromTeam":
+		case "updateTeamSlackAlertsChannel":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_removeUsersFromTeam(ctx, field)
+				return ec._Mutation_updateTeamSlackAlertsChannel(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -57170,20 +63406,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "synchronizeAllTeams":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_synchronizeAllTeams(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "addTeamMembers":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_addTeamMembers(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "addTeamOwners":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_addTeamOwners(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -61925,6 +68147,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "auditEvents":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_auditEvents(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "members":
 			field := field
 
@@ -65103,6 +71361,118 @@ func (ec *executionContext) marshalNAppsStatus2githubᚗcomᚋnaisᚋapiᚋinter
 	return ec._AppsStatus(ctx, sel, &v)
 }
 
+func (ec *executionContext) unmarshalNAuditEventAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventAction(ctx context.Context, v interface{}) (model.AuditEventAction, error) {
+	var res model.AuditEventAction
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAuditEventAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventAction(ctx context.Context, sel ast.SelectionSet, v model.AuditEventAction) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNAuditEventList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋauditeventᚐAuditEventList(ctx context.Context, sel ast.SelectionSet, v auditevent.AuditEventList) graphql.Marshaler {
+	return ec._AuditEventList(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuditEventList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚋauditeventᚐAuditEventList(ctx context.Context, sel ast.SelectionSet, v *auditevent.AuditEventList) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AuditEventList(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAuditEventMemberAddedData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventMemberAddedData(ctx context.Context, sel ast.SelectionSet, v model.AuditEventMemberAddedData) graphql.Marshaler {
+	return ec._AuditEventMemberAddedData(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuditEventMemberRemovedData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventMemberRemovedData(ctx context.Context, sel ast.SelectionSet, v model.AuditEventMemberRemovedData) graphql.Marshaler {
+	return ec._AuditEventMemberRemovedData(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuditEventMemberSetRoleData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventMemberSetRoleData(ctx context.Context, sel ast.SelectionSet, v model.AuditEventMemberSetRoleData) graphql.Marshaler {
+	return ec._AuditEventMemberSetRoleData(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuditEventNode2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventNode(ctx context.Context, sel ast.SelectionSet, v model.AuditEventNode) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AuditEventNode(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAuditEventNode2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventNodeᚄ(ctx context.Context, sel ast.SelectionSet, v []model.AuditEventNode) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAuditEventNode2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventNode(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNAuditEventResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx context.Context, v interface{}) (model.AuditEventResourceType, error) {
+	var res model.AuditEventResourceType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAuditEventResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx context.Context, sel ast.SelectionSet, v model.AuditEventResourceType) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNAuditEventTeamSetAlertsSlackChannelData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventTeamSetAlertsSlackChannelData(ctx context.Context, sel ast.SelectionSet, v model.AuditEventTeamSetAlertsSlackChannelData) graphql.Marshaler {
+	return ec._AuditEventTeamSetAlertsSlackChannelData(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuditEventTeamSetDefaultSlackChannelData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventTeamSetDefaultSlackChannelData(ctx context.Context, sel ast.SelectionSet, v model.AuditEventTeamSetDefaultSlackChannelData) graphql.Marshaler {
+	return ec._AuditEventTeamSetDefaultSlackChannelData(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuditEventTeamSetPurposeData2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventTeamSetPurposeData(ctx context.Context, sel ast.SelectionSet, v model.AuditEventTeamSetPurposeData) graphql.Marshaler {
+	return ec._AuditEventTeamSetPurposeData(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNAuditLog2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditLogᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AuditLog) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -66592,38 +72962,6 @@ func (ec *executionContext) unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋ
 
 func (ec *executionContext) marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx context.Context, sel ast.SelectionSet, v scalar.Ident) graphql.Marshaler {
 	return graphql.WrapContextMarshaler(ctx, v)
-}
-
-func (ec *executionContext) unmarshalNID2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdentᚄ(ctx context.Context, v interface{}) ([]*scalar.Ident, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*scalar.Ident, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalNID2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdentᚄ(ctx context.Context, sel ast.SelectionSet, v []*scalar.Ident) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalNID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx, sel, v[i])
-	}
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) unmarshalNID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐIdent(ctx context.Context, v interface{}) (*scalar.Ident, error) {
@@ -68185,11 +74523,6 @@ func (ec *executionContext) marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return ec._Secret(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNSlackAlertsChannelInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSlackAlertsChannelInput(ctx context.Context, v interface{}) (*model.SlackAlertsChannelInput, error) {
-	res, err := ec.unmarshalInputSlackAlertsChannelInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, v interface{}) (slug.Slug, error) {
 	var res slug.Slug
 	err := res.UnmarshalGQL(v)
@@ -68895,6 +75228,11 @@ func (ec *executionContext) unmarshalNUpdateTeamInput2githubᚗcomᚋnaisᚋapi�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNUpdateTeamSlackAlertsChannelInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUpdateTeamSlackAlertsChannelInput(ctx context.Context, v interface{}) (model.UpdateTeamSlackAlertsChannelInput, error) {
+	res, err := ec.unmarshalInputUpdateTeamSlackAlertsChannelInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
@@ -69517,6 +75855,30 @@ func (ec *executionContext) marshalOAnalysisComment2ᚖgithubᚗcomᚋnaisᚋapi
 	return ec._AnalysisComment(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOAuditEventResourceType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx context.Context, v interface{}) (*model.AuditEventResourceType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.AuditEventResourceType)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOAuditEventResourceType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventResourceType(ctx context.Context, sel ast.SelectionSet, v *model.AuditEventResourceType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalOAuditEventsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuditEventsFilter(ctx context.Context, v interface{}) (*model.AuditEventsFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputAuditEventsFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalOAzureApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAzureApplication(ctx context.Context, sel ast.SelectionSet, v *model.AzureApplication) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -69763,26 +76125,6 @@ func (ec *executionContext) marshalOSidecar2ᚖgithubᚗcomᚋnaisᚋapiᚋinter
 		return graphql.Null
 	}
 	return ec._Sidecar(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOSlackAlertsChannelInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSlackAlertsChannelInputᚄ(ctx context.Context, v interface{}) ([]*model.SlackAlertsChannelInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*model.SlackAlertsChannelInput, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNSlackAlertsChannelInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSlackAlertsChannelInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
 }
 
 func (ec *executionContext) marshalOSqlDatabase2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLDatabase(ctx context.Context, sel ast.SelectionSet, v *model.SQLDatabase) graphql.Marshaler {

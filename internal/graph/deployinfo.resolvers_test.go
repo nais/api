@@ -107,6 +107,7 @@ func Test_deployInfoResolver_History(t *testing.T) {
 			nil,
 			nil,
 			nil,
+			nil,
 		).
 		DeployInfo().
 		History(ctx, deployInfo, nil, nil)

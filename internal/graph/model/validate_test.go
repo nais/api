@@ -108,15 +108,9 @@ func TestUpdateTeamInput_Validate(t *testing.T) {
 		input := model.UpdateTeamInput{
 			Purpose:      ptr.To("valid purpose"),
 			SlackChannel: ptr.To("#valid-channel"),
-			SlackAlertsChannels: []*model.SlackAlertsChannelInput{
-				{
-					Environment: "prod",
-					ChannelName: ptr.To("#name"),
-				},
-			},
 		}
 
-		if err := input.Validate([]string{"prod"}); err != nil {
+		if err := input.Validate(); err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
 	})
@@ -126,8 +120,8 @@ func TestUpdateTeamInput_Validate(t *testing.T) {
 			Purpose: ptr.To(""),
 		}
 
-		if !errors.Is(input.Validate([]string{"prod"}), apierror.ErrTeamPurpose) {
-			t.Fatalf("expected error %v, got %v", apierror.ErrTeamPurpose, input.Validate([]string{"prod"}))
+		if !errors.Is(input.Validate(), apierror.ErrTeamPurpose) {
+			t.Fatalf("expected error %v, got %v", apierror.ErrTeamPurpose, input.Validate())
 		}
 	})
 
@@ -136,41 +130,7 @@ func TestUpdateTeamInput_Validate(t *testing.T) {
 			Purpose:      ptr.To("purpose"),
 			SlackChannel: ptr.To("#a"),
 		}
-		err := input.Validate([]string{"prod"})
-		if contains := "The Slack channel does not fit the requirements"; !strings.Contains(err.Error(), contains) {
-			t.Errorf("expected error to contain %q, got %q", contains, err)
-		}
-	})
-
-	t.Run("slack alerts channel with invalid environment", func(t *testing.T) {
-		input := model.UpdateTeamInput{
-			Purpose:      ptr.To("purpose"),
-			SlackChannel: ptr.To("#channel"),
-			SlackAlertsChannels: []*model.SlackAlertsChannelInput{
-				{
-					Environment: "invalid",
-					ChannelName: ptr.To("#channel"),
-				},
-			},
-		}
-		err := input.Validate([]string{"prod"})
-		if contains := "The specified environment is not valid"; !strings.Contains(err.Error(), contains) {
-			t.Errorf("expected error to contain %q, got %q", contains, err)
-		}
-	})
-
-	t.Run("slack alerts channel with invalid name", func(t *testing.T) {
-		input := model.UpdateTeamInput{
-			Purpose:      ptr.To("purpose"),
-			SlackChannel: ptr.To("#channel"),
-			SlackAlertsChannels: []*model.SlackAlertsChannelInput{
-				{
-					Environment: "prod",
-					ChannelName: ptr.To("#a"),
-				},
-			},
-		}
-		err := input.Validate([]string{"prod"})
+		err := input.Validate()
 		if contains := "The Slack channel does not fit the requirements"; !strings.Contains(err.Error(), contains) {
 			t.Errorf("expected error to contain %q, got %q", contains, err)
 		}
