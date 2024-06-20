@@ -81,16 +81,20 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 	}
 
 	if inf := c.informers[cluster].OpenSearch; inf != nil {
-		objs, err := inf.Lister().ByNamespace(string(teamSlug)).List(byAppLabel)
-		if err != nil {
-			return nil, fmt.Errorf("listing OpenSearch instances: %w", err)
-		}
-		for _, obj := range objs {
-			o, err := model.ToOpenSearch(obj.(*unstructured.Unstructured), cluster)
+		if workload.GQLVars.Spec.OpenSearch != nil {
+			obj, err := inf.Lister().ByNamespace(string(teamSlug)).Get("opensearch-" + string(teamSlug) + "-" + workload.GQLVars.Spec.OpenSearch.Instance)
 			if err != nil {
-				return nil, fmt.Errorf("converting OpenSearch instance: %w", err)
+				return nil, fmt.Errorf("getting OpenSearch: %w", err)
 			}
-			ret = append(ret, o)
+
+			if obj != nil {
+				o, err := model.ToOpenSearch(obj.(*unstructured.Unstructured), cluster)
+				if err != nil {
+					return nil, fmt.Errorf("converting OpenSearch: %w", err)
+				}
+
+				ret = append(ret, o)
+			}
 		}
 	}
 
