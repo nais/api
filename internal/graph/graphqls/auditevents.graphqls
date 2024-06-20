@@ -25,7 +25,7 @@ interface AuditEvent {
   team: Team
 }
 
-union AuditEventNode = BaseAuditEvent
+union AuditEventNode = BaseAuditEvent | BaseTeamAuditEvent
   | AuditEventMemberAdded | AuditEventMemberRemoved | AuditEventMemberSetRole
   | AuditEventTeamSetPurpose | AuditEventTeamSetDefaultSlackChannel | AuditEventTeamSetAlertsSlackChannel
 
@@ -70,6 +70,17 @@ type BaseAuditEvent implements AuditEvent {
   team: Team
 }
 
+type BaseTeamAuditEvent implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  message: String!
+  createdAt: Time!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team!
+}
+
 type AuditEventMemberAdded implements AuditEvent {
   id: ID!
   action: AuditEventAction!
@@ -78,7 +89,7 @@ type AuditEventMemberAdded implements AuditEvent {
   message: String!
   resourceType: AuditEventResourceType!
   resourceName: String!
-  team: Team
+  team: Team!
 
   data: AuditEventMemberAddedData!
 }
@@ -96,7 +107,7 @@ type AuditEventMemberRemoved implements AuditEvent {
   message: String!
   resourceType: AuditEventResourceType!
   resourceName: String!
-  team: Team
+  team: Team!
 
   data: AuditEventMemberRemovedData!
 }
@@ -113,7 +124,7 @@ type AuditEventMemberSetRole implements AuditEvent {
   message: String!
   resourceType: AuditEventResourceType!
   resourceName: String!
-  team: Team
+  team: Team!
 
   data: AuditEventMemberSetRoleData!
 }
@@ -131,7 +142,7 @@ type AuditEventTeamSetPurpose implements AuditEvent {
   message: String!
   resourceType: AuditEventResourceType!
   resourceName: String!
-  team: Team
+  team: Team!
 
   data: AuditEventTeamSetPurposeData!
 }
@@ -148,7 +159,7 @@ type AuditEventTeamSetDefaultSlackChannel implements AuditEvent {
   message: String!
   resourceType: AuditEventResourceType!
   resourceName: String!
-  team: Team
+  team: Team!
 
   data: AuditEventTeamSetDefaultSlackChannelData!
 }
@@ -165,7 +176,7 @@ type AuditEventTeamSetAlertsSlackChannel implements AuditEvent {
   message: String!
   resourceType: AuditEventResourceType!
   resourceName: String!
-  team: Team
+  team: Team!
 
   data: AuditEventTeamSetAlertsSlackChannelData!
 }

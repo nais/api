@@ -12,6 +12,15 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
+// Audit event type.
+type AuditEvent interface {
+	IsAuditEvent()
+}
+
+type AuditEventNode interface {
+	IsAuditEventNode()
+}
+
 // Authenticated user type. Can be a user or a service account.
 type AuthenticatedUser interface {
 	IsAuthenticatedUser()

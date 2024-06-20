@@ -21,7 +21,7 @@ func NewAuditor(db database.Database) *Auditor {
 
 func (a *Auditor) TeamMemberAdded(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, memberEmail string, role model.TeamRole) error {
 	return a.db.CreateAuditEvent(ctx, auditevent.AuditEventMemberAdded{
-		BaseAuditEvent: baseAuditEvent(
+		BaseTeamAuditEvent: baseTeamAuditEvent(
 			actor,
 			team,
 			model.AuditEventActionTeamMemberAdded,
@@ -37,7 +37,7 @@ func (a *Auditor) TeamMemberAdded(ctx context.Context, actor authz.Authenticated
 
 func (a *Auditor) TeamMemberRemoved(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, memberEmail string) error {
 	return a.db.CreateAuditEvent(ctx, auditevent.AuditEventMemberRemoved{
-		BaseAuditEvent: baseAuditEvent(
+		BaseTeamAuditEvent: baseTeamAuditEvent(
 			actor,
 			team,
 			model.AuditEventActionTeamMemberRemoved,
@@ -52,7 +52,7 @@ func (a *Auditor) TeamMemberRemoved(ctx context.Context, actor authz.Authenticat
 
 func (a *Auditor) TeamMemberSetRole(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, memberEmail string, role model.TeamRole) error {
 	return a.db.CreateAuditEvent(ctx, auditevent.AuditEventMemberSetRole{
-		BaseAuditEvent: baseAuditEvent(
+		BaseTeamAuditEvent: baseTeamAuditEvent(
 			actor,
 			team,
 			model.AuditEventActionTeamMemberSetRole,
@@ -67,7 +67,7 @@ func (a *Auditor) TeamMemberSetRole(ctx context.Context, actor authz.Authenticat
 }
 
 func (a *Auditor) TeamCreated(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug) error {
-	return a.db.CreateAuditEvent(ctx, baseAuditEvent(
+	return a.db.CreateAuditEvent(ctx, baseTeamAuditEvent(
 		actor,
 		team,
 		model.AuditEventActionTeamCreated,
@@ -77,7 +77,7 @@ func (a *Auditor) TeamCreated(ctx context.Context, actor authz.AuthenticatedUser
 }
 
 func (a *Auditor) TeamDeletionConfirmed(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug) error {
-	return a.db.CreateAuditEvent(ctx, baseAuditEvent(
+	return a.db.CreateAuditEvent(ctx, baseTeamAuditEvent(
 		actor,
 		team,
 		model.AuditEventActionTeamDeletionConfirmed,
@@ -87,7 +87,7 @@ func (a *Auditor) TeamDeletionConfirmed(ctx context.Context, actor authz.Authent
 }
 
 func (a *Auditor) TeamDeletionRequested(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug) error {
-	return a.db.CreateAuditEvent(ctx, baseAuditEvent(
+	return a.db.CreateAuditEvent(ctx, baseTeamAuditEvent(
 		actor,
 		team,
 		model.AuditEventActionTeamDeletionRequested,
@@ -97,7 +97,7 @@ func (a *Auditor) TeamDeletionRequested(ctx context.Context, actor authz.Authent
 }
 
 func (a *Auditor) TeamRotatedDeployKey(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug) error {
-	return a.db.CreateAuditEvent(ctx, baseAuditEvent(
+	return a.db.CreateAuditEvent(ctx, baseTeamAuditEvent(
 		actor,
 		team,
 		model.AuditEventActionTeamDeployKeyRotated,
@@ -107,7 +107,7 @@ func (a *Auditor) TeamRotatedDeployKey(ctx context.Context, actor authz.Authenti
 }
 
 func (a *Auditor) TeamSynchronized(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug) error {
-	return a.db.CreateAuditEvent(ctx, baseAuditEvent(
+	return a.db.CreateAuditEvent(ctx, baseTeamAuditEvent(
 		actor,
 		team,
 		model.AuditEventActionTeamSynchronized,
@@ -118,7 +118,7 @@ func (a *Auditor) TeamSynchronized(ctx context.Context, actor authz.Authenticate
 
 func (a *Auditor) TeamSetPurpose(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, purpose string) error {
 	return a.db.CreateAuditEvent(ctx, auditevent.AuditEventTeamSetPurpose{
-		BaseAuditEvent: baseAuditEvent(
+		BaseTeamAuditEvent: baseTeamAuditEvent(
 			actor,
 			team,
 			model.AuditEventActionTeamSetPurpose,
@@ -132,7 +132,7 @@ func (a *Auditor) TeamSetPurpose(ctx context.Context, actor authz.AuthenticatedU
 
 func (a *Auditor) TeamSetDefaultSlackChannel(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, defaultSlackChannel string) error {
 	return a.db.CreateAuditEvent(ctx, auditevent.AuditEventTeamSetDefaultSlackChannel{
-		BaseAuditEvent: baseAuditEvent(
+		BaseTeamAuditEvent: baseTeamAuditEvent(
 			actor,
 			team,
 			model.AuditEventActionTeamSetDefaultSLACkChannel,
@@ -147,7 +147,7 @@ func (a *Auditor) TeamSetDefaultSlackChannel(ctx context.Context, actor authz.Au
 
 func (a *Auditor) TeamSetAlertsSlackChannel(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, environment, channelName string) error {
 	return a.db.CreateAuditEvent(ctx, auditevent.AuditEventTeamSetAlertsSlackChannel{
-		BaseAuditEvent: baseAuditEvent(
+		BaseTeamAuditEvent: baseTeamAuditEvent(
 			actor,
 			team,
 			model.AuditEventActionTeamSetAlertsSLACkChannel,
@@ -161,18 +161,22 @@ func (a *Auditor) TeamSetAlertsSlackChannel(ctx context.Context, actor authz.Aut
 	})
 }
 
-func baseAuditEvent(
+func baseTeamAuditEvent(
 	actor authz.AuthenticatedUser,
 	team slug.Slug,
 	action model.AuditEventAction,
 	resourceType model.AuditEventResourceType,
 	resourceName string,
-) auditevent.BaseAuditEvent {
-	return auditevent.BaseAuditEvent{
-		Action:       action,
-		Actor:        actor.Identity(),
-		ResourceType: resourceType,
-		ResourceName: resourceName,
-		Team:         team,
+) auditevent.BaseTeamAuditEvent {
+	return auditevent.BaseTeamAuditEvent{
+		BaseAuditEvent: auditevent.BaseAuditEvent{
+			Action:       action,
+			Actor:        actor.Identity(),
+			ResourceType: resourceType,
+			ResourceName: resourceName,
+		},
+		GQLVars: auditevent.BaseTeamAuditEventGQLVars{
+			Team: team,
+		},
 	}
 }

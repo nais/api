@@ -3,29 +3,15 @@ package auditevent
 import (
 	"time"
 
-	"github.com/nais/api/internal/database"
-
 	"github.com/nais/api/internal/slug"
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 )
 
-type AuditEventNode interface {
-	IsAuditEventNode()
-
-	AuditEvent
-}
-
-type AuditEvent interface {
-	IsAuditEvent()
-
-	database.AuditEventInput
-}
-
 type AuditEventList struct {
-	Nodes    []AuditEventNode `json:"nodes"`
-	PageInfo model.PageInfo   `json:"pageInfo"`
+	Nodes    []model.AuditEventNode `json:"nodes"`
+	PageInfo model.PageInfo         `json:"pageInfo"`
 }
 
 type BaseAuditEvent struct {
@@ -36,7 +22,6 @@ type BaseAuditEvent struct {
 	Message      string                       `json:"message"`
 	ResourceType model.AuditEventResourceType `json:"resourceType"`
 	ResourceName string                       `json:"resourceName"`
-	Team         slug.Slug                    `json:"team"`
 }
 
 func (e BaseAuditEvent) GetAction() string {
@@ -63,8 +48,8 @@ func (e BaseAuditEvent) GetResourceName() string {
 	return e.ResourceName
 }
 
-func (e BaseAuditEvent) GetTeam() slug.Slug {
-	return e.Team
+func (e BaseAuditEvent) GetTeam() *slug.Slug {
+	return nil
 }
 
 func (e BaseAuditEvent) WithMessage(message string) BaseAuditEvent {
@@ -75,3 +60,24 @@ func (e BaseAuditEvent) WithMessage(message string) BaseAuditEvent {
 func (BaseAuditEvent) IsAuditEvent() {}
 
 func (BaseAuditEvent) IsAuditEventNode() {}
+
+type BaseTeamAuditEvent struct {
+	BaseAuditEvent
+
+	GQLVars BaseTeamAuditEventGQLVars `json:"-"`
+}
+
+type BaseTeamAuditEventGQLVars struct {
+	Team slug.Slug `json:"team"`
+}
+
+func (e BaseTeamAuditEvent) GetTeam() *slug.Slug {
+	return &e.GQLVars.Team
+}
+
+func (e BaseTeamAuditEvent) WithMessage(message string) BaseTeamAuditEvent {
+	e.Message = message
+	return e
+}
+
+func (BaseTeamAuditEvent) IsAuditEventNode() {}

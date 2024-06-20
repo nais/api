@@ -3,7 +3,7 @@ package auditevent
 import "github.com/nais/api/internal/graph/model"
 
 type AuditEventTeamSetAlertsSlackChannel struct {
-	BaseAuditEvent
+	BaseTeamAuditEvent
 	Data model.AuditEventTeamSetAlertsSlackChannelData
 }
 
@@ -12,7 +12,7 @@ func (a AuditEventTeamSetAlertsSlackChannel) GetData() any {
 }
 
 type AuditEventTeamSetDefaultSlackChannel struct {
-	BaseAuditEvent
+	BaseTeamAuditEvent
 	Data model.AuditEventTeamSetDefaultSlackChannelData
 }
 
@@ -21,7 +21,7 @@ func (a AuditEventTeamSetDefaultSlackChannel) GetData() any {
 }
 
 type AuditEventTeamSetPurpose struct {
-	BaseAuditEvent
+	BaseTeamAuditEvent
 	Data model.AuditEventTeamSetPurposeData
 }
 

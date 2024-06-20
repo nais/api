@@ -6,7 +6,6 @@ import (
 
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
-	"k8s.io/utils/ptr"
 )
 
 type AuditEventsRepo interface {
@@ -27,7 +26,7 @@ type AuditEventInput interface {
 	GetData() any
 	GetResourceType() string
 	GetResourceName() string
-	GetTeam() slug.Slug
+	GetTeam() *slug.Slug
 }
 
 func (d *database) CreateAuditEvent(ctx context.Context, event AuditEventInput) error {
@@ -43,7 +42,7 @@ func (d *database) CreateAuditEvent(ctx context.Context, event AuditEventInput) 
 		}
 
 		return querier.CreateAuditEvent(ctx, gensql.CreateAuditEventParams{
-			Team:         ptr.To(event.GetTeam()),
+			Team:         event.GetTeam(),
 			Action:       event.GetAction(),
 			Actor:        event.GetActor(),
 			Data:         data,

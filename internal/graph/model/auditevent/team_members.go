@@ -5,7 +5,7 @@ import (
 )
 
 type AuditEventMemberAdded struct {
-	BaseAuditEvent
+	BaseTeamAuditEvent
 	Data model.AuditEventMemberAddedData
 }
 
@@ -14,7 +14,7 @@ func (a AuditEventMemberAdded) GetData() any {
 }
 
 type AuditEventMemberRemoved struct {
-	BaseAuditEvent
+	BaseTeamAuditEvent
 	Data model.AuditEventMemberRemovedData
 }
 
@@ -23,7 +23,7 @@ func (a AuditEventMemberRemoved) GetData() any {
 }
 
 type AuditEventMemberSetRole struct {
-	BaseAuditEvent
+	BaseTeamAuditEvent
 	Data model.AuditEventMemberSetRoleData
 }
 
