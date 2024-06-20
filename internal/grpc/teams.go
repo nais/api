@@ -55,9 +55,9 @@ func (t *TeamsServer) Get(ctx context.Context, req *protoapi.GetTeamRequest) (*p
 	}, nil
 }
 
-func (t *TeamsServer) List(ctx context.Context, req *protoapi.ListTeamsRequest) (*protoapi.ListTeamsResponse, error) {
+func (t *TeamsServer) ToBeReconciled(ctx context.Context, req *protoapi.TeamsToBeReconciledRequest) (*protoapi.TeamsToBeReconciledResponse, error) {
 	limit, offset := pagination(req)
-	teams, total, err := t.db.GetTeams(ctx, database.Page{
+	teams, total, err := t.db.GetTeamsToBeReconciled(ctx, database.Page{
 		Limit:  limit,
 		Offset: offset,
 	})
@@ -65,7 +65,27 @@ func (t *TeamsServer) List(ctx context.Context, req *protoapi.ListTeamsRequest) 
 		return nil, status.Errorf(codes.Internal, "failed to list teams: %s", err)
 	}
 
-	resp := &protoapi.ListTeamsResponse{
+	resp := &protoapi.TeamsToBeReconciledResponse{
+		PageInfo: pageInfo(req, total),
+	}
+	for _, team := range teams {
+		resp.Nodes = append(resp.Nodes, toProtoTeam(team))
+	}
+
+	return resp, nil
+}
+
+func (t *TeamsServer) ToBeDeleted(ctx context.Context, req *protoapi.TeamsToBeDeletedRequest) (*protoapi.TeamsToBeDeletedResponse, error) {
+	limit, offset := pagination(req)
+	teams, total, err := t.db.GetTeamsToBeDeleted(ctx, database.Page{
+		Limit:  limit,
+		Offset: offset,
+	})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to list teams: %s", err)
+	}
+
+	resp := &protoapi.TeamsToBeDeletedResponse{
 		PageInfo: pageInfo(req, total),
 	}
 	for _, team := range teams {

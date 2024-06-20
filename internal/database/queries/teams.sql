@@ -73,6 +73,44 @@ SELECT COUNT(teams.*) AS total
 FROM teams
 WHERE teams.deleted_at IS NULL;
 
+-- GetTeamsToBeReconciled returns a slice of teams that can be reconciled.
+-- name: GetTeamsToBeReconciled :many
+SELECT teams.*
+FROM teams
+WHERE
+    teams.delete_key_confirmed_at IS NULL
+    AND teams.deleted_at IS NULL
+ORDER BY teams.slug ASC
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
+
+-- GetTeamsToBeReconciledCount returns the total number or teams that can be reconciled.
+-- name: GetTeamsToBeReconciledCount :one
+SELECT COUNT(teams.*) AS total
+FROM teams
+WHERE
+    teams.delete_key_confirmed_at IS NULL
+    AND teams.deleted_at IS NULL;
+
+-- GetTeamsToBeDeleted returns a slice of teams that is ready to start the deletion process.
+-- name: GetTeamsToBeDeleted :many
+SELECT teams.*
+FROM teams
+WHERE
+    teams.delete_key_confirmed_at IS NOT NULL
+    AND teams.deleted_at IS NULL
+ORDER BY teams.slug ASC
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
+
+-- GetTeamsToBeDeletedCount returns the total number or teams that is ready to start the deletion process.
+-- name: GetTeamsToBeDeletedCount :one
+SELECT COUNT(teams.*) AS total
+FROM teams
+WHERE
+    teams.delete_key_confirmed_at IS NOT NULL
+    AND teams.deleted_at IS NULL;
+
 -- GetAllTeamSlugs returns all team slugs in ascending order, excluding deleted teams.
 -- name: GetAllTeamSlugs :many
 SELECT teams.slug

@@ -3917,6 +3917,138 @@ func (_c *MockDatabase_GetTeamsBySlugs_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
+// GetTeamsToBeDeleted provides a mock function with given fields: ctx, p
+func (_m *MockDatabase) GetTeamsToBeDeleted(ctx context.Context, p Page) ([]*Team, int, error) {
+	ret := _m.Called(ctx, p)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTeamsToBeDeleted")
+	}
+
+	var r0 []*Team
+	var r1 int
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, Page) ([]*Team, int, error)); ok {
+		return rf(ctx, p)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, Page) []*Team); ok {
+		r0 = rf(ctx, p)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*Team)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, Page) int); ok {
+		r1 = rf(ctx, p)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, Page) error); ok {
+		r2 = rf(ctx, p)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// MockDatabase_GetTeamsToBeDeleted_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamsToBeDeleted'
+type MockDatabase_GetTeamsToBeDeleted_Call struct {
+	*mock.Call
+}
+
+// GetTeamsToBeDeleted is a helper method to define mock.On call
+//   - ctx context.Context
+//   - p Page
+func (_e *MockDatabase_Expecter) GetTeamsToBeDeleted(ctx interface{}, p interface{}) *MockDatabase_GetTeamsToBeDeleted_Call {
+	return &MockDatabase_GetTeamsToBeDeleted_Call{Call: _e.mock.On("GetTeamsToBeDeleted", ctx, p)}
+}
+
+func (_c *MockDatabase_GetTeamsToBeDeleted_Call) Run(run func(ctx context.Context, p Page)) *MockDatabase_GetTeamsToBeDeleted_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(Page))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_GetTeamsToBeDeleted_Call) Return(_a0 []*Team, _a1 int, _a2 error) *MockDatabase_GetTeamsToBeDeleted_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *MockDatabase_GetTeamsToBeDeleted_Call) RunAndReturn(run func(context.Context, Page) ([]*Team, int, error)) *MockDatabase_GetTeamsToBeDeleted_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetTeamsToBeReconciled provides a mock function with given fields: ctx, p
+func (_m *MockDatabase) GetTeamsToBeReconciled(ctx context.Context, p Page) ([]*Team, int, error) {
+	ret := _m.Called(ctx, p)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTeamsToBeReconciled")
+	}
+
+	var r0 []*Team
+	var r1 int
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, Page) ([]*Team, int, error)); ok {
+		return rf(ctx, p)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, Page) []*Team); ok {
+		r0 = rf(ctx, p)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*Team)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, Page) int); ok {
+		r1 = rf(ctx, p)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, Page) error); ok {
+		r2 = rf(ctx, p)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// MockDatabase_GetTeamsToBeReconciled_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamsToBeReconciled'
+type MockDatabase_GetTeamsToBeReconciled_Call struct {
+	*mock.Call
+}
+
+// GetTeamsToBeReconciled is a helper method to define mock.On call
+//   - ctx context.Context
+//   - p Page
+func (_e *MockDatabase_Expecter) GetTeamsToBeReconciled(ctx interface{}, p interface{}) *MockDatabase_GetTeamsToBeReconciled_Call {
+	return &MockDatabase_GetTeamsToBeReconciled_Call{Call: _e.mock.On("GetTeamsToBeReconciled", ctx, p)}
+}
+
+func (_c *MockDatabase_GetTeamsToBeReconciled_Call) Run(run func(ctx context.Context, p Page)) *MockDatabase_GetTeamsToBeReconciled_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(Page))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_GetTeamsToBeReconciled_Call) Return(_a0 []*Team, _a1 int, _a2 error) *MockDatabase_GetTeamsToBeReconciled_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *MockDatabase_GetTeamsToBeReconciled_Call) RunAndReturn(run func(context.Context, Page) ([]*Team, int, error)) *MockDatabase_GetTeamsToBeReconciled_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetUserByEmail provides a mock function with given fields: ctx, email
 func (_m *MockDatabase) GetUserByEmail(ctx context.Context, email string) (*User, error) {
 	ret := _m.Called(ctx, email)

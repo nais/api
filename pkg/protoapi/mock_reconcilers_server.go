@@ -648,7 +648,8 @@ func (_c *MockReconcilersServer_mustEmbedUnimplementedReconcilersServer_Call) Ru
 func NewMockReconcilersServer(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *MockReconcilersServer {
+},
+) *MockReconcilersServer {
 	mock := &MockReconcilersServer{}
 	mock.Mock.Test(t)
 

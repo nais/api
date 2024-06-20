@@ -45,6 +45,8 @@ type TeamRepo interface {
 	GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*gensql.GetTeamMemberOptOutsRow, error)
 	GetTeamMembers(ctx context.Context, teamSlug slug.Slug, p Page) ([]*User, int, error)
 	GetTeams(ctx context.Context, p Page) ([]*Team, int, error)
+	GetTeamsToBeReconciled(ctx context.Context, p Page) ([]*Team, int, error)
+	GetTeamsToBeDeleted(ctx context.Context, p Page) ([]*Team, int, error)
 	GetTeamsBySlugs(ctx context.Context, teamSlugs []slug.Slug) ([]*Team, error)
 	GetAllTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string) ([]*Team, error)
 	GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*UserTeam, error)
@@ -157,6 +159,50 @@ func (d *database) GetTeams(ctx context.Context, p Page) ([]*Team, int, error) {
 	}
 
 	total, err := d.querier.GetTeamsCount(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return collection, int(total), nil
+}
+
+func (d *database) GetTeamsToBeReconciled(ctx context.Context, p Page) ([]*Team, int, error) {
+	teams, err := d.querier.GetTeamsToBeReconciled(ctx, gensql.GetTeamsToBeReconciledParams{
+		Offset: int32(p.Offset),
+		Limit:  int32(p.Limit),
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+
+	collection := make([]*Team, len(teams))
+	for i, team := range teams {
+		collection[i] = &Team{Team: team}
+	}
+
+	total, err := d.querier.GetTeamsToBeReconciledCount(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return collection, int(total), nil
+}
+
+func (d *database) GetTeamsToBeDeleted(ctx context.Context, p Page) ([]*Team, int, error) {
+	teams, err := d.querier.GetTeamsToBeDeleted(ctx, gensql.GetTeamsToBeDeletedParams{
+		Offset: int32(p.Offset),
+		Limit:  int32(p.Limit),
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+
+	collection := make([]*Team, len(teams))
+	for i, team := range teams {
+		collection[i] = &Team{Team: team}
+	}
+
+	total, err := d.querier.GetTeamsToBeDeletedCount(ctx)
 	if err != nil {
 		return nil, 0, err
 	}

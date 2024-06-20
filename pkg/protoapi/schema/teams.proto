@@ -27,7 +27,8 @@ message ListAuthorizedRepositoriesResponse {
 service Teams {
   rpc ListAuthorizedRepositories(ListAuthorizedRepositoriesRequest) returns (ListAuthorizedRepositoriesResponse) {}
   rpc Get(GetTeamRequest) returns (GetTeamResponse) {}
-  rpc List(ListTeamsRequest) returns (ListTeamsResponse) {}
+  rpc ToBeReconciled(TeamsToBeReconciledRequest) returns (TeamsToBeReconciledResponse) {}
+  rpc ToBeDeleted(TeamsToBeDeletedRequest) returns (TeamsToBeDeletedResponse) {}
   rpc Members(ListTeamMembersRequest) returns (ListTeamMembersResponse) {}
   rpc Environments(ListTeamEnvironmentsRequest) returns (ListTeamEnvironmentsResponse) {}
   rpc SetTeamExternalReferences(SetTeamExternalReferencesRequest) returns (SetTeamExternalReferencesResponse) {}
@@ -90,12 +91,22 @@ message GetTeamRequest {
   string slug = 1;
 }
 
-message ListTeamsRequest {
+message TeamsToBeReconciledRequest {
   int64 limit = 1;
   int64 offset = 2;
 }
 
-message ListTeamsResponse {
+message TeamsToBeReconciledResponse {
+  repeated Team nodes = 1;
+  PageInfo page_info = 2;
+}
+
+message TeamsToBeDeletedRequest {
+  int64 limit = 1;
+  int64 offset = 2;
+}
+
+message TeamsToBeDeletedResponse {
   repeated Team nodes = 1;
   PageInfo page_info = 2;
 }

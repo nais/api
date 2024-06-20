@@ -114,6 +114,14 @@ type Querier interface {
 	GetTeamsBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)
 	// GetTeamsCount returns the total number or teams, excluding deleted teams.
 	GetTeamsCount(ctx context.Context) (int64, error)
+	// GetTeamsToBeDeleted returns a slice of teams that is ready to start the deletion process.
+	GetTeamsToBeDeleted(ctx context.Context, arg GetTeamsToBeDeletedParams) ([]*Team, error)
+	// GetTeamsToBeDeletedCount returns the total number or teams that is ready to start the deletion process.
+	GetTeamsToBeDeletedCount(ctx context.Context) (int64, error)
+	// GetTeamsToBeReconciled returns a slice of teams that can be reconciled.
+	GetTeamsToBeReconciled(ctx context.Context, arg GetTeamsToBeReconciledParams) ([]*Team, error)
+	// GetTeamsToBeReconciledCount returns the total number or teams that can be reconciled.
+	GetTeamsToBeReconciledCount(ctx context.Context) (int64, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserByExternalID(ctx context.Context, externalID string) (*User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (*User, error)

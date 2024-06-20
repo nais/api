@@ -4228,6 +4228,236 @@ func (_c *MockQuerier_GetTeamsCount_Call) RunAndReturn(run func(context.Context)
 	return _c
 }
 
+// GetTeamsToBeDeleted provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetTeamsToBeDeleted(ctx context.Context, arg GetTeamsToBeDeletedParams) ([]*Team, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTeamsToBeDeleted")
+	}
+
+	var r0 []*Team
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamsToBeDeletedParams) ([]*Team, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamsToBeDeletedParams) []*Team); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*Team)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, GetTeamsToBeDeletedParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetTeamsToBeDeleted_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamsToBeDeleted'
+type MockQuerier_GetTeamsToBeDeleted_Call struct {
+	*mock.Call
+}
+
+// GetTeamsToBeDeleted is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg GetTeamsToBeDeletedParams
+func (_e *MockQuerier_Expecter) GetTeamsToBeDeleted(ctx interface{}, arg interface{}) *MockQuerier_GetTeamsToBeDeleted_Call {
+	return &MockQuerier_GetTeamsToBeDeleted_Call{Call: _e.mock.On("GetTeamsToBeDeleted", ctx, arg)}
+}
+
+func (_c *MockQuerier_GetTeamsToBeDeleted_Call) Run(run func(ctx context.Context, arg GetTeamsToBeDeletedParams)) *MockQuerier_GetTeamsToBeDeleted_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(GetTeamsToBeDeletedParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetTeamsToBeDeleted_Call) Return(_a0 []*Team, _a1 error) *MockQuerier_GetTeamsToBeDeleted_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetTeamsToBeDeleted_Call) RunAndReturn(run func(context.Context, GetTeamsToBeDeletedParams) ([]*Team, error)) *MockQuerier_GetTeamsToBeDeleted_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetTeamsToBeDeletedCount provides a mock function with given fields: ctx
+func (_m *MockQuerier) GetTeamsToBeDeletedCount(ctx context.Context) (int64, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTeamsToBeDeletedCount")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (int64, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) int64); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetTeamsToBeDeletedCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamsToBeDeletedCount'
+type MockQuerier_GetTeamsToBeDeletedCount_Call struct {
+	*mock.Call
+}
+
+// GetTeamsToBeDeletedCount is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockQuerier_Expecter) GetTeamsToBeDeletedCount(ctx interface{}) *MockQuerier_GetTeamsToBeDeletedCount_Call {
+	return &MockQuerier_GetTeamsToBeDeletedCount_Call{Call: _e.mock.On("GetTeamsToBeDeletedCount", ctx)}
+}
+
+func (_c *MockQuerier_GetTeamsToBeDeletedCount_Call) Run(run func(ctx context.Context)) *MockQuerier_GetTeamsToBeDeletedCount_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetTeamsToBeDeletedCount_Call) Return(_a0 int64, _a1 error) *MockQuerier_GetTeamsToBeDeletedCount_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetTeamsToBeDeletedCount_Call) RunAndReturn(run func(context.Context) (int64, error)) *MockQuerier_GetTeamsToBeDeletedCount_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetTeamsToBeReconciled provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetTeamsToBeReconciled(ctx context.Context, arg GetTeamsToBeReconciledParams) ([]*Team, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTeamsToBeReconciled")
+	}
+
+	var r0 []*Team
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamsToBeReconciledParams) ([]*Team, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, GetTeamsToBeReconciledParams) []*Team); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*Team)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, GetTeamsToBeReconciledParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetTeamsToBeReconciled_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamsToBeReconciled'
+type MockQuerier_GetTeamsToBeReconciled_Call struct {
+	*mock.Call
+}
+
+// GetTeamsToBeReconciled is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg GetTeamsToBeReconciledParams
+func (_e *MockQuerier_Expecter) GetTeamsToBeReconciled(ctx interface{}, arg interface{}) *MockQuerier_GetTeamsToBeReconciled_Call {
+	return &MockQuerier_GetTeamsToBeReconciled_Call{Call: _e.mock.On("GetTeamsToBeReconciled", ctx, arg)}
+}
+
+func (_c *MockQuerier_GetTeamsToBeReconciled_Call) Run(run func(ctx context.Context, arg GetTeamsToBeReconciledParams)) *MockQuerier_GetTeamsToBeReconciled_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(GetTeamsToBeReconciledParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetTeamsToBeReconciled_Call) Return(_a0 []*Team, _a1 error) *MockQuerier_GetTeamsToBeReconciled_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetTeamsToBeReconciled_Call) RunAndReturn(run func(context.Context, GetTeamsToBeReconciledParams) ([]*Team, error)) *MockQuerier_GetTeamsToBeReconciled_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetTeamsToBeReconciledCount provides a mock function with given fields: ctx
+func (_m *MockQuerier) GetTeamsToBeReconciledCount(ctx context.Context) (int64, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTeamsToBeReconciledCount")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (int64, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) int64); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetTeamsToBeReconciledCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamsToBeReconciledCount'
+type MockQuerier_GetTeamsToBeReconciledCount_Call struct {
+	*mock.Call
+}
+
+// GetTeamsToBeReconciledCount is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockQuerier_Expecter) GetTeamsToBeReconciledCount(ctx interface{}) *MockQuerier_GetTeamsToBeReconciledCount_Call {
+	return &MockQuerier_GetTeamsToBeReconciledCount_Call{Call: _e.mock.On("GetTeamsToBeReconciledCount", ctx)}
+}
+
+func (_c *MockQuerier_GetTeamsToBeReconciledCount_Call) Run(run func(ctx context.Context)) *MockQuerier_GetTeamsToBeReconciledCount_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetTeamsToBeReconciledCount_Call) Return(_a0 int64, _a1 error) *MockQuerier_GetTeamsToBeReconciledCount_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetTeamsToBeReconciledCount_Call) RunAndReturn(run func(context.Context) (int64, error)) *MockQuerier_GetTeamsToBeReconciledCount_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetUserByEmail provides a mock function with given fields: ctx, email
 func (_m *MockQuerier) GetUserByEmail(ctx context.Context, email string) (*User, error) {
 	ret := _m.Called(ctx, email)

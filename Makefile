@@ -17,9 +17,9 @@ generate-graphql:
 	go run mvdan.cc/gofumpt@latest -w ./internal/graph
 
 generate-mocks:
-	find internal -type f -name "mock_*.go" -delete
+	find internal pkg -type f -name "mock_*.go" -delete
 	go run github.com/vektra/mockery/v2 --config ./.configs/mockery.yaml
-	find internal -type f -name "mock_*.go" -exec go run mvdan.cc/gofumpt@latest -w {} \;
+	find internal pkg -type f -name "mock_*.go" -exec go run mvdan.cc/gofumpt@latest -w {} \;
 
 generate-proto:
 	protoc \

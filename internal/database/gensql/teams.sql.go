@@ -569,6 +569,136 @@ func (q *Queries) GetTeamsCount(ctx context.Context) (int64, error) {
 	return total, err
 }
 
+const getTeamsToBeDeleted = `-- name: GetTeamsToBeDeleted :many
+SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.deleted_at, teams.delete_key_confirmed_at
+FROM teams
+WHERE
+    teams.delete_key_confirmed_at IS NOT NULL
+    AND teams.deleted_at IS NULL
+ORDER BY teams.slug ASC
+LIMIT $2
+OFFSET $1
+`
+
+type GetTeamsToBeDeletedParams struct {
+	Offset int32
+	Limit  int32
+}
+
+// GetTeamsToBeDeleted returns a slice of teams that is ready to start the deletion process.
+func (q *Queries) GetTeamsToBeDeleted(ctx context.Context, arg GetTeamsToBeDeletedParams) ([]*Team, error) {
+	rows, err := q.db.Query(ctx, getTeamsToBeDeleted, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Team{}
+	for rows.Next() {
+		var i Team
+		if err := rows.Scan(
+			&i.Slug,
+			&i.Purpose,
+			&i.LastSuccessfulSync,
+			&i.SlackChannel,
+			&i.GoogleGroupEmail,
+			&i.AzureGroupID,
+			&i.GithubTeamSlug,
+			&i.GarRepository,
+			&i.CdnBucket,
+			&i.DeletedAt,
+			&i.DeleteKeyConfirmedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTeamsToBeDeletedCount = `-- name: GetTeamsToBeDeletedCount :one
+SELECT COUNT(teams.*) AS total
+FROM teams
+WHERE
+    teams.delete_key_confirmed_at IS NOT NULL
+    AND teams.deleted_at IS NULL
+`
+
+// GetTeamsToBeDeletedCount returns the total number or teams that is ready to start the deletion process.
+func (q *Queries) GetTeamsToBeDeletedCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, getTeamsToBeDeletedCount)
+	var total int64
+	err := row.Scan(&total)
+	return total, err
+}
+
+const getTeamsToBeReconciled = `-- name: GetTeamsToBeReconciled :many
+SELECT teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.deleted_at, teams.delete_key_confirmed_at
+FROM teams
+WHERE
+    teams.delete_key_confirmed_at IS NULL
+    AND teams.deleted_at IS NULL
+ORDER BY teams.slug ASC
+LIMIT $2
+OFFSET $1
+`
+
+type GetTeamsToBeReconciledParams struct {
+	Offset int32
+	Limit  int32
+}
+
+// GetTeamsToBeReconciled returns a slice of teams that can be reconciled.
+func (q *Queries) GetTeamsToBeReconciled(ctx context.Context, arg GetTeamsToBeReconciledParams) ([]*Team, error) {
+	rows, err := q.db.Query(ctx, getTeamsToBeReconciled, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Team{}
+	for rows.Next() {
+		var i Team
+		if err := rows.Scan(
+			&i.Slug,
+			&i.Purpose,
+			&i.LastSuccessfulSync,
+			&i.SlackChannel,
+			&i.GoogleGroupEmail,
+			&i.AzureGroupID,
+			&i.GithubTeamSlug,
+			&i.GarRepository,
+			&i.CdnBucket,
+			&i.DeletedAt,
+			&i.DeleteKeyConfirmedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTeamsToBeReconciledCount = `-- name: GetTeamsToBeReconciledCount :one
+SELECT COUNT(teams.*) AS total
+FROM teams
+WHERE
+    teams.delete_key_confirmed_at IS NULL
+    AND teams.deleted_at IS NULL
+`
+
+// GetTeamsToBeReconciledCount returns the total number or teams that can be reconciled.
+func (q *Queries) GetTeamsToBeReconciledCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, getTeamsToBeReconciledCount)
+	var total int64
+	err := row.Scan(&total)
+	return total, err
+}
+
 const removeUserFromTeam = `-- name: RemoveUserFromTeam :exec
 DELETE FROM user_roles
 WHERE

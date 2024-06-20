@@ -117,7 +117,8 @@ func (_c *MockAuditLogsServer_mustEmbedUnimplementedAuditLogsServer_Call) RunAnd
 func NewMockAuditLogsServer(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *MockAuditLogsServer {
+},
+) *MockAuditLogsServer {
 	mock := &MockAuditLogsServer{}
 	mock.Mock.Test(t)
 

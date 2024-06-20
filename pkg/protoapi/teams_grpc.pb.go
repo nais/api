@@ -21,7 +21,8 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Teams_ListAuthorizedRepositories_FullMethodName           = "/Teams/ListAuthorizedRepositories"
 	Teams_Get_FullMethodName                                  = "/Teams/Get"
-	Teams_List_FullMethodName                                 = "/Teams/List"
+	Teams_ToBeReconciled_FullMethodName                       = "/Teams/ToBeReconciled"
+	Teams_ToBeDeleted_FullMethodName                          = "/Teams/ToBeDeleted"
 	Teams_Members_FullMethodName                              = "/Teams/Members"
 	Teams_Environments_FullMethodName                         = "/Teams/Environments"
 	Teams_SetTeamExternalReferences_FullMethodName            = "/Teams/SetTeamExternalReferences"
@@ -36,7 +37,8 @@ const (
 type TeamsClient interface {
 	ListAuthorizedRepositories(ctx context.Context, in *ListAuthorizedRepositoriesRequest, opts ...grpc.CallOption) (*ListAuthorizedRepositoriesResponse, error)
 	Get(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
-	List(ctx context.Context, in *ListTeamsRequest, opts ...grpc.CallOption) (*ListTeamsResponse, error)
+	ToBeReconciled(ctx context.Context, in *TeamsToBeReconciledRequest, opts ...grpc.CallOption) (*TeamsToBeReconciledResponse, error)
+	ToBeDeleted(ctx context.Context, in *TeamsToBeDeletedRequest, opts ...grpc.CallOption) (*TeamsToBeDeletedResponse, error)
 	Members(ctx context.Context, in *ListTeamMembersRequest, opts ...grpc.CallOption) (*ListTeamMembersResponse, error)
 	Environments(ctx context.Context, in *ListTeamEnvironmentsRequest, opts ...grpc.CallOption) (*ListTeamEnvironmentsResponse, error)
 	SetTeamExternalReferences(ctx context.Context, in *SetTeamExternalReferencesRequest, opts ...grpc.CallOption) (*SetTeamExternalReferencesResponse, error)
@@ -71,9 +73,18 @@ func (c *teamsClient) Get(ctx context.Context, in *GetTeamRequest, opts ...grpc.
 	return out, nil
 }
 
-func (c *teamsClient) List(ctx context.Context, in *ListTeamsRequest, opts ...grpc.CallOption) (*ListTeamsResponse, error) {
-	out := new(ListTeamsResponse)
-	err := c.cc.Invoke(ctx, Teams_List_FullMethodName, in, out, opts...)
+func (c *teamsClient) ToBeReconciled(ctx context.Context, in *TeamsToBeReconciledRequest, opts ...grpc.CallOption) (*TeamsToBeReconciledResponse, error) {
+	out := new(TeamsToBeReconciledResponse)
+	err := c.cc.Invoke(ctx, Teams_ToBeReconciled_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *teamsClient) ToBeDeleted(ctx context.Context, in *TeamsToBeDeletedRequest, opts ...grpc.CallOption) (*TeamsToBeDeletedResponse, error) {
+	out := new(TeamsToBeDeletedResponse)
+	err := c.cc.Invoke(ctx, Teams_ToBeDeleted_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +151,8 @@ func (c *teamsClient) IsRepositoryAuthorized(ctx context.Context, in *IsReposito
 type TeamsServer interface {
 	ListAuthorizedRepositories(context.Context, *ListAuthorizedRepositoriesRequest) (*ListAuthorizedRepositoriesResponse, error)
 	Get(context.Context, *GetTeamRequest) (*GetTeamResponse, error)
-	List(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error)
+	ToBeReconciled(context.Context, *TeamsToBeReconciledRequest) (*TeamsToBeReconciledResponse, error)
+	ToBeDeleted(context.Context, *TeamsToBeDeletedRequest) (*TeamsToBeDeletedResponse, error)
 	Members(context.Context, *ListTeamMembersRequest) (*ListTeamMembersResponse, error)
 	Environments(context.Context, *ListTeamEnvironmentsRequest) (*ListTeamEnvironmentsResponse, error)
 	SetTeamExternalReferences(context.Context, *SetTeamExternalReferencesRequest) (*SetTeamExternalReferencesResponse, error)
@@ -160,8 +172,11 @@ func (UnimplementedTeamsServer) ListAuthorizedRepositories(context.Context, *Lis
 func (UnimplementedTeamsServer) Get(context.Context, *GetTeamRequest) (*GetTeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
-func (UnimplementedTeamsServer) List(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
+func (UnimplementedTeamsServer) ToBeReconciled(context.Context, *TeamsToBeReconciledRequest) (*TeamsToBeReconciledResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ToBeReconciled not implemented")
+}
+func (UnimplementedTeamsServer) ToBeDeleted(context.Context, *TeamsToBeDeletedRequest) (*TeamsToBeDeletedResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ToBeDeleted not implemented")
 }
 func (UnimplementedTeamsServer) Members(context.Context, *ListTeamMembersRequest) (*ListTeamMembersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Members not implemented")
@@ -230,20 +245,38 @@ func _Teams_Get_Handler(srv interface{}, ctx context.Context, dec func(interface
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Teams_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListTeamsRequest)
+func _Teams_ToBeReconciled_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TeamsToBeReconciledRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TeamsServer).List(ctx, in)
+		return srv.(TeamsServer).ToBeReconciled(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Teams_List_FullMethodName,
+		FullMethod: Teams_ToBeReconciled_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TeamsServer).List(ctx, req.(*ListTeamsRequest))
+		return srv.(TeamsServer).ToBeReconciled(ctx, req.(*TeamsToBeReconciledRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Teams_ToBeDeleted_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TeamsToBeDeletedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TeamsServer).ToBeDeleted(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Teams_ToBeDeleted_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TeamsServer).ToBeDeleted(ctx, req.(*TeamsToBeDeletedRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -372,8 +405,12 @@ var Teams_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Teams_Get_Handler,
 		},
 		{
-			MethodName: "List",
-			Handler:    _Teams_List_Handler,
+			MethodName: "ToBeReconciled",
+			Handler:    _Teams_ToBeReconciled_Handler,
+		},
+		{
+			MethodName: "ToBeDeleted",
+			Handler:    _Teams_ToBeDeleted_Handler,
 		},
 		{
 			MethodName: "Members",
