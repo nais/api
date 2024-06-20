@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/bigquery"
 	"github.com/nais/api/internal/kafka"
 	"github.com/nais/api/internal/opensearch"
@@ -208,6 +209,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		opensearch.NewClient(k8sClient.Informers(), log, db),
 		kafka.NewClient(k8sClient.Informers(), log, db),
 		unleashMgr,
+		audit.NewAuditor(db),
 	)
 
 	graphHandler, err := graph.NewHandler(gengql.Config{

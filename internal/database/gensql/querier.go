@@ -26,6 +26,7 @@ type Querier interface {
 	// daily_cost column will be updated.
 	CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults
 	CreateAPIKey(ctx context.Context, arg CreateAPIKeyParams) error
+	CreateAuditEvent(ctx context.Context, arg CreateAuditEventParams) error
 	CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) error
 	CreateRepositoryAuthorization(ctx context.Context, arg CreateRepositoryAuthorizationParams) error
 	CreateServiceAccount(ctx context.Context, name string) (*ServiceAccount, error)
@@ -56,6 +57,10 @@ type Querier interface {
 	GetAllTeamMembers(ctx context.Context, teamSlug *slug.Slug) ([]*User, error)
 	GetAllTeamSlugs(ctx context.Context) ([]slug.Slug, error)
 	GetAllUserRoles(ctx context.Context) ([]*UserRole, error)
+	GetAuditEventsCountForTeam(ctx context.Context, team *slug.Slug) (int64, error)
+	GetAuditEventsCountForTeamByResource(ctx context.Context, arg GetAuditEventsCountForTeamByResourceParams) (int64, error)
+	GetAuditEventsForTeam(ctx context.Context, arg GetAuditEventsForTeamParams) ([]*AuditEvent, error)
+	GetAuditEventsForTeamByResource(ctx context.Context, arg GetAuditEventsForTeamByResourceParams) ([]*AuditEvent, error)
 	GetAuditLogsForCorrelationID(ctx context.Context, arg GetAuditLogsForCorrelationIDParams) ([]*AuditLog, error)
 	GetAuditLogsForCorrelationIDCount(ctx context.Context, correlationID uuid.UUID) (int64, error)
 	GetAuditLogsForReconciler(ctx context.Context, arg GetAuditLogsForReconcilerParams) ([]*AuditLog, error)

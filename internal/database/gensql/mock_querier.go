@@ -614,6 +614,53 @@ func (_c *MockQuerier_CreateAPIKey_Call) RunAndReturn(run func(context.Context, 
 	return _c
 }
 
+// CreateAuditEvent provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) CreateAuditEvent(ctx context.Context, arg CreateAuditEventParams) error {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateAuditEvent")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, CreateAuditEventParams) error); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockQuerier_CreateAuditEvent_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateAuditEvent'
+type MockQuerier_CreateAuditEvent_Call struct {
+	*mock.Call
+}
+
+// CreateAuditEvent is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg CreateAuditEventParams
+func (_e *MockQuerier_Expecter) CreateAuditEvent(ctx interface{}, arg interface{}) *MockQuerier_CreateAuditEvent_Call {
+	return &MockQuerier_CreateAuditEvent_Call{Call: _e.mock.On("CreateAuditEvent", ctx, arg)}
+}
+
+func (_c *MockQuerier_CreateAuditEvent_Call) Run(run func(ctx context.Context, arg CreateAuditEventParams)) *MockQuerier_CreateAuditEvent_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(CreateAuditEventParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_CreateAuditEvent_Call) Return(_a0 error) *MockQuerier_CreateAuditEvent_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockQuerier_CreateAuditEvent_Call) RunAndReturn(run func(context.Context, CreateAuditEventParams) error) *MockQuerier_CreateAuditEvent_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateAuditLog provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) error {
 	ret := _m.Called(ctx, arg)
@@ -2018,6 +2065,238 @@ func (_c *MockQuerier_GetAllUserRoles_Call) Return(_a0 []*UserRole, _a1 error) *
 }
 
 func (_c *MockQuerier_GetAllUserRoles_Call) RunAndReturn(run func(context.Context) ([]*UserRole, error)) *MockQuerier_GetAllUserRoles_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAuditEventsCountForTeam provides a mock function with given fields: ctx, team
+func (_m *MockQuerier) GetAuditEventsCountForTeam(ctx context.Context, team *slug.Slug) (int64, error) {
+	ret := _m.Called(ctx, team)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAuditEventsCountForTeam")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *slug.Slug) (int64, error)); ok {
+		return rf(ctx, team)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *slug.Slug) int64); ok {
+		r0 = rf(ctx, team)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *slug.Slug) error); ok {
+		r1 = rf(ctx, team)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetAuditEventsCountForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAuditEventsCountForTeam'
+type MockQuerier_GetAuditEventsCountForTeam_Call struct {
+	*mock.Call
+}
+
+// GetAuditEventsCountForTeam is a helper method to define mock.On call
+//   - ctx context.Context
+//   - team *slug.Slug
+func (_e *MockQuerier_Expecter) GetAuditEventsCountForTeam(ctx interface{}, team interface{}) *MockQuerier_GetAuditEventsCountForTeam_Call {
+	return &MockQuerier_GetAuditEventsCountForTeam_Call{Call: _e.mock.On("GetAuditEventsCountForTeam", ctx, team)}
+}
+
+func (_c *MockQuerier_GetAuditEventsCountForTeam_Call) Run(run func(ctx context.Context, team *slug.Slug)) *MockQuerier_GetAuditEventsCountForTeam_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*slug.Slug))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetAuditEventsCountForTeam_Call) Return(_a0 int64, _a1 error) *MockQuerier_GetAuditEventsCountForTeam_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetAuditEventsCountForTeam_Call) RunAndReturn(run func(context.Context, *slug.Slug) (int64, error)) *MockQuerier_GetAuditEventsCountForTeam_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAuditEventsCountForTeamByResource provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetAuditEventsCountForTeamByResource(ctx context.Context, arg GetAuditEventsCountForTeamByResourceParams) (int64, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAuditEventsCountForTeamByResource")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, GetAuditEventsCountForTeamByResourceParams) (int64, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, GetAuditEventsCountForTeamByResourceParams) int64); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, GetAuditEventsCountForTeamByResourceParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetAuditEventsCountForTeamByResource_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAuditEventsCountForTeamByResource'
+type MockQuerier_GetAuditEventsCountForTeamByResource_Call struct {
+	*mock.Call
+}
+
+// GetAuditEventsCountForTeamByResource is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg GetAuditEventsCountForTeamByResourceParams
+func (_e *MockQuerier_Expecter) GetAuditEventsCountForTeamByResource(ctx interface{}, arg interface{}) *MockQuerier_GetAuditEventsCountForTeamByResource_Call {
+	return &MockQuerier_GetAuditEventsCountForTeamByResource_Call{Call: _e.mock.On("GetAuditEventsCountForTeamByResource", ctx, arg)}
+}
+
+func (_c *MockQuerier_GetAuditEventsCountForTeamByResource_Call) Run(run func(ctx context.Context, arg GetAuditEventsCountForTeamByResourceParams)) *MockQuerier_GetAuditEventsCountForTeamByResource_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(GetAuditEventsCountForTeamByResourceParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetAuditEventsCountForTeamByResource_Call) Return(_a0 int64, _a1 error) *MockQuerier_GetAuditEventsCountForTeamByResource_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetAuditEventsCountForTeamByResource_Call) RunAndReturn(run func(context.Context, GetAuditEventsCountForTeamByResourceParams) (int64, error)) *MockQuerier_GetAuditEventsCountForTeamByResource_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAuditEventsForTeam provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetAuditEventsForTeam(ctx context.Context, arg GetAuditEventsForTeamParams) ([]*AuditEvent, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAuditEventsForTeam")
+	}
+
+	var r0 []*AuditEvent
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, GetAuditEventsForTeamParams) ([]*AuditEvent, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, GetAuditEventsForTeamParams) []*AuditEvent); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*AuditEvent)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, GetAuditEventsForTeamParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetAuditEventsForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAuditEventsForTeam'
+type MockQuerier_GetAuditEventsForTeam_Call struct {
+	*mock.Call
+}
+
+// GetAuditEventsForTeam is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg GetAuditEventsForTeamParams
+func (_e *MockQuerier_Expecter) GetAuditEventsForTeam(ctx interface{}, arg interface{}) *MockQuerier_GetAuditEventsForTeam_Call {
+	return &MockQuerier_GetAuditEventsForTeam_Call{Call: _e.mock.On("GetAuditEventsForTeam", ctx, arg)}
+}
+
+func (_c *MockQuerier_GetAuditEventsForTeam_Call) Run(run func(ctx context.Context, arg GetAuditEventsForTeamParams)) *MockQuerier_GetAuditEventsForTeam_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(GetAuditEventsForTeamParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetAuditEventsForTeam_Call) Return(_a0 []*AuditEvent, _a1 error) *MockQuerier_GetAuditEventsForTeam_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetAuditEventsForTeam_Call) RunAndReturn(run func(context.Context, GetAuditEventsForTeamParams) ([]*AuditEvent, error)) *MockQuerier_GetAuditEventsForTeam_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAuditEventsForTeamByResource provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) GetAuditEventsForTeamByResource(ctx context.Context, arg GetAuditEventsForTeamByResourceParams) ([]*AuditEvent, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAuditEventsForTeamByResource")
+	}
+
+	var r0 []*AuditEvent
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, GetAuditEventsForTeamByResourceParams) ([]*AuditEvent, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, GetAuditEventsForTeamByResourceParams) []*AuditEvent); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*AuditEvent)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, GetAuditEventsForTeamByResourceParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetAuditEventsForTeamByResource_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAuditEventsForTeamByResource'
+type MockQuerier_GetAuditEventsForTeamByResource_Call struct {
+	*mock.Call
+}
+
+// GetAuditEventsForTeamByResource is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg GetAuditEventsForTeamByResourceParams
+func (_e *MockQuerier_Expecter) GetAuditEventsForTeamByResource(ctx interface{}, arg interface{}) *MockQuerier_GetAuditEventsForTeamByResource_Call {
+	return &MockQuerier_GetAuditEventsForTeamByResource_Call{Call: _e.mock.On("GetAuditEventsForTeamByResource", ctx, arg)}
+}
+
+func (_c *MockQuerier_GetAuditEventsForTeamByResource_Call) Run(run func(ctx context.Context, arg GetAuditEventsForTeamByResourceParams)) *MockQuerier_GetAuditEventsForTeamByResource_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(GetAuditEventsForTeamByResourceParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetAuditEventsForTeamByResource_Call) Return(_a0 []*AuditEvent, _a1 error) *MockQuerier_GetAuditEventsForTeamByResource_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetAuditEventsForTeamByResource_Call) RunAndReturn(run func(context.Context, GetAuditEventsForTeamByResourceParams) ([]*AuditEvent, error)) *MockQuerier_GetAuditEventsForTeamByResource_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -32,6 +32,7 @@ type Page struct {
 }
 
 type Database interface {
+	AuditEventsRepo
 	AuditLogsRepo
 	CostRepo
 	EnvironmentRepo
@@ -98,13 +99,29 @@ var regParseSQLName = regexp.MustCompile(`\-\-\s*name:\s+(\S+)`)
 // New connects to the database, runs migrations and returns a database instance. The caller must call the
 // returned closer function when the database connection is no longer needed
 func New(ctx context.Context, dsn string, log logrus.FieldLogger) (db Database, closer func(), err error) {
-	if err = migrateDatabaseSchema("pgx", dsn, log); err != nil {
-		return nil, nil, err
+	conn, err := NewPool(ctx, dsn, log, true)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to connect to the database: %w", err)
+	}
+
+	return &database{
+		querier: &Queries{
+			Queries:  gensql.New(conn),
+			connPool: conn,
+		},
+	}, conn.Close, nil
+}
+
+func NewPool(ctx context.Context, dsn string, log logrus.FieldLogger, migrate bool) (pool *pgxpool.Pool, err error) {
+	if migrate {
+		if err = migrateDatabaseSchema("pgx", dsn, log); err != nil {
+			return nil, err
+		}
 	}
 
 	config, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to parse dsn config: %w", err)
+		return nil, fmt.Errorf("failed to parse dsn config: %w", err)
 	}
 	config.MaxConns = 25
 
@@ -137,7 +154,7 @@ func New(ctx context.Context, dsn string, log logrus.FieldLogger) (db Database, 
 
 	conn, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to connect: %w", err)
+		return nil, fmt.Errorf("failed to connect: %w", err)
 	}
 
 	connected := false
@@ -152,15 +169,10 @@ func New(ctx context.Context, dsn string, log logrus.FieldLogger) (db Database, 
 	}
 
 	if !connected {
-		return nil, nil, fmt.Errorf("giving up connecting to the database after %d attempts: %w", databaseConnectRetries, err)
+		return nil, fmt.Errorf("giving up connecting to the database after %d attempts: %w", databaseConnectRetries, err)
 	}
 
-	return &database{
-		querier: &Queries{
-			Queries:  gensql.New(conn),
-			connPool: conn,
-		},
-	}, conn.Close, nil
+	return conn, nil
 }
 
 // migrateDatabaseSchema runs database migrations

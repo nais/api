@@ -54,7 +54,7 @@ func (input CreateTeamInput) Validate() error {
 	return nil
 }
 
-func (input UpdateTeamInput) Validate(validEnvironments []string) error {
+func (input UpdateTeamInput) Validate() error {
 	if input.Purpose != nil && *input.Purpose == "" {
 		return apierror.ErrTeamPurpose
 	}
@@ -63,6 +63,10 @@ func (input UpdateTeamInput) Validate(validEnvironments []string) error {
 		return slackChannelError(*input.SlackChannel)
 	}
 
+	return nil
+}
+
+func (input UpdateTeamSlackAlertsChannelInput) Validate(validEnvironments []string) error {
 	validEnvironment := func(env string) bool {
 		for _, environment := range validEnvironments {
 			if env == environment {
@@ -72,14 +76,12 @@ func (input UpdateTeamInput) Validate(validEnvironments []string) error {
 		return false
 	}
 
-	for _, entry := range input.SlackAlertsChannels {
-		if !validEnvironment(entry.Environment) {
-			return apierror.Errorf("The specified environment is not valid: %q. Valid environments are: %s.", entry.Environment, strings.Join(validEnvironments, ", "))
-		}
+	if !validEnvironment(input.Environment) {
+		return apierror.Errorf("The specified environment is not valid: %q. Valid environments are: %s.", input.Environment, strings.Join(validEnvironments, ", "))
+	}
 
-		if entry.ChannelName != nil && !slackChannelNameRegex.MatchString(*entry.ChannelName) {
-			return slackChannelError(*entry.ChannelName)
-		}
+	if input.ChannelName != nil && !slackChannelNameRegex.MatchString(*input.ChannelName) {
+		return slackChannelError(*input.ChannelName)
 	}
 
 	return nil

@@ -19,6 +19,7 @@ type IdentType string
 const (
 	IdentTypeAnalysisTrail        IdentType = "analysisTrail"
 	IdentTypeApp                  IdentType = "app"
+	IdentTypeAuditEvent           IdentType = "auditEvent"
 	IdentTypeAuditLog             IdentType = "auditLog"
 	IdentTypeBigQueryDataset      IdentType = "bigQueryDataset"
 	IdentTypeBucket               IdentType = "bucket"
@@ -138,6 +139,10 @@ func SecretIdent(envName string, teamSlug slug.Slug, secretName string) Ident {
 
 func AuditLogIdent(id uuid.UUID) Ident {
 	return newIdent(IdentTypeAuditLog, id.String())
+}
+
+func AuditEventIdent(id uuid.UUID) Ident {
+	return newIdent(IdentTypeAuditEvent, id.String())
 }
 
 func CorrelationID(id uuid.UUID) Ident {

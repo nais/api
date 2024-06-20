@@ -12,6 +12,15 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
+// Audit event type.
+type AuditEvent interface {
+	IsAuditEvent()
+}
+
+type AuditEventNode interface {
+	IsAuditEventNode()
+}
+
 // Authenticated user type. Can be a user or a service account.
 type AuthenticatedUser interface {
 	IsAuthenticatedUser()
@@ -94,6 +103,38 @@ type AppWithResourceUtilizationOverage struct {
 type AppsStatus struct {
 	Total   int `json:"total"`
 	Failing int `json:"failing"`
+}
+
+type AuditEventMemberAddedData struct {
+	MemberEmail string   `json:"memberEmail"`
+	Role        TeamRole `json:"role"`
+}
+
+type AuditEventMemberRemovedData struct {
+	MemberEmail string `json:"memberEmail"`
+}
+
+type AuditEventMemberSetRoleData struct {
+	MemberEmail string   `json:"memberEmail"`
+	Role        TeamRole `json:"role"`
+}
+
+type AuditEventTeamSetAlertsSlackChannelData struct {
+	Environment string `json:"environment"`
+	ChannelName string `json:"channelName"`
+}
+
+type AuditEventTeamSetDefaultSlackChannelData struct {
+	DefaultSlackChannel string `json:"defaultSlackChannel"`
+}
+
+type AuditEventTeamSetPurposeData struct {
+	Purpose string `json:"purpose"`
+}
+
+type AuditEventsFilter struct {
+	// Filter by the type of the resource that was affected by the action.
+	ResourceType *AuditEventResourceType `json:"resourceType,omitempty"`
 }
 
 // Audit log type.
@@ -830,14 +871,6 @@ type SlackAlertsChannel struct {
 	ChannelName string `json:"channelName"`
 }
 
-// Slack alerts channel input.
-type SlackAlertsChannelInput struct {
-	// The environment for the alerts sent to the channel.
-	Environment string `json:"environment"`
-	// The name of the Slack channel.
-	ChannelName *string `json:"channelName,omitempty"`
-}
-
 type SQLInstanceCPU struct {
 	Cores       float64 `json:"cores"`
 	Utilization float64 `json:"utilization"`
@@ -947,8 +980,14 @@ type UpdateTeamInput struct {
 	Purpose *string `json:"purpose,omitempty"`
 	// Specify the Slack channel to update the existing value.
 	SlackChannel *string `json:"slackChannel,omitempty"`
-	// A list of Slack channels for NAIS alerts.
-	SlackAlertsChannels []*SlackAlertsChannelInput `json:"slackAlertsChannels,omitempty"`
+}
+
+// Slack alerts channel input.
+type UpdateTeamSlackAlertsChannelInput struct {
+	// The environment for the alerts sent to the channel.
+	Environment string `json:"environment"`
+	// The name of the Slack channel.
+	ChannelName *string `json:"channelName,omitempty"`
 }
 
 type UserList struct {
@@ -994,6 +1033,106 @@ type VulnerabilitySummaryForTeam struct {
 	Unassigned int     `json:"unassigned"`
 	BomCount   int     `json:"bomCount"`
 	Coverage   float64 `json:"coverage"`
+}
+
+type AuditEventAction string
+
+const (
+	AuditEventActionTeamCreated                AuditEventAction = "TEAM_CREATED"
+	AuditEventActionTeamDeletionConfirmed      AuditEventAction = "TEAM_DELETION_CONFIRMED"
+	AuditEventActionTeamDeletionRequested      AuditEventAction = "TEAM_DELETION_REQUESTED"
+	AuditEventActionTeamDeployKeyRotated       AuditEventAction = "TEAM_DEPLOY_KEY_ROTATED"
+	AuditEventActionTeamSetPurpose             AuditEventAction = "TEAM_SET_PURPOSE"
+	AuditEventActionTeamSetDefaultSLACkChannel AuditEventAction = "TEAM_SET_DEFAULT_SLACK_CHANNEL"
+	AuditEventActionTeamSetAlertsSLACkChannel  AuditEventAction = "TEAM_SET_ALERTS_SLACK_CHANNEL"
+	AuditEventActionTeamSynchronized           AuditEventAction = "TEAM_SYNCHRONIZED"
+	AuditEventActionTeamMemberAdded            AuditEventAction = "TEAM_MEMBER_ADDED"
+	AuditEventActionTeamMemberRemoved          AuditEventAction = "TEAM_MEMBER_REMOVED"
+	AuditEventActionTeamMemberSetRole          AuditEventAction = "TEAM_MEMBER_SET_ROLE"
+)
+
+var AllAuditEventAction = []AuditEventAction{
+	AuditEventActionTeamCreated,
+	AuditEventActionTeamDeletionConfirmed,
+	AuditEventActionTeamDeletionRequested,
+	AuditEventActionTeamDeployKeyRotated,
+	AuditEventActionTeamSetPurpose,
+	AuditEventActionTeamSetDefaultSLACkChannel,
+	AuditEventActionTeamSetAlertsSLACkChannel,
+	AuditEventActionTeamSynchronized,
+	AuditEventActionTeamMemberAdded,
+	AuditEventActionTeamMemberRemoved,
+	AuditEventActionTeamMemberSetRole,
+}
+
+func (e AuditEventAction) IsValid() bool {
+	switch e {
+	case AuditEventActionTeamCreated, AuditEventActionTeamDeletionConfirmed, AuditEventActionTeamDeletionRequested, AuditEventActionTeamDeployKeyRotated, AuditEventActionTeamSetPurpose, AuditEventActionTeamSetDefaultSLACkChannel, AuditEventActionTeamSetAlertsSLACkChannel, AuditEventActionTeamSynchronized, AuditEventActionTeamMemberAdded, AuditEventActionTeamMemberRemoved, AuditEventActionTeamMemberSetRole:
+		return true
+	}
+	return false
+}
+
+func (e AuditEventAction) String() string {
+	return string(e)
+}
+
+func (e *AuditEventAction) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AuditEventAction(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AuditEventAction", str)
+	}
+	return nil
+}
+
+func (e AuditEventAction) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type AuditEventResourceType string
+
+const (
+	AuditEventResourceTypeTeam       AuditEventResourceType = "TEAM"
+	AuditEventResourceTypeTeamMember AuditEventResourceType = "TEAM_MEMBER"
+)
+
+var AllAuditEventResourceType = []AuditEventResourceType{
+	AuditEventResourceTypeTeam,
+	AuditEventResourceTypeTeamMember,
+}
+
+func (e AuditEventResourceType) IsValid() bool {
+	switch e {
+	case AuditEventResourceTypeTeam, AuditEventResourceTypeTeamMember:
+		return true
+	}
+	return false
+}
+
+func (e AuditEventResourceType) String() string {
+	return string(e)
+}
+
+func (e *AuditEventResourceType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AuditEventResourceType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AuditEventResourceType", str)
+	}
+	return nil
+}
+
+func (e AuditEventResourceType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type ErrorLevel string

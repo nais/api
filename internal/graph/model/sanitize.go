@@ -20,17 +20,14 @@ func (input UpdateTeamInput) Sanitize() UpdateTeamInput {
 	if input.SlackChannel != nil {
 		input.SlackChannel = ptr.To(strings.TrimSpace(*input.SlackChannel))
 	}
+	return input
+}
 
-	channels := make([]*SlackAlertsChannelInput, len(input.SlackAlertsChannels))
-	for i := range input.SlackAlertsChannels {
-		channel := *input.SlackAlertsChannels[i]
-		channel.Environment = strings.TrimSpace(channel.Environment)
-		if channel.ChannelName != nil {
-			channel.ChannelName = ptr.To(strings.TrimSpace(*channel.ChannelName))
-		}
-		channels[i] = &channel
+func (input UpdateTeamSlackAlertsChannelInput) Sanitize() UpdateTeamSlackAlertsChannelInput {
+	input.Environment = strings.TrimSpace(input.Environment)
+	if input.ChannelName != nil {
+		input.ChannelName = ptr.To(strings.TrimSpace(*input.ChannelName))
 	}
-	input.SlackAlertsChannels = channels
 
 	return input
 }

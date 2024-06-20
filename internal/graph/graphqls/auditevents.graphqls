@@ -1,0 +1,187 @@
+"Audit event type."
+interface AuditEvent {
+  "ID of the event."
+  id: ID!
+
+  "String representation of the action performed."
+  action: AuditEventAction!
+
+  "The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+  actor: String!
+
+  "Creation time of the event."
+  createdAt: Time!
+
+  "Message that summarizes the event."
+  message: String!
+
+  "Type of the resource that was affected by the action."
+  resourceType: AuditEventResourceType!
+
+  "Name of the resource that was affected by the action."
+  resourceName: String!
+
+  "The team that the event belongs to."
+  team: Team
+}
+
+union AuditEventNode = BaseAuditEvent | BaseTeamAuditEvent
+  | AuditEventMemberAdded | AuditEventMemberRemoved | AuditEventMemberSetRole
+  | AuditEventTeamSetPurpose | AuditEventTeamSetDefaultSlackChannel | AuditEventTeamSetAlertsSlackChannel
+
+type AuditEventList {
+  nodes: [AuditEventNode!]!
+  pageInfo: PageInfo!
+}
+
+input AuditEventsFilter {
+  "Filter by the type of the resource that was affected by the action."
+  resourceType: AuditEventResourceType
+}
+
+enum AuditEventResourceType {
+  TEAM
+  TEAM_MEMBER
+}
+
+enum AuditEventAction {
+  TEAM_CREATED
+  TEAM_DELETION_CONFIRMED
+  TEAM_DELETION_REQUESTED
+  TEAM_DEPLOY_KEY_ROTATED
+  TEAM_SET_PURPOSE
+  TEAM_SET_DEFAULT_SLACK_CHANNEL
+  TEAM_SET_ALERTS_SLACK_CHANNEL
+  TEAM_SYNCHRONIZED
+
+  TEAM_MEMBER_ADDED
+  TEAM_MEMBER_REMOVED
+  TEAM_MEMBER_SET_ROLE
+}
+
+type BaseAuditEvent implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  message: String!
+  createdAt: Time!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team
+}
+
+type BaseTeamAuditEvent implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  message: String!
+  createdAt: Time!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team!
+}
+
+type AuditEventMemberAdded implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  createdAt: Time!
+  message: String!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team!
+
+  data: AuditEventMemberAddedData!
+}
+
+type AuditEventMemberAddedData {
+  memberEmail: String!
+  role: TeamRole!
+}
+
+type AuditEventMemberRemoved implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  createdAt: Time!
+  message: String!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team!
+
+  data: AuditEventMemberRemovedData!
+}
+
+type AuditEventMemberRemovedData {
+  memberEmail: String!
+}
+
+type AuditEventMemberSetRole implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  createdAt: Time!
+  message: String!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team!
+
+  data: AuditEventMemberSetRoleData!
+}
+
+type AuditEventMemberSetRoleData {
+  memberEmail: String!
+  role: TeamRole!
+}
+
+type AuditEventTeamSetPurpose implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  createdAt: Time!
+  message: String!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team!
+
+  data: AuditEventTeamSetPurposeData!
+}
+
+type AuditEventTeamSetPurposeData {
+  purpose: String!
+}
+
+type AuditEventTeamSetDefaultSlackChannel implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  createdAt: Time!
+  message: String!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team!
+
+  data: AuditEventTeamSetDefaultSlackChannelData!
+}
+
+type AuditEventTeamSetDefaultSlackChannelData {
+  defaultSlackChannel: String!
+}
+
+type AuditEventTeamSetAlertsSlackChannel implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  createdAt: Time!
+  message: String!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team!
+
+  data: AuditEventTeamSetAlertsSlackChannelData!
+}
+
+type AuditEventTeamSetAlertsSlackChannelData {
+  environment: String!
+  channelName: String!
+}
