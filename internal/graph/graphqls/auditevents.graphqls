@@ -22,7 +22,7 @@ interface AuditEvent {
   resourceName: String!
 
   "The team that the event belongs to."
-  team: Slug!
+  team: Team
 }
 
 union AuditEventNode = BaseAuditEvent
@@ -67,7 +67,7 @@ type BaseAuditEvent implements AuditEvent {
   createdAt: Time!
   resourceType: AuditEventResourceType!
   resourceName: String!
-  team: Slug!
+  team: Team
 }
 
 type AuditEventMemberAdded implements AuditEvent {
@@ -78,7 +78,7 @@ type AuditEventMemberAdded implements AuditEvent {
   message: String!
   resourceType: AuditEventResourceType!
   resourceName: String!
-  team: Slug!
+  team: Team
 
   data: AuditEventMemberAddedData!
 }
@@ -96,7 +96,7 @@ type AuditEventMemberRemoved implements AuditEvent {
   message: String!
   resourceType: AuditEventResourceType!
   resourceName: String!
-  team: Slug!
+  team: Team
 
   data: AuditEventMemberRemovedData!
 }
@@ -113,7 +113,7 @@ type AuditEventMemberSetRole implements AuditEvent {
   message: String!
   resourceType: AuditEventResourceType!
   resourceName: String!
-  team: Slug!
+  team: Team
 
   data: AuditEventMemberSetRoleData!
 }
@@ -131,7 +131,7 @@ type AuditEventTeamSetPurpose implements AuditEvent {
   message: String!
   resourceType: AuditEventResourceType!
   resourceName: String!
-  team: Slug!
+  team: Team
 
   data: AuditEventTeamSetPurposeData!
 }
@@ -148,7 +148,7 @@ type AuditEventTeamSetDefaultSlackChannel implements AuditEvent {
   message: String!
   resourceType: AuditEventResourceType!
   resourceName: String!
-  team: Slug!
+  team: Team
 
   data: AuditEventTeamSetDefaultSlackChannelData!
 }
@@ -165,7 +165,7 @@ type AuditEventTeamSetAlertsSlackChannel implements AuditEvent {
   message: String!
   resourceType: AuditEventResourceType!
   resourceName: String!
-  team: Slug!
+  team: Team
 
   data: AuditEventTeamSetAlertsSlackChannelData!
 }
