@@ -160,6 +160,25 @@ extend type Mutation {
     "The name of the team to update the deploy key for."
     team: Slug!
   ): DeploymentKey!
+
+
+  "Authorize a repository to make actions on behalf of the team."
+  authorizeRepository(
+    "The slug of the team that authorizes the repository."
+    teamSlug: Slug!
+
+    "Name of the repository, with the org prefix, for instance 'org/repo'."
+    repoName: String!
+  ): String! @auth
+
+  "Deauthorize a repository to make actions on behalf of the team."
+  deauthorizeRepository(
+    "The slug of the team that deauthorizes the repository."
+    teamSlug: Slug!
+
+    "Name of the repository, with the org prefix, for instance 'org/repo'."
+    repoName: String!
+  ): String! @auth
 }
 
 "Team deletion key type."
@@ -258,6 +277,14 @@ type Team {
 
   "Timestamp of the last successful synchronization of the team."
   lastSuccessfulSync: Time
+
+  authorizedRepositories(
+    "Offset to start listing repositories from. Default is 0."
+    offset: Int
+
+    "Limit the number of repositories to return. Default is 20."
+    limit: Int
+  ): AuthorizedRepositoryList!
 
   "The GitHub repositories that the team has access to."
   githubRepositories(
@@ -460,6 +487,15 @@ type Team {
   environments: [Env!]!
 
   unleash: Unleash!
+
+}
+
+type AuthorizedRepositoryList {
+  "The list of authorized repositories."
+  nodes: [String!]!
+
+  "Pagination information."
+  pageInfo: PageInfo!
 }
 
 type SqlInstancesStatus {
@@ -631,10 +667,4 @@ enum TeamRole {
 
   "Team owner, full access to the team."
   OWNER
-}
-
-"Repository authorizations."
-enum RepositoryAuthorization {
-  "Authorize for NAIS deployment."
-  DEPLOY
 }

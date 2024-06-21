@@ -67,6 +67,7 @@ type Querier interface {
 	GetAuditLogsForReconcilerCount(ctx context.Context, targetIdentifier string) (int64, error)
 	GetAuditLogsForTeam(ctx context.Context, arg GetAuditLogsForTeamParams) ([]*AuditLog, error)
 	GetAuditLogsForTeamCount(ctx context.Context, targetIdentifier string) (int64, error)
+	GetAuthorizedRepositories(ctx context.Context, teamSlug slug.Slug) ([]string, error)
 	GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error)
 	GetReconciler(ctx context.Context, name string) (*Reconciler, error)
 	GetReconcilerConfig(ctx context.Context, arg GetReconcilerConfigParams) ([]*GetReconcilerConfigRow, error)
@@ -76,7 +77,6 @@ type Querier interface {
 	GetReconcilerStateForTeam(ctx context.Context, arg GetReconcilerStateForTeamParams) (*ReconcilerState, error)
 	GetReconcilers(ctx context.Context, arg GetReconcilersParams) ([]*Reconciler, error)
 	GetReconcilersCount(ctx context.Context) (int64, error)
-	GetRepositoryAuthorizations(ctx context.Context, arg GetRepositoryAuthorizationsParams) ([]RepositoryAuthorizationEnum, error)
 	GetServiceAccountByApiKey(ctx context.Context, apiKey string) (*ServiceAccount, error)
 	GetServiceAccountByName(ctx context.Context, name string) (*ServiceAccount, error)
 	GetServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) ([]*ServiceAccountRole, error)
@@ -113,9 +113,9 @@ type Querier interface {
 	GetUsersyncRuns(ctx context.Context, arg GetUsersyncRunsParams) ([]*UsersyncRun, error)
 	GetUsersyncRunsCount(ctx context.Context) (int64, error)
 	InsertEnvironment(ctx context.Context, arg InsertEnvironmentParams) error
+	IsRepositoryAuthorized(ctx context.Context, arg IsRepositoryAuthorizedParams) (bool, error)
 	// LastCostDate will return the last date that has a cost.
 	LastCostDate(ctx context.Context) (pgtype.Date, error)
-	ListRepositoriesByAuthorization(ctx context.Context, arg ListRepositoriesByAuthorizationParams) ([]string, error)
 	// MaxResourceUtilizationDate will return the max date for resource utilization records.
 	MaxResourceUtilizationDate(ctx context.Context) (pgtype.Timestamptz, error)
 	MonthlyCostForApp(ctx context.Context, arg MonthlyCostForAppParams) ([]*MonthlyCostForAppRow, error)

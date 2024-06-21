@@ -162,6 +162,13 @@ type AuditLogList struct {
 	PageInfo PageInfo    `json:"pageInfo"`
 }
 
+type AuthorizedRepositoryList struct {
+	// The list of authorized repositories.
+	Nodes []string `json:"nodes"`
+	// Pagination information.
+	PageInfo PageInfo `json:"pageInfo"`
+}
+
 type AutoScaling struct {
 	Disabled bool `json:"disabled"`
 	// CPU threshold in percent
@@ -1318,47 +1325,6 @@ func (e *OrderByField) UnmarshalGQL(v interface{}) error {
 }
 
 func (e OrderByField) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-// Repository authorizations.
-type RepositoryAuthorization string
-
-const (
-	// Authorize for NAIS deployment.
-	RepositoryAuthorizationDeploy RepositoryAuthorization = "DEPLOY"
-)
-
-var AllRepositoryAuthorization = []RepositoryAuthorization{
-	RepositoryAuthorizationDeploy,
-}
-
-func (e RepositoryAuthorization) IsValid() bool {
-	switch e {
-	case RepositoryAuthorizationDeploy:
-		return true
-	}
-	return false
-}
-
-func (e RepositoryAuthorization) String() string {
-	return string(e)
-}
-
-func (e *RepositoryAuthorization) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = RepositoryAuthorization(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid RepositoryAuthorization", str)
-	}
-	return nil
-}
-
-func (e RepositoryAuthorization) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

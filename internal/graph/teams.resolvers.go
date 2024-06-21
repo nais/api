@@ -499,6 +499,36 @@ func (r *mutationResolver) ChangeDeployKey(ctx context.Context, team slug.Slug) 
 	}, nil
 }
 
+func (r *mutationResolver) AuthorizeRepository(ctx context.Context, teamSlug slug.Slug, repoName string) (string, error) {
+	actor := authz.ActorFromContext(ctx)
+	if _, err := r.database.GetTeamMember(ctx, teamSlug, actor.User.GetID()); errors.Is(err, pgx.ErrNoRows) {
+		return "", apierror.ErrUserIsNotTeamMember
+	} else if err != nil {
+		return "", err
+	}
+
+	if err := r.database.CreateRepositoryAuthorization(ctx, teamSlug, repoName); err != nil {
+		return "", err
+	}
+
+	return repoName, nil
+}
+
+func (r *mutationResolver) DeauthorizeRepository(ctx context.Context, teamSlug slug.Slug, repoName string) (string, error) {
+	actor := authz.ActorFromContext(ctx)
+	if _, err := r.database.GetTeamMember(ctx, teamSlug, actor.User.GetID()); errors.Is(err, pgx.ErrNoRows) {
+		return "", apierror.ErrUserIsNotTeamMember
+	} else if err != nil {
+		return "", err
+	}
+
+	if err := r.database.RemoveRepositoryAuthorization(ctx, teamSlug, repoName); err != nil {
+		return "", err
+	}
+
+	return repoName, nil
+}
+
 func (r *queryResolver) Teams(ctx context.Context, offset *int, limit *int, filter *model.TeamsFilter) (*model.TeamList, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationTeamsList)
@@ -710,6 +740,22 @@ func (r *teamResolver) SyncErrors(ctx context.Context, obj *model.Team) ([]*mode
 	}
 
 	return syncErrors, nil
+}
+
+func (r *teamResolver) AuthorizedRepositories(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.AuthorizedRepositoryList, error) {
+	page := model.NewPagination(offset, limit)
+	auths, err := r.database.ListAuthorizedRepositories(ctx, obj.Slug)
+	if err != nil {
+		return &model.AuthorizedRepositoryList{
+			Nodes: []string{},
+		}, nil
+	}
+
+	nodes, pageInfo := model.PaginatedSlice(auths, page)
+	return &model.AuthorizedRepositoryList{
+		Nodes:    nodes,
+		PageInfo: pageInfo,
+	}, nil
 }
 
 func (r *teamResolver) GithubRepositories(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.GitHubRepositoriesFilter) (*model.GitHubRepositoryList, error) {

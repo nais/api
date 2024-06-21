@@ -8,40 +8,33 @@ import (
 )
 
 type RepositoryAuthorizationRepo interface {
-	CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization gensql.RepositoryAuthorizationEnum) error
-	GetRepositoryAuthorizations(ctx context.Context, teamSlug slug.Slug, repoName string) ([]gensql.RepositoryAuthorizationEnum, error)
-	RemoveRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization gensql.RepositoryAuthorizationEnum) error
-	ListRepositoriesByAuthorization(ctx context.Context, teamSlug slug.Slug, authorization gensql.RepositoryAuthorizationEnum) ([]string, error)
+	CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string) error
+	RemoveRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string) error
+	ListAuthorizedRepositories(ctx context.Context, teamSlug slug.Slug) ([]string, error)
+	IsRepositoryAuthorized(ctx context.Context, teamSlug slug.Slug, repoName string) (bool, error)
 }
 
-var _ RepositoryAuthorizationRepo = (*database)(nil)
-
-func (d *database) CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization gensql.RepositoryAuthorizationEnum) error {
+func (d *database) CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string) error {
 	return d.querier.CreateRepositoryAuthorization(ctx, gensql.CreateRepositoryAuthorizationParams{
-		TeamSlug:                teamSlug,
-		GithubRepository:        repoName,
-		RepositoryAuthorization: authorization,
-	})
-}
-
-func (d *database) RemoveRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization gensql.RepositoryAuthorizationEnum) error {
-	return d.querier.RemoveRepositoryAuthorization(ctx, gensql.RemoveRepositoryAuthorizationParams{
-		TeamSlug:                teamSlug,
-		GithubRepository:        repoName,
-		RepositoryAuthorization: authorization,
-	})
-}
-
-func (d *database) GetRepositoryAuthorizations(ctx context.Context, teamSlug slug.Slug, repoName string) ([]gensql.RepositoryAuthorizationEnum, error) {
-	return d.querier.GetRepositoryAuthorizations(ctx, gensql.GetRepositoryAuthorizationsParams{
 		TeamSlug:         teamSlug,
 		GithubRepository: repoName,
 	})
 }
 
-func (d *database) ListRepositoriesByAuthorization(ctx context.Context, teamSlug slug.Slug, authorization gensql.RepositoryAuthorizationEnum) ([]string, error) {
-	return d.querier.ListRepositoriesByAuthorization(ctx, gensql.ListRepositoriesByAuthorizationParams{
-		TeamSlug:                teamSlug,
-		RepositoryAuthorization: authorization,
+func (d *database) RemoveRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string) error {
+	return d.querier.RemoveRepositoryAuthorization(ctx, gensql.RemoveRepositoryAuthorizationParams{
+		TeamSlug:         teamSlug,
+		GithubRepository: repoName,
+	})
+}
+
+func (d *database) ListAuthorizedRepositories(ctx context.Context, teamSlug slug.Slug) ([]string, error) {
+	return d.querier.GetAuthorizedRepositories(ctx, teamSlug)
+}
+
+func (d *database) IsRepositoryAuthorized(ctx context.Context, teamSlug slug.Slug, repoName string) (bool, error) {
+	return d.querier.IsRepositoryAuthorized(ctx, gensql.IsRepositoryAuthorizedParams{
+		TeamSlug:         teamSlug,
+		GithubRepository: repoName,
 	})
 }

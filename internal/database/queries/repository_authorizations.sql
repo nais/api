@@ -1,33 +1,28 @@
 -- name: CreateRepositoryAuthorization :exec
-INSERT INTO repository_authorizations (team_slug, github_repository, repository_authorization)
-VALUES (@team_slug, @github_repository, @repository_authorization);
+INSERT INTO repository_authorizations (team_slug, github_repository)
+VALUES (@team_slug, @github_repository);
 
 -- name: RemoveRepositoryAuthorization :exec
 DELETE FROM repository_authorizations
 WHERE
     team_slug = @team_slug
-    AND github_repository = @github_repository
-    AND repository_authorization = @repository_authorization;
+    AND github_repository = @github_repository;
 
--- name: GetRepositoryAuthorizations :many
+-- name: GetAuthorizedRepositories :many
 SELECT
-    repository_authorization
+	github_repository
 FROM
-    repository_authorizations
+	repository_authorizations
 WHERE
-    team_slug = @team_slug
-    AND github_repository = @github_repository
+	team_slug = @team_slug
 ORDER BY
-    repository_authorization;
+	github_repository ASC;
 
-
--- name: ListRepositoriesByAuthorization :many
+-- name: IsRepositoryAuthorized :one
 SELECT
-    github_repository
+	COUNT(*) > 0
 FROM
-    repository_authorizations
+	repository_authorizations
 WHERE
-    team_slug = @team_slug
-    AND repository_authorization = @repository_authorization
-ORDER BY -- The linter requires order by to be upper cased, lol
-    github_repository;
+	team_slug = @team_slug
+	AND github_repository = @github_repository;

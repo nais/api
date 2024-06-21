@@ -10,77 +10,33 @@ import (
 )
 
 const createRepositoryAuthorization = `-- name: CreateRepositoryAuthorization :exec
-INSERT INTO repository_authorizations (team_slug, github_repository, repository_authorization)
-VALUES ($1, $2, $3)
+INSERT INTO repository_authorizations (team_slug, github_repository)
+VALUES ($1, $2)
 `
 
 type CreateRepositoryAuthorizationParams struct {
-	TeamSlug                slug.Slug
-	GithubRepository        string
-	RepositoryAuthorization RepositoryAuthorizationEnum
-}
-
-func (q *Queries) CreateRepositoryAuthorization(ctx context.Context, arg CreateRepositoryAuthorizationParams) error {
-	_, err := q.db.Exec(ctx, createRepositoryAuthorization, arg.TeamSlug, arg.GithubRepository, arg.RepositoryAuthorization)
-	return err
-}
-
-const getRepositoryAuthorizations = `-- name: GetRepositoryAuthorizations :many
-SELECT
-    repository_authorization
-FROM
-    repository_authorizations
-WHERE
-    team_slug = $1
-    AND github_repository = $2
-ORDER BY
-    repository_authorization
-`
-
-type GetRepositoryAuthorizationsParams struct {
 	TeamSlug         slug.Slug
 	GithubRepository string
 }
 
-func (q *Queries) GetRepositoryAuthorizations(ctx context.Context, arg GetRepositoryAuthorizationsParams) ([]RepositoryAuthorizationEnum, error) {
-	rows, err := q.db.Query(ctx, getRepositoryAuthorizations, arg.TeamSlug, arg.GithubRepository)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []RepositoryAuthorizationEnum{}
-	for rows.Next() {
-		var repository_authorization RepositoryAuthorizationEnum
-		if err := rows.Scan(&repository_authorization); err != nil {
-			return nil, err
-		}
-		items = append(items, repository_authorization)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) CreateRepositoryAuthorization(ctx context.Context, arg CreateRepositoryAuthorizationParams) error {
+	_, err := q.db.Exec(ctx, createRepositoryAuthorization, arg.TeamSlug, arg.GithubRepository)
+	return err
 }
 
-const listRepositoriesByAuthorization = `-- name: ListRepositoriesByAuthorization :many
+const getAuthorizedRepositories = `-- name: GetAuthorizedRepositories :many
 SELECT
-    github_repository
+	github_repository
 FROM
-    repository_authorizations
+	repository_authorizations
 WHERE
-    team_slug = $1
-    AND repository_authorization = $2
-ORDER BY -- The linter requires order by to be upper cased, lol
-    github_repository
+	team_slug = $1
+ORDER BY
+	github_repository ASC
 `
 
-type ListRepositoriesByAuthorizationParams struct {
-	TeamSlug                slug.Slug
-	RepositoryAuthorization RepositoryAuthorizationEnum
-}
-
-func (q *Queries) ListRepositoriesByAuthorization(ctx context.Context, arg ListRepositoriesByAuthorizationParams) ([]string, error) {
-	rows, err := q.db.Query(ctx, listRepositoriesByAuthorization, arg.TeamSlug, arg.RepositoryAuthorization)
+func (q *Queries) GetAuthorizedRepositories(ctx context.Context, teamSlug slug.Slug) ([]string, error) {
+	rows, err := q.db.Query(ctx, getAuthorizedRepositories, teamSlug)
 	if err != nil {
 		return nil, err
 	}
@@ -99,21 +55,41 @@ func (q *Queries) ListRepositoriesByAuthorization(ctx context.Context, arg ListR
 	return items, nil
 }
 
+const isRepositoryAuthorized = `-- name: IsRepositoryAuthorized :one
+SELECT
+	COUNT(*) > 0
+FROM
+	repository_authorizations
+WHERE
+	team_slug = $1
+	AND github_repository = $2
+`
+
+type IsRepositoryAuthorizedParams struct {
+	TeamSlug         slug.Slug
+	GithubRepository string
+}
+
+func (q *Queries) IsRepositoryAuthorized(ctx context.Context, arg IsRepositoryAuthorizedParams) (bool, error) {
+	row := q.db.QueryRow(ctx, isRepositoryAuthorized, arg.TeamSlug, arg.GithubRepository)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const removeRepositoryAuthorization = `-- name: RemoveRepositoryAuthorization :exec
 DELETE FROM repository_authorizations
 WHERE
     team_slug = $1
     AND github_repository = $2
-    AND repository_authorization = $3
 `
 
 type RemoveRepositoryAuthorizationParams struct {
-	TeamSlug                slug.Slug
-	GithubRepository        string
-	RepositoryAuthorization RepositoryAuthorizationEnum
+	TeamSlug         slug.Slug
+	GithubRepository string
 }
 
 func (q *Queries) RemoveRepositoryAuthorization(ctx context.Context, arg RemoveRepositoryAuthorizationParams) error {
-	_, err := q.db.Exec(ctx, removeRepositoryAuthorization, arg.TeamSlug, arg.GithubRepository, arg.RepositoryAuthorization)
+	_, err := q.db.Exec(ctx, removeRepositoryAuthorization, arg.TeamSlug, arg.GithubRepository)
 	return err
 }

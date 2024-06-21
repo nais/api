@@ -123,7 +123,9 @@ enum RepositoryAuthorization {
 message IsRepositoryAuthorizedRequest {
   string team_slug = 1;
   string repository = 2;
-  RepositoryAuthorization authorization = 3;
+
+  reserved "authorization";
+  reserved 3;
 }
 
 message IsRepositoryAuthorizedResponse {

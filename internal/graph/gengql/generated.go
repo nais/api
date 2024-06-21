@@ -59,7 +59,6 @@ type ResolverRoot interface {
 	DeployInfo() DeployInfoResolver
 	Env() EnvResolver
 	Finding() FindingResolver
-	GitHubRepository() GitHubRepositoryResolver
 	ImageDetails() ImageDetailsResolver
 	KafkaTopic() KafkaTopicResolver
 	Mutation() MutationResolver
@@ -278,6 +277,11 @@ type ComplexityRoot struct {
 	}
 
 	AuditLogList struct {
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	AuthorizedRepositoryList struct {
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -580,12 +584,11 @@ type ComplexityRoot struct {
 	}
 
 	GitHubRepository struct {
-		Archived       func(childComplexity int) int
-		Authorizations func(childComplexity int) int
-		ID             func(childComplexity int) int
-		Name           func(childComplexity int) int
-		Permissions    func(childComplexity int) int
-		RoleName       func(childComplexity int) int
+		Archived    func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Name        func(childComplexity int) int
+		Permissions func(childComplexity int) int
+		RoleName    func(childComplexity int) int
 	}
 
 	GitHubRepositoryList struct {
@@ -767,14 +770,14 @@ type ComplexityRoot struct {
 	Mutation struct {
 		AddReconcilerOptOut          func(childComplexity int, teamSlug slug.Slug, userID scalar.Ident, reconciler string) int
 		AddTeamMember                func(childComplexity int, slug slug.Slug, member model.TeamMemberInput) int
-		AuthorizeRepository          func(childComplexity int, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) int
+		AuthorizeRepository          func(childComplexity int, teamSlug slug.Slug, repoName string) int
 		ChangeDeployKey              func(childComplexity int, team slug.Slug) int
 		ConfigureReconciler          func(childComplexity int, name string, config []*model.ReconcilerConfigInput) int
 		ConfirmTeamDeletion          func(childComplexity int, key string) int
 		CreateSecret                 func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
 		CreateTeam                   func(childComplexity int, input model.CreateTeamInput) int
 		CreateUnleashForTeam         func(childComplexity int, team slug.Slug) int
-		DeauthorizeRepository        func(childComplexity int, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) int
+		DeauthorizeRepository        func(childComplexity int, teamSlug slug.Slug, repoName string) int
 		DeleteApp                    func(childComplexity int, name string, team slug.Slug, env string) int
 		DeleteJob                    func(childComplexity int, name string, team slug.Slug, env string) int
 		DeleteSecret                 func(childComplexity int, name string, team slug.Slug, env string) int
@@ -1221,6 +1224,7 @@ type ComplexityRoot struct {
 		Apps                   func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		AuditEvents            func(childComplexity int, offset *int, limit *int, filter *model.AuditEventsFilter) int
 		AuditLogs              func(childComplexity int, offset *int, limit *int) int
+		AuthorizedRepositories func(childComplexity int, offset *int, limit *int) int
 		AzureGroupID           func(childComplexity int) int
 		BigQuery               func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		BigQueryDataset        func(childComplexity int, name string, env string) int
@@ -1455,9 +1459,6 @@ type EnvResolver interface {
 type FindingResolver interface {
 	AnalysisTrail(ctx context.Context, obj *model.Finding) (*model.AnalysisTrail, error)
 }
-type GitHubRepositoryResolver interface {
-	Authorizations(ctx context.Context, obj *model.GitHubRepository) ([]model.RepositoryAuthorization, error)
-}
 type ImageDetailsResolver interface {
 	Findings(ctx context.Context, obj *model.ImageDetails, offset *int, limit *int, orderBy *model.OrderBy) (*model.FindingList, error)
 	WorkloadReferences(ctx context.Context, obj *model.ImageDetails) ([]model.Workload, error)
@@ -1468,8 +1469,6 @@ type KafkaTopicResolver interface {
 type MutationResolver interface {
 	DeleteApp(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteAppResult, error)
 	RestartApp(ctx context.Context, name string, team slug.Slug, env string) (*model.RestartAppResult, error)
-	AuthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.GitHubRepository, error)
-	DeauthorizeRepository(ctx context.Context, authorization model.RepositoryAuthorization, teamSlug slug.Slug, repoName string) (*model.GitHubRepository, error)
 	SuppressFinding(ctx context.Context, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool, team slug.Slug) (*model.AnalysisTrail, error)
 	DeleteJob(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteJobResult, error)
 	EnableReconciler(ctx context.Context, name string) (*model.Reconciler, error)
@@ -1492,6 +1491,8 @@ type MutationResolver interface {
 	RequestTeamDeletion(ctx context.Context, slug slug.Slug) (*model.TeamDeleteKey, error)
 	ConfirmTeamDeletion(ctx context.Context, key string) (bool, error)
 	ChangeDeployKey(ctx context.Context, team slug.Slug) (*model.DeploymentKey, error)
+	AuthorizeRepository(ctx context.Context, teamSlug slug.Slug, repoName string) (string, error)
+	DeauthorizeRepository(ctx context.Context, teamSlug slug.Slug, repoName string) (string, error)
 	CreateUnleashForTeam(ctx context.Context, team slug.Slug) (*model.Unleash, error)
 	UpdateUnleashForTeam(ctx context.Context, team slug.Slug, name string, allowedTeams []string) (*model.Unleash, error)
 	SynchronizeUsers(ctx context.Context) (string, error)
@@ -1598,6 +1599,7 @@ type TeamResolver interface {
 	Member(ctx context.Context, obj *model.Team, userID scalar.Ident) (*model.TeamMember, error)
 	SyncErrors(ctx context.Context, obj *model.Team) ([]*model.SyncError, error)
 
+	AuthorizedRepositories(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.AuthorizedRepositoryList, error)
 	GithubRepositories(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.GitHubRepositoriesFilter) (*model.GitHubRepositoryList, error)
 
 	DeletionInProgress(ctx context.Context, obj *model.Team) (bool, error)
@@ -2513,6 +2515,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AuditLogList.PageInfo(childComplexity), true
+
+	case "AuthorizedRepositoryList.nodes":
+		if e.complexity.AuthorizedRepositoryList.Nodes == nil {
+			break
+		}
+
+		return e.complexity.AuthorizedRepositoryList.Nodes(childComplexity), true
+
+	case "AuthorizedRepositoryList.pageInfo":
+		if e.complexity.AuthorizedRepositoryList.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.AuthorizedRepositoryList.PageInfo(childComplexity), true
 
 	case "AutoScaling.cpuThreshold":
 		if e.complexity.AutoScaling.CPUThreshold == nil {
@@ -3723,13 +3739,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.GitHubRepository.Archived(childComplexity), true
 
-	case "GitHubRepository.authorizations":
-		if e.complexity.GitHubRepository.Authorizations == nil {
-			break
-		}
-
-		return e.complexity.GitHubRepository.Authorizations(childComplexity), true
-
 	case "GitHubRepository.id":
 		if e.complexity.GitHubRepository.ID == nil {
 			break
@@ -4504,7 +4513,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.AuthorizeRepository(childComplexity, args["authorization"].(model.RepositoryAuthorization), args["teamSlug"].(slug.Slug), args["repoName"].(string)), true
+		return e.complexity.Mutation.AuthorizeRepository(childComplexity, args["teamSlug"].(slug.Slug), args["repoName"].(string)), true
 
 	case "Mutation.changeDeployKey":
 		if e.complexity.Mutation.ChangeDeployKey == nil {
@@ -4588,7 +4597,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeauthorizeRepository(childComplexity, args["authorization"].(model.RepositoryAuthorization), args["teamSlug"].(slug.Slug), args["repoName"].(string)), true
+		return e.complexity.Mutation.DeauthorizeRepository(childComplexity, args["teamSlug"].(slug.Slug), args["repoName"].(string)), true
 
 	case "Mutation.deleteApp":
 		if e.complexity.Mutation.DeleteApp == nil {
@@ -6766,6 +6775,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.AuditLogs(childComplexity, args["offset"].(*int), args["limit"].(*int)), true
 
+	case "Team.authorizedRepositories":
+		if e.complexity.Team.AuthorizedRepositories == nil {
+			break
+		}
+
+		args, err := ec.field_Team_authorizedRepositories_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Team.AuthorizedRepositories(childComplexity, args["offset"].(*int), args["limit"].(*int)), true
+
 	case "Team.azureGroupID":
 		if e.complexity.Team.AzureGroupID == nil {
 			break
@@ -8527,33 +8548,7 @@ directive @admin on FIELD_DEFINITION
   secrets: [Secret!]! @auth
 }
 `, BuiltIn: false},
-	{Name: "../graphqls/github_repo.graphqls", Input: `extend type Mutation {
-  "Authorize a team to perform an action from a GitHub repository."
-  authorizeRepository(
-    "The action to authorize."
-    authorization: RepositoryAuthorization!
-
-    "The slug of the team to authorize the action for."
-    teamSlug: Slug!
-
-    "Name of the repository, with the org prefix, for instance 'org/repo'."
-    repoName: String!
-  ): GitHubRepository! @auth
-
-  "Deauthorize an action from a team."
-  deauthorizeRepository(
-    "The action to deauthorize."
-    authorization: RepositoryAuthorization!
-
-    "The slug of the team to deauthorize the action for."
-    teamSlug: Slug!
-
-    "Name of the repository, with the org prefix, for instance 'org/repo'."
-    repoName: String!
-  ): GitHubRepository! @auth
-}
-
-"GitHub repository type."
+	{Name: "../graphqls/github_repo.graphqls", Input: `"GitHub repository type."
 type GitHubRepository {
   "ID of the repository."
   id: ID!
@@ -8569,9 +8564,6 @@ type GitHubRepository {
 
   "Whether or not the repository is archived."
   archived: Boolean!
-
-  "A list of authorizations granted to the repository by the team."
-  authorizations: [RepositoryAuthorization!]!
 }
 
 "Paginated GitHub repository type."
@@ -9873,6 +9865,25 @@ extend type Mutation {
     "The name of the team to update the deploy key for."
     team: Slug!
   ): DeploymentKey!
+
+
+  "Authorize a repository to make actions on behalf of the team."
+  authorizeRepository(
+    "The slug of the team that authorizes the repository."
+    teamSlug: Slug!
+
+    "Name of the repository, with the org prefix, for instance 'org/repo'."
+    repoName: String!
+  ): String! @auth
+
+  "Deauthorize a repository to make actions on behalf of the team."
+  deauthorizeRepository(
+    "The slug of the team that deauthorizes the repository."
+    teamSlug: Slug!
+
+    "Name of the repository, with the org prefix, for instance 'org/repo'."
+    repoName: String!
+  ): String! @auth
 }
 
 "Team deletion key type."
@@ -9971,6 +9982,14 @@ type Team {
 
   "Timestamp of the last successful synchronization of the team."
   lastSuccessfulSync: Time
+
+  authorizedRepositories(
+    "Offset to start listing repositories from. Default is 0."
+    offset: Int
+
+    "Limit the number of repositories to return. Default is 20."
+    limit: Int
+  ): AuthorizedRepositoryList!
 
   "The GitHub repositories that the team has access to."
   githubRepositories(
@@ -10173,6 +10192,15 @@ type Team {
   environments: [Env!]!
 
   unleash: Unleash!
+
+}
+
+type AuthorizedRepositoryList {
+  "The list of authorized repositories."
+  nodes: [String!]!
+
+  "Pagination information."
+  pageInfo: PageInfo!
 }
 
 type SqlInstancesStatus {
@@ -10344,12 +10372,6 @@ enum TeamRole {
 
   "Team owner, full access to the team."
   OWNER
-}
-
-"Repository authorizations."
-enum RepositoryAuthorization {
-  "Authorize for NAIS deployment."
-  DEPLOY
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/unleash.graphqls", Input: `extend type Mutation {
@@ -10671,33 +10693,24 @@ func (ec *executionContext) field_Mutation_addTeamMember_args(ctx context.Contex
 func (ec *executionContext) field_Mutation_authorizeRepository_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.RepositoryAuthorization
-	if tmp, ok := rawArgs["authorization"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("authorization"))
-		arg0, err = ec.unmarshalNRepositoryAuthorization2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorization(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["authorization"] = arg0
-	var arg1 slug.Slug
+	var arg0 slug.Slug
 	if tmp, ok := rawArgs["teamSlug"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-		arg1, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
+		arg0, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["teamSlug"] = arg1
-	var arg2 string
+	args["teamSlug"] = arg0
+	var arg1 string
 	if tmp, ok := rawArgs["repoName"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("repoName"))
-		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["repoName"] = arg2
+	args["repoName"] = arg1
 	return args, nil
 }
 
@@ -10830,33 +10843,24 @@ func (ec *executionContext) field_Mutation_createUnleashForTeam_args(ctx context
 func (ec *executionContext) field_Mutation_deauthorizeRepository_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.RepositoryAuthorization
-	if tmp, ok := rawArgs["authorization"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("authorization"))
-		arg0, err = ec.unmarshalNRepositoryAuthorization2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorization(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["authorization"] = arg0
-	var arg1 slug.Slug
+	var arg0 slug.Slug
 	if tmp, ok := rawArgs["teamSlug"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-		arg1, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
+		arg0, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["teamSlug"] = arg1
-	var arg2 string
+	args["teamSlug"] = arg0
+	var arg1 string
 	if tmp, ok := rawArgs["repoName"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("repoName"))
-		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["repoName"] = arg2
+	args["repoName"] = arg1
 	return args, nil
 }
 
@@ -12118,6 +12122,30 @@ func (ec *executionContext) field_Team_auditEvents_args(ctx context.Context, raw
 }
 
 func (ec *executionContext) field_Team_auditLogs_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Team_authorizedRepositories_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *int
@@ -14160,6 +14188,8 @@ func (ec *executionContext) fieldContext_App_team(ctx context.Context, field gra
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -15426,6 +15456,8 @@ func (ec *executionContext) fieldContext_AuditEventMemberAdded_team(ctx context.
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -16000,6 +16032,8 @@ func (ec *executionContext) fieldContext_AuditEventMemberRemoved_team(ctx contex
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -16528,6 +16562,8 @@ func (ec *executionContext) fieldContext_AuditEventMemberSetRole_team(ctx contex
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -17102,6 +17138,8 @@ func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannel_tea
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -17676,6 +17714,8 @@ func (ec *executionContext) fieldContext_AuditEventTeamSetDefaultSlackChannel_te
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -18204,6 +18244,8 @@ func (ec *executionContext) fieldContext_AuditEventTeamSetPurpose_team(ctx conte
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -18802,6 +18844,102 @@ func (ec *executionContext) _AuditLogList_pageInfo(ctx context.Context, field gr
 func (ec *executionContext) fieldContext_AuditLogList_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AuditLogList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuthorizedRepositoryList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.AuthorizedRepositoryList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuthorizedRepositoryList_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuthorizedRepositoryList_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuthorizedRepositoryList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuthorizedRepositoryList_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.AuthorizedRepositoryList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuthorizedRepositoryList_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuthorizedRepositoryList_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuthorizedRepositoryList",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -19916,6 +20054,8 @@ func (ec *executionContext) fieldContext_BaseAuditEvent_team(ctx context.Context
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -20352,6 +20492,8 @@ func (ec *executionContext) fieldContext_BaseTeamAuditEvent_team(ctx context.Con
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -20706,6 +20848,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(ctx context.Contex
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -21733,6 +21877,8 @@ func (ec *executionContext) fieldContext_Bucket_team(ctx context.Context, field 
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -23779,6 +23925,8 @@ func (ec *executionContext) fieldContext_Deployment_team(ctx context.Context, fi
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -27342,50 +27490,6 @@ func (ec *executionContext) fieldContext_GitHubRepository_archived(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _GitHubRepository_authorizations(ctx context.Context, field graphql.CollectedField, obj *model.GitHubRepository) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_GitHubRepository_authorizations(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.GitHubRepository().Authorizations(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]model.RepositoryAuthorization)
-	fc.Result = res
-	return ec.marshalNRepositoryAuthorization2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorizationᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_GitHubRepository_authorizations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "GitHubRepository",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type RepositoryAuthorization does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _GitHubRepositoryList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.GitHubRepositoryList) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_GitHubRepositoryList_nodes(ctx, field)
 	if err != nil {
@@ -27435,8 +27539,6 @@ func (ec *executionContext) fieldContext_GitHubRepositoryList_nodes(ctx context.
 				return ec.fieldContext_GitHubRepository_roleName(ctx, field)
 			case "archived":
 				return ec.fieldContext_GitHubRepository_archived(ctx, field)
-			case "authorizations":
-				return ec.fieldContext_GitHubRepository_authorizations(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type GitHubRepository", field.Name)
 		},
@@ -30447,6 +30549,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(ctx context.Context, fi
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -32213,184 +32317,6 @@ func (ec *executionContext) fieldContext_Mutation_restartApp(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_authorizeRepository(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_authorizeRepository(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().AuthorizeRepository(rctx, fc.Args["authorization"].(model.RepositoryAuthorization), fc.Args["teamSlug"].(slug.Slug), fc.Args["repoName"].(string))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				return nil, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.GitHubRepository); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.GitHubRepository`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.GitHubRepository)
-	fc.Result = res
-	return ec.marshalNGitHubRepository2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐGitHubRepository(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_authorizeRepository(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_GitHubRepository_id(ctx, field)
-			case "name":
-				return ec.fieldContext_GitHubRepository_name(ctx, field)
-			case "permissions":
-				return ec.fieldContext_GitHubRepository_permissions(ctx, field)
-			case "roleName":
-				return ec.fieldContext_GitHubRepository_roleName(ctx, field)
-			case "archived":
-				return ec.fieldContext_GitHubRepository_archived(ctx, field)
-			case "authorizations":
-				return ec.fieldContext_GitHubRepository_authorizations(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type GitHubRepository", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_authorizeRepository_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_deauthorizeRepository(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_deauthorizeRepository(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().DeauthorizeRepository(rctx, fc.Args["authorization"].(model.RepositoryAuthorization), fc.Args["teamSlug"].(slug.Slug), fc.Args["repoName"].(string))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				return nil, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.GitHubRepository); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/nais/api/internal/graph/model.GitHubRepository`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.GitHubRepository)
-	fc.Result = res
-	return ec.marshalNGitHubRepository2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐGitHubRepository(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_deauthorizeRepository(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_GitHubRepository_id(ctx, field)
-			case "name":
-				return ec.fieldContext_GitHubRepository_name(ctx, field)
-			case "permissions":
-				return ec.fieldContext_GitHubRepository_permissions(ctx, field)
-			case "roleName":
-				return ec.fieldContext_GitHubRepository_roleName(ctx, field)
-			case "archived":
-				return ec.fieldContext_GitHubRepository_archived(ctx, field)
-			case "authorizations":
-				return ec.fieldContext_GitHubRepository_authorizations(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type GitHubRepository", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_deauthorizeRepository_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_suppressFinding(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_suppressFinding(ctx, field)
 	if err != nil {
@@ -33379,6 +33305,8 @@ func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -33538,6 +33466,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -33697,6 +33627,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeamSlackAlertsChannel(c
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -33856,6 +33788,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUserFromTeam(ctx context
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -34162,6 +34096,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -34321,6 +34257,8 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -34614,6 +34552,156 @@ func (ec *executionContext) fieldContext_Mutation_changeDeployKey(ctx context.Co
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_changeDeployKey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_authorizeRepository(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_authorizeRepository(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AuthorizeRepository(rctx, fc.Args["teamSlug"].(slug.Slug), fc.Args["repoName"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(string); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_authorizeRepository(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_authorizeRepository_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deauthorizeRepository(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deauthorizeRepository(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeauthorizeRepository(rctx, fc.Args["teamSlug"].(slug.Slug), fc.Args["repoName"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(string); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deauthorizeRepository(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deauthorizeRepository_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -35663,6 +35751,8 @@ func (ec *executionContext) fieldContext_NaisJob_team(ctx context.Context, field
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -36617,6 +36707,8 @@ func (ec *executionContext) fieldContext_OpenSearch_team(ctx context.Context, fi
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -38982,6 +39074,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -40551,6 +40645,8 @@ func (ec *executionContext) fieldContext_ReconcilerError_team(ctx context.Contex
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -41041,6 +41137,8 @@ func (ec *executionContext) fieldContext_Redis_team(ctx context.Context, field g
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -43707,6 +43805,8 @@ func (ec *executionContext) fieldContext_Role_targetTeam(ctx context.Context, fi
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -44729,6 +44829,8 @@ func (ec *executionContext) fieldContext_Secret_team(ctx context.Context, field 
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -46622,6 +46724,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(ctx context.Context, f
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -49185,6 +49289,67 @@ func (ec *executionContext) fieldContext_Team_lastSuccessfulSync(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_authorizedRepositories(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_authorizedRepositories(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().AuthorizedRepositories(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.AuthorizedRepositoryList)
+	fc.Result = res
+	return ec.marshalNAuthorizedRepositoryList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuthorizedRepositoryList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_authorizedRepositories(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "nodes":
+				return ec.fieldContext_AuthorizedRepositoryList_nodes(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_AuthorizedRepositoryList_pageInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuthorizedRepositoryList", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Team_authorizedRepositories_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_githubRepositories(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_githubRepositories(ctx, field)
 	if err != nil {
@@ -51185,6 +51350,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(ctx context.Context,
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -51313,6 +51480,8 @@ func (ec *executionContext) fieldContext_TeamList_nodes(ctx context.Context, fie
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -51493,6 +51662,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(ctx context.Context, fi
 				return ec.fieldContext_Team_syncErrors(ctx, field)
 			case "lastSuccessfulSync":
 				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "authorizedRepositories":
+				return ec.fieldContext_Team_authorizedRepositories(ctx, field)
 			case "githubRepositories":
 				return ec.fieldContext_Team_githubRepositories(ctx, field)
 			case "slackChannel":
@@ -59144,6 +59315,50 @@ func (ec *executionContext) _AuditLogList(ctx context.Context, sel ast.Selection
 	return out
 }
 
+var authorizedRepositoryListImplementors = []string{"AuthorizedRepositoryList"}
+
+func (ec *executionContext) _AuthorizedRepositoryList(ctx context.Context, sel ast.SelectionSet, obj *model.AuthorizedRepositoryList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, authorizedRepositoryListImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuthorizedRepositoryList")
+		case "nodes":
+			out.Values[i] = ec._AuthorizedRepositoryList_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pageInfo":
+			out.Values[i] = ec._AuthorizedRepositoryList_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var autoScalingImplementors = []string{"AutoScaling"}
 
 func (ec *executionContext) _AutoScaling(ctx context.Context, sel ast.SelectionSet, obj *model.AutoScaling) graphql.Marshaler {
@@ -61805,64 +62020,28 @@ func (ec *executionContext) _GitHubRepository(ctx context.Context, sel ast.Selec
 		case "id":
 			out.Values[i] = ec._GitHubRepository_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "name":
 			out.Values[i] = ec._GitHubRepository_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "permissions":
 			out.Values[i] = ec._GitHubRepository_permissions(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "roleName":
 			out.Values[i] = ec._GitHubRepository_roleName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "archived":
 			out.Values[i] = ec._GitHubRepository_archived(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
-		case "authorizations":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._GitHubRepository_authorizations(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -63277,20 +63456,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "authorizeRepository":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_authorizeRepository(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "deauthorizeRepository":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_deauthorizeRepository(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "suppressFinding":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_suppressFinding(ctx, field)
@@ -63441,6 +63606,20 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "changeDeployKey":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_changeDeployKey(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "authorizeRepository":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_authorizeRepository(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deauthorizeRepository":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deauthorizeRepository(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -68293,6 +68472,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "lastSuccessfulSync":
 			out.Values[i] = ec._Team_lastSuccessfulSync(ctx, field, obj)
+		case "authorizedRepositories":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_authorizedRepositories(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "githubRepositories":
 			field := field
 
@@ -71551,6 +71766,20 @@ func (ec *executionContext) marshalNAuthenticatedUser2githubᚗcomᚋnaisᚋapi�
 	return ec._AuthenticatedUser(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNAuthorizedRepositoryList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuthorizedRepositoryList(ctx context.Context, sel ast.SelectionSet, v model.AuthorizedRepositoryList) graphql.Marshaler {
+	return ec._AuthorizedRepositoryList(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuthorizedRepositoryList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuthorizedRepositoryList(ctx context.Context, sel ast.SelectionSet, v *model.AuthorizedRepositoryList) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AuthorizedRepositoryList(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNAuthz2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐAuthz(ctx context.Context, sel ast.SelectionSet, v model.Authz) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -72759,10 +72988,6 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 	return graphql.WrapContextMarshaler(ctx, res)
 }
 
-func (ec *executionContext) marshalNGitHubRepository2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐGitHubRepository(ctx context.Context, sel ast.SelectionSet, v model.GitHubRepository) graphql.Marshaler {
-	return ec._GitHubRepository(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalNGitHubRepository2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐGitHubRepositoryᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.GitHubRepository) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -73968,77 +74193,6 @@ func (ec *executionContext) marshalNRedisStatus2githubᚗcomᚋnaisᚋapiᚋinte
 
 func (ec *executionContext) marshalNRekor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRekor(ctx context.Context, sel ast.SelectionSet, v model.Rekor) graphql.Marshaler {
 	return ec._Rekor(ctx, sel, &v)
-}
-
-func (ec *executionContext) unmarshalNRepositoryAuthorization2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorization(ctx context.Context, v interface{}) (model.RepositoryAuthorization, error) {
-	var res model.RepositoryAuthorization
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNRepositoryAuthorization2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorization(ctx context.Context, sel ast.SelectionSet, v model.RepositoryAuthorization) graphql.Marshaler {
-	return v
-}
-
-func (ec *executionContext) unmarshalNRepositoryAuthorization2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorizationᚄ(ctx context.Context, v interface{}) ([]model.RepositoryAuthorization, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]model.RepositoryAuthorization, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNRepositoryAuthorization2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorization(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalNRepositoryAuthorization2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorizationᚄ(ctx context.Context, sel ast.SelectionSet, v []model.RepositoryAuthorization) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNRepositoryAuthorization2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRepositoryAuthorization(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalNRequests2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRequests(ctx context.Context, sel ast.SelectionSet, v model.Requests) graphql.Marshaler {
