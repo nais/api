@@ -528,6 +528,7 @@ type KafkaTopicACL struct {
 	Access      string    `json:"access"`
 	Application string    `json:"application"`
 	Team        slug.Slug `json:"team"`
+	Environment *Env      `json:"environment,omitempty"`
 }
 
 type KafkaTopicACLList struct {

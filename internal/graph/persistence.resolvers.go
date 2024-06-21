@@ -34,9 +34,31 @@ func (r *bucketResolver) Workload(ctx context.Context, obj *model.Bucket) (model
 }
 
 func (r *kafkaTopicResolver) ACL(ctx context.Context, obj *model.KafkaTopic, offset *int, limit *int, orderBy *model.OrderBy) (*model.KafkaTopicACLList, error) {
-	acls := obj.ACL
-	if acls == nil {
-		return nil, nil
+	acls := make([]*model.KafkaTopicACL, 0, len(obj.ACL))
+	for _, acl := range obj.ACL {
+		a := &model.KafkaTopicACL{
+			Team:        acl.Team,
+			Application: acl.Application,
+			Access:      acl.Access,
+		}
+
+		altAppEnv := ""
+		switch obj.Env.Name {
+		case "dev-gcp":
+			altAppEnv = "dev-fss"
+		case "prod-gcp":
+			altAppEnv = "prod-fss"
+		}
+
+		if r.k8sClient.AppExists(obj.Env.Name, string(acl.Team), a.Application) {
+			a.Environment = &obj.Env
+		} else if altAppEnv != "" && r.k8sClient.AppExists(altAppEnv, string(acl.Team), a.Application) {
+			a.Environment = &model.Env{
+				Name: altAppEnv,
+				Team: string(acl.Team),
+			}
+		}
+		acls = append(acls, a)
 	}
 
 	if orderBy != nil {

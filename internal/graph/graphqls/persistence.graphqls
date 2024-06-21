@@ -126,6 +126,7 @@ type KafkaTopicAcl {
   access: String!
   application: String!
   team: Slug!
+  environment: Env
 }
 
 type OpenSearch implements Persistence {

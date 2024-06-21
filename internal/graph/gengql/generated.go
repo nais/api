@@ -704,6 +704,7 @@ type ComplexityRoot struct {
 	KafkaTopicAcl struct {
 		Access      func(childComplexity int) int
 		Application func(childComplexity int) int
+		Environment func(childComplexity int) int
 		Team        func(childComplexity int) int
 	}
 
@@ -4264,6 +4265,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.KafkaTopicAcl.Application(childComplexity), true
+
+	case "KafkaTopicAcl.environment":
+		if e.complexity.KafkaTopicAcl.Environment == nil {
+			break
+		}
+
+		return e.complexity.KafkaTopicAcl.Environment(childComplexity), true
 
 	case "KafkaTopicAcl.team":
 		if e.complexity.KafkaTopicAcl.Team == nil {
@@ -8984,6 +8992,7 @@ type KafkaTopicAcl {
   access: String!
   application: String!
   team: Slug!
+  environment: Env
 }
 
 type OpenSearch implements Persistence {
@@ -30838,6 +30847,59 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_team(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _KafkaTopicAcl_environment(ctx context.Context, field graphql.CollectedField, obj *model.KafkaTopicACL) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaTopicAcl_environment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Environment, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Env)
+	fc.Result = res
+	return ec.marshalOEnv2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnv(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_KafkaTopicAcl_environment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaTopicAcl",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Env_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Env_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_Env_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_Env_slackAlertsChannel(ctx, field)
+			case "secrets":
+				return ec.fieldContext_Env_secrets(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Env", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _KafkaTopicAclList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.KafkaTopicACLList) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_KafkaTopicAclList_nodes(ctx, field)
 	if err != nil {
@@ -30883,6 +30945,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAclList_nodes(ctx context.Con
 				return ec.fieldContext_KafkaTopicAcl_application(ctx, field)
 			case "team":
 				return ec.fieldContext_KafkaTopicAcl_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_KafkaTopicAcl_environment(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type KafkaTopicAcl", field.Name)
 		},
@@ -63021,6 +63085,8 @@ func (ec *executionContext) _KafkaTopicAcl(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "environment":
+			out.Values[i] = ec._KafkaTopicAcl_environment(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -76251,6 +76317,13 @@ func (ec *executionContext) marshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 		return graphql.Null
 	}
 	return graphql.WrapContextMarshaler(ctx, v)
+}
+
+func (ec *executionContext) marshalOEnv2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnv(ctx context.Context, sel ast.SelectionSet, v *model.Env) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Env(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOGitHubRepositoriesFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐGitHubRepositoriesFilter(ctx context.Context, v interface{}) (*model.GitHubRepositoriesFilter, error) {
