@@ -33,6 +33,50 @@ func (r *bucketResolver) Workload(ctx context.Context, obj *model.Bucket) (model
 	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
 }
 
+func (r *kafkaTopicResolver) ACL(ctx context.Context, obj *model.KafkaTopic, offset *int, limit *int, orderBy *model.OrderBy) (*model.KafkaTopicACLList, error) {
+	acls := obj.ACL
+	if acls == nil {
+		return nil, nil
+	}
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case model.OrderByFieldName:
+			model.SortWith(acls, func(a, b *model.KafkaTopicACL) bool {
+				if a.Team == b.Team {
+					return model.Compare(a.Application, b.Application, model.SortOrderAsc)
+				}
+				return model.Compare(a.Team, b.Team, orderBy.Direction)
+			})
+		case model.OrderByFieldAppName:
+			model.SortWith(acls, func(a, b *model.KafkaTopicACL) bool {
+				return model.Compare(a.Application, b.Application, orderBy.Direction)
+			})
+		case model.OrderByFieldAccess:
+			model.SortWith(acls, func(a, b *model.KafkaTopicACL) bool {
+				if a.Access == b.Access {
+					if a.Team == b.Team {
+						return model.Compare(a.Application, b.Application, model.SortOrderAsc)
+					} else {
+						return model.Compare(a.Team, b.Team, model.SortOrderAsc)
+					}
+				}
+				return model.Compare(a.Access, b.Access, orderBy.Direction)
+			})
+		default:
+			return nil, apierror.Errorf("Unknown field: %q", orderBy.Field)
+		}
+	}
+
+	pagination := model.NewPagination(offset, limit)
+	acls, pageInfo := model.PaginatedSlice(acls, pagination)
+
+	return &model.KafkaTopicACLList{
+		Nodes:    acls,
+		PageInfo: pageInfo,
+	}, nil
+}
+
 func (r *kafkaTopicResolver) Team(ctx context.Context, obj *model.KafkaTopic) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
 }

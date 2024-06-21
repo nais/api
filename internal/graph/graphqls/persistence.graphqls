@@ -79,7 +79,16 @@ type BucketCors {
 type KafkaTopic implements Persistence {
   name: String!
   id: ID!
-  acl: [KafkaTopicAcl!]!
+  acl(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order entries by"
+    orderBy: OrderBy
+  ): KafkaTopicAclList!
   config: KafkaTopicConfig
   pool: String!
   team: Team!
@@ -106,6 +115,11 @@ type KafkaTopicConfig {
   retentionBytes: Int
   retentionHours: Int
   segmentHours: Int
+}
+
+type KafkaTopicAclList {
+  nodes: [KafkaTopicAcl!]!
+  pageInfo: PageInfo!
 }
 
 type KafkaTopicAcl {
@@ -303,4 +317,7 @@ extend enum OrderByField {
 
   "Order by disk utilization"
   DISK
+
+  "Order by access"
+  ACCESS
 }
