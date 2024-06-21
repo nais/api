@@ -99,16 +99,20 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 	}
 
 	if inf := c.informers[cluster].KafkaTopic; inf != nil {
-		objs, err := inf.Lister().ByNamespace(string(teamSlug)).List(byAppLabel)
+		objs, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
 		if err != nil {
 			return nil, fmt.Errorf("listing KafkaTopic instances: %w", err)
 		}
 		for _, obj := range objs {
-			o, err := model.ToKafkaTopic(obj.(*unstructured.Unstructured), cluster)
+			topic, err := model.ToKafkaTopic(obj.(*unstructured.Unstructured), cluster)
 			if err != nil {
 				return nil, fmt.Errorf("converting KafkaTopic instance: %w", err)
 			}
-			ret = append(ret, o)
+			for _, t := range topic.ACL {
+				if t.Application == workload.Name {
+					ret = append(ret, topic)
+				}
+			}
 		}
 	}
 
