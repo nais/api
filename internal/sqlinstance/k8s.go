@@ -16,41 +16,41 @@ import (
 )
 
 func (c *Client) SqlInstance(ctx context.Context, env string, teamSlug slug.Slug, instanceName string) (*model.SQLInstance, error) {
-	SqlInstanceOpsCounter.Add(context.Background(), 1)
+	SqlInstanceOpsCounter.Add(ctx, 1)
 	inf, exists := c.informers[env]
 	if !exists {
-		SqlInstanceErrorCounter.Add(context.Background(), 1)
+		SqlInstanceErrorCounter.Add(ctx, 1)
 		return nil, fmt.Errorf("unknown env: %s", env)
 	}
 
 	if inf.SqlInstance == nil {
-		SqlInstanceErrorCounter.Add(context.Background(), 1)
+		SqlInstanceErrorCounter.Add(ctx, 1)
 
 		return nil, fmt.Errorf("SQL instance informer not supported in env: %q", env)
 	}
 
 	obj, err := inf.SqlInstance.Lister().ByNamespace(string(teamSlug)).Get(instanceName)
 	if err != nil {
-		SqlInstanceErrorCounter.Add(context.Background(), 1)
+		SqlInstanceErrorCounter.Add(ctx, 1)
 		return nil, fmt.Errorf("get SQL instance: %w", err)
 	}
 
 	instance, err := model.ToSqlInstance(obj.(*unstructured.Unstructured), env)
 	if err != nil {
-		SqlInstanceErrorCounter.Add(context.Background(), 1)
+		SqlInstanceErrorCounter.Add(ctx, 1)
 		return nil, err
 	}
 
 	state, err := c.admin.GetState(ctx, instance.ProjectID, instance.Name)
 	if err != nil {
-		SqlInstanceErrorCounter.Add(context.Background(), 1)
+		SqlInstanceErrorCounter.Add(ctx, 1)
 		return nil, c.error(err, "getting SQL instance from admin API")
 	}
 	instance.State = model.SQLInstanceState(state)
 
 	metrics, err := c.metrics.metricsForSqlInstance(ctx, instance)
 	if err != nil {
-		SqlInstanceErrorCounter.Add(context.Background(), 1)
+		SqlInstanceErrorCounter.Add(ctx, 1)
 		return nil, err
 	}
 	instance.Metrics = metrics
@@ -59,7 +59,7 @@ func (c *Client) SqlInstance(ctx context.Context, env string, teamSlug slug.Slug
 }
 
 func (c *Client) SqlInstances(ctx context.Context, teamSlug slug.Slug, teamEnvs []*database.TeamEnvironment) ([]*model.SQLInstance, *model.SQLInstancesMetrics, error) {
-	SqlInstanceListOpsCounter.Add(context.Background(), 1)
+	SqlInstanceListOpsCounter.Add(ctx, 1)
 	ret := make([]*model.SQLInstance, 0)
 
 	for env, infs := range c.informers {
@@ -69,7 +69,7 @@ func (c *Client) SqlInstances(ctx context.Context, teamSlug slug.Slug, teamEnvs 
 
 		objs, err := infs.SqlInstance.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
 		if err != nil {
-			SqlInstanceListErrorCounter.Add(context.Background(), 1)
+			SqlInstanceListErrorCounter.Add(ctx, 1)
 			return nil, nil, c.error(err, "listing SQL instances")
 		}
 
@@ -81,7 +81,7 @@ func (c *Client) SqlInstances(ctx context.Context, teamSlug slug.Slug, teamEnvs 
 				}
 				i, err := c.admin.GetInstances(ctx, *teamEnv.GcpProjectID)
 				if err != nil {
-					SqlInstanceListErrorCounter.Add(context.Background(), 1)
+					SqlInstanceListErrorCounter.Add(ctx, 1)
 
 					return nil, nil, c.error(err, "getting SQL instances from admin API")
 				}
@@ -92,7 +92,7 @@ func (c *Client) SqlInstances(ctx context.Context, teamSlug slug.Slug, teamEnvs 
 		for _, obj := range objs {
 			instance, err := model.ToSqlInstance(obj.(*unstructured.Unstructured), env)
 			if err != nil {
-				SqlInstanceListErrorCounter.Add(context.Background(), 1)
+				SqlInstanceListErrorCounter.Add(ctx, 1)
 
 				return nil, nil, c.error(err, "converting to SQL instance model")
 			}
@@ -109,7 +109,7 @@ func (c *Client) SqlInstances(ctx context.Context, teamSlug slug.Slug, teamEnvs 
 
 			metrics, err := c.metrics.metricsForSqlInstance(ctx, instance) // instance => ws-test
 			if err != nil {
-				SqlInstanceErrorCounter.Add(context.Background(), 1)
+				SqlInstanceErrorCounter.Add(ctx, 1)
 				return nil, nil, err
 			}
 			instance.Metrics = metrics

@@ -68,7 +68,7 @@ func NewUpdater(k8sClient *k8s.Client, promClients map[string]promv1.API, db dat
 	if err != nil {
 		log.Fatalf("failed to create counter: %v", err)
 	}
-	counter.Add(context.Background(), 1)
+
 	return &Updater{
 		k8sClient:    k8sClient,
 		db:           db,
