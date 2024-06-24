@@ -123,7 +123,7 @@ func (r *kafkaTopicAclResolver) Workload(ctx context.Context, obj *model.KafkaTo
 		return r.k8sClient.NaisJob(ctx, app, team, altEnv)
 	}
 
-	return nil, apierror.Errorf("No workload found for team: %q, app: %q, env: %q (%q)", team, app, altEnv, env)
+	return nil, nil
 }
 
 func (r *openSearchResolver) Access(ctx context.Context, obj *model.OpenSearch) ([]*model.OpenSearchInstanceAccess, error) {
