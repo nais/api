@@ -34,6 +34,15 @@ spec:
   - access: read
     application: migrator
     team: tsm
+  - access: write
+    application: app-w-all-storage
+    team: devteam
+  - access: read
+    application: "*"
+    team: devteam
+  - access: read
+    application: "*"
+    team: "*"
   config:
     cleanupPolicy: delete
     maxMessageBytes: 1048588

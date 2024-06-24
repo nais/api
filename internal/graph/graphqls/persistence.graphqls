@@ -80,6 +80,9 @@ type KafkaTopic implements Persistence {
   name: String!
   id: ID!
   acl(
+    "Filter by team and app"
+    filter: KafkaTopicACLFilter
+
     "Returns the first n entries from the list."
     offset: Int
 
@@ -94,6 +97,11 @@ type KafkaTopic implements Persistence {
   team: Team!
   env: Env!
   status: KafkaTopicStatus
+}
+
+input KafkaTopicACLFilter {
+  team: Slug
+  application: String
 }
 
 type KafkaTopicStatus {
@@ -124,9 +132,9 @@ type KafkaTopicAclList {
 
 type KafkaTopicAcl {
   access: String!
-  application: String!
-  team: Slug!
-  environment: Env
+  applicationName: String!
+  teamName: String!
+  workload: Workload
 }
 
 type OpenSearch implements Persistence {

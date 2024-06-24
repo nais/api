@@ -524,11 +524,9 @@ type JobsStatus struct {
 	Failing int `json:"failing"`
 }
 
-type KafkaTopicACL struct {
-	Access      string    `json:"access"`
-	Application string    `json:"application"`
-	Team        slug.Slug `json:"team"`
-	Environment *Env      `json:"environment,omitempty"`
+type KafkaTopicACLFilter struct {
+	Team        *slug.Slug `json:"team,omitempty"`
+	Application *string    `json:"application,omitempty"`
 }
 
 type KafkaTopicACLList struct {

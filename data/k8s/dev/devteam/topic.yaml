@@ -25,6 +25,9 @@ metadata:
   uid: 2a42ee8c-2b77-4e82-9db8-53fc985df71c
 spec:
   acl:
+  - access: read
+    application: app-w-all-storage
+    team: devteam
   - access: readwrite
     application: dataprodukt-forstegangsbehandling
     team: devteam

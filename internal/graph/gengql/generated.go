@@ -62,6 +62,7 @@ type ResolverRoot interface {
 	GitHubRepository() GitHubRepositoryResolver
 	ImageDetails() ImageDetailsResolver
 	KafkaTopic() KafkaTopicResolver
+	KafkaTopicAcl() KafkaTopicAclResolver
 	Mutation() MutationResolver
 	NaisJob() NaisJobResolver
 	OpenSearch() OpenSearchResolver
@@ -691,7 +692,7 @@ type ComplexityRoot struct {
 	}
 
 	KafkaTopic struct {
-		ACL    func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
+		ACL    func(childComplexity int, filter *model.KafkaTopicACLFilter, offset *int, limit *int, orderBy *model.OrderBy) int
 		Config func(childComplexity int) int
 		Env    func(childComplexity int) int
 		ID     func(childComplexity int) int
@@ -702,10 +703,10 @@ type ComplexityRoot struct {
 	}
 
 	KafkaTopicAcl struct {
-		Access      func(childComplexity int) int
-		Application func(childComplexity int) int
-		Environment func(childComplexity int) int
-		Team        func(childComplexity int) int
+		Access          func(childComplexity int) int
+		ApplicationName func(childComplexity int) int
+		TeamName        func(childComplexity int) int
+		Workload        func(childComplexity int) int
 	}
 
 	KafkaTopicAclList struct {
@@ -1404,11 +1405,12 @@ type AnalysisTrailResolver interface {
 	Comments(ctx context.Context, obj *model.AnalysisTrail, offset *int, limit *int) (*model.AnalysisCommentList, error)
 }
 type AppResolver interface {
+	Persistence(ctx context.Context, obj *model.App) ([]model.Persistence, error)
+
 	ImageDetails(ctx context.Context, obj *model.App) (*model.ImageDetails, error)
 
 	Instances(ctx context.Context, obj *model.App) ([]*model.Instance, error)
 
-	Persistence(ctx context.Context, obj *model.App) ([]model.Persistence, error)
 	Manifest(ctx context.Context, obj *model.App) (string, error)
 	Team(ctx context.Context, obj *model.App) (*model.Team, error)
 	Secrets(ctx context.Context, obj *model.App) ([]*model.Secret, error)
@@ -1469,9 +1471,12 @@ type ImageDetailsResolver interface {
 	WorkloadReferences(ctx context.Context, obj *model.ImageDetails) ([]model.Workload, error)
 }
 type KafkaTopicResolver interface {
-	ACL(ctx context.Context, obj *model.KafkaTopic, offset *int, limit *int, orderBy *model.OrderBy) (*model.KafkaTopicACLList, error)
+	ACL(ctx context.Context, obj *model.KafkaTopic, filter *model.KafkaTopicACLFilter, offset *int, limit *int, orderBy *model.OrderBy) (*model.KafkaTopicACLList, error)
 
 	Team(ctx context.Context, obj *model.KafkaTopic) (*model.Team, error)
+}
+type KafkaTopicAclResolver interface {
+	Workload(ctx context.Context, obj *model.KafkaTopicACL) (model.Workload, error)
 }
 type MutationResolver interface {
 	DeleteApp(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteAppResult, error)
@@ -1505,12 +1510,13 @@ type MutationResolver interface {
 	SynchronizeUsers(ctx context.Context) (string, error)
 }
 type NaisJobResolver interface {
+	Persistence(ctx context.Context, obj *model.NaisJob) ([]model.Persistence, error)
+
 	ImageDetails(ctx context.Context, obj *model.NaisJob) (*model.ImageDetails, error)
 	Runs(ctx context.Context, obj *model.NaisJob) ([]*model.Run, error)
 	Manifest(ctx context.Context, obj *model.NaisJob) (string, error)
 
 	Team(ctx context.Context, obj *model.NaisJob) (*model.Team, error)
-	Persistence(ctx context.Context, obj *model.NaisJob) ([]model.Persistence, error)
 
 	Secrets(ctx context.Context, obj *model.NaisJob) ([]*model.Secret, error)
 }
@@ -4201,7 +4207,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.KafkaTopic.ACL(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy)), true
+		return e.complexity.KafkaTopic.ACL(childComplexity, args["filter"].(*model.KafkaTopicACLFilter), args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy)), true
 
 	case "KafkaTopic.config":
 		if e.complexity.KafkaTopic.Config == nil {
@@ -4259,26 +4265,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.KafkaTopicAcl.Access(childComplexity), true
 
-	case "KafkaTopicAcl.application":
-		if e.complexity.KafkaTopicAcl.Application == nil {
+	case "KafkaTopicAcl.applicationName":
+		if e.complexity.KafkaTopicAcl.ApplicationName == nil {
 			break
 		}
 
-		return e.complexity.KafkaTopicAcl.Application(childComplexity), true
+		return e.complexity.KafkaTopicAcl.ApplicationName(childComplexity), true
 
-	case "KafkaTopicAcl.environment":
-		if e.complexity.KafkaTopicAcl.Environment == nil {
+	case "KafkaTopicAcl.teamName":
+		if e.complexity.KafkaTopicAcl.TeamName == nil {
 			break
 		}
 
-		return e.complexity.KafkaTopicAcl.Environment(childComplexity), true
+		return e.complexity.KafkaTopicAcl.TeamName(childComplexity), true
 
-	case "KafkaTopicAcl.team":
-		if e.complexity.KafkaTopicAcl.Team == nil {
+	case "KafkaTopicAcl.workload":
+		if e.complexity.KafkaTopicAcl.Workload == nil {
 			break
 		}
 
-		return e.complexity.KafkaTopicAcl.Team(childComplexity), true
+		return e.complexity.KafkaTopicAcl.Workload(childComplexity), true
 
 	case "KafkaTopicAclList.nodes":
 		if e.complexity.KafkaTopicAclList.Nodes == nil {
@@ -7682,6 +7688,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateTeamInput,
 		ec.unmarshalInputEnvCostFilter,
 		ec.unmarshalInputGitHubRepositoriesFilter,
+		ec.unmarshalInputKafkaTopicACLFilter,
 		ec.unmarshalInputLogSubscriptionInput,
 		ec.unmarshalInputMonthlyCostFilter,
 		ec.unmarshalInputOrderBy,
@@ -7895,6 +7902,7 @@ type App implements Workload {
   status: WorkloadStatus!
   authz: [Authz!]!
   variables: [Variable!]!
+  persistence: [Persistence!]!
   resources: Resources!
   type: WorkloadType!
 
@@ -7902,7 +7910,6 @@ type App implements Workload {
   ingresses: [String!]!
   instances: [Instance!]!
   autoScaling: AutoScaling!
-  persistence: [Persistence!]!
   manifest: String!
   team: Team!
   secrets: [Secret!]!
@@ -8843,6 +8850,7 @@ type NaisJob implements Workload {
   accessPolicy: AccessPolicy!
   status: WorkloadStatus!
   authz: [Authz!]!
+  persistence: [Persistence!]!
   variables: [Variable!]!
   resources: Resources!
   type: WorkloadType!
@@ -8852,7 +8860,6 @@ type NaisJob implements Workload {
   manifest: String!
   schedule: String!
   team: Team!
-  persistence: [Persistence!]!
   completions: Int!
   parallelism: Int!
   retries: Int!
@@ -8946,6 +8953,9 @@ type KafkaTopic implements Persistence {
   name: String!
   id: ID!
   acl(
+    "Filter by team and app"
+    filter: KafkaTopicACLFilter
+
     "Returns the first n entries from the list."
     offset: Int
 
@@ -8960,6 +8970,11 @@ type KafkaTopic implements Persistence {
   team: Team!
   env: Env!
   status: KafkaTopicStatus
+}
+
+input KafkaTopicACLFilter {
+  team: Slug
+  application: String
 }
 
 type KafkaTopicStatus {
@@ -8990,9 +9005,9 @@ type KafkaTopicAclList {
 
 type KafkaTopicAcl {
   access: String!
-  application: String!
-  team: Slug!
-  environment: Env
+  applicationName: String!
+  teamName: String!
+  workload: Workload
 }
 
 type OpenSearch implements Persistence {
@@ -10567,6 +10582,7 @@ type TeamMemberList {
   variables: [Variable!]!
   resources: Resources!
   team: Team!
+  persistence: [Persistence!]!
   type: WorkloadType!
 }
 
@@ -10666,33 +10682,42 @@ func (ec *executionContext) field_ImageDetails_findings_args(ctx context.Context
 func (ec *executionContext) field_KafkaTopic_acl_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *int
-	if tmp, ok := rawArgs["offset"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+	var arg0 *model.KafkaTopicACLFilter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg0, err = ec.unmarshalOKafkaTopicACLFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐKafkaTopicACLFilter(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["offset"] = arg0
+	args["filter"] = arg0
 	var arg1 *int
-	if tmp, ok := rawArgs["limit"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
 		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["limit"] = arg1
-	var arg2 *model.OrderBy
-	if tmp, ok := rawArgs["orderBy"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
-		arg2, err = ec.unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderBy(ctx, tmp)
+	args["offset"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["orderBy"] = arg2
+	args["limit"] = arg2
+	var arg3 *model.OrderBy
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg3, err = ec.unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderBy(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg3
 	return args, nil
 }
 
@@ -13772,6 +13797,50 @@ func (ec *executionContext) fieldContext_App_variables(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _App_persistence(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_App_persistence(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.App().Persistence(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]model.Persistence)
+	fc.Result = res
+	return ec.marshalNPersistence2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPersistenceᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_App_persistence(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "App",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _App_resources(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_App_resources(ctx, field)
 	if err != nil {
@@ -14085,50 +14154,6 @@ func (ec *executionContext) fieldContext_App_autoScaling(ctx context.Context, fi
 				return ec.fieldContext_AutoScaling_min(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AutoScaling", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _App_persistence(ctx context.Context, field graphql.CollectedField, obj *model.App) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_App_persistence(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.App().Persistence(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]model.Persistence)
-	fc.Result = res
-	return ec.marshalNPersistence2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPersistenceᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_App_persistence(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "App",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
 	}
 	return fc, nil
@@ -14565,6 +14590,8 @@ func (ec *executionContext) fieldContext_AppList_nodes(ctx context.Context, fiel
 				return ec.fieldContext_App_authz(ctx, field)
 			case "variables":
 				return ec.fieldContext_App_variables(ctx, field)
+			case "persistence":
+				return ec.fieldContext_App_persistence(ctx, field)
 			case "resources":
 				return ec.fieldContext_App_resources(ctx, field)
 			case "type":
@@ -14577,8 +14604,6 @@ func (ec *executionContext) fieldContext_AppList_nodes(ctx context.Context, fiel
 				return ec.fieldContext_App_instances(ctx, field)
 			case "autoScaling":
 				return ec.fieldContext_App_autoScaling(ctx, field)
-			case "persistence":
-				return ec.fieldContext_App_persistence(ctx, field)
 			case "manifest":
 				return ec.fieldContext_App_manifest(ctx, field)
 			case "team":
@@ -30324,7 +30349,7 @@ func (ec *executionContext) _KafkaTopic_acl(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.KafkaTopic().ACL(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["orderBy"].(*model.OrderBy))
+		return ec.resolvers.KafkaTopic().ACL(rctx, obj, fc.Args["filter"].(*model.KafkaTopicACLFilter), fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["orderBy"].(*model.OrderBy))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -30759,8 +30784,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_access(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicAcl_application(ctx context.Context, field graphql.CollectedField, obj *model.KafkaTopicACL) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_KafkaTopicAcl_application(ctx, field)
+func (ec *executionContext) _KafkaTopicAcl_applicationName(ctx context.Context, field graphql.CollectedField, obj *model.KafkaTopicACL) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaTopicAcl_applicationName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -30773,7 +30798,7 @@ func (ec *executionContext) _KafkaTopicAcl_application(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Application, nil
+		return obj.ApplicationName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -30790,7 +30815,7 @@ func (ec *executionContext) _KafkaTopicAcl_application(ctx context.Context, fiel
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_KafkaTopicAcl_application(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KafkaTopicAcl_applicationName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicAcl",
 		Field:      field,
@@ -30803,8 +30828,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_application(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicAcl_team(ctx context.Context, field graphql.CollectedField, obj *model.KafkaTopicACL) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_KafkaTopicAcl_team(ctx, field)
+func (ec *executionContext) _KafkaTopicAcl_teamName(ctx context.Context, field graphql.CollectedField, obj *model.KafkaTopicACL) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaTopicAcl_teamName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -30817,7 +30842,7 @@ func (ec *executionContext) _KafkaTopicAcl_team(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Team, nil
+		return obj.TeamName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -30829,26 +30854,26 @@ func (ec *executionContext) _KafkaTopicAcl_team(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(slug.Slug)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_KafkaTopicAcl_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KafkaTopicAcl_teamName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicAcl",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Slug does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicAcl_environment(ctx context.Context, field graphql.CollectedField, obj *model.KafkaTopicACL) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_KafkaTopicAcl_environment(ctx, field)
+func (ec *executionContext) _KafkaTopicAcl_workload(ctx context.Context, field graphql.CollectedField, obj *model.KafkaTopicACL) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaTopicAcl_workload(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -30861,7 +30886,7 @@ func (ec *executionContext) _KafkaTopicAcl_environment(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Environment, nil
+		return ec.resolvers.KafkaTopicAcl().Workload(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -30870,31 +30895,19 @@ func (ec *executionContext) _KafkaTopicAcl_environment(ctx context.Context, fiel
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.Env)
+	res := resTmp.(model.Workload)
 	fc.Result = res
-	return ec.marshalOEnv2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnv(ctx, field.Selections, res)
+	return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_KafkaTopicAcl_environment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KafkaTopicAcl_workload(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicAcl",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Env_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Env_name(ctx, field)
-			case "gcpProjectID":
-				return ec.fieldContext_Env_gcpProjectID(ctx, field)
-			case "slackAlertsChannel":
-				return ec.fieldContext_Env_slackAlertsChannel(ctx, field)
-			case "secrets":
-				return ec.fieldContext_Env_secrets(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Env", field.Name)
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
 	}
 	return fc, nil
@@ -30941,12 +30954,12 @@ func (ec *executionContext) fieldContext_KafkaTopicAclList_nodes(ctx context.Con
 			switch field.Name {
 			case "access":
 				return ec.fieldContext_KafkaTopicAcl_access(ctx, field)
-			case "application":
-				return ec.fieldContext_KafkaTopicAcl_application(ctx, field)
-			case "team":
-				return ec.fieldContext_KafkaTopicAcl_team(ctx, field)
-			case "environment":
-				return ec.fieldContext_KafkaTopicAcl_environment(ctx, field)
+			case "applicationName":
+				return ec.fieldContext_KafkaTopicAcl_applicationName(ctx, field)
+			case "teamName":
+				return ec.fieldContext_KafkaTopicAcl_teamName(ctx, field)
+			case "workload":
+				return ec.fieldContext_KafkaTopicAcl_workload(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type KafkaTopicAcl", field.Name)
 		},
@@ -35487,6 +35500,50 @@ func (ec *executionContext) fieldContext_NaisJob_authz(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _NaisJob_persistence(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NaisJob_persistence(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.NaisJob().Persistence(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]model.Persistence)
+	fc.Result = res
+	return ec.marshalNPersistence2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPersistenceᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NaisJob_persistence(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NaisJob",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _NaisJob_variables(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_NaisJob_variables(ctx, field)
 	if err != nil {
@@ -35977,50 +36034,6 @@ func (ec *executionContext) fieldContext_NaisJob_team(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _NaisJob_persistence(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_NaisJob_persistence(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.NaisJob().Persistence(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]model.Persistence)
-	fc.Result = res
-	return ec.marshalNPersistence2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPersistenceᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_NaisJob_persistence(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "NaisJob",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _NaisJob_completions(ctx context.Context, field graphql.CollectedField, obj *model.NaisJob) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_NaisJob_completions(ctx, field)
 	if err != nil {
@@ -36272,6 +36285,8 @@ func (ec *executionContext) fieldContext_NaisJobList_nodes(ctx context.Context, 
 				return ec.fieldContext_NaisJob_status(ctx, field)
 			case "authz":
 				return ec.fieldContext_NaisJob_authz(ctx, field)
+			case "persistence":
+				return ec.fieldContext_NaisJob_persistence(ctx, field)
 			case "variables":
 				return ec.fieldContext_NaisJob_variables(ctx, field)
 			case "resources":
@@ -36288,8 +36303,6 @@ func (ec *executionContext) fieldContext_NaisJobList_nodes(ctx context.Context, 
 				return ec.fieldContext_NaisJob_schedule(ctx, field)
 			case "team":
 				return ec.fieldContext_NaisJob_team(ctx, field)
-			case "persistence":
-				return ec.fieldContext_NaisJob_persistence(ctx, field)
 			case "completions":
 				return ec.fieldContext_NaisJob_completions(ctx, field)
 			case "parallelism":
@@ -37911,6 +37924,8 @@ func (ec *executionContext) fieldContext_Query_app(ctx context.Context, field gr
 				return ec.fieldContext_App_authz(ctx, field)
 			case "variables":
 				return ec.fieldContext_App_variables(ctx, field)
+			case "persistence":
+				return ec.fieldContext_App_persistence(ctx, field)
 			case "resources":
 				return ec.fieldContext_App_resources(ctx, field)
 			case "type":
@@ -37923,8 +37938,6 @@ func (ec *executionContext) fieldContext_Query_app(ctx context.Context, field gr
 				return ec.fieldContext_App_instances(ctx, field)
 			case "autoScaling":
 				return ec.fieldContext_App_autoScaling(ctx, field)
-			case "persistence":
-				return ec.fieldContext_App_persistence(ctx, field)
 			case "manifest":
 				return ec.fieldContext_App_manifest(ctx, field)
 			case "team":
@@ -38375,6 +38388,8 @@ func (ec *executionContext) fieldContext_Query_naisjob(ctx context.Context, fiel
 				return ec.fieldContext_NaisJob_status(ctx, field)
 			case "authz":
 				return ec.fieldContext_NaisJob_authz(ctx, field)
+			case "persistence":
+				return ec.fieldContext_NaisJob_persistence(ctx, field)
 			case "variables":
 				return ec.fieldContext_NaisJob_variables(ctx, field)
 			case "resources":
@@ -38391,8 +38406,6 @@ func (ec *executionContext) fieldContext_Query_naisjob(ctx context.Context, fiel
 				return ec.fieldContext_NaisJob_schedule(ctx, field)
 			case "team":
 				return ec.fieldContext_NaisJob_team(ctx, field)
-			case "persistence":
-				return ec.fieldContext_NaisJob_persistence(ctx, field)
 			case "completions":
 				return ec.fieldContext_NaisJob_completions(ctx, field)
 			case "parallelism":
@@ -45150,6 +45163,8 @@ func (ec *executionContext) fieldContext_Secret_apps(ctx context.Context, field 
 				return ec.fieldContext_App_authz(ctx, field)
 			case "variables":
 				return ec.fieldContext_App_variables(ctx, field)
+			case "persistence":
+				return ec.fieldContext_App_persistence(ctx, field)
 			case "resources":
 				return ec.fieldContext_App_resources(ctx, field)
 			case "type":
@@ -45162,8 +45177,6 @@ func (ec *executionContext) fieldContext_Secret_apps(ctx context.Context, field 
 				return ec.fieldContext_App_instances(ctx, field)
 			case "autoScaling":
 				return ec.fieldContext_App_autoScaling(ctx, field)
-			case "persistence":
-				return ec.fieldContext_App_persistence(ctx, field)
 			case "manifest":
 				return ec.fieldContext_App_manifest(ctx, field)
 			case "team":
@@ -45232,6 +45245,8 @@ func (ec *executionContext) fieldContext_Secret_jobs(ctx context.Context, field 
 				return ec.fieldContext_NaisJob_status(ctx, field)
 			case "authz":
 				return ec.fieldContext_NaisJob_authz(ctx, field)
+			case "persistence":
+				return ec.fieldContext_NaisJob_persistence(ctx, field)
 			case "variables":
 				return ec.fieldContext_NaisJob_variables(ctx, field)
 			case "resources":
@@ -45248,8 +45263,6 @@ func (ec *executionContext) fieldContext_Secret_jobs(ctx context.Context, field 
 				return ec.fieldContext_NaisJob_schedule(ctx, field)
 			case "team":
 				return ec.fieldContext_NaisJob_team(ctx, field)
-			case "persistence":
-				return ec.fieldContext_NaisJob_persistence(ctx, field)
 			case "completions":
 				return ec.fieldContext_NaisJob_completions(ctx, field)
 			case "parallelism":
@@ -56738,6 +56751,40 @@ func (ec *executionContext) unmarshalInputGitHubRepositoriesFilter(ctx context.C
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputKafkaTopicACLFilter(ctx context.Context, obj interface{}) (model.KafkaTopicACLFilter, error) {
+	var it model.KafkaTopicACLFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"team", "application"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "team":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
+			data, err := ec.unmarshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Team = data
+		case "application":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("application"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Application = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputLogSubscriptionInput(ctx context.Context, obj interface{}) (model.LogSubscriptionInput, error) {
 	var it model.LogSubscriptionInput
 	asMap := map[string]interface{}{}
@@ -57864,6 +57911,42 @@ func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "persistence":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._App_persistence(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "resources":
 			out.Values[i] = ec._App_resources(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -57956,42 +58039,6 @@ func (ec *executionContext) _App(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "persistence":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._App_persistence(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "manifest":
 			field := field
 
@@ -63073,20 +63120,51 @@ func (ec *executionContext) _KafkaTopicAcl(ctx context.Context, sel ast.Selectio
 		case "access":
 			out.Values[i] = ec._KafkaTopicAcl_access(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "application":
-			out.Values[i] = ec._KafkaTopicAcl_application(ctx, field, obj)
+		case "applicationName":
+			out.Values[i] = ec._KafkaTopicAcl_applicationName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "team":
-			out.Values[i] = ec._KafkaTopicAcl_team(ctx, field, obj)
+		case "teamName":
+			out.Values[i] = ec._KafkaTopicAcl_teamName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "environment":
-			out.Values[i] = ec._KafkaTopicAcl_environment(ctx, field, obj)
+		case "workload":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._KafkaTopicAcl_workload(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -63870,6 +63948,42 @@ func (ec *executionContext) _NaisJob(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "persistence":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._NaisJob_persistence(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "variables":
 			out.Values[i] = ec._NaisJob_variables(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -64008,42 +64122,6 @@ func (ec *executionContext) _NaisJob(ctx context.Context, sel ast.SelectionSet, 
 					}
 				}()
 				res = ec._NaisJob_team(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "persistence":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._NaisJob_persistence(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -76319,13 +76397,6 @@ func (ec *executionContext) marshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
-func (ec *executionContext) marshalOEnv2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐEnv(ctx context.Context, sel ast.SelectionSet, v *model.Env) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Env(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalOGitHubRepositoriesFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐGitHubRepositoriesFilter(ctx context.Context, v interface{}) (*model.GitHubRepositoriesFilter, error) {
 	if v == nil {
 		return nil, nil
@@ -76394,6 +76465,14 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	}
 	res := graphql.MarshalInt(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOKafkaTopicACLFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐKafkaTopicACLFilter(ctx context.Context, v interface{}) (*model.KafkaTopicACLFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputKafkaTopicACLFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOKafkaTopicConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐKafkaTopicConfig(ctx context.Context, sel ast.SelectionSet, v *model.KafkaTopicConfig) graphql.Marshaler {
@@ -76476,6 +76555,22 @@ func (ec *executionContext) marshalOSidecar2ᚖgithubᚗcomᚋnaisᚋapiᚋinter
 		return graphql.Null
 	}
 	return ec._Sidecar(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, v interface{}) (*slug.Slug, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(slug.Slug)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, sel ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) marshalOSqlDatabase2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐSQLDatabase(ctx context.Context, sel ast.SelectionSet, v *model.SQLDatabase) graphql.Marshaler {

@@ -31,6 +31,10 @@ func (r *mutationResolver) DeleteJob(ctx context.Context, name string, team slug
 	}, nil
 }
 
+func (r *naisJobResolver) Persistence(ctx context.Context, obj *model.NaisJob) ([]model.Persistence, error) {
+	return r.k8sClient.Persistence(ctx, obj.WorkloadBase)
+}
+
 func (r *naisJobResolver) ImageDetails(ctx context.Context, obj *model.NaisJob) (*model.ImageDetails, error) {
 	image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, obj.Image)
 	if err != nil {
@@ -54,10 +58,6 @@ func (r *naisJobResolver) Manifest(ctx context.Context, obj *model.NaisJob) (str
 
 func (r *naisJobResolver) Team(ctx context.Context, obj *model.NaisJob) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.GQLVars.Team)
-}
-
-func (r *naisJobResolver) Persistence(ctx context.Context, obj *model.NaisJob) ([]model.Persistence, error) {
-	return r.k8sClient.Persistence(ctx, obj.WorkloadBase)
 }
 
 func (r *naisJobResolver) Secrets(ctx context.Context, obj *model.NaisJob) ([]*model.Secret, error) {

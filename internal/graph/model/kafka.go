@@ -15,13 +15,26 @@ import (
 type KafkaTopic struct {
 	Name    string            `json:"name"`
 	ID      scalar.Ident      `json:"id"`
-	ACL     []*KafkaTopicACL  `json:"acl"`
 	Config  *KafkaTopicConfig `json:"config"`
+	ACL     []*KafkaTopicACL  `json:"acl"`
 	Pool    string            `json:"pool"`
 	Env     Env               `json:"env"`
 	Status  *KafkaTopicStatus `json:"status"`
 	GQLVars KafkaTopicGQLVars `json:"-"`
 }
+
+type KafkaTopicACL struct {
+	Access          string `json:"access"`
+	ApplicationName string `json:"applicationName"`
+	TeamName        string `json:"teamName"`
+
+	GQLVars KafkaTopicACLGQLVars `json:"-"`
+}
+
+type KafkaTopicACLGQLVars struct {
+	Env string
+}
+
 type KafkaTopicGQLVars struct {
 	TeamSlug slug.Slug
 }
@@ -60,9 +73,13 @@ func ToKafkaTopic(u *unstructured.Unstructured, env string) (*KafkaTopic, error)
 			ret := make([]*KafkaTopicACL, len(as))
 			for i, a := range as {
 				ret[i] = &KafkaTopicACL{
-					Access:      a.Access,
-					Application: a.Application,
-					Team:        slug.Slug(a.Team),
+					Access:          a.Access,
+					ApplicationName: a.Application,
+					TeamName:        a.Team,
+
+					GQLVars: KafkaTopicACLGQLVars{
+						Env: env,
+					},
 				}
 			}
 			return ret

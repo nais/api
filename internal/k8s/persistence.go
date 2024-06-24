@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/slug"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
@@ -99,7 +100,7 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 	}
 
 	if inf := c.informers[cluster].KafkaTopic; inf != nil {
-		objs, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
+		objs, err := inf.Lister().List(labels.Everything())
 		if err != nil {
 			return nil, fmt.Errorf("listing KafkaTopic instances: %w", err)
 		}
@@ -108,9 +109,16 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 			if err != nil {
 				return nil, fmt.Errorf("converting KafkaTopic instance: %w", err)
 			}
-			for _, t := range topic.ACL {
-				if t.Application == workload.Name {
+			for _, acl := range topic.ACL {
+				if acl.ApplicationName == workload.Name && slug.Slug(acl.TeamName) == teamSlug {
 					ret = append(ret, topic)
+					break
+				} else if acl.ApplicationName == "*" && acl.TeamName == string(teamSlug) {
+					ret = append(ret, topic)
+					break
+				} else if acl.ApplicationName == "*" && acl.TeamName == "*" {
+					ret = append(ret, topic)
+					break
 				}
 			}
 		}

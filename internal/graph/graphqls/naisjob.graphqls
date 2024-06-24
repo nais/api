@@ -57,6 +57,7 @@ type NaisJob implements Workload {
   accessPolicy: AccessPolicy!
   status: WorkloadStatus!
   authz: [Authz!]!
+  persistence: [Persistence!]!
   variables: [Variable!]!
   resources: Resources!
   type: WorkloadType!
@@ -66,7 +67,6 @@ type NaisJob implements Workload {
   manifest: String!
   schedule: String!
   team: Team!
-  persistence: [Persistence!]!
   completions: Int!
   parallelism: Int!
   retries: Int!
