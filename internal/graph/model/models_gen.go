@@ -524,10 +524,14 @@ type JobsStatus struct {
 	Failing int `json:"failing"`
 }
 
-type KafkaTopicACL struct {
-	Access      string    `json:"access"`
-	Application string    `json:"application"`
-	Team        slug.Slug `json:"team"`
+type KafkaTopicACLFilter struct {
+	Team        *slug.Slug `json:"team,omitempty"`
+	Application *string    `json:"application,omitempty"`
+}
+
+type KafkaTopicACLList struct {
+	Nodes    []*KafkaTopicACL `json:"nodes"`
+	PageInfo PageInfo         `json:"pageInfo"`
 }
 
 type KafkaTopicConfig struct {
@@ -1266,6 +1270,8 @@ const (
 	OrderByFieldMemory OrderByField = "MEMORY"
 	// Order by disk utilization
 	OrderByFieldDisk OrderByField = "DISK"
+	// Order by access
+	OrderByFieldAccess OrderByField = "ACCESS"
 )
 
 var AllOrderByField = []OrderByField{
@@ -1290,11 +1296,12 @@ var AllOrderByField = []OrderByField{
 	OrderByFieldCPU,
 	OrderByFieldMemory,
 	OrderByFieldDisk,
+	OrderByFieldAccess,
 }
 
 func (e OrderByField) IsValid() bool {
 	switch e {
-	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned, OrderByFieldSeverity, OrderByFieldPackageURL, OrderByFieldState, OrderByFieldIsSuppressed, OrderByFieldVersion, OrderByFieldCost, OrderByFieldCPU, OrderByFieldMemory, OrderByFieldDisk:
+	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned, OrderByFieldSeverity, OrderByFieldPackageURL, OrderByFieldState, OrderByFieldIsSuppressed, OrderByFieldVersion, OrderByFieldCost, OrderByFieldCPU, OrderByFieldMemory, OrderByFieldDisk, OrderByFieldAccess:
 		return true
 	}
 	return false

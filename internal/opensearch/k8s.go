@@ -15,9 +15,9 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 )
 
-func (c *Client) OpenSearch(teamSlug slug.Slug) ([]*model.OpenSearch, error) {
+func (c *Client) OpenSearch(ctx context.Context, teamSlug slug.Slug) ([]*model.OpenSearch, error) {
 	ret := make([]*model.OpenSearch, 0)
-	OpensearchListOpsCounter.Add(context.Background(), 1)
+	OpensearchListOpsCounter.Add(ctx, 1)
 	for env, infs := range c.informers {
 		inf := infs.OpenSearch
 		if inf == nil {
@@ -26,14 +26,14 @@ func (c *Client) OpenSearch(teamSlug slug.Slug) ([]*model.OpenSearch, error) {
 
 		objs, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
 		if err != nil {
-			OpensearchListErrorCounter.Add(context.Background(), 1)
+			OpensearchListErrorCounter.Add(ctx, 1)
 			return nil, fmt.Errorf("listing OpenSearches: %w", err)
 		}
 
 		for _, obj := range objs {
 			openSearch, err := model.ToOpenSearch(obj.(*unstructured.Unstructured), env)
 			if err != nil {
-				OpensearchListErrorCounter.Add(context.Background(), 1)
+				OpensearchListErrorCounter.Add(ctx, 1)
 				return nil, fmt.Errorf("converting to OpenSearch: %w", err)
 			}
 
@@ -49,26 +49,26 @@ func (c *Client) OpenSearch(teamSlug slug.Slug) ([]*model.OpenSearch, error) {
 
 func (c *Client) OpenSearchInstance(ctx context.Context, env string, teamSlug slug.Slug, openSearchName string) (*model.OpenSearch, error) {
 	inf, exists := c.informers[env]
-	OpensearchOpsCounter.Add(context.Background(), 1)
+	OpensearchOpsCounter.Add(ctx, 1)
 	if !exists {
-		OpensearchErrorCounter.Add(context.Background(), 1)
+		OpensearchErrorCounter.Add(ctx, 1)
 		return nil, fmt.Errorf("unknown env: %q", env)
 	}
 
 	if inf.OpenSearch == nil {
-		OpensearchErrorCounter.Add(context.Background(), 1)
+		OpensearchErrorCounter.Add(ctx, 1)
 		return nil, apierror.Errorf("openSearch informer not supported in env: %q", env)
 	}
 
 	obj, err := inf.OpenSearch.Lister().ByNamespace(string(teamSlug)).Get(openSearchName)
 	if err != nil {
-		OpensearchErrorCounter.Add(context.Background(), 1)
+		OpensearchErrorCounter.Add(ctx, 1)
 		return nil, fmt.Errorf("get openSearch: %w", err)
 	}
 
 	ret, err := model.ToOpenSearch(obj.(*unstructured.Unstructured), env)
 	if err != nil {
-		OpensearchErrorCounter.Add(context.Background(), 1)
+		OpensearchErrorCounter.Add(ctx, 1)
 		return nil, err
 	}
 
@@ -76,7 +76,7 @@ func (c *Client) OpenSearchInstance(ctx context.Context, env string, teamSlug sl
 }
 
 func (c *Client) CostForOpenSearchInstance(ctx context.Context, env string, teamSlug slug.Slug, ownerName string) float64 {
-	OpensearchCostOpsCounter.Add(context.Background(), 1)
+	OpensearchCostOpsCounter.Add(ctx, 1)
 	cost := 0.0
 	now := time.Now()
 	var from, to pgtype.Date
@@ -84,7 +84,7 @@ func (c *Client) CostForOpenSearchInstance(ctx context.Context, env string, team
 	_ = from.Scan(now.AddDate(0, 0, -30))
 
 	if sum, err := c.db.CostForInstance(ctx, "OpenSearch", from, to, teamSlug, ownerName, env); err != nil {
-		OpensearchCostErrorCounter.Add(context.Background(), 1)
+		OpensearchCostErrorCounter.Add(ctx, 1)
 		c.log.WithError(err).Errorf("fetching cost")
 	} else {
 		cost = float64(sum)

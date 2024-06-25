@@ -54,6 +54,7 @@ type App implements Workload {
   status: WorkloadStatus!
   authz: [Authz!]!
   variables: [Variable!]!
+  persistence: [Persistence!]!
   resources: Resources!
   type: WorkloadType!
 
@@ -61,7 +62,6 @@ type App implements Workload {
   ingresses: [String!]!
   instances: [Instance!]!
   autoScaling: AutoScaling!
-  persistence: [Persistence!]!
   manifest: String!
   team: Team!
   secrets: [Secret!]!

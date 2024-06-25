@@ -905,11 +905,11 @@ func (r *teamResolver) SQLInstances(ctx context.Context, obj *model.Team, offset
 }
 
 func (r *teamResolver) Bucket(ctx context.Context, obj *model.Team, name string, env string) (*model.Bucket, error) {
-	return r.bucketClient.Bucket(env, obj.Slug, name)
+	return r.bucketClient.Bucket(ctx, env, obj.Slug, name)
 }
 
 func (r *teamResolver) Buckets(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BucketsList, error) {
-	buckets, err := r.bucketClient.Buckets(obj.Slug)
+	buckets, err := r.bucketClient.Buckets(ctx, obj.Slug)
 	if err != nil {
 		return nil, err
 	}
@@ -941,7 +941,7 @@ func (r *teamResolver) RedisInstance(ctx context.Context, obj *model.Team, name 
 }
 
 func (r *teamResolver) Redis(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.RedisList, error) {
-	redis, err := r.redisClient.Redis(obj.Slug)
+	redis, err := r.redisClient.Redis(ctx, obj.Slug)
 	if err != nil {
 		return nil, err
 	}
@@ -973,7 +973,7 @@ func (r *teamResolver) OpenSearchInstance(ctx context.Context, obj *model.Team, 
 }
 
 func (r *teamResolver) OpenSearch(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.OpenSearchList, error) {
-	openSearch, err := r.openSearchClient.OpenSearch(obj.Slug)
+	openSearch, err := r.openSearchClient.OpenSearch(ctx, obj.Slug)
 	if err != nil {
 		return nil, err
 	}
@@ -1001,11 +1001,11 @@ func (r *teamResolver) OpenSearch(ctx context.Context, obj *model.Team, offset *
 }
 
 func (r *teamResolver) KafkaTopic(ctx context.Context, obj *model.Team, name string, env string) (*model.KafkaTopic, error) {
-	return r.kafkaClient.Topic(env, obj.Slug, name)
+	return r.kafkaClient.Topic(ctx, env, obj.Slug, name)
 }
 
 func (r *teamResolver) KafkaTopics(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.KafkaTopicList, error) {
-	kts, err := r.kafkaClient.Topics(obj.Slug)
+	kts, err := r.kafkaClient.Topics(ctx, obj.Slug)
 	if err != nil {
 		return nil, err
 	}
@@ -1033,7 +1033,7 @@ func (r *teamResolver) KafkaTopics(ctx context.Context, obj *model.Team, offset 
 }
 
 func (r *teamResolver) BigQuery(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BigQueryDatasetList, error) {
-	bqs, err := r.bigQueryDatasetClient.BigQueryDatasets(obj.Slug)
+	bqs, err := r.bigQueryDatasetClient.BigQueryDatasets(ctx, obj.Slug)
 	if err != nil {
 		return nil, err
 	}
@@ -1061,7 +1061,7 @@ func (r *teamResolver) BigQuery(ctx context.Context, obj *model.Team, offset *in
 }
 
 func (r *teamResolver) BigQueryDataset(ctx context.Context, obj *model.Team, name string, env string) (*model.BigQueryDataset, error) {
-	return r.bigQueryDatasetClient.BigQueryDataset(env, obj.Slug, name)
+	return r.bigQueryDatasetClient.BigQueryDataset(ctx, env, obj.Slug, name)
 }
 
 func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.AppList, error) {

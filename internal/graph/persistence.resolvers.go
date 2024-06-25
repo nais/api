@@ -33,8 +33,97 @@ func (r *bucketResolver) Workload(ctx context.Context, obj *model.Bucket) (model
 	return r.workload(ctx, obj.GQLVars.OwnerReference, obj.GQLVars.TeamSlug, obj.Env.Name)
 }
 
+func (r *kafkaTopicResolver) ACL(ctx context.Context, obj *model.KafkaTopic, filter *model.KafkaTopicACLFilter, offset *int, limit *int, orderBy *model.OrderBy) (*model.KafkaTopicACLList, error) {
+	acls := make([]*model.KafkaTopicACL, 0)
+	if filter != nil {
+		for _, acl := range obj.ACL {
+			if filter.Team != nil && string(*filter.Team) != acl.TeamName && acl.TeamName != "*" {
+				continue
+			}
+			if filter.Application != nil && *filter.Application != acl.ApplicationName && acl.ApplicationName != "*" {
+				continue
+			}
+
+			acls = append(acls, acl)
+		}
+	} else {
+		acls = obj.ACL
+	}
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case model.OrderByFieldName:
+			model.SortWith(acls, func(a, b *model.KafkaTopicACL) bool {
+				if a.TeamName == b.TeamName {
+					return model.Compare(a.ApplicationName, b.ApplicationName, model.SortOrderAsc)
+				}
+				return model.Compare(a.TeamName, b.TeamName, orderBy.Direction)
+			})
+		case model.OrderByFieldAppName:
+			model.SortWith(acls, func(a, b *model.KafkaTopicACL) bool {
+				return model.Compare(a.ApplicationName, b.ApplicationName, orderBy.Direction)
+			})
+		case model.OrderByFieldAccess:
+			model.SortWith(acls, func(a, b *model.KafkaTopicACL) bool {
+				if a.Access == b.Access {
+					if a.TeamName == b.TeamName {
+						return model.Compare(a.ApplicationName, b.ApplicationName, model.SortOrderAsc)
+					} else {
+						return model.Compare(a.TeamName, b.TeamName, model.SortOrderAsc)
+					}
+				}
+				return model.Compare(a.Access, b.Access, orderBy.Direction)
+			})
+		default:
+			return nil, apierror.Errorf("Unknown field: %q", orderBy.Field)
+		}
+	}
+
+	pagination := model.NewPagination(offset, limit)
+	acls, pageInfo := model.PaginatedSlice(acls, pagination)
+
+	return &model.KafkaTopicACLList{
+		Nodes:    acls,
+		PageInfo: pageInfo,
+	}, nil
+}
+
 func (r *kafkaTopicResolver) Team(ctx context.Context, obj *model.KafkaTopic) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.GQLVars.TeamSlug)
+}
+
+func (r *kafkaTopicAclResolver) Workload(ctx context.Context, obj *model.KafkaTopicACL) (model.Workload, error) {
+	env := obj.GQLVars.Env
+	team := obj.TeamName
+	app := obj.ApplicationName
+
+	if r.k8sClient.AppExists(env, team, app) {
+		return r.k8sClient.App(ctx, app, team, env)
+	}
+
+	if r.k8sClient.NaisJobExists(env, team, app) {
+		return r.k8sClient.NaisJob(ctx, app, team, env)
+	}
+
+	altEnv := ""
+	switch env {
+	case "dev-gcp":
+		altEnv = "dev-fss"
+	case "prod-gcp":
+		altEnv = "prod-fss"
+	default:
+		return nil, nil
+	}
+
+	if r.k8sClient.AppExists(altEnv, team, app) {
+		return r.k8sClient.App(ctx, app, team, altEnv)
+	}
+
+	if r.k8sClient.NaisJobExists(altEnv, team, app) {
+		return r.k8sClient.NaisJob(ctx, app, team, altEnv)
+	}
+
+	return nil, nil
 }
 
 func (r *openSearchResolver) Access(ctx context.Context, obj *model.OpenSearch) ([]*model.OpenSearchInstanceAccess, error) {
@@ -151,6 +240,8 @@ func (r *Resolver) Bucket() gengql.BucketResolver { return &bucketResolver{r} }
 
 func (r *Resolver) KafkaTopic() gengql.KafkaTopicResolver { return &kafkaTopicResolver{r} }
 
+func (r *Resolver) KafkaTopicAcl() gengql.KafkaTopicAclResolver { return &kafkaTopicAclResolver{r} }
+
 func (r *Resolver) OpenSearch() gengql.OpenSearchResolver { return &openSearchResolver{r} }
 
 func (r *Resolver) OpenSearchInstanceAccess() gengql.OpenSearchInstanceAccessResolver {
@@ -169,6 +260,7 @@ type (
 	bigQueryDatasetResolver          struct{ *Resolver }
 	bucketResolver                   struct{ *Resolver }
 	kafkaTopicResolver               struct{ *Resolver }
+	kafkaTopicAclResolver            struct{ *Resolver }
 	openSearchResolver               struct{ *Resolver }
 	openSearchInstanceAccessResolver struct{ *Resolver }
 	redisResolver                    struct{ *Resolver }

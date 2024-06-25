@@ -89,6 +89,17 @@ func (c *Client) NaisJob(ctx context.Context, name, team, env string) (*model.Na
 	return job, nil
 }
 
+// NaisJobExists returns true if the given app exists in the given environment. The naisjob informer should be synced before
+// calling this function.
+func (c *Client) NaisJobExists(env, team, job string) bool {
+	if c.informers[env] == nil {
+		return false
+	}
+
+	_, err := c.informers[env].Naisjob.Lister().ByNamespace(team).Get(job)
+	return err == nil
+}
+
 func (c *Client) setJobHasMutualOnOutbound(ctx context.Context, oJob, oTeam, oEnv string, outboundRule *model.Rule) error {
 	outboundEnv := oEnv
 	if outboundRule.Cluster != "" {

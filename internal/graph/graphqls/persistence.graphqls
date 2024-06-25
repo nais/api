@@ -79,12 +79,29 @@ type BucketCors {
 type KafkaTopic implements Persistence {
   name: String!
   id: ID!
-  acl: [KafkaTopicAcl!]!
+  acl(
+    "Filter by team and app"
+    filter: KafkaTopicACLFilter
+
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order entries by"
+    orderBy: OrderBy
+  ): KafkaTopicAclList!
   config: KafkaTopicConfig
   pool: String!
   team: Team!
   env: Env!
   status: KafkaTopicStatus
+}
+
+input KafkaTopicACLFilter {
+  team: Slug
+  application: String
 }
 
 type KafkaTopicStatus {
@@ -108,10 +125,16 @@ type KafkaTopicConfig {
   segmentHours: Int
 }
 
+type KafkaTopicAclList {
+  nodes: [KafkaTopicAcl!]!
+  pageInfo: PageInfo!
+}
+
 type KafkaTopicAcl {
   access: String!
-  application: String!
-  team: Slug!
+  applicationName: String!
+  teamName: String!
+  workload: Workload
 }
 
 type OpenSearch implements Persistence {
@@ -303,4 +326,7 @@ extend enum OrderByField {
 
   "Order by disk utilization"
   DISK
+
+  "Order by access"
+  ACCESS
 }

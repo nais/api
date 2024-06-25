@@ -10,6 +10,7 @@ interface Workload {
   variables: [Variable!]!
   resources: Resources!
   team: Team!
+  persistence: [Persistence!]!
   type: WorkloadType!
 }
 

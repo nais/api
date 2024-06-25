@@ -13,6 +13,10 @@ import (
 	"k8s.io/utils/ptr"
 )
 
+func (r *appResolver) Persistence(ctx context.Context, obj *model.App) ([]model.Persistence, error) {
+	return r.k8sClient.Persistence(ctx, obj.WorkloadBase)
+}
+
 func (r *appResolver) ImageDetails(ctx context.Context, obj *model.App) (*model.ImageDetails, error) {
 	image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, obj.Image)
 	if err != nil {
@@ -29,10 +33,6 @@ func (r *appResolver) Instances(ctx context.Context, obj *model.App) ([]*model.I
 	}
 
 	return instances, nil
-}
-
-func (r *appResolver) Persistence(ctx context.Context, obj *model.App) ([]model.Persistence, error) {
-	return r.k8sClient.Persistence(ctx, obj.WorkloadBase)
 }
 
 func (r *appResolver) Manifest(ctx context.Context, obj *model.App) (string, error) {

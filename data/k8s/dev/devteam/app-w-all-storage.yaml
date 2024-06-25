@@ -26,7 +26,7 @@ spec:
         cascadingDelete: true
       - name: donotdelete_bucket
   kafka:
-    pool: team-a
+    pool: nav-dev
   redis:
     - instance: contests
       access: admin
