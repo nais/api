@@ -99,7 +99,15 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 		}
 	}
 
-	if inf := c.informers[cluster].KafkaTopic; inf != nil {
+	topicCluster := cluster
+	switch cluster {
+	case "prod-fss":
+		topicCluster = "prod-gcp"
+	case "dev-fss":
+		topicCluster = "dev-gcp"
+	}
+
+	if inf := c.informers[topicCluster].KafkaTopic; inf != nil {
 		objs, err := inf.Lister().List(labels.Everything())
 		if err != nil {
 			return nil, fmt.Errorf("listing KafkaTopic instances: %w", err)

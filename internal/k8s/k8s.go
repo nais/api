@@ -279,6 +279,11 @@ func New(tenant string, cfg Config, db Database, fake bool, log logrus.FieldLogg
 					infs[cluster].OpenSearch = dinf.ForResource(externalResourceInformer.GroupVersion.WithResource(externalResourceInformer.Resource))
 				}
 			}
+
+			log.WithField("cluster", cluster).Warn("impersonation disabled; using fake clients")
+			impersonationClientCreator = func(ctx context.Context) (map[string]clients, error) {
+				return clientSets, nil
+			}
 		}
 	}
 
