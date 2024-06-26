@@ -46,7 +46,7 @@ func (d *database) CostForInstance(ctx context.Context, costType string, fromDat
 }
 
 func (d *database) CostForTeam(ctx context.Context, costType string, fromDate, toDate pgtype.Date, teamSlug slug.Slug) (float32, error) {
-	return d.querier.CostForInstance(ctx, gensql.CostForInstanceParams{
+	return d.querier.CostForTeam(ctx, gensql.CostForTeamParams{
 		FromDate: fromDate,
 		ToDate:   toDate,
 		TeamSlug: teamSlug,
