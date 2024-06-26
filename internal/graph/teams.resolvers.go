@@ -950,7 +950,7 @@ func (r *teamResolver) RedisInstance(ctx context.Context, obj *model.Team, name 
 }
 
 func (r *teamResolver) Redis(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.RedisList, error) {
-	redis, err := r.redisClient.Redis(ctx, obj.Slug)
+	redis, metrics, err := r.redisClient.Redis(ctx, obj.Slug)
 	if err != nil {
 		return nil, err
 	}
@@ -973,6 +973,7 @@ func (r *teamResolver) Redis(ctx context.Context, obj *model.Team, offset *int, 
 
 	return &model.RedisList{
 		Nodes:    redis,
+		Metrics:  *metrics,
 		PageInfo: pageInfo,
 	}, nil
 }

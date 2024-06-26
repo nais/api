@@ -518,6 +518,63 @@ func (_c *MockQuerier_CostForInstance_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
+// CostForTeam provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) CostForTeam(ctx context.Context, arg CostForTeamParams) (float32, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CostForTeam")
+	}
+
+	var r0 float32
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, CostForTeamParams) (float32, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, CostForTeamParams) float32); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(float32)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, CostForTeamParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_CostForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CostForTeam'
+type MockQuerier_CostForTeam_Call struct {
+	*mock.Call
+}
+
+// CostForTeam is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg CostForTeamParams
+func (_e *MockQuerier_Expecter) CostForTeam(ctx interface{}, arg interface{}) *MockQuerier_CostForTeam_Call {
+	return &MockQuerier_CostForTeam_Call{Call: _e.mock.On("CostForTeam", ctx, arg)}
+}
+
+func (_c *MockQuerier_CostForTeam_Call) Run(run func(ctx context.Context, arg CostForTeamParams)) *MockQuerier_CostForTeam_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(CostForTeamParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_CostForTeam_Call) Return(_a0 float32, _a1 error) *MockQuerier_CostForTeam_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_CostForTeam_Call) RunAndReturn(run func(context.Context, CostForTeamParams) (float32, error)) *MockQuerier_CostForTeam_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CostUpsert provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults {
 	ret := _m.Called(ctx, arg)

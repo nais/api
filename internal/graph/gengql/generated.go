@@ -978,8 +978,13 @@ type ComplexityRoot struct {
 	}
 
 	RedisList struct {
+		Metrics  func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
+	}
+
+	RedisMetrics struct {
+		Cost func(childComplexity int) int
 	}
 
 	RedisStatus struct {
@@ -5750,6 +5755,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RedisInstanceAccess.Workload(childComplexity), true
 
+	case "RedisList.metrics":
+		if e.complexity.RedisList.Metrics == nil {
+			break
+		}
+
+		return e.complexity.RedisList.Metrics(childComplexity), true
+
 	case "RedisList.nodes":
 		if e.complexity.RedisList.Nodes == nil {
 			break
@@ -5763,6 +5775,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RedisList.PageInfo(childComplexity), true
+
+	case "RedisMetrics.cost":
+		if e.complexity.RedisMetrics.Cost == nil {
+			break
+		}
+
+		return e.complexity.RedisMetrics.Cost(childComplexity), true
 
 	case "RedisStatus.conditions":
 		if e.complexity.RedisStatus.Conditions == nil {
@@ -9075,6 +9094,11 @@ type BucketsList {
 type RedisList {
   nodes: [Redis!]!
   pageInfo: PageInfo!
+  metrics: RedisMetrics!
+}
+
+type RedisMetrics {
+  cost: Float!
 }
 
 type OpenSearchList {
@@ -41761,6 +41785,98 @@ func (ec *executionContext) fieldContext_RedisList_pageInfo(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _RedisList_metrics(ctx context.Context, field graphql.CollectedField, obj *model.RedisList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisList_metrics(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Metrics, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.RedisMetrics)
+	fc.Result = res
+	return ec.marshalNRedisMetrics2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisMetrics(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedisList_metrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedisList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cost":
+				return ec.fieldContext_RedisMetrics_cost(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RedisMetrics", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RedisMetrics_cost(ctx context.Context, field graphql.CollectedField, obj *model.RedisMetrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisMetrics_cost(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cost, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedisMetrics_cost(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedisMetrics",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _RedisStatus_conditions(ctx context.Context, field graphql.CollectedField, obj *model.RedisStatus) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_RedisStatus_conditions(ctx, field)
 	if err != nil {
@@ -50164,6 +50280,8 @@ func (ec *executionContext) fieldContext_Team_redis(ctx context.Context, field g
 				return ec.fieldContext_RedisList_nodes(ctx, field)
 			case "pageInfo":
 				return ec.fieldContext_RedisList_pageInfo(ctx, field)
+			case "metrics":
+				return ec.fieldContext_RedisList_metrics(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type RedisList", field.Name)
 		},
@@ -66253,6 +66371,50 @@ func (ec *executionContext) _RedisList(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "metrics":
+			out.Values[i] = ec._RedisList_metrics(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var redisMetricsImplementors = []string{"RedisMetrics"}
+
+func (ec *executionContext) _RedisMetrics(ctx context.Context, sel ast.SelectionSet, obj *model.RedisMetrics) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, redisMetricsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RedisMetrics")
+		case "cost":
+			out.Values[i] = ec._RedisMetrics_cost(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -74382,6 +74544,10 @@ func (ec *executionContext) marshalNRedisList2ᚖgithubᚗcomᚋnaisᚋapiᚋint
 		return graphql.Null
 	}
 	return ec._RedisList(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRedisMetrics2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisMetrics(ctx context.Context, sel ast.SelectionSet, v model.RedisMetrics) graphql.Marshaler {
+	return ec._RedisMetrics(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNRedisStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRedisStatus(ctx context.Context, sel ast.SelectionSet, v model.RedisStatus) graphql.Marshaler {

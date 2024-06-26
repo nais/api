@@ -732,8 +732,13 @@ type ReconcilerList struct {
 }
 
 type RedisList struct {
-	Nodes    []*Redis `json:"nodes"`
-	PageInfo PageInfo `json:"pageInfo"`
+	Nodes    []*Redis     `json:"nodes"`
+	PageInfo PageInfo     `json:"pageInfo"`
+	Metrics  RedisMetrics `json:"metrics"`
+}
+
+type RedisMetrics struct {
+	Cost float64 `json:"cost"`
 }
 
 type RedisStatus struct {

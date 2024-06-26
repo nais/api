@@ -497,6 +497,66 @@ func (_c *MockDatabase_CostForInstance_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
+// CostForTeam provides a mock function with given fields: ctx, costType, fromDate, toDate, teamSlug
+func (_m *MockDatabase) CostForTeam(ctx context.Context, costType string, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug) (float32, error) {
+	ret := _m.Called(ctx, costType, fromDate, toDate, teamSlug)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CostForTeam")
+	}
+
+	var r0 float32
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, pgtype.Date, pgtype.Date, slug.Slug) (float32, error)); ok {
+		return rf(ctx, costType, fromDate, toDate, teamSlug)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, pgtype.Date, pgtype.Date, slug.Slug) float32); ok {
+		r0 = rf(ctx, costType, fromDate, toDate, teamSlug)
+	} else {
+		r0 = ret.Get(0).(float32)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, pgtype.Date, pgtype.Date, slug.Slug) error); ok {
+		r1 = rf(ctx, costType, fromDate, toDate, teamSlug)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockDatabase_CostForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CostForTeam'
+type MockDatabase_CostForTeam_Call struct {
+	*mock.Call
+}
+
+// CostForTeam is a helper method to define mock.On call
+//   - ctx context.Context
+//   - costType string
+//   - fromDate pgtype.Date
+//   - toDate pgtype.Date
+//   - teamSlug slug.Slug
+func (_e *MockDatabase_Expecter) CostForTeam(ctx interface{}, costType interface{}, fromDate interface{}, toDate interface{}, teamSlug interface{}) *MockDatabase_CostForTeam_Call {
+	return &MockDatabase_CostForTeam_Call{Call: _e.mock.On("CostForTeam", ctx, costType, fromDate, toDate, teamSlug)}
+}
+
+func (_c *MockDatabase_CostForTeam_Call) Run(run func(ctx context.Context, costType string, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug)) *MockDatabase_CostForTeam_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(pgtype.Date), args[3].(pgtype.Date), args[4].(slug.Slug))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_CostForTeam_Call) Return(_a0 float32, _a1 error) *MockDatabase_CostForTeam_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockDatabase_CostForTeam_Call) RunAndReturn(run func(context.Context, string, pgtype.Date, pgtype.Date, slug.Slug) (float32, error)) *MockDatabase_CostForTeam_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CostRefresh provides a mock function with given fields: ctx
 func (_m *MockDatabase) CostRefresh(ctx context.Context) error {
 	ret := _m.Called(ctx)

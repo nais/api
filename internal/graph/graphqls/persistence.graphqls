@@ -202,6 +202,11 @@ type BucketsList {
 type RedisList {
   nodes: [Redis!]!
   pageInfo: PageInfo!
+  metrics: RedisMetrics!
+}
+
+type RedisMetrics {
+  cost: Float!
 }
 
 type OpenSearchList {
