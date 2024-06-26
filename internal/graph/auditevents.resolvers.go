@@ -21,6 +21,14 @@ func (r *auditEventMemberSetRoleResolver) Team(ctx context.Context, obj *auditev
 	return loader.GetTeam(ctx, obj.GQLVars.Team)
 }
 
+func (r *auditEventTeamAddRepositoryResolver) Team(ctx context.Context, obj *auditevent.AuditEventTeamAddRepository) (*model.Team, error) {
+	return loader.GetTeam(ctx, obj.GQLVars.Team)
+}
+
+func (r *auditEventTeamRemoveRepositoryResolver) Team(ctx context.Context, obj *auditevent.AuditEventTeamRemoveRepository) (*model.Team, error) {
+	return loader.GetTeam(ctx, obj.GQLVars.Team)
+}
+
 func (r *auditEventTeamSetAlertsSlackChannelResolver) Team(ctx context.Context, obj *auditevent.AuditEventTeamSetAlertsSlackChannel) (*model.Team, error) {
 	return loader.GetTeam(ctx, obj.GQLVars.Team)
 }
@@ -53,6 +61,14 @@ func (r *Resolver) AuditEventMemberSetRole() gengql.AuditEventMemberSetRoleResol
 	return &auditEventMemberSetRoleResolver{r}
 }
 
+func (r *Resolver) AuditEventTeamAddRepository() gengql.AuditEventTeamAddRepositoryResolver {
+	return &auditEventTeamAddRepositoryResolver{r}
+}
+
+func (r *Resolver) AuditEventTeamRemoveRepository() gengql.AuditEventTeamRemoveRepositoryResolver {
+	return &auditEventTeamRemoveRepositoryResolver{r}
+}
+
 func (r *Resolver) AuditEventTeamSetAlertsSlackChannel() gengql.AuditEventTeamSetAlertsSlackChannelResolver {
 	return &auditEventTeamSetAlertsSlackChannelResolver{r}
 }
@@ -75,6 +91,8 @@ type (
 	auditEventMemberAddedResolver                struct{ *Resolver }
 	auditEventMemberRemovedResolver              struct{ *Resolver }
 	auditEventMemberSetRoleResolver              struct{ *Resolver }
+	auditEventTeamAddRepositoryResolver          struct{ *Resolver }
+	auditEventTeamRemoveRepositoryResolver       struct{ *Resolver }
 	auditEventTeamSetAlertsSlackChannelResolver  struct{ *Resolver }
 	auditEventTeamSetDefaultSlackChannelResolver struct{ *Resolver }
 	auditEventTeamSetPurposeResolver             struct{ *Resolver }

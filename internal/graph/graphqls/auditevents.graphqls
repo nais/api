@@ -27,7 +27,7 @@ interface AuditEvent {
 
 union AuditEventNode = BaseAuditEvent | BaseTeamAuditEvent
   | AuditEventMemberAdded | AuditEventMemberRemoved | AuditEventMemberSetRole
-  | AuditEventTeamSetPurpose | AuditEventTeamSetDefaultSlackChannel | AuditEventTeamSetAlertsSlackChannel
+  | AuditEventTeamSetPurpose | AuditEventTeamSetDefaultSlackChannel | AuditEventTeamSetAlertsSlackChannel | AuditEventTeamAddRepository | AuditEventTeamRemoveRepository
 
 type AuditEventList {
   nodes: [AuditEventNode!]!
@@ -42,6 +42,7 @@ input AuditEventsFilter {
 enum AuditEventResourceType {
   TEAM
   TEAM_MEMBER
+  TEAM_REPOSITORY
 }
 
 enum AuditEventAction {
@@ -57,6 +58,9 @@ enum AuditEventAction {
   TEAM_MEMBER_ADDED
   TEAM_MEMBER_REMOVED
   TEAM_MEMBER_SET_ROLE
+
+  ADDED
+  REMOVED
 }
 
 type BaseAuditEvent implements AuditEvent {
@@ -184,4 +188,38 @@ type AuditEventTeamSetAlertsSlackChannel implements AuditEvent {
 type AuditEventTeamSetAlertsSlackChannelData {
   environment: String!
   channelName: String!
+}
+
+type AuditEventTeamAddRepository implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  createdAt: Time!
+  message: String!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team!
+
+  data: AuditEventTeamAddRepositoryData!
+}
+
+type AuditEventTeamAddRepositoryData {
+  repositoryName: String!
+}
+
+type AuditEventTeamRemoveRepository implements AuditEvent {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  createdAt: Time!
+  message: String!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team!
+
+  data: AuditEventTeamRemoveRepositoryData!
+}
+
+type AuditEventTeamRemoveRepositoryData {
+  repositoryName: String!
 }
