@@ -158,7 +158,7 @@ func TestTeamsServer_ToBeReconciled(t *testing.T) {
 			GetTeamsToBeReconciled(ctx, database.Page{Limit: 123, Offset: 2}).
 			Return(nil, 0, fmt.Errorf("some error")).
 			Once()
-		resp, err := grpc.NewTeamsServer(db).ToBeReconciled(ctx, &protoapi.TeamsToBeReconciledRequest{
+		resp, err := grpc.NewTeamsServer(db).ListActive(ctx, &protoapi.ListActiveTeamsRequest{
 			Limit:  123,
 			Offset: 2,
 		})
@@ -181,7 +181,7 @@ func TestTeamsServer_ToBeReconciled(t *testing.T) {
 			GetTeamsToBeReconciled(ctx, database.Page{Limit: 2, Offset: 0}).
 			Return(teamsFromDatabase, 2, nil).
 			Once()
-		resp, err := grpc.NewTeamsServer(db).ToBeReconciled(ctx, &protoapi.TeamsToBeReconciledRequest{
+		resp, err := grpc.NewTeamsServer(db).ListActive(ctx, &protoapi.ListActiveTeamsRequest{
 			Limit:  2,
 			Offset: 0,
 		})
