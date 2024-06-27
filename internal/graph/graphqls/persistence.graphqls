@@ -212,6 +212,11 @@ type RedisMetrics {
 type OpenSearchList {
   nodes: [OpenSearch!]!
   pageInfo: PageInfo!
+  metrics: OpenSearchMetrics!
+}
+
+type OpenSearchMetrics {
+  cost: Float!
 }
 
 type BigQueryDatasetList {

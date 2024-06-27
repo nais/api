@@ -983,7 +983,7 @@ func (r *teamResolver) OpenSearchInstance(ctx context.Context, obj *model.Team, 
 }
 
 func (r *teamResolver) OpenSearch(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.OpenSearchList, error) {
-	openSearch, err := r.openSearchClient.OpenSearch(ctx, obj.Slug)
+	openSearch, metrics, err := r.openSearchClient.OpenSearch(ctx, obj.Slug)
 	if err != nil {
 		return nil, err
 	}
@@ -1007,6 +1007,7 @@ func (r *teamResolver) OpenSearch(ctx context.Context, obj *model.Team, offset *
 	return &model.OpenSearchList{
 		Nodes:    openSearch,
 		PageInfo: pageInfo,
+		Metrics:  *metrics,
 	}, nil
 }
 

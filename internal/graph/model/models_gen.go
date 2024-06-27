@@ -647,8 +647,13 @@ type NoRunningInstancesError struct {
 func (NoRunningInstancesError) IsStateError() {}
 
 type OpenSearchList struct {
-	Nodes    []*OpenSearch `json:"nodes"`
-	PageInfo PageInfo      `json:"pageInfo"`
+	Nodes    []*OpenSearch     `json:"nodes"`
+	PageInfo PageInfo          `json:"pageInfo"`
+	Metrics  OpenSearchMetrics `json:"metrics"`
+}
+
+type OpenSearchMetrics struct {
+	Cost float64 `json:"cost"`
 }
 
 type OpenSearchStatus struct {

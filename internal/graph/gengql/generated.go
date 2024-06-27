@@ -865,8 +865,13 @@ type ComplexityRoot struct {
 	}
 
 	OpenSearchList struct {
+		Metrics  func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
+	}
+
+	OpenSearchMetrics struct {
+		Cost func(childComplexity int) int
 	}
 
 	OpenSearchStatus struct {
@@ -5133,6 +5138,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.OpenSearchInstanceAccess.Workload(childComplexity), true
 
+	case "OpenSearchList.metrics":
+		if e.complexity.OpenSearchList.Metrics == nil {
+			break
+		}
+
+		return e.complexity.OpenSearchList.Metrics(childComplexity), true
+
 	case "OpenSearchList.nodes":
 		if e.complexity.OpenSearchList.Nodes == nil {
 			break
@@ -5146,6 +5158,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.OpenSearchList.PageInfo(childComplexity), true
+
+	case "OpenSearchMetrics.cost":
+		if e.complexity.OpenSearchMetrics.Cost == nil {
+			break
+		}
+
+		return e.complexity.OpenSearchMetrics.Cost(childComplexity), true
 
 	case "OpenSearchStatus.conditions":
 		if e.complexity.OpenSearchStatus.Conditions == nil {
@@ -9104,6 +9123,11 @@ type RedisMetrics {
 type OpenSearchList {
   nodes: [OpenSearch!]!
   pageInfo: PageInfo!
+  metrics: OpenSearchMetrics!
+}
+
+type OpenSearchMetrics {
+  cost: Float!
 }
 
 type BigQueryDatasetList {
@@ -37361,6 +37385,98 @@ func (ec *executionContext) fieldContext_OpenSearchList_pageInfo(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _OpenSearchList_metrics(ctx context.Context, field graphql.CollectedField, obj *model.OpenSearchList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_OpenSearchList_metrics(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Metrics, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.OpenSearchMetrics)
+	fc.Result = res
+	return ec.marshalNOpenSearchMetrics2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOpenSearchMetrics(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_OpenSearchList_metrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearchList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cost":
+				return ec.fieldContext_OpenSearchMetrics_cost(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type OpenSearchMetrics", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _OpenSearchMetrics_cost(ctx context.Context, field graphql.CollectedField, obj *model.OpenSearchMetrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_OpenSearchMetrics_cost(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cost, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_OpenSearchMetrics_cost(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearchMetrics",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _OpenSearchStatus_conditions(ctx context.Context, field graphql.CollectedField, obj *model.OpenSearchStatus) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_OpenSearchStatus_conditions(ctx, field)
 	if err != nil {
@@ -50416,6 +50532,8 @@ func (ec *executionContext) fieldContext_Team_openSearch(ctx context.Context, fi
 				return ec.fieldContext_OpenSearchList_nodes(ctx, field)
 			case "pageInfo":
 				return ec.fieldContext_OpenSearchList_pageInfo(ctx, field)
+			case "metrics":
+				return ec.fieldContext_OpenSearchList_metrics(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type OpenSearchList", field.Name)
 		},
@@ -64812,6 +64930,50 @@ func (ec *executionContext) _OpenSearchList(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "metrics":
+			out.Values[i] = ec._OpenSearchList_metrics(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var openSearchMetricsImplementors = []string{"OpenSearchMetrics"}
+
+func (ec *executionContext) _OpenSearchMetrics(ctx context.Context, sel ast.SelectionSet, obj *model.OpenSearchMetrics) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, openSearchMetricsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("OpenSearchMetrics")
+		case "cost":
+			out.Values[i] = ec._OpenSearchMetrics_cost(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -74072,6 +74234,10 @@ func (ec *executionContext) marshalNOpenSearchList2ᚖgithubᚗcomᚋnaisᚋapi�
 		return graphql.Null
 	}
 	return ec._OpenSearchList(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNOpenSearchMetrics2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOpenSearchMetrics(ctx context.Context, sel ast.SelectionSet, v model.OpenSearchMetrics) graphql.Marshaler {
+	return ec._OpenSearchMetrics(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNOpenSearchStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOpenSearchStatus(ctx context.Context, sel ast.SelectionSet, v model.OpenSearchStatus) graphql.Marshaler {

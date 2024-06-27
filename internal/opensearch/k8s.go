@@ -15,7 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 )
 
-func (c *Client) OpenSearch(ctx context.Context, teamSlug slug.Slug) ([]*model.OpenSearch, error) {
+func (c *Client) OpenSearch(ctx context.Context, teamSlug slug.Slug) ([]*model.OpenSearch, *model.OpenSearchMetrics, error) {
 	ret := make([]*model.OpenSearch, 0)
 	OpensearchListOpsCounter.Add(ctx, 1)
 	for env, infs := range c.informers {
@@ -27,14 +27,14 @@ func (c *Client) OpenSearch(ctx context.Context, teamSlug slug.Slug) ([]*model.O
 		objs, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
 		if err != nil {
 			OpensearchListErrorCounter.Add(ctx, 1)
-			return nil, fmt.Errorf("listing OpenSearches: %w", err)
+			return nil, nil, fmt.Errorf("listing OpenSearches: %w", err)
 		}
 
 		for _, obj := range objs {
 			openSearch, err := model.ToOpenSearch(obj.(*unstructured.Unstructured), env)
 			if err != nil {
 				OpensearchListErrorCounter.Add(ctx, 1)
-				return nil, fmt.Errorf("converting to OpenSearch: %w", err)
+				return nil, nil, fmt.Errorf("converting to OpenSearch: %w", err)
 			}
 
 			ret = append(ret, openSearch)
@@ -44,7 +44,11 @@ func (c *Client) OpenSearch(ctx context.Context, teamSlug slug.Slug) ([]*model.O
 		return ret[i].Name < ret[j].Name
 	})
 
-	return ret, nil
+	metrics := &model.OpenSearchMetrics{
+		Cost: c.CostForOpenSearch(ctx, teamSlug),
+	}
+
+	return ret, metrics, nil
 }
 
 func (c *Client) OpenSearchInstance(ctx context.Context, env string, teamSlug slug.Slug, openSearchName string) (*model.OpenSearch, error) {
@@ -89,5 +93,25 @@ func (c *Client) CostForOpenSearchInstance(ctx context.Context, env string, team
 	} else {
 		cost = float64(sum)
 	}
+	return cost
+}
+
+func (c *Client) CostForOpenSearch(ctx context.Context, teamSlug slug.Slug) float64 {
+	OpensearchCostOpsCounter.Add(ctx, 1)
+
+	cost := 0.0
+
+	now := time.Now()
+	var from, to pgtype.Date
+	_ = to.Scan(now)
+	_ = from.Scan(now.AddDate(0, 0, -30))
+
+	if sum, err := c.db.CostForTeam(ctx, "OpenSearch", from, to, teamSlug); err != nil {
+		OpensearchCostErrorCounter.Add(ctx, 1)
+		c.log.WithError(err).Errorf("fetching cost")
+	} else {
+		cost = float64(sum)
+	}
+
 	return cost
 }
