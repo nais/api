@@ -161,6 +161,36 @@ func (a *Auditor) TeamSetAlertsSlackChannel(ctx context.Context, actor authz.Aut
 	})
 }
 
+func (a *Auditor) TeamAddRepository(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, repositoryName string) error {
+	return a.db.CreateAuditEvent(ctx, auditevent.AuditEventTeamAddRepository{
+		BaseTeamAuditEvent: baseTeamAuditEvent(
+			actor,
+			team,
+			model.AuditEventActionAdded,
+			model.AuditEventResourceTypeTeamRepository,
+			team.String(),
+		),
+		Data: model.AuditEventTeamAddRepositoryData{
+			RepositoryName: repositoryName,
+		},
+	})
+}
+
+func (a *Auditor) TeamRemoveRepository(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, repositoryName string) error {
+	return a.db.CreateAuditEvent(ctx, auditevent.AuditEventTeamRemoveRepository{
+		BaseTeamAuditEvent: baseTeamAuditEvent(
+			actor,
+			team,
+			model.AuditEventActionRemoved,
+			model.AuditEventResourceTypeTeamRepository,
+			team.String(),
+		),
+		Data: model.AuditEventTeamRemoveRepositoryData{
+			RepositoryName: repositoryName,
+		},
+	})
+}
+
 func baseTeamAuditEvent(
 	actor authz.AuthenticatedUser,
 	team slug.Slug,

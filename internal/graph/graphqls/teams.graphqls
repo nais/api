@@ -160,6 +160,24 @@ extend type Mutation {
     "The name of the team to update the deploy key for."
     team: Slug!
   ): DeploymentKey!
+
+  "Add a team repository."
+  addRepository(
+    "The slug of the team that adds the repository."
+    teamSlug: Slug!
+
+    "Name of the repository, with the org prefix, for instance 'org/repo'."
+    repoName: String!
+  ): String! @auth
+
+  "Remove a team repository."
+  removeRepository(
+    "The slug of the team that removes the repository."
+    teamSlug: Slug!
+
+    "Name of the repository, with the org prefix, for instance 'org/repo'."
+    repoName: String!
+  ): String! @auth
 }
 
 "Team deletion key type."
@@ -460,6 +478,23 @@ type Team {
   environments: [Env!]!
 
   unleash: Unleash!
+
+  repositories(
+    "Offset to start listing repositories from. Default is 0."
+    offset: Int
+
+    "Limit the number of repositories to return. Default is 20."
+    limit: Int
+  ): RepositoryList!
+
+}
+
+type RepositoryList {
+  "The list of repositories."
+  nodes: [String!]!
+
+  "Pagination information."
+  pageInfo: PageInfo!
 }
 
 type SqlInstancesStatus {
@@ -631,10 +666,4 @@ enum TeamRole {
 
   "Team owner, full access to the team."
   OWNER
-}
-
-"Repository authorizations."
-enum RepositoryAuthorization {
-  "Authorize for NAIS deployment."
-  DEPLOY
 }

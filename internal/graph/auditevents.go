@@ -82,6 +82,20 @@ func toEvent(row *database.AuditEvent) (model.AuditEventNode, error) {
 				return auditevent.AuditEventMemberSetRole{BaseTeamAuditEvent: event.WithMessage(msg), Data: data}
 			})
 		}
+
+	case model.AuditEventResourceTypeTeamRepository:
+		switch model.AuditEventAction(row.Action) {
+		case model.AuditEventActionAdded:
+			return withData(row, func(data model.AuditEventTeamAddRepositoryData) model.AuditEventNode {
+				msg := fmt.Sprintf("Added %q", data.RepositoryName)
+				return auditevent.AuditEventTeamAddRepository{BaseTeamAuditEvent: event.WithMessage(msg), Data: data}
+			})
+		case model.AuditEventActionRemoved:
+			return withData(row, func(data model.AuditEventTeamRemoveRepositoryData) model.AuditEventNode {
+				msg := fmt.Sprintf("Removed %q", data.RepositoryName)
+				return auditevent.AuditEventTeamRemoveRepository{BaseTeamAuditEvent: event.WithMessage(msg), Data: data}
+			})
+		}
 	}
 	return nil, fmt.Errorf("unsupported action %q for resource %q", row.Action, row.ResourceType)
 }
