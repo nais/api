@@ -1,0 +1,69 @@
+extend type Query {
+  "Get a collection of users, sorted by name."
+  users(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: UserOrder
+  ): UserConnection!
+
+  "Get a specific user."
+  user(
+    "ID of the user."
+    id: ID
+
+    "Email of the user."
+    email: String
+  ): User!
+}
+
+type UserConnection {
+  pageInfo: PageInfo!
+  edges: [UserEdge!]!
+}
+
+type UserEdge {
+  cursor: Cursor!
+  node: User!
+}
+
+input UserOrder {
+  field: UserOrderField!
+  direction: OrderDirection!
+}
+
+enum UserOrderField {
+  "Order by name"
+  NAME
+
+  "Order by email"
+  EMAIL
+}
+
+"User type."
+type User {
+  "Unique ID of the user."
+  id: ID!
+
+  "The email address of the user."
+  email: String!
+
+  "The name of the user."
+  name: String!
+
+  # "List of team memberships."
+  #teams(
+  #limit: Int
+  #  offset: Int
+  #): TeamMemberList!
+
+  # "Roles attached to the user."
+  #roles: [Role!]!
+
+  "The external ID of the user."
+  externalId: String!
+
+  "This field will only be populated via the me query"
+  isAdmin: Boolean!
+}
