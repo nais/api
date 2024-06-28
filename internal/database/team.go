@@ -44,9 +44,12 @@ type TeamRepo interface {
 	GetTeamMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*User, error)
 	GetTeamMemberOptOuts(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug) ([]*gensql.GetTeamMemberOptOutsRow, error)
 	GetTeamMembers(ctx context.Context, teamSlug slug.Slug, p Page) ([]*User, int, error)
+	// GetTeams returns active teams, as well as teams that have been marked for deletion.
 	GetTeams(ctx context.Context, p Page) ([]*Team, int, error)
-	GetTeamsToBeReconciled(ctx context.Context, p Page) ([]*Team, int, error)
-	GetTeamsToBeDeleted(ctx context.Context, p Page) ([]*Team, int, error)
+	// GetActiveTeams returns active teams, that is teams that have not been marked for deletion.
+	GetActiveTeams(ctx context.Context, p Page) ([]*Team, int, error)
+	// GetDeletableTeams returns teams that have been marked for deletion.
+	GetDeletableTeams(ctx context.Context, p Page) ([]*Team, int, error)
 	GetTeamsBySlugs(ctx context.Context, teamSlugs []slug.Slug) ([]*Team, error)
 	GetAllTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string) ([]*Team, error)
 	GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*UserTeam, error)
@@ -166,8 +169,8 @@ func (d *database) GetTeams(ctx context.Context, p Page) ([]*Team, int, error) {
 	return collection, int(total), nil
 }
 
-func (d *database) GetTeamsToBeReconciled(ctx context.Context, p Page) ([]*Team, int, error) {
-	teams, err := d.querier.GetTeamsToBeReconciled(ctx, gensql.GetTeamsToBeReconciledParams{
+func (d *database) GetActiveTeams(ctx context.Context, p Page) ([]*Team, int, error) {
+	teams, err := d.querier.GetActiveTeams(ctx, gensql.GetActiveTeamsParams{
 		Offset: int32(p.Offset),
 		Limit:  int32(p.Limit),
 	})
@@ -180,7 +183,7 @@ func (d *database) GetTeamsToBeReconciled(ctx context.Context, p Page) ([]*Team,
 		collection[i] = &Team{Team: team}
 	}
 
-	total, err := d.querier.GetTeamsToBeReconciledCount(ctx)
+	total, err := d.querier.GetActiveTeamsCount(ctx)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -188,8 +191,8 @@ func (d *database) GetTeamsToBeReconciled(ctx context.Context, p Page) ([]*Team,
 	return collection, int(total), nil
 }
 
-func (d *database) GetTeamsToBeDeleted(ctx context.Context, p Page) ([]*Team, int, error) {
-	teams, err := d.querier.GetTeamsToBeDeleted(ctx, gensql.GetTeamsToBeDeletedParams{
+func (d *database) GetDeletableTeams(ctx context.Context, p Page) ([]*Team, int, error) {
+	teams, err := d.querier.GetDeletableTeams(ctx, gensql.GetDeletableTeamsParams{
 		Offset: int32(p.Offset),
 		Limit:  int32(p.Limit),
 	})
@@ -202,7 +205,7 @@ func (d *database) GetTeamsToBeDeleted(ctx context.Context, p Page) ([]*Team, in
 		collection[i] = &Team{Team: team}
 	}
 
-	total, err := d.querier.GetTeamsToBeDeletedCount(ctx)
+	total, err := d.querier.GetDeletableTeamsCount(ctx)
 	if err != nil {
 		return nil, 0, err
 	}

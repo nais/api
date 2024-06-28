@@ -155,7 +155,7 @@ func TestTeamsServer_ToBeReconciled(t *testing.T) {
 	t.Run("error when fetching teams from database", func(t *testing.T) {
 		db := database.NewMockDatabase(t)
 		db.EXPECT().
-			GetTeamsToBeReconciled(ctx, database.Page{Limit: 123, Offset: 2}).
+			GetActiveTeams(ctx, database.Page{Limit: 123, Offset: 2}).
 			Return(nil, 0, fmt.Errorf("some error")).
 			Once()
 		resp, err := grpc.NewTeamsServer(db).ListActive(ctx, &protoapi.ListActiveTeamsRequest{
@@ -178,7 +178,7 @@ func TestTeamsServer_ToBeReconciled(t *testing.T) {
 		}
 		db := database.NewMockDatabase(t)
 		db.EXPECT().
-			GetTeamsToBeReconciled(ctx, database.Page{Limit: 2, Offset: 0}).
+			GetActiveTeams(ctx, database.Page{Limit: 2, Offset: 0}).
 			Return(teamsFromDatabase, 2, nil).
 			Once()
 		resp, err := grpc.NewTeamsServer(db).ListActive(ctx, &protoapi.ListActiveTeamsRequest{

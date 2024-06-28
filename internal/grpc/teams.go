@@ -57,7 +57,7 @@ func (t *TeamsServer) Get(ctx context.Context, req *protoapi.GetTeamRequest) (*p
 
 func (t *TeamsServer) ListActive(ctx context.Context, req *protoapi.ListActiveTeamsRequest) (*protoapi.ListActiveTeamsResponse, error) {
 	limit, offset := pagination(req)
-	teams, total, err := t.db.GetTeamsToBeReconciled(ctx, database.Page{
+	teams, total, err := t.db.GetActiveTeams(ctx, database.Page{
 		Limit:  limit,
 		Offset: offset,
 	})
@@ -77,7 +77,7 @@ func (t *TeamsServer) ListActive(ctx context.Context, req *protoapi.ListActiveTe
 
 func (t *TeamsServer) ListDeletable(ctx context.Context, req *protoapi.ListDeletableTeamsRequest) (*protoapi.ListDeletableTeamsResponse, error) {
 	limit, offset := pagination(req)
-	teams, total, err := t.db.GetTeamsToBeDeleted(ctx, database.Page{
+	teams, total, err := t.db.GetDeletableTeams(ctx, database.Page{
 		Limit:  limit,
 		Offset: offset,
 	})
