@@ -99,34 +99,37 @@ func (c *Client) Persistence(ctx context.Context, workload model.WorkloadBase) (
 		}
 	}
 
-	topicCluster := cluster
-	switch cluster {
-	case "prod-fss":
-		topicCluster = "prod-gcp"
-	case "dev-fss":
-		topicCluster = "dev-gcp"
-	}
-
-	if inf := c.informers[topicCluster].KafkaTopic; inf != nil {
-		objs, err := inf.Lister().List(labels.Everything())
-		if err != nil {
-			return nil, fmt.Errorf("listing KafkaTopic instances: %w", err)
+	if workload.GQLVars.Spec.Kafka != nil {
+		topicCluster := cluster
+		switch cluster {
+		case "prod-fss":
+			topicCluster = "prod-gcp"
+		case "dev-fss":
+			topicCluster = "dev-gcp"
 		}
-		for _, obj := range objs {
-			topic, err := model.ToKafkaTopic(obj.(*unstructured.Unstructured), cluster)
+
+		if inf := c.informers[topicCluster].KafkaTopic; inf != nil {
+			objs, err := inf.Lister().List(labels.Everything())
 			if err != nil {
-				return nil, fmt.Errorf("converting KafkaTopic instance: %w", err)
+				return nil, fmt.Errorf("listing KafkaTopic instances: %w", err)
 			}
-			for _, acl := range topic.ACL {
-				if acl.ApplicationName == workload.Name && slug.Slug(acl.TeamName) == teamSlug {
-					ret = append(ret, topic)
-					break
-				} else if acl.ApplicationName == "*" && acl.TeamName == string(teamSlug) {
-					ret = append(ret, topic)
-					break
-				} else if acl.ApplicationName == "*" && acl.TeamName == "*" {
-					ret = append(ret, topic)
-					break
+			for _, obj := range objs {
+				topic, err := model.ToKafkaTopic(obj.(*unstructured.Unstructured), cluster)
+				if err != nil {
+					return nil, fmt.Errorf("converting KafkaTopic instance: %w", err)
+				}
+
+				for _, acl := range topic.ACL {
+					if acl.ApplicationName == workload.Name && slug.Slug(acl.TeamName) == teamSlug {
+						ret = append(ret, topic)
+						break
+					} else if acl.ApplicationName == "*" && acl.TeamName == string(teamSlug) {
+						ret = append(ret, topic)
+						break
+					} else if acl.ApplicationName == "*" && acl.TeamName == "*" {
+						ret = append(ret, topic)
+						break
+					}
 				}
 			}
 		}
