@@ -6,6 +6,14 @@ ALTER TABLE teams
 
 CREATE INDEX ON teams (deleted_at);
 
+-- Set the value of the newly added column where applicable
+UPDATE teams
+SET delete_key_confirmed_at = team_delete_keys.confirmed_at
+FROM team_delete_keys
+WHERE
+    team_delete_keys.team_slug = teams.slug
+    AND team_delete_keys.confirmed_at IS NOT NULL;
+
 -- +goose Down
 
 DELETE FROM teams WHERE deleted_at IS NOT NULL;
