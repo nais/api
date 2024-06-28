@@ -12,8 +12,17 @@ generate-sql:
 	go run github.com/sqlc-dev/sqlc/cmd/sqlc vet -f .configs/sqlc.yaml
 	go run mvdan.cc/gofumpt@latest -w ./internal/database/gensql
 
+generate-sql-v1:
+	go run github.com/sqlc-dev/sqlc/cmd/sqlc generate -f .configs/sqlc-v1.yaml
+	go run github.com/sqlc-dev/sqlc/cmd/sqlc vet -f .configs/sqlc-v1.yaml
+	go run mvdan.cc/gofumpt@latest -w ./
+
 generate-graphql:
 	go run github.com/99designs/gqlgen generate --config .configs/gqlgen.yaml
+	go run mvdan.cc/gofumpt@latest -w ./internal/graph
+
+generate-graphql-v1:
+	go run github.com/99designs/gqlgen generate --config .configs/gqlgen-v1.yaml
 	go run mvdan.cc/gofumpt@latest -w ./internal/graph
 
 generate-mocks:
