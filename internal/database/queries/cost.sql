@@ -106,6 +106,17 @@ WHERE
   AND date <= @to_date
   AND environment = @environment::text;
 
+-- name: CostForTeam :one
+SELECT
+    COALESCE(SUM(daily_cost), 0)::real
+FROM
+    cost
+WHERE
+    team_slug = @team_slug
+    AND cost_type = @cost_type
+    AND date >= @from_date
+    AND date <= @to_date;
+
 
 -- name: CurrentSqlInstancesCostForTeam :one
 SELECT

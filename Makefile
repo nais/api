@@ -5,7 +5,7 @@ TEST_POSTGRES_CONTAINER_PORT = 5666
 
 all: generate fmt test check build helm-lint
 
-generate: generate-sql generate-graphql generate-mocks generate-proto
+generate: generate-sql generate-graphql generate-proto generate-mocks
 
 generate-sql:
 	go run github.com/sqlc-dev/sqlc/cmd/sqlc generate -f .configs/sqlc.yaml

@@ -1,29 +1,3 @@
-extend type Mutation {
-  "Authorize a team to perform an action from a GitHub repository."
-  authorizeRepository(
-    "The action to authorize."
-    authorization: RepositoryAuthorization!
-
-    "The slug of the team to authorize the action for."
-    teamSlug: Slug!
-
-    "Name of the repository, with the org prefix, for instance 'org/repo'."
-    repoName: String!
-  ): GitHubRepository! @auth
-
-  "Deauthorize an action from a team."
-  deauthorizeRepository(
-    "The action to deauthorize."
-    authorization: RepositoryAuthorization!
-
-    "The slug of the team to deauthorize the action for."
-    teamSlug: Slug!
-
-    "Name of the repository, with the org prefix, for instance 'org/repo'."
-    repoName: String!
-  ): GitHubRepository! @auth
-}
-
 "GitHub repository type."
 type GitHubRepository {
   "ID of the repository."
@@ -40,9 +14,6 @@ type GitHubRepository {
 
   "Whether or not the repository is archived."
   archived: Boolean!
-
-  "A list of authorizations granted to the repository by the team."
-  authorizations: [RepositoryAuthorization!]!
 }
 
 "Paginated GitHub repository type."

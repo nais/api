@@ -20,52 +20,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type RepositoryAuthorization int32
-
-const (
-	RepositoryAuthorization_UNKNOWN RepositoryAuthorization = 0
-	RepositoryAuthorization_DEPLOY  RepositoryAuthorization = 1
-)
-
-// Enum value maps for RepositoryAuthorization.
-var (
-	RepositoryAuthorization_name = map[int32]string{
-		0: "UNKNOWN",
-		1: "DEPLOY",
-	}
-	RepositoryAuthorization_value = map[string]int32{
-		"UNKNOWN": 0,
-		"DEPLOY":  1,
-	}
-)
-
-func (x RepositoryAuthorization) Enum() *RepositoryAuthorization {
-	p := new(RepositoryAuthorization)
-	*p = x
-	return p
-}
-
-func (x RepositoryAuthorization) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (RepositoryAuthorization) Descriptor() protoreflect.EnumDescriptor {
-	return file_teams_proto_enumTypes[0].Descriptor()
-}
-
-func (RepositoryAuthorization) Type() protoreflect.EnumType {
-	return &file_teams_proto_enumTypes[0]
-}
-
-func (x RepositoryAuthorization) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use RepositoryAuthorization.Descriptor instead.
-func (RepositoryAuthorization) EnumDescriptor() ([]byte, []int) {
-	return file_teams_proto_rawDescGZIP(), []int{0}
-}
-
 type Team struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1264,9 +1218,8 @@ type IsRepositoryAuthorizedRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	TeamSlug      string                  `protobuf:"bytes,1,opt,name=team_slug,json=teamSlug,proto3" json:"team_slug,omitempty"`
-	Repository    string                  `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
-	Authorization RepositoryAuthorization `protobuf:"varint,3,opt,name=authorization,proto3,enum=RepositoryAuthorization" json:"authorization,omitempty"`
+	TeamSlug   string `protobuf:"bytes,1,opt,name=team_slug,json=teamSlug,proto3" json:"team_slug,omitempty"`
+	Repository string `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
 }
 
 func (x *IsRepositoryAuthorizedRequest) Reset() {
@@ -1313,13 +1266,6 @@ func (x *IsRepositoryAuthorizedRequest) GetRepository() string {
 		return x.Repository
 	}
 	return ""
-}
-
-func (x *IsRepositoryAuthorizedRequest) GetAuthorization() RepositoryAuthorization {
-	if x != nil {
-		return x.Authorization
-	}
-	return RepositoryAuthorization_UNKNOWN
 }
 
 type IsRepositoryAuthorizedResponse struct {
@@ -1522,24 +1468,18 @@ var file_teams_proto_rawDesc = []byte{
 	0x70, 0x61, 0x67, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x22, 0x27, 0x0a, 0x0a, 0x54, 0x65, 0x61, 0x6d,
 	0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x12, 0x19, 0x0a, 0x04, 0x75, 0x73, 0x65, 0x72, 0x18, 0x01,
 	0x20, 0x01, 0x28, 0x0b, 0x32, 0x05, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x52, 0x04, 0x75, 0x73, 0x65,
-	0x72, 0x22, 0x9c, 0x01, 0x0a, 0x1d, 0x49, 0x73, 0x52, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x6f,
-	0x72, 0x79, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x65, 0x64, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x12, 0x1b, 0x0a, 0x09, 0x74, 0x65, 0x61, 0x6d, 0x5f, 0x73, 0x6c, 0x75, 0x67,
-	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x74, 0x65, 0x61, 0x6d, 0x53, 0x6c, 0x75, 0x67,
-	0x12, 0x1e, 0x0a, 0x0a, 0x72, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x6f, 0x72, 0x79, 0x18, 0x02,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x72, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x6f, 0x72, 0x79,
-	0x12, 0x3e, 0x0a, 0x0d, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f,
-	0x6e, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x18, 0x2e, 0x52, 0x65, 0x70, 0x6f, 0x73, 0x69,
-	0x74, 0x6f, 0x72, 0x79, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f,
-	0x6e, 0x52, 0x0d, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e,
-	0x22, 0x45, 0x0a, 0x1e, 0x49, 0x73, 0x52, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x6f, 0x72, 0x79,
-	0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x65, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x12, 0x23, 0x0a, 0x0d, 0x69, 0x73, 0x5f, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69,
-	0x7a, 0x65, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0c, 0x69, 0x73, 0x41, 0x75, 0x74,
-	0x68, 0x6f, 0x72, 0x69, 0x7a, 0x65, 0x64, 0x2a, 0x32, 0x0a, 0x17, 0x52, 0x65, 0x70, 0x6f, 0x73,
-	0x69, 0x74, 0x6f, 0x72, 0x79, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x61, 0x74, 0x69,
-	0x6f, 0x6e, 0x12, 0x0b, 0x0a, 0x07, 0x55, 0x4e, 0x4b, 0x4e, 0x4f, 0x57, 0x4e, 0x10, 0x00, 0x12,
-	0x0a, 0x0a, 0x06, 0x44, 0x45, 0x50, 0x4c, 0x4f, 0x59, 0x10, 0x01, 0x32, 0xba, 0x06, 0x0a, 0x05,
+	0x72, 0x22, 0x71, 0x0a, 0x1d, 0x49, 0x73, 0x52, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x6f, 0x72,
+	0x79, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x65, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x12, 0x1b, 0x0a, 0x09, 0x74, 0x65, 0x61, 0x6d, 0x5f, 0x73, 0x6c, 0x75, 0x67, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x74, 0x65, 0x61, 0x6d, 0x53, 0x6c, 0x75, 0x67, 0x12,
+	0x1e, 0x0a, 0x0a, 0x72, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x6f, 0x72, 0x79, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x0a, 0x72, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x6f, 0x72, 0x79, 0x4a,
+	0x04, 0x08, 0x03, 0x10, 0x04, 0x52, 0x0d, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x22, 0x45, 0x0a, 0x1e, 0x49, 0x73, 0x52, 0x65, 0x70, 0x6f, 0x73, 0x69,
+	0x74, 0x6f, 0x72, 0x79, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x65, 0x64, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x23, 0x0a, 0x0d, 0x69, 0x73, 0x5f, 0x61, 0x75, 0x74,
+	0x68, 0x6f, 0x72, 0x69, 0x7a, 0x65, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0c, 0x69,
+	0x73, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x65, 0x64, 0x32, 0xba, 0x06, 0x0a, 0x05,
 	0x54, 0x65, 0x61, 0x6d, 0x73, 0x12, 0x67, 0x0a, 0x1a, 0x4c, 0x69, 0x73, 0x74, 0x41, 0x75, 0x74,
 	0x68, 0x6f, 0x72, 0x69, 0x7a, 0x65, 0x64, 0x52, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x6f, 0x72,
 	0x69, 0x65, 0x73, 0x12, 0x22, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72,
@@ -1608,73 +1548,70 @@ func file_teams_proto_rawDescGZIP() []byte {
 	return file_teams_proto_rawDescData
 }
 
-var file_teams_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_teams_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_teams_proto_goTypes = []interface{}{
-	(RepositoryAuthorization)(0),                         // 0: RepositoryAuthorization
-	(*Team)(nil),                                         // 1: Team
-	(*ListAuthorizedRepositoriesRequest)(nil),            // 2: ListAuthorizedRepositoriesRequest
-	(*ListAuthorizedRepositoriesResponse)(nil),           // 3: ListAuthorizedRepositoriesResponse
-	(*DeleteTeamRequest)(nil),                            // 4: DeleteTeamRequest
-	(*DeleteTeamResponse)(nil),                           // 5: DeleteTeamResponse
-	(*SetTeamExternalReferencesRequest)(nil),             // 6: SetTeamExternalReferencesRequest
-	(*SetTeamExternalReferencesResponse)(nil),            // 7: SetTeamExternalReferencesResponse
-	(*SetTeamEnvironmentExternalReferencesRequest)(nil),  // 8: SetTeamEnvironmentExternalReferencesRequest
-	(*SetTeamEnvironmentExternalReferencesResponse)(nil), // 9: SetTeamEnvironmentExternalReferencesResponse
-	(*ListTeamEnvironmentsRequest)(nil),                  // 10: ListTeamEnvironmentsRequest
-	(*ListTeamEnvironmentsResponse)(nil),                 // 11: ListTeamEnvironmentsResponse
-	(*TeamEnvironment)(nil),                              // 12: TeamEnvironment
-	(*GetTeamResponse)(nil),                              // 13: GetTeamResponse
-	(*GetTeamRequest)(nil),                               // 14: GetTeamRequest
-	(*ListActiveTeamsRequest)(nil),                       // 15: ListActiveTeamsRequest
-	(*ListActiveTeamsResponse)(nil),                      // 16: ListActiveTeamsResponse
-	(*ListDeletableTeamsRequest)(nil),                    // 17: ListDeletableTeamsRequest
-	(*ListDeletableTeamsResponse)(nil),                   // 18: ListDeletableTeamsResponse
-	(*ListTeamMembersRequest)(nil),                       // 19: ListTeamMembersRequest
-	(*ListTeamMembersResponse)(nil),                      // 20: ListTeamMembersResponse
-	(*TeamMember)(nil),                                   // 21: TeamMember
-	(*IsRepositoryAuthorizedRequest)(nil),                // 22: IsRepositoryAuthorizedRequest
-	(*IsRepositoryAuthorizedResponse)(nil),               // 23: IsRepositoryAuthorizedResponse
-	(*PageInfo)(nil),                                     // 24: PageInfo
-	(*User)(nil),                                         // 25: User
+	(*Team)(nil), // 0: Team
+	(*ListAuthorizedRepositoriesRequest)(nil),            // 1: ListAuthorizedRepositoriesRequest
+	(*ListAuthorizedRepositoriesResponse)(nil),           // 2: ListAuthorizedRepositoriesResponse
+	(*DeleteTeamRequest)(nil),                            // 3: DeleteTeamRequest
+	(*DeleteTeamResponse)(nil),                           // 4: DeleteTeamResponse
+	(*SetTeamExternalReferencesRequest)(nil),             // 5: SetTeamExternalReferencesRequest
+	(*SetTeamExternalReferencesResponse)(nil),            // 6: SetTeamExternalReferencesResponse
+	(*SetTeamEnvironmentExternalReferencesRequest)(nil),  // 7: SetTeamEnvironmentExternalReferencesRequest
+	(*SetTeamEnvironmentExternalReferencesResponse)(nil), // 8: SetTeamEnvironmentExternalReferencesResponse
+	(*ListTeamEnvironmentsRequest)(nil),                  // 9: ListTeamEnvironmentsRequest
+	(*ListTeamEnvironmentsResponse)(nil),                 // 10: ListTeamEnvironmentsResponse
+	(*TeamEnvironment)(nil),                              // 11: TeamEnvironment
+	(*GetTeamResponse)(nil),                              // 12: GetTeamResponse
+	(*GetTeamRequest)(nil),                               // 13: GetTeamRequest
+	(*ListActiveTeamsRequest)(nil),                       // 14: ListActiveTeamsRequest
+	(*ListActiveTeamsResponse)(nil),                      // 15: ListActiveTeamsResponse
+	(*ListDeletableTeamsRequest)(nil),                    // 16: ListDeletableTeamsRequest
+	(*ListDeletableTeamsResponse)(nil),                   // 17: ListDeletableTeamsResponse
+	(*ListTeamMembersRequest)(nil),                       // 18: ListTeamMembersRequest
+	(*ListTeamMembersResponse)(nil),                      // 19: ListTeamMembersResponse
+	(*TeamMember)(nil),                                   // 20: TeamMember
+	(*IsRepositoryAuthorizedRequest)(nil),                // 21: IsRepositoryAuthorizedRequest
+	(*IsRepositoryAuthorizedResponse)(nil),               // 22: IsRepositoryAuthorizedResponse
+	(*PageInfo)(nil),                                     // 23: PageInfo
+	(*User)(nil),                                         // 24: User
 }
 var file_teams_proto_depIdxs = []int32{
-	12, // 0: ListTeamEnvironmentsResponse.nodes:type_name -> TeamEnvironment
-	24, // 1: ListTeamEnvironmentsResponse.page_info:type_name -> PageInfo
-	1,  // 2: GetTeamResponse.team:type_name -> Team
-	1,  // 3: ListActiveTeamsResponse.nodes:type_name -> Team
-	24, // 4: ListActiveTeamsResponse.page_info:type_name -> PageInfo
-	1,  // 5: ListDeletableTeamsResponse.nodes:type_name -> Team
-	24, // 6: ListDeletableTeamsResponse.page_info:type_name -> PageInfo
-	21, // 7: ListTeamMembersResponse.nodes:type_name -> TeamMember
-	24, // 8: ListTeamMembersResponse.page_info:type_name -> PageInfo
-	25, // 9: TeamMember.user:type_name -> User
-	0,  // 10: IsRepositoryAuthorizedRequest.authorization:type_name -> RepositoryAuthorization
-	2,  // 11: Teams.ListAuthorizedRepositories:input_type -> ListAuthorizedRepositoriesRequest
-	14, // 12: Teams.Get:input_type -> GetTeamRequest
-	15, // 13: Teams.ListActive:input_type -> ListActiveTeamsRequest
-	17, // 14: Teams.ListDeletable:input_type -> ListDeletableTeamsRequest
-	19, // 15: Teams.Members:input_type -> ListTeamMembersRequest
-	10, // 16: Teams.Environments:input_type -> ListTeamEnvironmentsRequest
-	6,  // 17: Teams.SetTeamExternalReferences:input_type -> SetTeamExternalReferencesRequest
-	8,  // 18: Teams.SetTeamEnvironmentExternalReferences:input_type -> SetTeamEnvironmentExternalReferencesRequest
-	4,  // 19: Teams.Delete:input_type -> DeleteTeamRequest
-	22, // 20: Teams.IsRepositoryAuthorized:input_type -> IsRepositoryAuthorizedRequest
-	3,  // 21: Teams.ListAuthorizedRepositories:output_type -> ListAuthorizedRepositoriesResponse
-	13, // 22: Teams.Get:output_type -> GetTeamResponse
-	16, // 23: Teams.ListActive:output_type -> ListActiveTeamsResponse
-	18, // 24: Teams.ListDeletable:output_type -> ListDeletableTeamsResponse
-	20, // 25: Teams.Members:output_type -> ListTeamMembersResponse
-	11, // 26: Teams.Environments:output_type -> ListTeamEnvironmentsResponse
-	7,  // 27: Teams.SetTeamExternalReferences:output_type -> SetTeamExternalReferencesResponse
-	9,  // 28: Teams.SetTeamEnvironmentExternalReferences:output_type -> SetTeamEnvironmentExternalReferencesResponse
-	5,  // 29: Teams.Delete:output_type -> DeleteTeamResponse
-	23, // 30: Teams.IsRepositoryAuthorized:output_type -> IsRepositoryAuthorizedResponse
-	21, // [21:31] is the sub-list for method output_type
-	11, // [11:21] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	11, // 0: ListTeamEnvironmentsResponse.nodes:type_name -> TeamEnvironment
+	23, // 1: ListTeamEnvironmentsResponse.page_info:type_name -> PageInfo
+	0,  // 2: GetTeamResponse.team:type_name -> Team
+	0,  // 3: ListActiveTeamsResponse.nodes:type_name -> Team
+	23, // 4: ListActiveTeamsResponse.page_info:type_name -> PageInfo
+	0,  // 5: ListDeletableTeamsResponse.nodes:type_name -> Team
+	23, // 6: ListDeletableTeamsResponse.page_info:type_name -> PageInfo
+	20, // 7: ListTeamMembersResponse.nodes:type_name -> TeamMember
+	23, // 8: ListTeamMembersResponse.page_info:type_name -> PageInfo
+	24, // 9: TeamMember.user:type_name -> User
+	1,  // 10: Teams.ListAuthorizedRepositories:input_type -> ListAuthorizedRepositoriesRequest
+	13, // 11: Teams.Get:input_type -> GetTeamRequest
+	14, // 12: Teams.ListActive:input_type -> ListActiveTeamsRequest
+	16, // 13: Teams.ListDeletable:input_type -> ListDeletableTeamsRequest
+	18, // 14: Teams.Members:input_type -> ListTeamMembersRequest
+	9,  // 15: Teams.Environments:input_type -> ListTeamEnvironmentsRequest
+	5,  // 16: Teams.SetTeamExternalReferences:input_type -> SetTeamExternalReferencesRequest
+	7,  // 17: Teams.SetTeamEnvironmentExternalReferences:input_type -> SetTeamEnvironmentExternalReferencesRequest
+	3,  // 18: Teams.Delete:input_type -> DeleteTeamRequest
+	21, // 19: Teams.IsRepositoryAuthorized:input_type -> IsRepositoryAuthorizedRequest
+	2,  // 20: Teams.ListAuthorizedRepositories:output_type -> ListAuthorizedRepositoriesResponse
+	12, // 21: Teams.Get:output_type -> GetTeamResponse
+	15, // 22: Teams.ListActive:output_type -> ListActiveTeamsResponse
+	17, // 23: Teams.ListDeletable:output_type -> ListDeletableTeamsResponse
+	19, // 24: Teams.Members:output_type -> ListTeamMembersResponse
+	10, // 25: Teams.Environments:output_type -> ListTeamEnvironmentsResponse
+	6,  // 26: Teams.SetTeamExternalReferences:output_type -> SetTeamExternalReferencesResponse
+	8,  // 27: Teams.SetTeamEnvironmentExternalReferences:output_type -> SetTeamEnvironmentExternalReferencesResponse
+	4,  // 28: Teams.Delete:output_type -> DeleteTeamResponse
+	22, // 29: Teams.IsRepositoryAuthorized:output_type -> IsRepositoryAuthorizedResponse
+	20, // [20:30] is the sub-list for method output_type
+	10, // [10:20] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_teams_proto_init() }
@@ -1971,14 +1908,13 @@ func file_teams_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_teams_proto_rawDesc,
-			NumEnums:      1,
+			NumEnums:      0,
 			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_teams_proto_goTypes,
 		DependencyIndexes: file_teams_proto_depIdxs,
-		EnumInfos:         file_teams_proto_enumTypes,
 		MessageInfos:      file_teams_proto_msgTypes,
 	}.Build()
 	File_teams_proto = out.File

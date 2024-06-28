@@ -119,6 +119,14 @@ type AuditEventMemberSetRoleData struct {
 	Role        TeamRole `json:"role"`
 }
 
+type AuditEventTeamAddRepositoryData struct {
+	RepositoryName string `json:"repositoryName"`
+}
+
+type AuditEventTeamRemoveRepositoryData struct {
+	RepositoryName string `json:"repositoryName"`
+}
+
 type AuditEventTeamSetAlertsSlackChannelData struct {
 	Environment string `json:"environment"`
 	ChannelName string `json:"channelName"`
@@ -647,8 +655,13 @@ type NoRunningInstancesError struct {
 func (NoRunningInstancesError) IsStateError() {}
 
 type OpenSearchList struct {
-	Nodes    []*OpenSearch `json:"nodes"`
-	PageInfo PageInfo      `json:"pageInfo"`
+	Nodes    []*OpenSearch     `json:"nodes"`
+	PageInfo PageInfo          `json:"pageInfo"`
+	Metrics  OpenSearchMetrics `json:"metrics"`
+}
+
+type OpenSearchMetrics struct {
+	Cost float64 `json:"cost"`
 }
 
 type OpenSearchStatus struct {
@@ -732,8 +745,13 @@ type ReconcilerList struct {
 }
 
 type RedisList struct {
-	Nodes    []*Redis `json:"nodes"`
-	PageInfo PageInfo `json:"pageInfo"`
+	Nodes    []*Redis     `json:"nodes"`
+	PageInfo PageInfo     `json:"pageInfo"`
+	Metrics  RedisMetrics `json:"metrics"`
+}
+
+type RedisMetrics struct {
+	Cost float64 `json:"cost"`
 }
 
 type RedisStatus struct {
@@ -753,6 +771,13 @@ type Rekor struct {
 	RunnerEnvironment        string `json:"runnerEnvironment"`
 	SourceRepositoryOwnerURI string `json:"sourceRepositoryOwnerURI"`
 	IntegratedTime           int    `json:"integratedTime"`
+}
+
+type RepositoryList struct {
+	// The list of repositories.
+	Nodes []string `json:"nodes"`
+	// Pagination information.
+	PageInfo PageInfo `json:"pageInfo"`
 }
 
 type Requests struct {
@@ -1053,6 +1078,8 @@ const (
 	AuditEventActionTeamMemberAdded            AuditEventAction = "TEAM_MEMBER_ADDED"
 	AuditEventActionTeamMemberRemoved          AuditEventAction = "TEAM_MEMBER_REMOVED"
 	AuditEventActionTeamMemberSetRole          AuditEventAction = "TEAM_MEMBER_SET_ROLE"
+	AuditEventActionAdded                      AuditEventAction = "ADDED"
+	AuditEventActionRemoved                    AuditEventAction = "REMOVED"
 )
 
 var AllAuditEventAction = []AuditEventAction{
@@ -1067,11 +1094,13 @@ var AllAuditEventAction = []AuditEventAction{
 	AuditEventActionTeamMemberAdded,
 	AuditEventActionTeamMemberRemoved,
 	AuditEventActionTeamMemberSetRole,
+	AuditEventActionAdded,
+	AuditEventActionRemoved,
 }
 
 func (e AuditEventAction) IsValid() bool {
 	switch e {
-	case AuditEventActionTeamCreated, AuditEventActionTeamDeletionConfirmed, AuditEventActionTeamDeletionRequested, AuditEventActionTeamDeployKeyRotated, AuditEventActionTeamSetPurpose, AuditEventActionTeamSetDefaultSLACkChannel, AuditEventActionTeamSetAlertsSLACkChannel, AuditEventActionTeamSynchronized, AuditEventActionTeamMemberAdded, AuditEventActionTeamMemberRemoved, AuditEventActionTeamMemberSetRole:
+	case AuditEventActionTeamCreated, AuditEventActionTeamDeletionConfirmed, AuditEventActionTeamDeletionRequested, AuditEventActionTeamDeployKeyRotated, AuditEventActionTeamSetPurpose, AuditEventActionTeamSetDefaultSLACkChannel, AuditEventActionTeamSetAlertsSLACkChannel, AuditEventActionTeamSynchronized, AuditEventActionTeamMemberAdded, AuditEventActionTeamMemberRemoved, AuditEventActionTeamMemberSetRole, AuditEventActionAdded, AuditEventActionRemoved:
 		return true
 	}
 	return false
@@ -1101,18 +1130,20 @@ func (e AuditEventAction) MarshalGQL(w io.Writer) {
 type AuditEventResourceType string
 
 const (
-	AuditEventResourceTypeTeam       AuditEventResourceType = "TEAM"
-	AuditEventResourceTypeTeamMember AuditEventResourceType = "TEAM_MEMBER"
+	AuditEventResourceTypeTeam           AuditEventResourceType = "TEAM"
+	AuditEventResourceTypeTeamMember     AuditEventResourceType = "TEAM_MEMBER"
+	AuditEventResourceTypeTeamRepository AuditEventResourceType = "TEAM_REPOSITORY"
 )
 
 var AllAuditEventResourceType = []AuditEventResourceType{
 	AuditEventResourceTypeTeam,
 	AuditEventResourceTypeTeamMember,
+	AuditEventResourceTypeTeamRepository,
 }
 
 func (e AuditEventResourceType) IsValid() bool {
 	switch e {
-	case AuditEventResourceTypeTeam, AuditEventResourceTypeTeamMember:
+	case AuditEventResourceTypeTeam, AuditEventResourceTypeTeamMember, AuditEventResourceTypeTeamRepository:
 		return true
 	}
 	return false
@@ -1325,47 +1356,6 @@ func (e *OrderByField) UnmarshalGQL(v interface{}) error {
 }
 
 func (e OrderByField) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-// Repository authorizations.
-type RepositoryAuthorization string
-
-const (
-	// Authorize for NAIS deployment.
-	RepositoryAuthorizationDeploy RepositoryAuthorization = "DEPLOY"
-)
-
-var AllRepositoryAuthorization = []RepositoryAuthorization{
-	RepositoryAuthorizationDeploy,
-}
-
-func (e RepositoryAuthorization) IsValid() bool {
-	switch e {
-	case RepositoryAuthorizationDeploy:
-		return true
-	}
-	return false
-}
-
-func (e RepositoryAuthorization) String() string {
-	return string(e)
-}
-
-func (e *RepositoryAuthorization) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = RepositoryAuthorization(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid RepositoryAuthorization", str)
-	}
-	return nil
-}
-
-func (e RepositoryAuthorization) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

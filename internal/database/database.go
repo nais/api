@@ -39,12 +39,12 @@ type Database interface {
 	ReconcilerErrorRepo
 	ReconcilerRepo
 	ReconcilerStateRepo
-	RepositoryAuthorizationRepo
 	ResourceUtilizationRepo
 	RoleRepo
 	ServiceAccountRepo
 	SessionRepo
 	TeamRepo
+	TeamRepositoryRepo
 	UserRepo
 	UsersyncRepo
 	Transactioner

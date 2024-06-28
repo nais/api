@@ -14,7 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 )
 
-func (c *Client) Redis(ctx context.Context, teamSlug slug.Slug) ([]*model.Redis, error) {
+func (c *Client) Redis(ctx context.Context, teamSlug slug.Slug) ([]*model.Redis, *model.RedisMetrics, error) {
 	RedisListOpsCounter.Add(ctx, 1)
 	ret := make([]*model.Redis, 0)
 
@@ -27,14 +27,14 @@ func (c *Client) Redis(ctx context.Context, teamSlug slug.Slug) ([]*model.Redis,
 		objs, err := inf.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
 		if err != nil {
 			RedisListErrorCounter.Add(ctx, 1)
-			return nil, fmt.Errorf("listing Redis: %w", err)
+			return nil, nil, fmt.Errorf("listing Redis: %w", err)
 		}
 
 		for _, obj := range objs {
 			redis, err := model.ToRedis(obj.(*unstructured.Unstructured), env)
 			if err != nil {
 				RedisListErrorCounter.Add(ctx, 1)
-				return nil, fmt.Errorf("converting to Redis: %w", err)
+				return nil, nil, fmt.Errorf("converting to Redis: %w", err)
 			}
 
 			ret = append(ret, redis)
@@ -44,7 +44,11 @@ func (c *Client) Redis(ctx context.Context, teamSlug slug.Slug) ([]*model.Redis,
 		return ret[i].Name < ret[j].Name
 	})
 
-	return ret, nil
+	metrics := &model.RedisMetrics{
+		Cost: c.CostForRedis(ctx, teamSlug),
+	}
+
+	return ret, metrics, nil
 }
 
 func (c *Client) RedisInstance(ctx context.Context, env string, teamSlug slug.Slug, redisName string) (*model.Redis, error) {
@@ -74,6 +78,26 @@ func (c *Client) RedisInstance(ctx context.Context, env string, teamSlug slug.Sl
 	}
 
 	return ret, nil
+}
+
+func (c *Client) CostForRedis(ctx context.Context, teamSlug slug.Slug) float64 {
+	RedisCostOpsCounter.Add(ctx, 1)
+
+	cost := 0.0
+
+	now := time.Now()
+	var from, to pgtype.Date
+	_ = to.Scan(now)
+	_ = from.Scan(now.AddDate(0, 0, -30))
+
+	if sum, err := c.db.CostForTeam(ctx, "Redis", from, to, teamSlug); err != nil {
+		RedisCostErrorCounter.Add(ctx, 1)
+		c.log.WithError(err).Errorf("fetching cost")
+	} else {
+		cost = float64(sum)
+	}
+
+	return cost
 }
 
 func (c *Client) CostForRedisInstance(ctx context.Context, env string, teamSlug slug.Slug, ownerName string) float64 {

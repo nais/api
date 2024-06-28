@@ -11,61 +11,6 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-type RepositoryAuthorizationEnum string
-
-const (
-	RepositoryAuthorizationEnumDeploy RepositoryAuthorizationEnum = "deploy"
-)
-
-func (e *RepositoryAuthorizationEnum) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = RepositoryAuthorizationEnum(s)
-	case string:
-		*e = RepositoryAuthorizationEnum(s)
-	default:
-		return fmt.Errorf("unsupported scan type for RepositoryAuthorizationEnum: %T", src)
-	}
-	return nil
-}
-
-type NullRepositoryAuthorizationEnum struct {
-	RepositoryAuthorizationEnum RepositoryAuthorizationEnum
-	Valid                       bool // Valid is true if RepositoryAuthorizationEnum is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullRepositoryAuthorizationEnum) Scan(value interface{}) error {
-	if value == nil {
-		ns.RepositoryAuthorizationEnum, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.RepositoryAuthorizationEnum.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullRepositoryAuthorizationEnum) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.RepositoryAuthorizationEnum), nil
-}
-
-func (e RepositoryAuthorizationEnum) Valid() bool {
-	switch e {
-	case RepositoryAuthorizationEnumDeploy:
-		return true
-	}
-	return false
-}
-
-func AllRepositoryAuthorizationEnumValues() []RepositoryAuthorizationEnum {
-	return []RepositoryAuthorizationEnum{
-		RepositoryAuthorizationEnumDeploy,
-	}
-}
-
 type ResourceType string
 
 const (

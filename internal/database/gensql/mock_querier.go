@@ -73,6 +73,53 @@ func (_c *MockQuerier_AddReconcilerOptOut_Call) RunAndReturn(run func(context.Co
 	return _c
 }
 
+// AddTeamRepository provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) AddTeamRepository(ctx context.Context, arg AddTeamRepositoryParams) error {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AddTeamRepository")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, AddTeamRepositoryParams) error); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockQuerier_AddTeamRepository_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddTeamRepository'
+type MockQuerier_AddTeamRepository_Call struct {
+	*mock.Call
+}
+
+// AddTeamRepository is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg AddTeamRepositoryParams
+func (_e *MockQuerier_Expecter) AddTeamRepository(ctx interface{}, arg interface{}) *MockQuerier_AddTeamRepository_Call {
+	return &MockQuerier_AddTeamRepository_Call{Call: _e.mock.On("AddTeamRepository", ctx, arg)}
+}
+
+func (_c *MockQuerier_AddTeamRepository_Call) Run(run func(ctx context.Context, arg AddTeamRepositoryParams)) *MockQuerier_AddTeamRepository_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(AddTeamRepositoryParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_AddTeamRepository_Call) Return(_a0 error) *MockQuerier_AddTeamRepository_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockQuerier_AddTeamRepository_Call) RunAndReturn(run func(context.Context, AddTeamRepositoryParams) error) *MockQuerier_AddTeamRepository_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // AssignGlobalRoleToServiceAccount provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) AssignGlobalRoleToServiceAccount(ctx context.Context, arg AssignGlobalRoleToServiceAccountParams) error {
 	ret := _m.Called(ctx, arg)
@@ -518,6 +565,63 @@ func (_c *MockQuerier_CostForInstance_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
+// CostForTeam provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) CostForTeam(ctx context.Context, arg CostForTeamParams) (float32, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CostForTeam")
+	}
+
+	var r0 float32
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, CostForTeamParams) (float32, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, CostForTeamParams) float32); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(float32)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, CostForTeamParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_CostForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CostForTeam'
+type MockQuerier_CostForTeam_Call struct {
+	*mock.Call
+}
+
+// CostForTeam is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg CostForTeamParams
+func (_e *MockQuerier_Expecter) CostForTeam(ctx interface{}, arg interface{}) *MockQuerier_CostForTeam_Call {
+	return &MockQuerier_CostForTeam_Call{Call: _e.mock.On("CostForTeam", ctx, arg)}
+}
+
+func (_c *MockQuerier_CostForTeam_Call) Run(run func(ctx context.Context, arg CostForTeamParams)) *MockQuerier_CostForTeam_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(CostForTeamParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_CostForTeam_Call) Return(_a0 float32, _a1 error) *MockQuerier_CostForTeam_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_CostForTeam_Call) RunAndReturn(run func(context.Context, CostForTeamParams) (float32, error)) *MockQuerier_CostForTeam_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CostUpsert provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults {
 	ret := _m.Called(ctx, arg)
@@ -704,53 +808,6 @@ func (_c *MockQuerier_CreateAuditLog_Call) Return(_a0 error) *MockQuerier_Create
 }
 
 func (_c *MockQuerier_CreateAuditLog_Call) RunAndReturn(run func(context.Context, CreateAuditLogParams) error) *MockQuerier_CreateAuditLog_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// CreateRepositoryAuthorization provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) CreateRepositoryAuthorization(ctx context.Context, arg CreateRepositoryAuthorizationParams) error {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for CreateRepositoryAuthorization")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, CreateRepositoryAuthorizationParams) error); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockQuerier_CreateRepositoryAuthorization_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateRepositoryAuthorization'
-type MockQuerier_CreateRepositoryAuthorization_Call struct {
-	*mock.Call
-}
-
-// CreateRepositoryAuthorization is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg CreateRepositoryAuthorizationParams
-func (_e *MockQuerier_Expecter) CreateRepositoryAuthorization(ctx interface{}, arg interface{}) *MockQuerier_CreateRepositoryAuthorization_Call {
-	return &MockQuerier_CreateRepositoryAuthorization_Call{Call: _e.mock.On("CreateRepositoryAuthorization", ctx, arg)}
-}
-
-func (_c *MockQuerier_CreateRepositoryAuthorization_Call) Run(run func(ctx context.Context, arg CreateRepositoryAuthorizationParams)) *MockQuerier_CreateRepositoryAuthorization_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(CreateRepositoryAuthorizationParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_CreateRepositoryAuthorization_Call) Return(_a0 error) *MockQuerier_CreateRepositoryAuthorization_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockQuerier_CreateRepositoryAuthorization_Call) RunAndReturn(run func(context.Context, CreateRepositoryAuthorizationParams) error) *MockQuerier_CreateRepositoryAuthorization_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3286,65 +3343,6 @@ func (_c *MockQuerier_GetReconcilersCount_Call) RunAndReturn(run func(context.Co
 	return _c
 }
 
-// GetRepositoryAuthorizations provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) GetRepositoryAuthorizations(ctx context.Context, arg GetRepositoryAuthorizationsParams) ([]RepositoryAuthorizationEnum, error) {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetRepositoryAuthorizations")
-	}
-
-	var r0 []RepositoryAuthorizationEnum
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, GetRepositoryAuthorizationsParams) ([]RepositoryAuthorizationEnum, error)); ok {
-		return rf(ctx, arg)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, GetRepositoryAuthorizationsParams) []RepositoryAuthorizationEnum); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]RepositoryAuthorizationEnum)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, GetRepositoryAuthorizationsParams) error); ok {
-		r1 = rf(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_GetRepositoryAuthorizations_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetRepositoryAuthorizations'
-type MockQuerier_GetRepositoryAuthorizations_Call struct {
-	*mock.Call
-}
-
-// GetRepositoryAuthorizations is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg GetRepositoryAuthorizationsParams
-func (_e *MockQuerier_Expecter) GetRepositoryAuthorizations(ctx interface{}, arg interface{}) *MockQuerier_GetRepositoryAuthorizations_Call {
-	return &MockQuerier_GetRepositoryAuthorizations_Call{Call: _e.mock.On("GetRepositoryAuthorizations", ctx, arg)}
-}
-
-func (_c *MockQuerier_GetRepositoryAuthorizations_Call) Run(run func(ctx context.Context, arg GetRepositoryAuthorizationsParams)) *MockQuerier_GetRepositoryAuthorizations_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(GetRepositoryAuthorizationsParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_GetRepositoryAuthorizations_Call) Return(_a0 []RepositoryAuthorizationEnum, _a1 error) *MockQuerier_GetRepositoryAuthorizations_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_GetRepositoryAuthorizations_Call) RunAndReturn(run func(context.Context, GetRepositoryAuthorizationsParams) ([]RepositoryAuthorizationEnum, error)) *MockQuerier_GetRepositoryAuthorizations_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetServiceAccountByApiKey provides a mock function with given fields: ctx, apiKey
 func (_m *MockQuerier) GetServiceAccountByApiKey(ctx context.Context, apiKey string) (*ServiceAccount, error) {
 	ret := _m.Called(ctx, apiKey)
@@ -4280,6 +4278,65 @@ func (_c *MockQuerier_GetTeamReconcilerErrors_Call) Return(_a0 []*ReconcilerErro
 }
 
 func (_c *MockQuerier_GetTeamReconcilerErrors_Call) RunAndReturn(run func(context.Context, slug.Slug) ([]*ReconcilerError, error)) *MockQuerier_GetTeamReconcilerErrors_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetTeamRepositories provides a mock function with given fields: ctx, teamSlug
+func (_m *MockQuerier) GetTeamRepositories(ctx context.Context, teamSlug slug.Slug) ([]string, error) {
+	ret := _m.Called(ctx, teamSlug)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTeamRepositories")
+	}
+
+	var r0 []string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) ([]string, error)); ok {
+		return rf(ctx, teamSlug)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) []string); ok {
+		r0 = rf(ctx, teamSlug)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
+		r1 = rf(ctx, teamSlug)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetTeamRepositories_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamRepositories'
+type MockQuerier_GetTeamRepositories_Call struct {
+	*mock.Call
+}
+
+// GetTeamRepositories is a helper method to define mock.On call
+//   - ctx context.Context
+//   - teamSlug slug.Slug
+func (_e *MockQuerier_Expecter) GetTeamRepositories(ctx interface{}, teamSlug interface{}) *MockQuerier_GetTeamRepositories_Call {
+	return &MockQuerier_GetTeamRepositories_Call{Call: _e.mock.On("GetTeamRepositories", ctx, teamSlug)}
+}
+
+func (_c *MockQuerier_GetTeamRepositories_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockQuerier_GetTeamRepositories_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(slug.Slug))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetTeamRepositories_Call) Return(_a0 []string, _a1 error) *MockQuerier_GetTeamRepositories_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetTeamRepositories_Call) RunAndReturn(run func(context.Context, slug.Slug) ([]string, error)) *MockQuerier_GetTeamRepositories_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -5323,6 +5380,63 @@ func (_c *MockQuerier_InsertEnvironment_Call) RunAndReturn(run func(context.Cont
 	return _c
 }
 
+// IsTeamRepository provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) IsTeamRepository(ctx context.Context, arg IsTeamRepositoryParams) (bool, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for IsTeamRepository")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, IsTeamRepositoryParams) (bool, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, IsTeamRepositoryParams) bool); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, IsTeamRepositoryParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_IsTeamRepository_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsTeamRepository'
+type MockQuerier_IsTeamRepository_Call struct {
+	*mock.Call
+}
+
+// IsTeamRepository is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg IsTeamRepositoryParams
+func (_e *MockQuerier_Expecter) IsTeamRepository(ctx interface{}, arg interface{}) *MockQuerier_IsTeamRepository_Call {
+	return &MockQuerier_IsTeamRepository_Call{Call: _e.mock.On("IsTeamRepository", ctx, arg)}
+}
+
+func (_c *MockQuerier_IsTeamRepository_Call) Run(run func(ctx context.Context, arg IsTeamRepositoryParams)) *MockQuerier_IsTeamRepository_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(IsTeamRepositoryParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_IsTeamRepository_Call) Return(_a0 bool, _a1 error) *MockQuerier_IsTeamRepository_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_IsTeamRepository_Call) RunAndReturn(run func(context.Context, IsTeamRepositoryParams) (bool, error)) *MockQuerier_IsTeamRepository_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // LastCostDate provides a mock function with given fields: ctx
 func (_m *MockQuerier) LastCostDate(ctx context.Context) (pgtype.Date, error) {
 	ret := _m.Called(ctx)
@@ -5375,65 +5489,6 @@ func (_c *MockQuerier_LastCostDate_Call) Return(_a0 pgtype.Date, _a1 error) *Moc
 }
 
 func (_c *MockQuerier_LastCostDate_Call) RunAndReturn(run func(context.Context) (pgtype.Date, error)) *MockQuerier_LastCostDate_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// ListRepositoriesByAuthorization provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) ListRepositoriesByAuthorization(ctx context.Context, arg ListRepositoriesByAuthorizationParams) ([]string, error) {
-	ret := _m.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ListRepositoriesByAuthorization")
-	}
-
-	var r0 []string
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, ListRepositoriesByAuthorizationParams) ([]string, error)); ok {
-		return rf(ctx, arg)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, ListRepositoriesByAuthorizationParams) []string); ok {
-		r0 = rf(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]string)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, ListRepositoriesByAuthorizationParams) error); ok {
-		r1 = rf(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_ListRepositoriesByAuthorization_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListRepositoriesByAuthorization'
-type MockQuerier_ListRepositoriesByAuthorization_Call struct {
-	*mock.Call
-}
-
-// ListRepositoriesByAuthorization is a helper method to define mock.On call
-//   - ctx context.Context
-//   - arg ListRepositoriesByAuthorizationParams
-func (_e *MockQuerier_Expecter) ListRepositoriesByAuthorization(ctx interface{}, arg interface{}) *MockQuerier_ListRepositoriesByAuthorization_Call {
-	return &MockQuerier_ListRepositoriesByAuthorization_Call{Call: _e.mock.On("ListRepositoriesByAuthorization", ctx, arg)}
-}
-
-func (_c *MockQuerier_ListRepositoriesByAuthorization_Call) Run(run func(ctx context.Context, arg ListRepositoriesByAuthorizationParams)) *MockQuerier_ListRepositoriesByAuthorization_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(ListRepositoriesByAuthorizationParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_ListRepositoriesByAuthorization_Call) Return(_a0 []string, _a1 error) *MockQuerier_ListRepositoriesByAuthorization_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_ListRepositoriesByAuthorization_Call) RunAndReturn(run func(context.Context, ListRepositoriesByAuthorizationParams) ([]string, error)) *MockQuerier_ListRepositoriesByAuthorization_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -5845,16 +5900,16 @@ func (_c *MockQuerier_RemoveReconcilerOptOut_Call) RunAndReturn(run func(context
 	return _c
 }
 
-// RemoveRepositoryAuthorization provides a mock function with given fields: ctx, arg
-func (_m *MockQuerier) RemoveRepositoryAuthorization(ctx context.Context, arg RemoveRepositoryAuthorizationParams) error {
+// RemoveTeamRepository provides a mock function with given fields: ctx, arg
+func (_m *MockQuerier) RemoveTeamRepository(ctx context.Context, arg RemoveTeamRepositoryParams) error {
 	ret := _m.Called(ctx, arg)
 
 	if len(ret) == 0 {
-		panic("no return value specified for RemoveRepositoryAuthorization")
+		panic("no return value specified for RemoveTeamRepository")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, RemoveRepositoryAuthorizationParams) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, RemoveTeamRepositoryParams) error); ok {
 		r0 = rf(ctx, arg)
 	} else {
 		r0 = ret.Error(0)
@@ -5863,31 +5918,31 @@ func (_m *MockQuerier) RemoveRepositoryAuthorization(ctx context.Context, arg Re
 	return r0
 }
 
-// MockQuerier_RemoveRepositoryAuthorization_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveRepositoryAuthorization'
-type MockQuerier_RemoveRepositoryAuthorization_Call struct {
+// MockQuerier_RemoveTeamRepository_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveTeamRepository'
+type MockQuerier_RemoveTeamRepository_Call struct {
 	*mock.Call
 }
 
-// RemoveRepositoryAuthorization is a helper method to define mock.On call
+// RemoveTeamRepository is a helper method to define mock.On call
 //   - ctx context.Context
-//   - arg RemoveRepositoryAuthorizationParams
-func (_e *MockQuerier_Expecter) RemoveRepositoryAuthorization(ctx interface{}, arg interface{}) *MockQuerier_RemoveRepositoryAuthorization_Call {
-	return &MockQuerier_RemoveRepositoryAuthorization_Call{Call: _e.mock.On("RemoveRepositoryAuthorization", ctx, arg)}
+//   - arg RemoveTeamRepositoryParams
+func (_e *MockQuerier_Expecter) RemoveTeamRepository(ctx interface{}, arg interface{}) *MockQuerier_RemoveTeamRepository_Call {
+	return &MockQuerier_RemoveTeamRepository_Call{Call: _e.mock.On("RemoveTeamRepository", ctx, arg)}
 }
 
-func (_c *MockQuerier_RemoveRepositoryAuthorization_Call) Run(run func(ctx context.Context, arg RemoveRepositoryAuthorizationParams)) *MockQuerier_RemoveRepositoryAuthorization_Call {
+func (_c *MockQuerier_RemoveTeamRepository_Call) Run(run func(ctx context.Context, arg RemoveTeamRepositoryParams)) *MockQuerier_RemoveTeamRepository_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(RemoveRepositoryAuthorizationParams))
+		run(args[0].(context.Context), args[1].(RemoveTeamRepositoryParams))
 	})
 	return _c
 }
 
-func (_c *MockQuerier_RemoveRepositoryAuthorization_Call) Return(_a0 error) *MockQuerier_RemoveRepositoryAuthorization_Call {
+func (_c *MockQuerier_RemoveTeamRepository_Call) Return(_a0 error) *MockQuerier_RemoveTeamRepository_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockQuerier_RemoveRepositoryAuthorization_Call) RunAndReturn(run func(context.Context, RemoveRepositoryAuthorizationParams) error) *MockQuerier_RemoveRepositoryAuthorization_Call {
+func (_c *MockQuerier_RemoveTeamRepository_Call) RunAndReturn(run func(context.Context, RemoveTeamRepositoryParams) error) *MockQuerier_RemoveTeamRepository_Call {
 	_c.Call.Return(run)
 	return _c
 }

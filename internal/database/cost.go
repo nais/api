@@ -11,6 +11,7 @@ import (
 
 type CostRepo interface {
 	CostForInstance(ctx context.Context, costType string, fromDate, toDate pgtype.Date, teamSlug slug.Slug, appName, environment string) (float32, error)
+	CostForTeam(ctx context.Context, costType string, fromDate, toDate pgtype.Date, teamSlug slug.Slug) (float32, error)
 	CostRefresh(ctx context.Context) error
 	CostUpsert(ctx context.Context, arg []gensql.CostUpsertParams) *gensql.CostUpsertBatchResults
 	CurrentSqlInstancesCostForTeam(ctx context.Context, teamSlug slug.Slug) (float32, error)
@@ -42,6 +43,15 @@ func (d *database) CostForInstance(ctx context.Context, costType string, fromDat
 	}
 
 	return cost, nil
+}
+
+func (d *database) CostForTeam(ctx context.Context, costType string, fromDate, toDate pgtype.Date, teamSlug slug.Slug) (float32, error) {
+	return d.querier.CostForTeam(ctx, gensql.CostForTeamParams{
+		FromDate: fromDate,
+		ToDate:   toDate,
+		TeamSlug: teamSlug,
+		CostType: costType,
+	})
 }
 
 func (d *database) DailyCostForApp(ctx context.Context, fromDate pgtype.Date, toDate pgtype.Date, environment string, teamSlug slug.Slug, app string) ([]*gensql.Cost, error) {

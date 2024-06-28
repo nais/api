@@ -12,6 +12,7 @@ import (
 
 type Querier interface {
 	AddReconcilerOptOut(ctx context.Context, arg AddReconcilerOptOutParams) error
+	AddTeamRepository(ctx context.Context, arg AddTeamRepositoryParams) error
 	AssignGlobalRoleToServiceAccount(ctx context.Context, arg AssignGlobalRoleToServiceAccountParams) error
 	AssignGlobalRoleToUser(ctx context.Context, arg AssignGlobalRoleToUserParams) error
 	AssignTeamRoleToServiceAccount(ctx context.Context, arg AssignTeamRoleToServiceAccountParams) error
@@ -23,13 +24,13 @@ type Querier interface {
 	// ConfirmTeamDeleteKey confirms a delete key for a team.
 	ConfirmTeamDeleteKey(ctx context.Context, key uuid.UUID) error
 	CostForInstance(ctx context.Context, arg CostForInstanceParams) (float32, error)
+	CostForTeam(ctx context.Context, arg CostForTeamParams) (float32, error)
 	// CostUpsert will insert or update a cost record. If there is a conflict on the daily_cost_key constrant, the
 	// daily_cost column will be updated.
 	CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults
 	CreateAPIKey(ctx context.Context, arg CreateAPIKeyParams) error
 	CreateAuditEvent(ctx context.Context, arg CreateAuditEventParams) error
 	CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) error
-	CreateRepositoryAuthorization(ctx context.Context, arg CreateRepositoryAuthorizationParams) error
 	CreateServiceAccount(ctx context.Context, name string) (*ServiceAccount, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (*Session, error)
 	// CreateTeam creates a new team.
@@ -88,7 +89,6 @@ type Querier interface {
 	GetReconcilerStateForTeam(ctx context.Context, arg GetReconcilerStateForTeamParams) (*ReconcilerState, error)
 	GetReconcilers(ctx context.Context, arg GetReconcilersParams) ([]*Reconciler, error)
 	GetReconcilersCount(ctx context.Context) (int64, error)
-	GetRepositoryAuthorizations(ctx context.Context, arg GetRepositoryAuthorizationsParams) ([]RepositoryAuthorizationEnum, error)
 	GetServiceAccountByApiKey(ctx context.Context, apiKey string) (*ServiceAccount, error)
 	GetServiceAccountByName(ctx context.Context, name string) (*ServiceAccount, error)
 	GetServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) ([]*ServiceAccountRole, error)
@@ -116,6 +116,7 @@ type Querier interface {
 	// GetTeamMembersCount returns the total number of team members of a non-deleted team.
 	GetTeamMembersCount(ctx context.Context, teamSlug *slug.Slug) (int64, error)
 	GetTeamReconcilerErrors(ctx context.Context, teamSlug slug.Slug) ([]*ReconcilerError, error)
+	GetTeamRepositories(ctx context.Context, teamSlug slug.Slug) ([]string, error)
 	// GetTeams returns a slice of teams, excluding deleted teams.
 	GetTeams(ctx context.Context, arg GetTeamsParams) ([]*Team, error)
 	// GetTeamsBySlugs returns a slice of teams by their slugs, excluding deleted teams.
@@ -137,9 +138,9 @@ type Querier interface {
 	GetUsersyncRuns(ctx context.Context, arg GetUsersyncRunsParams) ([]*UsersyncRun, error)
 	GetUsersyncRunsCount(ctx context.Context) (int64, error)
 	InsertEnvironment(ctx context.Context, arg InsertEnvironmentParams) error
+	IsTeamRepository(ctx context.Context, arg IsTeamRepositoryParams) (bool, error)
 	// LastCostDate will return the last date that has a cost.
 	LastCostDate(ctx context.Context) (pgtype.Date, error)
-	ListRepositoriesByAuthorization(ctx context.Context, arg ListRepositoriesByAuthorizationParams) ([]string, error)
 	// MaxResourceUtilizationDate will return the max date for resource utilization records.
 	MaxResourceUtilizationDate(ctx context.Context) (pgtype.Timestamptz, error)
 	MonthlyCostForApp(ctx context.Context, arg MonthlyCostForAppParams) ([]*MonthlyCostForAppRow, error)
@@ -150,7 +151,7 @@ type Querier interface {
 	RemoveAllServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveReconcilerOptOut(ctx context.Context, arg RemoveReconcilerOptOutParams) error
-	RemoveRepositoryAuthorization(ctx context.Context, arg RemoveRepositoryAuthorizationParams) error
+	RemoveTeamRepository(ctx context.Context, arg RemoveTeamRepositoryParams) error
 	// RemoveUserFromTeam removes a user from a team.
 	RemoveUserFromTeam(ctx context.Context, arg RemoveUserFromTeamParams) error
 	ResetReconcilerConfig(ctx context.Context, reconcilerName string) error

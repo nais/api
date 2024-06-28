@@ -212,8 +212,8 @@ func TestTeamsServer_IsRepositoryAuthorized(t *testing.T) {
 		)
 		db := database.NewMockDatabase(t)
 		db.EXPECT().
-			GetRepositoryAuthorizations(ctx, slug.Slug(teamSlug), repoName).
-			Return(nil, fmt.Errorf("some error")).
+			IsTeamRepository(ctx, slug.Slug(teamSlug), repoName).
+			Return(false, fmt.Errorf("some error")).
 			Once()
 		resp, err := grpc.NewTeamsServer(db).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
 			TeamSlug:   teamSlug,
@@ -228,30 +228,6 @@ func TestTeamsServer_IsRepositoryAuthorized(t *testing.T) {
 		}
 	})
 
-	t.Run("invalid authorization", func(t *testing.T) {
-		const (
-			teamSlug = "team-slug"
-			repoName = "repo-name"
-		)
-		db := database.NewMockDatabase(t)
-		db.EXPECT().
-			GetRepositoryAuthorizations(ctx, slug.Slug(teamSlug), repoName).
-			Return([]gensql.RepositoryAuthorizationEnum{}, nil).
-			Once()
-		resp, err := grpc.NewTeamsServer(db).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
-			TeamSlug:      teamSlug,
-			Repository:    repoName,
-			Authorization: protoapi.RepositoryAuthorization_UNKNOWN,
-		})
-		if resp != nil {
-			t.Error("expected response to be nil")
-		}
-
-		if s, ok := status.FromError(err); !ok || s.Code() != codes.InvalidArgument {
-			t.Errorf("expected status code %v, got %v", codes.InvalidArgument, err)
-		}
-	})
-
 	t.Run("repo is authorized", func(t *testing.T) {
 		const (
 			teamSlug = "team-slug"
@@ -259,15 +235,12 @@ func TestTeamsServer_IsRepositoryAuthorized(t *testing.T) {
 		)
 		db := database.NewMockDatabase(t)
 		db.EXPECT().
-			GetRepositoryAuthorizations(ctx, slug.Slug(teamSlug), repoName).
-			Return([]gensql.RepositoryAuthorizationEnum{
-				gensql.RepositoryAuthorizationEnumDeploy,
-			}, nil).
+			IsTeamRepository(ctx, slug.Slug(teamSlug), repoName).
+			Return(true, nil).
 			Once()
 		resp, err := grpc.NewTeamsServer(db).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
-			TeamSlug:      teamSlug,
-			Repository:    repoName,
-			Authorization: protoapi.RepositoryAuthorization_DEPLOY,
+			TeamSlug:   teamSlug,
+			Repository: repoName,
 		})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -289,13 +262,12 @@ func TestTeamsServer_IsRepositoryAuthorized(t *testing.T) {
 		)
 		db := database.NewMockDatabase(t)
 		db.EXPECT().
-			GetRepositoryAuthorizations(ctx, slug.Slug(teamSlug), repoName).
-			Return([]gensql.RepositoryAuthorizationEnum{}, nil).
+			IsTeamRepository(ctx, slug.Slug(teamSlug), repoName).
+			Return(false, nil).
 			Once()
 		resp, err := grpc.NewTeamsServer(db).IsRepositoryAuthorized(ctx, &protoapi.IsRepositoryAuthorizedRequest{
-			TeamSlug:      teamSlug,
-			Repository:    repoName,
-			Authorization: protoapi.RepositoryAuthorization_DEPLOY,
+			TeamSlug:   teamSlug,
+			Repository: repoName,
 		})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)

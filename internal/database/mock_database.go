@@ -85,6 +85,54 @@ func (_c *MockDatabase_AddReconcilerOptOut_Call) RunAndReturn(run func(context.C
 	return _c
 }
 
+// AddTeamRepository provides a mock function with given fields: ctx, teamSlug, repoName
+func (_m *MockDatabase) AddTeamRepository(ctx context.Context, teamSlug slug.Slug, repoName string) error {
+	ret := _m.Called(ctx, teamSlug, repoName)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AddTeamRepository")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) error); ok {
+		r0 = rf(ctx, teamSlug, repoName)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockDatabase_AddTeamRepository_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddTeamRepository'
+type MockDatabase_AddTeamRepository_Call struct {
+	*mock.Call
+}
+
+// AddTeamRepository is a helper method to define mock.On call
+//   - ctx context.Context
+//   - teamSlug slug.Slug
+//   - repoName string
+func (_e *MockDatabase_Expecter) AddTeamRepository(ctx interface{}, teamSlug interface{}, repoName interface{}) *MockDatabase_AddTeamRepository_Call {
+	return &MockDatabase_AddTeamRepository_Call{Call: _e.mock.On("AddTeamRepository", ctx, teamSlug, repoName)}
+}
+
+func (_c *MockDatabase_AddTeamRepository_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, repoName string)) *MockDatabase_AddTeamRepository_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_AddTeamRepository_Call) Return(_a0 error) *MockDatabase_AddTeamRepository_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockDatabase_AddTeamRepository_Call) RunAndReturn(run func(context.Context, slug.Slug, string) error) *MockDatabase_AddTeamRepository_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // AssignGlobalRoleToServiceAccount provides a mock function with given fields: ctx, serviceAccountID, roleName
 func (_m *MockDatabase) AssignGlobalRoleToServiceAccount(ctx context.Context, serviceAccountID uuid.UUID, roleName gensql.RoleName) error {
 	ret := _m.Called(ctx, serviceAccountID, roleName)
@@ -498,6 +546,66 @@ func (_c *MockDatabase_CostForInstance_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
+// CostForTeam provides a mock function with given fields: ctx, costType, fromDate, toDate, teamSlug
+func (_m *MockDatabase) CostForTeam(ctx context.Context, costType string, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug) (float32, error) {
+	ret := _m.Called(ctx, costType, fromDate, toDate, teamSlug)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CostForTeam")
+	}
+
+	var r0 float32
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, pgtype.Date, pgtype.Date, slug.Slug) (float32, error)); ok {
+		return rf(ctx, costType, fromDate, toDate, teamSlug)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, pgtype.Date, pgtype.Date, slug.Slug) float32); ok {
+		r0 = rf(ctx, costType, fromDate, toDate, teamSlug)
+	} else {
+		r0 = ret.Get(0).(float32)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, pgtype.Date, pgtype.Date, slug.Slug) error); ok {
+		r1 = rf(ctx, costType, fromDate, toDate, teamSlug)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockDatabase_CostForTeam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CostForTeam'
+type MockDatabase_CostForTeam_Call struct {
+	*mock.Call
+}
+
+// CostForTeam is a helper method to define mock.On call
+//   - ctx context.Context
+//   - costType string
+//   - fromDate pgtype.Date
+//   - toDate pgtype.Date
+//   - teamSlug slug.Slug
+func (_e *MockDatabase_Expecter) CostForTeam(ctx interface{}, costType interface{}, fromDate interface{}, toDate interface{}, teamSlug interface{}) *MockDatabase_CostForTeam_Call {
+	return &MockDatabase_CostForTeam_Call{Call: _e.mock.On("CostForTeam", ctx, costType, fromDate, toDate, teamSlug)}
+}
+
+func (_c *MockDatabase_CostForTeam_Call) Run(run func(ctx context.Context, costType string, fromDate pgtype.Date, toDate pgtype.Date, teamSlug slug.Slug)) *MockDatabase_CostForTeam_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(pgtype.Date), args[3].(pgtype.Date), args[4].(slug.Slug))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_CostForTeam_Call) Return(_a0 float32, _a1 error) *MockDatabase_CostForTeam_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockDatabase_CostForTeam_Call) RunAndReturn(run func(context.Context, string, pgtype.Date, pgtype.Date, slug.Slug) (float32, error)) *MockDatabase_CostForTeam_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CostRefresh provides a mock function with given fields: ctx
 func (_m *MockDatabase) CostRefresh(ctx context.Context) error {
 	ret := _m.Called(ctx)
@@ -736,55 +844,6 @@ func (_c *MockDatabase_CreateAuditLogEntry_Call) Return(_a0 error) *MockDatabase
 }
 
 func (_c *MockDatabase_CreateAuditLogEntry_Call) RunAndReturn(run func(context.Context, uuid.UUID, *string, audittype.AuditLogsTargetType, string, audittype.AuditAction, string) error) *MockDatabase_CreateAuditLogEntry_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// CreateRepositoryAuthorization provides a mock function with given fields: ctx, teamSlug, repoName, authorization
-func (_m *MockDatabase) CreateRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization gensql.RepositoryAuthorizationEnum) error {
-	ret := _m.Called(ctx, teamSlug, repoName, authorization)
-
-	if len(ret) == 0 {
-		panic("no return value specified for CreateRepositoryAuthorization")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, gensql.RepositoryAuthorizationEnum) error); ok {
-		r0 = rf(ctx, teamSlug, repoName, authorization)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockDatabase_CreateRepositoryAuthorization_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateRepositoryAuthorization'
-type MockDatabase_CreateRepositoryAuthorization_Call struct {
-	*mock.Call
-}
-
-// CreateRepositoryAuthorization is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - repoName string
-//   - authorization gensql.RepositoryAuthorizationEnum
-func (_e *MockDatabase_Expecter) CreateRepositoryAuthorization(ctx interface{}, teamSlug interface{}, repoName interface{}, authorization interface{}) *MockDatabase_CreateRepositoryAuthorization_Call {
-	return &MockDatabase_CreateRepositoryAuthorization_Call{Call: _e.mock.On("CreateRepositoryAuthorization", ctx, teamSlug, repoName, authorization)}
-}
-
-func (_c *MockDatabase_CreateRepositoryAuthorization_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, repoName string, authorization gensql.RepositoryAuthorizationEnum)) *MockDatabase_CreateRepositoryAuthorization_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string), args[3].(gensql.RepositoryAuthorizationEnum))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_CreateRepositoryAuthorization_Call) Return(_a0 error) *MockDatabase_CreateRepositoryAuthorization_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockDatabase_CreateRepositoryAuthorization_Call) RunAndReturn(run func(context.Context, slug.Slug, string, gensql.RepositoryAuthorizationEnum) error) *MockDatabase_CreateRepositoryAuthorization_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3021,66 +3080,6 @@ func (_c *MockDatabase_GetReconcilers_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
-// GetRepositoryAuthorizations provides a mock function with given fields: ctx, teamSlug, repoName
-func (_m *MockDatabase) GetRepositoryAuthorizations(ctx context.Context, teamSlug slug.Slug, repoName string) ([]gensql.RepositoryAuthorizationEnum, error) {
-	ret := _m.Called(ctx, teamSlug, repoName)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetRepositoryAuthorizations")
-	}
-
-	var r0 []gensql.RepositoryAuthorizationEnum
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) ([]gensql.RepositoryAuthorizationEnum, error)); ok {
-		return rf(ctx, teamSlug, repoName)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) []gensql.RepositoryAuthorizationEnum); ok {
-		r0 = rf(ctx, teamSlug, repoName)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]gensql.RepositoryAuthorizationEnum)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, string) error); ok {
-		r1 = rf(ctx, teamSlug, repoName)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_GetRepositoryAuthorizations_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetRepositoryAuthorizations'
-type MockDatabase_GetRepositoryAuthorizations_Call struct {
-	*mock.Call
-}
-
-// GetRepositoryAuthorizations is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - repoName string
-func (_e *MockDatabase_Expecter) GetRepositoryAuthorizations(ctx interface{}, teamSlug interface{}, repoName interface{}) *MockDatabase_GetRepositoryAuthorizations_Call {
-	return &MockDatabase_GetRepositoryAuthorizations_Call{Call: _e.mock.On("GetRepositoryAuthorizations", ctx, teamSlug, repoName)}
-}
-
-func (_c *MockDatabase_GetRepositoryAuthorizations_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, repoName string)) *MockDatabase_GetRepositoryAuthorizations_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_GetRepositoryAuthorizations_Call) Return(_a0 []gensql.RepositoryAuthorizationEnum, _a1 error) *MockDatabase_GetRepositoryAuthorizations_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockDatabase_GetRepositoryAuthorizations_Call) RunAndReturn(run func(context.Context, slug.Slug, string) ([]gensql.RepositoryAuthorizationEnum, error)) *MockDatabase_GetRepositoryAuthorizations_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetServiceAccountByApiKey provides a mock function with given fields: ctx, apiKey
 func (_m *MockDatabase) GetServiceAccountByApiKey(ctx context.Context, apiKey string) (*ServiceAccount, error) {
 	ret := _m.Called(ctx, apiKey)
@@ -4768,6 +4767,64 @@ func (_c *MockDatabase_InsertEnvironment_Call) RunAndReturn(run func(context.Con
 	return _c
 }
 
+// IsTeamRepository provides a mock function with given fields: ctx, teamSlug, repoName
+func (_m *MockDatabase) IsTeamRepository(ctx context.Context, teamSlug slug.Slug, repoName string) (bool, error) {
+	ret := _m.Called(ctx, teamSlug, repoName)
+
+	if len(ret) == 0 {
+		panic("no return value specified for IsTeamRepository")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) (bool, error)); ok {
+		return rf(ctx, teamSlug, repoName)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) bool); ok {
+		r0 = rf(ctx, teamSlug, repoName)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, string) error); ok {
+		r1 = rf(ctx, teamSlug, repoName)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockDatabase_IsTeamRepository_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsTeamRepository'
+type MockDatabase_IsTeamRepository_Call struct {
+	*mock.Call
+}
+
+// IsTeamRepository is a helper method to define mock.On call
+//   - ctx context.Context
+//   - teamSlug slug.Slug
+//   - repoName string
+func (_e *MockDatabase_Expecter) IsTeamRepository(ctx interface{}, teamSlug interface{}, repoName interface{}) *MockDatabase_IsTeamRepository_Call {
+	return &MockDatabase_IsTeamRepository_Call{Call: _e.mock.On("IsTeamRepository", ctx, teamSlug, repoName)}
+}
+
+func (_c *MockDatabase_IsTeamRepository_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, repoName string)) *MockDatabase_IsTeamRepository_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *MockDatabase_IsTeamRepository_Call) Return(_a0 bool, _a1 error) *MockDatabase_IsTeamRepository_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockDatabase_IsTeamRepository_Call) RunAndReturn(run func(context.Context, slug.Slug, string) (bool, error)) *MockDatabase_IsTeamRepository_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // LastCostDate provides a mock function with given fields: ctx
 func (_m *MockDatabase) LastCostDate(ctx context.Context) (pgtype.Date, error) {
 	ret := _m.Called(ctx)
@@ -4824,29 +4881,29 @@ func (_c *MockDatabase_LastCostDate_Call) RunAndReturn(run func(context.Context)
 	return _c
 }
 
-// ListRepositoriesByAuthorization provides a mock function with given fields: ctx, teamSlug, authorization
-func (_m *MockDatabase) ListRepositoriesByAuthorization(ctx context.Context, teamSlug slug.Slug, authorization gensql.RepositoryAuthorizationEnum) ([]string, error) {
-	ret := _m.Called(ctx, teamSlug, authorization)
+// ListTeamRepositories provides a mock function with given fields: ctx, teamSlug
+func (_m *MockDatabase) ListTeamRepositories(ctx context.Context, teamSlug slug.Slug) ([]string, error) {
+	ret := _m.Called(ctx, teamSlug)
 
 	if len(ret) == 0 {
-		panic("no return value specified for ListRepositoriesByAuthorization")
+		panic("no return value specified for ListTeamRepositories")
 	}
 
 	var r0 []string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, gensql.RepositoryAuthorizationEnum) ([]string, error)); ok {
-		return rf(ctx, teamSlug, authorization)
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) ([]string, error)); ok {
+		return rf(ctx, teamSlug)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, gensql.RepositoryAuthorizationEnum) []string); ok {
-		r0 = rf(ctx, teamSlug, authorization)
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) []string); ok {
+		r0 = rf(ctx, teamSlug)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]string)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, gensql.RepositoryAuthorizationEnum) error); ok {
-		r1 = rf(ctx, teamSlug, authorization)
+	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
+		r1 = rf(ctx, teamSlug)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -4854,32 +4911,31 @@ func (_m *MockDatabase) ListRepositoriesByAuthorization(ctx context.Context, tea
 	return r0, r1
 }
 
-// MockDatabase_ListRepositoriesByAuthorization_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListRepositoriesByAuthorization'
-type MockDatabase_ListRepositoriesByAuthorization_Call struct {
+// MockDatabase_ListTeamRepositories_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListTeamRepositories'
+type MockDatabase_ListTeamRepositories_Call struct {
 	*mock.Call
 }
 
-// ListRepositoriesByAuthorization is a helper method to define mock.On call
+// ListTeamRepositories is a helper method to define mock.On call
 //   - ctx context.Context
 //   - teamSlug slug.Slug
-//   - authorization gensql.RepositoryAuthorizationEnum
-func (_e *MockDatabase_Expecter) ListRepositoriesByAuthorization(ctx interface{}, teamSlug interface{}, authorization interface{}) *MockDatabase_ListRepositoriesByAuthorization_Call {
-	return &MockDatabase_ListRepositoriesByAuthorization_Call{Call: _e.mock.On("ListRepositoriesByAuthorization", ctx, teamSlug, authorization)}
+func (_e *MockDatabase_Expecter) ListTeamRepositories(ctx interface{}, teamSlug interface{}) *MockDatabase_ListTeamRepositories_Call {
+	return &MockDatabase_ListTeamRepositories_Call{Call: _e.mock.On("ListTeamRepositories", ctx, teamSlug)}
 }
 
-func (_c *MockDatabase_ListRepositoriesByAuthorization_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, authorization gensql.RepositoryAuthorizationEnum)) *MockDatabase_ListRepositoriesByAuthorization_Call {
+func (_c *MockDatabase_ListTeamRepositories_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockDatabase_ListTeamRepositories_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(gensql.RepositoryAuthorizationEnum))
+		run(args[0].(context.Context), args[1].(slug.Slug))
 	})
 	return _c
 }
 
-func (_c *MockDatabase_ListRepositoriesByAuthorization_Call) Return(_a0 []string, _a1 error) *MockDatabase_ListRepositoriesByAuthorization_Call {
+func (_c *MockDatabase_ListTeamRepositories_Call) Return(_a0 []string, _a1 error) *MockDatabase_ListTeamRepositories_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockDatabase_ListRepositoriesByAuthorization_Call) RunAndReturn(run func(context.Context, slug.Slug, gensql.RepositoryAuthorizationEnum) ([]string, error)) *MockDatabase_ListRepositoriesByAuthorization_Call {
+func (_c *MockDatabase_ListTeamRepositories_Call) RunAndReturn(run func(context.Context, slug.Slug) ([]string, error)) *MockDatabase_ListTeamRepositories_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -5203,17 +5259,17 @@ func (_c *MockDatabase_RemoveReconcilerOptOut_Call) RunAndReturn(run func(contex
 	return _c
 }
 
-// RemoveRepositoryAuthorization provides a mock function with given fields: ctx, teamSlug, repoName, authorization
-func (_m *MockDatabase) RemoveRepositoryAuthorization(ctx context.Context, teamSlug slug.Slug, repoName string, authorization gensql.RepositoryAuthorizationEnum) error {
-	ret := _m.Called(ctx, teamSlug, repoName, authorization)
+// RemoveTeamRepository provides a mock function with given fields: ctx, teamSlug, repoName
+func (_m *MockDatabase) RemoveTeamRepository(ctx context.Context, teamSlug slug.Slug, repoName string) error {
+	ret := _m.Called(ctx, teamSlug, repoName)
 
 	if len(ret) == 0 {
-		panic("no return value specified for RemoveRepositoryAuthorization")
+		panic("no return value specified for RemoveTeamRepository")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string, gensql.RepositoryAuthorizationEnum) error); ok {
-		r0 = rf(ctx, teamSlug, repoName, authorization)
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) error); ok {
+		r0 = rf(ctx, teamSlug, repoName)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -5221,33 +5277,32 @@ func (_m *MockDatabase) RemoveRepositoryAuthorization(ctx context.Context, teamS
 	return r0
 }
 
-// MockDatabase_RemoveRepositoryAuthorization_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveRepositoryAuthorization'
-type MockDatabase_RemoveRepositoryAuthorization_Call struct {
+// MockDatabase_RemoveTeamRepository_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveTeamRepository'
+type MockDatabase_RemoveTeamRepository_Call struct {
 	*mock.Call
 }
 
-// RemoveRepositoryAuthorization is a helper method to define mock.On call
+// RemoveTeamRepository is a helper method to define mock.On call
 //   - ctx context.Context
 //   - teamSlug slug.Slug
 //   - repoName string
-//   - authorization gensql.RepositoryAuthorizationEnum
-func (_e *MockDatabase_Expecter) RemoveRepositoryAuthorization(ctx interface{}, teamSlug interface{}, repoName interface{}, authorization interface{}) *MockDatabase_RemoveRepositoryAuthorization_Call {
-	return &MockDatabase_RemoveRepositoryAuthorization_Call{Call: _e.mock.On("RemoveRepositoryAuthorization", ctx, teamSlug, repoName, authorization)}
+func (_e *MockDatabase_Expecter) RemoveTeamRepository(ctx interface{}, teamSlug interface{}, repoName interface{}) *MockDatabase_RemoveTeamRepository_Call {
+	return &MockDatabase_RemoveTeamRepository_Call{Call: _e.mock.On("RemoveTeamRepository", ctx, teamSlug, repoName)}
 }
 
-func (_c *MockDatabase_RemoveRepositoryAuthorization_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, repoName string, authorization gensql.RepositoryAuthorizationEnum)) *MockDatabase_RemoveRepositoryAuthorization_Call {
+func (_c *MockDatabase_RemoveTeamRepository_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, repoName string)) *MockDatabase_RemoveTeamRepository_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string), args[3].(gensql.RepositoryAuthorizationEnum))
+		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string))
 	})
 	return _c
 }
 
-func (_c *MockDatabase_RemoveRepositoryAuthorization_Call) Return(_a0 error) *MockDatabase_RemoveRepositoryAuthorization_Call {
+func (_c *MockDatabase_RemoveTeamRepository_Call) Return(_a0 error) *MockDatabase_RemoveTeamRepository_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockDatabase_RemoveRepositoryAuthorization_Call) RunAndReturn(run func(context.Context, slug.Slug, string, gensql.RepositoryAuthorizationEnum) error) *MockDatabase_RemoveRepositoryAuthorization_Call {
+func (_c *MockDatabase_RemoveTeamRepository_Call) RunAndReturn(run func(context.Context, slug.Slug, string) error) *MockDatabase_RemoveTeamRepository_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -495,6 +495,44 @@ func (r *mutationResolver) ChangeDeployKey(ctx context.Context, team slug.Slug) 
 	}, nil
 }
 
+func (r *mutationResolver) AddRepository(ctx context.Context, teamSlug slug.Slug, repoName string) (string, error) {
+	actor := authz.ActorFromContext(ctx)
+	if _, err := r.database.GetTeamMember(ctx, teamSlug, actor.User.GetID()); errors.Is(err, pgx.ErrNoRows) {
+		return "", apierror.ErrUserIsNotTeamMember
+	} else if err != nil {
+		return "", err
+	}
+
+	if err := r.database.AddTeamRepository(ctx, teamSlug, repoName); err != nil {
+		return "", err
+	}
+
+	if err := r.auditor.TeamAddRepository(ctx, actor.User, teamSlug, repoName); err != nil {
+		return "", err
+	}
+
+	return repoName, nil
+}
+
+func (r *mutationResolver) RemoveRepository(ctx context.Context, teamSlug slug.Slug, repoName string) (string, error) {
+	actor := authz.ActorFromContext(ctx)
+	if _, err := r.database.GetTeamMember(ctx, teamSlug, actor.User.GetID()); errors.Is(err, pgx.ErrNoRows) {
+		return "", apierror.ErrUserIsNotTeamMember
+	} else if err != nil {
+		return "", err
+	}
+
+	if err := r.database.RemoveTeamRepository(ctx, teamSlug, repoName); err != nil {
+		return "", err
+	}
+
+	if err := r.auditor.TeamRemoveRepository(ctx, actor.User, teamSlug, repoName); err != nil {
+		return "", err
+	}
+
+	return repoName, nil
+}
+
 func (r *queryResolver) Teams(ctx context.Context, offset *int, limit *int, filter *model.TeamsFilter) (*model.TeamList, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationTeamsList)
@@ -941,7 +979,7 @@ func (r *teamResolver) RedisInstance(ctx context.Context, obj *model.Team, name 
 }
 
 func (r *teamResolver) Redis(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.RedisList, error) {
-	redis, err := r.redisClient.Redis(ctx, obj.Slug)
+	redis, metrics, err := r.redisClient.Redis(ctx, obj.Slug)
 	if err != nil {
 		return nil, err
 	}
@@ -964,6 +1002,7 @@ func (r *teamResolver) Redis(ctx context.Context, obj *model.Team, offset *int, 
 
 	return &model.RedisList{
 		Nodes:    redis,
+		Metrics:  *metrics,
 		PageInfo: pageInfo,
 	}, nil
 }
@@ -973,7 +1012,7 @@ func (r *teamResolver) OpenSearchInstance(ctx context.Context, obj *model.Team, 
 }
 
 func (r *teamResolver) OpenSearch(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.OpenSearchList, error) {
-	openSearch, err := r.openSearchClient.OpenSearch(ctx, obj.Slug)
+	openSearch, metrics, err := r.openSearchClient.OpenSearch(ctx, obj.Slug)
 	if err != nil {
 		return nil, err
 	}
@@ -997,6 +1036,7 @@ func (r *teamResolver) OpenSearch(ctx context.Context, obj *model.Team, offset *
 	return &model.OpenSearchList{
 		Nodes:    openSearch,
 		PageInfo: pageInfo,
+		Metrics:  *metrics,
 	}, nil
 }
 
@@ -1453,6 +1493,22 @@ func (r *teamResolver) Environments(ctx context.Context, obj *model.Team) ([]*mo
 
 func (r *teamResolver) Unleash(ctx context.Context, obj *model.Team) (*model.Unleash, error) {
 	return r.unleashMgr.Unleash(obj.Slug.String())
+}
+
+func (r *teamResolver) Repositories(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.RepositoryList, error) {
+	page := model.NewPagination(offset, limit)
+	auths, err := r.database.ListTeamRepositories(ctx, obj.Slug)
+	if err != nil {
+		return &model.RepositoryList{
+			Nodes: []string{},
+		}, nil
+	}
+
+	nodes, pageInfo := model.PaginatedSlice(auths, page)
+	return &model.RepositoryList{
+		Nodes:    nodes,
+		PageInfo: pageInfo,
+	}, nil
 }
 
 func (r *teamDeleteKeyResolver) CreatedBy(ctx context.Context, obj *model.TeamDeleteKey) (*model.User, error) {
