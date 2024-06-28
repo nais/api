@@ -65,16 +65,8 @@ services:
 
   dtrack-apiserver:
     image: dependencytrack/apiserver:4.11.3
-    deploy:
-      resources:
-        limits:
-          memory: 12288m
-        reservations:
-          memory: 8192m
-      restart_policy:
-        condition: on-failure
     ports:
-      - '9010:8080'
+      - "9010:8080"
     environment:
       - LOGGING_LEVEL=INFO
     healthcheck:
@@ -84,10 +76,7 @@ services:
       start_period: 20s
       timeout: 10s
     volumes:
-      # Optional volume mount to override default notification publisher templates
-      # - "/host/path/to/template/base/dir:/data/templates"
-      - 'dependency-track:/data'
-    restart: unless-stopped
+      - "dependency-track:/data"
 
   dtrack-frontend:
     image: dependencytrack/frontend:4.11.3
@@ -97,7 +86,6 @@ services:
       - API_BASE_URL=http://localhost:9010
     ports:
       - "9020:8080"
-    restart: unless-stopped
 
   bootstrap:
     platform: linux/x86_64
