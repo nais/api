@@ -180,9 +180,6 @@ type Querier interface {
 	SpecificResourceUtilizationForTeam(ctx context.Context, arg SpecificResourceUtilizationForTeamParams) ([]*SpecificResourceUtilizationForTeamRow, error)
 	// TeamExists checks if a team exists. Deleted teams are not considered.
 	TeamExists(ctx context.Context, argSlug slug.Slug) (bool, error)
-	// TeamHasConfirmedDeleteKey checks if a team has a confirmed delete key. This means that the team is currently being
-	// deleted. Already deleted teams are not considered.
-	TeamHasConfirmedDeleteKey(ctx context.Context, argSlug slug.Slug) (bool, error)
 	// UpdateTeam updates the purpose and slack channel of a non-deleted team.
 	UpdateTeam(ctx context.Context, arg UpdateTeamParams) (*Team, error)
 	// UpdateTeamExternalReferences updates the external references of a non-deleted team.

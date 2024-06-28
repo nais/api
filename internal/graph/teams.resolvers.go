@@ -769,7 +769,7 @@ func (r *teamResolver) GithubRepositories(ctx context.Context, obj *model.Team, 
 }
 
 func (r *teamResolver) DeletionInProgress(ctx context.Context, obj *model.Team) (bool, error) {
-	return r.database.TeamHasConfirmedDeleteKey(ctx, obj.Slug)
+	return obj.DeleteKeyConfirmedAt != nil, nil
 }
 
 func (r *teamResolver) ViewerIsOwner(ctx context.Context, obj *model.Team) (bool, error) {

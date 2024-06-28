@@ -6807,63 +6807,6 @@ func (_c *MockQuerier_TeamExists_Call) RunAndReturn(run func(context.Context, sl
 	return _c
 }
 
-// TeamHasConfirmedDeleteKey provides a mock function with given fields: ctx, argSlug
-func (_m *MockQuerier) TeamHasConfirmedDeleteKey(ctx context.Context, argSlug slug.Slug) (bool, error) {
-	ret := _m.Called(ctx, argSlug)
-
-	if len(ret) == 0 {
-		panic("no return value specified for TeamHasConfirmedDeleteKey")
-	}
-
-	var r0 bool
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (bool, error)); ok {
-		return rf(ctx, argSlug)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) bool); ok {
-		r0 = rf(ctx, argSlug)
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
-		r1 = rf(ctx, argSlug)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockQuerier_TeamHasConfirmedDeleteKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TeamHasConfirmedDeleteKey'
-type MockQuerier_TeamHasConfirmedDeleteKey_Call struct {
-	*mock.Call
-}
-
-// TeamHasConfirmedDeleteKey is a helper method to define mock.On call
-//   - ctx context.Context
-//   - argSlug slug.Slug
-func (_e *MockQuerier_Expecter) TeamHasConfirmedDeleteKey(ctx interface{}, argSlug interface{}) *MockQuerier_TeamHasConfirmedDeleteKey_Call {
-	return &MockQuerier_TeamHasConfirmedDeleteKey_Call{Call: _e.mock.On("TeamHasConfirmedDeleteKey", ctx, argSlug)}
-}
-
-func (_c *MockQuerier_TeamHasConfirmedDeleteKey_Call) Run(run func(ctx context.Context, argSlug slug.Slug)) *MockQuerier_TeamHasConfirmedDeleteKey_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_TeamHasConfirmedDeleteKey_Call) Return(_a0 bool, _a1 error) *MockQuerier_TeamHasConfirmedDeleteKey_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockQuerier_TeamHasConfirmedDeleteKey_Call) RunAndReturn(run func(context.Context, slug.Slug) (bool, error)) *MockQuerier_TeamHasConfirmedDeleteKey_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // UpdateTeam provides a mock function with given fields: ctx, arg
 func (_m *MockQuerier) UpdateTeam(ctx context.Context, arg UpdateTeamParams) (*Team, error) {
 	ret := _m.Called(ctx, arg)

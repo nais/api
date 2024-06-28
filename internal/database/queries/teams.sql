@@ -245,13 +245,7 @@ SET teams.deleted_at = NOW()
 WHERE
     teams.slug = @slug
     AND teams.deleted_at IS NULL
-    AND EXISTS(
-        SELECT team_delete_keys.team_slug
-        FROM team_delete_keys
-        WHERE
-            team_delete_keys.team_slug = @slug
-            AND team_delete_keys.confirmed_at IS NOT NULL
-    );
+    AND teams.confirmed_delete_key_at IS NOT NULL;
 
 -- GetTeamMemberOptOuts returns a slice of team member opt-outs.
 -- name: GetTeamMemberOptOuts :many
@@ -275,19 +269,6 @@ SELECT EXISTS(
     SELECT 1 FROM teams
     WHERE
         teams.slug = @slug
-        AND teams.deleted_at IS NULL
-) AS exists;
-
--- TeamHasConfirmedDeleteKey checks if a team has a confirmed delete key. This means that the team is currently being
--- deleted. Already deleted teams are not considered.
--- name: TeamHasConfirmedDeleteKey :one
-SELECT EXISTS(
-    SELECT team_delete_keys.team_slug
-    FROM team_delete_keys
-    JOIN teams ON teams.slug = team_delete_keys.team_slug
-    WHERE
-        team_delete_keys.team_slug = @slug
-        AND team_delete_keys.confirmed_at IS NOT NULL
         AND teams.deleted_at IS NULL
 ) AS exists;
 

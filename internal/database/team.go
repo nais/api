@@ -60,7 +60,6 @@ type TeamRepo interface {
 	UpdateTeam(ctx context.Context, teamSlug slug.Slug, purpose, slackChannel *string) (*Team, error)
 	UpdateTeamExternalReferences(ctx context.Context, params gensql.UpdateTeamExternalReferencesParams) (*Team, error)
 	UpsertTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environment string, slackChannel, gcpProjectID *string) error
-	TeamHasConfirmedDeleteKey(ctx context.Context, teamSlug slug.Slug) (bool, error)
 }
 
 var _ TeamRepo = (*database)(nil)
@@ -445,10 +444,6 @@ func (d *database) TeamExists(ctx context.Context, team slug.Slug) (bool, error)
 
 func (d *database) GetAllTeamSlugs(ctx context.Context) ([]slug.Slug, error) {
 	return d.querier.GetAllTeamSlugs(ctx)
-}
-
-func (d *database) TeamHasConfirmedDeleteKey(ctx context.Context, teamSlug slug.Slug) (bool, error) {
-	return d.querier.TeamHasConfirmedDeleteKey(ctx, teamSlug)
 }
 
 func GetGitHubRepos(b []byte) ([]*GitHubRepository, error) {

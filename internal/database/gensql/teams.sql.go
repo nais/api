@@ -85,13 +85,7 @@ SET teams.deleted_at = NOW()
 WHERE
     teams.slug = $1
     AND teams.deleted_at IS NULL
-    AND EXISTS(
-        SELECT team_delete_keys.team_slug
-        FROM team_delete_keys
-        WHERE
-            team_delete_keys.team_slug = $1
-            AND team_delete_keys.confirmed_at IS NOT NULL
-    )
+    AND teams.confirmed_delete_key_at IS NOT NULL
 `
 
 // DeleteTeam marks a team as deleted. The team must have an already confirmed delete key for this to succeed.
@@ -754,27 +748,6 @@ SELECT EXISTS(
 // TeamExists checks if a team exists. Deleted teams are not considered.
 func (q *Queries) TeamExists(ctx context.Context, argSlug slug.Slug) (bool, error) {
 	row := q.db.QueryRow(ctx, teamExists, argSlug)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
-}
-
-const teamHasConfirmedDeleteKey = `-- name: TeamHasConfirmedDeleteKey :one
-SELECT EXISTS(
-    SELECT team_delete_keys.team_slug
-    FROM team_delete_keys
-    JOIN teams ON teams.slug = team_delete_keys.team_slug
-    WHERE
-        team_delete_keys.team_slug = $1
-        AND team_delete_keys.confirmed_at IS NOT NULL
-        AND teams.deleted_at IS NULL
-) AS exists
-`
-
-// TeamHasConfirmedDeleteKey checks if a team has a confirmed delete key. This means that the team is currently being
-// deleted. Already deleted teams are not considered.
-func (q *Queries) TeamHasConfirmedDeleteKey(ctx context.Context, argSlug slug.Slug) (bool, error) {
-	row := q.db.QueryRow(ctx, teamHasConfirmedDeleteKey, argSlug)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
