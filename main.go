@@ -1,0 +1,139 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+	"os"
+	"os/signal"
+	"time"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/nais/api/internal/k8s"
+	"github.com/nais/api/internal/k8s/watcher"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/clientcmd/api"
+)
+
+func main() {
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
+	defer cancel()
+
+	scheme := runtime.NewScheme()
+	corev1.AddToScheme(scheme)
+
+	log := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug}))
+
+	mgr, err := watcher.NewManager(scheme, "local", k8s.Config{
+		StaticClusters: []k8s.StaticCluster{
+			{
+				Name: "kind-kind",
+			},
+		},
+	}, log, watcher.WithConfigCreator(func(cluster string) rest.Config {
+		loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+		// if you want to change the loading rules (which files in which order), you can do so here
+
+		configOverrides := &clientcmd.ConfigOverrides{
+			Context: api.Context{
+				Cluster: cluster,
+			},
+		}
+		// if you want to change override values or bind them to flags, there are methods to help you
+
+		kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
+		config, err := kubeConfig.ClientConfig()
+		if err != nil {
+			panic(err)
+		}
+		return *config
+	}))
+	if err != nil {
+		panic(err)
+	}
+
+	podWatcher := watcher.Watch(mgr, &CustomPod{}, watcher.WithConverter(toCustomPod), watcher.WithGVR(schema.GroupVersionResource{
+		Group:    "",
+		Version:  "v1",
+		Resource: "pods",
+	}))
+
+	fmt.Println("Starting podWatcher")
+	podWatcher.Start(ctx)
+
+	fmt.Println("Waiting for pod cache to sync")
+	podWatcher.WaitForReady(ctx, 10*time.Second)
+
+	go func() {
+		time.Sleep(3 * time.Second)
+		fmt.Println("Test getting")
+
+		spew.Dump(podWatcher.GetByCluster("kind-kind"))
+	}()
+
+	fmt.Println("Listening for pod changes")
+	<-ctx.Done()
+	mgr.Stop()
+}
+
+type CustomPod struct {
+	Name      string
+	Namespace string
+	Labels    map[string]string
+
+	Images []string
+}
+
+func (c *CustomPod) GetName() string { return c.Name }
+
+func (c *CustomPod) GetNamespace() string { return c.Namespace }
+
+func (c *CustomPod) GetLabels() map[string]string { return c.Labels }
+
+func (c *CustomPod) GetObjectKind() schema.ObjectKind {
+	return schema.EmptyObjectKind
+}
+
+func (c *CustomPod) DeepCopyObject() runtime.Object {
+	return &CustomPod{
+		Name:      c.Name,
+		Namespace: c.Namespace,
+		Labels:    c.Labels,
+		Images:    c.Images,
+	}
+}
+
+func toCustomPod(u *unstructured.Unstructured) (any, bool) {
+	if u.GetKind() != "Pod" {
+		return nil, false
+	}
+
+	pod := &CustomPod{
+		Name:      u.GetName(),
+		Namespace: u.GetNamespace(),
+		Labels:    u.GetLabels(),
+	}
+
+	containers, ok, err := unstructured.NestedSlice(u.Object, "spec", "containers")
+	if !ok || err != nil {
+		fmt.Println("failed to get containers", err)
+		return nil, false
+	}
+
+	for _, container := range containers {
+		img, ok, err := unstructured.NestedString(container.(map[string]any), "image")
+		if !ok || err != nil {
+			fmt.Println("failed to get image", err)
+			return nil, false
+		}
+
+		pod.Images = append(pod.Images, img)
+	}
+
+	return pod, true
+}
