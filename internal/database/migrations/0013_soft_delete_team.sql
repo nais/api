@@ -5,6 +5,7 @@ ALTER TABLE teams
     ADD delete_key_confirmed_at TIMESTAMPTZ;
 
 CREATE INDEX ON teams (deleted_at);
+CREATE INDEX ON teams (delete_key_confirmed_at);
 
 -- Set the value of the newly added column where applicable
 UPDATE teams
