@@ -6,24 +6,74 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/graphv1/pagination"
+	"github.com/nais/api/internal/graphv1/scalar"
+	"github.com/nais/api/internal/slug"
 )
-
-// Pagination information.
-type PageInfo struct {
-	// The total amount if items accessible.
-	TotalCount int `json:"totalCount"`
-	// Whether or not there exists a next page in the data set.
-	HasNextPage bool `json:"hasNextPage"`
-	// Whether or not there exists a previous page in the data set.
-	HasPreviousPage bool   `json:"hasPreviousPage"`
-	StartCursor     string `json:"startCursor"`
-	EndCursor       string `json:"endCursor"`
-}
 
 // The query root for the NAIS GraphQL API.
 type Query struct {
+}
+
+// Team type.
+type Team struct {
+	ID uuid.UUID `json:"id"`
+	// Unique slug of the team.
+	Slug slug.Slug `json:"slug"`
+	// Purpose of the team.
+	Purpose string `json:"purpose"`
+	// The ID of the Azure AD group for the team. This value is managed by the Azure AD reconciler.
+	AzureGroupID *uuid.UUID `json:"azureGroupID,omitempty"`
+	// The slug of the GitHub team. This value is managed by the GitHub reconciler.
+	GitHubTeamSlug *string `json:"gitHubTeamSlug,omitempty"`
+	// The email address of the Google group for the team. This value is managed by the Google Workspace reconciler.
+	GoogleGroupEmail *string `json:"googleGroupEmail,omitempty"`
+	// The Google artifact registry for the team.
+	GoogleArtifactRegistry *string `json:"googleArtifactRegistry,omitempty"`
+	// The CDN bucket for the team.
+	CdnBucket *string `json:"cdnBucket,omitempty"`
+	// Timestamp of the last successful synchronization of the team.
+	LastSuccessfulSync *time.Time `json:"lastSuccessfulSync,omitempty"`
+	// Slack channel for the team.
+	SlackChannel string `json:"slackChannel"`
+	// Whether or not the team is currently being deleted.
+	DeletionInProgress bool `json:"deletionInProgress"`
+	// Whether or not the viewer is an owner of the team.
+	ViewerIsOwner bool `json:"viewerIsOwner"`
+	// Whether or not the viewer is a member of the team.
+	ViewerIsMember bool `json:"viewerIsMember"`
+}
+
+// Paginated teams type.
+type TeamConnection struct {
+	// The list of teams.
+	Nodes []*TeamEdge `json:"nodes"`
+	// Pagination information.
+	PageInfo pagination.PageInfo `json:"pageInfo"`
+}
+
+// Team deletion key type.
+type TeamDeleteKey struct {
+	// The unique key used to confirm the deletion of a team.
+	Key string `json:"key"`
+	// The creation timestamp of the key.
+	CreatedAt time.Time `json:"createdAt"`
+	// Expiration timestamp of the key.
+	Expires time.Time `json:"expires"`
+	// The user who created the key.
+	CreatedBy User `json:"createdBy"`
+	// The team the delete key is for.
+	Team Team `json:"team"`
+}
+
+type TeamEdge struct {
+	// The team.
+	Node Team `json:"node"`
+	// The cursor for use in pagination.
+	Cursor scalar.Cursor `json:"cursor"`
 }
 
 // User type.
@@ -38,16 +88,6 @@ type User struct {
 	ExternalID string `json:"externalId"`
 	// This field will only be populated via the me query
 	IsAdmin bool `json:"isAdmin"`
-}
-
-type UserConnection struct {
-	PageInfo PageInfo    `json:"pageInfo"`
-	Edges    []*UserEdge `json:"edges"`
-}
-
-type UserEdge struct {
-	Cursor string `json:"cursor"`
-	Node   User   `json:"node"`
 }
 
 type UserOrder struct {
