@@ -1,0 +1,51 @@
+version: "2"
+rules:
+  - name: "always-order-by"
+    rule: |
+      query.cmd == "many" && !query.sql.contains("ORDER BY")
+    message: |
+      SELECT statements must have an ORDER BY clause
+sql:
+  - &default_domain
+    name: "users"
+    engine: "postgresql"
+    schema: "../internal/database/migrations"
+    queries: "../internal/users/queries"
+    rules:
+      - "always-order-by"
+    gen:
+      go: &default_go
+        package: "users"
+        out: "../internal/users/gensql"
+        sql_package: "pgx/v5"
+        emit_interface: true
+        emit_result_struct_pointers: true
+        emit_prepared_queries: true
+        emit_all_enum_values: true
+        emit_enum_valid_method: true
+        emit_pointers_for_null_types: true
+        emit_empty_slices: true
+        json_tags_id_uppercase: true
+        omit_unused_structs: true
+        omit_sqlc_version: true
+        overrides:
+          - db_type: "slug"
+            go_type: "*github.com/nais/api/internal/slug.Slug"
+            nullable: true
+          - db_type: "slug"
+            go_type: "github.com/nais/api/internal/slug.Slug"
+          - db_type: "uuid"
+            go_type: "*github.com/google/uuid.UUID"
+            nullable: true
+          - db_type: "uuid"
+            go_type: "github.com/google/uuid.UUID"
+
+  #- <<: *default_domain
+    #  name: "teams"
+    #queries: "../internal/database/queries/teams"
+      #gen:
+        #go:
+        #<<: *default_go
+        #package: "teams"
+        #out: "../internal/teams"
+

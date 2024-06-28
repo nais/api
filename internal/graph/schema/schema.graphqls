@@ -1,0 +1,28 @@
+"The query root for the NAIS GraphQL API."
+type Query
+
+# "The root query for implementing GraphQL mutations."
+# type Mutation
+
+"Pagination information."
+type PageInfo {
+  "The total amount if items accessible."
+  totalCount: Int!
+
+  "Whether or not there exists a next page in the data set."
+  hasNextPage: Boolean!
+
+  "Whether or not there exists a previous page in the data set."
+  hasPreviousPage: Boolean!
+
+  startCursor: Cursor!
+  endCursor: Cursor!
+}
+
+enum OrderDirection {
+  "Ascending sort order."
+  ASC
+
+  "Descending sort order."
+  DESC
+}
