@@ -197,6 +197,11 @@ type SqlInstancesList {
 type BucketsList {
   nodes: [Bucket!]!
   pageInfo: PageInfo!
+  metrics: BucketsMetrics!
+}
+
+type BucketsMetrics {
+  cost: Float!
 }
 
 type RedisList {

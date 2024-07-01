@@ -423,8 +423,13 @@ type ComplexityRoot struct {
 	}
 
 	BucketsList struct {
+		Metrics  func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
+	}
+
+	BucketsMetrics struct {
+		Cost func(childComplexity int) int
 	}
 
 	Claims struct {
@@ -3189,6 +3194,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.BucketStatus.SelfLink(childComplexity), true
 
+	case "BucketsList.metrics":
+		if e.complexity.BucketsList.Metrics == nil {
+			break
+		}
+
+		return e.complexity.BucketsList.Metrics(childComplexity), true
+
 	case "BucketsList.nodes":
 		if e.complexity.BucketsList.Nodes == nil {
 			break
@@ -3202,6 +3214,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BucketsList.PageInfo(childComplexity), true
+
+	case "BucketsMetrics.cost":
+		if e.complexity.BucketsMetrics.Cost == nil {
+			break
+		}
+
+		return e.complexity.BucketsMetrics.Cost(childComplexity), true
 
 	case "Claims.extra":
 		if e.complexity.Claims.Extra == nil {
@@ -9318,6 +9337,11 @@ type SqlInstancesList {
 type BucketsList {
   nodes: [Bucket!]!
   pageInfo: PageInfo!
+  metrics: BucketsMetrics!
+}
+
+type BucketsMetrics {
+  cost: Float!
 }
 
 type RedisList {
@@ -23816,6 +23840,98 @@ func (ec *executionContext) fieldContext_BucketsList_pageInfo(ctx context.Contex
 				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BucketsList_metrics(ctx context.Context, field graphql.CollectedField, obj *model.BucketsList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BucketsList_metrics(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Metrics, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.BucketsMetrics)
+	fc.Result = res
+	return ec.marshalNBucketsMetrics2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketsMetrics(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BucketsList_metrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BucketsList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cost":
+				return ec.fieldContext_BucketsMetrics_cost(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BucketsMetrics", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BucketsMetrics_cost(ctx context.Context, field graphql.CollectedField, obj *model.BucketsMetrics) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BucketsMetrics_cost(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cost, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BucketsMetrics_cost(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BucketsMetrics",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -51643,6 +51759,8 @@ func (ec *executionContext) fieldContext_Team_buckets(ctx context.Context, field
 				return ec.fieldContext_BucketsList_nodes(ctx, field)
 			case "pageInfo":
 				return ec.fieldContext_BucketsList_pageInfo(ctx, field)
+			case "metrics":
+				return ec.fieldContext_BucketsList_metrics(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type BucketsList", field.Name)
 		},
@@ -62442,6 +62560,50 @@ func (ec *executionContext) _BucketsList(ctx context.Context, sel ast.SelectionS
 			}
 		case "pageInfo":
 			out.Values[i] = ec._BucketsList_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "metrics":
+			out.Values[i] = ec._BucketsList_metrics(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var bucketsMetricsImplementors = []string{"BucketsMetrics"}
+
+func (ec *executionContext) _BucketsMetrics(ctx context.Context, sel ast.SelectionSet, obj *model.BucketsMetrics) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, bucketsMetricsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("BucketsMetrics")
+		case "cost":
+			out.Values[i] = ec._BucketsMetrics_cost(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -74394,6 +74556,10 @@ func (ec *executionContext) marshalNBucketsList2ᚖgithubᚗcomᚋnaisᚋapiᚋi
 		return graphql.Null
 	}
 	return ec._BucketsList(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNBucketsMetrics2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBucketsMetrics(ctx context.Context, sel ast.SelectionSet, v model.BucketsMetrics) graphql.Marshaler {
+	return ec._BucketsMetrics(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNClaims2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐClaims(ctx context.Context, sel ast.SelectionSet, v model.Claims) graphql.Marshaler {

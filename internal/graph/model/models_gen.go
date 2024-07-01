@@ -222,8 +222,13 @@ type BucketStatus struct {
 }
 
 type BucketsList struct {
-	Nodes    []*Bucket `json:"nodes"`
-	PageInfo PageInfo  `json:"pageInfo"`
+	Nodes    []*Bucket      `json:"nodes"`
+	PageInfo PageInfo       `json:"pageInfo"`
+	Metrics  BucketsMetrics `json:"metrics"`
+}
+
+type BucketsMetrics struct {
+	Cost float64 `json:"cost"`
 }
 
 type Claims struct {

@@ -9,10 +9,15 @@ import (
 type Client struct {
 	informers k8s.ClusterInformers
 	log       logrus.FieldLogger
-	db        database.TeamRepo
+	db        bucketClientDatabase
 }
 
-func NewClient(informers k8s.ClusterInformers, log logrus.FieldLogger, db database.TeamRepo) *Client {
+type bucketClientDatabase interface {
+	database.CostRepo
+	database.TeamRepo
+}
+
+func NewClient(informers k8s.ClusterInformers, log logrus.FieldLogger, db bucketClientDatabase) *Client {
 	return &Client{
 		informers: informers,
 		log:       log,
