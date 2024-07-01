@@ -18,4 +18,6 @@ WHERE
 -- +goose Down
 
 DELETE FROM teams WHERE deleted_at IS NOT NULL;
-ALTER TABLE teams DROP deleted_at;
+ALTER TABLE teams
+    DROP deleted_at,
+    DROP delete_key_confirmed_at;
