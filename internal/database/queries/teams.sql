@@ -206,13 +206,11 @@ UPDATE team_delete_keys
 SET confirmed_at = NOW()
 WHERE key = @key;
 
--- DeleteTeam marks a team as deleted. The team must have an already confirmed delete key for this to succeed.
+-- DeleteTeam deletes a team from the main team table. The team must have an already confirmed delete key for this to succeed.
 -- name: DeleteTeam :exec
-UPDATE all_teams_including_deleted
-SET deleted_at = NOW()
+DELETE FROM teams
 WHERE
     slug = @slug
-    AND deleted_at IS NULL
     AND confirmed_delete_key_at IS NOT NULL;
 
 -- GetTeamMemberOptOuts returns a slice of team member opt-outs.

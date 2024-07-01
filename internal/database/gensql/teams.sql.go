@@ -79,15 +79,13 @@ func (q *Queries) CreateTeamDeleteKey(ctx context.Context, arg CreateTeamDeleteK
 }
 
 const deleteTeam = `-- name: DeleteTeam :exec
-UPDATE all_teams_including_deleted
-SET deleted_at = NOW()
+DELETE FROM teams
 WHERE
     slug = $1
-    AND deleted_at IS NULL
     AND confirmed_delete_key_at IS NOT NULL
 `
 
-// DeleteTeam marks a team as deleted. The team must have an already confirmed delete key for this to succeed.
+// DeleteTeam deletes a team from the main team table. The team must have an already confirmed delete key for this to succeed.
 func (q *Queries) DeleteTeam(ctx context.Context, argSlug slug.Slug) error {
 	_, err := q.db.Exec(ctx, deleteTeam, argSlug)
 	return err

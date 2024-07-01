@@ -52,7 +52,7 @@ type Querier interface {
 	DeleteReconcilerStateForTeam(ctx context.Context, arg DeleteReconcilerStateForTeamParams) error
 	DeleteServiceAccount(ctx context.Context, id uuid.UUID) error
 	DeleteSession(ctx context.Context, id uuid.UUID) error
-	// DeleteTeam marks a team as deleted. The team must have an already confirmed delete key for this to succeed.
+	// DeleteTeam deletes a team from the main team table. The team must have an already confirmed delete key for this to succeed.
 	DeleteTeam(ctx context.Context, argSlug slug.Slug) error
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	DisableReconciler(ctx context.Context, name string) (*Reconciler, error)
