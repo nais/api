@@ -9,9 +9,7 @@ RETURNING *;
 SELECT team_all_environments.*
 FROM team_all_environments
 JOIN teams ON teams.slug = team_all_environments.team_slug
-WHERE
-    team_all_environments.team_slug = @team_slug
-    AND teams.deleted_at IS NULL
+WHERE team_all_environments.team_slug = @team_slug
 ORDER BY team_all_environments.environment ASC
 LIMIT sqlc.arg('limit')
 OFFSET sqlc.arg('offset');
@@ -21,9 +19,7 @@ OFFSET sqlc.arg('offset');
 SELECT COUNT(team_all_environments.*) AS total
 FROM team_all_environments
 JOIN teams ON teams.slug = team_all_environments.team_slug
-WHERE
-    team_all_environments.team_slug = @team_slug
-    AND teams.deleted_at IS NULL;
+WHERE team_all_environments.team_slug = @team_slug;
 
 -- GetTeamEnvironmentsBySlugsAndEnvNames returns a slice of team environments for a list of teams/envs, excluding
 -- deleted teams.
@@ -38,9 +34,7 @@ SELECT team_all_environments.*
 FROM team_all_environments
 JOIN input ON input.team_slug = team_all_environments.team_slug
 JOIN teams ON teams.slug = team_all_environments.team_slug
-WHERE
-    team_all_environments.environment = input.environment
-    AND teams.deleted_at IS NULL
+WHERE team_all_environments.environment = input.environment
 ORDER BY team_all_environments.environment ASC;
 
 -- UpsertTeamEnvironment creates or updates a team environment.
@@ -60,80 +54,65 @@ RETURNING *;
 
 -- GetTeams returns a slice of teams, excluding deleted teams.
 -- name: GetTeams :many
-SELECT teams.*
+SELECT *
 FROM teams
-WHERE teams.deleted_at IS NULL
-ORDER BY teams.slug ASC
+ORDER BY slug ASC
 LIMIT sqlc.arg('limit')
 OFFSET sqlc.arg('offset');
 
 -- GetTeamsCount returns the total number or teams, excluding deleted teams.
 -- name: GetTeamsCount :one
-SELECT COUNT(teams.*) AS total
-FROM teams
-WHERE teams.deleted_at IS NULL;
+SELECT COUNT(*) AS total
+FROM teams;
 
 -- GetActiveTeams returns a slice of teams that can be reconciled.
 -- name: GetActiveTeams :many
-SELECT teams.*
+SELECT *
 FROM teams
-WHERE
-    teams.delete_key_confirmed_at IS NULL
-    AND teams.deleted_at IS NULL
-ORDER BY teams.slug ASC
+WHERE delete_key_confirmed_at IS NULL
+ORDER BY slug ASC
 LIMIT sqlc.arg('limit')
 OFFSET sqlc.arg('offset');
 
 -- GetActiveTeamsCount returns the total number or teams that can be reconciled.
 -- name: GetActiveTeamsCount :one
-SELECT COUNT(teams.*) AS total
+SELECT COUNT(*) AS total
 FROM teams
-WHERE
-    teams.delete_key_confirmed_at IS NULL
-    AND teams.deleted_at IS NULL;
+WHERE delete_key_confirmed_at IS NULL;
 
 -- GetDeletableTeams returns a slice of teams that is ready to start the deletion process.
 -- name: GetDeletableTeams :many
-SELECT teams.*
+SELECT *
 FROM teams
-WHERE
-    teams.delete_key_confirmed_at IS NOT NULL
-    AND teams.deleted_at IS NULL
-ORDER BY teams.slug ASC
+WHERE delete_key_confirmed_at IS NOT NULL
+ORDER BY slug ASC
 LIMIT sqlc.arg('limit')
 OFFSET sqlc.arg('offset');
 
 -- GetDeletableTeamsCount returns the total number or teams that is ready to start the deletion process.
 -- name: GetDeletableTeamsCount :one
-SELECT COUNT(teams.*) AS total
+SELECT COUNT(*) AS total
 FROM teams
-WHERE
-    teams.delete_key_confirmed_at IS NOT NULL
-    AND teams.deleted_at IS NULL;
+WHERE delete_key_confirmed_at IS NOT NULL;
 
 -- GetAllTeamSlugs returns all team slugs in ascending order, excluding deleted teams.
 -- name: GetAllTeamSlugs :many
-SELECT teams.slug
+SELECT slug
 FROM teams
-WHERE teams.deleted_at IS NULL
 ORDER BY teams.slug ASC;
 
 -- GetTeamBySlug returns a team by its slug, excluding deleted teams.
 -- name: GetTeamBySlug :one
-SELECT teams.*
+SELECT *
 FROM teams
-WHERE
-    teams.slug = @slug
-    AND teams.deleted_at IS NULL;
+WHERE slug = @slug;
 
 -- GetTeamsBySlugs returns a slice of teams by their slugs, excluding deleted teams.
 -- name: GetTeamsBySlugs :many
-SELECT teams.*
+SELECT *
 FROM teams
-WHERE
-    teams.slug = ANY(@slugs::slug[])
-    AND teams.deleted_at IS NULL
-ORDER BY teams.slug ASC;
+WHERE slug = ANY(@slugs::slug[])
+ORDER BY slug ASC;
 
 -- GetAllTeamMembers returns all team members of a non-deleted team.
 -- name: GetAllTeamMembers :many
@@ -141,9 +120,7 @@ SELECT users.*
 FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 JOIN users ON users.id = user_roles.user_id
-WHERE
-    user_roles.target_team_slug = @team_slug
-    AND teams.deleted_at IS NULL
+WHERE user_roles.target_team_slug = @team_slug
 ORDER BY users.name ASC;
 
 -- GetTeamMembers returns a slice of team members of a non-deleted team.
@@ -152,9 +129,7 @@ SELECT users.*
 FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
 JOIN users ON users.id = user_roles.user_id
-WHERE
-    user_roles.target_team_slug = @team_slug::slug
-    AND teams.deleted_at IS NULL
+WHERE user_roles.target_team_slug = @team_slug::slug
 ORDER BY users.name ASC
 LIMIT sqlc.arg('limit')
 OFFSET sqlc.arg('offset');
@@ -164,9 +139,7 @@ OFFSET sqlc.arg('offset');
 SELECT COUNT(user_roles.*) AS total
 FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
-WHERE
-    user_roles.target_team_slug = @team_slug
-    AND teams.deleted_at IS NULL;
+WHERE user_roles.target_team_slug = @team_slug;
 
 -- GetTeamMember returns a specific team member of a non-deleted team.
 -- name: GetTeamMember :one
@@ -177,7 +150,6 @@ JOIN users ON users.id = user_roles.user_id
 WHERE
     user_roles.target_team_slug = @team_slug::slug
     AND users.id = @user_id
-    AND teams.deleted_at IS NULL
 ORDER BY users.name ASC;
 
 -- UpdateTeam updates the purpose and slack channel of a non-deleted team.
@@ -188,7 +160,6 @@ SET
     slack_channel = COALESCE(sqlc.narg(slack_channel), slack_channel)
 WHERE
     teams.slug = @slug
-    AND teams.deleted_at IS NULL
 RETURNING *;
 
 -- UpdateTeamExternalReferences updates the external references of a non-deleted team.
@@ -202,7 +173,6 @@ SET
     cdn_bucket = COALESCE(@cdn_bucket, cdn_bucket)
 WHERE
     teams.slug = @slug
-    AND teams.deleted_at IS NULL
 RETURNING *;
 
 -- RemoveUserFromTeam removes a user from a team.
@@ -215,42 +185,40 @@ WHERE
 -- SetLastSuccessfulSyncForTeam sets the last successful sync time for a non-deleted team.
 -- name: SetLastSuccessfulSyncForTeam :exec
 UPDATE teams
-SET teams.last_successful_sync = NOW()
-WHERE
-    teams.slug = @slug
-    AND teams.deleted_at IS NULL;
+SET last_successful_sync = NOW()
+WHERE teams.slug = @slug;
 
 -- CreateTeamDeleteKey creates a new delete key for a team.
 -- name: CreateTeamDeleteKey :one
 INSERT INTO team_delete_keys (team_slug, created_by)
-VALUES(@team_slug, @created_by)
+VALUES (@team_slug, @created_by)
 RETURNING *;
 
 -- GetTeamDeleteKey returns a delete key for a team.
 -- name: GetTeamDeleteKey :one
-SELECT team_delete_keys.*
+SELECT *
 FROM team_delete_keys
-WHERE team_delete_keys.key = @key;
+WHERE key = @key;
 
 -- ConfirmTeamDeleteKey confirms a delete key for a team.
 -- name: ConfirmTeamDeleteKey :exec
 UPDATE team_delete_keys
-SET team_delete_keys.confirmed_at = NOW()
-WHERE team_delete_keys.key = @key;
+SET confirmed_at = NOW()
+WHERE key = @key;
 
 -- DeleteTeam marks a team as deleted. The team must have an already confirmed delete key for this to succeed.
 -- name: DeleteTeam :exec
-UPDATE teams
-SET teams.deleted_at = NOW()
+UPDATE all_teams_including_deleted
+SET deleted_at = NOW()
 WHERE
-    teams.slug = @slug
-    AND teams.deleted_at IS NULL
-    AND teams.confirmed_delete_key_at IS NOT NULL;
+    slug = @slug
+    AND deleted_at IS NULL
+    AND confirmed_delete_key_at IS NOT NULL;
 
 -- GetTeamMemberOptOuts returns a slice of team member opt-outs.
 -- name: GetTeamMemberOptOuts :many
 SELECT
-    reconcilers.name,
+    name,
     NOT EXISTS(
         SELECT reconciler_name
         FROM reconciler_opt_outs
@@ -260,16 +228,14 @@ SELECT
             AND reconciler_opt_outs.reconciler_name = reconcilers.name
     ) AS enabled
 FROM reconcilers
-WHERE reconcilers.enabled = true
-ORDER BY reconcilers.name ASC;
+WHERE enabled = true
+ORDER BY name ASC;
 
 -- TeamExists checks if a team exists. Deleted teams are not considered.
 -- name: TeamExists :one
 SELECT EXISTS(
     SELECT 1 FROM teams
-    WHERE
-        teams.slug = @slug
-        AND teams.deleted_at IS NULL
+    WHERE slug = @slug
 ) AS exists;
 
 -- name: SetTeamDeleteKeyConfirmedAt :exec

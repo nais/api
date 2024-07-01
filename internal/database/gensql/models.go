@@ -259,7 +259,6 @@ type Team struct {
 	GithubTeamSlug       *string
 	GarRepository        *string
 	CdnBucket            *string
-	DeletedAt            pgtype.Timestamptz
 	DeleteKeyConfirmedAt pgtype.Timestamptz
 }
 
