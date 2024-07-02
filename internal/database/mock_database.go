@@ -436,17 +436,17 @@ func (_c *MockDatabase_ConfigureReconciler_Call) RunAndReturn(run func(context.C
 	return _c
 }
 
-// ConfirmTeamDeleteKey provides a mock function with given fields: ctx, key
-func (_m *MockDatabase) ConfirmTeamDeleteKey(ctx context.Context, key uuid.UUID) error {
-	ret := _m.Called(ctx, key)
+// ConfirmTeamDeleteKey provides a mock function with given fields: ctx, teamSlug, key
+func (_m *MockDatabase) ConfirmTeamDeleteKey(ctx context.Context, teamSlug slug.Slug, key uuid.UUID) error {
+	ret := _m.Called(ctx, teamSlug, key)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ConfirmTeamDeleteKey")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
-		r0 = rf(ctx, key)
+	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, uuid.UUID) error); ok {
+		r0 = rf(ctx, teamSlug, key)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -461,14 +461,15 @@ type MockDatabase_ConfirmTeamDeleteKey_Call struct {
 
 // ConfirmTeamDeleteKey is a helper method to define mock.On call
 //   - ctx context.Context
+//   - teamSlug slug.Slug
 //   - key uuid.UUID
-func (_e *MockDatabase_Expecter) ConfirmTeamDeleteKey(ctx interface{}, key interface{}) *MockDatabase_ConfirmTeamDeleteKey_Call {
-	return &MockDatabase_ConfirmTeamDeleteKey_Call{Call: _e.mock.On("ConfirmTeamDeleteKey", ctx, key)}
+func (_e *MockDatabase_Expecter) ConfirmTeamDeleteKey(ctx interface{}, teamSlug interface{}, key interface{}) *MockDatabase_ConfirmTeamDeleteKey_Call {
+	return &MockDatabase_ConfirmTeamDeleteKey_Call{Call: _e.mock.On("ConfirmTeamDeleteKey", ctx, teamSlug, key)}
 }
 
-func (_c *MockDatabase_ConfirmTeamDeleteKey_Call) Run(run func(ctx context.Context, key uuid.UUID)) *MockDatabase_ConfirmTeamDeleteKey_Call {
+func (_c *MockDatabase_ConfirmTeamDeleteKey_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, key uuid.UUID)) *MockDatabase_ConfirmTeamDeleteKey_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID))
+		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(uuid.UUID))
 	})
 	return _c
 }
@@ -478,7 +479,7 @@ func (_c *MockDatabase_ConfirmTeamDeleteKey_Call) Return(_a0 error) *MockDatabas
 	return _c
 }
 
-func (_c *MockDatabase_ConfirmTeamDeleteKey_Call) RunAndReturn(run func(context.Context, uuid.UUID) error) *MockDatabase_ConfirmTeamDeleteKey_Call {
+func (_c *MockDatabase_ConfirmTeamDeleteKey_Call) RunAndReturn(run func(context.Context, slug.Slug, uuid.UUID) error) *MockDatabase_ConfirmTeamDeleteKey_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1943,123 +1944,6 @@ func (_c *MockDatabase_ExtendSession_Call) Return(_a0 *Session, _a1 error) *Mock
 }
 
 func (_c *MockDatabase_ExtendSession_Call) RunAndReturn(run func(context.Context, uuid.UUID) (*Session, error)) *MockDatabase_ExtendSession_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetActiveTeamBySlug provides a mock function with given fields: ctx, teamSlug
-func (_m *MockDatabase) GetActiveTeamBySlug(ctx context.Context, teamSlug slug.Slug) (*Team, error) {
-	ret := _m.Called(ctx, teamSlug)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetActiveTeamBySlug")
-	}
-
-	var r0 *Team
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) (*Team, error)); ok {
-		return rf(ctx, teamSlug)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug) *Team); ok {
-		r0 = rf(ctx, teamSlug)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Team)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug) error); ok {
-		r1 = rf(ctx, teamSlug)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_GetActiveTeamBySlug_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetActiveTeamBySlug'
-type MockDatabase_GetActiveTeamBySlug_Call struct {
-	*mock.Call
-}
-
-// GetActiveTeamBySlug is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-func (_e *MockDatabase_Expecter) GetActiveTeamBySlug(ctx interface{}, teamSlug interface{}) *MockDatabase_GetActiveTeamBySlug_Call {
-	return &MockDatabase_GetActiveTeamBySlug_Call{Call: _e.mock.On("GetActiveTeamBySlug", ctx, teamSlug)}
-}
-
-func (_c *MockDatabase_GetActiveTeamBySlug_Call) Run(run func(ctx context.Context, teamSlug slug.Slug)) *MockDatabase_GetActiveTeamBySlug_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_GetActiveTeamBySlug_Call) Return(_a0 *Team, _a1 error) *MockDatabase_GetActiveTeamBySlug_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockDatabase_GetActiveTeamBySlug_Call) RunAndReturn(run func(context.Context, slug.Slug) (*Team, error)) *MockDatabase_GetActiveTeamBySlug_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetActiveTeams provides a mock function with given fields: ctx
-func (_m *MockDatabase) GetActiveTeams(ctx context.Context) ([]*Team, error) {
-	ret := _m.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetActiveTeams")
-	}
-
-	var r0 []*Team
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]*Team, error)); ok {
-		return rf(ctx)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context) []*Team); ok {
-		r0 = rf(ctx)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*Team)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_GetActiveTeams_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetActiveTeams'
-type MockDatabase_GetActiveTeams_Call struct {
-	*mock.Call
-}
-
-// GetActiveTeams is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *MockDatabase_Expecter) GetActiveTeams(ctx interface{}) *MockDatabase_GetActiveTeams_Call {
-	return &MockDatabase_GetActiveTeams_Call{Call: _e.mock.On("GetActiveTeams", ctx)}
-}
-
-func (_c *MockDatabase_GetActiveTeams_Call) Run(run func(ctx context.Context)) *MockDatabase_GetActiveTeams_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_GetActiveTeams_Call) Return(_a0 []*Team, _a1 error) *MockDatabase_GetActiveTeams_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockDatabase_GetActiveTeams_Call) RunAndReturn(run func(context.Context) ([]*Team, error)) *MockDatabase_GetActiveTeams_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3844,66 +3728,6 @@ func (_c *MockDatabase_GetTeamMembers_Call) Return(_a0 []*User, _a1 int, _a2 err
 }
 
 func (_c *MockDatabase_GetTeamMembers_Call) RunAndReturn(run func(context.Context, slug.Slug, Page) ([]*User, int, error)) *MockDatabase_GetTeamMembers_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetTeamMembersForReconciler provides a mock function with given fields: ctx, teamSlug, reconcilerName
-func (_m *MockDatabase) GetTeamMembersForReconciler(ctx context.Context, teamSlug slug.Slug, reconcilerName string) ([]*User, error) {
-	ret := _m.Called(ctx, teamSlug, reconcilerName)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetTeamMembersForReconciler")
-	}
-
-	var r0 []*User
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) ([]*User, error)); ok {
-		return rf(ctx, teamSlug, reconcilerName)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, slug.Slug, string) []*User); ok {
-		r0 = rf(ctx, teamSlug, reconcilerName)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*User)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, slug.Slug, string) error); ok {
-		r1 = rf(ctx, teamSlug, reconcilerName)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockDatabase_GetTeamMembersForReconciler_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamMembersForReconciler'
-type MockDatabase_GetTeamMembersForReconciler_Call struct {
-	*mock.Call
-}
-
-// GetTeamMembersForReconciler is a helper method to define mock.On call
-//   - ctx context.Context
-//   - teamSlug slug.Slug
-//   - reconcilerName string
-func (_e *MockDatabase_Expecter) GetTeamMembersForReconciler(ctx interface{}, teamSlug interface{}, reconcilerName interface{}) *MockDatabase_GetTeamMembersForReconciler_Call {
-	return &MockDatabase_GetTeamMembersForReconciler_Call{Call: _e.mock.On("GetTeamMembersForReconciler", ctx, teamSlug, reconcilerName)}
-}
-
-func (_c *MockDatabase_GetTeamMembersForReconciler_Call) Run(run func(ctx context.Context, teamSlug slug.Slug, reconcilerName string)) *MockDatabase_GetTeamMembersForReconciler_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(slug.Slug), args[2].(string))
-	})
-	return _c
-}
-
-func (_c *MockDatabase_GetTeamMembersForReconciler_Call) Return(_a0 []*User, _a1 error) *MockDatabase_GetTeamMembersForReconciler_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockDatabase_GetTeamMembersForReconciler_Call) RunAndReturn(run func(context.Context, slug.Slug, string) ([]*User, error)) *MockDatabase_GetTeamMembersForReconciler_Call {
 	_c.Call.Return(run)
 	return _c
 }

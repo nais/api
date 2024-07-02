@@ -37,5 +37,9 @@ func ToGraphTeam(m *database.Team) *model.Team {
 		ret.LastSuccessfulSync = &m.LastSuccessfulSync.Time
 	}
 
+	if m.DeleteKeyConfirmedAt.Valid {
+		ret.DeleteKeyConfirmedAt = &m.DeleteKeyConfirmedAt.Time
+	}
+
 	return ret
 }

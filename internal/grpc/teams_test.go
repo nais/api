@@ -150,7 +150,7 @@ func TestTeamsServer_Delete(t *testing.T) {
 	})
 }
 
-func TestTeamsServer_List(t *testing.T) {
+func TestTeamsServer_ToBeReconciled(t *testing.T) {
 	ctx := context.Background()
 	t.Run("error when fetching teams from database", func(t *testing.T) {
 		db := database.NewMockDatabase(t)

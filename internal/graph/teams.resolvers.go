@@ -456,19 +456,15 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, key string) 
 		return false, apierror.Errorf("Team delete key has expired, you need to request a new key.")
 	}
 
-	correlationID := uuid.New()
-
-	err = r.database.ConfirmTeamDeleteKey(ctx, uid)
-	if err != nil {
+	if err := r.database.ConfirmTeamDeleteKey(ctx, deleteKey.TeamSlug, uid); err != nil {
 		return false, fmt.Errorf("confirm team delete key: %w", err)
 	}
 
-	err = r.auditor.TeamDeletionConfirmed(ctx, actor.User, deleteKey.TeamSlug)
-	if err != nil {
+	if err := r.auditor.TeamDeletionConfirmed(ctx, actor.User, deleteKey.TeamSlug); err != nil {
 		return false, err
 	}
 
-	r.triggerTeamDeletedEvent(ctx, deleteKey.TeamSlug, correlationID)
+	r.triggerTeamDeletedEvent(ctx, deleteKey.TeamSlug, uuid.New())
 
 	return true, nil
 }
@@ -773,12 +769,7 @@ func (r *teamResolver) GithubRepositories(ctx context.Context, obj *model.Team, 
 }
 
 func (r *teamResolver) DeletionInProgress(ctx context.Context, obj *model.Team) (bool, error) {
-	_, err := r.database.GetActiveTeamBySlug(ctx, obj.Slug)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return true, nil
-	}
-
-	return false, err
+	return obj.DeleteKeyConfirmedAt != nil, nil
 }
 
 func (r *teamResolver) ViewerIsOwner(ctx context.Context, obj *model.Team) (bool, error) {

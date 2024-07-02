@@ -176,7 +176,8 @@ func (_c *MockUsersServer_mustEmbedUnimplementedUsersServer_Call) RunAndReturn(r
 func NewMockUsersServer(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *MockUsersServer {
+},
+) *MockUsersServer {
 	mock := &MockUsersServer{}
 	mock.Mock.Test(t)
 

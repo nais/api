@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/database"
@@ -183,7 +185,7 @@ func toProtoTeam(team *database.Team) *protoapi.Team {
 		aID = ptr.To(team.AzureGroupID.String())
 	}
 
-	return &protoapi.Team{
+	t := &protoapi.Team{
 		Slug:             team.Slug.String(),
 		Purpose:          team.Purpose,
 		SlackChannel:     team.SlackChannel,
@@ -193,6 +195,12 @@ func toProtoTeam(team *database.Team) *protoapi.Team {
 		GarRepository:    team.GarRepository,
 		CdnBucket:        team.CdnBucket,
 	}
+
+	if team.DeleteKeyConfirmedAt.Valid {
+		t.DeleteKeyConfirmedAt = timestamppb.New(team.DeleteKeyConfirmedAt.Time)
+	}
+
+	return t
 }
 
 func toProtoTeamMember(user *database.User) *protoapi.TeamMember {

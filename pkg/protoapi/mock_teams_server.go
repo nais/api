@@ -589,7 +589,8 @@ func (_c *MockTeamsServer_mustEmbedUnimplementedTeamsServer_Call) RunAndReturn(r
 func NewMockTeamsServer(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *MockTeamsServer {
+},
+) *MockTeamsServer {
 	mock := &MockTeamsServer{}
 	mock.Mock.Test(t)
 

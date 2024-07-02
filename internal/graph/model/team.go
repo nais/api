@@ -18,6 +18,7 @@ type Team struct {
 	AzureGroupID           *uuid.UUID `json:"azureGroupID"`
 	GoogleArtifactRegistry *string    `json:"googleArtifactRegistry"`
 	CdnBucket              *string    `json:"cdnBucket"`
+	DeleteKeyConfirmedAt   *time.Time `json:"deleteKeyConfirmedAt"`
 }
 
 func (Team) IsSearchNode() {}

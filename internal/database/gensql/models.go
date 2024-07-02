@@ -250,15 +250,16 @@ type Session struct {
 }
 
 type Team struct {
-	Slug               slug.Slug
-	Purpose            string
-	LastSuccessfulSync pgtype.Timestamp
-	SlackChannel       string
-	GoogleGroupEmail   *string
-	AzureGroupID       *uuid.UUID
-	GithubTeamSlug     *string
-	GarRepository      *string
-	CdnBucket          *string
+	Slug                 slug.Slug
+	Purpose              string
+	LastSuccessfulSync   pgtype.Timestamp
+	SlackChannel         string
+	GoogleGroupEmail     *string
+	AzureGroupID         *uuid.UUID
+	GithubTeamSlug       *string
+	GarRepository        *string
+	CdnBucket            *string
+	DeleteKeyConfirmedAt pgtype.Timestamptz
 }
 
 type TeamAllEnvironment struct {
