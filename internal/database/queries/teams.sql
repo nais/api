@@ -181,7 +181,7 @@ WHERE key = @key;
 DELETE FROM teams
 WHERE
     slug = @slug
-    AND confirmed_delete_key_at IS NOT NULL;
+    AND delete_key_confirmed_at IS NOT NULL;
 
 -- GetTeamMemberOptOuts returns a slice of team member opt-outs.
 -- name: GetTeamMemberOptOuts :many

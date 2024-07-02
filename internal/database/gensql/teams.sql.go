@@ -82,7 +82,7 @@ const deleteTeam = `-- name: DeleteTeam :exec
 DELETE FROM teams
 WHERE
     slug = $1
-    AND confirmed_delete_key_at IS NOT NULL
+    AND delete_key_confirmed_at IS NOT NULL
 `
 
 // DeleteTeam deletes a team from the main team table. The team must have an already confirmed delete key for this to succeed.
