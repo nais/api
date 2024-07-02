@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/auth/authz"
@@ -47,6 +48,10 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTea
 	err = r.database.Transaction(ctx, func(ctx context.Context, dbtx database.Database) error {
 		team, err = dbtx.CreateTeam(ctx, input.Slug, input.Purpose, input.SlackChannel)
 		if err != nil {
+			var pgErr *pgconn.PgError
+			if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+				return apierror.Errorf("Team slug %q is not available.", input.Slug)
+			}
 			return err
 		}
 
