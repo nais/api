@@ -23,14 +23,13 @@ type PageInfo struct {
 	EndCursor       scalar.Cursor `json:"endCursor"`
 }
 
-func NewConnection[T any](nodes []T, total int64, cursor scalar.Cursor) Connection[T] {
+func NewConnection[T any](nodes []T, limit, total int64, cursor scalar.Cursor) Connection[T] {
 	edges := make([]Edge[T], len(nodes))
 	for i, node := range nodes {
 		edges[i] = Edge[T]{
 			Node: node,
 			Cursor: scalar.Cursor{
 				Offset: cursor.Offset + int64(i),
-				Limit:  cursor.Limit,
 			},
 		}
 	}
@@ -40,8 +39,8 @@ func NewConnection[T any](nodes []T, total int64, cursor scalar.Cursor) Connecti
 		PageInfo: PageInfo{
 			TotalCount:      int(total),
 			StartCursor:     cursor,
-			EndCursor:       scalar.Cursor{Offset: cursor.Offset + int64(len(nodes)), Limit: cursor.Limit},
-			HasNextPage:     cursor.Offset+cursor.Limit < total,
+			EndCursor:       scalar.Cursor{Offset: cursor.Offset + int64(len(nodes))},
+			HasNextPage:     cursor.Offset+limit < total,
 			HasPreviousPage: cursor.Offset > 0,
 		},
 	}
