@@ -947,7 +947,7 @@ func (r *teamResolver) Bucket(ctx context.Context, obj *model.Team, name string,
 }
 
 func (r *teamResolver) Buckets(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BucketsList, error) {
-	buckets, err := r.bucketClient.Buckets(ctx, obj.Slug)
+	buckets, metrics, err := r.bucketClient.Buckets(ctx, obj.Slug)
 	if err != nil {
 		return nil, err
 	}
@@ -971,6 +971,7 @@ func (r *teamResolver) Buckets(ctx context.Context, obj *model.Team, offset *int
 	return &model.BucketsList{
 		Nodes:    buckets,
 		PageInfo: pageInfo,
+		Metrics:  *metrics,
 	}, nil
 }
 
