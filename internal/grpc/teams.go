@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/database"
@@ -54,9 +56,9 @@ func (t *TeamsServer) Get(ctx context.Context, req *protoapi.GetTeamRequest) (*p
 	}, nil
 }
 
-func (t *TeamsServer) ListActive(ctx context.Context, req *protoapi.ListActiveTeamsRequest) (*protoapi.ListActiveTeamsResponse, error) {
+func (t *TeamsServer) List(ctx context.Context, req *protoapi.ListTeamsRequest) (*protoapi.ListTeamsResponse, error) {
 	limit, offset := pagination(req)
-	teams, total, err := t.db.GetActiveTeams(ctx, database.Page{
+	teams, total, err := t.db.GetTeams(ctx, database.Page{
 		Limit:  limit,
 		Offset: offset,
 	})
@@ -64,27 +66,7 @@ func (t *TeamsServer) ListActive(ctx context.Context, req *protoapi.ListActiveTe
 		return nil, status.Errorf(codes.Internal, "failed to list teams: %s", err)
 	}
 
-	resp := &protoapi.ListActiveTeamsResponse{
-		PageInfo: pageInfo(req, total),
-	}
-	for _, team := range teams {
-		resp.Nodes = append(resp.Nodes, toProtoTeam(team))
-	}
-
-	return resp, nil
-}
-
-func (t *TeamsServer) ListDeletable(ctx context.Context, req *protoapi.ListDeletableTeamsRequest) (*protoapi.ListDeletableTeamsResponse, error) {
-	limit, offset := pagination(req)
-	teams, total, err := t.db.GetDeletableTeams(ctx, database.Page{
-		Limit:  limit,
-		Offset: offset,
-	})
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to list teams: %s", err)
-	}
-
-	resp := &protoapi.ListDeletableTeamsResponse{
+	resp := &protoapi.ListTeamsResponse{
 		PageInfo: pageInfo(req, total),
 	}
 	for _, team := range teams {
@@ -203,7 +185,7 @@ func toProtoTeam(team *database.Team) *protoapi.Team {
 		aID = ptr.To(team.AzureGroupID.String())
 	}
 
-	return &protoapi.Team{
+	t := &protoapi.Team{
 		Slug:             team.Slug.String(),
 		Purpose:          team.Purpose,
 		SlackChannel:     team.SlackChannel,
@@ -213,6 +195,12 @@ func toProtoTeam(team *database.Team) *protoapi.Team {
 		GarRepository:    team.GarRepository,
 		CdnBucket:        team.CdnBucket,
 	}
+
+	if team.DeleteKeyConfirmedAt.Valid {
+		t.DeleteKeyConfirmedAt = timestamppb.New(team.DeleteKeyConfirmedAt.Time)
+	}
+
+	return t
 }
 
 func toProtoTeamMember(user *database.User) *protoapi.TeamMember {

@@ -257,28 +257,28 @@ func (_c *MockTeamsServer_IsRepositoryAuthorized_Call) RunAndReturn(run func(con
 	return _c
 }
 
-// ListActive provides a mock function with given fields: _a0, _a1
-func (_m *MockTeamsServer) ListActive(_a0 context.Context, _a1 *ListActiveTeamsRequest) (*ListActiveTeamsResponse, error) {
+// List provides a mock function with given fields: _a0, _a1
+func (_m *MockTeamsServer) List(_a0 context.Context, _a1 *ListTeamsRequest) (*ListTeamsResponse, error) {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
-		panic("no return value specified for ListActive")
+		panic("no return value specified for List")
 	}
 
-	var r0 *ListActiveTeamsResponse
+	var r0 *ListTeamsResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *ListActiveTeamsRequest) (*ListActiveTeamsResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error)); ok {
 		return rf(_a0, _a1)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *ListActiveTeamsRequest) *ListActiveTeamsResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *ListTeamsRequest) *ListTeamsResponse); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*ListActiveTeamsResponse)
+			r0 = ret.Get(0).(*ListTeamsResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *ListActiveTeamsRequest) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *ListTeamsRequest) error); ok {
 		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
@@ -287,31 +287,31 @@ func (_m *MockTeamsServer) ListActive(_a0 context.Context, _a1 *ListActiveTeamsR
 	return r0, r1
 }
 
-// MockTeamsServer_ListActive_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListActive'
-type MockTeamsServer_ListActive_Call struct {
+// MockTeamsServer_List_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'List'
+type MockTeamsServer_List_Call struct {
 	*mock.Call
 }
 
-// ListActive is a helper method to define mock.On call
+// List is a helper method to define mock.On call
 //   - _a0 context.Context
-//   - _a1 *ListActiveTeamsRequest
-func (_e *MockTeamsServer_Expecter) ListActive(_a0 interface{}, _a1 interface{}) *MockTeamsServer_ListActive_Call {
-	return &MockTeamsServer_ListActive_Call{Call: _e.mock.On("ListActive", _a0, _a1)}
+//   - _a1 *ListTeamsRequest
+func (_e *MockTeamsServer_Expecter) List(_a0 interface{}, _a1 interface{}) *MockTeamsServer_List_Call {
+	return &MockTeamsServer_List_Call{Call: _e.mock.On("List", _a0, _a1)}
 }
 
-func (_c *MockTeamsServer_ListActive_Call) Run(run func(_a0 context.Context, _a1 *ListActiveTeamsRequest)) *MockTeamsServer_ListActive_Call {
+func (_c *MockTeamsServer_List_Call) Run(run func(_a0 context.Context, _a1 *ListTeamsRequest)) *MockTeamsServer_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*ListActiveTeamsRequest))
+		run(args[0].(context.Context), args[1].(*ListTeamsRequest))
 	})
 	return _c
 }
 
-func (_c *MockTeamsServer_ListActive_Call) Return(_a0 *ListActiveTeamsResponse, _a1 error) *MockTeamsServer_ListActive_Call {
+func (_c *MockTeamsServer_List_Call) Return(_a0 *ListTeamsResponse, _a1 error) *MockTeamsServer_List_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockTeamsServer_ListActive_Call) RunAndReturn(run func(context.Context, *ListActiveTeamsRequest) (*ListActiveTeamsResponse, error)) *MockTeamsServer_ListActive_Call {
+func (_c *MockTeamsServer_List_Call) RunAndReturn(run func(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error)) *MockTeamsServer_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -371,65 +371,6 @@ func (_c *MockTeamsServer_ListAuthorizedRepositories_Call) Return(_a0 *ListAutho
 }
 
 func (_c *MockTeamsServer_ListAuthorizedRepositories_Call) RunAndReturn(run func(context.Context, *ListAuthorizedRepositoriesRequest) (*ListAuthorizedRepositoriesResponse, error)) *MockTeamsServer_ListAuthorizedRepositories_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// ListDeletable provides a mock function with given fields: _a0, _a1
-func (_m *MockTeamsServer) ListDeletable(_a0 context.Context, _a1 *ListDeletableTeamsRequest) (*ListDeletableTeamsResponse, error) {
-	ret := _m.Called(_a0, _a1)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ListDeletable")
-	}
-
-	var r0 *ListDeletableTeamsResponse
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *ListDeletableTeamsRequest) (*ListDeletableTeamsResponse, error)); ok {
-		return rf(_a0, _a1)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, *ListDeletableTeamsRequest) *ListDeletableTeamsResponse); ok {
-		r0 = rf(_a0, _a1)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*ListDeletableTeamsResponse)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, *ListDeletableTeamsRequest) error); ok {
-		r1 = rf(_a0, _a1)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockTeamsServer_ListDeletable_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListDeletable'
-type MockTeamsServer_ListDeletable_Call struct {
-	*mock.Call
-}
-
-// ListDeletable is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 *ListDeletableTeamsRequest
-func (_e *MockTeamsServer_Expecter) ListDeletable(_a0 interface{}, _a1 interface{}) *MockTeamsServer_ListDeletable_Call {
-	return &MockTeamsServer_ListDeletable_Call{Call: _e.mock.On("ListDeletable", _a0, _a1)}
-}
-
-func (_c *MockTeamsServer_ListDeletable_Call) Run(run func(_a0 context.Context, _a1 *ListDeletableTeamsRequest)) *MockTeamsServer_ListDeletable_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*ListDeletableTeamsRequest))
-	})
-	return _c
-}
-
-func (_c *MockTeamsServer_ListDeletable_Call) Return(_a0 *ListDeletableTeamsResponse, _a1 error) *MockTeamsServer_ListDeletable_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockTeamsServer_ListDeletable_Call) RunAndReturn(run func(context.Context, *ListDeletableTeamsRequest) (*ListDeletableTeamsResponse, error)) *MockTeamsServer_ListDeletable_Call {
 	_c.Call.Return(run)
 	return _c
 }

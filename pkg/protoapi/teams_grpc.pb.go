@@ -21,8 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Teams_ListAuthorizedRepositories_FullMethodName           = "/Teams/ListAuthorizedRepositories"
 	Teams_Get_FullMethodName                                  = "/Teams/Get"
-	Teams_ListActive_FullMethodName                           = "/Teams/ListActive"
-	Teams_ListDeletable_FullMethodName                        = "/Teams/ListDeletable"
+	Teams_List_FullMethodName                                 = "/Teams/List"
 	Teams_Members_FullMethodName                              = "/Teams/Members"
 	Teams_Environments_FullMethodName                         = "/Teams/Environments"
 	Teams_SetTeamExternalReferences_FullMethodName            = "/Teams/SetTeamExternalReferences"
@@ -37,8 +36,7 @@ const (
 type TeamsClient interface {
 	ListAuthorizedRepositories(ctx context.Context, in *ListAuthorizedRepositoriesRequest, opts ...grpc.CallOption) (*ListAuthorizedRepositoriesResponse, error)
 	Get(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
-	ListActive(ctx context.Context, in *ListActiveTeamsRequest, opts ...grpc.CallOption) (*ListActiveTeamsResponse, error)
-	ListDeletable(ctx context.Context, in *ListDeletableTeamsRequest, opts ...grpc.CallOption) (*ListDeletableTeamsResponse, error)
+	List(ctx context.Context, in *ListTeamsRequest, opts ...grpc.CallOption) (*ListTeamsResponse, error)
 	Members(ctx context.Context, in *ListTeamMembersRequest, opts ...grpc.CallOption) (*ListTeamMembersResponse, error)
 	Environments(ctx context.Context, in *ListTeamEnvironmentsRequest, opts ...grpc.CallOption) (*ListTeamEnvironmentsResponse, error)
 	SetTeamExternalReferences(ctx context.Context, in *SetTeamExternalReferencesRequest, opts ...grpc.CallOption) (*SetTeamExternalReferencesResponse, error)
@@ -73,18 +71,9 @@ func (c *teamsClient) Get(ctx context.Context, in *GetTeamRequest, opts ...grpc.
 	return out, nil
 }
 
-func (c *teamsClient) ListActive(ctx context.Context, in *ListActiveTeamsRequest, opts ...grpc.CallOption) (*ListActiveTeamsResponse, error) {
-	out := new(ListActiveTeamsResponse)
-	err := c.cc.Invoke(ctx, Teams_ListActive_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *teamsClient) ListDeletable(ctx context.Context, in *ListDeletableTeamsRequest, opts ...grpc.CallOption) (*ListDeletableTeamsResponse, error) {
-	out := new(ListDeletableTeamsResponse)
-	err := c.cc.Invoke(ctx, Teams_ListDeletable_FullMethodName, in, out, opts...)
+func (c *teamsClient) List(ctx context.Context, in *ListTeamsRequest, opts ...grpc.CallOption) (*ListTeamsResponse, error) {
+	out := new(ListTeamsResponse)
+	err := c.cc.Invoke(ctx, Teams_List_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -151,8 +140,7 @@ func (c *teamsClient) IsRepositoryAuthorized(ctx context.Context, in *IsReposito
 type TeamsServer interface {
 	ListAuthorizedRepositories(context.Context, *ListAuthorizedRepositoriesRequest) (*ListAuthorizedRepositoriesResponse, error)
 	Get(context.Context, *GetTeamRequest) (*GetTeamResponse, error)
-	ListActive(context.Context, *ListActiveTeamsRequest) (*ListActiveTeamsResponse, error)
-	ListDeletable(context.Context, *ListDeletableTeamsRequest) (*ListDeletableTeamsResponse, error)
+	List(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error)
 	Members(context.Context, *ListTeamMembersRequest) (*ListTeamMembersResponse, error)
 	Environments(context.Context, *ListTeamEnvironmentsRequest) (*ListTeamEnvironmentsResponse, error)
 	SetTeamExternalReferences(context.Context, *SetTeamExternalReferencesRequest) (*SetTeamExternalReferencesResponse, error)
@@ -172,11 +160,8 @@ func (UnimplementedTeamsServer) ListAuthorizedRepositories(context.Context, *Lis
 func (UnimplementedTeamsServer) Get(context.Context, *GetTeamRequest) (*GetTeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
-func (UnimplementedTeamsServer) ListActive(context.Context, *ListActiveTeamsRequest) (*ListActiveTeamsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListActive not implemented")
-}
-func (UnimplementedTeamsServer) ListDeletable(context.Context, *ListDeletableTeamsRequest) (*ListDeletableTeamsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListDeletable not implemented")
+func (UnimplementedTeamsServer) List(context.Context, *ListTeamsRequest) (*ListTeamsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 func (UnimplementedTeamsServer) Members(context.Context, *ListTeamMembersRequest) (*ListTeamMembersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Members not implemented")
@@ -245,38 +230,20 @@ func _Teams_Get_Handler(srv interface{}, ctx context.Context, dec func(interface
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Teams_ListActive_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListActiveTeamsRequest)
+func _Teams_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListTeamsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TeamsServer).ListActive(ctx, in)
+		return srv.(TeamsServer).List(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Teams_ListActive_FullMethodName,
+		FullMethod: Teams_List_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TeamsServer).ListActive(ctx, req.(*ListActiveTeamsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Teams_ListDeletable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListDeletableTeamsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TeamsServer).ListDeletable(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Teams_ListDeletable_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TeamsServer).ListDeletable(ctx, req.(*ListDeletableTeamsRequest))
+		return srv.(TeamsServer).List(ctx, req.(*ListTeamsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -405,12 +372,8 @@ var Teams_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Teams_Get_Handler,
 		},
 		{
-			MethodName: "ListActive",
-			Handler:    _Teams_ListActive_Handler,
-		},
-		{
-			MethodName: "ListDeletable",
-			Handler:    _Teams_ListDeletable_Handler,
+			MethodName: "List",
+			Handler:    _Teams_List_Handler,
 		},
 		{
 			MethodName: "Members",

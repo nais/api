@@ -2,6 +2,7 @@ syntax = "proto3";
 
 option go_package = "./pkg/protoapi";
 
+import "google/protobuf/timestamp.proto";
 import "pagination.proto";
 import "users.proto";
 
@@ -14,6 +15,7 @@ message Team {
   optional string google_group_email = 6;
   optional string gar_repository = 7;
   optional string cdn_bucket = 8;
+  optional google.protobuf.Timestamp delete_key_confirmed_at = 9;
 }
 
 message ListAuthorizedRepositoriesRequest {
@@ -27,8 +29,7 @@ message ListAuthorizedRepositoriesResponse {
 service Teams {
   rpc ListAuthorizedRepositories(ListAuthorizedRepositoriesRequest) returns (ListAuthorizedRepositoriesResponse) {}
   rpc Get(GetTeamRequest) returns (GetTeamResponse) {}
-  rpc ListActive(ListActiveTeamsRequest) returns (ListActiveTeamsResponse) {}
-  rpc ListDeletable(ListDeletableTeamsRequest) returns (ListDeletableTeamsResponse) {}
+  rpc List(ListTeamsRequest) returns (ListTeamsResponse) {}
   rpc Members(ListTeamMembersRequest) returns (ListTeamMembersResponse) {}
   rpc Environments(ListTeamEnvironmentsRequest) returns (ListTeamEnvironmentsResponse) {}
   rpc SetTeamExternalReferences(SetTeamExternalReferencesRequest) returns (SetTeamExternalReferencesResponse) {}
@@ -91,22 +92,12 @@ message GetTeamRequest {
   string slug = 1;
 }
 
-message ListActiveTeamsRequest {
+message ListTeamsRequest {
   int64 limit = 1;
   int64 offset = 2;
 }
 
-message ListActiveTeamsResponse {
-  repeated Team nodes = 1;
-  PageInfo page_info = 2;
-}
-
-message ListDeletableTeamsRequest {
-  int64 limit = 1;
-  int64 offset = 2;
-}
-
-message ListDeletableTeamsResponse {
+message ListTeamsResponse {
   repeated Team nodes = 1;
   PageInfo page_info = 2;
 }

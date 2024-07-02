@@ -46,10 +46,6 @@ type TeamRepo interface {
 	GetTeamMembers(ctx context.Context, teamSlug slug.Slug, p Page) ([]*User, int, error)
 	// GetTeams returns active teams, as well as teams that have been marked for deletion.
 	GetTeams(ctx context.Context, p Page) ([]*Team, int, error)
-	// GetActiveTeams returns active teams, that is teams that have not been marked for deletion.
-	GetActiveTeams(ctx context.Context, p Page) ([]*Team, int, error)
-	// GetDeletableTeams returns teams that have been marked for deletion.
-	GetDeletableTeams(ctx context.Context, p Page) ([]*Team, int, error)
 	GetTeamsBySlugs(ctx context.Context, teamSlugs []slug.Slug) ([]*Team, error)
 	GetAllTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string) ([]*Team, error)
 	GetUserTeams(ctx context.Context, userID uuid.UUID) ([]*UserTeam, error)
@@ -161,50 +157,6 @@ func (d *database) GetTeams(ctx context.Context, p Page) ([]*Team, int, error) {
 	}
 
 	total, err := d.querier.GetTeamsCount(ctx)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	return collection, int(total), nil
-}
-
-func (d *database) GetActiveTeams(ctx context.Context, p Page) ([]*Team, int, error) {
-	teams, err := d.querier.GetActiveTeams(ctx, gensql.GetActiveTeamsParams{
-		Offset: int32(p.Offset),
-		Limit:  int32(p.Limit),
-	})
-	if err != nil {
-		return nil, 0, err
-	}
-
-	collection := make([]*Team, len(teams))
-	for i, team := range teams {
-		collection[i] = &Team{Team: team}
-	}
-
-	total, err := d.querier.GetActiveTeamsCount(ctx)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	return collection, int(total), nil
-}
-
-func (d *database) GetDeletableTeams(ctx context.Context, p Page) ([]*Team, int, error) {
-	teams, err := d.querier.GetDeletableTeams(ctx, gensql.GetDeletableTeamsParams{
-		Offset: int32(p.Offset),
-		Limit:  int32(p.Limit),
-	})
-	if err != nil {
-		return nil, 0, err
-	}
-
-	collection := make([]*Team, len(teams))
-	for i, team := range teams {
-		collection[i] = &Team{Team: team}
-	}
-
-	total, err := d.querier.GetDeletableTeamsCount(ctx)
 	if err != nil {
 		return nil, 0, err
 	}

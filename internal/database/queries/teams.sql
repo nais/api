@@ -65,36 +65,6 @@ OFFSET sqlc.arg('offset');
 SELECT COUNT(*) AS total
 FROM teams;
 
--- GetActiveTeams returns a slice of teams that can be reconciled.
--- name: GetActiveTeams :many
-SELECT *
-FROM teams
-WHERE delete_key_confirmed_at IS NULL
-ORDER BY slug ASC
-LIMIT sqlc.arg('limit')
-OFFSET sqlc.arg('offset');
-
--- GetActiveTeamsCount returns the total number or teams that can be reconciled.
--- name: GetActiveTeamsCount :one
-SELECT COUNT(*) AS total
-FROM teams
-WHERE delete_key_confirmed_at IS NULL;
-
--- GetDeletableTeams returns a slice of teams that is ready to start the deletion process.
--- name: GetDeletableTeams :many
-SELECT *
-FROM teams
-WHERE delete_key_confirmed_at IS NOT NULL
-ORDER BY slug ASC
-LIMIT sqlc.arg('limit')
-OFFSET sqlc.arg('offset');
-
--- GetDeletableTeamsCount returns the total number or teams that is ready to start the deletion process.
--- name: GetDeletableTeamsCount :one
-SELECT COUNT(*) AS total
-FROM teams
-WHERE delete_key_confirmed_at IS NOT NULL;
-
 -- GetAllTeamSlugs returns all team slugs in ascending order, excluding deleted teams.
 -- name: GetAllTeamSlugs :many
 SELECT slug

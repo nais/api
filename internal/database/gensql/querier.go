@@ -57,10 +57,6 @@ type Querier interface {
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	DisableReconciler(ctx context.Context, name string) (*Reconciler, error)
 	EnableReconciler(ctx context.Context, name string) (*Reconciler, error)
-	// GetActiveTeams returns a slice of teams that can be reconciled.
-	GetActiveTeams(ctx context.Context, arg GetActiveTeamsParams) ([]*Team, error)
-	// GetActiveTeamsCount returns the total number or teams that can be reconciled.
-	GetActiveTeamsCount(ctx context.Context) (int64, error)
 	// GetAllTeamMembers returns all team members of a non-deleted team.
 	GetAllTeamMembers(ctx context.Context, teamSlug *slug.Slug) ([]*User, error)
 	// GetAllTeamSlugs returns all team slugs in ascending order, excluding deleted teams.
@@ -76,10 +72,6 @@ type Querier interface {
 	GetAuditLogsForReconcilerCount(ctx context.Context, targetIdentifier string) (int64, error)
 	GetAuditLogsForTeam(ctx context.Context, arg GetAuditLogsForTeamParams) ([]*AuditLog, error)
 	GetAuditLogsForTeamCount(ctx context.Context, targetIdentifier string) (int64, error)
-	// GetDeletableTeams returns a slice of teams that is ready to start the deletion process.
-	GetDeletableTeams(ctx context.Context, arg GetDeletableTeamsParams) ([]*Team, error)
-	// GetDeletableTeamsCount returns the total number or teams that is ready to start the deletion process.
-	GetDeletableTeamsCount(ctx context.Context) (int64, error)
 	GetEnabledReconcilers(ctx context.Context) ([]*Reconciler, error)
 	GetReconciler(ctx context.Context, name string) (*Reconciler, error)
 	GetReconcilerConfig(ctx context.Context, arg GetReconcilerConfigParams) ([]*GetReconcilerConfigRow, error)
