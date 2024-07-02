@@ -39,7 +39,7 @@ type TeamDeleteKey {
 "Paginated teams type."
 type TeamConnection {
   "The list of teams."
-  nodes: [TeamEdge!]!
+  edges: [TeamEdge!]!
 
   "Pagination information."
   pageInfo: PageInfo!

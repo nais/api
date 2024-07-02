@@ -9,8 +9,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/graphv1/pagination"
-	"github.com/nais/api/internal/graphv1/scalar"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -47,14 +45,6 @@ type Team struct {
 	ViewerIsMember bool `json:"viewerIsMember"`
 }
 
-// Paginated teams type.
-type TeamConnection struct {
-	// The list of teams.
-	Nodes []*TeamEdge `json:"nodes"`
-	// Pagination information.
-	PageInfo pagination.PageInfo `json:"pageInfo"`
-}
-
 // Team deletion key type.
 type TeamDeleteKey struct {
 	// The unique key used to confirm the deletion of a team.
@@ -67,13 +57,6 @@ type TeamDeleteKey struct {
 	CreatedBy User `json:"createdBy"`
 	// The team the delete key is for.
 	Team Team `json:"team"`
-}
-
-type TeamEdge struct {
-	// The team.
-	Node Team `json:"node"`
-	// The cursor for use in pagination.
-	Cursor scalar.Cursor `json:"cursor"`
 }
 
 // User type.

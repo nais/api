@@ -15,14 +15,11 @@ var cursorVersions = map[string]func(c *Cursor, i []byte) error{
 
 type Cursor struct {
 	Offset int64 `json:"offset"`
-	Limit  int64 `json:"limit"`
 }
 
 func (c Cursor) MarshalGQLContext(_ context.Context, w io.Writer) error {
 	b := []byte{'v', '1', ':'}
 	b = strconv.AppendInt(b, c.Offset, 10)
-	b = append(b, ':')
-	b = strconv.AppendInt(b, c.Limit, 10)
 
 	// Base64 encode
 	b64 := make([]byte, base64.StdEncoding.EncodedLen(len(b)))
@@ -56,24 +53,13 @@ func (c *Cursor) UnmarshalGQLContext(_ context.Context, v interface{}) error {
 	return fmt.Errorf("invalid cursor type")
 }
 
-func parseCursorV1(c *Cursor, b []byte) error {
-	offsetb, limitb, ok := bytes.Cut(b, []byte{':'})
-	if !ok {
-		return fmt.Errorf("invalid cursor v1 format")
-	}
-
+func parseCursorV1(c *Cursor, offsetb []byte) error {
 	offset, err := strconv.ParseInt(string(offsetb), 10, 64)
 	if err != nil {
 		return fmt.Errorf("invalid cursor v1 offset: %w", err)
 	}
 
-	limit, err := strconv.ParseInt(string(limitb), 10, 64)
-	if err != nil {
-		return fmt.Errorf("invalid cursor v1 limit: %w", err)
-	}
-
 	c.Offset = offset
-	c.Limit = limit
 
 	return nil
 }
