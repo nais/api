@@ -2,9 +2,17 @@
 
 Deleting teams in Console is a complex operation, and requires a more thorough explanation.
 
-A team will be soft-deleted in the database. This means that the team entry will be kept in the database, but will be 
-marked as deleted, as opposed to being completely removed from the `teams` table. As a result of this, team slugs 
-**cannot** be reused.
+Once a team is created, it will get an entry in the `teams` table. It will also have its slug added to the `team_slugs`
+table. This is done using an `AFTER INSERT` trigger on the `teams` table. We also have a `BEFORE INSERT` trigger on the 
+`teams` table, making sure a previoulsy registered team slug is not reusable.
+
+Using this approach, we are able to retain the uniqueness of the team slug, even after the team is deleted, and we also 
+get the automatic cleanup of related team-data using foreign keys and cascading deletes.
+
+If we had used a more regular "soft delete" approach (for instance by adding a `deleted_at` column to the `teams` 
+table), we would have to manually clean up the related data once a team had been deleted. Another issue with this 
+approach is that most team-related queries would have to consider the `deleted_at` column when fetching teams from the 
+database.
 
 ## How to perform a team deletion
 
@@ -18,14 +26,14 @@ with owner B.
 Once a delete request is confirmed it **cannot** be aborted.
 
 Since a team has many external resources (GitHub team, GCP project, CDN bucket, ...) the deletion process is 
-asynchronous. If the process completes successfully, the team will be marked as "permanently deleted" in the database,
-and **will no longer** be accessible through the GraphQL API. 
+asynchronous. If the process completes successfully, the team entry will be removed from the `teams` table, and it 
+**will no longer** be accessible through the GraphQL API. 
 
-If, on the other hand, the deletion process fails, the team will **not** be marked as "permanently deleted", and errors 
+If, on the other hand, the deletion process fails, the team will **not** be removed from the `teams` table, and errors 
 during the deletion process can be fetched from the GraphQL API for further investigation and possible manual cleanup.
 
-The actual deletion of external resources is handled by [api-reconcilers](https://github.com/nais/api-reconcilers) (
-which is also responsible for creating the external resources when the team was initially created).
+The actual deletion of external resources is handled by [api-reconcilers](https://github.com/nais/api-reconcilers) 
+(which is also responsible for creating the external resources when the team was initially created).
 
 The deletion process is triggered via a message queue.
 
