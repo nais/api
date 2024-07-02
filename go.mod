@@ -33,6 +33,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0
 	github.com/sqlc-dev/sqlc v1.25.0
 	github.com/stretchr/testify v1.9.0
+	github.com/testcontainers/testcontainers-go v0.31.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.31.0
 	github.com/vektah/gqlparser/v2 v2.5.16
 	github.com/vektra/mockery/v2 v2.40.1
@@ -208,7 +209,6 @@ require (
 	github.com/stoewer/go-strcase v1.3.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/testcontainers/testcontainers-go v0.31.0 // indirect
 	github.com/tetratelabs/wazero v1.6.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
