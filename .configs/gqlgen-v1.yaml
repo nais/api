@@ -9,8 +9,8 @@ exec:
 
 # Where should any generated models go?
 model:
-  filename: internal/graphv1/modelv1/models_gen.go
-  package: modelv1
+  filename: internal/graphv1/donotuse/models_gen.go
+  package: donotuse
 
 # Where should the resolver implementations go?
 resolver:

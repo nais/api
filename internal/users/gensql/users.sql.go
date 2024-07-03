@@ -151,17 +151,25 @@ func (q *Queries) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error
 
 const list = `-- name: List :many
 SELECT id, email, name, external_id FROM users
-ORDER BY name, email ASC
-LIMIT $2 OFFSET $1
+ORDER BY
+    CASE WHEN $1::TEXT = 'name:asc' THEN name END ASC,
+    CASE WHEN $1::TEXT = 'name:desc' THEN name END DESC,
+    CASE WHEN $1::TEXT = 'email:asc' THEN email END ASC,
+    CASE WHEN $1::TEXT = 'email:desc' THEN email END DESC,
+    name,
+    email ASC
+LIMIT $3
+OFFSET $2
 `
 
 type ListParams struct {
+	SortBy string
 	Offset int32
 	Limit  int32
 }
 
 func (q *Queries) List(ctx context.Context, arg ListParams) ([]*User, error) {
-	rows, err := q.db.Query(ctx, list, arg.Offset, arg.Limit)
+	rows, err := q.db.Query(ctx, list, arg.SortBy, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +195,7 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*User, error) {
 
 const listMemberships = `-- name: ListMemberships :many
 SELECT
-    teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket,
+    teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.delete_key_confirmed_at,
     user_roles.role_name
 FROM user_roles
 JOIN teams ON teams.slug = user_roles.target_team_slug
@@ -226,6 +234,7 @@ func (q *Queries) ListMemberships(ctx context.Context, arg ListMembershipsParams
 			&i.Team.GithubTeamSlug,
 			&i.Team.GarRepository,
 			&i.Team.CdnBucket,
+			&i.Team.DeleteKeyConfirmedAt,
 			&i.RoleName,
 		); err != nil {
 			return nil, err

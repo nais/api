@@ -14,6 +14,8 @@ import (
 
 	pgtype "github.com/jackc/pgx/v5/pgtype"
 
+	pgxpool "github.com/jackc/pgx/v5/pgxpool"
+
 	protoapi "github.com/nais/api/pkg/protoapi"
 
 	slug "github.com/nais/api/internal/slug"
@@ -2512,6 +2514,53 @@ func (_c *MockDatabase_GetEnabledReconcilers_Call) Return(_a0 []*Reconciler, _a1
 }
 
 func (_c *MockDatabase_GetEnabledReconcilers_Call) RunAndReturn(run func(context.Context) ([]*Reconciler, error)) *MockDatabase_GetEnabledReconcilers_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetPool provides a mock function with given fields:
+func (_m *MockDatabase) GetPool() *pgxpool.Pool {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetPool")
+	}
+
+	var r0 *pgxpool.Pool
+	if rf, ok := ret.Get(0).(func() *pgxpool.Pool); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*pgxpool.Pool)
+		}
+	}
+
+	return r0
+}
+
+// MockDatabase_GetPool_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPool'
+type MockDatabase_GetPool_Call struct {
+	*mock.Call
+}
+
+// GetPool is a helper method to define mock.On call
+func (_e *MockDatabase_Expecter) GetPool() *MockDatabase_GetPool_Call {
+	return &MockDatabase_GetPool_Call{Call: _e.mock.On("GetPool")}
+}
+
+func (_c *MockDatabase_GetPool_Call) Run(run func()) *MockDatabase_GetPool_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockDatabase_GetPool_Call) Return(_a0 *pgxpool.Pool) *MockDatabase_GetPool_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockDatabase_GetPool_Call) RunAndReturn(run func() *pgxpool.Pool) *MockDatabase_GetPool_Call {
 	_c.Call.Return(run)
 	return _c
 }

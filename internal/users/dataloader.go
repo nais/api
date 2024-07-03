@@ -2,10 +2,11 @@ package users
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/graphv1/loaderv1"
-	"github.com/nais/api/internal/users/gensql"
+	users "github.com/nais/api/internal/users/gensql"
 	"github.com/vikstrous/dataloadgen"
 )
 
@@ -43,26 +44,4 @@ type dataloader struct {
 func (l dataloader) list(ctx context.Context, userIDs []uuid.UUID) ([]*User, []error) {
 	getID := func(obj *User) uuid.UUID { return obj.ID }
 	return loaderv1.LoadModels(ctx, userIDs, l.db.GetByIDs, toGraphUser, getID)
-}
-
-func Get(ctx context.Context, userID uuid.UUID) (*User, error) {
-	return fromContext(ctx).userLoader.Load(ctx, userID)
-}
-
-func GetByEmail(ctx context.Context, email string) (*User, error) {
-	user, err := fromContext(ctx).db.GetByEmail(ctx, email)
-	if err != nil {
-		return nil, err
-	}
-
-	return toGraphUser(user), nil
-}
-
-func toGraphUser(u *users.User) *User {
-	return &User{
-		ID:         u.ID,
-		Email:      u.Email,
-		Name:       u.Name,
-		ExternalID: u.ExternalID,
-	}
 }

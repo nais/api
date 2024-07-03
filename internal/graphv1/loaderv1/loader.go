@@ -2,8 +2,9 @@ package loaderv1
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5"
 	"net/http"
+
+	"github.com/jackc/pgx/v5"
 )
 
 // Middleware injects data loaders into the context
