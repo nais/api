@@ -163,13 +163,13 @@ OFFSET $2
 `
 
 type ListParams struct {
-	SortBy string
-	Offset int32
-	Limit  int32
+	OrderBy string
+	Offset  int32
+	Limit   int32
 }
 
 func (q *Queries) List(ctx context.Context, arg ListParams) ([]*User, error) {
-	rows, err := q.db.Query(ctx, list, arg.SortBy, arg.Offset, arg.Limit)
+	rows, err := q.db.Query(ctx, list, arg.OrderBy, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

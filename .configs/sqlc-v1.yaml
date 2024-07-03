@@ -7,7 +7,7 @@ rules:
       SELECT statements must have an ORDER BY clause
 sql:
   - &default_domain
-    name: "users"
+    name: "Users SQL"
     engine: "postgresql"
     schema: "../internal/database/migrations"
     queries: "../internal/users/queries"
@@ -40,12 +40,11 @@ sql:
           - db_type: "uuid"
             go_type: "github.com/google/uuid.UUID"
 
-  #- <<: *default_domain
-    #  name: "teams"
-    #queries: "../internal/database/queries/teams"
-      #gen:
-        #go:
-        #<<: *default_go
-        #package: "teams"
-        #out: "../internal/teams"
-
+  - <<: *default_domain
+    name: "Teams SQL"
+    queries: "../internal/team/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "teamsql"
+        out: "../internal/team/teamsql"

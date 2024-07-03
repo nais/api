@@ -1,56 +1,34 @@
 extend type Query {
-  "Get a collection of teams. Default limit is 20"
   teams(
-    "The number of items to return. Default is 20."
-    first: Int = 20
-    "The cursor to start at."
+    first: Int
     after: Cursor
-    "The number of items to return."
     last: Int
-    "The cursor to start at."
     before: Cursor
+    orderBy: TeamOrder
   ): TeamConnection!
 
-  "Get a specific team."
-  team("Slug of the team." slug: Slug!): Team!
-
-  "Get a team delete key."
-  teamDeleteKey("The key to get." key: String!): TeamDeleteKey!
+  team(
+    slug: Slug!
+  ): Team!
 }
 
-"Team deletion key type."
-type TeamDeleteKey {
-  "The unique key used to confirm the deletion of a team."
-  key: String!
-
-  "The creation timestamp of the key."
-  createdAt: Time!
-
-  "Expiration timestamp of the key."
-  expires: Time!
-
-  "The user who created the key."
-  createdBy: User!
-
-  "The team the delete key is for."
-  team: Team!
-}
-
-"Paginated teams type."
 type TeamConnection {
-  "The list of teams."
-  edges: [TeamEdge!]!
-
-  "Pagination information."
   pageInfo: PageInfo!
+  edges: [TeamEdge!]!
 }
 
 type TeamEdge {
-  "The team."
-  node: Team!
-
-  "The cursor for use in pagination."
   cursor: Cursor!
+  node: Team!
+}
+
+input TeamOrder {
+  field: TeamOrderField!
+  direction: OrderDirection!
+}
+
+enum TeamOrderField {
+  SLUG
 }
 
 "Team type."
