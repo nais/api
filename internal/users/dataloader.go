@@ -28,19 +28,19 @@ type loaders struct {
 
 func newLoaders(dbConn *pgxpool.Pool, opts []dataloadgen.Option) *loaders {
 	db := users.New(dbConn)
-	userLoader := &Dataloader{db: db}
+	userLoader := &dataloader{db: db}
 
 	return &loaders{
 		db:         db,
-		userLoader: dataloadgen.NewLoader(userLoader.List, opts...),
+		userLoader: dataloadgen.NewLoader(userLoader.list, opts...),
 	}
 }
 
-type Dataloader struct {
+type dataloader struct {
 	db users.Querier
 }
 
-func (l Dataloader) List(ctx context.Context, userIDs []uuid.UUID) ([]*User, []error) {
+func (l dataloader) list(ctx context.Context, userIDs []uuid.UUID) ([]*User, []error) {
 	getID := func(obj *User) uuid.UUID { return obj.ID }
 	return loaderv1.LoadModels(ctx, userIDs, l.db.GetByIDs, toGraphUser, getID)
 }
