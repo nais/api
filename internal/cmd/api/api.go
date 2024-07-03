@@ -9,36 +9,36 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/nais/api/internal/audit"
-	"github.com/nais/api/internal/bigquery"
-	"github.com/nais/api/internal/kafka"
-	"github.com/nais/api/internal/opensearch"
-	"github.com/nais/api/internal/slack"
-
-	"github.com/nais/api/internal/unleash"
-
 	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
+	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auth/authn"
+	"github.com/nais/api/internal/bigquery"
 	"github.com/nais/api/internal/bucket"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/fixtures"
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/directives"
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graphv1"
+	"github.com/nais/api/internal/graphv1/gengqlv1"
 	"github.com/nais/api/internal/grpc"
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/k8s/fake"
+	"github.com/nais/api/internal/kafka"
 	"github.com/nais/api/internal/logger"
+	"github.com/nais/api/internal/opensearch"
 	"github.com/nais/api/internal/redis"
 	"github.com/nais/api/internal/resourceusage"
 	fakeresourceusage "github.com/nais/api/internal/resourceusage/fake"
+	"github.com/nais/api/internal/slack"
 	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
+	"github.com/nais/api/internal/unleash"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2/google"
@@ -233,6 +233,20 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create graph handler: %w", err)
 	}
 
+	resolverv1 := graphv1.NewResolver()
+	graphv1Handler, err := graphv1.NewHandler(gengqlv1.Config{
+		Resolvers: resolverv1,
+		/*
+			Directives: gengqlv1.DirectiveRoot{
+				Admin: directives.Admin(),
+				Auth:  directives.Auth(),
+			},
+		*/
+	}, log)
+	if err != nil {
+		return fmt.Errorf("create graphv1 handler: %w", err)
+	}
+
 	wg, ctx := errgroup.WithContext(ctx)
 
 	wg.Go(func() error {
@@ -255,7 +269,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	// HTTP server
 	wg.Go(func() error {
-		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, db, authHandler, graphHandler, promReg, log)
+		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, db, authHandler, graphHandler, graphv1Handler, promReg, log)
 	})
 
 	wg.Go(func() error {

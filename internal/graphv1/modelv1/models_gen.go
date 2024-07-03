@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/users"
 )
 
 // The query root for the NAIS GraphQL API.
@@ -18,13 +18,13 @@ type Query struct {
 
 // Team type.
 type Team struct {
-	ID uuid.UUID `json:"id"`
+	ID string `json:"id"`
 	// Unique slug of the team.
 	Slug slug.Slug `json:"slug"`
 	// Purpose of the team.
 	Purpose string `json:"purpose"`
 	// The ID of the Azure AD group for the team. This value is managed by the Azure AD reconciler.
-	AzureGroupID *uuid.UUID `json:"azureGroupID,omitempty"`
+	AzureGroupID *string `json:"azureGroupID,omitempty"`
 	// The slug of the GitHub team. This value is managed by the GitHub reconciler.
 	GitHubTeamSlug *string `json:"gitHubTeamSlug,omitempty"`
 	// The email address of the Google group for the team. This value is managed by the Google Workspace reconciler.
@@ -54,23 +54,9 @@ type TeamDeleteKey struct {
 	// Expiration timestamp of the key.
 	Expires time.Time `json:"expires"`
 	// The user who created the key.
-	CreatedBy User `json:"createdBy"`
+	CreatedBy users.User `json:"createdBy"`
 	// The team the delete key is for.
 	Team Team `json:"team"`
-}
-
-// User type.
-type User struct {
-	// Unique ID of the user.
-	ID uuid.UUID `json:"id"`
-	// The email address of the user.
-	Email string `json:"email"`
-	// The name of the user.
-	Name string `json:"name"`
-	// The external ID of the user.
-	ExternalID string `json:"externalId"`
-	// This field will only be populated via the me query
-	IsAdmin bool `json:"isAdmin"`
 }
 
 type UserOrder struct {

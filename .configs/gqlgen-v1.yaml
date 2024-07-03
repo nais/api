@@ -48,6 +48,7 @@ skip_validation: true
 models:
   ID:
     model:
+      - github.com/99designs/gqlgen/graphql.String
       # - github.com/nais/api/internal/graph/scalar.Ident
       - github.com/nais/api/internal/graphv1/scalar.UUID
 

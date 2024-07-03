@@ -3,6 +3,11 @@ package api
 import (
 	"context"
 	"errors"
+	"github.com/nais/api/internal/graph/loader"
+	"github.com/nais/api/internal/graphv1/loaderv1"
+	"github.com/nais/api/internal/users"
+	"github.com/vikstrous/dataloadgen"
+	"go.opentelemetry.io/otel"
 	"net/http"
 	"time"
 
@@ -13,7 +18,6 @@ import (
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/graph/loader"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
@@ -32,6 +36,7 @@ func runHttpServer(
 	db database.Database,
 	authHandler authn.Handler,
 	graphHandler *handler.Server,
+	graphv1Handler *handler.Server,
 	reg prometheus.Gatherer,
 	log logrus.FieldLogger,
 ) error {
@@ -40,6 +45,9 @@ func runHttpServer(
 	router.Get("/healthz", func(_ http.ResponseWriter, _ *http.Request) {})
 	router.Method("GET", "/",
 		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/query"), "playground")),
+	)
+	router.Method("GET", "/v1",
+		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL v1 playground", "/graphql"), "playground")),
 	)
 
 	middlewares := []func(http.Handler) http.Handler{}
@@ -59,12 +67,28 @@ func runHttpServer(
 
 		middleware.ApiKeyAuthentication(db),
 		middleware.Oauth2Authentication(db, authHandler),
-		loader.Middleware(db),
 	)
 	router.Route("/query", func(r chi.Router) {
 		r.Use(middlewares...)
+		r.Use(loader.Middleware(db))
 		r.Use(otelhttp.NewMiddleware("graphql", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))
 		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphHandler))
+	})
+	router.Route("/graphql", func(r chi.Router) {
+		r.Use(middlewares...)
+		r.Use(loaderv1.Middleware(func(ctx context.Context) context.Context {
+			opts := []dataloadgen.Option{
+				dataloadgen.WithWait(time.Millisecond),
+				dataloadgen.WithBatchCapacity(250),
+				dataloadgen.WithTracer(otel.Tracer("dataloader")),
+			}
+
+			pool := db.GetPool()
+			ctx = users.NewLoaderContext(ctx, pool, opts)
+			return ctx
+		}))
+		r.Use(otelhttp.NewMiddleware("graphqlv1", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))
+		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphv1Handler))
 	})
 
 	router.Route("/oauth2", func(r chi.Router) {

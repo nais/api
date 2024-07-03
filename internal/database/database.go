@@ -47,6 +47,7 @@ type Database interface {
 	UserRepo
 	UsersyncRepo
 	Transactioner
+	GetPool() *pgxpool.Pool
 }
 
 type Transactioner interface {
@@ -56,6 +57,7 @@ type Transactioner interface {
 type Querier interface {
 	gensql.Querier
 	Transaction(ctx context.Context, callback QuerierTransactionFunc) error
+	GetPool() *pgxpool.Pool
 }
 
 type Queries struct {
@@ -83,6 +85,10 @@ func (q *Queries) Transaction(ctx context.Context, callback QuerierTransactionFu
 	return tx.Commit(ctx)
 }
 
+func (q *Queries) GetPool() *pgxpool.Pool {
+	return q.connPool
+}
+
 type database struct {
 	querier Querier
 }
@@ -91,6 +97,10 @@ func (d *database) Transaction(ctx context.Context, fn DatabaseTransactionFunc) 
 	return d.querier.Transaction(ctx, func(ctx context.Context, querier Querier) error {
 		return fn(ctx, &database{querier: querier})
 	})
+}
+
+func (d *database) GetPool() *pgxpool.Pool {
+	return d.querier.GetPool()
 }
 
 var regParseSQLName = regexp.MustCompile(`\-\-\s*name:\s+(\S+)`)
