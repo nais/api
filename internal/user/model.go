@@ -1,4 +1,4 @@
-package users
+package user
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
-	users "github.com/nais/api/internal/users/gensql"
+	"github.com/nais/api/internal/user/usersql"
 )
 
 type (
@@ -25,7 +25,7 @@ type User struct {
 	IsAdmin    bool      `json:"isAdmin"`
 }
 
-func toGraphUser(u *users.User) *User {
+func toGraphUser(u *usersql.User) *User {
 	return &User{
 		ID:         u.ID,
 		Email:      u.Email,

@@ -10,13 +10,13 @@ sql:
     name: "Users SQL"
     engine: "postgresql"
     schema: "../internal/database/migrations"
-    queries: "../internal/users/queries"
+    queries: "../internal/user/queries"
     rules:
       - "always-order-by"
     gen:
       go: &default_go
-        package: "users"
-        out: "../internal/users/gensql"
+        package: "usersql"
+        out: "../internal/user/usersql"
         sql_package: "pgx/v5"
         emit_interface: true
         emit_result_struct_pointers: true

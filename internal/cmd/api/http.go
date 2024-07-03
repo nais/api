@@ -10,7 +10,7 @@ import (
 
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graphv1/loaderv1"
-	"github.com/nais/api/internal/users"
+	"github.com/nais/api/internal/user"
 	"github.com/vikstrous/dataloadgen"
 	"go.opentelemetry.io/otel"
 
@@ -87,7 +87,7 @@ func runHttpServer(
 			}
 
 			pool := db.GetPool()
-			ctx = users.NewLoaderContext(ctx, pool, opts)
+			ctx = user.NewLoaderContext(ctx, pool, opts)
 			ctx = team.NewLoaderContext(ctx, pool, opts)
 			return ctx
 		}))

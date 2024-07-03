@@ -1,11 +1,11 @@
-package users
+package user
 
 import (
 	"context"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graphv1/pagination"
-	users "github.com/nais/api/internal/users/gensql"
+	"github.com/nais/api/internal/user/usersql"
 )
 
 func Get(ctx context.Context, userID uuid.UUID) (*User, error) {
@@ -24,7 +24,7 @@ func GetByEmail(ctx context.Context, email string) (*User, error) {
 func List(ctx context.Context, page *pagination.Pagination, orderBy *UserOrder) (*UserConnection, error) {
 	db := fromContext(ctx).db
 
-	ret, err := db.List(ctx, users.ListParams{
+	ret, err := db.List(ctx, usersql.ListParams{
 		Offset:  page.Offset(),
 		Limit:   page.Limit(),
 		OrderBy: orderBy.String(),
