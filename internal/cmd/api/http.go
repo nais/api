@@ -3,13 +3,14 @@ package api
 import (
 	"context"
 	"errors"
+	"net/http"
+	"time"
+
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graphv1/loaderv1"
 	"github.com/nais/api/internal/users"
 	"github.com/vikstrous/dataloadgen"
 	"go.opentelemetry.io/otel"
-	"net/http"
-	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"

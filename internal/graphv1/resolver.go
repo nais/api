@@ -2,13 +2,13 @@ package graphv1
 
 import (
 	"fmt"
-	"github.com/99designs/gqlgen/graphql/handler/lru"
-	"github.com/nais/api/internal/graph"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
+	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
+	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graphv1/gengqlv1"
 	"github.com/ravilushqa/otelgqlgen"

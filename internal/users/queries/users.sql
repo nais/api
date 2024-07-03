@@ -8,8 +8,15 @@ SELECT COUNT(*) FROM users;
 
 -- name: List :many
 SELECT * FROM users
-ORDER BY name, email ASC
-LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+ORDER BY
+    CASE WHEN @sort_by::TEXT = 'name:asc' THEN name END ASC,
+    CASE WHEN @sort_by::TEXT = 'name:desc' THEN name END DESC,
+    CASE WHEN @sort_by::TEXT = 'email:asc' THEN email END ASC,
+    CASE WHEN @sort_by::TEXT = 'email:desc' THEN email END DESC,
+    name,
+    email ASC
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
 
 -- name: GetByIDs :many
 SELECT * FROM users
