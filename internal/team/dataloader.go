@@ -1,12 +1,13 @@
-package users
+package team
 
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team/teamsql"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/graphv1/loaderv1"
-	users "github.com/nais/api/internal/users/gensql"
 	"github.com/vikstrous/dataloadgen"
 )
 
@@ -23,25 +24,25 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	db         users.Querier
-	userLoader *dataloadgen.Loader[uuid.UUID, *User]
+	db         teamsql.Querier
+	teamLoader *dataloadgen.Loader[slug.Slug, *Team]
 }
 
 func newLoaders(dbConn *pgxpool.Pool, opts []dataloadgen.Option) *loaders {
-	db := users.New(dbConn)
-	userLoader := &dataloader{db: db}
+	db := teamsql.New(dbConn)
+	teamLoader := &dataloader{db: db}
 
 	return &loaders{
 		db:         db,
-		userLoader: dataloadgen.NewLoader(userLoader.list, opts...),
+		teamLoader: dataloadgen.NewLoader(teamLoader.list, opts...),
 	}
 }
 
 type dataloader struct {
-	db users.Querier
+	db teamsql.Querier
 }
 
-func (l dataloader) list(ctx context.Context, userIDs []uuid.UUID) ([]*User, []error) {
-	getID := func(obj *User) uuid.UUID { return obj.ID }
-	return loaderv1.LoadModels(ctx, userIDs, l.db.GetByIDs, toGraphUser, getID)
+func (l dataloader) list(ctx context.Context, slugs []slug.Slug) ([]*Team, []error) {
+	getID := func(obj *Team) slug.Slug { return obj.Slug }
+	return loaderv1.LoadModels(ctx, slugs, l.db.GetBySlugs, toGraphTeam, getID)
 }
