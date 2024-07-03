@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/nais/api/internal/team"
+
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graphv1/loaderv1"
 	"github.com/nais/api/internal/users"
@@ -86,6 +88,7 @@ func runHttpServer(
 
 			pool := db.GetPool()
 			ctx = users.NewLoaderContext(ctx, pool, opts)
+			ctx = team.NewLoaderContext(ctx, pool, opts)
 			return ctx
 		}))
 		r.Use(otelhttp.NewMiddleware("graphqlv1", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))

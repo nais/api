@@ -25,9 +25,9 @@ func List(ctx context.Context, page *pagination.Pagination, orderBy *UserOrder) 
 	db := fromContext(ctx).db
 
 	ret, err := db.List(ctx, users.ListParams{
-		Offset: page.Offset(),
-		Limit:  page.Limit(),
-		SortBy: orderBy.String(),
+		Offset:  page.Offset(),
+		Limit:   page.Limit(),
+		OrderBy: orderBy.String(),
 	})
 	if err != nil {
 		return nil, err

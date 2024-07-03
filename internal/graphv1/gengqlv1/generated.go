@@ -15,11 +15,11 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/graphv1/donotuse"
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
 	"github.com/nais/api/internal/graphv1/scalar"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/users"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -61,11 +61,10 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Team          func(childComplexity int, slug slug.Slug) int
-		TeamDeleteKey func(childComplexity int, key string) int
-		Teams         func(childComplexity int, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor) int
-		User          func(childComplexity int, id *string, email *string) int
-		Users         func(childComplexity int, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *users.UserOrder) int
+		Team  func(childComplexity int, slug slug.Slug) int
+		Teams func(childComplexity int, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *team.TeamOrder) int
+		User  func(childComplexity int, id *string, email *string) int
+		Users func(childComplexity int, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *users.UserOrder) int
 	}
 
 	Team struct {
@@ -87,14 +86,6 @@ type ComplexityRoot struct {
 	TeamConnection struct {
 		Edges    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
-	}
-
-	TeamDeleteKey struct {
-		CreatedAt func(childComplexity int) int
-		CreatedBy func(childComplexity int) int
-		Expires   func(childComplexity int) int
-		Key       func(childComplexity int) int
-		Team      func(childComplexity int) int
 	}
 
 	TeamEdge struct {
@@ -122,9 +113,8 @@ type ComplexityRoot struct {
 }
 
 type QueryResolver interface {
-	Teams(ctx context.Context, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor) (*donotuse.TeamConnection, error)
-	Team(ctx context.Context, slug slug.Slug) (*donotuse.Team, error)
-	TeamDeleteKey(ctx context.Context, key string) (*donotuse.TeamDeleteKey, error)
+	Teams(ctx context.Context, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *team.TeamOrder) (*pagination.Connection[*team.Team], error)
+	Team(ctx context.Context, slug slug.Slug) (*team.Team, error)
 	Users(ctx context.Context, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *users.UserOrder) (*pagination.Connection[*users.User], error)
 	User(ctx context.Context, id *string, email *string) (*users.User, error)
 }
@@ -195,18 +185,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Team(childComplexity, args["slug"].(slug.Slug)), true
 
-	case "Query.teamDeleteKey":
-		if e.complexity.Query.TeamDeleteKey == nil {
-			break
-		}
-
-		args, err := ec.field_Query_teamDeleteKey_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.TeamDeleteKey(childComplexity, args["key"].(string)), true
-
 	case "Query.teams":
 		if e.complexity.Query.Teams == nil {
 			break
@@ -217,7 +195,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Teams(childComplexity, args["first"].(*int), args["after"].(*scalar.Cursor), args["last"].(*int), args["before"].(*scalar.Cursor)), true
+		return e.complexity.Query.Teams(childComplexity, args["first"].(*int), args["after"].(*scalar.Cursor), args["last"].(*int), args["before"].(*scalar.Cursor), args["orderBy"].(*team.TeamOrder)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -348,41 +326,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamConnection.PageInfo(childComplexity), true
 
-	case "TeamDeleteKey.createdAt":
-		if e.complexity.TeamDeleteKey.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.TeamDeleteKey.CreatedAt(childComplexity), true
-
-	case "TeamDeleteKey.createdBy":
-		if e.complexity.TeamDeleteKey.CreatedBy == nil {
-			break
-		}
-
-		return e.complexity.TeamDeleteKey.CreatedBy(childComplexity), true
-
-	case "TeamDeleteKey.expires":
-		if e.complexity.TeamDeleteKey.Expires == nil {
-			break
-		}
-
-		return e.complexity.TeamDeleteKey.Expires(childComplexity), true
-
-	case "TeamDeleteKey.key":
-		if e.complexity.TeamDeleteKey.Key == nil {
-			break
-		}
-
-		return e.complexity.TeamDeleteKey.Key(childComplexity), true
-
-	case "TeamDeleteKey.team":
-		if e.complexity.TeamDeleteKey.Team == nil {
-			break
-		}
-
-		return e.complexity.TeamDeleteKey.Team(childComplexity), true
-
 	case "TeamEdge.cursor":
 		if e.complexity.TeamEdge.Cursor == nil {
 			break
@@ -468,6 +411,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputTeamOrder,
 		ec.unmarshalInputUserOrder,
 	)
 	first := true
@@ -605,58 +549,36 @@ enum OrderDirection {
   DESC
 }`, BuiltIn: false},
 	{Name: "../schema/teams.graphqls", Input: `extend type Query {
-  "Get a collection of teams. Default limit is 20"
   teams(
-    "The number of items to return. Default is 20."
-    first: Int = 20
-    "The cursor to start at."
+    first: Int
     after: Cursor
-    "The number of items to return."
     last: Int
-    "The cursor to start at."
     before: Cursor
+    orderBy: TeamOrder
   ): TeamConnection!
 
-  "Get a specific team."
-  team("Slug of the team." slug: Slug!): Team!
-
-  "Get a team delete key."
-  teamDeleteKey("The key to get." key: String!): TeamDeleteKey!
+  team(
+    slug: Slug!
+  ): Team!
 }
 
-"Team deletion key type."
-type TeamDeleteKey {
-  "The unique key used to confirm the deletion of a team."
-  key: String!
-
-  "The creation timestamp of the key."
-  createdAt: Time!
-
-  "Expiration timestamp of the key."
-  expires: Time!
-
-  "The user who created the key."
-  createdBy: User!
-
-  "The team the delete key is for."
-  team: Team!
-}
-
-"Paginated teams type."
 type TeamConnection {
-  "The list of teams."
-  edges: [TeamEdge!]!
-
-  "Pagination information."
   pageInfo: PageInfo!
+  edges: [TeamEdge!]!
 }
 
 type TeamEdge {
-  "The team."
-  node: Team!
-
-  "The cursor for use in pagination."
   cursor: Cursor!
+  node: Team!
+}
+
+input TeamOrder {
+  field: TeamOrderField!
+  direction: OrderDirection!
+}
+
+enum TeamOrderField {
+  SLUG
 }
 
 "Team type."
@@ -791,21 +713,6 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_teamDeleteKey_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["key"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["key"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Query_team_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -860,6 +767,15 @@ func (ec *executionContext) field_Query_teams_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["before"] = arg3
+	var arg4 *team.TeamOrder
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg4, err = ec.unmarshalOTeamOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamOrder(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg4
 	return args, nil
 }
 
@@ -1210,7 +1126,7 @@ func (ec *executionContext) _Query_teams(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Teams(rctx, fc.Args["first"].(*int), fc.Args["after"].(*scalar.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*scalar.Cursor))
+		return ec.resolvers.Query().Teams(rctx, fc.Args["first"].(*int), fc.Args["after"].(*scalar.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*scalar.Cursor), fc.Args["orderBy"].(*team.TeamOrder))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1222,9 +1138,9 @@ func (ec *executionContext) _Query_teams(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*donotuse.TeamConnection)
+	res := resTmp.(*pagination.Connection[*team.Team])
 	fc.Result = res
-	return ec.marshalNTeamConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋdonotuseᚐTeamConnection(ctx, field.Selections, res)
+	return ec.marshalNTeamConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_teams(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1235,10 +1151,10 @@ func (ec *executionContext) fieldContext_Query_teams(ctx context.Context, field 
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "edges":
-				return ec.fieldContext_TeamConnection_edges(ctx, field)
 			case "pageInfo":
 				return ec.fieldContext_TeamConnection_pageInfo(ctx, field)
+			case "edges":
+				return ec.fieldContext_TeamConnection_edges(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamConnection", field.Name)
 		},
@@ -1283,9 +1199,9 @@ func (ec *executionContext) _Query_team(ctx context.Context, field graphql.Colle
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*donotuse.Team)
+	res := resTmp.(*team.Team)
 	fc.Result = res
-	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋdonotuseᚐTeam(ctx, field.Selections, res)
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1334,73 +1250,6 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_team_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_teamDeleteKey(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_teamDeleteKey(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().TeamDeleteKey(rctx, fc.Args["key"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*donotuse.TeamDeleteKey)
-	fc.Result = res
-	return ec.marshalNTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋdonotuseᚐTeamDeleteKey(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_teamDeleteKey(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "key":
-				return ec.fieldContext_TeamDeleteKey_key(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_TeamDeleteKey_createdAt(ctx, field)
-			case "expires":
-				return ec.fieldContext_TeamDeleteKey_expires(ctx, field)
-			case "createdBy":
-				return ec.fieldContext_TeamDeleteKey_createdBy(ctx, field)
-			case "team":
-				return ec.fieldContext_TeamDeleteKey_team(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamDeleteKey", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_teamDeleteKey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -1664,7 +1513,7 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_id(ctx context.Context, field graphql.CollectedField, obj *donotuse.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_id(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1678,7 +1527,7 @@ func (ec *executionContext) _Team_id(ctx context.Context, field graphql.Collecte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return obj.ID(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1699,7 +1548,7 @@ func (ec *executionContext) fieldContext_Team_id(ctx context.Context, field grap
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
@@ -1708,7 +1557,7 @@ func (ec *executionContext) fieldContext_Team_id(ctx context.Context, field grap
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_slug(ctx context.Context, field graphql.CollectedField, obj *donotuse.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_slug(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_slug(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1752,7 +1601,7 @@ func (ec *executionContext) fieldContext_Team_slug(ctx context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_purpose(ctx context.Context, field graphql.CollectedField, obj *donotuse.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_purpose(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_purpose(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1796,7 +1645,7 @@ func (ec *executionContext) fieldContext_Team_purpose(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_azureGroupID(ctx context.Context, field graphql.CollectedField, obj *donotuse.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_azureGroupID(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_azureGroupID(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1819,9 +1668,9 @@ func (ec *executionContext) _Team_azureGroupID(ctx context.Context, field graphq
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(*uuid.UUID)
 	fc.Result = res
-	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Team_azureGroupID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1837,7 +1686,7 @@ func (ec *executionContext) fieldContext_Team_azureGroupID(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_gitHubTeamSlug(ctx context.Context, field graphql.CollectedField, obj *donotuse.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_gitHubTeamSlug(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1878,7 +1727,7 @@ func (ec *executionContext) fieldContext_Team_gitHubTeamSlug(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_googleGroupEmail(ctx context.Context, field graphql.CollectedField, obj *donotuse.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_googleGroupEmail(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_googleGroupEmail(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1919,7 +1768,7 @@ func (ec *executionContext) fieldContext_Team_googleGroupEmail(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_googleArtifactRegistry(ctx context.Context, field graphql.CollectedField, obj *donotuse.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_googleArtifactRegistry(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1960,7 +1809,7 @@ func (ec *executionContext) fieldContext_Team_googleArtifactRegistry(ctx context
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_cdnBucket(ctx context.Context, field graphql.CollectedField, obj *donotuse.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_cdnBucket(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_cdnBucket(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2001,7 +1850,7 @@ func (ec *executionContext) fieldContext_Team_cdnBucket(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_lastSuccessfulSync(ctx context.Context, field graphql.CollectedField, obj *donotuse.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_lastSuccessfulSync(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2042,7 +1891,7 @@ func (ec *executionContext) fieldContext_Team_lastSuccessfulSync(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_slackChannel(ctx context.Context, field graphql.CollectedField, obj *donotuse.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_slackChannel(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_slackChannel(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2086,7 +1935,7 @@ func (ec *executionContext) fieldContext_Team_slackChannel(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_deletionInProgress(ctx context.Context, field graphql.CollectedField, obj *donotuse.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_deletionInProgress(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_deletionInProgress(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2130,7 +1979,7 @@ func (ec *executionContext) fieldContext_Team_deletionInProgress(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_viewerIsOwner(ctx context.Context, field graphql.CollectedField, obj *donotuse.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_viewerIsOwner(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_viewerIsOwner(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2174,7 +2023,7 @@ func (ec *executionContext) fieldContext_Team_viewerIsOwner(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_viewerIsMember(ctx context.Context, field graphql.CollectedField, obj *donotuse.Team) (ret graphql.Marshaler) {
+func (ec *executionContext) _Team_viewerIsMember(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_viewerIsMember(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2218,57 +2067,7 @@ func (ec *executionContext) fieldContext_Team_viewerIsMember(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConnection_edges(ctx context.Context, field graphql.CollectedField, obj *donotuse.TeamConnection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamConnection_edges(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Edges, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*donotuse.TeamEdge)
-	fc.Result = res
-	return ec.marshalNTeamEdge2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋdonotuseᚐTeamEdgeᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamConnection_edges(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "node":
-				return ec.fieldContext_TeamEdge_node(ctx, field)
-			case "cursor":
-				return ec.fieldContext_TeamEdge_cursor(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEdge", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *donotuse.TeamConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _TeamConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*team.Team]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamConnection_pageInfo(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2324,8 +2123,8 @@ func (ec *executionContext) fieldContext_TeamConnection_pageInfo(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeleteKey_key(ctx context.Context, field graphql.CollectedField, obj *donotuse.TeamDeleteKey) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeleteKey_key(ctx, field)
+func (ec *executionContext) _TeamConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*team.Team]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConnection_edges(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2338,7 +2137,7 @@ func (ec *executionContext) _TeamDeleteKey_key(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Key, nil
+		return obj.Edges, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2350,313 +2149,31 @@ func (ec *executionContext) _TeamDeleteKey_key(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.([]pagination.Edge[*team.Team])
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTeamEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamDeleteKey_key(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamConnection_edges(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TeamDeleteKey",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamDeleteKey_createdAt(ctx context.Context, field graphql.CollectedField, obj *donotuse.TeamDeleteKey) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeleteKey_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamDeleteKey_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamDeleteKey",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamDeleteKey_expires(ctx context.Context, field graphql.CollectedField, obj *donotuse.TeamDeleteKey) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeleteKey_expires(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Expires, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamDeleteKey_expires(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamDeleteKey",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamDeleteKey_createdBy(ctx context.Context, field graphql.CollectedField, obj *donotuse.TeamDeleteKey) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeleteKey_createdBy(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedBy, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(users.User)
-	fc.Result = res
-	return ec.marshalNUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋusersᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamDeleteKey_createdBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamDeleteKey",
+		Object:     "TeamConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			case "name":
-				return ec.fieldContext_User_name(ctx, field)
-			case "externalId":
-				return ec.fieldContext_User_externalId(ctx, field)
-			case "isAdmin":
-				return ec.fieldContext_User_isAdmin(ctx, field)
+			case "cursor":
+				return ec.fieldContext_TeamEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_TeamEdge_node(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TeamEdge", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeleteKey_team(ctx context.Context, field graphql.CollectedField, obj *donotuse.TeamDeleteKey) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamDeleteKey_team(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Team, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(donotuse.Team)
-	fc.Result = res
-	return ec.marshalNTeam2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋdonotuseᚐTeam(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamDeleteKey_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamDeleteKey",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamEdge_node(ctx context.Context, field graphql.CollectedField, obj *donotuse.TeamEdge) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamEdge_node(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Node, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(donotuse.Team)
-	fc.Result = res
-	return ec.marshalNTeam2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋdonotuseᚐTeam(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamEdge_node(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *donotuse.TeamEdge) (ret graphql.Marshaler) {
+func (ec *executionContext) _TeamEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*team.Team]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamEdge_cursor(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2695,6 +2212,78 @@ func (ec *executionContext) fieldContext_TeamEdge_cursor(ctx context.Context, fi
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*team.Team]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.Team)
+	fc.Result = res
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEdge_node(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
 	}
 	return fc, nil
@@ -4899,6 +4488,40 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputTeamOrder(ctx context.Context, obj interface{}) (team.TeamOrder, error) {
+	var it team.TeamOrder
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNTeamOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋmodelv1ᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUserOrder(ctx context.Context, obj interface{}) (users.UserOrder, error) {
 	var it users.UserOrder
 	asMap := map[string]interface{}{}
@@ -5063,28 +4686,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "teamDeleteKey":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_teamDeleteKey(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "users":
 			field := field
 
@@ -5162,7 +4763,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 
 var teamImplementors = []string{"Team"}
 
-func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj *donotuse.Team) graphql.Marshaler {
+func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj *team.Team) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -5243,7 +4844,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 
 var teamConnectionImplementors = []string{"TeamConnection"}
 
-func (ec *executionContext) _TeamConnection(ctx context.Context, sel ast.SelectionSet, obj *donotuse.TeamConnection) graphql.Marshaler {
+func (ec *executionContext) _TeamConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*team.Team]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -5252,72 +4853,13 @@ func (ec *executionContext) _TeamConnection(ctx context.Context, sel ast.Selecti
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamConnection")
-		case "edges":
-			out.Values[i] = ec._TeamConnection_edges(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "pageInfo":
 			out.Values[i] = ec._TeamConnection_pageInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var teamDeleteKeyImplementors = []string{"TeamDeleteKey"}
-
-func (ec *executionContext) _TeamDeleteKey(ctx context.Context, sel ast.SelectionSet, obj *donotuse.TeamDeleteKey) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, teamDeleteKeyImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TeamDeleteKey")
-		case "key":
-			out.Values[i] = ec._TeamDeleteKey_key(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "createdAt":
-			out.Values[i] = ec._TeamDeleteKey_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "expires":
-			out.Values[i] = ec._TeamDeleteKey_expires(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "createdBy":
-			out.Values[i] = ec._TeamDeleteKey_createdBy(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "team":
-			out.Values[i] = ec._TeamDeleteKey_team(ctx, field, obj)
+		case "edges":
+			out.Values[i] = ec._TeamConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -5346,7 +4888,7 @@ func (ec *executionContext) _TeamDeleteKey(ctx context.Context, sel ast.Selectio
 
 var teamEdgeImplementors = []string{"TeamEdge"}
 
-func (ec *executionContext) _TeamEdge(ctx context.Context, sel ast.SelectionSet, obj *donotuse.TeamEdge) graphql.Marshaler {
+func (ec *executionContext) _TeamEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*team.Team]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -5355,13 +4897,13 @@ func (ec *executionContext) _TeamEdge(ctx context.Context, sel ast.SelectionSet,
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamEdge")
-		case "node":
-			out.Values[i] = ec._TeamEdge_node(ctx, field, obj)
+		case "cursor":
+			out.Values[i] = ec._TeamEdge_cursor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "cursor":
-			out.Values[i] = ec._TeamEdge_cursor(ctx, field, obj)
+		case "node":
+			out.Values[i] = ec._TeamEdge_node(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -5986,11 +5528,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNTeam2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋdonotuseᚐTeam(ctx context.Context, sel ast.SelectionSet, v donotuse.Team) graphql.Marshaler {
+func (ec *executionContext) marshalNTeam2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx context.Context, sel ast.SelectionSet, v team.Team) graphql.Marshaler {
 	return ec._Team(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋdonotuseᚐTeam(ctx context.Context, sel ast.SelectionSet, v *donotuse.Team) graphql.Marshaler {
+func (ec *executionContext) marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx context.Context, sel ast.SelectionSet, v *team.Team) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6000,11 +5542,11 @@ func (ec *executionContext) marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 	return ec._Team(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋdonotuseᚐTeamConnection(ctx context.Context, sel ast.SelectionSet, v donotuse.TeamConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*team.Team]) graphql.Marshaler {
 	return ec._TeamConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋdonotuseᚐTeamConnection(ctx context.Context, sel ast.SelectionSet, v *donotuse.TeamConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*team.Team]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6014,21 +5556,11 @@ func (ec *executionContext) marshalNTeamConnection2ᚖgithubᚗcomᚋnaisᚋapi�
 	return ec._TeamConnection(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamDeleteKey2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋdonotuseᚐTeamDeleteKey(ctx context.Context, sel ast.SelectionSet, v donotuse.TeamDeleteKey) graphql.Marshaler {
-	return ec._TeamDeleteKey(ctx, sel, &v)
+func (ec *executionContext) marshalNTeamEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*team.Team]) graphql.Marshaler {
+	return ec._TeamEdge(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋdonotuseᚐTeamDeleteKey(ctx context.Context, sel ast.SelectionSet, v *donotuse.TeamDeleteKey) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TeamDeleteKey(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNTeamEdge2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋdonotuseᚐTeamEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []*donotuse.TeamEdge) graphql.Marshaler {
+func (ec *executionContext) marshalNTeamEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*team.Team]) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -6052,7 +5584,7 @@ func (ec *executionContext) marshalNTeamEdge2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋi
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNTeamEdge2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋdonotuseᚐTeamEdge(ctx, sel, v[i])
+			ret[i] = ec.marshalNTeamEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdge(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6072,29 +5604,14 @@ func (ec *executionContext) marshalNTeamEdge2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋi
 	return ret
 }
 
-func (ec *executionContext) marshalNTeamEdge2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋdonotuseᚐTeamEdge(ctx context.Context, sel ast.SelectionSet, v *donotuse.TeamEdge) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TeamEdge(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
-	res, err := graphql.UnmarshalTime(v)
+func (ec *executionContext) unmarshalNTeamOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamOrderField(ctx context.Context, v interface{}) (team.TeamOrderField, error) {
+	var res team.TeamOrderField
+	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
-	res := graphql.MarshalTime(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
+func (ec *executionContext) marshalNTeamOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamOrderField(ctx context.Context, sel ast.SelectionSet, v team.TeamOrderField) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋusersᚐUser(ctx context.Context, sel ast.SelectionSet, v users.User) graphql.Marshaler {
@@ -6478,6 +5995,22 @@ func (ec *executionContext) marshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
+func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, v interface{}) (*uuid.UUID, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := scalar.UnmarshalUUID(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, sel ast.SelectionSet, v *uuid.UUID) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := scalar.MarshalUUID(*v)
+	return res
+}
+
 func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -6524,6 +6057,14 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOTeamOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamOrder(ctx context.Context, v interface{}) (*team.TeamOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTeamOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
