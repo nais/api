@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/btcsuite/btcutil/base58"
-
 	"github.com/nais/api/internal/graphv1/modelv1"
 )
 
