@@ -3,11 +3,10 @@ package team
 import (
 	"context"
 
-	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/team/teamsql"
-
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/graphv1/loaderv1"
+	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team/teamsql"
 	"github.com/vikstrous/dataloadgen"
 )
 
@@ -24,8 +23,9 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	db         teamsql.Querier
-	teamLoader *dataloadgen.Loader[slug.Slug, *Team]
+	db                    teamsql.Querier
+	teamLoader            *dataloadgen.Loader[slug.Slug, *Team]
+	teamEnvironmentLoader *dataloadgen.Loader[envSlugName, *TeamEnvironment]
 }
 
 func newLoaders(dbConn *pgxpool.Pool, opts []dataloadgen.Option) *loaders {
@@ -33,8 +33,9 @@ func newLoaders(dbConn *pgxpool.Pool, opts []dataloadgen.Option) *loaders {
 	teamLoader := &dataloader{db: db}
 
 	return &loaders{
-		db:         db,
-		teamLoader: dataloadgen.NewLoader(teamLoader.list, opts...),
+		db:                    db,
+		teamLoader:            dataloadgen.NewLoader(teamLoader.list, opts...),
+		teamEnvironmentLoader: dataloadgen.NewLoader(teamLoader.getEnvironments, opts...),
 	}
 }
 
@@ -45,4 +46,32 @@ type dataloader struct {
 func (l dataloader) list(ctx context.Context, slugs []slug.Slug) ([]*Team, []error) {
 	getID := func(obj *Team) slug.Slug { return obj.Slug }
 	return loaderv1.LoadModels(ctx, slugs, l.db.GetBySlugs, toGraphTeam, getID)
+}
+
+func (l dataloader) getEnvironments(ctx context.Context, ids []envSlugName) ([]*TeamEnvironment, []error) {
+	makeKey := func(e *TeamEnvironment) envSlugName {
+		return envSlugName{Slug: e.TeamSlug, EnvName: e.Name}
+	}
+
+	return loaderv1.LoadModels(ctx, ids, l.getTeamEnvironmentsBySlugsAndEnvNames, toGraphTeamEnvironment, makeKey)
+}
+
+func (l dataloader) getTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, lookup []envSlugName) ([]*teamsql.TeamAllEnvironment, error) {
+	slugs := make([]slug.Slug, len(lookup))
+	envNames := make([]string, len(lookup))
+
+	for i, v := range lookup {
+		slugs[i] = v.Slug
+		envNames[i] = v.EnvName
+	}
+
+	return l.db.GetTeamEnvironmentsBySlugsAndEnvNames(ctx, teamsql.GetTeamEnvironmentsBySlugsAndEnvNamesParams{
+		TeamSlugs:    slugs,
+		Environments: envNames,
+	})
+}
+
+type envSlugName struct {
+	Slug    slug.Slug
+	EnvName string
 }

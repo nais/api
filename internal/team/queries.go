@@ -3,11 +3,9 @@ package team
 import (
 	"context"
 
-	"github.com/nais/api/internal/team/teamsql"
-
-	"github.com/nais/api/internal/slug"
-
 	"github.com/nais/api/internal/graphv1/pagination"
+	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team/teamsql"
 )
 
 func Get(ctx context.Context, slug slug.Slug) (*Team, error) {
@@ -51,4 +49,8 @@ func ListMembers(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		return nil, err
 	}
 	return pagination.NewConvertConnection(ret, page, int32(total), toGraphTeamMember), nil
+}
+
+func GetTeamEnvironment(ctx context.Context, teamSlug slug.Slug, envName string) (*TeamEnvironment, error) {
+	return fromContext(ctx).teamEnvironmentLoader.Load(ctx, envSlugName{Slug: teamSlug, EnvName: envName})
 }

@@ -109,6 +109,15 @@ type Team struct {
 	DeleteKeyConfirmedAt pgtype.Timestamptz
 }
 
+type TeamAllEnvironment struct {
+	TeamSlug           slug.Slug
+	Environment        string
+	Gcp                bool
+	GcpProjectID       *string
+	ID                 uuid.UUID
+	SlackAlertsChannel string
+}
+
 type User struct {
 	ID         uuid.UUID
 	Email      string

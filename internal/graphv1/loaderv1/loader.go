@@ -24,13 +24,13 @@ func LoadModels[Key comparable, DBModel any, GraphModel any](
 	keys []Key,
 	loaderFn func(context.Context, []Key) ([]DBModel, error),
 	toGraphFn func(DBModel) GraphModel,
-	getID func(GraphModel) Key,
+	makeKey func(GraphModel) Key,
 ) ([]GraphModel, []error) {
 	objs, err := loaderFn(ctx, keys)
 	if err != nil {
 		return nil, dupErrs(len(keys), err)
 	}
-	return listAndErrors(keys, toGraphList(objs, toGraphFn), getID)
+	return listAndErrors(keys, toGraphList(objs, toGraphFn), makeKey)
 }
 
 func listAndErrors[K comparable, O any](keys []K, objs []O, idfn func(obj O) K) ([]O, []error) {

@@ -14,6 +14,10 @@ type Querier interface {
 	CountMembers(ctx context.Context, teamSlug *slug.Slug) (int64, error)
 	Get(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	GetBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)
+	// GetTeamEnvironmentsBySlugsAndEnvNames returns a slice of team environments for a list of teams/envs, excluding
+	// deleted teams.
+	// Input is two arrays of equal length, one for slugs and one for names
+	GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamAllEnvironment, error)
 	List(ctx context.Context, arg ListParams) ([]*Team, error)
 	// GetTeamMembers returns a slice of team members of a non-deleted team.
 	ListMembers(ctx context.Context, arg ListMembersParams) ([]*ListMembersRow, error)
