@@ -17,8 +17,10 @@ import (
 )
 
 type (
-	TeamConnection = pagination.Connection[*Team]
-	TeamEdge       = pagination.Edge[*Team]
+	TeamConnection       = pagination.Connection[*Team]
+	TeamEdge             = pagination.Edge[*Team]
+	TeamMemberConnection = pagination.Connection[*TeamMember]
+	TeamMemberEdge       = pagination.Edge[*TeamMember]
 )
 
 type Team struct {
@@ -30,8 +32,12 @@ type Team struct {
 	GoogleArtifactRegistry *string    `json:"googleArtifactRegistry,omitempty"`
 	CdnBucket              *string    `json:"cdnBucket,omitempty"`
 	LastSuccessfulSync     *time.Time `json:"lastSuccessfulSync,omitempty"`
-	DeleteKeyConfirmedAt   *time.Time `json:"-"`
 	SlackChannel           string     `json:"slackChannel"`
+	DeleteKeyConfirmedAt   *time.Time `json:"-"`
+}
+
+func (t Team) DeletionInProgress() bool {
+	return t.DeleteKeyConfirmedAt != nil
 }
 
 func (t Team) ID() string {
@@ -107,4 +113,117 @@ func toGraphTeam(m *teamsql.Team) *Team {
 	}
 
 	return ret
+}
+
+func toGraphTeamMember(m *teamsql.ListMembersRow) *TeamMember {
+	return &TeamMember{
+		Role:     teamRoleFromSqlTeamRole(m.UserRole.RoleName),
+		TeamSlug: *m.UserRole.TargetTeamSlug,
+		UserID:   m.User.ID,
+	}
+}
+
+type TeamMember struct {
+	Role     TeamRole
+	TeamSlug slug.Slug `json:"-"`
+	UserID   uuid.UUID `json:"-"`
+}
+
+type TeamRole string
+
+const (
+	TeamRoleMember TeamRole = "MEMBER"
+	TeamRoleOwner  TeamRole = "OWNER"
+)
+
+func (e TeamRole) IsValid() bool {
+	switch e {
+	case TeamRoleMember, TeamRoleOwner:
+		return true
+	}
+	return false
+}
+
+func teamRoleFromSqlTeamRole(t teamsql.RoleName) TeamRole {
+	if t == teamsql.RoleNameTeamowner {
+		return TeamRoleOwner
+	}
+	return TeamRoleMember
+}
+
+func (e TeamRole) String() string {
+	return string(e)
+}
+
+func (e *TeamRole) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TeamRole(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TeamRole", str)
+	}
+	return nil
+}
+
+func (e TeamRole) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type TeamMemberOrder struct {
+	Field     TeamMemberOrderField   `json:"field"`
+	Direction modelv1.OrderDirection `json:"direction"`
+}
+
+func (o *TeamMemberOrder) String() string {
+	if o == nil {
+		return ""
+	}
+
+	return strings.ToLower(o.Field.String() + ":" + o.Direction.String())
+}
+
+type TeamMemberOrderField string
+
+const (
+	TeamMemberOrderFieldName  TeamMemberOrderField = "NAME"
+	TeamMemberOrderFieldEmail TeamMemberOrderField = "EMAIL"
+	TeamMemberOrderFieldRole  TeamMemberOrderField = "ROLE"
+)
+
+var AllTeamMemberOrderField = []TeamMemberOrderField{
+	TeamMemberOrderFieldName,
+	TeamMemberOrderFieldEmail,
+	TeamMemberOrderFieldRole,
+}
+
+func (e TeamMemberOrderField) IsValid() bool {
+	switch e {
+	case TeamMemberOrderFieldName, TeamMemberOrderFieldEmail, TeamMemberOrderFieldRole:
+		return true
+	}
+	return false
+}
+
+func (e TeamMemberOrderField) String() string {
+	return string(e)
+}
+
+func (e *TeamMemberOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TeamMemberOrderField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TeamMemberOrderField", str)
+	}
+	return nil
+}
+
+func (e TeamMemberOrderField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

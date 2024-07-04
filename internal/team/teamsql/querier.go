@@ -10,9 +10,13 @@ import (
 
 type Querier interface {
 	Count(ctx context.Context) (int64, error)
+	// GetTeamMembersCount returns the total number of team members of a non-deleted team.
+	CountMembers(ctx context.Context, teamSlug *slug.Slug) (int64, error)
 	Get(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	GetBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)
 	List(ctx context.Context, arg ListParams) ([]*Team, error)
+	// GetTeamMembers returns a slice of team members of a non-deleted team.
+	ListMembers(ctx context.Context, arg ListMembersParams) ([]*ListMembersRow, error)
 }
 
 var _ Querier = (*Queries)(nil)
