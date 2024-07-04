@@ -2,10 +2,11 @@ package user
 
 import (
 	"fmt"
-	ident2 "github.com/nais/api/internal/graphv1/ident"
 	"io"
 	"strconv"
 	"strings"
+
+	ident2 "github.com/nais/api/internal/graphv1/ident"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graphv1/modelv1"

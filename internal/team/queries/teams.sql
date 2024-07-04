@@ -14,14 +14,14 @@ OFFSET sqlc.arg('offset');
 SELECT * FROM teams
 WHERE slug = @slug;
 
--- name: GetBySlugs :many
+-- name: ListBySlugs :many
 SELECT * FROM teams
 WHERE slug = ANY(@slugs::slug[])
 ORDER BY slug ASC;
 
--- GetTeamEnvironmentsBySlugsAndEnvNames returns a slice of team environments for a list of teams/envs, excluding
+-- ListEnvironmentsBySlugsAndEnvNames returns a slice of team environments for a list of teams/envs, excluding
 -- deleted teams.
--- name: GetTeamEnvironmentsBySlugsAndEnvNames :many
+-- name: ListEnvironmentsBySlugsAndEnvNames :many
 -- Input is two arrays of equal length, one for slugs and one for names
 WITH input AS (
     SELECT

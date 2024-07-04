@@ -2,11 +2,12 @@ package team
 
 import (
 	"fmt"
-	"github.com/nais/api/internal/graphv1/ident"
 	"io"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/nais/api/internal/graphv1/ident"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graphv1/modelv1"
@@ -124,6 +125,14 @@ func toGraphTeamMember(m *teamsql.ListMembersRow) *TeamMember {
 	}
 }
 
+func toGraphUserTeam(m *teamsql.ListForUserRow) *TeamMember {
+	return &TeamMember{
+		Role:     teamRoleFromSqlTeamRole(m.UserRole.RoleName),
+		TeamSlug: *m.UserRole.TargetTeamSlug,
+		UserID:   m.User.ID,
+	}
+}
+
 type TeamMember struct {
 	Role     TeamRole
 	TeamSlug slug.Slug `json:"-"`
@@ -194,12 +203,6 @@ const (
 	TeamMemberOrderFieldRole  TeamMemberOrderField = "ROLE"
 )
 
-var AllTeamMemberOrderField = []TeamMemberOrderField{
-	TeamMemberOrderFieldName,
-	TeamMemberOrderFieldEmail,
-	TeamMemberOrderFieldRole,
-}
-
 func (e TeamMemberOrderField) IsValid() bool {
 	switch e {
 	case TeamMemberOrderFieldName, TeamMemberOrderFieldEmail, TeamMemberOrderFieldRole:
@@ -249,4 +252,52 @@ func toGraphTeamEnvironment(m *teamsql.TeamAllEnvironment) *TeamEnvironment {
 		GCPProjectID:       m.GcpProjectID,
 		SlackAlertsChannel: m.SlackAlertsChannel,
 	}
+}
+
+type TeamMembershipOrder struct {
+	Field     TeamMembershipOrderField `json:"field"`
+	Direction modelv1.OrderDirection   `json:"direction"`
+}
+
+func (o *TeamMembershipOrder) String() string {
+	if o == nil {
+		return ""
+	}
+
+	return strings.ToLower(o.Field.String() + ":" + o.Direction.String())
+}
+
+type TeamMembershipOrderField string
+
+const (
+	TeamMembershipOrderFieldTeamSlug TeamMembershipOrderField = "TEAM_SLUG"
+)
+
+func (e TeamMembershipOrderField) IsValid() bool {
+	switch e {
+	case TeamMembershipOrderFieldTeamSlug:
+		return true
+	}
+	return false
+}
+
+func (e TeamMembershipOrderField) String() string {
+	return string(e)
+}
+
+func (e *TeamMembershipOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TeamMembershipOrderField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TeamMembershipOrderField", str)
+	}
+	return nil
+}
+
+func (e TeamMembershipOrderField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

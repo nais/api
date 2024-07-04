@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/btcsuite/btcutil/base58"
 	"io"
 	"strconv"
+
+	"github.com/btcsuite/btcutil/base58"
 )
 
 var cursorVersions = map[string]func(c *Cursor, i []byte) error{

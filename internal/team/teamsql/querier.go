@@ -5,21 +5,24 @@ package teamsql
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/slug"
 )
 
 type Querier interface {
 	Count(ctx context.Context) (int64, error)
-	// GetTeamMembersCount returns the total number of team members of a non-deleted team.
+	CountForUser(ctx context.Context, userID uuid.UUID) (int64, error)
+	// CountMembers returns the total number of team members of a non-deleted team.
 	CountMembers(ctx context.Context, teamSlug *slug.Slug) (int64, error)
 	Get(ctx context.Context, argSlug slug.Slug) (*Team, error)
-	GetBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)
-	// GetTeamEnvironmentsBySlugsAndEnvNames returns a slice of team environments for a list of teams/envs, excluding
+	List(ctx context.Context, arg ListParams) ([]*Team, error)
+	ListBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)
+	// ListEnvironmentsBySlugsAndEnvNames returns a slice of team environments for a list of teams/envs, excluding
 	// deleted teams.
 	// Input is two arrays of equal length, one for slugs and one for names
-	GetTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg GetTeamEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamAllEnvironment, error)
-	List(ctx context.Context, arg ListParams) ([]*Team, error)
-	// GetTeamMembers returns a slice of team members of a non-deleted team.
+	ListEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg ListEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamAllEnvironment, error)
+	ListForUser(ctx context.Context, arg ListForUserParams) ([]*ListForUserRow, error)
+	// ListMembers returns a slice of team members of a non-deleted team.
 	ListMembers(ctx context.Context, arg ListMembersParams) ([]*ListMembersRow, error)
 }
 

@@ -53,7 +53,7 @@ skip_validation: true
 models:
   ID:
     model:
-      - github.com/nais/api/internal/graphv1/scalar.Ident
+      - github.com/nais/api/internal/graphv1/ident.Ident
 
   Int:
     model:

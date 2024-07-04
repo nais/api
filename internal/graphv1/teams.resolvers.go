@@ -3,9 +3,9 @@ package graphv1
 import (
 	"context"
 	"fmt"
-	"github.com/nais/api/internal/graphv1/ident"
 
 	"github.com/nais/api/internal/graphv1/gengqlv1"
+	"github.com/nais/api/internal/graphv1/ident"
 	"github.com/nais/api/internal/graphv1/pagination"
 	"github.com/nais/api/internal/graphv1/scalar"
 	"github.com/nais/api/internal/slug"
@@ -69,5 +69,7 @@ func (r *Resolver) Team() gengqlv1.TeamResolver { return &teamResolver{r} }
 
 func (r *Resolver) TeamMember() gengqlv1.TeamMemberResolver { return &teamMemberResolver{r} }
 
-type teamResolver struct{ *Resolver }
-type teamMemberResolver struct{ *Resolver }
+type (
+	teamResolver       struct{ *Resolver }
+	teamMemberResolver struct{ *Resolver }
+)

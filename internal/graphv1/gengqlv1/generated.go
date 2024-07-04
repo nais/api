@@ -7,7 +7,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/nais/api/internal/graphv1/ident"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -15,6 +14,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/nais/api/internal/graphv1/ident"
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
 	"github.com/nais/api/internal/graphv1/scalar"
@@ -147,6 +147,7 @@ type ComplexityRoot struct {
 		ID         func(childComplexity int) int
 		IsAdmin    func(childComplexity int) int
 		Name       func(childComplexity int) int
+		Teams      func(childComplexity int, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *team.TeamMembershipOrder) int
 	}
 
 	UserConnection struct {
@@ -185,6 +186,8 @@ type TeamMemberResolver interface {
 	User(ctx context.Context, obj *team.TeamMember) (*user.User, error)
 }
 type UserResolver interface {
+	Teams(ctx context.Context, obj *user.User, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *team.TeamMembershipOrder) (*pagination.Connection[*team.TeamMember], error)
+
 	IsAdmin(ctx context.Context, obj *user.User) (bool, error)
 }
 
@@ -613,6 +616,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Name(childComplexity), true
 
+	case "User.teams":
+		if e.complexity.User.Teams == nil {
+			break
+		}
+
+		args, err := ec.field_User_teams_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.User.Teams(childComplexity, args["first"].(*int), args["after"].(*scalar.Cursor), args["last"].(*int), args["before"].(*scalar.Cursor), args["orderBy"].(*team.TeamMembershipOrder)), true
+
 	case "UserConnection.edges":
 		if e.complexity.UserConnection.Edges == nil {
 			break
@@ -651,6 +666,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputApplicationOrder,
 		ec.unmarshalInputTeamMemberOrder,
+		ec.unmarshalInputTeamMembershipOrder,
 		ec.unmarshalInputTeamOrder,
 		ec.unmarshalInputUserOrder,
 	)
@@ -873,7 +889,7 @@ input TeamOrder {
 }
 
 enum TeamOrderField {
-  SLUG
+  TEAM_SLUG
 }
 
 type TeamEnvironment implements Node {
@@ -1037,11 +1053,14 @@ type User implements Node {
   "The name of the user."
   name: String!
 
-  # "List of team memberships."
-  #teams(
-  #limit: Int
-  #  offset: Int
-  #): TeamMemberList!
+  "List of team memberships."
+  teams(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: TeamMembershipOrder
+  ): TeamMemberConnection!
 
   # "Roles attached to the user."
   #roles: [Role!]!
@@ -1052,7 +1071,15 @@ type User implements Node {
   "This field will only be populated via the me query"
   isAdmin: Boolean!
 }
-`, BuiltIn: false},
+
+input TeamMembershipOrder {
+  field: TeamMembershipOrderField!
+  direction: OrderDirection!
+}
+
+enum TeamMembershipOrderField {
+  TEAM_SLUG
+}`, BuiltIn: false},
 	{Name: "../schema/workloads.graphqls", Input: `interface Workload {
   id: ID!
   name: String!
@@ -1096,7 +1123,7 @@ func (ec *executionContext) field_Query_node_args(ctx context.Context, rawArgs m
 	var arg0 ident.Ident
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, tmp)
+		arg0, err = ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋidentᚐIdent(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1177,7 +1204,7 @@ func (ec *executionContext) field_Query_user_args(ctx context.Context, rawArgs m
 	var arg0 *ident.Ident
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, tmp)
+		arg0, err = ec.unmarshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋidentᚐIdent(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1348,6 +1375,57 @@ func (ec *executionContext) field_Team_members_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
+func (ec *executionContext) field_User_teams_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *scalar.Cursor
+	if tmp, ok := rawArgs["after"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+		arg1, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐCursor(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["after"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["last"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["last"] = arg2
+	var arg3 *scalar.Cursor
+	if tmp, ok := rawArgs["before"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+		arg3, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐCursor(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["before"] = arg3
+	var arg4 *team.TeamMembershipOrder
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg4, err = ec.unmarshalOTeamMembershipOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMembershipOrder(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg4
+	return args, nil
+}
+
 func (ec *executionContext) field___Type_enumValues_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1414,7 +1492,7 @@ func (ec *executionContext) _Application_id(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(ident.Ident)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Application_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2334,6 +2412,8 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 				return ec.fieldContext_User_email(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
+			case "teams":
+				return ec.fieldContext_User_teams(ctx, field)
 			case "externalId":
 				return ec.fieldContext_User_externalId(ctx, field)
 			case "isAdmin":
@@ -2513,7 +2593,7 @@ func (ec *executionContext) _Team_id(ctx context.Context, field graphql.Collecte
 	}
 	res := resTmp.(ident.Ident)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Team_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2642,7 +2722,7 @@ func (ec *executionContext) _Team_azureGroupID(ctx context.Context, field graphq
 	}
 	res := resTmp.(*ident.Ident)
 	fc.Result = res
-	return ec.marshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Team_azureGroupID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3415,7 +3495,7 @@ func (ec *executionContext) _TeamEnvironment_id(ctx context.Context, field graph
 	}
 	res := resTmp.(ident.Ident)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamEnvironment_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3681,6 +3761,8 @@ func (ec *executionContext) fieldContext_TeamMember_user(ctx context.Context, fi
 				return ec.fieldContext_User_email(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
+			case "teams":
+				return ec.fieldContext_User_teams(ctx, field)
 			case "externalId":
 				return ec.fieldContext_User_externalId(ctx, field)
 			case "isAdmin":
@@ -3966,7 +4048,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 	}
 	res := resTmp.(ident.Ident)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4066,6 +4148,67 @@ func (ec *executionContext) fieldContext_User_name(ctx context.Context, field gr
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_teams(ctx context.Context, field graphql.CollectedField, obj *user.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_teams(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.User().Teams(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*scalar.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*scalar.Cursor), fc.Args["orderBy"].(*team.TeamMembershipOrder))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*pagination.Connection[*team.TeamMember])
+	fc.Result = res
+	return ec.marshalNTeamMemberConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_teams(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_TeamMemberConnection_pageInfo(ctx, field)
+			case "edges":
+				return ec.fieldContext_TeamMemberConnection_edges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamMemberConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_User_teams_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -4353,6 +4496,8 @@ func (ec *executionContext) fieldContext_UserEdge_node(ctx context.Context, fiel
 				return ec.fieldContext_User_email(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
+			case "teams":
+				return ec.fieldContext_User_teams(ctx, field)
 			case "externalId":
 				return ec.fieldContext_User_externalId(ctx, field)
 			case "isAdmin":
@@ -6205,6 +6350,40 @@ func (ec *executionContext) unmarshalInputTeamMemberOrder(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputTeamMembershipOrder(ctx context.Context, obj interface{}) (team.TeamMembershipOrder, error) {
+	var it team.TeamMembershipOrder
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNTeamMembershipOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMembershipOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋmodelv1ᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputTeamOrder(ctx context.Context, obj interface{}) (team.TeamOrder, error) {
 	var it team.TeamOrder
 	asMap := map[string]interface{}{}
@@ -7364,6 +7543,42 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "teams":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_teams(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "externalId":
 			out.Values[i] = ec._User_externalId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -7965,13 +8180,13 @@ func (ec *executionContext) marshalNCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
-func (ec *executionContext) unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx context.Context, v interface{}) (ident.Ident, error) {
+func (ec *executionContext) unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋidentᚐIdent(ctx context.Context, v interface{}) (ident.Ident, error) {
 	var res ident.Ident
 	err := res.UnmarshalGQLContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx context.Context, sel ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+func (ec *executionContext) marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋidentᚐIdent(ctx context.Context, sel ast.SelectionSet, v ident.Ident) graphql.Marshaler {
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
@@ -8198,6 +8413,16 @@ func (ec *executionContext) unmarshalNTeamMemberOrderField2githubᚗcomᚋnais�
 }
 
 func (ec *executionContext) marshalNTeamMemberOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberOrderField(ctx context.Context, sel ast.SelectionSet, v team.TeamMemberOrderField) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNTeamMembershipOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMembershipOrderField(ctx context.Context, v interface{}) (team.TeamMembershipOrderField, error) {
+	var res team.TeamMembershipOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTeamMembershipOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMembershipOrderField(ctx context.Context, sel ast.SelectionSet, v team.TeamMembershipOrderField) graphql.Marshaler {
 	return v
 }
 
@@ -8610,7 +8835,7 @@ func (ec *executionContext) marshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
-func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx context.Context, v interface{}) (*ident.Ident, error) {
+func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋidentᚐIdent(ctx context.Context, v interface{}) (*ident.Ident, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -8619,7 +8844,7 @@ func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx context.Context, sel ast.SelectionSet, v *ident.Ident) graphql.Marshaler {
+func (ec *executionContext) marshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋidentᚐIdent(ctx context.Context, sel ast.SelectionSet, v *ident.Ident) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -8670,6 +8895,14 @@ func (ec *executionContext) unmarshalOTeamMemberOrder2ᚖgithubᚗcomᚋnaisᚋa
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputTeamMemberOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOTeamMembershipOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMembershipOrder(ctx context.Context, v interface{}) (*team.TeamMembershipOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTeamMembershipOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

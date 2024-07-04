@@ -3,10 +3,11 @@ package ident
 import (
 	"context"
 	"fmt"
-	"github.com/btcsuite/btcutil/base58"
 	"io"
 	"strconv"
 	"strings"
+
+	"github.com/btcsuite/btcutil/base58"
 
 	"github.com/nais/api/internal/graphv1/modelv1"
 )

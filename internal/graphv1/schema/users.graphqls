@@ -52,11 +52,14 @@ type User implements Node {
   "The name of the user."
   name: String!
 
-  # "List of team memberships."
-  #teams(
-  #limit: Int
-  #  offset: Int
-  #): TeamMemberList!
+  "List of team memberships."
+  teams(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: TeamMembershipOrder
+  ): TeamMemberConnection!
 
   # "Roles attached to the user."
   #roles: [Role!]!
@@ -66,4 +69,13 @@ type User implements Node {
 
   "This field will only be populated via the me query"
   isAdmin: Boolean!
+}
+
+input TeamMembershipOrder {
+  field: TeamMembershipOrderField!
+  direction: OrderDirection!
+}
+
+enum TeamMembershipOrderField {
+  TEAM_SLUG
 }

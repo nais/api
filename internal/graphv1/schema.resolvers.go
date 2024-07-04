@@ -2,9 +2,9 @@ package graphv1
 
 import (
 	"context"
-	"github.com/nais/api/internal/graphv1/ident"
 
 	"github.com/nais/api/internal/graphv1/gengqlv1"
+	"github.com/nais/api/internal/graphv1/ident"
 	"github.com/nais/api/internal/graphv1/modelv1"
 )
 
