@@ -2,9 +2,11 @@ package graphv1
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graph/apierror"
+	"github.com/nais/api/internal/graphv1/gengqlv1"
 	"github.com/nais/api/internal/graphv1/pagination"
 	"github.com/nais/api/internal/graphv1/scalar"
 	"github.com/nais/api/internal/user"
@@ -34,3 +36,11 @@ func (r *queryResolver) User(ctx context.Context, id *string, email *string) (*u
 
 	return nil, apierror.Errorf("Either id or email must be specified")
 }
+
+func (r *userResolver) IsAdmin(ctx context.Context, obj *user.User) (bool, error) {
+	panic(fmt.Errorf("not implemented: IsAdmin - isAdmin"))
+}
+
+func (r *Resolver) User() gengqlv1.UserResolver { return &userResolver{r} }
+
+type userResolver struct{ *Resolver }
