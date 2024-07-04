@@ -23,7 +23,7 @@ resolver:
 # if they match it will use them, otherwise it will generate them.
 autobind:
   - "github.com/nais/api/internal/graphv1/modelv1"
-  - "github.com/nais/api/internal/users"
+  - "github.com/nais/api/internal/user"
   - "github.com/nais/api/internal/team"
   # - "github.com/nais/api/internal/graphv1/modelv1/auditevent"
 
