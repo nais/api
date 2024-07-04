@@ -1,11 +1,14 @@
 package application
 
 import (
+	"bytes"
+	"context"
 	"fmt"
-	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/slug"
 	"io"
 	"strconv"
+
+	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/slug"
 
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
@@ -84,5 +87,13 @@ func (e ApplicationOrderField) MarshalGQL(w io.Writer) {
 }
 
 func toGraphApplication(a *model.App) *Application {
-	return &Application{}
+	buf := &bytes.Buffer{}
+	a.ID.MarshalGQLContext(context.TODO(), buf)
+	id, _ := strconv.Unquote(buf.String())
+	return &Application{
+		ID:              id,
+		Name:            a.Name,
+		EnvironmentName: a.Env.Name,
+		TeamSlug:        a.GQLVars.Team,
+	}
 }

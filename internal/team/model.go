@@ -227,3 +227,7 @@ func (e *TeamMemberOrderField) UnmarshalGQL(v interface{}) error {
 func (e TeamMemberOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
+
+type TeamEnvironment struct {
+	Name string `json:"name"`
+}
