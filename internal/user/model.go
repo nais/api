@@ -22,7 +22,6 @@ type User struct {
 	Email      string    `json:"email"`
 	Name       string    `json:"name"`
 	ExternalID string    `json:"externalId"`
-	IsAdmin    bool      `json:"isAdmin"`
 }
 
 func toGraphUser(u *usersql.User) *User {
@@ -50,16 +49,9 @@ func (o *UserOrder) String() string {
 type UserOrderField string
 
 const (
-	// Order by name
-	UserOrderFieldName UserOrderField = "NAME"
-	// Order by email
+	UserOrderFieldName  UserOrderField = "NAME"
 	UserOrderFieldEmail UserOrderField = "EMAIL"
 )
-
-var AllUserOrderField = []UserOrderField{
-	UserOrderFieldName,
-	UserOrderFieldEmail,
-}
 
 func (e UserOrderField) IsValid() bool {
 	switch e {
