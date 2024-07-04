@@ -845,7 +845,7 @@ func (ec *executionContext) field_Query_users_args(ctx context.Context, rawArgs 
 	var arg4 *user.UserOrder
 	if tmp, ok := rawArgs["orderBy"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
-		arg4, err = ec.unmarshalOUserOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋusersᚐUserOrder(ctx, tmp)
+		arg4, err = ec.unmarshalOUserOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserOrder(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1345,7 +1345,7 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.(*user.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋusersᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2687,7 +2687,7 @@ func (ec *executionContext) _UserEdge_node(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(*user.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋusersᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserEdge_node(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4538,7 +4538,7 @@ func (ec *executionContext) unmarshalInputUserOrder(ctx context.Context, obj int
 		switch k {
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalNUserOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋusersᚐUserOrderField(ctx, v)
+			data, err := ec.unmarshalNUserOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserOrderField(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -5614,11 +5614,11 @@ func (ec *executionContext) marshalNTeamOrderField2githubᚗcomᚋnaisᚋapiᚋi
 	return v
 }
 
-func (ec *executionContext) marshalNUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋusersᚐUser(ctx context.Context, sel ast.SelectionSet, v user.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser(ctx context.Context, sel ast.SelectionSet, v user.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋusersᚐUser(ctx context.Context, sel ast.SelectionSet, v *user.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser(ctx context.Context, sel ast.SelectionSet, v *user.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5690,13 +5690,13 @@ func (ec *executionContext) marshalNUserEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinte
 	return ret
 }
 
-func (ec *executionContext) unmarshalNUserOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋusersᚐUserOrderField(ctx context.Context, v interface{}) (user.UserOrderField, error) {
+func (ec *executionContext) unmarshalNUserOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserOrderField(ctx context.Context, v interface{}) (user.UserOrderField, error) {
 	var res user.UserOrderField
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUserOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋusersᚐUserOrderField(ctx context.Context, sel ast.SelectionSet, v user.UserOrderField) graphql.Marshaler {
+func (ec *executionContext) marshalNUserOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserOrderField(ctx context.Context, sel ast.SelectionSet, v user.UserOrderField) graphql.Marshaler {
 	return v
 }
 
@@ -6083,7 +6083,7 @@ func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel
 	return res
 }
 
-func (ec *executionContext) unmarshalOUserOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋusersᚐUserOrder(ctx context.Context, v interface{}) (*user.UserOrder, error) {
+func (ec *executionContext) unmarshalOUserOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserOrder(ctx context.Context, v interface{}) (*user.UserOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
