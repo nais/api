@@ -10,6 +10,7 @@ require (
 	github.com/99designs/gqlgen v0.17.49
 	github.com/GoogleCloudPlatform/k8s-config-connector v1.120.1
 	github.com/bombsimon/logrusr/v4 v4.1.0
+	github.com/btcsuite/btcutil v1.0.2
 	github.com/coreos/go-oidc/v3 v3.10.0
 	github.com/exaring/otelpgx v0.6.2
 	github.com/go-chi/chi/v5 v5.1.0

@@ -2,6 +2,7 @@ package application
 
 import (
 	"fmt"
+	ident2 "github.com/nais/api/internal/graphv1/ident"
 	"io"
 	"strconv"
 
@@ -10,7 +11,6 @@ import (
 
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
-	"github.com/nais/api/internal/graphv1/scalar"
 )
 
 type (
@@ -31,7 +31,7 @@ type Application struct {
 func (Application) IsWorkload() {}
 func (Application) IsNode()     {}
 
-func (a Application) ID() scalar.Ident {
+func (a Application) ID() ident2.Ident {
 	return newIdent(a.TeamSlug, a.EnvironmentName, a.Name)
 }
 

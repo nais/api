@@ -2,8 +2,8 @@ package application
 
 import (
 	"fmt"
+	ident2 "github.com/nais/api/internal/graphv1/ident"
 
-	"github.com/nais/api/internal/graphv1/scalar"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -14,14 +14,14 @@ const (
 )
 
 func init() {
-	scalar.RegisterIdentType(ident, "A", scalar.Wrap(GetByIdent))
+	ident2.RegisterIdentType(ident, "A", ident2.Wrap(GetByIdent))
 }
 
-func newIdent(teamSlug slug.Slug, environment, name string) scalar.Ident {
-	return scalar.NewIdent(ident, teamSlug.String(), environment, name)
+func newIdent(teamSlug slug.Slug, environment, name string) ident2.Ident {
+	return ident2.NewIdent(ident, teamSlug.String(), environment, name)
 }
 
-func parseIdent(id scalar.Ident) (teamSlug slug.Slug, environment, name string, err error) {
+func parseIdent(id ident2.Ident) (teamSlug slug.Slug, environment, name string, err error) {
 	parts := id.Parts()
 	if len(parts) != 3 {
 		return "", "", "", fmt.Errorf("invalid application ident")

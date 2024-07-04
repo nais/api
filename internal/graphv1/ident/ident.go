@@ -1,11 +1,10 @@
-package scalar
+package ident
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
+	"github.com/btcsuite/btcutil/base58"
 	"io"
-	"net/url"
 	"strconv"
 	"strings"
 
@@ -79,10 +78,8 @@ func (i Ident) MarshalGQLContext(_ context.Context, w io.Writer) error {
 	if i.ID == "" || i.Type == "" {
 		return fmt.Errorf("id and type must be set")
 	}
-	v := url.Values{}
-	v.Set("id", i.ID)
-	v.Set("type", string(i.Type))
-	_, err := w.Write([]byte(strconv.Quote(base64.URLEncoding.EncodeToString([]byte(v.Encode())))))
+
+	_, err := w.Write([]byte(strconv.Quote(i.Type + "_" + base58.Encode([]byte(i.ID)))))
 	return err
 }
 
@@ -92,18 +89,25 @@ func (i *Ident) UnmarshalGQLContext(_ context.Context, v interface{}) error {
 		return fmt.Errorf("ident must be a string")
 	}
 
-	bytes, err := base64.URLEncoding.DecodeString(ident)
-	if err != nil {
-		return err
+	typ, id, ok := strings.Cut(ident, "_")
+	if !ok {
+		return fmt.Errorf("invalid ident")
 	}
 
-	values, err := url.ParseQuery(string(bytes))
-	if err != nil {
-		return err
+	found := false
+	for _, v := range knownTypes {
+		if v.name == typ {
+			found = true
+			break
+		}
 	}
 
-	i.ID = values.Get("id")
-	i.Type = values.Get("type")
+	if !found {
+		return fmt.Errorf("unknown ident type")
+	}
+
+	i.Type = typ
+	i.ID = string(base58.Decode(id))
 
 	return nil
 }

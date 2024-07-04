@@ -3,6 +3,7 @@ package graphv1
 import (
 	"context"
 	"fmt"
+	"github.com/nais/api/internal/graphv1/ident"
 
 	"github.com/nais/api/internal/graphv1/gengqlv1"
 	"github.com/nais/api/internal/graphv1/pagination"
@@ -26,7 +27,7 @@ func (r *queryResolver) Team(ctx context.Context, slug slug.Slug) (*team.Team, e
 	return team.Get(ctx, slug)
 }
 
-func (r *teamResolver) AzureGroupID(ctx context.Context, obj *team.Team) (*scalar.Ident, error) {
+func (r *teamResolver) AzureGroupID(ctx context.Context, obj *team.Team) (*ident.Ident, error) {
 	panic(fmt.Errorf("not implemented: AzureGroupID - azureGroupID"))
 }
 
