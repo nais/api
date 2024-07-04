@@ -1,6 +1,7 @@
 package modelv1
 
 import (
+	"cmp"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,4 +48,11 @@ func (e *OrderDirection) UnmarshalGQL(v interface{}) error {
 
 func (e OrderDirection) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func Compare[T cmp.Ordered](a, b T, direction OrderDirection) int {
+	if direction == OrderDirectionAsc {
+		return cmp.Compare(a, b)
+	}
+	return cmp.Compare(b, a)
 }

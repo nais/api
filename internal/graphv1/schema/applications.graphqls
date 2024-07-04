@@ -1,0 +1,47 @@
+type ApplicationConnection {
+  pageInfo: PageInfo!
+  edges: [ApplicationEdge!]!
+}
+type ApplicationEdge {
+  cursor: Cursor!
+  node: Application!
+}
+
+type Application implements Workload {
+  id: ID!
+  name: String!
+  team: Team!
+  environment: Environment!
+
+  # image: String!
+  # deployInfo: DeployInfo!
+  # env: Env!
+  # accessPolicy: AccessPolicy!
+  # status: WorkloadStatus!
+  # authz: [Authz!]!
+  # variables: [Variable!]!
+  # persistence: [Persistence!]!
+  # resources: Resources!
+  # type: WorkloadType!
+  #
+  # imageDetails: ImageDetails!
+  # ingresses: [String!]!
+  # instances: [Instance!]!
+  # autoScaling: AutoScaling!
+  # manifest: String!
+  # secrets: [Secret!]!
+}
+
+input ApplicationOrder {
+  field: ApplicationOrderField!
+  direction: OrderDirection!
+}
+
+enum ApplicationOrderField {
+  STATUS
+  NAME
+  ENVIRONMENT
+  VULNERABILITIES
+  RISK_SCORE
+  DEPLOYMENT_TIME
+}
