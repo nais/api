@@ -71,7 +71,7 @@ models:
 
   Cursor:
     model:
-      - github.com/nais/api/internal/graphv1/scalar.Cursor
+      - github.com/nais/api/internal/graphv1/pagination.Cursor
 
   PageInfo:
     model:

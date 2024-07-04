@@ -8,12 +8,11 @@ import (
 	"github.com/nais/api/internal/graphv1/gengqlv1"
 	"github.com/nais/api/internal/graphv1/ident"
 	"github.com/nais/api/internal/graphv1/pagination"
-	"github.com/nais/api/internal/graphv1/scalar"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
 )
 
-func (r *queryResolver) Users(ctx context.Context, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *user.UserOrder) (*pagination.Connection[*user.User], error) {
+func (r *queryResolver) Users(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) (*pagination.Connection[*user.User], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -34,7 +33,7 @@ func (r *queryResolver) User(ctx context.Context, id *ident.Ident, email *string
 	return nil, apierror.Errorf("Either id or email must be specified")
 }
 
-func (r *userResolver) Teams(ctx context.Context, obj *user.User, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *team.TeamMembershipOrder) (*pagination.Connection[*team.TeamMember], error) {
+func (r *userResolver) Teams(ctx context.Context, obj *user.User, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMembershipOrder) (*pagination.Connection[*team.TeamMember], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
