@@ -45,7 +45,7 @@ type dataloader struct {
 
 func (l dataloader) list(ctx context.Context, slugs []slug.Slug) ([]*Team, []error) {
 	getID := func(obj *Team) slug.Slug { return obj.Slug }
-	return loaderv1.LoadModels(ctx, slugs, l.db.GetBySlugs, toGraphTeam, getID)
+	return loaderv1.LoadModels(ctx, slugs, l.db.ListBySlugs, toGraphTeam, getID)
 }
 
 func (l dataloader) getEnvironments(ctx context.Context, ids []envSlugName) ([]*TeamEnvironment, []error) {
@@ -65,7 +65,7 @@ func (l dataloader) getTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, l
 		envNames[i] = v.EnvName
 	}
 
-	return l.db.GetTeamEnvironmentsBySlugsAndEnvNames(ctx, teamsql.GetTeamEnvironmentsBySlugsAndEnvNamesParams{
+	return l.db.ListEnvironmentsBySlugsAndEnvNames(ctx, teamsql.ListEnvironmentsBySlugsAndEnvNamesParams{
 		TeamSlugs:    slugs,
 		Environments: envNames,
 	})

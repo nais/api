@@ -2,6 +2,7 @@ package team
 
 import (
 	"fmt"
+
 	"github.com/nais/api/internal/graphv1/ident"
 
 	"github.com/nais/api/internal/slug"

@@ -2,6 +2,9 @@ package team
 
 import (
 	"context"
+
+	"github.com/google/uuid"
+
 	"github.com/nais/api/internal/graphv1/ident"
 
 	"github.com/nais/api/internal/graphv1/pagination"
@@ -14,11 +17,11 @@ func Get(ctx context.Context, slug slug.Slug) (*Team, error) {
 }
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*Team, error) {
-	slug, err := parseTeamIdent(id)
+	teamSlug, err := parseTeamIdent(id)
 	if err != nil {
 		return nil, err
 	}
-	return Get(ctx, slug)
+	return Get(ctx, teamSlug)
 }
 
 func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder) (*TeamConnection, error) {
@@ -38,6 +41,26 @@ func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder) 
 		return nil, err
 	}
 	return pagination.NewConvertConnection(ret, page, int32(total), toGraphTeam), nil
+}
+
+func ListForUser(ctx context.Context, userID uuid.UUID, page *pagination.Pagination, orderBy *TeamMembershipOrder) (*TeamMemberConnection, error) {
+	db := fromContext(ctx).db
+
+	ret, err := db.ListForUser(ctx, teamsql.ListForUserParams{
+		UserID:  userID,
+		Offset:  page.Offset(),
+		Limit:   page.Limit(),
+		OrderBy: orderBy.String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	total, err := db.CountForUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return pagination.NewConvertConnection(ret, page, int32(total), toGraphUserTeam), nil
 }
 
 func ListMembers(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *TeamMemberOrder) (*TeamMemberConnection, error) {
@@ -65,9 +88,9 @@ func GetTeamEnvironment(ctx context.Context, teamSlug slug.Slug, envName string)
 }
 
 func GetTeamEnvironmentByIdent(ctx context.Context, id ident.Ident) (*TeamEnvironment, error) {
-	slug, envName, err := parseTeamEnvironmentIdent(id)
+	teamSlug, envName, err := parseTeamEnvironmentIdent(id)
 	if err != nil {
 		return nil, err
 	}
-	return GetTeamEnvironment(ctx, slug, envName)
+	return GetTeamEnvironment(ctx, teamSlug, envName)
 }

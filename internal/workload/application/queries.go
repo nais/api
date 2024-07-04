@@ -2,8 +2,9 @@ package application
 
 import (
 	"context"
-	ident2 "github.com/nais/api/internal/graphv1/ident"
 	"slices"
+
+	ident2 "github.com/nais/api/internal/graphv1/ident"
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graphv1/modelv1"

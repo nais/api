@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	ident2 "github.com/nais/api/internal/graphv1/ident"
 
 	"github.com/google/uuid"

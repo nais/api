@@ -2,9 +2,10 @@ package application
 
 import (
 	"fmt"
-	ident2 "github.com/nais/api/internal/graphv1/ident"
 	"io"
 	"strconv"
+
+	ident2 "github.com/nais/api/internal/graphv1/ident"
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"

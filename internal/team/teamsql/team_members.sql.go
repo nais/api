@@ -6,8 +6,23 @@ package teamsql
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/slug"
 )
+
+const countForUser = `-- name: CountForUser :one
+SELECT COUNT(user_roles.*)
+FROM user_roles
+JOIN teams ON teams.slug = user_roles.target_team_slug
+WHERE user_roles.user_id = $1
+`
+
+func (q *Queries) CountForUser(ctx context.Context, userID uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countForUser, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
 
 const countMembers = `-- name: CountMembers :one
 SELECT COUNT(user_roles.*)
@@ -16,12 +31,73 @@ JOIN teams ON teams.slug = user_roles.target_team_slug
 WHERE user_roles.target_team_slug = $1
 `
 
-// GetTeamMembersCount returns the total number of team members of a non-deleted team.
+// CountMembers returns the total number of team members of a non-deleted team.
 func (q *Queries) CountMembers(ctx context.Context, teamSlug *slug.Slug) (int64, error) {
 	row := q.db.QueryRow(ctx, countMembers, teamSlug)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const listForUser = `-- name: ListForUser :many
+SELECT users.id, users.email, users.name, users.external_id, user_roles.id, user_roles.role_name, user_roles.user_id, user_roles.target_team_slug, user_roles.target_service_account_id
+FROM user_roles
+JOIN teams ON teams.slug = user_roles.target_team_slug
+JOIN users ON users.id = user_roles.user_id
+WHERE user_roles.user_id = $1
+ORDER BY
+    CASE WHEN $2::TEXT = 'slug:asc' THEN teams.slug END ASC,
+    CASE WHEN $2::TEXT = 'slug:desc' THEN teams.slug END DESC,
+    teams.slug ASC
+LIMIT $4
+OFFSET $3
+`
+
+type ListForUserParams struct {
+	UserID  uuid.UUID
+	OrderBy string
+	Offset  int32
+	Limit   int32
+}
+
+type ListForUserRow struct {
+	User     User
+	UserRole UserRole
+}
+
+func (q *Queries) ListForUser(ctx context.Context, arg ListForUserParams) ([]*ListForUserRow, error) {
+	rows, err := q.db.Query(ctx, listForUser,
+		arg.UserID,
+		arg.OrderBy,
+		arg.Offset,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ListForUserRow{}
+	for rows.Next() {
+		var i ListForUserRow
+		if err := rows.Scan(
+			&i.User.ID,
+			&i.User.Email,
+			&i.User.Name,
+			&i.User.ExternalID,
+			&i.UserRole.ID,
+			&i.UserRole.RoleName,
+			&i.UserRole.UserID,
+			&i.UserRole.TargetTeamSlug,
+			&i.UserRole.TargetServiceAccountID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listMembers = `-- name: ListMembers :many
@@ -55,7 +131,7 @@ type ListMembersRow struct {
 	UserRole UserRole
 }
 
-// GetTeamMembers returns a slice of team members of a non-deleted team.
+// ListMembers returns a slice of team members of a non-deleted team.
 func (q *Queries) ListMembers(ctx context.Context, arg ListMembersParams) ([]*ListMembersRow, error) {
 	rows, err := q.db.Query(ctx, listMembers,
 		arg.TeamSlug,
