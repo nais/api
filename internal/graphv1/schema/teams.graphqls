@@ -65,6 +65,14 @@ type Team {
     orderBy: TeamMemberOrder
   ): TeamMemberConnection!
 
+  applications(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: ApplicationOrder
+  ): ApplicationConnection!
+
   "Timestamp of the last successful synchronization of the team."
   lastSuccessfulSync: Time
 

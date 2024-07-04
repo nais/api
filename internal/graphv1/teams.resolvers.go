@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
+	"github.com/nais/api/internal/workload/application"
 )
 
 func (r *queryResolver) Teams(ctx context.Context, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *team.TeamOrder) (*pagination.Connection[*team.Team], error) {
@@ -32,6 +33,15 @@ func (r *teamResolver) Members(ctx context.Context, obj *team.Team, first *int, 
 	}
 
 	return team.ListMembers(ctx, obj.Slug, page, orderBy)
+}
+
+func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *application.ApplicationOrder) (*pagination.Connection[*application.Application], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return application.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
 func (r *teamResolver) ViewerIsOwner(ctx context.Context, obj *team.Team) (bool, error) {

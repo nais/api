@@ -3,6 +3,8 @@ package api
 import (
 	"context"
 	"errors"
+	"github.com/nais/api/internal/k8s"
+	"github.com/nais/api/internal/workload/application"
 	"net/http"
 	"time"
 
@@ -32,17 +34,7 @@ import (
 )
 
 // runHttpServer will start the HTTP server
-func runHttpServer(
-	ctx context.Context,
-	listenAddress string,
-	insecureAuth bool,
-	db database.Database,
-	authHandler authn.Handler,
-	graphHandler *handler.Server,
-	graphv1Handler *handler.Server,
-	reg prometheus.Gatherer,
-	log logrus.FieldLogger,
-) error {
+func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool, db database.Database, k8sClient *k8s.Client, authHandler authn.Handler, graphHandler *handler.Server, graphv1Handler *handler.Server, reg prometheus.Gatherer, log logrus.FieldLogger) error {
 	router := chi.NewRouter()
 	router.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
 	router.Get("/healthz", func(_ http.ResponseWriter, _ *http.Request) {})
@@ -89,6 +81,7 @@ func runHttpServer(
 			pool := db.GetPool()
 			ctx = user.NewLoaderContext(ctx, pool, opts)
 			ctx = team.NewLoaderContext(ctx, pool, opts)
+			ctx = application.NewLoaderContext(ctx, k8sClient, opts)
 			return ctx
 		}))
 		r.Use(otelhttp.NewMiddleware("graphqlv1", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))
