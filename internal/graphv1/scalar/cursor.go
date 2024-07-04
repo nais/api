@@ -3,8 +3,8 @@ package scalar
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
 	"fmt"
+	"github.com/btcsuite/btcutil/base58"
 	"io"
 	"strconv"
 )
@@ -21,22 +21,15 @@ func (c Cursor) MarshalGQLContext(_ context.Context, w io.Writer) error {
 	b := []byte{'v', '1', ':'}
 	b = strconv.AppendInt(b, int64(c.Offset), 10)
 
-	// Base64 encode
-	b64 := make([]byte, base64.StdEncoding.EncodedLen(len(b)))
-	base64.StdEncoding.Encode(b64, b)
-
 	_, _ = w.Write([]byte{'"'})
-	_, err := w.Write(b64)
+	_, err := w.Write([]byte(base58.Encode(b)))
 	_, _ = w.Write([]byte{'"'})
 	return err
 }
 
 func (c *Cursor) UnmarshalGQLContext(_ context.Context, v interface{}) error {
 	if s, ok := v.(string); ok {
-		b, err := base64.StdEncoding.DecodeString(s)
-		if err != nil {
-			return fmt.Errorf("cursor not in b64 format: %w", err)
-		}
+		b := base58.Decode(s)
 		version, cursor, ok := bytes.Cut(b, []byte{':'})
 		if !ok {
 			return fmt.Errorf("invalid cursor format")
