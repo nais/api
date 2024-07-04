@@ -16,7 +16,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graphv1/modelv1"
-	"github.com/nais/api/internal/graphv1/modelv1/donotuse"
 	"github.com/nais/api/internal/graphv1/pagination"
 	"github.com/nais/api/internal/graphv1/scalar"
 	"github.com/nais/api/internal/slug"
@@ -75,10 +74,6 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
-	Environment struct {
-		Name func(childComplexity int) int
-	}
-
 	PageInfo struct {
 		EndCursor       func(childComplexity int) int
 		HasNextPage     func(childComplexity int) int
@@ -122,6 +117,10 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	TeamEnvironment struct {
+		Name func(childComplexity int) int
+	}
+
 	TeamMember struct {
 		Role func(childComplexity int) int
 		Team func(childComplexity int) int
@@ -159,7 +158,7 @@ type ComplexityRoot struct {
 
 type ApplicationResolver interface {
 	Team(ctx context.Context, obj *application.Application) (*team.Team, error)
-	Environment(ctx context.Context, obj *application.Application) (*donotuse.Environment, error)
+	Environment(ctx context.Context, obj *application.Application) (*team.TeamEnvironment, error)
 }
 type QueryResolver interface {
 	Teams(ctx context.Context, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *team.TeamOrder) (*pagination.Connection[*team.Team], error)
@@ -256,13 +255,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ApplicationEdge.Node(childComplexity), true
-
-	case "Environment.name":
-		if e.complexity.Environment.Name == nil {
-			break
-		}
-
-		return e.complexity.Environment.Name(childComplexity), true
 
 	case "PageInfo.endCursor":
 		if e.complexity.PageInfo.EndCursor == nil {
@@ -490,6 +482,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamEdge.Node(childComplexity), true
 
+	case "TeamEnvironment.name":
+		if e.complexity.TeamEnvironment.Name == nil {
+			break
+		}
+
+		return e.complexity.TeamEnvironment.Name(childComplexity), true
+
 	case "TeamMember.role":
 		if e.complexity.TeamMember.Role == nil {
 			break
@@ -709,7 +708,7 @@ type Application implements Workload {
   id: ID!
   name: String!
   team: Team!
-  environment: Environment!
+  environment: TeamEnvironment!
 
   # image: String!
   # deployInfo: DeployInfo!
@@ -742,7 +741,8 @@ enum ApplicationOrderField {
   VULNERABILITIES
   RISK_SCORE
   DEPLOYMENT_TIME
-}`, BuiltIn: false},
+}
+`, BuiltIn: false},
 	{Name: "../schema/scalars.graphqls", Input: `"Time is a string in [RFC 3339](https://rfc-editor.org/rfc/rfc3339.html) format, with sub-second precision added if present."
 scalar Time
 
@@ -805,9 +805,7 @@ enum OrderDirection {
     orderBy: TeamOrder
   ): TeamConnection!
 
-  team(
-    slug: Slug!
-  ): Team!
+  team(slug: Slug!): Team!
 }
 
 type TeamConnection {
@@ -827,6 +825,10 @@ input TeamOrder {
 
 enum TeamOrderField {
   SLUG
+}
+
+type TeamEnvironment {
+  name: String!
 }
 
 "Team type."
@@ -927,7 +929,8 @@ enum TeamMemberOrderField {
   NAME
   EMAIL
   ROLE
-}`, BuiltIn: false},
+}
+`, BuiltIn: false},
 	{Name: "../schema/users.graphqls", Input: `extend type Query {
   "Get a collection of users, sorted by name."
   users(
@@ -1001,7 +1004,7 @@ type User {
   id: ID!
   name: String!
   team: Team!
-  environment: Environment!
+  environment: TeamEnvironment!
   # image: String!
   # deployInfo: DeployInfo!
   # accessPolicy: AccessPolicy!
@@ -1011,10 +1014,7 @@ type User {
   # resources: Resources!
   # persistence: [Persistence!]!
 }
-
-type Environment {
-  name: String!
-}`, BuiltIn: false},
+`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -1508,9 +1508,9 @@ func (ec *executionContext) _Application_environment(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*donotuse.Environment)
+	res := resTmp.(*team.TeamEnvironment)
 	fc.Result = res
-	return ec.marshalNEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋmodelv1ᚋdonotuseᚐEnvironment(ctx, field.Selections, res)
+	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Application_environment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1522,9 +1522,9 @@ func (ec *executionContext) fieldContext_Application_environment(ctx context.Con
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "name":
-				return ec.fieldContext_Environment_name(ctx, field)
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Environment", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
 	}
 	return fc, nil
@@ -1729,50 +1729,6 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(ctx context.Contex
 				return ec.fieldContext_Application_environment(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Environment_name(ctx context.Context, field graphql.CollectedField, obj *donotuse.Environment) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Environment_name(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Environment_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Environment",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3300,6 +3256,50 @@ func (ec *executionContext) fieldContext_TeamEdge_node(ctx context.Context, fiel
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironment_name(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironment_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironment_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6246,45 +6246,6 @@ func (ec *executionContext) _ApplicationEdge(ctx context.Context, sel ast.Select
 	return out
 }
 
-var environmentImplementors = []string{"Environment"}
-
-func (ec *executionContext) _Environment(ctx context.Context, sel ast.SelectionSet, obj *donotuse.Environment) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, environmentImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Environment")
-		case "name":
-			out.Values[i] = ec._Environment_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var pageInfoImplementors = []string{"PageInfo"}
 
 func (ec *executionContext) _PageInfo(ctx context.Context, sel ast.SelectionSet, obj *pagination.PageInfo) graphql.Marshaler {
@@ -6759,6 +6720,45 @@ func (ec *executionContext) _TeamEdge(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "node":
 			out.Values[i] = ec._TeamEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamEnvironmentImplementors = []string{"TeamEnvironment"}
+
+func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironment) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamEnvironment")
+		case "name":
+			out.Values[i] = ec._TeamEnvironment_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -7611,20 +7611,6 @@ func (ec *executionContext) marshalNCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
-func (ec *executionContext) marshalNEnvironment2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋmodelv1ᚋdonotuseᚐEnvironment(ctx context.Context, sel ast.SelectionSet, v donotuse.Environment) graphql.Marshaler {
-	return ec._Environment(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋmodelv1ᚋdonotuseᚐEnvironment(ctx context.Context, sel ast.SelectionSet, v *donotuse.Environment) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Environment(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, v interface{}) (uuid.UUID, error) {
 	res, err := scalar.UnmarshalUUID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -7783,6 +7769,20 @@ func (ec *executionContext) marshalNTeamEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinte
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNTeamEnvironment2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx context.Context, sel ast.SelectionSet, v team.TeamEnvironment) graphql.Marshaler {
+	return ec._TeamEnvironment(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx context.Context, sel ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamEnvironment(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx context.Context, sel ast.SelectionSet, v *team.TeamMember) graphql.Marshaler {

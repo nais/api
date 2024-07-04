@@ -2,7 +2,7 @@ interface Workload {
   id: ID!
   name: String!
   team: Team!
-  environment: Environment!
+  environment: TeamEnvironment!
   # image: String!
   # deployInfo: DeployInfo!
   # accessPolicy: AccessPolicy!
@@ -11,8 +11,4 @@ interface Workload {
   # variables: [Variable!]!
   # resources: Resources!
   # persistence: [Persistence!]!
-}
-
-type Environment {
-  name: String!
 }

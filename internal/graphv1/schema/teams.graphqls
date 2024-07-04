@@ -7,9 +7,7 @@ extend type Query {
     orderBy: TeamOrder
   ): TeamConnection!
 
-  team(
-    slug: Slug!
-  ): Team!
+  team(slug: Slug!): Team!
 }
 
 type TeamConnection {
@@ -29,6 +27,10 @@ input TeamOrder {
 
 enum TeamOrderField {
   SLUG
+}
+
+type TeamEnvironment {
+  name: String!
 }
 
 "Team type."

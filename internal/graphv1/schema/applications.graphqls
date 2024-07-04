@@ -11,7 +11,7 @@ type Application implements Workload {
   id: ID!
   name: String!
   team: Team!
-  environment: Environment!
+  environment: TeamEnvironment!
 
   # image: String!
   # deployInfo: DeployInfo!
