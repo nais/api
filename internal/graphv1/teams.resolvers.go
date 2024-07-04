@@ -68,5 +68,7 @@ func (r *Resolver) Team() gengqlv1.TeamResolver { return &teamResolver{r} }
 
 func (r *Resolver) TeamMember() gengqlv1.TeamMemberResolver { return &teamMemberResolver{r} }
 
-type teamResolver struct{ *Resolver }
-type teamMemberResolver struct{ *Resolver }
+type (
+	teamResolver       struct{ *Resolver }
+	teamMemberResolver struct{ *Resolver }
+)
