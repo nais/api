@@ -4,12 +4,21 @@ import (
 	"context"
 
 	"github.com/nais/api/internal/graphv1/pagination"
+	"github.com/nais/api/internal/graphv1/scalar"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team/teamsql"
 )
 
 func Get(ctx context.Context, slug slug.Slug) (*Team, error) {
 	return fromContext(ctx).teamLoader.Load(ctx, slug)
+}
+
+func GetByIdent(ctx context.Context, id scalar.Ident) (*Team, error) {
+	slug, err := parseTeamIdent(id)
+	if err != nil {
+		return nil, err
+	}
+	return Get(ctx, slug)
 }
 
 func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder) (*TeamConnection, error) {
@@ -53,4 +62,12 @@ func ListMembers(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 
 func GetTeamEnvironment(ctx context.Context, teamSlug slug.Slug, envName string) (*TeamEnvironment, error) {
 	return fromContext(ctx).teamEnvironmentLoader.Load(ctx, envSlugName{Slug: teamSlug, EnvName: envName})
+}
+
+func GetTeamEnvironmentByIdent(ctx context.Context, id scalar.Ident) (*TeamEnvironment, error) {
+	slug, envName, err := parseTeamEnvironmentIdent(id)
+	if err != nil {
+		return nil, err
+	}
+	return GetTeamEnvironment(ctx, slug, envName)
 }

@@ -26,6 +26,10 @@ func (r *queryResolver) Team(ctx context.Context, slug slug.Slug) (*team.Team, e
 	return team.Get(ctx, slug)
 }
 
+func (r *teamResolver) AzureGroupID(ctx context.Context, obj *team.Team) (*scalar.Ident, error) {
+	panic(fmt.Errorf("not implemented: AzureGroupID - azureGroupID"))
+}
+
 func (r *teamResolver) Members(ctx context.Context, obj *team.Team, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *team.TeamMemberOrder) (*pagination.Connection[*team.TeamMember], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {

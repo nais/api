@@ -42,6 +42,6 @@ type dataloader struct {
 }
 
 func (l dataloader) list(ctx context.Context, userIDs []uuid.UUID) ([]*User, []error) {
-	getID := func(obj *User) uuid.UUID { return obj.ID }
-	return loaderv1.LoadModels(ctx, userIDs, l.db.GetByIDs, toGraphUser, getID)
+	makeKey := func(obj *User) uuid.UUID { return obj.UUID }
+	return loaderv1.LoadModels(ctx, userIDs, l.db.GetByIDs, toGraphUser, makeKey)
 }

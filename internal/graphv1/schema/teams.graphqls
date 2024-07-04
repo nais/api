@@ -29,7 +29,7 @@ enum TeamOrderField {
   SLUG
 }
 
-type TeamEnvironment {
+type TeamEnvironment implements Node {
   id: ID!
   name: String!
   gcpProjectID: String
@@ -37,7 +37,7 @@ type TeamEnvironment {
 }
 
 "Team type."
-type Team {
+type Team implements Node {
   id: ID!
 
   "Unique slug of the team."
