@@ -3,10 +3,11 @@ package api
 import (
 	"context"
 	"errors"
-	"github.com/nais/api/internal/k8s"
-	"github.com/nais/api/internal/workload/application"
 	"net/http"
 	"time"
+
+	"github.com/nais/api/internal/k8s"
+	"github.com/nais/api/internal/workload/application"
 
 	"github.com/nais/api/internal/team"
 

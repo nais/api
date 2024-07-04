@@ -229,5 +229,21 @@ func (e TeamMemberOrderField) MarshalGQL(w io.Writer) {
 }
 
 type TeamEnvironment struct {
-	Name string `json:"name"`
+	Name               string    `json:"name"`
+	TeamSlug           slug.Slug `json:"-"`
+	GCPProjectID       *string   `json:"gcpProjectID,omitempty"`
+	SlackAlertsChannel string    `json:"slackAlertsChannel"`
+}
+
+func (e TeamEnvironment) ID() string {
+	return e.TeamSlug.String() + ":" + e.Name
+}
+
+func toGraphTeamEnvironment(m *teamsql.TeamAllEnvironment) *TeamEnvironment {
+	return &TeamEnvironment{
+		Name:               m.Environment,
+		TeamSlug:           m.TeamSlug,
+		GCPProjectID:       m.GcpProjectID,
+		SlackAlertsChannel: m.SlackAlertsChannel,
+	}
 }

@@ -2,11 +2,12 @@ package application
 
 import (
 	"context"
+	"slices"
+
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
 	"github.com/nais/api/internal/slug"
-	"slices"
 )
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *ApplicationOrder) (*ApplicationConnection, error) {

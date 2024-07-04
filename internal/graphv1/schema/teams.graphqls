@@ -30,7 +30,10 @@ enum TeamOrderField {
 }
 
 type TeamEnvironment {
+  id: ID!
   name: String!
+  gcpProjectID: String
+  slackAlertsChannel: String!
 }
 
 "Team type."

@@ -13,9 +13,7 @@ func (r *applicationResolver) Team(ctx context.Context, obj *application.Applica
 }
 
 func (r *applicationResolver) Environment(ctx context.Context, obj *application.Application) (*team.TeamEnvironment, error) {
-	return &team.TeamEnvironment{
-		Name: obj.EnvironmentName,
-	}, nil
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *Resolver) Application() gengqlv1.ApplicationResolver { return &applicationResolver{r} }
