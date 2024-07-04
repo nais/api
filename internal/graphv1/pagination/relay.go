@@ -2,7 +2,6 @@ package pagination
 
 import (
 	"github.com/nais/api/internal/graph/apierror"
-	"github.com/nais/api/internal/graphv1/scalar"
 )
 
 type Pagination struct {
@@ -24,7 +23,7 @@ func (p *Pagination) Limit() int32 {
 	return p.limit
 }
 
-func ParsePage(first *int, after *scalar.Cursor, last *int, before *scalar.Cursor) (*Pagination, error) {
+func ParsePage(first *int, after *Cursor, last *int, before *Cursor) (*Pagination, error) {
 	p := &Pagination{}
 
 	switch {

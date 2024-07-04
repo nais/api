@@ -1,10 +1,8 @@
 package pagination
 
-import "github.com/nais/api/internal/graphv1/scalar"
-
 type Edge[T any] struct {
-	Node   T             `json:"node"`
-	Cursor scalar.Cursor `json:"cursor"`
+	Node   T      `json:"node"`
+	Cursor Cursor `json:"cursor"`
 }
 
 type Connection[T any] struct {
@@ -18,9 +16,9 @@ type PageInfo struct {
 	// Whether or not there exists a next page in the data set.
 	HasNextPage bool `json:"hasNextPage"`
 	// Whether or not there exists a previous page in the data set.
-	HasPreviousPage bool           `json:"hasPreviousPage"`
-	StartCursor     *scalar.Cursor `json:"startCursor"`
-	EndCursor       *scalar.Cursor `json:"endCursor"`
+	HasPreviousPage bool    `json:"hasPreviousPage"`
+	StartCursor     *Cursor `json:"startCursor"`
+	EndCursor       *Cursor `json:"endCursor"`
 }
 
 func NewConnection[T any](nodes []T, page *Pagination, total int32) *Connection[T] {
@@ -32,13 +30,13 @@ func NewConvertConnection[T any, F any](nodes []T, page *Pagination, total int32
 	for i, node := range nodes {
 		edges[i] = Edge[F]{
 			Node: fn(node),
-			Cursor: scalar.Cursor{
+			Cursor: Cursor{
 				Offset: page.Offset() + int32(i),
 			},
 		}
 	}
 
-	var startCursor, endCursor *scalar.Cursor
+	var startCursor, endCursor *Cursor
 	if len(edges) > 0 {
 		startCursor = &edges[0].Cursor
 		endCursor = &edges[len(edges)-1].Cursor
