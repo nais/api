@@ -32,9 +32,6 @@ type Team struct {
 	LastSuccessfulSync     *time.Time `json:"lastSuccessfulSync,omitempty"`
 	DeleteKeyConfirmedAt   *time.Time `json:"-"`
 	SlackChannel           string     `json:"slackChannel"`
-	DeletionInProgress     bool       `json:"deletionInProgress"`
-	ViewerIsOwner          bool       `json:"viewerIsOwner"`
-	ViewerIsMember         bool       `json:"viewerIsMember"`
 }
 
 func (t Team) ID() string {
