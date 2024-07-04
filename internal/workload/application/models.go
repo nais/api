@@ -5,13 +5,11 @@ import (
 	"io"
 	"strconv"
 
-	ident2 "github.com/nais/api/internal/graphv1/ident"
-
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/slug"
-
+	"github.com/nais/api/internal/graphv1/ident"
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
+	"github.com/nais/api/internal/slug"
 )
 
 type (
@@ -32,7 +30,7 @@ type Application struct {
 func (Application) IsWorkload() {}
 func (Application) IsNode()     {}
 
-func (a Application) ID() ident2.Ident {
+func (a Application) ID() ident.Ident {
 	return newIdent(a.TeamSlug, a.EnvironmentName, a.Name)
 }
 
@@ -51,15 +49,6 @@ const (
 	ApplicationOrderFieldRiskScore       ApplicationOrderField = "RISK_SCORE"
 	ApplicationOrderFieldDeploymentTime  ApplicationOrderField = "DEPLOYMENT_TIME"
 )
-
-var AllApplicationOrderField = []ApplicationOrderField{
-	ApplicationOrderFieldStatus,
-	ApplicationOrderFieldName,
-	ApplicationOrderFieldEnvironment,
-	ApplicationOrderFieldVulnerabilities,
-	ApplicationOrderFieldRiskScore,
-	ApplicationOrderFieldDeploymentTime,
-}
 
 func (e ApplicationOrderField) IsValid() bool {
 	switch e {

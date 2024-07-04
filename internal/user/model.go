@@ -6,9 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	ident2 "github.com/nais/api/internal/graphv1/ident"
-
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/graphv1/ident"
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
 	"github.com/nais/api/internal/user/usersql"
@@ -28,7 +27,7 @@ type User struct {
 
 func (User) IsNode() {}
 
-func (u User) ID() ident2.Ident {
+func (u User) ID() ident.Ident {
 	return newIdent(u.UUID)
 }
 
