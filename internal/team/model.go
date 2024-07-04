@@ -8,12 +8,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/nais/api/internal/team/teamsql"
-
-	"github.com/nais/api/internal/slug"
-
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
+	"github.com/nais/api/internal/graphv1/scalar"
+	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team/teamsql"
 )
 
 type (
@@ -36,12 +35,14 @@ type Team struct {
 	DeleteKeyConfirmedAt   *time.Time `json:"-"`
 }
 
+func (Team) IsNode() {}
+
 func (t Team) DeletionInProgress() bool {
 	return t.DeleteKeyConfirmedAt != nil
 }
 
-func (t Team) ID() string {
-	return t.Slug.String()
+func (t Team) ID() scalar.Ident {
+	return newTeamIdent(t.Slug)
 }
 
 type TeamOrder struct {
@@ -235,8 +236,10 @@ type TeamEnvironment struct {
 	SlackAlertsChannel string    `json:"slackAlertsChannel"`
 }
 
-func (e TeamEnvironment) ID() string {
-	return e.TeamSlug.String() + ":" + e.Name
+func (TeamEnvironment) IsNode() {}
+
+func (e TeamEnvironment) ID() scalar.Ident {
+	return newTeamEnvironmentIdent(e.TeamSlug, e.Name)
 }
 
 func toGraphTeamEnvironment(m *teamsql.TeamAllEnvironment) *TeamEnvironment {

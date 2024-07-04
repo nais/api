@@ -14,7 +14,6 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/google/uuid"
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
 	"github.com/nais/api/internal/graphv1/scalar"
@@ -83,9 +82,10 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		Node  func(childComplexity int, id scalar.Ident) int
 		Team  func(childComplexity int, slug slug.Slug) int
 		Teams func(childComplexity int, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *team.TeamOrder) int
-		User  func(childComplexity int, id *string, email *string) int
+		User  func(childComplexity int, id *scalar.Ident, email *string) int
 		Users func(childComplexity int, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *user.UserOrder) int
 	}
 
@@ -164,12 +164,15 @@ type ApplicationResolver interface {
 	Environment(ctx context.Context, obj *application.Application) (*team.TeamEnvironment, error)
 }
 type QueryResolver interface {
+	Node(ctx context.Context, id scalar.Ident) (modelv1.Node, error)
 	Teams(ctx context.Context, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *team.TeamOrder) (*pagination.Connection[*team.Team], error)
 	Team(ctx context.Context, slug slug.Slug) (*team.Team, error)
 	Users(ctx context.Context, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *user.UserOrder) (*pagination.Connection[*user.User], error)
-	User(ctx context.Context, id *string, email *string) (*user.User, error)
+	User(ctx context.Context, id *scalar.Ident, email *string) (*user.User, error)
 }
 type TeamResolver interface {
+	AzureGroupID(ctx context.Context, obj *team.Team) (*scalar.Ident, error)
+
 	Members(ctx context.Context, obj *team.Team, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *team.TeamMemberOrder) (*pagination.Connection[*team.TeamMember], error)
 	Applications(ctx context.Context, obj *team.Team, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *application.ApplicationOrder) (*pagination.Connection[*application.Application], error)
 
@@ -294,6 +297,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PageInfo.TotalCount(childComplexity), true
 
+	case "Query.node":
+		if e.complexity.Query.Node == nil {
+			break
+		}
+
+		args, err := ec.field_Query_node_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Node(childComplexity, args["id"].(scalar.Ident)), true
+
 	case "Query.team":
 		if e.complexity.Query.Team == nil {
 			break
@@ -328,7 +343,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.User(childComplexity, args["id"].(*string), args["email"].(*string)), true
+		return e.complexity.Query.User(childComplexity, args["id"].(*scalar.Ident), args["email"].(*string)), true
 
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
@@ -728,7 +743,7 @@ type ApplicationEdge {
   node: Application!
 }
 
-type Application implements Workload {
+type Application implements Node & Workload {
   id: ID!
   name: String!
   team: Team!
@@ -793,7 +808,15 @@ scalar Slug
 
 scalar Cursor`, BuiltIn: false},
 	{Name: "../schema/schema.graphqls", Input: `"The query root for the NAIS GraphQL API."
-type Query
+type Query {
+  node(id: ID!): Node
+}
+
+"An object with an ID."
+interface Node {
+  "ID of the object."
+  id: ID!
+}
 
 # "The root query for implementing GraphQL mutations."
 # type Mutation
@@ -819,7 +842,8 @@ enum OrderDirection {
 
   "Descending sort order."
   DESC
-}`, BuiltIn: false},
+}
+`, BuiltIn: false},
 	{Name: "../schema/teams.graphqls", Input: `extend type Query {
   teams(
     first: Int
@@ -851,7 +875,7 @@ enum TeamOrderField {
   SLUG
 }
 
-type TeamEnvironment {
+type TeamEnvironment implements Node {
   id: ID!
   name: String!
   gcpProjectID: String
@@ -859,7 +883,7 @@ type TeamEnvironment {
 }
 
 "Team type."
-type Team {
+type Team implements Node {
   id: ID!
 
   "Unique slug of the team."
@@ -1002,7 +1026,7 @@ enum UserOrderField {
 }
 
 "User type."
-type User {
+type User implements Node {
   "Unique ID of the user."
   id: ID!
 
@@ -1026,7 +1050,8 @@ type User {
 
   "This field will only be populated via the me query"
   isAdmin: Boolean!
-}`, BuiltIn: false},
+}
+`, BuiltIn: false},
 	{Name: "../schema/workloads.graphqls", Input: `interface Workload {
   id: ID!
   name: String!
@@ -1061,6 +1086,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_node_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 scalar.Ident
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -1133,10 +1173,10 @@ func (ec *executionContext) field_Query_teams_args(ctx context.Context, rawArgs 
 func (ec *executionContext) field_Query_user_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *string
+	var arg0 *scalar.Ident
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
+		arg0, err = ec.unmarshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1359,7 +1399,7 @@ func (ec *executionContext) _Application_id(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return obj.ID(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1371,16 +1411,16 @@ func (ec *executionContext) _Application_id(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(scalar.Ident)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Application_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Application",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
@@ -1987,6 +2027,58 @@ func (ec *executionContext) fieldContext_PageInfo_endCursor(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_node(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Node(rctx, fc.Args["id"].(scalar.Ident))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(modelv1.Node)
+	fc.Result = res
+	return ec.marshalONode2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋmodelv1ᚐNode(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_node(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_node_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_teams(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_teams(ctx, field)
 	if err != nil {
@@ -2210,7 +2302,7 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().User(rctx, fc.Args["id"].(*string), fc.Args["email"].(*string))
+		return ec.resolvers.Query().User(rctx, fc.Args["id"].(*scalar.Ident), fc.Args["email"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2418,9 +2510,9 @@ func (ec *executionContext) _Team_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(scalar.Ident)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Team_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2538,7 +2630,7 @@ func (ec *executionContext) _Team_azureGroupID(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.AzureGroupID, nil
+		return ec.resolvers.Team().AzureGroupID(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2547,17 +2639,17 @@ func (ec *executionContext) _Team_azureGroupID(ctx context.Context, field graphq
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*uuid.UUID)
+	res := resTmp.(*scalar.Ident)
 	fc.Result = res
-	return ec.marshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Team_azureGroupID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
 		},
@@ -3320,9 +3412,9 @@ func (ec *executionContext) _TeamEnvironment_id(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(scalar.Ident)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamEnvironment_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3859,7 +3951,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return obj.ID(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3871,16 +3963,16 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(uuid.UUID)
+	res := resTmp.(scalar.Ident)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
@@ -6184,6 +6276,43 @@ func (ec *executionContext) unmarshalInputUserOrder(ctx context.Context, obj int
 
 // region    ************************** interface.gotpl ***************************
 
+func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj modelv1.Node) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case application.Application:
+		return ec._Application(ctx, sel, &obj)
+	case *application.Application:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Application(ctx, sel, obj)
+	case team.TeamEnvironment:
+		return ec._TeamEnvironment(ctx, sel, &obj)
+	case *team.TeamEnvironment:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamEnvironment(ctx, sel, obj)
+	case team.Team:
+		return ec._Team(ctx, sel, &obj)
+	case *team.Team:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Team(ctx, sel, obj)
+	case user.User:
+		return ec._User(ctx, sel, &obj)
+	case *user.User:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._User(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _Workload(ctx context.Context, sel ast.SelectionSet, obj application.Workload) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -6204,7 +6333,7 @@ func (ec *executionContext) _Workload(ctx context.Context, sel ast.SelectionSet,
 
 // region    **************************** object.gotpl ****************************
 
-var applicationImplementors = []string{"Application", "Workload"}
+var applicationImplementors = []string{"Application", "Node", "Workload"}
 
 func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionSet, obj *application.Application) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, applicationImplementors)
@@ -6486,6 +6615,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "node":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_node(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "teams":
 			field := field
 
@@ -6605,7 +6753,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
-var teamImplementors = []string{"Team"}
+var teamImplementors = []string{"Team", "Node"}
 
 func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj *team.Team) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamImplementors)
@@ -6632,7 +6780,38 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "azureGroupID":
-			out.Values[i] = ec._Team_azureGroupID(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_azureGroupID(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "gitHubTeamSlug":
 			out.Values[i] = ec._Team_gitHubTeamSlug(ctx, field, obj)
 		case "googleGroupEmail":
@@ -6908,7 +7087,7 @@ func (ec *executionContext) _TeamEdge(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var teamEnvironmentImplementors = []string{"TeamEnvironment"}
+var teamEnvironmentImplementors = []string{"TeamEnvironment", "Node"}
 
 func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironment) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentImplementors)
@@ -7158,7 +7337,7 @@ func (ec *executionContext) _TeamMemberEdge(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var userImplementors = []string{"User"}
+var userImplementors = []string{"User", "Node"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *user.User) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, userImplementors)
@@ -7785,34 +7964,14 @@ func (ec *executionContext) marshalNCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
-func (ec *executionContext) unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, v interface{}) (uuid.UUID, error) {
-	res, err := scalar.UnmarshalUUID(v)
+func (ec *executionContext) unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx context.Context, v interface{}) (scalar.Ident, error) {
+	var res scalar.Ident
+	err := res.UnmarshalGQLContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, sel ast.SelectionSet, v uuid.UUID) graphql.Marshaler {
-	res := scalar.MarshalUUID(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalString(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalString(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
+func (ec *executionContext) marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx context.Context, sel ast.SelectionSet, v scalar.Ident) graphql.Marshaler {
+	return graphql.WrapContextMarshaler(ctx, v)
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
@@ -8450,36 +8609,20 @@ func (ec *executionContext) marshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
-func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, v interface{}) (*uuid.UUID, error) {
+func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx context.Context, v interface{}) (*scalar.Ident, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := scalar.UnmarshalUUID(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+	var res = new(scalar.Ident)
+	err := res.UnmarshalGQLContext(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, sel ast.SelectionSet, v *uuid.UUID) graphql.Marshaler {
+func (ec *executionContext) marshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx context.Context, sel ast.SelectionSet, v *scalar.Ident) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	res := scalar.MarshalUUID(*v)
-	return res
-}
-
-func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalString(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalString(*v)
-	return res
+	return graphql.WrapContextMarshaler(ctx, v)
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
@@ -8496,6 +8639,13 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	}
 	res := graphql.MarshalInt(*v)
 	return res
+}
+
+func (ec *executionContext) marshalONode2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋmodelv1ᚐNode(ctx context.Context, sel ast.SelectionSet, v modelv1.Node) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Node(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

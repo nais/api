@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
+	"github.com/nais/api/internal/graphv1/scalar"
 	"github.com/nais/api/internal/user/usersql"
 )
 
@@ -18,15 +19,21 @@ type (
 )
 
 type User struct {
-	ID         uuid.UUID `json:"id"`
+	UUID       uuid.UUID `json:"-"`
 	Email      string    `json:"email"`
 	Name       string    `json:"name"`
 	ExternalID string    `json:"externalId"`
 }
 
+func (User) IsNode() {}
+
+func (u User) ID() scalar.Ident {
+	return newIdent(u.UUID)
+}
+
 func toGraphUser(u *usersql.User) *User {
 	return &User{
-		ID:         u.ID,
+		UUID:       u.ID,
 		Email:      u.Email,
 		Name:       u.Name,
 		ExternalID: u.ExternalID,

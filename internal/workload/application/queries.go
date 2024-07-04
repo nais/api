@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
+	"github.com/nais/api/internal/graphv1/scalar"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -41,4 +42,22 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 
 	apps := pagination.Slice(allApplications, page)
 	return pagination.NewConvertConnection(apps, page, int32(len(allApplications)), toGraphApplication), nil
+}
+
+func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Application, error) {
+	l := fromContext(ctx).applicationLoader
+
+	return l.Load(ctx, applicationIdentifier{
+		namespace:   teamSlug.String(),
+		environment: environment,
+		name:        name,
+	})
+}
+
+func GetByIdent(ctx context.Context, id scalar.Ident) (*Application, error) {
+	slug, env, name, err := parseIdent(id)
+	if err != nil {
+		return nil, err
+	}
+	return Get(ctx, slug, env, name)
 }

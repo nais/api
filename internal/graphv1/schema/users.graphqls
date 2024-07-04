@@ -42,7 +42,7 @@ enum UserOrderField {
 }
 
 "User type."
-type User {
+type User implements Node {
   "Unique ID of the user."
   id: ID!
 

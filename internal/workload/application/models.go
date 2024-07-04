@@ -1,8 +1,6 @@
 package application
 
 import (
-	"bytes"
-	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -12,6 +10,7 @@ import (
 
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
+	"github.com/nais/api/internal/graphv1/scalar"
 )
 
 type (
@@ -24,13 +23,17 @@ type Workload interface {
 }
 
 type Application struct {
-	ID              string    `json:"id"`
 	Name            string    `json:"name"`
 	EnvironmentName string    `json:"-"`
 	TeamSlug        slug.Slug `json:"-"`
 }
 
 func (Application) IsWorkload() {}
+func (Application) IsNode()     {}
+
+func (a Application) ID() scalar.Ident {
+	return newIdent(a.TeamSlug, a.EnvironmentName, a.Name)
+}
 
 type ApplicationOrder struct {
 	Field     ApplicationOrderField  `json:"field"`
@@ -87,11 +90,7 @@ func (e ApplicationOrderField) MarshalGQL(w io.Writer) {
 }
 
 func toGraphApplication(a *model.App) *Application {
-	buf := &bytes.Buffer{}
-	a.ID.MarshalGQLContext(context.TODO(), buf)
-	id, _ := strconv.Unquote(buf.String())
 	return &Application{
-		ID:              id,
 		Name:            a.Name,
 		EnvironmentName: a.Env.Name,
 		TeamSlug:        a.GQLVars.Team,

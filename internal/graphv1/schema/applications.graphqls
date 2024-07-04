@@ -7,7 +7,7 @@ type ApplicationEdge {
   node: Application!
 }
 
-type Application implements Workload {
+type Application implements Node & Workload {
   id: ID!
   name: String!
   team: Team!

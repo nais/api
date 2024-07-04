@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graphv1/loaderv1"
@@ -42,7 +43,16 @@ type dataloader struct {
 }
 
 func (l dataloader) getApplications(ctx context.Context, ids []applicationIdentifier) ([]*model.App, error) {
-	return []*model.App{}, nil
+	ret := make([]*model.App, 0)
+	for _, id := range ids {
+		app, err := l.k8sClient.App(ctx, id.name, id.namespace, id.environment)
+		if err != nil {
+			fmt.Println("error fetching application", err)
+			continue
+		}
+		ret = append(ret, app)
+	}
+	return ret, nil
 }
 
 type applicationIdentifier struct {
@@ -52,12 +62,12 @@ type applicationIdentifier struct {
 }
 
 func (l dataloader) list(ctx context.Context, ids []applicationIdentifier) ([]*Application, []error) {
-	getID := func(obj *Application) applicationIdentifier {
+	makeKey := func(obj *Application) applicationIdentifier {
 		return applicationIdentifier{
 			namespace:   obj.TeamSlug.String(),
 			environment: obj.EnvironmentName,
 			name:        obj.Name,
 		}
 	}
-	return loaderv1.LoadModels(ctx, ids, l.getApplications, toGraphApplication, getID)
+	return loaderv1.LoadModels(ctx, ids, l.getApplications, toGraphApplication, makeKey)
 }
