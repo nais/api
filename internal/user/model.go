@@ -2,6 +2,7 @@ package user
 
 import (
 	"fmt"
+	ident2 "github.com/nais/api/internal/graphv1/ident"
 	"io"
 	"strconv"
 	"strings"
@@ -9,7 +10,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
-	"github.com/nais/api/internal/graphv1/scalar"
 	"github.com/nais/api/internal/user/usersql"
 )
 
@@ -27,7 +27,7 @@ type User struct {
 
 func (User) IsNode() {}
 
-func (u User) ID() scalar.Ident {
+func (u User) ID() ident2.Ident {
 	return newIdent(u.UUID)
 }
 

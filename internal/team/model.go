@@ -2,6 +2,7 @@ package team
 
 import (
 	"fmt"
+	"github.com/nais/api/internal/graphv1/ident"
 	"io"
 	"strconv"
 	"strings"
@@ -10,7 +11,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
-	"github.com/nais/api/internal/graphv1/scalar"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team/teamsql"
 )
@@ -41,7 +41,7 @@ func (t Team) DeletionInProgress() bool {
 	return t.DeleteKeyConfirmedAt != nil
 }
 
-func (t Team) ID() scalar.Ident {
+func (t Team) ID() ident.Ident {
 	return newTeamIdent(t.Slug)
 }
 
@@ -238,7 +238,7 @@ type TeamEnvironment struct {
 
 func (TeamEnvironment) IsNode() {}
 
-func (e TeamEnvironment) ID() scalar.Ident {
+func (e TeamEnvironment) ID() ident.Ident {
 	return newTeamEnvironmentIdent(e.TeamSlug, e.Name)
 }
 

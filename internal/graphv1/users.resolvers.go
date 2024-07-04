@@ -3,6 +3,7 @@ package graphv1
 import (
 	"context"
 	"fmt"
+	"github.com/nais/api/internal/graphv1/ident"
 
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graphv1/gengqlv1"
@@ -20,7 +21,7 @@ func (r *queryResolver) Users(ctx context.Context, first *int, after *scalar.Cur
 	return user.List(ctx, page, orderBy)
 }
 
-func (r *queryResolver) User(ctx context.Context, id *scalar.Ident, email *string) (*user.User, error) {
+func (r *queryResolver) User(ctx context.Context, id *ident.Ident, email *string) (*user.User, error) {
 	if id != nil {
 		return user.GetByIdent(ctx, *id)
 	}

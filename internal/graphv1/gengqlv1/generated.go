@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/nais/api/internal/graphv1/ident"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -82,10 +83,10 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Node  func(childComplexity int, id scalar.Ident) int
+		Node  func(childComplexity int, id ident.Ident) int
 		Team  func(childComplexity int, slug slug.Slug) int
 		Teams func(childComplexity int, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *team.TeamOrder) int
-		User  func(childComplexity int, id *scalar.Ident, email *string) int
+		User  func(childComplexity int, id *ident.Ident, email *string) int
 		Users func(childComplexity int, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *user.UserOrder) int
 	}
 
@@ -164,14 +165,14 @@ type ApplicationResolver interface {
 	Environment(ctx context.Context, obj *application.Application) (*team.TeamEnvironment, error)
 }
 type QueryResolver interface {
-	Node(ctx context.Context, id scalar.Ident) (modelv1.Node, error)
+	Node(ctx context.Context, id ident.Ident) (modelv1.Node, error)
 	Teams(ctx context.Context, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *team.TeamOrder) (*pagination.Connection[*team.Team], error)
 	Team(ctx context.Context, slug slug.Slug) (*team.Team, error)
 	Users(ctx context.Context, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *user.UserOrder) (*pagination.Connection[*user.User], error)
-	User(ctx context.Context, id *scalar.Ident, email *string) (*user.User, error)
+	User(ctx context.Context, id *ident.Ident, email *string) (*user.User, error)
 }
 type TeamResolver interface {
-	AzureGroupID(ctx context.Context, obj *team.Team) (*scalar.Ident, error)
+	AzureGroupID(ctx context.Context, obj *team.Team) (*ident.Ident, error)
 
 	Members(ctx context.Context, obj *team.Team, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *team.TeamMemberOrder) (*pagination.Connection[*team.TeamMember], error)
 	Applications(ctx context.Context, obj *team.Team, first *int, after *scalar.Cursor, last *int, before *scalar.Cursor, orderBy *application.ApplicationOrder) (*pagination.Connection[*application.Application], error)
@@ -307,7 +308,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Node(childComplexity, args["id"].(scalar.Ident)), true
+		return e.complexity.Query.Node(childComplexity, args["id"].(ident.Ident)), true
 
 	case "Query.team":
 		if e.complexity.Query.Team == nil {
@@ -343,7 +344,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.User(childComplexity, args["id"].(*scalar.Ident), args["email"].(*string)), true
+		return e.complexity.Query.User(childComplexity, args["id"].(*ident.Ident), args["email"].(*string)), true
 
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
@@ -1092,7 +1093,7 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_node_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 scalar.Ident
+	var arg0 ident.Ident
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 		arg0, err = ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, tmp)
@@ -1173,7 +1174,7 @@ func (ec *executionContext) field_Query_teams_args(ctx context.Context, rawArgs 
 func (ec *executionContext) field_Query_user_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *scalar.Ident
+	var arg0 *ident.Ident
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 		arg0, err = ec.unmarshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, tmp)
@@ -1411,7 +1412,7 @@ func (ec *executionContext) _Application_id(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(scalar.Ident)
+	res := resTmp.(ident.Ident)
 	fc.Result = res
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, field.Selections, res)
 }
@@ -2041,7 +2042,7 @@ func (ec *executionContext) _Query_node(ctx context.Context, field graphql.Colle
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Node(rctx, fc.Args["id"].(scalar.Ident))
+		return ec.resolvers.Query().Node(rctx, fc.Args["id"].(ident.Ident))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2302,7 +2303,7 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().User(rctx, fc.Args["id"].(*scalar.Ident), fc.Args["email"].(*string))
+		return ec.resolvers.Query().User(rctx, fc.Args["id"].(*ident.Ident), fc.Args["email"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2510,7 +2511,7 @@ func (ec *executionContext) _Team_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(scalar.Ident)
+	res := resTmp.(ident.Ident)
 	fc.Result = res
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, field.Selections, res)
 }
@@ -2639,7 +2640,7 @@ func (ec *executionContext) _Team_azureGroupID(ctx context.Context, field graphq
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*scalar.Ident)
+	res := resTmp.(*ident.Ident)
 	fc.Result = res
 	return ec.marshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, field.Selections, res)
 }
@@ -3412,7 +3413,7 @@ func (ec *executionContext) _TeamEnvironment_id(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(scalar.Ident)
+	res := resTmp.(ident.Ident)
 	fc.Result = res
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, field.Selections, res)
 }
@@ -3963,7 +3964,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(scalar.Ident)
+	res := resTmp.(ident.Ident)
 	fc.Result = res
 	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx, field.Selections, res)
 }
@@ -7964,13 +7965,13 @@ func (ec *executionContext) marshalNCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
-func (ec *executionContext) unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx context.Context, v interface{}) (scalar.Ident, error) {
-	var res scalar.Ident
+func (ec *executionContext) unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx context.Context, v interface{}) (ident.Ident, error) {
+	var res ident.Ident
 	err := res.UnmarshalGQLContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx context.Context, sel ast.SelectionSet, v scalar.Ident) graphql.Marshaler {
+func (ec *executionContext) marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx context.Context, sel ast.SelectionSet, v ident.Ident) graphql.Marshaler {
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
@@ -8609,16 +8610,16 @@ func (ec *executionContext) marshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
-func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx context.Context, v interface{}) (*scalar.Ident, error) {
+func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx context.Context, v interface{}) (*ident.Ident, error) {
 	if v == nil {
 		return nil, nil
 	}
-	var res = new(scalar.Ident)
+	var res = new(ident.Ident)
 	err := res.UnmarshalGQLContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx context.Context, sel ast.SelectionSet, v *scalar.Ident) graphql.Marshaler {
+func (ec *executionContext) marshalOID2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋscalarᚐIdent(ctx context.Context, sel ast.SelectionSet, v *ident.Ident) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

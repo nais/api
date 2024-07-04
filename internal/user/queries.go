@@ -2,10 +2,10 @@ package user
 
 import (
 	"context"
+	ident2 "github.com/nais/api/internal/graphv1/ident"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graphv1/pagination"
-	"github.com/nais/api/internal/graphv1/scalar"
 	"github.com/nais/api/internal/user/usersql"
 )
 
@@ -13,7 +13,7 @@ func Get(ctx context.Context, userID uuid.UUID) (*User, error) {
 	return fromContext(ctx).userLoader.Load(ctx, userID)
 }
 
-func GetByIdent(ctx context.Context, ident scalar.Ident) (*User, error) {
+func GetByIdent(ctx context.Context, ident ident2.Ident) (*User, error) {
 	uid, err := parseIdent(ident)
 	if err != nil {
 		return nil, err

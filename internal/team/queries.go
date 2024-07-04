@@ -2,9 +2,9 @@ package team
 
 import (
 	"context"
+	"github.com/nais/api/internal/graphv1/ident"
 
 	"github.com/nais/api/internal/graphv1/pagination"
-	"github.com/nais/api/internal/graphv1/scalar"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team/teamsql"
 )
@@ -13,7 +13,7 @@ func Get(ctx context.Context, slug slug.Slug) (*Team, error) {
 	return fromContext(ctx).teamLoader.Load(ctx, slug)
 }
 
-func GetByIdent(ctx context.Context, id scalar.Ident) (*Team, error) {
+func GetByIdent(ctx context.Context, id ident.Ident) (*Team, error) {
 	slug, err := parseTeamIdent(id)
 	if err != nil {
 		return nil, err
@@ -64,7 +64,7 @@ func GetTeamEnvironment(ctx context.Context, teamSlug slug.Slug, envName string)
 	return fromContext(ctx).teamEnvironmentLoader.Load(ctx, envSlugName{Slug: teamSlug, EnvName: envName})
 }
 
-func GetTeamEnvironmentByIdent(ctx context.Context, id scalar.Ident) (*TeamEnvironment, error) {
+func GetTeamEnvironmentByIdent(ctx context.Context, id ident.Ident) (*TeamEnvironment, error) {
 	slug, envName, err := parseTeamEnvironmentIdent(id)
 	if err != nil {
 		return nil, err

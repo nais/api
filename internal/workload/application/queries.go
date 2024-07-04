@@ -2,12 +2,12 @@ package application
 
 import (
 	"context"
+	ident2 "github.com/nais/api/internal/graphv1/ident"
 	"slices"
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
-	"github.com/nais/api/internal/graphv1/scalar"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -54,7 +54,7 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Ap
 	})
 }
 
-func GetByIdent(ctx context.Context, id scalar.Ident) (*Application, error) {
+func GetByIdent(ctx context.Context, id ident2.Ident) (*Application, error) {
 	slug, env, name, err := parseIdent(id)
 	if err != nil {
 		return nil, err
