@@ -56,6 +56,15 @@ type Team {
   "The CDN bucket for the team."
   cdnBucket: String
 
+  "Team members."
+  members(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: TeamMemberOrder
+  ): TeamMemberConnection!
+
   "Timestamp of the last successful synchronization of the team."
   lastSuccessfulSync: Time
 
@@ -70,4 +79,46 @@ type Team {
 
   "Whether or not the viewer is a member of the team."
   viewerIsMember: Boolean!
+}
+
+type TeamMemberConnection {
+  pageInfo: PageInfo!
+  edges: [TeamMemberEdge!]!
+}
+
+type TeamMemberEdge {
+  cursor: Cursor!
+  node: TeamMember!
+}
+
+"Team member."
+type TeamMember {
+  "Team instance."
+  team: Team!
+
+  "User instance."
+  user: User!
+
+  "The role that the user has in the team."
+  role: TeamRole!
+}
+
+"Available team roles."
+enum TeamRole {
+  "Regular member, read only access."
+  MEMBER
+
+  "Team owner, full access to the team."
+  OWNER
+}
+
+input TeamMemberOrder {
+  field: TeamMemberOrderField!
+  direction: OrderDirection!
+}
+
+enum TeamMemberOrderField {
+  NAME
+  EMAIL
+  ROLE
 }
