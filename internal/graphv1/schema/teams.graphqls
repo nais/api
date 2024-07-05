@@ -78,6 +78,14 @@ type Team implements Node {
     orderBy: ApplicationOrder
   ): ApplicationConnection!
 
+  jobs(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: JobOrder
+  ): JobConnection!
+
   "Timestamp of the last successful synchronization of the team."
   lastSuccessfulSync: Time
 

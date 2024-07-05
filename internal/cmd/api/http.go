@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"github.com/nais/api/internal/workload/job"
 	"net/http"
 	"time"
 
@@ -83,6 +84,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 			ctx = user.NewLoaderContext(ctx, pool, opts)
 			ctx = team.NewLoaderContext(ctx, pool, opts)
 			ctx = application.NewLoaderContext(ctx, k8sClient, opts)
+			ctx = job.NewLoaderContext(ctx, k8sClient, opts)
 			return ctx
 		}))
 		r.Use(otelhttp.NewMiddleware("graphqlv1", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))
