@@ -18,9 +18,9 @@ import (
 type BackupConfiguration struct {
 	Enabled                     bool   `json:"enabled"`
 	StartTime                   string `json:"startTime"`
-	RetainedBackups             int    `json:"retainedBackups"`
+	RetainedBackups             int64  `json:"retainedBackups"`
 	PointInTimeRecovery         bool   `json:"pointInTimeRecovery"`
-	TransactionLogRetentionDays int    `json:"transactionLogRetentionDays"`
+	TransactionLogRetentionDays int64  `json:"transactionLogRetentionDays"`
 }
 
 type SQLUser struct {
@@ -34,7 +34,7 @@ type SQLInstance struct {
 	CascadingDelete     bool                 `json:"cascadingDelete"`
 	ConnectionName      string               `json:"connectionName"`
 	DiskAutoresize      bool                 `json:"diskAutoresize"`
-	DiskAutoresizeLimit int                  `json:"diskAutoresizeLimit"`
+	DiskAutoresizeLimit int64                `json:"diskAutoresizeLimit"`
 	Env                 Env                  `json:"env"`
 	Flags               []*Flag              `json:"flags"`
 	HighAvailability    bool                 `json:"highAvailability"`
@@ -49,6 +49,11 @@ type SQLInstance struct {
 	State               SQLInstanceState     `json:"state"`
 	Status              SQLInstanceStatus    `json:"status"`
 	GQLVars             SQLInstanceGQLVars   `json:"-"`
+}
+
+type MaintenanceWindow struct {
+	Day  int64 `json:"day"`
+	Hour int64 `json:"hour"`
 }
 
 func (SQLInstance) IsPersistence() {}
@@ -189,7 +194,7 @@ func ToSqlInstance(u *unstructured.Unstructured, env string) (*SQLInstance, erro
 		Tier:               sqlInstance.Spec.Settings.Tier,
 		HighAvailability:   equals(sqlInstance.Spec.Settings.AvailabilityType, "REGIONAL"),
 		DiskAutoresize:     *sqlInstance.Spec.Settings.DiskAutoresize,
-		DiskAutoresizeLimit: func() int {
+		DiskAutoresizeLimit: func() int64 {
 			if sqlInstance.Spec.Settings.DiskAutoresizeLimit == nil {
 				return 0
 			}

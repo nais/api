@@ -30,6 +30,13 @@ type Bucket struct {
 	GQLVars                  BucketGQLVars `json:"-"`
 }
 
+type BucketCors struct {
+	MaxAgeSeconds   *int64   `json:"maxAgeSeconds,omitempty"`
+	Methods         []string `json:"methods"`
+	Origins         []string `json:"origins"`
+	ResponseHeaders []string `json:"responseHeaders"`
+}
+
 type BucketGQLVars struct {
 	TeamSlug       slug.Slug
 	OwnerReference *v1.OwnerReference

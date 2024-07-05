@@ -209,13 +209,6 @@ type BigQueryDatasetStatus struct {
 	LastModifiedTime *time.Time   `json:"lastModifiedTime,omitempty"`
 }
 
-type BucketCors struct {
-	MaxAgeSeconds   *int     `json:"maxAgeSeconds,omitempty"`
-	Methods         []string `json:"methods"`
-	Origins         []string `json:"origins"`
-	ResponseHeaders []string `json:"responseHeaders"`
-}
-
 type BucketStatus struct {
 	Conditions []*Condition `json:"conditions"`
 	SelfLink   string       `json:"selfLink"`
@@ -590,11 +583,6 @@ type LogSubscriptionInput struct {
 	Env       string    `json:"env"`
 	Team      slug.Slug `json:"team"`
 	Instances []string  `json:"instances,omitempty"`
-}
-
-type MaintenanceWindow struct {
-	Day  int `json:"day"`
-	Hour int `json:"hour"`
 }
 
 type Maskinporten struct {
