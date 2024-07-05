@@ -236,6 +236,9 @@ func (c *client) ResourceUtilizationTrendForTeam(ctx context.Context, team slug.
 	if err != nil {
 		return nil, err
 	}
+	if cpuAverage.Request == 0 || memoryAverage.Request == 0 {
+		return nil, nil
+	}
 
 	averageCpuUtilization := cpuAverage.Usage / cpuAverage.Request * 100
 	averageMemoryUtilization := memoryAverage.Usage / memoryAverage.Request * 100
