@@ -1061,9 +1061,6 @@ type User implements Node {
     orderBy: TeamMembershipOrder
   ): TeamMemberConnection!
 
-  # "Roles attached to the user."
-  #roles: [Role!]!
-
   "The external ID of the user."
   externalId: String!
 
