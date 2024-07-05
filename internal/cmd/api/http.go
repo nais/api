@@ -3,9 +3,12 @@ package api
 import (
 	"context"
 	"errors"
-	"github.com/nais/api/internal/workload/job"
 	"net/http"
 	"time"
+
+	"github.com/nais/api/internal/persistence/bigquery"
+	"github.com/nais/api/internal/persistence/redis"
+	"github.com/nais/api/internal/workload/job"
 
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/workload/application"
@@ -85,6 +88,8 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 			ctx = team.NewLoaderContext(ctx, pool, opts)
 			ctx = application.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = job.NewLoaderContext(ctx, k8sClient, opts)
+			ctx = redis.NewLoaderContext(ctx, k8sClient, opts)
+			ctx = bigquery.NewLoaderContext(ctx, k8sClient, opts)
 			return ctx
 		}))
 		r.Use(otelhttp.NewMiddleware("graphqlv1", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))

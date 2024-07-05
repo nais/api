@@ -86,6 +86,20 @@ type Team implements Node {
     orderBy: JobOrder
   ): JobConnection!
 
+  bigQueryDatasets(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+  ): BigQueryDatasetConnection!
+
+  redisInstances(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+  ): RedisInstanceConnection!
+
   "Timestamp of the last successful synchronization of the team."
   lastSuccessfulSync: Time
 

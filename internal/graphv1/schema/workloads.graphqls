@@ -1,4 +1,4 @@
-interface Workload {
+interface Workload implements Node {
   id: ID!
   name: String!
   team: Team!

@@ -1,0 +1,67 @@
+interface Persistence implements Node {
+  id: ID!
+  name: String!
+}
+
+type RedisInstance implements Persistence & Node {
+  id: ID!
+  name: String!
+  access: [RedisInstanceAccess!]!
+  team: Team!
+  environment: TeamEnvironment!
+  cost: Float!
+  workload: Workload
+  status: RedisInstanceStatus!
+}
+
+type RedisInstanceStatus {
+  state: String!
+}
+
+type RedisInstanceAccess {
+  workload: Workload!
+  role: String!
+}
+
+type RedisInstanceConnection {
+  pageInfo: PageInfo!
+  edges: [RedisInstanceEdge!]!
+}
+
+type RedisInstanceEdge {
+  cursor: Cursor!
+  node: RedisInstance!
+}
+
+type BigQueryDataset implements Persistence & Node {
+  id: ID!
+  cascadingDelete: Boolean!
+  description: String!
+  name: String!
+  access: [BigQueryDatasetAccess!]!
+  team: Team!
+  environment: TeamEnvironment!
+  status: BigQueryDatasetStatus!
+  workload: Workload
+  cost: Float!
+}
+
+type BigQueryDatasetStatus {
+  creationTime: Time!
+  lastModifiedTime: Time
+}
+
+type BigQueryDatasetAccess {
+  role: String!
+  email: String!
+}
+
+type BigQueryDatasetConnection {
+  pageInfo: PageInfo!
+  edges: [BigQueryDatasetEdge!]!
+}
+
+type BigQueryDatasetEdge {
+  cursor: Cursor!
+  node: BigQueryDataset!
+}
