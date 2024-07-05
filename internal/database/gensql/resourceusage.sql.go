@@ -12,8 +12,8 @@ import (
 
 const averageResourceUtilizationForTeam = `-- name: AverageResourceUtilizationForTeam :one
 SELECT
-    (SUM(usage) / 24 / 7)::double precision AS usage,
-    (SUM(request) / 24 / 7)::double precision AS request
+    (COALESCE(SUM(usage),0) / 24 / 7)::double precision AS usage,
+    (COALESCE(SUM(request),0) / 24 / 7)::double precision AS request
 FROM
     resource_utilization_metrics
 WHERE
@@ -340,8 +340,8 @@ func (q *Queries) SpecificResourceUtilizationForApp(ctx context.Context, arg Spe
 
 const specificResourceUtilizationForTeam = `-- name: SpecificResourceUtilizationForTeam :many
 SELECT
-    SUM(usage)::double precision AS usage,
-    SUM(request)::double precision AS request,
+    COALESCE(SUM(usage),0)::double precision AS usage,
+    COALESCE(SUM(request),0)::double precision AS request,
     timestamp,
     request > usage as usable_for_cost
 FROM

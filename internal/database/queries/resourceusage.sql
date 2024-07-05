@@ -97,8 +97,8 @@ WHERE
 -- with a usage greater than request will be ignored.
 -- name: SpecificResourceUtilizationForTeam :many
 SELECT
-    SUM(usage)::double precision AS usage,
-    SUM(request)::double precision AS request,
+    COALESCE(SUM(usage),0)::double precision AS usage,
+    COALESCE(SUM(request),0)::double precision AS request,
     timestamp,
     request > usage as usable_for_cost
 FROM
@@ -114,8 +114,8 @@ ORDER BY usable_for_cost DESC;
 -- AverageResourceUtilizationForTeam will return the average resource utilization for a team for a week.
 -- name: AverageResourceUtilizationForTeam :one
 SELECT
-    (SUM(usage) / 24 / 7)::double precision AS usage,
-    (SUM(request) / 24 / 7)::double precision AS request
+    (COALESCE(SUM(usage),0) / 24 / 7)::double precision AS usage,
+    (COALESCE(SUM(request),0) / 24 / 7)::double precision AS request
 FROM
     resource_utilization_metrics
 WHERE
