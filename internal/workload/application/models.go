@@ -17,10 +17,6 @@ type (
 	ApplicationEdge       = pagination.Edge[*Application]
 )
 
-type Workload interface {
-	IsWorkload()
-}
-
 type Application struct {
 	Name            string    `json:"name"`
 	EnvironmentName string    `json:"-"`

@@ -45,9 +45,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Application, error) {
-	l := fromContext(ctx).applicationLoader
-
-	return l.Load(ctx, applicationIdentifier{
+	return fromContext(ctx).applicationLoader.Load(ctx, applicationIdentifier{
 		namespace:   teamSlug.String(),
 		environment: environment,
 		name:        name,
@@ -55,9 +53,9 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Ap
 }
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*Application, error) {
-	slug, env, name, err := parseIdent(id)
+	teamSlug, env, name, err := parseIdent(id)
 	if err != nil {
 		return nil, err
 	}
-	return Get(ctx, slug, env, name)
+	return Get(ctx, teamSlug, env, name)
 }
