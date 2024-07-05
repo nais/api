@@ -20,6 +20,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
+	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
 	gqlparser "github.com/vektah/gqlparser/v2"
@@ -7227,7 +7228,7 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	}
 }
 
-func (ec *executionContext) _Workload(ctx context.Context, sel ast.SelectionSet, obj application.Workload) graphql.Marshaler {
+func (ec *executionContext) _Workload(ctx context.Context, sel ast.SelectionSet, obj workload.Workload) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
