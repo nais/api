@@ -11,6 +11,7 @@ import (
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/workload/job"
 )
 
 func (r *queryResolver) Teams(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) (*pagination.Connection[*team.Team], error) {
@@ -46,6 +47,15 @@ func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *
 	}
 
 	return application.ListForTeam(ctx, obj.Slug, page, orderBy)
+}
+
+func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder) (*pagination.Connection[*job.Job], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return job.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
 func (r *teamResolver) ViewerIsOwner(ctx context.Context, obj *team.Team) (bool, error) {

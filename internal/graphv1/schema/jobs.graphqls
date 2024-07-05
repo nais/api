@@ -1,14 +1,4 @@
-type ApplicationConnection {
-  pageInfo: PageInfo!
-  edges: [ApplicationEdge!]!
-}
-
-type ApplicationEdge {
-  cursor: Cursor!
-  node: Application!
-}
-
-type Application implements Node & Workload {
+type Job implements Node & Workload {
   id: ID!
   name: String!
   team: Team!
@@ -16,29 +6,40 @@ type Application implements Node & Workload {
 
   # image: String!
   # deployInfo: DeployInfo!
-  # env: Env!
   # accessPolicy: AccessPolicy!
   # status: WorkloadStatus!
   # authz: [Authz!]!
-  # variables: [Variable!]!
   # persistence: [Persistence!]!
+  # variables: [Variable!]!
   # resources: Resources!
   # type: WorkloadType!
-  #
+
   # imageDetails: ImageDetails!
-  # ingresses: [String!]!
-  # instances: [Instance!]!
-  # autoScaling: AutoScaling!
+  # runs: [Run!]!
   # manifest: String!
+  # schedule: String!
+  # completions: Int!
+  # parallelism: Int!
+  # retries: Int!
   # secrets: [Secret!]!
 }
 
-input ApplicationOrder {
-  field: ApplicationOrderField!
+type JobConnection {
+  pageInfo: PageInfo!
+  edges: [JobEdge!]!
+}
+
+type JobEdge {
+  cursor: Cursor!
+  node: Job!
+}
+
+input JobOrder {
+  field: JobOrderField!
   direction: OrderDirection!
 }
 
-enum ApplicationOrderField {
+enum JobOrderField {
   STATUS
   NAME
   ENVIRONMENT
