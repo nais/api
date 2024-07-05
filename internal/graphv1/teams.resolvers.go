@@ -7,6 +7,8 @@ import (
 	"github.com/nais/api/internal/graphv1/gengqlv1"
 	"github.com/nais/api/internal/graphv1/ident"
 	"github.com/nais/api/internal/graphv1/pagination"
+	"github.com/nais/api/internal/persistence/bigquery"
+	"github.com/nais/api/internal/persistence/redis"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
@@ -56,6 +58,24 @@ func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, aft
 	}
 
 	return job.ListForTeam(ctx, obj.Slug, page, orderBy)
+}
+
+func (r *teamResolver) BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*bigquery.BigQueryDataset], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return bigquery.ListForTeam(ctx, obj.Slug, page)
+}
+
+func (r *teamResolver) RedisInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*redis.RedisInstance], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return redis.ListForTeam(ctx, obj.Slug, page)
 }
 
 func (r *teamResolver) ViewerIsOwner(ctx context.Context, obj *team.Team) (bool, error) {
