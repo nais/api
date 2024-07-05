@@ -15,11 +15,11 @@ func TestCursor_MarshalGQLContext(t *testing.T) {
 	}{
 		"v1 0": {
 			c:        Cursor{},
-			expected: "djE6MA==",
+			expected: `"42E5H9"`,
 		},
 		"v1 13": {
 			c:        Cursor{Offset: 13},
-			expected: "djE6MTM=",
+			expected: `"ELQhtKc"`,
 		},
 	}
 
@@ -42,11 +42,11 @@ func TestCursor_UnmarshalGQLContext(t *testing.T) {
 		expected *Cursor
 	}{
 		"v1 0": {
-			cursor:   "djE6MA==",
+			cursor:   "42E5H9",
 			expected: &Cursor{},
 		},
 		"v1 13": {
-			cursor:   "djE6MTM=",
+			cursor:   "ELQhtKc",
 			expected: &Cursor{Offset: 13},
 		},
 	}
