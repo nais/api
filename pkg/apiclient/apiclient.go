@@ -10,7 +10,7 @@ type APIClient struct {
 }
 
 func New(target string, opts ...grpc.DialOption) (*APIClient, error) {
-	gclient, err := grpc.Dial(target, opts...)
+	gclient, err := grpc.NewClient(target, opts...)
 	if err != nil {
 		panic("Failed to connect to provider " + err.Error())
 	}

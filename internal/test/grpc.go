@@ -50,7 +50,6 @@ func (f *GRPCServer) ClientOptions() []option.ClientOption {
 			return f.conn.Dial()
 		})),
 		option.WithGRPCDialOption(grpc.WithTransportCredentials(insecure.NewCredentials())),
-		option.WithGRPCDialOption(grpc.WithBlock()),
 		option.WithoutAuthentication(),
 	}
 }
