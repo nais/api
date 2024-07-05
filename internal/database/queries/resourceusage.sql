@@ -62,8 +62,8 @@ ORDER BY
 -- ResourceUtilizationForTeam will return resource utilization records for a given team.
 -- name: ResourceUtilizationForTeam :many
 SELECT
-    SUM(usage)::double precision AS usage,
-    SUM(request)::double precision AS request,
+    COALESCE(SUM(usage),0)::double precision AS usage,
+    COALESCE(SUM(request),0)::double precision AS request,
     timestamp
 FROM
     resource_utilization_metrics
