@@ -11,11 +11,8 @@ type Connection[T any] struct {
 }
 
 type PageInfo struct {
-	// The total amount if items accessible.
-	TotalCount int `json:"totalCount"`
-	// Whether or not there exists a next page in the data set.
-	HasNextPage bool `json:"hasNextPage"`
-	// Whether or not there exists a previous page in the data set.
+	TotalCount      int     `json:"totalCount"`
+	HasNextPage     bool    `json:"hasNextPage"`
 	HasPreviousPage bool    `json:"hasPreviousPage"`
 	StartCursor     *Cursor `json:"startCursor"`
 	EndCursor       *Cursor `json:"endCursor"`
