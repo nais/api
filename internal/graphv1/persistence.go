@@ -17,9 +17,9 @@ func (r *Resolver) workload(ctx context.Context, ownerReference *metav1.OwnerRef
 
 	switch ownerReference.Kind {
 	case "Naisjob":
-		return job.Get(ctx, teamSlug, ownerReference.Name, environmentName)
+		return job.Get(ctx, teamSlug, environmentName, ownerReference.Name)
 	case "Application":
-		return application.Get(ctx, teamSlug, ownerReference.Name, environmentName)
+		return application.Get(ctx, teamSlug, environmentName, ownerReference.Name)
 	default:
 		r.log.WithField("kind", ownerReference.Kind).Warnf("Unsupported owner reference kind")
 	}
