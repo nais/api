@@ -18,8 +18,10 @@ import (
 )
 
 type (
-	BucketConnection = pagination.Connection[*Bucket]
-	BucketEdge       = pagination.Edge[*Bucket]
+	BucketConnection     = pagination.Connection[*Bucket]
+	BucketEdge           = pagination.Edge[*Bucket]
+	BucketCorsConnection = pagination.Connection[*BucketCors]
+	BucketCorsEdge       = pagination.Edge[*BucketCors]
 )
 
 type Bucket struct {
@@ -27,8 +29,8 @@ type Bucket struct {
 	CascadingDelete          bool                   `json:"cascadingDelete"`
 	PublicAccessPrevention   string                 `json:"publicAccessPrevention"`
 	UniformBucketLevelAccess bool                   `json:"uniformBucketLevelAccess"`
-	Cors                     []BucketCors           `json:"cors"`
 	Status                   BucketStatus           `json:"status"`
+	Cors                     []*BucketCors          `json:"-"`
 	TeamSlug                 slug.Slug              `json:"-"`
 	EnvironmentName          string                 `json:"-"`
 	OwnerReference           *metav1.OwnerReference `json:"-"`
@@ -95,10 +97,10 @@ func (e BucketOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-func toBucketCors(cors []storage_cnrm_cloud_google_com_v1beta1.BucketCors) []BucketCors {
-	ret := make([]BucketCors, len(cors))
+func toBucketCors(cors []storage_cnrm_cloud_google_com_v1beta1.BucketCors) []*BucketCors {
+	ret := make([]*BucketCors, len(cors))
 	for i, c := range cors {
-		ret[i] = BucketCors{
+		ret[i] = &BucketCors{
 			MaxAgeSeconds:   c.MaxAgeSeconds,
 			Origins:         c.Origin,
 			Methods:         c.Method,
