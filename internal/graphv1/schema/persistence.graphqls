@@ -85,3 +85,43 @@ enum RedisInstanceOrderField {
   NAME
   ENVIRONMENT
 }
+
+type OpenSearchConnection {
+  pageInfo: PageInfo!
+  edges: [OpenSearchEdge!]!
+}
+
+type OpenSearchEdge {
+  cursor: Cursor!
+  node: OpenSearch!
+}
+
+type OpenSearch implements Persistence & Node {
+  id: ID!
+  name: String!
+  team: Team!
+  status: OpenSearchStatus!
+  environment: TeamEnvironment!
+  workload: Workload
+  access: [OpenSearchAccess!]!
+  cost: Float!
+}
+
+type OpenSearchAccess {
+  workload: Workload!
+  role: String!
+}
+
+type OpenSearchStatus {
+  state: String!
+}
+
+input OpenSearchOrder {
+  field: OpenSearchOrderField!
+  direction: OrderDirection!
+}
+
+enum OpenSearchOrderField {
+  NAME
+  ENVIRONMENT
+}

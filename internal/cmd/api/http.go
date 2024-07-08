@@ -6,21 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/nais/api/internal/persistence/bigquery"
-	"github.com/nais/api/internal/persistence/redis"
-	"github.com/nais/api/internal/workload/job"
-
-	"github.com/nais/api/internal/k8s"
-	"github.com/nais/api/internal/workload/application"
-
-	"github.com/nais/api/internal/team"
-
-	"github.com/nais/api/internal/graph/loader"
-	"github.com/nais/api/internal/graphv1/loaderv1"
-	"github.com/nais/api/internal/user"
-	"github.com/vikstrous/dataloadgen"
-	"go.opentelemetry.io/otel"
-
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
@@ -28,11 +13,23 @@ import (
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/graph/loader"
+	"github.com/nais/api/internal/graphv1/loaderv1"
+	"github.com/nais/api/internal/k8s"
+	"github.com/nais/api/internal/persistence/bigquery"
+	"github.com/nais/api/internal/persistence/opensearch"
+	"github.com/nais/api/internal/persistence/redis"
+	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/user"
+	"github.com/nais/api/internal/workload/application"
+	"github.com/nais/api/internal/workload/job"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
+	"github.com/vikstrous/dataloadgen"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/sync/errgroup"
@@ -90,6 +87,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 			ctx = job.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = redis.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = bigquery.NewLoaderContext(ctx, k8sClient, opts)
+			ctx = opensearch.NewLoaderContext(ctx, k8sClient, opts)
 			return ctx
 		}))
 		r.Use(otelhttp.NewMiddleware("graphqlv1", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))
