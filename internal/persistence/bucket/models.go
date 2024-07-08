@@ -109,7 +109,7 @@ func toBucketCors(cors []storage_cnrm_cloud_google_com_v1beta1.BucketCors) []Buc
 }
 
 func toBucketStatus(status storage_cnrm_cloud_google_com_v1beta1.StorageBucketStatus) BucketStatus {
-	// TODO: Implement status handling for buckets
+	// TODO: Implement
 	return BucketStatus{}
 }
 
