@@ -2,8 +2,11 @@ package redis
 
 import (
 	"fmt"
+	"io"
+	"strconv"
 
 	"github.com/nais/api/internal/graphv1/ident"
+	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
 	"github.com/nais/api/internal/persistence"
 	"github.com/nais/api/internal/slug"
@@ -67,4 +70,45 @@ func toRedisInstance(u *unstructured.Unstructured, envName string) (*RedisInstan
 	}
 
 	return r, nil
+}
+
+type RedisInstanceOrder struct {
+	Field     RedisInstanceOrderField `json:"field"`
+	Direction modelv1.OrderDirection  `json:"direction"`
+}
+
+type RedisInstanceOrderField string
+
+const (
+	RedisInstanceOrderFieldName        RedisInstanceOrderField = "NAME"
+	RedisInstanceOrderFieldEnvironment RedisInstanceOrderField = "ENVIRONMENT"
+)
+
+func (e RedisInstanceOrderField) IsValid() bool {
+	switch e {
+	case RedisInstanceOrderFieldName, RedisInstanceOrderFieldEnvironment:
+		return true
+	}
+	return false
+}
+
+func (e RedisInstanceOrderField) String() string {
+	return string(e)
+}
+
+func (e *RedisInstanceOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RedisInstanceOrderField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RedisInstanceOrderField", str)
+	}
+	return nil
+}
+
+func (e RedisInstanceOrderField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

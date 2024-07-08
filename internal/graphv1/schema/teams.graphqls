@@ -91,6 +91,7 @@ type Team implements Node {
     after: Cursor
     last: Int
     before: Cursor
+    orderBy: BigQueryDatasetOrder
   ): BigQueryDatasetConnection!
 
   redisInstances(
@@ -98,6 +99,7 @@ type Team implements Node {
     after: Cursor
     last: Int
     before: Cursor
+    orderBy: RedisInstanceOrder
   ): RedisInstanceConnection!
 
   "Timestamp of the last successful synchronization of the team."
