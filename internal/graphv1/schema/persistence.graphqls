@@ -58,6 +58,40 @@ type KafkaTopic implements Persistence & Node {
   name: String!
   team: Team!
   environment: TeamEnvironment!
+  acl(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    filter: KafkaTopicAclFilter
+    orderBy: KafkaTopicAclOrder
+  ): KafkaTopicAclConnection!
+  configuration: KafkaTopicConfiguration
+  pool: String!
+  status: KafkaTopicStatus!
+}
+
+type KafkaTopicAcl {
+  access: String!
+  applicationName: String!
+  teamName: String!
+  team: Team
+  workload: Workload
+}
+
+type KafkaTopicConfiguration {
+  cleanupPolicy: String
+  maxMessageBytes: Int
+  minimumInSyncReplicas: Int
+  partitions: Int
+  replication: Int
+  retentionBytes: Int
+  retentionHours: Int
+  segmentHours: Int
+}
+
+type KafkaTopicStatus {
+  state: String!
 }
 
 type OpenSearch implements Persistence & Node {
@@ -115,6 +149,11 @@ type KafkaTopicConnection {
   edges: [KafkaTopicEdge!]!
 }
 
+type KafkaTopicAclConnection {
+  pageInfo: PageInfo!
+  edges: [KafkaTopicAclEdge!]!
+}
+
 type OpenSearchConnection {
   pageInfo: PageInfo!
   edges: [OpenSearchEdge!]!
@@ -140,6 +179,11 @@ type KafkaTopicEdge {
   node: KafkaTopic!
 }
 
+type KafkaTopicAclEdge {
+  cursor: Cursor!
+  node: KafkaTopicAcl!
+}
+
 type OpenSearchEdge {
   cursor: Cursor!
   node: OpenSearch!
@@ -160,8 +204,18 @@ input BucketOrder {
   direction: OrderDirection!
 }
 
+input KafkaTopicAclFilter {
+  team: Slug
+  application: String
+}
+
 input KafkaTopicOrder {
   field: KafkaTopicOrderField!
+  direction: OrderDirection!
+}
+
+input KafkaTopicAclOrder {
+  field: KafkaTopicAclOrderField!
   direction: OrderDirection!
 }
 
@@ -189,6 +243,13 @@ enum KafkaTopicOrderField {
   NAME
   ENVIRONMENT
 }
+
+enum KafkaTopicAclOrderField {
+  TEAM_SLUG
+  CONSUMER
+  ACCESS
+}
+
 enum OpenSearchOrderField {
   NAME
   ENVIRONMENT
