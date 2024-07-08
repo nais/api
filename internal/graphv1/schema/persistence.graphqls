@@ -86,6 +86,33 @@ enum RedisInstanceOrderField {
   ENVIRONMENT
 }
 
+type KafkaTopicConnection {
+  pageInfo: PageInfo!
+  edges: [KafkaTopicEdge!]!
+}
+
+type KafkaTopicEdge {
+  cursor: Cursor!
+  node: KafkaTopic!
+}
+
+type KafkaTopic implements Persistence & Node {
+  id: ID!
+  name: String!
+  team: Team!
+  environment: TeamEnvironment!
+}
+
+input KafkaTopicOrder {
+  field: KafkaTopicOrderField!
+  direction: OrderDirection!
+}
+
+enum KafkaTopicOrderField {
+  NAME
+  ENVIRONMENT
+}
+
 type BucketConnection {
   pageInfo: PageInfo!
   edges: [BucketEdge!]!
@@ -100,7 +127,6 @@ type Bucket implements Persistence & Node {
   id: ID!
   name: String!
   team: Team!
-
   cascadingDelete: Boolean!
   publicAccessPrevention: String!
   retentionPeriodDays: Int!
