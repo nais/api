@@ -35,7 +35,6 @@ type Bucket implements Persistence & Node {
   environment: TeamEnvironment!
   cascadingDelete: Boolean!
   publicAccessPrevention: String!
-  retentionPeriodDays: Int!
   uniformBucketLevelAccess: Boolean!
   cors: [BucketCors!]!
   projectId: String!
