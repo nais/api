@@ -1,54 +1,21 @@
 interface Persistence implements Node {
   id: ID!
   name: String!
-}
-
-type RedisInstance implements Persistence & Node {
-  id: ID!
-  name: String!
-  access: [RedisInstanceAccess!]!
   team: Team!
   environment: TeamEnvironment!
-  cost: Float!
-  workload: Workload
-  status: RedisInstanceStatus!
-}
-
-type RedisInstanceStatus {
-  state: String!
-}
-
-type RedisInstanceAccess {
-  workload: Workload!
-  role: String!
-}
-
-type RedisInstanceConnection {
-  pageInfo: PageInfo!
-  edges: [RedisInstanceEdge!]!
-}
-
-type RedisInstanceEdge {
-  cursor: Cursor!
-  node: RedisInstance!
 }
 
 type BigQueryDataset implements Persistence & Node {
   id: ID!
-  cascadingDelete: Boolean!
-  description: String!
   name: String!
-  access: [BigQueryDatasetAccess!]!
   team: Team!
   environment: TeamEnvironment!
+  cascadingDelete: Boolean!
+  description: String!
+  access: [BigQueryDatasetAccess!]!
   status: BigQueryDatasetStatus!
   workload: Workload
   cost: Float!
-}
-
-type BigQueryDatasetStatus {
-  creationTime: Time!
-  lastModifiedTime: Time
 }
 
 type BigQueryDatasetAccess {
@@ -56,90 +23,24 @@ type BigQueryDatasetAccess {
   email: String!
 }
 
-type BigQueryDatasetConnection {
-  pageInfo: PageInfo!
-  edges: [BigQueryDatasetEdge!]!
-}
-
-type BigQueryDatasetEdge {
-  cursor: Cursor!
-  node: BigQueryDataset!
-}
-
-input BigQueryDatasetOrder {
-  field: BigQueryDatasetOrderField!
-  direction: OrderDirection!
-}
-
-enum BigQueryDatasetOrderField {
-  NAME
-  ENVIRONMENT
-}
-
-input RedisInstanceOrder {
-  field: RedisInstanceOrderField!
-  direction: OrderDirection!
-}
-
-enum RedisInstanceOrderField {
-  NAME
-  ENVIRONMENT
-}
-
-type KafkaTopicConnection {
-  pageInfo: PageInfo!
-  edges: [KafkaTopicEdge!]!
-}
-
-type KafkaTopicEdge {
-  cursor: Cursor!
-  node: KafkaTopic!
-}
-
-type KafkaTopic implements Persistence & Node {
-  id: ID!
-  name: String!
-  team: Team!
-  environment: TeamEnvironment!
-}
-
-input KafkaTopicOrder {
-  field: KafkaTopicOrderField!
-  direction: OrderDirection!
-}
-
-enum KafkaTopicOrderField {
-  NAME
-  ENVIRONMENT
-}
-
-type BucketConnection {
-  pageInfo: PageInfo!
-  edges: [BucketEdge!]!
-}
-
-type BucketEdge {
-  cursor: Cursor!
-  node: Bucket!
+type BigQueryDatasetStatus {
+  creationTime: Time!
+  lastModifiedTime: Time
 }
 
 type Bucket implements Persistence & Node {
   id: ID!
   name: String!
   team: Team!
+  environment: TeamEnvironment!
   cascadingDelete: Boolean!
   publicAccessPrevention: String!
   retentionPeriodDays: Int!
   uniformBucketLevelAccess: Boolean!
   cors: [BucketCors!]!
   projectId: String!
-  environment: TeamEnvironment!
   workload: Workload
   status: BucketStatus!
-}
-
-type BucketStatus {
-  state: String!
 }
 
 type BucketCors {
@@ -149,32 +50,23 @@ type BucketCors {
   responseHeaders: [String!]!
 }
 
-input BucketOrder {
-  field: BucketOrderField!
-  direction: OrderDirection!
+type BucketStatus {
+  state: String!
 }
 
-enum BucketOrderField {
-  NAME
-  ENVIRONMENT
-}
-
-type OpenSearchConnection {
-  pageInfo: PageInfo!
-  edges: [OpenSearchEdge!]!
-}
-
-type OpenSearchEdge {
-  cursor: Cursor!
-  node: OpenSearch!
+type KafkaTopic implements Persistence & Node {
+  id: ID!
+  name: String!
+  team: Team!
+  environment: TeamEnvironment!
 }
 
 type OpenSearch implements Persistence & Node {
   id: ID!
   name: String!
   team: Team!
-  status: OpenSearchStatus!
   environment: TeamEnvironment!
+  status: OpenSearchStatus!
   workload: Workload
   access: [OpenSearchAccess!]!
   cost: Float!
@@ -189,12 +81,121 @@ type OpenSearchStatus {
   state: String!
 }
 
+type RedisInstance implements Persistence & Node {
+  id: ID!
+  name: String!
+  team: Team!
+  environment: TeamEnvironment!
+  access: [RedisInstanceAccess!]!
+  cost: Float!
+  workload: Workload
+  status: RedisInstanceStatus!
+}
+
+type RedisInstanceAccess {
+  workload: Workload!
+  role: String!
+}
+
+type RedisInstanceStatus {
+  state: String!
+}
+
+type BigQueryDatasetConnection {
+  pageInfo: PageInfo!
+  edges: [BigQueryDatasetEdge!]!
+}
+
+type BucketConnection {
+  pageInfo: PageInfo!
+  edges: [BucketEdge!]!
+}
+
+type KafkaTopicConnection {
+  pageInfo: PageInfo!
+  edges: [KafkaTopicEdge!]!
+}
+
+type OpenSearchConnection {
+  pageInfo: PageInfo!
+  edges: [OpenSearchEdge!]!
+}
+
+type RedisInstanceConnection {
+  pageInfo: PageInfo!
+  edges: [RedisInstanceEdge!]!
+}
+
+type BigQueryDatasetEdge {
+  cursor: Cursor!
+  node: BigQueryDataset!
+}
+
+type BucketEdge {
+  cursor: Cursor!
+  node: Bucket!
+}
+
+type KafkaTopicEdge {
+  cursor: Cursor!
+  node: KafkaTopic!
+}
+
+type OpenSearchEdge {
+  cursor: Cursor!
+  node: OpenSearch!
+}
+
+type RedisInstanceEdge {
+  cursor: Cursor!
+  node: RedisInstance!
+}
+
+input BigQueryDatasetOrder {
+  field: BigQueryDatasetOrderField!
+  direction: OrderDirection!
+}
+
+input BucketOrder {
+  field: BucketOrderField!
+  direction: OrderDirection!
+}
+
+input KafkaTopicOrder {
+  field: KafkaTopicOrderField!
+  direction: OrderDirection!
+}
+
 input OpenSearchOrder {
   field: OpenSearchOrderField!
   direction: OrderDirection!
 }
 
+input RedisInstanceOrder {
+  field: RedisInstanceOrderField!
+  direction: OrderDirection!
+}
+
+enum BigQueryDatasetOrderField {
+  NAME
+  ENVIRONMENT
+}
+
+enum BucketOrderField {
+  NAME
+  ENVIRONMENT
+}
+
+enum KafkaTopicOrderField {
+  NAME
+  ENVIRONMENT
+}
 enum OpenSearchOrderField {
+  NAME
+  ENVIRONMENT
+}
+
+enum RedisInstanceOrderField {
   NAME
   ENVIRONMENT
 }

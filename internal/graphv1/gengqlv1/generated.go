@@ -356,8 +356,8 @@ type BigQueryDatasetResolver interface {
 }
 type BucketResolver interface {
 	Team(ctx context.Context, obj *bucket.Bucket) (*team.Team, error)
-
 	Environment(ctx context.Context, obj *bucket.Bucket) (*team.TeamEnvironment, error)
+
 	Workload(ctx context.Context, obj *bucket.Bucket) (workload.Workload, error)
 }
 type JobResolver interface {
@@ -370,7 +370,6 @@ type KafkaTopicResolver interface {
 }
 type OpenSearchResolver interface {
 	Team(ctx context.Context, obj *opensearch.OpenSearch) (*team.Team, error)
-
 	Environment(ctx context.Context, obj *opensearch.OpenSearch) (*team.TeamEnvironment, error)
 
 	Access(ctx context.Context, obj *opensearch.OpenSearch) ([]*opensearch.OpenSearchAccess, error)
@@ -384,9 +383,9 @@ type QueryResolver interface {
 	User(ctx context.Context, id *ident.Ident, email *string) (*user.User, error)
 }
 type RedisInstanceResolver interface {
-	Access(ctx context.Context, obj *redis.RedisInstance) ([]*redis.RedisInstanceAccess, error)
 	Team(ctx context.Context, obj *redis.RedisInstance) (*team.Team, error)
 	Environment(ctx context.Context, obj *redis.RedisInstance) (*team.TeamEnvironment, error)
+	Access(ctx context.Context, obj *redis.RedisInstance) ([]*redis.RedisInstanceAccess, error)
 	Cost(ctx context.Context, obj *redis.RedisInstance) (float64, error)
 }
 type TeamResolver interface {
@@ -1749,54 +1748,21 @@ enum JobOrderField {
 	{Name: "../schema/persistence.graphqls", Input: `interface Persistence implements Node {
   id: ID!
   name: String!
-}
-
-type RedisInstance implements Persistence & Node {
-  id: ID!
-  name: String!
-  access: [RedisInstanceAccess!]!
   team: Team!
   environment: TeamEnvironment!
-  cost: Float!
-  workload: Workload
-  status: RedisInstanceStatus!
-}
-
-type RedisInstanceStatus {
-  state: String!
-}
-
-type RedisInstanceAccess {
-  workload: Workload!
-  role: String!
-}
-
-type RedisInstanceConnection {
-  pageInfo: PageInfo!
-  edges: [RedisInstanceEdge!]!
-}
-
-type RedisInstanceEdge {
-  cursor: Cursor!
-  node: RedisInstance!
 }
 
 type BigQueryDataset implements Persistence & Node {
   id: ID!
-  cascadingDelete: Boolean!
-  description: String!
   name: String!
-  access: [BigQueryDatasetAccess!]!
   team: Team!
   environment: TeamEnvironment!
+  cascadingDelete: Boolean!
+  description: String!
+  access: [BigQueryDatasetAccess!]!
   status: BigQueryDatasetStatus!
   workload: Workload
   cost: Float!
-}
-
-type BigQueryDatasetStatus {
-  creationTime: Time!
-  lastModifiedTime: Time
 }
 
 type BigQueryDatasetAccess {
@@ -1804,90 +1770,24 @@ type BigQueryDatasetAccess {
   email: String!
 }
 
-type BigQueryDatasetConnection {
-  pageInfo: PageInfo!
-  edges: [BigQueryDatasetEdge!]!
-}
-
-type BigQueryDatasetEdge {
-  cursor: Cursor!
-  node: BigQueryDataset!
-}
-
-input BigQueryDatasetOrder {
-  field: BigQueryDatasetOrderField!
-  direction: OrderDirection!
-}
-
-enum BigQueryDatasetOrderField {
-  NAME
-  ENVIRONMENT
-}
-
-input RedisInstanceOrder {
-  field: RedisInstanceOrderField!
-  direction: OrderDirection!
-}
-
-enum RedisInstanceOrderField {
-  NAME
-  ENVIRONMENT
-}
-
-type KafkaTopicConnection {
-  pageInfo: PageInfo!
-  edges: [KafkaTopicEdge!]!
-}
-
-type KafkaTopicEdge {
-  cursor: Cursor!
-  node: KafkaTopic!
-}
-
-type KafkaTopic implements Persistence & Node {
-  id: ID!
-  name: String!
-  team: Team!
-  environment: TeamEnvironment!
-}
-
-input KafkaTopicOrder {
-  field: KafkaTopicOrderField!
-  direction: OrderDirection!
-}
-
-enum KafkaTopicOrderField {
-  NAME
-  ENVIRONMENT
-}
-
-type BucketConnection {
-  pageInfo: PageInfo!
-  edges: [BucketEdge!]!
-}
-
-type BucketEdge {
-  cursor: Cursor!
-  node: Bucket!
+type BigQueryDatasetStatus {
+  creationTime: Time!
+  lastModifiedTime: Time
 }
 
 type Bucket implements Persistence & Node {
   id: ID!
   name: String!
   team: Team!
+  environment: TeamEnvironment!
   cascadingDelete: Boolean!
   publicAccessPrevention: String!
   retentionPeriodDays: Int!
   uniformBucketLevelAccess: Boolean!
   cors: [BucketCors!]!
   projectId: String!
-  environment: TeamEnvironment!
   workload: Workload
   status: BucketStatus!
-}
-
-type BucketStatus {
-  state: String!
 }
 
 type BucketCors {
@@ -1897,32 +1797,23 @@ type BucketCors {
   responseHeaders: [String!]!
 }
 
-input BucketOrder {
-  field: BucketOrderField!
-  direction: OrderDirection!
+type BucketStatus {
+  state: String!
 }
 
-enum BucketOrderField {
-  NAME
-  ENVIRONMENT
-}
-
-type OpenSearchConnection {
-  pageInfo: PageInfo!
-  edges: [OpenSearchEdge!]!
-}
-
-type OpenSearchEdge {
-  cursor: Cursor!
-  node: OpenSearch!
+type KafkaTopic implements Persistence & Node {
+  id: ID!
+  name: String!
+  team: Team!
+  environment: TeamEnvironment!
 }
 
 type OpenSearch implements Persistence & Node {
   id: ID!
   name: String!
   team: Team!
-  status: OpenSearchStatus!
   environment: TeamEnvironment!
+  status: OpenSearchStatus!
   workload: Workload
   access: [OpenSearchAccess!]!
   cost: Float!
@@ -1937,12 +1828,121 @@ type OpenSearchStatus {
   state: String!
 }
 
+type RedisInstance implements Persistence & Node {
+  id: ID!
+  name: String!
+  team: Team!
+  environment: TeamEnvironment!
+  access: [RedisInstanceAccess!]!
+  cost: Float!
+  workload: Workload
+  status: RedisInstanceStatus!
+}
+
+type RedisInstanceAccess {
+  workload: Workload!
+  role: String!
+}
+
+type RedisInstanceStatus {
+  state: String!
+}
+
+type BigQueryDatasetConnection {
+  pageInfo: PageInfo!
+  edges: [BigQueryDatasetEdge!]!
+}
+
+type BucketConnection {
+  pageInfo: PageInfo!
+  edges: [BucketEdge!]!
+}
+
+type KafkaTopicConnection {
+  pageInfo: PageInfo!
+  edges: [KafkaTopicEdge!]!
+}
+
+type OpenSearchConnection {
+  pageInfo: PageInfo!
+  edges: [OpenSearchEdge!]!
+}
+
+type RedisInstanceConnection {
+  pageInfo: PageInfo!
+  edges: [RedisInstanceEdge!]!
+}
+
+type BigQueryDatasetEdge {
+  cursor: Cursor!
+  node: BigQueryDataset!
+}
+
+type BucketEdge {
+  cursor: Cursor!
+  node: Bucket!
+}
+
+type KafkaTopicEdge {
+  cursor: Cursor!
+  node: KafkaTopic!
+}
+
+type OpenSearchEdge {
+  cursor: Cursor!
+  node: OpenSearch!
+}
+
+type RedisInstanceEdge {
+  cursor: Cursor!
+  node: RedisInstance!
+}
+
+input BigQueryDatasetOrder {
+  field: BigQueryDatasetOrderField!
+  direction: OrderDirection!
+}
+
+input BucketOrder {
+  field: BucketOrderField!
+  direction: OrderDirection!
+}
+
+input KafkaTopicOrder {
+  field: KafkaTopicOrderField!
+  direction: OrderDirection!
+}
+
 input OpenSearchOrder {
   field: OpenSearchOrderField!
   direction: OrderDirection!
 }
 
+input RedisInstanceOrder {
+  field: RedisInstanceOrderField!
+  direction: OrderDirection!
+}
+
+enum BigQueryDatasetOrderField {
+  NAME
+  ENVIRONMENT
+}
+
+enum BucketOrderField {
+  NAME
+  ENVIRONMENT
+}
+
+enum KafkaTopicOrderField {
+  NAME
+  ENVIRONMENT
+}
 enum OpenSearchOrderField {
+  NAME
+  ENVIRONMENT
+}
+
+enum RedisInstanceOrderField {
   NAME
   ENVIRONMENT
 }`, BuiltIn: false},
@@ -3440,94 +3440,6 @@ func (ec *executionContext) fieldContext_BigQueryDataset_id(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _BigQueryDataset_cascadingDelete(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDataset) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BigQueryDataset_cascadingDelete(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CascadingDelete, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_BigQueryDataset_cascadingDelete(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BigQueryDataset",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _BigQueryDataset_description(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDataset) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BigQueryDataset_description(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Description, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_BigQueryDataset_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BigQueryDataset",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _BigQueryDataset_name(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDataset) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_BigQueryDataset_name(ctx, field)
 	if err != nil {
@@ -3567,56 +3479,6 @@ func (ec *executionContext) fieldContext_BigQueryDataset_name(_ context.Context,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _BigQueryDataset_access(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDataset) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BigQueryDataset_access(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Access, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*bigquery.BigQueryDatasetAccess)
-	fc.Result = res
-	return ec.marshalNBigQueryDatasetAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccessᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_BigQueryDataset_access(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BigQueryDataset",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "role":
-				return ec.fieldContext_BigQueryDatasetAccess_role(ctx, field)
-			case "email":
-				return ec.fieldContext_BigQueryDatasetAccess_email(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetAccess", field.Name)
 		},
 	}
 	return fc, nil
@@ -3759,6 +3621,144 @@ func (ec *executionContext) fieldContext_BigQueryDataset_environment(_ context.C
 				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BigQueryDataset_cascadingDelete(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDataset_cascadingDelete(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CascadingDelete, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDataset_cascadingDelete(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BigQueryDataset_description(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDataset_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDataset_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BigQueryDataset_access(ctx context.Context, field graphql.CollectedField, obj *bigquery.BigQueryDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDataset_access(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Access, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*bigquery.BigQueryDatasetAccess)
+	fc.Result = res
+	return ec.marshalNBigQueryDatasetAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccessᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDataset_access(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "role":
+				return ec.fieldContext_BigQueryDatasetAccess_role(ctx, field)
+			case "email":
+				return ec.fieldContext_BigQueryDatasetAccess_email(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetAccess", field.Name)
 		},
 	}
 	return fc, nil
@@ -4178,18 +4178,18 @@ func (ec *executionContext) fieldContext_BigQueryDatasetEdge_node(_ context.Cont
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_BigQueryDataset_id(ctx, field)
-			case "cascadingDelete":
-				return ec.fieldContext_BigQueryDataset_cascadingDelete(ctx, field)
-			case "description":
-				return ec.fieldContext_BigQueryDataset_description(ctx, field)
 			case "name":
 				return ec.fieldContext_BigQueryDataset_name(ctx, field)
-			case "access":
-				return ec.fieldContext_BigQueryDataset_access(ctx, field)
 			case "team":
 				return ec.fieldContext_BigQueryDataset_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_BigQueryDataset_environment(ctx, field)
+			case "cascadingDelete":
+				return ec.fieldContext_BigQueryDataset_cascadingDelete(ctx, field)
+			case "description":
+				return ec.fieldContext_BigQueryDataset_description(ctx, field)
+			case "access":
+				return ec.fieldContext_BigQueryDataset_access(ctx, field)
 			case "status":
 				return ec.fieldContext_BigQueryDataset_status(ctx, field)
 			case "workload":
@@ -4464,6 +4464,60 @@ func (ec *executionContext) fieldContext_Bucket_team(_ context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _Bucket_environment(ctx context.Context, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Bucket_environment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Bucket().Environment(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEnvironment)
+	fc.Result = res
+	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Bucket_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Bucket",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Bucket_cascadingDelete(ctx context.Context, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Bucket_cascadingDelete(ctx, field)
 	if err != nil {
@@ -4733,60 +4787,6 @@ func (ec *executionContext) fieldContext_Bucket_projectId(_ context.Context, fie
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Bucket_environment(ctx context.Context, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Bucket_environment(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Bucket().Environment(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*team.TeamEnvironment)
-	fc.Result = res
-	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Bucket_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Bucket",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TeamEnvironment_id(ctx, field)
-			case "name":
-				return ec.fieldContext_TeamEnvironment_name(ctx, field)
-			case "gcpProjectID":
-				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
-			case "slackAlertsChannel":
-				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
 	}
 	return fc, nil
@@ -5249,6 +5249,8 @@ func (ec *executionContext) fieldContext_BucketEdge_node(_ context.Context, fiel
 				return ec.fieldContext_Bucket_name(ctx, field)
 			case "team":
 				return ec.fieldContext_Bucket_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_Bucket_environment(ctx, field)
 			case "cascadingDelete":
 				return ec.fieldContext_Bucket_cascadingDelete(ctx, field)
 			case "publicAccessPrevention":
@@ -5261,8 +5263,6 @@ func (ec *executionContext) fieldContext_BucketEdge_node(_ context.Context, fiel
 				return ec.fieldContext_Bucket_cors(ctx, field)
 			case "projectId":
 				return ec.fieldContext_Bucket_projectId(ctx, field)
-			case "environment":
-				return ec.fieldContext_Bucket_environment(ctx, field)
 			case "workload":
 				return ec.fieldContext_Bucket_workload(ctx, field)
 			case "status":
@@ -6362,54 +6362,6 @@ func (ec *executionContext) fieldContext_OpenSearch_team(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _OpenSearch_status(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearch) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_OpenSearch_status(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Status, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(opensearch.OpenSearchStatus)
-	fc.Result = res
-	return ec.marshalNOpenSearchStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchStatus(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_OpenSearch_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "OpenSearch",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "state":
-				return ec.fieldContext_OpenSearchStatus_state(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type OpenSearchStatus", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _OpenSearch_environment(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearch) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_OpenSearch_environment(ctx, field)
 	if err != nil {
@@ -6459,6 +6411,54 @@ func (ec *executionContext) fieldContext_OpenSearch_environment(_ context.Contex
 				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _OpenSearch_status(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearch) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_OpenSearch_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(opensearch.OpenSearchStatus)
+	fc.Result = res
+	return ec.marshalNOpenSearchStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_OpenSearch_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearch",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "state":
+				return ec.fieldContext_OpenSearchStatus_state(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type OpenSearchStatus", field.Name)
 		},
 	}
 	return fc, nil
@@ -6882,10 +6882,10 @@ func (ec *executionContext) fieldContext_OpenSearchEdge_node(_ context.Context, 
 				return ec.fieldContext_OpenSearch_name(ctx, field)
 			case "team":
 				return ec.fieldContext_OpenSearch_team(ctx, field)
-			case "status":
-				return ec.fieldContext_OpenSearch_status(ctx, field)
 			case "environment":
 				return ec.fieldContext_OpenSearch_environment(ctx, field)
+			case "status":
+				return ec.fieldContext_OpenSearch_status(ctx, field)
 			case "workload":
 				return ec.fieldContext_OpenSearch_workload(ctx, field)
 			case "access":
@@ -7722,56 +7722,6 @@ func (ec *executionContext) fieldContext_RedisInstance_name(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _RedisInstance_access(ctx context.Context, field graphql.CollectedField, obj *redis.RedisInstance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RedisInstance_access(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.RedisInstance().Access(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*redis.RedisInstanceAccess)
-	fc.Result = res
-	return ec.marshalNRedisInstanceAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceAccessᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_RedisInstance_access(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RedisInstance",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "workload":
-				return ec.fieldContext_RedisInstanceAccess_workload(ctx, field)
-			case "role":
-				return ec.fieldContext_RedisInstanceAccess_role(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type RedisInstanceAccess", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _RedisInstance_team(ctx context.Context, field graphql.CollectedField, obj *redis.RedisInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_RedisInstance_team(ctx, field)
 	if err != nil {
@@ -7909,6 +7859,56 @@ func (ec *executionContext) fieldContext_RedisInstance_environment(_ context.Con
 				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RedisInstance_access(ctx context.Context, field graphql.CollectedField, obj *redis.RedisInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisInstance_access(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.RedisInstance().Access(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*redis.RedisInstanceAccess)
+	fc.Result = res
+	return ec.marshalNRedisInstanceAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceAccessᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedisInstance_access(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedisInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "workload":
+				return ec.fieldContext_RedisInstanceAccess_workload(ctx, field)
+			case "role":
+				return ec.fieldContext_RedisInstanceAccess_role(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RedisInstanceAccess", field.Name)
 		},
 	}
 	return fc, nil
@@ -8328,12 +8328,12 @@ func (ec *executionContext) fieldContext_RedisInstanceEdge_node(_ context.Contex
 				return ec.fieldContext_RedisInstance_id(ctx, field)
 			case "name":
 				return ec.fieldContext_RedisInstance_name(ctx, field)
-			case "access":
-				return ec.fieldContext_RedisInstance_access(ctx, field)
 			case "team":
 				return ec.fieldContext_RedisInstance_team(ctx, field)
 			case "environment":
 				return ec.fieldContext_RedisInstance_environment(ctx, field)
+			case "access":
+				return ec.fieldContext_RedisInstance_access(ctx, field)
 			case "cost":
 				return ec.fieldContext_RedisInstance_cost(ctx, field)
 			case "workload":
@@ -12894,13 +12894,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Job(ctx, sel, obj)
-	case redis.RedisInstance:
-		return ec._RedisInstance(ctx, sel, &obj)
-	case *redis.RedisInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._RedisInstance(ctx, sel, obj)
 	case bigquery.BigQueryDataset:
 		return ec._BigQueryDataset(ctx, sel, &obj)
 	case *bigquery.BigQueryDataset:
@@ -12908,13 +12901,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._BigQueryDataset(ctx, sel, obj)
-	case kafkatopic.KafkaTopic:
-		return ec._KafkaTopic(ctx, sel, &obj)
-	case *kafkatopic.KafkaTopic:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._KafkaTopic(ctx, sel, obj)
 	case bucket.Bucket:
 		return ec._Bucket(ctx, sel, &obj)
 	case *bucket.Bucket:
@@ -12922,6 +12908,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Bucket(ctx, sel, obj)
+	case kafkatopic.KafkaTopic:
+		return ec._KafkaTopic(ctx, sel, &obj)
+	case *kafkatopic.KafkaTopic:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._KafkaTopic(ctx, sel, obj)
 	case opensearch.OpenSearch:
 		return ec._OpenSearch(ctx, sel, &obj)
 	case *opensearch.OpenSearch:
@@ -12929,6 +12922,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._OpenSearch(ctx, sel, obj)
+	case redis.RedisInstance:
+		return ec._RedisInstance(ctx, sel, &obj)
+	case *redis.RedisInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RedisInstance(ctx, sel, obj)
 	case persistence.Persistence:
 		if obj == nil {
 			return graphql.Null
@@ -12969,13 +12969,6 @@ func (ec *executionContext) _Persistence(ctx context.Context, sel ast.SelectionS
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case redis.RedisInstance:
-		return ec._RedisInstance(ctx, sel, &obj)
-	case *redis.RedisInstance:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._RedisInstance(ctx, sel, obj)
 	case bigquery.BigQueryDataset:
 		return ec._BigQueryDataset(ctx, sel, &obj)
 	case *bigquery.BigQueryDataset:
@@ -12983,13 +12976,6 @@ func (ec *executionContext) _Persistence(ctx context.Context, sel ast.SelectionS
 			return graphql.Null
 		}
 		return ec._BigQueryDataset(ctx, sel, obj)
-	case kafkatopic.KafkaTopic:
-		return ec._KafkaTopic(ctx, sel, &obj)
-	case *kafkatopic.KafkaTopic:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._KafkaTopic(ctx, sel, obj)
 	case bucket.Bucket:
 		return ec._Bucket(ctx, sel, &obj)
 	case *bucket.Bucket:
@@ -12997,6 +12983,13 @@ func (ec *executionContext) _Persistence(ctx context.Context, sel ast.SelectionS
 			return graphql.Null
 		}
 		return ec._Bucket(ctx, sel, obj)
+	case kafkatopic.KafkaTopic:
+		return ec._KafkaTopic(ctx, sel, &obj)
+	case *kafkatopic.KafkaTopic:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._KafkaTopic(ctx, sel, obj)
 	case opensearch.OpenSearch:
 		return ec._OpenSearch(ctx, sel, &obj)
 	case *opensearch.OpenSearch:
@@ -13004,6 +12997,13 @@ func (ec *executionContext) _Persistence(ctx context.Context, sel ast.SelectionS
 			return graphql.Null
 		}
 		return ec._OpenSearch(ctx, sel, obj)
+	case redis.RedisInstance:
+		return ec._RedisInstance(ctx, sel, &obj)
+	case *redis.RedisInstance:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._RedisInstance(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -13256,23 +13256,8 @@ func (ec *executionContext) _BigQueryDataset(ctx context.Context, sel ast.Select
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "cascadingDelete":
-			out.Values[i] = ec._BigQueryDataset_cascadingDelete(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "description":
-			out.Values[i] = ec._BigQueryDataset_description(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "name":
 			out.Values[i] = ec._BigQueryDataset_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "access":
-			out.Values[i] = ec._BigQueryDataset_access(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -13348,6 +13333,21 @@ func (ec *executionContext) _BigQueryDataset(ctx context.Context, sel ast.Select
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "cascadingDelete":
+			out.Values[i] = ec._BigQueryDataset_cascadingDelete(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "description":
+			out.Values[i] = ec._BigQueryDataset_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "access":
+			out.Values[i] = ec._BigQueryDataset_access(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "status":
 			out.Values[i] = ec._BigQueryDataset_status(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -13675,36 +13675,6 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "cascadingDelete":
-			out.Values[i] = ec._Bucket_cascadingDelete(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "publicAccessPrevention":
-			out.Values[i] = ec._Bucket_publicAccessPrevention(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "retentionPeriodDays":
-			out.Values[i] = ec._Bucket_retentionPeriodDays(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "uniformBucketLevelAccess":
-			out.Values[i] = ec._Bucket_uniformBucketLevelAccess(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "cors":
-			out.Values[i] = ec._Bucket_cors(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "projectId":
-			out.Values[i] = ec._Bucket_projectId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "environment":
 			field := field
 
@@ -13741,6 +13711,36 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "cascadingDelete":
+			out.Values[i] = ec._Bucket_cascadingDelete(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "publicAccessPrevention":
+			out.Values[i] = ec._Bucket_publicAccessPrevention(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "retentionPeriodDays":
+			out.Values[i] = ec._Bucket_retentionPeriodDays(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "uniformBucketLevelAccess":
+			out.Values[i] = ec._Bucket_uniformBucketLevelAccess(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "cors":
+			out.Values[i] = ec._Bucket_cors(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "projectId":
+			out.Values[i] = ec._Bucket_projectId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "workload":
 			field := field
 
@@ -14445,11 +14445,6 @@ func (ec *executionContext) _OpenSearch(ctx context.Context, sel ast.SelectionSe
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "status":
-			out.Values[i] = ec._OpenSearch_status(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "environment":
 			field := field
 
@@ -14486,6 +14481,11 @@ func (ec *executionContext) _OpenSearch(ctx context.Context, sel ast.SelectionSe
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "status":
+			out.Values[i] = ec._OpenSearch_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "workload":
 			out.Values[i] = ec._OpenSearch_workload(ctx, field, obj)
 		case "access":
@@ -14991,42 +14991,6 @@ func (ec *executionContext) _RedisInstance(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "access":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._RedisInstance_access(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "team":
 			field := field
 
@@ -15073,6 +15037,42 @@ func (ec *executionContext) _RedisInstance(ctx context.Context, sel ast.Selectio
 					}
 				}()
 				res = ec._RedisInstance_environment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "access":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._RedisInstance_access(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
