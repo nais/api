@@ -36,7 +36,12 @@ type Bucket implements Persistence & Node {
   cascadingDelete: Boolean!
   publicAccessPrevention: String!
   uniformBucketLevelAccess: Boolean!
-  cors: [BucketCors!]!
+  cors(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+  ): BucketCorsConnection!
   projectId: String!
   workload: Workload
   status: BucketStatus!
@@ -144,6 +149,11 @@ type BucketConnection {
   edges: [BucketEdge!]!
 }
 
+type BucketCorsConnection {
+  pageInfo: PageInfo!
+  edges: [BucketCorsEdge!]!
+}
+
 type KafkaTopicConnection {
   pageInfo: PageInfo!
   edges: [KafkaTopicEdge!]!
@@ -172,6 +182,11 @@ type BigQueryDatasetEdge {
 type BucketEdge {
   cursor: Cursor!
   node: Bucket!
+}
+
+type BucketCorsEdge {
+  cursor: Cursor!
+  node: BucketCors!
 }
 
 type KafkaTopicEdge {

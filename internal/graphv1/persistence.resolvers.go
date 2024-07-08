@@ -44,6 +44,18 @@ func (r *bucketResolver) Environment(ctx context.Context, obj *bucket.Bucket) (*
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
+func (r *bucketResolver) Cors(ctx context.Context, obj *bucket.Bucket, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*bucket.BucketCors], error) {
+	// TODO: Handle the pagination here or somewhere in the bucket package?
+
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := pagination.Slice(obj.Cors, page)
+	return pagination.NewConnection(ret, page, int32(len(obj.Cors))), nil
+}
+
 func (r *bucketResolver) Workload(ctx context.Context, obj *bucket.Bucket) (workload.Workload, error) {
 	return r.workload(ctx, obj.OwnerReference, obj.TeamSlug, obj.EnvironmentName)
 }
