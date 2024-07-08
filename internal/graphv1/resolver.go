@@ -16,10 +16,14 @@ import (
 	"go.opentelemetry.io/otel"
 )
 
-type Resolver struct{}
+type Resolver struct {
+	log logrus.FieldLogger
+}
 
-func NewResolver() *Resolver {
-	return &Resolver{}
+func NewResolver(log logrus.FieldLogger) *Resolver {
+	return &Resolver{
+		log: log,
+	}
 }
 
 func NewHandler(config gengqlv1.Config, log logrus.FieldLogger) (*handler.Server, error) {

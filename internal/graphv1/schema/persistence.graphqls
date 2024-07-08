@@ -86,6 +86,53 @@ enum RedisInstanceOrderField {
   ENVIRONMENT
 }
 
+type BucketConnection {
+  pageInfo: PageInfo!
+  edges: [BucketEdge!]!
+}
+
+type BucketEdge {
+  cursor: Cursor!
+  node: Bucket!
+}
+
+type Bucket implements Persistence & Node {
+  id: ID!
+  name: String!
+  team: Team!
+
+  cascadingDelete: Boolean!
+  publicAccessPrevention: String!
+  retentionPeriodDays: Int!
+  uniformBucketLevelAccess: Boolean!
+  cors: [BucketCors!]!
+  projectId: String!
+  environment: TeamEnvironment!
+  workload: Workload
+  status: BucketStatus!
+}
+
+type BucketStatus {
+  state: String!
+}
+
+type BucketCors {
+  maxAgeSeconds: Int
+  methods: [String!]!
+  origins: [String!]!
+  responseHeaders: [String!]!
+}
+
+input BucketOrder {
+  field: BucketOrderField!
+  direction: OrderDirection!
+}
+
+enum BucketOrderField {
+  NAME
+  ENVIRONMENT
+}
+
 type OpenSearchConnection {
   pageInfo: PageInfo!
   edges: [OpenSearchEdge!]!

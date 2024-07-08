@@ -17,6 +17,7 @@ import (
 	"github.com/nais/api/internal/graphv1/loaderv1"
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/persistence/bigquery"
+	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/redis"
 	"github.com/nais/api/internal/team"
@@ -88,6 +89,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 			ctx = redis.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = bigquery.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = opensearch.NewLoaderContext(ctx, k8sClient, opts)
+			ctx = bucket.NewLoaderContext(ctx, k8sClient, opts)
 			return ctx
 		}))
 		r.Use(otelhttp.NewMiddleware("graphqlv1", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))

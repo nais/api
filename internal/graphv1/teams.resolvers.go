@@ -8,6 +8,7 @@ import (
 	"github.com/nais/api/internal/graphv1/ident"
 	"github.com/nais/api/internal/graphv1/pagination"
 	"github.com/nais/api/internal/persistence/bigquery"
+	"github.com/nais/api/internal/persistence/bucket"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/redis"
 	"github.com/nais/api/internal/slug"
@@ -86,6 +87,15 @@ func (r *teamResolver) OpenSearch(ctx context.Context, obj *team.Team, first *in
 	}
 
 	return opensearch.ListForTeam(ctx, obj.Slug, page, orderBy)
+}
+
+func (r *teamResolver) Buckets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return bucket.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
 func (r *teamResolver) ViewerIsOwner(ctx context.Context, obj *team.Team) (bool, error) {

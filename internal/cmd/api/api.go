@@ -233,9 +233,8 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create graph handler: %w", err)
 	}
 
-	resolverv1 := graphv1.NewResolver()
 	graphv1Handler, err := graphv1.NewHandler(gengqlv1.Config{
-		Resolvers: resolverv1,
+		Resolvers: graphv1.NewResolver(log),
 		/*
 			Directives: gengqlv1.DirectiveRoot{
 				Admin: directives.Admin(),
