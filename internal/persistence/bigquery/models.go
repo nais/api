@@ -2,9 +2,12 @@ package bigquery
 
 import (
 	"fmt"
+	"io"
+	"strconv"
 	"time"
 
 	"github.com/nais/api/internal/graphv1/ident"
+	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
 	"github.com/nais/api/internal/persistence"
 	"github.com/nais/api/internal/slug"
@@ -91,4 +94,45 @@ func toBigQueryDataset(u *unstructured.Unstructured, env string) (*BigQueryDatas
 		OwnerReference: persistence.OwnerReference(bqs.OwnerReferences),
 		ProjectID:      bqs.Spec.Project,
 	}, nil
+}
+
+type BigQueryDatasetOrder struct {
+	Field     BigQueryDatasetOrderField `json:"field"`
+	Direction modelv1.OrderDirection    `json:"direction"`
+}
+
+type BigQueryDatasetOrderField string
+
+const (
+	BigQueryDatasetOrderFieldName        BigQueryDatasetOrderField = "NAME"
+	BigQueryDatasetOrderFieldEnvironment BigQueryDatasetOrderField = "ENVIRONMENT"
+)
+
+func (e BigQueryDatasetOrderField) IsValid() bool {
+	switch e {
+	case BigQueryDatasetOrderFieldName, BigQueryDatasetOrderFieldEnvironment:
+		return true
+	}
+	return false
+}
+
+func (e BigQueryDatasetOrderField) String() string {
+	return string(e)
+}
+
+func (e *BigQueryDatasetOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = BigQueryDatasetOrderField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid BigQueryDatasetOrderField", str)
+	}
+	return nil
+}
+
+func (e BigQueryDatasetOrderField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

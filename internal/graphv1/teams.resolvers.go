@@ -60,22 +60,22 @@ func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, aft
 	return job.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
-func (r *teamResolver) BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*bigquery.BigQueryDataset], error) {
+func (r *teamResolver) BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	return bigquery.ListForTeam(ctx, obj.Slug, page)
+	return bigquery.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
-func (r *teamResolver) RedisInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*redis.RedisInstance], error) {
+func (r *teamResolver) RedisInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceOrder) (*pagination.Connection[*redis.RedisInstance], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	return redis.ListForTeam(ctx, obj.Slug, page)
+	return redis.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
 func (r *teamResolver) ViewerIsOwner(ctx context.Context, obj *team.Team) (bool, error) {

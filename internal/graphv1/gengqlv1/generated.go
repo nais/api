@@ -180,7 +180,7 @@ type ComplexityRoot struct {
 	Team struct {
 		Applications           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder) int
 		AzureGroupID           func(childComplexity int) int
-		BigQueryDatasets       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		BigQueryDatasets       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) int
 		CdnBucket              func(childComplexity int) int
 		DeletionInProgress     func(childComplexity int) int
 		GitHubTeamSlug         func(childComplexity int) int
@@ -191,7 +191,7 @@ type ComplexityRoot struct {
 		LastSuccessfulSync     func(childComplexity int) int
 		Members                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) int
 		Purpose                func(childComplexity int) int
-		RedisInstances         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		RedisInstances         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceOrder) int
 		SlackChannel           func(childComplexity int) int
 		Slug                   func(childComplexity int) int
 		ViewerIsMember         func(childComplexity int) int
@@ -285,8 +285,8 @@ type TeamResolver interface {
 	Members(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) (*pagination.Connection[*team.TeamMember], error)
 	Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder) (*pagination.Connection[*application.Application], error)
 	Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder) (*pagination.Connection[*job.Job], error)
-	BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*bigquery.BigQueryDataset], error)
-	RedisInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*redis.RedisInstance], error)
+	BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
+	RedisInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceOrder) (*pagination.Connection[*redis.RedisInstance], error)
 
 	ViewerIsOwner(ctx context.Context, obj *team.Team) (bool, error)
 	ViewerIsMember(ctx context.Context, obj *team.Team) (bool, error)
@@ -787,7 +787,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Team.BigQueryDatasets(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+		return e.complexity.Team.BigQueryDatasets(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*bigquery.BigQueryDatasetOrder)), true
 
 	case "Team.cdnBucket":
 		if e.complexity.Team.CdnBucket == nil {
@@ -879,7 +879,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Team.RedisInstances(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+		return e.complexity.Team.RedisInstances(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*redis.RedisInstanceOrder)), true
 
 	case "Team.slackChannel":
 		if e.complexity.Team.SlackChannel == nil {
@@ -1098,7 +1098,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputApplicationOrder,
+		ec.unmarshalInputBigQueryDatasetOrder,
 		ec.unmarshalInputJobOrder,
+		ec.unmarshalInputRedisInstanceOrder,
 		ec.unmarshalInputTeamMemberOrder,
 		ec.unmarshalInputTeamMembershipOrder,
 		ec.unmarshalInputTeamOrder,
@@ -1351,7 +1353,26 @@ type BigQueryDatasetEdge {
   cursor: Cursor!
   node: BigQueryDataset!
 }
-`, BuiltIn: false},
+
+input BigQueryDatasetOrder {
+  field: BigQueryDatasetOrderField!
+  direction: OrderDirection!
+}
+
+enum BigQueryDatasetOrderField {
+  NAME
+  ENVIRONMENT
+}
+
+input RedisInstanceOrder {
+  field: RedisInstanceOrderField!
+  direction: OrderDirection!
+}
+
+enum RedisInstanceOrderField {
+  NAME
+  ENVIRONMENT
+}`, BuiltIn: false},
 	{Name: "../schema/scalars.graphqls", Input: `"Time is a string in [RFC 3339](https://rfc-editor.org/rfc/rfc3339.html) format, with sub-second precision added if present."
 scalar Time
 
@@ -1507,6 +1528,7 @@ type Team implements Node {
     after: Cursor
     last: Int
     before: Cursor
+    orderBy: BigQueryDatasetOrder
   ): BigQueryDatasetConnection!
 
   redisInstances(
@@ -1514,6 +1536,7 @@ type Team implements Node {
     after: Cursor
     last: Int
     before: Cursor
+    orderBy: RedisInstanceOrder
   ): RedisInstanceConnection!
 
   "Timestamp of the last successful synchronization of the team."
@@ -1935,6 +1958,15 @@ func (ec *executionContext) field_Team_bigQueryDatasets_args(ctx context.Context
 		}
 	}
 	args["before"] = arg3
+	var arg4 *bigquery.BigQueryDatasetOrder
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg4, err = ec.unmarshalOBigQueryDatasetOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetOrder(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg4
 	return args, nil
 }
 
@@ -2079,6 +2111,15 @@ func (ec *executionContext) field_Team_redisInstances_args(ctx context.Context, 
 		}
 	}
 	args["before"] = arg3
+	var arg4 *redis.RedisInstanceOrder
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg4, err = ec.unmarshalORedisInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceOrder(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg4
 	return args, nil
 }
 
@@ -5883,7 +5924,7 @@ func (ec *executionContext) _Team_bigQueryDatasets(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().BigQueryDatasets(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+		return ec.resolvers.Team().BigQueryDatasets(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*bigquery.BigQueryDatasetOrder))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5944,7 +5985,7 @@ func (ec *executionContext) _Team_redisInstances(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().RedisInstances(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+		return ec.resolvers.Team().RedisInstances(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*redis.RedisInstanceOrder))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9295,6 +9336,40 @@ func (ec *executionContext) unmarshalInputApplicationOrder(ctx context.Context, 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputBigQueryDatasetOrder(ctx context.Context, obj interface{}) (bigquery.BigQueryDatasetOrder, error) {
+	var it bigquery.BigQueryDatasetOrder
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNBigQueryDatasetOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋmodelv1ᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputJobOrder(ctx context.Context, obj interface{}) (job.JobOrder, error) {
 	var it job.JobOrder
 	asMap := map[string]interface{}{}
@@ -9312,6 +9387,40 @@ func (ec *executionContext) unmarshalInputJobOrder(ctx context.Context, obj inte
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
 			data, err := ec.unmarshalNJobOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋmodelv1ᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRedisInstanceOrder(ctx context.Context, obj interface{}) (redis.RedisInstanceOrder, error) {
+	var it redis.RedisInstanceOrder
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNRedisInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceOrderField(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12395,6 +12504,16 @@ func (ec *executionContext) marshalNBigQueryDatasetEdge2ᚕgithubᚗcomᚋnais�
 	return ret
 }
 
+func (ec *executionContext) unmarshalNBigQueryDatasetOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetOrderField(ctx context.Context, v interface{}) (bigquery.BigQueryDatasetOrderField, error) {
+	var res bigquery.BigQueryDatasetOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNBigQueryDatasetOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetOrderField(ctx context.Context, sel ast.SelectionSet, v bigquery.BigQueryDatasetOrderField) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNBigQueryDatasetStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetStatus(ctx context.Context, sel ast.SelectionSet, v *bigquery.BigQueryDatasetStatus) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -12706,6 +12825,16 @@ func (ec *executionContext) marshalNRedisInstanceEdge2ᚕgithubᚗcomᚋnaisᚋa
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalNRedisInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceOrderField(ctx context.Context, v interface{}) (redis.RedisInstanceOrderField, error) {
+	var res redis.RedisInstanceOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRedisInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceOrderField(ctx context.Context, sel ast.SelectionSet, v redis.RedisInstanceOrderField) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNRedisInstanceStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceStatus(ctx context.Context, sel ast.SelectionSet, v redis.RedisInstanceStatus) graphql.Marshaler {
@@ -13311,6 +13440,14 @@ func (ec *executionContext) unmarshalOApplicationOrder2ᚖgithubᚗcomᚋnaisᚋ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalOBigQueryDatasetOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetOrder(ctx context.Context, v interface{}) (*bigquery.BigQueryDatasetOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputBigQueryDatasetOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -13398,6 +13535,14 @@ func (ec *executionContext) marshalONode2githubᚗcomᚋnaisᚋapiᚋinternalᚋ
 		return graphql.Null
 	}
 	return ec._Node(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalORedisInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceOrder(ctx context.Context, v interface{}) (*redis.RedisInstanceOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputRedisInstanceOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

@@ -65,3 +65,23 @@ type BigQueryDatasetEdge {
   cursor: Cursor!
   node: BigQueryDataset!
 }
+
+input BigQueryDatasetOrder {
+  field: BigQueryDatasetOrderField!
+  direction: OrderDirection!
+}
+
+enum BigQueryDatasetOrderField {
+  NAME
+  ENVIRONMENT
+}
+
+input RedisInstanceOrder {
+  field: RedisInstanceOrderField!
+  direction: OrderDirection!
+}
+
+enum RedisInstanceOrderField {
+  NAME
+  ENVIRONMENT
+}
