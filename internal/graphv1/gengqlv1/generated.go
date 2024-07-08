@@ -89,7 +89,7 @@ type ComplexityRoot struct {
 	}
 
 	BigQueryDataset struct {
-		Access          func(childComplexity int) int
+		Access          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		CascadingDelete func(childComplexity int) int
 		Cost            func(childComplexity int) int
 		Description     func(childComplexity int) int
@@ -104,6 +104,16 @@ type ComplexityRoot struct {
 	BigQueryDatasetAccess struct {
 		Email func(childComplexity int) int
 		Role  func(childComplexity int) int
+	}
+
+	BigQueryDatasetAccessConnection struct {
+		Edges    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	BigQueryDatasetAccessEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	BigQueryDatasetConnection struct {
@@ -398,6 +408,8 @@ type BigQueryDatasetResolver interface {
 	Team(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.Team, error)
 	Environment(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.TeamEnvironment, error)
 
+	Access(ctx context.Context, obj *bigquery.BigQueryDataset, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*bigquery.BigQueryDatasetAccess], error)
+
 	Workload(ctx context.Context, obj *bigquery.BigQueryDataset) (workload.Workload, error)
 	Cost(ctx context.Context, obj *bigquery.BigQueryDataset) (float64, error)
 }
@@ -547,7 +559,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.BigQueryDataset.Access(childComplexity), true
+		args, err := ec.field_BigQueryDataset_access_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.BigQueryDataset.Access(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "BigQueryDataset.cascadingDelete":
 		if e.complexity.BigQueryDataset.CascadingDelete == nil {
@@ -625,6 +642,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BigQueryDatasetAccess.Role(childComplexity), true
+
+	case "BigQueryDatasetAccessConnection.edges":
+		if e.complexity.BigQueryDatasetAccessConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.BigQueryDatasetAccessConnection.Edges(childComplexity), true
+
+	case "BigQueryDatasetAccessConnection.pageInfo":
+		if e.complexity.BigQueryDatasetAccessConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.BigQueryDatasetAccessConnection.PageInfo(childComplexity), true
+
+	case "BigQueryDatasetAccessEdge.cursor":
+		if e.complexity.BigQueryDatasetAccessEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.BigQueryDatasetAccessEdge.Cursor(childComplexity), true
+
+	case "BigQueryDatasetAccessEdge.node":
+		if e.complexity.BigQueryDatasetAccessEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.BigQueryDatasetAccessEdge.Node(childComplexity), true
 
 	case "BigQueryDatasetConnection.edges":
 		if e.complexity.BigQueryDatasetConnection.Edges == nil {
@@ -2000,7 +2045,12 @@ type BigQueryDataset implements Persistence & Node {
   environment: TeamEnvironment!
   cascadingDelete: Boolean!
   description: String
-  access: [BigQueryDatasetAccess!]!
+  access(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+  ): BigQueryDatasetAccessConnection!
   status: BigQueryDatasetStatus!
   workload: Workload
   cost: Float!
@@ -2127,6 +2177,11 @@ type RedisInstanceStatus {
   state: String!
 }
 
+type BigQueryDatasetAccessConnection {
+  pageInfo: PageInfo!
+  edges: [BigQueryDatasetAccessEdge!]!
+}
+
 type BigQueryDatasetConnection {
   pageInfo: PageInfo!
   edges: [BigQueryDatasetEdge!]!
@@ -2160,6 +2215,11 @@ type OpenSearchConnection {
 type RedisInstanceConnection {
   pageInfo: PageInfo!
   edges: [RedisInstanceEdge!]!
+}
+
+type BigQueryDatasetAccessEdge {
+  cursor: Cursor!
+  node: BigQueryDatasetAccess!
 }
 
 type BigQueryDatasetEdge {
@@ -2609,6 +2669,48 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_BigQueryDataset_access_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *pagination.Cursor
+	if tmp, ok := rawArgs["after"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+		arg1, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["after"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["last"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["last"] = arg2
+	var arg3 *pagination.Cursor
+	if tmp, ok := rawArgs["before"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+		arg3, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["before"] = arg3
+	return args, nil
+}
 
 func (ec *executionContext) field_Bucket_cors_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -4143,7 +4245,7 @@ func (ec *executionContext) _BigQueryDataset_access(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Access, nil
+		return ec.resolvers.BigQueryDataset().Access(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4155,26 +4257,37 @@ func (ec *executionContext) _BigQueryDataset_access(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*bigquery.BigQueryDatasetAccess)
+	res := resTmp.(*pagination.Connection[*bigquery.BigQueryDatasetAccess])
 	fc.Result = res
-	return ec.marshalNBigQueryDatasetAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccessᚄ(ctx, field.Selections, res)
+	return ec.marshalNBigQueryDatasetAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BigQueryDataset_access(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_BigQueryDataset_access(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BigQueryDataset",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "role":
-				return ec.fieldContext_BigQueryDatasetAccess_role(ctx, field)
-			case "email":
-				return ec.fieldContext_BigQueryDatasetAccess_email(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_BigQueryDatasetAccessConnection_pageInfo(ctx, field)
+			case "edges":
+				return ec.fieldContext_BigQueryDatasetAccessConnection_edges(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetAccess", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetAccessConnection", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_BigQueryDataset_access_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -4397,6 +4510,206 @@ func (ec *executionContext) fieldContext_BigQueryDatasetAccess_email(_ context.C
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BigQueryDatasetAccessConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*bigquery.BigQueryDatasetAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDatasetAccessConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDatasetAccessConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDatasetAccessConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BigQueryDatasetAccessConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*bigquery.BigQueryDatasetAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDatasetAccessConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]pagination.Edge[*bigquery.BigQueryDatasetAccess])
+	fc.Result = res
+	return ec.marshalNBigQueryDatasetAccessEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDatasetAccessConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDatasetAccessConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cursor":
+				return ec.fieldContext_BigQueryDatasetAccessEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_BigQueryDatasetAccessEdge_node(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetAccessEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BigQueryDatasetAccessEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*bigquery.BigQueryDatasetAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDatasetAccessEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.Cursor)
+	fc.Result = res
+	return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐCursor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDatasetAccessEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDatasetAccessEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BigQueryDatasetAccessEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*bigquery.BigQueryDatasetAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDatasetAccessEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*bigquery.BigQueryDatasetAccess)
+	fc.Result = res
+	return ec.marshalNBigQueryDatasetAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccess(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDatasetAccessEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDatasetAccessEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "role":
+				return ec.fieldContext_BigQueryDatasetAccess_role(ctx, field)
+			case "email":
+				return ec.fieldContext_BigQueryDatasetAccess_email(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetAccess", field.Name)
 		},
 	}
 	return fc, nil
@@ -15039,10 +15352,41 @@ func (ec *executionContext) _BigQueryDataset(ctx context.Context, sel ast.Select
 		case "description":
 			out.Values[i] = ec._BigQueryDataset_description(ctx, field, obj)
 		case "access":
-			out.Values[i] = ec._BigQueryDataset_access(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._BigQueryDataset_access(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "status":
 			out.Values[i] = ec._BigQueryDataset_status(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -15158,6 +15502,94 @@ func (ec *executionContext) _BigQueryDatasetAccess(ctx context.Context, sel ast.
 			}
 		case "email":
 			out.Values[i] = ec._BigQueryDatasetAccess_email(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var bigQueryDatasetAccessConnectionImplementors = []string{"BigQueryDatasetAccessConnection"}
+
+func (ec *executionContext) _BigQueryDatasetAccessConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*bigquery.BigQueryDatasetAccess]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, bigQueryDatasetAccessConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("BigQueryDatasetAccessConnection")
+		case "pageInfo":
+			out.Values[i] = ec._BigQueryDatasetAccessConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._BigQueryDatasetAccessConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var bigQueryDatasetAccessEdgeImplementors = []string{"BigQueryDatasetAccessEdge"}
+
+func (ec *executionContext) _BigQueryDatasetAccessEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*bigquery.BigQueryDatasetAccess]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, bigQueryDatasetAccessEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("BigQueryDatasetAccessEdge")
+		case "cursor":
+			out.Values[i] = ec._BigQueryDatasetAccessEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			out.Values[i] = ec._BigQueryDatasetAccessEdge_node(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -18911,7 +19343,35 @@ func (ec *executionContext) marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapi
 	return ec._BigQueryDataset(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNBigQueryDatasetAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccessᚄ(ctx context.Context, sel ast.SelectionSet, v []*bigquery.BigQueryDatasetAccess) graphql.Marshaler {
+func (ec *executionContext) marshalNBigQueryDatasetAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccess(ctx context.Context, sel ast.SelectionSet, v *bigquery.BigQueryDatasetAccess) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._BigQueryDatasetAccess(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNBigQueryDatasetAccessConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*bigquery.BigQueryDatasetAccess]) graphql.Marshaler {
+	return ec._BigQueryDatasetAccessConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNBigQueryDatasetAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*bigquery.BigQueryDatasetAccess]) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._BigQueryDatasetAccessConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNBigQueryDatasetAccessEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*bigquery.BigQueryDatasetAccess]) graphql.Marshaler {
+	return ec._BigQueryDatasetAccessEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNBigQueryDatasetAccessEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*bigquery.BigQueryDatasetAccess]) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -18935,7 +19395,7 @@ func (ec *executionContext) marshalNBigQueryDatasetAccess2ᚕᚖgithubᚗcomᚋn
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNBigQueryDatasetAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccess(ctx, sel, v[i])
+			ret[i] = ec.marshalNBigQueryDatasetAccessEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdge(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -18953,16 +19413,6 @@ func (ec *executionContext) marshalNBigQueryDatasetAccess2ᚕᚖgithubᚗcomᚋn
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNBigQueryDatasetAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccess(ctx context.Context, sel ast.SelectionSet, v *bigquery.BigQueryDatasetAccess) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._BigQueryDatasetAccess(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNBigQueryDatasetConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*bigquery.BigQueryDataset]) graphql.Marshaler {

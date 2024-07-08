@@ -12,7 +12,12 @@ type BigQueryDataset implements Persistence & Node {
   environment: TeamEnvironment!
   cascadingDelete: Boolean!
   description: String
-  access: [BigQueryDatasetAccess!]!
+  access(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+  ): BigQueryDatasetAccessConnection!
   status: BigQueryDatasetStatus!
   workload: Workload
   cost: Float!
@@ -139,6 +144,11 @@ type RedisInstanceStatus {
   state: String!
 }
 
+type BigQueryDatasetAccessConnection {
+  pageInfo: PageInfo!
+  edges: [BigQueryDatasetAccessEdge!]!
+}
+
 type BigQueryDatasetConnection {
   pageInfo: PageInfo!
   edges: [BigQueryDatasetEdge!]!
@@ -172,6 +182,11 @@ type OpenSearchConnection {
 type RedisInstanceConnection {
   pageInfo: PageInfo!
   edges: [RedisInstanceEdge!]!
+}
+
+type BigQueryDatasetAccessEdge {
+  cursor: Cursor!
+  node: BigQueryDatasetAccess!
 }
 
 type BigQueryDatasetEdge {

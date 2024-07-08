@@ -19,17 +19,19 @@ import (
 )
 
 type (
-	BigQueryDatasetConnection = pagination.Connection[*BigQueryDataset]
-	BigQueryDatasetEdge       = pagination.Edge[*BigQueryDataset]
+	BigQueryDatasetConnection       = pagination.Connection[*BigQueryDataset]
+	BigQueryDatasetEdge             = pagination.Edge[*BigQueryDataset]
+	BigQueryDatasetAccessConnection = pagination.Connection[*BigQueryDatasetAccess]
+	BigQueryDatasetAccessEdge       = pagination.Edge[*BigQueryDatasetAccess]
 )
 
 type BigQueryDataset struct {
 	Name            string                   `json:"name"`
 	Description     *string                  `json:"description,omitempty"`
 	CascadingDelete bool                     `json:"cascadingDelete"`
-	Access          []*BigQueryDatasetAccess `json:"access"`
 	Location        string                   `json:"location"`
 	Status          BigQueryDatasetStatus    `json:"status"`
+	Access          []*BigQueryDatasetAccess `json:"-"`
 	TeamSlug        slug.Slug                `json:"-"`
 	EnvironmentName string                   `json:"-"`
 	OwnerReference  *metav1.OwnerReference   `json:"-"`
