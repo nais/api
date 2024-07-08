@@ -128,7 +128,6 @@ type ComplexityRoot struct {
 		Name                     func(childComplexity int) int
 		ProjectID                func(childComplexity int) int
 		PublicAccessPrevention   func(childComplexity int) int
-		RetentionPeriodDays      func(childComplexity int) int
 		Status                   func(childComplexity int) int
 		Team                     func(childComplexity int) int
 		UniformBucketLevelAccess func(childComplexity int) int
@@ -662,13 +661,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Bucket.PublicAccessPrevention(childComplexity), true
-
-	case "Bucket.retentionPeriodDays":
-		if e.complexity.Bucket.RetentionPeriodDays == nil {
-			break
-		}
-
-		return e.complexity.Bucket.RetentionPeriodDays(childComplexity), true
 
 	case "Bucket.status":
 		if e.complexity.Bucket.Status == nil {
@@ -1782,7 +1774,6 @@ type Bucket implements Persistence & Node {
   environment: TeamEnvironment!
   cascadingDelete: Boolean!
   publicAccessPrevention: String!
-  retentionPeriodDays: Int!
   uniformBucketLevelAccess: Boolean!
   cors: [BucketCors!]!
   projectId: String!
@@ -4603,50 +4594,6 @@ func (ec *executionContext) fieldContext_Bucket_publicAccessPrevention(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _Bucket_retentionPeriodDays(ctx context.Context, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Bucket_retentionPeriodDays(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.RetentionPeriodDays, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Bucket_retentionPeriodDays(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Bucket",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Bucket_uniformBucketLevelAccess(ctx context.Context, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Bucket_uniformBucketLevelAccess(ctx, field)
 	if err != nil {
@@ -4717,9 +4664,9 @@ func (ec *executionContext) _Bucket_cors(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*bucket.BucketCors)
+	res := resTmp.([]bucket.BucketCors)
 	fc.Result = res
-	return ec.marshalNBucketCors2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketCorsᚄ(ctx, field.Selections, res)
+	return ec.marshalNBucketCors2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketCorsᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Bucket_cors(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5007,9 +4954,9 @@ func (ec *executionContext) _BucketCors_maxAgeSeconds(ctx context.Context, field
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*int)
+	res := resTmp.(*int64)
 	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_BucketCors_maxAgeSeconds(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5252,8 +5199,6 @@ func (ec *executionContext) fieldContext_BucketEdge_node(_ context.Context, fiel
 				return ec.fieldContext_Bucket_cascadingDelete(ctx, field)
 			case "publicAccessPrevention":
 				return ec.fieldContext_Bucket_publicAccessPrevention(ctx, field)
-			case "retentionPeriodDays":
-				return ec.fieldContext_Bucket_retentionPeriodDays(ctx, field)
 			case "uniformBucketLevelAccess":
 				return ec.fieldContext_Bucket_uniformBucketLevelAccess(ctx, field)
 			case "cors":
@@ -13715,11 +13660,6 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "retentionPeriodDays":
-			out.Values[i] = ec._Bucket_retentionPeriodDays(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "uniformBucketLevelAccess":
 			out.Values[i] = ec._Bucket_uniformBucketLevelAccess(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -16931,7 +16871,11 @@ func (ec *executionContext) marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋap
 	return ec._BucketConnection(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNBucketCors2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketCorsᚄ(ctx context.Context, sel ast.SelectionSet, v []*bucket.BucketCors) graphql.Marshaler {
+func (ec *executionContext) marshalNBucketCors2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketCors(ctx context.Context, sel ast.SelectionSet, v bucket.BucketCors) graphql.Marshaler {
+	return ec._BucketCors(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNBucketCors2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketCorsᚄ(ctx context.Context, sel ast.SelectionSet, v []bucket.BucketCors) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -16955,7 +16899,7 @@ func (ec *executionContext) marshalNBucketCors2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNBucketCors2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketCors(ctx, sel, v[i])
+			ret[i] = ec.marshalNBucketCors2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketCors(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -16973,16 +16917,6 @@ func (ec *executionContext) marshalNBucketCors2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNBucketCors2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketCors(ctx context.Context, sel ast.SelectionSet, v *bucket.BucketCors) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._BucketCors(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNBucketEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*bucket.Bucket]) graphql.Marshaler {
@@ -18289,6 +18223,22 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 	res := graphql.MarshalInt(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint64(ctx context.Context, v interface{}) (*int64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt64(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint64(ctx context.Context, sel ast.SelectionSet, v *int64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt64(*v)
 	return res
 }
 

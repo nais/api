@@ -2,18 +2,19 @@ package bucket
 
 import (
 	"fmt"
+	"io"
+	"strconv"
+
 	storage_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/storage/v1beta1"
 	"github.com/nais/api/internal/graphv1/ident"
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
 	"github.com/nais/api/internal/persistence"
 	"github.com/nais/api/internal/slug"
-	"io"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/utils/ptr"
-	"strconv"
 )
 
 type (
@@ -25,10 +26,9 @@ type Bucket struct {
 	Name                     string                 `json:"name"`
 	CascadingDelete          bool                   `json:"cascadingDelete"`
 	PublicAccessPrevention   string                 `json:"publicAccessPrevention"`
-	RetentionPeriodDays      int                    `json:"retentionPeriodDays"`
 	UniformBucketLevelAccess bool                   `json:"uniformBucketLevelAccess"`
-	Cors                     []*BucketCors          `json:"cors"`
-	Status                   BucketStatus           `json:"-"`
+	Cors                     []BucketCors           `json:"cors"`
+	Status                   BucketStatus           `json:"status"`
 	TeamSlug                 slug.Slug              `json:"-"`
 	EnvironmentName          string                 `json:"-"`
 	OwnerReference           *metav1.OwnerReference `json:"-"`
@@ -44,7 +44,7 @@ func (b Bucket) ID() ident.Ident {
 }
 
 type BucketCors struct {
-	MaxAgeSeconds   *int     `json:"maxAgeSeconds,omitempty"`
+	MaxAgeSeconds   *int64   `json:"maxAgeSeconds,omitempty"`
 	Methods         []string `json:"methods"`
 	Origins         []string `json:"origins"`
 	ResponseHeaders []string `json:"responseHeaders"`
@@ -95,65 +95,46 @@ func (e BucketOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-func toBucket(u *unstructured.Unstructured, env string) (*Bucket, error) {
-	bucket := &storage_cnrm_cloud_google_com_v1beta1.StorageBucket{}
+func toBucketCors(cors []storage_cnrm_cloud_google_com_v1beta1.BucketCors) []BucketCors {
+	ret := make([]BucketCors, len(cors))
+	for i, c := range cors {
+		ret[i] = BucketCors{
+			MaxAgeSeconds:   c.MaxAgeSeconds,
+			Origins:         c.Origin,
+			Methods:         c.Method,
+			ResponseHeaders: c.ResponseHeader,
+		}
+	}
+	return ret
+}
 
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, bucket); err != nil {
+func toBucketStatus(status storage_cnrm_cloud_google_com_v1beta1.StorageBucketStatus) BucketStatus {
+	// TODO: Implement status handling for buckets
+	return BucketStatus{}
+}
+
+func toBucket(u *unstructured.Unstructured, env string) (*Bucket, error) {
+	obj := &storage_cnrm_cloud_google_com_v1beta1.StorageBucket{}
+
+	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, obj); err != nil {
 		return nil, fmt.Errorf("converting to Bucket: %w", err)
 	}
 
-	projectId := bucket.GetAnnotations()["cnrm.cloud.google.com/project-id"]
+	projectId := obj.GetAnnotations()["cnrm.cloud.google.com/project-id"]
 	if projectId == "" {
 		return nil, fmt.Errorf("missing project ID annotation")
 	}
 
-	teamSlug := bucket.GetNamespace()
-
 	return &Bucket{
-		OwnerReference:           persistence.OwnerReference(bucket.OwnerReferences),
-		TeamSlug:                 slug.Slug(teamSlug),
+		Name:                     obj.Name,
+		CascadingDelete:          obj.Annotations["cnrm.cloud.google.com/deletion-policy"] == "abandon",
+		PublicAccessPrevention:   ptr.Deref(obj.Spec.PublicAccessPrevention, ""),
+		OwnerReference:           persistence.OwnerReference(obj.OwnerReferences),
+		TeamSlug:                 slug.Slug(obj.GetNamespace()),
 		EnvironmentName:          env,
-		Name:                     bucket.Name,
 		ProjectID:                projectId,
-		CascadingDelete:          bucket.Annotations["cnrm.cloud.google.com/deletion-policy"] == "abandon",
-		PublicAccessPrevention:   ptr.Deref(bucket.Spec.PublicAccessPrevention, ""),
-		UniformBucketLevelAccess: ptr.Deref(bucket.Spec.UniformBucketLevelAccess, false),
-
-		/*
-			Cors: func(cors []storage_cnrm_cloud_google_com_v1beta1.BucketCors) []BucketCors {
-				ret := make([]BucketCors, len(cors))
-				for i, c := range cors {
-					ret[i] = BucketCors{
-						MaxAgeSeconds:   c.MaxAgeSeconds,
-						Origins:         c.Origin,
-						Methods:         c.Method,
-						ResponseHeaders: c.ResponseHeader,
-					}
-				}
-				return ret
-			}(bucket.Spec.Cors),
-			Status: BucketStatus{
-				Conditions: func(conditions []v1alpha1.Condition) []*Condition {
-					ret := make([]*Condition, len(conditions))
-					for i, c := range conditions {
-						t, err := time.Parse(time.RFC3339, c.LastTransitionTime)
-						if err != nil {
-							t = time.Unix(0, 0)
-						}
-						ret[i] = &Condition{
-							Type:               c.Type,
-							Status:             string(c.Status),
-							LastTransitionTime: t,
-							Reason:             c.Reason,
-							Message:            c.Message,
-						}
-					}
-
-					return ret
-				}(bucket.Status.Conditions),
-				SelfLink: ptr.Deref(bucket.Status.SelfLink, ""),
-			},
-
-		*/
+		UniformBucketLevelAccess: ptr.Deref(obj.Spec.UniformBucketLevelAccess, false),
+		Cors:                     toBucketCors(obj.Spec.Cors),
+		Status:                   toBucketStatus(obj.Status),
 	}, nil
 }
