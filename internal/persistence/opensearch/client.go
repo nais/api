@@ -45,7 +45,7 @@ func (c client) getOpenSearchesForTeam(_ context.Context, teamSlug slug.Slug) ([
 		for _, obj := range objs {
 			bqs, err := toOpenSearch(obj.(*unstructured.Unstructured), env)
 			if err != nil {
-				return nil, fmt.Errorf("converting to opensearch instasnce: %w", err)
+				return nil, fmt.Errorf("converting to opensearch instance: %w", err)
 			}
 
 			ret = append(ret, bqs)
