@@ -23,8 +23,8 @@ type PageInfo {
   "Whether or not there exists a previous page in the data set."
   hasPreviousPage: Boolean!
 
-  startCursor: Cursor!
-  endCursor: Cursor!
+  startCursor: Cursor
+  endCursor: Cursor
 }
 
 enum OrderDirection {
