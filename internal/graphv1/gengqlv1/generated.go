@@ -248,7 +248,7 @@ type ComplexityRoot struct {
 	}
 
 	OpenSearch struct {
-		Access      func(childComplexity int) int
+		Access      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Cost        func(childComplexity int) int
 		Environment func(childComplexity int) int
 		ID          func(childComplexity int) int
@@ -261,6 +261,16 @@ type ComplexityRoot struct {
 	OpenSearchAccess struct {
 		Role     func(childComplexity int) int
 		Workload func(childComplexity int) int
+	}
+
+	OpenSearchAccessConnection struct {
+		Edges    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	OpenSearchAccessEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	OpenSearchConnection struct {
@@ -294,7 +304,7 @@ type ComplexityRoot struct {
 	}
 
 	RedisInstance struct {
-		Access      func(childComplexity int) int
+		Access      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Cost        func(childComplexity int) int
 		Environment func(childComplexity int) int
 		ID          func(childComplexity int) int
@@ -307,6 +317,16 @@ type ComplexityRoot struct {
 	RedisInstanceAccess struct {
 		Role     func(childComplexity int) int
 		Workload func(childComplexity int) int
+	}
+
+	RedisInstanceAccessConnection struct {
+		Edges    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	RedisInstanceAccessEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	RedisInstanceConnection struct {
@@ -438,7 +458,7 @@ type OpenSearchResolver interface {
 	Team(ctx context.Context, obj *opensearch.OpenSearch) (*team.Team, error)
 	Environment(ctx context.Context, obj *opensearch.OpenSearch) (*team.TeamEnvironment, error)
 
-	Access(ctx context.Context, obj *opensearch.OpenSearch) ([]*opensearch.OpenSearchAccess, error)
+	Access(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*opensearch.OpenSearchAccess], error)
 	Cost(ctx context.Context, obj *opensearch.OpenSearch) (float64, error)
 }
 type QueryResolver interface {
@@ -451,7 +471,7 @@ type QueryResolver interface {
 type RedisInstanceResolver interface {
 	Team(ctx context.Context, obj *redis.RedisInstance) (*team.Team, error)
 	Environment(ctx context.Context, obj *redis.RedisInstance) (*team.TeamEnvironment, error)
-	Access(ctx context.Context, obj *redis.RedisInstance) ([]*redis.RedisInstanceAccess, error)
+	Access(ctx context.Context, obj *redis.RedisInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*redis.RedisInstanceAccess], error)
 	Cost(ctx context.Context, obj *redis.RedisInstance) (float64, error)
 }
 type TeamResolver interface {
@@ -1162,7 +1182,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.OpenSearch.Access(childComplexity), true
+		args, err := ec.field_OpenSearch_access_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.OpenSearch.Access(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "OpenSearch.cost":
 		if e.complexity.OpenSearch.Cost == nil {
@@ -1226,6 +1251,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.OpenSearchAccess.Workload(childComplexity), true
+
+	case "OpenSearchAccessConnection.edges":
+		if e.complexity.OpenSearchAccessConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.OpenSearchAccessConnection.Edges(childComplexity), true
+
+	case "OpenSearchAccessConnection.pageInfo":
+		if e.complexity.OpenSearchAccessConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.OpenSearchAccessConnection.PageInfo(childComplexity), true
+
+	case "OpenSearchAccessEdge.cursor":
+		if e.complexity.OpenSearchAccessEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.OpenSearchAccessEdge.Cursor(childComplexity), true
+
+	case "OpenSearchAccessEdge.node":
+		if e.complexity.OpenSearchAccessEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.OpenSearchAccessEdge.Node(childComplexity), true
 
 	case "OpenSearchConnection.edges":
 		if e.complexity.OpenSearchConnection.Edges == nil {
@@ -1362,7 +1415,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.RedisInstance.Access(childComplexity), true
+		args, err := ec.field_RedisInstance_access_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.RedisInstance.Access(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "RedisInstance.cost":
 		if e.complexity.RedisInstance.Cost == nil {
@@ -1426,6 +1484,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RedisInstanceAccess.Workload(childComplexity), true
+
+	case "RedisInstanceAccessConnection.edges":
+		if e.complexity.RedisInstanceAccessConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.RedisInstanceAccessConnection.Edges(childComplexity), true
+
+	case "RedisInstanceAccessConnection.pageInfo":
+		if e.complexity.RedisInstanceAccessConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.RedisInstanceAccessConnection.PageInfo(childComplexity), true
+
+	case "RedisInstanceAccessEdge.cursor":
+		if e.complexity.RedisInstanceAccessEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.RedisInstanceAccessEdge.Cursor(childComplexity), true
+
+	case "RedisInstanceAccessEdge.node":
+		if e.complexity.RedisInstanceAccessEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.RedisInstanceAccessEdge.Node(childComplexity), true
 
 	case "RedisInstanceConnection.edges":
 		if e.complexity.RedisInstanceConnection.Edges == nil {
@@ -2146,7 +2232,12 @@ type OpenSearch implements Persistence & Node {
   environment: TeamEnvironment!
   status: OpenSearchStatus!
   workload: Workload
-  access: [OpenSearchAccess!]!
+  access(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+  ): OpenSearchAccessConnection!
   cost: Float!
 }
 
@@ -2164,7 +2255,12 @@ type RedisInstance implements Persistence & Node {
   name: String!
   team: Team!
   environment: TeamEnvironment!
-  access: [RedisInstanceAccess!]!
+  access(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+  ): RedisInstanceAccessConnection!
   cost: Float!
   workload: Workload
   status: RedisInstanceStatus!
@@ -2209,9 +2305,20 @@ type KafkaTopicAclConnection {
   edges: [KafkaTopicAclEdge!]!
 }
 
+type OpenSearchAccessConnection {
+  pageInfo: PageInfo!
+  edges: [OpenSearchAccessEdge!]!
+}
+
 type OpenSearchConnection {
   pageInfo: PageInfo!
   edges: [OpenSearchEdge!]!
+}
+
+type RedisInstanceAccessConnection {
+  pageInfo: PageInfo!
+  edges: [RedisInstanceAccessEdge!]!
+
 }
 
 type RedisInstanceConnection {
@@ -2249,9 +2356,19 @@ type KafkaTopicAclEdge {
   node: KafkaTopicAcl!
 }
 
+type OpenSearchAccessEdge {
+  cursor: Cursor!
+  node: OpenSearchAccess!
+}
+
 type OpenSearchEdge {
   cursor: Cursor!
   node: OpenSearch!
+}
+
+type RedisInstanceAccessEdge {
+  cursor: Cursor!
+  node: RedisInstanceAccess!
 }
 
 type RedisInstanceEdge {
@@ -2835,6 +2952,48 @@ func (ec *executionContext) field_KafkaTopic_acl_args(ctx context.Context, rawAr
 	return args, nil
 }
 
+func (ec *executionContext) field_OpenSearch_access_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *pagination.Cursor
+	if tmp, ok := rawArgs["after"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+		arg1, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["after"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["last"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["last"] = arg2
+	var arg3 *pagination.Cursor
+	if tmp, ok := rawArgs["before"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+		arg3, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["before"] = arg3
+	return args, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3003,6 +3162,48 @@ func (ec *executionContext) field_Query_users_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["orderBy"] = arg4
+	return args, nil
+}
+
+func (ec *executionContext) field_RedisInstance_access_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *pagination.Cursor
+	if tmp, ok := rawArgs["after"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+		arg1, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["after"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["last"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["last"] = arg2
+	var arg3 *pagination.Cursor
+	if tmp, ok := rawArgs["before"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+		arg3, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["before"] = arg3
 	return args, nil
 }
 
@@ -8489,7 +8690,7 @@ func (ec *executionContext) _OpenSearch_access(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.OpenSearch().Access(rctx, obj)
+		return ec.resolvers.OpenSearch().Access(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8501,12 +8702,12 @@ func (ec *executionContext) _OpenSearch_access(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*opensearch.OpenSearchAccess)
+	res := resTmp.(*pagination.Connection[*opensearch.OpenSearchAccess])
 	fc.Result = res
-	return ec.marshalNOpenSearchAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchAccessᚄ(ctx, field.Selections, res)
+	return ec.marshalNOpenSearchAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_OpenSearch_access(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_OpenSearch_access(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "OpenSearch",
 		Field:      field,
@@ -8514,13 +8715,24 @@ func (ec *executionContext) fieldContext_OpenSearch_access(_ context.Context, fi
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "workload":
-				return ec.fieldContext_OpenSearchAccess_workload(ctx, field)
-			case "role":
-				return ec.fieldContext_OpenSearchAccess_role(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_OpenSearchAccessConnection_pageInfo(ctx, field)
+			case "edges":
+				return ec.fieldContext_OpenSearchAccessConnection_edges(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type OpenSearchAccess", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type OpenSearchAccessConnection", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_OpenSearch_access_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -8652,6 +8864,206 @@ func (ec *executionContext) fieldContext_OpenSearchAccess_role(_ context.Context
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _OpenSearchAccessConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*opensearch.OpenSearchAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_OpenSearchAccessConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_OpenSearchAccessConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearchAccessConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _OpenSearchAccessConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*opensearch.OpenSearchAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_OpenSearchAccessConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]pagination.Edge[*opensearch.OpenSearchAccess])
+	fc.Result = res
+	return ec.marshalNOpenSearchAccessEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_OpenSearchAccessConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearchAccessConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cursor":
+				return ec.fieldContext_OpenSearchAccessEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_OpenSearchAccessEdge_node(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type OpenSearchAccessEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _OpenSearchAccessEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*opensearch.OpenSearchAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_OpenSearchAccessEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.Cursor)
+	fc.Result = res
+	return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐCursor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_OpenSearchAccessEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearchAccessEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _OpenSearchAccessEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*opensearch.OpenSearchAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_OpenSearchAccessEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*opensearch.OpenSearchAccess)
+	fc.Result = res
+	return ec.marshalNOpenSearchAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchAccess(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_OpenSearchAccessEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearchAccessEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "workload":
+				return ec.fieldContext_OpenSearchAccess_workload(ctx, field)
+			case "role":
+				return ec.fieldContext_OpenSearchAccess_role(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type OpenSearchAccess", field.Name)
 		},
 	}
 	return fc, nil
@@ -9842,7 +10254,7 @@ func (ec *executionContext) _RedisInstance_access(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.RedisInstance().Access(rctx, obj)
+		return ec.resolvers.RedisInstance().Access(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9854,12 +10266,12 @@ func (ec *executionContext) _RedisInstance_access(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*redis.RedisInstanceAccess)
+	res := resTmp.(*pagination.Connection[*redis.RedisInstanceAccess])
 	fc.Result = res
-	return ec.marshalNRedisInstanceAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceAccessᚄ(ctx, field.Selections, res)
+	return ec.marshalNRedisInstanceAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RedisInstance_access(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RedisInstance_access(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RedisInstance",
 		Field:      field,
@@ -9867,13 +10279,24 @@ func (ec *executionContext) fieldContext_RedisInstance_access(_ context.Context,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "workload":
-				return ec.fieldContext_RedisInstanceAccess_workload(ctx, field)
-			case "role":
-				return ec.fieldContext_RedisInstanceAccess_role(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_RedisInstanceAccessConnection_pageInfo(ctx, field)
+			case "edges":
+				return ec.fieldContext_RedisInstanceAccessConnection_edges(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type RedisInstanceAccess", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type RedisInstanceAccessConnection", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_RedisInstance_access_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -10094,6 +10517,206 @@ func (ec *executionContext) fieldContext_RedisInstanceAccess_role(_ context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RedisInstanceAccessConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*redis.RedisInstanceAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisInstanceAccessConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedisInstanceAccessConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedisInstanceAccessConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RedisInstanceAccessConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*redis.RedisInstanceAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisInstanceAccessConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]pagination.Edge[*redis.RedisInstanceAccess])
+	fc.Result = res
+	return ec.marshalNRedisInstanceAccessEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedisInstanceAccessConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedisInstanceAccessConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cursor":
+				return ec.fieldContext_RedisInstanceAccessEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_RedisInstanceAccessEdge_node(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RedisInstanceAccessEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RedisInstanceAccessEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*redis.RedisInstanceAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisInstanceAccessEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.Cursor)
+	fc.Result = res
+	return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐCursor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedisInstanceAccessEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedisInstanceAccessEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RedisInstanceAccessEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*redis.RedisInstanceAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisInstanceAccessEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*redis.RedisInstanceAccess)
+	fc.Result = res
+	return ec.marshalNRedisInstanceAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceAccess(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedisInstanceAccessEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedisInstanceAccessEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "workload":
+				return ec.fieldContext_RedisInstanceAccess_workload(ctx, field)
+			case "role":
+				return ec.fieldContext_RedisInstanceAccess_role(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RedisInstanceAccess", field.Name)
 		},
 	}
 	return fc, nil
@@ -17263,6 +17886,94 @@ func (ec *executionContext) _OpenSearchAccess(ctx context.Context, sel ast.Selec
 	return out
 }
 
+var openSearchAccessConnectionImplementors = []string{"OpenSearchAccessConnection"}
+
+func (ec *executionContext) _OpenSearchAccessConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*opensearch.OpenSearchAccess]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, openSearchAccessConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("OpenSearchAccessConnection")
+		case "pageInfo":
+			out.Values[i] = ec._OpenSearchAccessConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._OpenSearchAccessConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var openSearchAccessEdgeImplementors = []string{"OpenSearchAccessEdge"}
+
+func (ec *executionContext) _OpenSearchAccessEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*opensearch.OpenSearchAccess]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, openSearchAccessEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("OpenSearchAccessEdge")
+		case "cursor":
+			out.Values[i] = ec._OpenSearchAccessEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			out.Values[i] = ec._OpenSearchAccessEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var openSearchConnectionImplementors = []string{"OpenSearchConnection"}
 
 func (ec *executionContext) _OpenSearchConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*opensearch.OpenSearch]) graphql.Marshaler {
@@ -17813,6 +18524,94 @@ func (ec *executionContext) _RedisInstanceAccess(ctx context.Context, sel ast.Se
 			}
 		case "role":
 			out.Values[i] = ec._RedisInstanceAccess_role(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var redisInstanceAccessConnectionImplementors = []string{"RedisInstanceAccessConnection"}
+
+func (ec *executionContext) _RedisInstanceAccessConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*redis.RedisInstanceAccess]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, redisInstanceAccessConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RedisInstanceAccessConnection")
+		case "pageInfo":
+			out.Values[i] = ec._RedisInstanceAccessConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._RedisInstanceAccessConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var redisInstanceAccessEdgeImplementors = []string{"RedisInstanceAccessEdge"}
+
+func (ec *executionContext) _RedisInstanceAccessEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*redis.RedisInstanceAccess]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, redisInstanceAccessEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RedisInstanceAccessEdge")
+		case "cursor":
+			out.Values[i] = ec._RedisInstanceAccessEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			out.Values[i] = ec._RedisInstanceAccessEdge_node(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -20039,7 +20838,35 @@ func (ec *executionContext) marshalNOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 	return ec._OpenSearch(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNOpenSearchAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchAccessᚄ(ctx context.Context, sel ast.SelectionSet, v []*opensearch.OpenSearchAccess) graphql.Marshaler {
+func (ec *executionContext) marshalNOpenSearchAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchAccess(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearchAccess) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._OpenSearchAccess(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNOpenSearchAccessConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*opensearch.OpenSearchAccess]) graphql.Marshaler {
+	return ec._OpenSearchAccessConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNOpenSearchAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*opensearch.OpenSearchAccess]) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._OpenSearchAccessConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNOpenSearchAccessEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*opensearch.OpenSearchAccess]) graphql.Marshaler {
+	return ec._OpenSearchAccessEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNOpenSearchAccessEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*opensearch.OpenSearchAccess]) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -20063,7 +20890,7 @@ func (ec *executionContext) marshalNOpenSearchAccess2ᚕᚖgithubᚗcomᚋnais�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNOpenSearchAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchAccess(ctx, sel, v[i])
+			ret[i] = ec.marshalNOpenSearchAccessEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdge(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -20081,16 +20908,6 @@ func (ec *executionContext) marshalNOpenSearchAccess2ᚕᚖgithubᚗcomᚋnais�
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNOpenSearchAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchAccess(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearchAccess) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._OpenSearchAccess(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNOpenSearchConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*opensearch.OpenSearch]) graphql.Marshaler {
@@ -20193,7 +21010,35 @@ func (ec *executionContext) marshalNRedisInstance2ᚖgithubᚗcomᚋnaisᚋapi�
 	return ec._RedisInstance(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNRedisInstanceAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceAccessᚄ(ctx context.Context, sel ast.SelectionSet, v []*redis.RedisInstanceAccess) graphql.Marshaler {
+func (ec *executionContext) marshalNRedisInstanceAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceAccess(ctx context.Context, sel ast.SelectionSet, v *redis.RedisInstanceAccess) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RedisInstanceAccess(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRedisInstanceAccessConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*redis.RedisInstanceAccess]) graphql.Marshaler {
+	return ec._RedisInstanceAccessConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRedisInstanceAccessConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*redis.RedisInstanceAccess]) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RedisInstanceAccessConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRedisInstanceAccessEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*redis.RedisInstanceAccess]) graphql.Marshaler {
+	return ec._RedisInstanceAccessEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRedisInstanceAccessEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*redis.RedisInstanceAccess]) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -20217,7 +21062,7 @@ func (ec *executionContext) marshalNRedisInstanceAccess2ᚕᚖgithubᚗcomᚋnai
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNRedisInstanceAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceAccess(ctx, sel, v[i])
+			ret[i] = ec.marshalNRedisInstanceAccessEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdge(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -20235,16 +21080,6 @@ func (ec *executionContext) marshalNRedisInstanceAccess2ᚕᚖgithubᚗcomᚋnai
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNRedisInstanceAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceAccess(ctx context.Context, sel ast.SelectionSet, v *redis.RedisInstanceAccess) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._RedisInstanceAccess(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNRedisInstanceConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*redis.RedisInstance]) graphql.Marshaler {
