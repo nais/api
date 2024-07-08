@@ -29,6 +29,7 @@ autobind:
   - "github.com/nais/api/internal/persistence"
   - "github.com/nais/api/internal/persistence/bigquery"
   - "github.com/nais/api/internal/persistence/bucket"
+  - "github.com/nais/api/internal/persistence/kafkatopic"
   - "github.com/nais/api/internal/persistence/opensearch"
   - "github.com/nais/api/internal/persistence/redis"
   - "github.com/nais/api/internal/team"

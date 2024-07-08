@@ -18,6 +18,7 @@ import (
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
+	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/redis"
 	"github.com/nais/api/internal/team"
@@ -82,14 +83,15 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 			}
 
 			pool := db.GetPool()
-			ctx = user.NewLoaderContext(ctx, pool, opts)
-			ctx = team.NewLoaderContext(ctx, pool, opts)
 			ctx = application.NewLoaderContext(ctx, k8sClient, opts)
-			ctx = job.NewLoaderContext(ctx, k8sClient, opts)
-			ctx = redis.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = bigquery.NewLoaderContext(ctx, k8sClient, opts)
-			ctx = opensearch.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = bucket.NewLoaderContext(ctx, k8sClient, opts)
+			ctx = job.NewLoaderContext(ctx, k8sClient, opts)
+			ctx = kafkatopic.NewLoaderContext(ctx, k8sClient, opts)
+			ctx = opensearch.NewLoaderContext(ctx, k8sClient, opts)
+			ctx = redis.NewLoaderContext(ctx, k8sClient, opts)
+			ctx = team.NewLoaderContext(ctx, pool, opts)
+			ctx = user.NewLoaderContext(ctx, pool, opts)
 			return ctx
 		}))
 		r.Use(otelhttp.NewMiddleware("graphqlv1", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))

@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/graphv1/gengqlv1"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
+	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/redis"
 	"github.com/nais/api/internal/team"
@@ -40,6 +41,14 @@ func (r *bucketResolver) Environment(ctx context.Context, obj *bucket.Bucket) (*
 
 func (r *bucketResolver) Workload(ctx context.Context, obj *bucket.Bucket) (workload.Workload, error) {
 	return r.workload(ctx, obj.OwnerReference, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *kafkaTopicResolver) Team(ctx context.Context, obj *kafkatopic.KafkaTopic) (*team.Team, error) {
+	return team.Get(ctx, obj.TeamSlug)
+}
+
+func (r *kafkaTopicResolver) Environment(ctx context.Context, obj *kafkatopic.KafkaTopic) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *openSearchResolver) Team(ctx context.Context, obj *opensearch.OpenSearch) (*team.Team, error) {
@@ -80,6 +89,8 @@ func (r *Resolver) BigQueryDataset() gengqlv1.BigQueryDatasetResolver {
 
 func (r *Resolver) Bucket() gengqlv1.BucketResolver { return &bucketResolver{r} }
 
+func (r *Resolver) KafkaTopic() gengqlv1.KafkaTopicResolver { return &kafkaTopicResolver{r} }
+
 func (r *Resolver) OpenSearch() gengqlv1.OpenSearchResolver { return &openSearchResolver{r} }
 
 func (r *Resolver) RedisInstance() gengqlv1.RedisInstanceResolver { return &redisInstanceResolver{r} }
@@ -87,6 +98,7 @@ func (r *Resolver) RedisInstance() gengqlv1.RedisInstanceResolver { return &redi
 type (
 	bigQueryDatasetResolver struct{ *Resolver }
 	bucketResolver          struct{ *Resolver }
+	kafkaTopicResolver      struct{ *Resolver }
 	openSearchResolver      struct{ *Resolver }
 	redisInstanceResolver   struct{ *Resolver }
 )

@@ -118,6 +118,14 @@ type Team implements Node {
     orderBy: BucketOrder
   ): BucketConnection!
 
+  kafkaTopics(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: KafkaTopicOrder
+  ): KafkaTopicConnection!
+
   "Timestamp of the last successful synchronization of the team."
   lastSuccessfulSync: Time
 
