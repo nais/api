@@ -67,16 +67,16 @@ func (r *openSearchResolver) Cost(ctx context.Context, obj *opensearch.OpenSearc
 	panic(fmt.Errorf("not implemented: Cost - cost"))
 }
 
-func (r *redisInstanceResolver) Access(ctx context.Context, obj *redis.RedisInstance) ([]*redis.RedisInstanceAccess, error) {
-	panic(fmt.Errorf("not implemented: Access - access"))
-}
-
 func (r *redisInstanceResolver) Team(ctx context.Context, obj *redis.RedisInstance) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
 }
 
 func (r *redisInstanceResolver) Environment(ctx context.Context, obj *redis.RedisInstance) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *redisInstanceResolver) Access(ctx context.Context, obj *redis.RedisInstance) ([]*redis.RedisInstanceAccess, error) {
+	panic(fmt.Errorf("not implemented: Access - access"))
 }
 
 func (r *redisInstanceResolver) Cost(ctx context.Context, obj *redis.RedisInstance) (float64, error) {
