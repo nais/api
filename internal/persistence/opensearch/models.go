@@ -18,8 +18,10 @@ import (
 )
 
 type (
-	OpenSearchConnection = pagination.Connection[*OpenSearch]
-	OpenSearchEdge       = pagination.Edge[*OpenSearch]
+	OpenSearchConnection       = pagination.Connection[*OpenSearch]
+	OpenSearchEdge             = pagination.Edge[*OpenSearch]
+	OpenSearchAccessConnection = pagination.Connection[*OpenSearchAccess]
+	OpenSearchAccessEdge       = pagination.Edge[*OpenSearchAccess]
 )
 
 type OpenSearch struct {

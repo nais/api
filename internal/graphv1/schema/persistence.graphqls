@@ -112,7 +112,12 @@ type OpenSearch implements Persistence & Node {
   environment: TeamEnvironment!
   status: OpenSearchStatus!
   workload: Workload
-  access: [OpenSearchAccess!]!
+  access(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+  ): OpenSearchAccessConnection!
   cost: Float!
 }
 
@@ -130,7 +135,12 @@ type RedisInstance implements Persistence & Node {
   name: String!
   team: Team!
   environment: TeamEnvironment!
-  access: [RedisInstanceAccess!]!
+  access(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+  ): RedisInstanceAccessConnection!
   cost: Float!
   workload: Workload
   status: RedisInstanceStatus!
@@ -175,9 +185,20 @@ type KafkaTopicAclConnection {
   edges: [KafkaTopicAclEdge!]!
 }
 
+type OpenSearchAccessConnection {
+  pageInfo: PageInfo!
+  edges: [OpenSearchAccessEdge!]!
+}
+
 type OpenSearchConnection {
   pageInfo: PageInfo!
   edges: [OpenSearchEdge!]!
+}
+
+type RedisInstanceAccessConnection {
+  pageInfo: PageInfo!
+  edges: [RedisInstanceAccessEdge!]!
+
 }
 
 type RedisInstanceConnection {
@@ -215,9 +236,19 @@ type KafkaTopicAclEdge {
   node: KafkaTopicAcl!
 }
 
+type OpenSearchAccessEdge {
+  cursor: Cursor!
+  node: OpenSearchAccess!
+}
+
 type OpenSearchEdge {
   cursor: Cursor!
   node: OpenSearch!
+}
+
+type RedisInstanceAccessEdge {
+  cursor: Cursor!
+  node: RedisInstanceAccess!
 }
 
 type RedisInstanceEdge {

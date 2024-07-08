@@ -167,7 +167,7 @@ func (r *openSearchResolver) Environment(ctx context.Context, obj *opensearch.Op
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *openSearchResolver) Access(ctx context.Context, obj *opensearch.OpenSearch) ([]*opensearch.OpenSearchAccess, error) {
+func (r *openSearchResolver) Access(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*opensearch.OpenSearchAccess], error) {
 	panic(fmt.Errorf("not implemented: Access - access"))
 }
 
@@ -183,7 +183,7 @@ func (r *redisInstanceResolver) Environment(ctx context.Context, obj *redis.Redi
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *redisInstanceResolver) Access(ctx context.Context, obj *redis.RedisInstance) ([]*redis.RedisInstanceAccess, error) {
+func (r *redisInstanceResolver) Access(ctx context.Context, obj *redis.RedisInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*redis.RedisInstanceAccess], error) {
 	panic(fmt.Errorf("not implemented: Access - access"))
 }
 

@@ -18,8 +18,10 @@ import (
 )
 
 type (
-	RedisInstanceConnection = pagination.Connection[*RedisInstance]
-	RedisInstanceEdge       = pagination.Edge[*RedisInstance]
+	RedisInstanceConnection       = pagination.Connection[*RedisInstance]
+	RedisInstanceEdge             = pagination.Edge[*RedisInstance]
+	RedisInstanceAccessConnection = pagination.Connection[*RedisInstanceAccess]
+	RedisInstanceAccessEdge       = pagination.Edge[*RedisInstanceAccess]
 )
 
 type RedisInstance struct {
