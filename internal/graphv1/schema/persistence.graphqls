@@ -11,7 +11,7 @@ type BigQueryDataset implements Persistence & Node {
   team: Team!
   environment: TeamEnvironment!
   cascadingDelete: Boolean!
-  description: String!
+  description: String
   access: [BigQueryDatasetAccess!]!
   status: BigQueryDatasetStatus!
   workload: Workload
