@@ -24,12 +24,12 @@ type (
 )
 
 type BigQueryDataset struct {
-	CascadingDelete bool                     `json:"cascadingDelete"`
-	Description     string                   `json:"description"`
 	Name            string                   `json:"name"`
+	Description     *string                  `json:"description,omitempty"`
+	CascadingDelete bool                     `json:"cascadingDelete"`
 	Access          []*BigQueryDatasetAccess `json:"access"`
-	Status          *BigQueryDatasetStatus   `json:"-"`
 	Location        string                   `json:"location"`
+	Status          BigQueryDatasetStatus    `json:"status"`
 	TeamSlug        slug.Slug                `json:"-"`
 	EnvironmentName string                   `json:"-"`
 	OwnerReference  *metav1.OwnerReference   `json:"-"`
@@ -53,47 +53,6 @@ type BigQueryDatasetStatus struct {
 	CreationTime     time.Time          `json:"creationTime"`
 	LastModifiedTime *time.Time         `json:"lastModifiedTime,omitempty"`
 	Conditions       []metav1.Condition `json:"-"`
-}
-
-func toBigQueryDataset(u *unstructured.Unstructured, env string) (*BigQueryDataset, error) {
-	bqs := &bigquery_nais_io_v1.BigQueryDataset{}
-
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, bqs); err != nil {
-		return nil, fmt.Errorf("converting to Bucket: %w", err)
-	}
-
-	teamSlug := bqs.GetNamespace()
-
-	return &BigQueryDataset{
-		CascadingDelete: bqs.Spec.CascadingDelete,
-		Description:     bqs.Spec.Description,
-		Name:            bqs.GetName(),
-		Location:        bqs.Spec.Location,
-		Access: func(as []bigquery_nais_io_v1.DatasetAccess) []*BigQueryDatasetAccess {
-			ret := make([]*BigQueryDatasetAccess, len(as))
-			for i, a := range as {
-				ret[i] = &BigQueryDatasetAccess{
-					Role:  a.Role,
-					Email: a.UserByEmail,
-				}
-			}
-			return ret
-		}(bqs.Spec.Access),
-		EnvironmentName: env,
-		Status: &BigQueryDatasetStatus{
-			CreationTime: time.Unix(int64(bqs.Status.CreationTime), 0),
-			LastModifiedTime: func(ts int) *time.Time {
-				if ts == 0 {
-					return nil
-				}
-				return ptr.To(time.Unix(int64(ts), 0))
-			}(bqs.Status.LastModifiedTime),
-			Conditions: bqs.Status.Conditions,
-		},
-		TeamSlug:       slug.Slug(teamSlug),
-		OwnerReference: persistence.OwnerReference(bqs.OwnerReferences),
-		ProjectID:      bqs.Spec.Project,
-	}, nil
 }
 
 type BigQueryDatasetOrder struct {
@@ -135,4 +94,54 @@ func (e *BigQueryDatasetOrderField) UnmarshalGQL(v interface{}) error {
 
 func (e BigQueryDatasetOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func toBigQueryDatasetAccess(access []bigquery_nais_io_v1.DatasetAccess) []*BigQueryDatasetAccess {
+	ret := make([]*BigQueryDatasetAccess, len(access))
+	for i, a := range access {
+		ret[i] = &BigQueryDatasetAccess{
+			Role:  a.Role,
+			Email: a.UserByEmail,
+		}
+	}
+	return ret
+}
+
+func toBigQueryDatasetStatus(s bigquery_nais_io_v1.BigQueryDatasetStatus) BigQueryDatasetStatus {
+	ret := BigQueryDatasetStatus{
+		CreationTime: time.Unix(int64(s.CreationTime), 0),
+		Conditions:   s.Conditions,
+	}
+
+	if s.LastModifiedTime != 0 {
+		ret.LastModifiedTime = ptr.To(time.Unix(int64(s.LastModifiedTime), 0))
+	}
+
+	return ret
+}
+
+func toBigQueryDataset(u *unstructured.Unstructured, environmentName string) (*BigQueryDataset, error) {
+	obj := &bigquery_nais_io_v1.BigQueryDataset{}
+
+	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, obj); err != nil {
+		return nil, fmt.Errorf("converting to BigQueryDataset: %w", err)
+	}
+
+	ret := &BigQueryDataset{
+		Name:            obj.GetName(),
+		CascadingDelete: obj.Spec.CascadingDelete,
+		Access:          toBigQueryDatasetAccess(obj.Spec.Access),
+		Location:        obj.Spec.Location,
+		Status:          toBigQueryDatasetStatus(obj.Status),
+		TeamSlug:        slug.Slug(obj.GetNamespace()),
+		EnvironmentName: environmentName,
+		OwnerReference:  persistence.OwnerReference(obj.OwnerReferences),
+		ProjectID:       obj.Spec.Project,
+	}
+
+	if obj.Spec.Description != "" {
+		ret.Description = &obj.Spec.Description
+	}
+
+	return ret, nil
 }

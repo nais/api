@@ -1758,7 +1758,7 @@ type BigQueryDataset implements Persistence & Node {
   team: Team!
   environment: TeamEnvironment!
   cascadingDelete: Boolean!
-  description: String!
+  description: String
   access: [BigQueryDatasetAccess!]!
   status: BigQueryDatasetStatus!
   workload: Workload
@@ -3691,14 +3691,11 @@ func (ec *executionContext) _BigQueryDataset_description(ctx context.Context, fi
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_BigQueryDataset_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3790,9 +3787,9 @@ func (ec *executionContext) _BigQueryDataset_status(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*bigquery.BigQueryDatasetStatus)
+	res := resTmp.(bigquery.BigQueryDatasetStatus)
 	fc.Result = res
-	return ec.marshalNBigQueryDatasetStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetStatus(ctx, field.Selections, res)
+	return ec.marshalNBigQueryDatasetStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_BigQueryDataset_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -13340,9 +13337,6 @@ func (ec *executionContext) _BigQueryDataset(ctx context.Context, sel ast.Select
 			}
 		case "description":
 			out.Values[i] = ec._BigQueryDataset_description(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "access":
 			out.Values[i] = ec._BigQueryDataset_access(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -16894,14 +16888,8 @@ func (ec *executionContext) marshalNBigQueryDatasetOrderField2githubᚗcomᚋnai
 	return v
 }
 
-func (ec *executionContext) marshalNBigQueryDatasetStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetStatus(ctx context.Context, sel ast.SelectionSet, v *bigquery.BigQueryDatasetStatus) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._BigQueryDatasetStatus(ctx, sel, v)
+func (ec *executionContext) marshalNBigQueryDatasetStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetStatus(ctx context.Context, sel ast.SelectionSet, v bigquery.BigQueryDatasetStatus) graphql.Marshaler {
+	return ec._BigQueryDatasetStatus(ctx, sel, &v)
 }
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
