@@ -110,6 +110,14 @@ type Team implements Node {
     orderBy: OpenSearchOrder
   ): OpenSearchConnection!
 
+  buckets(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: BucketOrder
+  ): BucketConnection!
+
   "Timestamp of the last successful synchronization of the team."
   lastSuccessfulSync: Time
 
