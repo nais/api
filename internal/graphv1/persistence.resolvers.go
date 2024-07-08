@@ -27,12 +27,26 @@ func (r *bigQueryDatasetResolver) Environment(ctx context.Context, obj *bigquery
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *bigQueryDatasetResolver) Access(ctx context.Context, obj *bigquery.BigQueryDataset, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*bigquery.BigQueryDatasetAccess], error) {
+func (r *bigQueryDatasetResolver) Access(ctx context.Context, obj *bigquery.BigQueryDataset, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetAccessOrder) (*pagination.Connection[*bigquery.BigQueryDatasetAccess], error) {
 	// TODO: Handle the pagination here or somewhere in the bigquery package?
 
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
+	}
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case bigquery.BigQueryDatasetAccessOrderFieldRole:
+			slices.SortStableFunc(obj.Access, func(a, b *bigquery.BigQueryDatasetAccess) int {
+				return modelv1.Compare(a.Role, b.Role, orderBy.Direction)
+			})
+		case bigquery.BigQueryDatasetAccessOrderFieldEmail:
+			slices.SortStableFunc(obj.Access, func(a, b *bigquery.BigQueryDatasetAccess) int {
+				return modelv1.Compare(a.Email, b.Email, orderBy.Direction)
+			})
+
+		}
 	}
 
 	ret := pagination.Slice(obj.Access, page)

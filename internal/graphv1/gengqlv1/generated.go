@@ -89,7 +89,7 @@ type ComplexityRoot struct {
 	}
 
 	BigQueryDataset struct {
-		Access          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Access          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetAccessOrder) int
 		CascadingDelete func(childComplexity int) int
 		Cost            func(childComplexity int) int
 		Description     func(childComplexity int) int
@@ -408,7 +408,7 @@ type BigQueryDatasetResolver interface {
 	Team(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.Team, error)
 	Environment(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.TeamEnvironment, error)
 
-	Access(ctx context.Context, obj *bigquery.BigQueryDataset, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*bigquery.BigQueryDatasetAccess], error)
+	Access(ctx context.Context, obj *bigquery.BigQueryDataset, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetAccessOrder) (*pagination.Connection[*bigquery.BigQueryDatasetAccess], error)
 
 	Workload(ctx context.Context, obj *bigquery.BigQueryDataset) (workload.Workload, error)
 	Cost(ctx context.Context, obj *bigquery.BigQueryDataset) (float64, error)
@@ -564,7 +564,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.BigQueryDataset.Access(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+		return e.complexity.BigQueryDataset.Access(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*bigquery.BigQueryDatasetAccessOrder)), true
 
 	case "BigQueryDataset.cascadingDelete":
 		if e.complexity.BigQueryDataset.CascadingDelete == nil {
@@ -1838,6 +1838,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputApplicationOrder,
+		ec.unmarshalInputBigQueryDatasetAccessOrder,
 		ec.unmarshalInputBigQueryDatasetOrder,
 		ec.unmarshalInputBucketOrder,
 		ec.unmarshalInputJobOrder,
@@ -2050,6 +2051,7 @@ type BigQueryDataset implements Persistence & Node {
     after: Cursor
     last: Int
     before: Cursor
+    orderBy: BigQueryDatasetAccessOrder
   ): BigQueryDatasetAccessConnection!
   status: BigQueryDatasetStatus!
   workload: Workload
@@ -2257,6 +2259,11 @@ type RedisInstanceEdge {
   node: RedisInstance!
 }
 
+input BigQueryDatasetAccessOrder {
+  field: BigQueryDatasetAccessOrderField!
+  direction: OrderDirection!
+}
+
 input BigQueryDatasetOrder {
   field: BigQueryDatasetOrderField!
   direction: OrderDirection!
@@ -2290,6 +2297,11 @@ input OpenSearchOrder {
 input RedisInstanceOrder {
   field: RedisInstanceOrderField!
   direction: OrderDirection!
+}
+
+enum BigQueryDatasetAccessOrderField {
+  ROLE
+  EMAIL
 }
 
 enum BigQueryDatasetOrderField {
@@ -2709,6 +2721,15 @@ func (ec *executionContext) field_BigQueryDataset_access_args(ctx context.Contex
 		}
 	}
 	args["before"] = arg3
+	var arg4 *bigquery.BigQueryDatasetAccessOrder
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg4, err = ec.unmarshalOBigQueryDatasetAccessOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccessOrder(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg4
 	return args, nil
 }
 
@@ -4245,7 +4266,7 @@ func (ec *executionContext) _BigQueryDataset_access(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.BigQueryDataset().Access(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+		return ec.resolvers.BigQueryDataset().Access(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*bigquery.BigQueryDatasetAccessOrder))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14475,6 +14496,40 @@ func (ec *executionContext) unmarshalInputApplicationOrder(ctx context.Context, 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputBigQueryDatasetAccessOrder(ctx context.Context, obj interface{}) (bigquery.BigQueryDatasetAccessOrder, error) {
+	var it bigquery.BigQueryDatasetAccessOrder
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNBigQueryDatasetAccessOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccessOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋmodelv1ᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputBigQueryDatasetOrder(ctx context.Context, obj interface{}) (bigquery.BigQueryDatasetOrder, error) {
 	var it bigquery.BigQueryDatasetOrder
 	asMap := map[string]interface{}{}
@@ -19415,6 +19470,16 @@ func (ec *executionContext) marshalNBigQueryDatasetAccessEdge2ᚕgithubᚗcomᚋ
 	return ret
 }
 
+func (ec *executionContext) unmarshalNBigQueryDatasetAccessOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccessOrderField(ctx context.Context, v interface{}) (bigquery.BigQueryDatasetAccessOrderField, error) {
+	var res bigquery.BigQueryDatasetAccessOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNBigQueryDatasetAccessOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccessOrderField(ctx context.Context, sel ast.SelectionSet, v bigquery.BigQueryDatasetAccessOrderField) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNBigQueryDatasetConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*bigquery.BigQueryDataset]) graphql.Marshaler {
 	return ec._BigQueryDatasetConnection(ctx, sel, &v)
 }
@@ -20886,6 +20951,14 @@ func (ec *executionContext) unmarshalOApplicationOrder2ᚖgithubᚗcomᚋnaisᚋ
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputApplicationOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOBigQueryDatasetAccessOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccessOrder(ctx context.Context, v interface{}) (*bigquery.BigQueryDatasetAccessOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputBigQueryDatasetAccessOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

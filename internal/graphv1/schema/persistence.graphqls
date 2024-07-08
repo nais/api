@@ -17,6 +17,7 @@ type BigQueryDataset implements Persistence & Node {
     after: Cursor
     last: Int
     before: Cursor
+    orderBy: BigQueryDatasetAccessOrder
   ): BigQueryDatasetAccessConnection!
   status: BigQueryDatasetStatus!
   workload: Workload
@@ -224,6 +225,11 @@ type RedisInstanceEdge {
   node: RedisInstance!
 }
 
+input BigQueryDatasetAccessOrder {
+  field: BigQueryDatasetAccessOrderField!
+  direction: OrderDirection!
+}
+
 input BigQueryDatasetOrder {
   field: BigQueryDatasetOrderField!
   direction: OrderDirection!
@@ -257,6 +263,11 @@ input OpenSearchOrder {
 input RedisInstanceOrder {
   field: RedisInstanceOrderField!
   direction: OrderDirection!
+}
+
+enum BigQueryDatasetAccessOrderField {
+  ROLE
+  EMAIL
 }
 
 enum BigQueryDatasetOrderField {

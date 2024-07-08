@@ -98,6 +98,47 @@ func (e BigQueryDatasetOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type BigQueryDatasetAccessOrder struct {
+	Field     BigQueryDatasetAccessOrderField `json:"field"`
+	Direction modelv1.OrderDirection          `json:"direction"`
+}
+
+type BigQueryDatasetAccessOrderField string
+
+const (
+	BigQueryDatasetAccessOrderFieldRole  BigQueryDatasetAccessOrderField = "ROLE"
+	BigQueryDatasetAccessOrderFieldEmail BigQueryDatasetAccessOrderField = "EMAIL"
+)
+
+func (e BigQueryDatasetAccessOrderField) IsValid() bool {
+	switch e {
+	case BigQueryDatasetAccessOrderFieldRole, BigQueryDatasetAccessOrderFieldEmail:
+		return true
+	}
+	return false
+}
+
+func (e BigQueryDatasetAccessOrderField) String() string {
+	return string(e)
+}
+
+func (e *BigQueryDatasetAccessOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = BigQueryDatasetAccessOrderField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid BigQueryDatasetAccessOrderField", str)
+	}
+	return nil
+}
+
+func (e BigQueryDatasetAccessOrderField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 func toBigQueryDatasetAccess(access []bigquery_nais_io_v1.DatasetAccess) []*BigQueryDatasetAccess {
 	ret := make([]*BigQueryDatasetAccess, len(access))
 	for i, a := range access {
