@@ -45,7 +45,7 @@ func (c client) getRedisInstancesForTeam(_ context.Context, teamSlug slug.Slug) 
 		for _, obj := range objs {
 			bqs, err := toRedisInstance(obj.(*unstructured.Unstructured), env)
 			if err != nil {
-				return nil, fmt.Errorf("converting to redis instasnce: %w", err)
+				return nil, fmt.Errorf("converting to redis instance: %w", err)
 			}
 
 			ret = append(ret, bqs)
