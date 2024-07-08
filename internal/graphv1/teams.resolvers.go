@@ -8,6 +8,7 @@ import (
 	"github.com/nais/api/internal/graphv1/ident"
 	"github.com/nais/api/internal/graphv1/pagination"
 	"github.com/nais/api/internal/persistence/bigquery"
+	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/redis"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
@@ -76,6 +77,15 @@ func (r *teamResolver) RedisInstances(ctx context.Context, obj *team.Team, first
 	}
 
 	return redis.ListForTeam(ctx, obj.Slug, page, orderBy)
+}
+
+func (r *teamResolver) OpenSearch(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return opensearch.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
 func (r *teamResolver) ViewerIsOwner(ctx context.Context, obj *team.Team) (bool, error) {
