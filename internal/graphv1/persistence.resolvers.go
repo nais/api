@@ -2,10 +2,12 @@ package graphv1
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"slices"
 
 	"github.com/nais/api/internal/graphv1/gengqlv1"
+	"github.com/nais/api/internal/graphv1/loaderv1"
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
 	"github.com/nais/api/internal/persistence/bigquery"
@@ -13,6 +15,7 @@ import (
 	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/redis"
+	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
@@ -217,6 +220,36 @@ func (r *redisInstanceAccessResolver) Workload(ctx context.Context, obj *redis.R
 	return r.workload(ctx, obj.OwnerReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
+func (r *sqlDatabaseResolver) Team(ctx context.Context, obj *sqlinstance.SQLDatabase) (*team.Team, error) {
+	return team.Get(ctx, obj.TeamSlug)
+}
+
+func (r *sqlDatabaseResolver) Environment(ctx context.Context, obj *sqlinstance.SQLDatabase) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *sqlInstanceResolver) Team(ctx context.Context, obj *sqlinstance.SQLInstance) (*team.Team, error) {
+	return team.Get(ctx, obj.TeamSlug)
+}
+
+func (r *sqlInstanceResolver) Environment(ctx context.Context, obj *sqlinstance.SQLInstance) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *sqlInstanceResolver) Workload(ctx context.Context, obj *sqlinstance.SQLInstance) (workload.Workload, error) {
+	return r.workload(ctx, obj.OwnerReference, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *sqlInstanceResolver) Database(ctx context.Context, obj *sqlinstance.SQLInstance) (*sqlinstance.SQLDatabase, error) {
+	db, err := sqlinstance.GetDatabase(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
+	if errors.Is(err, loaderv1.ErrObjectNotFound) {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+	return db, err
+}
+
 func (r *Resolver) BigQueryDataset() gengqlv1.BigQueryDatasetResolver {
 	return &bigQueryDatasetResolver{r}
 }
@@ -239,6 +272,10 @@ func (r *Resolver) RedisInstanceAccess() gengqlv1.RedisInstanceAccessResolver {
 	return &redisInstanceAccessResolver{r}
 }
 
+func (r *Resolver) SqlDatabase() gengqlv1.SqlDatabaseResolver { return &sqlDatabaseResolver{r} }
+
+func (r *Resolver) SqlInstance() gengqlv1.SqlInstanceResolver { return &sqlInstanceResolver{r} }
+
 type (
 	bigQueryDatasetResolver     struct{ *Resolver }
 	bucketResolver              struct{ *Resolver }
@@ -248,4 +285,6 @@ type (
 	openSearchAccessResolver    struct{ *Resolver }
 	redisInstanceResolver       struct{ *Resolver }
 	redisInstanceAccessResolver struct{ *Resolver }
+	sqlDatabaseResolver         struct{ *Resolver }
+	sqlInstanceResolver         struct{ *Resolver }
 )

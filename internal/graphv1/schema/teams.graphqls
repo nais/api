@@ -126,6 +126,13 @@ type Team implements Node {
     orderBy: KafkaTopicOrder
   ): KafkaTopicConnection!
 
+  sqlInstances(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+  ): SqlInstanceConnection!
+
   "Timestamp of the last successful synchronization of the team."
   lastSuccessfulSync: Time
 

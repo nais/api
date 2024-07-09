@@ -2,17 +2,19 @@ package loaderv1
 
 import (
 	"context"
+	"errors"
 	"net/http"
-
-	"github.com/jackc/pgx/v5"
 )
+
+var ErrObjectNotFound = errors.New("object could not be found")
 
 // Middleware injects data loaders into the context
 func Middleware(fn func(context.Context) context.Context) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		// return a middleware that injects the loader to the request context
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// Note that the loaders are being created per-request. This is important because they contain caching and batching logic that must be request-scoped.
+			// Note that the loaders are being created per-request. This is important because they contain caching and
+			// batching logic that must be request-scoped.
 			r = r.WithContext(fn(r.Context()))
 			next.ServeHTTP(w, r)
 		})
@@ -44,7 +46,7 @@ func listAndErrors[K comparable, O any](keys []K, objs []O, idfn func(obj O) K) 
 	for i, key := range keys {
 		obj, ok := res[key]
 		if !ok {
-			errs[i] = pgx.ErrNoRows
+			errs[i] = ErrObjectNotFound
 			continue
 		}
 		ret[i] = obj
