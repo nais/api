@@ -3,12 +3,13 @@ package sqlinstance
 import (
 	"context"
 	"fmt"
+	"sort"
+
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/slug"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
-	"sort"
 )
 
 type client struct {
