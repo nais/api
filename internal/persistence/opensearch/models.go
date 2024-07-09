@@ -139,7 +139,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 	openSearch := &aiven_io_v1alpha1.OpenSearch{}
 
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, openSearch); err != nil {
-		return nil, fmt.Errorf("converting to Bucket: %w", err)
+		return nil, fmt.Errorf("converting to OpenSearch: %w", err)
 	}
 
 	teamSlug := openSearch.GetNamespace()
