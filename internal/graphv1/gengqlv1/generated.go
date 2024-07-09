@@ -60,6 +60,7 @@ type ResolverRoot interface {
 	KafkaTopic() KafkaTopicResolver
 	KafkaTopicAcl() KafkaTopicAclResolver
 	OpenSearch() OpenSearchResolver
+	OpenSearchAccess() OpenSearchAccessResolver
 	Query() QueryResolver
 	RedisInstance() RedisInstanceResolver
 	Team() TeamResolver
@@ -248,7 +249,7 @@ type ComplexityRoot struct {
 	}
 
 	OpenSearch struct {
-		Access      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Access      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchAccessOrder) int
 		Cost        func(childComplexity int) int
 		Environment func(childComplexity int) int
 		ID          func(childComplexity int) int
@@ -259,7 +260,7 @@ type ComplexityRoot struct {
 	}
 
 	OpenSearchAccess struct {
-		Role     func(childComplexity int) int
+		Access   func(childComplexity int) int
 		Workload func(childComplexity int) int
 	}
 
@@ -458,8 +459,11 @@ type OpenSearchResolver interface {
 	Team(ctx context.Context, obj *opensearch.OpenSearch) (*team.Team, error)
 	Environment(ctx context.Context, obj *opensearch.OpenSearch) (*team.TeamEnvironment, error)
 
-	Access(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*opensearch.OpenSearchAccess], error)
+	Access(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchAccessOrder) (*pagination.Connection[*opensearch.OpenSearchAccess], error)
 	Cost(ctx context.Context, obj *opensearch.OpenSearch) (float64, error)
+}
+type OpenSearchAccessResolver interface {
+	Workload(ctx context.Context, obj *opensearch.OpenSearchAccess) (workload.Workload, error)
 }
 type QueryResolver interface {
 	Node(ctx context.Context, id ident.Ident) (modelv1.Node, error)
@@ -1187,7 +1191,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.OpenSearch.Access(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+		return e.complexity.OpenSearch.Access(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*opensearch.OpenSearchAccessOrder)), true
 
 	case "OpenSearch.cost":
 		if e.complexity.OpenSearch.Cost == nil {
@@ -1238,12 +1242,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.OpenSearch.Workload(childComplexity), true
 
-	case "OpenSearchAccess.role":
-		if e.complexity.OpenSearchAccess.Role == nil {
+	case "OpenSearchAccess.access":
+		if e.complexity.OpenSearchAccess.Access == nil {
 			break
 		}
 
-		return e.complexity.OpenSearchAccess.Role(childComplexity), true
+		return e.complexity.OpenSearchAccess.Access(childComplexity), true
 
 	case "OpenSearchAccess.workload":
 		if e.complexity.OpenSearchAccess.Workload == nil {
@@ -1931,6 +1935,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputKafkaTopicAclFilter,
 		ec.unmarshalInputKafkaTopicAclOrder,
 		ec.unmarshalInputKafkaTopicOrder,
+		ec.unmarshalInputOpenSearchAccessOrder,
 		ec.unmarshalInputOpenSearchOrder,
 		ec.unmarshalInputRedisInstanceOrder,
 		ec.unmarshalInputTeamMemberOrder,
@@ -2237,13 +2242,14 @@ type OpenSearch implements Persistence & Node {
     after: Cursor
     last: Int
     before: Cursor
+    orderBy: OpenSearchAccessOrder
   ): OpenSearchAccessConnection!
   cost: Float!
 }
 
 type OpenSearchAccess {
   workload: Workload!
-  role: String!
+  access: String!
 }
 
 type OpenSearchStatus {
@@ -2406,6 +2412,11 @@ input KafkaTopicAclOrder {
   direction: OrderDirection!
 }
 
+input OpenSearchAccessOrder {
+  field: OpenSearchAccessOrderField!
+  direction: OrderDirection!
+}
+
 input OpenSearchOrder {
   field: OpenSearchOrderField!
   direction: OrderDirection!
@@ -2440,6 +2451,11 @@ enum KafkaTopicAclOrderField {
   TEAM_SLUG
   CONSUMER
   ACCESS
+}
+
+enum OpenSearchAccessOrderField {
+  ACCESS
+  WORKLOAD
 }
 
 enum OpenSearchOrderField {
@@ -2991,6 +3007,15 @@ func (ec *executionContext) field_OpenSearch_access_args(ctx context.Context, ra
 		}
 	}
 	args["before"] = arg3
+	var arg4 *opensearch.OpenSearchAccessOrder
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg4, err = ec.unmarshalOOpenSearchAccessOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchAccessOrder(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg4
 	return args, nil
 }
 
@@ -8690,7 +8715,7 @@ func (ec *executionContext) _OpenSearch_access(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.OpenSearch().Access(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+		return ec.resolvers.OpenSearch().Access(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*opensearch.OpenSearchAccessOrder))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8795,7 +8820,7 @@ func (ec *executionContext) _OpenSearchAccess_workload(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Workload, nil
+		return ec.resolvers.OpenSearchAccess().Workload(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8816,8 +8841,8 @@ func (ec *executionContext) fieldContext_OpenSearchAccess_workload(_ context.Con
 	fc = &graphql.FieldContext{
 		Object:     "OpenSearchAccess",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
@@ -8825,8 +8850,8 @@ func (ec *executionContext) fieldContext_OpenSearchAccess_workload(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _OpenSearchAccess_role(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchAccess) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_OpenSearchAccess_role(ctx, field)
+func (ec *executionContext) _OpenSearchAccess_access(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearchAccess) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_OpenSearchAccess_access(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8839,7 +8864,7 @@ func (ec *executionContext) _OpenSearchAccess_role(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Role, nil
+		return obj.Access, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8856,7 +8881,7 @@ func (ec *executionContext) _OpenSearchAccess_role(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_OpenSearchAccess_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_OpenSearchAccess_access(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "OpenSearchAccess",
 		Field:      field,
@@ -9060,8 +9085,8 @@ func (ec *executionContext) fieldContext_OpenSearchAccessEdge_node(_ context.Con
 			switch field.Name {
 			case "workload":
 				return ec.fieldContext_OpenSearchAccess_workload(ctx, field)
-			case "role":
-				return ec.fieldContext_OpenSearchAccess_role(ctx, field)
+			case "access":
+				return ec.fieldContext_OpenSearchAccess_access(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type OpenSearchAccess", field.Name)
 		},
@@ -15357,6 +15382,40 @@ func (ec *executionContext) unmarshalInputKafkaTopicOrder(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputOpenSearchAccessOrder(ctx context.Context, obj interface{}) (opensearch.OpenSearchAccessOrder, error) {
+	var it opensearch.OpenSearchAccessOrder
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNOpenSearchAccessOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchAccessOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋmodelv1ᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputOpenSearchOrder(ctx context.Context, obj interface{}) (opensearch.OpenSearchOrder, error) {
 	var it opensearch.OpenSearchOrder
 	asMap := map[string]interface{}{}
@@ -17854,14 +17913,45 @@ func (ec *executionContext) _OpenSearchAccess(ctx context.Context, sel ast.Selec
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("OpenSearchAccess")
 		case "workload":
-			out.Values[i] = ec._OpenSearchAccess_workload(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OpenSearchAccess_workload(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
-		case "role":
-			out.Values[i] = ec._OpenSearchAccess_role(ctx, field, obj)
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "access":
+			out.Values[i] = ec._OpenSearchAccess_access(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -20910,6 +21000,16 @@ func (ec *executionContext) marshalNOpenSearchAccessEdge2ᚕgithubᚗcomᚋnais�
 	return ret
 }
 
+func (ec *executionContext) unmarshalNOpenSearchAccessOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchAccessOrderField(ctx context.Context, v interface{}) (opensearch.OpenSearchAccessOrderField, error) {
+	var res opensearch.OpenSearchAccessOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNOpenSearchAccessOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchAccessOrderField(ctx context.Context, sel ast.SelectionSet, v opensearch.OpenSearchAccessOrderField) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNOpenSearchConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*opensearch.OpenSearch]) graphql.Marshaler {
 	return ec._OpenSearchConnection(ctx, sel, &v)
 }
@@ -21947,6 +22047,14 @@ func (ec *executionContext) marshalONode2githubᚗcomᚋnaisᚋapiᚋinternalᚋ
 		return graphql.Null
 	}
 	return ec._Node(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOOpenSearchAccessOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchAccessOrder(ctx context.Context, v interface{}) (*opensearch.OpenSearchAccessOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputOpenSearchAccessOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOOpenSearchOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchOrder(ctx context.Context, v interface{}) (*opensearch.OpenSearchOrder, error) {
