@@ -41,7 +41,7 @@ func (c *Client) SqlInstance(ctx context.Context, env string, teamSlug slug.Slug
 		return nil, err
 	}
 
-	state, err := c.admin.GetState(ctx, instance.ProjectID, instance.Name)
+	state, err := c.Admin.GetState(ctx, instance.ProjectID, instance.Name)
 	if err != nil {
 		SqlInstanceErrorCounter.Add(ctx, 1)
 		return nil, c.error(err, "getting SQL instance from admin API")
@@ -79,7 +79,7 @@ func (c *Client) SqlInstances(ctx context.Context, teamSlug slug.Slug, teamEnvs 
 				if teamEnv.GcpProjectID == nil {
 					continue
 				}
-				i, err := c.admin.GetInstances(ctx, *teamEnv.GcpProjectID)
+				i, err := c.Admin.GetInstances(ctx, *teamEnv.GcpProjectID)
 				if err != nil {
 					SqlInstanceListErrorCounter.Add(ctx, 1)
 
@@ -196,7 +196,7 @@ func (c *Client) SqlDatabase(sqlInstance *model.SQLInstance) (*model.SQLDatabase
 }
 
 func (c *Client) SqlUsers(ctx context.Context, sqlInstance *model.SQLInstance) ([]*model.SQLUser, error) {
-	users, err := c.admin.GetUsers(ctx, sqlInstance.ProjectID, sqlInstance.Name)
+	users, err := c.Admin.GetUsers(ctx, sqlInstance.ProjectID, sqlInstance.Name)
 	// TODO handle error in a better way
 	if err != nil {
 		var googleErr *googleapi.Error

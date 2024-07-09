@@ -268,7 +268,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	// HTTP server
 	wg.Go(func() error {
-		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, db, k8sClient, authHandler, graphHandler, graphv1Handler, promReg, log)
+		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, db, k8sClient, sqlInstanceClient.Admin, authHandler, graphHandler, graphv1Handler, promReg, log)
 	})
 
 	wg.Go(func() error {

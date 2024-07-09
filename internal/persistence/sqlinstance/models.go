@@ -2,12 +2,17 @@ package sqlinstance
 
 import (
 	"fmt"
+	"io"
+	"strconv"
+
 	"github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/k8s/v1alpha1"
 	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
 	"github.com/nais/api/internal/graphv1/ident"
+	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
 	"github.com/nais/api/internal/persistence"
 	"github.com/nais/api/internal/slug"
+	"google.golang.org/api/sqladmin/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -20,6 +25,8 @@ type (
 	SQLInstanceEdge           = pagination.Edge[*SQLInstance]
 	SQLInstanceFlagConnection = pagination.Connection[*SQLInstanceFlag]
 	SQLInstanceFlagEdge       = pagination.Edge[*SQLInstanceFlag]
+	SQLInstanceUserConnection = pagination.Connection[*SQLInstanceUser]
+	SQLInstanceUserEdge       = pagination.Edge[*SQLInstanceUser]
 )
 
 type SQLDatabase struct {
@@ -91,6 +98,52 @@ type SQLInstanceStatus struct {
 type SQLInstanceFlag struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
+}
+
+type SQLInstanceUser struct {
+	Name           string `json:"name"`
+	Authentication string `json:"authentication"`
+}
+
+type SQLInstanceUserOrder struct {
+	Field     SQLInstanceUserOrderField `json:"field"`
+	Direction modelv1.OrderDirection    `json:"direction"`
+}
+
+type SQLInstanceUserOrderField string
+
+const (
+	SQLInstanceUserOrderFieldName           SQLInstanceUserOrderField = "NAME"
+	SQLInstanceUserOrderFieldAuthentication SQLInstanceUserOrderField = "AUTHENTICATION"
+)
+
+func (e SQLInstanceUserOrderField) IsValid() bool {
+	switch e {
+	case SQLInstanceUserOrderFieldName, SQLInstanceUserOrderFieldAuthentication:
+		return true
+	}
+	return false
+}
+
+func (e SQLInstanceUserOrderField) String() string {
+	return string(e)
+}
+
+func (e *SQLInstanceUserOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SQLInstanceUserOrderField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SqlInstanceUserOrderField", str)
+	}
+	return nil
+}
+
+func (e SQLInstanceUserOrderField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func healthy(conds []v1alpha1.Condition) bool {
@@ -211,4 +264,18 @@ func toSQLInstance(u *unstructured.Unstructured, environmentName string) (*SQLIn
 		OwnerReference:      persistence.OwnerReference(obj.OwnerReferences),
 		Flags:               toSQLInstanceFlags(obj.Spec.Settings.DatabaseFlags),
 	}, nil
+}
+
+func toSQLInstanceUser(user *sqladmin.User) *SQLInstanceUser {
+	return &SQLInstanceUser{
+		Name: user.Name,
+		Authentication: func(t string) string {
+			switch t {
+			case "":
+				return "Built-in"
+			default:
+				return t
+			}
+		}(user.Type),
+	}
 }

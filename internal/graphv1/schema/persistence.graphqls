@@ -194,6 +194,13 @@ type SqlInstance implements Persistence & Node {
     last: Int
     before: Cursor
   ): SqlInstanceFlagConnection!
+  users(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: SqlInstanceUserOrder
+  ): SqlInstanceUserConnection!
 }
 
 type SqlInstanceBackupConfiguration {
@@ -217,6 +224,11 @@ type SqlInstanceMaintenanceWindow {
 type SqlInstanceStatus {
   publicIpAddress: String
   privateIpAddress: String
+}
+
+type SqlInstanceUser {
+  name: String!
+  authentication: String!
 }
 
 type BigQueryDatasetAccessConnection {
@@ -280,6 +292,11 @@ type SqlInstanceFlagConnection {
   edges: [SqlInstanceFlagEdge!]!
 }
 
+type SqlInstanceUserConnection {
+  pageInfo: PageInfo!
+  edges: [SqlInstanceUserEdge!]!
+}
+
 type BigQueryDatasetAccessEdge {
   cursor: Cursor!
   node: BigQueryDatasetAccess!
@@ -340,6 +357,11 @@ type SqlInstanceFlagEdge {
   node: SqlInstanceFlag!
 }
 
+type SqlInstanceUserEdge {
+  cursor: Cursor!
+  node: SqlInstanceUser!
+}
+
 input BigQueryDatasetAccessOrder {
   field: BigQueryDatasetAccessOrderField!
   direction: OrderDirection!
@@ -390,6 +412,11 @@ input RedisInstanceOrder {
   direction: OrderDirection!
 }
 
+input SqlInstanceUserOrder {
+  field: SqlInstanceUserOrderField!
+  direction: OrderDirection!
+}
+
 enum BigQueryDatasetAccessOrderField {
   ROLE
   EMAIL
@@ -434,4 +461,9 @@ enum OpenSearchOrderField {
 enum RedisInstanceOrderField {
   NAME
   ENVIRONMENT
+}
+
+enum SqlInstanceUserOrderField {
+  NAME
+  AUTHENTICATION
 }

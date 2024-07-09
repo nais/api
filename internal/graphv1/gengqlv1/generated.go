@@ -378,6 +378,7 @@ type ComplexityRoot struct {
 		Status              func(childComplexity int) int
 		Team                func(childComplexity int) int
 		Tier                func(childComplexity int) int
+		Users               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceUserOrder) int
 		Version             func(childComplexity int) int
 		Workload            func(childComplexity int) int
 	}
@@ -423,6 +424,21 @@ type ComplexityRoot struct {
 	SqlInstanceStatus struct {
 		PrivateIPAddress func(childComplexity int) int
 		PublicIPAddress  func(childComplexity int) int
+	}
+
+	SqlInstanceUser struct {
+		Authentication func(childComplexity int) int
+		Name           func(childComplexity int) int
+	}
+
+	SqlInstanceUserConnection struct {
+		Edges    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	SqlInstanceUserEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	Team struct {
@@ -576,6 +592,7 @@ type SqlInstanceResolver interface {
 
 	Database(ctx context.Context, obj *sqlinstance.SQLInstance) (*sqlinstance.SQLDatabase, error)
 	Flags(ctx context.Context, obj *sqlinstance.SQLInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*sqlinstance.SQLInstanceFlag], error)
+	Users(ctx context.Context, obj *sqlinstance.SQLInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceUserOrder) (*pagination.Connection[*sqlinstance.SQLInstanceUser], error)
 }
 type TeamResolver interface {
 	AzureGroupID(ctx context.Context, obj *team.Team) (*ident.Ident, error)
@@ -1839,6 +1856,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.Tier(childComplexity), true
 
+	case "SqlInstance.users":
+		if e.complexity.SqlInstance.Users == nil {
+			break
+		}
+
+		args, err := ec.field_SqlInstance_users_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.SqlInstance.Users(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*sqlinstance.SQLInstanceUserOrder)), true
+
 	case "SqlInstance.version":
 		if e.complexity.SqlInstance.Version == nil {
 			break
@@ -1985,6 +2014,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SqlInstanceStatus.PublicIPAddress(childComplexity), true
+
+	case "SqlInstanceUser.authentication":
+		if e.complexity.SqlInstanceUser.Authentication == nil {
+			break
+		}
+
+		return e.complexity.SqlInstanceUser.Authentication(childComplexity), true
+
+	case "SqlInstanceUser.name":
+		if e.complexity.SqlInstanceUser.Name == nil {
+			break
+		}
+
+		return e.complexity.SqlInstanceUser.Name(childComplexity), true
+
+	case "SqlInstanceUserConnection.edges":
+		if e.complexity.SqlInstanceUserConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.SqlInstanceUserConnection.Edges(childComplexity), true
+
+	case "SqlInstanceUserConnection.pageInfo":
+		if e.complexity.SqlInstanceUserConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.SqlInstanceUserConnection.PageInfo(childComplexity), true
+
+	case "SqlInstanceUserEdge.cursor":
+		if e.complexity.SqlInstanceUserEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.SqlInstanceUserEdge.Cursor(childComplexity), true
+
+	case "SqlInstanceUserEdge.node":
+		if e.complexity.SqlInstanceUserEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.SqlInstanceUserEdge.Node(childComplexity), true
 
 	case "Team.applications":
 		if e.complexity.Team.Applications == nil {
@@ -2385,6 +2456,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOpenSearchOrder,
 		ec.unmarshalInputRedisInstanceAccessOrder,
 		ec.unmarshalInputRedisInstanceOrder,
+		ec.unmarshalInputSqlInstanceUserOrder,
 		ec.unmarshalInputTeamMemberOrder,
 		ec.unmarshalInputTeamMembershipOrder,
 		ec.unmarshalInputTeamOrder,
@@ -2766,6 +2838,13 @@ type SqlInstance implements Persistence & Node {
     last: Int
     before: Cursor
   ): SqlInstanceFlagConnection!
+  users(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: SqlInstanceUserOrder
+  ): SqlInstanceUserConnection!
 }
 
 type SqlInstanceBackupConfiguration {
@@ -2789,6 +2868,11 @@ type SqlInstanceMaintenanceWindow {
 type SqlInstanceStatus {
   publicIpAddress: String
   privateIpAddress: String
+}
+
+type SqlInstanceUser {
+  name: String!
+  authentication: String!
 }
 
 type BigQueryDatasetAccessConnection {
@@ -2852,6 +2936,11 @@ type SqlInstanceFlagConnection {
   edges: [SqlInstanceFlagEdge!]!
 }
 
+type SqlInstanceUserConnection {
+  pageInfo: PageInfo!
+  edges: [SqlInstanceUserEdge!]!
+}
+
 type BigQueryDatasetAccessEdge {
   cursor: Cursor!
   node: BigQueryDatasetAccess!
@@ -2912,6 +3001,11 @@ type SqlInstanceFlagEdge {
   node: SqlInstanceFlag!
 }
 
+type SqlInstanceUserEdge {
+  cursor: Cursor!
+  node: SqlInstanceUser!
+}
+
 input BigQueryDatasetAccessOrder {
   field: BigQueryDatasetAccessOrderField!
   direction: OrderDirection!
@@ -2962,6 +3056,11 @@ input RedisInstanceOrder {
   direction: OrderDirection!
 }
 
+input SqlInstanceUserOrder {
+  field: SqlInstanceUserOrderField!
+  direction: OrderDirection!
+}
+
 enum BigQueryDatasetAccessOrderField {
   ROLE
   EMAIL
@@ -3006,6 +3105,11 @@ enum OpenSearchOrderField {
 enum RedisInstanceOrderField {
   NAME
   ENVIRONMENT
+}
+
+enum SqlInstanceUserOrderField {
+  NAME
+  AUTHENTICATION
 }`, BuiltIn: false},
 	{Name: "../schema/scalars.graphqls", Input: `"Time is a string in [RFC 3339](https://rfc-editor.org/rfc/rfc3339.html) format, with sub-second precision added if present."
 scalar Time
@@ -3827,6 +3931,57 @@ func (ec *executionContext) field_SqlInstance_flags_args(ctx context.Context, ra
 		}
 	}
 	args["before"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_SqlInstance_users_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg0
+	var arg1 *pagination.Cursor
+	if tmp, ok := rawArgs["after"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+		arg1, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["after"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["last"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["last"] = arg2
+	var arg3 *pagination.Cursor
+	if tmp, ok := rawArgs["before"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+		arg3, err = ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["before"] = arg3
+	var arg4 *sqlinstance.SQLInstanceUserOrder
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg4, err = ec.unmarshalOSqlInstanceUserOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserOrder(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg4
 	return args, nil
 }
 
@@ -13028,6 +13183,67 @@ func (ec *executionContext) fieldContext_SqlInstance_flags(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _SqlInstance_users(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_users(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.SqlInstance().Users(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*sqlinstance.SQLInstanceUserOrder))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*pagination.Connection[*sqlinstance.SQLInstanceUser])
+	fc.Result = res
+	return ec.marshalNSqlInstanceUserConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstance_users(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_SqlInstanceUserConnection_pageInfo(ctx, field)
+			case "edges":
+				return ec.fieldContext_SqlInstanceUserConnection_edges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SqlInstanceUserConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_SqlInstance_users_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _SqlInstanceBackupConfiguration_enabled(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceBackupConfiguration) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SqlInstanceBackupConfiguration_enabled(ctx, field)
 	if err != nil {
@@ -13462,6 +13678,8 @@ func (ec *executionContext) fieldContext_SqlInstanceEdge_node(_ context.Context,
 				return ec.fieldContext_SqlInstance_database(ctx, field)
 			case "flags":
 				return ec.fieldContext_SqlInstance_flags(ctx, field)
+			case "users":
+				return ec.fieldContext_SqlInstance_users(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SqlInstance", field.Name)
 		},
@@ -13922,6 +14140,294 @@ func (ec *executionContext) fieldContext_SqlInstanceStatus_privateIpAddress(_ co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstanceUser_name(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstanceUser_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstanceUser_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstanceUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstanceUser_authentication(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstanceUser_authentication(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Authentication, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstanceUser_authentication(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstanceUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstanceUserConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstanceUser]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstanceUserConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstanceUserConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstanceUserConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstanceUserConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstanceUser]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstanceUserConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]pagination.Edge[*sqlinstance.SQLInstanceUser])
+	fc.Result = res
+	return ec.marshalNSqlInstanceUserEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstanceUserConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstanceUserConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cursor":
+				return ec.fieldContext_SqlInstanceUserEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_SqlInstanceUserEdge_node(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SqlInstanceUserEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstanceUserEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*sqlinstance.SQLInstanceUser]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstanceUserEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.Cursor)
+	fc.Result = res
+	return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐCursor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstanceUserEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstanceUserEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstanceUserEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*sqlinstance.SQLInstanceUser]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstanceUserEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*sqlinstance.SQLInstanceUser)
+	fc.Result = res
+	return ec.marshalNSqlInstanceUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstanceUserEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstanceUserEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_SqlInstanceUser_name(ctx, field)
+			case "authentication":
+				return ec.fieldContext_SqlInstanceUser_authentication(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SqlInstanceUser", field.Name)
 		},
 	}
 	return fc, nil
@@ -18507,6 +19013,40 @@ func (ec *executionContext) unmarshalInputRedisInstanceOrder(ctx context.Context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSqlInstanceUserOrder(ctx context.Context, obj interface{}) (sqlinstance.SQLInstanceUserOrder, error) {
+	var it sqlinstance.SQLInstanceUserOrder
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNSqlInstanceUserOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋmodelv1ᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputTeamMemberOrder(ctx context.Context, obj interface{}) (team.TeamMemberOrder, error) {
 	var it team.TeamMemberOrder
 	asMap := map[string]interface{}{}
@@ -22365,6 +22905,42 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "users":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._SqlInstance_users(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -22711,6 +23287,138 @@ func (ec *executionContext) _SqlInstanceStatus(ctx context.Context, sel ast.Sele
 			out.Values[i] = ec._SqlInstanceStatus_publicIpAddress(ctx, field, obj)
 		case "privateIpAddress":
 			out.Values[i] = ec._SqlInstanceStatus_privateIpAddress(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var sqlInstanceUserImplementors = []string{"SqlInstanceUser"}
+
+func (ec *executionContext) _SqlInstanceUser(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceUser) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceUserImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SqlInstanceUser")
+		case "name":
+			out.Values[i] = ec._SqlInstanceUser_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "authentication":
+			out.Values[i] = ec._SqlInstanceUser_authentication(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var sqlInstanceUserConnectionImplementors = []string{"SqlInstanceUserConnection"}
+
+func (ec *executionContext) _SqlInstanceUserConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceUserConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SqlInstanceUserConnection")
+		case "pageInfo":
+			out.Values[i] = ec._SqlInstanceUserConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._SqlInstanceUserConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var sqlInstanceUserEdgeImplementors = []string{"SqlInstanceUserEdge"}
+
+func (ec *executionContext) _SqlInstanceUserEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceUserEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SqlInstanceUserEdge")
+		case "cursor":
+			out.Values[i] = ec._SqlInstanceUserEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			out.Values[i] = ec._SqlInstanceUserEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -25356,6 +26064,88 @@ func (ec *executionContext) marshalNSqlInstanceStatus2githubᚗcomᚋnaisᚋapi�
 	return ec._SqlInstanceStatus(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalNSqlInstanceUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUser(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.SQLInstanceUser) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SqlInstanceUser(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNSqlInstanceUserConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
+	return ec._SqlInstanceUserConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSqlInstanceUserConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SqlInstanceUserConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNSqlInstanceUserEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
+	return ec._SqlInstanceUserEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSqlInstanceUserEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSqlInstanceUserEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNSqlInstanceUserOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserOrderField(ctx context.Context, v interface{}) (sqlinstance.SQLInstanceUserOrderField, error) {
+	var res sqlinstance.SQLInstanceUserOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNSqlInstanceUserOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserOrderField(ctx context.Context, sel ast.SelectionSet, v sqlinstance.SQLInstanceUserOrderField) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -26204,6 +26994,14 @@ func (ec *executionContext) marshalOSqlInstanceMaintenanceWindow2ᚖgithubᚗcom
 		return graphql.Null
 	}
 	return ec._SqlInstanceMaintenanceWindow(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOSqlInstanceUserOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserOrder(ctx context.Context, v interface{}) (*sqlinstance.SQLInstanceUserOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputSqlInstanceUserOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
