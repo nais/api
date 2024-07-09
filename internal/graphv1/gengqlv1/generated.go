@@ -63,6 +63,7 @@ type ResolverRoot interface {
 	OpenSearchAccess() OpenSearchAccessResolver
 	Query() QueryResolver
 	RedisInstance() RedisInstanceResolver
+	RedisInstanceAccess() RedisInstanceAccessResolver
 	Team() TeamResolver
 	TeamMember() TeamMemberResolver
 	User() UserResolver
@@ -305,7 +306,7 @@ type ComplexityRoot struct {
 	}
 
 	RedisInstance struct {
-		Access      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Access      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceAccessOrder) int
 		Cost        func(childComplexity int) int
 		Environment func(childComplexity int) int
 		ID          func(childComplexity int) int
@@ -316,7 +317,7 @@ type ComplexityRoot struct {
 	}
 
 	RedisInstanceAccess struct {
-		Role     func(childComplexity int) int
+		Access   func(childComplexity int) int
 		Workload func(childComplexity int) int
 	}
 
@@ -475,8 +476,11 @@ type QueryResolver interface {
 type RedisInstanceResolver interface {
 	Team(ctx context.Context, obj *redis.RedisInstance) (*team.Team, error)
 	Environment(ctx context.Context, obj *redis.RedisInstance) (*team.TeamEnvironment, error)
-	Access(ctx context.Context, obj *redis.RedisInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*redis.RedisInstanceAccess], error)
+	Access(ctx context.Context, obj *redis.RedisInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceAccessOrder) (*pagination.Connection[*redis.RedisInstanceAccess], error)
 	Cost(ctx context.Context, obj *redis.RedisInstance) (float64, error)
+}
+type RedisInstanceAccessResolver interface {
+	Workload(ctx context.Context, obj *redis.RedisInstanceAccess) (workload.Workload, error)
 }
 type TeamResolver interface {
 	AzureGroupID(ctx context.Context, obj *team.Team) (*ident.Ident, error)
@@ -1424,7 +1428,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.RedisInstance.Access(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+		return e.complexity.RedisInstance.Access(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*redis.RedisInstanceAccessOrder)), true
 
 	case "RedisInstance.cost":
 		if e.complexity.RedisInstance.Cost == nil {
@@ -1475,12 +1479,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RedisInstance.Workload(childComplexity), true
 
-	case "RedisInstanceAccess.role":
-		if e.complexity.RedisInstanceAccess.Role == nil {
+	case "RedisInstanceAccess.access":
+		if e.complexity.RedisInstanceAccess.Access == nil {
 			break
 		}
 
-		return e.complexity.RedisInstanceAccess.Role(childComplexity), true
+		return e.complexity.RedisInstanceAccess.Access(childComplexity), true
 
 	case "RedisInstanceAccess.workload":
 		if e.complexity.RedisInstanceAccess.Workload == nil {
@@ -1937,6 +1941,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputKafkaTopicOrder,
 		ec.unmarshalInputOpenSearchAccessOrder,
 		ec.unmarshalInputOpenSearchOrder,
+		ec.unmarshalInputRedisInstanceAccessOrder,
 		ec.unmarshalInputRedisInstanceOrder,
 		ec.unmarshalInputTeamMemberOrder,
 		ec.unmarshalInputTeamMembershipOrder,
@@ -2266,6 +2271,7 @@ type RedisInstance implements Persistence & Node {
     after: Cursor
     last: Int
     before: Cursor
+    orderBy: RedisInstanceAccessOrder
   ): RedisInstanceAccessConnection!
   cost: Float!
   workload: Workload
@@ -2274,7 +2280,7 @@ type RedisInstance implements Persistence & Node {
 
 type RedisInstanceAccess {
   workload: Workload!
-  role: String!
+  access: String!
 }
 
 type RedisInstanceStatus {
@@ -2422,6 +2428,11 @@ input OpenSearchOrder {
   direction: OrderDirection!
 }
 
+input RedisInstanceAccessOrder {
+  field: RedisInstanceAccessOrderField!
+  direction: OrderDirection!
+}
+
 input RedisInstanceOrder {
   field: RedisInstanceOrderField!
   direction: OrderDirection!
@@ -2451,6 +2462,11 @@ enum KafkaTopicAclOrderField {
   TEAM_SLUG
   CONSUMER
   ACCESS
+}
+
+enum RedisInstanceAccessOrderField {
+  ACCESS
+  WORKLOAD
 }
 
 enum OpenSearchAccessOrderField {
@@ -3229,6 +3245,15 @@ func (ec *executionContext) field_RedisInstance_access_args(ctx context.Context,
 		}
 	}
 	args["before"] = arg3
+	var arg4 *redis.RedisInstanceAccessOrder
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg4, err = ec.unmarshalORedisInstanceAccessOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceAccessOrder(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg4
 	return args, nil
 }
 
@@ -10279,7 +10304,7 @@ func (ec *executionContext) _RedisInstance_access(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.RedisInstance().Access(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+		return ec.resolvers.RedisInstance().Access(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*redis.RedisInstanceAccessOrder))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10473,7 +10498,7 @@ func (ec *executionContext) _RedisInstanceAccess_workload(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Workload, nil
+		return ec.resolvers.RedisInstanceAccess().Workload(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10494,8 +10519,8 @@ func (ec *executionContext) fieldContext_RedisInstanceAccess_workload(_ context.
 	fc = &graphql.FieldContext{
 		Object:     "RedisInstanceAccess",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
@@ -10503,8 +10528,8 @@ func (ec *executionContext) fieldContext_RedisInstanceAccess_workload(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _RedisInstanceAccess_role(ctx context.Context, field graphql.CollectedField, obj *redis.RedisInstanceAccess) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RedisInstanceAccess_role(ctx, field)
+func (ec *executionContext) _RedisInstanceAccess_access(ctx context.Context, field graphql.CollectedField, obj *redis.RedisInstanceAccess) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisInstanceAccess_access(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -10517,7 +10542,7 @@ func (ec *executionContext) _RedisInstanceAccess_role(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Role, nil
+		return obj.Access, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10534,7 +10559,7 @@ func (ec *executionContext) _RedisInstanceAccess_role(ctx context.Context, field
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RedisInstanceAccess_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RedisInstanceAccess_access(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RedisInstanceAccess",
 		Field:      field,
@@ -10738,8 +10763,8 @@ func (ec *executionContext) fieldContext_RedisInstanceAccessEdge_node(_ context.
 			switch field.Name {
 			case "workload":
 				return ec.fieldContext_RedisInstanceAccess_workload(ctx, field)
-			case "role":
-				return ec.fieldContext_RedisInstanceAccess_role(ctx, field)
+			case "access":
+				return ec.fieldContext_RedisInstanceAccess_access(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type RedisInstanceAccess", field.Name)
 		},
@@ -15450,6 +15475,40 @@ func (ec *executionContext) unmarshalInputOpenSearchOrder(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRedisInstanceAccessOrder(ctx context.Context, obj interface{}) (redis.RedisInstanceAccessOrder, error) {
+	var it redis.RedisInstanceAccessOrder
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNRedisInstanceAccessOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceAccessOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋmodelv1ᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRedisInstanceOrder(ctx context.Context, obj interface{}) (redis.RedisInstanceOrder, error) {
 	var it redis.RedisInstanceOrder
 	asMap := map[string]interface{}{}
@@ -18608,14 +18667,45 @@ func (ec *executionContext) _RedisInstanceAccess(ctx context.Context, sel ast.Se
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("RedisInstanceAccess")
 		case "workload":
-			out.Values[i] = ec._RedisInstanceAccess_workload(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._RedisInstanceAccess_workload(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
-		case "role":
-			out.Values[i] = ec._RedisInstanceAccess_role(ctx, field, obj)
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "access":
+			out.Values[i] = ec._RedisInstanceAccess_access(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -21182,6 +21272,16 @@ func (ec *executionContext) marshalNRedisInstanceAccessEdge2ᚕgithubᚗcomᚋna
 	return ret
 }
 
+func (ec *executionContext) unmarshalNRedisInstanceAccessOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceAccessOrderField(ctx context.Context, v interface{}) (redis.RedisInstanceAccessOrderField, error) {
+	var res redis.RedisInstanceAccessOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRedisInstanceAccessOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceAccessOrderField(ctx context.Context, sel ast.SelectionSet, v redis.RedisInstanceAccessOrderField) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNRedisInstanceConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*redis.RedisInstance]) graphql.Marshaler {
 	return ec._RedisInstanceConnection(ctx, sel, &v)
 }
@@ -22062,6 +22162,14 @@ func (ec *executionContext) unmarshalOOpenSearchOrder2ᚖgithubᚗcomᚋnaisᚋa
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputOpenSearchOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalORedisInstanceAccessOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceAccessOrder(ctx context.Context, v interface{}) (*redis.RedisInstanceAccessOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputRedisInstanceAccessOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

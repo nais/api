@@ -42,36 +42,15 @@ func (r RedisInstance) ID() ident.Ident {
 }
 
 type RedisInstanceAccess struct {
-	Workload workload.Workload `json:"workload"`
-	Role     string            `json:"role"`
+	Access          string                 `json:"access"`
+	TeamSlug        slug.Slug              `json:"-"`
+	EnvironmentName string                 `json:"-"`
+	OwnerReference  *metav1.OwnerReference `json:"-"`
 }
 
 type RedisInstanceStatus struct {
 	State      string             `json:"state"`
 	Conditions []metav1.Condition `json:"conditions"`
-}
-
-func toRedisInstance(u *unstructured.Unstructured, envName string) (*RedisInstance, error) {
-	redis := &aiven_io_v1alpha1.Redis{}
-
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, redis); err != nil {
-		return nil, fmt.Errorf("converting to Bucket: %w", err)
-	}
-
-	teamSlug := redis.GetNamespace()
-
-	r := &RedisInstance{
-		Name:            redis.Name,
-		EnvironmentName: envName,
-		Status: RedisInstanceStatus{
-			Conditions: redis.Status.Conditions,
-			State:      redis.Status.State,
-		},
-		TeamSlug:       slug.Slug(teamSlug),
-		OwnerReference: persistence.OwnerReference(redis.OwnerReferences),
-	}
-
-	return r, nil
 }
 
 type RedisInstanceOrder struct {
@@ -113,4 +92,73 @@ func (e *RedisInstanceOrderField) UnmarshalGQL(v interface{}) error {
 
 func (e RedisInstanceOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type RedisInstanceAccessOrder struct {
+	Field     RedisInstanceAccessOrderField `json:"field"`
+	Direction modelv1.OrderDirection        `json:"direction"`
+}
+
+type RedisInstanceAccessOrderField string
+
+const (
+	RedisInstanceAccessOrderFieldAccess   RedisInstanceAccessOrderField = "ACCESS"
+	RedisInstanceAccessOrderFieldWorkload RedisInstanceAccessOrderField = "WORKLOAD"
+)
+
+var AllRedisInstanceAccessOrderField = []RedisInstanceAccessOrderField{
+	RedisInstanceAccessOrderFieldAccess,
+	RedisInstanceAccessOrderFieldWorkload,
+}
+
+func (e RedisInstanceAccessOrderField) IsValid() bool {
+	switch e {
+	case RedisInstanceAccessOrderFieldAccess, RedisInstanceAccessOrderFieldWorkload:
+		return true
+	}
+	return false
+}
+
+func (e RedisInstanceAccessOrderField) String() string {
+	return string(e)
+}
+
+func (e *RedisInstanceAccessOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RedisInstanceAccessOrderField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RedisInstanceAccessOrderField", str)
+	}
+	return nil
+}
+
+func (e RedisInstanceAccessOrderField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func toRedisInstance(u *unstructured.Unstructured, envName string) (*RedisInstance, error) {
+	redis := &aiven_io_v1alpha1.Redis{}
+
+	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, redis); err != nil {
+		return nil, fmt.Errorf("converting to Redis instance: %w", err)
+	}
+
+	teamSlug := redis.GetNamespace()
+
+	r := &RedisInstance{
+		Name:            redis.Name,
+		EnvironmentName: envName,
+		Status: RedisInstanceStatus{
+			Conditions: redis.Status.Conditions,
+			State:      redis.Status.State,
+		},
+		TeamSlug:       slug.Slug(teamSlug),
+		OwnerReference: persistence.OwnerReference(redis.OwnerReferences),
+	}
+
+	return r, nil
 }
