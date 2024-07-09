@@ -21,6 +21,7 @@ import (
 	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/redis"
+	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/workload/application"
@@ -90,6 +91,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 			ctx = kafkatopic.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = opensearch.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = redis.NewLoaderContext(ctx, k8sClient, opts)
+			ctx = sqlinstance.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = team.NewLoaderContext(ctx, pool, opts)
 			ctx = user.NewLoaderContext(ctx, pool, opts)
 			return ctx

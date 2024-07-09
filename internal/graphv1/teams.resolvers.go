@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/redis"
+	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
@@ -106,6 +107,15 @@ func (r *teamResolver) KafkaTopics(ctx context.Context, obj *team.Team, first *i
 	}
 
 	return kafkatopic.ListForTeam(ctx, obj.Slug, page, orderBy)
+}
+
+func (r *teamResolver) SQLInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*sqlinstance.SQLInstance], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return sqlinstance.ListForTeam(ctx, obj.Slug, page)
 }
 
 func (r *teamResolver) ViewerIsOwner(ctx context.Context, obj *team.Team) (bool, error) {

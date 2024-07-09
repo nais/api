@@ -10,16 +10,9 @@ import (
 type OrderDirection string
 
 const (
-	// Ascending sort order.
-	OrderDirectionAsc OrderDirection = "ASC"
-	// Descending sort order.
+	OrderDirectionAsc  OrderDirection = "ASC"
 	OrderDirectionDesc OrderDirection = "DESC"
 )
-
-var AllOrderDirection = []OrderDirection{
-	OrderDirectionAsc,
-	OrderDirectionDesc,
-}
 
 func (e OrderDirection) IsValid() bool {
 	switch e {

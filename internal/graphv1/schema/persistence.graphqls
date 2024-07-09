@@ -157,6 +157,57 @@ type RedisInstanceStatus {
   state: String!
 }
 
+type SqlDatabase implements Persistence & Node {
+  id: ID!
+  name: String!
+  team: Team!
+  environment: TeamEnvironment!
+  charset: String
+  collation: String
+  deletionPolicy: String
+  healthy: Boolean!
+}
+
+type SqlInstance implements Persistence & Node {
+  id: ID!
+  name: String!
+  team: Team!
+  environment: TeamEnvironment!
+  workload: Workload
+  cascadingDelete: Boolean!
+  connectionName: String
+  diskAutoresize: Boolean
+  diskAutoresizeLimit: Int
+  highAvailability: Boolean!
+  healthy: Boolean!
+  maintenanceVersion: String
+  maintenanceWindow: SqlInstanceMaintenanceWindow
+  backupConfiguration: SqlInstanceBackupConfiguration
+  projectId: String!
+  tier: String!
+  version: String
+  status: SqlInstanceStatus!
+  database: SqlDatabase
+}
+
+type SqlInstanceBackupConfiguration {
+  enabled: Boolean
+  startTime: String
+  retainedBackups: Int
+  pointInTimeRecovery: Boolean
+  transactionLogRetentionDays: Int
+}
+
+type SqlInstanceMaintenanceWindow {
+  day: Int!
+  hour: Int!
+}
+
+type SqlInstanceStatus {
+  publicIpAddress: String
+  privateIpAddress: String
+}
+
 type BigQueryDatasetAccessConnection {
   pageInfo: PageInfo!
   edges: [BigQueryDatasetAccessEdge!]!
@@ -208,6 +259,11 @@ type RedisInstanceConnection {
   edges: [RedisInstanceEdge!]!
 }
 
+type SqlInstanceConnection {
+  pageInfo: PageInfo!
+  edges: [SqlInstanceEdge!]!
+}
+
 type BigQueryDatasetAccessEdge {
   cursor: Cursor!
   node: BigQueryDatasetAccess!
@@ -256,6 +312,11 @@ type RedisInstanceAccessEdge {
 type RedisInstanceEdge {
   cursor: Cursor!
   node: RedisInstance!
+}
+
+type SqlInstanceEdge {
+  cursor: Cursor!
+  node: SqlInstance!
 }
 
 input BigQueryDatasetAccessOrder {
