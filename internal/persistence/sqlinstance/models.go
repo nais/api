@@ -16,8 +16,10 @@ import (
 )
 
 type (
-	SQLInstanceConnection = pagination.Connection[*SQLInstance]
-	SQLInstanceEdge       = pagination.Edge[*SQLInstance]
+	SQLInstanceConnection     = pagination.Connection[*SQLInstance]
+	SQLInstanceEdge           = pagination.Edge[*SQLInstance]
+	SQLInstanceFlagConnection = pagination.Connection[*SQLInstanceFlag]
+	SQLInstanceFlagEdge       = pagination.Edge[*SQLInstanceFlag]
 )
 
 type SQLDatabase struct {
@@ -54,6 +56,7 @@ type SQLInstance struct {
 	Tier                string                          `json:"tier"`
 	Version             *string                         `json:"version,omitempty"`
 	Status              SQLInstanceStatus               `json:"status"`
+	Flags               []*SQLInstanceFlag              `json:"-"`
 	EnvironmentName     string                          `json:"-"`
 	TeamSlug            slug.Slug                       `json:"-"`
 	OwnerReference      *metav1.OwnerReference          `json:"-"`
@@ -83,6 +86,11 @@ type SQLInstanceMaintenanceWindow struct {
 type SQLInstanceStatus struct {
 	PublicIPAddress  *string `json:"publicIpAddress,omitempty"`
 	PrivateIPAddress *string `json:"privateIpAddress,omitempty"`
+}
+
+type SQLInstanceFlag struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
 }
 
 func healthy(conds []v1alpha1.Condition) bool {
@@ -135,6 +143,17 @@ func toSQLInstanceMaintenanceWindow(window *sql_cnrm_cloud_google_com_v1beta1.In
 		Day:  *window.Day,
 		Hour: *window.Hour,
 	}
+}
+
+func toSQLInstanceFlags(flags []sql_cnrm_cloud_google_com_v1beta1.InstanceDatabaseFlags) []*SQLInstanceFlag {
+	ret := make([]*SQLInstanceFlag, len(flags))
+	for i, flag := range flags {
+		ret[i] = &SQLInstanceFlag{
+			Name:  flag.Name,
+			Value: flag.Value,
+		}
+	}
+	return ret
 }
 
 func toSQLDatabase(u *unstructured.Unstructured, environmentName, sqlInstanceName string) (*SQLDatabase, error) {
@@ -190,5 +209,6 @@ func toSQLInstance(u *unstructured.Unstructured, environmentName string) (*SQLIn
 		EnvironmentName:     environmentName,
 		TeamSlug:            slug.Slug(obj.GetNamespace()),
 		OwnerReference:      persistence.OwnerReference(obj.OwnerReferences),
+		Flags:               toSQLInstanceFlags(obj.Spec.Settings.DatabaseFlags),
 	}, nil
 }

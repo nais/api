@@ -188,6 +188,12 @@ type SqlInstance implements Persistence & Node {
   version: String
   status: SqlInstanceStatus!
   database: SqlDatabase
+  flags(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+  ): SqlInstanceFlagConnection!
 }
 
 type SqlInstanceBackupConfiguration {
@@ -196,6 +202,11 @@ type SqlInstanceBackupConfiguration {
   retainedBackups: Int
   pointInTimeRecovery: Boolean
   transactionLogRetentionDays: Int
+}
+
+type SqlInstanceFlag {
+  name: String!
+  value: String!
 }
 
 type SqlInstanceMaintenanceWindow {
@@ -264,6 +275,11 @@ type SqlInstanceConnection {
   edges: [SqlInstanceEdge!]!
 }
 
+type SqlInstanceFlagConnection {
+  pageInfo: PageInfo!
+  edges: [SqlInstanceFlagEdge!]!
+}
+
 type BigQueryDatasetAccessEdge {
   cursor: Cursor!
   node: BigQueryDatasetAccess!
@@ -317,6 +333,11 @@ type RedisInstanceEdge {
 type SqlInstanceEdge {
   cursor: Cursor!
   node: SqlInstance!
+}
+
+type SqlInstanceFlagEdge {
+  cursor: Cursor!
+  node: SqlInstanceFlag!
 }
 
 input BigQueryDatasetAccessOrder {
