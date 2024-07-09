@@ -106,8 +106,7 @@ func (c client) getAccessForApplications(environmentName, openSearchName string,
 			continue
 		}
 
-		expectedName := "opensearch-" + string(teamSlug) + "-" + app.Spec.OpenSearch.Instance
-		if app.Spec.OpenSearch != nil && expectedName == openSearchName {
+		if "opensearch-"+string(teamSlug)+"-"+app.Spec.OpenSearch.Instance == openSearchName {
 			access = append(access, &OpenSearchAccess{
 				Access:          app.Spec.OpenSearch.Access,
 				TeamSlug:        teamSlug,
@@ -151,8 +150,7 @@ func (c client) getAccessForJobs(environmentName, openSearchName string, teamSlu
 			continue
 		}
 
-		expected := "opensearch-" + string(teamSlug) + "-" + job.Spec.OpenSearch.Instance
-		if job.Spec.OpenSearch != nil && expected == openSearchName {
+		if "opensearch-"+string(teamSlug)+"-"+job.Spec.OpenSearch.Instance == openSearchName {
 			access = append(access, &OpenSearchAccess{
 				Access:          job.Spec.OpenSearch.Access,
 				TeamSlug:        teamSlug,
