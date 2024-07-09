@@ -43,12 +43,12 @@ func (l client) getBucketsForTeam(_ context.Context, teamSlug slug.Slug) ([]*Buc
 		}
 
 		for _, obj := range objs {
-			bqs, err := toBucket(obj.(*unstructured.Unstructured), env)
+			model, err := toBucket(obj.(*unstructured.Unstructured), env)
 			if err != nil {
 				return nil, fmt.Errorf("converting to buckets: %w", err)
 			}
 
-			ret = append(ret, bqs)
+			ret = append(ret, model)
 		}
 	}
 	sort.Slice(ret, func(i, j int) bool {
