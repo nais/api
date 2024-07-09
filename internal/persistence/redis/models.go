@@ -10,7 +10,6 @@ import (
 	"github.com/nais/api/internal/graphv1/pagination"
 	"github.com/nais/api/internal/persistence"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/workload"
 	aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -26,7 +25,6 @@ type (
 
 type RedisInstance struct {
 	Name            string                 `json:"name"`
-	Workload        workload.Workload      `json:"workload,omitempty"`
 	Status          RedisInstanceStatus    `json:"status"`
 	TeamSlug        slug.Slug              `json:"-"`
 	EnvironmentName string                 `json:"-"`
@@ -141,24 +139,20 @@ func (e RedisInstanceAccessOrderField) MarshalGQL(w io.Writer) {
 }
 
 func toRedisInstance(u *unstructured.Unstructured, envName string) (*RedisInstance, error) {
-	redis := &aiven_io_v1alpha1.Redis{}
+	obj := &aiven_io_v1alpha1.Redis{}
 
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, redis); err != nil {
+	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, obj); err != nil {
 		return nil, fmt.Errorf("converting to Redis instance: %w", err)
 	}
 
-	teamSlug := redis.GetNamespace()
-
-	r := &RedisInstance{
-		Name:            redis.Name,
+	return &RedisInstance{
+		Name:            obj.Name,
 		EnvironmentName: envName,
 		Status: RedisInstanceStatus{
-			Conditions: redis.Status.Conditions,
-			State:      redis.Status.State,
+			Conditions: obj.Status.Conditions,
+			State:      obj.Status.State,
 		},
-		TeamSlug:       slug.Slug(teamSlug),
-		OwnerReference: persistence.OwnerReference(redis.OwnerReferences),
-	}
-
-	return r, nil
+		TeamSlug:       slug.Slug(obj.GetNamespace()),
+		OwnerReference: persistence.OwnerReference(obj.OwnerReferences),
+	}, nil
 }

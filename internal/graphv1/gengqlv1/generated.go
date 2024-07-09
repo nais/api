@@ -460,6 +460,7 @@ type OpenSearchResolver interface {
 	Team(ctx context.Context, obj *opensearch.OpenSearch) (*team.Team, error)
 	Environment(ctx context.Context, obj *opensearch.OpenSearch) (*team.TeamEnvironment, error)
 
+	Workload(ctx context.Context, obj *opensearch.OpenSearch) (workload.Workload, error)
 	Access(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchAccessOrder) (*pagination.Connection[*opensearch.OpenSearchAccess], error)
 	Cost(ctx context.Context, obj *opensearch.OpenSearch) (float64, error)
 }
@@ -478,6 +479,7 @@ type RedisInstanceResolver interface {
 	Environment(ctx context.Context, obj *redis.RedisInstance) (*team.TeamEnvironment, error)
 	Access(ctx context.Context, obj *redis.RedisInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceAccessOrder) (*pagination.Connection[*redis.RedisInstanceAccess], error)
 	Cost(ctx context.Context, obj *redis.RedisInstance) (float64, error)
+	Workload(ctx context.Context, obj *redis.RedisInstance) (workload.Workload, error)
 }
 type RedisInstanceAccessResolver interface {
 	Workload(ctx context.Context, obj *redis.RedisInstanceAccess) (workload.Workload, error)
@@ -8699,7 +8701,7 @@ func (ec *executionContext) _OpenSearch_workload(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Workload, nil
+		return ec.resolvers.OpenSearch().Workload(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8717,8 +8719,8 @@ func (ec *executionContext) fieldContext_OpenSearch_workload(_ context.Context, 
 	fc = &graphql.FieldContext{
 		Object:     "OpenSearch",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
@@ -10409,7 +10411,7 @@ func (ec *executionContext) _RedisInstance_workload(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Workload, nil
+		return ec.resolvers.RedisInstance().Workload(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10427,8 +10429,8 @@ func (ec *executionContext) fieldContext_RedisInstance_workload(_ context.Contex
 	fc = &graphql.FieldContext{
 		Object:     "RedisInstance",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
@@ -17864,7 +17866,38 @@ func (ec *executionContext) _OpenSearch(ctx context.Context, sel ast.SelectionSe
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "workload":
-			out.Values[i] = ec._OpenSearch_workload(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._OpenSearch_workload(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "access":
 			field := field
 
@@ -18626,7 +18659,38 @@ func (ec *executionContext) _RedisInstance(ctx context.Context, sel ast.Selectio
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "workload":
-			out.Values[i] = ec._RedisInstance_workload(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._RedisInstance_workload(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "status":
 			out.Values[i] = ec._RedisInstance_status(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
