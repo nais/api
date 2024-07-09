@@ -260,6 +260,15 @@ func (r *sqlInstanceResolver) Flags(ctx context.Context, obj *sqlinstance.SQLIns
 	return pagination.NewConnection(ret, page, int32(len(obj.Flags))), nil
 }
 
+func (r *sqlInstanceResolver) Users(ctx context.Context, obj *sqlinstance.SQLInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceUserOrder) (*pagination.Connection[*sqlinstance.SQLInstanceUser], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return sqlinstance.ListSQLInstanceUsers(ctx, obj, page, orderBy)
+}
+
 func (r *Resolver) BigQueryDataset() gengqlv1.BigQueryDatasetResolver {
 	return &bigQueryDatasetResolver{r}
 }

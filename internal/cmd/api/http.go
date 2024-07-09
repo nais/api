@@ -22,6 +22,7 @@ import (
 	"github.com/nais/api/internal/persistence/opensearch"
 	"github.com/nais/api/internal/persistence/redis"
 	"github.com/nais/api/internal/persistence/sqlinstance"
+	legacysqlinstance "github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/workload/application"
@@ -39,7 +40,7 @@ import (
 )
 
 // runHttpServer will start the HTTP server
-func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool, db database.Database, k8sClient *k8s.Client, authHandler authn.Handler, graphHandler *handler.Server, graphv1Handler *handler.Server, reg prometheus.Gatherer, log logrus.FieldLogger) error {
+func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool, db database.Database, k8sClient *k8s.Client, sqlAdminService *legacysqlinstance.SqlAdminService, authHandler authn.Handler, graphHandler *handler.Server, graphv1Handler *handler.Server, reg prometheus.Gatherer, log logrus.FieldLogger) error {
 	router := chi.NewRouter()
 	router.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
 	router.Get("/healthz", func(_ http.ResponseWriter, _ *http.Request) {})
@@ -91,7 +92,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 			ctx = kafkatopic.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = opensearch.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = redis.NewLoaderContext(ctx, k8sClient, opts)
-			ctx = sqlinstance.NewLoaderContext(ctx, k8sClient, opts)
+			ctx = sqlinstance.NewLoaderContext(ctx, k8sClient, sqlAdminService, opts)
 			ctx = team.NewLoaderContext(ctx, pool, opts)
 			ctx = user.NewLoaderContext(ctx, pool, opts)
 			return ctx

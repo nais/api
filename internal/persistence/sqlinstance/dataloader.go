@@ -5,6 +5,7 @@ import (
 
 	"github.com/nais/api/internal/graphv1/loaderv1"
 	"github.com/nais/api/internal/k8s"
+	"github.com/nais/api/internal/sqlinstance"
 	"github.com/vikstrous/dataloadgen"
 )
 
@@ -12,8 +13,8 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, k8sClient *k8s.Client, defaultOpts []dataloadgen.Option) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(k8sClient, defaultOpts))
+func NewLoaderContext(ctx context.Context, k8sClient *k8s.Client, sqlAdminService *sqlinstance.SqlAdminService, defaultOpts []dataloadgen.Option) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(k8sClient, sqlAdminService, defaultOpts))
 }
 
 func fromContext(ctx context.Context) *loaders {
@@ -21,12 +22,13 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	k8sClient      *client
-	instanceLoader *dataloadgen.Loader[identifier, *SQLInstance]
-	databaseLoader *dataloadgen.Loader[identifier, *SQLDatabase]
+	k8sClient       *client
+	sqlAdminService *sqlinstance.SqlAdminService
+	instanceLoader  *dataloadgen.Loader[identifier, *SQLInstance]
+	databaseLoader  *dataloadgen.Loader[identifier, *SQLDatabase]
 }
 
-func newLoaders(k8sClient *k8s.Client, opts []dataloadgen.Option) *loaders {
+func newLoaders(k8sClient *k8s.Client, sqlAdminService *sqlinstance.SqlAdminService, opts []dataloadgen.Option) *loaders {
 	client := &client{
 		informers: k8sClient.Informers(),
 	}
@@ -39,9 +41,10 @@ func newLoaders(k8sClient *k8s.Client, opts []dataloadgen.Option) *loaders {
 	}
 
 	return &loaders{
-		k8sClient:      client,
-		instanceLoader: dataloadgen.NewLoader(instanceLoader.listInstances, opts...),
-		databaseLoader: dataloadgen.NewLoader(databaseLoader.listDatabases, opts...),
+		k8sClient:       client,
+		sqlAdminService: sqlAdminService,
+		instanceLoader:  dataloadgen.NewLoader(instanceLoader.listInstances, opts...),
+		databaseLoader:  dataloadgen.NewLoader(databaseLoader.listDatabases, opts...),
 	}
 }
 
