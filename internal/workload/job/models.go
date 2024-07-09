@@ -2,7 +2,6 @@ package job
 
 import (
 	"fmt"
-	"github.com/nais/api/internal/slug"
 	"io"
 	"strconv"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/nais/api/internal/graphv1/ident"
 	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/graphv1/pagination"
+	"github.com/nais/api/internal/slug"
 )
 
 type (
