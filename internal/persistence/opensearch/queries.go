@@ -49,3 +49,37 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	instances := pagination.Slice(all, page)
 	return pagination.NewConnection(instances, page, int32(len(all))), nil
 }
+
+func ListAccess(ctx context.Context, openSearch *OpenSearch, page *pagination.Pagination, orderBy *OpenSearchAccessOrder) (*OpenSearchAccessConnection, error) {
+	k8sClient := fromContext(ctx).k8sClient
+
+	applicationAccess, err := k8sClient.getAccessForApplications(openSearch.EnvironmentName, openSearch.Name, openSearch.TeamSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	jobAccess, err := k8sClient.getAccessForJobs(openSearch.EnvironmentName, openSearch.Name, openSearch.TeamSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	all := make([]*OpenSearchAccess, 0)
+	all = append(all, applicationAccess...)
+	all = append(all, jobAccess...)
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case OpenSearchAccessOrderFieldAccess:
+			slices.SortStableFunc(all, func(a, b *OpenSearchAccess) int {
+				return modelv1.Compare(a.Access, b.Access, orderBy.Direction)
+			})
+		case OpenSearchAccessOrderFieldWorkload:
+			slices.SortStableFunc(all, func(a, b *OpenSearchAccess) int {
+				return modelv1.Compare(a.OwnerReference.Name, b.OwnerReference.Name, orderBy.Direction)
+			})
+		}
+	}
+
+	ret := pagination.Slice(all, page)
+	return pagination.NewConnection(ret, page, int32(len(all))), nil
+}

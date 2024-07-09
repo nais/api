@@ -117,13 +117,14 @@ type OpenSearch implements Persistence & Node {
     after: Cursor
     last: Int
     before: Cursor
+    orderBy: OpenSearchAccessOrder
   ): OpenSearchAccessConnection!
   cost: Float!
 }
 
 type OpenSearchAccess {
   workload: Workload!
-  role: String!
+  access: String!
 }
 
 type OpenSearchStatus {
@@ -286,6 +287,11 @@ input KafkaTopicAclOrder {
   direction: OrderDirection!
 }
 
+input OpenSearchAccessOrder {
+  field: OpenSearchAccessOrderField!
+  direction: OrderDirection!
+}
+
 input OpenSearchOrder {
   field: OpenSearchOrderField!
   direction: OrderDirection!
@@ -320,6 +326,11 @@ enum KafkaTopicAclOrderField {
   TEAM_SLUG
   CONSUMER
   ACCESS
+}
+
+enum OpenSearchAccessOrderField {
+  ACCESS
+  WORKLOAD
 }
 
 enum OpenSearchOrderField {

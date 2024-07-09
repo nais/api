@@ -42,8 +42,10 @@ func (o OpenSearch) ID() ident.Ident {
 }
 
 type OpenSearchAccess struct {
-	Workload workload.Workload `json:"workload"`
-	Role     string            `json:"role"`
+	Access          string                 `json:"access"`
+	TeamSlug        slug.Slug              `json:"-"`
+	EnvironmentName string                 `json:"-"`
+	OwnerReference  *metav1.OwnerReference `json:"-"`
 }
 
 type OpenSearchStatus struct {
@@ -89,6 +91,47 @@ func (e *OpenSearchOrderField) UnmarshalGQL(v interface{}) error {
 }
 
 func (e OpenSearchOrderField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type OpenSearchAccessOrder struct {
+	Field     OpenSearchAccessOrderField `json:"field"`
+	Direction modelv1.OrderDirection     `json:"direction"`
+}
+
+type OpenSearchAccessOrderField string
+
+const (
+	OpenSearchAccessOrderFieldAccess   OpenSearchAccessOrderField = "ACCESS"
+	OpenSearchAccessOrderFieldWorkload OpenSearchAccessOrderField = "WORKLOAD"
+)
+
+func (e OpenSearchAccessOrderField) IsValid() bool {
+	switch e {
+	case OpenSearchAccessOrderFieldAccess, OpenSearchAccessOrderFieldWorkload:
+		return true
+	}
+	return false
+}
+
+func (e OpenSearchAccessOrderField) String() string {
+	return string(e)
+}
+
+func (e *OpenSearchAccessOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OpenSearchAccessOrderField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OpenSearchAccessOrderField", str)
+	}
+	return nil
+}
+
+func (e OpenSearchAccessOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
