@@ -250,6 +250,16 @@ func (r *sqlInstanceResolver) Database(ctx context.Context, obj *sqlinstance.SQL
 	return db, err
 }
 
+func (r *sqlInstanceResolver) Flags(ctx context.Context, obj *sqlinstance.SQLInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*sqlinstance.SQLInstanceFlag], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := pagination.Slice(obj.Flags, page)
+	return pagination.NewConnection(ret, page, int32(len(obj.Flags))), nil
+}
+
 func (r *Resolver) BigQueryDataset() gengqlv1.BigQueryDatasetResolver {
 	return &bigQueryDatasetResolver{r}
 }
