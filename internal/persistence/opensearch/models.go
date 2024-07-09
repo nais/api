@@ -10,7 +10,6 @@ import (
 	"github.com/nais/api/internal/graphv1/pagination"
 	"github.com/nais/api/internal/persistence"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/workload"
 	aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -26,7 +25,6 @@ type (
 
 type OpenSearch struct {
 	Name            string                 `json:"name"`
-	Workload        workload.Workload      `json:"workload,omitempty"`
 	Status          OpenSearchStatus       `json:"status"`
 	TeamSlug        slug.Slug              `json:"-"`
 	EnvironmentName string                 `json:"-"`
@@ -136,24 +134,20 @@ func (e OpenSearchAccessOrderField) MarshalGQL(w io.Writer) {
 }
 
 func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, error) {
-	openSearch := &aiven_io_v1alpha1.OpenSearch{}
+	obj := &aiven_io_v1alpha1.OpenSearch{}
 
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, openSearch); err != nil {
+	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, obj); err != nil {
 		return nil, fmt.Errorf("converting to OpenSearch: %w", err)
 	}
 
-	teamSlug := openSearch.GetNamespace()
-
-	r := &OpenSearch{
-		Name:            openSearch.Name,
+	return &OpenSearch{
+		Name:            obj.Name,
 		EnvironmentName: envName,
 		Status: OpenSearchStatus{
-			Conditions: openSearch.Status.Conditions,
-			State:      openSearch.Status.State,
+			Conditions: obj.Status.Conditions,
+			State:      obj.Status.State,
 		},
-		TeamSlug:       slug.Slug(teamSlug),
-		OwnerReference: persistence.OwnerReference(openSearch.OwnerReferences),
-	}
-
-	return r, nil
+		TeamSlug:       slug.Slug(obj.GetNamespace()),
+		OwnerReference: persistence.OwnerReference(obj.OwnerReferences),
+	}, nil
 }

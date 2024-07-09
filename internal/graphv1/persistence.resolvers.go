@@ -167,6 +167,10 @@ func (r *openSearchResolver) Environment(ctx context.Context, obj *opensearch.Op
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
+func (r *openSearchResolver) Workload(ctx context.Context, obj *opensearch.OpenSearch) (workload.Workload, error) {
+	return r.workload(ctx, obj.OwnerReference, obj.TeamSlug, obj.EnvironmentName)
+}
+
 func (r *openSearchResolver) Access(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchAccessOrder) (*pagination.Connection[*opensearch.OpenSearchAccess], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -203,6 +207,10 @@ func (r *redisInstanceResolver) Access(ctx context.Context, obj *redis.RedisInst
 
 func (r *redisInstanceResolver) Cost(ctx context.Context, obj *redis.RedisInstance) (float64, error) {
 	panic(fmt.Errorf("not implemented: Cost - cost"))
+}
+
+func (r *redisInstanceResolver) Workload(ctx context.Context, obj *redis.RedisInstance) (workload.Workload, error) {
+	return r.workload(ctx, obj.OwnerReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *redisInstanceAccessResolver) Workload(ctx context.Context, obj *redis.RedisInstanceAccess) (workload.Workload, error) {
