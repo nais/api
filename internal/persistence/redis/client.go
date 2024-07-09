@@ -8,8 +8,12 @@ import (
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/slug"
+	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 type client struct {
@@ -74,4 +78,89 @@ func (c client) getRedis(_ context.Context, env string, namespace string, name s
 	}
 
 	return toRedisInstance(obj.(*unstructured.Unstructured), env)
+}
+
+func (c client) getAccessForApplications(environmentName, redisInstanceName string, teamSlug slug.Slug) ([]*RedisInstanceAccess, error) {
+	infs, exists := c.informers[environmentName]
+	if !exists {
+		return nil, fmt.Errorf("unknown environment: %q", environmentName)
+	}
+
+	if infs.Redis == nil {
+		return nil, apierror.Errorf("Redis informer not supported in environment: %q", environmentName)
+	}
+
+	access := make([]*RedisInstanceAccess, 0)
+	apps, err := infs.App.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
+	if err != nil {
+		return nil, fmt.Errorf("unable to list applications for team")
+	}
+
+	for _, a := range apps {
+		app := &nais_io_v1alpha1.Application{}
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(a.(*unstructured.Unstructured).Object, app); err != nil {
+			return nil, fmt.Errorf("converting to application: %w", err)
+		}
+
+		for _, r := range app.Spec.Redis {
+			if "redis-"+string(teamSlug)+"-"+r.Instance == redisInstanceName {
+				access = append(access, &RedisInstanceAccess{
+					Access:          r.Access,
+					TeamSlug:        teamSlug,
+					EnvironmentName: environmentName,
+					OwnerReference: &metav1.OwnerReference{
+						APIVersion: app.APIVersion,
+						Kind:       app.Kind,
+						Name:       app.Name,
+						UID:        app.UID,
+					},
+				})
+			}
+		}
+
+	}
+
+	return access, nil
+}
+
+func (c client) getAccessForJobs(environmentName, redisInstanceName string, teamSlug slug.Slug) ([]*RedisInstanceAccess, error) {
+	infs, exists := c.informers[environmentName]
+	if !exists {
+		return nil, fmt.Errorf("unknown environment: %q", environmentName)
+	}
+
+	if infs.Redis == nil {
+		return nil, apierror.Errorf("Redis informer not supported in environment: %q", environmentName)
+	}
+
+	access := make([]*RedisInstanceAccess, 0)
+	naisJobs, err := infs.Naisjob.Lister().ByNamespace(string(teamSlug)).List(labels.Everything())
+	if err != nil {
+		return nil, fmt.Errorf("unable to list jobs for team")
+	}
+
+	for _, j := range naisJobs {
+		job := &nais_io_v1.Naisjob{}
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(j.(*unstructured.Unstructured).Object, job); err != nil {
+			return nil, fmt.Errorf("converting to job: %w", err)
+		}
+
+		for _, r := range job.Spec.Redis {
+			if "redis-"+string(teamSlug)+"-"+r.Instance == redisInstanceName {
+				access = append(access, &RedisInstanceAccess{
+					Access:          r.Access,
+					TeamSlug:        teamSlug,
+					EnvironmentName: environmentName,
+					OwnerReference: &metav1.OwnerReference{
+						APIVersion: job.APIVersion,
+						Kind:       job.Kind,
+						Name:       job.Name,
+						UID:        job.UID,
+					},
+				})
+			}
+		}
+	}
+
+	return access, nil
 }

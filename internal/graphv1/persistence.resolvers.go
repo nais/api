@@ -192,12 +192,21 @@ func (r *redisInstanceResolver) Environment(ctx context.Context, obj *redis.Redi
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *redisInstanceResolver) Access(ctx context.Context, obj *redis.RedisInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*redis.RedisInstanceAccess], error) {
-	panic(fmt.Errorf("not implemented: Access - access"))
+func (r *redisInstanceResolver) Access(ctx context.Context, obj *redis.RedisInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceAccessOrder) (*pagination.Connection[*redis.RedisInstanceAccess], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return redis.ListAccess(ctx, obj, page, orderBy)
 }
 
 func (r *redisInstanceResolver) Cost(ctx context.Context, obj *redis.RedisInstance) (float64, error) {
 	panic(fmt.Errorf("not implemented: Cost - cost"))
+}
+
+func (r *redisInstanceAccessResolver) Workload(ctx context.Context, obj *redis.RedisInstanceAccess) (workload.Workload, error) {
+	return r.workload(ctx, obj.OwnerReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *Resolver) BigQueryDataset() gengqlv1.BigQueryDatasetResolver {
@@ -218,12 +227,17 @@ func (r *Resolver) OpenSearchAccess() gengqlv1.OpenSearchAccessResolver {
 
 func (r *Resolver) RedisInstance() gengqlv1.RedisInstanceResolver { return &redisInstanceResolver{r} }
 
+func (r *Resolver) RedisInstanceAccess() gengqlv1.RedisInstanceAccessResolver {
+	return &redisInstanceAccessResolver{r}
+}
+
 type (
-	bigQueryDatasetResolver  struct{ *Resolver }
-	bucketResolver           struct{ *Resolver }
-	kafkaTopicResolver       struct{ *Resolver }
-	kafkaTopicAclResolver    struct{ *Resolver }
-	openSearchResolver       struct{ *Resolver }
-	openSearchAccessResolver struct{ *Resolver }
-	redisInstanceResolver    struct{ *Resolver }
+	bigQueryDatasetResolver     struct{ *Resolver }
+	bucketResolver              struct{ *Resolver }
+	kafkaTopicResolver          struct{ *Resolver }
+	kafkaTopicAclResolver       struct{ *Resolver }
+	openSearchResolver          struct{ *Resolver }
+	openSearchAccessResolver    struct{ *Resolver }
+	redisInstanceResolver       struct{ *Resolver }
+	redisInstanceAccessResolver struct{ *Resolver }
 )

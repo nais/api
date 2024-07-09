@@ -49,3 +49,37 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	instances := pagination.Slice(all, page)
 	return pagination.NewConnection(instances, page, int32(len(all))), nil
 }
+
+func ListAccess(ctx context.Context, redis *RedisInstance, page *pagination.Pagination, orderBy *RedisInstanceAccessOrder) (*RedisInstanceAccessConnection, error) {
+	k8sClient := fromContext(ctx).k8sClient
+
+	applicationAccess, err := k8sClient.getAccessForApplications(redis.EnvironmentName, redis.Name, redis.TeamSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	jobAccess, err := k8sClient.getAccessForJobs(redis.EnvironmentName, redis.Name, redis.TeamSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	all := make([]*RedisInstanceAccess, 0)
+	all = append(all, applicationAccess...)
+	all = append(all, jobAccess...)
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case RedisInstanceAccessOrderFieldAccess:
+			slices.SortStableFunc(all, func(a, b *RedisInstanceAccess) int {
+				return modelv1.Compare(a.Access, b.Access, orderBy.Direction)
+			})
+		case RedisInstanceAccessOrderFieldWorkload:
+			slices.SortStableFunc(all, func(a, b *RedisInstanceAccess) int {
+				return modelv1.Compare(a.OwnerReference.Name, b.OwnerReference.Name, orderBy.Direction)
+			})
+		}
+	}
+
+	ret := pagination.Slice(all, page)
+	return pagination.NewConnection(ret, page, int32(len(all))), nil
+}

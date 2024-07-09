@@ -141,6 +141,7 @@ type RedisInstance implements Persistence & Node {
     after: Cursor
     last: Int
     before: Cursor
+    orderBy: RedisInstanceAccessOrder
   ): RedisInstanceAccessConnection!
   cost: Float!
   workload: Workload
@@ -149,7 +150,7 @@ type RedisInstance implements Persistence & Node {
 
 type RedisInstanceAccess {
   workload: Workload!
-  role: String!
+  access: String!
 }
 
 type RedisInstanceStatus {
@@ -297,6 +298,11 @@ input OpenSearchOrder {
   direction: OrderDirection!
 }
 
+input RedisInstanceAccessOrder {
+  field: RedisInstanceAccessOrderField!
+  direction: OrderDirection!
+}
+
 input RedisInstanceOrder {
   field: RedisInstanceOrderField!
   direction: OrderDirection!
@@ -326,6 +332,11 @@ enum KafkaTopicAclOrderField {
   TEAM_SLUG
   CONSUMER
   ACCESS
+}
+
+enum RedisInstanceAccessOrderField {
+  ACCESS
+  WORKLOAD
 }
 
 enum OpenSearchAccessOrderField {
