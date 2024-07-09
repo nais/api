@@ -43,12 +43,12 @@ func (c client) getKafkaTopicsForTeam(_ context.Context, teamSlug slug.Slug) ([]
 		}
 
 		for _, obj := range objs {
-			bqs, err := toKafkaTopic(obj.(*unstructured.Unstructured), env)
+			model, err := toKafkaTopic(obj.(*unstructured.Unstructured), env)
 			if err != nil {
 				return nil, fmt.Errorf("converting to kafka topic: %w", err)
 			}
 
-			ret = append(ret, bqs)
+			ret = append(ret, model)
 		}
 	}
 	sort.Slice(ret, func(i, j int) bool {

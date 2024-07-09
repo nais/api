@@ -43,12 +43,12 @@ func (l client) getBigQueryDatasetsForTeam(_ context.Context, teamSlug slug.Slug
 		}
 
 		for _, obj := range objs {
-			bqs, err := toBigQueryDataset(obj.(*unstructured.Unstructured), env)
+			model, err := toBigQueryDataset(obj.(*unstructured.Unstructured), env)
 			if err != nil {
 				return nil, fmt.Errorf("converting to bigquerydataset: %w", err)
 			}
 
-			ret = append(ret, bqs)
+			ret = append(ret, model)
 		}
 	}
 	sort.Slice(ret, func(i, j int) bool {
