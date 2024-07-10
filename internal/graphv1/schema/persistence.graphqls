@@ -412,6 +412,11 @@ input RedisInstanceOrder {
   direction: OrderDirection!
 }
 
+input SqlInstanceOrder {
+  field: SqlInstanceOrderField!
+  direction: OrderDirection!
+}
+
 input SqlInstanceUserOrder {
   field: SqlInstanceUserOrderField!
   direction: OrderDirection!
@@ -460,6 +465,12 @@ enum OpenSearchOrderField {
 
 enum RedisInstanceOrderField {
   NAME
+  ENVIRONMENT
+}
+
+enum SqlInstanceOrderField {
+  NAME
+  VERSION
   ENVIRONMENT
 }
 

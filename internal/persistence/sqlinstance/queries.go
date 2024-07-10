@@ -47,10 +47,34 @@ func GetDatabase(ctx context.Context, teamSlug slug.Slug, environmentName, sqlIn
 	})
 }
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*SQLInstanceConnection, error) {
+func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *SQLInstanceOrder) (*SQLInstanceConnection, error) {
 	all, err := fromContext(ctx).k8sClient.getInstancesForTeam(ctx, teamSlug)
 	if err != nil {
 		return nil, err
+	}
+
+	if orderBy != nil {
+		switch orderBy.Field {
+		case SQLInstanceOrderFieldName:
+			slices.SortStableFunc(all, func(a, b *SQLInstance) int {
+				return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
+			})
+		case SQLInstanceOrderFieldVersion:
+			slices.SortStableFunc(all, func(a, b *SQLInstance) int {
+				if a.Version == nil && b.Version == nil {
+					return 0
+				} else if a.Version == nil {
+					return 1
+				} else if b.Version == nil {
+					return -1
+				}
+				return modelv1.Compare(*a.Version, *b.Version, orderBy.Direction)
+			})
+		case SQLInstanceOrderFieldEnvironment:
+			slices.SortStableFunc(all, func(a, b *SQLInstance) int {
+				return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
+			})
+		}
 	}
 
 	instances := pagination.Slice(all, page)

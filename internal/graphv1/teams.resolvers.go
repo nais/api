@@ -109,13 +109,13 @@ func (r *teamResolver) KafkaTopics(ctx context.Context, obj *team.Team, first *i
 	return kafkatopic.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
-func (r *teamResolver) SQLInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*sqlinstance.SQLInstance], error) {
+func (r *teamResolver) SQLInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	return sqlinstance.ListForTeam(ctx, obj.Slug, page)
+	return sqlinstance.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
 func (r *teamResolver) ViewerIsOwner(ctx context.Context, obj *team.Team) (bool, error) {
