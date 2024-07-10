@@ -3,9 +3,10 @@ package sqlinstance
 import (
 	"context"
 	"fmt"
-	"sort"
+	"slices"
 
 	"github.com/nais/api/internal/graph/apierror"
+	"github.com/nais/api/internal/graphv1/modelv1"
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/slug"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -69,8 +70,9 @@ func (c client) getInstancesForTeam(_ context.Context, teamSlug slug.Slug) ([]*S
 			ret = append(ret, model)
 		}
 	}
-	sort.Slice(ret, func(i, j int) bool {
-		return ret[i].Name < ret[j].Name
+
+	slices.SortStableFunc(ret, func(a, b *SQLInstance) int {
+		return modelv1.Compare(a.Name, b.Name, modelv1.OrderDirectionAsc)
 	})
 
 	return ret, nil

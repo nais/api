@@ -459,7 +459,7 @@ type ComplexityRoot struct {
 		OpenSearch             func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) int
 		Purpose                func(childComplexity int) int
 		RedisInstances         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceOrder) int
-		SQLInstances           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		SQLInstances           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) int
 		SlackChannel           func(childComplexity int) int
 		Slug                   func(childComplexity int) int
 		ViewerIsMember         func(childComplexity int) int
@@ -605,7 +605,7 @@ type TeamResolver interface {
 	OpenSearch(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error)
 	Buckets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
 	KafkaTopics(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error)
-	SQLInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*sqlinstance.SQLInstance], error)
+	SQLInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
 
 	ViewerIsOwner(ctx context.Context, obj *team.Team) (bool, error)
 	ViewerIsMember(ctx context.Context, obj *team.Team) (bool, error)
@@ -2226,7 +2226,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Team.SQLInstances(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+		return e.complexity.Team.SQLInstances(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*sqlinstance.SQLInstanceOrder)), true
 
 	case "Team.slackChannel":
 		if e.complexity.Team.SlackChannel == nil {
@@ -2456,6 +2456,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOpenSearchOrder,
 		ec.unmarshalInputRedisInstanceAccessOrder,
 		ec.unmarshalInputRedisInstanceOrder,
+		ec.unmarshalInputSqlInstanceOrder,
 		ec.unmarshalInputSqlInstanceUserOrder,
 		ec.unmarshalInputTeamMemberOrder,
 		ec.unmarshalInputTeamMembershipOrder,
@@ -3056,6 +3057,11 @@ input RedisInstanceOrder {
   direction: OrderDirection!
 }
 
+input SqlInstanceOrder {
+  field: SqlInstanceOrderField!
+  direction: OrderDirection!
+}
+
 input SqlInstanceUserOrder {
   field: SqlInstanceUserOrderField!
   direction: OrderDirection!
@@ -3104,6 +3110,12 @@ enum OpenSearchOrderField {
 
 enum RedisInstanceOrderField {
   NAME
+  ENVIRONMENT
+}
+
+enum SqlInstanceOrderField {
+  NAME
+  VERSION
   ENVIRONMENT
 }
 
@@ -3306,6 +3318,7 @@ type Team implements Node {
     after: Cursor
     last: Int
     before: Cursor
+    orderBy: SqlInstanceOrder
   ): SqlInstanceConnection!
 
   "Timestamp of the last successful synchronization of the team."
@@ -4432,6 +4445,15 @@ func (ec *executionContext) field_Team_sqlInstances_args(ctx context.Context, ra
 		}
 	}
 	args["before"] = arg3
+	var arg4 *sqlinstance.SQLInstanceOrder
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg4, err = ec.unmarshalOSqlInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceOrder(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg4
 	return args, nil
 }
 
@@ -15272,7 +15294,7 @@ func (ec *executionContext) _Team_sqlInstances(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().SQLInstances(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+		return ec.resolvers.Team().SQLInstances(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*sqlinstance.SQLInstanceOrder))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18996,6 +19018,40 @@ func (ec *executionContext) unmarshalInputRedisInstanceOrder(ctx context.Context
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
 			data, err := ec.unmarshalNRedisInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋredisᚐRedisInstanceOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphv1ᚋmodelv1ᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputSqlInstanceOrder(ctx context.Context, obj interface{}) (sqlinstance.SQLInstanceOrder, error) {
+	var it sqlinstance.SQLInstanceOrder
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNSqlInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceOrderField(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26060,6 +26116,16 @@ func (ec *executionContext) marshalNSqlInstanceFlagEdge2ᚕgithubᚗcomᚋnais�
 	return ret
 }
 
+func (ec *executionContext) unmarshalNSqlInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceOrderField(ctx context.Context, v interface{}) (sqlinstance.SQLInstanceOrderField, error) {
+	var res sqlinstance.SQLInstanceOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNSqlInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceOrderField(ctx context.Context, sel ast.SelectionSet, v sqlinstance.SQLInstanceOrderField) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNSqlInstanceStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceStatus(ctx context.Context, sel ast.SelectionSet, v sqlinstance.SQLInstanceStatus) graphql.Marshaler {
 	return ec._SqlInstanceStatus(ctx, sel, &v)
 }
@@ -26994,6 +27060,14 @@ func (ec *executionContext) marshalOSqlInstanceMaintenanceWindow2ᚖgithubᚗcom
 		return graphql.Null
 	}
 	return ec._SqlInstanceMaintenanceWindow(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOSqlInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceOrder(ctx context.Context, v interface{}) (*sqlinstance.SQLInstanceOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputSqlInstanceOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOSqlInstanceUserOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserOrder(ctx context.Context, v interface{}) (*sqlinstance.SQLInstanceUserOrder, error) {

@@ -146,6 +146,48 @@ func (e SQLInstanceUserOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type SQLInstanceOrder struct {
+	Field     SQLInstanceOrderField  `json:"field"`
+	Direction modelv1.OrderDirection `json:"direction"`
+}
+
+type SQLInstanceOrderField string
+
+const (
+	SQLInstanceOrderFieldName        SQLInstanceOrderField = "NAME"
+	SQLInstanceOrderFieldVersion     SQLInstanceOrderField = "VERSION"
+	SQLInstanceOrderFieldEnvironment SQLInstanceOrderField = "ENVIRONMENT"
+)
+
+func (e SQLInstanceOrderField) IsValid() bool {
+	switch e {
+	case SQLInstanceOrderFieldName, SQLInstanceOrderFieldVersion, SQLInstanceOrderFieldEnvironment:
+		return true
+	}
+	return false
+}
+
+func (e SQLInstanceOrderField) String() string {
+	return string(e)
+}
+
+func (e *SQLInstanceOrderField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SQLInstanceOrderField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SqlInstanceOrderField", str)
+	}
+	return nil
+}
+
+func (e SQLInstanceOrderField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 func healthy(conds []v1alpha1.Condition) bool {
 	for _, cond := range conds {
 		if cond.Type == string(corev1.PodReady) && cond.Reason == "UpToDate" && cond.Status == corev1.ConditionTrue {

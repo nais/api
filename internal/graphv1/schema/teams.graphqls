@@ -131,6 +131,7 @@ type Team implements Node {
     after: Cursor
     last: Int
     before: Cursor
+    orderBy: SqlInstanceOrder
   ): SqlInstanceConnection!
 
   "Timestamp of the last successful synchronization of the team."
