@@ -516,6 +516,8 @@ func (r *mutationResolver) AddRepository(ctx context.Context, teamSlug slug.Slug
 		return "", err
 	}
 
+	r.triggerTeamUpdatedEvent(ctx, teamSlug, uuid.New())
+
 	return repoName, nil
 }
 
@@ -534,6 +536,8 @@ func (r *mutationResolver) RemoveRepository(ctx context.Context, teamSlug slug.S
 	if err := r.auditor.TeamRemoveRepository(ctx, actor.User, teamSlug, repoName); err != nil {
 		return "", err
 	}
+
+	r.triggerTeamUpdatedEvent(ctx, teamSlug, uuid.New())
 
 	return repoName, nil
 }
