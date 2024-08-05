@@ -4,4 +4,4 @@ projects:
       - ./internal/graph/graphqls/*.graphqls
   v1:
     schema:
-      - ./internal/graphv1/schema/*.graphqls
+      - ./internal/v1/graphv1/schema/*.graphqls
