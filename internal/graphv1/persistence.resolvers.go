@@ -31,8 +31,6 @@ func (r *bigQueryDatasetResolver) Environment(ctx context.Context, obj *bigquery
 }
 
 func (r *bigQueryDatasetResolver) Access(ctx context.Context, obj *bigquery.BigQueryDataset, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetAccessOrder) (*pagination.Connection[*bigquery.BigQueryDatasetAccess], error) {
-	// TODO: Handle the pagination here or somewhere in the bigquery package?
-
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -74,8 +72,6 @@ func (r *bucketResolver) Environment(ctx context.Context, obj *bucket.Bucket) (*
 }
 
 func (r *bucketResolver) Cors(ctx context.Context, obj *bucket.Bucket, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*bucket.BucketCors], error) {
-	// TODO: Handle the pagination here or somewhere in the bucket package?
-
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -98,8 +94,6 @@ func (r *kafkaTopicResolver) Environment(ctx context.Context, obj *kafkatopic.Ka
 }
 
 func (r *kafkaTopicResolver) ACL(ctx context.Context, obj *kafkatopic.KafkaTopic, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *kafkatopic.KafkaTopicACLFilter, orderBy *kafkatopic.KafkaTopicACLOrder) (*pagination.Connection[*kafkatopic.KafkaTopicACL], error) {
-	// TODO: Handle the pagination here or somewhere in the kafkatopic package?
-
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -154,7 +148,6 @@ func (r *kafkaTopicAclResolver) Workload(ctx context.Context, obj *kafkatopic.Ka
 		return nil, nil
 	}
 
-	// TODO: Hardcoded owner kind for now, should probably be set in the toKafkaTopicACLs function in the kafkatopic package
 	owner := &metav1.OwnerReference{
 		Kind: "Application",
 		Name: obj.ApplicationName,

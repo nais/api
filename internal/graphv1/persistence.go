@@ -15,6 +15,8 @@ func (r *Resolver) workload(ctx context.Context, ownerReference *metav1.OwnerRef
 		return nil, nil
 	}
 
+	// TODO: Add support for "Unknown" kind, which will try app/job first, and the other second
+
 	switch ownerReference.Kind {
 	case "Naisjob":
 		return job.Get(ctx, teamSlug, environmentName, ownerReference.Name)
