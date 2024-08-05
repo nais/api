@@ -23,7 +23,7 @@ generate-graphql:
 
 generate-graphql-v1:
 	go run github.com/99designs/gqlgen generate --config .configs/gqlgen-v1.yaml
-	go run mvdan.cc/gofumpt@latest -w ./internal/graphv1
+	go run mvdan.cc/gofumpt@latest -w ./internal/v1/graphv1
 
 generate-mocks:
 	find internal pkg -type f -name "mock_*.go" -delete
