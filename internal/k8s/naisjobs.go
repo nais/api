@@ -110,8 +110,7 @@ func (c *Client) setJobHasMutualOnOutbound(ctx context.Context, oJob, oTeam, oEn
 		outboundTeam = outboundRule.Namespace
 	}
 
-	if outboundRule.Application == "*" {
-		outboundRule.Mutual = true
+	if isImplicitMutual(oEnv, outboundRule) {
 		return nil
 	}
 
@@ -169,8 +168,7 @@ func (c *Client) setJobHasMutualOnInbound(ctx context.Context, oApp, oTeam, oEnv
 		inboundTeam = inboundRule.Namespace
 	}
 
-	if inboundRule.Application == "*" {
-		inboundRule.Mutual = true
+	if isImplicitMutual(oEnv, inboundRule) {
 		return nil
 	}
 
