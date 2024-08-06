@@ -4,31 +4,28 @@ import (
 	"context"
 	"slices"
 
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 )
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *ApplicationOrder) (*ApplicationConnection, error) {
-	k8s := fromContext(ctx).k8sClient
+	k8s := fromContext(ctx).appWatcher
 
-	allApplications, err := k8s.Apps(ctx, teamSlug.String())
-	if err != nil {
-		return nil, err
-	}
+	allApplications := k8s.GetByNamespace(teamSlug.String())
 
 	if orderBy != nil {
 		switch orderBy.Field {
 		case ApplicationOrderFieldName:
-			slices.SortStableFunc(allApplications, func(a, b *model.App) int {
+			slices.SortStableFunc(allApplications, func(a, b *nais_io_v1alpha1.Application) int {
 				return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
 			})
 		case ApplicationOrderFieldEnvironment:
-			slices.SortStableFunc(allApplications, func(a, b *model.App) int {
-				return modelv1.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
-			})
+			// slices.SortStableFunc(allApplications, func(a, b *nais_io_v1alpha1.Application) int {
+			// 	return modelv1.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
+			// })
 		case ApplicationOrderFieldVulnerabilities:
 			panic("not implemented yet")
 		case ApplicationOrderFieldRiskScore:

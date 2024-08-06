@@ -11,18 +11,24 @@ import (
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
+	"github.com/nais/api/internal/v1/kubernetes/watcher"
+	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 )
 
 type Resolver struct {
-	log logrus.FieldLogger
+	log        logrus.FieldLogger
+	appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application]
 }
 
-func NewResolver(log logrus.FieldLogger) *Resolver {
+func NewResolver(log logrus.FieldLogger, mgr *watcher.Manager) *Resolver {
+	appWatcher := watcher.Watch(mgr, &nais_io_v1alpha1.Application{})
+
 	return &Resolver{
-		log: log,
+		log:        log,
+		appWatcher: appWatcher,
 	}
 }
 

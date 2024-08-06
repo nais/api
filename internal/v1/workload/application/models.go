@@ -5,11 +5,11 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 )
 
 type (
@@ -75,10 +75,10 @@ func (e ApplicationOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-func toGraphApplication(a *model.App) *Application {
+func toGraphApplication(a *nais_io_v1alpha1.Application) *Application {
 	return &Application{
 		Name:            a.Name,
-		EnvironmentName: a.Env.Name,
-		TeamSlug:        a.GQLVars.Team,
+		EnvironmentName: "todo", // a.Env.Name,
+		TeamSlug:        slug.Slug(a.Namespace),
 	}
 }

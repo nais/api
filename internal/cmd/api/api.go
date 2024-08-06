@@ -39,6 +39,9 @@ import (
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/v1/graphv1"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
+	"github.com/nais/api/internal/v1/kubernetes"
+	fakev1 "github.com/nais/api/internal/v1/kubernetes/fake"
+	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2/google"
@@ -233,14 +236,22 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create graph handler: %w", err)
 	}
 
+	scheme, err := kubernetes.NewScheme()
+	if err != nil {
+		return fmt.Errorf("create k8s scheme: %w", err)
+	}
+
+	watcherOpts := []watcher.Option{}
+	if cfg.WithFakeClients {
+		watcherOpts = append(watcherOpts, watcher.WithClientCreator(fakev1.Clients(os.DirFS("./data/k8s"))))
+	}
+	watcherMgr, err := watcher.NewManager(scheme, cfg.Tenant, watcher.Config{}, log.WithField("subsystem", "k8s_watcher"), watcherOpts...)
+	if err != nil {
+		return fmt.Errorf("create k8s watcher manager: %w", err)
+	}
+
 	graphv1Handler, err := graphv1.NewHandler(gengqlv1.Config{
-		Resolvers: graphv1.NewResolver(log),
-		/*
-			Directives: gengqlv1.DirectiveRoot{
-				Admin: directives.Admin(),
-				Auth:  directives.Auth(),
-			},
-		*/
+		Resolvers: graphv1.NewResolver(log, watcherMgr),
 	}, log)
 	if err != nil {
 		return fmt.Errorf("create graphv1 handler: %w", err)
@@ -268,7 +279,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	// HTTP server
 	wg.Go(func() error {
-		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, db, k8sClient, sqlInstanceClient.Admin, authHandler, graphHandler, graphv1Handler, promReg, log)
+		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, db, watcherMgr, k8sClient, sqlInstanceClient.Admin, authHandler, graphHandler, graphv1Handler, promReg, log)
 	})
 
 	wg.Go(func() error {
