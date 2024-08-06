@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -56,8 +55,6 @@ func (c *clusterManager) gvk(obj runtime.Object) schema.GroupVersionKind {
 		c.log.Info("failed to get GVKs", "error", err)
 		return schema.GroupVersionKind{}
 	}
-
-	spew.Dump(gvks)
 
 	return gvks[0]
 	// for _, group := range c.serverGroups.Groups {

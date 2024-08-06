@@ -2,11 +2,11 @@ package application
 
 import (
 	"context"
-	"fmt"
+	"time"
 
-	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/v1/graphv1/loaderv1"
+	"github.com/nais/api/internal/v1/kubernetes/watcher"
+	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"github.com/vikstrous/dataloadgen"
 )
 
@@ -14,8 +14,8 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, k8sClient *k8s.Client, defaultOpts []dataloadgen.Option) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(k8sClient, defaultOpts))
+func NewLoaderContext(ctx context.Context, mgr *watcher.Manager, defaultOpts []dataloadgen.Option) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(mgr, defaultOpts))
 }
 
 func fromContext(ctx context.Context) *loaders {
@@ -23,35 +23,39 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	k8sClient         *k8s.Client
+	appWatcher        *watcher.Watcher[*nais_io_v1alpha1.Application]
 	applicationLoader *dataloadgen.Loader[applicationIdentifier, *Application]
 }
 
-func newLoaders(k8sClient *k8s.Client, opts []dataloadgen.Option) *loaders {
+func newLoaders(mgr *watcher.Manager, opts []dataloadgen.Option) *loaders {
+	appWatcher := watcher.Watch(mgr, &nais_io_v1alpha1.Application{})
+	if !appWatcher.WaitForReady(context.Background(), 10*time.Second) {
+		panic("failed to wait for appWatcher to become ready")
+	}
 	applicationLoader := &dataloader{
-		k8sClient: k8sClient,
+		mgr: appWatcher,
 	}
 
 	return &loaders{
-		k8sClient:         k8sClient,
+		appWatcher:        appWatcher,
 		applicationLoader: dataloadgen.NewLoader(applicationLoader.list, opts...),
 	}
 }
 
 type dataloader struct {
-	k8sClient *k8s.Client
+	mgr *watcher.Watcher[*nais_io_v1alpha1.Application]
 }
 
-func (l dataloader) getApplications(ctx context.Context, ids []applicationIdentifier) ([]*model.App, error) {
-	ret := make([]*model.App, 0)
-	for _, id := range ids {
-		app, err := l.k8sClient.App(ctx, id.name, id.namespace, id.environment)
-		if err != nil {
-			fmt.Println("error fetching application", err)
-			continue
-		}
-		ret = append(ret, app)
-	}
+func (l dataloader) getApplications(ctx context.Context, ids []applicationIdentifier) ([]*nais_io_v1alpha1.Application, error) {
+	ret := make([]*nais_io_v1alpha1.Application, 0)
+	// for _, id := range ids {
+	// 	app, err := l.mgr.App(ctx, id.name, id.namespace, id.environment)
+	// 	if err != nil {
+	// 		fmt.Println("error fetching application", err)
+	// 		continue
+	// 	}
+	// 	ret = append(ret, app)
+	// }
 	return ret, nil
 }
 

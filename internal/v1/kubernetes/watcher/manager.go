@@ -2,9 +2,9 @@ package watcher
 
 import (
 	"fmt"
+
 	"k8s.io/client-go/dynamic"
 
-	"github.com/nais/api/internal/k8s"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/rest"
@@ -35,8 +35,8 @@ type Manager struct {
 	log      logrus.FieldLogger
 }
 
-func NewManager(scheme *runtime.Scheme, tenant string, cfg k8s.Config, log logrus.FieldLogger, opts ...Option) (*Manager, error) {
-	ccm, err := k8s.CreateClusterConfigMap(tenant, cfg)
+func NewManager(scheme *runtime.Scheme, tenant string, cfg Config, log logrus.FieldLogger, opts ...Option) (*Manager, error) {
+	ccm, err := CreateClusterConfigMap(tenant, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("creating cluster config map: %w", err)
 	}
