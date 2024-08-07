@@ -251,6 +251,26 @@ func (a *Auditor) TeamRemoveRepository(ctx context.Context, actor authz.Authenti
 	})
 }
 
+func (a *Auditor) UnleashCreated(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, unleashName string) error {
+	return a.db.CreateAuditEvent(ctx, baseTeamAuditEvent(
+		actor,
+		team,
+		model.AuditEventActionCreated,
+		model.AuditEventResourceTypeUnleash,
+		unleashName,
+	))
+}
+
+func (a *Auditor) UnleashUpdated(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, unleashName string) error {
+	return a.db.CreateAuditEvent(ctx, baseTeamAuditEvent(
+		actor,
+		team,
+		model.AuditEventActionUpdated,
+		model.AuditEventResourceTypeUnleash,
+		unleashName,
+	))
+}
+
 func baseTeamAuditEvent(
 	actor authz.AuthenticatedUser,
 	team slug.Slug,

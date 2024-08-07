@@ -8325,6 +8325,7 @@ enum AuditEventResourceType {
   TEAM
   TEAM_MEMBER
   TEAM_REPOSITORY
+  UNLEASH
 }
 
 enum AuditEventAction {

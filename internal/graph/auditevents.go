@@ -121,6 +121,15 @@ func toEvent(row *database.AuditEvent) (model.AuditEventNode, error) {
 				return auditevent.AuditEventTeamRemoveRepository{BaseTeamAuditEvent: event.WithMessage(msg), Data: data}
 			})
 		}
+
+	case model.AuditEventResourceTypeUnleash:
+		switch model.AuditEventAction(row.Action) {
+		case model.AuditEventActionCreated:
+			return event.WithMessage("Created Unleash"), nil
+		case model.AuditEventActionUpdated:
+			return event.WithMessage("Updated Unleash"), nil
+		}
+
 	}
 	return nil, fmt.Errorf("unsupported action %q for resource %q", row.Action, row.ResourceType)
 }

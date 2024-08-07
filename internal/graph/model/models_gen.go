@@ -1137,6 +1137,7 @@ const (
 	AuditEventResourceTypeTeam           AuditEventResourceType = "TEAM"
 	AuditEventResourceTypeTeamMember     AuditEventResourceType = "TEAM_MEMBER"
 	AuditEventResourceTypeTeamRepository AuditEventResourceType = "TEAM_REPOSITORY"
+	AuditEventResourceTypeUnleash        AuditEventResourceType = "UNLEASH"
 )
 
 var AllAuditEventResourceType = []AuditEventResourceType{
@@ -1146,11 +1147,12 @@ var AllAuditEventResourceType = []AuditEventResourceType{
 	AuditEventResourceTypeTeam,
 	AuditEventResourceTypeTeamMember,
 	AuditEventResourceTypeTeamRepository,
+	AuditEventResourceTypeUnleash,
 }
 
 func (e AuditEventResourceType) IsValid() bool {
 	switch e {
-	case AuditEventResourceTypeApp, AuditEventResourceTypeNaisjob, AuditEventResourceTypeSecret, AuditEventResourceTypeTeam, AuditEventResourceTypeTeamMember, AuditEventResourceTypeTeamRepository:
+	case AuditEventResourceTypeApp, AuditEventResourceTypeNaisjob, AuditEventResourceTypeSecret, AuditEventResourceTypeTeam, AuditEventResourceTypeTeamMember, AuditEventResourceTypeTeamRepository, AuditEventResourceTypeUnleash:
 		return true
 	}
 	return false
