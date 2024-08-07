@@ -3,7 +3,7 @@ syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 import "pagination.proto";
 
-option go_package = "./pkg/protoapi";
+option go_package = "./pkg/apiclient/protoapi";
 
 service Reconcilers {
   rpc Register(RegisterReconcilerRequest) returns (RegisterReconcilerResponse) {}

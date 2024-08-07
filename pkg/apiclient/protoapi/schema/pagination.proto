@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "./pkg/protoapi";
+option go_package = "./pkg/apiclient/protoapi";
 
 message PageInfo {
   int64 total_count = 1;

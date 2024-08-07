@@ -3,7 +3,7 @@ package iterator
 import (
 	"context"
 
-	"github.com/nais/api/pkg/protoapi"
+	"github.com/nais/api/pkg/apiclient/protoapi"
 )
 
 type Iterable[T any] interface {

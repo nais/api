@@ -32,8 +32,8 @@ generate-mocks:
 
 generate-proto:
 	protoc \
-		-I pkg/protoapi/schema/ \
-		./pkg/protoapi/schema/*.proto \
+		-I pkg/apiclient/protoapi/schema/ \
+		./pkg/apiclient/protoapi/schema/*.proto \
 		--go_out=. \
 		--go-grpc_out=.
 
@@ -48,10 +48,10 @@ debug:
 	env bash -c 'source local.env; dlv debug --headless --listen=:2345 --api-version=2 ./cmd/api'
 
 test:
-	go test ./...
+	go test ./... github.com/nais/api/pkg/apiclient/...
 
 test-with-cc:
-	go test -cover --race ./...
+	go test -cover --race ./... github.com/nais/api/pkg/apiclient/...
 
 check: staticcheck vulncheck deadcode
 

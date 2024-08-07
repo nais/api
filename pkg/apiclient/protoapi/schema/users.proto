@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "pagination.proto";
 
-option go_package = "./pkg/protoapi";
+option go_package = "./pkg/apiclient/protoapi";
 
 message User {
   string id = 1;

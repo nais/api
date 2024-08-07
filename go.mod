@@ -65,6 +65,7 @@ require (
 	k8s.io/klog/v2 v2.130.1
 	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0
 	sigs.k8s.io/yaml v1.4.0
+	github.com/nais/api/pkg/apiclient v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -258,3 +259,5 @@ require (
 replace github.com/GoogleCloudPlatform/k8s-config-connector/mockgcp => ./mockgcp
 
 replace github.com/hashicorp/terraform-provider-google-beta => ./third_party/github.com/hashicorp/terraform-provider-google-beta
+
+replace github.com/nais/api/pkg/apiclient => ./pkg/apiclient
