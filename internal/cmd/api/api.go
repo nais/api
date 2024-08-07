@@ -245,7 +245,19 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	if cfg.WithFakeClients {
 		watcherOpts = append(watcherOpts, watcher.WithClientCreator(fakev1.Clients(os.DirFS("./data/k8s"))))
 	}
-	watcherMgr, err := watcher.NewManager(scheme, cfg.Tenant, watcher.Config{}, log.WithField("subsystem", "k8s_watcher"), watcherOpts...)
+	// TODO: Cleanup
+	watcherMgr, err := watcher.NewManager(scheme, cfg.Tenant, watcher.Config{
+		Clusters: cfg.K8s.Clusters,
+		StaticClusters: func() []watcher.StaticCluster {
+			ret := make([]watcher.StaticCluster, 0, len(cfg.K8s.Clusters))
+			for _, cluster := range cfg.K8s.Clusters {
+				ret = append(ret, watcher.StaticCluster{
+					Name: cluster,
+				})
+			}
+			return ret
+		}(),
+	}, log.WithField("subsystem", "k8s_watcher"), watcherOpts...)
 	if err != nil {
 		return fmt.Errorf("create k8s watcher manager: %w", err)
 	}

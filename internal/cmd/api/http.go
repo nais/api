@@ -76,6 +76,14 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 		r.Use(otelhttp.NewMiddleware("graphql", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))
 		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphHandler))
 	})
+
+	// TODO: Make this nicer
+	appWatcher := application.NewApplicationWatcher(watcherMgr)
+	appWatcher.Start(ctx)
+	if !appWatcher.WaitForReady(ctx, 10*time.Second) {
+		return errors.New("application watcher did not become ready")
+	}
+
 	router.Route("/graphql", func(r chi.Router) {
 		r.Use(middlewares...)
 		r.Use(loaderv1.Middleware(func(ctx context.Context) context.Context {
@@ -85,7 +93,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 				dataloadgen.WithTracer(otel.Tracer("dataloader")),
 			}
 
-			ctx = application.NewLoaderContext(ctx, watcherMgr, opts)
+			ctx = application.NewLoaderContext(ctx, appWatcher, opts)
 			ctx = bigquery.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = bucket.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = job.NewLoaderContext(ctx, k8sClient, opts)
