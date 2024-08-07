@@ -26,6 +26,15 @@ func toGraphAuditEvents(rows []*database.AuditEvent) ([]model.AuditEventNode, er
 func toEvent(row *database.AuditEvent) (model.AuditEventNode, error) {
 	event := baseEvent(row)
 	switch model.AuditEventResourceType(row.ResourceType) {
+	case model.AuditEventResourceTypeApp:
+		switch model.AuditEventAction(row.Action) {
+		case model.AuditEventActionDeleted:
+			return event.WithMessage("Deleted application"), nil
+
+		case model.AuditEventActionRestarted:
+			return event.WithMessage("Restarted application"), nil
+		}
+
 	case model.AuditEventResourceTypeTeam:
 		switch model.AuditEventAction(row.Action) {
 		case model.AuditEventActionTeamCreated:

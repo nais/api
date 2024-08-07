@@ -1072,7 +1072,9 @@ const (
 	AuditEventActionTeamMemberRemoved          AuditEventAction = "TEAM_MEMBER_REMOVED"
 	AuditEventActionTeamMemberSetRole          AuditEventAction = "TEAM_MEMBER_SET_ROLE"
 	AuditEventActionAdded                      AuditEventAction = "ADDED"
+	AuditEventActionDeleted                    AuditEventAction = "DELETED"
 	AuditEventActionRemoved                    AuditEventAction = "REMOVED"
+	AuditEventActionRestarted                  AuditEventAction = "RESTARTED"
 )
 
 var AllAuditEventAction = []AuditEventAction{
@@ -1088,12 +1090,14 @@ var AllAuditEventAction = []AuditEventAction{
 	AuditEventActionTeamMemberRemoved,
 	AuditEventActionTeamMemberSetRole,
 	AuditEventActionAdded,
+	AuditEventActionDeleted,
 	AuditEventActionRemoved,
+	AuditEventActionRestarted,
 }
 
 func (e AuditEventAction) IsValid() bool {
 	switch e {
-	case AuditEventActionTeamCreated, AuditEventActionTeamDeletionConfirmed, AuditEventActionTeamDeletionRequested, AuditEventActionTeamDeployKeyRotated, AuditEventActionTeamSetPurpose, AuditEventActionTeamSetDefaultSLACkChannel, AuditEventActionTeamSetAlertsSLACkChannel, AuditEventActionTeamSynchronized, AuditEventActionTeamMemberAdded, AuditEventActionTeamMemberRemoved, AuditEventActionTeamMemberSetRole, AuditEventActionAdded, AuditEventActionRemoved:
+	case AuditEventActionTeamCreated, AuditEventActionTeamDeletionConfirmed, AuditEventActionTeamDeletionRequested, AuditEventActionTeamDeployKeyRotated, AuditEventActionTeamSetPurpose, AuditEventActionTeamSetDefaultSLACkChannel, AuditEventActionTeamSetAlertsSLACkChannel, AuditEventActionTeamSynchronized, AuditEventActionTeamMemberAdded, AuditEventActionTeamMemberRemoved, AuditEventActionTeamMemberSetRole, AuditEventActionAdded, AuditEventActionDeleted, AuditEventActionRemoved, AuditEventActionRestarted:
 		return true
 	}
 	return false
@@ -1123,12 +1127,14 @@ func (e AuditEventAction) MarshalGQL(w io.Writer) {
 type AuditEventResourceType string
 
 const (
+	AuditEventResourceTypeApp            AuditEventResourceType = "APP"
 	AuditEventResourceTypeTeam           AuditEventResourceType = "TEAM"
 	AuditEventResourceTypeTeamMember     AuditEventResourceType = "TEAM_MEMBER"
 	AuditEventResourceTypeTeamRepository AuditEventResourceType = "TEAM_REPOSITORY"
 )
 
 var AllAuditEventResourceType = []AuditEventResourceType{
+	AuditEventResourceTypeApp,
 	AuditEventResourceTypeTeam,
 	AuditEventResourceTypeTeamMember,
 	AuditEventResourceTypeTeamRepository,
@@ -1136,7 +1142,7 @@ var AllAuditEventResourceType = []AuditEventResourceType{
 
 func (e AuditEventResourceType) IsValid() bool {
 	switch e {
-	case AuditEventResourceTypeTeam, AuditEventResourceTypeTeamMember, AuditEventResourceTypeTeamRepository:
+	case AuditEventResourceTypeApp, AuditEventResourceTypeTeam, AuditEventResourceTypeTeamMember, AuditEventResourceTypeTeamRepository:
 		return true
 	}
 	return false

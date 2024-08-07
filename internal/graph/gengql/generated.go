@@ -8319,6 +8319,7 @@ input AuditEventsFilter {
 }
 
 enum AuditEventResourceType {
+  APP
   TEAM
   TEAM_MEMBER
   TEAM_REPOSITORY
@@ -8339,7 +8340,9 @@ enum AuditEventAction {
   TEAM_MEMBER_SET_ROLE
 
   ADDED
+  DELETED
   REMOVED
+  RESTARTED
 }
 
 type BaseAuditEvent implements AuditEvent {

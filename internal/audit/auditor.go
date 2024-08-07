@@ -19,6 +19,26 @@ func NewAuditor(db database.Database) *Auditor {
 	return &Auditor{db: db}
 }
 
+func (a *Auditor) AppDeleted(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, applicationName string) error {
+	return a.db.CreateAuditEvent(ctx, baseTeamAuditEvent(
+		actor,
+		team,
+		model.AuditEventActionDeleted,
+		model.AuditEventResourceTypeApp,
+		applicationName,
+	))
+}
+
+func (a *Auditor) AppRestarted(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, applicationName string) error {
+	return a.db.CreateAuditEvent(ctx, baseTeamAuditEvent(
+		actor,
+		team,
+		model.AuditEventActionRestarted,
+		model.AuditEventResourceTypeApp,
+		applicationName,
+	))
+}
+
 func (a *Auditor) TeamMemberAdded(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, memberEmail string, role model.TeamRole) error {
 	return a.db.CreateAuditEvent(ctx, auditevent.AuditEventMemberAdded{
 		BaseTeamAuditEvent: baseTeamAuditEvent(
