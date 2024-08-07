@@ -18,7 +18,19 @@ func (r *mutationResolver) CreateUnleashForTeam(ctx context.Context, team slug.S
 		return nil, err
 	}
 
-	return r.unleashMgr.NewUnleash(ctx, team.String(), []string{team.String()})
+	unleashName := team.String()
+
+	ret, err := r.unleashMgr.NewUnleash(ctx, unleashName, []string{team.String()})
+	if err != nil {
+		return nil, err
+	}
+
+	err = r.auditor.UnleashCreated(ctx, actor.User, team, unleashName)
+	if err != nil {
+		return nil, err
+	}
+
+	return ret, nil
 }
 
 func (r *mutationResolver) UpdateUnleashForTeam(ctx context.Context, team slug.Slug, name string, allowedTeams []string) (*model.Unleash, error) {
@@ -32,7 +44,18 @@ func (r *mutationResolver) UpdateUnleashForTeam(ctx context.Context, team slug.S
 		return nil, apierror.ErrUnleashEmptyAllowedTeams
 	}
 
-	return r.unleashMgr.UpdateUnleash(ctx, name, allowedTeams)
+	ret, err := r.unleashMgr.UpdateUnleash(ctx, name, allowedTeams)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: split mutation (e.g. AddAllowedTeam, RemoveAllowedTeam) to allow for more granular auditing?
+	err = r.auditor.UnleashUpdated(ctx, actor.User, team, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return ret, nil
 }
 
 func (r *unleashMetricsResolver) Toggles(ctx context.Context, obj *model.UnleashMetrics) (int, error) {
