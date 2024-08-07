@@ -91,6 +91,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 
 	router.Route("/graphql", func(r chi.Router) {
 		r.Use(middlewares...)
+		r.Use(middleware.RequireAuthenticatedUser())
 		r.Use(loaderv1.Middleware(func(ctx context.Context) context.Context {
 			opts := []dataloadgen.Option{
 				dataloadgen.WithWait(time.Millisecond),
