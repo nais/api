@@ -2,6 +2,7 @@ package bigquery
 
 import (
 	"context"
+
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
 )
 

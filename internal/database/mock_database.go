@@ -16,7 +16,7 @@ import (
 
 	pgxpool "github.com/jackc/pgx/v5/pgxpool"
 
-	protoapi "github.com/nais/api/pkg/protoapi"
+	protoapi "github.com/nais/api/pkg/apiclient/protoapi"
 
 	slug "github.com/nais/api/internal/slug"
 

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "./pkg/protoapi";
+option go_package = "./pkg/apiclient/protoapi";
 
 enum EventTypes {
   EVENT_TEAM_UPDATED = 0;

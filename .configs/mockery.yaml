@@ -25,7 +25,7 @@ packages:
   github.com/nais/api/internal/auth/authz:
     interfaces:
       AuthenticatedUser:
-  github.com/nais/api/pkg/protoapi:
+  github.com/nais/api/pkg/apiclient/protoapi:
     config:
       include-regex: ".*Server"
       exclude-regex: "Unsafe.*"
