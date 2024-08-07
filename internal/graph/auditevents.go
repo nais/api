@@ -35,6 +35,12 @@ func toEvent(row *database.AuditEvent) (model.AuditEventNode, error) {
 			return event.WithMessage("Restarted application"), nil
 		}
 
+	case model.AuditEventResourceTypeNaisjob:
+		switch model.AuditEventAction(row.Action) {
+		case model.AuditEventActionDeleted:
+			return event.WithMessage("Deleted job"), nil
+		}
+
 	case model.AuditEventResourceTypeTeam:
 		switch model.AuditEventAction(row.Action) {
 		case model.AuditEventActionTeamCreated:

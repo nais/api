@@ -39,6 +39,16 @@ func (a *Auditor) AppRestarted(ctx context.Context, actor authz.AuthenticatedUse
 	))
 }
 
+func (a *Auditor) NaisjobDeleted(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, jobName string) error {
+	return a.db.CreateAuditEvent(ctx, baseTeamAuditEvent(
+		actor,
+		team,
+		model.AuditEventActionDeleted,
+		model.AuditEventResourceTypeNaisjob,
+		jobName,
+	))
+}
+
 func (a *Auditor) TeamMemberAdded(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, memberEmail string, role model.TeamRole) error {
 	return a.db.CreateAuditEvent(ctx, auditevent.AuditEventMemberAdded{
 		BaseTeamAuditEvent: baseTeamAuditEvent(

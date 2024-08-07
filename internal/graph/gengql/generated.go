@@ -8320,6 +8320,7 @@ input AuditEventsFilter {
 
 enum AuditEventResourceType {
   APP
+  NAISJOB
   TEAM
   TEAM_MEMBER
   TEAM_REPOSITORY
