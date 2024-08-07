@@ -2,7 +2,6 @@ package application
 
 import (
 	"context"
-	"time"
 
 	"github.com/nais/api/internal/v1/graphv1/loaderv1"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
@@ -14,8 +13,12 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, mgr *watcher.Manager, defaultOpts []dataloadgen.Option) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(mgr, defaultOpts))
+func NewLoaderContext(ctx context.Context, appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], defaultOpts []dataloadgen.Option) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(appWatcher, defaultOpts))
+}
+
+func NewApplicationWatcher(mgr *watcher.Manager) *watcher.Watcher[*nais_io_v1alpha1.Application] {
+	return watcher.Watch(mgr, &nais_io_v1alpha1.Application{})
 }
 
 func fromContext(ctx context.Context) *loaders {
@@ -27,13 +30,9 @@ type loaders struct {
 	applicationLoader *dataloadgen.Loader[applicationIdentifier, *Application]
 }
 
-func newLoaders(mgr *watcher.Manager, opts []dataloadgen.Option) *loaders {
-	appWatcher := watcher.Watch(mgr, &nais_io_v1alpha1.Application{})
-	if !appWatcher.WaitForReady(context.Background(), 10*time.Second) {
-		panic("failed to wait for appWatcher to become ready")
-	}
+func newLoaders(appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], opts []dataloadgen.Option) *loaders {
 	applicationLoader := &dataloader{
-		mgr: appWatcher,
+		appWatcher: appWatcher,
 	}
 
 	return &loaders{
@@ -43,7 +42,7 @@ func newLoaders(mgr *watcher.Manager, opts []dataloadgen.Option) *loaders {
 }
 
 type dataloader struct {
-	mgr *watcher.Watcher[*nais_io_v1alpha1.Application]
+	appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application]
 }
 
 func (l dataloader) getApplications(ctx context.Context, ids []applicationIdentifier) ([]*nais_io_v1alpha1.Application, error) {

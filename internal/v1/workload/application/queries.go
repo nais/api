@@ -16,25 +16,30 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 
 	allApplications := k8s.GetByNamespace(teamSlug.String())
 
-	if orderBy != nil {
-		switch orderBy.Field {
-		case ApplicationOrderFieldName:
-			slices.SortStableFunc(allApplications, func(a, b *nais_io_v1alpha1.Application) int {
-				return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
-			})
-		case ApplicationOrderFieldEnvironment:
-			// slices.SortStableFunc(allApplications, func(a, b *nais_io_v1alpha1.Application) int {
-			// 	return modelv1.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
-			// })
-		case ApplicationOrderFieldVulnerabilities:
-			panic("not implemented yet")
-		case ApplicationOrderFieldRiskScore:
-			panic("not implemented yet")
-		case ApplicationOrderFieldDeploymentTime:
-			panic("not implemented yet")
-		case ApplicationOrderFieldStatus:
-			panic("not implemented yet")
+	if orderBy == nil {
+		orderBy = &ApplicationOrder{
+			Field:     ApplicationOrderFieldName,
+			Direction: modelv1.OrderDirectionAsc,
 		}
+	}
+
+	switch orderBy.Field {
+	case ApplicationOrderFieldName:
+		slices.SortStableFunc(allApplications, func(a, b *nais_io_v1alpha1.Application) int {
+			return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
+		})
+	case ApplicationOrderFieldEnvironment:
+		// slices.SortStableFunc(allApplications, func(a, b *nais_io_v1alpha1.Application) int {
+		// 	return modelv1.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
+		// })
+	case ApplicationOrderFieldVulnerabilities:
+		panic("not implemented yet")
+	case ApplicationOrderFieldRiskScore:
+		panic("not implemented yet")
+	case ApplicationOrderFieldDeploymentTime:
+		panic("not implemented yet")
+	case ApplicationOrderFieldStatus:
+		panic("not implemented yet")
 	}
 
 	apps := pagination.Slice(allApplications, page)
