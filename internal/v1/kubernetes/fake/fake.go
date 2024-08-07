@@ -47,10 +47,8 @@ func (c *clusterResources) append(o clusterResources) {
 // will be created in a namespace with the same name as the file.
 func Clients(dir fs.FS) func(cluster string) (dynamic.Interface, error) {
 	scheme := newScheme()
-
 	resources := make(map[string]*clusterResources)
-	// TODO: use yaml file in the data dir on root?
-	fs.WalkDir(dir, ".", func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(dir, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -71,6 +69,9 @@ func Clients(dir fs.FS) func(cluster string) (dynamic.Interface, error) {
 
 		return nil
 	})
+	if err != nil {
+		panic(err)
+	}
 
 	ret := make(map[string]clients)
 
