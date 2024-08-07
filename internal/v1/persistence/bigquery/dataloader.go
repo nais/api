@@ -3,17 +3,36 @@ package bigquery
 import (
 	"context"
 
-	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/v1/graphv1/loaderv1"
+	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/vikstrous/dataloadgen"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, k8sClient *k8s.Client, defaultOpts []dataloadgen.Option) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(k8sClient, defaultOpts))
+func NewLoaderContext(ctx context.Context, bqWatcher *watcher.Watcher[*BigQueryDataset], defaultOpts []dataloadgen.Option) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(bqWatcher, defaultOpts))
+}
+
+func NewWatcher(mgr *watcher.Manager) *watcher.Watcher[*BigQueryDataset] {
+	return watcher.Watch(mgr, &BigQueryDataset{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
+		if o.GetKind() != "BigQueryDataset" {
+			return nil, false
+		}
+		ret, err := toBigQueryDataset(o, environmentName)
+		if err != nil {
+			return nil, false
+		}
+		return ret, true
+	}), watcher.WithGVR(schema.GroupVersionResource{
+		Group:    "google.nais.io",
+		Version:  "v1",
+		Resource: "bigquerydatasets",
+	}))
 }
 
 func fromContext(ctx context.Context) *loaders {
@@ -21,27 +40,29 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	k8sClient     *client
+	watcher       *watcher.Watcher[*BigQueryDataset]
 	datasetLoader *dataloadgen.Loader[resourceIdentifier, *BigQueryDataset]
 }
 
-func newLoaders(k8sClient *k8s.Client, opts []dataloadgen.Option) *loaders {
+func newLoaders(bqWatcher *watcher.Watcher[*BigQueryDataset], opts []dataloadgen.Option) *loaders {
 	client := &client{
-		informers: k8sClient.Informers(),
+		watcher: bqWatcher,
 	}
 
 	datasetLoader := &dataloader{
-		k8sClient: client,
+		watcher: bqWatcher,
+		client:  client,
 	}
 
 	return &loaders{
-		k8sClient:     client,
+		watcher:       bqWatcher,
 		datasetLoader: dataloadgen.NewLoader(datasetLoader.list, opts...),
 	}
 }
 
 type dataloader struct {
-	k8sClient *client
+	watcher *watcher.Watcher[*BigQueryDataset]
+	client  *client
 }
 
 type resourceIdentifier struct {
@@ -58,5 +79,5 @@ func (l dataloader) list(ctx context.Context, ids []resourceIdentifier) ([]*BigQ
 			name:        obj.Name,
 		}
 	}
-	return loaderv1.LoadModels(ctx, ids, l.k8sClient.getBigQueryDatasets, func(d *BigQueryDataset) *BigQueryDataset { return d }, makeKey)
+	return loaderv1.LoadModels(ctx, ids, l.client.getBigQueryDatasets, func(d *BigQueryDataset) *BigQueryDataset { return d }, makeKey)
 }

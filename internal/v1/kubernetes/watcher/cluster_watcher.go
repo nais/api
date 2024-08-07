@@ -25,7 +25,7 @@ type clusterWatcher[T Object] struct {
 	cluster       string
 	watcher       *Watcher[T]
 	log           logrus.FieldLogger
-	converterFunc func(o *unstructured.Unstructured) (obj any, ok bool)
+	converterFunc func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool)
 }
 
 func newClusterWatcher[T Object](mgr *clusterManager, cluster string, watcher *Watcher[T], obj T, settings *watcherSettings, log logrus.FieldLogger) *clusterWatcher[T] {
@@ -62,7 +62,7 @@ func (w *clusterWatcher[T]) Start(ctx context.Context) {
 
 func (w *clusterWatcher[T]) convert(obj *unstructured.Unstructured) (T, bool) {
 	if w.converterFunc != nil {
-		o, ok := w.converterFunc(obj)
+		o, ok := w.converterFunc(obj, w.cluster)
 		if !ok {
 			var def T
 			return def, false

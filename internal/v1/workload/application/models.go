@@ -75,10 +75,10 @@ func (e ApplicationOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-func toGraphApplication(a *nais_io_v1alpha1.Application) *Application {
+func toGraphApplication(a *nais_io_v1alpha1.Application, environmentName string) *Application {
 	return &Application{
 		Name:            a.Name,
-		EnvironmentName: "todo", // a.Env.Name,
+		EnvironmentName: environmentName, // a.Env.Name,
 		TeamSlug:        slug.Slug(a.Namespace),
 	}
 }
