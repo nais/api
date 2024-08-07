@@ -1072,9 +1072,11 @@ const (
 	AuditEventActionTeamMemberRemoved          AuditEventAction = "TEAM_MEMBER_REMOVED"
 	AuditEventActionTeamMemberSetRole          AuditEventAction = "TEAM_MEMBER_SET_ROLE"
 	AuditEventActionAdded                      AuditEventAction = "ADDED"
+	AuditEventActionCreated                    AuditEventAction = "CREATED"
 	AuditEventActionDeleted                    AuditEventAction = "DELETED"
 	AuditEventActionRemoved                    AuditEventAction = "REMOVED"
 	AuditEventActionRestarted                  AuditEventAction = "RESTARTED"
+	AuditEventActionUpdated                    AuditEventAction = "UPDATED"
 )
 
 var AllAuditEventAction = []AuditEventAction{
@@ -1090,14 +1092,16 @@ var AllAuditEventAction = []AuditEventAction{
 	AuditEventActionTeamMemberRemoved,
 	AuditEventActionTeamMemberSetRole,
 	AuditEventActionAdded,
+	AuditEventActionCreated,
 	AuditEventActionDeleted,
 	AuditEventActionRemoved,
 	AuditEventActionRestarted,
+	AuditEventActionUpdated,
 }
 
 func (e AuditEventAction) IsValid() bool {
 	switch e {
-	case AuditEventActionTeamCreated, AuditEventActionTeamDeletionConfirmed, AuditEventActionTeamDeletionRequested, AuditEventActionTeamDeployKeyRotated, AuditEventActionTeamSetPurpose, AuditEventActionTeamSetDefaultSLACkChannel, AuditEventActionTeamSetAlertsSLACkChannel, AuditEventActionTeamSynchronized, AuditEventActionTeamMemberAdded, AuditEventActionTeamMemberRemoved, AuditEventActionTeamMemberSetRole, AuditEventActionAdded, AuditEventActionDeleted, AuditEventActionRemoved, AuditEventActionRestarted:
+	case AuditEventActionTeamCreated, AuditEventActionTeamDeletionConfirmed, AuditEventActionTeamDeletionRequested, AuditEventActionTeamDeployKeyRotated, AuditEventActionTeamSetPurpose, AuditEventActionTeamSetDefaultSLACkChannel, AuditEventActionTeamSetAlertsSLACkChannel, AuditEventActionTeamSynchronized, AuditEventActionTeamMemberAdded, AuditEventActionTeamMemberRemoved, AuditEventActionTeamMemberSetRole, AuditEventActionAdded, AuditEventActionCreated, AuditEventActionDeleted, AuditEventActionRemoved, AuditEventActionRestarted, AuditEventActionUpdated:
 		return true
 	}
 	return false
@@ -1129,6 +1133,7 @@ type AuditEventResourceType string
 const (
 	AuditEventResourceTypeApp            AuditEventResourceType = "APP"
 	AuditEventResourceTypeNaisjob        AuditEventResourceType = "NAISJOB"
+	AuditEventResourceTypeSecret         AuditEventResourceType = "SECRET"
 	AuditEventResourceTypeTeam           AuditEventResourceType = "TEAM"
 	AuditEventResourceTypeTeamMember     AuditEventResourceType = "TEAM_MEMBER"
 	AuditEventResourceTypeTeamRepository AuditEventResourceType = "TEAM_REPOSITORY"
@@ -1137,6 +1142,7 @@ const (
 var AllAuditEventResourceType = []AuditEventResourceType{
 	AuditEventResourceTypeApp,
 	AuditEventResourceTypeNaisjob,
+	AuditEventResourceTypeSecret,
 	AuditEventResourceTypeTeam,
 	AuditEventResourceTypeTeamMember,
 	AuditEventResourceTypeTeamRepository,
@@ -1144,7 +1150,7 @@ var AllAuditEventResourceType = []AuditEventResourceType{
 
 func (e AuditEventResourceType) IsValid() bool {
 	switch e {
-	case AuditEventResourceTypeApp, AuditEventResourceTypeNaisjob, AuditEventResourceTypeTeam, AuditEventResourceTypeTeamMember, AuditEventResourceTypeTeamRepository:
+	case AuditEventResourceTypeApp, AuditEventResourceTypeNaisjob, AuditEventResourceTypeSecret, AuditEventResourceTypeTeam, AuditEventResourceTypeTeamMember, AuditEventResourceTypeTeamRepository:
 		return true
 	}
 	return false

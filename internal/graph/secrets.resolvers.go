@@ -24,7 +24,16 @@ func (r *mutationResolver) CreateSecret(ctx context.Context, name string, team s
 	if errors.Is(err, k8s.ErrSecretUnmanaged) {
 		return nil, apierror.ErrSecretUnmanaged
 	}
-	return ret, err
+	if err != nil {
+		return nil, err
+	}
+
+	err = r.auditor.SecretCreated(ctx, actor.User, team, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return ret, nil
 }
 
 func (r *mutationResolver) UpdateSecret(ctx context.Context, name string, team slug.Slug, env string, data []*model.VariableInput) (*model.Secret, error) {
@@ -38,8 +47,17 @@ func (r *mutationResolver) UpdateSecret(ctx context.Context, name string, team s
 	if errors.Is(err, k8s.ErrSecretUnmanaged) {
 		return nil, apierror.ErrSecretUnmanaged
 	}
+	if err != nil {
+		return nil, err
+	}
 
-	return ret, err
+	// TODO: split mutation (e.g. AddKeyValue, UpdateKeyValue, DeleteKeyValue) to allow more granular auditing?
+	err = r.auditor.SecretUpdated(ctx, actor.User, team, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return ret, nil
 }
 
 func (r *mutationResolver) DeleteSecret(ctx context.Context, name string, team slug.Slug, env string) (bool, error) {
@@ -52,8 +70,16 @@ func (r *mutationResolver) DeleteSecret(ctx context.Context, name string, team s
 	if errors.Is(err, k8s.ErrSecretUnmanaged) {
 		return false, apierror.ErrSecretUnmanaged
 	}
+	if err != nil {
+		return deleted, err
+	}
 
-	return deleted, err
+	err = r.auditor.SecretDeleted(ctx, actor.User, team, name)
+	if err != nil {
+		return deleted, err
+	}
+
+	return deleted, nil
 }
 
 func (r *secretResolver) Env(ctx context.Context, obj *model.Secret) (*model.Env, error) {

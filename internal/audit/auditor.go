@@ -49,6 +49,36 @@ func (a *Auditor) NaisjobDeleted(ctx context.Context, actor authz.AuthenticatedU
 	))
 }
 
+func (a *Auditor) SecretCreated(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, secretName string) error {
+	return a.db.CreateAuditEvent(ctx, baseTeamAuditEvent(
+		actor,
+		team,
+		model.AuditEventActionCreated,
+		model.AuditEventResourceTypeSecret,
+		secretName,
+	))
+}
+
+func (a *Auditor) SecretUpdated(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, secretName string) error {
+	return a.db.CreateAuditEvent(ctx, baseTeamAuditEvent(
+		actor,
+		team,
+		model.AuditEventActionUpdated,
+		model.AuditEventResourceTypeSecret,
+		secretName,
+	))
+}
+
+func (a *Auditor) SecretDeleted(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, secretName string) error {
+	return a.db.CreateAuditEvent(ctx, baseTeamAuditEvent(
+		actor,
+		team,
+		model.AuditEventActionDeleted,
+		model.AuditEventResourceTypeSecret,
+		secretName,
+	))
+}
+
 func (a *Auditor) TeamMemberAdded(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, memberEmail string, role model.TeamRole) error {
 	return a.db.CreateAuditEvent(ctx, auditevent.AuditEventMemberAdded{
 		BaseTeamAuditEvent: baseTeamAuditEvent(

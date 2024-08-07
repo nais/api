@@ -41,6 +41,16 @@ func toEvent(row *database.AuditEvent) (model.AuditEventNode, error) {
 			return event.WithMessage("Deleted job"), nil
 		}
 
+	case model.AuditEventResourceTypeSecret:
+		switch model.AuditEventAction(row.Action) {
+		case model.AuditEventActionCreated:
+			return event.WithMessage("Created secret"), nil
+		case model.AuditEventActionUpdated:
+			return event.WithMessage("Updated secret"), nil
+		case model.AuditEventActionDeleted:
+			return event.WithMessage("Deleted secret"), nil
+		}
+
 	case model.AuditEventResourceTypeTeam:
 		switch model.AuditEventAction(row.Action) {
 		case model.AuditEventActionTeamCreated:
