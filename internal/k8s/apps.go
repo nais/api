@@ -136,8 +136,7 @@ func (c *Client) setHasMutualOnOutbound(ctx context.Context, oApp, oTeam, oEnv s
 		outboundTeam = outboundRule.Namespace
 	}
 
-	if outboundRule.Application == "*" {
-		outboundRule.Mutual = true
+	if isImplicitMutual(oEnv, outboundRule) {
 		return nil
 	}
 
@@ -229,10 +228,11 @@ func (c *Client) setHasMutualOnInbound(ctx context.Context, oApp, oTeam, oEnv st
 		inboundTeam = inboundRule.Namespace
 	}
 
-	if inboundRule.Application == "*" {
-		inboundRule.Mutual = true
+	if isImplicitMutual(oEnv, inboundRule) {
 		return nil
-	} else if strings.EqualFold(inboundRule.Application, "localhost") {
+	}
+
+	if strings.EqualFold(inboundRule.Application, "localhost") {
 		inboundRule.Mutual = true
 		inboundRule.MutualExplanation = "LOCALHOST"
 		return nil
@@ -343,6 +343,18 @@ func checkNoZeroTrust(env string, rule *model.Rule) bool {
 
 	if strings.Contains(rule.Cluster, "-external") {
 		rule.MutualExplanation = "NO_ZERO_TRUST"
+		rule.Mutual = true
+		return true
+	}
+
+	return false
+}
+
+func isImplicitMutual(env string, rule *model.Rule) bool {
+	isWildcard := rule.Application == "*"
+	isTokenGenerator := strings.HasSuffix(rule.Application, "-token-generator") && rule.Namespace == "aura" && strings.Contains(env, "dev")
+
+	if isWildcard || isTokenGenerator {
 		rule.Mutual = true
 		return true
 	}
