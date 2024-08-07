@@ -13,11 +13,11 @@ import (
 type WatchOption func(*watcherSettings)
 
 type watcherSettings struct {
-	converter func(o *unstructured.Unstructured) (obj any, ok bool)
+	converter func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool)
 	gvr       *schema.GroupVersionResource
 }
 
-func WithConverter(fn func(o *unstructured.Unstructured) (obj any, ok bool)) WatchOption {
+func WithConverter(fn func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool)) WatchOption {
 	return func(m *watcherSettings) {
 		m.converter = fn
 	}
@@ -88,10 +88,18 @@ func (w *Watcher[T]) Get(cluster, namespace, name string) (T, error) {
 	return w.datastore.Get(cluster, namespace, name)
 }
 
-func (w *Watcher[T]) GetByCluster(cluster string) []T {
+func (w *Watcher[T]) GetByCluster(cluster string) []EnvironmentWrapper[T] {
 	return w.datastore.GetByCluster(cluster)
 }
 
-func (w *Watcher[T]) GetByNamespace(namespace string) []T {
+func (w *Watcher[T]) GetByNamespace(namespace string) []EnvironmentWrapper[T] {
 	return w.datastore.GetByNamespace(namespace)
+}
+
+func Objects[T Object](list []EnvironmentWrapper[T]) []T {
+	ret := make([]T, len(list))
+	for i, obj := range list {
+		ret[i] = obj.Obj
+	}
+	return ret
 }

@@ -8,13 +8,17 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
-	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 )
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *ApplicationOrder) (*ApplicationConnection, error) {
 	k8s := fromContext(ctx).appWatcher
 
 	allApplications := k8s.GetByNamespace(teamSlug.String())
+
+	ret := make([]*Application, len(allApplications))
+	for i, obj := range allApplications {
+		ret[i] = toGraphApplication(obj.Obj, obj.Cluster)
+	}
 
 	if orderBy == nil {
 		orderBy = &ApplicationOrder{
@@ -25,13 +29,13 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 
 	switch orderBy.Field {
 	case ApplicationOrderFieldName:
-		slices.SortStableFunc(allApplications, func(a, b *nais_io_v1alpha1.Application) int {
+		slices.SortStableFunc(ret, func(a, b *Application) int {
 			return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
 		})
 	case ApplicationOrderFieldEnvironment:
-		// slices.SortStableFunc(allApplications, func(a, b *nais_io_v1alpha1.Application) int {
-		// 	return modelv1.Compare(a.Env.Name, b.Env.Name, orderBy.Direction)
-		// })
+		slices.SortStableFunc(ret, func(a, b *Application) int {
+			return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
+		})
 	case ApplicationOrderFieldVulnerabilities:
 		panic("not implemented yet")
 	case ApplicationOrderFieldRiskScore:
@@ -42,8 +46,8 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		panic("not implemented yet")
 	}
 
-	apps := pagination.Slice(allApplications, page)
-	return pagination.NewConvertConnection(apps, page, int32(len(allApplications)), toGraphApplication), nil
+	apps := pagination.Slice(ret, page)
+	return pagination.NewConnection(apps, page, int32(len(allApplications))), nil
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Application, error) {

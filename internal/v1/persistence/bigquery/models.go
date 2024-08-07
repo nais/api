@@ -15,6 +15,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/utils/ptr"
 )
 
@@ -41,6 +42,20 @@ type BigQueryDataset struct {
 func (BigQueryDataset) IsPersistence() {}
 
 func (BigQueryDataset) IsNode() {}
+
+func (b *BigQueryDataset) GetName() string { return b.Name }
+
+func (b *BigQueryDataset) GetNamespace() string { return b.TeamSlug.String() }
+
+func (b *BigQueryDataset) GetLabels() map[string]string { return nil }
+
+func (b *BigQueryDataset) GetObjectKind() schema.ObjectKind {
+	return schema.EmptyObjectKind
+}
+
+func (b *BigQueryDataset) DeepCopyObject() runtime.Object {
+	return b
+}
 
 func (b BigQueryDataset) ID() ident.Ident {
 	return newIdent(b.TeamSlug, b.EnvironmentName, b.Name)

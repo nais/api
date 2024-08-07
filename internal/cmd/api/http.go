@@ -78,10 +78,15 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 	})
 
 	// TODO: Make this nicer
-	appWatcher := application.NewApplicationWatcher(watcherMgr)
+	appWatcher := application.NewWatcher(watcherMgr)
 	appWatcher.Start(ctx)
 	if !appWatcher.WaitForReady(ctx, 10*time.Second) {
 		return errors.New("application watcher did not become ready")
+	}
+	bqWatcher := bigquery.NewWatcher(watcherMgr)
+	bqWatcher.Start(ctx)
+	if !bqWatcher.WaitForReady(ctx, 10*time.Second) {
+		return errors.New("bigquery watcher did not become ready")
 	}
 
 	router.Route("/graphql", func(r chi.Router) {
@@ -94,7 +99,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 			}
 
 			ctx = application.NewLoaderContext(ctx, appWatcher, opts)
-			ctx = bigquery.NewLoaderContext(ctx, k8sClient, opts)
+			ctx = bigquery.NewLoaderContext(ctx, bqWatcher, opts)
 			ctx = bucket.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = job.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = kafkatopic.NewLoaderContext(ctx, k8sClient, opts)

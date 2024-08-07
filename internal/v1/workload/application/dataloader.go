@@ -17,7 +17,7 @@ func NewLoaderContext(ctx context.Context, appWatcher *watcher.Watcher[*nais_io_
 	return context.WithValue(ctx, loadersKey, newLoaders(appWatcher, defaultOpts))
 }
 
-func NewApplicationWatcher(mgr *watcher.Manager) *watcher.Watcher[*nais_io_v1alpha1.Application] {
+func NewWatcher(mgr *watcher.Manager) *watcher.Watcher[*nais_io_v1alpha1.Application] {
 	return watcher.Watch(mgr, &nais_io_v1alpha1.Application{})
 }
 
@@ -45,8 +45,8 @@ type dataloader struct {
 	appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application]
 }
 
-func (l dataloader) getApplications(ctx context.Context, ids []applicationIdentifier) ([]*nais_io_v1alpha1.Application, error) {
-	ret := make([]*nais_io_v1alpha1.Application, 0)
+func (l dataloader) getApplications(ctx context.Context, ids []applicationIdentifier) ([]*Application, error) {
+	ret := make([]*Application, 0)
 	// for _, id := range ids {
 	// 	app, err := l.mgr.App(ctx, id.name, id.namespace, id.environment)
 	// 	if err != nil {
@@ -72,5 +72,5 @@ func (l dataloader) list(ctx context.Context, ids []applicationIdentifier) ([]*A
 			name:        obj.Name,
 		}
 	}
-	return loaderv1.LoadModels(ctx, ids, l.getApplications, toGraphApplication, makeKey)
+	return loaderv1.LoadModels(ctx, ids, l.getApplications, func(d *Application) *Application { return d }, makeKey)
 }
