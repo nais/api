@@ -1,0 +1,193 @@
+extend type Query {
+  teams(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: TeamOrder
+  ): TeamConnection!
+
+  team(slug: Slug!): Team!
+}
+
+type TeamConnection {
+  pageInfo: PageInfo!
+  edges: [TeamEdge!]!
+}
+
+type TeamEdge {
+  cursor: Cursor!
+  node: Team!
+}
+
+input TeamOrder {
+  field: TeamOrderField!
+  direction: OrderDirection!
+}
+
+enum TeamOrderField {
+  TEAM_SLUG
+}
+
+type TeamEnvironment implements Node {
+  id: ID!
+  name: String!
+  gcpProjectID: String
+  slackAlertsChannel: String!
+}
+
+"Team type."
+type Team implements Node {
+  id: ID!
+
+  "Unique slug of the team."
+  slug: Slug!
+
+  "Purpose of the team."
+  purpose: String!
+
+  "The ID of the Azure AD group for the team. This value is managed by the Azure AD reconciler."
+  azureGroupID: ID
+
+  "The slug of the GitHub team. This value is managed by the GitHub reconciler."
+  gitHubTeamSlug: String
+
+  "The email address of the Google group for the team. This value is managed by the Google Workspace reconciler."
+  googleGroupEmail: String
+
+  "The Google artifact registry for the team."
+  googleArtifactRegistry: String
+
+  "The CDN bucket for the team."
+  cdnBucket: String
+
+  "Team members."
+  members(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: TeamMemberOrder
+  ): TeamMemberConnection!
+
+  applications(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: ApplicationOrder
+  ): ApplicationConnection!
+
+  jobs(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: JobOrder
+  ): JobConnection!
+
+  bigQueryDatasets(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: BigQueryDatasetOrder
+  ): BigQueryDatasetConnection!
+
+  redisInstances(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: RedisInstanceOrder
+  ): RedisInstanceConnection!
+
+  openSearch(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: OpenSearchOrder
+  ): OpenSearchConnection!
+
+  buckets(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: BucketOrder
+  ): BucketConnection!
+
+  kafkaTopics(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: KafkaTopicOrder
+  ): KafkaTopicConnection!
+
+  sqlInstances(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: SqlInstanceOrder
+  ): SqlInstanceConnection!
+
+  "Timestamp of the last successful synchronization of the team."
+  lastSuccessfulSync: Time
+
+  "Slack channel for the team."
+  slackChannel: String!
+
+  "Whether or not the team is currently being deleted."
+  deletionInProgress: Boolean!
+
+  "Whether or not the viewer is an owner of the team."
+  viewerIsOwner: Boolean!
+
+  "Whether or not the viewer is a member of the team."
+  viewerIsMember: Boolean!
+}
+
+type TeamMemberConnection {
+  pageInfo: PageInfo!
+  edges: [TeamMemberEdge!]!
+}
+
+type TeamMemberEdge {
+  cursor: Cursor!
+  node: TeamMember!
+}
+
+"Team member."
+type TeamMember {
+  "Team instance."
+  team: Team!
+
+  "User instance."
+  user: User!
+
+  "The role that the user has in the team."
+  role: TeamRole!
+}
+
+"Available team roles."
+enum TeamRole {
+  "Regular member, read only access."
+  MEMBER
+
+  "Team owner, full access to the team."
+  OWNER
+}
+
+input TeamMemberOrder {
+  field: TeamMemberOrderField!
+  direction: OrderDirection!
+}
+
+enum TeamMemberOrderField {
+  NAME
+  EMAIL
+  ROLE
+}

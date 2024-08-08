@@ -1,7 +1,7 @@
 package apiclient
 
 import (
-	"github.com/nais/api/pkg/protoapi"
+	"github.com/nais/api/pkg/apiclient/protoapi"
 	"google.golang.org/grpc"
 )
 

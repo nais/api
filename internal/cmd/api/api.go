@@ -9,18 +9,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/nais/api/internal/audit"
-	"github.com/nais/api/internal/bigquery"
-	"github.com/nais/api/internal/kafka"
-	"github.com/nais/api/internal/opensearch"
-
-	"github.com/nais/api/internal/unleash"
-
 	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
+	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auth/authn"
+	"github.com/nais/api/internal/bigquery"
 	"github.com/nais/api/internal/bucket"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/fixtures"
@@ -30,13 +25,21 @@ import (
 	"github.com/nais/api/internal/grpc"
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/k8s/fake"
+	"github.com/nais/api/internal/kafka"
 	"github.com/nais/api/internal/logger"
+	"github.com/nais/api/internal/opensearch"
 	"github.com/nais/api/internal/redis"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
+	"github.com/nais/api/internal/unleash"
+	"github.com/nais/api/internal/v1/graphv1"
+	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
+	"github.com/nais/api/internal/v1/kubernetes"
+	fakev1 "github.com/nais/api/internal/v1/kubernetes/fake"
+	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2/google"
@@ -223,6 +226,39 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create graph handler: %w", err)
 	}
 
+	scheme, err := kubernetes.NewScheme()
+	if err != nil {
+		return fmt.Errorf("create k8s scheme: %w", err)
+	}
+
+	watcherOpts := []watcher.Option{}
+	if cfg.WithFakeClients {
+		watcherOpts = append(watcherOpts, watcher.WithClientCreator(fakev1.Clients(os.DirFS("./data/k8s"))))
+	}
+	// TODO: Cleanup
+	watcherMgr, err := watcher.NewManager(scheme, cfg.Tenant, watcher.Config{
+		Clusters: cfg.K8s.Clusters,
+		StaticClusters: func() []watcher.StaticCluster {
+			ret := make([]watcher.StaticCluster, 0, len(cfg.K8s.Clusters))
+			for _, cluster := range cfg.K8s.Clusters {
+				ret = append(ret, watcher.StaticCluster{
+					Name: cluster,
+				})
+			}
+			return ret
+		}(),
+	}, log.WithField("subsystem", "k8s_watcher"), watcherOpts...)
+	if err != nil {
+		return fmt.Errorf("create k8s watcher manager: %w", err)
+	}
+
+	graphv1Handler, err := graphv1.NewHandler(gengqlv1.Config{
+		Resolvers: graphv1.NewResolver(log, watcherMgr),
+	}, log)
+	if err != nil {
+		return fmt.Errorf("create graphv1 handler: %w", err)
+	}
+
 	wg, ctx := errgroup.WithContext(ctx)
 
 	wg.Go(func() error {
@@ -248,7 +284,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	// HTTP server
 	wg.Go(func() error {
-		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, db, authHandler, graphHandler, promReg, log)
+		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, db, watcherMgr, k8sClient, sqlInstanceClient.Admin, authHandler, graphHandler, graphv1Handler, promReg, log)
 	})
 
 	wg.Go(func() error {

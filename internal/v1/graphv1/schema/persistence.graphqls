@@ -1,0 +1,480 @@
+interface Persistence implements Node {
+  id: ID!
+  name: String!
+  team: Team!
+  environment: TeamEnvironment!
+}
+
+type BigQueryDataset implements Persistence & Node {
+  id: ID!
+  name: String!
+  team: Team!
+  environment: TeamEnvironment!
+  cascadingDelete: Boolean!
+  description: String
+  access(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: BigQueryDatasetAccessOrder
+  ): BigQueryDatasetAccessConnection!
+  status: BigQueryDatasetStatus!
+  workload: Workload
+  cost: Float!
+}
+
+type BigQueryDatasetAccess {
+  role: String!
+  email: String!
+}
+
+type BigQueryDatasetStatus {
+  creationTime: Time!
+  lastModifiedTime: Time
+}
+
+type Bucket implements Persistence & Node {
+  id: ID!
+  name: String!
+  team: Team!
+  environment: TeamEnvironment!
+  cascadingDelete: Boolean!
+  publicAccessPrevention: String!
+  uniformBucketLevelAccess: Boolean!
+  cors(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+  ): BucketCorsConnection!
+  projectId: String!
+  workload: Workload
+  status: BucketStatus!
+}
+
+type BucketCors {
+  maxAgeSeconds: Int
+  methods: [String!]!
+  origins: [String!]!
+  responseHeaders: [String!]!
+}
+
+type BucketStatus {
+  state: String!
+}
+
+type KafkaTopic implements Persistence & Node {
+  id: ID!
+  name: String!
+  team: Team!
+  environment: TeamEnvironment!
+  acl(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    filter: KafkaTopicAclFilter
+    orderBy: KafkaTopicAclOrder
+  ): KafkaTopicAclConnection!
+  configuration: KafkaTopicConfiguration
+  pool: String!
+  status: KafkaTopicStatus!
+}
+
+type KafkaTopicAcl {
+  access: String!
+  applicationName: String!
+  teamName: String!
+  team: Team
+  workload: Workload
+}
+
+type KafkaTopicConfiguration {
+  cleanupPolicy: String
+  maxMessageBytes: Int
+  minimumInSyncReplicas: Int
+  partitions: Int
+  replication: Int
+  retentionBytes: Int
+  retentionHours: Int
+  segmentHours: Int
+}
+
+type KafkaTopicStatus {
+  state: String!
+}
+
+type OpenSearch implements Persistence & Node {
+  id: ID!
+  name: String!
+  team: Team!
+  environment: TeamEnvironment!
+  status: OpenSearchStatus!
+  workload: Workload
+  access(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: OpenSearchAccessOrder
+  ): OpenSearchAccessConnection!
+  cost: Float!
+}
+
+type OpenSearchAccess {
+  workload: Workload!
+  access: String!
+}
+
+type OpenSearchStatus {
+  state: String!
+}
+
+type RedisInstance implements Persistence & Node {
+  id: ID!
+  name: String!
+  team: Team!
+  environment: TeamEnvironment!
+  access(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: RedisInstanceAccessOrder
+  ): RedisInstanceAccessConnection!
+  cost: Float!
+  workload: Workload
+  status: RedisInstanceStatus!
+}
+
+type RedisInstanceAccess {
+  workload: Workload!
+  access: String!
+}
+
+type RedisInstanceStatus {
+  state: String!
+}
+
+type SqlDatabase implements Persistence & Node {
+  id: ID!
+  name: String!
+  team: Team!
+  environment: TeamEnvironment!
+  charset: String
+  collation: String
+  deletionPolicy: String
+  healthy: Boolean!
+}
+
+type SqlInstance implements Persistence & Node {
+  id: ID!
+  name: String!
+  team: Team!
+  environment: TeamEnvironment!
+  workload: Workload
+  cascadingDelete: Boolean!
+  connectionName: String
+  diskAutoresize: Boolean
+  diskAutoresizeLimit: Int
+  highAvailability: Boolean!
+  healthy: Boolean!
+  maintenanceVersion: String
+  maintenanceWindow: SqlInstanceMaintenanceWindow
+  backupConfiguration: SqlInstanceBackupConfiguration
+  projectId: String!
+  tier: String!
+  version: String
+  status: SqlInstanceStatus!
+  database: SqlDatabase
+  flags(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+  ): SqlInstanceFlagConnection!
+  users(
+    first: Int
+    after: Cursor
+    last: Int
+    before: Cursor
+    orderBy: SqlInstanceUserOrder
+  ): SqlInstanceUserConnection!
+}
+
+type SqlInstanceBackupConfiguration {
+  enabled: Boolean
+  startTime: String
+  retainedBackups: Int
+  pointInTimeRecovery: Boolean
+  transactionLogRetentionDays: Int
+}
+
+type SqlInstanceFlag {
+  name: String!
+  value: String!
+}
+
+type SqlInstanceMaintenanceWindow {
+  day: Int!
+  hour: Int!
+}
+
+type SqlInstanceStatus {
+  publicIpAddress: String
+  privateIpAddress: String
+}
+
+type SqlInstanceUser {
+  name: String!
+  authentication: String!
+}
+
+type BigQueryDatasetAccessConnection {
+  pageInfo: PageInfo!
+  edges: [BigQueryDatasetAccessEdge!]!
+}
+
+type BigQueryDatasetConnection {
+  pageInfo: PageInfo!
+  edges: [BigQueryDatasetEdge!]!
+}
+
+type BucketConnection {
+  pageInfo: PageInfo!
+  edges: [BucketEdge!]!
+}
+
+type BucketCorsConnection {
+  pageInfo: PageInfo!
+  edges: [BucketCorsEdge!]!
+}
+
+type KafkaTopicConnection {
+  pageInfo: PageInfo!
+  edges: [KafkaTopicEdge!]!
+}
+
+type KafkaTopicAclConnection {
+  pageInfo: PageInfo!
+  edges: [KafkaTopicAclEdge!]!
+}
+
+type OpenSearchAccessConnection {
+  pageInfo: PageInfo!
+  edges: [OpenSearchAccessEdge!]!
+}
+
+type OpenSearchConnection {
+  pageInfo: PageInfo!
+  edges: [OpenSearchEdge!]!
+}
+
+type RedisInstanceAccessConnection {
+  pageInfo: PageInfo!
+  edges: [RedisInstanceAccessEdge!]!
+
+}
+
+type RedisInstanceConnection {
+  pageInfo: PageInfo!
+  edges: [RedisInstanceEdge!]!
+}
+
+type SqlInstanceConnection {
+  pageInfo: PageInfo!
+  edges: [SqlInstanceEdge!]!
+}
+
+type SqlInstanceFlagConnection {
+  pageInfo: PageInfo!
+  edges: [SqlInstanceFlagEdge!]!
+}
+
+type SqlInstanceUserConnection {
+  pageInfo: PageInfo!
+  edges: [SqlInstanceUserEdge!]!
+}
+
+type BigQueryDatasetAccessEdge {
+  cursor: Cursor!
+  node: BigQueryDatasetAccess!
+}
+
+type BigQueryDatasetEdge {
+  cursor: Cursor!
+  node: BigQueryDataset!
+}
+
+type BucketEdge {
+  cursor: Cursor!
+  node: Bucket!
+}
+
+type BucketCorsEdge {
+  cursor: Cursor!
+  node: BucketCors!
+}
+
+type KafkaTopicEdge {
+  cursor: Cursor!
+  node: KafkaTopic!
+}
+
+type KafkaTopicAclEdge {
+  cursor: Cursor!
+  node: KafkaTopicAcl!
+}
+
+type OpenSearchAccessEdge {
+  cursor: Cursor!
+  node: OpenSearchAccess!
+}
+
+type OpenSearchEdge {
+  cursor: Cursor!
+  node: OpenSearch!
+}
+
+type RedisInstanceAccessEdge {
+  cursor: Cursor!
+  node: RedisInstanceAccess!
+}
+
+type RedisInstanceEdge {
+  cursor: Cursor!
+  node: RedisInstance!
+}
+
+type SqlInstanceEdge {
+  cursor: Cursor!
+  node: SqlInstance!
+}
+
+type SqlInstanceFlagEdge {
+  cursor: Cursor!
+  node: SqlInstanceFlag!
+}
+
+type SqlInstanceUserEdge {
+  cursor: Cursor!
+  node: SqlInstanceUser!
+}
+
+input BigQueryDatasetAccessOrder {
+  field: BigQueryDatasetAccessOrderField!
+  direction: OrderDirection!
+}
+
+input BigQueryDatasetOrder {
+  field: BigQueryDatasetOrderField!
+  direction: OrderDirection!
+}
+
+input BucketOrder {
+  field: BucketOrderField!
+  direction: OrderDirection!
+}
+
+input KafkaTopicAclFilter {
+  team: Slug
+  application: String
+}
+
+input KafkaTopicOrder {
+  field: KafkaTopicOrderField!
+  direction: OrderDirection!
+}
+
+input KafkaTopicAclOrder {
+  field: KafkaTopicAclOrderField!
+  direction: OrderDirection!
+}
+
+input OpenSearchAccessOrder {
+  field: OpenSearchAccessOrderField!
+  direction: OrderDirection!
+}
+
+input OpenSearchOrder {
+  field: OpenSearchOrderField!
+  direction: OrderDirection!
+}
+
+input RedisInstanceAccessOrder {
+  field: RedisInstanceAccessOrderField!
+  direction: OrderDirection!
+}
+
+input RedisInstanceOrder {
+  field: RedisInstanceOrderField!
+  direction: OrderDirection!
+}
+
+input SqlInstanceOrder {
+  field: SqlInstanceOrderField!
+  direction: OrderDirection!
+}
+
+input SqlInstanceUserOrder {
+  field: SqlInstanceUserOrderField!
+  direction: OrderDirection!
+}
+
+enum BigQueryDatasetAccessOrderField {
+  ROLE
+  EMAIL
+}
+
+enum BigQueryDatasetOrderField {
+  NAME
+  ENVIRONMENT
+}
+
+enum BucketOrderField {
+  NAME
+  ENVIRONMENT
+}
+
+enum KafkaTopicOrderField {
+  NAME
+  ENVIRONMENT
+}
+
+enum KafkaTopicAclOrderField {
+  TEAM_SLUG
+  CONSUMER
+  ACCESS
+}
+
+enum RedisInstanceAccessOrderField {
+  ACCESS
+  WORKLOAD
+}
+
+enum OpenSearchAccessOrderField {
+  ACCESS
+  WORKLOAD
+}
+
+enum OpenSearchOrderField {
+  NAME
+  ENVIRONMENT
+}
+
+enum RedisInstanceOrderField {
+  NAME
+  ENVIRONMENT
+}
+
+enum SqlInstanceOrderField {
+  NAME
+  VERSION
+  ENVIRONMENT
+}
+
+enum SqlInstanceUserOrderField {
+  NAME
+  AUTHENTICATION
+}
