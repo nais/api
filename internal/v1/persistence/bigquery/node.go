@@ -14,7 +14,7 @@ const (
 )
 
 func init() {
-	ident.RegisterIdentType(identKey, "PBQ", ident.Wrap(GetByIdent))
+	ident.RegisterIdentType(identKey, "PBQ", GetByIdent)
 }
 
 func newIdent(teamSlug slug.Slug, environment, name string) ident.Ident {
