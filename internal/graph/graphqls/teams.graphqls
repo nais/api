@@ -16,6 +16,9 @@ extend type Query {
 
   "Get a team delete key."
   teamDeleteKey("The key to get." key: String!): TeamDeleteKey! @auth
+
+  "Get the resource utilization of all teams"
+  teamsUtilization(resourceType: UsageResourceType!): [TeamUtilizationData!]! @auth
 }
 
 extend type Mutation {
@@ -487,6 +490,31 @@ type Team {
     limit: Int
   ): RepositoryList!
 
+  "Gets the utilization data for all applications"
+  appsUtilization(resourceType: UsageResourceType!): [AppUtilizationData!]!
+}
+
+type TeamUtilizationData {
+  "The team."
+  team: Team!
+
+  "The requested amount of resources"
+  requested: Float! 
+
+  "The current resource usage."
+  used: Float!
+}
+
+"Utilization data type."
+type AppUtilizationData {
+  "The app."
+  app: App!
+
+  "The requested amount of resources"
+  requested: Float! 
+
+  "The current resource usage."
+  used: Float!
 }
 
 type RepositoryList {

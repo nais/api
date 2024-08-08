@@ -13,7 +13,6 @@ import (
 
 	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/logger"
@@ -251,11 +250,6 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 		}); err != nil {
 			return err
 		}
-		dbtx.ResourceUtilizationUpsert(ctx, generateUtilizationData("dev", "devteam", "devapp", time.Now().Add(-24*time.Hour*7), time.Now())).Exec(func(i int, err error) {
-			if err != nil {
-				log.Errorf("error updating resource utilization for team %s: %v", devteam.Slug, err)
-			}
-		})
 
 		err = dbtx.SetTeamMemberRole(ctx, devUser.ID, devteam.Slug, gensql.RoleNameTeamowner)
 		if err != nil {
@@ -307,37 +301,6 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 
 	log.Infof("done")
 	return nil
-}
-
-func generateUtilizationData(env, team, app string, start, end time.Time) []gensql.ResourceUtilizationUpsertParams {
-	ret := make([]gensql.ResourceUtilizationUpsertParams, 0)
-	current := start
-	for current.Before(end) {
-
-		pgTs := &pgtype.Timestamptz{}
-		_ = pgTs.Scan(current)
-
-		ret = append(ret, gensql.ResourceUtilizationUpsertParams{
-			Timestamp:    *pgTs,
-			Environment:  env,
-			TeamSlug:     slug.Slug(team),
-			App:          app,
-			ResourceType: gensql.ResourceTypeCpu,
-			Usage:        rand.Float64() * 100,
-			Request:      50.0,
-		})
-		ret = append(ret, gensql.ResourceUtilizationUpsertParams{
-			Timestamp:    *pgTs,
-			Environment:  env,
-			TeamSlug:     slug.Slug(team),
-			App:          app,
-			ResourceType: gensql.ResourceTypeMemory,
-			Usage:        rand.Float64() * 10,
-			Request:      5.0,
-		})
-		current = current.Add(time.Hour)
-	}
-	return ret
 }
 
 func teamName() string {

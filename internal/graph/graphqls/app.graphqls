@@ -57,29 +57,56 @@ type App implements Workload {
   persistence: [Persistence!]!
   resources: Resources!
   type: WorkloadType!
-
+  utilization: AppUtilization!
   imageDetails: ImageDetails!
   ingresses: [String!]!
   instances: [Instance!]!
-  autoScaling: AutoScaling!
   manifest: String!
   team: Team!
   secrets: [Secret!]!
 }
 
+type AppUtilization {
+  "Get the current usage for the requested resource type."
+  used(resourceType: UsageResourceType!): Float!
+
+  "Gets the requested amount of resources for the requested resource type."
+  requested(resourceType: UsageResourceType!): Float!
+
+  "Usage between start and end with step size for given resource type."
+  usedRange(
+    "Fetch resource usage from this timestamp."
+    start: Time!
+
+    "Fetch resource usage until this timestamp."
+    end: Time!
+
+    "Step size in seconds for the data points."
+    step: Int!
+
+    "Resource type."
+    resourceType: UsageResourceType!
+  ): [UsageDataPoint!]!
+}
+
+"Resource utilization type."
+type UsageDataPoint {
+  "Timestamp of the value."
+  timestamp: Time!
+
+  "Value of the used resource at the given timestamp."
+  value: Float!
+}
+
+"Resource type."
+enum UsageResourceType {
+  CPU
+  MEMORY
+}
+
 type WorkloadStatus {
   state: State!
   errors: [StateError!]!
-}
-
-type AutoScaling {
-  disabled: Boolean!
-  """
-  CPU threshold in percent
-  """
-  cpuThreshold: Int!
-  max: Int!
-  min: Int!
 }
 
 type DeprecatedRegistryError implements StateError {

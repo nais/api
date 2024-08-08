@@ -57,3 +57,9 @@ type TeamDeleteKeyGQLVars struct {
 type TeamInventory struct {
 	SQLInstances []*SQLInstance `json:"sqlInstances"`
 }
+
+type TeamUtilizationData struct {
+	Requested float64   `json:"requested"`
+	Used      float64   `json:"used"`
+	TeamSlug  slug.Slug `json:"-"`
+}

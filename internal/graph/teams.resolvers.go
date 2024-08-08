@@ -28,6 +28,15 @@ import (
 	"k8s.io/utils/ptr"
 )
 
+func (r *appUtilizationDataResolver) App(ctx context.Context, obj *model.AppUtilizationData) (*model.App, error) {
+	app, err := r.k8sClient.App(ctx, obj.AppName, obj.TeamSlug.String(), obj.Env)
+	if err != nil {
+		return nil, apierror.ErrAppNotFound
+	}
+
+	return app, nil
+}
+
 func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTeamInput) (*model.Team, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationTeamsCreate)
@@ -608,6 +617,10 @@ func (r *queryResolver) TeamDeleteKey(ctx context.Context, key string) (*model.T
 	}
 
 	return toGraphTeamDeleteKey(deleteKey), nil
+}
+
+func (r *queryResolver) TeamsUtilization(ctx context.Context, resourceType model.UsageResourceType) ([]*model.TeamUtilizationData, error) {
+	return r.resourceUsageClient.TeamsUtilization(ctx, resourceType)
 }
 
 func (r *teamResolver) ID(ctx context.Context, obj *model.Team) (*scalar.Ident, error) {
@@ -1484,6 +1497,10 @@ func (r *teamResolver) Repositories(ctx context.Context, obj *model.Team, offset
 	}, nil
 }
 
+func (r *teamResolver) AppsUtilization(ctx context.Context, obj *model.Team, resourceType model.UsageResourceType) ([]*model.AppUtilizationData, error) {
+	return r.resourceUsageClient.TeamUtilization(ctx, obj.Slug, resourceType)
+}
+
 func (r *teamDeleteKeyResolver) CreatedBy(ctx context.Context, obj *model.TeamDeleteKey) (*model.User, error) {
 	return loader.GetUser(ctx, obj.GQLVars.UserID)
 }
@@ -1548,6 +1565,20 @@ func (r *teamMemberReconcilerResolver) Reconciler(ctx context.Context, obj *mode
 	return toGraphReconciler(reconciler), nil
 }
 
+func (r *teamUtilizationDataResolver) Team(ctx context.Context, obj *model.TeamUtilizationData) (*model.Team, error) {
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsRead, obj.TeamSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	return loader.GetTeam(ctx, obj.TeamSlug)
+}
+
+func (r *Resolver) AppUtilizationData() gengql.AppUtilizationDataResolver {
+	return &appUtilizationDataResolver{r}
+}
+
 func (r *Resolver) Team() gengql.TeamResolver { return &teamResolver{r} }
 
 func (r *Resolver) TeamDeleteKey() gengql.TeamDeleteKeyResolver { return &teamDeleteKeyResolver{r} }
@@ -1558,9 +1589,15 @@ func (r *Resolver) TeamMemberReconciler() gengql.TeamMemberReconcilerResolver {
 	return &teamMemberReconcilerResolver{r}
 }
 
+func (r *Resolver) TeamUtilizationData() gengql.TeamUtilizationDataResolver {
+	return &teamUtilizationDataResolver{r}
+}
+
 type (
+	appUtilizationDataResolver   struct{ *Resolver }
 	teamResolver                 struct{ *Resolver }
 	teamDeleteKeyResolver        struct{ *Resolver }
 	teamMemberResolver           struct{ *Resolver }
 	teamMemberReconcilerResolver struct{ *Resolver }
+	teamUtilizationDataResolver  struct{ *Resolver }
 )

@@ -1,14 +1,38 @@
 type Limits {
-    cpu: String!
-    memory: String!
+  cpu: String!
+  memory: String!
 }
 
 type Requests {
-    cpu: String!
-    memory: String!
+  cpu: String!
+  memory: String!
+}
+
+interface ScalingStrategy {
+  threshold: Int!
+}
+
+type CPUScalingStrategy implements ScalingStrategy {
+  threshold: Int!
+}
+
+type KafkaLagScalingStrategy implements ScalingStrategy {
+  threshold: Int!
+  consumerGroup: String!
+  topic: String!
+}
+
+type Scaling {
+  min: Int!
+  max: Int!
+  strategies: [ScalingStrategy!]!
 }
 
 type Resources {
-    limits: Limits!
-    requests: Requests!
+  "Instances using resources above this threshold will be killed"
+  limits: Limits!
+  "How many resources are allocated to each instance "
+  requests: Requests!
+  scaling: Scaling!
+
 }

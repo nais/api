@@ -33,8 +33,15 @@ spec:
   readiness:
     path: /ping
   replicas:
-    max: 1
+    max: 69
     min: 1
+    scalingStrategy:
+      cpu:
+        thresholdPercentage: 50
+      kafka:
+        topic: "bjørntore"
+        consumerGroup: "kalleper"
+        threshold: 80
   resources:
     limits:
       cpu: 250m

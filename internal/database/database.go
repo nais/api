@@ -39,7 +39,6 @@ type Database interface {
 	ReconcilerErrorRepo
 	ReconcilerRepo
 	ReconcilerStateRepo
-	ResourceUtilizationRepo
 	RoleRepo
 	ServiceAccountRepo
 	SessionRepo
@@ -73,7 +72,7 @@ func (q *Queries) Transaction(ctx context.Context, callback QuerierTransactionFu
 	defer tx.Rollback(ctx)
 
 	qtx := &Queries{
-		Queries:  q.Queries.WithTx(tx),
+		Queries:  q.WithTx(tx),
 		connPool: q.connPool,
 	}
 

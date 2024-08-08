@@ -34,6 +34,7 @@ import (
 	"github.com/nais/api/internal/logger"
 	"github.com/nais/api/internal/redis"
 	"github.com/nais/api/internal/resourceusage"
+	fakeresourceusage "github.com/nais/api/internal/resourceusage/fake"
 	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
@@ -171,7 +172,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	pubsubTopic := pubsubClient.Topic("nais-api")
 
-	var hookdClient graph.HookdClient
 	dependencyTrackClient := dependencytrack.New(
 		cfg.DependencyTrack.Endpoint,
 		cfg.DependencyTrack.Username,
@@ -179,13 +179,20 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		cfg.DependencyTrack.Frontend,
 		log.WithField("client", "dependencytrack"),
 	)
+
+	var hookdClient graph.HookdClient
+	var resourceUsageClient resourceusage.ResourceUsageClient
 	if cfg.WithFakeClients {
 		hookdClient = fakehookd.New()
+		resourceUsageClient = fakeresourceusage.New(db, k8sClient)
 	} else {
 		hookdClient = hookd.New(cfg.Hookd.Endpoint, cfg.Hookd.PSK, log.WithField("client", "hookd"))
+		resourceUsageClient, err = resourceusage.New(cfg.K8s.AllClusterNames(), cfg.Tenant, log)
+		if err != nil {
+			return fmt.Errorf("create resource usage client: %w", err)
+		}
 	}
 
-	resourceUsageClient := resourceusage.NewClient(cfg.K8s.AllClusterNames(), db, log)
 	sqlInstanceClient, err := sqlinstance.NewClient(ctx, db, k8sClient.Informers(), log, sqlinstance.WithFakeClients(cfg.WithFakeClients))
 	if err != nil {
 		return fmt.Errorf("create sql instance client: %w", err)
@@ -237,9 +244,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("start k8s informers: %w", err)
 	}
 
-	wg.Go(func() error {
-		return resourceUsageUpdater(ctx, cfg, db, k8sClient, log)
-	})
 	wg.Go(func() error {
 		return costUpdater(ctx, cfg, db, log)
 	})

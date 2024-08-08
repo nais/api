@@ -2,485 +2,261 @@ package resourceusage
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"sort"
+	"strings"
 	"time"
 
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/nais/api/internal/database"
-	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
+	"github.com/prometheus/client_golang/api"
+	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
+	prom "github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
 )
 
-type Client interface {
-	// ResourceUtilizationForApp returns resource utilization (usage and request) for the given app, in the given time range
-	ResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string, start, end scalar.Date) (*model.ResourceUtilizationForApp, error)
+const (
+	appCPURequest      = `kube_pod_container_resource_requests{namespace="%s", container="%s", resource="cpu",unit="core"}`
+	appCPUUsage        = `rate(container_cpu_usage_seconds_total{namespace="%s", container="%s"}[5m])`
+	appMemoryRequest   = `kube_pod_container_resource_requests{namespace="%s", container="%s", resource="memory",unit="byte"}`
+	appMemoryUsage     = `container_memory_working_set_bytes{namespace="%s", container="%s"}`
+	teamCPURequest     = `sum by (container) (kube_pod_container_resource_requests{namespace="%s", container!~%q, resource="cpu",unit="core"})`
+	teamCPUUsage       = `sum by (container) (rate(container_cpu_usage_seconds_total{namespace="%s", container!~%q}[5m]))`
+	teamMemoryRequest  = `sum by (container) (kube_pod_container_resource_requests{namespace="%s", container!~%q, resource="memory",unit="byte"})`
+	teamMemoryUsage    = `sum by (container) (container_memory_working_set_bytes{namespace="%s", container!~%q})`
+	teamsCPURequest    = `sum by (namespace) (kube_pod_container_resource_requests{namespace!~%q, container!~%q, resource="cpu",unit="core"})`
+	teamsCPUUsage      = `sum by (namespace) (rate(container_cpu_usage_seconds_total{namespace!~%q, container!~%q}[5m]))`
+	teamsMemoryRequest = `sum by (namespace) (kube_pod_container_resource_requests{namespace!~%q, container!~%q, resource="memory",unit="byte"})`
+	teamsMemoryUsage   = `sum by (namespace) (container_memory_working_set_bytes{namespace!~%q, container!~%q})`
+)
 
-	// ResourceUtilizationForTeam returns resource utilization (usage and request) for a given team in the given time range
-	ResourceUtilizationForTeam(ctx context.Context, team slug.Slug, start, end scalar.Date) ([]*model.ResourceUtilizationForEnv, error)
+var (
+	ignoredContainers = strings.Join([]string{"elector", "linkerd-proxy", "cloudsql-proxy", "secure-logs-fluentd", "secure-logs-configmap-reload", "secure-logs-fluentbit", "wonderwall", ""}, "|")
+	ignoredNamespaces = strings.Join([]string{"kube-system", "nais-system", "cnrm-system", "configconnector-operator-system", "linkerd-system", "kyverno", "default", "kube-node-lease", "kube-public"}, "|")
+)
 
-	// ResourceUtilizationOverageForTeam will return latest overage data for a given team
-	ResourceUtilizationOverageForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationOverageForTeam, error)
-
-	// ResourceUtilizationRangeForApp will return the min and max timestamps for a specific app
-	ResourceUtilizationRangeForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.ResourceUtilizationDateRange, error)
-
-	// ResourceUtilizationRangeForTeam will return the min and max timestamps for a specific team
-	ResourceUtilizationRangeForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationDateRange, error)
-
-	// CurrentResourceUtilizationForApp will return the current percentages of resource utilization for an app
-	CurrentResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.CurrentResourceUtilization, error)
-
-	// CurrentResourceUtilizationForTeam will return the current percentages of resource utilization for a team across all apps and environments
-	CurrentResourceUtilizationForTeam(ctx context.Context, team slug.Slug) (*model.CurrentResourceUtilization, error)
-
-	// ResourceUtilizationTrendForTeam will return the resource utilization trend for a team across all apps and environments
-	ResourceUtilizationTrendForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationTrend, error)
+type ResourceUsageClient interface {
+	AppResourceRequest(ctx context.Context, env string, teamSlug slug.Slug, app string, resourceType model.UsageResourceType) (float64, error)
+	AppResourceUsage(ctx context.Context, env string, teamSlug slug.Slug, app string, resourceType model.UsageResourceType) (float64, error)
+	AppResourceUsageRange(ctx context.Context, env string, teamSlug slug.Slug, app string, resourceType model.UsageResourceType, start time.Time, end time.Time, step int) ([]*model.UsageDataPoint, error)
+	TeamUtilization(ctx context.Context, teamSlug slug.Slug, resourceType model.UsageResourceType) ([]*model.AppUtilizationData, error)
+	TeamsUtilization(ctx context.Context, resourceType model.UsageResourceType) ([]*model.TeamUtilizationData, error)
 }
 
-type client struct {
-	clusters []string
-	db       database.Database
-	log      logrus.FieldLogger
+type Client struct {
+	prometheuses map[string]promv1.API
+	log          logrus.FieldLogger
 }
 
-// NewClient creates a new resourceusage client
-func NewClient(clusters []string, db database.Database, log logrus.FieldLogger) Client {
-	return &client{
-		clusters: clusters,
-		db:       db,
-		log:      log,
-	}
-}
-
-func (c *client) ResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string, start, end scalar.Date) (*model.ResourceUtilizationForApp, error) {
-	cpu, err := c.resourceUtilizationForApp(ctx, model.ResourceTypeCPU, env, team, app, start, end)
+func New(clusters []string, tenant string, log logrus.FieldLogger) (ResourceUsageClient, error) {
+	proms, err := promClients(clusters, tenant)
 	if err != nil {
 		return nil, err
 	}
 
-	memory, err := c.resourceUtilizationForApp(ctx, model.ResourceTypeMemory, env, team, app, start, end)
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.ResourceUtilizationForApp{
-		CPU:    cpu,
-		Memory: memory,
+	return &Client{
+		prometheuses: proms,
+		log:          log,
 	}, nil
 }
 
-func (c *client) ResourceUtilizationForTeam(ctx context.Context, team slug.Slug, start, end scalar.Date) ([]*model.ResourceUtilizationForEnv, error) {
-	ret := make([]*model.ResourceUtilizationForEnv, 0)
-	for _, env := range c.clusters {
-		cpu, err := c.resourceUtilizationForTeam(ctx, model.ResourceTypeCPU, env, team, start, end)
+func (c *Client) queryAll(ctx context.Context, query string) (map[string]prom.Vector, error) {
+	ret := map[string]prom.Vector{}
+	for env, prometheus := range c.prometheuses {
+		v, err := c.query(ctx, query, prometheus)
 		if err != nil {
-			return nil, err
+			c.log.WithError(err).Errorf("failed to query prometheus in %s", env)
+			continue
 		}
-
-		memory, err := c.resourceUtilizationForTeam(ctx, model.ResourceTypeMemory, env, team, start, end)
-		if err != nil {
-			return nil, err
-		}
-
-		ret = append(ret, &model.ResourceUtilizationForEnv{
-			Env:    env,
-			CPU:    cpu,
-			Memory: memory,
-		})
+		ret[env] = v
 	}
+
 	return ret, nil
 }
 
-func (c *client) ResourceUtilizationOverageForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationOverageForTeam, error) {
-	dateRange, err := c.db.ResourceUtilizationRangeForTeam(ctx, team)
+func (c *Client) query(ctx context.Context, query string, prometheus promv1.API) (prom.Vector, error) {
+	v, warnings, err := prometheus.Query(ctx, query, time.Now().Add(-5*time.Minute))
 	if err != nil {
 		return nil, err
 	}
 
-	cpu, cpuCost, err := c.resourceUtilizationOverageForTeam(ctx, gensql.ResourceTypeCpu, team, dateRange.To)
-	if err != nil {
-		return nil, err
+	if len(warnings) > 0 {
+		return nil, fmt.Errorf("prometheus query warnings: %s", strings.Join(warnings, ", "))
 	}
 
-	memory, memoryCost, err := c.resourceUtilizationOverageForTeam(ctx, gensql.ResourceTypeMemory, team, dateRange.To)
-	if err != nil {
-		return nil, err
+	vector, ok := v.(prom.Vector)
+	if !ok {
+		return nil, fmt.Errorf("expected prometheus vector, got %T", v)
 	}
 
-	return &model.ResourceUtilizationOverageForTeam{
-		OverageCost: cpuCost + memoryCost,
-		CPU:         cpu,
-		Memory:      memory,
-		Timestamp:   dateRange.To.Time,
-	}, nil
+	return vector, nil
 }
 
-func (c *client) ResourceUtilizationRangeForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.ResourceUtilizationDateRange, error) {
-	dates, err := c.db.ResourceUtilizationRangeForApp(ctx, env, team, app)
-	if err != nil {
-		return nil, err
-	}
-	return getDateRange(dates.From, dates.To), nil
-}
+func (c *Client) TeamsUtilization(ctx context.Context, resourceType model.UsageResourceType) ([]*model.TeamUtilizationData, error) {
+	reqQ := teamsMemoryRequest
+	usageQ := teamsMemoryUsage
 
-func (c *client) ResourceUtilizationRangeForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationDateRange, error) {
-	dates, err := c.db.ResourceUtilizationRangeForTeam(ctx, team)
-	if err != nil {
-		return nil, err
+	if resourceType == model.UsageResourceTypeCPU {
+		reqQ = teamsCPURequest
+		usageQ = teamsCPUUsage
 	}
-	return getDateRange(dates.From, dates.To), nil
-}
 
-func (c *client) CurrentResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.CurrentResourceUtilization, error) {
-	timeRange, err := c.db.ResourceUtilizationRangeForTeam(ctx, team)
+	requested, err := c.queryAll(ctx, fmt.Sprintf(reqQ, ignoredNamespaces, ignoredContainers))
 	if err != nil {
 		return nil, err
 	}
 
-	if timeRange.To.Time.Before(time.Now().UTC().Add(-3 * time.Hour)) {
-		return nil, fmt.Errorf("no current data available for app %q in env %q owned by team %q", app, env, team)
-	}
+	ret := []*model.TeamUtilizationData{}
 
-	ts := pgtype.Timestamptz{}
-	err = ts.Scan(timeRange.To.Time)
-	if err != nil {
-		return nil, err
-	}
-
-	cpu, err := c.db.SpecificResourceUtilizationForApp(ctx, env, team, app, gensql.ResourceTypeCpu, ts)
-	if err != nil {
-		return nil, err
-	}
-
-	memory, err := c.db.SpecificResourceUtilizationForApp(ctx, env, team, app, gensql.ResourceTypeMemory, ts)
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.CurrentResourceUtilization{
-		Timestamp: timeRange.To.Time,
-		CPU:       resourceUtilization(model.ResourceTypeCPU, cpu.Timestamp.Time.UTC(), cpu.Request, cpu.Usage, cpu.Request, cpu.Usage),
-		Memory:    resourceUtilization(model.ResourceTypeMemory, memory.Timestamp.Time.UTC(), memory.Request, memory.Usage, memory.Request, memory.Usage),
-	}, nil
-}
-
-func (c *client) CurrentResourceUtilizationForTeam(ctx context.Context, team slug.Slug) (*model.CurrentResourceUtilization, error) {
-	timeRange, err := c.db.ResourceUtilizationRangeForTeam(ctx, team)
-	if err != nil {
-		return nil, fmt.Errorf("fetching resource utilization range: %w", err)
-	}
-
-	if timeRange.To.Time.Before(time.Now().UTC().Add(-3 * time.Hour)) {
-		return nil, nil
-	}
-
-	ts := pgtype.Timestamptz{
-		Time:  timeRange.To.Time,
-		Valid: true,
-	}
-
-	currentCpu, err := c.db.SpecificResourceUtilizationForTeam(ctx, team, gensql.ResourceTypeCpu, ts)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil
-		}
-		return nil, fmt.Errorf("fetching current cpu: %w", err)
-	}
-
-	currentMemory, err := c.db.SpecificResourceUtilizationForTeam(ctx, team, gensql.ResourceTypeMemory, ts)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil
-		}
-		return nil, fmt.Errorf("fetching current memory: %w", err)
-	}
-
-	sMem := joinSpecificRows(currentMemory)
-	sCpu := joinSpecificRows(currentCpu)
-
-	return &model.CurrentResourceUtilization{
-		Timestamp: timeRange.To.Time,
-		CPU:       resourceUtilization(model.ResourceTypeCPU, sCpu.utcTime, sCpu.request, sCpu.usage, sCpu.costOnlyRequest, sCpu.costOnlyUsage),
-		Memory:    resourceUtilization(model.ResourceTypeMemory, sMem.utcTime, sMem.request, sMem.usage, sMem.costOnlyRequest, sMem.costOnlyUsage),
-	}, nil
-}
-
-func (c *client) ResourceUtilizationTrendForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationTrend, error) {
-	current, err := c.CurrentResourceUtilizationForTeam(ctx, team)
-	if err != nil {
-		return nil, err
-	}
-
-	if current == nil {
-		return nil, nil
-	}
-
-	ts := pgtype.Timestamptz{}
-	err = ts.Scan(current.Timestamp)
-	if err != nil {
-		return nil, err
-	}
-
-	cpuAverage, err := c.db.AverageResourceUtilizationForTeam(ctx, team, gensql.ResourceTypeCpu, ts)
-	if err != nil {
-		return nil, err
-	}
-
-	memoryAverage, err := c.db.AverageResourceUtilizationForTeam(ctx, team, gensql.ResourceTypeMemory, ts)
-	if err != nil {
-		return nil, err
-	}
-	if cpuAverage.Request == 0 || memoryAverage.Request == 0 {
-		return nil, nil
-	}
-
-	averageCpuUtilization := cpuAverage.Usage / cpuAverage.Request * 100
-	averageMemoryUtilization := memoryAverage.Usage / memoryAverage.Request * 100
-	cpuTrend := (current.CPU.Utilization - averageCpuUtilization) / averageCpuUtilization * 100
-	memoryTrend := (current.Memory.Utilization - averageMemoryUtilization) / averageMemoryUtilization * 100
-
-	return &model.ResourceUtilizationTrend{
-		CurrentCPUUtilization:    current.CPU.Utilization,
-		AverageCPUUtilization:    averageCpuUtilization,
-		CPUUtilizationTrend:      cpuTrend,
-		CurrentMemoryUtilization: current.Memory.Utilization,
-		AverageMemoryUtilization: averageMemoryUtilization,
-		MemoryUtilizationTrend:   memoryTrend,
-	}, nil
-}
-
-func (c *client) resourceUtilizationForApp(ctx context.Context, resourceType model.ResourceType, env string, team slug.Slug, app string, start, end scalar.Date) ([]*model.ResourceUtilization, error) {
-	s, err := start.Time()
-	if err != nil {
-		return nil, err
-	}
-
-	e, err := end.Time()
-	if err != nil {
-		return nil, err
-	}
-	e = e.AddDate(0, 0, 1)
-
-	startTs := pgtype.Timestamptz{}
-	err = startTs.Scan(s)
-	if err != nil {
-		return nil, err
-	}
-
-	endTs := pgtype.Timestamptz{}
-	err = endTs.Scan(e)
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := c.db.ResourceUtilizationForApp(ctx, gensql.ResourceUtilizationForAppParams{
-		Environment:  env,
-		TeamSlug:     team,
-		App:          app,
-		ResourceType: resourceType.ToDatabaseEnum(),
-		Start:        startTs,
-		End:          endTs,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	utilizationMap := initUtilizationMap(s, e)
-	for _, row := range rows {
-		ts := row.Timestamp.Time.UTC()
-		utilizationMap[ts] = resourceUtilization(resourceType, ts, row.Request, row.Usage, row.Request, row.Usage)
-	}
-
-	data := make([]*model.ResourceUtilization, 0)
-	for _, entry := range utilizationMap {
-		data = append(data, &entry)
-	}
-
-	sort.Slice(data, func(i, j int) bool {
-		return data[i].Timestamp.Before(data[j].Timestamp)
-	})
-
-	return data, nil
-}
-
-func (c *client) resourceUtilizationForTeam(ctx context.Context, resourceType model.ResourceType, env string, team slug.Slug, start, end scalar.Date) ([]*model.ResourceUtilization, error) {
-	s, err := start.Time()
-	if err != nil {
-		return nil, err
-	}
-
-	e, err := end.Time()
-	if err != nil {
-		return nil, err
-	}
-	e = e.AddDate(0, 0, 1)
-
-	startTs := pgtype.Timestamptz{}
-	err = startTs.Scan(s)
-	if err != nil {
-		return nil, err
-	}
-
-	endTs := pgtype.Timestamptz{}
-	err = endTs.Scan(e)
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := c.db.ResourceUtilizationForTeam(ctx, env, team, resourceType.ToDatabaseEnum(), startTs, endTs)
-	if err != nil {
-		return nil, err
-	}
-
-	utilizationMap := initUtilizationMap(s, e)
-	for _, row := range rows {
-		ts := row.Timestamp.Time.UTC()
-		utilizationMap[ts] = resourceUtilization(resourceType, ts, row.Request, row.Usage, row.Request, row.Usage)
-	}
-
-	data := make([]*model.ResourceUtilization, 0)
-	for _, entry := range utilizationMap {
-		data = append(data, &entry)
-	}
-
-	sort.Slice(data, func(i, j int) bool {
-		return data[i].Timestamp.Before(data[j].Timestamp)
-	})
-
-	return data, nil
-}
-
-func (c *client) resourceUtilizationOverageForTeam(ctx context.Context, resource gensql.ResourceType, team slug.Slug, timestamp pgtype.Timestamptz) (models []*model.AppWithResourceUtilizationOverage, sumOverageCost float64, err error) {
-	rows, err := c.db.ResourceUtilizationOverageForTeam(ctx, team, timestamp, resource)
-	if err != nil {
-		return
-	}
-
-	for _, row := range rows {
-		overageCostPerHour := costPerHour(resource, row.Overage)
-		sumOverageCost += overageCostPerHour
-		models = append(models, &model.AppWithResourceUtilizationOverage{
-			Overage:                    row.Overage,
-			OverageCost:                overageCostPerHour,
-			Utilization:                row.Usage / row.Request * 100,
-			EstimatedAnnualOverageCost: overageCostPerHour * 24 * 365,
-			Env:                        row.Environment,
-			Team:                       team,
-			App:                        row.App,
-		})
-	}
-
-	return
-}
-
-// costPerHour calculates the cost for the given resource type
-func costPerHour(resourceType gensql.ResourceType, value float64) (cost float64) {
-	const costPerCpuCorePerMonthInNok = 131.0
-	const costPerGBMemoryPerMonthInNok = 18.0
-	const eurToNokExchangeRate = 11.5
-
-	if resourceType == gensql.ResourceTypeCpu {
-		cost = costPerCpuCorePerMonthInNok * value
-	} else {
-		// for memory the value is in bytes
-		cost = (costPerGBMemoryPerMonthInNok / 1024 / 1024 / 1024) * value
-	}
-
-	return cost / 30.0 / 24.0 / eurToNokExchangeRate
-}
-
-// getDateRange returns a date range model from two timestamps
-func getDateRange(from, to pgtype.Timestamptz) *model.ResourceUtilizationDateRange {
-	var fromDate, toDate *scalar.Date
-
-	if !from.Time.IsZero() {
-		f := scalar.NewDate(from.Time)
-		fromDate = &f
-	}
-	if !to.Time.IsZero() {
-		t := scalar.NewDate(to.Time)
-		toDate = &t
-	}
-
-	return &model.ResourceUtilizationDateRange{
-		From: fromDate,
-		To:   toDate,
-	}
-}
-
-// resourceUtilization will return a resource utilization model
-func resourceUtilization(resource model.ResourceType, ts time.Time, request, usage, costRequest, costUsage float64) model.ResourceUtilization {
-	var utilization float64
-	if request > 0 {
-		utilization = usage / request * 100
-	}
-
-	requestCost := costPerHour(resource.ToDatabaseEnum(), costRequest)
-	usageCost := costPerHour(resource.ToDatabaseEnum(), costUsage)
-	overageCostPerHour := requestCost - usageCost
-
-	return model.ResourceUtilization{
-		Timestamp:                  ts,
-		Request:                    request,
-		RequestCost:                requestCost,
-		Usage:                      usage,
-		UsageCost:                  usageCost,
-		RequestCostOverage:         overageCostPerHour,
-		Utilization:                utilization,
-		EstimatedAnnualOverageCost: overageCostPerHour * 24 * 365,
-	}
-}
-
-// initUtilizationMap will create a map of timestamps with empty resource utilization data. This is used to not have
-// gaps in the graph. The last entry in the map will not be in the future.
-func initUtilizationMap(start, end time.Time) map[time.Time]model.ResourceUtilization {
-	now := time.Now().UTC()
-	timestamps := make([]time.Time, 0)
-	ts := start
-	for ; ts.Before(end) && ts.Before(now); ts = ts.Add(rangedQueryStep) {
-		timestamps = append(timestamps, ts)
-	}
-
-	utilization := make(map[time.Time]model.ResourceUtilization)
-	for _, ts := range timestamps {
-		utilization[ts] = model.ResourceUtilization{
-			Timestamp: ts,
+	for _, samples := range requested {
+		for _, sample := range samples {
+			ret = append(ret, &model.TeamUtilizationData{
+				TeamSlug:  slug.Slug(sample.Metric["namespace"]),
+				Requested: float64(sample.Value),
+			})
 		}
 	}
-	return utilization
-}
 
-type splitResource struct {
-	request         float64
-	usage           float64
-	costOnlyRequest float64
-	costOnlyUsage   float64
-	utcTime         time.Time
-}
+	used, err := c.queryAll(ctx, fmt.Sprintf(usageQ, ignoredNamespaces, ignoredContainers))
+	if err != nil {
+		return nil, err
+	}
 
-func joinSpecificRows(r []*gensql.SpecificResourceUtilizationForTeamRow) splitResource {
-	var request, usage, costOnlyRequest, costOnlyUsage float64
-	var utcTime time.Time
-	for _, row := range r {
-		utcTime = row.Timestamp.Time.UTC()
-		request += row.Request
-		usage += row.Usage
-		if row.UsableForCost {
-			costOnlyRequest += row.Request
-			costOnlyUsage += row.Usage
+	for _, samples := range used {
+		for _, sample := range samples {
+			for _, data := range ret {
+				if data.TeamSlug == slug.Slug(sample.Metric["namespace"]) {
+					data.Used = float64(sample.Value)
+				}
+			}
 		}
 	}
-	return splitResource{
-		request:         request,
-		usage:           usage,
-		costOnlyRequest: costOnlyRequest,
-		costOnlyUsage:   costOnlyUsage,
-		utcTime:         utcTime,
+
+	return ret, nil
+}
+
+func (c *Client) TeamUtilization(ctx context.Context, teamSlug slug.Slug, resourceType model.UsageResourceType) ([]*model.AppUtilizationData, error) {
+	reqQ := teamMemoryRequest
+	usageQ := teamMemoryUsage
+
+	if resourceType == model.UsageResourceTypeCPU {
+		reqQ = teamCPURequest
+		usageQ = teamCPUUsage
 	}
+
+	requested, err := c.queryAll(ctx, fmt.Sprintf(reqQ, teamSlug, ignoredContainers))
+	if err != nil {
+		return nil, err
+	}
+
+	ret := []*model.AppUtilizationData{}
+
+	for env, samples := range requested {
+		for _, sample := range samples {
+			ret = append(ret, &model.AppUtilizationData{
+				TeamSlug:  teamSlug,
+				AppName:   string(sample.Metric["container"]),
+				Env:       env,
+				Requested: float64(sample.Value),
+			})
+		}
+	}
+
+	used, err := c.queryAll(ctx, fmt.Sprintf(usageQ, teamSlug, ignoredContainers))
+	if err != nil {
+		return nil, err
+	}
+
+	for _, samples := range used {
+		for _, sample := range samples {
+			for _, data := range ret {
+				if data.AppName == string(sample.Metric["container"]) {
+					data.Used = float64(sample.Value)
+				}
+			}
+		}
+	}
+
+	return ret, nil
+}
+
+func (c *Client) AppResourceRequest(ctx context.Context, env string, teamSlug slug.Slug, app string, resourceType model.UsageResourceType) (float64, error) {
+	q := appMemoryRequest
+	if resourceType == model.UsageResourceTypeCPU {
+		q = appCPURequest
+	}
+
+	v, err := c.query(ctx, fmt.Sprintf(q, teamSlug, app), c.prometheuses[env])
+	if err != nil {
+		return 0, err
+	}
+	return ensuredVal(v), nil
+}
+
+func (c *Client) AppResourceUsage(ctx context.Context, env string, teamSlug slug.Slug, app string, resourceType model.UsageResourceType) (float64, error) {
+	q := appMemoryUsage
+	if resourceType == model.UsageResourceTypeCPU {
+		q = appCPUUsage
+	}
+
+	v, err := c.query(ctx, fmt.Sprintf(q, teamSlug, app), c.prometheuses[env])
+	if err != nil {
+		return 0, err
+	}
+
+	return ensuredVal(v), nil
+}
+
+func (c *Client) AppResourceUsageRange(ctx context.Context, env string, teamSlug slug.Slug, app string, resourceType model.UsageResourceType, start time.Time, end time.Time, step int) ([]*model.UsageDataPoint, error) {
+	q := appMemoryUsage
+	if resourceType == model.UsageResourceTypeCPU {
+		q = appCPUUsage
+	}
+	v, warnings, err := c.prometheuses[env].QueryRange(ctx, fmt.Sprintf(q, teamSlug, app), promv1.Range{Start: start, End: end, Step: time.Duration(step) * time.Second})
+	if err != nil {
+		return nil, err
+	}
+	if len(warnings) > 0 {
+		return nil, fmt.Errorf("prometheus query warnings: %s", strings.Join(warnings, ", "))
+	}
+
+	matrix, ok := v.(prom.Matrix)
+	if !ok {
+		return nil, fmt.Errorf("expected prometheus matrix, got %T", v)
+	}
+
+	ret := make([]*model.UsageDataPoint, 0)
+
+	for _, sample := range matrix {
+		for _, value := range sample.Values {
+			ret = append(ret, &model.UsageDataPoint{
+				Value:     float64(value.Value),
+				Timestamp: value.Timestamp.Time(),
+			})
+		}
+	}
+
+	return ret, nil
+}
+
+func promClients(clusters []string, tenant string) (map[string]promv1.API, error) {
+	ret := map[string]promv1.API{}
+
+	for _, cluster := range clusters {
+		client, err := api.NewClient(api.Config{Address: fmt.Sprintf("https://prometheus.%s.%s", cluster, tenant)})
+		if err != nil {
+			return nil, err
+		}
+
+		ret[cluster] = promv1.NewAPI(client)
+	}
+
+	return ret, nil
+}
+
+func ensuredVal(v prom.Vector) float64 {
+	if len(v) == 0 {
+		return 0
+	}
+
+	return float64(v[0].Value)
 }
