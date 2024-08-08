@@ -15,8 +15,8 @@ const (
 )
 
 func init() {
-	ident.RegisterIdentType(identSqlInstance, "PSI", ident.Wrap(GetByIdent))
-	ident.RegisterIdentType(identSqlDatabase, "PSD", ident.Wrap(GetDatabaseByIdent))
+	ident.RegisterIdentType(identSqlInstance, "PSI", GetByIdent)
+	ident.RegisterIdentType(identSqlDatabase, "PSD", GetDatabaseByIdent)
 }
 
 func newIdent(teamSlug slug.Slug, environmentName, sqlInstanceName string) ident.Ident {

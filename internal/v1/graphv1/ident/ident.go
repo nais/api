@@ -20,28 +20,36 @@ type typeVal struct {
 
 var knownTypes = map[any]typeVal{}
 
-func Wrap[T modelv1.Node](fn func(ctx context.Context, id Ident) (T, error)) Lookup {
-	return func(ctx context.Context, id Ident) (modelv1.Node, error) {
-		return fn(ctx, id)
-	}
-}
-
-func RegisterIdentType[K comparable](key K, t string, lookup Lookup) {
+// RegisterIdentType registers a new ident type with the given key, type name and lookup function.
+//
+// typeName must be globally unique and should be as short as possible. The lookup function must be able to retrieve the
+// node associated with the given ident. The function will panic if lookup is nil, or if the key or the typeName is
+// already registered.
+//
+// This function is typically called during the initialization phase of the packages that defines unique identifiers by
+// using the init() function.
+func RegisterIdentType[K comparable, T modelv1.Node](key K, typeName string, lookup func(ctx context.Context, id Ident) (T, error)) {
 	if lookup == nil {
 		panic("lookup function must be set")
 	}
 
 	for k, v := range knownTypes {
-		if v.name == t {
-			panic("ident type already registered for type " + t)
+		if v.name == typeName {
+			panic(fmt.Sprintf("ident type already registered for type name: %q", typeName))
 		} else if k == key {
 			panic("ident type already registered for key")
 		}
 	}
 
 	knownTypes[key] = typeVal{
-		name:   t,
-		lookup: lookup,
+		name:   typeName,
+		lookup: wrap(lookup),
+	}
+}
+
+func wrap[T modelv1.Node](fn func(ctx context.Context, id Ident) (T, error)) Lookup {
+	return func(ctx context.Context, id Ident) (modelv1.Node, error) {
+		return fn(ctx, id)
 	}
 }
 
@@ -59,6 +67,8 @@ func GetByIdent(ctx context.Context, ident Ident) (modelv1.Node, error) {
 	return nil, fmt.Errorf("unknown ident type")
 }
 
+// NewIdent returns a new ident with the given type and id parts. The type must already be registered by using the
+// RegisterIdentType function.
 func NewIdent[K comparable](t K, id ...string) Ident {
 	if _, ok := knownTypes[t]; !ok {
 		panic("unknown ident type")
