@@ -94,6 +94,7 @@ func Test_deployInfoResolver_History(t *testing.T) {
 			nil,
 			nil,
 			nil,
+			nil,
 			"example.com",
 			nil,
 			nil,

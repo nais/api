@@ -15,6 +15,23 @@ import (
 )
 
 const (
+	memUtil = `
+  (
+      (
+        sum by (namespace, container) (
+			container_memory_working_set_bytes{container!~%[1]q,container=%[2]q,namespace=%[3]q}
+        )
+      )
+    /
+      (
+        sum by (namespace, container) (
+          kube_pod_container_resource_requests{container!~%[1]q,container=%[2]q,namespace=%[3]q,resource="memory",unit="byte"}
+        )
+      )
+  )
+*
+  100
+	`
 	cpuUtil = `
   (
       (
@@ -75,7 +92,11 @@ func NewClientV2(clusters []string, tenant string, log logrus.FieldLogger) (*Cli
 
 func (c *ClientV2) ResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string, resourceType model.ResourceTypeV2, start time.Time, end time.Time, step int) ([]*model.ResourceUtilizationV2, error) {
 	ignoredContainers := strings.Join(containersToIgnore, "|") + "|"
-	v, warnings, err := c.prometheuses[env].QueryRange(ctx, fmt.Sprintf(cpuUtil, ignoredContainers, app, team), promv1.Range{Start: start, End: end, Step: time.Duration(step) * time.Second})
+	q := memUtil
+	if resourceType == model.ResourceTypeV2CPU {
+		q = cpuUtil
+	}
+	v, warnings, err := c.prometheuses[env].QueryRange(ctx, fmt.Sprintf(q, ignoredContainers, app, team), promv1.Range{Start: start, End: end, Step: time.Duration(step) * time.Second})
 	if err != nil {
 		return nil, err
 	}
