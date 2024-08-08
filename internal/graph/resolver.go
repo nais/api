@@ -132,6 +132,7 @@ type Resolver struct {
 	k8sClient             *k8s.Client
 	dependencyTrackClient DependencytrackClient
 	resourceUsageClient   resourceusage.Client
+	resourceUsageClientV2 *resourceusage.ClientV2
 	searcher              *search.Searcher
 	log                   logrus.FieldLogger
 	clusters              ClusterList
@@ -155,6 +156,7 @@ func NewResolver(hookdClient HookdClient,
 	k8sClient *k8s.Client,
 	dependencyTrackClient DependencytrackClient,
 	resourceUsageClient resourceusage.Client,
+	resourceUsageClientV2 *resourceusage.ClientV2,
 	db database.Database,
 	tenantDomain string,
 	usersyncTrigger chan<- uuid.UUID,
@@ -176,6 +178,7 @@ func NewResolver(hookdClient HookdClient,
 		k8sClient:             k8sClient,
 		dependencyTrackClient: dependencyTrackClient,
 		resourceUsageClient:   resourceUsageClient,
+		resourceUsageClientV2: resourceUsageClientV2,
 		tenantDomain:          tenantDomain,
 		usersyncTrigger:       usersyncTrigger,
 		auditLogger:           auditLogger,

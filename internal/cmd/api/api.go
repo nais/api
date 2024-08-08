@@ -184,7 +184,14 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		hookdClient = hookd.New(cfg.Hookd.Endpoint, cfg.Hookd.PSK, log.WithField("client", "hookd"))
 	}
 
+	resourceUsageClientV2, err := resourceusage.NewClientV2(cfg.K8s.AllClusterNames(), cfg.Tenant, log)
+	if err != nil {
+		return fmt.Errorf("create resource usage client v2: %w", err)
+	}
+
+	// TODO: remove
 	resourceUsageClient := resourceusage.NewClient(cfg.K8s.AllClusterNames(), db, log)
+
 	sqlInstanceClient, err := sqlinstance.NewClient(ctx, db, k8sClient.Informers(), log, sqlinstance.WithFakeClients(cfg.WithFakeClients))
 	if err != nil {
 		return fmt.Errorf("create sql instance client: %w", err)
@@ -195,6 +202,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		k8sClient,
 		dependencyTrackClient,
 		resourceUsageClient,
+		resourceUsageClientV2,
 		db,
 		cfg.TenantDomain,
 		usersyncTrigger,

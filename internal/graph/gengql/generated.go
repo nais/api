@@ -952,6 +952,7 @@ type ComplexityRoot struct {
 		ResourceUtilizationDateRangeForApp  func(childComplexity int, env string, team slug.Slug, app string) int
 		ResourceUtilizationDateRangeForTeam func(childComplexity int, team slug.Slug) int
 		ResourceUtilizationForApp           func(childComplexity int, env string, team slug.Slug, app string, from *scalar.Date, to *scalar.Date) int
+		ResourceUtilizationForAppV2         func(childComplexity int, env string, team slug.Slug, app string, start time.Time, end time.Time, step int, resourceType model.ResourceTypeV2) int
 		ResourceUtilizationForTeam          func(childComplexity int, team slug.Slug, from *scalar.Date, to *scalar.Date) int
 		ResourceUtilizationOverageForTeam   func(childComplexity int, team slug.Slug) int
 		ResourceUtilizationTrendForTeam     func(childComplexity int, team slug.Slug) int
@@ -1099,6 +1100,11 @@ type ComplexityRoot struct {
 		CurrentCPUUtilization    func(childComplexity int) int
 		CurrentMemoryUtilization func(childComplexity int) int
 		MemoryUtilizationTrend   func(childComplexity int) int
+	}
+
+	ResourceUtilizationV2 struct {
+		Timestamp func(childComplexity int) int
+		Value     func(childComplexity int) int
 	}
 
 	Resources struct {
@@ -1605,6 +1611,7 @@ type QueryResolver interface {
 	ResourceUtilizationDateRangeForTeam(ctx context.Context, team slug.Slug) (*model.ResourceUtilizationDateRange, error)
 	ResourceUtilizationDateRangeForApp(ctx context.Context, env string, team slug.Slug, app string) (*model.ResourceUtilizationDateRange, error)
 	ResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string, from *scalar.Date, to *scalar.Date) (*model.ResourceUtilizationForApp, error)
+	ResourceUtilizationForAppV2(ctx context.Context, env string, team slug.Slug, app string, start time.Time, end time.Time, step int, resourceType model.ResourceTypeV2) ([]*model.ResourceUtilizationV2, error)
 	Search(ctx context.Context, query string, filter *model.SearchFilter, offset *int, limit *int) (*model.SearchList, error)
 	Teams(ctx context.Context, offset *int, limit *int, filter *model.TeamsFilter) (*model.TeamList, error)
 	Team(ctx context.Context, slug slug.Slug) (*model.Team, error)
@@ -5600,6 +5607,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.ResourceUtilizationForApp(childComplexity, args["env"].(string), args["team"].(slug.Slug), args["app"].(string), args["from"].(*scalar.Date), args["to"].(*scalar.Date)), true
 
+	case "Query.resourceUtilizationForAppV2":
+		if e.complexity.Query.ResourceUtilizationForAppV2 == nil {
+			break
+		}
+
+		args, err := ec.field_Query_resourceUtilizationForAppV2_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ResourceUtilizationForAppV2(childComplexity, args["env"].(string), args["team"].(slug.Slug), args["app"].(string), args["start"].(time.Time), args["end"].(time.Time), args["step"].(int), args["resourceType"].(model.ResourceTypeV2)), true
+
 	case "Query.resourceUtilizationForTeam":
 		if e.complexity.Query.ResourceUtilizationForTeam == nil {
 			break
@@ -6289,6 +6308,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ResourceUtilizationTrend.MemoryUtilizationTrend(childComplexity), true
+
+	case "ResourceUtilizationV2.timestamp":
+		if e.complexity.ResourceUtilizationV2.Timestamp == nil {
+			break
+		}
+
+		return e.complexity.ResourceUtilizationV2.Timestamp(childComplexity), true
+
+	case "ResourceUtilizationV2.value":
+		if e.complexity.ResourceUtilizationV2.Value == nil {
+			break
+		}
+
+		return e.complexity.ResourceUtilizationV2.Value(childComplexity), true
 
 	case "Resources.limits":
 		if e.complexity.Resources.Limits == nil {
@@ -9864,6 +9897,47 @@ enum ResourceType {
   MEMORY
 }
 `, BuiltIn: false},
+	{Name: "../graphqls/resourceusagev2.graphqls", Input: `extend type Query {
+  "Get the resource utilization for an app."
+  resourceUtilizationForAppV2(
+    "The environment where the app is running."
+    env: String!
+
+    "The name of the team."
+    team: Slug!
+
+    "The name of the app."
+    app: String!
+
+    "Fetch resource utilization from this timestamp."
+    start: Time!
+
+    "Fetch resource utilization until this timestamp."
+    end: Time!
+
+    "Step size in seconds for the data points."
+    step: Int!
+
+    "The type of resource to fetch."
+    resourceType: ResourceTypeV2!
+  ): [ResourceUtilizationV2!]!
+}
+
+"Resource utilization type."
+type ResourceUtilizationV2 {
+  "Timestamp of the value."
+  timestamp: Time!
+
+  "Utilization in percent, (used / requested) * 100"
+  value: Float!
+}
+
+"Resource type."
+enum ResourceTypeV2 {
+  CPU
+  MEMORY
+}
+`, BuiltIn: false},
 	{Name: "../graphqls/scalars.graphqls", Input: `"Time is a string in [RFC 3339](https://rfc-editor.org/rfc/rfc3339.html) format, with sub-second precision added if present."
 scalar Time
 
@@ -12097,6 +12171,75 @@ func (ec *executionContext) field_Query_resourceUtilizationDateRangeForTeam_args
 		}
 	}
 	args["team"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_resourceUtilizationForAppV2_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["env"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("env"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["env"] = arg0
+	var arg1 slug.Slug
+	if tmp, ok := rawArgs["team"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
+		arg1, err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["team"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["app"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("app"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["app"] = arg2
+	var arg3 time.Time
+	if tmp, ok := rawArgs["start"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("start"))
+		arg3, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["start"] = arg3
+	var arg4 time.Time
+	if tmp, ok := rawArgs["end"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("end"))
+		arg4, err = ec.unmarshalNTime2timeᚐTime(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["end"] = arg4
+	var arg5 int
+	if tmp, ok := rawArgs["step"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("step"))
+		arg5, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["step"] = arg5
+	var arg6 model.ResourceTypeV2
+	if tmp, ok := rawArgs["resourceType"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceType"))
+		arg6, err = ec.unmarshalNResourceTypeV22githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceTypeV2(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["resourceType"] = arg6
 	return args, nil
 }
 
@@ -40548,6 +40691,67 @@ func (ec *executionContext) fieldContext_Query_resourceUtilizationForApp(ctx con
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_resourceUtilizationForAppV2(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_resourceUtilizationForAppV2(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ResourceUtilizationForAppV2(rctx, fc.Args["env"].(string), fc.Args["team"].(slug.Slug), fc.Args["app"].(string), fc.Args["start"].(time.Time), fc.Args["end"].(time.Time), fc.Args["step"].(int), fc.Args["resourceType"].(model.ResourceTypeV2))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.ResourceUtilizationV2)
+	fc.Result = res
+	return ec.marshalNResourceUtilizationV22ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceUtilizationV2ᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_resourceUtilizationForAppV2(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "timestamp":
+				return ec.fieldContext_ResourceUtilizationV2_timestamp(ctx, field)
+			case "value":
+				return ec.fieldContext_ResourceUtilizationV2_value(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ResourceUtilizationV2", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_resourceUtilizationForAppV2_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_search(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_search(ctx, field)
 	if err != nil {
@@ -45344,6 +45548,94 @@ func (ec *executionContext) _ResourceUtilizationTrend_memoryUtilizationTrend(ctx
 func (ec *executionContext) fieldContext_ResourceUtilizationTrend_memoryUtilizationTrend(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ResourceUtilizationTrend",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ResourceUtilizationV2_timestamp(ctx context.Context, field graphql.CollectedField, obj *model.ResourceUtilizationV2) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ResourceUtilizationV2_timestamp(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Timestamp, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ResourceUtilizationV2_timestamp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ResourceUtilizationV2",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ResourceUtilizationV2_value(ctx context.Context, field graphql.CollectedField, obj *model.ResourceUtilizationV2) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ResourceUtilizationV2_value(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Value, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ResourceUtilizationV2_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ResourceUtilizationV2",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -67515,6 +67807,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "resourceUtilizationForAppV2":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_resourceUtilizationForAppV2(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "search":
 			field := field
 
@@ -69018,6 +69332,50 @@ func (ec *executionContext) _ResourceUtilizationTrend(ctx context.Context, sel a
 			}
 		case "memoryUtilizationTrend":
 			out.Values[i] = ec._ResourceUtilizationTrend_memoryUtilizationTrend(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var resourceUtilizationV2Implementors = []string{"ResourceUtilizationV2"}
+
+func (ec *executionContext) _ResourceUtilizationV2(ctx context.Context, sel ast.SelectionSet, obj *model.ResourceUtilizationV2) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, resourceUtilizationV2Implementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ResourceUtilizationV2")
+		case "timestamp":
+			out.Values[i] = ec._ResourceUtilizationV2_timestamp(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "value":
+			out.Values[i] = ec._ResourceUtilizationV2_value(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -76745,6 +77103,16 @@ func (ec *executionContext) marshalNRequests2githubᚗcomᚋnaisᚋapiᚋinterna
 	return ec._Requests(ctx, sel, &v)
 }
 
+func (ec *executionContext) unmarshalNResourceTypeV22githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceTypeV2(ctx context.Context, v interface{}) (model.ResourceTypeV2, error) {
+	var res model.ResourceTypeV2
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNResourceTypeV22githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceTypeV2(ctx context.Context, sel ast.SelectionSet, v model.ResourceTypeV2) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNResourceUtilization2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceUtilization(ctx context.Context, sel ast.SelectionSet, v model.ResourceUtilization) graphql.Marshaler {
 	return ec._ResourceUtilization(ctx, sel, &v)
 }
@@ -76911,6 +77279,60 @@ func (ec *executionContext) marshalNResourceUtilizationTrend2ᚖgithubᚗcomᚋn
 		return graphql.Null
 	}
 	return ec._ResourceUtilizationTrend(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNResourceUtilizationV22ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceUtilizationV2ᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ResourceUtilizationV2) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNResourceUtilizationV22ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceUtilizationV2(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNResourceUtilizationV22ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceUtilizationV2(ctx context.Context, sel ast.SelectionSet, v *model.ResourceUtilizationV2) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ResourceUtilizationV2(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNResources2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResources(ctx context.Context, sel ast.SelectionSet, v model.Resources) graphql.Marshaler {

@@ -1,0 +1,40 @@
+extend type Query {
+  "Get the resource utilization for an app."
+  resourceUtilizationForAppV2(
+    "The environment where the app is running."
+    env: String!
+
+    "The name of the team."
+    team: Slug!
+
+    "The name of the app."
+    app: String!
+
+    "Fetch resource utilization from this timestamp."
+    start: Time!
+
+    "Fetch resource utilization until this timestamp."
+    end: Time!
+
+    "Step size in seconds for the data points."
+    step: Int!
+
+    "The type of resource to fetch."
+    resourceType: ResourceTypeV2!
+  ): [ResourceUtilizationV2!]!
+}
+
+"Resource utilization type."
+type ResourceUtilizationV2 {
+  "Timestamp of the value."
+  timestamp: Time!
+
+  "Utilization in percent, (used / requested) * 100"
+  value: Float!
+}
+
+"Resource type."
+enum ResourceTypeV2 {
+  CPU
+  MEMORY
+}

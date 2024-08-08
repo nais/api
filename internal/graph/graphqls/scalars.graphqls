@@ -1,4 +1,4 @@
-"Time is a string in [RFC 3339](https://rfc-editor.org/rfc/rfc3339.html) format, with sub-second precision added if present."
+"Time is a string in [RFC 3339](https://rfc-editor.org/rfc/rfc3339.html) format, with sub-second precision added if present. E.g. `2024-09-06T13:37:00Z`."
 scalar Time
 
 "Date type in YYYY-MM-DD format."
