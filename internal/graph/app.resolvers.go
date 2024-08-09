@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
@@ -12,6 +13,8 @@ import (
 	"github.com/nais/api/internal/slug"
 	"k8s.io/utils/ptr"
 )
+
+const MaxDataPoints = 1000
 
 func (r *appResolver) Persistence(ctx context.Context, obj *model.App) ([]model.Persistence, error) {
 	return r.k8sClient.Persistence(ctx, obj.WorkloadBase)
@@ -55,6 +58,34 @@ func (r *appResolver) Secrets(ctx context.Context, obj *model.App) ([]*model.Sec
 	}
 
 	return r.k8sClient.SecretsForApp(ctx, obj)
+}
+
+func (r *appResolver) Utilization(ctx context.Context, obj *model.App) (*model.AppUtilization, error) {
+	return &model.AppUtilization{
+		GQLVars: model.AppUtilizationGQLVars{
+			Env:     obj.Env.Name,
+			Team:    obj.GQLVars.Team,
+			AppName: obj.Name,
+		},
+	}, nil
+}
+
+func (r *appUtilizationResolver) Current(ctx context.Context, obj *model.AppUtilization, resourceType model.UtilizationResourceType) (float64, error) {
+	return r.resourceUsageClientV2.CurrentResourceUtilizationForApp(ctx, obj.GQLVars.Env, obj.GQLVars.Team, obj.GQLVars.AppName, resourceType)
+}
+
+func (r *appUtilizationResolver) Request(ctx context.Context, obj *model.AppUtilization, resourceType model.UtilizationResourceType) (float64, error) {
+	return r.resourceUsageClientV2.ResourceRequestForApp(ctx, obj.GQLVars.Env, obj.GQLVars.Team, obj.GQLVars.AppName, resourceType)
+}
+
+func (r *appUtilizationResolver) Range(ctx context.Context, obj *model.AppUtilization, start time.Time, end time.Time, step int, resourceType model.UtilizationResourceType) ([]*model.UtilizationDataPoint, error) {
+	dpsRequested := ((int(end.Unix()) - int(start.Unix())) / step)
+	if dpsRequested > MaxDataPoints {
+		return nil, apierror.Errorf("maximum datapoints exceeded. Maximum allowed is %d, you requested %d", MaxDataPoints, dpsRequested)
+	}
+
+	// return r.resourceUsageClientV2.ResourceUtilizationForApp(ctx, obj.GQLVars.Env, obj.GQLVars.Team, obj.GQLVars.AppName, resourceType, start, end, step)
+	return r.resourceUsageClientV2.ResourceUtilizationForApp(ctx, "dev", slug.Slug("etterlatte"), "etterlatte-klage", resourceType, start, end, step)
 }
 
 func (r *mutationResolver) DeleteApp(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteAppResult, error) {
@@ -102,4 +133,9 @@ func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, en
 
 func (r *Resolver) App() gengql.AppResolver { return &appResolver{r} }
 
-type appResolver struct{ *Resolver }
+func (r *Resolver) AppUtilization() gengql.AppUtilizationResolver { return &appUtilizationResolver{r} }
+
+type (
+	appResolver            struct{ *Resolver }
+	appUtilizationResolver struct{ *Resolver }
+)

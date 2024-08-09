@@ -65,6 +65,45 @@ type App implements Workload {
   manifest: String!
   team: Team!
   secrets: [Secret!]!
+  utilization: AppUtilization!
+}
+
+type AppUtilization {
+  "Get the current utilization percentage for the requested resource type."
+  current(resourceType: UtilizationResourceType!): Float!
+
+  "Get the requested resources for the specified resource type."
+  request(resourceType: UtilizationResourceType!): Float!
+
+  "Utilization within interval with step size for resource type."
+  range(
+    "Fetch resource utilization from this timestamp."
+    start: Time!
+
+    "Fetch resource utilization until this timestamp."
+    end: Time!
+
+    "Step size in seconds for the data points."
+    step: Int!
+
+    "Resource type."
+    resourceType: UtilizationResourceType!
+  ): [UtilizationDataPoint!]!
+}
+
+"Resource utilization type."
+type UtilizationDataPoint {
+  "Timestamp of the value."
+  timestamp: Time!
+
+  "Utilization in percent, (used / requested) * 100"
+  value: Float!
+}
+
+"Resource type."
+enum UtilizationResourceType {
+  CPU
+  MEMORY
 }
 
 type WorkloadStatus {

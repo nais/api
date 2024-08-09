@@ -852,14 +852,6 @@ type ResourceUtilizationTrend struct {
 	MemoryUtilizationTrend float64 `json:"memoryUtilizationTrend"`
 }
 
-// Resource utilization type.
-type ResourceUtilizationV2 struct {
-	// Timestamp of the value.
-	Timestamp time.Time `json:"timestamp"`
-	// Utilization in percent, (used / requested) * 100
-	Value float64 `json:"value"`
-}
-
 type Resources struct {
 	Limits   Limits   `json:"limits"`
 	Requests Requests `json:"requests"`
@@ -1028,6 +1020,14 @@ type UserList struct {
 type UsersyncRunList struct {
 	Nodes    []*UsersyncRun `json:"nodes"`
 	PageInfo PageInfo       `json:"pageInfo"`
+}
+
+// Resource utilization type.
+type UtilizationDataPoint struct {
+	// Timestamp of the value.
+	Timestamp time.Time `json:"timestamp"`
+	// Utilization in percent, (used / requested) * 100
+	Value float64 `json:"value"`
 }
 
 type Variable struct {
@@ -1402,48 +1402,6 @@ func (e ResourceType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// Resource type.
-type ResourceTypeV2 string
-
-const (
-	ResourceTypeV2CPU    ResourceTypeV2 = "CPU"
-	ResourceTypeV2Memory ResourceTypeV2 = "MEMORY"
-)
-
-var AllResourceTypeV2 = []ResourceTypeV2{
-	ResourceTypeV2CPU,
-	ResourceTypeV2Memory,
-}
-
-func (e ResourceTypeV2) IsValid() bool {
-	switch e {
-	case ResourceTypeV2CPU, ResourceTypeV2Memory:
-		return true
-	}
-	return false
-}
-
-func (e ResourceTypeV2) String() string {
-	return string(e)
-}
-
-func (e *ResourceTypeV2) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = ResourceTypeV2(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ResourceTypeV2", str)
-	}
-	return nil
-}
-
-func (e ResourceTypeV2) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
 type SearchType string
 
 const (
@@ -1725,6 +1683,48 @@ func (e *UsersyncRunStatus) UnmarshalGQL(v interface{}) error {
 }
 
 func (e UsersyncRunStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Resource type.
+type UtilizationResourceType string
+
+const (
+	UtilizationResourceTypeCPU    UtilizationResourceType = "CPU"
+	UtilizationResourceTypeMemory UtilizationResourceType = "MEMORY"
+)
+
+var AllUtilizationResourceType = []UtilizationResourceType{
+	UtilizationResourceTypeCPU,
+	UtilizationResourceTypeMemory,
+}
+
+func (e UtilizationResourceType) IsValid() bool {
+	switch e {
+	case UtilizationResourceTypeCPU, UtilizationResourceTypeMemory:
+		return true
+	}
+	return false
+}
+
+func (e UtilizationResourceType) String() string {
+	return string(e)
+}
+
+func (e *UtilizationResourceType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UtilizationResourceType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UtilizationResourceType", str)
+	}
+	return nil
+}
+
+func (e UtilizationResourceType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

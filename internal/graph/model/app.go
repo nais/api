@@ -35,3 +35,13 @@ type InstanceGQLVars struct {
 	Team    slug.Slug
 	AppName string
 }
+
+type AppUtilization struct {
+	GQLVars AppUtilizationGQLVars `json:"-"`
+}
+
+type AppUtilizationGQLVars struct {
+	Env     string
+	Team    slug.Slug
+	AppName string
+}

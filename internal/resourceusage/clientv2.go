@@ -90,10 +90,18 @@ func NewClientV2(clusters []string, tenant string, log logrus.FieldLogger) (*Cli
 	}, nil
 }
 
-func (c *ClientV2) ResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string, resourceType model.ResourceTypeV2, start time.Time, end time.Time, step int) ([]*model.ResourceUtilizationV2, error) {
+func (c *ClientV2) ResourceRequestForApp(ctx context.Context, env string, team slug.Slug, app string, resourceType model.UtilizationResourceType) (float64, error) {
+	return 699.69, nil
+}
+
+func (c *ClientV2) CurrentResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string, resourceType model.UtilizationResourceType) (float64, error) {
+	return 69.69, nil
+}
+
+func (c *ClientV2) ResourceUtilizationForApp(ctx context.Context, env string, team slug.Slug, app string, resourceType model.UtilizationResourceType, start time.Time, end time.Time, step int) ([]*model.UtilizationDataPoint, error) {
 	ignoredContainers := strings.Join(containersToIgnore, "|") + "|"
 	q := memUtil
-	if resourceType == model.ResourceTypeV2CPU {
+	if resourceType == model.UtilizationResourceTypeCPU {
 		q = cpuUtil
 	}
 	v, warnings, err := c.prometheuses[env].QueryRange(ctx, fmt.Sprintf(q, ignoredContainers, app, team), promv1.Range{Start: start, End: end, Step: time.Duration(step) * time.Second})
@@ -109,11 +117,11 @@ func (c *ClientV2) ResourceUtilizationForApp(ctx context.Context, env string, te
 		return nil, fmt.Errorf("expected prometheus matrix, got %T", v)
 	}
 
-	ret := make([]*model.ResourceUtilizationV2, 0)
+	ret := make([]*model.UtilizationDataPoint, 0)
 
 	for _, sample := range matrix {
 		for _, value := range sample.Values {
-			ret = append(ret, &model.ResourceUtilizationV2{
+			ret = append(ret, &model.UtilizationDataPoint{
 				Value:     float64(value.Value),
 				Timestamp: value.Timestamp.Time(),
 			})
