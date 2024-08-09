@@ -1,144 +1,225 @@
 extend type Query {
+  "Get a list of teams."
   teams(
+    "Get the first n items in the connection. This can be used in combination with the after parameter."
     first: Int
+
+    "Get items after this cursor."
     after: Cursor
+
+    "Get the last n items in the connection. This can be used in combination with the before parameter."
     last: Int
+
+    "Get items before this cursor."
     before: Cursor
+
+    "Ordering options for items returned from the connection."
     orderBy: TeamOrder
   ): TeamConnection!
 
+  "Get a team by its slug."
   team(slug: Slug!): Team!
 }
 
-type TeamConnection {
-  pageInfo: PageInfo!
-  edges: [TeamEdge!]!
-}
+"""
+The team type represents a team on the [NAIS platform](https://nais.io/).
 
-type TeamEdge {
-  cursor: Cursor!
-  node: Team!
-}
+Learn more about what NAIS teams are and what they can be used for in the [official NAIS documentation](https://docs.nais.io/explanations/team/).
 
-input TeamOrder {
-  field: TeamOrderField!
-  direction: OrderDirection!
-}
-
-enum TeamOrderField {
-  TEAM_SLUG
-}
-
-type TeamEnvironment implements Node {
-  id: ID!
-  name: String!
-  gcpProjectID: String
-  slackAlertsChannel: String!
-}
-
-"Team type."
+External resources (e.g. azureGroupID, gitHubTeamSlug) are managed by [NAIS API reconcilers](https://github.com/nais/api-reconcilers).
+"""
 type Team implements Node {
+  "The globally unique ID of the team."
   id: ID!
 
   "Unique slug of the team."
   slug: Slug!
 
+  "Main Slack channel for the team."
+  slackChannel: String!
+
   "Purpose of the team."
   purpose: String!
 
   "The ID of the Azure AD group for the team. This value is managed by the Azure AD reconciler."
-  azureGroupID: ID
+  azureGroupID: String
 
   "The slug of the GitHub team. This value is managed by the GitHub reconciler."
   gitHubTeamSlug: String
 
-  "The email address of the Google group for the team. This value is managed by the Google Workspace reconciler."
+  "The email address of the Google Workspace group for the team. This value is managed by the Google Workspace reconciler."
   googleGroupEmail: String
 
-  "The Google artifact registry for the team."
+  "The Google Artifact Registry for the team. This value is managed by the Google Artifact Registry (GAR) reconciler."
   googleArtifactRegistry: String
 
-  "The CDN bucket for the team."
+  "The CDN bucket for the team. This value is managed by the Google CDN reconciler."
   cdnBucket: String
 
   "Team members."
   members(
+    "Get the first n items in the connection. This can be used in combination with the after parameter."
     first: Int
+
+    "Get items after this cursor."
     after: Cursor
+
+    "Get the last n items in the connection. This can be used in combination with the before parameter."
     last: Int
+
+    "Get items before this cursor."
     before: Cursor
+
+    "Ordering options for items returned from the connection."
     orderBy: TeamMemberOrder
   ): TeamMemberConnection!
 
+  "NAIS applications owned by the team."
   applications(
+    "Get the first n items in the connection. This can be used in combination with the after parameter."
     first: Int
+
+    "Get items after this cursor."
     after: Cursor
+
+    "Get the last n items in the connection. This can be used in combination with the before parameter."
     last: Int
+
+    "Get items before this cursor."
     before: Cursor
+
+    "Ordering options for items returned from the connection."
     orderBy: ApplicationOrder
   ): ApplicationConnection!
 
+  "NAIS jobs owned by the team."
   jobs(
+    "Get the first n items in the connection. This can be used in combination with the after parameter."
     first: Int
+
+    "Get items after this cursor."
     after: Cursor
+
+    "Get the last n items in the connection. This can be used in combination with the before parameter."
     last: Int
+
+    "Get items before this cursor."
     before: Cursor
+
+    "Ordering options for items returned from the connection."
     orderBy: JobOrder
   ): JobConnection!
 
+  "BigQuery datasets owned by the team."
   bigQueryDatasets(
+    "Get the first n items in the connection. This can be used in combination with the after parameter."
     first: Int
+
+    "Get items after this cursor."
     after: Cursor
+
+    "Get the last n items in the connection. This can be used in combination with the before parameter."
     last: Int
+
+    "Get items before this cursor."
     before: Cursor
+
+    "Ordering options for items returned from the connection."
     orderBy: BigQueryDatasetOrder
   ): BigQueryDatasetConnection!
 
+  "Redis instances owned by the team."
   redisInstances(
+    "Get the first n items in the connection. This can be used in combination with the after parameter."
     first: Int
+
+    "Get items after this cursor."
     after: Cursor
+
+    "Get the last n items in the connection. This can be used in combination with the before parameter."
     last: Int
+
+    "Get items before this cursor."
     before: Cursor
+
+    "Ordering options for items returned from the connection."
     orderBy: RedisInstanceOrder
   ): RedisInstanceConnection!
 
+  "OpenSearch instances owned by the team."
   openSearch(
+    "Get the first n items in the connection. This can be used in combination with the after parameter."
     first: Int
+
+    "Get items after this cursor."
     after: Cursor
+
+    "Get the last n items in the connection. This can be used in combination with the before parameter."
     last: Int
+
+    "Get items before this cursor."
     before: Cursor
+
+    "Ordering options for items returned from the connection."
     orderBy: OpenSearchOrder
   ): OpenSearchConnection!
 
+  "Google Cloud Storage buckets owned by the team."
   buckets(
+    "Get the first n items in the connection. This can be used in combination with the after parameter."
     first: Int
+
+    "Get items after this cursor."
     after: Cursor
+
+    "Get the last n items in the connection. This can be used in combination with the before parameter."
     last: Int
+
+    "Get items before this cursor."
     before: Cursor
+
+    "Ordering options for items returned from the connection."
     orderBy: BucketOrder
   ): BucketConnection!
 
+  "Kafka topics owned by the team."
   kafkaTopics(
+    "Get the first n items in the connection. This can be used in combination with the after parameter."
     first: Int
+
+    "Get items after this cursor."
     after: Cursor
+
+    "Get the last n items in the connection. This can be used in combination with the before parameter."
     last: Int
+
+    "Get items before this cursor."
     before: Cursor
+
+    "Ordering options for items returned from the connection."
     orderBy: KafkaTopicOrder
   ): KafkaTopicConnection!
 
+  "SQL instances owned by the team."
   sqlInstances(
+    "Get the first n items in the connection. This can be used in combination with the after parameter."
     first: Int
+
+    "Get items after this cursor."
     after: Cursor
+
+    "Get the last n items in the connection. This can be used in combination with the before parameter."
     last: Int
+
+    "Get items before this cursor."
     before: Cursor
+
+    "Ordering options for items returned from the connection."
     orderBy: SqlInstanceOrder
   ): SqlInstanceConnection!
 
   "Timestamp of the last successful synchronization of the team."
   lastSuccessfulSync: Time
-
-  "Slack channel for the team."
-  slackChannel: String!
 
   "Whether or not the team is currently being deleted."
   deletionInProgress: Boolean!
@@ -150,17 +231,23 @@ type Team implements Node {
   viewerIsMember: Boolean!
 }
 
-type TeamMemberConnection {
-  pageInfo: PageInfo!
-  edges: [TeamMemberEdge!]!
+type TeamEnvironment implements Node {
+  "The globally unique ID of the team environment."
+  id: ID!
+
+  "Name of the team environment."
+  name: String!
+
+  "The GCP project ID for the team environment."
+  gcpProjectID: String
+
+  "The Slack alerts channel for the team environment."
+  slackAlertsChannel: String!
+
+  "The connected team."
+  team: Team!
 }
 
-type TeamMemberEdge {
-  cursor: Cursor!
-  node: TeamMember!
-}
-
-"Team member."
 type TeamMember {
   "Team instance."
   team: Team!
@@ -169,25 +256,82 @@ type TeamMember {
   user: User!
 
   "The role that the user has in the team."
-  role: TeamRole!
+  role: TeamMemberRole!
 }
 
-"Available team roles."
-enum TeamRole {
+type TeamConnection {
+  "Pagination information."
+  pageInfo: PageInfo!
+
+  "List of edges."
+  edges: [TeamEdge!]!
+}
+
+type TeamMemberConnection {
+  "Pagination information."
+  pageInfo: PageInfo!
+
+  "List of edges."
+  edges: [TeamMemberEdge!]!
+}
+
+type TeamEdge {
+  "Cursor for this edge that can be used for pagination."
+  cursor: Cursor!
+
+  "The team."
+  node: Team!
+}
+
+type TeamMemberEdge {
+  "Cursor for this edge that can be used for pagination."
+  cursor: Cursor!
+
+  "The team member."
+  node: TeamMember!
+}
+
+"Ordering options when fetching teams."
+input TeamOrder {
+  "The field to order items by."
+  field: TeamOrderField!
+
+  "The direction to order items by."
+  direction: OrderDirection!
+}
+
+"Ordering options for team members."
+input TeamMemberOrder {
+  "The field to order items by."
+  field: TeamMemberOrderField!
+
+  "The direction to order items by."
+  direction: OrderDirection!
+}
+
+"Possible fields to order teams by."
+enum TeamOrderField {
+  "The unique slug of the team."
+  TEAM_SLUG
+}
+
+"Possible fields to order team members by."
+enum TeamMemberOrderField {
+  "The name of user."
+  NAME
+
+  "The email address of the user."
+  EMAIL
+
+  "The role the user has in the team."
+  ROLE
+}
+
+"Team member roles."
+enum TeamMemberRole {
   "Regular member, read only access."
   MEMBER
 
   "Team owner, full access to the team."
   OWNER
-}
-
-input TeamMemberOrder {
-  field: TeamMemberOrderField!
-  direction: OrderDirection!
-}
-
-enum TeamMemberOrderField {
-  NAME
-  EMAIL
-  ROLE
 }

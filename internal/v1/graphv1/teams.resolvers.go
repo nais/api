@@ -6,7 +6,6 @@ import (
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
-	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/persistence/bigquery"
 	"github.com/nais/api/internal/v1/persistence/bucket"
@@ -31,10 +30,6 @@ func (r *queryResolver) Teams(ctx context.Context, first *int, after *pagination
 
 func (r *queryResolver) Team(ctx context.Context, slug slug.Slug) (*team.Team, error) {
 	return team.Get(ctx, slug)
-}
-
-func (r *teamResolver) AzureGroupID(ctx context.Context, obj *team.Team) (*ident.Ident, error) {
-	panic(fmt.Errorf("not implemented: AzureGroupID - azureGroupID"))
 }
 
 func (r *teamResolver) Members(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) (*pagination.Connection[*team.TeamMember], error) {
@@ -126,6 +121,10 @@ func (r *teamResolver) ViewerIsMember(ctx context.Context, obj *team.Team) (bool
 	panic(fmt.Errorf("not implemented: ViewerIsMember - viewerIsMember"))
 }
 
+func (r *teamEnvironmentResolver) Team(ctx context.Context, obj *team.TeamEnvironment) (*team.Team, error) {
+	return team.Get(ctx, obj.TeamSlug)
+}
+
 func (r *teamMemberResolver) Team(ctx context.Context, obj *team.TeamMember) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
 }
@@ -136,9 +135,14 @@ func (r *teamMemberResolver) User(ctx context.Context, obj *team.TeamMember) (*u
 
 func (r *Resolver) Team() gengqlv1.TeamResolver { return &teamResolver{r} }
 
+func (r *Resolver) TeamEnvironment() gengqlv1.TeamEnvironmentResolver {
+	return &teamEnvironmentResolver{r}
+}
+
 func (r *Resolver) TeamMember() gengqlv1.TeamMemberResolver { return &teamMemberResolver{r} }
 
 type (
-	teamResolver       struct{ *Resolver }
-	teamMemberResolver struct{ *Resolver }
+	teamResolver            struct{ *Resolver }
+	teamEnvironmentResolver struct{ *Resolver }
+	teamMemberResolver      struct{ *Resolver }
 )

@@ -43,7 +43,7 @@ func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder) 
 	return pagination.NewConvertConnection(ret, page, int32(total), toGraphTeam), nil
 }
 
-func ListForUser(ctx context.Context, userID uuid.UUID, page *pagination.Pagination, orderBy *TeamMembershipOrder) (*TeamMemberConnection, error) {
+func ListForUser(ctx context.Context, userID uuid.UUID, page *pagination.Pagination, orderBy *UserTeamOrder) (*TeamMemberConnection, error) {
 	db := fromContext(ctx).db
 
 	ret, err := db.ListForUser(ctx, teamsql.ListForUserParams{

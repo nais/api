@@ -21,5 +21,9 @@ Examples of valid slugs:
 """
 scalar Slug
 
+"""
+A cursor for use in pagination
 
+Cursors are opaque strings that are returned by the server for paginated results, and used when performing backwards / forwards pagination.
+"""
 scalar Cursor
