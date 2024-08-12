@@ -895,9 +895,9 @@ type TeamsFilter struct {
 }
 
 type TeamsFilterGitHub struct {
-	// Filter repostiories by repo name
+	// Filter repositories by repo name
 	RepoName string `json:"repoName"`
-	// Filter repostiories by permission name
+	// Filter repositories by permission name
 	PermissionName string `json:"permissionName"`
 }
 

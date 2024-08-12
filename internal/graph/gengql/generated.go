@@ -10421,10 +10421,10 @@ input TeamsFilter {
 }
 
 input TeamsFilterGitHub {
-  "Filter repostiories by repo name"
+  "Filter repositories by repo name"
   repoName: String!
 
-  "Filter repostiories by permission name"
+  "Filter repositories by permission name"
   permissionName: String!
 }
 
@@ -10448,7 +10448,6 @@ input UpdateTeamInput {
   "Specify the Slack channel to update the existing value."
   slackChannel: String
 }
-
 
 "Slack alerts channel input."
 input UpdateTeamSlackAlertsChannelInput {
