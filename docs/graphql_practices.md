@@ -64,14 +64,14 @@ Example:
 
 ```graphql
 # instead of having these queries:
-extend type Query {
+type Query {
     itemsByX(x: String!): [Item!]!
     itemsByY(y: String!): [Item!]!
     itemsByZ(z: String!): [Item!]!
 }
 
 # do this:
-extend type Query {
+type Query {
     items(filter: ItemsFilter): ItemsConnection!    
 }
 
@@ -89,7 +89,7 @@ Example:
 
 ```graphql
 # instead of having this query:
-extend type Query {
+type Query {
     teamUtilization(teamSlug: Slug!): Utilization!
 }
 
@@ -142,7 +142,7 @@ argument is a type that contains all the possible filters for the list. The filt
 (`Filter` suffix) and should be defined as follows:
 
 ```graphql
-extend type Query {
+type Query {
     typeName(filter: TypeNameFilter): TypeNameConnection!
 }
 
@@ -175,12 +175,12 @@ Example:
 
 ```graphql
 # instead of this:
-extend type Mutation {
+type Mutation {
     createTeam(name: String!, description: String!): CreateTeamPayload!
 }
 
 # do this:
-extend type Mutation {
+type Mutation {
     createTeam(input: CreateTeamInput!): CreateTeamPayload!
 }
 
@@ -190,14 +190,14 @@ input CreateTeamInput {
 }
 ```
 
-### Response objects
+### Response payloads
 
 Each mutation should have a unique response object type. The name of the response object should be `ActionNounPayload`.
 
 Example:
 
 ```graphql
-extend type Mutation {
+type Mutation {
     createTeam(input: CreateTeamInput!): CreateTeamPayload
 }
 
