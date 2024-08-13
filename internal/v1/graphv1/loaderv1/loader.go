@@ -21,7 +21,7 @@ func Middleware(fn func(context.Context) context.Context) func(http.Handler) htt
 	}
 }
 
-func LoadModels[Key comparable, DBModel any, GraphModel any](
+func LoadModels[Key comparable, DBModel comparable, GraphModel comparable](
 	ctx context.Context,
 	keys []Key,
 	loaderFn func(context.Context, []Key) ([]DBModel, error),
@@ -35,11 +35,15 @@ func LoadModels[Key comparable, DBModel any, GraphModel any](
 	return listAndErrors(keys, toGraphList(objs, toGraphFn), makeKey)
 }
 
-func listAndErrors[K comparable, O any](keys []K, objs []O, idfn func(obj O) K) ([]O, []error) {
+func listAndErrors[K comparable, O comparable](keys []K, objs []O, idfn func(obj O) K) ([]O, []error) {
 	ret := make([]O, len(keys))
 	errs := make([]error, len(keys))
 	res := make(map[K]O)
+	var nillish O
 	for _, obj := range objs {
+		if obj == nillish {
+			continue
+		}
 		res[idfn(obj)] = obj
 	}
 
@@ -62,9 +66,13 @@ func dupErrs(ln int, err error) []error {
 	return ret
 }
 
-func toGraphList[DBModel any, GraphModel any](objs []DBModel, fn func(obj DBModel) GraphModel) []GraphModel {
+func toGraphList[DBModel comparable, GraphModel comparable](objs []DBModel, fn func(obj DBModel) GraphModel) []GraphModel {
 	ret := make([]GraphModel, len(objs))
+	var nillish DBModel
 	for i, obj := range objs {
+		if obj == nillish {
+			continue
+		}
 		ret[i] = fn(obj)
 	}
 	return ret
