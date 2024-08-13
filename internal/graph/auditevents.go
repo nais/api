@@ -91,7 +91,7 @@ func toEvent(row *database.AuditEvent) (model.AuditEventNode, error) {
 		switch model.AuditEventAction(row.Action) {
 		case model.AuditEventActionTeamMemberAdded:
 			return withData(row, func(data model.AuditEventMemberAddedData) model.AuditEventNode {
-				msg := fmt.Sprintf("Added %q", data.MemberEmail)
+				msg := fmt.Sprintf("Added %q with role %q", data.MemberEmail, data.Role)
 				return auditevent.AuditEventMemberAdded{BaseTeamAuditEvent: event.WithMessage(msg), Data: data}
 			})
 
