@@ -82,3 +82,14 @@ All checks should pass before merging.
 
 - Changes that affects the public API (e.g. changes to any `.graphqls` file)
 - Changes that introduces or changes practices already described in this document
+
+## Code formatting
+
+For Go code, we use [gofumpt](https://github.com/mvdan/gofumpt), and for all other code we provide a configuration file for [Prettier](https://prettier.io/).
+Code formatting is enforced by the GitHub workflow, and pull requests with incorrect formatting will fail the build.
+It is recommended to configure your editor to format code on save.
+
+### Configuring your editor
+
+- IDEA: https://www.jetbrains.com/help/idea/prettier.html#ws_prettier_apply_code_style
+- VS Code: https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode
