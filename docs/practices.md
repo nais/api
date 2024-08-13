@@ -4,6 +4,10 @@
 > The use of `v1` in paths and make targets are only meant to be used during the transition from the old to the new API.
 > After the transition is complete, all references to `v1` will be removed.
 
+## Go practices
+
+We follow the [Effective Go](https://golang.org/doc/effective_go.html) guide as well as the [Go Code Review Comments](https://go.dev/wiki/CodeReviewComments) and [Go test comments](https://go.dev/wiki/TestComments).
+
 ## Domain driven design
 
 We strive to create packages that contain a single domain, and not packages based on what they are (e.g. `repository`, `service`, `controller`).
