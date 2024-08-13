@@ -6,6 +6,7 @@ import (
 	"slices"
 
 	"github.com/nais/api/internal/audit"
+	"github.com/nais/api/internal/slack"
 
 	"github.com/nais/api/internal/opensearch"
 
@@ -136,6 +137,7 @@ type Resolver struct {
 	log                   logrus.FieldLogger
 	clusters              ClusterList
 	database              database.Database
+	tenant                string
 	tenantDomain          string
 	usersyncTrigger       chan<- uuid.UUID
 	auditLogger           auditlogger.AuditLogger
@@ -148,6 +150,7 @@ type Resolver struct {
 	kafkaClient           *kafka.Client
 	unleashMgr            *unleash.Manager
 	auditor               *audit.Auditor
+	slackClient           slack.SlackClient
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
@@ -156,6 +159,7 @@ func NewResolver(hookdClient HookdClient,
 	dependencyTrackClient DependencytrackClient,
 	resourceUsageClient resourceusage.Client,
 	db database.Database,
+	tenant string,
 	tenantDomain string,
 	usersyncTrigger chan<- uuid.UUID,
 	auditLogger auditlogger.AuditLogger,
@@ -170,12 +174,14 @@ func NewResolver(hookdClient HookdClient,
 	kafkaClient *kafka.Client,
 	unleashMgr *unleash.Manager,
 	auditer *audit.Auditor,
+	slack slack.SlackClient,
 ) *Resolver {
 	return &Resolver{
 		hookdClient:           hookdClient,
 		k8sClient:             k8sClient,
 		dependencyTrackClient: dependencyTrackClient,
 		resourceUsageClient:   resourceUsageClient,
+		tenant:                tenant,
 		tenantDomain:          tenantDomain,
 		usersyncTrigger:       usersyncTrigger,
 		auditLogger:           auditLogger,
@@ -192,6 +198,7 @@ func NewResolver(hookdClient HookdClient,
 		kafkaClient:           kafkaClient,
 		unleashMgr:            unleashMgr,
 		auditor:               auditer,
+		slackClient:           slack,
 	}
 }
 

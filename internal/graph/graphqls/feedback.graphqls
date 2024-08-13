@@ -1,0 +1,19 @@
+extend type Mutation {
+  createFeedback(
+    "The feedback content."
+    input: CreateFeedbackInput!
+  ): CreateFeedbackResult!
+}
+
+input CreateFeedbackInput {
+  "The feedback content."
+  content: String!
+  uri: String!
+  anonymous: Boolean!
+}
+
+type CreateFeedbackResult {
+  "Whether the feedback was created or not."
+  created: Boolean!
+  error: String
+}

@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/resourceusage"
+	"github.com/nais/api/internal/slack/fake"
 	"github.com/nais/api/internal/slug"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -44,6 +45,7 @@ func Test_queryResolver_ResourceUtilizationForApp(t *testing.T) {
 				nil,
 				resourceUsageClient,
 				nil,
+				"example",
 				"example.com",
 				nil,
 				nil,
@@ -58,6 +60,7 @@ func Test_queryResolver_ResourceUtilizationForApp(t *testing.T) {
 				nil,
 				nil,
 				nil,
+				fake.NewFakeSlackClient(),
 			).
 			Query().
 			ResourceUtilizationForApp(ctx, "env", "team", "app", nil, nil)
@@ -95,6 +98,7 @@ func Test_queryResolver_ResourceUtilizationForApp(t *testing.T) {
 				nil,
 				resourceUsageClient,
 				nil,
+				"example",
 				"example.com",
 				nil,
 				nil,
@@ -109,6 +113,7 @@ func Test_queryResolver_ResourceUtilizationForApp(t *testing.T) {
 				nil,
 				nil,
 				nil,
+				fake.NewFakeSlackClient(),
 			).
 			Query().
 			ResourceUtilizationForApp(ctx, "env", "team", "app", &from, &to)

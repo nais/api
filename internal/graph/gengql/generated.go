@@ -465,6 +465,11 @@ type ComplexityRoot struct {
 		Sum      func(childComplexity int) int
 	}
 
+	CreateFeedbackResult struct {
+		Created func(childComplexity int) int
+		Error   func(childComplexity int) int
+	}
+
 	CurrentResourceUtilization struct {
 		CPU       func(childComplexity int) int
 		Memory    func(childComplexity int) int
@@ -815,6 +820,7 @@ type ComplexityRoot struct {
 		ChangeDeployKey              func(childComplexity int, team slug.Slug) int
 		ConfigureReconciler          func(childComplexity int, name string, config []*model.ReconcilerConfigInput) int
 		ConfirmTeamDeletion          func(childComplexity int, key string) int
+		CreateFeedback               func(childComplexity int, input model.CreateFeedbackInput) int
 		CreateSecret                 func(childComplexity int, name string, team slug.Slug, env string, data []*model.VariableInput) int
 		CreateTeam                   func(childComplexity int, input model.CreateTeamInput) int
 		CreateUnleashForTeam         func(childComplexity int, team slug.Slug) int
@@ -1537,6 +1543,7 @@ type KafkaTopicAclResolver interface {
 type MutationResolver interface {
 	DeleteApp(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteAppResult, error)
 	RestartApp(ctx context.Context, name string, team slug.Slug, env string) (*model.RestartAppResult, error)
+	CreateFeedback(ctx context.Context, input model.CreateFeedbackInput) (*model.CreateFeedbackResult, error)
 	SuppressFinding(ctx context.Context, analysisState string, comment string, componentID string, projectID string, vulnerabilityID string, suppressedBy string, suppress bool, team slug.Slug) (*model.AnalysisTrail, error)
 	DeleteJob(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteJobResult, error)
 	EnableReconciler(ctx context.Context, name string) (*model.Reconciler, error)
@@ -3327,6 +3334,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CostSeries.Sum(childComplexity), true
 
+	case "CreateFeedbackResult.created":
+		if e.complexity.CreateFeedbackResult.Created == nil {
+			break
+		}
+
+		return e.complexity.CreateFeedbackResult.Created(childComplexity), true
+
+	case "CreateFeedbackResult.error":
+		if e.complexity.CreateFeedbackResult.Error == nil {
+			break
+		}
+
+		return e.complexity.CreateFeedbackResult.Error(childComplexity), true
+
 	case "CurrentResourceUtilization.cpu":
 		if e.complexity.CurrentResourceUtilization.CPU == nil {
 			break
@@ -4785,6 +4806,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.ConfirmTeamDeletion(childComplexity, args["key"].(string)), true
+
+	case "Mutation.createFeedback":
+		if e.complexity.Mutation.CreateFeedback == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createFeedback_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateFeedback(childComplexity, args["input"].(model.CreateFeedbackInput)), true
 
 	case "Mutation.createSecret":
 		if e.complexity.Mutation.CreateSecret == nil {
@@ -7943,6 +7976,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAuditEventsFilter,
+		ec.unmarshalInputCreateFeedbackInput,
 		ec.unmarshalInputCreateTeamInput,
 		ec.unmarshalInputEnvCostFilter,
 		ec.unmarshalInputGitHubRepositoriesFilter,
@@ -8862,6 +8896,26 @@ directive @admin on FIELD_DEFINITION
   gcpProjectID: String
   slackAlertsChannel: String!
   secrets: [Secret!]! @auth
+}
+`, BuiltIn: false},
+	{Name: "../graphqls/feedback.graphqls", Input: `extend type Mutation {
+  createFeedback(
+    "The feedback content."
+    input: CreateFeedbackInput!
+  ): CreateFeedbackResult!
+}
+
+input CreateFeedbackInput {
+  "The feedback content."
+  content: String!
+  uri: String!
+  anonymous: Boolean!
+}
+
+type CreateFeedbackResult {
+  "Whether the feedback was created or not."
+  created: Boolean!
+  error: String
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/github_repo.graphqls", Input: `"GitHub repository type."
@@ -11164,6 +11218,21 @@ func (ec *executionContext) field_Mutation_confirmTeamDeletion_args(ctx context.
 		}
 	}
 	args["key"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createFeedback_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.CreateFeedbackInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateFeedbackInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐCreateFeedbackInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -24607,6 +24676,91 @@ func (ec *executionContext) fieldContext_CostSeries_data(_ context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _CreateFeedbackResult_created(ctx context.Context, field graphql.CollectedField, obj *model.CreateFeedbackResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateFeedbackResult_created(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Created, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateFeedbackResult_created(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateFeedbackResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CreateFeedbackResult_error(ctx context.Context, field graphql.CollectedField, obj *model.CreateFeedbackResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateFeedbackResult_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateFeedbackResult_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateFeedbackResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CurrentResourceUtilization_timestamp(ctx context.Context, field graphql.CollectedField, obj *model.CurrentResourceUtilization) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CurrentResourceUtilization_timestamp(ctx, field)
 	if err != nil {
@@ -33922,6 +34076,67 @@ func (ec *executionContext) fieldContext_Mutation_restartApp(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_restartApp_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createFeedback(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createFeedback(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateFeedback(rctx, fc.Args["input"].(model.CreateFeedbackInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.CreateFeedbackResult)
+	fc.Result = res
+	return ec.marshalNCreateFeedbackResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐCreateFeedbackResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createFeedback(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "created":
+				return ec.fieldContext_CreateFeedbackResult_created(ctx, field)
+			case "error":
+				return ec.fieldContext_CreateFeedbackResult_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CreateFeedbackResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createFeedback_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -58444,6 +58659,47 @@ func (ec *executionContext) unmarshalInputAuditEventsFilter(ctx context.Context,
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateFeedbackInput(ctx context.Context, obj interface{}) (model.CreateFeedbackInput, error) {
+	var it model.CreateFeedbackInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"content", "uri", "anonymous"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "content":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("content"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Content = data
+		case "uri":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("uri"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.URI = data
+		case "anonymous":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("anonymous"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Anonymous = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateTeamInput(ctx context.Context, obj interface{}) (model.CreateTeamInput, error) {
 	var it model.CreateTeamInput
 	asMap := map[string]interface{}{}
@@ -62909,6 +63165,47 @@ func (ec *executionContext) _CostSeries(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
+var createFeedbackResultImplementors = []string{"CreateFeedbackResult"}
+
+func (ec *executionContext) _CreateFeedbackResult(ctx context.Context, sel ast.SelectionSet, obj *model.CreateFeedbackResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createFeedbackResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CreateFeedbackResult")
+		case "created":
+			out.Values[i] = ec._CreateFeedbackResult_created(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "error":
+			out.Values[i] = ec._CreateFeedbackResult_error(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var currentResourceUtilizationImplementors = []string{"CurrentResourceUtilization"}
 
 func (ec *executionContext) _CurrentResourceUtilization(ctx context.Context, sel ast.SelectionSet, obj *model.CurrentResourceUtilization) graphql.Marshaler {
@@ -65817,6 +66114,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "restartApp":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_restartApp(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createFeedback":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createFeedback(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -74834,6 +75138,25 @@ func (ec *executionContext) marshalNCostSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 		return graphql.Null
 	}
 	return ec._CostSeries(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNCreateFeedbackInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐCreateFeedbackInput(ctx context.Context, v interface{}) (model.CreateFeedbackInput, error) {
+	res, err := ec.unmarshalInputCreateFeedbackInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCreateFeedbackResult2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐCreateFeedbackResult(ctx context.Context, sel ast.SelectionSet, v model.CreateFeedbackResult) graphql.Marshaler {
+	return ec._CreateFeedbackResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCreateFeedbackResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐCreateFeedbackResult(ctx context.Context, sel ast.SelectionSet, v *model.CreateFeedbackResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CreateFeedbackResult(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNCreateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐCreateTeamInput(ctx context.Context, v interface{}) (model.CreateTeamInput, error) {
