@@ -68,6 +68,7 @@ fmt: prettier
 	go run mvdan.cc/gofumpt@latest -w ./
 
 prettier:
+	npm install
 	npx prettier --write .
 
 helm-lint:
