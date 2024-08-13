@@ -17,10 +17,28 @@ var (
 )
 
 const costUpsert = `-- name: CostUpsert :batchexec
-INSERT INTO cost (environment, team_slug, app, cost_type, date, daily_cost)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO
+	cost (
+		environment,
+		team_slug,
+		app,
+		cost_type,
+		date,
+		daily_cost
+	)
+VALUES
+	(
+		$1,
+		$2,
+		$3,
+		$4,
+		$5,
+		$6
+	)
 ON CONFLICT ON CONSTRAINT daily_cost_key DO
-    UPDATE SET daily_cost = EXCLUDED.daily_cost
+UPDATE
+SET
+	daily_cost = EXCLUDED.daily_cost
 `
 
 type CostUpsertBatchResults struct {

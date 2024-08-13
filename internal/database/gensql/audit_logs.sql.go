@@ -10,8 +10,24 @@ import (
 )
 
 const createAuditLog = `-- name: CreateAuditLog :exec
-INSERT INTO audit_logs (correlation_id, actor, target_type, target_identifier, action, message)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO
+	audit_logs (
+		correlation_id,
+		actor,
+		target_type,
+		target_identifier,
+		action,
+		message
+	)
+VALUES
+	(
+		$1,
+		$2,
+		$3,
+		$4,
+		$5,
+		$6
+	)
 `
 
 type CreateAuditLogParams struct {
@@ -36,10 +52,18 @@ func (q *Queries) CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) 
 }
 
 const getAuditLogsForCorrelationID = `-- name: GetAuditLogsForCorrelationID :many
-SELECT id, created_at, correlation_id, actor, action, message, target_type, target_identifier FROM audit_logs
-WHERE correlation_id = $1
-ORDER BY created_at DESC
-LIMIT $3 OFFSET $2
+SELECT
+	id, created_at, correlation_id, actor, action, message, target_type, target_identifier
+FROM
+	audit_logs
+WHERE
+	correlation_id = $1
+ORDER BY
+	created_at DESC
+LIMIT
+	$3
+OFFSET
+	$2
 `
 
 type GetAuditLogsForCorrelationIDParams struct {
@@ -78,8 +102,12 @@ func (q *Queries) GetAuditLogsForCorrelationID(ctx context.Context, arg GetAudit
 }
 
 const getAuditLogsForCorrelationIDCount = `-- name: GetAuditLogsForCorrelationIDCount :one
-SELECT COUNT(*) FROM audit_logs
-WHERE correlation_id = $1
+SELECT
+	COUNT(*)
+FROM
+	audit_logs
+WHERE
+	correlation_id = $1
 `
 
 func (q *Queries) GetAuditLogsForCorrelationIDCount(ctx context.Context, correlationID uuid.UUID) (int64, error) {
@@ -90,10 +118,19 @@ func (q *Queries) GetAuditLogsForCorrelationIDCount(ctx context.Context, correla
 }
 
 const getAuditLogsForReconciler = `-- name: GetAuditLogsForReconciler :many
-SELECT id, created_at, correlation_id, actor, action, message, target_type, target_identifier FROM audit_logs
-WHERE target_type = 'reconciler' AND target_identifier = $1
-ORDER BY created_at DESC
-LIMIT $3 OFFSET $2
+SELECT
+	id, created_at, correlation_id, actor, action, message, target_type, target_identifier
+FROM
+	audit_logs
+WHERE
+	target_type = 'reconciler'
+	AND target_identifier = $1
+ORDER BY
+	created_at DESC
+LIMIT
+	$3
+OFFSET
+	$2
 `
 
 type GetAuditLogsForReconcilerParams struct {
@@ -132,8 +169,13 @@ func (q *Queries) GetAuditLogsForReconciler(ctx context.Context, arg GetAuditLog
 }
 
 const getAuditLogsForReconcilerCount = `-- name: GetAuditLogsForReconcilerCount :one
-SELECT COUNT(*) FROM audit_logs
-WHERE target_type = 'reconciler' AND target_identifier = $1
+SELECT
+	COUNT(*)
+FROM
+	audit_logs
+WHERE
+	target_type = 'reconciler'
+	AND target_identifier = $1
 `
 
 func (q *Queries) GetAuditLogsForReconcilerCount(ctx context.Context, targetIdentifier string) (int64, error) {
@@ -144,10 +186,19 @@ func (q *Queries) GetAuditLogsForReconcilerCount(ctx context.Context, targetIden
 }
 
 const getAuditLogsForTeam = `-- name: GetAuditLogsForTeam :many
-SELECT id, created_at, correlation_id, actor, action, message, target_type, target_identifier FROM audit_logs
-WHERE target_type = 'team' AND target_identifier = $1
-ORDER BY created_at DESC
-LIMIT $3 OFFSET $2
+SELECT
+	id, created_at, correlation_id, actor, action, message, target_type, target_identifier
+FROM
+	audit_logs
+WHERE
+	target_type = 'team'
+	AND target_identifier = $1
+ORDER BY
+	created_at DESC
+LIMIT
+	$3
+OFFSET
+	$2
 `
 
 type GetAuditLogsForTeamParams struct {
@@ -186,8 +237,13 @@ func (q *Queries) GetAuditLogsForTeam(ctx context.Context, arg GetAuditLogsForTe
 }
 
 const getAuditLogsForTeamCount = `-- name: GetAuditLogsForTeamCount :one
-SELECT COUNT(*) FROM audit_logs
-WHERE target_type = 'team' AND target_identifier = $1
+SELECT
+	COUNT(*)
+FROM
+	audit_logs
+WHERE
+	target_type = 'team'
+	AND target_identifier = $1
 `
 
 func (q *Queries) GetAuditLogsForTeamCount(ctx context.Context, targetIdentifier string) (int64, error) {
