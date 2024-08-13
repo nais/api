@@ -20,7 +20,7 @@ Use singular names for packages, e.g. `team`, `user`, `application`.
 1. Create a new directory with the domain name in the `internal/v1` directory.
    - We have some folders to group similar domains, like `internal/v1/persistence`.
      Use them if it makes sense.
-2. If the domain requires a database, update `.configs/sqlc-v1.yaml` to include the new domain.
+2. If the domain requires a database, update [.configs/sqlc-v1.yaml](../.configs/sqlc-v1.yaml) to include the new domain.
    E.g:
    ```yaml
    sql:
@@ -34,14 +34,14 @@ Use singular names for packages, e.g. `team`, `user`, `application`.
            package: "{{PACKAGE_NAME}}"
            out: "../internal/v1/{{PACKAGE_NAME}}/{{PACKAGE_NAME}}sql"
    ```
-3. When you've created your model(s) in the new package, add a line to `.configs/gqlgen-v1.yaml` to automatically bind the model to the GraphQL schema.
+3. When you've created your model(s) in the new package, add a line to [.configs/gqlgen-v1.yaml](../.configs/gqlgen-v1.yaml) to automatically bind the model to the GraphQL schema.
    E.g:
    ```yaml
    autobind:
      # ...
      - "../internal/v1/{{PACKAGE_NAME}}"
    ```
-4. After you've created your dataloader, add it to `internal/cmd/api/http.go`.
+4. After you've created your dataloader, add it to [internal/cmd/api/http.go](../internal/cmd/api/http.go).
 
 ## SQL (Postgres)
 
@@ -58,7 +58,7 @@ Dataloaders are used to batch and cache requests to the database, and are scoped
 
 Whenever you request a single resource, and there's a way to request multiple resources at once, use a dataloader.
 
-For an example, check the [`internal/v1/team/dataloader.go`](../internal/v1/team/dataloader.go) file.
+For an example, check the [internal/v1/team/dataloader.go](../internal/v1/team/dataloader.go) file.
 
 ## GraphQL practices
 
