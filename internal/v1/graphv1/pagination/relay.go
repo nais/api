@@ -26,9 +26,11 @@ func (p *Pagination) Limit() int32 {
 func ParsePage(first *int, after *Cursor, last *int, before *Cursor) (*Pagination, error) {
 	p := &Pagination{}
 
+	if first != nil && last != nil {
+		first = nil
+	}
+
 	switch {
-	case first != nil && last != nil:
-		return nil, apierror.Errorf("first and last cannot be used together")
 	case first != nil && before != nil:
 		return nil, apierror.Errorf("first and before cannot be used together")
 	case last != nil && after != nil:
@@ -38,13 +40,17 @@ func ParsePage(first *int, after *Cursor, last *int, before *Cursor) (*Paginatio
 	}
 
 	if first != nil {
-		p.limit = int32(*first)
+		f := int32(*first)
+		if f < 1 {
+			return nil, apierror.Errorf("first must be greater than or equal to 1")
+		}
+		p.limit = f
 	} else if last != nil {
-		p.limit = int32(*last)
-	}
-
-	if p.limit < 0 {
-		return nil, apierror.Errorf("after/last must be greater than or equal to 0")
+		l := int32(*last)
+		if l < 1 {
+			return nil, apierror.Errorf("last must be greater than or equal to 1")
+		}
+		p.limit = l
 	}
 
 	if after != nil {
