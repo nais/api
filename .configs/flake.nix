@@ -25,9 +25,9 @@
                 (final: prev: {
                   go = prev.go_1_22.overrideAttrs (old:
                     old // {
-                      version = "1.22.4";
+                      version = "1.22.6";
                       src = prev.fetchurl {
-                        url = "https://go.dev/dl/go1.22.4.src.tar.gz";
+                        url = "https://go.dev/dl/go1.22.6.src.tar.gz";
                         hash =
                           "sha256-/tcgZ45yinyjC6jR3tHKr+J9FgKPqwIyuLqOIgCPt4Q=";
                       };
