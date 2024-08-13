@@ -26,6 +26,31 @@ func toGraphAuditEvents(rows []*database.AuditEvent) ([]model.AuditEventNode, er
 func toEvent(row *database.AuditEvent) (model.AuditEventNode, error) {
 	event := baseEvent(row)
 	switch model.AuditEventResourceType(row.ResourceType) {
+	case model.AuditEventResourceTypeApp:
+		switch model.AuditEventAction(row.Action) {
+		case model.AuditEventActionDeleted:
+			return event.WithMessage("Deleted application"), nil
+
+		case model.AuditEventActionRestarted:
+			return event.WithMessage("Restarted application"), nil
+		}
+
+	case model.AuditEventResourceTypeNaisjob:
+		switch model.AuditEventAction(row.Action) {
+		case model.AuditEventActionDeleted:
+			return event.WithMessage("Deleted job"), nil
+		}
+
+	case model.AuditEventResourceTypeSecret:
+		switch model.AuditEventAction(row.Action) {
+		case model.AuditEventActionCreated:
+			return event.WithMessage("Created secret"), nil
+		case model.AuditEventActionUpdated:
+			return event.WithMessage("Updated secret"), nil
+		case model.AuditEventActionDeleted:
+			return event.WithMessage("Deleted secret"), nil
+		}
+
 	case model.AuditEventResourceTypeTeam:
 		switch model.AuditEventAction(row.Action) {
 		case model.AuditEventActionTeamCreated:
@@ -66,7 +91,7 @@ func toEvent(row *database.AuditEvent) (model.AuditEventNode, error) {
 		switch model.AuditEventAction(row.Action) {
 		case model.AuditEventActionTeamMemberAdded:
 			return withData(row, func(data model.AuditEventMemberAddedData) model.AuditEventNode {
-				msg := fmt.Sprintf("Added %q", data.MemberEmail)
+				msg := fmt.Sprintf("Added %q with role %q", data.MemberEmail, data.Role)
 				return auditevent.AuditEventMemberAdded{BaseTeamAuditEvent: event.WithMessage(msg), Data: data}
 			})
 
@@ -96,6 +121,15 @@ func toEvent(row *database.AuditEvent) (model.AuditEventNode, error) {
 				return auditevent.AuditEventTeamRemoveRepository{BaseTeamAuditEvent: event.WithMessage(msg), Data: data}
 			})
 		}
+
+	case model.AuditEventResourceTypeUnleash:
+		switch model.AuditEventAction(row.Action) {
+		case model.AuditEventActionCreated:
+			return event.WithMessage("Created Unleash"), nil
+		case model.AuditEventActionUpdated:
+			return event.WithMessage("Updated Unleash"), nil
+		}
+
 	}
 	return nil, fmt.Errorf("unsupported action %q for resource %q", row.Action, row.ResourceType)
 }

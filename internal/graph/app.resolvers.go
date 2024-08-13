@@ -71,6 +71,10 @@ func (r *mutationResolver) DeleteApp(ctx context.Context, name string, team slug
 		}, nil
 	}
 
+	if err := r.auditor.AppDeleted(ctx, actor.User, team, name); err != nil {
+		return nil, err
+	}
+
 	return &model.DeleteAppResult{
 		Deleted: true,
 	}, nil
@@ -88,6 +92,11 @@ func (r *mutationResolver) RestartApp(ctx context.Context, name string, team slu
 			Error: ptr.To(err.Error()),
 		}, nil
 	}
+
+	if err := r.auditor.AppRestarted(ctx, actor.User, team, name); err != nil {
+		return nil, err
+	}
+
 	return &model.RestartAppResult{}, nil
 }
 
