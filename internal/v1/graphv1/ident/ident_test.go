@@ -32,7 +32,7 @@ func ensureEmptyKnownTypes() func() {
 func TestRegisterType(t *testing.T) {
 	defer ensureEmptyKnownTypes()()
 
-	// Register a few that sould not panic
+	// Register a few that should not panic
 	RegisterIdentType(keyType1(1), "type1", func(ctx context.Context, id Ident) (modelv1.Node, error) { return nil, nil })
 	RegisterIdentType(keyType2(1), "type2", func(ctx context.Context, id Ident) (modelv1.Node, error) { return nil, nil })
 
