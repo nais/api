@@ -7,8 +7,8 @@ metadata:
     deploy.nais.io/github-actor: jhrv
     deploy.nais.io/github-sha: c0b39684d253c19e39fd0afeecf203aef943fe7b
     deploy.nais.io/github-workflow-run-url: https://github.com/nais/dataproduct-apps/actions/runs/7427397068
-    kubernetes.io/change-cause: 'nais deploy: commit c0b39684d253c19e39fd0afeecf203aef943fe7b:
-      https://github.com/nais/dataproduct-apps/actions/runs/7427397068'
+    kubernetes.io/change-cause: "nais deploy: commit c0b39684d253c19e39fd0afeecf203aef943fe7b:
+      https://github.com/nais/dataproduct-apps/actions/runs/7427397068"
     nais.io/deploymentCorrelationID: 54c600b1-c2a6-4018-9fb3-649df7a8920d
   creationTimestamp: "2022-07-06T09:45:17Z"
   finalizers:
@@ -67,8 +67,8 @@ metadata:
     deploy.nais.io/github-actor: jhrv
     deploy.nais.io/github-sha: c0b39684d253c19e39fd0afeecf203aef943fe7b
     deploy.nais.io/github-workflow-run-url: https://github.com/nais/dataproduct-apps/actions/runs/7427397068
-    kubernetes.io/change-cause: 'nais deploy: commit c0b39684d253c19e39fd0afeecf203aef943fe7b:
-      https://github.com/nais/dataproduct-apps/actions/runs/7427397068'
+    kubernetes.io/change-cause: "nais deploy: commit c0b39684d253c19e39fd0afeecf203aef943fe7b:
+      https://github.com/nais/dataproduct-apps/actions/runs/7427397068"
     nais.io/deploymentCorrelationID: 54c600b1-c2a6-4018-9fb3-649df7a8920d
   creationTimestamp: "2022-07-06T09:45:17Z"
   finalizers:

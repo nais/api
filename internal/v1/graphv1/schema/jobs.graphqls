@@ -1,49 +1,49 @@
 type Job implements Node & Workload {
-  id: ID!
-  name: String!
-  team: Team!
-  environment: TeamEnvironment!
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment!
 
-  # image: String!
-  # deployInfo: DeployInfo!
-  # accessPolicy: AccessPolicy!
-  # status: WorkloadStatus!
-  # authz: [Authz!]!
-  # persistence: [Persistence!]!
-  # variables: [Variable!]!
-  # resources: Resources!
-  # type: WorkloadType!
+	# image: String!
+	# deployInfo: DeployInfo!
+	# accessPolicy: AccessPolicy!
+	# status: WorkloadStatus!
+	# authz: [Authz!]!
+	# persistence: [Persistence!]!
+	# variables: [Variable!]!
+	# resources: Resources!
+	# type: WorkloadType!
 
-  # imageDetails: ImageDetails!
-  # runs: [Run!]!
-  # manifest: String!
-  # schedule: String!
-  # completions: Int!
-  # parallelism: Int!
-  # retries: Int!
-  # secrets: [Secret!]!
+	# imageDetails: ImageDetails!
+	# runs: [Run!]!
+	# manifest: String!
+	# schedule: String!
+	# completions: Int!
+	# parallelism: Int!
+	# retries: Int!
+	# secrets: [Secret!]!
 }
 
 type JobConnection {
-  pageInfo: PageInfo!
-  edges: [JobEdge!]!
+	pageInfo: PageInfo!
+	edges: [JobEdge!]!
 }
 
 type JobEdge {
-  cursor: Cursor!
-  node: Job!
+	cursor: Cursor!
+	node: Job!
 }
 
 input JobOrder {
-  field: JobOrderField!
-  direction: OrderDirection!
+	field: JobOrderField!
+	direction: OrderDirection!
 }
 
 enum JobOrderField {
-  STATUS
-  NAME
-  ENVIRONMENT
-  VULNERABILITIES
-  RISK_SCORE
-  DEPLOYMENT_TIME
+	STATUS
+	NAME
+	ENVIRONMENT
+	VULNERABILITIES
+	RISK_SCORE
+	DEPLOYMENT_TIME
 }

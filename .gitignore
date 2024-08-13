@@ -9,3 +9,5 @@ values.json
 .direnv
 __debug_bin*
 .envrc
+node_modules
+package-lock.json

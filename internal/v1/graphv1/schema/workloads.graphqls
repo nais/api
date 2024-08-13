@@ -1,14 +1,14 @@
 interface Workload implements Node {
-  id: ID!
-  name: String!
-  team: Team!
-  environment: TeamEnvironment!
-  # image: String!
-  # deployInfo: DeployInfo!
-  # accessPolicy: AccessPolicy!
-  # status: WorkloadStatus!
-  # authz: [Authz!]!
-  # variables: [Variable!]!
-  # resources: Resources!
-  # persistence: [Persistence!]!
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment!
+	# image: String!
+	# deployInfo: DeployInfo!
+	# accessPolicy: AccessPolicy!
+	# status: WorkloadStatus!
+	# authz: [Authz!]!
+	# variables: [Variable!]!
+	# resources: Resources!
+	# persistence: [Persistence!]!
 }

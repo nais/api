@@ -8,30 +8,30 @@ The following is a set of practices for developing the GraphQL API defined by NA
 
 NAIS API implements the [Global Object Identification specification](https://graphql.org/learn/global-object-identification/).
 
-All types should have an `id` field of type `ID!`. We create IDs using the internal `ident` package. Refer to the 
+All types should have an `id` field of type `ID!`. We create IDs using the internal `ident` package. Refer to the
 implementation in the internal [`teams` package](../internal/v1/team/node.go) for an example.
 
 Types that implement the `Node` interface can be fetched using the `node` query:
 
 ```graphql
 query getNodeById {
-    node(id: "opaque id") {
-        ... on Team {
-            slug
-        }
-        
-        ... on User {
-            email
-        }
-        
-        ... on Application {
-            name
-            team {
-                slug
-                purpose
-            }
-        }
-    }
+	node(id: "opaque id") {
+		... on Team {
+			slug
+		}
+
+		... on User {
+			email
+		}
+
+		... on Application {
+			name
+			team {
+				slug
+				purpose
+			}
+		}
+	}
 }
 ```
 
@@ -49,9 +49,9 @@ Examples: `id`, `createdAt`.
 
 ## Documentation
 
-All types, fields, queries, and mutations should be documented using 
-[Descriptions](https://spec.graphql.org/October2021/#sec-Descriptions) in the schema definition. Please refer to the 
-[`teams` schema](../internal/v1/graphv1/schema/teams.graphqls) for examples. Keep in mind that this will be public 
+All types, fields, queries, and mutations should be documented using
+[Descriptions](https://spec.graphql.org/October2021/#sec-Descriptions) in the schema definition. Please refer to the
+[`teams` schema](../internal/v1/graphv1/schema/teams.graphqls) for examples. Keep in mind that this will be public
 facing documentation, and the entry point for developer who wants to use the GraphQL API.
 
 ## Query conventions
@@ -65,22 +65,21 @@ Example:
 ```graphql
 # instead of having these queries:
 type Query {
-    itemsByX(x: String!): [Item!]!
-    itemsByY(y: String!): [Item!]!
-    itemsByZ(z: String!): [Item!]!
+	itemsByX(x: String!): [Item!]!
+	itemsByY(y: String!): [Item!]!
+	itemsByZ(z: String!): [Item!]!
 }
 
 # do this:
 type Query {
-    items(filter: ItemsFilter): ItemsConnection!    
+	items(filter: ItemsFilter): ItemsConnection!
 }
 
 input ItemsFilter {
-    x: String
-    y: String
-    z: String
+	x: String
+	y: String
+	z: String
 }
-
 ```
 
 We also want to avoid using queries on the root level that has a single argument which is an ID of another type.
@@ -90,12 +89,12 @@ Example:
 ```graphql
 # instead of having this query:
 type Query {
-    teamUtilization(teamSlug: Slug!): Utilization!
+	teamUtilization(teamSlug: Slug!): Utilization!
 }
 
 # do this:
 type Team {
-    utilization: Utilization!
+	utilization: Utilization!
 }
 ```
 
@@ -103,33 +102,33 @@ type Team {
 
 NAIS API implements the [GraphQL Cursor Connections specification](https://relay.dev/graphql/connections.htm).
 
-All queries/fields that return a list of items should support pagination. The rule of thumb is that if it is 
+All queries/fields that return a list of items should support pagination. The rule of thumb is that if it is
 **possible** for the list to grow to a size that is more than 50, it should be paginated.
 
-The type of the returned list from the query is `TypeNameConnection` (`Connection` suffix) and should be defined as 
+The type of the returned list from the query is `TypeNameConnection` (`Connection` suffix) and should be defined as
 follows:
 
 ```graphql
 type TypeNameConnection {
-    pageInfo: PageInfo!
-    edges: [TypeNameEdge!]!
+	pageInfo: PageInfo!
+	edges: [TypeNameEdge!]!
 }
 
 type TypeNameEdge {
-    cursor: Cursor!
-    node: TypeName!
+	cursor: Cursor!
+	node: TypeName!
 }
 ```
 
 `PageInfo` is defined as follows:
 
 ```graphql
-type PageInfo { 
-    hasNextPage: Boolean!
-    endCursor: Cursor
-    hasPreviousPage: Boolean!
-    startCursor: Cursor
-    totalCount: Int!
+type PageInfo {
+	hasNextPage: Boolean!
+	endCursor: Cursor
+	hasPreviousPage: Boolean!
+	startCursor: Cursor
+	totalCount: Int!
 }
 ```
 
@@ -137,24 +136,24 @@ Refer to the [`teams` query](../internal/v1/graphv1/schema/teams.graphqls) in th
 
 ### Filtering
 
-Instead of using multiple queries or arguments to filter a list, we use a single `filter` argument. The `filter` 
-argument is a type that contains all the possible filters for the list. The filter should be named `TypeNameFilter` 
+Instead of using multiple queries or arguments to filter a list, we use a single `filter` argument. The `filter`
+argument is a type that contains all the possible filters for the list. The filter should be named `TypeNameFilter`
 (`Filter` suffix) and should be defined as follows:
 
 ```graphql
 type Query {
-    typeName(filter: TypeNameFilter): TypeNameConnection!
+	typeName(filter: TypeNameFilter): TypeNameConnection!
 }
 
 input TypeNameFilter {
-    fieldX: String
-    fieldY: Int
-    nestedField: TypeNameNestedFieldFilter
+	fieldX: String
+	fieldY: Int
+	nestedField: TypeNameNestedFieldFilter
 }
 
 input TypeNameNestedFieldFilter {
-    fieldX: String!
-    fieldY: Int!
+	fieldX: String!
+	fieldY: Int!
 }
 ```
 
@@ -168,7 +167,7 @@ Examples: `createTeam`, `deleteTeam`, `updateTeam`.
 
 ### Input
 
-Use a single, required, unique, input object type as an argument for mutations instead of multiple arguments. The name 
+Use a single, required, unique, input object type as an argument for mutations instead of multiple arguments. The name
 of the argument should be `input`.
 
 Example:
@@ -176,17 +175,17 @@ Example:
 ```graphql
 # instead of this:
 type Mutation {
-    createTeam(name: String!, description: String!): CreateTeamPayload!
+	createTeam(name: String!, description: String!): CreateTeamPayload!
 }
 
 # do this:
 type Mutation {
-    createTeam(input: CreateTeamInput!): CreateTeamPayload!
+	createTeam(input: CreateTeamInput!): CreateTeamPayload!
 }
 
 input CreateTeamInput {
-    name: String!
-    description: String!
+	name: String!
+	description: String!
 }
 ```
 
@@ -198,21 +197,21 @@ Example:
 
 ```graphql
 type Mutation {
-    createTeam(input: CreateTeamInput!): CreateTeamPayload
+	createTeam(input: CreateTeamInput!): CreateTeamPayload
 }
 
 input CreateTeamInput {
-    name: String!
-    description: String!
+	name: String!
+	description: String!
 }
 
 type CreateTeamPayload {
-    team: Team!
+	team: Team!
 }
 ```
 
 ## Deprecating fields / queries / mutations
 
-When a field, query, or mutation is deprecated it should be marked as such in the schema definition. The 
-[`@deprecated` directive](https://spec.graphql.org/October2021/#sec--deprecated) should be used with a reason for the 
+When a field, query, or mutation is deprecated it should be marked as such in the schema definition. The
+[`@deprecated` directive](https://spec.graphql.org/October2021/#sec--deprecated) should be used with a reason for the
 deprecation.

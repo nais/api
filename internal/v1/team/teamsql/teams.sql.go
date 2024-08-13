@@ -10,7 +10,10 @@ import (
 )
 
 const count = `-- name: Count :one
-SELECT COUNT(*) FROM teams
+SELECT
+	COUNT(*)
+FROM
+	teams
 `
 
 func (q *Queries) Count(ctx context.Context) (int64, error) {
@@ -21,8 +24,12 @@ func (q *Queries) Count(ctx context.Context) (int64, error) {
 }
 
 const get = `-- name: Get :one
-SELECT slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at FROM teams
-WHERE slug = $1
+SELECT
+	slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
+FROM
+	teams
+WHERE
+	slug = $1
 `
 
 func (q *Queries) Get(ctx context.Context, argSlug slug.Slug) (*Team, error) {
@@ -44,13 +51,22 @@ func (q *Queries) Get(ctx context.Context, argSlug slug.Slug) (*Team, error) {
 }
 
 const list = `-- name: List :many
-SELECT slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at FROM teams
+SELECT
+	slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
+FROM
+	teams
 ORDER BY
-    CASE WHEN $1::TEXT = 'slug:asc' THEN slug END ASC,
-    CASE WHEN $1::TEXT = 'slug:desc' THEN slug END DESC,
-    slug ASC
-LIMIT $3
-OFFSET $2
+	CASE
+		WHEN $1::TEXT = 'slug:asc' THEN slug
+	END ASC,
+	CASE
+		WHEN $1::TEXT = 'slug:desc' THEN slug
+	END DESC,
+	slug ASC
+LIMIT
+	$3
+OFFSET
+	$2
 `
 
 type ListParams struct {
@@ -91,9 +107,14 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*Team, error) {
 }
 
 const listBySlugs = `-- name: ListBySlugs :many
-SELECT slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at FROM teams
-WHERE slug = ANY($1::slug[])
-ORDER BY slug ASC
+SELECT
+	slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
+FROM
+	teams
+WHERE
+	slug = ANY ($1::slug[])
+ORDER BY
+	slug ASC
 `
 
 func (q *Queries) ListBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error) {
@@ -128,17 +149,22 @@ func (q *Queries) ListBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, 
 }
 
 const listEnvironmentsBySlugsAndEnvNames = `-- name: ListEnvironmentsBySlugsAndEnvNames :many
-WITH input AS (
-    SELECT
-        unnest($1::slug[]) AS team_slug,
-        unnest($2::text[]) AS environment
-)
-SELECT team_all_environments.team_slug, team_all_environments.environment, team_all_environments.gcp, team_all_environments.gcp_project_id, team_all_environments.id, team_all_environments.slack_alerts_channel
-FROM team_all_environments
-JOIN input ON input.team_slug = team_all_environments.team_slug
-JOIN teams ON teams.slug = team_all_environments.team_slug
-WHERE team_all_environments.environment = input.environment
-ORDER BY team_all_environments.environment ASC
+WITH
+	input AS (
+		SELECT
+			unnest($1::slug[]) AS team_slug,
+			unnest($2::text[]) AS environment
+	)
+SELECT
+	team_all_environments.team_slug, team_all_environments.environment, team_all_environments.gcp, team_all_environments.gcp_project_id, team_all_environments.id, team_all_environments.slack_alerts_channel
+FROM
+	team_all_environments
+	JOIN input ON input.team_slug = team_all_environments.team_slug
+	JOIN teams ON teams.slug = team_all_environments.team_slug
+WHERE
+	team_all_environments.environment = input.environment
+ORDER BY
+	team_all_environments.environment ASC
 `
 
 type ListEnvironmentsBySlugsAndEnvNamesParams struct {

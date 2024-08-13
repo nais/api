@@ -7952,49 +7952,49 @@ type AccessPolicy {
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/app.graphqls", Input: `extend type Mutation {
-  deleteApp(
-    "The name of the application."
-    name: String!
+	deleteApp(
+		"The name of the application."
+		name: String!
 
-    "The name of the team who owns the application."
-    team: Slug!
+		"The name of the team who owns the application."
+		team: Slug!
 
-    "The environment the application is deployed to."
-    env: String!
-  ): DeleteAppResult!
-  restartApp(
-    "The name of the application."
-    name: String!
+		"The environment the application is deployed to."
+		env: String!
+	): DeleteAppResult!
+	restartApp(
+		"The name of the application."
+		name: String!
 
-    "The name of the team who owns the application."
-    team: Slug!
+		"The name of the team who owns the application."
+		team: Slug!
 
-    "The environment the application is deployed to."
-    env: String!
-  ): RestartAppResult!
+		"The environment the application is deployed to."
+		env: String!
+	): RestartAppResult!
 }
 
 type DeleteAppResult {
-  "Whether the app was deleted or not."
-  deleted: Boolean!
-  error: String
+	"Whether the app was deleted or not."
+	deleted: Boolean!
+	error: String
 }
 type RestartAppResult {
-  error: String
+	error: String
 }
 
 extend type Query {
-  "Get an app by name, team and env."
-  app(
-    "The name of the application."
-    name: String!
+	"Get an app by name, team and env."
+	app(
+		"The name of the application."
+		name: String!
 
-    "The name of the team who owns the application."
-    team: Slug!
+		"The name of the team who owns the application."
+		team: Slug!
 
-    "The environment the application is deployed to."
-    env: String!
-  ): App!
+		"The environment the application is deployed to."
+		env: String!
+	): App!
 }
 
 type App implements Workload {
@@ -8058,97 +8058,97 @@ enum UsageResourceType {
 }
 
 type WorkloadStatus {
-  state: State!
-  errors: [StateError!]!
+	state: State!
+	errors: [StateError!]!
 }
 
 type DeprecatedRegistryError implements StateError {
-  revision: String!
-  level: ErrorLevel!
-  registry: String!
-  repository: String!
-  name: String!
-  tag: String!
+	revision: String!
+	level: ErrorLevel!
+	registry: String!
+	repository: String!
+	name: String!
+	tag: String!
 }
 
 type DeprecatedIngressError implements StateError {
-  revision: String!
-  level: ErrorLevel!
-  ingress: String!
+	revision: String!
+	level: ErrorLevel!
+	ingress: String!
 }
 
 type NoRunningInstancesError implements StateError {
-  revision: String!
-  level: ErrorLevel!
+	revision: String!
+	level: ErrorLevel!
 }
 
 type NewInstancesFailingError implements StateError {
-  revision: String!
-  level: ErrorLevel!
-  failingInstances: [String!]!
+	revision: String!
+	level: ErrorLevel!
+	failingInstances: [String!]!
 }
 
 type InvalidNaisYamlError implements StateError {
-  revision: String!
-  level: ErrorLevel!
-  detail: String!
+	revision: String!
+	level: ErrorLevel!
+	detail: String!
 }
 
 type SynchronizationFailingError implements StateError {
-  revision: String!
-  level: ErrorLevel!
-  detail: String!
+	revision: String!
+	level: ErrorLevel!
+	detail: String!
 }
 
 type InboundAccessError implements StateError {
-  revision: String!
-  level: ErrorLevel!
-  rule: Rule!
+	revision: String!
+	level: ErrorLevel!
+	rule: Rule!
 }
 
 type OutboundAccessError implements StateError {
-  revision: String!
-  level: ErrorLevel!
-  rule: Rule!
+	revision: String!
+	level: ErrorLevel!
+	rule: Rule!
 }
 
 type Instance {
-  id: ID!
-  name: String!
-  state: InstanceState!
-  message: String!
-  image: String!
-  restarts: Int!
-  created: Time!
+	id: ID!
+	name: String!
+	state: InstanceState!
+	message: String!
+	image: String!
+	restarts: Int!
+	created: Time!
 }
 
 interface StateError {
-  revision: String!
-  level: ErrorLevel!
+	revision: String!
+	level: ErrorLevel!
 }
 
 enum InstanceState {
-  RUNNING
-  FAILING
-  UNKNOWN
+	RUNNING
+	FAILING
+	UNKNOWN
 }
 
 enum ErrorLevel {
-  TODO
-  WARNING
-  ERROR
+	TODO
+	WARNING
+	ERROR
 }
 
 enum State {
-  NAIS
-  NOTNAIS
-  FAILING
-  UNKNOWN
+	NAIS
+	NOTNAIS
+	FAILING
+	UNKNOWN
 }
 
 type AppList {
-  nodes: [App!]!
-  pageInfo: PageInfo!
+	nodes: [App!]!
+	pageInfo: PageInfo!
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/auditevents.graphqls", Input: `"Audit event type."
@@ -8385,34 +8385,34 @@ type AuditEventTeamRemoveRepositoryData {
 `, BuiltIn: false},
 	{Name: "../graphqls/auditlogs.graphqls", Input: `"Audit log type."
 type AuditLog {
-  "ID of the log entry."
-  id: ID!
+	"ID of the log entry."
+	id: ID!
 
-  "String representation of the action performed."
-  action: String!
+	"String representation of the action performed."
+	action: String!
 
-  "The related correlation ID."
-  correlationID: String!
+	"The related correlation ID."
+	correlationID: String!
 
-  "The identity of the actor who performed the action. When this field is empty it means that some backend process performed the action. The value, when present, is either the name of a service account, or the email address of a user."
-  actor: String
+	"The identity of the actor who performed the action. When this field is empty it means that some backend process performed the action. The value, when present, is either the name of a service account, or the email address of a user."
+	actor: String
 
-  "The type of the audit log target."
-  targetType: String!
+	"The type of the audit log target."
+	targetType: String!
 
-  "The identifier of the target."
-  targetIdentifier: String!
+	"The identifier of the target."
+	targetIdentifier: String!
 
-  "Log entry message."
-  message: String!
+	"Log entry message."
+	message: String!
 
-  "Creation time of the log entry."
-  createdAt: Time!
+	"Creation time of the log entry."
+	createdAt: Time!
 }
 
 type AuditLogList {
-  nodes: [AuditLog!]!
-  pageInfo: PageInfo!
+	nodes: [AuditLog!]!
+	pageInfo: PageInfo!
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/authentication.graphqls", Input: `extend type Query {

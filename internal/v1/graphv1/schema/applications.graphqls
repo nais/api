@@ -1,48 +1,48 @@
 type ApplicationConnection {
-  pageInfo: PageInfo!
-  edges: [ApplicationEdge!]!
+	pageInfo: PageInfo!
+	edges: [ApplicationEdge!]!
 }
 
 type ApplicationEdge {
-  cursor: Cursor!
-  node: Application!
+	cursor: Cursor!
+	node: Application!
 }
 
 type Application implements Node & Workload {
-  id: ID!
-  name: String!
-  team: Team!
-  environment: TeamEnvironment!
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment!
 
-  # image: String!
-  # deployInfo: DeployInfo!
-  # env: Env!
-  # accessPolicy: AccessPolicy!
-  # status: WorkloadStatus!
-  # authz: [Authz!]!
-  # variables: [Variable!]!
-  # persistence: [Persistence!]!
-  # resources: Resources!
-  # type: WorkloadType!
-  #
-  # imageDetails: ImageDetails!
-  # ingresses: [String!]!
-  # instances: [Instance!]!
-  # autoScaling: AutoScaling!
-  # manifest: String!
-  # secrets: [Secret!]!
+	# image: String!
+	# deployInfo: DeployInfo!
+	# env: Env!
+	# accessPolicy: AccessPolicy!
+	# status: WorkloadStatus!
+	# authz: [Authz!]!
+	# variables: [Variable!]!
+	# persistence: [Persistence!]!
+	# resources: Resources!
+	# type: WorkloadType!
+	#
+	# imageDetails: ImageDetails!
+	# ingresses: [String!]!
+	# instances: [Instance!]!
+	# autoScaling: AutoScaling!
+	# manifest: String!
+	# secrets: [Secret!]!
 }
 
 input ApplicationOrder {
-  field: ApplicationOrderField!
-  direction: OrderDirection!
+	field: ApplicationOrderField!
+	direction: OrderDirection!
 }
 
 enum ApplicationOrderField {
-  STATUS
-  NAME
-  ENVIRONMENT
-  VULNERABILITIES
-  RISK_SCORE
-  DEPLOYMENT_TIME
+	STATUS
+	NAME
+	ENVIRONMENT
+	VULNERABILITIES
+	RISK_SCORE
+	DEPLOYMENT_TIME
 }

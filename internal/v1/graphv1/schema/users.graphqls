@@ -1,109 +1,109 @@
 extend type Query {
-  "Get a list of users."
-  users(
-    "Get the first n items in the connection. This can be used in combination with the after parameter."
-    first: Int
+	"Get a list of users."
+	users(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
 
-    "Get items after this cursor."
-    after: Cursor
+		"Get items after this cursor."
+		after: Cursor
 
-    "Get the last n items in the connection. This can be used in combination with the before parameter."
-    last: Int
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
 
-    "Get items before this cursor."
-    before: Cursor
+		"Get items before this cursor."
+		before: Cursor
 
-    "Ordering options for items returned from the connection."
-    orderBy: UserOrder
-  ): UserConnection!
+		"Ordering options for items returned from the connection."
+		orderBy: UserOrder
+	): UserConnection!
 
-  "Get a user by its ID."
-  user(id: ID!): User!
+	"Get a user by its ID."
+	user(id: ID!): User!
 
-  "Get a user by its email address."
-  userByEmail(email: String!): User!
+	"Get a user by its email address."
+	userByEmail(email: String!): User!
 }
 
 """
 The user type represents a user of the NAIS platform and the NAIS GraphQL API.
 """
 type User implements Node {
-  "The globally unique ID of the user."
-  id: ID!
+	"The globally unique ID of the user."
+	id: ID!
 
-  "The email address of the user."
-  email: String!
+	"The email address of the user."
+	email: String!
 
-  "The full name of the user."
-  name: String!
+	"The full name of the user."
+	name: String!
 
-  "The external ID of the user. This value is managed by the NAIS API user synchronization."
-  externalId: String!
+	"The external ID of the user. This value is managed by the NAIS API user synchronization."
+	externalId: String!
 
-  "List of teams the user is connected to."
-  teams(
-    "Get the first n items in the connection. This can be used in combination with the after parameter."
-    first: Int
+	"List of teams the user is connected to."
+	teams(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
 
-    "Get items after this cursor."
-    after: Cursor
+		"Get items after this cursor."
+		after: Cursor
 
-    "Get the last n items in the connection. This can be used in combination with the before parameter."
-    last: Int
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
 
-    "Get items before this cursor."
-    before: Cursor
+		"Get items before this cursor."
+		before: Cursor
 
-    "Ordering options for items returned from the connection."
-    orderBy: UserTeamOrder
-  ): TeamMemberConnection!
+		"Ordering options for items returned from the connection."
+		orderBy: UserTeamOrder
+	): TeamMemberConnection!
 }
 
 type UserConnection {
-  "Pagination information."
-  pageInfo: PageInfo!
+	"Pagination information."
+	pageInfo: PageInfo!
 
-  "List of edges."
-  edges: [UserEdge!]!
+	"List of edges."
+	edges: [UserEdge!]!
 }
 
 type UserEdge {
-  "Cursor for this edge that can be used for pagination."
-  cursor: Cursor!
+	"Cursor for this edge that can be used for pagination."
+	cursor: Cursor!
 
-  "The user."
-  node: User!
+	"The user."
+	node: User!
 }
 
 "Ordering options when fetching users."
 input UserOrder {
-  "The field to order items by."
-  field: UserOrderField!
+	"The field to order items by."
+	field: UserOrderField!
 
-  "The direction to order items by."
-  direction: OrderDirection!
+	"The direction to order items by."
+	direction: OrderDirection!
 }
 
 "Ordering options when fetching the teams a user is connected to."
 input UserTeamOrder {
-  "The field to order items by."
-  field: UserTeamOrderField!
+	"The field to order items by."
+	field: UserTeamOrderField!
 
-  "The direction to order items by."
-  direction: OrderDirection!
+	"The direction to order items by."
+	direction: OrderDirection!
 }
 
 "Possible fields to order users by."
 enum UserOrderField {
-  "The name of user."
-  NAME
+	"The name of user."
+	NAME
 
-  "The email address of the user."
-  EMAIL
+	"The email address of the user."
+	EMAIL
 }
 
 "Possible fields to order user teams by."
 enum UserTeamOrderField {
-  "The unique slug of the team."
-  TEAM_SLUG
+	"The unique slug of the team."
+	TEAM_SLUG
 }

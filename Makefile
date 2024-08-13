@@ -64,8 +64,11 @@ vulncheck:
 deadcode:
 	go run golang.org/x/tools/cmd/deadcode@latest -test ./...
 
-fmt:
+fmt: prettier
 	go run mvdan.cc/gofumpt@latest -w ./
+
+prettier:
+	npx prettier --write .
 
 helm-lint:
 	helm lint --strict ./charts
