@@ -5,7 +5,7 @@ import (
 )
 
 type AuditEventTeamAddRepository struct {
-	BaseTeamAuditEvent
+	BaseAuditEvent
 	Data model.AuditEventTeamAddRepositoryData
 }
 
@@ -14,7 +14,7 @@ func (a AuditEventTeamAddRepository) GetData() any {
 }
 
 type AuditEventTeamRemoveRepository struct {
-	BaseTeamAuditEvent
+	BaseAuditEvent
 	Data model.AuditEventTeamRemoveRepositoryData
 }
 

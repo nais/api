@@ -3,10 +3,9 @@ package auditevent
 import (
 	"time"
 
-	"github.com/nais/api/internal/slug"
-
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
+	"github.com/nais/api/internal/slug"
 )
 
 type AuditEventList struct {
@@ -14,6 +13,7 @@ type AuditEventList struct {
 	PageInfo model.PageInfo         `json:"pageInfo"`
 }
 
+// BaseAuditEvent is the base type for audit events.
 type BaseAuditEvent struct {
 	ID           scalar.Ident                 `json:"id"`
 	Action       model.AuditEventAction       `json:"action"`
@@ -22,6 +22,13 @@ type BaseAuditEvent struct {
 	Message      string                       `json:"message"`
 	ResourceType model.AuditEventResourceType `json:"resourceType"`
 	ResourceName string                       `json:"resourceName"`
+
+	GQLVars BaseAuditEventGQLVars `json:"-"`
+}
+
+type BaseAuditEventGQLVars struct {
+	Team        slug.Slug `json:"team"`
+	Environment string    `json:"env"`
 }
 
 func (e BaseAuditEvent) GetAction() string {
@@ -49,7 +56,19 @@ func (e BaseAuditEvent) GetResourceName() string {
 }
 
 func (e BaseAuditEvent) GetTeam() *slug.Slug {
-	return nil
+	if e.GQLVars.Team == "" {
+		return nil
+	}
+
+	return &e.GQLVars.Team
+}
+
+func (e BaseAuditEvent) GetEnvironment() *string {
+	if e.GQLVars.Environment == "" {
+		return nil
+	}
+
+	return &e.GQLVars.Environment
 }
 
 func (e BaseAuditEvent) WithMessage(message string) BaseAuditEvent {
@@ -60,24 +79,3 @@ func (e BaseAuditEvent) WithMessage(message string) BaseAuditEvent {
 func (BaseAuditEvent) IsAuditEvent() {}
 
 func (BaseAuditEvent) IsAuditEventNode() {}
-
-type BaseTeamAuditEvent struct {
-	BaseAuditEvent
-
-	GQLVars BaseTeamAuditEventGQLVars `json:"-"`
-}
-
-type BaseTeamAuditEventGQLVars struct {
-	Team slug.Slug `json:"team"`
-}
-
-func (e BaseTeamAuditEvent) GetTeam() *slug.Slug {
-	return &e.GQLVars.Team
-}
-
-func (e BaseTeamAuditEvent) WithMessage(message string) BaseTeamAuditEvent {
-	e.Message = message
-	return e
-}
-
-func (BaseTeamAuditEvent) IsAuditEventNode() {}

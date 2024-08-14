@@ -23,9 +23,12 @@ interface AuditEvent {
 
   "The team that the event belongs to."
   team: Team
+
+  "The environment that the event belongs to."
+  env: Env
 }
 
-union AuditEventNode = BaseAuditEvent | BaseTeamAuditEvent
+union AuditEventNode = BaseAuditEvent
   | AuditEventMemberAdded | AuditEventMemberRemoved | AuditEventMemberSetRole
   | AuditEventTeamSetPurpose | AuditEventTeamSetDefaultSlackChannel | AuditEventTeamSetAlertsSlackChannel | AuditEventTeamAddRepository | AuditEventTeamRemoveRepository
 
@@ -80,17 +83,7 @@ type BaseAuditEvent implements AuditEvent {
   resourceType: AuditEventResourceType!
   resourceName: String!
   team: Team
-}
-
-type BaseTeamAuditEvent implements AuditEvent {
-  id: ID!
-  action: AuditEventAction!
-  actor: String!
-  message: String!
-  createdAt: Time!
-  resourceType: AuditEventResourceType!
-  resourceName: String!
-  team: Team!
+  env: Env
 }
 
 type AuditEventMemberAdded implements AuditEvent {
@@ -102,6 +95,7 @@ type AuditEventMemberAdded implements AuditEvent {
   resourceType: AuditEventResourceType!
   resourceName: String!
   team: Team!
+  env: Env
 
   data: AuditEventMemberAddedData!
 }
@@ -120,6 +114,7 @@ type AuditEventMemberRemoved implements AuditEvent {
   resourceType: AuditEventResourceType!
   resourceName: String!
   team: Team!
+  env: Env
 
   data: AuditEventMemberRemovedData!
 }
@@ -137,6 +132,7 @@ type AuditEventMemberSetRole implements AuditEvent {
   resourceType: AuditEventResourceType!
   resourceName: String!
   team: Team!
+  env: Env
 
   data: AuditEventMemberSetRoleData!
 }
@@ -155,6 +151,7 @@ type AuditEventTeamSetPurpose implements AuditEvent {
   resourceType: AuditEventResourceType!
   resourceName: String!
   team: Team!
+  env: Env
 
   data: AuditEventTeamSetPurposeData!
 }
@@ -172,6 +169,7 @@ type AuditEventTeamSetDefaultSlackChannel implements AuditEvent {
   resourceType: AuditEventResourceType!
   resourceName: String!
   team: Team!
+  env: Env
 
   data: AuditEventTeamSetDefaultSlackChannelData!
 }
@@ -189,6 +187,7 @@ type AuditEventTeamSetAlertsSlackChannel implements AuditEvent {
   resourceType: AuditEventResourceType!
   resourceName: String!
   team: Team!
+  env: Env
 
   data: AuditEventTeamSetAlertsSlackChannelData!
 }
@@ -207,6 +206,7 @@ type AuditEventTeamAddRepository implements AuditEvent {
   resourceType: AuditEventResourceType!
   resourceName: String!
   team: Team!
+  env: Env
 
   data: AuditEventTeamAddRepositoryData!
 }
@@ -224,6 +224,7 @@ type AuditEventTeamRemoveRepository implements AuditEvent {
   resourceType: AuditEventResourceType!
   resourceName: String!
   team: Team!
+  env: Env
 
   data: AuditEventTeamRemoveRepositoryData!
 }

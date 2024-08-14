@@ -1,10 +1,12 @@
 package graph
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
 	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/model/auditevent"
 	"github.com/nais/api/internal/graph/scalar"
@@ -70,20 +72,20 @@ func toEvent(row *database.AuditEvent) (model.AuditEventNode, error) {
 
 		case model.AuditEventActionTeamSetPurpose:
 			return withData(row, func(data model.AuditEventTeamSetPurposeData) model.AuditEventNode {
-				msg := fmt.Sprintf("Set purpose to %q", data.Purpose)
-				return auditevent.AuditEventTeamSetPurpose{BaseTeamAuditEvent: event.WithMessage(msg), Data: data}
+				msg := fmt.Sprintf("Set team description to %q", data.Purpose)
+				return auditevent.AuditEventTeamSetPurpose{BaseAuditEvent: event.WithMessage(msg), Data: data}
 			})
 
 		case model.AuditEventActionTeamSetDefaultSLACkChannel:
 			return withData(row, func(data model.AuditEventTeamSetDefaultSlackChannelData) model.AuditEventNode {
 				msg := fmt.Sprintf("Set default Slack channel to %q", data.DefaultSlackChannel)
-				return auditevent.AuditEventTeamSetDefaultSlackChannel{BaseTeamAuditEvent: event.WithMessage(msg), Data: data}
+				return auditevent.AuditEventTeamSetDefaultSlackChannel{BaseAuditEvent: event.WithMessage(msg), Data: data}
 			})
 
 		case model.AuditEventActionTeamSetAlertsSLACkChannel:
 			return withData(row, func(data model.AuditEventTeamSetAlertsSlackChannelData) model.AuditEventNode {
 				msg := fmt.Sprintf("Set Slack alert channel in %q to %q", data.Environment, data.ChannelName)
-				return auditevent.AuditEventTeamSetAlertsSlackChannel{BaseTeamAuditEvent: event.WithMessage(msg), Data: data}
+				return auditevent.AuditEventTeamSetAlertsSlackChannel{BaseAuditEvent: event.WithMessage(msg), Data: data}
 			})
 		}
 
@@ -92,19 +94,19 @@ func toEvent(row *database.AuditEvent) (model.AuditEventNode, error) {
 		case model.AuditEventActionTeamMemberAdded:
 			return withData(row, func(data model.AuditEventMemberAddedData) model.AuditEventNode {
 				msg := fmt.Sprintf("Added %q with role %q", data.MemberEmail, data.Role)
-				return auditevent.AuditEventMemberAdded{BaseTeamAuditEvent: event.WithMessage(msg), Data: data}
+				return auditevent.AuditEventMemberAdded{BaseAuditEvent: event.WithMessage(msg), Data: data}
 			})
 
 		case model.AuditEventActionTeamMemberRemoved:
 			return withData(row, func(data model.AuditEventMemberRemovedData) model.AuditEventNode {
 				msg := fmt.Sprintf("Removed %q", data.MemberEmail)
-				return auditevent.AuditEventMemberRemoved{BaseTeamAuditEvent: event.WithMessage(msg), Data: data}
+				return auditevent.AuditEventMemberRemoved{BaseAuditEvent: event.WithMessage(msg), Data: data}
 			})
 
 		case model.AuditEventActionTeamMemberSetRole:
 			return withData(row, func(data model.AuditEventMemberSetRoleData) model.AuditEventNode {
 				msg := fmt.Sprintf("Set %q to %q", data.MemberEmail, data.Role)
-				return auditevent.AuditEventMemberSetRole{BaseTeamAuditEvent: event.WithMessage(msg), Data: data}
+				return auditevent.AuditEventMemberSetRole{BaseAuditEvent: event.WithMessage(msg), Data: data}
 			})
 		}
 
@@ -113,12 +115,12 @@ func toEvent(row *database.AuditEvent) (model.AuditEventNode, error) {
 		case model.AuditEventActionAdded:
 			return withData(row, func(data model.AuditEventTeamAddRepositoryData) model.AuditEventNode {
 				msg := fmt.Sprintf("Added %q", data.RepositoryName)
-				return auditevent.AuditEventTeamAddRepository{BaseTeamAuditEvent: event.WithMessage(msg), Data: data}
+				return auditevent.AuditEventTeamAddRepository{BaseAuditEvent: event.WithMessage(msg), Data: data}
 			})
 		case model.AuditEventActionRemoved:
 			return withData(row, func(data model.AuditEventTeamRemoveRepositoryData) model.AuditEventNode {
 				msg := fmt.Sprintf("Removed %q", data.RepositoryName)
-				return auditevent.AuditEventTeamRemoveRepository{BaseTeamAuditEvent: event.WithMessage(msg), Data: data}
+				return auditevent.AuditEventTeamRemoveRepository{BaseAuditEvent: event.WithMessage(msg), Data: data}
 			})
 		}
 
@@ -134,20 +136,25 @@ func toEvent(row *database.AuditEvent) (model.AuditEventNode, error) {
 	return nil, fmt.Errorf("unsupported action %q for resource %q", row.Action, row.ResourceType)
 }
 
-func baseEvent(row *database.AuditEvent) auditevent.BaseTeamAuditEvent {
-	return auditevent.BaseTeamAuditEvent{
-		BaseAuditEvent: auditevent.BaseAuditEvent{
-			ID:           scalar.AuditEventIdent(row.ID),
-			Action:       model.AuditEventAction(row.Action),
-			Actor:        row.Actor,
-			CreatedAt:    row.CreatedAt.Time,
-			ResourceType: model.AuditEventResourceType(row.ResourceType),
-			ResourceName: row.ResourceName,
-		},
-		GQLVars: auditevent.BaseTeamAuditEventGQLVars{
-			Team: *row.TeamSlug,
-		},
+func baseEvent(row *database.AuditEvent) auditevent.BaseAuditEvent {
+	event := auditevent.BaseAuditEvent{
+		ID:           scalar.AuditEventIdent(row.ID),
+		Action:       model.AuditEventAction(row.Action),
+		Actor:        row.Actor,
+		CreatedAt:    row.CreatedAt.Time,
+		ResourceType: model.AuditEventResourceType(row.ResourceType),
+		ResourceName: row.ResourceName,
 	}
+
+	if row.TeamSlug != nil {
+		event.GQLVars.Team = *row.TeamSlug
+	}
+
+	if row.Environment != nil {
+		event.GQLVars.Environment = *row.Environment
+	}
+
+	return event
 }
 
 func withData[T any](row *database.AuditEvent, callback func(data T) model.AuditEventNode) (model.AuditEventNode, error) {
@@ -159,4 +166,20 @@ func withData[T any](row *database.AuditEvent, callback func(data T) model.Audit
 	}
 
 	return callback(data), nil
+}
+
+func resolveEventTeam(ctx context.Context, obj auditevent.BaseAuditEvent) (*model.Team, error) {
+	if obj.GQLVars.Team == "" {
+		return nil, nil
+	}
+
+	return loader.GetTeam(ctx, obj.GQLVars.Team)
+}
+
+func resolveEventEnv(ctx context.Context, obj auditevent.BaseAuditEvent) (*model.Env, error) {
+	if obj.GQLVars.Environment == "" || obj.GQLVars.Team == "" {
+		return nil, nil
+	}
+
+	return loader.GetTeamEnvironment(ctx, obj.GQLVars.Team, obj.GQLVars.Environment)
 }

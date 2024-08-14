@@ -71,7 +71,7 @@ func (r *mutationResolver) DeleteApp(ctx context.Context, name string, team slug
 		}, nil
 	}
 
-	if err := r.auditor.AppDeleted(ctx, actor.User, team, name); err != nil {
+	if err := r.auditor.AppDeleted(ctx, actor.User, team, env, name); err != nil {
 		return nil, err
 	}
 
@@ -93,7 +93,7 @@ func (r *mutationResolver) RestartApp(ctx context.Context, name string, team slu
 		}, nil
 	}
 
-	if err := r.auditor.AppRestarted(ctx, actor.User, team, name); err != nil {
+	if err := r.auditor.AppRestarted(ctx, actor.User, team, env, name); err != nil {
 		return nil, err
 	}
 
