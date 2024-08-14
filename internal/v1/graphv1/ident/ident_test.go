@@ -5,6 +5,7 @@ import (
 	"maps"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 )
 
@@ -93,12 +94,17 @@ func TestNewIdent(t *testing.T) {
 		return &TestModel{Ident: id, Type: "type2"}, nil
 	})
 
-	o := NewIdent(keyType1(1), "id1")
+	o := NewIdent(keyType1(1), "idpart1", "idpart2")
 	if o.Type != "type1" {
 		t.Error("unexpected type")
 	}
-	if o.ID != "id1" {
-		t.Error("unexpected id")
+
+	if expectedID := "idpart1|idpart2"; o.ID != expectedID {
+		t.Errorf("expected id %q, got %q", expectedID, o.ID)
+	}
+
+	if diff := cmp.Diff([]string{"idpart1", "idpart2"}, o.Parts()); diff != "" {
+		t.Errorf("diff: -want +got\n%s", diff)
 	}
 
 	// NewIdent unknown key
