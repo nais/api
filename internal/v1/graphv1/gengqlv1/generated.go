@@ -60,6 +60,7 @@ type ResolverRoot interface {
 	Job() JobResolver
 	KafkaTopic() KafkaTopicResolver
 	KafkaTopicAcl() KafkaTopicAclResolver
+	Mutation() MutationResolver
 	OpenSearch() OpenSearchResolver
 	OpenSearchAccess() OpenSearchAccessResolver
 	Query() QueryResolver
@@ -182,6 +183,10 @@ type ComplexityRoot struct {
 		State func(childComplexity int) int
 	}
 
+	CreateTeamPayload struct {
+		Team func(childComplexity int) int
+	}
+
 	Job struct {
 		Environment func(childComplexity int) int
 		ID          func(childComplexity int) int
@@ -251,6 +256,11 @@ type ComplexityRoot struct {
 
 	KafkaTopicStatus struct {
 		State func(childComplexity int) int
+	}
+
+	Mutation struct {
+		CreateTeam func(childComplexity int, input team.CreateTeamInput) int
+		UpdateTeam func(childComplexity int, input team.UpdateTeamInput) int
 	}
 
 	OpenSearch struct {
@@ -502,6 +512,10 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	UpdateTeamPayload struct {
+		Team func(childComplexity int) int
+	}
+
 	User struct {
 		Email      func(childComplexity int) int
 		ExternalID func(childComplexity int) int
@@ -554,6 +568,10 @@ type KafkaTopicResolver interface {
 type KafkaTopicAclResolver interface {
 	Team(ctx context.Context, obj *kafkatopic.KafkaTopicACL) (*team.Team, error)
 	Workload(ctx context.Context, obj *kafkatopic.KafkaTopicACL) (workload.Workload, error)
+}
+type MutationResolver interface {
+	CreateTeam(ctx context.Context, input team.CreateTeamInput) (*team.CreateTeamPayload, error)
+	UpdateTeam(ctx context.Context, input team.UpdateTeamInput) (*team.UpdateTeamPayload, error)
 }
 type OpenSearchResolver interface {
 	Team(ctx context.Context, obj *opensearch.OpenSearch) (*team.Team, error)
@@ -1029,6 +1047,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.BucketStatus.State(childComplexity), true
 
+	case "CreateTeamPayload.team":
+		if e.complexity.CreateTeamPayload.Team == nil {
+			break
+		}
+
+		return e.complexity.CreateTeamPayload.Team(childComplexity), true
+
 	case "Job.environment":
 		if e.complexity.Job.Environment == nil {
 			break
@@ -1299,6 +1324,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.KafkaTopicStatus.State(childComplexity), true
+
+	case "Mutation.createTeam":
+		if e.complexity.Mutation.CreateTeam == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createTeam_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateTeam(childComplexity, args["input"].(team.CreateTeamInput)), true
+
+	case "Mutation.updateTeam":
+		if e.complexity.Mutation.UpdateTeam == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateTeam_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateTeam(childComplexity, args["input"].(team.UpdateTeamInput)), true
 
 	case "OpenSearch.access":
 		if e.complexity.OpenSearch.Access == nil {
@@ -2382,6 +2431,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamMemberEdge.Node(childComplexity), true
 
+	case "UpdateTeamPayload.team":
+		if e.complexity.UpdateTeamPayload.Team == nil {
+			break
+		}
+
+		return e.complexity.UpdateTeamPayload.Team(childComplexity), true
+
 	case "User.email":
 		if e.complexity.User.Email == nil {
 			break
@@ -2462,6 +2518,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputBigQueryDatasetAccessOrder,
 		ec.unmarshalInputBigQueryDatasetOrder,
 		ec.unmarshalInputBucketOrder,
+		ec.unmarshalInputCreateTeamInput,
 		ec.unmarshalInputJobOrder,
 		ec.unmarshalInputKafkaTopicAclFilter,
 		ec.unmarshalInputKafkaTopicAclOrder,
@@ -2474,6 +2531,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSqlInstanceUserOrder,
 		ec.unmarshalInputTeamMemberOrder,
 		ec.unmarshalInputTeamOrder,
+		ec.unmarshalInputUpdateTeamInput,
 		ec.unmarshalInputUserOrder,
 		ec.unmarshalInputUserTeamOrder,
 	)
@@ -2509,6 +2567,21 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			}
 
 			return &response
+		}
+	case ast.Mutation:
+		return func(ctx context.Context) *graphql.Response {
+			if !first {
+				return nil
+			}
+			first = false
+			ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
+			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
+			var buf bytes.Buffer
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
 		}
 
 	default:
@@ -2559,584 +2632,574 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 
 var sources = []*ast.Source{
 	{Name: "../schema/applications.graphqls", Input: `type ApplicationConnection {
-  pageInfo: PageInfo!
-  edges: [ApplicationEdge!]!
+	pageInfo: PageInfo!
+	edges: [ApplicationEdge!]!
 }
 
 type ApplicationEdge {
-  cursor: Cursor!
-  node: Application!
+	cursor: Cursor!
+	node: Application!
 }
 
 type Application implements Node & Workload {
-  id: ID!
-  name: String!
-  team: Team!
-  environment: TeamEnvironment!
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment!
 
-  # image: String!
-  # deployInfo: DeployInfo!
-  # env: Env!
-  # accessPolicy: AccessPolicy!
-  # status: WorkloadStatus!
-  # authz: [Authz!]!
-  # variables: [Variable!]!
-  # persistence: [Persistence!]!
-  # resources: Resources!
-  # type: WorkloadType!
-  #
-  # imageDetails: ImageDetails!
-  # ingresses: [String!]!
-  # instances: [Instance!]!
-  # autoScaling: AutoScaling!
-  # manifest: String!
-  # secrets: [Secret!]!
+	# image: String!
+	# deployInfo: DeployInfo!
+	# env: Env!
+	# accessPolicy: AccessPolicy!
+	# status: WorkloadStatus!
+	# authz: [Authz!]!
+	# variables: [Variable!]!
+	# persistence: [Persistence!]!
+	# resources: Resources!
+	# type: WorkloadType!
+	#
+	# imageDetails: ImageDetails!
+	# ingresses: [String!]!
+	# instances: [Instance!]!
+	# autoScaling: AutoScaling!
+	# manifest: String!
+	# secrets: [Secret!]!
 }
 
 input ApplicationOrder {
-  field: ApplicationOrderField!
-  direction: OrderDirection!
+	field: ApplicationOrderField!
+	direction: OrderDirection!
 }
 
 enum ApplicationOrderField {
-  STATUS
-  NAME
-  ENVIRONMENT
-  VULNERABILITIES
-  RISK_SCORE
-  DEPLOYMENT_TIME
+	STATUS
+	NAME
+	ENVIRONMENT
+	VULNERABILITIES
+	RISK_SCORE
+	DEPLOYMENT_TIME
 }
 `, BuiltIn: false},
 	{Name: "../schema/jobs.graphqls", Input: `type Job implements Node & Workload {
-  id: ID!
-  name: String!
-  team: Team!
-  environment: TeamEnvironment!
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment!
 
-  # image: String!
-  # deployInfo: DeployInfo!
-  # accessPolicy: AccessPolicy!
-  # status: WorkloadStatus!
-  # authz: [Authz!]!
-  # persistence: [Persistence!]!
-  # variables: [Variable!]!
-  # resources: Resources!
-  # type: WorkloadType!
+	# image: String!
+	# deployInfo: DeployInfo!
+	# accessPolicy: AccessPolicy!
+	# status: WorkloadStatus!
+	# authz: [Authz!]!
+	# persistence: [Persistence!]!
+	# variables: [Variable!]!
+	# resources: Resources!
+	# type: WorkloadType!
 
-  # imageDetails: ImageDetails!
-  # runs: [Run!]!
-  # manifest: String!
-  # schedule: String!
-  # completions: Int!
-  # parallelism: Int!
-  # retries: Int!
-  # secrets: [Secret!]!
+	# imageDetails: ImageDetails!
+	# runs: [Run!]!
+	# manifest: String!
+	# schedule: String!
+	# completions: Int!
+	# parallelism: Int!
+	# retries: Int!
+	# secrets: [Secret!]!
 }
 
 type JobConnection {
-  pageInfo: PageInfo!
-  edges: [JobEdge!]!
+	pageInfo: PageInfo!
+	edges: [JobEdge!]!
 }
 
 type JobEdge {
-  cursor: Cursor!
-  node: Job!
+	cursor: Cursor!
+	node: Job!
 }
 
 input JobOrder {
-  field: JobOrderField!
-  direction: OrderDirection!
+	field: JobOrderField!
+	direction: OrderDirection!
 }
 
 enum JobOrderField {
-  STATUS
-  NAME
-  ENVIRONMENT
-  VULNERABILITIES
-  RISK_SCORE
-  DEPLOYMENT_TIME
+	STATUS
+	NAME
+	ENVIRONMENT
+	VULNERABILITIES
+	RISK_SCORE
+	DEPLOYMENT_TIME
 }
 `, BuiltIn: false},
 	{Name: "../schema/persistence.graphqls", Input: `interface Persistence implements Node {
-  id: ID!
-  name: String!
-  team: Team!
-  environment: TeamEnvironment!
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment!
 }
 
 type BigQueryDataset implements Persistence & Node {
-  id: ID!
-  name: String!
-  team: Team!
-  environment: TeamEnvironment!
-  cascadingDelete: Boolean!
-  description: String
-  access(
-    first: Int
-    after: Cursor
-    last: Int
-    before: Cursor
-    orderBy: BigQueryDatasetAccessOrder
-  ): BigQueryDatasetAccessConnection!
-  status: BigQueryDatasetStatus!
-  workload: Workload
-  cost: Float!
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment!
+	cascadingDelete: Boolean!
+	description: String
+	access(
+		first: Int
+		after: Cursor
+		last: Int
+		before: Cursor
+		orderBy: BigQueryDatasetAccessOrder
+	): BigQueryDatasetAccessConnection!
+	status: BigQueryDatasetStatus!
+	workload: Workload
+	cost: Float!
 }
 
 type BigQueryDatasetAccess {
-  role: String!
-  email: String!
+	role: String!
+	email: String!
 }
 
 type BigQueryDatasetStatus {
-  creationTime: Time!
-  lastModifiedTime: Time
+	creationTime: Time!
+	lastModifiedTime: Time
 }
 
 type Bucket implements Persistence & Node {
-  id: ID!
-  name: String!
-  team: Team!
-  environment: TeamEnvironment!
-  cascadingDelete: Boolean!
-  publicAccessPrevention: String!
-  uniformBucketLevelAccess: Boolean!
-  cors(
-    first: Int
-    after: Cursor
-    last: Int
-    before: Cursor
-  ): BucketCorsConnection!
-  projectId: String!
-  workload: Workload
-  status: BucketStatus!
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment!
+	cascadingDelete: Boolean!
+	publicAccessPrevention: String!
+	uniformBucketLevelAccess: Boolean!
+	cors(first: Int, after: Cursor, last: Int, before: Cursor): BucketCorsConnection!
+	projectId: String!
+	workload: Workload
+	status: BucketStatus!
 }
 
 type BucketCors {
-  maxAgeSeconds: Int
-  methods: [String!]!
-  origins: [String!]!
-  responseHeaders: [String!]!
+	maxAgeSeconds: Int
+	methods: [String!]!
+	origins: [String!]!
+	responseHeaders: [String!]!
 }
 
 type BucketStatus {
-  state: String!
+	state: String!
 }
 
 type KafkaTopic implements Persistence & Node {
-  id: ID!
-  name: String!
-  team: Team!
-  environment: TeamEnvironment!
-  acl(
-    first: Int
-    after: Cursor
-    last: Int
-    before: Cursor
-    filter: KafkaTopicAclFilter
-    orderBy: KafkaTopicAclOrder
-  ): KafkaTopicAclConnection!
-  configuration: KafkaTopicConfiguration
-  pool: String!
-  status: KafkaTopicStatus!
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment!
+	acl(
+		first: Int
+		after: Cursor
+		last: Int
+		before: Cursor
+		filter: KafkaTopicAclFilter
+		orderBy: KafkaTopicAclOrder
+	): KafkaTopicAclConnection!
+	configuration: KafkaTopicConfiguration
+	pool: String!
+	status: KafkaTopicStatus!
 }
 
 type KafkaTopicAcl {
-  access: String!
-  applicationName: String!
-  teamName: String!
-  team: Team
-  workload: Workload
+	access: String!
+	applicationName: String!
+	teamName: String!
+	team: Team
+	workload: Workload
 }
 
 type KafkaTopicConfiguration {
-  cleanupPolicy: String
-  maxMessageBytes: Int
-  minimumInSyncReplicas: Int
-  partitions: Int
-  replication: Int
-  retentionBytes: Int
-  retentionHours: Int
-  segmentHours: Int
+	cleanupPolicy: String
+	maxMessageBytes: Int
+	minimumInSyncReplicas: Int
+	partitions: Int
+	replication: Int
+	retentionBytes: Int
+	retentionHours: Int
+	segmentHours: Int
 }
 
 type KafkaTopicStatus {
-  state: String!
+	state: String!
 }
 
 type OpenSearch implements Persistence & Node {
-  id: ID!
-  name: String!
-  team: Team!
-  environment: TeamEnvironment!
-  status: OpenSearchStatus!
-  workload: Workload
-  access(
-    first: Int
-    after: Cursor
-    last: Int
-    before: Cursor
-    orderBy: OpenSearchAccessOrder
-  ): OpenSearchAccessConnection!
-  cost: Float!
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment!
+	status: OpenSearchStatus!
+	workload: Workload
+	access(
+		first: Int
+		after: Cursor
+		last: Int
+		before: Cursor
+		orderBy: OpenSearchAccessOrder
+	): OpenSearchAccessConnection!
+	cost: Float!
 }
 
 type OpenSearchAccess {
-  workload: Workload!
-  access: String!
+	workload: Workload!
+	access: String!
 }
 
 type OpenSearchStatus {
-  state: String!
+	state: String!
 }
 
 type RedisInstance implements Persistence & Node {
-  id: ID!
-  name: String!
-  team: Team!
-  environment: TeamEnvironment!
-  access(
-    first: Int
-    after: Cursor
-    last: Int
-    before: Cursor
-    orderBy: RedisInstanceAccessOrder
-  ): RedisInstanceAccessConnection!
-  cost: Float!
-  workload: Workload
-  status: RedisInstanceStatus!
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment!
+	access(
+		first: Int
+		after: Cursor
+		last: Int
+		before: Cursor
+		orderBy: RedisInstanceAccessOrder
+	): RedisInstanceAccessConnection!
+	cost: Float!
+	workload: Workload
+	status: RedisInstanceStatus!
 }
 
 type RedisInstanceAccess {
-  workload: Workload!
-  access: String!
+	workload: Workload!
+	access: String!
 }
 
 type RedisInstanceStatus {
-  state: String!
+	state: String!
 }
 
 type SqlDatabase implements Persistence & Node {
-  id: ID!
-  name: String!
-  team: Team!
-  environment: TeamEnvironment!
-  charset: String
-  collation: String
-  deletionPolicy: String
-  healthy: Boolean!
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment!
+	charset: String
+	collation: String
+	deletionPolicy: String
+	healthy: Boolean!
 }
 
 type SqlInstance implements Persistence & Node {
-  id: ID!
-  name: String!
-  team: Team!
-  environment: TeamEnvironment!
-  workload: Workload
-  cascadingDelete: Boolean!
-  connectionName: String
-  diskAutoresize: Boolean
-  diskAutoresizeLimit: Int
-  highAvailability: Boolean!
-  healthy: Boolean!
-  maintenanceVersion: String
-  maintenanceWindow: SqlInstanceMaintenanceWindow
-  backupConfiguration: SqlInstanceBackupConfiguration
-  projectId: String!
-  tier: String!
-  version: String
-  status: SqlInstanceStatus!
-  database: SqlDatabase
-  flags(
-    first: Int
-    after: Cursor
-    last: Int
-    before: Cursor
-  ): SqlInstanceFlagConnection!
-  users(
-    first: Int
-    after: Cursor
-    last: Int
-    before: Cursor
-    orderBy: SqlInstanceUserOrder
-  ): SqlInstanceUserConnection!
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment!
+	workload: Workload
+	cascadingDelete: Boolean!
+	connectionName: String
+	diskAutoresize: Boolean
+	diskAutoresizeLimit: Int
+	highAvailability: Boolean!
+	healthy: Boolean!
+	maintenanceVersion: String
+	maintenanceWindow: SqlInstanceMaintenanceWindow
+	backupConfiguration: SqlInstanceBackupConfiguration
+	projectId: String!
+	tier: String!
+	version: String
+	status: SqlInstanceStatus!
+	database: SqlDatabase
+	flags(first: Int, after: Cursor, last: Int, before: Cursor): SqlInstanceFlagConnection!
+	users(
+		first: Int
+		after: Cursor
+		last: Int
+		before: Cursor
+		orderBy: SqlInstanceUserOrder
+	): SqlInstanceUserConnection!
 }
 
 type SqlInstanceBackupConfiguration {
-  enabled: Boolean
-  startTime: String
-  retainedBackups: Int
-  pointInTimeRecovery: Boolean
-  transactionLogRetentionDays: Int
+	enabled: Boolean
+	startTime: String
+	retainedBackups: Int
+	pointInTimeRecovery: Boolean
+	transactionLogRetentionDays: Int
 }
 
 type SqlInstanceFlag {
-  name: String!
-  value: String!
+	name: String!
+	value: String!
 }
 
 type SqlInstanceMaintenanceWindow {
-  day: Int!
-  hour: Int!
+	day: Int!
+	hour: Int!
 }
 
 type SqlInstanceStatus {
-  publicIpAddress: String
-  privateIpAddress: String
+	publicIpAddress: String
+	privateIpAddress: String
 }
 
 type SqlInstanceUser {
-  name: String!
-  authentication: String!
+	name: String!
+	authentication: String!
 }
 
 type BigQueryDatasetAccessConnection {
-  pageInfo: PageInfo!
-  edges: [BigQueryDatasetAccessEdge!]!
+	pageInfo: PageInfo!
+	edges: [BigQueryDatasetAccessEdge!]!
 }
 
 type BigQueryDatasetConnection {
-  pageInfo: PageInfo!
-  edges: [BigQueryDatasetEdge!]!
+	pageInfo: PageInfo!
+	edges: [BigQueryDatasetEdge!]!
 }
 
 type BucketConnection {
-  pageInfo: PageInfo!
-  edges: [BucketEdge!]!
+	pageInfo: PageInfo!
+	edges: [BucketEdge!]!
 }
 
 type BucketCorsConnection {
-  pageInfo: PageInfo!
-  edges: [BucketCorsEdge!]!
+	pageInfo: PageInfo!
+	edges: [BucketCorsEdge!]!
 }
 
 type KafkaTopicConnection {
-  pageInfo: PageInfo!
-  edges: [KafkaTopicEdge!]!
+	pageInfo: PageInfo!
+	edges: [KafkaTopicEdge!]!
 }
 
 type KafkaTopicAclConnection {
-  pageInfo: PageInfo!
-  edges: [KafkaTopicAclEdge!]!
+	pageInfo: PageInfo!
+	edges: [KafkaTopicAclEdge!]!
 }
 
 type OpenSearchAccessConnection {
-  pageInfo: PageInfo!
-  edges: [OpenSearchAccessEdge!]!
+	pageInfo: PageInfo!
+	edges: [OpenSearchAccessEdge!]!
 }
 
 type OpenSearchConnection {
-  pageInfo: PageInfo!
-  edges: [OpenSearchEdge!]!
+	pageInfo: PageInfo!
+	edges: [OpenSearchEdge!]!
 }
 
 type RedisInstanceAccessConnection {
-  pageInfo: PageInfo!
-  edges: [RedisInstanceAccessEdge!]!
-
+	pageInfo: PageInfo!
+	edges: [RedisInstanceAccessEdge!]!
 }
 
 type RedisInstanceConnection {
-  pageInfo: PageInfo!
-  edges: [RedisInstanceEdge!]!
+	pageInfo: PageInfo!
+	edges: [RedisInstanceEdge!]!
 }
 
 type SqlInstanceConnection {
-  pageInfo: PageInfo!
-  edges: [SqlInstanceEdge!]!
+	pageInfo: PageInfo!
+	edges: [SqlInstanceEdge!]!
 }
 
 type SqlInstanceFlagConnection {
-  pageInfo: PageInfo!
-  edges: [SqlInstanceFlagEdge!]!
+	pageInfo: PageInfo!
+	edges: [SqlInstanceFlagEdge!]!
 }
 
 type SqlInstanceUserConnection {
-  pageInfo: PageInfo!
-  edges: [SqlInstanceUserEdge!]!
+	pageInfo: PageInfo!
+	edges: [SqlInstanceUserEdge!]!
 }
 
 type BigQueryDatasetAccessEdge {
-  cursor: Cursor!
-  node: BigQueryDatasetAccess!
+	cursor: Cursor!
+	node: BigQueryDatasetAccess!
 }
 
 type BigQueryDatasetEdge {
-  cursor: Cursor!
-  node: BigQueryDataset!
+	cursor: Cursor!
+	node: BigQueryDataset!
 }
 
 type BucketEdge {
-  cursor: Cursor!
-  node: Bucket!
+	cursor: Cursor!
+	node: Bucket!
 }
 
 type BucketCorsEdge {
-  cursor: Cursor!
-  node: BucketCors!
+	cursor: Cursor!
+	node: BucketCors!
 }
 
 type KafkaTopicEdge {
-  cursor: Cursor!
-  node: KafkaTopic!
+	cursor: Cursor!
+	node: KafkaTopic!
 }
 
 type KafkaTopicAclEdge {
-  cursor: Cursor!
-  node: KafkaTopicAcl!
+	cursor: Cursor!
+	node: KafkaTopicAcl!
 }
 
 type OpenSearchAccessEdge {
-  cursor: Cursor!
-  node: OpenSearchAccess!
+	cursor: Cursor!
+	node: OpenSearchAccess!
 }
 
 type OpenSearchEdge {
-  cursor: Cursor!
-  node: OpenSearch!
+	cursor: Cursor!
+	node: OpenSearch!
 }
 
 type RedisInstanceAccessEdge {
-  cursor: Cursor!
-  node: RedisInstanceAccess!
+	cursor: Cursor!
+	node: RedisInstanceAccess!
 }
 
 type RedisInstanceEdge {
-  cursor: Cursor!
-  node: RedisInstance!
+	cursor: Cursor!
+	node: RedisInstance!
 }
 
 type SqlInstanceEdge {
-  cursor: Cursor!
-  node: SqlInstance!
+	cursor: Cursor!
+	node: SqlInstance!
 }
 
 type SqlInstanceFlagEdge {
-  cursor: Cursor!
-  node: SqlInstanceFlag!
+	cursor: Cursor!
+	node: SqlInstanceFlag!
 }
 
 type SqlInstanceUserEdge {
-  cursor: Cursor!
-  node: SqlInstanceUser!
+	cursor: Cursor!
+	node: SqlInstanceUser!
 }
 
 input BigQueryDatasetAccessOrder {
-  field: BigQueryDatasetAccessOrderField!
-  direction: OrderDirection!
+	field: BigQueryDatasetAccessOrderField!
+	direction: OrderDirection!
 }
 
 input BigQueryDatasetOrder {
-  field: BigQueryDatasetOrderField!
-  direction: OrderDirection!
+	field: BigQueryDatasetOrderField!
+	direction: OrderDirection!
 }
 
 input BucketOrder {
-  field: BucketOrderField!
-  direction: OrderDirection!
+	field: BucketOrderField!
+	direction: OrderDirection!
 }
 
 input KafkaTopicAclFilter {
-  team: Slug
-  application: String
+	team: Slug
+	application: String
 }
 
 input KafkaTopicOrder {
-  field: KafkaTopicOrderField!
-  direction: OrderDirection!
+	field: KafkaTopicOrderField!
+	direction: OrderDirection!
 }
 
 input KafkaTopicAclOrder {
-  field: KafkaTopicAclOrderField!
-  direction: OrderDirection!
+	field: KafkaTopicAclOrderField!
+	direction: OrderDirection!
 }
 
 input OpenSearchAccessOrder {
-  field: OpenSearchAccessOrderField!
-  direction: OrderDirection!
+	field: OpenSearchAccessOrderField!
+	direction: OrderDirection!
 }
 
 input OpenSearchOrder {
-  field: OpenSearchOrderField!
-  direction: OrderDirection!
+	field: OpenSearchOrderField!
+	direction: OrderDirection!
 }
 
 input RedisInstanceAccessOrder {
-  field: RedisInstanceAccessOrderField!
-  direction: OrderDirection!
+	field: RedisInstanceAccessOrderField!
+	direction: OrderDirection!
 }
 
 input RedisInstanceOrder {
-  field: RedisInstanceOrderField!
-  direction: OrderDirection!
+	field: RedisInstanceOrderField!
+	direction: OrderDirection!
 }
 
 input SqlInstanceOrder {
-  field: SqlInstanceOrderField!
-  direction: OrderDirection!
+	field: SqlInstanceOrderField!
+	direction: OrderDirection!
 }
 
 input SqlInstanceUserOrder {
-  field: SqlInstanceUserOrderField!
-  direction: OrderDirection!
+	field: SqlInstanceUserOrderField!
+	direction: OrderDirection!
 }
 
 enum BigQueryDatasetAccessOrderField {
-  ROLE
-  EMAIL
+	ROLE
+	EMAIL
 }
 
 enum BigQueryDatasetOrderField {
-  NAME
-  ENVIRONMENT
+	NAME
+	ENVIRONMENT
 }
 
 enum BucketOrderField {
-  NAME
-  ENVIRONMENT
+	NAME
+	ENVIRONMENT
 }
 
 enum KafkaTopicOrderField {
-  NAME
-  ENVIRONMENT
+	NAME
+	ENVIRONMENT
 }
 
 enum KafkaTopicAclOrderField {
-  TEAM_SLUG
-  CONSUMER
-  ACCESS
+	TEAM_SLUG
+	CONSUMER
+	ACCESS
 }
 
 enum RedisInstanceAccessOrderField {
-  ACCESS
-  WORKLOAD
+	ACCESS
+	WORKLOAD
 }
 
 enum OpenSearchAccessOrderField {
-  ACCESS
-  WORKLOAD
+	ACCESS
+	WORKLOAD
 }
 
 enum OpenSearchOrderField {
-  NAME
-  ENVIRONMENT
+	NAME
+	ENVIRONMENT
 }
 
 enum RedisInstanceOrderField {
-  NAME
-  ENVIRONMENT
+	NAME
+	ENVIRONMENT
 }
 
 enum SqlInstanceOrderField {
-  NAME
-  VERSION
-  ENVIRONMENT
+	NAME
+	VERSION
+	ENVIRONMENT
 }
 
 enum SqlInstanceUserOrderField {
-  NAME
-  AUTHENTICATION
-}`, BuiltIn: false},
+	NAME
+	AUTHENTICATION
+}
+`, BuiltIn: false},
 	{Name: "../schema/scalars.graphqls", Input: `"Time is a string in [RFC 3339](https://rfc-editor.org/rfc/rfc3339.html) format, with sub-second precision added if present."
 scalar Time
 
@@ -3165,19 +3228,23 @@ A cursor for use in pagination
 
 Cursors are opaque strings that are returned by the server for paginated results, and used when performing backwards / forwards pagination.
 """
-scalar Cursor`, BuiltIn: false},
+scalar Cursor
+`, BuiltIn: false},
 	{Name: "../schema/schema.graphqls", Input: `"The query root for the NAIS GraphQL API."
 type Query {
-  "Fetch an object using its globally unique ID."
-  node(id: ID!): Node
+	"Fetch an object using its globally unique ID."
+	node(id: ID!): Node
 }
+
+"The mutation root for the NAIS GraphQL API."
+type Mutation
 
 """
 This interface is implemented by types that supports the [Global Object Identification specification](https://graphql.org/learn/global-object-identification/).
 """
 interface Node {
-  "Globally unique ID of the object."
-  id: ID!
+	"Globally unique ID of the object."
+	id: ID!
 }
 
 """
@@ -3186,52 +3253,76 @@ This type is used for paginating the connection
 Learn more about how we have implemented pagination in the [GraphQL Best Practices documentation](https://graphql.org/learn/pagination/).
 """
 type PageInfo {
-  "Whether or not there exists a next page in the connection."
-  hasNextPage: Boolean!
+	"Whether or not there exists a next page in the connection."
+	hasNextPage: Boolean!
 
-  "The cursor for the last item in the edges. This cursor is used when paginating forwards."
-  endCursor: Cursor
+	"The cursor for the last item in the edges. This cursor is used when paginating forwards."
+	endCursor: Cursor
 
-  "Whether or not there exists a previous page in the connection."
-  hasPreviousPage: Boolean!
+	"Whether or not there exists a previous page in the connection."
+	hasPreviousPage: Boolean!
 
-  "The cursor for the first item in the edges. This cursor is used when paginating backwards."
-  startCursor: Cursor
+	"The cursor for the first item in the edges. This cursor is used when paginating backwards."
+	startCursor: Cursor
 
-  "The total amount of items in the connection."
-  totalCount: Int!
+	"The total amount of items in the connection."
+	totalCount: Int!
 }
 
 "Possible directions in which to order a list of items."
 enum OrderDirection {
-  "Ascending sort order."
-  ASC
+	"Ascending sort order."
+	ASC
 
-  "Descending sort order."
-  DESC
+	"Descending sort order."
+	DESC
 }
 `, BuiltIn: false},
 	{Name: "../schema/teams.graphqls", Input: `extend type Query {
-  "Get a list of teams."
-  teams(
-    "Get the first n items in the connection. This can be used in combination with the after parameter."
-    first: Int
+	"Get a list of teams."
+	teams(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
 
-    "Get items after this cursor."
-    after: Cursor
+		"Get items after this cursor."
+		after: Cursor
 
-    "Get the last n items in the connection. This can be used in combination with the before parameter."
-    last: Int
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
 
-    "Get items before this cursor."
-    before: Cursor
+		"Get items before this cursor."
+		before: Cursor
 
-    "Ordering options for items returned from the connection."
-    orderBy: TeamOrder
-  ): TeamConnection!
+		"Ordering options for items returned from the connection."
+		orderBy: TeamOrder
+	): TeamConnection!
 
-  "Get a team by its slug."
-  team(slug: Slug!): Team!
+	"Get a team by its slug."
+	team(slug: Slug!): Team!
+}
+
+extend type Mutation {
+	"""
+	Create a new NAIS team
+
+	The user creating the team will be granted team ownership, unless the user is a service account, in which case the
+	team will not get an initial owner. To add one or more owners to the team, refer to the ` + "`" + `addTeamOwners` + "`" + ` mutation.
+
+	Creation of a team will also create external resources for the team, which will be managed by the NAIS API
+	reconcilers. This will be done asynchronously.
+
+	Refer to the [official NAIS documentation](https://docs.nais.io/explanations/team/) for more information regarding
+	NAIS teams.
+	"""
+	createTeam(input: CreateTeamInput!): CreateTeamPayload!
+
+	"""
+	Update an existing NAIS team
+
+	This mutation can be used to update the team purpose and the main Slack channel. It is not possible to update the
+	team slug.
+	"""
+	updateTeam(input: UpdateTeamInput!): UpdateTeamPayload!
 }
 
 """
@@ -3242,434 +3333,490 @@ Learn more about what NAIS teams are and what they can be used for in the [offic
 External resources (e.g. azureGroupID, gitHubTeamSlug) are managed by [NAIS API reconcilers](https://github.com/nais/api-reconcilers).
 """
 type Team implements Node {
-  "The globally unique ID of the team."
-  id: ID!
+	"The globally unique ID of the team."
+	id: ID!
 
-  "Unique slug of the team."
-  slug: Slug!
+	"Unique slug of the team."
+	slug: Slug!
 
-  "Main Slack channel for the team."
-  slackChannel: String!
+	"Main Slack channel for the team."
+	slackChannel: String!
 
-  "Purpose of the team."
-  purpose: String!
+	"Purpose of the team."
+	purpose: String!
 
-  "The ID of the Azure AD group for the team. This value is managed by the Azure AD reconciler."
-  azureGroupID: String
+	"The ID of the Azure AD group for the team. This value is managed by the Azure AD reconciler."
+	azureGroupID: String
 
-  "The slug of the GitHub team. This value is managed by the GitHub reconciler."
-  gitHubTeamSlug: String
+	"The slug of the GitHub team. This value is managed by the GitHub reconciler."
+	gitHubTeamSlug: String
 
-  "The email address of the Google Workspace group for the team. This value is managed by the Google Workspace reconciler."
-  googleGroupEmail: String
+	"The email address of the Google Workspace group for the team. This value is managed by the Google Workspace reconciler."
+	googleGroupEmail: String
 
-  "The Google Artifact Registry for the team. This value is managed by the Google Artifact Registry (GAR) reconciler."
-  googleArtifactRegistry: String
+	"The Google Artifact Registry for the team. This value is managed by the Google Artifact Registry (GAR) reconciler."
+	googleArtifactRegistry: String
 
-  "The CDN bucket for the team. This value is managed by the Google CDN reconciler."
-  cdnBucket: String
+	"The CDN bucket for the team. This value is managed by the Google CDN reconciler."
+	cdnBucket: String
 
-  "Team members."
-  members(
-    "Get the first n items in the connection. This can be used in combination with the after parameter."
-    first: Int
+	"Team members."
+	members(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
 
-    "Get items after this cursor."
-    after: Cursor
+		"Get items after this cursor."
+		after: Cursor
 
-    "Get the last n items in the connection. This can be used in combination with the before parameter."
-    last: Int
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
 
-    "Get items before this cursor."
-    before: Cursor
+		"Get items before this cursor."
+		before: Cursor
 
-    "Ordering options for items returned from the connection."
-    orderBy: TeamMemberOrder
-  ): TeamMemberConnection!
+		"Ordering options for items returned from the connection."
+		orderBy: TeamMemberOrder
+	): TeamMemberConnection!
 
-  "NAIS applications owned by the team."
-  applications(
-    "Get the first n items in the connection. This can be used in combination with the after parameter."
-    first: Int
+	"NAIS applications owned by the team."
+	applications(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
 
-    "Get items after this cursor."
-    after: Cursor
+		"Get items after this cursor."
+		after: Cursor
 
-    "Get the last n items in the connection. This can be used in combination with the before parameter."
-    last: Int
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
 
-    "Get items before this cursor."
-    before: Cursor
+		"Get items before this cursor."
+		before: Cursor
 
-    "Ordering options for items returned from the connection."
-    orderBy: ApplicationOrder
-  ): ApplicationConnection!
+		"Ordering options for items returned from the connection."
+		orderBy: ApplicationOrder
+	): ApplicationConnection!
 
-  "NAIS jobs owned by the team."
-  jobs(
-    "Get the first n items in the connection. This can be used in combination with the after parameter."
-    first: Int
+	"NAIS jobs owned by the team."
+	jobs(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
 
-    "Get items after this cursor."
-    after: Cursor
+		"Get items after this cursor."
+		after: Cursor
 
-    "Get the last n items in the connection. This can be used in combination with the before parameter."
-    last: Int
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
 
-    "Get items before this cursor."
-    before: Cursor
+		"Get items before this cursor."
+		before: Cursor
 
-    "Ordering options for items returned from the connection."
-    orderBy: JobOrder
-  ): JobConnection!
+		"Ordering options for items returned from the connection."
+		orderBy: JobOrder
+	): JobConnection!
 
-  "BigQuery datasets owned by the team."
-  bigQueryDatasets(
-    "Get the first n items in the connection. This can be used in combination with the after parameter."
-    first: Int
+	"BigQuery datasets owned by the team."
+	bigQueryDatasets(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
 
-    "Get items after this cursor."
-    after: Cursor
+		"Get items after this cursor."
+		after: Cursor
 
-    "Get the last n items in the connection. This can be used in combination with the before parameter."
-    last: Int
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
 
-    "Get items before this cursor."
-    before: Cursor
+		"Get items before this cursor."
+		before: Cursor
 
-    "Ordering options for items returned from the connection."
-    orderBy: BigQueryDatasetOrder
-  ): BigQueryDatasetConnection!
+		"Ordering options for items returned from the connection."
+		orderBy: BigQueryDatasetOrder
+	): BigQueryDatasetConnection!
 
-  "Redis instances owned by the team."
-  redisInstances(
-    "Get the first n items in the connection. This can be used in combination with the after parameter."
-    first: Int
+	"Redis instances owned by the team."
+	redisInstances(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
 
-    "Get items after this cursor."
-    after: Cursor
+		"Get items after this cursor."
+		after: Cursor
 
-    "Get the last n items in the connection. This can be used in combination with the before parameter."
-    last: Int
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
 
-    "Get items before this cursor."
-    before: Cursor
+		"Get items before this cursor."
+		before: Cursor
 
-    "Ordering options for items returned from the connection."
-    orderBy: RedisInstanceOrder
-  ): RedisInstanceConnection!
+		"Ordering options for items returned from the connection."
+		orderBy: RedisInstanceOrder
+	): RedisInstanceConnection!
 
-  "OpenSearch instances owned by the team."
-  openSearch(
-    "Get the first n items in the connection. This can be used in combination with the after parameter."
-    first: Int
+	"OpenSearch instances owned by the team."
+	openSearch(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
 
-    "Get items after this cursor."
-    after: Cursor
+		"Get items after this cursor."
+		after: Cursor
 
-    "Get the last n items in the connection. This can be used in combination with the before parameter."
-    last: Int
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
 
-    "Get items before this cursor."
-    before: Cursor
+		"Get items before this cursor."
+		before: Cursor
 
-    "Ordering options for items returned from the connection."
-    orderBy: OpenSearchOrder
-  ): OpenSearchConnection!
+		"Ordering options for items returned from the connection."
+		orderBy: OpenSearchOrder
+	): OpenSearchConnection!
 
-  "Google Cloud Storage buckets owned by the team."
-  buckets(
-    "Get the first n items in the connection. This can be used in combination with the after parameter."
-    first: Int
+	"Google Cloud Storage buckets owned by the team."
+	buckets(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
 
-    "Get items after this cursor."
-    after: Cursor
+		"Get items after this cursor."
+		after: Cursor
 
-    "Get the last n items in the connection. This can be used in combination with the before parameter."
-    last: Int
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
 
-    "Get items before this cursor."
-    before: Cursor
+		"Get items before this cursor."
+		before: Cursor
 
-    "Ordering options for items returned from the connection."
-    orderBy: BucketOrder
-  ): BucketConnection!
+		"Ordering options for items returned from the connection."
+		orderBy: BucketOrder
+	): BucketConnection!
 
-  "Kafka topics owned by the team."
-  kafkaTopics(
-    "Get the first n items in the connection. This can be used in combination with the after parameter."
-    first: Int
+	"Kafka topics owned by the team."
+	kafkaTopics(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
 
-    "Get items after this cursor."
-    after: Cursor
+		"Get items after this cursor."
+		after: Cursor
 
-    "Get the last n items in the connection. This can be used in combination with the before parameter."
-    last: Int
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
 
-    "Get items before this cursor."
-    before: Cursor
+		"Get items before this cursor."
+		before: Cursor
 
-    "Ordering options for items returned from the connection."
-    orderBy: KafkaTopicOrder
-  ): KafkaTopicConnection!
+		"Ordering options for items returned from the connection."
+		orderBy: KafkaTopicOrder
+	): KafkaTopicConnection!
 
-  "SQL instances owned by the team."
-  sqlInstances(
-    "Get the first n items in the connection. This can be used in combination with the after parameter."
-    first: Int
+	"SQL instances owned by the team."
+	sqlInstances(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
 
-    "Get items after this cursor."
-    after: Cursor
+		"Get items after this cursor."
+		after: Cursor
 
-    "Get the last n items in the connection. This can be used in combination with the before parameter."
-    last: Int
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
 
-    "Get items before this cursor."
-    before: Cursor
+		"Get items before this cursor."
+		before: Cursor
 
-    "Ordering options for items returned from the connection."
-    orderBy: SqlInstanceOrder
-  ): SqlInstanceConnection!
+		"Ordering options for items returned from the connection."
+		orderBy: SqlInstanceOrder
+	): SqlInstanceConnection!
 
-  "Timestamp of the last successful synchronization of the team."
-  lastSuccessfulSync: Time
+	"Timestamp of the last successful synchronization of the team."
+	lastSuccessfulSync: Time
 
-  "Whether or not the team is currently being deleted."
-  deletionInProgress: Boolean!
+	"Whether or not the team is currently being deleted."
+	deletionInProgress: Boolean!
 
-  "Whether or not the viewer is an owner of the team."
-  viewerIsOwner: Boolean!
+	"Whether or not the viewer is an owner of the team."
+	viewerIsOwner: Boolean!
 
-  "Whether or not the viewer is a member of the team."
-  viewerIsMember: Boolean!
+	"Whether or not the viewer is a member of the team."
+	viewerIsMember: Boolean!
 }
 
 type TeamEnvironment implements Node {
-  "The globally unique ID of the team environment."
-  id: ID!
+	"The globally unique ID of the team environment."
+	id: ID!
 
-  "Name of the team environment."
-  name: String!
+	"Name of the team environment."
+	name: String!
 
-  "The GCP project ID for the team environment."
-  gcpProjectID: String
+	"The GCP project ID for the team environment."
+	gcpProjectID: String
 
-  "The Slack alerts channel for the team environment."
-  slackAlertsChannel: String!
+	"The Slack alerts channel for the team environment."
+	slackAlertsChannel: String!
 
-  "The connected team."
-  team: Team!
+	"The connected team."
+	team: Team!
 }
 
 type TeamMember {
-  "Team instance."
-  team: Team!
+	"Team instance."
+	team: Team!
 
-  "User instance."
-  user: User!
+	"User instance."
+	user: User!
 
-  "The role that the user has in the team."
-  role: TeamMemberRole!
+	"The role that the user has in the team."
+	role: TeamMemberRole!
+}
+
+type CreateTeamPayload {
+	"The newly created team."
+	team: Team!
+}
+
+type UpdateTeamPayload {
+	"The updated team."
+	team: Team!
 }
 
 type TeamConnection {
-  "Pagination information."
-  pageInfo: PageInfo!
+	"Pagination information."
+	pageInfo: PageInfo!
 
-  "List of edges."
-  edges: [TeamEdge!]!
+	"List of edges."
+	edges: [TeamEdge!]!
 }
 
 type TeamMemberConnection {
-  "Pagination information."
-  pageInfo: PageInfo!
+	"Pagination information."
+	pageInfo: PageInfo!
 
-  "List of edges."
-  edges: [TeamMemberEdge!]!
+	"List of edges."
+	edges: [TeamMemberEdge!]!
 }
 
 type TeamEdge {
-  "Cursor for this edge that can be used for pagination."
-  cursor: Cursor!
+	"Cursor for this edge that can be used for pagination."
+	cursor: Cursor!
 
-  "The team."
-  node: Team!
+	"The team."
+	node: Team!
 }
 
 type TeamMemberEdge {
-  "Cursor for this edge that can be used for pagination."
-  cursor: Cursor!
+	"Cursor for this edge that can be used for pagination."
+	cursor: Cursor!
 
-  "The team member."
-  node: TeamMember!
+	"The team member."
+	node: TeamMember!
+}
+
+input CreateTeamInput {
+	"""
+	Unique team slug.
+
+	After creation, this value can not be changed. Also, after a potential deletion of the team, the slug can not be
+	reused, so please choose wisely.
+	"""
+	slug: Slug!
+
+	"""
+	The purpose / description of the team.
+
+	What is the team for? What is the team working on? This value is meant for human consumption, and should be enough
+	to give a newcomer an idea of what the team is about.
+	"""
+	purpose: String!
+
+	"""
+	The main Slack channel for the team.
+
+	Where does the team communicate? This value is used to link to the team's main Slack channel.
+	"""
+	slackChannel: String!
+}
+
+input UpdateTeamInput {
+	"Slug of the team to update."
+	slug: Slug!
+
+	"""
+	An optional new purpose / description of the team.
+
+	When omitted the existing value will not be updated.
+	"""
+	purpose: String
+
+	"""
+	An optional new Slack channel for the team.
+
+	When omitted the existing value will not be updated.
+	"""
+	slackChannel: String
 }
 
 "Ordering options when fetching teams."
 input TeamOrder {
-  "The field to order items by."
-  field: TeamOrderField!
+	"The field to order items by."
+	field: TeamOrderField!
 
-  "The direction to order items by."
-  direction: OrderDirection!
+	"The direction to order items by."
+	direction: OrderDirection!
 }
 
 "Ordering options for team members."
 input TeamMemberOrder {
-  "The field to order items by."
-  field: TeamMemberOrderField!
+	"The field to order items by."
+	field: TeamMemberOrderField!
 
-  "The direction to order items by."
-  direction: OrderDirection!
+	"The direction to order items by."
+	direction: OrderDirection!
 }
 
 "Possible fields to order teams by."
 enum TeamOrderField {
-  "The unique slug of the team."
-  TEAM_SLUG
+	"The unique slug of the team."
+	TEAM_SLUG
 }
 
 "Possible fields to order team members by."
 enum TeamMemberOrderField {
-  "The name of user."
-  NAME
+	"The name of user."
+	NAME
 
-  "The email address of the user."
-  EMAIL
+	"The email address of the user."
+	EMAIL
 
-  "The role the user has in the team."
-  ROLE
+	"The role the user has in the team."
+	ROLE
 }
 
 "Team member roles."
 enum TeamMemberRole {
-  "Regular member, read only access."
-  MEMBER
+	"Regular member, read only access."
+	MEMBER
 
-  "Team owner, full access to the team."
-  OWNER
-}`, BuiltIn: false},
+	"Team owner, full access to the team."
+	OWNER
+}
+`, BuiltIn: false},
 	{Name: "../schema/users.graphqls", Input: `extend type Query {
-  "Get a list of users."
-  users(
-    "Get the first n items in the connection. This can be used in combination with the after parameter."
-    first: Int
+	"Get a list of users."
+	users(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
 
-    "Get items after this cursor."
-    after: Cursor
+		"Get items after this cursor."
+		after: Cursor
 
-    "Get the last n items in the connection. This can be used in combination with the before parameter."
-    last: Int
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
 
-    "Get items before this cursor."
-    before: Cursor
+		"Get items before this cursor."
+		before: Cursor
 
-    "Ordering options for items returned from the connection."
-    orderBy: UserOrder
-  ): UserConnection!
+		"Ordering options for items returned from the connection."
+		orderBy: UserOrder
+	): UserConnection!
 
-  "Get a user by its ID."
-  user(id: ID!): User!
+	"Get a user by its ID."
+	user(id: ID!): User!
 
-  "Get a user by its email address."
-  userByEmail(email: String!): User!
+	"Get a user by its email address."
+	userByEmail(email: String!): User!
 }
 
 """
 The user type represents a user of the NAIS platform and the NAIS GraphQL API.
 """
 type User implements Node {
-  "The globally unique ID of the user."
-  id: ID!
+	"The globally unique ID of the user."
+	id: ID!
 
-  "The email address of the user."
-  email: String!
+	"The email address of the user."
+	email: String!
 
-  "The full name of the user."
-  name: String!
+	"The full name of the user."
+	name: String!
 
-  "The external ID of the user. This value is managed by the NAIS API user synchronization."
-  externalId: String!
+	"The external ID of the user. This value is managed by the NAIS API user synchronization."
+	externalId: String!
 
-  "List of teams the user is connected to."
-  teams(
-    "Get the first n items in the connection. This can be used in combination with the after parameter."
-    first: Int
+	"List of teams the user is connected to."
+	teams(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
 
-    "Get items after this cursor."
-    after: Cursor
+		"Get items after this cursor."
+		after: Cursor
 
-    "Get the last n items in the connection. This can be used in combination with the before parameter."
-    last: Int
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
 
-    "Get items before this cursor."
-    before: Cursor
+		"Get items before this cursor."
+		before: Cursor
 
-    "Ordering options for items returned from the connection."
-    orderBy: UserTeamOrder
-  ): TeamMemberConnection!
+		"Ordering options for items returned from the connection."
+		orderBy: UserTeamOrder
+	): TeamMemberConnection!
 }
 
 type UserConnection {
-  "Pagination information."
-  pageInfo: PageInfo!
+	"Pagination information."
+	pageInfo: PageInfo!
 
-  "List of edges."
-  edges: [UserEdge!]!
+	"List of edges."
+	edges: [UserEdge!]!
 }
 
 type UserEdge {
-  "Cursor for this edge that can be used for pagination."
-  cursor: Cursor!
+	"Cursor for this edge that can be used for pagination."
+	cursor: Cursor!
 
-  "The user."
-  node: User!
+	"The user."
+	node: User!
 }
 
 "Ordering options when fetching users."
 input UserOrder {
-  "The field to order items by."
-  field: UserOrderField!
+	"The field to order items by."
+	field: UserOrderField!
 
-  "The direction to order items by."
-  direction: OrderDirection!
+	"The direction to order items by."
+	direction: OrderDirection!
 }
 
 "Ordering options when fetching the teams a user is connected to."
 input UserTeamOrder {
-  "The field to order items by."
-  field: UserTeamOrderField!
+	"The field to order items by."
+	field: UserTeamOrderField!
 
-  "The direction to order items by."
-  direction: OrderDirection!
+	"The direction to order items by."
+	direction: OrderDirection!
 }
 
 "Possible fields to order users by."
 enum UserOrderField {
-  "The name of user."
-  NAME
+	"The name of user."
+	NAME
 
-  "The email address of the user."
-  EMAIL
+	"The email address of the user."
+	EMAIL
 }
 
 "Possible fields to order user teams by."
 enum UserTeamOrderField {
-  "The unique slug of the team."
-  TEAM_SLUG
-}`, BuiltIn: false},
+	"The unique slug of the team."
+	TEAM_SLUG
+}
+`, BuiltIn: false},
 	{Name: "../schema/workloads.graphqls", Input: `interface Workload implements Node {
-  id: ID!
-  name: String!
-  team: Team!
-  environment: TeamEnvironment!
-  # image: String!
-  # deployInfo: DeployInfo!
-  # accessPolicy: AccessPolicy!
-  # status: WorkloadStatus!
-  # authz: [Authz!]!
-  # variables: [Variable!]!
-  # resources: Resources!
-  # persistence: [Persistence!]!
+	id: ID!
+	name: String!
+	team: Team!
+	environment: TeamEnvironment!
+	# image: String!
+	# deployInfo: DeployInfo!
+	# accessPolicy: AccessPolicy!
+	# status: WorkloadStatus!
+	# authz: [Authz!]!
+	# variables: [Variable!]!
+	# resources: Resources!
+	# persistence: [Persistence!]!
 }
 `, BuiltIn: false},
 }
@@ -3829,6 +3976,36 @@ func (ec *executionContext) field_KafkaTopic_acl_args(ctx context.Context, rawAr
 		}
 	}
 	args["orderBy"] = arg5
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 team.CreateTeamInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐCreateTeamInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 team.UpdateTeamInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐUpdateTeamInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -7493,6 +7670,96 @@ func (ec *executionContext) fieldContext_BucketStatus_state(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _CreateTeamPayload_team(ctx context.Context, field graphql.CollectedField, obj *team.CreateTeamPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateTeamPayload_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Team, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(team.Team)
+	fc.Result = res
+	return ec.marshalNTeam2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateTeamPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "applications":
+				return ec.fieldContext_Team_applications(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Team_jobs(ctx, field)
+			case "bigQueryDatasets":
+				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
+			case "redisInstances":
+				return ec.fieldContext_Team_redisInstances(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Job_id(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Job_id(ctx, field)
 	if err != nil {
@@ -9423,6 +9690,124 @@ func (ec *executionContext) fieldContext_KafkaTopicStatus_state(_ context.Contex
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createTeam(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createTeam(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateTeam(rctx, fc.Args["input"].(team.CreateTeamInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.CreateTeamPayload)
+	fc.Result = res
+	return ec.marshalNCreateTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐCreateTeamPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "team":
+				return ec.fieldContext_CreateTeamPayload_team(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CreateTeamPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createTeam_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateTeam(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateTeam(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateTeam(rctx, fc.Args["input"].(team.UpdateTeamInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.UpdateTeamPayload)
+	fc.Result = res
+	return ec.marshalNUpdateTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐUpdateTeamPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "team":
+				return ec.fieldContext_UpdateTeamPayload_team(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UpdateTeamPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateTeam_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -16742,6 +17127,96 @@ func (ec *executionContext) fieldContext_TeamMemberEdge_node(_ context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _UpdateTeamPayload_team(ctx context.Context, field graphql.CollectedField, obj *team.UpdateTeamPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateTeamPayload_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Team, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(team.Team)
+	fc.Result = res
+	return ec.marshalNTeam2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateTeamPayload_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateTeamPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "applications":
+				return ec.fieldContext_Team_applications(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Team_jobs(ctx, field)
+			case "bigQueryDatasets":
+				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
+			case "redisInstances":
+				return ec.fieldContext_Team_redisInstances(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *user.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_id(ctx, field)
 	if err != nil {
@@ -19094,6 +19569,47 @@ func (ec *executionContext) unmarshalInputBucketOrder(ctx context.Context, obj i
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateTeamInput(ctx context.Context, obj interface{}) (team.CreateTeamInput, error) {
+	var it team.CreateTeamInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"slug", "purpose", "slackChannel"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "slug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Slug = data
+		case "purpose":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("purpose"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Purpose = data
+		case "slackChannel":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slackChannel"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SlackChannel = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputJobOrder(ctx context.Context, obj interface{}) (job.JobOrder, error) {
 	var it job.JobOrder
 	asMap := map[string]interface{}{}
@@ -19496,6 +20012,47 @@ func (ec *executionContext) unmarshalInputTeamOrder(ctx context.Context, obj int
 				return it, err
 			}
 			it.Direction = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateTeamInput(ctx context.Context, obj interface{}) (team.UpdateTeamInput, error) {
+	var it team.UpdateTeamInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"slug", "purpose", "slackChannel"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "slug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Slug = data
+		case "purpose":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("purpose"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Purpose = data
+		case "slackChannel":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slackChannel"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SlackChannel = data
 		}
 	}
 
@@ -20936,6 +21493,45 @@ func (ec *executionContext) _BucketStatus(ctx context.Context, sel ast.Selection
 	return out
 }
 
+var createTeamPayloadImplementors = []string{"CreateTeamPayload"}
+
+func (ec *executionContext) _CreateTeamPayload(ctx context.Context, sel ast.SelectionSet, obj *team.CreateTeamPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createTeamPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CreateTeamPayload")
+		case "team":
+			out.Values[i] = ec._CreateTeamPayload_team(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var jobImplementors = []string{"Job", "Node", "Workload"}
 
 func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj *job.Job) graphql.Marshaler {
@@ -21658,6 +22254,62 @@ func (ec *executionContext) _KafkaTopicStatus(ctx context.Context, sel ast.Selec
 			out.Values[i] = graphql.MarshalString("KafkaTopicStatus")
 		case "state":
 			out.Values[i] = ec._KafkaTopicStatus_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var mutationImplementors = []string{"Mutation"}
+
+func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, mutationImplementors)
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Mutation",
+	})
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		innerCtx := graphql.WithRootFieldContext(ctx, &graphql.RootFieldContext{
+			Object: field.Name,
+			Field:  field,
+		})
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Mutation")
+		case "createTeam":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createTeam(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateTeam":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateTeam(ctx, field)
+			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -24692,6 +25344,45 @@ func (ec *executionContext) _TeamMemberEdge(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var updateTeamPayloadImplementors = []string{"UpdateTeamPayload"}
+
+func (ec *executionContext) _UpdateTeamPayload(ctx context.Context, sel ast.SelectionSet, obj *team.UpdateTeamPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updateTeamPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdateTeamPayload")
+		case "team":
+			out.Values[i] = ec._UpdateTeamPayload_team(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var userImplementors = []string{"User", "Node"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *user.User) graphql.Marshaler {
@@ -25617,6 +26308,25 @@ func (ec *executionContext) marshalNBucketOrderField2githubᚗcomᚋnaisᚋapi�
 
 func (ec *executionContext) marshalNBucketStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐBucketStatus(ctx context.Context, sel ast.SelectionSet, v bucket.BucketStatus) graphql.Marshaler {
 	return ec._BucketStatus(ctx, sel, &v)
+}
+
+func (ec *executionContext) unmarshalNCreateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐCreateTeamInput(ctx context.Context, v interface{}) (team.CreateTeamInput, error) {
+	res, err := ec.unmarshalInputCreateTeamInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCreateTeamPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐCreateTeamPayload(ctx context.Context, sel ast.SelectionSet, v team.CreateTeamPayload) graphql.Marshaler {
+	return ec._CreateTeamPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCreateTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐCreateTeamPayload(ctx context.Context, sel ast.SelectionSet, v *team.CreateTeamPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CreateTeamPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx context.Context, v interface{}) (pagination.Cursor, error) {
@@ -26786,6 +27496,25 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNUpdateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐUpdateTeamInput(ctx context.Context, v interface{}) (team.UpdateTeamInput, error) {
+	res, err := ec.unmarshalInputUpdateTeamInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateTeamPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐUpdateTeamPayload(ctx context.Context, sel ast.SelectionSet, v team.UpdateTeamPayload) graphql.Marshaler {
+	return ec._UpdateTeamPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUpdateTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐUpdateTeamPayload(ctx context.Context, sel ast.SelectionSet, v *team.UpdateTeamPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UpdateTeamPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋuserᚐUser(ctx context.Context, sel ast.SelectionSet, v user.User) graphql.Marshaler {

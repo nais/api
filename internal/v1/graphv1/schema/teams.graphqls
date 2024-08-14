@@ -21,6 +21,30 @@ extend type Query {
 	team(slug: Slug!): Team!
 }
 
+extend type Mutation {
+	"""
+	Create a new NAIS team
+
+	The user creating the team will be granted team ownership, unless the user is a service account, in which case the
+	team will not get an initial owner. To add one or more owners to the team, refer to the `addTeamOwners` mutation.
+
+	Creation of a team will also create external resources for the team, which will be managed by the NAIS API
+	reconcilers. This will be done asynchronously.
+
+	Refer to the [official NAIS documentation](https://docs.nais.io/explanations/team/) for more information regarding
+	NAIS teams.
+	"""
+	createTeam(input: CreateTeamInput!): CreateTeamPayload!
+
+	"""
+	Update an existing NAIS team
+
+	This mutation can be used to update the team purpose and the main Slack channel. It is not possible to update the
+	team slug.
+	"""
+	updateTeam(input: UpdateTeamInput!): UpdateTeamPayload!
+}
+
 """
 The team type represents a team on the [NAIS platform](https://nais.io/).
 
@@ -259,6 +283,16 @@ type TeamMember {
 	role: TeamMemberRole!
 }
 
+type CreateTeamPayload {
+	"The newly created team."
+	team: Team!
+}
+
+type UpdateTeamPayload {
+	"The updated team."
+	team: Team!
+}
+
 type TeamConnection {
 	"Pagination information."
 	pageInfo: PageInfo!
@@ -289,6 +323,50 @@ type TeamMemberEdge {
 
 	"The team member."
 	node: TeamMember!
+}
+
+input CreateTeamInput {
+	"""
+	Unique team slug.
+
+	After creation, this value can not be changed. Also, after a potential deletion of the team, the slug can not be
+	reused, so please choose wisely.
+	"""
+	slug: Slug!
+
+	"""
+	The purpose / description of the team.
+
+	What is the team for? What is the team working on? This value is meant for human consumption, and should be enough
+	to give a newcomer an idea of what the team is about.
+	"""
+	purpose: String!
+
+	"""
+	The main Slack channel for the team.
+
+	Where does the team communicate? This value is used to link to the team's main Slack channel.
+	"""
+	slackChannel: String!
+}
+
+input UpdateTeamInput {
+	"Slug of the team to update."
+	slug: Slug!
+
+	"""
+	An optional new purpose / description of the team.
+
+	When omitted the existing value will not be updated.
+	"""
+	purpose: String
+
+	"""
+	An optional new Slack channel for the team.
+
+	When omitted the existing value will not be updated.
+	"""
+	slackChannel: String
 }
 
 "Ordering options when fetching teams."

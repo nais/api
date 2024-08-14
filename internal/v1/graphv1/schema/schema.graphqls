@@ -4,6 +4,9 @@ type Query {
 	node(id: ID!): Node
 }
 
+"The mutation root for the NAIS GraphQL API."
+type Mutation
+
 """
 This interface is implemented by types that supports the [Global Object Identification specification](https://graphql.org/learn/global-object-identification/).
 """

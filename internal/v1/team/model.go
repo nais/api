@@ -304,3 +304,23 @@ func (e *UserTeamOrderField) UnmarshalGQL(v interface{}) error {
 func (e UserTeamOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
+
+type CreateTeamInput struct {
+	Slug         slug.Slug `json:"slug"`
+	Purpose      string    `json:"purpose"`
+	SlackChannel string    `json:"slackChannel"`
+}
+
+type UpdateTeamInput struct {
+	Slug         slug.Slug `json:"slug"`
+	Purpose      *string   `json:"purpose,omitempty"`
+	SlackChannel *string   `json:"slackChannel,omitempty"`
+}
+
+type CreateTeamPayload struct {
+	Team Team `json:"team"`
+}
+
+type UpdateTeamPayload struct {
+	Team Team `json:"team"`
+}

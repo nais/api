@@ -19,6 +19,16 @@ import (
 	job2 "github.com/nais/api/internal/v1/workload/job"
 )
 
+func (r *mutationResolver) CreateTeam(ctx context.Context, input team.CreateTeamInput) (*team.CreateTeamPayload, error) {
+	// TODO: implement
+	panic(fmt.Errorf("not implemented: CreateTeam - createTeam"))
+}
+
+func (r *mutationResolver) UpdateTeam(ctx context.Context, input team.UpdateTeamInput) (*team.UpdateTeamPayload, error) {
+	// TODO: implement
+	panic(fmt.Errorf("not implemented: UpdateTeam - updateTeam"))
+}
+
 func (r *queryResolver) Teams(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) (*pagination.Connection[*team.Team], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
