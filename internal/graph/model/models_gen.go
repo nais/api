@@ -1061,16 +1061,12 @@ type VulnerabilitySummaryForTeam struct {
 type AuditEventAction string
 
 const (
-	AuditEventActionTeamCreated                AuditEventAction = "TEAM_CREATED"
 	AuditEventActionTeamDeletionConfirmed      AuditEventAction = "TEAM_DELETION_CONFIRMED"
 	AuditEventActionTeamDeletionRequested      AuditEventAction = "TEAM_DELETION_REQUESTED"
 	AuditEventActionTeamDeployKeyRotated       AuditEventAction = "TEAM_DEPLOY_KEY_ROTATED"
 	AuditEventActionTeamSetPurpose             AuditEventAction = "TEAM_SET_PURPOSE"
 	AuditEventActionTeamSetDefaultSLACkChannel AuditEventAction = "TEAM_SET_DEFAULT_SLACK_CHANNEL"
 	AuditEventActionTeamSetAlertsSLACkChannel  AuditEventAction = "TEAM_SET_ALERTS_SLACK_CHANNEL"
-	AuditEventActionTeamSynchronized           AuditEventAction = "TEAM_SYNCHRONIZED"
-	AuditEventActionTeamMemberAdded            AuditEventAction = "TEAM_MEMBER_ADDED"
-	AuditEventActionTeamMemberRemoved          AuditEventAction = "TEAM_MEMBER_REMOVED"
 	AuditEventActionTeamMemberSetRole          AuditEventAction = "TEAM_MEMBER_SET_ROLE"
 	AuditEventActionAdded                      AuditEventAction = "ADDED"
 	AuditEventActionCreated                    AuditEventAction = "CREATED"
@@ -1078,19 +1074,16 @@ const (
 	AuditEventActionRemoved                    AuditEventAction = "REMOVED"
 	AuditEventActionRestarted                  AuditEventAction = "RESTARTED"
 	AuditEventActionUpdated                    AuditEventAction = "UPDATED"
+	AuditEventActionSynchronized               AuditEventAction = "SYNCHRONIZED"
 )
 
 var AllAuditEventAction = []AuditEventAction{
-	AuditEventActionTeamCreated,
 	AuditEventActionTeamDeletionConfirmed,
 	AuditEventActionTeamDeletionRequested,
 	AuditEventActionTeamDeployKeyRotated,
 	AuditEventActionTeamSetPurpose,
 	AuditEventActionTeamSetDefaultSLACkChannel,
 	AuditEventActionTeamSetAlertsSLACkChannel,
-	AuditEventActionTeamSynchronized,
-	AuditEventActionTeamMemberAdded,
-	AuditEventActionTeamMemberRemoved,
 	AuditEventActionTeamMemberSetRole,
 	AuditEventActionAdded,
 	AuditEventActionCreated,
@@ -1098,11 +1091,12 @@ var AllAuditEventAction = []AuditEventAction{
 	AuditEventActionRemoved,
 	AuditEventActionRestarted,
 	AuditEventActionUpdated,
+	AuditEventActionSynchronized,
 }
 
 func (e AuditEventAction) IsValid() bool {
 	switch e {
-	case AuditEventActionTeamCreated, AuditEventActionTeamDeletionConfirmed, AuditEventActionTeamDeletionRequested, AuditEventActionTeamDeployKeyRotated, AuditEventActionTeamSetPurpose, AuditEventActionTeamSetDefaultSLACkChannel, AuditEventActionTeamSetAlertsSLACkChannel, AuditEventActionTeamSynchronized, AuditEventActionTeamMemberAdded, AuditEventActionTeamMemberRemoved, AuditEventActionTeamMemberSetRole, AuditEventActionAdded, AuditEventActionCreated, AuditEventActionDeleted, AuditEventActionRemoved, AuditEventActionRestarted, AuditEventActionUpdated:
+	case AuditEventActionTeamDeletionConfirmed, AuditEventActionTeamDeletionRequested, AuditEventActionTeamDeployKeyRotated, AuditEventActionTeamSetPurpose, AuditEventActionTeamSetDefaultSLACkChannel, AuditEventActionTeamSetAlertsSLACkChannel, AuditEventActionTeamMemberSetRole, AuditEventActionAdded, AuditEventActionCreated, AuditEventActionDeleted, AuditEventActionRemoved, AuditEventActionRestarted, AuditEventActionUpdated, AuditEventActionSynchronized:
 		return true
 	}
 	return false

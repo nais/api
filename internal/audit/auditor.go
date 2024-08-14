@@ -99,7 +99,7 @@ func (a *Auditor) SecretDeleted(ctx context.Context, actor authz.AuthenticatedUs
 func (a *Auditor) TeamMemberAdded(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, memberEmail string, role model.TeamRole) error {
 	return a.db.CreateAuditEvent(ctx, AuditEventMemberAdded{
 		BaseAuditEvent: BaseAuditEvent{
-			Action:       model.AuditEventActionTeamMemberAdded,
+			Action:       model.AuditEventActionAdded,
 			Actor:        actor.Identity(),
 			ResourceType: model.AuditEventResourceTypeTeamMember,
 			ResourceName: team.String(),
@@ -117,7 +117,7 @@ func (a *Auditor) TeamMemberAdded(ctx context.Context, actor authz.Authenticated
 func (a *Auditor) TeamMemberRemoved(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug, memberEmail string) error {
 	return a.db.CreateAuditEvent(ctx, AuditEventMemberRemoved{
 		BaseAuditEvent: BaseAuditEvent{
-			Action:       model.AuditEventActionTeamMemberRemoved,
+			Action:       model.AuditEventActionRemoved,
 			Actor:        actor.Identity(),
 			ResourceType: model.AuditEventResourceTypeTeamMember,
 			ResourceName: team.String(),
@@ -151,7 +151,7 @@ func (a *Auditor) TeamMemberSetRole(ctx context.Context, actor authz.Authenticat
 
 func (a *Auditor) TeamCreated(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug) error {
 	return a.db.CreateAuditEvent(ctx, BaseAuditEvent{
-		Action:       model.AuditEventActionTeamCreated,
+		Action:       model.AuditEventActionCreated,
 		Actor:        actor.Identity(),
 		ResourceType: model.AuditEventResourceTypeTeam,
 		ResourceName: team.String(),
@@ -199,7 +199,7 @@ func (a *Auditor) TeamRotatedDeployKey(ctx context.Context, actor authz.Authenti
 
 func (a *Auditor) TeamSynchronized(ctx context.Context, actor authz.AuthenticatedUser, team slug.Slug) error {
 	return a.db.CreateAuditEvent(ctx, BaseAuditEvent{
-		Action:       model.AuditEventActionTeamSynchronized,
+		Action:       model.AuditEventActionSynchronized,
 		Actor:        actor.Identity(),
 		ResourceType: model.AuditEventResourceTypeTeam,
 		ResourceName: team.String(),

@@ -110,7 +110,7 @@ func toEvent(row *database.AuditEvent) (model.AuditEventNode, error) {
 
 	case model.AuditEventResourceTypeTeam:
 		switch model.AuditEventAction(row.Action) {
-		case model.AuditEventActionTeamCreated:
+		case model.AuditEventActionCreated:
 			return event.WithMessage("Created team"), nil
 
 		case model.AuditEventActionTeamDeletionRequested:
@@ -122,7 +122,7 @@ func toEvent(row *database.AuditEvent) (model.AuditEventNode, error) {
 		case model.AuditEventActionTeamDeployKeyRotated:
 			return event.WithMessage("Rotated deploy key"), nil
 
-		case model.AuditEventActionTeamSynchronized:
+		case model.AuditEventActionSynchronized:
 			return event.WithMessage("Scheduled team for synchronization"), nil
 
 		case model.AuditEventActionTeamSetPurpose:
@@ -146,13 +146,13 @@ func toEvent(row *database.AuditEvent) (model.AuditEventNode, error) {
 
 	case model.AuditEventResourceTypeTeamMember:
 		switch model.AuditEventAction(row.Action) {
-		case model.AuditEventActionTeamMemberAdded:
+		case model.AuditEventActionAdded:
 			return withData(row, func(data model.AuditEventMemberAddedData) model.AuditEventNode {
 				msg := fmt.Sprintf("Added %q with role %q", data.MemberEmail, data.Role)
 				return AuditEventMemberAdded{BaseAuditEvent: event.WithMessage(msg), Data: data}
 			})
 
-		case model.AuditEventActionTeamMemberRemoved:
+		case model.AuditEventActionRemoved:
 			return withData(row, func(data model.AuditEventMemberRemovedData) model.AuditEventNode {
 				msg := fmt.Sprintf("Removed %q", data.MemberEmail)
 				return AuditEventMemberRemoved{BaseAuditEvent: event.WithMessage(msg), Data: data}
