@@ -1,4 +1,4 @@
-package auditevent
+package audit
 
 import (
 	"time"
@@ -79,3 +79,75 @@ func (e BaseAuditEvent) WithMessage(message string) BaseAuditEvent {
 func (BaseAuditEvent) IsAuditEvent() {}
 
 func (BaseAuditEvent) IsAuditEventNode() {}
+
+type AuditEventTeamSetAlertsSlackChannel struct {
+	BaseAuditEvent
+	Data model.AuditEventTeamSetAlertsSlackChannelData
+}
+
+func (a AuditEventTeamSetAlertsSlackChannel) GetData() any {
+	return a.Data
+}
+
+type AuditEventTeamSetDefaultSlackChannel struct {
+	BaseAuditEvent
+	Data model.AuditEventTeamSetDefaultSlackChannelData
+}
+
+func (a AuditEventTeamSetDefaultSlackChannel) GetData() any {
+	return a.Data
+}
+
+type AuditEventTeamSetPurpose struct {
+	BaseAuditEvent
+	Data model.AuditEventTeamSetPurposeData
+}
+
+func (a AuditEventTeamSetPurpose) GetData() any {
+	return a.Data
+}
+
+type AuditEventMemberAdded struct {
+	BaseAuditEvent
+	Data model.AuditEventMemberAddedData
+}
+
+func (a AuditEventMemberAdded) GetData() any {
+	return a.Data
+}
+
+type AuditEventMemberRemoved struct {
+	BaseAuditEvent
+	Data model.AuditEventMemberRemovedData
+}
+
+func (a AuditEventMemberRemoved) GetData() any {
+	return a.Data
+}
+
+type AuditEventMemberSetRole struct {
+	BaseAuditEvent
+	Data model.AuditEventMemberSetRoleData
+}
+
+func (a AuditEventMemberSetRole) GetData() any {
+	return a.Data
+}
+
+type AuditEventTeamAddRepository struct {
+	BaseAuditEvent
+	Data model.AuditEventTeamAddRepositoryData
+}
+
+func (a AuditEventTeamAddRepository) GetData() any {
+	return a.Data
+}
+
+type AuditEventTeamRemoveRepository struct {
+	BaseAuditEvent
+	Data model.AuditEventTeamRemoveRepositoryData
+}
+
+func (a AuditEventTeamRemoveRepository) GetData() any {
+	return a.Data
+}

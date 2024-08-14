@@ -5,15 +5,6 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/nais/api/internal/audit"
-	"github.com/nais/api/internal/slack"
-
-	"github.com/nais/api/internal/opensearch"
-
-	"github.com/nais/api/internal/bigquery"
-
-	"github.com/nais/api/internal/unleash"
-
 	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -21,7 +12,9 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/auditlogger"
+	"github.com/nais/api/internal/bigquery"
 	"github.com/nais/api/internal/bucket"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/gensql"
@@ -31,12 +24,15 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/k8s"
 	"github.com/nais/api/internal/kafka"
+	"github.com/nais/api/internal/opensearch"
 	"github.com/nais/api/internal/redis"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/search"
+	"github.com/nais/api/internal/slack"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/hookd"
+	"github.com/nais/api/internal/unleash"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"

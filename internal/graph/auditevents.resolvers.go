@@ -3,80 +3,80 @@ package graph
 import (
 	"context"
 
+	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/model/auditevent"
 )
 
-func (r *auditEventMemberAddedResolver) Team(ctx context.Context, obj *auditevent.AuditEventMemberAdded) (*model.Team, error) {
+func (r *auditEventMemberAddedResolver) Team(ctx context.Context, obj *audit.AuditEventMemberAdded) (*model.Team, error) {
 	return resolveEventTeam(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventMemberAddedResolver) Env(ctx context.Context, obj *auditevent.AuditEventMemberAdded) (*model.Env, error) {
+func (r *auditEventMemberAddedResolver) Env(ctx context.Context, obj *audit.AuditEventMemberAdded) (*model.Env, error) {
 	return resolveEventEnv(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventMemberRemovedResolver) Team(ctx context.Context, obj *auditevent.AuditEventMemberRemoved) (*model.Team, error) {
+func (r *auditEventMemberRemovedResolver) Team(ctx context.Context, obj *audit.AuditEventMemberRemoved) (*model.Team, error) {
 	return resolveEventTeam(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventMemberRemovedResolver) Env(ctx context.Context, obj *auditevent.AuditEventMemberRemoved) (*model.Env, error) {
+func (r *auditEventMemberRemovedResolver) Env(ctx context.Context, obj *audit.AuditEventMemberRemoved) (*model.Env, error) {
 	return resolveEventEnv(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventMemberSetRoleResolver) Team(ctx context.Context, obj *auditevent.AuditEventMemberSetRole) (*model.Team, error) {
+func (r *auditEventMemberSetRoleResolver) Team(ctx context.Context, obj *audit.AuditEventMemberSetRole) (*model.Team, error) {
 	return resolveEventTeam(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventMemberSetRoleResolver) Env(ctx context.Context, obj *auditevent.AuditEventMemberSetRole) (*model.Env, error) {
+func (r *auditEventMemberSetRoleResolver) Env(ctx context.Context, obj *audit.AuditEventMemberSetRole) (*model.Env, error) {
 	return resolveEventEnv(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventTeamAddRepositoryResolver) Team(ctx context.Context, obj *auditevent.AuditEventTeamAddRepository) (*model.Team, error) {
+func (r *auditEventTeamAddRepositoryResolver) Team(ctx context.Context, obj *audit.AuditEventTeamAddRepository) (*model.Team, error) {
 	return resolveEventTeam(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventTeamAddRepositoryResolver) Env(ctx context.Context, obj *auditevent.AuditEventTeamAddRepository) (*model.Env, error) {
+func (r *auditEventTeamAddRepositoryResolver) Env(ctx context.Context, obj *audit.AuditEventTeamAddRepository) (*model.Env, error) {
 	return resolveEventEnv(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventTeamRemoveRepositoryResolver) Team(ctx context.Context, obj *auditevent.AuditEventTeamRemoveRepository) (*model.Team, error) {
+func (r *auditEventTeamRemoveRepositoryResolver) Team(ctx context.Context, obj *audit.AuditEventTeamRemoveRepository) (*model.Team, error) {
 	return resolveEventTeam(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventTeamRemoveRepositoryResolver) Env(ctx context.Context, obj *auditevent.AuditEventTeamRemoveRepository) (*model.Env, error) {
+func (r *auditEventTeamRemoveRepositoryResolver) Env(ctx context.Context, obj *audit.AuditEventTeamRemoveRepository) (*model.Env, error) {
 	return resolveEventEnv(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventTeamSetAlertsSlackChannelResolver) Team(ctx context.Context, obj *auditevent.AuditEventTeamSetAlertsSlackChannel) (*model.Team, error) {
+func (r *auditEventTeamSetAlertsSlackChannelResolver) Team(ctx context.Context, obj *audit.AuditEventTeamSetAlertsSlackChannel) (*model.Team, error) {
 	return resolveEventTeam(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventTeamSetAlertsSlackChannelResolver) Env(ctx context.Context, obj *auditevent.AuditEventTeamSetAlertsSlackChannel) (*model.Env, error) {
+func (r *auditEventTeamSetAlertsSlackChannelResolver) Env(ctx context.Context, obj *audit.AuditEventTeamSetAlertsSlackChannel) (*model.Env, error) {
 	return resolveEventEnv(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventTeamSetDefaultSlackChannelResolver) Team(ctx context.Context, obj *auditevent.AuditEventTeamSetDefaultSlackChannel) (*model.Team, error) {
+func (r *auditEventTeamSetDefaultSlackChannelResolver) Team(ctx context.Context, obj *audit.AuditEventTeamSetDefaultSlackChannel) (*model.Team, error) {
 	return resolveEventTeam(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventTeamSetDefaultSlackChannelResolver) Env(ctx context.Context, obj *auditevent.AuditEventTeamSetDefaultSlackChannel) (*model.Env, error) {
+func (r *auditEventTeamSetDefaultSlackChannelResolver) Env(ctx context.Context, obj *audit.AuditEventTeamSetDefaultSlackChannel) (*model.Env, error) {
 	return resolveEventEnv(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventTeamSetPurposeResolver) Team(ctx context.Context, obj *auditevent.AuditEventTeamSetPurpose) (*model.Team, error) {
+func (r *auditEventTeamSetPurposeResolver) Team(ctx context.Context, obj *audit.AuditEventTeamSetPurpose) (*model.Team, error) {
 	return resolveEventTeam(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventTeamSetPurposeResolver) Env(ctx context.Context, obj *auditevent.AuditEventTeamSetPurpose) (*model.Env, error) {
+func (r *auditEventTeamSetPurposeResolver) Env(ctx context.Context, obj *audit.AuditEventTeamSetPurpose) (*model.Env, error) {
 	return resolveEventEnv(ctx, obj.BaseAuditEvent)
 }
 
-func (r *baseAuditEventResolver) Team(ctx context.Context, obj *auditevent.BaseAuditEvent) (*model.Team, error) {
+func (r *baseAuditEventResolver) Team(ctx context.Context, obj *audit.BaseAuditEvent) (*model.Team, error) {
 	return resolveEventTeam(ctx, *obj)
 }
 
-func (r *baseAuditEventResolver) Env(ctx context.Context, obj *auditevent.BaseAuditEvent) (*model.Env, error) {
+func (r *baseAuditEventResolver) Env(ctx context.Context, obj *audit.BaseAuditEvent) (*model.Env, error) {
 	return resolveEventEnv(ctx, *obj)
 }
 
