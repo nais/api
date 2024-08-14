@@ -8907,9 +8907,18 @@ directive @admin on FIELD_DEFINITION
 
 input CreateFeedbackInput {
   "The feedback content."
-  content: String!
+  details: String!
   uri: String!
   anonymous: Boolean!
+  type: FeedbackType!
+}
+
+enum FeedbackType {
+  "Feedback type for the feedback."
+  BUG
+  CHANGE_REQUEST
+  OTHER
+  QUESTION
 }
 
 type CreateFeedbackResult {
@@ -58666,20 +58675,20 @@ func (ec *executionContext) unmarshalInputCreateFeedbackInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"content", "uri", "anonymous"}
+	fieldsInOrder := [...]string{"details", "uri", "anonymous", "type"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "content":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("content"))
+		case "details":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("details"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Content = data
+			it.Details = data
 		case "uri":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("uri"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -58694,6 +58703,13 @@ func (ec *executionContext) unmarshalInputCreateFeedbackInput(ctx context.Contex
 				return it, err
 			}
 			it.Anonymous = data
+		case "type":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			data, err := ec.unmarshalNFeedbackType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐFeedbackType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Type = data
 		}
 	}
 
@@ -75667,6 +75683,16 @@ func (ec *executionContext) marshalNExternal2ᚖgithubᚗcomᚋnaisᚋapiᚋinte
 		return graphql.Null
 	}
 	return ec._External(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNFeedbackType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐFeedbackType(ctx context.Context, v interface{}) (model.FeedbackType, error) {
+	var res model.FeedbackType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNFeedbackType2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐFeedbackType(ctx context.Context, sel ast.SelectionSet, v model.FeedbackType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNFinding2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐFindingᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Finding) graphql.Marshaler {

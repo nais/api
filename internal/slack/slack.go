@@ -1,6 +1,9 @@
 package slack
 
 import (
+	"context"
+
+	"github.com/nais/api/internal/graph/model"
 	"github.com/slack-go/slack"
 )
 
@@ -15,7 +18,7 @@ type SlackClient interface {
 	PostFeedbackMessage(msgOptions []slack.MsgOption) (string, string, error)
 	PostComment(channelName, messageTs string, msgOptions []slack.MsgOption) error
 	AddReaction(channelId, timestamp, reaction string) error
-	GetFeedbackMessageOptions(tenant, user, uri, text string) []slack.MsgOption
+	GetFeedbackMessageOptions(ctx context.Context, tenant string, input model.CreateFeedbackInput) []slack.MsgOption
 }
 
 // New creates a new Slack client

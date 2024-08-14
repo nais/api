@@ -7,9 +7,18 @@ extend type Mutation {
 
 input CreateFeedbackInput {
   "The feedback content."
-  content: String!
+  details: String!
   uri: String!
   anonymous: Boolean!
+  type: FeedbackType!
+}
+
+enum FeedbackType {
+  "Feedback type for the feedback."
+  BUG
+  CHANGE_REQUEST
+  OTHER
+  QUESTION
 }
 
 type CreateFeedbackResult {

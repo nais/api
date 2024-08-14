@@ -1,6 +1,11 @@
 package fake
 
-import "github.com/slack-go/slack"
+import (
+	"context"
+
+	"github.com/nais/api/internal/graph/model"
+	"github.com/slack-go/slack"
+)
 
 type FakeSlackClient struct{}
 
@@ -24,6 +29,6 @@ func (f *FakeSlackClient) AddReaction(channelId, timestamp, reaction string) err
 	return nil
 }
 
-func (f *FakeSlackClient) GetFeedbackMessageOptions(tenant, user, uri, text string) []slack.MsgOption {
+func (f *FakeSlackClient) GetFeedbackMessageOptions(ctx context.Context, tenant string, input model.CreateFeedbackInput) []slack.MsgOption {
 	return nil
 }

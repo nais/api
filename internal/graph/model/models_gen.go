@@ -264,6 +264,7 @@ type CostSeries struct {
 	Data []*CostEntry `json:"data"`
 }
 
+
 // Input for creating a new team.
 type CreateTeamInput struct {
 	// Team slug. After creation, this value can not be changed.
