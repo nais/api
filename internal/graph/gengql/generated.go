@@ -8353,9 +8353,13 @@ input AuditEventsFilter {
 }
 
 enum AuditEventResourceType {
+  APP
+  NAISJOB
+  SECRET
   TEAM
   TEAM_MEMBER
   TEAM_REPOSITORY
+  UNLEASH
 }
 
 enum AuditEventAction {
@@ -8373,7 +8377,11 @@ enum AuditEventAction {
   TEAM_MEMBER_SET_ROLE
 
   ADDED
+  CREATED
+  DELETED
   REMOVED
+  RESTARTED
+  UPDATED
 }
 
 type BaseAuditEvent implements AuditEvent {

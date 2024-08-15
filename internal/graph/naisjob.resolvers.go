@@ -26,6 +26,10 @@ func (r *mutationResolver) DeleteJob(ctx context.Context, name string, team slug
 		}, nil
 	}
 
+	if err := r.auditor.NaisjobDeleted(ctx, actor.User, team, name); err != nil {
+		return nil, err
+	}
+
 	return &model.DeleteJobResult{
 		Deleted: true,
 	}, nil

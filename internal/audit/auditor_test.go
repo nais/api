@@ -17,24 +17,20 @@ import (
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
-	"github.com/testcontainers/testcontainers-go/wait"
-
 	"github.com/sirupsen/logrus"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 func TestAuditor(t *testing.T) {
 	ctx := context.Background()
-	container, connString, err := startPostgres(context.Background())
-	if err != nil {
-		t.Fatal(err)
-	}
 
-	db, closer, err := database.New(ctx, connString, logrus.New())
+	db, closer, err := newDb(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer closer()
 
 	actor := database.User{
 		User: &gensql.User{
@@ -104,15 +100,9 @@ func TestAuditor(t *testing.T) {
 			t.Errorf("got %s, want %s", d.Role, model.TeamRoleOwner)
 		}
 	})
-
-	closer()
-	err = container.Terminate(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
 }
 
-func startPostgres(ctx context.Context) (*postgres.PostgresContainer, string, error) {
+func newDb(ctx context.Context) (db database.Database, closer func(), err error) {
 	lg := log.New(io.Discard, "", 0)
 	if testing.Verbose() {
 		lg = log.New(os.Stderr, "", log.LstdFlags)
@@ -126,28 +116,50 @@ func startPostgres(ctx context.Context) (*postgres.PostgresContainer, string, er
 		postgres.WithPassword("example"),
 		testcontainers.WithWaitStrategy(
 			wait.ForLog("database system is ready to accept connections").
-				WithOccurrence(2)),
+				WithOccurrence(2),
+		),
 	)
 	if err != nil {
-		return nil, "", fmt.Errorf("failed to start container: %w", err)
+		return nil, nil, fmt.Errorf("failed to start container: %w", err)
 	}
+
+	closeContainer := func() {
+		if err := container.Terminate(ctx); err != nil {
+			log.Fatalf("failed to terminate container: %s", err)
+		}
+	}
+	defer func() {
+		if err != nil {
+			closeContainer()
+		}
+	}()
 
 	connStr, err := container.ConnectionString(ctx, "sslmode=disable")
 	if err != nil {
-		return nil, "", fmt.Errorf("failed to get connection string: %w", err)
+		return nil, nil, fmt.Errorf("failed to get connection string: %w", err)
 	}
 
 	logr := logrus.New()
 	logr.Out = io.Discard
 	pool, err := database.NewPool(ctx, connStr, logr, true) // Migrate database before snapshotting
 	if err != nil {
-		return nil, "", fmt.Errorf("failed to create pool: %w", err)
+		return nil, nil, fmt.Errorf("failed to create pool: %w", err)
 	}
 
 	pool.Close()
 	if err := container.Snapshot(ctx); err != nil {
-		return nil, "", fmt.Errorf("failed to snapshot: %w", err)
+		return nil, nil, fmt.Errorf("failed to snapshot: %w", err)
 	}
 
-	return container, connStr, nil
+	db, closeDb, err := database.New(ctx, connStr, logrus.New())
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to create database: %w", err)
+	}
+
+	closer = func() {
+		closeDb()
+		closeContainer()
+	}
+
+	return db, closer, nil
 }
