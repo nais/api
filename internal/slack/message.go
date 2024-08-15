@@ -19,21 +19,33 @@ func (s *Slack) GetFeedbackMessageOptions(ctx context.Context, tenant string, in
 		}
 	}
 
+	var headerText string
+	switch input.Type {
+	case model.FeedbackTypeBug:
+		headerText = ":bug: Bug report"
+	case model.FeedbackTypeChangeRequest:
+		headerText = ":bulb: Change request"
+	case model.FeedbackTypeOther:
+		headerText = ":speech_balloon: Other feedback"
+	case model.FeedbackTypeQuestion:
+		headerText = ":question: Question"
+	}
+
 	blocks := []slack.Block{}
-	headerBlock := slack.NewHeaderBlock(slack.NewTextBlockObject("plain_text", ":feedback: Console user feedback - "+input.Type.String(), false, false))
+	headerBlock := slack.NewHeaderBlock(slack.NewTextBlockObject("plain_text", headerText, false, false))
 
 	blocks = append(blocks, headerBlock)
 
 	var userBlock *slack.SectionBlock
 
 	if user != "" {
-		userBlock = slack.NewSectionBlock(slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*User:* %s", user), false, false), nil, nil)
+		userBlock = slack.NewSectionBlock(slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*From:* %s", user), false, false), nil, nil)
 		blocks = append(blocks, userBlock)
 	}
 
 	uriBlock := slack.NewSectionBlock(slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*URI:* %s", input.URI), false, false), nil, nil)
 	tenantBlock := slack.NewSectionBlock(slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*Tenant:* %s", tenant), false, false), nil, nil)
-	textBlock := slack.NewSectionBlock(slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*Details:* %s", input.Details), false, false), nil, nil)
+	textBlock := slack.NewSectionBlock(slack.NewTextBlockObject("mrkdwn", input.Details, false, false), nil, nil)
 	blocks = append(blocks, uriBlock, tenantBlock, textBlock)
 
 	return []slack.MsgOption{
