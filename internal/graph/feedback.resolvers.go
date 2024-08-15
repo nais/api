@@ -14,7 +14,6 @@ func (r *mutationResolver) CreateFeedback(ctx context.Context, input model.Creat
 			Error:   ptr.To("Feedback details are required"),
 		}, nil
 	}
-	r.log.Infof("Creating feedback of length %d", len(input.Details))
 	if len(input.Details) > 3000 {
 		return &model.CreateFeedbackResult{
 			Created: false,
