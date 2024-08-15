@@ -35,9 +35,9 @@ ORDER BY
 	name,
 	email ASC
 LIMIT
-	sqlc.arg ('limit')
+	sqlc.arg('limit')
 OFFSET
-	sqlc.arg ('offset')
+	sqlc.arg('offset')
 ;
 
 -- name: GetByIDs :many
@@ -81,7 +81,7 @@ WHERE
 
 -- name: ListMemberships :many
 SELECT
-	sqlc.embed (teams),
+	sqlc.embed(teams),
 	user_roles.role_name
 FROM
 	user_roles
@@ -91,9 +91,9 @@ WHERE
 ORDER BY
 	teams.slug ASC
 LIMIT
-	sqlc.arg ('limit')
+	sqlc.arg('limit')
 OFFSET
-	sqlc.arg ('offset')
+	sqlc.arg('offset')
 ;
 
 -- name: CountMemberships :one

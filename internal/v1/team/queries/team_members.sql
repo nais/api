@@ -1,8 +1,8 @@
 -- ListMembers returns a slice of team members of a non-deleted team.
 -- name: ListMembers :many
 SELECT
-	sqlc.embed (users),
-	sqlc.embed (user_roles)
+	sqlc.embed(users),
+	sqlc.embed(user_roles)
 FROM
 	user_roles
 	JOIN teams ON teams.slug = user_roles.target_team_slug
@@ -31,9 +31,9 @@ ORDER BY
 	users.name,
 	users.email ASC
 LIMIT
-	sqlc.arg ('limit')
+	sqlc.arg('limit')
 OFFSET
-	sqlc.arg ('offset')
+	sqlc.arg('offset')
 ;
 
 -- CountMembers returns the total number of team members of a non-deleted team.
@@ -49,8 +49,8 @@ WHERE
 
 -- name: ListForUser :many
 SELECT
-	sqlc.embed (users),
-	sqlc.embed (user_roles)
+	sqlc.embed(users),
+	sqlc.embed(user_roles)
 FROM
 	user_roles
 	JOIN teams ON teams.slug = user_roles.target_team_slug
@@ -66,9 +66,9 @@ ORDER BY
 	END DESC,
 	teams.slug ASC
 LIMIT
-	sqlc.arg ('limit')
+	sqlc.arg('limit')
 OFFSET
-	sqlc.arg ('offset')
+	sqlc.arg('offset')
 ;
 
 -- name: CountForUser :one

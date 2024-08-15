@@ -19,9 +19,9 @@ ORDER BY
 	END DESC,
 	slug ASC
 LIMIT
-	sqlc.arg ('limit')
+	sqlc.arg('limit')
 OFFSET
-	sqlc.arg ('offset')
+	sqlc.arg('offset')
 ;
 
 -- name: Get :one
