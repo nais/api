@@ -21,14 +21,6 @@ func (f *FakeSlackClient) PostFeedbackMessage(msgOptions []slack.MsgOption) (str
 	return "", "", nil
 }
 
-func (f *FakeSlackClient) PostComment(channelName, messageTs string, msgOptions []slack.MsgOption) error {
-	return nil
-}
-
-func (f *FakeSlackClient) AddReaction(channelId, timestamp, reaction string) error {
-	return nil
-}
-
 func (f *FakeSlackClient) GetFeedbackMessageOptions(ctx context.Context, tenant string, input model.CreateFeedbackInput) []slack.MsgOption {
 	return nil
 }
