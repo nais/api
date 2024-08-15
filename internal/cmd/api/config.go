@@ -151,7 +151,7 @@ type oAuthConfig struct {
 }
 
 type slackConfig struct {
-	Token           string `env:"SLACK_TOKEN"`
+	Token           string `env:"SLACK_API_TOKEN"`
 	FeedbackChannel string `env:"SLACK_FEEDBACK_CHANNEL"`
 }
 
