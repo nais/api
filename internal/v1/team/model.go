@@ -306,9 +306,17 @@ func (e UserTeamOrderField) MarshalGQL(w io.Writer) {
 }
 
 type CreateTeamInput struct {
-	Slug         slug.Slug `json:"slug"`
-	Purpose      string    `json:"purpose"`
-	SlackChannel string    `json:"slackChannel"`
+	Slug         slug.Slug `json:"slug" validate:"required,alphanum,min=3,max=30"`
+	Purpose      string    `json:"purpose" validate:"required"`
+	SlackChannel string    `json:"slackChannel" validate:"required,startswith=#,min=2,max=80"`
+}
+
+func (input *CreateTeamInput) Sanitized() *CreateTeamInput {
+	return &CreateTeamInput{
+		Slug:         slug.Slug(strings.TrimSpace(string(input.Slug))),
+		Purpose:      strings.TrimSpace(input.Purpose),
+		SlackChannel: strings.TrimSpace(input.SlackChannel),
+	}
 }
 
 type UpdateTeamInput struct {
@@ -318,9 +326,9 @@ type UpdateTeamInput struct {
 }
 
 type CreateTeamPayload struct {
-	Team Team `json:"team"`
+	Team *Team `json:"team"`
 }
 
 type UpdateTeamPayload struct {
-	Team Team `json:"team"`
+	Team *Team `json:"team"`
 }

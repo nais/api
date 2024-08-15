@@ -2,9 +2,9 @@ package user
 
 import (
 	"context"
-
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/v1/databasev1"
 	"github.com/nais/api/internal/v1/graphv1/loaderv1"
 	"github.com/nais/api/internal/v1/user/usersql"
 	"github.com/vikstrous/dataloadgen"
@@ -23,8 +23,8 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	db         usersql.Querier
-	userLoader *dataloadgen.Loader[uuid.UUID, *User]
+	internalQuerier *usersql.Queries
+	userLoader      *dataloadgen.Loader[uuid.UUID, *User]
 }
 
 func newLoaders(dbConn *pgxpool.Pool, opts []dataloadgen.Option) *loaders {
@@ -32,16 +32,26 @@ func newLoaders(dbConn *pgxpool.Pool, opts []dataloadgen.Option) *loaders {
 	userLoader := &dataloader{db: db}
 
 	return &loaders{
-		db:         db,
-		userLoader: dataloadgen.NewLoader(userLoader.list, opts...),
+		internalQuerier: db,
+		userLoader:      dataloadgen.NewLoader(userLoader.list, opts...),
 	}
 }
 
 type dataloader struct {
-	db usersql.Querier
+	db *usersql.Queries
 }
 
 func (l dataloader) list(ctx context.Context, userIDs []uuid.UUID) ([]*User, []error) {
 	makeKey := func(obj *User) uuid.UUID { return obj.UUID }
 	return loaderv1.LoadModels(ctx, userIDs, l.db.GetByIDs, toGraphUser, makeKey)
+}
+
+func db(ctx context.Context) *usersql.Queries {
+	l := fromContext(ctx)
+
+	if tx := databasev1.TransactionFromContext(ctx); tx != nil {
+		return l.internalQuerier.WithTx(tx)
+	}
+
+	return l.internalQuerier
 }

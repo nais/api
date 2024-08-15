@@ -14,6 +14,7 @@ type Querier interface {
 	CountForUser(ctx context.Context, userID uuid.UUID) (int64, error)
 	// CountMembers returns the total number of team members of a non-deleted team.
 	CountMembers(ctx context.Context, teamSlug *slug.Slug) (int64, error)
+	Create(ctx context.Context, arg CreateParams) (*Team, error)
 	Get(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	List(ctx context.Context, arg ListParams) ([]*Team, error)
 	ListBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)
@@ -24,6 +25,7 @@ type Querier interface {
 	ListForUser(ctx context.Context, arg ListForUserParams) ([]*ListForUserRow, error)
 	// ListMembers returns a slice of team members of a non-deleted team.
 	ListMembers(ctx context.Context, arg ListMembersParams) ([]*ListMembersRow, error)
+	SlugAvailable(ctx context.Context, argSlug slug.Slug) (bool, error)
 }
 
 var _ Querier = (*Queries)(nil)

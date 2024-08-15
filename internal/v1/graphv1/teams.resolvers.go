@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/auth/roles"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
@@ -15,13 +17,38 @@ import (
 	"github.com/nais/api/internal/v1/persistence/sqlinstance"
 	"github.com/nais/api/internal/v1/team"
 	"github.com/nais/api/internal/v1/user"
-	application2 "github.com/nais/api/internal/v1/workload/application"
-	job2 "github.com/nais/api/internal/v1/workload/job"
+	"github.com/nais/api/internal/v1/workload/application"
+	"github.com/nais/api/internal/v1/workload/job"
 )
 
 func (r *mutationResolver) CreateTeam(ctx context.Context, input team.CreateTeamInput) (*team.CreateTeamPayload, error) {
-	// TODO: implement
-	panic(fmt.Errorf("not implemented: CreateTeam - createTeam"))
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationTeamsCreate)
+	if err != nil {
+		return nil, err
+	}
+
+	t, err := team.Create(ctx, &input, actor)
+	if err != nil {
+		return nil, err
+	}
+
+	/*
+		TODO: implement
+
+		correlationID := uuid.New()
+
+		err = r.auditor.TeamCreated(ctx, actor.User, team.Slug)
+		if err != nil {
+			return nil, err
+		}
+
+		r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
+	*/
+
+	return &team.CreateTeamPayload{
+		Team: t,
+	}, nil
 }
 
 func (r *mutationResolver) UpdateTeam(ctx context.Context, input team.UpdateTeamInput) (*team.UpdateTeamPayload, error) {
@@ -51,22 +78,22 @@ func (r *teamResolver) Members(ctx context.Context, obj *team.Team, first *int, 
 	return team.ListMembers(ctx, obj.Slug, page, orderBy)
 }
 
-func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application2.ApplicationOrder) (*pagination.Connection[*application2.Application], error) {
+func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder) (*pagination.Connection[*application.Application], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	return application2.ListForTeam(ctx, obj.Slug, page, orderBy)
+	return application.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
-func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job2.JobOrder) (*pagination.Connection[*job2.Job], error) {
+func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder) (*pagination.Connection[*job.Job], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	return job2.ListForTeam(ctx, obj.Slug, page, orderBy)
+	return job.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
 func (r *teamResolver) BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error) {

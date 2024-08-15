@@ -1,3 +1,15 @@
+-- name: Create :one
+INSERT INTO
+	teams (slug, purpose, slack_channel)
+VALUES
+	(@slug, @purpose, @slack_channel)
+RETURNING
+	*
+;
+
+-- name: SlugAvailable :one
+SELECT EXISTS(SELECT slug FROM team_slugs WHERE slug = @slug);
+
 -- name: Count :one
 SELECT
 	COUNT(*)

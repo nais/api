@@ -2,8 +2,16 @@ package team
 
 import (
 	"context"
+	"github.com/nais/api/internal/v1/role/rolesql"
+	"github.com/nais/api/internal/v1/validate"
+
+	"github.com/nais/api/internal/v1/role"
+
+	"github.com/nais/api/internal/v1/databasev1"
 
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/graph/apierror"
 
 	"github.com/nais/api/internal/v1/graphv1/ident"
 
@@ -11,6 +19,47 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/team/teamsql"
 )
+
+func Create(ctx context.Context, input *CreateTeamInput, actor *authz.Actor) (*Team, error) {
+	input = input.Sanitized()
+
+	err := validate.Validate(input)
+	if err != nil {
+		return nil, err
+	}
+
+	exists, err := db(ctx).SlugAvailable(ctx, input.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	if exists {
+		return nil, apierror.Errorf("Team slug %q is not available.", input.Slug)
+	}
+
+	var team *teamsql.Team
+	err = databasev1.Transaction(ctx, func(ctx context.Context) error {
+		team, err = db(ctx).Create(ctx, teamsql.CreateParams{
+			Slug:         input.Slug,
+			Purpose:      input.Purpose,
+			SlackChannel: input.SlackChannel,
+		})
+		if err != nil {
+			return err
+		}
+
+		if actor.User.IsServiceAccount() {
+			return role.AssignTeamRoleToServiceAccount(ctx, actor.User.GetID(), input.Slug, rolesql.RoleNameTeamowner)
+		}
+
+		return role.AssignTeamRoleToUser(ctx, actor.User.GetID(), input.Slug, rolesql.RoleNameTeamowner)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return toGraphTeam(team), nil
+}
 
 func Get(ctx context.Context, slug slug.Slug) (*Team, error) {
 	return fromContext(ctx).teamLoader.Load(ctx, slug)
@@ -25,9 +74,9 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*Team, error) {
 }
 
 func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder) (*TeamConnection, error) {
-	db := fromContext(ctx).db
+	q := db(ctx)
 
-	ret, err := db.List(ctx, teamsql.ListParams{
+	ret, err := q.List(ctx, teamsql.ListParams{
 		Offset:  page.Offset(),
 		Limit:   page.Limit(),
 		OrderBy: orderBy.String(),
@@ -36,7 +85,7 @@ func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder) 
 		return nil, err
 	}
 
-	total, err := db.Count(ctx)
+	total, err := q.Count(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -44,9 +93,9 @@ func List(ctx context.Context, page *pagination.Pagination, orderBy *TeamOrder) 
 }
 
 func ListForUser(ctx context.Context, userID uuid.UUID, page *pagination.Pagination, orderBy *UserTeamOrder) (*TeamMemberConnection, error) {
-	db := fromContext(ctx).db
+	q := db(ctx)
 
-	ret, err := db.ListForUser(ctx, teamsql.ListForUserParams{
+	ret, err := q.ListForUser(ctx, teamsql.ListForUserParams{
 		UserID:  userID,
 		Offset:  page.Offset(),
 		Limit:   page.Limit(),
@@ -56,7 +105,7 @@ func ListForUser(ctx context.Context, userID uuid.UUID, page *pagination.Paginat
 		return nil, err
 	}
 
-	total, err := db.CountForUser(ctx, userID)
+	total, err := q.CountForUser(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -64,9 +113,9 @@ func ListForUser(ctx context.Context, userID uuid.UUID, page *pagination.Paginat
 }
 
 func ListMembers(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *TeamMemberOrder) (*TeamMemberConnection, error) {
-	db := fromContext(ctx).db
+	q := db(ctx)
 
-	ret, err := db.ListMembers(ctx, teamsql.ListMembersParams{
+	ret, err := q.ListMembers(ctx, teamsql.ListMembersParams{
 		TeamSlug: teamSlug,
 		Offset:   page.Offset(),
 		Limit:    page.Limit(),
@@ -76,7 +125,7 @@ func ListMembers(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		return nil, err
 	}
 
-	total, err := db.CountMembers(ctx, &teamSlug)
+	total, err := q.CountMembers(ctx, &teamSlug)
 	if err != nil {
 		return nil, err
 	}

@@ -22,7 +22,7 @@ func GetByIdent(ctx context.Context, ident ident.Ident) (*User, error) {
 }
 
 func GetByEmail(ctx context.Context, email string) (*User, error) {
-	user, err := fromContext(ctx).db.GetByEmail(ctx, email)
+	user, err := db(ctx).GetByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
@@ -31,9 +31,9 @@ func GetByEmail(ctx context.Context, email string) (*User, error) {
 }
 
 func List(ctx context.Context, page *pagination.Pagination, orderBy *UserOrder) (*UserConnection, error) {
-	db := fromContext(ctx).db
+	q := db(ctx)
 
-	ret, err := db.List(ctx, usersql.ListParams{
+	ret, err := q.List(ctx, usersql.ListParams{
 		Offset:  page.Offset(),
 		Limit:   page.Limit(),
 		OrderBy: orderBy.String(),
@@ -42,7 +42,7 @@ func List(ctx context.Context, page *pagination.Pagination, orderBy *UserOrder) 
 		return nil, err
 	}
 
-	total, err := db.Count(ctx)
+	total, err := q.Count(ctx)
 	if err != nil {
 		return nil, err
 	}

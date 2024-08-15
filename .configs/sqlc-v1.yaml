@@ -48,3 +48,12 @@ sql:
         <<: *default_go
         package: "teamsql"
         out: "../internal/v1/team/teamsql"
+
+  - <<: *default_domain
+    name: "Roles SQL"
+    queries: "../internal/v1/role/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "rolesql"
+        out: "../internal/v1/role/rolesql"

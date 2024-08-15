@@ -3565,12 +3565,12 @@ type TeamMember {
 
 type CreateTeamPayload {
 	"The newly created team."
-	team: Team!
+	team: Team
 }
 
 type UpdateTeamPayload {
 	"The updated team."
-	team: Team!
+	team: Team
 }
 
 type TeamConnection {
@@ -7691,14 +7691,11 @@ func (ec *executionContext) _CreateTeamPayload_team(ctx context.Context, field g
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(team.Team)
+	res := resTmp.(*team.Team)
 	fc.Result = res
-	return ec.marshalNTeam2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeam(ctx, field.Selections, res)
+	return ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeam(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -17148,14 +17145,11 @@ func (ec *executionContext) _UpdateTeamPayload_team(ctx context.Context, field g
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(team.Team)
+	res := resTmp.(*team.Team)
 	fc.Result = res
-	return ec.marshalNTeam2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeam(ctx, field.Selections, res)
+	return ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeam(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UpdateTeamPayload_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -21506,9 +21500,6 @@ func (ec *executionContext) _CreateTeamPayload(ctx context.Context, sel ast.Sele
 			out.Values[i] = graphql.MarshalString("CreateTeamPayload")
 		case "team":
 			out.Values[i] = ec._CreateTeamPayload_team(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -25357,9 +25348,6 @@ func (ec *executionContext) _UpdateTeamPayload(ctx context.Context, sel ast.Sele
 			out.Values[i] = graphql.MarshalString("UpdateTeamPayload")
 		case "team":
 			out.Values[i] = ec._UpdateTeamPayload_team(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

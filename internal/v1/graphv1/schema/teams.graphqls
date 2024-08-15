@@ -285,12 +285,12 @@ type TeamMember {
 
 type CreateTeamPayload {
 	"The newly created team."
-	team: Team!
+	team: Team
 }
 
 type UpdateTeamPayload {
 	"The updated team."
-	team: Team!
+	team: Team
 }
 
 type TeamConnection {

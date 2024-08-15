@@ -23,6 +23,39 @@ func (q *Queries) Count(ctx context.Context) (int64, error) {
 	return count, err
 }
 
+const create = `-- name: Create :one
+INSERT INTO
+	teams (slug, purpose, slack_channel)
+VALUES
+	($1, $2, $3)
+RETURNING
+	slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
+`
+
+type CreateParams struct {
+	Slug         slug.Slug
+	Purpose      string
+	SlackChannel string
+}
+
+func (q *Queries) Create(ctx context.Context, arg CreateParams) (*Team, error) {
+	row := q.db.QueryRow(ctx, create, arg.Slug, arg.Purpose, arg.SlackChannel)
+	var i Team
+	err := row.Scan(
+		&i.Slug,
+		&i.Purpose,
+		&i.LastSuccessfulSync,
+		&i.SlackChannel,
+		&i.GoogleGroupEmail,
+		&i.AzureGroupID,
+		&i.GithubTeamSlug,
+		&i.GarRepository,
+		&i.CdnBucket,
+		&i.DeleteKeyConfirmedAt,
+	)
+	return &i, err
+}
+
 const get = `-- name: Get :one
 SELECT
 	slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
@@ -200,4 +233,15 @@ func (q *Queries) ListEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg Li
 		return nil, err
 	}
 	return items, nil
+}
+
+const slugAvailable = `-- name: SlugAvailable :one
+SELECT EXISTS(SELECT slug FROM team_slugs WHERE slug = $1)
+`
+
+func (q *Queries) SlugAvailable(ctx context.Context, argSlug slug.Slug) (bool, error) {
+	row := q.db.QueryRow(ctx, slugAvailable, argSlug)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }

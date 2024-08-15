@@ -16,6 +16,7 @@ import (
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/k8s"
 	legacysqlinstance "github.com/nais/api/internal/sqlinstance"
+	"github.com/nais/api/internal/v1/databasev1"
 	"github.com/nais/api/internal/v1/graphv1/loaderv1"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/nais/api/internal/v1/persistence/bigquery"
@@ -24,6 +25,7 @@ import (
 	"github.com/nais/api/internal/v1/persistence/opensearch"
 	"github.com/nais/api/internal/v1/persistence/redis"
 	"github.com/nais/api/internal/v1/persistence/sqlinstance"
+	"github.com/nais/api/internal/v1/role"
 	"github.com/nais/api/internal/v1/team"
 	"github.com/nais/api/internal/v1/user"
 	"github.com/nais/api/internal/v1/workload/application"
@@ -108,8 +110,10 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 			ctx = redis.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = sqlinstance.NewLoaderContext(ctx, k8sClient, sqlAdminService, opts)
 			pool := db.GetPool()
+			ctx = databasev1.NewLoaderContext(ctx, pool)
 			ctx = team.NewLoaderContext(ctx, pool, opts)
 			ctx = user.NewLoaderContext(ctx, pool, opts)
+			ctx = role.NewLoaderContext(ctx, pool)
 			return ctx
 		}))
 		r.Use(otelhttp.NewMiddleware("graphqlv1", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))

@@ -2,9 +2,9 @@ package team
 
 import (
 	"context"
-
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/v1/databasev1"
 	"github.com/nais/api/internal/v1/graphv1/loaderv1"
 	"github.com/nais/api/internal/v1/team/teamsql"
 	"github.com/vikstrous/dataloadgen"
@@ -23,7 +23,7 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	db                    teamsql.Querier
+	internalQuerier       *teamsql.Queries
 	teamLoader            *dataloadgen.Loader[slug.Slug, *Team]
 	teamEnvironmentLoader *dataloadgen.Loader[envSlugName, *TeamEnvironment]
 }
@@ -33,7 +33,7 @@ func newLoaders(dbConn *pgxpool.Pool, opts []dataloadgen.Option) *loaders {
 	teamLoader := &dataloader{db: db}
 
 	return &loaders{
-		db:                    db,
+		internalQuerier:       db,
 		teamLoader:            dataloadgen.NewLoader(teamLoader.list, opts...),
 		teamEnvironmentLoader: dataloadgen.NewLoader(teamLoader.getEnvironments, opts...),
 	}
@@ -74,4 +74,14 @@ func (l dataloader) getTeamEnvironmentsBySlugsAndEnvNames(ctx context.Context, l
 type envSlugName struct {
 	Slug    slug.Slug
 	EnvName string
+}
+
+func db(ctx context.Context) *teamsql.Queries {
+	l := fromContext(ctx)
+
+	if tx := databasev1.TransactionFromContext(ctx); tx != nil {
+		return l.internalQuerier.WithTx(tx)
+	}
+
+	return l.internalQuerier
 }
