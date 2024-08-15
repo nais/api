@@ -1,6 +1,6 @@
 module github.com/nais/api
 
-go 1.22.6
+go 1.22.5
 
 require (
 	cloud.google.com/go v0.115.0
@@ -64,6 +64,7 @@ require (
 	k8s.io/klog/v2 v2.130.1
 	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0
 	sigs.k8s.io/yaml v1.4.0
+
 )
 
 require (
