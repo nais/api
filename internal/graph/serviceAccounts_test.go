@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/slack/fake"
 	"github.com/sirupsen/logrus/hooks/test"
 )
 
@@ -36,7 +37,7 @@ func TestMutationResolver_Roles(t *testing.T) {
 	log, _ := test.NewNullLogger()
 	usersyncTrigger := make(chan<- uuid.UUID)
 	resolver := graph.
-		NewResolver(nil, nil, nil, nil, db, "example.com", usersyncTrigger, auditLogger, nil, nil, log, nil, nil, nil, nil, nil, nil, nil, nil).
+		NewResolver(nil, nil, nil, nil, db, "example", "example.com", usersyncTrigger, auditLogger, nil, nil, log, nil, nil, nil, nil, nil, nil, nil, nil, fake.NewFakeSlackClient()).
 		ServiceAccount()
 
 	t.Run("get roles for serviceAccount", func(t *testing.T) {

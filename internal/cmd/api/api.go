@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/bigquery"
 	"github.com/nais/api/internal/kafka"
 	"github.com/nais/api/internal/opensearch"
+	"github.com/nais/api/internal/slack"
 
 	"github.com/nais/api/internal/unleash"
 
@@ -196,6 +197,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		dependencyTrackClient,
 		resourceUsageClient,
 		db,
+		cfg.Tenant,
 		cfg.TenantDomain,
 		usersyncTrigger,
 		auditLogger,
@@ -210,6 +212,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		kafka.NewClient(k8sClient.Informers(), log, db),
 		unleashMgr,
 		audit.NewAuditor(db),
+		slack.New(cfg.Slack.Token, cfg.Slack.FeedbackChannel),
 	)
 
 	graphHandler, err := graph.NewHandler(gengql.Config{

@@ -30,6 +30,7 @@ require (
 	github.com/rs/cors v1.11.0
 	github.com/sethvargo/go-envconfig v1.0.3
 	github.com/sirupsen/logrus v1.9.3
+	github.com/slack-go/slack v0.13.1
 	github.com/sourcegraph/conc v0.3.0
 	github.com/sqlc-dev/sqlc v1.26.0
 	github.com/stretchr/testify v1.9.0
@@ -63,6 +64,7 @@ require (
 	k8s.io/klog/v2 v2.130.1
 	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0
 	sigs.k8s.io/yaml v1.4.0
+
 )
 
 require (

@@ -142,6 +142,19 @@ values:
       template: |
         {{ .Env.nais_api_db_password | quote }}
 
+  slack.token:
+    displayName: Slack token
+    description: Token for the Slack API
+    config:
+      type: string
+      secret: true
+
+  slack.feedbackChannel:
+    displayName: Slack feedback channel
+    description: The Slack channel to post feedback to
+    config:
+      type: string
+
   usersync.serviceAccount:
     displayName: Service account for user sync
     description: The service account used to sync users from GSuite
@@ -165,7 +178,6 @@ values:
     description: Enable Unleash feature flag
     config:
       type: bool
-    default: false
 
   unleash.namespace:
     displayName: Unleash namespace

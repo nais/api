@@ -150,6 +150,11 @@ type oAuthConfig struct {
 	RedirectURL string `env:"OAUTH_REDIRECT_URL"`
 }
 
+type slackConfig struct {
+	Token           string `env:"SLACK_TOKEN"`
+	FeedbackChannel string `env:"SLACK_FEEDBACK_CHANNEL"`
+}
+
 type unleashConfig struct {
 	// Enabled When set to true, the Unleash feature flag service will be enabled.
 	Enabled bool `env:"UNLEASH_ENABLED"`
@@ -200,6 +205,7 @@ type Config struct {
 	Hookd           hookdConfig
 	OAuth           oAuthConfig
 	Unleash         unleashConfig
+	Slack           slackConfig
 }
 
 // NewConfig creates a new configuration instance from environment variables

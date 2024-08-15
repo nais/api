@@ -51,6 +51,10 @@ oauth: # mapped in fasit
   clientID: ""
   clientSecret: ""
 
+slack:
+  feedbackChannel: "console-user-feedback"
+  token: "" # Config in fasit
+
 staticServiceAccounts: "" # mapped in fasit
 
 usersync:
