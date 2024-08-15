@@ -11,10 +11,13 @@ import (
 )
 
 const countForUser = `-- name: CountForUser :one
-SELECT COUNT(user_roles.*)
-FROM user_roles
-JOIN teams ON teams.slug = user_roles.target_team_slug
-WHERE user_roles.user_id = $1
+SELECT
+	COUNT(user_roles.*)
+FROM
+	user_roles
+	JOIN teams ON teams.slug = user_roles.target_team_slug
+WHERE
+	user_roles.user_id = $1
 `
 
 func (q *Queries) CountForUser(ctx context.Context, userID uuid.UUID) (int64, error) {
@@ -25,10 +28,13 @@ func (q *Queries) CountForUser(ctx context.Context, userID uuid.UUID) (int64, er
 }
 
 const countMembers = `-- name: CountMembers :one
-SELECT COUNT(user_roles.*)
-FROM user_roles
-JOIN teams ON teams.slug = user_roles.target_team_slug
-WHERE user_roles.target_team_slug = $1
+SELECT
+	COUNT(user_roles.*)
+FROM
+	user_roles
+	JOIN teams ON teams.slug = user_roles.target_team_slug
+WHERE
+	user_roles.target_team_slug = $1
 `
 
 // CountMembers returns the total number of team members of a non-deleted team.
@@ -40,17 +46,27 @@ func (q *Queries) CountMembers(ctx context.Context, teamSlug *slug.Slug) (int64,
 }
 
 const listForUser = `-- name: ListForUser :many
-SELECT users.id, users.email, users.name, users.external_id, user_roles.id, user_roles.role_name, user_roles.user_id, user_roles.target_team_slug, user_roles.target_service_account_id
-FROM user_roles
-JOIN teams ON teams.slug = user_roles.target_team_slug
-JOIN users ON users.id = user_roles.user_id
-WHERE user_roles.user_id = $1
+SELECT
+	users.id, users.email, users.name, users.external_id,
+	user_roles.id, user_roles.role_name, user_roles.user_id, user_roles.target_team_slug, user_roles.target_service_account_id
+FROM
+	user_roles
+	JOIN teams ON teams.slug = user_roles.target_team_slug
+	JOIN users ON users.id = user_roles.user_id
+WHERE
+	user_roles.user_id = $1
 ORDER BY
-    CASE WHEN $2::TEXT = 'slug:asc' THEN teams.slug END ASC,
-    CASE WHEN $2::TEXT = 'slug:desc' THEN teams.slug END DESC,
-    teams.slug ASC
-LIMIT $4
-OFFSET $3
+	CASE
+		WHEN $2::TEXT = 'slug:asc' THEN teams.slug
+	END ASC,
+	CASE
+		WHEN $2::TEXT = 'slug:desc' THEN teams.slug
+	END DESC,
+	teams.slug ASC
+LIMIT
+	$4
+OFFSET
+	$3
 `
 
 type ListForUserParams struct {
@@ -101,22 +117,40 @@ func (q *Queries) ListForUser(ctx context.Context, arg ListForUserParams) ([]*Li
 }
 
 const listMembers = `-- name: ListMembers :many
-SELECT users.id, users.email, users.name, users.external_id, user_roles.id, user_roles.role_name, user_roles.user_id, user_roles.target_team_slug, user_roles.target_service_account_id
-FROM user_roles
-JOIN teams ON teams.slug = user_roles.target_team_slug
-JOIN users ON users.id = user_roles.user_id
-WHERE user_roles.target_team_slug = $1::slug
+SELECT
+	users.id, users.email, users.name, users.external_id,
+	user_roles.id, user_roles.role_name, user_roles.user_id, user_roles.target_team_slug, user_roles.target_service_account_id
+FROM
+	user_roles
+	JOIN teams ON teams.slug = user_roles.target_team_slug
+	JOIN users ON users.id = user_roles.user_id
+WHERE
+	user_roles.target_team_slug = $1::slug
 ORDER BY
-    CASE WHEN $2::TEXT = 'name:asc' THEN users.name END ASC,
-    CASE WHEN $2::TEXT = 'name:desc' THEN users.name END DESC,
-    CASE WHEN $2::TEXT = 'email:asc' THEN users.email END ASC,
-    CASE WHEN $2::TEXT = 'email:desc' THEN users.email END DESC,
-    CASE WHEN $2::TEXT = 'role:asc' THEN user_roles.role_name END ASC,
-    CASE WHEN $2::TEXT = 'role:desc' THEN user_roles.role_name END DESC,
-    users.name,
-    users.email ASC
-LIMIT $4
-OFFSET $3
+	CASE
+		WHEN $2::TEXT = 'name:asc' THEN users.name
+	END ASC,
+	CASE
+		WHEN $2::TEXT = 'name:desc' THEN users.name
+	END DESC,
+	CASE
+		WHEN $2::TEXT = 'email:asc' THEN users.email
+	END ASC,
+	CASE
+		WHEN $2::TEXT = 'email:desc' THEN users.email
+	END DESC,
+	CASE
+		WHEN $2::TEXT = 'role:asc' THEN user_roles.role_name
+	END ASC,
+	CASE
+		WHEN $2::TEXT = 'role:desc' THEN user_roles.role_name
+	END DESC,
+	users.name,
+	users.email ASC
+LIMIT
+	$4
+OFFSET
+	$3
 `
 
 type ListMembersParams struct {

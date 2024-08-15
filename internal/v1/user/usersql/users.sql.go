@@ -10,7 +10,10 @@ import (
 )
 
 const count = `-- name: Count :one
-SELECT COUNT(*) FROM users
+SELECT
+	COUNT(*)
+FROM
+	users
 `
 
 func (q *Queries) Count(ctx context.Context) (int64, error) {
@@ -21,9 +24,13 @@ func (q *Queries) Count(ctx context.Context) (int64, error) {
 }
 
 const countMemberships = `-- name: CountMemberships :one
-SELECT COUNT(*) FROM user_roles
-WHERE user_roles.user_id = $1
-AND target_team_slug IS NOT NULL
+SELECT
+	COUNT(*)
+FROM
+	user_roles
+WHERE
+	user_roles.user_id = $1
+	AND target_team_slug IS NOT NULL
 `
 
 func (q *Queries) CountMemberships(ctx context.Context, userID uuid.UUID) (int64, error) {
@@ -34,9 +41,12 @@ func (q *Queries) CountMemberships(ctx context.Context, userID uuid.UUID) (int64
 }
 
 const create = `-- name: Create :one
-INSERT INTO users (name, email, external_id)
-VALUES ($1, LOWER($2), $3)
-RETURNING id, email, name, external_id
+INSERT INTO
+	users (name, email, external_id)
+VALUES
+	($1, LOWER($2), $3)
+RETURNING
+	id, email, name, external_id
 `
 
 type CreateParams struct {
@@ -59,7 +69,8 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) (*User, error) {
 
 const delete = `-- name: Delete :exec
 DELETE FROM users
-WHERE id = $1
+WHERE
+	id = $1
 `
 
 func (q *Queries) Delete(ctx context.Context, id uuid.UUID) error {
@@ -68,8 +79,12 @@ func (q *Queries) Delete(ctx context.Context, id uuid.UUID) error {
 }
 
 const get = `-- name: Get :one
-SELECT id, email, name, external_id FROM users
-WHERE id = $1
+SELECT
+	id, email, name, external_id
+FROM
+	users
+WHERE
+	id = $1
 `
 
 func (q *Queries) Get(ctx context.Context, id uuid.UUID) (*User, error) {
@@ -85,8 +100,12 @@ func (q *Queries) Get(ctx context.Context, id uuid.UUID) (*User, error) {
 }
 
 const getByEmail = `-- name: GetByEmail :one
-SELECT id, email, name, external_id FROM users
-WHERE email = LOWER($1)
+SELECT
+	id, email, name, external_id
+FROM
+	users
+WHERE
+	email = LOWER($1)
 `
 
 func (q *Queries) GetByEmail(ctx context.Context, email string) (*User, error) {
@@ -102,8 +121,12 @@ func (q *Queries) GetByEmail(ctx context.Context, email string) (*User, error) {
 }
 
 const getByExternalID = `-- name: GetByExternalID :one
-SELECT id, email, name, external_id FROM users
-WHERE external_id = $1
+SELECT
+	id, email, name, external_id
+FROM
+	users
+WHERE
+	external_id = $1
 `
 
 func (q *Queries) GetByExternalID(ctx context.Context, externalID string) (*User, error) {
@@ -119,9 +142,15 @@ func (q *Queries) GetByExternalID(ctx context.Context, externalID string) (*User
 }
 
 const getByIDs = `-- name: GetByIDs :many
-SELECT id, email, name, external_id FROM users
-WHERE id = ANY($1::uuid[])
-ORDER BY name, email ASC
+SELECT
+	id, email, name, external_id
+FROM
+	users
+WHERE
+	id = ANY ($1::UUID [])
+ORDER BY
+	name,
+	email ASC
 `
 
 func (q *Queries) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error) {
@@ -150,16 +179,29 @@ func (q *Queries) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error
 }
 
 const list = `-- name: List :many
-SELECT id, email, name, external_id FROM users
+SELECT
+	id, email, name, external_id
+FROM
+	users
 ORDER BY
-    CASE WHEN $1::TEXT = 'name:asc' THEN name END ASC,
-    CASE WHEN $1::TEXT = 'name:desc' THEN name END DESC,
-    CASE WHEN $1::TEXT = 'email:asc' THEN email END ASC,
-    CASE WHEN $1::TEXT = 'email:desc' THEN email END DESC,
-    name,
-    email ASC
-LIMIT $3
-OFFSET $2
+	CASE
+		WHEN $1::TEXT = 'name:asc' THEN name
+	END ASC,
+	CASE
+		WHEN $1::TEXT = 'name:desc' THEN name
+	END DESC,
+	CASE
+		WHEN $1::TEXT = 'email:asc' THEN email
+	END ASC,
+	CASE
+		WHEN $1::TEXT = 'email:desc' THEN email
+	END DESC,
+	name,
+	email ASC
+LIMIT
+	$3
+OFFSET
+	$2
 `
 
 type ListParams struct {
@@ -195,13 +237,19 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*User, error) {
 
 const listMemberships = `-- name: ListMemberships :many
 SELECT
-    teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.delete_key_confirmed_at,
-    user_roles.role_name
-FROM user_roles
-JOIN teams ON teams.slug = user_roles.target_team_slug
-WHERE user_roles.user_id = $1
-ORDER BY teams.slug ASC
-LIMIT $3 OFFSET $2
+	teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.delete_key_confirmed_at,
+	user_roles.role_name
+FROM
+	user_roles
+	JOIN teams ON teams.slug = user_roles.target_team_slug
+WHERE
+	user_roles.user_id = $1
+ORDER BY
+	teams.slug ASC
+LIMIT
+	$3
+OFFSET
+	$2
 `
 
 type ListMembershipsParams struct {
@@ -249,9 +297,14 @@ func (q *Queries) ListMemberships(ctx context.Context, arg ListMembershipsParams
 
 const update = `-- name: Update :one
 UPDATE users
-SET name = $1, email = LOWER($2), external_id = $3
-WHERE id = $4
-RETURNING id, email, name, external_id
+SET
+	name = $1,
+	email = LOWER($2),
+	external_id = $3
+WHERE
+	id = $4
+RETURNING
+	id, email, name, external_id
 `
 
 type UpdateParams struct {

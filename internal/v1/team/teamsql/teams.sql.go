@@ -152,8 +152,8 @@ const listEnvironmentsBySlugsAndEnvNames = `-- name: ListEnvironmentsBySlugsAndE
 WITH
 	input AS (
 		SELECT
-			unnest($1::slug[]) AS team_slug,
-			unnest($2::text[]) AS environment
+			UNNEST($1::slug[]) AS team_slug,
+			UNNEST($2::TEXT[]) AS environment
 	)
 SELECT
 	team_all_environments.team_slug, team_all_environments.environment, team_all_environments.gcp, team_all_environments.gcp_project_id, team_all_environments.id, team_all_environments.slack_alerts_channel
