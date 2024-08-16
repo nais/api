@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/v1/databasev1"

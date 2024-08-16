@@ -2,6 +2,7 @@ package team
 
 import (
 	"context"
+
 	"github.com/nais/api/internal/v1/role/rolesql"
 	"github.com/nais/api/internal/v1/validate"
 

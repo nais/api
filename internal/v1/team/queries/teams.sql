@@ -8,7 +8,16 @@ RETURNING
 ;
 
 -- name: SlugAvailable :one
-SELECT EXISTS(SELECT slug FROM team_slugs WHERE slug = @slug);
+SELECT
+	EXISTS (
+		SELECT
+			slug
+		FROM
+			team_slugs
+		WHERE
+			slug = @slug
+	)
+;
 
 -- name: Count :one
 SELECT

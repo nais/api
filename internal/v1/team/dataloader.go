@@ -2,6 +2,7 @@ package team
 
 import (
 	"context"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/databasev1"
