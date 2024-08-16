@@ -163,6 +163,7 @@ type AuditEvent struct {
 	ResourceName string
 	TeamSlug     *slug.Slug
 	Data         []byte
+	Environment  *string
 }
 
 type AuditLog struct {

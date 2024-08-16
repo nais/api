@@ -3,50 +3,81 @@ package graph
 import (
 	"context"
 
+	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/graph/gengql"
-	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/model/auditevent"
 )
 
-func (r *auditEventMemberAddedResolver) Team(ctx context.Context, obj *auditevent.AuditEventMemberAdded) (*model.Team, error) {
-	return loader.GetTeam(ctx, obj.GQLVars.Team)
+func (r *auditEventMemberAddedResolver) Team(ctx context.Context, obj *audit.AuditEventMemberAdded) (*model.Team, error) {
+	return resolveEventTeam(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventMemberRemovedResolver) Team(ctx context.Context, obj *auditevent.AuditEventMemberRemoved) (*model.Team, error) {
-	return loader.GetTeam(ctx, obj.GQLVars.Team)
+func (r *auditEventMemberAddedResolver) Env(ctx context.Context, obj *audit.AuditEventMemberAdded) (*model.Env, error) {
+	return resolveEventEnv(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventMemberSetRoleResolver) Team(ctx context.Context, obj *auditevent.AuditEventMemberSetRole) (*model.Team, error) {
-	return loader.GetTeam(ctx, obj.GQLVars.Team)
+func (r *auditEventMemberRemovedResolver) Team(ctx context.Context, obj *audit.AuditEventMemberRemoved) (*model.Team, error) {
+	return resolveEventTeam(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventTeamAddRepositoryResolver) Team(ctx context.Context, obj *auditevent.AuditEventTeamAddRepository) (*model.Team, error) {
-	return loader.GetTeam(ctx, obj.GQLVars.Team)
+func (r *auditEventMemberRemovedResolver) Env(ctx context.Context, obj *audit.AuditEventMemberRemoved) (*model.Env, error) {
+	return resolveEventEnv(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventTeamRemoveRepositoryResolver) Team(ctx context.Context, obj *auditevent.AuditEventTeamRemoveRepository) (*model.Team, error) {
-	return loader.GetTeam(ctx, obj.GQLVars.Team)
+func (r *auditEventMemberSetRoleResolver) Team(ctx context.Context, obj *audit.AuditEventMemberSetRole) (*model.Team, error) {
+	return resolveEventTeam(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventTeamSetAlertsSlackChannelResolver) Team(ctx context.Context, obj *auditevent.AuditEventTeamSetAlertsSlackChannel) (*model.Team, error) {
-	return loader.GetTeam(ctx, obj.GQLVars.Team)
+func (r *auditEventMemberSetRoleResolver) Env(ctx context.Context, obj *audit.AuditEventMemberSetRole) (*model.Env, error) {
+	return resolveEventEnv(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventTeamSetDefaultSlackChannelResolver) Team(ctx context.Context, obj *auditevent.AuditEventTeamSetDefaultSlackChannel) (*model.Team, error) {
-	return loader.GetTeam(ctx, obj.GQLVars.Team)
+func (r *auditEventTeamAddRepositoryResolver) Team(ctx context.Context, obj *audit.AuditEventTeamAddRepository) (*model.Team, error) {
+	return resolveEventTeam(ctx, obj.BaseAuditEvent)
 }
 
-func (r *auditEventTeamSetPurposeResolver) Team(ctx context.Context, obj *auditevent.AuditEventTeamSetPurpose) (*model.Team, error) {
-	return loader.GetTeam(ctx, obj.GQLVars.Team)
+func (r *auditEventTeamAddRepositoryResolver) Env(ctx context.Context, obj *audit.AuditEventTeamAddRepository) (*model.Env, error) {
+	return resolveEventEnv(ctx, obj.BaseAuditEvent)
 }
 
-func (r *baseAuditEventResolver) Team(ctx context.Context, obj *auditevent.BaseAuditEvent) (*model.Team, error) {
-	return nil, nil
+func (r *auditEventTeamRemoveRepositoryResolver) Team(ctx context.Context, obj *audit.AuditEventTeamRemoveRepository) (*model.Team, error) {
+	return resolveEventTeam(ctx, obj.BaseAuditEvent)
 }
 
-func (r *baseTeamAuditEventResolver) Team(ctx context.Context, obj *auditevent.BaseTeamAuditEvent) (*model.Team, error) {
-	return loader.GetTeam(ctx, obj.GQLVars.Team)
+func (r *auditEventTeamRemoveRepositoryResolver) Env(ctx context.Context, obj *audit.AuditEventTeamRemoveRepository) (*model.Env, error) {
+	return resolveEventEnv(ctx, obj.BaseAuditEvent)
+}
+
+func (r *auditEventTeamSetAlertsSlackChannelResolver) Team(ctx context.Context, obj *audit.AuditEventTeamSetAlertsSlackChannel) (*model.Team, error) {
+	return resolveEventTeam(ctx, obj.BaseAuditEvent)
+}
+
+func (r *auditEventTeamSetAlertsSlackChannelResolver) Env(ctx context.Context, obj *audit.AuditEventTeamSetAlertsSlackChannel) (*model.Env, error) {
+	return resolveEventEnv(ctx, obj.BaseAuditEvent)
+}
+
+func (r *auditEventTeamSetDefaultSlackChannelResolver) Team(ctx context.Context, obj *audit.AuditEventTeamSetDefaultSlackChannel) (*model.Team, error) {
+	return resolveEventTeam(ctx, obj.BaseAuditEvent)
+}
+
+func (r *auditEventTeamSetDefaultSlackChannelResolver) Env(ctx context.Context, obj *audit.AuditEventTeamSetDefaultSlackChannel) (*model.Env, error) {
+	return resolveEventEnv(ctx, obj.BaseAuditEvent)
+}
+
+func (r *auditEventTeamSetPurposeResolver) Team(ctx context.Context, obj *audit.AuditEventTeamSetPurpose) (*model.Team, error) {
+	return resolveEventTeam(ctx, obj.BaseAuditEvent)
+}
+
+func (r *auditEventTeamSetPurposeResolver) Env(ctx context.Context, obj *audit.AuditEventTeamSetPurpose) (*model.Env, error) {
+	return resolveEventEnv(ctx, obj.BaseAuditEvent)
+}
+
+func (r *baseAuditEventResolver) Team(ctx context.Context, obj *audit.BaseAuditEvent) (*model.Team, error) {
+	return resolveEventTeam(ctx, *obj)
+}
+
+func (r *baseAuditEventResolver) Env(ctx context.Context, obj *audit.BaseAuditEvent) (*model.Env, error) {
+	return resolveEventEnv(ctx, *obj)
 }
 
 func (r *Resolver) AuditEventMemberAdded() gengql.AuditEventMemberAddedResolver {
@@ -83,10 +114,6 @@ func (r *Resolver) AuditEventTeamSetPurpose() gengql.AuditEventTeamSetPurposeRes
 
 func (r *Resolver) BaseAuditEvent() gengql.BaseAuditEventResolver { return &baseAuditEventResolver{r} }
 
-func (r *Resolver) BaseTeamAuditEvent() gengql.BaseTeamAuditEventResolver {
-	return &baseTeamAuditEventResolver{r}
-}
-
 type (
 	auditEventMemberAddedResolver                struct{ *Resolver }
 	auditEventMemberRemovedResolver              struct{ *Resolver }
@@ -97,5 +124,4 @@ type (
 	auditEventTeamSetDefaultSlackChannelResolver struct{ *Resolver }
 	auditEventTeamSetPurposeResolver             struct{ *Resolver }
 	baseAuditEventResolver                       struct{ *Resolver }
-	baseTeamAuditEventResolver                   struct{ *Resolver }
 )

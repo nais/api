@@ -23,7 +23,7 @@ resolver:
 # if they match it will use them, otherwise it will generate them.
 autobind:
   - "github.com/nais/api/internal/graph/model"
-  - "github.com/nais/api/internal/graph/model/auditevent"
+  - "github.com/nais/api/internal/audit"
 
 # Don't generate Get<FieldName> functions for fields included in the GraphQL interfaces
 omit_getters: true

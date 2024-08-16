@@ -8,16 +8,17 @@ An audit event is a record of an event:
 
 An audit event consists of the following fields in the database:
 
-| Field         | Type      | Description                                                               |
-|---------------|-----------|---------------------------------------------------------------------------|
-| id            | uuid      | A unique identifier.                                                      |
-| actor         | text      | The user or service account that performed the event.                     |
-| action        | text      | The action performed.                                                     |
-| resource_type | text      | The type of resource the action affects.                                  |
-| resource_name | text      | The name of the affected resource.                                        |
-| created_at    | timestamp | The time of the event.                                                    |
-| team          | slug      | The slug associated with the team that owns the affected resource.        |
-| data          | bytea     | Optional. Opaque blob of additional data associated with a concrete event.|
+| Field         | Type      | Description                                                                  |
+|---------------|-----------|------------------------------------------------------------------------------|
+| id            | uuid      | A unique identifier.                                                         |
+| actor         | text      | The user or service account that performed the event.                        |
+| action        | text      | The action performed.                                                        |
+| resource_type | text      | The type of resource the action affects.                                     |
+| resource_name | text      | The name of the affected resource.                                           |
+| created_at    | timestamp | The time of the event.                                                       |
+| team          | slug      | Optional. The slug associated with the team that owns the affected resource. |
+| env           | text      | Optional. The name of the environment associated with the affected resource. |
+| data          | bytea     | Optional. Opaque blob of additional data associated with a concrete event.   |
 
 ## Conventions
 
@@ -38,29 +39,36 @@ enum AuditEventResourceType {
 
 ### Actions
 
-An action is a specific operation that can be performed on a resource.
+An action is a specific operation that can be performed on a resource, e.g:
 
-The action must be prefixed with the resource type.
-It may contain a noun to describe a resource that is too small to be its own resource type.
-The verb should be in the past tense.
+```graphql
+enum AuditEventAction {
+    ADDED
+    CREATED
+    DELETED
+    REMOVED
+    RESTARTED
+    UPDATED
+}
+```
 
-`<ResourceType>_<Noun>_<Verb>`
+Actions should be in the past tense.
+
+An action may be prefixed with a sub-resource type that is too small to be its own resource type.
+
+`<SubresourceType>_<Action>`
 
 For example:
 
 ```graphql
 enum AuditEventAction {
-  TEAM_CREATED
   TEAM_DELETION_CONFIRMED
   TEAM_DELETION_REQUESTED
   TEAM_DEPLOY_KEY_ROTATED
   TEAM_SET_PURPOSE
   TEAM_SET_DEFAULT_SLACK_CHANNEL
   TEAM_SET_ALERTS_SLACK_CHANNEL
-  TEAM_SYNCHRONIZED
-
-  TEAM_MEMBER_ADDED
-  TEAM_MEMBER_REMOVED
+    
   TEAM_MEMBER_SET_ROLE
 }
 ```
@@ -111,20 +119,17 @@ Structure:
 
 ```text
 internal/
+├─ audit/
+│  ├─ model.go
 ├─ graph/
 │  ├─ model/
-│  │  ├─ auditevent/
-│  │  │  ├─ auditevent.go
-│  │  │  ├─ <resource>.go
 │  │  ├─ model_gen.go
 ```
 
 - [internal/graph/model/models_gen.go](../internal/graph/model/models_gen.go) - gqlgen generated models
-- [internal/graph/model/auditevent](../internal/graph/model/auditevent) - audit event models that override the gqlgen generated models
-- [internal/graph/model/auditevent/auditevent.go](../internal/graph/model/auditevent/auditevent.go) - base audit event model and implementation
-- `internal/graph/model/auditevent/<resource>.go` - custom event models for a given resource
+- [internal/audit/model.go](../internal/audit/model.go) - audit event models that override the gqlgen generated models
 
-All custom event models with additional data must implement the `AuditEvent` interface.
+All concrete event models with additional data must implement the `AuditEvent` interface.
 This is done by embedding the `BaseAuditEvent` struct together with the associated data type and overriding the `GetData() any` member function:
 
 ```go
@@ -157,13 +162,13 @@ func (a AuditEventTeamSetAlertsSlackChannel) GetData() any {
 make generate-graphql
 ```
 
-### Add new method to the Auditor
+### Add new method to the Auditor for persisting the event
 
 [internal/audit/auditor.go](../internal/audit/auditor.go)
 
 ### Add new branch(es) to the Graph resolver
 
-[internal/graph/auditevents.go](../internal/graph/auditevents.go)
+[internal/audit/graph.go](../internal/audit/graph.go)
 
 ## Storing audit events
 
@@ -181,5 +186,4 @@ if err != nil {
 ## Returning audit events
 
 Audit events are fetched from the database and returned through the Graph.
-The logic for mapping the database model to the Graph model located in [internal/graph/auditevents.go](../internal/graph/auditevents.go).
-
+The logic for mapping the database model to the Graph model located in [internal/audit/graph.go](../internal/audit/graph.go).

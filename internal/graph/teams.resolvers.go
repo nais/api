@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/auditlogger"
 	"github.com/nais/api/internal/auditlogger/audittype"
 	"github.com/nais/api/internal/auth/authz"
@@ -19,7 +20,6 @@ import (
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/model/auditevent"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/hookd"
@@ -636,45 +636,8 @@ func (r *teamResolver) AuditLogs(ctx context.Context, obj *model.Team, offset *i
 	}, nil
 }
 
-func (r *teamResolver) AuditEvents(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.AuditEventsFilter) (*auditevent.AuditEventList, error) {
-	p := model.NewPagination(offset, limit)
-
-	var entries []*database.AuditEvent
-	var total int
-	var err error
-	var pageInfo model.PageInfo
-
-	if filter != nil && filter.ResourceType != nil {
-		entries, total, err = r.database.GetAuditEventsForTeamByResource(ctx, obj.Slug, string(*filter.ResourceType), database.Page{
-			Limit:  p.Limit,
-			Offset: p.Offset,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		pageInfo = model.NewPageInfo(p, total)
-	} else {
-		entries, total, err = r.database.GetAuditEventsForTeam(ctx, obj.Slug, database.Page{
-			Limit:  p.Limit,
-			Offset: p.Offset,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		pageInfo = model.NewPageInfo(p, total)
-	}
-
-	nodes, err := toGraphAuditEvents(entries)
-	if err != nil {
-		return nil, err
-	}
-
-	return &auditevent.AuditEventList{
-		Nodes:    nodes,
-		PageInfo: pageInfo,
-	}, nil
+func (r *teamResolver) AuditEvents(ctx context.Context, obj *model.Team, offset *int, limit *int, filter *model.AuditEventsFilter) (*audit.AuditEventList, error) {
+	return r.auditor.GetEventsForTeam(ctx, obj, offset, limit, filter)
 }
 
 func (r *teamResolver) Members(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.TeamMemberList, error) {

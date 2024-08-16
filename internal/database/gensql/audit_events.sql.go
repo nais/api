@@ -10,8 +10,8 @@ import (
 )
 
 const createAuditEvent = `-- name: CreateAuditEvent :exec
-INSERT INTO audit_events (actor, action, resource_type, resource_name, team_slug, data)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO audit_events (actor, action, resource_type, resource_name, team_slug, environment, data)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 `
 
 type CreateAuditEventParams struct {
@@ -20,6 +20,7 @@ type CreateAuditEventParams struct {
 	ResourceType string
 	ResourceName string
 	Team         *slug.Slug
+	Environment  *string
 	Data         []byte
 }
 
@@ -30,6 +31,7 @@ func (q *Queries) CreateAuditEvent(ctx context.Context, arg CreateAuditEventPara
 		arg.ResourceType,
 		arg.ResourceName,
 		arg.Team,
+		arg.Environment,
 		arg.Data,
 	)
 	return err
@@ -66,7 +68,7 @@ func (q *Queries) GetAuditEventsCountForTeamByResource(ctx context.Context, arg 
 }
 
 const getAuditEventsForTeam = `-- name: GetAuditEventsForTeam :many
-SELECT id, created_at, actor, action, resource_type, resource_name, team_slug, data FROM audit_events
+SELECT id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment FROM audit_events
 WHERE team_slug = $1
 ORDER BY created_at DESC
 LIMIT $3 OFFSET $2
@@ -96,6 +98,7 @@ func (q *Queries) GetAuditEventsForTeam(ctx context.Context, arg GetAuditEventsF
 			&i.ResourceName,
 			&i.TeamSlug,
 			&i.Data,
+			&i.Environment,
 		); err != nil {
 			return nil, err
 		}
@@ -108,7 +111,7 @@ func (q *Queries) GetAuditEventsForTeam(ctx context.Context, arg GetAuditEventsF
 }
 
 const getAuditEventsForTeamByResource = `-- name: GetAuditEventsForTeamByResource :many
-SELECT id, created_at, actor, action, resource_type, resource_name, team_slug, data FROM audit_events
+SELECT id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment FROM audit_events
 WHERE
     team_slug = $1
     AND resource_type = $2
@@ -146,6 +149,7 @@ func (q *Queries) GetAuditEventsForTeamByResource(ctx context.Context, arg GetAu
 			&i.ResourceName,
 			&i.TeamSlug,
 			&i.Data,
+			&i.Environment,
 		); err != nil {
 			return nil, err
 		}

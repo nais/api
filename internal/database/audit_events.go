@@ -24,6 +24,7 @@ type AuditEventInput interface {
 	GetAction() string
 	GetActor() string
 	GetData() any
+	GetEnvironment() *string
 	GetResourceType() string
 	GetResourceName() string
 	GetTeam() *slug.Slug
@@ -46,6 +47,7 @@ func (d *database) CreateAuditEvent(ctx context.Context, event AuditEventInput) 
 			Action:       event.GetAction(),
 			Actor:        event.GetActor(),
 			Data:         data,
+			Environment:  event.GetEnvironment(),
 			ResourceName: event.GetResourceName(),
 			ResourceType: event.GetResourceType(),
 		})
