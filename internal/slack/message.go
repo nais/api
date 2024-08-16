@@ -45,7 +45,7 @@ func (s *Slack) GetFeedbackMessageOptions(ctx context.Context, tenant string, in
 
 	uriBlock := slack.NewSectionBlock(slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*URI:* %s", input.URI), false, false), nil, nil)
 	tenantBlock := slack.NewSectionBlock(slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*Tenant:* %s", tenant), false, false), nil, nil)
-	textBlock := slack.NewSectionBlock(slack.NewTextBlockObject("mrkdwn", input.Details, false, false), nil, nil)
+	textBlock := slack.NewSectionBlock(slack.NewTextBlockObject("plain_text", input.Details, false, false), nil, nil)
 	blocks = append(blocks, uriBlock, tenantBlock, textBlock)
 
 	return []slack.MsgOption{
