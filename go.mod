@@ -1,6 +1,6 @@
 module github.com/nais/api
 
-go 1.22.5
+go 1.22.6
 
 require (
 	cloud.google.com/go v0.115.0
@@ -30,7 +30,7 @@ require (
 	github.com/rs/cors v1.11.0
 	github.com/sethvargo/go-envconfig v1.0.3
 	github.com/sirupsen/logrus v1.9.3
-	github.com/slack-go/slack v0.13.1
+	github.com/slack-go/slack v0.14.0
 	github.com/sourcegraph/conc v0.3.0
 	github.com/sqlc-dev/sqlc v1.26.0
 	github.com/stretchr/testify v1.9.0
