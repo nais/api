@@ -404,7 +404,8 @@ type Expose struct {
 }
 
 type External struct {
-	Host  string  `json:"host"`
+	Host  *string `json:"host,omitempty"`
+	IPv4  *string `json:"IPv4,omitempty"`
 	Ports []*Port `json:"ports"`
 }
 

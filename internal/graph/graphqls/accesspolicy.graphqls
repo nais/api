@@ -1,31 +1,32 @@
 type Port {
-    port: Int!
+  port: Int!
 }
 
 type External {
-    host: String!
-    ports: [Port!]!
+  host: String
+  IPv4: String
+  ports: [Port!]!
 }
 
 type Rule {
-    application: String!
-    namespace: String!
-    cluster: String!
-    mutual: Boolean!
-    mutualExplanation: String!
-    isJob: Boolean!
+  application: String!
+  namespace: String!
+  cluster: String!
+  mutual: Boolean!
+  mutualExplanation: String!
+  isJob: Boolean!
 }
 
 type Inbound {
-    rules: [Rule!]!
+  rules: [Rule!]!
 }
 
 type Outbound {
-    rules: [Rule!]!
-    external: [External!]!
+  rules: [Rule!]!
+  external: [External!]!
 }
 
 type AccessPolicy {
-    inbound: Inbound!
-    outbound: Outbound!
+  inbound: Inbound!
+  outbound: Outbound!
 }

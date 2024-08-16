@@ -581,6 +581,7 @@ type ComplexityRoot struct {
 
 	External struct {
 		Host  func(childComplexity int) int
+		IPv4  func(childComplexity int) int
 		Ports func(childComplexity int) int
 	}
 
@@ -3786,6 +3787,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.External.Host(childComplexity), true
+
+	case "External.IPv4":
+		if e.complexity.External.IPv4 == nil {
+			break
+		}
+
+		return e.complexity.External.IPv4(childComplexity), true
 
 	case "External.ports":
 		if e.complexity.External.Ports == nil {
@@ -8107,35 +8115,36 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 
 var sources = []*ast.Source{
 	{Name: "../graphqls/accesspolicy.graphqls", Input: `type Port {
-    port: Int!
+  port: Int!
 }
 
 type External {
-    host: String!
-    ports: [Port!]!
+  host: String
+  IPv4: String
+  ports: [Port!]!
 }
 
 type Rule {
-    application: String!
-    namespace: String!
-    cluster: String!
-    mutual: Boolean!
-    mutualExplanation: String!
-    isJob: Boolean!
+  application: String!
+  namespace: String!
+  cluster: String!
+  mutual: Boolean!
+  mutualExplanation: String!
+  isJob: Boolean!
 }
 
 type Inbound {
-    rules: [Rule!]!
+  rules: [Rule!]!
 }
 
 type Outbound {
-    rules: [Rule!]!
-    external: [External!]!
+  rules: [Rule!]!
+  external: [External!]!
 }
 
 type AccessPolicy {
-    inbound: Inbound!
-    outbound: Outbound!
+  inbound: Inbound!
+  outbound: Outbound!
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/app.graphqls", Input: `extend type Mutation {
@@ -27711,17 +27720,55 @@ func (ec *executionContext) _External_host(ctx context.Context, field graphql.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_External_host(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "External",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _External_IPv4(ctx context.Context, field graphql.CollectedField, obj *model.External) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_External_IPv4(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IPv4, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_External_IPv4(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "External",
 		Field:      field,
@@ -39297,6 +39344,8 @@ func (ec *executionContext) fieldContext_Outbound_external(_ context.Context, fi
 			switch field.Name {
 			case "host":
 				return ec.fieldContext_External_host(ctx, field)
+			case "IPv4":
+				return ec.fieldContext_External_IPv4(ctx, field)
 			case "ports":
 				return ec.fieldContext_External_ports(ctx, field)
 			}
@@ -64232,9 +64281,8 @@ func (ec *executionContext) _External(ctx context.Context, sel ast.SelectionSet,
 			out.Values[i] = graphql.MarshalString("External")
 		case "host":
 			out.Values[i] = ec._External_host(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
+		case "IPv4":
+			out.Values[i] = ec._External_IPv4(ctx, field, obj)
 		case "ports":
 			out.Values[i] = ec._External_ports(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
