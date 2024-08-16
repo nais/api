@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/nais/api/internal/auth/authz"
@@ -54,7 +55,13 @@ func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
 		err := graphql.DefaultErrorPresenter(ctx, e)
 		unwrappedError := errors.Unwrap(e)
 
+		if unwrappedError == nil {
+			return err
+		}
+
 		switch originalError := unwrappedError.(type) {
+		case *gqlerror.Error:
+			return originalError
 		case Error:
 			// Error is already formatted for end-user consumption.
 			return err
@@ -67,6 +74,39 @@ func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
 		case *pgconn.PgError:
 			err.Message = ErrDatabase.Error()
 			log.WithError(originalError).Errorf("database error %s: %s (%s)", originalError.Code, originalError.Message, originalError.Detail)
+			return err
+		case validator.ValidationErrors:
+			for i, verr := range originalError {
+				if i > 0 {
+					graphql.AddError(ctx, err)
+				}
+
+				msg := "Invalid input."
+				switch verr.Tag() {
+				case "required":
+					msg = "The field is required."
+				case "alphanum":
+					msg = "The field must contain only alphanumeric characters."
+				case "min":
+					msg = "The field must be at least " + verr.Param() + " characters long."
+				case "max":
+					msg = "The field must be at most " + verr.Param() + " characters long."
+				case "startswith":
+					msg = fmt.Sprintf("The field must start with %q.", verr.Param())
+				}
+				err = &gqlerror.Error{
+					Message: msg,
+					Path:    graphql.GetPath(ctx),
+					Extensions: map[string]any{
+						"field": verr.Field(),
+						"rule":  verr.Tag(),
+					},
+				}
+				if verr.Param() != "" {
+					err.Extensions["param"] = verr.Param()
+				}
+			}
+
 			return err
 		default:
 			break
