@@ -13,7 +13,7 @@ import (
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func TestBifrostClient_Post(t *testing.T) {
@@ -26,6 +26,9 @@ func TestBifrostClient_Post(t *testing.T) {
 		}
 		assert.Equal(t, "/unleash/new", r.URL.Path)
 		assert.Equal(t, "test", u.Name)
+		assert.Equal(t, "team1,team2", u.AllowedTeams)
+		assert.Equal(t, true, u.EnableFederation)
+		assert.Equal(t, "cluster1,cluster2", u.AllowedClusters)
 
 		unleashInstance := unleash_nais_io_v1.Unleash{
 			ObjectMeta: v1.ObjectMeta{
@@ -37,6 +40,12 @@ func TestBifrostClient_Post(t *testing.T) {
 						Name:  "TEAMS_ALLOWED_TEAMS",
 						Value: u.AllowedTeams,
 					},
+				},
+				Federation: unleash_nais_io_v1.UnleashFederationConfig{
+					Enabled:     true,
+					Clusters:    []string{"cluster1", "cluster2"},
+					SecretNonce: "abc123",
+					Namespaces:  []string{"team1", "team2"},
 				},
 			},
 		}
@@ -53,8 +62,10 @@ func TestBifrostClient_Post(t *testing.T) {
 	logger, _ := test.NewNullLogger()
 	bifrostClient := unleash.NewBifrostClient(s.URL, logger)
 	cfg := &bifrost.UnleashConfig{
-		Name:         "test",
-		AllowedTeams: "team1,team2",
+		Name:             "test",
+		AllowedTeams:     "team1,team2",
+		EnableFederation: true,
+		AllowedClusters:  "cluster1,cluster2",
 	}
 	resp, err := bifrostClient.Post(context.Background(), "/unleash/new", cfg)
 	assert.NoError(t, err)

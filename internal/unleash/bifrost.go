@@ -51,8 +51,10 @@ func (m *Manager) NewUnleash(ctx context.Context, name string, allowedTeams []st
 	// TODO implement auth, set iap header with actor from context or use psk - must update bifrost to support this
 	teams := strings.Join(allowedTeams, ",")
 	bi := bifrost.UnleashConfig{
-		Name:         name,
-		AllowedTeams: teams,
+		Name:             name,
+		AllowedTeams:     teams,
+		EnableFederation: true,
+		AllowedClusters:  "dev-gcp,prod-gcp,dev-fss,prod-fss",
 	}
 	unleashResponse, err := m.bifrostClient.Post(ctx, "/unleash/new", bi)
 	if err != nil {
