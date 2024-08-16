@@ -21,26 +21,25 @@ func NewLoaderContext(ctx context.Context, dbConn *pgxpool.Pool) context.Context
 // Transaction executes a callback function within a transaction. The first call to Transaction starts a new
 // transaction, and subsequent calls will execute the callback function in the same transaction.
 func Transaction(ctx context.Context, callback func(ctx context.Context) error) error {
-	transactionStarter := false
-
-	tx := TransactionFromContext(ctx)
-	if tx == nil {
-		transactionStarter = true
-		var err error
-		tx, err = ctx.Value(databaseKey).(*pgxpool.Pool).Begin(ctx)
-		if err != nil {
-			return err
-		}
-
-		defer tx.Rollback(ctx)
+	var conn interface {
+		Begin(context.Context) (pgx.Tx, error)
 	}
 
-	if err := callback(context.WithValue(ctx, databaseTransactionKey, tx)); err != nil {
+	if tx := TransactionFromContext(ctx); tx != nil {
+		conn = tx
+	} else {
+		conn = ctx.Value(databaseKey).(*pgxpool.Pool)
+	}
+
+	tx, err := conn.Begin(ctx)
+	if err != nil {
 		return err
 	}
 
-	if !transactionStarter {
-		return nil
+	defer tx.Rollback(ctx)
+
+	if err := callback(context.WithValue(ctx, databaseTransactionKey, tx)); err != nil {
+		return err
 	}
 
 	return tx.Commit(ctx)
