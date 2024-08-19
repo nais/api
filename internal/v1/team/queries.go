@@ -62,6 +62,28 @@ func Create(ctx context.Context, input *CreateTeamInput, actor *authz.Actor) (*T
 	return toGraphTeam(team), nil
 }
 
+func Update(ctx context.Context, input *UpdateTeamInput) (*Team, error) {
+	if _, err := Get(ctx, input.Slug); err != nil {
+		return nil, err
+	}
+
+	input = input.Sanitized()
+	if err := validate.Validate(input); err != nil {
+		return nil, err
+	}
+
+	team, err := db(ctx).Update(ctx, teamsql.UpdateParams{
+		Purpose:      input.Purpose,
+		SlackChannel: input.SlackChannel,
+		Slug:         input.Slug,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return toGraphTeam(team), nil
+}
+
 func Get(ctx context.Context, slug slug.Slug) (*Team, error) {
 	return fromContext(ctx).teamLoader.Load(ctx, slug)
 }

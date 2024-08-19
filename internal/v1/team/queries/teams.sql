@@ -7,6 +7,17 @@ RETURNING
 	*
 ;
 
+-- name: Update :one
+UPDATE teams
+SET
+	purpose = COALESCE(sqlc.narg(purpose), purpose),
+	slack_channel = COALESCE(sqlc.narg(slack_channel), slack_channel)
+WHERE
+	teams.slug = @slug
+RETURNING
+	*
+;
+
 -- name: SlugAvailable :one
 SELECT
 	EXISTS (

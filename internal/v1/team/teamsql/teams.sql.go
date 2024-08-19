@@ -236,7 +236,15 @@ func (q *Queries) ListEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg Li
 }
 
 const slugAvailable = `-- name: SlugAvailable :one
-SELECT EXISTS(SELECT slug FROM team_slugs WHERE slug = $1)
+SELECT
+	EXISTS (
+		SELECT
+			slug
+		FROM
+			team_slugs
+		WHERE
+			slug = $1
+	)
 `
 
 func (q *Queries) SlugAvailable(ctx context.Context, argSlug slug.Slug) (bool, error) {
@@ -244,4 +252,39 @@ func (q *Queries) SlugAvailable(ctx context.Context, argSlug slug.Slug) (bool, e
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
+}
+
+const update = `-- name: Update :one
+UPDATE teams
+SET
+	purpose = COALESCE($1, purpose),
+	slack_channel = COALESCE($2, slack_channel)
+WHERE
+	teams.slug = $3
+RETURNING
+	slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
+`
+
+type UpdateParams struct {
+	Purpose      *string
+	SlackChannel *string
+	Slug         slug.Slug
+}
+
+func (q *Queries) Update(ctx context.Context, arg UpdateParams) (*Team, error) {
+	row := q.db.QueryRow(ctx, update, arg.Purpose, arg.SlackChannel, arg.Slug)
+	var i Team
+	err := row.Scan(
+		&i.Slug,
+		&i.Purpose,
+		&i.LastSuccessfulSync,
+		&i.SlackChannel,
+		&i.GoogleGroupEmail,
+		&i.AzureGroupID,
+		&i.GithubTeamSlug,
+		&i.GarRepository,
+		&i.CdnBucket,
+		&i.DeleteKeyConfirmedAt,
+	)
+	return &i, err
 }

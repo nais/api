@@ -18,20 +18,10 @@ func NewLoaderContext(ctx context.Context, dbConn *pgxpool.Pool) context.Context
 	return context.WithValue(ctx, databaseKey, dbConn)
 }
 
-// Transaction executes a callback function within a transaction. The first call to Transaction starts a new
-// transaction, and subsequent calls will execute the callback function in the same transaction.
+// Transaction executes a callback function within a transaction. Multiple calls to Transaction will start "nested"
+// transactions (https://www.postgresql.org/docs/current/sql-savepoint.html).
 func Transaction(ctx context.Context, callback func(ctx context.Context) error) error {
-	var conn interface {
-		Begin(context.Context) (pgx.Tx, error)
-	}
-
-	if tx := TransactionFromContext(ctx); tx != nil {
-		conn = tx
-	} else {
-		conn = ctx.Value(databaseKey).(*pgxpool.Pool)
-	}
-
-	tx, err := conn.Begin(ctx)
+	tx, err := connectionFromContext(ctx).Begin(ctx)
 	if err != nil {
 		return err
 	}
@@ -49,4 +39,17 @@ func Transaction(ctx context.Context, callback func(ctx context.Context) error) 
 func TransactionFromContext(ctx context.Context) pgx.Tx {
 	tx, _ := ctx.Value(databaseTransactionKey).(pgx.Tx)
 	return tx
+}
+
+type transactioner interface {
+	Begin(context.Context) (pgx.Tx, error)
+}
+
+// connectionFromContext will return an open transaction if it exists, or a connection from the connection pool.
+func connectionFromContext(ctx context.Context) transactioner {
+	if tx := TransactionFromContext(ctx); tx != nil {
+		return tx
+	}
+
+	return ctx.Value(databaseKey).(*pgxpool.Pool)
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/team/teamsql"
+	"k8s.io/utils/ptr"
 )
 
 type (
@@ -308,7 +309,7 @@ func (e UserTeamOrderField) MarshalGQL(w io.Writer) {
 type CreateTeamInput struct {
 	Slug         slug.Slug `json:"slug" validate:"required,alphanum,min=3,max=30"`
 	Purpose      string    `json:"purpose" validate:"required"`
-	SlackChannel string    `json:"slackChannel" validate:"required,startswith=#,min=2,max=80"`
+	SlackChannel string    `json:"slackChannel" validate:"required,startswith=#,min=3,max=80"`
 }
 
 func (input *CreateTeamInput) Sanitized() *CreateTeamInput {
@@ -321,8 +322,25 @@ func (input *CreateTeamInput) Sanitized() *CreateTeamInput {
 
 type UpdateTeamInput struct {
 	Slug         slug.Slug `json:"slug"`
-	Purpose      *string   `json:"purpose,omitempty"`
-	SlackChannel *string   `json:"slackChannel,omitempty"`
+	Purpose      *string   `json:"purpose" validate:"omitnil,min=1"`
+	SlackChannel *string   `json:"slackChannel" validate:"omitnil,startswith=#,min=3,max=80"`
+}
+
+func (input *UpdateTeamInput) Sanitized() *UpdateTeamInput {
+	var purpose, slackChannel *string
+	if input.Purpose != nil {
+		purpose = ptr.To(strings.TrimSpace(*input.Purpose))
+	}
+
+	if input.SlackChannel != nil {
+		slackChannel = ptr.To(strings.TrimSpace(*input.SlackChannel))
+	}
+
+	return &UpdateTeamInput{
+		Slug:         input.Slug,
+		Purpose:      purpose,
+		SlackChannel: slackChannel,
+	}
 }
 
 type CreateTeamPayload struct {

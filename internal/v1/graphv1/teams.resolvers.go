@@ -34,7 +34,7 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input team.CreateTeam
 	}
 
 	/*
-		TODO: implement
+		TODO: implement or move into the team.Create function
 
 		correlationID := uuid.New()
 
@@ -52,8 +52,40 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input team.CreateTeam
 }
 
 func (r *mutationResolver) UpdateTeam(ctx context.Context, input team.UpdateTeamInput) (*team.UpdateTeamPayload, error) {
-	// TODO: implement
-	panic(fmt.Errorf("not implemented: UpdateTeam - updateTeam"))
+	actor := authz.ActorFromContext(ctx)
+	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMetadataUpdate, input.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	t, err := team.Update(ctx, &input)
+	if err != nil {
+		return nil, err
+	}
+
+	/*
+		TODO: implement or move into the team.Update function
+
+		if input.Purpose != nil {
+			err = r.auditor.TeamSetPurpose(ctx, actor.User, slug, *input.Purpose)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		if input.SlackChannel != nil {
+			err = r.auditor.TeamSetDefaultSlackChannel(ctx, actor.User, slug, *input.SlackChannel)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
+	*/
+
+	return &team.UpdateTeamPayload{
+		Team: t,
+	}, nil
 }
 
 func (r *queryResolver) Teams(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) (*pagination.Connection[*team.Team], error) {

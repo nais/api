@@ -26,6 +26,7 @@ type Querier interface {
 	// ListMembers returns a slice of team members of a non-deleted team.
 	ListMembers(ctx context.Context, arg ListMembersParams) ([]*ListMembersRow, error)
 	SlugAvailable(ctx context.Context, argSlug slug.Slug) (bool, error)
+	Update(ctx context.Context, arg UpdateParams) (*Team, error)
 }
 
 var _ Querier = (*Queries)(nil)
