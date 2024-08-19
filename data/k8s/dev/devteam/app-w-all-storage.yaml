@@ -10,16 +10,16 @@ spec:
   accessPolicy:
     inbound:
       rules:
-      - application: bot-rap
-        namespace: bot
-        permissions:
-          roles:
-          - rap-read
+        - application: bot-rap
+          namespace: bot
+          permissions:
+            roles:
+              - rap-read
     outbound:
       external:
-      - host: vg.no
-      - ipv4: 127.12.13.14
-      - ipv4: 10.11.12.13
+        - host: vg.no
+        - ipv4: 127.12.13.14
+        - ipv4: 10.11.12.13
   image: navikt/app-w-all-storage:latest
   gcp:
     sqlInstances:
