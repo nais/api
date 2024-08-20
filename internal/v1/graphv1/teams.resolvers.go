@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/v1/auditv1"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/persistence/bigquery"
@@ -33,18 +34,8 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input team.CreateTeam
 		return nil, err
 	}
 
-	/*
-		TODO: implement or move into the team.Create function
-
-		correlationID := uuid.New()
-
-		err = r.auditor.TeamCreated(ctx, actor.User, team.Slug)
-		if err != nil {
-			return nil, err
-		}
-
-		r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
-	*/
+	// TODO: ?
+	//	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 
 	return &team.CreateTeamPayload{
 		Team: t,
@@ -188,6 +179,15 @@ func (r *teamResolver) ViewerIsOwner(ctx context.Context, obj *team.Team) (bool,
 
 func (r *teamResolver) ViewerIsMember(ctx context.Context, obj *team.Team) (bool, error) {
 	panic(fmt.Errorf("not implemented: ViewerIsMember - viewerIsMember"))
+}
+
+func (r *teamResolver) Audits(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[auditv1.AuditLog], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return auditv1.ListForTeam(ctx, obj.Slug, page)
 }
 
 func (r *teamEnvironmentResolver) Team(ctx context.Context, obj *team.TeamEnvironment) (*team.Team, error) {

@@ -1,4 +1,4 @@
-package event_test
+package auditv1_test
 
 import (
 	"context"

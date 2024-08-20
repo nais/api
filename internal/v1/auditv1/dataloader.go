@@ -1,19 +1,22 @@
-package event
+package auditv1
 
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/v1/auditv1/auditsql"
 	"github.com/nais/api/internal/v1/databasev1"
+	"github.com/nais/api/internal/v1/graphv1/loaderv1"
+	"github.com/vikstrous/dataloadgen"
 )
 
 type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, dbConn *pgxpool.Pool) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(dbConn))
+func NewLoaderContext(ctx context.Context, dbConn *pgxpool.Pool, defaultOpts []dataloadgen.Option) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(dbConn, defaultOpts))
 }
 
 func fromContext(ctx context.Context) *loaders {
@@ -22,14 +25,27 @@ func fromContext(ctx context.Context) *loaders {
 
 type loaders struct {
 	internalQuerier *auditsql.Queries
+	auditLogLoader  *dataloadgen.Loader[uuid.UUID, AuditLog]
 }
 
-func newLoaders(dbConn *pgxpool.Pool) *loaders {
+func newLoaders(dbConn *pgxpool.Pool, opts []dataloadgen.Option) *loaders {
 	db := auditsql.New(dbConn)
+
+	auditLoader := &dataloader{db: db}
 
 	return &loaders{
 		internalQuerier: db,
+		auditLogLoader:  dataloadgen.NewLoader(auditLoader.get, opts...),
 	}
+}
+
+type dataloader struct {
+	db auditsql.Querier
+}
+
+func (l dataloader) get(ctx context.Context, ids []uuid.UUID) ([]AuditLog, []error) {
+	makeKey := func(obj AuditLog) uuid.UUID { return obj.GetUUID() }
+	return loaderv1.LoadModels(ctx, ids, l.db.ListByIDs, toGraphAuditLog, makeKey)
 }
 
 func db(ctx context.Context) *auditsql.Queries {

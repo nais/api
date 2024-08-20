@@ -4,7 +4,7 @@ SELECT
 FROM
 	audit_events
 WHERE
-	team_slug = @team
+	team_slug = @team_slug
 ORDER BY
 	created_at DESC
 LIMIT
@@ -19,7 +19,7 @@ SELECT
 FROM
 	audit_events
 WHERE
-	team_slug = @team
+	team_slug = @team_slug
 	AND resource_type = @resource_type
 ORDER BY
 	created_at DESC
@@ -46,10 +46,30 @@ VALUES
 		@action,
 		@resource_type,
 		@resource_name,
-		@team,
-		@environment,
+		@team_slug,
+		@environment_name,
 		@data
 	)
+;
+
+-- name: Get :one
+SELECT
+	*
+FROM
+	audit_events
+WHERE
+	id = @id
+;
+
+-- name: ListByIDs :many
+SELECT
+	*
+FROM
+	audit_events
+WHERE
+	id = ANY (@ids::UUID [])
+ORDER BY
+	created_at DESC
 ;
 
 -- name: CountForTeam :one
@@ -58,7 +78,7 @@ SELECT
 FROM
 	audit_events
 WHERE
-	team_slug = @team
+	team_slug = @team_slug
 ;
 
 -- name: CountForTeamByResource :one
@@ -67,6 +87,6 @@ SELECT
 FROM
 	audit_events
 WHERE
-	team_slug = @team
+	team_slug = @team_slug
 	AND resource_type = @resource_type
 ;

@@ -5,13 +5,16 @@ package auditsql
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/slug"
 )
 
 type Querier interface {
-	CountForTeam(ctx context.Context, team *slug.Slug) (int64, error)
+	CountForTeam(ctx context.Context, teamSlug *slug.Slug) (int64, error)
 	CountForTeamByResource(ctx context.Context, arg CountForTeamByResourceParams) (int64, error)
 	Create(ctx context.Context, arg CreateParams) error
+	Get(ctx context.Context, id uuid.UUID) (*AuditEvent, error)
+	ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*AuditEvent, error)
 	ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*AuditEvent, error)
 	ListForTeamByResource(ctx context.Context, arg ListForTeamByResourceParams) ([]*AuditEvent, error)
 }

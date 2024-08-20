@@ -6,6 +6,7 @@ package auditsql
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -18,8 +19,8 @@ WHERE
 	team_slug = $1
 `
 
-func (q *Queries) CountForTeam(ctx context.Context, team *slug.Slug) (int64, error) {
-	row := q.db.QueryRow(ctx, countForTeam, team)
+func (q *Queries) CountForTeam(ctx context.Context, teamSlug *slug.Slug) (int64, error) {
+	row := q.db.QueryRow(ctx, countForTeam, teamSlug)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -36,12 +37,12 @@ WHERE
 `
 
 type CountForTeamByResourceParams struct {
-	Team         *slug.Slug
+	TeamSlug     *slug.Slug
 	ResourceType string
 }
 
 func (q *Queries) CountForTeamByResource(ctx context.Context, arg CountForTeamByResourceParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countForTeamByResource, arg.Team, arg.ResourceType)
+	row := q.db.QueryRow(ctx, countForTeamByResource, arg.TeamSlug, arg.ResourceType)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -71,13 +72,13 @@ VALUES
 `
 
 type CreateParams struct {
-	Actor        string
-	Action       string
-	ResourceType string
-	ResourceName string
-	Team         *slug.Slug
-	Environment  *string
-	Data         []byte
+	Actor           string
+	Action          string
+	ResourceType    string
+	ResourceName    string
+	TeamSlug        *slug.Slug
+	EnvironmentName *string
+	Data            []byte
 }
 
 func (q *Queries) Create(ctx context.Context, arg CreateParams) error {
@@ -86,11 +87,78 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) error {
 		arg.Action,
 		arg.ResourceType,
 		arg.ResourceName,
-		arg.Team,
-		arg.Environment,
+		arg.TeamSlug,
+		arg.EnvironmentName,
 		arg.Data,
 	)
 	return err
+}
+
+const get = `-- name: Get :one
+SELECT
+    id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment
+FROM
+    audit_events
+WHERE
+    id = $1
+`
+
+func (q *Queries) Get(ctx context.Context, id uuid.UUID) (*AuditEvent, error) {
+	row := q.db.QueryRow(ctx, get, id)
+	var i AuditEvent
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.Actor,
+		&i.Action,
+		&i.ResourceType,
+		&i.ResourceName,
+		&i.TeamSlug,
+		&i.Data,
+		&i.Environment,
+	)
+	return &i, err
+}
+
+const listByIDs = `-- name: ListByIDs :many
+SELECT
+    id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment
+FROM
+    audit_events
+WHERE
+    id = ANY($1::uuid[])
+ORDER BY
+    created_at DESC
+`
+
+func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*AuditEvent, error) {
+	rows, err := q.db.Query(ctx, listByIDs, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*AuditEvent{}
+	for rows.Next() {
+		var i AuditEvent
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.Actor,
+			&i.Action,
+			&i.ResourceType,
+			&i.ResourceName,
+			&i.TeamSlug,
+			&i.Data,
+			&i.Environment,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listForTeam = `-- name: ListForTeam :many
@@ -109,13 +177,13 @@ OFFSET
 `
 
 type ListForTeamParams struct {
-	Team   *slug.Slug
-	Offset int32
-	Limit  int32
+	TeamSlug *slug.Slug
+	Offset   int32
+	Limit    int32
 }
 
 func (q *Queries) ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*AuditEvent, error) {
-	rows, err := q.db.Query(ctx, listForTeam, arg.Team, arg.Offset, arg.Limit)
+	rows, err := q.db.Query(ctx, listForTeam, arg.TeamSlug, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +229,7 @@ OFFSET
 `
 
 type ListForTeamByResourceParams struct {
-	Team         *slug.Slug
+	TeamSlug     *slug.Slug
 	ResourceType string
 	Offset       int32
 	Limit        int32
@@ -169,7 +237,7 @@ type ListForTeamByResourceParams struct {
 
 func (q *Queries) ListForTeamByResource(ctx context.Context, arg ListForTeamByResourceParams) ([]*AuditEvent, error) {
 	rows, err := q.db.Query(ctx, listForTeamByResource,
-		arg.Team,
+		arg.TeamSlug,
 		arg.ResourceType,
 		arg.Offset,
 		arg.Limit,

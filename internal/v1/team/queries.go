@@ -3,22 +3,19 @@ package team
 import (
 	"context"
 
-	"github.com/nais/api/internal/v1/role/rolesql"
-	"github.com/nais/api/internal/v1/validate"
-
-	"github.com/nais/api/internal/v1/role"
-
-	"github.com/nais/api/internal/v1/databasev1"
-
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
-
-	"github.com/nais/api/internal/v1/graphv1/ident"
-
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/v1/auditv1"
+	"github.com/nais/api/internal/v1/databasev1"
+	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/role"
+	"github.com/nais/api/internal/v1/role/rolesql"
 	"github.com/nais/api/internal/v1/team/teamsql"
+	"github.com/nais/api/internal/v1/validate"
+	"k8s.io/utils/ptr"
 )
 
 func Create(ctx context.Context, input *CreateTeamInput, actor *authz.Actor) (*Team, error) {
@@ -53,7 +50,18 @@ func Create(ctx context.Context, input *CreateTeamInput, actor *authz.Actor) (*T
 			return role.AssignTeamRoleToServiceAccount(ctx, actor.User.GetID(), input.Slug, rolesql.RoleNameTeamowner)
 		}
 
-		return role.AssignTeamRoleToUser(ctx, actor.User.GetID(), input.Slug, rolesql.RoleNameTeamowner)
+		err := role.AssignTeamRoleToUser(ctx, actor.User.GetID(), input.Slug, rolesql.RoleNameTeamowner)
+		if err != nil {
+			return err
+		}
+
+		return auditv1.Create(ctx, auditv1.AuditLogGeneric{
+			Action:       auditv1.AuditLogActionCreated,
+			Actor:        actor.User.Identity(),
+			ResourceType: auditLogResourceTypeTeam,
+			ResourceName: input.Slug.String(),
+			TeamSlug:     ptr.To(input.Slug),
+		})
 	})
 	if err != nil {
 		return nil, err

@@ -16,6 +16,7 @@ import (
 	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/k8s"
 	legacysqlinstance "github.com/nais/api/internal/sqlinstance"
+	"github.com/nais/api/internal/v1/auditv1"
 	"github.com/nais/api/internal/v1/databasev1"
 	"github.com/nais/api/internal/v1/graphv1/loaderv1"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
@@ -114,6 +115,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 			ctx = team.NewLoaderContext(ctx, pool, opts)
 			ctx = user.NewLoaderContext(ctx, pool, opts)
 			ctx = role.NewLoaderContext(ctx, pool)
+			ctx = auditv1.NewLoaderContext(ctx, pool, opts)
 			return ctx
 		}))
 		r.Use(otelhttp.NewMiddleware("graphqlv1", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))

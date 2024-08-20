@@ -1,15 +1,12 @@
-package event
+package auditv1
 
 import (
-	"fmt"
-	"io"
-	"strconv"
 	"time"
 
-	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/graph/scalar"
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
+	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 )
 
@@ -18,94 +15,91 @@ type (
 	AuditLogAction       string
 )
 
-func (e AuditLogAction) String() string {
-	return string(e)
-}
-
-func (e *AuditLogAction) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = AuditLogAction(str)
-	return nil
-}
-
-func (e AuditLogAction) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
+const (
+	AuditLogActionAdded        AuditLogAction = "ADDED"
+	AuditLogActionCreated      AuditLogAction = "CREATED"
+	AuditLogActionDeleted      AuditLogAction = "DELETED"
+	AuditLogActionRemoved      AuditLogAction = "REMOVED"
+	AuditLogActionRestarted    AuditLogAction = "RESTARTED"
+	AuditLogActionUpdated      AuditLogAction = "UPDATED"
+	AuditLogActionSynchronized AuditLogAction = "SYNCHRONIZED"
+)
 
 type AuditLog interface {
+	modelv1.Node
 	GetAction() string
 	GetActor() string
 	GetData() any
-	GetEnvironment() *string
+	GetEnvironmentName() *string
+	GetUUID() uuid.UUID
 	GetResourceType() string
 	GetResourceName() string
-	GetTeam() *slug.Slug
+	GetTeamSlug() *slug.Slug
 }
 
 type (
-	EventConnection = pagination.Connection[*AuditLog]
-	EventEdge       = pagination.Edge[*AuditLog]
+	AuditLogConnection = pagination.Connection[AuditLog]
+	AuditLogEdge       = pagination.Edge[AuditLog]
 )
 
-type AuditEventList struct {
-	Nodes    []model.AuditEventNode `json:"nodes"`
-	PageInfo model.PageInfo         `json:"pageInfo"`
+type AuditLogGeneric struct {
+	Action          AuditLogAction       `json:"action"`
+	Actor           string               `json:"actor"`
+	CreatedAt       time.Time            `json:"createdAt"`
+	EnvironmentName *string              `json:"environmentName"`
+	Message         string               `json:"message"`
+	ResourceType    AuditLogResourceType `json:"resourceType"`
+	ResourceName    string               `json:"resourceName"`
+	TeamSlug        *slug.Slug           `json:"teamSlug"`
+
+	UUID uuid.UUID `json:"-"`
 }
 
-// BaseAuditLog is the base type for audit events.
-type BaseAuditLog struct {
-	ID        scalar.Ident   `json:"id"`
-	Action    AuditLogAction `json:"action"`
-	Actor     string         `json:"actor"`
-	CreatedAt time.Time      `json:"createdAt"`
-	Message   string         `json:"message"`
+func (AuditLogGeneric) IsAuditLog() {}
 
-	ResourceIdent   ident.Ident `json:"-"`
-	TeamSlug        slug.Slug   `json:"-"`
-	EnvironmentName string      `json:"-"`
+func (AuditLogGeneric) IsNode() {}
+
+func (a AuditLogGeneric) ID() ident.Ident {
+	return newIdent(a.UUID)
 }
 
-func (e BaseAuditLog) GetAction() string {
-	return e.Action.String()
+func (a AuditLogGeneric) GetAction() string {
+	return string(a.Action)
 }
 
-func (e BaseAuditLog) GetActor() string {
-	return e.Actor
+func (a AuditLogGeneric) GetActor() string {
+	return a.Actor
 }
 
-func (e BaseAuditLog) GetCreatedAt() time.Time {
-	return e.CreatedAt
+func (a AuditLogGeneric) GetCreatedAt() time.Time {
+	return a.CreatedAt
 }
 
-func (e BaseAuditLog) GetData() any {
+func (a AuditLogGeneric) GetData() any {
 	return nil
 }
 
-func (e BaseAuditLog) GetTeam() *slug.Slug {
-	if e.TeamSlug == "" {
-		return nil
-	}
-
-	return &e.TeamSlug
+func (a AuditLogGeneric) GetResourceType() string {
+	return string(a.ResourceType)
 }
 
-func (e BaseAuditLog) GetEnvironment() *string {
-	if e.EnvironmentName == "" {
-		return nil
-	}
-
-	return &e.EnvironmentName
+func (a AuditLogGeneric) GetResourceName() string {
+	return a.ResourceName
 }
 
-func (e BaseAuditLog) WithMessage(message string) BaseAuditLog {
-	e.Message = message
-	return e
+func (a AuditLogGeneric) GetTeamSlug() *slug.Slug {
+	return a.TeamSlug
 }
 
-func (BaseAuditLog) IsAuditEvent() {}
+func (a AuditLogGeneric) GetEnvironmentName() *string {
+	return a.EnvironmentName
+}
 
-func (BaseAuditLog) IsAuditEventNode() {}
+func (a AuditLogGeneric) GetUUID() uuid.UUID {
+	return a.UUID
+}
+
+func (a AuditLogGeneric) WithMessage(message string) AuditLogGeneric {
+	a.Message = message
+	return a
+}

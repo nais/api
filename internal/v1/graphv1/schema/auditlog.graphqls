@@ -1,56 +1,65 @@
-
 "AuditLog event type."
-interface AuditLog {
-  "ID of the event."
-  id: ID!
+interface AuditLog implements Node {
+	"ID of the event."
+	id: ID!
 
-  "String representation of the action performed."
-  action: AuditLogAction!
+	"String representation of the action performed."
+	action: AuditLogAction!
 
-  "The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
-  actor: String!
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
 
-  "Creation time of the event."
-  createdAt: Time!
+	"Creation time of the event."
+	createdAt: Time!
 
-  "Message that summarizes the event."
-  message: String!
+	"Message that summarizes the event."
+	message: String!
 
-  "Type of the resource that was affected by the action."
-  resourceType: AuditLogResourceType!
+	"Type of the resource that was affected by the action."
+	resourceType: AuditLogResourceType!
 
-  "Name of the resource that was affected by the action."
-  resourceName: String!
+	"Name of the resource that was affected by the action."
+	resourceName: String!
 
-  "The team that the event belongs to."
-  team: Team
+	"The team slug that the event belongs to."
+	teamSlug: Slug
 
-  "The environment that the event belongs to."
-  environment: TeamEnvironment
+	"The environment name that the event belongs to."
+	environmentName: String
 }
 
 enum AuditLogAction {
-  ADDED
-  CREATED
-  DELETED
-  REMOVED
-  RESTARTED
-  UPDATED
-  SYNCHRONIZED
+	ADDED
+	CREATED
+	DELETED
+	REMOVED
+	RESTARTED
+	UPDATED
+	SYNCHRONIZED
 }
 
 enum AuditLogResourceType {
-  TEAM
+	UNKNOWN
 }
 
-type AuditLogGeneric implements AuditLog {
-  id: ID!
-  action: AuditLogAction!
-  actor: String!
-  createdAt: Time!
-  message: String!
-  resourceType: AuditLogResourceType!
-  resourceName: String!
-  team: Team
-  environment: TeamEnvironment
+type AuditLogGeneric implements AuditLog & Node {
+	id: ID!
+	action: AuditLogAction!
+	actor: String!
+	createdAt: Time!
+	message: String!
+	resourceType: AuditLogResourceType!
+	resourceName: String!
+	teamSlug: Slug
+	environmentName: String
+}
+
+type AuditLogConnection {
+	pageInfo: PageInfo!
+	edges: [AuditLogEdge!]!
+}
+
+type AuditLogEdge {
+	cursor: Cursor!
+	node: AuditLog!
 }
