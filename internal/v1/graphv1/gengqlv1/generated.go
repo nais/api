@@ -15,6 +15,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/nais/api/internal/slug"
+	event "github.com/nais/api/internal/v1/auditv1"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
@@ -2678,6 +2679,51 @@ enum ApplicationOrderField {
 	VULNERABILITIES
 	RISK_SCORE
 	DEPLOYMENT_TIME
+}
+`, BuiltIn: false},
+	{Name: "../schema/auditlog.graphqls", Input: `
+"AuditLog event type."
+interface AuditLog {
+  "ID of the event."
+  id: ID!
+
+  "String representation of the action performed."
+  action: AuditLogAction!
+
+  "The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+  actor: String!
+
+  "Creation time of the event."
+  createdAt: Time!
+
+  "Message that summarizes the event."
+  message: String!
+
+  "Type of the resource that was affected by the action."
+  resourceType: AuditLogResourceType!
+
+  "Name of the resource that was affected by the action."
+  resourceName: String!
+
+  "The team that the event belongs to."
+  team: Team
+
+  "The environment that the event belongs to."
+  environment: TeamEnvironment
+}
+
+enum AuditLogAction {
+  ADDED
+  CREATED
+  DELETED
+  REMOVED
+  RESTARTED
+  UPDATED
+  SYNCHRONIZED
+}
+
+enum AuditLogResourceType {
+  TEAM
 }
 `, BuiltIn: false},
 	{Name: "../schema/jobs.graphqls", Input: `type Job implements Node & Workload {
@@ -20124,6 +20170,15 @@ func (ec *executionContext) unmarshalInputUserTeamOrder(ctx context.Context, obj
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
+
+func (ec *executionContext) _AuditLog(ctx context.Context, sel ast.SelectionSet, obj event.AuditLog) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
 
 func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj modelv1.Node) graphql.Marshaler {
 	switch obj := (obj).(type) {

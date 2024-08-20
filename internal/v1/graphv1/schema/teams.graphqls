@@ -413,3 +413,57 @@ enum TeamMemberRole {
 	"Team owner, full access to the team."
 	OWNER
 }
+
+type AuditLogTeamCreated implements AuditLog {
+	"ID of the event."
+	id: ID!
+
+	"String representation of the action performed."
+	action: AuditLogAction!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the event."
+	createdAt: Time!
+
+	"Message that summarizes the event."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: AuditLogResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team that the event belongs to."
+	team: Team
+
+	"The environment that the event belongs to."
+	environment: TeamEnvironment
+}
+
+
+type AuditLogTeamUpdated implements AuditLog {
+  id: ID!
+  action: AuditEventAction!
+  actor: String!
+  createdAt: Time!
+  message: String!
+  resourceType: AuditEventResourceType!
+  resourceName: String!
+  team: Team!
+  env: Env
+
+  data: AuditLogTeamUpdatedData!
+}
+
+type AuditLogTeamUpdatedData {
+  fieldsChanged: [AuditLogTeamUpdatedFieldChange!]!
+}
+
+type AuditLogTeamUpdatedFieldChange {
+	field: String!
+	oldValue: String
+	newValue: String
+}

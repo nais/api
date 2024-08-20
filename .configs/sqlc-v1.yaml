@@ -57,3 +57,12 @@ sql:
         <<: *default_go
         package: "rolesql"
         out: "../internal/v1/role/rolesql"
+
+  - <<: *default_domain
+    name: "Audit SQL"
+    queries: "../internal/v1/auditv1/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "auditsql"
+        out: "../internal/v1/auditv1/auditsql"

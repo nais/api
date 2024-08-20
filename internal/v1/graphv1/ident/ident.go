@@ -89,8 +89,12 @@ func (i Ident) MarshalGQLContext(_ context.Context, w io.Writer) error {
 		return fmt.Errorf("id and type must be set")
 	}
 
-	_, err := w.Write([]byte(strconv.Quote(i.Type + "_" + base58.Encode([]byte(i.ID)))))
+	_, err := w.Write([]byte(strconv.Quote(i.String())))
 	return err
+}
+
+func (i Ident) String() string {
+	return i.Type + "_" + base58.Encode([]byte(i.ID))
 }
 
 func (i *Ident) UnmarshalGQLContext(_ context.Context, v interface{}) error {
