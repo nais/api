@@ -55,9 +55,9 @@ func Create(ctx context.Context, input *CreateTeamInput, actor *authz.Actor) (*T
 			return err
 		}
 
-		return auditv1.Create(ctx, auditv1.AuditLogGeneric{
+		return auditv1.Create(ctx, auditv1.CreateInput{
 			Action:       auditv1.AuditLogActionCreated,
-			Actor:        actor.User.Identity(),
+			Actor:        actor.User,
 			ResourceType: auditLogResourceTypeTeam,
 			ResourceName: input.Slug.String(),
 			TeamSlug:     ptr.To(input.Slug),

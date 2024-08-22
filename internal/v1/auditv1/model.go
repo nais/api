@@ -27,14 +27,9 @@ const (
 
 type AuditLog interface {
 	modelv1.Node
-	GetAction() string
-	GetActor() string
-	GetData() any
-	GetEnvironmentName() *string
 	GetUUID() uuid.UUID
-	GetResourceType() string
-	GetResourceName() string
-	GetTeamSlug() *slug.Slug
+	ID() ident.Ident
+	IsAuditLog()
 }
 
 type (
@@ -46,13 +41,12 @@ type AuditLogGeneric struct {
 	Action          AuditLogAction       `json:"action"`
 	Actor           string               `json:"actor"`
 	CreatedAt       time.Time            `json:"createdAt"`
-	EnvironmentName *string              `json:"environmentName"`
+	EnvironmentName *string              `json:"environmentName,omitempty"`
 	Message         string               `json:"message"`
 	ResourceType    AuditLogResourceType `json:"resourceType"`
 	ResourceName    string               `json:"resourceName"`
-	TeamSlug        *slug.Slug           `json:"teamSlug"`
-
-	UUID uuid.UUID `json:"-"`
+	TeamSlug        *slug.Slug           `json:"teamSlug,omitempty"`
+	UUID            uuid.UUID            `json:"-"`
 }
 
 func (AuditLogGeneric) IsAuditLog() {}
@@ -61,38 +55,6 @@ func (AuditLogGeneric) IsNode() {}
 
 func (a AuditLogGeneric) ID() ident.Ident {
 	return newIdent(a.UUID)
-}
-
-func (a AuditLogGeneric) GetAction() string {
-	return string(a.Action)
-}
-
-func (a AuditLogGeneric) GetActor() string {
-	return a.Actor
-}
-
-func (a AuditLogGeneric) GetCreatedAt() time.Time {
-	return a.CreatedAt
-}
-
-func (a AuditLogGeneric) GetData() any {
-	return nil
-}
-
-func (a AuditLogGeneric) GetResourceType() string {
-	return string(a.ResourceType)
-}
-
-func (a AuditLogGeneric) GetResourceName() string {
-	return a.ResourceName
-}
-
-func (a AuditLogGeneric) GetTeamSlug() *slug.Slug {
-	return a.TeamSlug
-}
-
-func (a AuditLogGeneric) GetEnvironmentName() *string {
-	return a.EnvironmentName
 }
 
 func (a AuditLogGeneric) GetUUID() uuid.UUID {

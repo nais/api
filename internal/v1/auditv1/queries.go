@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/google/uuid"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/auditv1/auditsql"
 	"github.com/nais/api/internal/v1/graphv1/ident"
@@ -14,36 +15,37 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-type AuditEventInput interface {
-	GetAction() string
-	GetActor() string
-	GetData() any
-	GetEnvironmentName() *string
-	GetResourceType() string
-	GetResourceName() string
-	GetTeamSlug() *slug.Slug
+type CreateInput struct {
+	Action       AuditLogAction
+	Actor        authz.AuthenticatedUser
+	ResourceType AuditLogResourceType
+	ResourceName string
+
+	Data            any        // optional
+	EnvironmentName *string    // optional
+	TeamSlug        *slug.Slug // optional
 }
 
-func Create(ctx context.Context, event AuditEventInput) error {
+func Create(ctx context.Context, input CreateInput) error {
 	q := db(ctx)
 	var data []byte
-	if event.GetData() != nil {
+	if input.Data != nil {
 		var err error
 
-		data, err = json.Marshal(event.GetData())
+		data, err = json.Marshal(input.Data)
 		if err != nil {
 			return err
 		}
 	}
 
 	return q.Create(ctx, auditsql.CreateParams{
-		Action:          event.GetAction(),
-		Actor:           event.GetActor(),
+		Action:          string(input.Action),
+		Actor:           input.Actor.Identity(),
 		Data:            data,
-		EnvironmentName: event.GetEnvironmentName(),
-		ResourceName:    event.GetResourceName(),
-		ResourceType:    event.GetResourceType(),
-		TeamSlug:        event.GetTeamSlug(),
+		EnvironmentName: input.EnvironmentName,
+		ResourceName:    input.ResourceName,
+		ResourceType:    string(input.ResourceType),
+		TeamSlug:        input.TeamSlug,
 	})
 }
 
@@ -78,19 +80,20 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	return pagination.NewConvertConnection(ret, page, int32(total), toGraphAuditLog), nil
 }
 
+var titler = cases.Title(language.English)
+
 func toGraphAuditLog(row *auditsql.AuditEvent) AuditLog {
 	entry := AuditLogGeneric{
 		Action:          AuditLogAction(row.Action),
 		Actor:           row.Actor,
 		CreatedAt:       row.CreatedAt.Time,
 		EnvironmentName: row.Environment,
+		Message:         titler.String(row.Action) + " " + titler.String(row.ResourceType),
 		ResourceType:    AuditLogResourceType(row.ResourceType),
 		ResourceName:    row.ResourceName,
 		TeamSlug:        row.TeamSlug,
 		UUID:            row.ID,
 	}
-
-	entry = entry.WithMessage(cases.Title(language.English).String(row.Action + " " + row.ResourceType))
 
 	transformer, ok := knownTransformers[AuditLogResourceType(row.ResourceType)]
 	if ok {

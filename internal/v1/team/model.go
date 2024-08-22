@@ -9,7 +9,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/v1/auditv1"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
@@ -350,35 +349,4 @@ type CreateTeamPayload struct {
 
 type UpdateTeamPayload struct {
 	Team *Team `json:"team"`
-}
-
-const (
-	auditLogResourceTypeTeam auditv1.AuditLogResourceType = "TEAM"
-)
-
-type AuditLogTeamCreated struct {
-	auditv1.AuditLogGeneric
-}
-
-func (AuditLogTeamCreated) IsAuditLog() {}
-
-type AuditLogTeamUpdated struct {
-	auditv1.AuditLogGeneric
-	Data AuditLogTeamUpdatedData `json:"data"`
-}
-
-func (a AuditLogTeamUpdated) GetData() any {
-	return a.Data
-}
-
-func (AuditLogTeamUpdated) IsAuditLog() {}
-
-type AuditLogTeamUpdatedData struct {
-	FieldsChanged []*AuditLogTeamUpdatedFieldChange `json:"fieldsChanged"`
-}
-
-type AuditLogTeamUpdatedFieldChange struct {
-	Field    string  `json:"field"`
-	OldValue *string `json:"oldValue,omitempty"`
-	NewValue *string `json:"newValue,omitempty"`
 }

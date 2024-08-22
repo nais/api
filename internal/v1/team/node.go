@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/v1/auditv1"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 )
 
@@ -29,14 +28,6 @@ func init() {
 
 	ident.RegisterIdentType(identTeam, "T", GetByIdent)
 	ident.RegisterIdentType(identTeamEnvironment, "TE", GetTeamEnvironmentByIdent)
-	auditv1.RegisterTransformer(auditLogResourceTypeTeam, func(entry auditv1.AuditLogGeneric) auditv1.AuditLog {
-		switch entry.Action {
-		case auditv1.AuditLogActionCreated:
-			return AuditLogTeamCreated{AuditLogGeneric: entry.WithMessage("Created team")}
-		default:
-			return entry
-		}
-	})
 }
 
 // newTeamIdent creates a new identifier for a specific team
