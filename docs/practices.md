@@ -70,6 +70,12 @@ We have defined a set of practices for the Graph-API in the [graphql_practices.m
 
 Whenever a `.graphqls` file is changed, run `make generate-graphql-v1` to generate the necessary code and documentation.
 
+## Audit logging
+
+All destructive actions as well as actions that changes permissions should be logged.
+
+See the [audit logging practices](audit_events.md) for more information.
+
 ## Pull request workflow
 
 All code changes must be submitted as pull requests.
