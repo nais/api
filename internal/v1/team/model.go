@@ -343,10 +343,18 @@ func (input *UpdateTeamInput) Sanitized() *UpdateTeamInput {
 	}
 }
 
+type SynchronizeTeamInput struct {
+	Slug slug.Slug `json:"slug"`
+}
+
 type CreateTeamPayload struct {
 	Team *Team `json:"team"`
 }
 
 type UpdateTeamPayload struct {
+	Team *Team `json:"team"`
+}
+
+type SynchronizeTeamPayload struct {
 	Team *Team `json:"team"`
 }

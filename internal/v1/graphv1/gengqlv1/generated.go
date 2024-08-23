@@ -270,8 +270,9 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateTeam func(childComplexity int, input team.CreateTeamInput) int
-		UpdateTeam func(childComplexity int, input team.UpdateTeamInput) int
+		CreateTeam      func(childComplexity int, input team.CreateTeamInput) int
+		SynchronizeTeam func(childComplexity int, input team.SynchronizeTeamInput) int
+		UpdateTeam      func(childComplexity int, input team.UpdateTeamInput) int
 	}
 
 	OpenSearch struct {
@@ -464,6 +465,10 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	SynchronizeTeamPayload struct {
+		Team func(childComplexity int) int
+	}
+
 	Team struct {
 		Applications           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder) int
 		AuditEntries           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -619,6 +624,7 @@ type KafkaTopicAclResolver interface {
 type MutationResolver interface {
 	CreateTeam(ctx context.Context, input team.CreateTeamInput) (*team.CreateTeamPayload, error)
 	UpdateTeam(ctx context.Context, input team.UpdateTeamInput) (*team.UpdateTeamPayload, error)
+	SynchronizeTeam(ctx context.Context, input team.SynchronizeTeamInput) (*team.SynchronizeTeamPayload, error)
 }
 type OpenSearchResolver interface {
 	Team(ctx context.Context, obj *opensearch.OpenSearch) (*team.Team, error)
@@ -1413,6 +1419,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateTeam(childComplexity, args["input"].(team.CreateTeamInput)), true
 
+	case "Mutation.synchronizeTeam":
+		if e.complexity.Mutation.SynchronizeTeam == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_synchronizeTeam_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SynchronizeTeam(childComplexity, args["input"].(team.SynchronizeTeamInput)), true
+
 	case "Mutation.updateTeam":
 		if e.complexity.Mutation.UpdateTeam == nil {
 			break
@@ -2196,6 +2214,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstanceUserEdge.Node(childComplexity), true
 
+	case "SynchronizeTeamPayload.team":
+		if e.complexity.SynchronizeTeamPayload.Team == nil {
+			break
+		}
+
+		return e.complexity.SynchronizeTeamPayload.Team(childComplexity), true
+
 	case "Team.applications":
 		if e.complexity.Team.Applications == nil {
 			break
@@ -2778,6 +2803,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRedisInstanceOrder,
 		ec.unmarshalInputSqlInstanceOrder,
 		ec.unmarshalInputSqlInstanceUserOrder,
+		ec.unmarshalInputSynchronizeTeamInput,
 		ec.unmarshalInputTeamMemberOrder,
 		ec.unmarshalInputTeamOrder,
 		ec.unmarshalInputUpdateTeamInput,
@@ -3633,6 +3659,16 @@ extend type Mutation {
 	team slug.
 	"""
 	updateTeam(input: UpdateTeamInput!): UpdateTeamPayload!
+
+	"""
+	Manually synchronize a team
+
+	This action will trigger a full synchronization of the team against the configured third party systems. The action
+	is asynchronous.
+
+	The team will be returned.
+	"""
+	synchronizeTeam(input: SynchronizeTeamInput!): SynchronizeTeamPayload!
 }
 
 """
@@ -3898,6 +3934,11 @@ type UpdateTeamPayload {
 	team: Team
 }
 
+type SynchronizeTeamPayload {
+	"The synchronized team."
+	team: Team
+}
+
 type TeamConnection {
 	"Pagination information."
 	pageInfo: PageInfo!
@@ -3972,6 +4013,11 @@ input UpdateTeamInput {
 	When omitted the existing value will not be updated.
 	"""
 	slackChannel: String
+}
+
+input SynchronizeTeamInput {
+	"Slug of the team to synchronize."
+	slug: Slug!
 }
 
 "Ordering options when fetching teams."
@@ -4393,6 +4439,21 @@ func (ec *executionContext) field_Mutation_createTeam_args(ctx context.Context, 
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCreateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐCreateTeamInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_synchronizeTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 team.SynchronizeTeamInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNSynchronizeTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐSynchronizeTeamInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -10466,6 +10527,65 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_synchronizeTeam(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_synchronizeTeam(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SynchronizeTeam(rctx, fc.Args["input"].(team.SynchronizeTeamInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.SynchronizeTeamPayload)
+	fc.Result = res
+	return ec.marshalNSynchronizeTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐSynchronizeTeamPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_synchronizeTeam(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "team":
+				return ec.fieldContext_SynchronizeTeamPayload_team(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SynchronizeTeamPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_synchronizeTeam_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _OpenSearch_id(ctx context.Context, field graphql.CollectedField, obj *opensearch.OpenSearch) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_OpenSearch_id(ctx, field)
 	if err != nil {
@@ -15788,6 +15908,95 @@ func (ec *executionContext) fieldContext_SqlInstanceUserEdge_node(_ context.Cont
 				return ec.fieldContext_SqlInstanceUser_authentication(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type SqlInstanceUser", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SynchronizeTeamPayload_team(ctx context.Context, field graphql.CollectedField, obj *team.SynchronizeTeamPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SynchronizeTeamPayload_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Team, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*team.Team)
+	fc.Result = res
+	return ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SynchronizeTeamPayload_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SynchronizeTeamPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "applications":
+				return ec.fieldContext_Team_applications(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Team_jobs(ctx, field)
+			case "bigQueryDatasets":
+				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
+			case "redisInstances":
+				return ec.fieldContext_Team_redisInstances(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "auditEntries":
+				return ec.fieldContext_Team_auditEntries(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
 	}
 	return fc, nil
@@ -21689,6 +21898,33 @@ func (ec *executionContext) unmarshalInputSqlInstanceUserOrder(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSynchronizeTeamInput(ctx context.Context, obj interface{}) (team.SynchronizeTeamInput, error) {
+	var it team.SynchronizeTeamInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"slug"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "slug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Slug = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputTeamMemberOrder(ctx context.Context, obj interface{}) (team.TeamMemberOrder, error) {
 	var it team.TeamMemberOrder
 	asMap := map[string]interface{}{}
@@ -24179,6 +24415,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "synchronizeTeam":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_synchronizeTeam(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -26346,6 +26589,42 @@ func (ec *executionContext) _SqlInstanceUserEdge(ctx context.Context, sel ast.Se
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var synchronizeTeamPayloadImplementors = []string{"SynchronizeTeamPayload"}
+
+func (ec *executionContext) _SynchronizeTeamPayload(ctx context.Context, sel ast.SelectionSet, obj *team.SynchronizeTeamPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, synchronizeTeamPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SynchronizeTeamPayload")
+		case "team":
+			out.Values[i] = ec._SynchronizeTeamPayload_team(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -29544,6 +29823,25 @@ func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalNSynchronizeTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐSynchronizeTeamInput(ctx context.Context, v interface{}) (team.SynchronizeTeamInput, error) {
+	res, err := ec.unmarshalInputSynchronizeTeamInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNSynchronizeTeamPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐSynchronizeTeamPayload(ctx context.Context, sel ast.SelectionSet, v team.SynchronizeTeamPayload) graphql.Marshaler {
+	return ec._SynchronizeTeamPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSynchronizeTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐSynchronizeTeamPayload(ctx context.Context, sel ast.SelectionSet, v *team.SynchronizeTeamPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SynchronizeTeamPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTeam2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeam(ctx context.Context, sel ast.SelectionSet, v team.Team) graphql.Marshaler {

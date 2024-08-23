@@ -62,6 +62,10 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, input team.UpdateTeam
 	}, nil
 }
 
+func (r *mutationResolver) SynchronizeTeam(ctx context.Context, input team.SynchronizeTeamInput) (*team.SynchronizeTeamPayload, error) {
+	panic(fmt.Errorf("not implemented: SynchronizeTeam - synchronizeTeam"))
+}
+
 func (r *queryResolver) Teams(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) (*pagination.Connection[*team.Team], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {

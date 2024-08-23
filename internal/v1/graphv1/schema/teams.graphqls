@@ -43,6 +43,14 @@ extend type Mutation {
 	team slug.
 	"""
 	updateTeam(input: UpdateTeamInput!): UpdateTeamPayload!
+
+	"""
+	Manually synchronize a team
+
+	This action will trigger a full synchronization of the team with the configured third party systems. The process is
+	asynchronous.
+	"""
+	synchronizeTeam(input: SynchronizeTeamInput!): SynchronizeTeamPayload!
 }
 
 """
@@ -308,6 +316,11 @@ type UpdateTeamPayload {
 	team: Team
 }
 
+type SynchronizeTeamPayload {
+	"The synchronized team."
+	team: Team
+}
+
 type TeamConnection {
 	"Pagination information."
 	pageInfo: PageInfo!
@@ -382,6 +395,11 @@ input UpdateTeamInput {
 	When omitted the existing value will not be updated.
 	"""
 	slackChannel: String
+}
+
+input SynchronizeTeamInput {
+	"Slug of the team to synchronize."
+	slug: Slug!
 }
 
 "Ordering options when fetching teams."
