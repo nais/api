@@ -41,18 +41,6 @@ enum AuditResourceType {
 	UNKNOWN
 }
 
-type AuditLogGeneric implements AuditEntry & Node {
-	id: ID!
-	action: AuditAction!
-	actor: String!
-	createdAt: Time!
-	message: String!
-	resourceType: AuditResourceType!
-	resourceName: String!
-	teamSlug: Slug
-	environmentName: String
-}
-
 type AuditLogConnection {
 	pageInfo: PageInfo!
 	edges: [AuditLogEdge!]!
