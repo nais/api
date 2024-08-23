@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
 	"github.com/nais/api/internal/slug"
@@ -34,8 +35,11 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input team.CreateTeam
 		return nil, err
 	}
 
-	// TODO: trigger event
-	//	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
+	// TODO: Correlation ID?
+	correlationID := uuid.New()
+	if err := r.triggerTeamCreatedEvent(ctx, input.Slug, correlationID); err != nil {
+		return nil, fmt.Errorf("failed to trigger team created event: %w", err)
+	}
 
 	return &team.CreateTeamPayload{
 		Team: t,
@@ -54,8 +58,11 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, input team.UpdateTeam
 		return nil, err
 	}
 
-	// TODO: trigger event
-	//	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
+	// TODO: Correlation ID?
+	correlationID := uuid.New()
+	if err := r.triggerTeamUpdatedEvent(ctx, input.Slug, correlationID); err != nil {
+		return nil, fmt.Errorf("failed to trigger team updated event: %w", err)
+	}
 
 	return &team.UpdateTeamPayload{
 		Team: t,

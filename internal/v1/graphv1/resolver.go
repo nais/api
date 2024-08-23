@@ -3,6 +3,7 @@ package graphv1
 import (
 	"fmt"
 
+	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -11,25 +12,38 @@ import (
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
-	"github.com/nais/api/internal/v1/kubernetes/watcher"
-	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 )
 
 type Resolver struct {
-	log        logrus.FieldLogger
-	appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application]
+	pubsubTopic *pubsub.Topic
+	log         logrus.FieldLogger
 }
 
-func NewResolver(log logrus.FieldLogger, mgr *watcher.Manager) *Resolver {
-	appWatcher := watcher.Watch(mgr, &nais_io_v1alpha1.Application{})
+type ResolverOption func(*Resolver)
 
-	return &Resolver{
-		log:        log,
-		appWatcher: appWatcher,
+func WithLogger(log logrus.FieldLogger) ResolverOption {
+	return func(r *Resolver) {
+		r.log = log
 	}
+}
+
+func NewResolver(topic *pubsub.Topic, opts ...ResolverOption) *Resolver {
+	resolver := &Resolver{
+		pubsubTopic: topic,
+	}
+
+	for _, opt := range opts {
+		opt(resolver)
+	}
+
+	if resolver.log == nil {
+		resolver.log = logrus.StandardLogger()
+	}
+
+	return resolver
 }
 
 func NewHandler(config gengqlv1.Config, log logrus.FieldLogger) (*handler.Server, error) {

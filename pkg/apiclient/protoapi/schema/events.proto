@@ -9,6 +9,11 @@ enum EventTypes {
   EVENT_RECONCILER_CONFIGURED = 3;
   EVENT_SYNC_ALL_TEAMS = 4;
   EVENT_TEAM_DELETED = 5;
+  EVENT_TEAM_CREATED = 6;
+}
+
+message EventTeamCreated {
+  string slug = 1;
 }
 
 message EventTeamUpdated {
