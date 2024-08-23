@@ -11,18 +11,18 @@ import (
 )
 
 type (
-	AuditLogResourceType string
-	AuditLogAction       string
+	AuditResourceType string
+	AuditAction       string
 )
 
 const (
-	AuditLogActionAdded        AuditLogAction = "ADDED"
-	AuditLogActionCreated      AuditLogAction = "CREATED"
-	AuditLogActionDeleted      AuditLogAction = "DELETED"
-	AuditLogActionRemoved      AuditLogAction = "REMOVED"
-	AuditLogActionRestarted    AuditLogAction = "RESTARTED"
-	AuditLogActionUpdated      AuditLogAction = "UPDATED"
-	AuditLogActionSynchronized AuditLogAction = "SYNCHRONIZED"
+	AuditActionAdded        AuditAction = "ADDED"
+	AuditActionCreated      AuditAction = "CREATED"
+	AuditActionDeleted      AuditAction = "DELETED"
+	AuditActionRemoved      AuditAction = "REMOVED"
+	AuditActionRestarted    AuditAction = "RESTARTED"
+	AuditActionUpdated      AuditAction = "UPDATED"
+	AuditActionSynchronized AuditAction = "SYNCHRONIZED"
 )
 
 type AuditEntry interface {
@@ -38,15 +38,15 @@ type (
 )
 
 type AuditLogGeneric struct {
-	Action          AuditLogAction       `json:"action"`
-	Actor           string               `json:"actor"`
-	CreatedAt       time.Time            `json:"createdAt"`
-	EnvironmentName *string              `json:"environmentName,omitempty"`
-	Message         string               `json:"message"`
-	ResourceType    AuditLogResourceType `json:"resourceType"`
-	ResourceName    string               `json:"resourceName"`
-	TeamSlug        *slug.Slug           `json:"teamSlug,omitempty"`
-	UUID            uuid.UUID            `json:"-"`
+	Action          AuditAction       `json:"action"`
+	Actor           string            `json:"actor"`
+	CreatedAt       time.Time         `json:"createdAt"`
+	EnvironmentName *string           `json:"environmentName,omitempty"`
+	Message         string            `json:"message"`
+	ResourceType    AuditResourceType `json:"resourceType"`
+	ResourceName    string            `json:"resourceName"`
+	TeamSlug        *slug.Slug        `json:"teamSlug,omitempty"`
+	UUID            uuid.UUID         `json:"-"`
 }
 
 func (AuditLogGeneric) IsAuditLog() {}

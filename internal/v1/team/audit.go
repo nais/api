@@ -3,13 +3,13 @@ package team
 import "github.com/nais/api/internal/v1/auditv1"
 
 const (
-	auditLogResourceTypeTeam auditv1.AuditLogResourceType = "TEAM"
+	auditResourceTypeTeam auditv1.AuditResourceType = "TEAM"
 )
 
 func init() {
-	auditv1.RegisterTransformer(auditLogResourceTypeTeam, func(entry auditv1.AuditLogGeneric) auditv1.AuditEntry {
+	auditv1.RegisterTransformer(auditResourceTypeTeam, func(entry auditv1.AuditLogGeneric) auditv1.AuditEntry {
 		switch entry.Action {
-		case auditv1.AuditLogActionCreated:
+		case auditv1.AuditActionCreated:
 			return AuditLogTeamCreated{
 				AuditLogGeneric: entry.WithMessage("Created team"),
 			}

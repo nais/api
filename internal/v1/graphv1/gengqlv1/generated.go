@@ -3009,7 +3009,7 @@ enum ApplicationOrderField {
 	id: ID!
 
 	"String representation of the action performed."
-	action: AuditLogAction!
+	action: AuditAction!
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
@@ -3021,7 +3021,7 @@ enum ApplicationOrderField {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditLogResourceType!
+	resourceType: AuditResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -3033,7 +3033,7 @@ enum ApplicationOrderField {
 	environmentName: String
 }
 
-enum AuditLogAction {
+enum AuditAction {
 	ADDED
 	CREATED
 	DELETED
@@ -3043,17 +3043,17 @@ enum AuditLogAction {
 	SYNCHRONIZED
 }
 
-enum AuditLogResourceType {
+enum AuditResourceType {
 	UNKNOWN
 }
 
 type AuditLogGeneric implements AuditEntry & Node {
 	id: ID!
-	action: AuditLogAction!
+	action: AuditAction!
 	actor: String!
 	createdAt: Time!
 	message: String!
-	resourceType: AuditLogResourceType!
+	resourceType: AuditResourceType!
 	resourceName: String!
 	teamSlug: Slug
 	environmentName: String
@@ -4098,17 +4098,17 @@ enum TeamMemberRole {
 	OWNER
 }
 
-extend enum AuditLogResourceType {
+extend enum AuditResourceType {
 	TEAM
 }
 
 type AuditLogTeamCreated implements AuditEntry & Node {
 	id: ID!
-	action: AuditLogAction!
+	action: AuditAction!
 	actor: String!
 	createdAt: Time!
 	message: String!
-	resourceType: AuditLogResourceType!
+	resourceType: AuditResourceType!
 	resourceName: String!
 	teamSlug: Slug
 	environmentName: String
@@ -4116,11 +4116,11 @@ type AuditLogTeamCreated implements AuditEntry & Node {
 
 type AuditLogTeamUpdated implements AuditEntry & Node {
 	id: ID!
-	action: AuditLogAction!
+	action: AuditAction!
 	actor: String!
 	createdAt: Time!
 	message: String!
-	resourceType: AuditLogResourceType!
+	resourceType: AuditResourceType!
 	resourceName: String!
 	teamSlug: Slug!
 	environmentName: String
@@ -6119,9 +6119,9 @@ func (ec *executionContext) _AuditLogGeneric_action(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(auditv1.AuditLogAction)
+	res := resTmp.(auditv1.AuditAction)
 	fc.Result = res
-	return ec.marshalNAuditLogAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditLogAction(ctx, field.Selections, res)
+	return ec.marshalNAuditAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditAction(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuditLogGeneric_action(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6131,7 +6131,7 @@ func (ec *executionContext) fieldContext_AuditLogGeneric_action(_ context.Contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditLogAction does not have child fields")
+			return nil, errors.New("field of type AuditAction does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6295,9 +6295,9 @@ func (ec *executionContext) _AuditLogGeneric_resourceType(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.(auditv1.AuditLogResourceType)
+	res := resTmp.(auditv1.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuditLogGeneric_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6307,7 +6307,7 @@ func (ec *executionContext) fieldContext_AuditLogGeneric_resourceType(_ context.
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditLogResourceType does not have child fields")
+			return nil, errors.New("field of type AuditResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6509,9 +6509,9 @@ func (ec *executionContext) _AuditLogTeamCreated_action(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(auditv1.AuditLogAction)
+	res := resTmp.(auditv1.AuditAction)
 	fc.Result = res
-	return ec.marshalNAuditLogAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditLogAction(ctx, field.Selections, res)
+	return ec.marshalNAuditAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditAction(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuditLogTeamCreated_action(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6521,7 +6521,7 @@ func (ec *executionContext) fieldContext_AuditLogTeamCreated_action(_ context.Co
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditLogAction does not have child fields")
+			return nil, errors.New("field of type AuditAction does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6685,9 +6685,9 @@ func (ec *executionContext) _AuditLogTeamCreated_resourceType(ctx context.Contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(auditv1.AuditLogResourceType)
+	res := resTmp.(auditv1.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuditLogTeamCreated_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6697,7 +6697,7 @@ func (ec *executionContext) fieldContext_AuditLogTeamCreated_resourceType(_ cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditLogResourceType does not have child fields")
+			return nil, errors.New("field of type AuditResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6899,9 +6899,9 @@ func (ec *executionContext) _AuditLogTeamUpdated_action(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(auditv1.AuditLogAction)
+	res := resTmp.(auditv1.AuditAction)
 	fc.Result = res
-	return ec.marshalNAuditLogAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditLogAction(ctx, field.Selections, res)
+	return ec.marshalNAuditAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditAction(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuditLogTeamUpdated_action(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6911,7 +6911,7 @@ func (ec *executionContext) fieldContext_AuditLogTeamUpdated_action(_ context.Co
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditLogAction does not have child fields")
+			return nil, errors.New("field of type AuditAction does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7075,9 +7075,9 @@ func (ec *executionContext) _AuditLogTeamUpdated_resourceType(ctx context.Contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(auditv1.AuditLogResourceType)
+	res := resTmp.(auditv1.AuditResourceType)
 	fc.Result = res
-	return ec.marshalNAuditLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditLogResourceType(ctx, field.Selections, res)
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditResourceType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuditLogTeamUpdated_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7087,7 +7087,7 @@ func (ec *executionContext) fieldContext_AuditLogTeamUpdated_resourceType(_ cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditLogResourceType does not have child fields")
+			return nil, errors.New("field of type AuditResourceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -28618,6 +28618,22 @@ func (ec *executionContext) marshalNApplicationOrderField2githubᚗcomᚋnaisᚋ
 	return v
 }
 
+func (ec *executionContext) unmarshalNAuditAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditAction(ctx context.Context, v interface{}) (auditv1.AuditAction, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := auditv1.AuditAction(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAuditAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditAction(ctx context.Context, sel ast.SelectionSet, v auditv1.AuditAction) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditEntry(ctx context.Context, sel ast.SelectionSet, v auditv1.AuditEntry) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -28626,22 +28642,6 @@ func (ec *executionContext) marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinter
 		return graphql.Null
 	}
 	return ec._AuditEntry(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNAuditLogAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditLogAction(ctx context.Context, v interface{}) (auditv1.AuditLogAction, error) {
-	tmp, err := graphql.UnmarshalString(v)
-	res := auditv1.AuditLogAction(tmp)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNAuditLogAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditLogAction(ctx context.Context, sel ast.SelectionSet, v auditv1.AuditLogAction) graphql.Marshaler {
-	res := graphql.MarshalString(string(v))
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
 }
 
 func (ec *executionContext) marshalNAuditLogConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[auditv1.AuditEntry]) graphql.Marshaler {
@@ -28706,22 +28706,6 @@ func (ec *executionContext) marshalNAuditLogEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋ
 	return ret
 }
 
-func (ec *executionContext) unmarshalNAuditLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditLogResourceType(ctx context.Context, v interface{}) (auditv1.AuditLogResourceType, error) {
-	tmp, err := graphql.UnmarshalString(v)
-	res := auditv1.AuditLogResourceType(tmp)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNAuditLogResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditLogResourceType(ctx context.Context, sel ast.SelectionSet, v auditv1.AuditLogResourceType) graphql.Marshaler {
-	res := graphql.MarshalString(string(v))
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
 func (ec *executionContext) marshalNAuditLogTeamUpdatedData2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐAuditLogTeamUpdatedData(ctx context.Context, sel ast.SelectionSet, v team.AuditLogTeamUpdatedData) graphql.Marshaler {
 	return ec._AuditLogTeamUpdatedData(ctx, sel, &v)
 }
@@ -28778,6 +28762,22 @@ func (ec *executionContext) marshalNAuditLogTeamUpdatedFieldChange2ᚖgithubᚗc
 		return graphql.Null
 	}
 	return ec._AuditLogTeamUpdatedFieldChange(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditResourceType(ctx context.Context, v interface{}) (auditv1.AuditResourceType, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := auditv1.AuditResourceType(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditResourceType(ctx context.Context, sel ast.SelectionSet, v auditv1.AuditResourceType) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐBigQueryDataset(ctx context.Context, sel ast.SelectionSet, v *bigquery.BigQueryDataset) graphql.Marshaler {

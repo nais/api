@@ -429,17 +429,17 @@ enum TeamMemberRole {
 	OWNER
 }
 
-extend enum AuditLogResourceType {
+extend enum AuditResourceType {
 	TEAM
 }
 
 type AuditLogTeamCreated implements AuditEntry & Node {
 	id: ID!
-	action: AuditLogAction!
+	action: AuditAction!
 	actor: String!
 	createdAt: Time!
 	message: String!
-	resourceType: AuditLogResourceType!
+	resourceType: AuditResourceType!
 	resourceName: String!
 	teamSlug: Slug
 	environmentName: String
@@ -447,11 +447,11 @@ type AuditLogTeamCreated implements AuditEntry & Node {
 
 type AuditLogTeamUpdated implements AuditEntry & Node {
 	id: ID!
-	action: AuditLogAction!
+	action: AuditAction!
 	actor: String!
 	createdAt: Time!
 	message: String!
-	resourceType: AuditLogResourceType!
+	resourceType: AuditResourceType!
 	resourceName: String!
 	teamSlug: Slug!
 	environmentName: String

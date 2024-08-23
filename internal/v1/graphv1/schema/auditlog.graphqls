@@ -3,7 +3,7 @@ interface AuditEntry implements Node {
 	id: ID!
 
 	"String representation of the action performed."
-	action: AuditLogAction!
+	action: AuditAction!
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
@@ -15,7 +15,7 @@ interface AuditEntry implements Node {
 	message: String!
 
 	"Type of the resource that was affected by the action."
-	resourceType: AuditLogResourceType!
+	resourceType: AuditResourceType!
 
 	"Name of the resource that was affected by the action."
 	resourceName: String!
@@ -27,7 +27,7 @@ interface AuditEntry implements Node {
 	environmentName: String
 }
 
-enum AuditLogAction {
+enum AuditAction {
 	ADDED
 	CREATED
 	DELETED
@@ -37,17 +37,17 @@ enum AuditLogAction {
 	SYNCHRONIZED
 }
 
-enum AuditLogResourceType {
+enum AuditResourceType {
 	UNKNOWN
 }
 
 type AuditLogGeneric implements AuditEntry & Node {
 	id: ID!
-	action: AuditLogAction!
+	action: AuditAction!
 	actor: String!
 	createdAt: Time!
 	message: String!
-	resourceType: AuditLogResourceType!
+	resourceType: AuditResourceType!
 	resourceName: String!
 	teamSlug: Slug
 	environmentName: String

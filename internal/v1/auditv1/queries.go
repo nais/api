@@ -16,9 +16,9 @@ import (
 )
 
 type CreateInput struct {
-	Action       AuditLogAction
+	Action       AuditAction
 	Actor        authz.AuthenticatedUser
-	ResourceType AuditLogResourceType
+	ResourceType AuditResourceType
 	ResourceName string
 
 	Data            any        // optional
@@ -84,18 +84,18 @@ var titler = cases.Title(language.English)
 
 func toGraphAuditLog(row *auditsql.AuditEvent) AuditEntry {
 	entry := AuditLogGeneric{
-		Action:          AuditLogAction(row.Action),
+		Action:          AuditAction(row.Action),
 		Actor:           row.Actor,
 		CreatedAt:       row.CreatedAt.Time,
 		EnvironmentName: row.Environment,
 		Message:         titler.String(row.Action) + " " + titler.String(row.ResourceType),
-		ResourceType:    AuditLogResourceType(row.ResourceType),
+		ResourceType:    AuditResourceType(row.ResourceType),
 		ResourceName:    row.ResourceName,
 		TeamSlug:        row.TeamSlug,
 		UUID:            row.ID,
 	}
 
-	transformer, ok := knownTransformers[AuditLogResourceType(row.ResourceType)]
+	transformer, ok := knownTransformers[AuditResourceType(row.ResourceType)]
 	if ok {
 		return transformer(entry)
 	}
