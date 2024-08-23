@@ -83,7 +83,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 var titler = cases.Title(language.English)
 
 func toGraphAuditLog(row *auditsql.AuditEvent) AuditEntry {
-	entry := AuditLogGeneric{
+	entry := GenericAuditEntry{
 		Action:          AuditAction(row.Action),
 		Actor:           row.Actor,
 		CreatedAt:       row.CreatedAt.Time,

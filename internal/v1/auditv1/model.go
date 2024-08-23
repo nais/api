@@ -37,7 +37,7 @@ type (
 	AuditEntryEdge       = pagination.Edge[AuditEntry]
 )
 
-type AuditLogGeneric struct {
+type GenericAuditEntry struct {
 	Action          AuditAction       `json:"action"`
 	Actor           string            `json:"actor"`
 	CreatedAt       time.Time         `json:"createdAt"`
@@ -49,19 +49,19 @@ type AuditLogGeneric struct {
 	UUID            uuid.UUID         `json:"-"`
 }
 
-func (AuditLogGeneric) IsAuditLog() {}
+func (GenericAuditEntry) IsAuditLog() {}
 
-func (AuditLogGeneric) IsNode() {}
+func (GenericAuditEntry) IsNode() {}
 
-func (a AuditLogGeneric) ID() ident.Ident {
+func (a GenericAuditEntry) ID() ident.Ident {
 	return newIdent(a.UUID)
 }
 
-func (a AuditLogGeneric) GetUUID() uuid.UUID {
+func (a GenericAuditEntry) GetUUID() uuid.UUID {
 	return a.UUID
 }
 
-func (a AuditLogGeneric) WithMessage(message string) AuditLogGeneric {
+func (a GenericAuditEntry) WithMessage(message string) GenericAuditEntry {
 	a.Message = message
 	return a
 }

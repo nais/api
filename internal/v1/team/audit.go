@@ -7,11 +7,11 @@ const (
 )
 
 func init() {
-	auditv1.RegisterTransformer(auditResourceTypeTeam, func(entry auditv1.AuditLogGeneric) auditv1.AuditEntry {
+	auditv1.RegisterTransformer(auditResourceTypeTeam, func(entry auditv1.GenericAuditEntry) auditv1.AuditEntry {
 		switch entry.Action {
 		case auditv1.AuditActionCreated:
-			return AuditLogTeamCreated{
-				AuditLogGeneric: entry.WithMessage("Created team"),
+			return TeamCreatedAuditEntry{
+				GenericAuditEntry: entry.WithMessage("Created team"),
 			}
 		default:
 			return entry
@@ -19,20 +19,20 @@ func init() {
 	})
 }
 
-type AuditLogTeamCreated struct {
-	auditv1.AuditLogGeneric
+type TeamCreatedAuditEntry struct {
+	auditv1.GenericAuditEntry
 }
 
-type AuditLogTeamUpdated struct {
-	auditv1.AuditLogGeneric
-	Data AuditLogTeamUpdatedData `json:"data"`
+type TeamUpdatedAuditEntry struct {
+	auditv1.GenericAuditEntry
+	Data TeamUpdatedAuditEntryData `json:"data"`
 }
 
-type AuditLogTeamUpdatedData struct {
-	FieldsChanged []*AuditLogTeamUpdatedFieldChange `json:"fieldsChanged"`
+type TeamUpdatedAuditEntryData struct {
+	FieldsChanged []*TeamUpdatedAuditEntryDataUpdatedField `json:"updatedFields"`
 }
 
-type AuditLogTeamUpdatedFieldChange struct {
+type TeamUpdatedAuditEntryDataUpdatedField struct {
 	Field    string  `json:"field"`
 	OldValue *string `json:"oldValue,omitempty"`
 	NewValue *string `json:"newValue,omitempty"`

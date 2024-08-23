@@ -202,6 +202,10 @@ func (r *teamMemberResolver) User(ctx context.Context, obj *team.TeamMember) (*u
 	return user.Get(ctx, obj.UserID)
 }
 
+func (r *teamUpdatedAuditEntryDataResolver) UpdatedFields(ctx context.Context, obj *team.TeamUpdatedAuditEntryData) ([]*team.TeamUpdatedAuditEntryDataUpdatedField, error) {
+	panic(fmt.Errorf("not implemented: UpdatedFields - updatedFields"))
+}
+
 func (r *Resolver) Team() gengqlv1.TeamResolver { return &teamResolver{r} }
 
 func (r *Resolver) TeamEnvironment() gengqlv1.TeamEnvironmentResolver {
@@ -210,8 +214,13 @@ func (r *Resolver) TeamEnvironment() gengqlv1.TeamEnvironmentResolver {
 
 func (r *Resolver) TeamMember() gengqlv1.TeamMemberResolver { return &teamMemberResolver{r} }
 
+func (r *Resolver) TeamUpdatedAuditEntryData() gengqlv1.TeamUpdatedAuditEntryDataResolver {
+	return &teamUpdatedAuditEntryDataResolver{r}
+}
+
 type (
-	teamResolver            struct{ *Resolver }
-	teamEnvironmentResolver struct{ *Resolver }
-	teamMemberResolver      struct{ *Resolver }
+	teamResolver                      struct{ *Resolver }
+	teamEnvironmentResolver           struct{ *Resolver }
+	teamMemberResolver                struct{ *Resolver }
+	teamUpdatedAuditEntryDataResolver struct{ *Resolver }
 )

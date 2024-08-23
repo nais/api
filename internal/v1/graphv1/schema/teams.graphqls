@@ -433,7 +433,7 @@ extend enum AuditResourceType {
 	TEAM
 }
 
-type AuditLogTeamCreated implements AuditEntry & Node {
+type TeamCreatedAuditEntry implements AuditEntry & Node {
 	id: ID!
 	action: AuditAction!
 	actor: String!
@@ -445,7 +445,7 @@ type AuditLogTeamCreated implements AuditEntry & Node {
 	environmentName: String
 }
 
-type AuditLogTeamUpdated implements AuditEntry & Node {
+type TeamUpdatedAuditEntry implements AuditEntry & Node {
 	id: ID!
 	action: AuditAction!
 	actor: String!
@@ -456,14 +456,14 @@ type AuditLogTeamUpdated implements AuditEntry & Node {
 	teamSlug: Slug!
 	environmentName: String
 
-	data: AuditLogTeamUpdatedData!
+	data: TeamUpdatedAuditEntryData!
 }
 
-type AuditLogTeamUpdatedData {
-	fieldsChanged: [AuditLogTeamUpdatedFieldChange!]!
+type TeamUpdatedAuditEntryData {
+	updatedFields: [TeamUpdatedAuditEntryDataUpdatedField!]!
 }
 
-type AuditLogTeamUpdatedFieldChange {
+type TeamUpdatedAuditEntryDataUpdatedField {
 	field: String!
 	oldValue: String
 	newValue: String
