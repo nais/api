@@ -1,6 +1,8 @@
 package team
 
-import "github.com/nais/api/internal/v1/auditv1"
+import (
+	"github.com/nais/api/internal/v1/auditv1"
+)
 
 const (
 	auditResourceTypeTeam auditv1.AuditResourceType = "TEAM"

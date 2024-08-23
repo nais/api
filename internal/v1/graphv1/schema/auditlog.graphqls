@@ -1,5 +1,5 @@
 interface AuditEntry implements Node {
-	"ID of the event."
+	"ID of the entry."
 	id: ID!
 
 	"String representation of the action performed."
@@ -8,10 +8,10 @@ interface AuditEntry implements Node {
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
-	"Creation time of the event."
+	"Creation time of the entry."
 	createdAt: Time!
 
-	"Message that summarizes the event."
+	"Message that summarizes the entry."
 	message: String!
 
 	"Type of the resource that was affected by the action."
@@ -20,10 +20,10 @@ interface AuditEntry implements Node {
 	"Name of the resource that was affected by the action."
 	resourceName: String!
 
-	"The team slug that the event belongs to."
+	"The team slug that the entry belongs to."
 	teamSlug: Slug
 
-	"The environment name that the event belongs to."
+	"The environment name that the entry belongs to."
 	environmentName: String
 }
 

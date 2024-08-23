@@ -242,18 +242,6 @@ type Team implements Node {
 		orderBy: SqlInstanceOrder
 	): SqlInstanceConnection!
 
-	"Timestamp of the last successful synchronization of the team."
-	lastSuccessfulSync: Time
-
-	"Whether or not the team is currently being deleted."
-	deletionInProgress: Boolean!
-
-	"Whether or not the viewer is an owner of the team."
-	viewerIsOwner: Boolean!
-
-	"Whether or not the viewer is a member of the team."
-	viewerIsMember: Boolean!
-
 	"Audit entries associated with the team."
 	auditEntries(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -268,6 +256,18 @@ type Team implements Node {
 		"Get items before this cursor."
 		before: Cursor
 	): AuditEntryConnection!
+
+	"Timestamp of the last successful synchronization of the team."
+	lastSuccessfulSync: Time
+
+	"Whether or not the team is currently being deleted."
+	deletionInProgress: Boolean!
+
+	"Whether or not the viewer is an owner of the team."
+	viewerIsOwner: Boolean!
+
+	"Whether or not the viewer is a member of the team."
+	viewerIsMember: Boolean!
 }
 
 type TeamEnvironment implements Node {
@@ -430,41 +430,83 @@ enum TeamMemberRole {
 }
 
 extend enum AuditResourceType {
+	"All audit entries related to teams will use this resource type."
 	TEAM
 }
 
 type TeamCreatedAuditEntry implements AuditEntry & Node {
+	"ID of the entry."
 	id: ID!
+
+	"String representation of the action performed."
 	action: AuditAction!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"Creation time of the entry."
 	createdAt: Time!
+
+	"Message that summarizes the entry."
 	message: String!
+
+	"Type of the resource that was affected by the action."
 	resourceType: AuditResourceType!
+
+	"Name of the resource that was affected by the action."
 	resourceName: String!
-	teamSlug: Slug
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
 	environmentName: String
 }
 
 type TeamUpdatedAuditEntry implements AuditEntry & Node {
+	"ID of the entry."
 	id: ID!
+
+	"String representation of the action performed."
 	action: AuditAction!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
+
+	"Creation time of the entry."
 	createdAt: Time!
+
+	"Message that summarizes the entry."
 	message: String!
+
+	"Type of the resource that was affected by the action."
 	resourceType: AuditResourceType!
+
+	"Name of the resource that was affected by the action."
 	resourceName: String!
+
+	"The team slug that the entry belongs to."
 	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
 	environmentName: String
 
+	"Data associated with the update."
 	data: TeamUpdatedAuditEntryData!
 }
 
 type TeamUpdatedAuditEntryData {
+	"Fields that were updated."
 	updatedFields: [TeamUpdatedAuditEntryDataUpdatedField!]!
 }
 
 type TeamUpdatedAuditEntryDataUpdatedField {
+	"The name of the field."
 	field: String!
+
+	"The old value of the field."
 	oldValue: String
+
+	"The new value of the field."
 	newValue: String
 }
