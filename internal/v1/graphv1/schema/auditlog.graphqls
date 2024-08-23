@@ -43,10 +43,10 @@ enum AuditResourceType {
 
 type AuditEntryConnection {
 	pageInfo: PageInfo!
-	edges: [AuditLogEdge!]!
+	edges: [AuditEntryEdge!]!
 }
 
-type AuditLogEdge {
+type AuditEntryEdge {
 	cursor: Cursor!
 	node: AuditEntry!
 }

@@ -101,7 +101,7 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
-	AuditLogEdge struct {
+	AuditEntryEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
 	}
@@ -777,19 +777,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AuditEntryConnection.PageInfo(childComplexity), true
 
-	case "AuditLogEdge.cursor":
-		if e.complexity.AuditLogEdge.Cursor == nil {
+	case "AuditEntryEdge.cursor":
+		if e.complexity.AuditEntryEdge.Cursor == nil {
 			break
 		}
 
-		return e.complexity.AuditLogEdge.Cursor(childComplexity), true
+		return e.complexity.AuditEntryEdge.Cursor(childComplexity), true
 
-	case "AuditLogEdge.node":
-		if e.complexity.AuditLogEdge.Node == nil {
+	case "AuditEntryEdge.node":
+		if e.complexity.AuditEntryEdge.Node == nil {
 			break
 		}
 
-		return e.complexity.AuditLogEdge.Node(childComplexity), true
+		return e.complexity.AuditEntryEdge.Node(childComplexity), true
 
 	case "AuditLogTeamCreated.action":
 		if e.complexity.AuditLogTeamCreated.Action == nil {
@@ -2974,10 +2974,10 @@ enum AuditResourceType {
 
 type AuditEntryConnection {
 	pageInfo: PageInfo!
-	edges: [AuditLogEdge!]!
+	edges: [AuditEntryEdge!]!
 }
 
-type AuditLogEdge {
+type AuditEntryEdge {
 	cursor: Cursor!
 	node: AuditEntry!
 }
@@ -5852,7 +5852,7 @@ func (ec *executionContext) _AuditEntryConnection_edges(ctx context.Context, fie
 	}
 	res := resTmp.([]pagination.Edge[auditv1.AuditEntry])
 	fc.Result = res
-	return ec.marshalNAuditLogEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
+	return ec.marshalNAuditEntryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuditEntryConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5864,18 +5864,18 @@ func (ec *executionContext) fieldContext_AuditEntryConnection_edges(_ context.Co
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "cursor":
-				return ec.fieldContext_AuditLogEdge_cursor(ctx, field)
+				return ec.fieldContext_AuditEntryEdge_cursor(ctx, field)
 			case "node":
-				return ec.fieldContext_AuditLogEdge_node(ctx, field)
+				return ec.fieldContext_AuditEntryEdge_node(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type AuditLogEdge", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type AuditEntryEdge", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditLogEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[auditv1.AuditEntry]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditLogEdge_cursor(ctx, field)
+func (ec *executionContext) _AuditEntryEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[auditv1.AuditEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEntryEdge_cursor(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5905,9 +5905,9 @@ func (ec *executionContext) _AuditLogEdge_cursor(ctx context.Context, field grap
 	return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuditLogEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuditEntryEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AuditLogEdge",
+		Object:     "AuditEntryEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -5918,8 +5918,8 @@ func (ec *executionContext) fieldContext_AuditLogEdge_cursor(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditLogEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[auditv1.AuditEntry]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditLogEdge_node(ctx, field)
+func (ec *executionContext) _AuditEntryEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[auditv1.AuditEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEntryEdge_node(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5949,9 +5949,9 @@ func (ec *executionContext) _AuditLogEdge_node(ctx context.Context, field graphq
 	return ec.marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditEntry(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuditLogEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuditEntryEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AuditLogEdge",
+		Object:     "AuditEntryEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -22298,24 +22298,24 @@ func (ec *executionContext) _AuditEntryConnection(ctx context.Context, sel ast.S
 	return out
 }
 
-var auditLogEdgeImplementors = []string{"AuditLogEdge"}
+var auditEntryEdgeImplementors = []string{"AuditEntryEdge"}
 
-func (ec *executionContext) _AuditLogEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[auditv1.AuditEntry]) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, auditLogEdgeImplementors)
+func (ec *executionContext) _AuditEntryEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[auditv1.AuditEntry]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEntryEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("AuditLogEdge")
+			out.Values[i] = graphql.MarshalString("AuditEntryEdge")
 		case "cursor":
-			out.Values[i] = ec._AuditLogEdge_cursor(ctx, field, obj)
+			out.Values[i] = ec._AuditEntryEdge_cursor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._AuditLogEdge_node(ctx, field, obj)
+			out.Values[i] = ec._AuditEntryEdge_node(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -28094,11 +28094,11 @@ func (ec *executionContext) marshalNAuditEntryConnection2ᚖgithubᚗcomᚋnais�
 	return ec._AuditEntryConnection(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAuditLogEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[auditv1.AuditEntry]) graphql.Marshaler {
-	return ec._AuditLogEdge(ctx, sel, &v)
+func (ec *executionContext) marshalNAuditEntryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[auditv1.AuditEntry]) graphql.Marshaler {
+	return ec._AuditEntryEdge(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAuditLogEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[auditv1.AuditEntry]) graphql.Marshaler {
+func (ec *executionContext) marshalNAuditEntryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[auditv1.AuditEntry]) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -28122,7 +28122,7 @@ func (ec *executionContext) marshalNAuditLogEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAuditLogEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx, sel, v[i])
+			ret[i] = ec.marshalNAuditEntryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
