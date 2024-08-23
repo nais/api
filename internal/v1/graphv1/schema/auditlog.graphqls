@@ -27,6 +27,7 @@ interface AuditEntry implements Node {
 	environmentName: String
 }
 
+"Possible actions that can be performed on a resource."
 enum AuditAction {
 	ADDED
 	CREATED
@@ -37,16 +38,23 @@ enum AuditAction {
 	SYNCHRONIZED
 }
 
+"The type of the resource that was affected by the action."
 enum AuditResourceType {
 	UNKNOWN
 }
 
 type AuditEntryConnection {
+	"Pagination information."
 	pageInfo: PageInfo!
+
+	"List of edges."
 	edges: [AuditEntryEdge!]!
 }
 
 type AuditEntryEdge {
+	"Cursor for this edge that can be used for pagination."
 	cursor: Cursor!
+
+	"The audit entry."
 	node: AuditEntry!
 }
