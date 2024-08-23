@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/pkg/apiclient/protoapi"
+	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/propagation"
@@ -59,10 +60,11 @@ func (r *Resolver) triggerEvent(ctx context.Context, event protoapi.EventTypes, 
 
 	otel.GetTextMapPropagator().Inject(ctx, propagation.MapCarrier(attrs))
 
-	id, err := r.pubsubTopic.Publish(ctx, &pubsub.Message{
+	pubsubMessage := &pubsub.Message{
 		Data:       b,
 		Attributes: attrs,
-	}).Get(ctx)
+	}
+	id, err := r.pubsubTopic.Publish(ctx, pubsubMessage).Get(ctx)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
@@ -70,5 +72,11 @@ func (r *Resolver) triggerEvent(ctx context.Context, event protoapi.EventTypes, 
 	} else {
 		span.SetAttributes(semconv.MessagingMessageID(id))
 	}
+
+	r.log.WithFields(logrus.Fields{
+		"message":       msg,
+		"correlationID": correlationID,
+		"event":         event,
+	}).Debugf("Published Pub/Sub message")
 	return nil
 }
