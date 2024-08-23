@@ -34,7 +34,7 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input team.CreateTeam
 		return nil, err
 	}
 
-	// TODO: ?
+	// TODO: trigger event
 	//	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 
 	return &team.CreateTeamPayload{
@@ -49,30 +49,13 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, input team.UpdateTeam
 		return nil, err
 	}
 
-	t, err := team.Update(ctx, &input)
+	t, err := team.Update(ctx, &input, actor)
 	if err != nil {
 		return nil, err
 	}
 
-	/*
-		TODO: implement or move into the team.Update function
-
-		if input.Purpose != nil {
-			err = r.auditor.TeamSetPurpose(ctx, actor.User, slug, *input.Purpose)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		if input.SlackChannel != nil {
-			err = r.auditor.TeamSetDefaultSlackChannel(ctx, actor.User, slug, *input.SlackChannel)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
-	*/
+	// TODO: trigger event
+	//	r.triggerTeamUpdatedEvent(ctx, team.Slug, correlationID)
 
 	return &team.UpdateTeamPayload{
 		Team: t,
@@ -202,10 +185,6 @@ func (r *teamMemberResolver) User(ctx context.Context, obj *team.TeamMember) (*u
 	return user.Get(ctx, obj.UserID)
 }
 
-func (r *teamUpdatedAuditEntryDataResolver) UpdatedFields(ctx context.Context, obj *team.TeamUpdatedAuditEntryData) ([]*team.TeamUpdatedAuditEntryDataUpdatedField, error) {
-	panic(fmt.Errorf("not implemented: UpdatedFields - updatedFields"))
-}
-
 func (r *Resolver) Team() gengqlv1.TeamResolver { return &teamResolver{r} }
 
 func (r *Resolver) TeamEnvironment() gengqlv1.TeamEnvironmentResolver {
@@ -214,13 +193,8 @@ func (r *Resolver) TeamEnvironment() gengqlv1.TeamEnvironmentResolver {
 
 func (r *Resolver) TeamMember() gengqlv1.TeamMemberResolver { return &teamMemberResolver{r} }
 
-func (r *Resolver) TeamUpdatedAuditEntryData() gengqlv1.TeamUpdatedAuditEntryDataResolver {
-	return &teamUpdatedAuditEntryDataResolver{r}
-}
-
 type (
-	teamResolver                      struct{ *Resolver }
-	teamEnvironmentResolver           struct{ *Resolver }
-	teamMemberResolver                struct{ *Resolver }
-	teamUpdatedAuditEntryDataResolver struct{ *Resolver }
+	teamResolver            struct{ *Resolver }
+	teamEnvironmentResolver struct{ *Resolver }
+	teamMemberResolver      struct{ *Resolver }
 )

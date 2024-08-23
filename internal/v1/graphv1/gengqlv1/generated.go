@@ -72,7 +72,6 @@ type ResolverRoot interface {
 	Team() TeamResolver
 	TeamEnvironment() TeamEnvironmentResolver
 	TeamMember() TeamMemberResolver
-	TeamUpdatedAuditEntryData() TeamUpdatedAuditEntryDataResolver
 	User() UserResolver
 }
 
@@ -684,9 +683,6 @@ type TeamEnvironmentResolver interface {
 type TeamMemberResolver interface {
 	Team(ctx context.Context, obj *team.TeamMember) (*team.Team, error)
 	User(ctx context.Context, obj *team.TeamMember) (*user.User, error)
-}
-type TeamUpdatedAuditEntryDataResolver interface {
-	UpdatedFields(ctx context.Context, obj *team.TeamUpdatedAuditEntryData) ([]*team.TeamUpdatedAuditEntryDataUpdatedField, error)
 }
 type UserResolver interface {
 	Teams(ctx context.Context, obj *user.User, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.UserTeamOrder) (*pagination.Connection[*team.TeamMember], error)
@@ -4086,7 +4082,7 @@ type TeamUpdatedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: TeamUpdatedAuditEntryData!
+	data: TeamUpdatedAuditEntryData
 }
 
 type TeamUpdatedAuditEntryData {
@@ -18669,14 +18665,11 @@ func (ec *executionContext) _TeamUpdatedAuditEntry_data(ctx context.Context, fie
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(team.TeamUpdatedAuditEntryData)
+	res := resTmp.(*team.TeamUpdatedAuditEntryData)
 	fc.Result = res
-	return ec.marshalNTeamUpdatedAuditEntryData2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamUpdatedAuditEntryData(ctx, field.Selections, res)
+	return ec.marshalOTeamUpdatedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamUpdatedAuditEntryData(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18710,7 +18703,7 @@ func (ec *executionContext) _TeamUpdatedAuditEntryData_updatedFields(ctx context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TeamUpdatedAuditEntryData().UpdatedFields(rctx, obj)
+		return obj.UpdatedFields, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18731,8 +18724,8 @@ func (ec *executionContext) fieldContext_TeamUpdatedAuditEntryData_updatedFields
 	fc = &graphql.FieldContext{
 		Object:     "TeamUpdatedAuditEntryData",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "field":
@@ -27384,9 +27377,6 @@ func (ec *executionContext) _TeamUpdatedAuditEntry(ctx context.Context, sel ast.
 			out.Values[i] = ec._TeamUpdatedAuditEntry_environmentName(ctx, field, obj)
 		case "data":
 			out.Values[i] = ec._TeamUpdatedAuditEntry_data(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -27422,41 +27412,10 @@ func (ec *executionContext) _TeamUpdatedAuditEntryData(ctx context.Context, sel 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamUpdatedAuditEntryData")
 		case "updatedFields":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._TeamUpdatedAuditEntryData_updatedFields(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._TeamUpdatedAuditEntryData_updatedFields(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -29779,10 +29738,6 @@ func (ec *executionContext) marshalNTeamOrderField2githubᚗcomᚋnaisᚋapiᚋi
 	return v
 }
 
-func (ec *executionContext) marshalNTeamUpdatedAuditEntryData2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamUpdatedAuditEntryData(ctx context.Context, sel ast.SelectionSet, v team.TeamUpdatedAuditEntryData) graphql.Marshaler {
-	return ec._TeamUpdatedAuditEntryData(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalNTeamUpdatedAuditEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamUpdatedAuditEntryDataUpdatedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamUpdatedAuditEntryDataUpdatedField) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -30504,6 +30459,13 @@ func (ec *executionContext) unmarshalOTeamOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋi
 	}
 	res, err := ec.unmarshalInputTeamOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTeamUpdatedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamUpdatedAuditEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamUpdatedAuditEntryData) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TeamUpdatedAuditEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {

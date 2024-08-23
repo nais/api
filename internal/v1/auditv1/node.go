@@ -15,7 +15,7 @@ const (
 )
 
 func init() {
-	ident.RegisterIdentType(identKey, "AL", GetByIdent)
+	ident.RegisterIdentType(identKey, "AE", GetByIdent)
 }
 
 func newIdent(uid uuid.UUID) ident.Ident {

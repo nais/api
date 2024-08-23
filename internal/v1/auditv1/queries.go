@@ -93,6 +93,7 @@ func toGraphAuditLog(row *auditsql.AuditEvent) AuditEntry {
 		ResourceName:    row.ResourceName,
 		TeamSlug:        row.TeamSlug,
 		UUID:            row.ID,
+		Data:            row.Data,
 	}
 
 	transformer, ok := knownTransformers[AuditResourceType(row.ResourceType)]

@@ -70,8 +70,9 @@ func Create(ctx context.Context, input *CreateTeamInput, actor *authz.Actor) (*T
 	return toGraphTeam(team), nil
 }
 
-func Update(ctx context.Context, input *UpdateTeamInput) (*Team, error) {
-	if _, err := Get(ctx, input.Slug); err != nil {
+func Update(ctx context.Context, input *UpdateTeamInput, actor *authz.Actor) (*Team, error) {
+	existingTeam, err := Get(ctx, input.Slug)
+	if err != nil {
 		return nil, err
 	}
 
@@ -80,10 +81,50 @@ func Update(ctx context.Context, input *UpdateTeamInput) (*Team, error) {
 		return nil, err
 	}
 
-	team, err := db(ctx).Update(ctx, teamsql.UpdateParams{
-		Purpose:      input.Purpose,
-		SlackChannel: input.SlackChannel,
-		Slug:         input.Slug,
+	var team *teamsql.Team
+	err = databasev1.Transaction(ctx, func(ctx context.Context) error {
+		team, err = db(ctx).Update(ctx, teamsql.UpdateParams{
+			Purpose:      input.Purpose,
+			SlackChannel: input.SlackChannel,
+			Slug:         input.Slug,
+		})
+		if err != nil {
+			return err
+		}
+
+		updatedFields := make([]*TeamUpdatedAuditEntryDataUpdatedField, 0)
+		if input.Purpose != nil && *input.Purpose != existingTeam.Purpose {
+			updatedFields = append(updatedFields, &TeamUpdatedAuditEntryDataUpdatedField{
+				Field:    "purpose",
+				OldValue: &existingTeam.Purpose,
+				NewValue: input.Purpose,
+			})
+		}
+
+		if input.SlackChannel != nil && *input.SlackChannel != existingTeam.SlackChannel {
+			updatedFields = append(updatedFields, &TeamUpdatedAuditEntryDataUpdatedField{
+				Field:    "slackChannel",
+				OldValue: &existingTeam.SlackChannel,
+				NewValue: input.SlackChannel,
+			})
+		}
+
+		return auditv1.Create(ctx, auditv1.CreateInput{
+			Action:       auditv1.AuditActionUpdated,
+			Actor:        actor.User,
+			ResourceType: auditResourceTypeTeam,
+			ResourceName: input.Slug.String(),
+			TeamSlug:     ptr.To(input.Slug),
+			Data: func(fields []*TeamUpdatedAuditEntryDataUpdatedField) *TeamUpdatedAuditEntryData {
+				if len(fields) == 0 {
+					return nil
+				}
+
+				return &TeamUpdatedAuditEntryData{
+					UpdatedFields: fields,
+				}
+			}(updatedFields),
+		})
 	})
 	if err != nil {
 		return nil, err

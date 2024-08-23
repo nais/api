@@ -492,7 +492,7 @@ type TeamUpdatedAuditEntry implements AuditEntry & Node {
 	environmentName: String
 
 	"Data associated with the update."
-	data: TeamUpdatedAuditEntryData!
+	data: TeamUpdatedAuditEntryData
 }
 
 type TeamUpdatedAuditEntryData {

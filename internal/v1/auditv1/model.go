@@ -47,6 +47,7 @@ type GenericAuditEntry struct {
 	ResourceName    string            `json:"resourceName"`
 	TeamSlug        *slug.Slug        `json:"teamSlug,omitempty"`
 	UUID            uuid.UUID         `json:"-"`
+	Data            []byte            `json:"-"`
 }
 
 func (GenericAuditEntry) IsAuditLog() {}
