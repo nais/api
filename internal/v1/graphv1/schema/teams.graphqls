@@ -267,7 +267,7 @@ type Team implements Node {
 
 		"Get items before this cursor."
 		before: Cursor
-	): AuditLogConnection!
+	): AuditEntryConnection!
 }
 
 type TeamEnvironment implements Node {

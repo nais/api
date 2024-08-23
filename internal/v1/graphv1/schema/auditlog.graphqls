@@ -41,7 +41,7 @@ enum AuditResourceType {
 	UNKNOWN
 }
 
-type AuditLogConnection {
+type AuditEntryConnection {
 	pageInfo: PageInfo!
 	edges: [AuditLogEdge!]!
 }

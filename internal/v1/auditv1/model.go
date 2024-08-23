@@ -33,8 +33,8 @@ type AuditEntry interface {
 }
 
 type (
-	AuditLogConnection = pagination.Connection[AuditEntry]
-	AuditLogEdge       = pagination.Edge[AuditEntry]
+	AuditEntryConnection = pagination.Connection[AuditEntry]
+	AuditLogEdge         = pagination.Edge[AuditEntry]
 )
 
 type AuditLogGeneric struct {

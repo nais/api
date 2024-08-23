@@ -61,7 +61,7 @@ func GetByIdent(ctx context.Context, id ident.Ident) (AuditEntry, error) {
 	return Get(ctx, uid)
 }
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*AuditLogConnection, error) {
+func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*AuditEntryConnection, error) {
 	q := db(ctx)
 
 	ret, err := q.ListForTeam(ctx, auditsql.ListForTeamParams{

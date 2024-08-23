@@ -96,7 +96,7 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
-	AuditLogConnection struct {
+	AuditEntryConnection struct {
 		Edges    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -763,19 +763,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ApplicationEdge.Node(childComplexity), true
 
-	case "AuditLogConnection.edges":
-		if e.complexity.AuditLogConnection.Edges == nil {
+	case "AuditEntryConnection.edges":
+		if e.complexity.AuditEntryConnection.Edges == nil {
 			break
 		}
 
-		return e.complexity.AuditLogConnection.Edges(childComplexity), true
+		return e.complexity.AuditEntryConnection.Edges(childComplexity), true
 
-	case "AuditLogConnection.pageInfo":
-		if e.complexity.AuditLogConnection.PageInfo == nil {
+	case "AuditEntryConnection.pageInfo":
+		if e.complexity.AuditEntryConnection.PageInfo == nil {
 			break
 		}
 
-		return e.complexity.AuditLogConnection.PageInfo(childComplexity), true
+		return e.complexity.AuditEntryConnection.PageInfo(childComplexity), true
 
 	case "AuditLogEdge.cursor":
 		if e.complexity.AuditLogEdge.Cursor == nil {
@@ -2972,7 +2972,7 @@ enum AuditResourceType {
 	UNKNOWN
 }
 
-type AuditLogConnection {
+type AuditEntryConnection {
 	pageInfo: PageInfo!
 	edges: [AuditLogEdge!]!
 }
@@ -3849,7 +3849,7 @@ type Team implements Node {
 
 		"Get items before this cursor."
 		before: Cursor
-	): AuditLogConnection!
+	): AuditEntryConnection!
 }
 
 type TeamEnvironment implements Node {
@@ -5768,8 +5768,8 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditLogConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[auditv1.AuditEntry]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditLogConnection_pageInfo(ctx, field)
+func (ec *executionContext) _AuditEntryConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[auditv1.AuditEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEntryConnection_pageInfo(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5799,9 +5799,9 @@ func (ec *executionContext) _AuditLogConnection_pageInfo(ctx context.Context, fi
 	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐPageInfo(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuditLogConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuditEntryConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AuditLogConnection",
+		Object:     "AuditEntryConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -5824,8 +5824,8 @@ func (ec *executionContext) fieldContext_AuditLogConnection_pageInfo(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditLogConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[auditv1.AuditEntry]) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AuditLogConnection_edges(ctx, field)
+func (ec *executionContext) _AuditEntryConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[auditv1.AuditEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEntryConnection_edges(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5855,9 +5855,9 @@ func (ec *executionContext) _AuditLogConnection_edges(ctx context.Context, field
 	return ec.marshalNAuditLogEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AuditLogConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuditEntryConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AuditLogConnection",
+		Object:     "AuditEntryConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -17883,7 +17883,7 @@ func (ec *executionContext) _Team_audits(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(*pagination.Connection[auditv1.AuditEntry])
 	fc.Result = res
-	return ec.marshalNAuditLogConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
+	return ec.marshalNAuditEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Team_audits(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -17895,11 +17895,11 @@ func (ec *executionContext) fieldContext_Team_audits(ctx context.Context, field 
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "pageInfo":
-				return ec.fieldContext_AuditLogConnection_pageInfo(ctx, field)
+				return ec.fieldContext_AuditEntryConnection_pageInfo(ctx, field)
 			case "edges":
-				return ec.fieldContext_AuditLogConnection_edges(ctx, field)
+				return ec.fieldContext_AuditEntryConnection_edges(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type AuditLogConnection", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type AuditEntryConnection", field.Name)
 		},
 	}
 	defer func() {
@@ -22254,24 +22254,24 @@ func (ec *executionContext) _ApplicationEdge(ctx context.Context, sel ast.Select
 	return out
 }
 
-var auditLogConnectionImplementors = []string{"AuditLogConnection"}
+var auditEntryConnectionImplementors = []string{"AuditEntryConnection"}
 
-func (ec *executionContext) _AuditLogConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[auditv1.AuditEntry]) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, auditLogConnectionImplementors)
+func (ec *executionContext) _AuditEntryConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[auditv1.AuditEntry]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, auditEntryConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("AuditLogConnection")
+			out.Values[i] = graphql.MarshalString("AuditEntryConnection")
 		case "pageInfo":
-			out.Values[i] = ec._AuditLogConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = ec._AuditEntryConnection_pageInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "edges":
-			out.Values[i] = ec._AuditLogConnection_edges(ctx, field, obj)
+			out.Values[i] = ec._AuditEntryConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -28080,18 +28080,18 @@ func (ec *executionContext) marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinter
 	return ec._AuditEntry(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAuditLogConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[auditv1.AuditEntry]) graphql.Marshaler {
-	return ec._AuditLogConnection(ctx, sel, &v)
+func (ec *executionContext) marshalNAuditEntryConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[auditv1.AuditEntry]) graphql.Marshaler {
+	return ec._AuditEntryConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAuditLogConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[auditv1.AuditEntry]) graphql.Marshaler {
+func (ec *executionContext) marshalNAuditEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[auditv1.AuditEntry]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._AuditLogConnection(ctx, sel, v)
+	return ec._AuditEntryConnection(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNAuditLogEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[auditv1.AuditEntry]) graphql.Marshaler {
