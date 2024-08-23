@@ -77,12 +77,12 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	if err != nil {
 		return nil, err
 	}
-	return pagination.NewConvertConnection(ret, page, int32(total), toGraphAuditLog), nil
+	return pagination.NewConvertConnectionWithError(ret, page, int32(total), toGraphAuditLog)
 }
 
 var titler = cases.Title(language.English)
 
-func toGraphAuditLog(row *auditsql.AuditEvent) AuditEntry {
+func toGraphAuditLog(row *auditsql.AuditEvent) (AuditEntry, error) {
 	entry := GenericAuditEntry{
 		Action:          AuditAction(row.Action),
 		Actor:           row.Actor,
@@ -101,5 +101,5 @@ func toGraphAuditLog(row *auditsql.AuditEvent) AuditEntry {
 		return transformer(entry)
 	}
 
-	return entry
+	return entry, nil
 }

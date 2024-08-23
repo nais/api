@@ -23,10 +23,21 @@ func NewConnection[T any](nodes []T, page *Pagination, total int32) *Connection[
 }
 
 func NewConvertConnection[T any, F any](nodes []T, page *Pagination, total int32, fn func(from T) F) *Connection[F] {
+	c, _ := NewConvertConnectionWithError(nodes, page, total, func(from T) (F, error) {
+		return fn(from), nil
+	})
+	return c
+}
+
+func NewConvertConnectionWithError[T any, F any](nodes []T, page *Pagination, total int32, fn func(from T) (F, error)) (*Connection[F], error) {
 	edges := make([]Edge[F], len(nodes))
 	for i, node := range nodes {
+		converted, err := fn(node)
+		if err != nil {
+			return nil, err
+		}
 		edges[i] = Edge[F]{
-			Node: fn(node),
+			Node: converted,
 			Cursor: Cursor{
 				Offset: page.Offset() + int32(i),
 			},
@@ -48,5 +59,5 @@ func NewConvertConnection[T any, F any](nodes []T, page *Pagination, total int32
 			HasNextPage:     page.Offset()+page.Limit() < total,
 			HasPreviousPage: page.Offset() > 0,
 		},
-	}
+	}, nil
 }

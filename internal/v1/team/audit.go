@@ -3,6 +3,7 @@ package team
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 
 	"github.com/nais/api/internal/v1/auditv1"
 )
@@ -12,17 +13,16 @@ const (
 )
 
 func init() {
-	auditv1.RegisterTransformer(auditResourceTypeTeam, func(entry auditv1.GenericAuditEntry) auditv1.AuditEntry {
-		// TODO: return error instead of panicking
+	auditv1.RegisterTransformer(auditResourceTypeTeam, func(entry auditv1.GenericAuditEntry) (auditv1.AuditEntry, error) {
 		switch entry.Action {
 		case auditv1.AuditActionCreated:
 			return TeamCreatedAuditEntry{
 				GenericAuditEntry: entry.WithMessage("Created team"),
-			}
+			}, nil
 		case auditv1.AuditActionUpdated:
 			data := TeamUpdatedAuditEntryData{}
 			if err := json.NewDecoder(bytes.NewReader(entry.Data)).Decode(&data); err != nil {
-				panic("failed to decode data associated with audit entry")
+				return nil, fmt.Errorf("failed to decode data associated with audit entry: %w", err)
 			}
 			return TeamUpdatedAuditEntry{
 				GenericAuditEntry: entry.WithMessage("Updated team"),
@@ -32,9 +32,9 @@ func init() {
 					}
 					return &data
 				}(data),
-			}
+			}, nil
 		default:
-			panic("unsupported team audit entry action: " + entry.Action)
+			return nil, fmt.Errorf("unsupported team audit entry action: %q", entry.Action)
 		}
 	})
 }

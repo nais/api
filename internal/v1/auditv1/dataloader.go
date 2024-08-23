@@ -45,7 +45,7 @@ type dataloader struct {
 
 func (l dataloader) get(ctx context.Context, ids []uuid.UUID) ([]AuditEntry, []error) {
 	makeKey := func(obj AuditEntry) uuid.UUID { return obj.GetUUID() }
-	return loaderv1.LoadModels(ctx, ids, l.db.ListByIDs, toGraphAuditLog, makeKey)
+	return loaderv1.LoadModelsWithError(ctx, ids, l.db.ListByIDs, toGraphAuditLog, makeKey)
 }
 
 func db(ctx context.Context) *auditsql.Queries {
