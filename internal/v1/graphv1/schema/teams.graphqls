@@ -433,7 +433,7 @@ extend enum AuditLogResourceType {
 	TEAM
 }
 
-type AuditLogTeamCreated implements AuditLog & Node {
+type AuditLogTeamCreated implements AuditEntry & Node {
 	id: ID!
 	action: AuditLogAction!
 	actor: String!
@@ -445,7 +445,7 @@ type AuditLogTeamCreated implements AuditLog & Node {
 	environmentName: String
 }
 
-type AuditLogTeamUpdated implements AuditLog & Node {
+type AuditLogTeamUpdated implements AuditEntry & Node {
 	id: ID!
 	action: AuditLogAction!
 	actor: String!

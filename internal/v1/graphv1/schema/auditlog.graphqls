@@ -1,5 +1,4 @@
-"AuditLog event type."
-interface AuditLog implements Node {
+interface AuditEntry implements Node {
 	"ID of the event."
 	id: ID!
 
@@ -42,7 +41,7 @@ enum AuditLogResourceType {
 	UNKNOWN
 }
 
-type AuditLogGeneric implements AuditLog & Node {
+type AuditLogGeneric implements AuditEntry & Node {
 	id: ID!
 	action: AuditLogAction!
 	actor: String!
@@ -61,5 +60,5 @@ type AuditLogConnection {
 
 type AuditLogEdge {
 	cursor: Cursor!
-	node: AuditLog!
+	node: AuditEntry!
 }

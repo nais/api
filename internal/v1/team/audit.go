@@ -7,7 +7,7 @@ const (
 )
 
 func init() {
-	auditv1.RegisterTransformer(auditLogResourceTypeTeam, func(entry auditv1.AuditLogGeneric) auditv1.AuditLog {
+	auditv1.RegisterTransformer(auditLogResourceTypeTeam, func(entry auditv1.AuditLogGeneric) auditv1.AuditEntry {
 		switch entry.Action {
 		case auditv1.AuditLogActionCreated:
 			return AuditLogTeamCreated{

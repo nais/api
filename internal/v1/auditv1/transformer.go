@@ -1,6 +1,6 @@
 package auditv1
 
-type Transformer = func(entry AuditLogGeneric) AuditLog
+type Transformer = func(entry AuditLogGeneric) AuditEntry
 
 var knownTransformers = map[AuditLogResourceType]Transformer{}
 

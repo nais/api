@@ -25,7 +25,7 @@ func fromContext(ctx context.Context) *loaders {
 
 type loaders struct {
 	internalQuerier *auditsql.Queries
-	auditLogLoader  *dataloadgen.Loader[uuid.UUID, AuditLog]
+	auditLogLoader  *dataloadgen.Loader[uuid.UUID, AuditEntry]
 }
 
 func newLoaders(dbConn *pgxpool.Pool, opts []dataloadgen.Option) *loaders {
@@ -43,8 +43,8 @@ type dataloader struct {
 	db auditsql.Querier
 }
 
-func (l dataloader) get(ctx context.Context, ids []uuid.UUID) ([]AuditLog, []error) {
-	makeKey := func(obj AuditLog) uuid.UUID { return obj.GetUUID() }
+func (l dataloader) get(ctx context.Context, ids []uuid.UUID) ([]AuditEntry, []error) {
+	makeKey := func(obj AuditEntry) uuid.UUID { return obj.GetUUID() }
 	return loaderv1.LoadModels(ctx, ids, l.db.ListByIDs, toGraphAuditLog, makeKey)
 }
 

@@ -25,7 +25,7 @@ const (
 	AuditLogActionSynchronized AuditLogAction = "SYNCHRONIZED"
 )
 
-type AuditLog interface {
+type AuditEntry interface {
 	modelv1.Node
 	GetUUID() uuid.UUID
 	ID() ident.Ident
@@ -33,8 +33,8 @@ type AuditLog interface {
 }
 
 type (
-	AuditLogConnection = pagination.Connection[AuditLog]
-	AuditLogEdge       = pagination.Edge[AuditLog]
+	AuditLogConnection = pagination.Connection[AuditEntry]
+	AuditLogEdge       = pagination.Edge[AuditEntry]
 )
 
 type AuditLogGeneric struct {

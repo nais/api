@@ -687,7 +687,7 @@ type TeamResolver interface {
 
 	ViewerIsOwner(ctx context.Context, obj *team.Team) (bool, error)
 	ViewerIsMember(ctx context.Context, obj *team.Team) (bool, error)
-	Audits(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[auditv1.AuditLog], error)
+	Audits(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[auditv1.AuditEntry], error)
 }
 type TeamEnvironmentResolver interface {
 	Team(ctx context.Context, obj *team.TeamEnvironment) (*team.Team, error)
@@ -3004,8 +3004,7 @@ enum ApplicationOrderField {
 	DEPLOYMENT_TIME
 }
 `, BuiltIn: false},
-	{Name: "../schema/auditlog.graphqls", Input: `"AuditLog event type."
-interface AuditLog implements Node {
+	{Name: "../schema/auditlog.graphqls", Input: `interface AuditEntry implements Node {
 	"ID of the event."
 	id: ID!
 
@@ -3048,7 +3047,7 @@ enum AuditLogResourceType {
 	UNKNOWN
 }
 
-type AuditLogGeneric implements AuditLog & Node {
+type AuditLogGeneric implements AuditEntry & Node {
 	id: ID!
 	action: AuditLogAction!
 	actor: String!
@@ -3067,7 +3066,7 @@ type AuditLogConnection {
 
 type AuditLogEdge {
 	cursor: Cursor!
-	node: AuditLog!
+	node: AuditEntry!
 }
 `, BuiltIn: false},
 	{Name: "../schema/jobs.graphqls", Input: `type Job implements Node & Workload {
@@ -4103,7 +4102,7 @@ extend enum AuditLogResourceType {
 	TEAM
 }
 
-type AuditLogTeamCreated implements AuditLog & Node {
+type AuditLogTeamCreated implements AuditEntry & Node {
 	id: ID!
 	action: AuditLogAction!
 	actor: String!
@@ -4115,7 +4114,7 @@ type AuditLogTeamCreated implements AuditLog & Node {
 	environmentName: String
 }
 
-type AuditLogTeamUpdated implements AuditLog & Node {
+type AuditLogTeamUpdated implements AuditEntry & Node {
 	id: ID!
 	action: AuditLogAction!
 	actor: String!
@@ -5856,7 +5855,7 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditLogConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[auditv1.AuditLog]) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuditLogConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[auditv1.AuditEntry]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuditLogConnection_pageInfo(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -5912,7 +5911,7 @@ func (ec *executionContext) fieldContext_AuditLogConnection_pageInfo(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditLogConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[auditv1.AuditLog]) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuditLogConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[auditv1.AuditEntry]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuditLogConnection_edges(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -5938,7 +5937,7 @@ func (ec *executionContext) _AuditLogConnection_edges(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]pagination.Edge[auditv1.AuditLog])
+	res := resTmp.([]pagination.Edge[auditv1.AuditEntry])
 	fc.Result = res
 	return ec.marshalNAuditLogEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
 }
@@ -5962,7 +5961,7 @@ func (ec *executionContext) fieldContext_AuditLogConnection_edges(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditLogEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[auditv1.AuditLog]) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuditLogEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[auditv1.AuditEntry]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuditLogEdge_cursor(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -6006,7 +6005,7 @@ func (ec *executionContext) fieldContext_AuditLogEdge_cursor(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _AuditLogEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[auditv1.AuditLog]) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuditLogEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[auditv1.AuditEntry]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuditLogEdge_node(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -6032,9 +6031,9 @@ func (ec *executionContext) _AuditLogEdge_node(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(auditv1.AuditLog)
+	res := resTmp.(auditv1.AuditEntry)
 	fc.Result = res
-	return ec.marshalNAuditLog2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditLog(ctx, field.Selections, res)
+	return ec.marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditEntry(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuditLogEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18359,7 +18358,7 @@ func (ec *executionContext) _Team_audits(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*pagination.Connection[auditv1.AuditLog])
+	res := resTmp.(*pagination.Connection[auditv1.AuditEntry])
 	fc.Result = res
 	return ec.marshalNAuditLogConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
 }
@@ -22298,7 +22297,7 @@ func (ec *executionContext) unmarshalInputUserTeamOrder(ctx context.Context, obj
 
 // region    ************************** interface.gotpl ***************************
 
-func (ec *executionContext) _AuditLog(ctx context.Context, sel ast.SelectionSet, obj auditv1.AuditLog) graphql.Marshaler {
+func (ec *executionContext) _AuditEntry(ctx context.Context, sel ast.SelectionSet, obj auditv1.AuditEntry) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
@@ -22435,11 +22434,11 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Team(ctx, sel, obj)
-	case auditv1.AuditLog:
+	case auditv1.AuditEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._AuditLog(ctx, sel, obj)
+		return ec._AuditEntry(ctx, sel, obj)
 	case user.User:
 		return ec._User(ctx, sel, &obj)
 	case *user.User:
@@ -22748,7 +22747,7 @@ func (ec *executionContext) _ApplicationEdge(ctx context.Context, sel ast.Select
 
 var auditLogConnectionImplementors = []string{"AuditLogConnection"}
 
-func (ec *executionContext) _AuditLogConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[auditv1.AuditLog]) graphql.Marshaler {
+func (ec *executionContext) _AuditLogConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[auditv1.AuditEntry]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, auditLogConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -22792,7 +22791,7 @@ func (ec *executionContext) _AuditLogConnection(ctx context.Context, sel ast.Sel
 
 var auditLogEdgeImplementors = []string{"AuditLogEdge"}
 
-func (ec *executionContext) _AuditLogEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[auditv1.AuditLog]) graphql.Marshaler {
+func (ec *executionContext) _AuditLogEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[auditv1.AuditEntry]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, auditLogEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -22834,7 +22833,7 @@ func (ec *executionContext) _AuditLogEdge(ctx context.Context, sel ast.Selection
 	return out
 }
 
-var auditLogGenericImplementors = []string{"AuditLogGeneric", "AuditLog", "Node"}
+var auditLogGenericImplementors = []string{"AuditLogGeneric", "AuditEntry", "Node"}
 
 func (ec *executionContext) _AuditLogGeneric(ctx context.Context, sel ast.SelectionSet, obj *auditv1.AuditLogGeneric) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, auditLogGenericImplementors)
@@ -22907,7 +22906,7 @@ func (ec *executionContext) _AuditLogGeneric(ctx context.Context, sel ast.Select
 	return out
 }
 
-var auditLogTeamCreatedImplementors = []string{"AuditLogTeamCreated", "AuditLog", "Node"}
+var auditLogTeamCreatedImplementors = []string{"AuditLogTeamCreated", "AuditEntry", "Node"}
 
 func (ec *executionContext) _AuditLogTeamCreated(ctx context.Context, sel ast.SelectionSet, obj *team.AuditLogTeamCreated) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, auditLogTeamCreatedImplementors)
@@ -22980,7 +22979,7 @@ func (ec *executionContext) _AuditLogTeamCreated(ctx context.Context, sel ast.Se
 	return out
 }
 
-var auditLogTeamUpdatedImplementors = []string{"AuditLogTeamUpdated", "AuditLog", "Node"}
+var auditLogTeamUpdatedImplementors = []string{"AuditLogTeamUpdated", "AuditEntry", "Node"}
 
 func (ec *executionContext) _AuditLogTeamUpdated(ctx context.Context, sel ast.SelectionSet, obj *team.AuditLogTeamUpdated) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, auditLogTeamUpdatedImplementors)
@@ -28619,14 +28618,14 @@ func (ec *executionContext) marshalNApplicationOrderField2githubᚗcomᚋnaisᚋ
 	return v
 }
 
-func (ec *executionContext) marshalNAuditLog2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditLog(ctx context.Context, sel ast.SelectionSet, v auditv1.AuditLog) graphql.Marshaler {
+func (ec *executionContext) marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditEntry(ctx context.Context, sel ast.SelectionSet, v auditv1.AuditEntry) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._AuditLog(ctx, sel, v)
+	return ec._AuditEntry(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNAuditLogAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditLogAction(ctx context.Context, v interface{}) (auditv1.AuditLogAction, error) {
@@ -28645,11 +28644,11 @@ func (ec *executionContext) marshalNAuditLogAction2githubᚗcomᚋnaisᚋapiᚋi
 	return res
 }
 
-func (ec *executionContext) marshalNAuditLogConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[auditv1.AuditLog]) graphql.Marshaler {
+func (ec *executionContext) marshalNAuditLogConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[auditv1.AuditEntry]) graphql.Marshaler {
 	return ec._AuditLogConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAuditLogConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[auditv1.AuditLog]) graphql.Marshaler {
+func (ec *executionContext) marshalNAuditLogConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[auditv1.AuditEntry]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -28659,11 +28658,11 @@ func (ec *executionContext) marshalNAuditLogConnection2ᚖgithubᚗcomᚋnaisᚋ
 	return ec._AuditLogConnection(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAuditLogEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[auditv1.AuditLog]) graphql.Marshaler {
+func (ec *executionContext) marshalNAuditLogEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[auditv1.AuditEntry]) graphql.Marshaler {
 	return ec._AuditLogEdge(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAuditLogEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[auditv1.AuditLog]) graphql.Marshaler {
+func (ec *executionContext) marshalNAuditLogEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[auditv1.AuditEntry]) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1

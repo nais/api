@@ -49,11 +49,11 @@ func Create(ctx context.Context, input CreateInput) error {
 	})
 }
 
-func Get(ctx context.Context, uid uuid.UUID) (AuditLog, error) {
+func Get(ctx context.Context, uid uuid.UUID) (AuditEntry, error) {
 	return fromContext(ctx).auditLogLoader.Load(ctx, uid)
 }
 
-func GetByIdent(ctx context.Context, id ident.Ident) (AuditLog, error) {
+func GetByIdent(ctx context.Context, id ident.Ident) (AuditEntry, error) {
 	uid, err := parseIdent(id)
 	if err != nil {
 		return nil, err
@@ -82,7 +82,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 
 var titler = cases.Title(language.English)
 
-func toGraphAuditLog(row *auditsql.AuditEvent) AuditLog {
+func toGraphAuditLog(row *auditsql.AuditEvent) AuditEntry {
 	entry := AuditLogGeneric{
 		Action:          AuditLogAction(row.Action),
 		Actor:           row.Actor,
