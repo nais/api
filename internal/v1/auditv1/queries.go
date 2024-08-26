@@ -3,6 +3,7 @@ package auditv1
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
@@ -97,9 +98,9 @@ func toGraphAuditLog(row *auditsql.AuditEvent) (AuditEntry, error) {
 	}
 
 	transformer, ok := knownTransformers[AuditResourceType(row.ResourceType)]
-	if ok {
-		return transformer(entry)
+	if !ok {
+		return nil, fmt.Errorf("no transformer registered for audit resource type: %q", row.ResourceType)
 	}
 
-	return entry, nil
+	return transformer(entry)
 }
