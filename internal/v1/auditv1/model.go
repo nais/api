@@ -29,7 +29,6 @@ type AuditEntry interface {
 	modelv1.Node
 	GetUUID() uuid.UUID
 	ID() ident.Ident
-	IsAuditLog()
 }
 
 type (
@@ -49,8 +48,6 @@ type GenericAuditEntry struct {
 	UUID            uuid.UUID         `json:"-"`
 	Data            []byte            `json:"-"`
 }
-
-func (GenericAuditEntry) IsAuditLog() {}
 
 func (GenericAuditEntry) IsNode() {}
 
