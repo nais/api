@@ -1,8 +1,6 @@
 package team
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 
 	"github.com/nais/api/internal/v1/auditv1"
@@ -20,18 +18,19 @@ func init() {
 				GenericAuditEntry: entry.WithMessage("Created team"),
 			}, nil
 		case auditv1.AuditActionUpdated:
-			data := TeamUpdatedAuditEntryData{}
-			if err := json.NewDecoder(bytes.NewReader(entry.Data)).Decode(&data); err != nil {
-				return nil, fmt.Errorf("failed to decode data associated with audit entry: %w", err)
+			data, err := auditv1.TransformData(entry, func(data *TeamUpdatedAuditEntryData) *TeamUpdatedAuditEntryData {
+				if len(data.UpdatedFields) == 0 {
+					return nil
+				}
+				return data
+			})
+			if err != nil {
+				return nil, err
 			}
+
 			return TeamUpdatedAuditEntry{
 				GenericAuditEntry: entry.WithMessage("Updated team"),
-				Data: func(data TeamUpdatedAuditEntryData) *TeamUpdatedAuditEntryData {
-					if len(data.UpdatedFields) == 0 {
-						return nil
-					}
-					return &data
-				}(data),
+				Data:              data,
 			}, nil
 		default:
 			return nil, fmt.Errorf("unsupported team audit entry action: %q", entry.Action)

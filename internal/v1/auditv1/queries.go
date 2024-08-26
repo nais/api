@@ -27,16 +27,26 @@ type CreateInput struct {
 	TeamSlug        *slug.Slug // optional
 }
 
+// MarshalData marshals audit entry data. Its inverse is UnmarshalData.
+func MarshalData(input CreateInput) ([]byte, error) {
+	if input.Data == nil {
+		return nil, nil
+	}
+
+	bytes, err := json.Marshal(input.Data)
+	if err != nil {
+		return nil, fmt.Errorf("marshaling audit entry data: %w", err)
+	}
+
+	return bytes, nil
+}
+
 func Create(ctx context.Context, input CreateInput) error {
 	q := db(ctx)
-	var data []byte
-	if input.Data != nil {
-		var err error
 
-		data, err = json.Marshal(input.Data)
-		if err != nil {
-			return err
-		}
+	data, err := MarshalData(input)
+	if err != nil {
+		return err
 	}
 
 	return q.Create(ctx, auditsql.CreateParams{

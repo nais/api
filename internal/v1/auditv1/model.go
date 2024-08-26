@@ -1,6 +1,8 @@
 package auditv1
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -62,4 +64,24 @@ func (a GenericAuditEntry) GetUUID() uuid.UUID {
 func (a GenericAuditEntry) WithMessage(message string) GenericAuditEntry {
 	a.Message = message
 	return a
+}
+
+// UnmarshalData unmarshals audit entry data. Its inverse is [MarshalData].
+func UnmarshalData[T any](entry GenericAuditEntry) (*T, error) {
+	var data T
+	if err := json.Unmarshal(entry.Data, &data); err != nil {
+		return nil, fmt.Errorf("unmarshaling audit entry data: %w", err)
+	}
+
+	return &data, nil
+}
+
+// TransformData unmarshals audit entry data and calls the provided transformer function with the data as argument.
+func TransformData[T any](entry GenericAuditEntry, f func(*T) *T) (*T, error) {
+	data, err := UnmarshalData[T](entry)
+	if err != nil {
+		return nil, err
+	}
+
+	return f(data), nil
 }
