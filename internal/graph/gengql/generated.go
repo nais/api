@@ -1044,6 +1044,7 @@ type ComplexityRoot struct {
 		GitHubWorkflowName       func(childComplexity int) int
 		GitHubWorkflowRef        func(childComplexity int) int
 		GitHubWorkflowSha        func(childComplexity int) int
+		ImageDigestSha           func(childComplexity int) int
 		IntegratedTime           func(childComplexity int) int
 		LogIndex                 func(childComplexity int) int
 		OIDCIssuer               func(childComplexity int) int
@@ -6096,6 +6097,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Rekor.GitHubWorkflowSha(childComplexity), true
 
+	case "Rekor.imageDigestSHA":
+		if e.complexity.Rekor.ImageDigestSha == nil {
+			break
+		}
+
+		return e.complexity.Rekor.ImageDigestSha(childComplexity), true
+
 	case "Rekor.integratedTime":
 		if e.complexity.Rekor.IntegratedTime == nil {
 			break
@@ -9126,6 +9134,7 @@ type Rekor {
   runnerEnvironment: String!
   sourceRepositoryOwnerURI: String!
   integratedTime: Int!
+  imageDigestSHA: String!
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/log.graphqls", Input: `type Subscription {
@@ -30322,6 +30331,8 @@ func (ec *executionContext) fieldContext_ImageDetails_rekor(_ context.Context, f
 				return ec.fieldContext_Rekor_sourceRepositoryOwnerURI(ctx, field)
 			case "integratedTime":
 				return ec.fieldContext_Rekor_integratedTime(ctx, field)
+			case "imageDigestSHA":
+				return ec.fieldContext_Rekor_imageDigestSHA(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Rekor", field.Name)
 		},
@@ -44295,6 +44306,50 @@ func (ec *executionContext) fieldContext_Rekor_integratedTime(_ context.Context,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Rekor_imageDigestSHA(ctx context.Context, field graphql.CollectedField, obj *model.Rekor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Rekor_imageDigestSHA(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ImageDigestSha, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Rekor_imageDigestSHA(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Rekor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -69208,6 +69263,11 @@ func (ec *executionContext) _Rekor(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "integratedTime":
 			out.Values[i] = ec._Rekor_integratedTime(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "imageDigestSHA":
+			out.Values[i] = ec._Rekor_imageDigestSHA(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
