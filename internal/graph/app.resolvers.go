@@ -72,7 +72,7 @@ func (r *appUtilizationResolver) UsedRange(ctx context.Context, obj *model.AppUt
 	if dpsRequested > MaxDataPoints {
 		return nil, apierror.Errorf("maximum datapoints exceeded. Maximum allowed is %d, you requested %d", MaxDataPoints, dpsRequested)
 	}
-	return r.resourceUsageClient.AppResourceUsageRange(ctx, "dev", obj.GQLVars.TeamSlug, obj.GQLVars.AppName, resourceType, start, end, step)
+	return r.resourceUsageClient.AppResourceUsageRange(ctx, obj.GQLVars.Env, obj.GQLVars.TeamSlug, obj.GQLVars.AppName, resourceType, start, end, step)
 }
 
 func (r *mutationResolver) DeleteApp(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteAppResult, error) {
