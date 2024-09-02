@@ -38,6 +38,10 @@ type Persistence interface {
 	IsPersistence()
 }
 
+type ScalingStrategy interface {
+	IsScalingStrategy()
+}
+
 type SearchNode interface {
 	IsSearchNode()
 }
@@ -79,24 +83,6 @@ type AppCost struct {
 type AppList struct {
 	Nodes    []*App   `json:"nodes"`
 	PageInfo PageInfo `json:"pageInfo"`
-}
-
-// Resource utilization overage cost for an app.
-type AppWithResourceUtilizationOverage struct {
-	// The overage for the app.
-	Overage float64 `json:"overage"`
-	// The overage cost for the app.
-	OverageCost float64 `json:"overageCost"`
-	// Estimated annual cost of the request overage.
-	EstimatedAnnualOverageCost float64 `json:"estimatedAnnualOverageCost"`
-	// The utilization in percent.
-	Utilization float64 `json:"utilization"`
-	// The environment where the app is running.
-	Env string `json:"env"`
-	// The name of the team who owns the app.
-	Team slug.Slug `json:"team"`
-	// The name of the app.
-	App string `json:"app"`
 }
 
 // Team status for apps.
@@ -170,14 +156,6 @@ type AuditLogList struct {
 	PageInfo PageInfo    `json:"pageInfo"`
 }
 
-type AutoScaling struct {
-	Disabled bool `json:"disabled"`
-	// CPU threshold in percent
-	CPUThreshold int `json:"cpuThreshold"`
-	Max          int `json:"max"`
-	Min          int `json:"min"`
-}
-
 type AzureAd struct {
 	Application *AzureApplication `json:"application,omitempty"`
 	Sidecar     *Sidecar          `json:"sidecar,omitempty"`
@@ -223,6 +201,12 @@ type BucketsList struct {
 type BucketsMetrics struct {
 	Cost float64 `json:"cost"`
 }
+
+type CPUScalingStrategy struct {
+	Threshold int `json:"threshold"`
+}
+
+func (CPUScalingStrategy) IsScalingStrategy() {}
 
 type Claims struct {
 	Extra  []string `json:"extra"`
@@ -272,16 +256,6 @@ type CreateTeamInput struct {
 	Purpose string `json:"purpose"`
 	// Specify the Slack channel for the team.
 	SlackChannel string `json:"slackChannel"`
-}
-
-// Current resource utilization type.
-type CurrentResourceUtilization struct {
-	// The timestamp used for the calculated values.
-	Timestamp time.Time `json:"timestamp"`
-	// The CPU utilization.
-	CPU ResourceUtilization `json:"cpu"`
-	// The memory utilization.
-	Memory ResourceUtilization `json:"memory"`
 }
 
 // Daily cost type.
@@ -531,6 +505,14 @@ type JobsStatus struct {
 	Failing int `json:"failing"`
 }
 
+type KafkaLagScalingStrategy struct {
+	Threshold     int    `json:"threshold"`
+	ConsumerGroup string `json:"consumerGroup"`
+	Topic         string `json:"topic"`
+}
+
+func (KafkaLagScalingStrategy) IsScalingStrategy() {}
+
 type KafkaTopicACLFilter struct {
 	Team        *slug.Slug `json:"team,omitempty"`
 	Application *string    `json:"application,omitempty"`
@@ -779,85 +761,6 @@ type Requests struct {
 	Memory string `json:"memory"`
 }
 
-// Resource utilization type.
-type ResourceUtilization struct {
-	// Timestamp of the value.
-	Timestamp time.Time `json:"timestamp"`
-	// The requested resource amount per pod.
-	Request float64 `json:"request"`
-	// The cost associated with the requested resource amount.
-	RequestCost float64 `json:"requestCost"`
-	// The actual resource usage.
-	Usage float64 `json:"usage"`
-	// The cost associated with the actual resource usage.
-	UsageCost float64 `json:"usageCost"`
-	// The overage of the requested resource amount.
-	RequestCostOverage float64 `json:"requestCostOverage"`
-	// The utilization in percent.
-	Utilization float64 `json:"utilization"`
-	// Estimated annual cost of the request overage.
-	EstimatedAnnualOverageCost float64 `json:"estimatedAnnualOverageCost"`
-}
-
-// Date range type.
-type ResourceUtilizationDateRange struct {
-	// The start of the range.
-	From *scalar.Date `json:"from,omitempty"`
-	// The end of the range.
-	To *scalar.Date `json:"to,omitempty"`
-}
-
-// Resource utilization for app type.
-type ResourceUtilizationForApp struct {
-	// CPU resource utilization data for the environment.
-	CPU []*ResourceUtilization `json:"cpu"`
-	// Memory resource utilization data for the environment.
-	Memory []*ResourceUtilization `json:"memory"`
-}
-
-// Resource utilization for env type.
-type ResourceUtilizationForEnv struct {
-	// Name of the environment.
-	Env string `json:"env"`
-	// CPU resource utilization data for the environment.
-	CPU []*ResourceUtilization `json:"cpu"`
-	// Memory resource utilization data for the environment.
-	Memory []*ResourceUtilization `json:"memory"`
-}
-
-// Resource utilization overage cost for team type.
-type ResourceUtilizationOverageForTeam struct {
-	// The sum of the overage cost for all apps.
-	OverageCost float64 `json:"overageCost"`
-	// Timestamp used for the calculated values.
-	Timestamp time.Time `json:"timestamp"`
-	// List of CPU overage data for all apps.
-	CPU []*AppWithResourceUtilizationOverage `json:"cpu"`
-	// List of memory overage data for all apps.
-	Memory []*AppWithResourceUtilizationOverage `json:"memory"`
-}
-
-// Resource utilization trend type.
-type ResourceUtilizationTrend struct {
-	// The current CPU utilization.
-	CurrentCPUUtilization float64 `json:"currentCpuUtilization"`
-	// The average CPU utilization from the previous week.
-	AverageCPUUtilization float64 `json:"averageCpuUtilization"`
-	// The CPU utilization trend in percentage.
-	CPUUtilizationTrend float64 `json:"cpuUtilizationTrend"`
-	// The current memory utilization.
-	CurrentMemoryUtilization float64 `json:"currentMemoryUtilization"`
-	// The average memory utilization from the previous week.
-	AverageMemoryUtilization float64 `json:"averageMemoryUtilization"`
-	// The memory utilization trend in percentage.
-	MemoryUtilizationTrend float64 `json:"memoryUtilizationTrend"`
-}
-
-type Resources struct {
-	Limits   Limits   `json:"limits"`
-	Requests Requests `json:"requests"`
-}
-
 type RestartAppResult struct {
 	Error *string `json:"error,omitempty"`
 }
@@ -869,6 +772,12 @@ type Rule struct {
 	Mutual            bool   `json:"mutual"`
 	MutualExplanation string `json:"mutualExplanation"`
 	IsJob             bool   `json:"isJob"`
+}
+
+type Scaling struct {
+	Min        int               `json:"min"`
+	Max        int               `json:"max"`
+	Strategies []ScalingStrategy `json:"strategies"`
 }
 
 type SearchFilter struct {
@@ -1011,6 +920,14 @@ type UpdateTeamSlackAlertsChannelInput struct {
 	Environment string `json:"environment"`
 	// The name of the Slack channel.
 	ChannelName *string `json:"channelName,omitempty"`
+}
+
+// Resource utilization type.
+type UsageDataPoint struct {
+	// Timestamp of the value.
+	Timestamp time.Time `json:"timestamp"`
+	// Value of the used resource at the given timestamp.
+	Value float64 `json:"value"`
 }
 
 type UserList struct {
@@ -1363,48 +1280,6 @@ func (e OrderByField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// Resource type.
-type ResourceType string
-
-const (
-	ResourceTypeCPU    ResourceType = "CPU"
-	ResourceTypeMemory ResourceType = "MEMORY"
-)
-
-var AllResourceType = []ResourceType{
-	ResourceTypeCPU,
-	ResourceTypeMemory,
-}
-
-func (e ResourceType) IsValid() bool {
-	switch e {
-	case ResourceTypeCPU, ResourceTypeMemory:
-		return true
-	}
-	return false
-}
-
-func (e ResourceType) String() string {
-	return string(e)
-}
-
-func (e *ResourceType) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = ResourceType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ResourceType", str)
-	}
-	return nil
-}
-
-func (e ResourceType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
 type SearchType string
 
 const (
@@ -1642,6 +1517,48 @@ func (e *TeamRole) UnmarshalGQL(v interface{}) error {
 }
 
 func (e TeamRole) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Resource type.
+type UsageResourceType string
+
+const (
+	UsageResourceTypeCPU    UsageResourceType = "CPU"
+	UsageResourceTypeMemory UsageResourceType = "MEMORY"
+)
+
+var AllUsageResourceType = []UsageResourceType{
+	UsageResourceTypeCPU,
+	UsageResourceTypeMemory,
+}
+
+func (e UsageResourceType) IsValid() bool {
+	switch e {
+	case UsageResourceTypeCPU, UsageResourceTypeMemory:
+		return true
+	}
+	return false
+}
+
+func (e UsageResourceType) String() string {
+	return string(e)
+}
+
+func (e *UsageResourceType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UsageResourceType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UsageResourceType", str)
+	}
+	return nil
+}
+
+func (e UsageResourceType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

@@ -691,23 +691,35 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 	}
 	ret.Ingresses = ingresses
 
+	r := model.Resources{}
+	if err := convert(app.Spec.Resources, &r); err != nil {
+		return nil, fmt.Errorf("converting resources: %w", err)
+	}
+
 	if app.Spec.Replicas != nil {
-		//lint:ignore SA1019 we need to fallback to this value
-		cpuThreshold := app.Spec.Replicas.CpuThresholdPercentage
-		if app.Spec.Replicas.ScalingStrategy != nil && app.Spec.Replicas.ScalingStrategy.Cpu != nil && app.Spec.Replicas.ScalingStrategy.Cpu.ThresholdPercentage > 0 {
-			cpuThreshold = app.Spec.Replicas.ScalingStrategy.Cpu.ThresholdPercentage
-		}
-		ret.AutoScaling = model.AutoScaling{
-			Disabled:     app.Spec.Replicas.DisableAutoScaling,
-			CPUThreshold: cpuThreshold,
-		}
 		if app.Spec.Replicas.Min != nil {
-			ret.AutoScaling.Min = *app.Spec.Replicas.Min
+			r.Scaling.Min = *app.Spec.Replicas.Min
 		}
 		if app.Spec.Replicas.Max != nil {
-			ret.AutoScaling.Max = *app.Spec.Replicas.Max
+			r.Scaling.Max = *app.Spec.Replicas.Max
+		}
+
+		if app.Spec.Replicas.ScalingStrategy != nil && app.Spec.Replicas.ScalingStrategy.Cpu != nil && app.Spec.Replicas.ScalingStrategy.Cpu.ThresholdPercentage > 0 {
+			r.Scaling.Strategies = append(r.Scaling.Strategies, model.CPUScalingStrategy{
+				Threshold: app.Spec.Replicas.ScalingStrategy.Cpu.ThresholdPercentage,
+			})
+		}
+
+		if app.Spec.Replicas.ScalingStrategy != nil && app.Spec.Replicas.ScalingStrategy.Kafka != nil && app.Spec.Replicas.ScalingStrategy.Kafka.Threshold > 0 {
+			r.Scaling.Strategies = append(r.Scaling.Strategies, model.KafkaLagScalingStrategy{
+				Threshold:     app.Spec.Replicas.ScalingStrategy.Kafka.Threshold,
+				ConsumerGroup: app.Spec.Replicas.ScalingStrategy.Kafka.ConsumerGroup,
+				Topic:         app.Spec.Replicas.ScalingStrategy.Kafka.Topic,
+			})
 		}
 	}
+
+	ret.Resources = r
 
 	ap := model.AccessPolicy{}
 	if err := convert(app.Spec.AccessPolicy, &ap); err != nil {
@@ -715,10 +727,6 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 	}
 	ret.AccessPolicy = ap
 
-	r := model.Resources{}
-	if err := convert(app.Spec.Resources, &r); err != nil {
-		return nil, fmt.Errorf("converting resources: %w", err)
-	}
 	ret.Resources = r
 
 	authz, err := appAuthz(app)
@@ -746,6 +754,11 @@ func (c *Client) toApp(_ context.Context, u *unstructured.Unstructured, env stri
 
 	slices.Sort(secrets)
 	ret.GQLVars.SecretNames = slices.Compact(secrets)
+	ret.Utilization.GQLVars = model.AppGQLVars{
+		TeamSlug: slug.Slug(app.GetNamespace()),
+		AppName:  app.GetName(),
+		Env:      env,
+	}
 
 	return ret, nil
 }
@@ -801,7 +814,7 @@ func setStatus(app *model.App, conditions []metav1.Condition, instances []*model
 		}
 	}
 
-	if (len(instances) == 0 || numFailing == len(instances)) && app.AutoScaling.Min > 0 && app.AutoScaling.Max > 0 {
+	if (len(instances) == 0 || numFailing == len(instances)) && app.Resources.Scaling.Min > 0 && app.Resources.Scaling.Max > 0 {
 		appState.Errors = append(appState.Errors, &model.NoRunningInstancesError{
 			Revision: app.DeployInfo.CommitSha,
 			Level:    model.ErrorLevelError,

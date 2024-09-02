@@ -17,8 +17,6 @@ type Querier interface {
 	AssignGlobalRoleToUser(ctx context.Context, arg AssignGlobalRoleToUserParams) error
 	AssignTeamRoleToServiceAccount(ctx context.Context, arg AssignTeamRoleToServiceAccountParams) error
 	AssignTeamRoleToUser(ctx context.Context, arg AssignTeamRoleToUserParams) error
-	// AverageResourceUtilizationForTeam will return the average resource utilization for a team for a week.
-	AverageResourceUtilizationForTeam(ctx context.Context, arg AverageResourceUtilizationForTeamParams) (*AverageResourceUtilizationForTeamRow, error)
 	ClearReconcilerErrorsForTeam(ctx context.Context, arg ClearReconcilerErrorsForTeamParams) error
 	ConfigureReconciler(ctx context.Context, arg ConfigureReconcilerParams) error
 	// ConfirmTeamDeleteKey confirms a delete key for a team.
@@ -133,13 +131,9 @@ type Querier interface {
 	IsTeamRepository(ctx context.Context, arg IsTeamRepositoryParams) (bool, error)
 	// LastCostDate will return the last date that has a cost.
 	LastCostDate(ctx context.Context) (pgtype.Date, error)
-	// MaxResourceUtilizationDate will return the max date for resource utilization records.
-	MaxResourceUtilizationDate(ctx context.Context) (pgtype.Timestamptz, error)
 	MonthlyCostForApp(ctx context.Context, arg MonthlyCostForAppParams) ([]*MonthlyCostForAppRow, error)
 	MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*CostMonthlyTeam, error)
 	RefreshCostMonthlyTeam(ctx context.Context) error
-	// Refresh materialized view resource_team_range
-	RefreshResourceTeamRange(ctx context.Context) error
 	RemoveAllServiceAccountRoles(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveApiKeysFromServiceAccount(ctx context.Context, serviceAccountID uuid.UUID) error
 	RemoveReconcilerOptOut(ctx context.Context, arg RemoveReconcilerOptOutParams) error
@@ -147,29 +141,12 @@ type Querier interface {
 	// RemoveUserFromTeam removes a user from a team.
 	RemoveUserFromTeam(ctx context.Context, arg RemoveUserFromTeamParams) error
 	ResetReconcilerConfig(ctx context.Context, reconcilerName string) error
-	// ResourceUtilizationForApp will return resource utilization records for a given app.
-	ResourceUtilizationForApp(ctx context.Context, arg ResourceUtilizationForAppParams) ([]*ResourceUtilizationMetric, error)
-	// ResourceUtilizationForTeam will return resource utilization records for a given team.
-	ResourceUtilizationForTeam(ctx context.Context, arg ResourceUtilizationForTeamParams) ([]*ResourceUtilizationForTeamRow, error)
-	// ResourceUtilizationOverageForTeam will return overage records for a given team, ordered by overage descending.
-	ResourceUtilizationOverageForTeam(ctx context.Context, arg ResourceUtilizationOverageForTeamParams) ([]*ResourceUtilizationOverageForTeamRow, error)
-	// ResourceUtilizationRangeForApp will return the min and max timestamps for a specific app.
-	ResourceUtilizationRangeForApp(ctx context.Context, arg ResourceUtilizationRangeForAppParams) (*ResourceUtilizationRangeForAppRow, error)
-	// ResourceUtilizationRangeForTeam will return the min and max timestamps for a specific team.
-	ResourceUtilizationRangeForTeam(ctx context.Context, teamSlug slug.Slug) (*ResourceUtilizationRangeForTeamRow, error)
-	// ResourceUtilizationUpsert will insert or update resource utilization records.
-	ResourceUtilizationUpsert(ctx context.Context, arg []ResourceUtilizationUpsertParams) *ResourceUtilizationUpsertBatchResults
 	RevokeGlobalUserRole(ctx context.Context, arg RevokeGlobalUserRoleParams) error
 	// SetLastSuccessfulSyncForTeam sets the last successful sync time for a non-deleted team.
 	SetLastSuccessfulSyncForTeam(ctx context.Context, argSlug slug.Slug) error
 	SetReconcilerErrorForTeam(ctx context.Context, arg SetReconcilerErrorForTeamParams) error
 	SetSessionExpires(ctx context.Context, arg SetSessionExpiresParams) (*Session, error)
 	SetTeamDeleteKeyConfirmedAt(ctx context.Context, argSlug slug.Slug) error
-	// SpecificResourceUtilizationForApp will return resource utilization for an app at a specific timestamp.
-	SpecificResourceUtilizationForApp(ctx context.Context, arg SpecificResourceUtilizationForAppParams) (*SpecificResourceUtilizationForAppRow, error)
-	// SpecificResourceUtilizationForTeam will return resource utilization for a team at a specific timestamp. Applications
-	// with a usage greater than request will be ignored.
-	SpecificResourceUtilizationForTeam(ctx context.Context, arg SpecificResourceUtilizationForTeamParams) ([]*SpecificResourceUtilizationForTeamRow, error)
 	// TeamExists checks if a team exists. Deleted teams are not considered.
 	TeamExists(ctx context.Context, argSlug slug.Slug) (bool, error)
 	// UpdateTeam updates the purpose and slack channel of a non-deleted team.

@@ -3,6 +3,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
@@ -55,6 +56,23 @@ func (r *appResolver) Secrets(ctx context.Context, obj *model.App) ([]*model.Sec
 	}
 
 	return r.k8sClient.SecretsForApp(ctx, obj)
+}
+
+func (r *appUtilizationResolver) Used(ctx context.Context, obj *model.AppUtilization, resourceType model.UsageResourceType) (float64, error) {
+	return r.resourceUsageClient.AppResourceUsage(ctx, obj.GQLVars.Env, obj.GQLVars.TeamSlug, obj.GQLVars.AppName, resourceType)
+}
+
+func (r *appUtilizationResolver) Requested(ctx context.Context, obj *model.AppUtilization, resourceType model.UsageResourceType) (float64, error) {
+	return r.resourceUsageClient.AppResourceRequest(ctx, obj.GQLVars.Env, obj.GQLVars.TeamSlug, obj.GQLVars.AppName, resourceType)
+}
+
+func (r *appUtilizationResolver) UsedRange(ctx context.Context, obj *model.AppUtilization, start time.Time, end time.Time, step int, resourceType model.UsageResourceType) ([]*model.UsageDataPoint, error) {
+	const MaxDataPoints = 1000
+	dpsRequested := ((int(end.Unix()) - int(start.Unix())) / step)
+	if dpsRequested > MaxDataPoints {
+		return nil, apierror.Errorf("maximum datapoints exceeded. Maximum allowed is %d, you requested %d", MaxDataPoints, dpsRequested)
+	}
+	return r.resourceUsageClient.AppResourceUsageRange(ctx, "dev", obj.GQLVars.TeamSlug, obj.GQLVars.AppName, resourceType, start, end, step)
 }
 
 func (r *mutationResolver) DeleteApp(ctx context.Context, name string, team slug.Slug, env string) (*model.DeleteAppResult, error) {
@@ -111,4 +129,9 @@ func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, en
 
 func (r *Resolver) App() gengql.AppResolver { return &appResolver{r} }
 
-type appResolver struct{ *Resolver }
+func (r *Resolver) AppUtilization() gengql.AppUtilizationResolver { return &appUtilizationResolver{r} }
+
+type (
+	appResolver            struct{ *Resolver }
+	appUtilizationResolver struct{ *Resolver }
+)

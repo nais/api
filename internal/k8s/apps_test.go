@@ -148,9 +148,17 @@ func TestSetStatus(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			app := &model.App{
-				WorkloadBase: model.WorkloadBase{Image: tc.image, Env: model.Env{Name: "prod-gcp"}},
-				Ingresses:    tc.ingresses,
-				AutoScaling:  model.AutoScaling{Min: 1, Max: 2},
+				WorkloadBase: model.WorkloadBase{
+					Image: tc.image,
+					Env:   model.Env{Name: "prod-gcp"},
+					Resources: model.Resources{
+						Scaling: model.Scaling{
+							Min: 1,
+							Max: 2,
+						},
+					},
+				},
+				Ingresses: tc.ingresses,
 			}
 
 			setStatus(app, []metav1.Condition{{Status: metav1.ConditionTrue, Reason: tc.appCondition, Type: "SynchronizationState"}}, asInstances(tc.instanceStates))

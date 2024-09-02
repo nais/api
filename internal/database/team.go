@@ -375,7 +375,6 @@ func (d *database) UpsertTeamEnvironment(ctx context.Context, teamSlug slug.Slug
 
 func (d *database) GetAllTeamsWithPermissionInGitHubRepo(ctx context.Context, repoName, permission string) ([]*Team, error) {
 	// TODO: this should be refactored once we have a better model for the github reconciler state
-
 	states, err := d.GetReconcilerState(ctx, "github:team")
 	if err != nil {
 		return nil, err
@@ -383,7 +382,7 @@ func (d *database) GetAllTeamsWithPermissionInGitHubRepo(ctx context.Context, re
 
 	teams := make([]*Team, 0)
 	for _, state := range states {
-		if hasRepoWithPermission(state.ReconcilerState.Value, repoName, permission) {
+		if hasRepoWithPermission(state.Value, repoName, permission) {
 			teams = append(teams, state.Team)
 		}
 	}

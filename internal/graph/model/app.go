@@ -9,8 +9,7 @@ import (
 
 type App struct {
 	WorkloadBase
-	Ingresses   []string    `json:"ingresses"`
-	AutoScaling AutoScaling `json:"autoScaling"`
+	Ingresses []string `json:"ingresses"`
 }
 
 func (App) IsSearchNode()        {}
@@ -34,4 +33,12 @@ type InstanceGQLVars struct {
 	Env     string
 	Team    slug.Slug
 	AppName string
+}
+
+type AppUtilizationData struct {
+	Env       string    `json:"env"`
+	Requested float64   `json:"requested"`
+	Used      float64   `json:"used"`
+	AppName   string    `json:"-"`
+	TeamSlug  slug.Slug `json:"-"`
 }

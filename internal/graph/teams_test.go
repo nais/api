@@ -117,7 +117,7 @@ func TestMutationResolver_CreateTeam(t *testing.T) {
 
 		auditLogger := auditlogger.NewAuditLoggerForTesting()
 		returnedTeam, err := graph.
-			NewResolver(nil, nil, nil, nil, db, tenant, tenantDomain, usersyncTrigger, auditLogger, nil, psClient.Topic("topic-id"), log, nil, nil, nil, nil, nil, nil, nil, auditer, fake.NewFakeSlackClient()).
+			NewResolver(nil, nil, nil, nil, db, tenant, tenantDomain, usersyncTrigger, auditLogger, nil, psClient.Topic("topic-id"), log, nil, nil, nil, nil, nil, nil, nil, auditer, nil).
 			Mutation().
 			CreateTeam(ctx, model.CreateTeamInput{
 				Slug:         teamSlug,
