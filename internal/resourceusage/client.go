@@ -19,14 +19,14 @@ const (
 	appCPUUsage        = `rate(container_cpu_usage_seconds_total{namespace="%s", container="%s"}[5m])`
 	appMemoryRequest   = `kube_pod_container_resource_requests{namespace="%s", container="%s", resource="memory",unit="byte"}`
 	appMemoryUsage     = `container_memory_working_set_bytes{namespace="%s", container="%s"}`
-	teamCPURequest     = `sum by (container, owner_kind) (kube_pod_container_resource_requests{namespace="%s", container!~%q, resource="cpu",unit="core"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner(owner_kind="ReplicaSet") )`
-	teamCPUUsage       = `sum by (container, owner_kind) (rate(container_cpu_usage_seconds_total{namespace="%s", container!~%q}[5m]) * on(pod,namespace) group_left(owner_kind) kube_pod_owner(owner_kind="ReplicaSet") )`
-	teamMemoryRequest  = `sum by (container, owner_kind) (kube_pod_container_resource_requests{namespace="%s", container!~%q, resource="memory",unit="byte"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner(owner_kind="ReplicaSet") )`
-	teamMemoryUsage    = `sum by (container, owner_kind) (container_memory_working_set_bytes{namespace="%s", container!~%q} * on(pod,namespace) group_left(owner_kind) kube_pod_owner(owner_kind="ReplicaSet") )`
-	teamsCPURequest    = `sum by (namespace, owner_kind) (kube_pod_container_resource_requests{namespace!~%q, container!~%q, resource="cpu",unit="core"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner(owner_kind="ReplicaSet") )`
-	teamsCPUUsage      = `sum by (namespace, owner_kind) (rate(container_cpu_usage_seconds_total{namespace!~%q, container!~%q}[5m]) * on(pod,namespace) group_left(owner_kind) kube_pod_owner(owner_kind="ReplicaSet") )`
-	teamsMemoryRequest = `sum by (namespace, owner_kind) (kube_pod_container_resource_requests{namespace!~%q, container!~%q, resource="memory",unit="byte"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner(owner_kind="ReplicaSet") )`
-	teamsMemoryUsage   = `sum by (namespace, owner_kind) (container_memory_working_set_bytes{namespace!~%q, container!~%q} * on(pod,namespace) group_left(owner_kind) kube_pod_owner(owner_kind="ReplicaSet") )`
+	teamCPURequest     = `sum by (container, owner_kind) (kube_pod_container_resource_requests{namespace="%s", container!~%q, resource="cpu",unit="core"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	teamCPUUsage       = `sum by (container, owner_kind) (rate(container_cpu_usage_seconds_total{namespace="%s", container!~%q}[5m]) * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"} )`
+	teamMemoryRequest  = `sum by (container, owner_kind) (kube_pod_container_resource_requests{namespace="%s", container!~%q, resource="memory",unit="byte"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	teamMemoryUsage    = `sum by (container, owner_kind) (container_memory_working_set_bytes{namespace="%s", container!~%q} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	teamsCPURequest    = `sum by (namespace, owner_kind) (kube_pod_container_resource_requests{namespace!~%q, container!~%q, resource="cpu",unit="core"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	teamsCPUUsage      = `sum by (namespace, owner_kind) (rate(container_cpu_usage_seconds_total{namespace!~%q, container!~%q}[5m]) * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	teamsMemoryRequest = `sum by (namespace, owner_kind) (kube_pod_container_resource_requests{namespace!~%q, container!~%q, resource="memory",unit="byte"} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
+	teamsMemoryUsage   = `sum by (namespace, owner_kind) (container_memory_working_set_bytes{namespace!~%q, container!~%q} * on(pod,namespace) group_left(owner_kind) kube_pod_owner{owner_kind="ReplicaSet"})`
 )
 
 var (
