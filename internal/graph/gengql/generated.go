@@ -1326,9 +1326,10 @@ type ComplexityRoot struct {
 	}
 
 	TeamUtilizationData struct {
-		Requested func(childComplexity int) int
-		Team      func(childComplexity int) int
-		Used      func(childComplexity int) int
+		Environment func(childComplexity int) int
+		Requested   func(childComplexity int) int
+		Team        func(childComplexity int) int
+		Used        func(childComplexity int) int
 	}
 
 	TokenX struct {
@@ -7347,6 +7348,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamSync.CorrelationID(childComplexity), true
 
+	case "TeamUtilizationData.environment":
+		if e.complexity.TeamUtilizationData.Environment == nil {
+			break
+		}
+
+		return e.complexity.TeamUtilizationData.Environment(childComplexity), true
+
 	case "TeamUtilizationData.requested":
 		if e.complexity.TeamUtilizationData.Requested == nil {
 			break
@@ -10267,6 +10275,9 @@ type TeamUtilizationData {
 
   "The current resource usage."
   used: Float!
+
+  "The environment for the utilization data."
+  environment: String!
 }
 
 "Utilization data type."
@@ -40276,6 +40287,8 @@ func (ec *executionContext) fieldContext_Query_teamsUtilization(ctx context.Cont
 				return ec.fieldContext_TeamUtilizationData_requested(ctx, field)
 			case "used":
 				return ec.fieldContext_TeamUtilizationData_used(ctx, field)
+			case "environment":
+				return ec.fieldContext_TeamUtilizationData_environment(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamUtilizationData", field.Name)
 		},
@@ -52824,6 +52837,50 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_used(_ context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamUtilizationData_environment(ctx context.Context, field graphql.CollectedField, obj *model.TeamUtilizationData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUtilizationData_environment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Environment, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUtilizationData_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUtilizationData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -71351,6 +71408,11 @@ func (ec *executionContext) _TeamUtilizationData(ctx context.Context, sel ast.Se
 			}
 		case "used":
 			out.Values[i] = ec._TeamUtilizationData_used(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "environment":
+			out.Values[i] = ec._TeamUtilizationData_environment(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

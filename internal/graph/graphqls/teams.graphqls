@@ -503,6 +503,9 @@ type TeamUtilizationData {
 
   "The current resource usage."
   used: Float!
+
+  "The environment for the utilization data."
+  environment: String!
 }
 
 "Utilization data type."

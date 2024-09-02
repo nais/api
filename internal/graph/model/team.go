@@ -59,7 +59,8 @@ type TeamInventory struct {
 }
 
 type TeamUtilizationData struct {
-	Requested float64   `json:"requested"`
-	Used      float64   `json:"used"`
-	TeamSlug  slug.Slug `json:"-"`
+	Requested   float64   `json:"requested"`
+	Used        float64   `json:"used"`
+	Environment string    `json:"environment"`
+	TeamSlug    slug.Slug `json:"-"`
 }

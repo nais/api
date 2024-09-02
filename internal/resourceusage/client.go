@@ -3,6 +3,7 @@ package resourceusage
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -107,11 +108,12 @@ func (c *Client) TeamsUtilization(ctx context.Context, resourceType model.UsageR
 
 	ret := []*model.TeamUtilizationData{}
 
-	for _, samples := range requested {
+	for env, samples := range requested {
 		for _, sample := range samples {
 			ret = append(ret, &model.TeamUtilizationData{
-				TeamSlug:  slug.Slug(sample.Metric["namespace"]),
-				Requested: float64(sample.Value),
+				TeamSlug:    slug.Slug(sample.Metric["namespace"]),
+				Requested:   float64(sample.Value),
+				Environment: env,
 			})
 		}
 	}
