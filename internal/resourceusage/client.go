@@ -242,7 +242,7 @@ func promClients(clusters []string, tenant string) (map[string]promv1.API, error
 	ret := map[string]promv1.API{}
 
 	for _, cluster := range clusters {
-		client, err := api.NewClient(api.Config{Address: fmt.Sprintf("https://prometheus.%s.%s", cluster, tenant)})
+		client, err := api.NewClient(api.Config{Address: fmt.Sprintf("https://prometheus.%s.%s.cloud.nais.io", cluster, tenant)})
 		if err != nil {
 			return nil, err
 		}
