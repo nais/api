@@ -1567,7 +1567,7 @@ func (r *teamMemberReconcilerResolver) Reconciler(ctx context.Context, obj *mode
 }
 
 func (r *teamUtilizationDataResolver) Team(ctx context.Context, obj *model.TeamUtilizationData) (*model.Team, error) {
-	r.log.Info("first teamUtilizationDataResolver.Team", "teamSlug", obj.TeamSlug)
+	r.log.Infof("first teamUtilizationDataResolver.Team: %v", obj.TeamSlug)
 
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsRead, obj.TeamSlug)
@@ -1577,11 +1577,11 @@ func (r *teamUtilizationDataResolver) Team(ctx context.Context, obj *model.TeamU
 
 	team, err := loader.GetTeam(ctx, obj.TeamSlug)
 	if err != nil {
-		r.log.WithError(err).Error("teamUtilizationDataResolver.Team", "teamSlug", obj.TeamSlug)
+		r.log.WithError(err).Error("get team error teamUtilizationDataResolver.Team ", "teamSlug", obj.TeamSlug)
 	}
 
-	if team != nil {
-		r.log.Info("team not eq nil - teamUtilizationDataResolver.Team", "teamSlug", obj.TeamSlug, "team", team)
+	if team == nil {
+		r.log.Info("team is nil - teamUtilizationDataResolver.Team ", "teamSlug", obj.TeamSlug, "team", team)
 	}
 
 	return team, err
