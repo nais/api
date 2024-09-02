@@ -1585,7 +1585,6 @@ func (r *teamUtilizationDataResolver) Team(ctx context.Context, obj *model.TeamU
 	}
 
 	return team, err
-
 }
 
 func (r *Resolver) AppUtilizationData() gengql.AppUtilizationDataResolver {
