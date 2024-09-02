@@ -3,7 +3,6 @@ package resourceusage
 import (
 	"context"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
