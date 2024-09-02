@@ -29,8 +29,13 @@ import (
 )
 
 func (r *appUtilizationDataResolver) App(ctx context.Context, obj *model.AppUtilizationData) (*model.App, error) {
+	if !r.k8sClient.AppExists(obj.Env, obj.TeamSlug.String(), obj.AppName) {
+		r.log.Errorf("app %s in team %s does not exist", obj.AppName, obj.TeamSlug)
+		return nil, nil
+	}
 	app, err := r.k8sClient.App(ctx, obj.AppName, obj.TeamSlug.String(), obj.Env)
 	if err != nil {
+		r.log.Errorf("getting app %s in team %s: %v", obj.AppName, obj.TeamSlug, err)
 		return nil, apierror.ErrAppNotFound
 	}
 
