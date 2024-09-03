@@ -167,10 +167,10 @@ func (c *Client) TeamUtilization(ctx context.Context, teamSlug slug.Slug, resour
 		return nil, err
 	}
 
-	for _, samples := range used {
+	for env, samples := range used {
 		for _, sample := range samples {
 			for _, data := range ret {
-				if data.AppName == string(sample.Metric["container"]) {
+				if data.AppName == string(sample.Metric["container"]) && data.Env == env {
 					data.Used = float64(sample.Value)
 				}
 			}
