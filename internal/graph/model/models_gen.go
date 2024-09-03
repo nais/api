@@ -747,6 +747,7 @@ type Rekor struct {
 	RunnerEnvironment        string `json:"runnerEnvironment"`
 	SourceRepositoryOwnerURI string `json:"sourceRepositoryOwnerURI"`
 	IntegratedTime           int    `json:"integratedTime"`
+	ImageDigestSha           string `json:"imageDigestSHA"`
 }
 
 type RepositoryList struct {

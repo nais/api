@@ -284,6 +284,8 @@ func parseRekorTags(tags []dependencytrack.Tag) model.Rekor {
 			rekor.RunnerEnvironment = strings.TrimPrefix(tag.Name, dependencytrack.RekorRunnerEnvironmentTagPrefix.String())
 		case strings.Contains(tag.Name, dependencytrack.RekorTagPrefix.String()):
 			rekor.LogIndex = strings.TrimPrefix(tag.Name, dependencytrack.RekorTagPrefix.String())
+		case strings.Contains(tag.Name, dependencytrack.DigestTagPrefix.String()):
+			rekor.ImageDigestSha = strings.TrimPrefix(tag.Name, dependencytrack.DigestTagPrefix.String())
 		}
 	}
 	return rekor

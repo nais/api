@@ -130,4 +130,5 @@ type Rekor {
   runnerEnvironment: String!
   sourceRepositoryOwnerURI: String!
   integratedTime: Int!
+  imageDigestSHA: String!
 }
