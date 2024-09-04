@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	CountForTeam(ctx context.Context, teamSlug slug.Slug) (int64, error)
+	Create(ctx context.Context, arg CreateParams) (*TeamRepository, error)
 	ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*TeamRepository, error)
 }
 

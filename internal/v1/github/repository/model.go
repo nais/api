@@ -29,3 +29,15 @@ func toGraphRepository(r *repositorysql.TeamRepository) *Repository {
 		Name:     r.GithubRepository,
 	}
 }
+
+type AddRepositoryToTeamInput struct {
+	// Slug of the team to add the repository to.
+	TeamSlug slug.Slug `json:"teamSlug"`
+	// Name of the repository, with the org prefix, for instance 'org/repo'.
+	RepoName string `json:"repoName"`
+}
+
+type AddRepositoryToTeamPayload struct {
+	// Repository that was added to the team.
+	Repository *Repository `json:"repository"`
+}

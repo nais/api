@@ -9,6 +9,17 @@ import (
 	"github.com/nais/api/internal/v1/team"
 )
 
+func (r *mutationResolver) AddRepositoryToTeam(ctx context.Context, input repository.AddRepositoryToTeamInput) (*repository.AddRepositoryToTeamPayload, error) {
+	repo, err := repository.Create(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return &repository.AddRepositoryToTeamPayload{
+		Repository: repo,
+	}, nil
+}
+
 func (r *repositoryResolver) Team(ctx context.Context, obj *repository.Repository) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
 }

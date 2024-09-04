@@ -47,3 +47,17 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	}
 	return pagination.NewConvertConnection(ret, page, int32(total), toGraphRepository), nil
 }
+
+func Create(ctx context.Context, input AddRepositoryToTeamInput) (*Repository, error) {
+	q := db(ctx)
+
+	ret, err := q.Create(ctx, repositorysql.CreateParams{
+		TeamSlug:         input.TeamSlug,
+		GithubRepository: input.RepoName,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return toGraphRepository(ret), nil
+}

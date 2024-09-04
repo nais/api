@@ -21,3 +21,12 @@ LIMIT
 OFFSET
 	sqlc.arg('offset')
 ;
+
+-- name: Create :one
+INSERT INTO
+	team_repositories (team_slug, github_repository)
+VALUES
+	(@team_slug, @github_repository)
+RETURNING
+	*
+;

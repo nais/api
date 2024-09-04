@@ -2,6 +2,24 @@ extend type Team {
 	repositories(first: Int, after: Cursor, last: Int, before: Cursor): RepositoryConnection!
 }
 
+input AddRepositoryToTeamInput {
+	"Slug of the team to add the repository to."
+	teamSlug: Slug!
+
+	"Name of the repository, with the org prefix, for instance 'org/repo'."
+	repoName: String!
+}
+
+type AddRepositoryToTeamPayload {
+	"Repository that was added to the team."
+	repository: Repository!
+}
+
+extend type Mutation {
+	"Add a team repository."
+	addRepositoryToTeam(input: AddRepositoryToTeamInput!): AddRepositoryToTeamPayload!
+}
+
 type RepositoryConnection {
 	pageInfo: PageInfo!
 	edges: [RepositoryEdge]

@@ -25,6 +25,27 @@ func (q *Queries) CountForTeam(ctx context.Context, teamSlug slug.Slug) (int64, 
 	return count, err
 }
 
+const create = `-- name: Create :one
+INSERT INTO
+	team_repositories (team_slug, github_repository)
+VALUES
+	($1, $2)
+RETURNING
+	team_slug, github_repository
+`
+
+type CreateParams struct {
+	TeamSlug         slug.Slug
+	GithubRepository string
+}
+
+func (q *Queries) Create(ctx context.Context, arg CreateParams) (*TeamRepository, error) {
+	row := q.db.QueryRow(ctx, create, arg.TeamSlug, arg.GithubRepository)
+	var i TeamRepository
+	err := row.Scan(&i.TeamSlug, &i.GithubRepository)
+	return &i, err
+}
+
 const listForTeam = `-- name: ListForTeam :many
 SELECT
 	team_slug, github_repository

@@ -81,6 +81,10 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	AddRepositoryToTeamPayload struct {
+		Repository func(childComplexity int) int
+	}
+
 	Application struct {
 		Environment func(childComplexity int) int
 		ID          func(childComplexity int) int
@@ -272,9 +276,10 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateTeam      func(childComplexity int, input team.CreateTeamInput) int
-		SynchronizeTeam func(childComplexity int, input team.SynchronizeTeamInput) int
-		UpdateTeam      func(childComplexity int, input team.UpdateTeamInput) int
+		AddRepositoryToTeam func(childComplexity int, input repository.AddRepositoryToTeamInput) int
+		CreateTeam          func(childComplexity int, input team.CreateTeamInput) int
+		SynchronizeTeam     func(childComplexity int, input team.SynchronizeTeamInput) int
+		UpdateTeam          func(childComplexity int, input team.UpdateTeamInput) int
 	}
 
 	OpenSearch struct {
@@ -641,6 +646,7 @@ type KafkaTopicAclResolver interface {
 	Workload(ctx context.Context, obj *kafkatopic.KafkaTopicACL) (workload.Workload, error)
 }
 type MutationResolver interface {
+	AddRepositoryToTeam(ctx context.Context, input repository.AddRepositoryToTeamInput) (*repository.AddRepositoryToTeamPayload, error)
 	CreateTeam(ctx context.Context, input team.CreateTeamInput) (*team.CreateTeamPayload, error)
 	UpdateTeam(ctx context.Context, input team.UpdateTeamInput) (*team.UpdateTeamPayload, error)
 	SynchronizeTeam(ctx context.Context, input team.SynchronizeTeamInput) (*team.SynchronizeTeamPayload, error)
@@ -735,6 +741,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "AddRepositoryToTeamPayload.repository":
+		if e.complexity.AddRepositoryToTeamPayload.Repository == nil {
+			break
+		}
+
+		return e.complexity.AddRepositoryToTeamPayload.Repository(childComplexity), true
 
 	case "Application.environment":
 		if e.complexity.Application.Environment == nil {
@@ -1429,6 +1442,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.KafkaTopicStatus.State(childComplexity), true
+
+	case "Mutation.addRepositoryToTeam":
+		if e.complexity.Mutation.AddRepositoryToTeam == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addRepositoryToTeam_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddRepositoryToTeam(childComplexity, args["input"].(repository.AddRepositoryToTeamInput)), true
 
 	case "Mutation.createTeam":
 		if e.complexity.Mutation.CreateTeam == nil {
@@ -2867,6 +2892,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputAddRepositoryToTeamInput,
 		ec.unmarshalInputApplicationOrder,
 		ec.unmarshalInputBigQueryDatasetAccessOrder,
 		ec.unmarshalInputBigQueryDatasetOrder,
@@ -3617,6 +3643,24 @@ enum SqlInstanceUserOrderField {
 `, BuiltIn: false},
 	{Name: "../schema/repository.graphqls", Input: `extend type Team {
 	repositories(first: Int, after: Cursor, last: Int, before: Cursor): RepositoryConnection!
+}
+
+input AddRepositoryToTeamInput {
+	"Slug of the team to add the repository to."
+	teamSlug: Slug!
+
+	"Name of the repository, with the org prefix, for instance 'org/repo'."
+	repoName: String!
+}
+
+type AddRepositoryToTeamPayload {
+	"Repository that was added to the team."
+	repository: Repository!
+}
+
+extend type Mutation {
+	"Add a team repository."
+	addRepositoryToTeam(input: AddRepositoryToTeamInput!): AddRepositoryToTeamPayload!
 }
 
 type RepositoryConnection {
@@ -4536,6 +4580,21 @@ func (ec *executionContext) field_KafkaTopic_acl_args(ctx context.Context, rawAr
 		}
 	}
 	args["orderBy"] = arg5
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_addRepositoryToTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 repository.AddRepositoryToTeamInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNAddRepositoryToTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐAddRepositoryToTeamInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -5572,6 +5631,58 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _AddRepositoryToTeamPayload_repository(ctx context.Context, field graphql.CollectedField, obj *repository.AddRepositoryToTeamPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AddRepositoryToTeamPayload_repository(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Repository, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*repository.Repository)
+	fc.Result = res
+	return ec.marshalNRepository2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐRepository(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AddRepositoryToTeamPayload_repository(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AddRepositoryToTeamPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Repository_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Repository_name(ctx, field)
+			case "team":
+				return ec.fieldContext_Repository_team(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Repository", field.Name)
+		},
+	}
+	return fc, nil
+}
 
 func (ec *executionContext) _Application_id(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Application_id(ctx, field)
@@ -10567,6 +10678,65 @@ func (ec *executionContext) fieldContext_KafkaTopicStatus_state(_ context.Contex
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_addRepositoryToTeam(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_addRepositoryToTeam(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().AddRepositoryToTeam(rctx, fc.Args["input"].(repository.AddRepositoryToTeamInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*repository.AddRepositoryToTeamPayload)
+	fc.Result = res
+	return ec.marshalNAddRepositoryToTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐAddRepositoryToTeamPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_addRepositoryToTeam(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "repository":
+				return ec.fieldContext_AddRepositoryToTeamPayload_repository(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AddRepositoryToTeamPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_addRepositoryToTeam_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -22016,6 +22186,40 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputAddRepositoryToTeamInput(ctx context.Context, obj interface{}) (repository.AddRepositoryToTeamInput, error) {
+	var it repository.AddRepositoryToTeamInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"teamSlug", "repoName"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		case "repoName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("repoName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RepoName = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputApplicationOrder(ctx context.Context, obj interface{}) (application.ApplicationOrder, error) {
 	var it application.ApplicationOrder
 	asMap := map[string]interface{}{}
@@ -22977,6 +23181,45 @@ func (ec *executionContext) _Workload(ctx context.Context, sel ast.SelectionSet,
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var addRepositoryToTeamPayloadImplementors = []string{"AddRepositoryToTeamPayload"}
+
+func (ec *executionContext) _AddRepositoryToTeamPayload(ctx context.Context, sel ast.SelectionSet, obj *repository.AddRepositoryToTeamPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, addRepositoryToTeamPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AddRepositoryToTeamPayload")
+		case "repository":
+			out.Values[i] = ec._AddRepositoryToTeamPayload_repository(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
 
 var applicationImplementors = []string{"Application", "Node", "Workload"}
 
@@ -25043,6 +25286,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
+		case "addRepositoryToTeam":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_addRepositoryToTeam(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createTeam":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createTeam(ctx, field)
@@ -29157,6 +29407,25 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
+
+func (ec *executionContext) unmarshalNAddRepositoryToTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐAddRepositoryToTeamInput(ctx context.Context, v interface{}) (repository.AddRepositoryToTeamInput, error) {
+	res, err := ec.unmarshalInputAddRepositoryToTeamInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAddRepositoryToTeamPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐAddRepositoryToTeamPayload(ctx context.Context, sel ast.SelectionSet, v repository.AddRepositoryToTeamPayload) graphql.Marshaler {
+	return ec._AddRepositoryToTeamPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAddRepositoryToTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐAddRepositoryToTeamPayload(ctx context.Context, sel ast.SelectionSet, v *repository.AddRepositoryToTeamPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AddRepositoryToTeamPayload(ctx, sel, v)
+}
 
 func (ec *executionContext) marshalNApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplication(ctx context.Context, sel ast.SelectionSet, v *application.Application) graphql.Marshaler {
 	if v == nil {
