@@ -97,3 +97,15 @@ WHERE
 ORDER BY
 	team_all_environments.environment ASC
 ;
+
+-- ListEnvironmentsBySlug
+-- name: ListEnvironmentsBySlug :many
+SELECT
+	*
+FROM
+	team_all_environments
+WHERE
+	team_slug = @slug
+ORDER BY
+	environment ASC
+;

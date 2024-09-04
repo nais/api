@@ -23,10 +23,6 @@ func (r *queryResolver) User(ctx context.Context, id ident.Ident) (*user.User, e
 	return user.GetByIdent(ctx, id)
 }
 
-func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*user.User, error) {
-	return user.GetByEmail(ctx, email)
-}
-
 func (r *userResolver) Teams(ctx context.Context, obj *user.User, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.UserTeamOrder) (*pagination.Connection[*team.TeamMember], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {

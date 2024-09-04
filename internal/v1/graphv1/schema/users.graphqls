@@ -19,9 +19,6 @@ extend type Query {
 
 	"Get a user by its ID."
 	user(id: ID!): User!
-
-	"Get a user by its email address."
-	userByEmail(email: String!): User!
 }
 
 """

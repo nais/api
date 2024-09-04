@@ -215,3 +215,17 @@ func GetTeamEnvironmentByIdent(ctx context.Context, id ident.Ident) (*TeamEnviro
 	}
 	return GetTeamEnvironment(ctx, teamSlug, envName)
 }
+
+func ListTeamEnvironments(ctx context.Context, teamSlug slug.Slug) ([]*TeamEnvironment, error) {
+	tes, err := db(ctx).ListEnvironmentsBySlug(ctx, teamSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := make([]*TeamEnvironment, len(tes))
+	for i, te := range tes {
+		ret[i] = toGraphTeamEnvironment(te)
+	}
+
+	return ret, nil
+}

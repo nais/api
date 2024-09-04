@@ -18,6 +18,8 @@ type Querier interface {
 	Get(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	List(ctx context.Context, arg ListParams) ([]*Team, error)
 	ListBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)
+	// ListEnvironmentsBySlug
+	ListEnvironmentsBySlug(ctx context.Context, argSlug slug.Slug) ([]*TeamAllEnvironment, error)
 	// ListEnvironmentsBySlugsAndEnvNames returns a slice of team environments for a list of teams/envs, excluding
 	// deleted teams.
 	// Input is two arrays of equal length, one for slugs and one for names

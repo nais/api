@@ -184,6 +184,10 @@ func (r *teamResolver) ViewerIsMember(ctx context.Context, obj *team.Team) (bool
 	panic(fmt.Errorf("not implemented: ViewerIsMember - viewerIsMember"))
 }
 
+func (r *teamResolver) Environments(ctx context.Context, obj *team.Team) ([]*team.TeamEnvironment, error) {
+	return team.ListTeamEnvironments(ctx, obj.Slug)
+}
+
 func (r *teamEnvironmentResolver) Team(ctx context.Context, obj *team.TeamEnvironment) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
 }

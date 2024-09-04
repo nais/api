@@ -21,15 +21,6 @@ func GetByIdent(ctx context.Context, ident ident.Ident) (*User, error) {
 	return Get(ctx, uid)
 }
 
-func GetByEmail(ctx context.Context, email string) (*User, error) {
-	user, err := db(ctx).GetByEmail(ctx, email)
-	if err != nil {
-		return nil, err
-	}
-
-	return toGraphUser(user), nil
-}
-
 func List(ctx context.Context, page *pagination.Pagination, orderBy *UserOrder) (*UserConnection, error) {
 	q := db(ctx)
 

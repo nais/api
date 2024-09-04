@@ -276,6 +276,8 @@ type Team implements Node {
 
 	"Whether or not the viewer is a member of the team."
 	viewerIsMember: Boolean!
+
+	environments: [TeamEnvironment!]!
 }
 
 type TeamEnvironment implements Node {

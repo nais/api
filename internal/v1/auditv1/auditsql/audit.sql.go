@@ -96,11 +96,11 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) error {
 
 const get = `-- name: Get :one
 SELECT
-    id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment
+	id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment
 FROM
-    audit_events
+	audit_events
 WHERE
-    id = $1
+	id = $1
 `
 
 func (q *Queries) Get(ctx context.Context, id uuid.UUID) (*AuditEvent, error) {
@@ -122,13 +122,13 @@ func (q *Queries) Get(ctx context.Context, id uuid.UUID) (*AuditEvent, error) {
 
 const listByIDs = `-- name: ListByIDs :many
 SELECT
-    id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment
+	id, created_at, actor, action, resource_type, resource_name, team_slug, data, environment
 FROM
-    audit_events
+	audit_events
 WHERE
-    id = ANY($1::uuid[])
+	id = ANY ($1::UUID [])
 ORDER BY
-    created_at DESC
+	created_at DESC
 `
 
 func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*AuditEvent, error) {

@@ -181,6 +181,45 @@ func (q *Queries) ListBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, 
 	return items, nil
 }
 
+const listEnvironmentsBySlug = `-- name: ListEnvironmentsBySlug :many
+SELECT
+	team_slug, environment, gcp, gcp_project_id, id, slack_alerts_channel
+FROM
+	team_all_environments
+WHERE
+	team_slug = $1
+ORDER BY
+	environment ASC
+`
+
+// ListEnvironmentsBySlug
+func (q *Queries) ListEnvironmentsBySlug(ctx context.Context, argSlug slug.Slug) ([]*TeamAllEnvironment, error) {
+	rows, err := q.db.Query(ctx, listEnvironmentsBySlug, argSlug)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*TeamAllEnvironment{}
+	for rows.Next() {
+		var i TeamAllEnvironment
+		if err := rows.Scan(
+			&i.TeamSlug,
+			&i.Environment,
+			&i.Gcp,
+			&i.GcpProjectID,
+			&i.ID,
+			&i.SlackAlertsChannel,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listEnvironmentsBySlugsAndEnvNames = `-- name: ListEnvironmentsBySlugsAndEnvNames :many
 WITH
 	input AS (
