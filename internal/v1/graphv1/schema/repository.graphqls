@@ -1,0 +1,30 @@
+extend type Team {
+	repositories(first: Int, after: Cursor, last: Int, before: Cursor): RepositoryConnection!
+}
+
+type RepositoryConnection {
+	pageInfo: PageInfo!
+	edges: [RepositoryEdge]
+}
+
+type RepositoryEdge {
+	cursor: Cursor!
+	node: Repository!
+}
+
+type Repository implements Node {
+	"""
+	ID of the repository.
+	"""
+	id: ID!
+
+	"""
+	Name of the repository, with the organization prefix.
+	"""
+	name: String!
+
+	"""
+	Team this repository is connected to.
+	"""
+	team: Team!
+}

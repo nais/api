@@ -1,0 +1,31 @@
+package repository
+
+import (
+	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/v1/github/repository/repositorysql"
+	"github.com/nais/api/internal/v1/graphv1/ident"
+	"github.com/nais/api/internal/v1/graphv1/pagination"
+)
+
+type (
+	RepositoryConnection = pagination.Connection[*Repository]
+	RepositoryEdge       = pagination.Edge[*Repository]
+)
+
+type Repository struct {
+	TeamSlug slug.Slug `json:"-"`
+	Name     string    `json:"name"`
+}
+
+func (Repository) IsNode() {}
+
+func (r Repository) ID() ident.Ident {
+	return newIdent(r.TeamSlug, r.Name)
+}
+
+func toGraphRepository(r *repositorysql.TeamRepository) *Repository {
+	return &Repository{
+		TeamSlug: r.TeamSlug,
+		Name:     r.GithubRepository,
+	}
+}

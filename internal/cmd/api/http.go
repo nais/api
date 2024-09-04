@@ -18,6 +18,7 @@ import (
 	legacysqlinstance "github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/v1/auditv1"
 	"github.com/nais/api/internal/v1/databasev1"
+	"github.com/nais/api/internal/v1/github/repository"
 	"github.com/nais/api/internal/v1/graphv1/loaderv1"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/nais/api/internal/v1/persistence/bigquery"
@@ -114,6 +115,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 			ctx = databasev1.NewLoaderContext(ctx, pool)
 			ctx = team.NewLoaderContext(ctx, pool, opts)
 			ctx = user.NewLoaderContext(ctx, pool, opts)
+			ctx = repository.NewLoaderContext(ctx, pool)
 			ctx = role.NewLoaderContext(ctx, pool)
 			ctx = auditv1.NewLoaderContext(ctx, pool, opts)
 			return ctx

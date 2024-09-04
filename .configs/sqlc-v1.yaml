@@ -66,3 +66,12 @@ sql:
         <<: *default_go
         package: "auditsql"
         out: "../internal/v1/auditv1/auditsql"
+
+  - <<: *default_domain
+    name: "GitHub repositories SQL"
+    queries: "../internal/v1/github/repository/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "repositorysql"
+        out: "../internal/v1/github/repository/repositorysql"
