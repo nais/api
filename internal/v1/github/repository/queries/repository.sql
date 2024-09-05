@@ -32,10 +32,10 @@ RETURNING
 ;
 
 -- name: Remove :one
-DELETE FROM
-	team_repositories
+DELETE FROM team_repositories
 WHERE
-	team_slug = @team_slug AND github_repository = @github_repository
+	team_slug = @team_slug
+	AND github_repository = @github_repository
 RETURNING
 	*
 ;
