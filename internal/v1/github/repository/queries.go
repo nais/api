@@ -61,3 +61,17 @@ func Create(ctx context.Context, input AddRepositoryToTeamInput) (*Repository, e
 
 	return toGraphRepository(ret), nil
 }
+
+func Remove(ctx context.Context, input RemoveRepositoryFromTeamInput) (*Repository, error) {
+	q := db(ctx)
+
+	ret, err := q.Remove(ctx, repositorysql.RemoveParams{
+		TeamSlug:         input.TeamSlug,
+		GithubRepository: input.RepoName,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return toGraphRepository(ret), nil
+}

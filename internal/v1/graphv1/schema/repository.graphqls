@@ -15,9 +15,25 @@ type AddRepositoryToTeamPayload {
 	repository: Repository!
 }
 
+input RemoveRepositoryFromTeamInput {
+	"Slug of the team to remove the repository from."
+	teamSlug: Slug!
+
+	"Name of the repository, with the org prefix, for instance 'org/repo'."
+	repoName: String!
+}
+
+type RemoveRepositoryFromTeamPayload {
+	"Repository that was removed from the team."
+	repository: Repository!
+}
+
 extend type Mutation {
 	"Add a team repository."
 	addRepositoryToTeam(input: AddRepositoryToTeamInput!): AddRepositoryToTeamPayload!
+
+	"Remove a team repository."
+	removeRepositoryFromTeam(input: RemoveRepositoryFromTeamInput!): RemoveRepositoryFromTeamPayload!
 }
 
 type RepositoryConnection {

@@ -20,6 +20,17 @@ func (r *mutationResolver) AddRepositoryToTeam(ctx context.Context, input reposi
 	}, nil
 }
 
+func (r *mutationResolver) RemoveRepositoryFromTeam(ctx context.Context, input repository.RemoveRepositoryFromTeamInput) (*repository.RemoveRepositoryFromTeamPayload, error) {
+	repo, err := repository.Remove(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return &repository.RemoveRepositoryFromTeamPayload{
+		Repository: repo,
+	}, nil
+}
+
 func (r *repositoryResolver) Team(ctx context.Context, obj *repository.Repository) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
 }

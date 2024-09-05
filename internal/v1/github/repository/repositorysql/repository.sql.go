@@ -86,3 +86,24 @@ func (q *Queries) ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*Te
 	}
 	return items, nil
 }
+
+const remove = `-- name: Remove :one
+DELETE FROM
+	team_repositories
+WHERE
+	team_slug = $1 AND github_repository = $2
+RETURNING
+	team_slug, github_repository
+`
+
+type RemoveParams struct {
+	TeamSlug         slug.Slug
+	GithubRepository string
+}
+
+func (q *Queries) Remove(ctx context.Context, arg RemoveParams) (*TeamRepository, error) {
+	row := q.db.QueryRow(ctx, remove, arg.TeamSlug, arg.GithubRepository)
+	var i TeamRepository
+	err := row.Scan(&i.TeamSlug, &i.GithubRepository)
+	return &i, err
+}

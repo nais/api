@@ -41,3 +41,15 @@ type AddRepositoryToTeamPayload struct {
 	// Repository that was added to the team.
 	Repository *Repository `json:"repository"`
 }
+
+type RemoveRepositoryFromTeamInput struct {
+	// Slug of the team to remove the repository from.
+	TeamSlug slug.Slug `json:"teamSlug"`
+	// Name of the repository, with the org prefix, for instance 'org/repo'.
+	RepoName string `json:"repoName"`
+}
+
+type RemoveRepositoryFromTeamPayload struct {
+	// Repository that was removed from the team.
+	Repository *Repository `json:"repository"`
+}
