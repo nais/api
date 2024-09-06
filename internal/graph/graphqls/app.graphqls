@@ -112,7 +112,7 @@ type WorkloadStatus implements ResourceStatus{
 
 type VulnerabilityStatus {
   hasSbom: Boolean!
-  "Whether we deem the image to have to many vulnerabilities by a certain threshold."
+  "Whether we deem the image to have too many vulnerabilities by a certain threshold."
   vulnerable: Boolean!
   summary: ImageVulnerabilitySummary
 }
