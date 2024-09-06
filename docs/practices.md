@@ -101,5 +101,5 @@ It is recommended to configure your editor to format code on save.
 
 ### Configuring your editor
 
-- IDEA: https://www.jetbrains.com/help/idea/prettier.html#ws_prettier_apply_code_style
+- IDEA: https://www.jetbrains.com/help/idea/prettier.html
 - VS Code: https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode
