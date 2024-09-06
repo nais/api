@@ -19,7 +19,7 @@ input AddRepositoryToTeamInput {
 	teamSlug: Slug!
 
 	"Name of the repository, with the org prefix, for instance 'org/repo'."
-	repoName: String!
+	repositoryName: String!
 }
 
 type AddRepositoryToTeamPayload {
@@ -32,12 +32,12 @@ input RemoveRepositoryFromTeamInput {
 	teamSlug: Slug!
 
 	"Name of the repository, with the org prefix, for instance 'org/repo'."
-	repoName: String!
+	repositoryName: String!
 }
 
 type RemoveRepositoryFromTeamPayload {
-	"Repository that was removed from the team."
-	repository: Repository!
+	"Whether or not the repository was removed from the team."
+	success: Boolean!
 }
 
 extend type Mutation {

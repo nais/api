@@ -31,11 +31,9 @@ RETURNING
 	*
 ;
 
--- name: Remove :one
+-- name: Remove :exec
 DELETE FROM team_repositories
 WHERE
 	team_slug = @team_slug
 	AND github_repository = @github_repository
-RETURNING
-	*
 ;

@@ -31,25 +31,19 @@ func toGraphRepository(r *repositorysql.TeamRepository) *Repository {
 }
 
 type AddRepositoryToTeamInput struct {
-	// Slug of the team to add the repository to.
-	TeamSlug slug.Slug `json:"teamSlug"`
-	// Name of the repository, with the org prefix, for instance 'org/repo'.
-	RepoName string `json:"repoName"`
+	TeamSlug       slug.Slug `json:"teamSlug"`
+	RepositoryName string    `json:"repositoryName"`
 }
 
 type AddRepositoryToTeamPayload struct {
-	// Repository that was added to the team.
 	Repository *Repository `json:"repository"`
 }
 
 type RemoveRepositoryFromTeamInput struct {
-	// Slug of the team to remove the repository from.
-	TeamSlug slug.Slug `json:"teamSlug"`
-	// Name of the repository, with the org prefix, for instance 'org/repo'.
-	RepoName string `json:"repoName"`
+	TeamSlug       slug.Slug `json:"teamSlug"`
+	RepositoryName string    `json:"repositoryName"`
 }
 
 type RemoveRepositoryFromTeamPayload struct {
-	// Repository that was removed from the team.
-	Repository *Repository `json:"repository"`
+	Success bool `json:"success"`
 }

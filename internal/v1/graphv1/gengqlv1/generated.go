@@ -380,7 +380,7 @@ type ComplexityRoot struct {
 	}
 
 	RemoveRepositoryFromTeamPayload struct {
-		Repository func(childComplexity int) int
+		Success func(childComplexity int) int
 	}
 
 	Repository struct {
@@ -1880,12 +1880,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RedisInstanceStatus.State(childComplexity), true
 
-	case "RemoveRepositoryFromTeamPayload.repository":
-		if e.complexity.RemoveRepositoryFromTeamPayload.Repository == nil {
+	case "RemoveRepositoryFromTeamPayload.success":
+		if e.complexity.RemoveRepositoryFromTeamPayload.Success == nil {
 			break
 		}
 
-		return e.complexity.RemoveRepositoryFromTeamPayload.Repository(childComplexity), true
+		return e.complexity.RemoveRepositoryFromTeamPayload.Success(childComplexity), true
 
 	case "Repository.id":
 		if e.complexity.Repository.ID == nil {
@@ -3688,7 +3688,7 @@ input AddRepositoryToTeamInput {
 	teamSlug: Slug!
 
 	"Name of the repository, with the org prefix, for instance 'org/repo'."
-	repoName: String!
+	repositoryName: String!
 }
 
 type AddRepositoryToTeamPayload {
@@ -3701,12 +3701,12 @@ input RemoveRepositoryFromTeamInput {
 	teamSlug: Slug!
 
 	"Name of the repository, with the org prefix, for instance 'org/repo'."
-	repoName: String!
+	repositoryName: String!
 }
 
 type RemoveRepositoryFromTeamPayload {
-	"Repository that was removed from the team."
-	repository: Repository!
+	"Whether or not the repository was removed from the team."
+	success: Boolean!
 }
 
 extend type Mutation {
@@ -10849,8 +10849,8 @@ func (ec *executionContext) fieldContext_Mutation_removeRepositoryFromTeam(ctx c
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "repository":
-				return ec.fieldContext_RemoveRepositoryFromTeamPayload_repository(ctx, field)
+			case "success":
+				return ec.fieldContext_RemoveRepositoryFromTeamPayload_success(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type RemoveRepositoryFromTeamPayload", field.Name)
 		},
@@ -13693,8 +13693,8 @@ func (ec *executionContext) fieldContext_RedisInstanceStatus_state(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _RemoveRepositoryFromTeamPayload_repository(ctx context.Context, field graphql.CollectedField, obj *repository.RemoveRepositoryFromTeamPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RemoveRepositoryFromTeamPayload_repository(ctx, field)
+func (ec *executionContext) _RemoveRepositoryFromTeamPayload_success(ctx context.Context, field graphql.CollectedField, obj *repository.RemoveRepositoryFromTeamPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RemoveRepositoryFromTeamPayload_success(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -13707,7 +13707,7 @@ func (ec *executionContext) _RemoveRepositoryFromTeamPayload_repository(ctx cont
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Repository, nil
+		return obj.Success, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13719,27 +13719,19 @@ func (ec *executionContext) _RemoveRepositoryFromTeamPayload_repository(ctx cont
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*repository.Repository)
+	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalNRepository2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐRepository(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_RemoveRepositoryFromTeamPayload_repository(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RemoveRepositoryFromTeamPayload_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RemoveRepositoryFromTeamPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Repository_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Repository_name(ctx, field)
-			case "team":
-				return ec.fieldContext_Repository_team(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Repository", field.Name)
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -22373,7 +22365,7 @@ func (ec *executionContext) unmarshalInputAddRepositoryToTeamInput(ctx context.C
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"teamSlug", "repoName"}
+	fieldsInOrder := [...]string{"teamSlug", "repositoryName"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -22387,13 +22379,13 @@ func (ec *executionContext) unmarshalInputAddRepositoryToTeamInput(ctx context.C
 				return it, err
 			}
 			it.TeamSlug = data
-		case "repoName":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("repoName"))
+		case "repositoryName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("repositoryName"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.RepoName = data
+			it.RepositoryName = data
 		}
 	}
 
@@ -22856,7 +22848,7 @@ func (ec *executionContext) unmarshalInputRemoveRepositoryFromTeamInput(ctx cont
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"teamSlug", "repoName"}
+	fieldsInOrder := [...]string{"teamSlug", "repositoryName"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -22870,13 +22862,13 @@ func (ec *executionContext) unmarshalInputRemoveRepositoryFromTeamInput(ctx cont
 				return it, err
 			}
 			it.TeamSlug = data
-		case "repoName":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("repoName"))
+		case "repositoryName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("repositoryName"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.RepoName = data
+			it.RepositoryName = data
 		}
 	}
 
@@ -26811,8 +26803,8 @@ func (ec *executionContext) _RemoveRepositoryFromTeamPayload(ctx context.Context
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("RemoveRepositoryFromTeamPayload")
-		case "repository":
-			out.Values[i] = ec._RemoveRepositoryFromTeamPayload_repository(ctx, field, obj)
+		case "success":
+			out.Values[i] = ec._RemoveRepositoryFromTeamPayload_success(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
