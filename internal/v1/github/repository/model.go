@@ -13,8 +13,8 @@ type (
 )
 
 type Repository struct {
-	TeamSlug slug.Slug `json:"-"`
 	Name     string    `json:"name"`
+	TeamSlug slug.Slug `json:"-"`
 }
 
 func (Repository) IsNode() {}

@@ -3668,7 +3668,19 @@ enum SqlInstanceUserOrderField {
 }
 `, BuiltIn: false},
 	{Name: "../schema/repository.graphqls", Input: `extend type Team {
-	repositories(first: Int, after: Cursor, last: Int, before: Cursor): RepositoryConnection!
+	repositories(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): RepositoryConnection!
 }
 
 input AddRepositoryToTeamInput {
@@ -3706,29 +3718,29 @@ extend type Mutation {
 }
 
 type RepositoryConnection {
+	"Pagination information."
 	pageInfo: PageInfo!
+
+	"List of edges."
 	edges: [RepositoryEdge]
 }
 
 type RepositoryEdge {
+	"Cursor for this edge that can be used for pagination."
 	cursor: Cursor!
+
+	"The GitHub repository."
 	node: Repository!
 }
 
 type Repository implements Node {
-	"""
-	ID of the repository.
-	"""
+	"ID of the repository."
 	id: ID!
 
-	"""
-	Name of the repository, with the organization prefix.
-	"""
+	"Name of the repository, with the organization prefix."
 	name: String!
 
-	"""
-	Team this repository is connected to.
-	"""
+	"Team this repository is connected to."
 	team: Team!
 }
 `, BuiltIn: false},

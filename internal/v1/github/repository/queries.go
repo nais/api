@@ -9,14 +9,6 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 )
 
-// func AssignTeamRoleToUser(ctx context.Context, userID uuid.UUID, teamSlug slug.Slug, roleName rolesql.RoleName) error {
-// 	return db(ctx).AssignTeamRoleToUser(ctx, rolesql.AssignTeamRoleToUserParams{
-// 		UserID:         userID,
-// 		RoleName:       roleName,
-// 		TargetTeamSlug: teamSlug,
-// 	})
-// }
-
 func getByIdent(_ context.Context, id ident.Ident) (*Repository, error) {
 	ts, repo, err := parseIdent(id)
 	if err != nil {
