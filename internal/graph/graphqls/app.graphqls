@@ -104,7 +104,20 @@ enum UsageResourceType {
   MEMORY
 }
 
-type WorkloadStatus {
+type WorkloadStatus implements ResourceStatus{
+  state: State!
+  errors: [StateError!]!
+  vulnerabilities: VulnerabilityStatus!
+}
+
+type VulnerabilityStatus {
+  hasSbom: Boolean!
+  "Whether we deem the image to have to many vulnerabilities by a certain threshold."
+  vulnerable: Boolean!
+  summary: ImageVulnerabilitySummary
+}
+
+interface ResourceStatus {
   state: State!
   errors: [StateError!]!
 }
