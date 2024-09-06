@@ -107,14 +107,6 @@ enum UsageResourceType {
 type WorkloadStatus implements ResourceStatus{
   state: State!
   errors: [StateError!]!
-  vulnerabilities: VulnerabilityStatus!
-}
-
-type VulnerabilityStatus {
-  hasSbom: Boolean!
-  "Whether we deem the image to have too many vulnerabilities by a certain threshold."
-  vulnerable: Boolean!
-  summary: ImageVulnerabilitySummary
 }
 
 interface ResourceStatus {
@@ -170,6 +162,17 @@ type OutboundAccessError implements StateError {
   revision: String!
   level: ErrorLevel!
   rule: Rule!
+}
+
+type Vulnerable implements StateError {
+  revision: String!
+  level: ErrorLevel!
+  summary: ImageVulnerabilitySummary
+}
+
+type MissingSbom implements StateError {
+  revision: String!
+  level: ErrorLevel!
 }
 
 type Instance {

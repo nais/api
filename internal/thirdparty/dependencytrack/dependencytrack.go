@@ -19,6 +19,18 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
+var _ DependencytrackClient = &Client{}
+
+type DependencytrackClient interface {
+	GetMetadataForImageByProjectID(ctx context.Context, projectID string) (*model.ImageDetails, error)
+	GetMetadataForImage(ctx context.Context, image string) (*model.ImageDetails, error)
+	GetFindingsForImageByProjectID(ctx context.Context, projectID string, suppressed bool) ([]*model.Finding, error)
+	GetMetadataForTeam(ctx context.Context, team string) ([]*model.ImageDetails, error)
+	GetVulnerabilityStatus(ctx context.Context, image string) (model.StateError, error)
+	SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.AnalysisTrail, error)
+	GetAnalysisTrailForImage(ctx context.Context, projectID, componentID, vulnerabilityID string) (*model.AnalysisTrail, error)
+}
+
 type WorkloadInstance struct {
 	Env, Team, Name, Image, Kind string
 }
@@ -93,6 +105,39 @@ func (c *Client) WithCache(cache *cache.Cache) *Client {
 	return c
 }
 
+func (c *Client) GetVulnerabilityStatus(ctx context.Context, image string) (model.StateError, error) {
+	name, version, _ := strings.Cut(image, ":")
+	p, err := c.client.GetProject(ctx, name, version)
+	if err != nil {
+		return nil, fmt.Errorf("getting project by name %s and version %s: %w", name, version, err)
+	}
+
+	if !hasBom(p) {
+		return model.MissingSbom{
+			Revision: "",
+			Level:    model.ErrorLevelError,
+		}, nil
+	}
+
+	v, sum := c.isVulnerable(p, true)
+	if v {
+		return model.Vulnerable{
+			Revision: "",
+			Level:    model.ErrorLevelWarning,
+			Summary:  sum,
+		}, nil
+	}
+	return nil, nil
+}
+
+func (c *Client) isVulnerable(p *dependencytrack.Project, sbom bool) (bool, *model.ImageVulnerabilitySummary) {
+	sum := c.createSummaryForImage(p, sbom)
+	if sum == nil {
+		return false, nil
+	}
+	return sum.Critical > 0 || sum.High > 0 || sum.Medium > 0 || sum.Low > 0, sum
+}
+
 func (c *Client) GetProjectMetrics(ctx context.Context, instance *WorkloadInstance, date string) (*ProjectMetric, error) {
 	p, err := c.retrieveProject(ctx, instance)
 	if err != nil {
@@ -142,6 +187,9 @@ func (c *Client) GetProjectMetrics(ctx context.Context, instance *WorkloadInstan
 // The 'LastBomImportFormat' can be empty even if the project has a BOM.
 // As a fallback, we can check if projects has registered any components, then we assume that if a project has components, it has a BOM.
 func hasBom(p *dependencytrack.Project) bool {
+	if p == nil {
+		return false
+	}
 	return p.LastBomImportFormat != "" || p.Metrics != nil && p.Metrics.Components > 0
 }
 

@@ -31,6 +31,8 @@ type WorkloadStatus struct {
 	Errors []StateError `json:"errors"`
 }
 
+func (WorkloadStatus) IsResourceStatus() {}
+
 type WorkloadSpec struct {
 	GCP        *nais_io_v1.GCP
 	Kafka      *nais_io_v1.Kafka

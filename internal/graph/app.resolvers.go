@@ -124,6 +124,16 @@ func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, en
 		return nil, apierror.ErrAppNotFound
 	}
 
+	vuln, err := r.dependencyTrackClient.GetVulnerabilityStatus(ctx, app.Image)
+	if err != nil {
+		return nil, fmt.Errorf("getting vulnerability status for image %q: %w", app.Image, err)
+	}
+
+	if vuln != nil {
+		app.Status.State = model.StateNotnais
+		app.Status.Errors = append(app.Status.Errors, vuln)
+	}
+
 	return app, nil
 }
 

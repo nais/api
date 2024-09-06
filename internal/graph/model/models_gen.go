@@ -38,6 +38,10 @@ type Persistence interface {
 	IsPersistence()
 }
 
+type ResourceStatus interface {
+	IsResourceStatus()
+}
+
 type ScalingStrategy interface {
 	IsScalingStrategy()
 }
@@ -580,6 +584,13 @@ type MaskinportenScope struct {
 	Exposes  []*Expose  `json:"exposes"`
 }
 
+type MissingSbom struct {
+	Revision string     `json:"revision"`
+	Level    ErrorLevel `json:"level"`
+}
+
+func (MissingSbom) IsStateError() {}
+
 // Monthly cost type.
 type MonthlyCost struct {
 	// Sum for all months in the series in euros.
@@ -956,15 +967,6 @@ type VulnIDAlias struct {
 	Source string `json:"source"`
 }
 
-type Vulnerability struct {
-	ID           scalar.Ident                 `json:"id"`
-	AppName      string                       `json:"appName"`
-	Env          string                       `json:"env"`
-	FindingsLink string                       `json:"findingsLink"`
-	Summary      *VulnerabilitySummaryForTeam `json:"summary,omitempty"`
-	HasBom       bool                         `json:"hasBom"`
-}
-
 type VulnerabilitySummaryForTeam struct {
 	RiskScore  int     `json:"riskScore"`
 	Critical   int     `json:"critical"`
@@ -975,6 +977,14 @@ type VulnerabilitySummaryForTeam struct {
 	BomCount   int     `json:"bomCount"`
 	Coverage   float64 `json:"coverage"`
 }
+
+type Vulnerable struct {
+	Revision string                     `json:"revision"`
+	Level    ErrorLevel                 `json:"level"`
+	Summary  *ImageVulnerabilitySummary `json:"summary,omitempty"`
+}
+
+func (Vulnerable) IsStateError() {}
 
 type AuditEventAction string
 

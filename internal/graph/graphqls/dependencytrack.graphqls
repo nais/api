@@ -17,15 +17,6 @@ extend enum OrderByField {
   SEVERITY_UNASSIGNED
 }
 
-type Vulnerability {
-  id: ID!
-  appName: String!
-  env: String!
-  findingsLink: String!
-  summary: VulnerabilitySummaryForTeam
-  hasBom: Boolean!
-}
-
 type VulnerabilitySummaryForTeam {
   riskScore: Int!
   critical: Int!
