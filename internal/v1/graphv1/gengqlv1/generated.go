@@ -1086,7 +1086,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Bucket.Name(childComplexity), true
 
-	case "Bucket.projectId":
+	case "Bucket.projectID":
 		if e.complexity.Bucket.ProjectID == nil {
 			break
 		}
@@ -2213,7 +2213,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstance.Name(childComplexity), true
 
-	case "SqlInstance.projectId":
+	case "SqlInstance.projectID":
 		if e.complexity.SqlInstance.ProjectID == nil {
 			break
 		}
@@ -3001,7 +3001,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Email(childComplexity), true
 
-	case "User.externalId":
+	case "User.externalID":
 		if e.complexity.User.ExternalID == nil {
 			break
 		}
@@ -3574,7 +3574,7 @@ type Bucket implements Persistence & Node {
 	publicAccessPrevention: String!
 	uniformBucketLevelAccess: Boolean!
 	cors(first: Int, after: Cursor, last: Int, before: Cursor): BucketCorsConnection!
-	projectId: String!
+	projectID: String!
 	workload: Workload
 	status: BucketStatus!
 }
@@ -3709,7 +3709,7 @@ type SqlInstance implements Persistence & Node {
 	maintenanceVersion: String
 	maintenanceWindow: SqlInstanceMaintenanceWindow
 	backupConfiguration: SqlInstanceBackupConfiguration
-	projectId: String!
+	projectID: String!
 	tier: String!
 	version: String
 	status: SqlInstanceStatus!
@@ -4588,7 +4588,7 @@ type User implements Node {
 	name: String!
 
 	"The external ID of the user. This value is managed by the NAIS API user synchronization."
-	externalId: String!
+	externalID: String!
 
 	"List of teams the user is connected to."
 	teams(
@@ -8351,8 +8351,8 @@ func (ec *executionContext) fieldContext_Bucket_cors(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Bucket_projectId(ctx context.Context, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Bucket_projectId(ctx, field)
+func (ec *executionContext) _Bucket_projectID(ctx context.Context, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Bucket_projectID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8382,7 +8382,7 @@ func (ec *executionContext) _Bucket_projectId(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Bucket_projectId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Bucket_projectID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Bucket",
 		Field:      field,
@@ -8595,8 +8595,8 @@ func (ec *executionContext) fieldContext_BucketConnection_nodes(_ context.Contex
 				return ec.fieldContext_Bucket_uniformBucketLevelAccess(ctx, field)
 			case "cors":
 				return ec.fieldContext_Bucket_cors(ctx, field)
-			case "projectId":
-				return ec.fieldContext_Bucket_projectId(ctx, field)
+			case "projectID":
+				return ec.fieldContext_Bucket_projectID(ctx, field)
 			case "workload":
 				return ec.fieldContext_Bucket_workload(ctx, field)
 			case "status":
@@ -9188,8 +9188,8 @@ func (ec *executionContext) fieldContext_BucketEdge_node(_ context.Context, fiel
 				return ec.fieldContext_Bucket_uniformBucketLevelAccess(ctx, field)
 			case "cors":
 				return ec.fieldContext_Bucket_cors(ctx, field)
-			case "projectId":
-				return ec.fieldContext_Bucket_projectId(ctx, field)
+			case "projectID":
+				return ec.fieldContext_Bucket_projectID(ctx, field)
 			case "workload":
 				return ec.fieldContext_Bucket_workload(ctx, field)
 			case "status":
@@ -13395,8 +13395,8 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 				return ec.fieldContext_User_email(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
-			case "externalId":
-				return ec.fieldContext_User_externalId(ctx, field)
+			case "externalID":
+				return ec.fieldContext_User_externalID(ctx, field)
 			case "teams":
 				return ec.fieldContext_User_teams(ctx, field)
 			}
@@ -16201,8 +16201,8 @@ func (ec *executionContext) fieldContext_SqlInstance_backupConfiguration(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_projectId(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SqlInstance_projectId(ctx, field)
+func (ec *executionContext) _SqlInstance_projectID(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstance_projectID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -16232,7 +16232,7 @@ func (ec *executionContext) _SqlInstance_projectId(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_SqlInstance_projectId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SqlInstance_projectID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
@@ -16893,8 +16893,8 @@ func (ec *executionContext) fieldContext_SqlInstanceConnection_nodes(_ context.C
 				return ec.fieldContext_SqlInstance_maintenanceWindow(ctx, field)
 			case "backupConfiguration":
 				return ec.fieldContext_SqlInstance_backupConfiguration(ctx, field)
-			case "projectId":
-				return ec.fieldContext_SqlInstance_projectId(ctx, field)
+			case "projectID":
+				return ec.fieldContext_SqlInstance_projectID(ctx, field)
 			case "tier":
 				return ec.fieldContext_SqlInstance_tier(ctx, field)
 			case "version":
@@ -17075,8 +17075,8 @@ func (ec *executionContext) fieldContext_SqlInstanceEdge_node(_ context.Context,
 				return ec.fieldContext_SqlInstance_maintenanceWindow(ctx, field)
 			case "backupConfiguration":
 				return ec.fieldContext_SqlInstance_backupConfiguration(ctx, field)
-			case "projectId":
-				return ec.fieldContext_SqlInstance_projectId(ctx, field)
+			case "projectID":
+				return ec.fieldContext_SqlInstance_projectID(ctx, field)
 			case "tier":
 				return ec.fieldContext_SqlInstance_tier(ctx, field)
 			case "version":
@@ -20483,8 +20483,8 @@ func (ec *executionContext) fieldContext_TeamMember_user(_ context.Context, fiel
 				return ec.fieldContext_User_email(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
-			case "externalId":
-				return ec.fieldContext_User_externalId(ctx, field)
+			case "externalID":
+				return ec.fieldContext_User_externalID(ctx, field)
 			case "teams":
 				return ec.fieldContext_User_teams(ctx, field)
 			}
@@ -21633,8 +21633,8 @@ func (ec *executionContext) fieldContext_User_name(_ context.Context, field grap
 	return fc, nil
 }
 
-func (ec *executionContext) _User_externalId(ctx context.Context, field graphql.CollectedField, obj *user.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_externalId(ctx, field)
+func (ec *executionContext) _User_externalID(ctx context.Context, field graphql.CollectedField, obj *user.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_externalID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -21664,7 +21664,7 @@ func (ec *executionContext) _User_externalId(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_externalId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_externalID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -21841,8 +21841,8 @@ func (ec *executionContext) fieldContext_UserConnection_nodes(_ context.Context,
 				return ec.fieldContext_User_email(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
-			case "externalId":
-				return ec.fieldContext_User_externalId(ctx, field)
+			case "externalID":
+				return ec.fieldContext_User_externalID(ctx, field)
 			case "teams":
 				return ec.fieldContext_User_teams(ctx, field)
 			}
@@ -21991,8 +21991,8 @@ func (ec *executionContext) fieldContext_UserEdge_node(_ context.Context, field 
 				return ec.fieldContext_User_email(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
-			case "externalId":
-				return ec.fieldContext_User_externalId(ctx, field)
+			case "externalID":
+				return ec.fieldContext_User_externalID(ctx, field)
 			case "teams":
 				return ec.fieldContext_User_teams(ctx, field)
 			}
@@ -25794,8 +25794,8 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "projectId":
-			out.Values[i] = ec._Bucket_projectId(ctx, field, obj)
+		case "projectID":
+			out.Values[i] = ec._Bucket_projectID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -28763,8 +28763,8 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._SqlInstance_maintenanceWindow(ctx, field, obj)
 		case "backupConfiguration":
 			out.Values[i] = ec._SqlInstance_backupConfiguration(ctx, field, obj)
-		case "projectId":
-			out.Values[i] = ec._SqlInstance_projectId(ctx, field, obj)
+		case "projectID":
+			out.Values[i] = ec._SqlInstance_projectID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -30694,8 +30694,8 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "externalId":
-			out.Values[i] = ec._User_externalId(ctx, field, obj)
+		case "externalID":
+			out.Values[i] = ec._User_externalID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

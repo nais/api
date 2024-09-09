@@ -59,7 +59,7 @@ type SQLInstance struct {
 	MaintenanceVersion  *string                         `json:"maintenanceVersion,omitempty"`
 	MaintenanceWindow   *SQLInstanceMaintenanceWindow   `json:"maintenanceWindow,omitempty"`
 	BackupConfiguration *SQLInstanceBackupConfiguration `json:"backupConfiguration,omitempty"`
-	ProjectID           string                          `json:"projectId"`
+	ProjectID           string                          `json:"projectID"`
 	Tier                string                          `json:"tier"`
 	Version             *string                         `json:"version,omitempty"`
 	Status              *SQLInstanceStatus              `json:"status"`

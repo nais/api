@@ -35,7 +35,7 @@ type User implements Node {
 	name: String!
 
 	"The external ID of the user. This value is managed by the NAIS API user synchronization."
-	externalId: String!
+	externalID: String!
 
 	"List of teams the user is connected to."
 	teams(
