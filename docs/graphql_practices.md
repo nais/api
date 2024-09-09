@@ -111,6 +111,7 @@ follows:
 ```graphql
 type TypeNameConnection {
 	pageInfo: PageInfo!
+	nodes: [TypeName!]!
 	edges: [TypeNameEdge!]!
 }
 
@@ -119,6 +120,10 @@ type TypeNameEdge {
 	node: TypeName!
 }
 ```
+
+The `nodes` field is not a part of the spec, and is included for convenience.
+`nodes` and `edges` are both of the same length, and contain the nodes in the same order.
+I.e. `nodes[n]` is the same as `edges[n].node`.
 
 `PageInfo` is defined as follows:
 
