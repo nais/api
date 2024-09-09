@@ -1389,7 +1389,44 @@ func (r *teamResolver) Deployments(ctx context.Context, obj *model.Team, offset 
 }
 
 func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy, filter *model.VulnerabilityFilter) (*model.VulnerabilityList, error) {
-	return &model.VulnerabilityList{}, nil
+	return &model.VulnerabilityList{
+		Nodes: []*model.VulnerabilityNode{
+			{
+				ID: scalar.Ident{
+					ID:   "1",
+					Type: "vulnerability",
+				},
+				WorkloadName: "workload1",
+				Env:          "dev",
+				Summary: &model.VulnerabilitySummary{
+					RiskScore:  45,
+					Critical:   0,
+					High:       5,
+					Medium:     45,
+					Low:        1,
+					Unassigned: 0,
+				},
+				HasBom: true,
+			},
+			{
+				ID: scalar.Ident{
+					ID:   "2",
+					Type: "vulnerability",
+				},
+				WorkloadName: "workload2",
+				Env:          "dev",
+				Summary: &model.VulnerabilitySummary{
+					RiskScore:  123,
+					Critical:   1,
+					High:       5,
+					Medium:     20,
+					Low:        2,
+					Unassigned: 1,
+				},
+				HasBom: true,
+			},
+		},
+	}, nil
 }
 
 func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummaryForTeam, error) {
