@@ -12,7 +12,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/persistence/bigquery"
-	bucket1 "github.com/nais/api/internal/v1/persistence/bucket"
+	"github.com/nais/api/internal/v1/persistence/bucket"
 	"github.com/nais/api/internal/v1/persistence/kafkatopic"
 	"github.com/nais/api/internal/v1/persistence/opensearch"
 	"github.com/nais/api/internal/v1/persistence/redis"
@@ -63,15 +63,15 @@ func (r *bigQueryDatasetResolver) Cost(ctx context.Context, obj *bigquery.BigQue
 	panic(fmt.Errorf("not implemented: Cost - cost"))
 }
 
-func (r *bucketResolver) Team(ctx context.Context, obj *bucket1.Bucket) (*team.Team, error) {
+func (r *bucketResolver) Team(ctx context.Context, obj *bucket.Bucket) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
 }
 
-func (r *bucketResolver) Environment(ctx context.Context, obj *bucket1.Bucket) (*team.TeamEnvironment, error) {
+func (r *bucketResolver) Environment(ctx context.Context, obj *bucket.Bucket) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *bucketResolver) Cors(ctx context.Context, obj *bucket1.Bucket, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*bucket1.BucketCors], error) {
+func (r *bucketResolver) Cors(ctx context.Context, obj *bucket.Bucket, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*bucket.BucketCors], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -81,7 +81,7 @@ func (r *bucketResolver) Cors(ctx context.Context, obj *bucket1.Bucket, first *i
 	return pagination.NewConnection(ret, page, int32(len(obj.Cors))), nil
 }
 
-func (r *bucketResolver) Workload(ctx context.Context, obj *bucket1.Bucket) (workload.Workload, error) {
+func (r *bucketResolver) Workload(ctx context.Context, obj *bucket.Bucket) (workload.Workload, error) {
 	return r.workload(ctx, obj.OwnerReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
@@ -260,6 +260,60 @@ func (r *sqlInstanceResolver) Users(ctx context.Context, obj *sqlinstance.SQLIns
 	}
 
 	return sqlinstance.ListSQLInstanceUsers(ctx, obj, page, orderBy)
+}
+
+func (r *teamResolver) BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return bigquery.ListForTeam(ctx, obj.Slug, page, orderBy)
+}
+
+func (r *teamResolver) RedisInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceOrder) (*pagination.Connection[*redis.RedisInstance], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return redis.ListForTeam(ctx, obj.Slug, page, orderBy)
+}
+
+func (r *teamResolver) OpenSearch(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return opensearch.ListForTeam(ctx, obj.Slug, page, orderBy)
+}
+
+func (r *teamResolver) Buckets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return bucket.ListForTeam(ctx, obj.Slug, page, orderBy)
+}
+
+func (r *teamResolver) KafkaTopics(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return kafkatopic.ListForTeam(ctx, obj.Slug, page, orderBy)
+}
+
+func (r *teamResolver) SQLInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return sqlinstance.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
 func (r *Resolver) BigQueryDataset() gengqlv1.BigQueryDatasetResolver {

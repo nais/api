@@ -14,6 +14,14 @@ extend type Team {
 	): RepositoryConnection!
 }
 
+extend type Mutation {
+	"Add a team repository."
+	addRepositoryToTeam(input: AddRepositoryToTeamInput!): AddRepositoryToTeamPayload!
+
+	"Remove a team repository."
+	removeRepositoryFromTeam(input: RemoveRepositoryFromTeamInput!): RemoveRepositoryFromTeamPayload!
+}
+
 input AddRepositoryToTeamInput {
 	"Slug of the team to add the repository to."
 	teamSlug: Slug!
@@ -38,14 +46,6 @@ input RemoveRepositoryFromTeamInput {
 type RemoveRepositoryFromTeamPayload {
 	"Whether or not the repository was removed from the team."
 	success: Boolean!
-}
-
-extend type Mutation {
-	"Add a team repository."
-	addRepositoryToTeam(input: AddRepositoryToTeamInput!): AddRepositoryToTeamPayload!
-
-	"Remove a team repository."
-	removeRepositoryFromTeam(input: RemoveRepositoryFromTeamInput!): RemoveRepositoryFromTeamPayload!
 }
 
 type RepositoryConnection {
