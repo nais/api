@@ -333,66 +333,79 @@ type SqlInstanceUser {
 
 type BigQueryDatasetAccessConnection {
 	pageInfo: PageInfo!
+	nodes: [BigQueryDatasetAccess!]!
 	edges: [BigQueryDatasetAccessEdge!]!
 }
 
 type BigQueryDatasetConnection {
 	pageInfo: PageInfo!
+	nodes: [BigQueryDataset!]!
 	edges: [BigQueryDatasetEdge!]!
 }
 
 type BucketConnection {
 	pageInfo: PageInfo!
+	nodes: [Bucket!]!
 	edges: [BucketEdge!]!
 }
 
 type BucketCorsConnection {
 	pageInfo: PageInfo!
+	nodes: [BucketCors!]!
 	edges: [BucketCorsEdge!]!
 }
 
 type KafkaTopicConnection {
 	pageInfo: PageInfo!
+	nodes: [KafkaTopic!]!
 	edges: [KafkaTopicEdge!]!
 }
 
 type KafkaTopicAclConnection {
 	pageInfo: PageInfo!
+	nodes: [KafkaTopicAcl!]!
 	edges: [KafkaTopicAclEdge!]!
 }
 
 type OpenSearchAccessConnection {
 	pageInfo: PageInfo!
+	nodes: [OpenSearchAccess!]!
 	edges: [OpenSearchAccessEdge!]!
 }
 
 type OpenSearchConnection {
 	pageInfo: PageInfo!
+	nodes: [OpenSearch!]!
 	edges: [OpenSearchEdge!]!
 }
 
 type RedisInstanceAccessConnection {
 	pageInfo: PageInfo!
+	nodes: [RedisInstanceAccess!]!
 	edges: [RedisInstanceAccessEdge!]!
 }
 
 type RedisInstanceConnection {
 	pageInfo: PageInfo!
+	nodes: [RedisInstance!]!
 	edges: [RedisInstanceEdge!]!
 }
 
 type SqlInstanceConnection {
 	pageInfo: PageInfo!
+	nodes: [SqlInstance!]!
 	edges: [SqlInstanceEdge!]!
 }
 
 type SqlInstanceFlagConnection {
 	pageInfo: PageInfo!
+	nodes: [SqlInstanceFlag!]!
 	edges: [SqlInstanceFlagEdge!]!
 }
 
 type SqlInstanceUserConnection {
 	pageInfo: PageInfo!
+	nodes: [SqlInstanceUser!]!
 	edges: [SqlInstanceUserEdge!]!
 }
 

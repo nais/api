@@ -10,6 +10,14 @@ type Connection[T any] struct {
 	PageInfo PageInfo  `json:"pageInfo"`
 }
 
+func (c *Connection[T]) Nodes() []T {
+	nodes := make([]T, len(c.Edges))
+	for i, edge := range c.Edges {
+		nodes[i] = edge.Node
+	}
+	return nodes
+}
+
 type PageInfo struct {
 	TotalCount      int     `json:"totalCount"`
 	HasNextPage     bool    `json:"hasNextPage"`

@@ -46,6 +46,7 @@ type Job implements Node & Workload {
 
 type JobConnection {
 	pageInfo: PageInfo!
+	nodes: [Job!]!
 	edges: [JobEdge!]!
 }
 

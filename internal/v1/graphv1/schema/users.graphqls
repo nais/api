@@ -60,6 +60,9 @@ type UserConnection {
 	"Pagination information."
 	pageInfo: PageInfo!
 
+	"List of nodes."
+	nodes: [User!]!
+
 	"List of edges."
 	edges: [UserEdge!]!
 }

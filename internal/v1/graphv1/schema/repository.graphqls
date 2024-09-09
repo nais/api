@@ -52,6 +52,9 @@ type RepositoryConnection {
 	"Pagination information."
 	pageInfo: PageInfo!
 
+	"List of nodes."
+	nodes: [Repository!]!
+
 	"List of edges."
 	edges: [RepositoryEdge]
 }

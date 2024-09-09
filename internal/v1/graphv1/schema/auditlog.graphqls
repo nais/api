@@ -64,6 +64,9 @@ type AuditEntryConnection {
 	"Pagination information."
 	pageInfo: PageInfo!
 
+	"List of nodes."
+	nodes: [AuditEntry!]!
+
 	"List of edges."
 	edges: [AuditEntryEdge!]!
 }

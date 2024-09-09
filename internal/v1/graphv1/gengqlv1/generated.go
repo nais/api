@@ -94,6 +94,7 @@ type ComplexityRoot struct {
 
 	ApplicationConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -104,6 +105,7 @@ type ComplexityRoot struct {
 
 	AuditEntryConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -132,6 +134,7 @@ type ComplexityRoot struct {
 
 	BigQueryDatasetAccessConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -142,6 +145,7 @@ type ComplexityRoot struct {
 
 	BigQueryDatasetConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -171,6 +175,7 @@ type ComplexityRoot struct {
 
 	BucketConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -183,6 +188,7 @@ type ComplexityRoot struct {
 
 	BucketCorsConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -213,6 +219,7 @@ type ComplexityRoot struct {
 
 	JobConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -242,6 +249,7 @@ type ComplexityRoot struct {
 
 	KafkaTopicAclConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -263,6 +271,7 @@ type ComplexityRoot struct {
 
 	KafkaTopicConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -301,6 +310,7 @@ type ComplexityRoot struct {
 
 	OpenSearchAccessConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -311,6 +321,7 @@ type ComplexityRoot struct {
 
 	OpenSearchConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -357,6 +368,7 @@ type ComplexityRoot struct {
 
 	RedisInstanceAccessConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -367,6 +379,7 @@ type ComplexityRoot struct {
 
 	RedisInstanceConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -391,6 +404,7 @@ type ComplexityRoot struct {
 
 	RepositoryConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -444,6 +458,7 @@ type ComplexityRoot struct {
 
 	SqlInstanceConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -459,6 +474,7 @@ type ComplexityRoot struct {
 
 	SqlInstanceFlagConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -484,6 +500,7 @@ type ComplexityRoot struct {
 
 	SqlInstanceUserConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -526,6 +543,7 @@ type ComplexityRoot struct {
 
 	TeamConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -562,6 +580,7 @@ type ComplexityRoot struct {
 
 	TeamMemberConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -607,6 +626,7 @@ type ComplexityRoot struct {
 
 	UserConnection struct {
 		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
 
@@ -790,6 +810,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ApplicationConnection.Edges(childComplexity), true
 
+	case "ApplicationConnection.nodes":
+		if e.complexity.ApplicationConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.ApplicationConnection.Nodes(childComplexity), true
+
 	case "ApplicationConnection.pageInfo":
 		if e.complexity.ApplicationConnection.PageInfo == nil {
 			break
@@ -817,6 +844,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AuditEntryConnection.Edges(childComplexity), true
+
+	case "AuditEntryConnection.nodes":
+		if e.complexity.AuditEntryConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.AuditEntryConnection.Nodes(childComplexity), true
 
 	case "AuditEntryConnection.pageInfo":
 		if e.complexity.AuditEntryConnection.PageInfo == nil {
@@ -935,6 +969,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.BigQueryDatasetAccessConnection.Edges(childComplexity), true
 
+	case "BigQueryDatasetAccessConnection.nodes":
+		if e.complexity.BigQueryDatasetAccessConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.BigQueryDatasetAccessConnection.Nodes(childComplexity), true
+
 	case "BigQueryDatasetAccessConnection.pageInfo":
 		if e.complexity.BigQueryDatasetAccessConnection.PageInfo == nil {
 			break
@@ -962,6 +1003,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BigQueryDatasetConnection.Edges(childComplexity), true
+
+	case "BigQueryDatasetConnection.nodes":
+		if e.complexity.BigQueryDatasetConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.BigQueryDatasetConnection.Nodes(childComplexity), true
 
 	case "BigQueryDatasetConnection.pageInfo":
 		if e.complexity.BigQueryDatasetConnection.PageInfo == nil {
@@ -1087,6 +1135,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.BucketConnection.Edges(childComplexity), true
 
+	case "BucketConnection.nodes":
+		if e.complexity.BucketConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.BucketConnection.Nodes(childComplexity), true
+
 	case "BucketConnection.pageInfo":
 		if e.complexity.BucketConnection.PageInfo == nil {
 			break
@@ -1128,6 +1183,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BucketCorsConnection.Edges(childComplexity), true
+
+	case "BucketCorsConnection.nodes":
+		if e.complexity.BucketCorsConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.BucketCorsConnection.Nodes(childComplexity), true
 
 	case "BucketCorsConnection.pageInfo":
 		if e.complexity.BucketCorsConnection.PageInfo == nil {
@@ -1212,6 +1274,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.JobConnection.Edges(childComplexity), true
+
+	case "JobConnection.nodes":
+		if e.complexity.JobConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.JobConnection.Nodes(childComplexity), true
 
 	case "JobConnection.pageInfo":
 		if e.complexity.JobConnection.PageInfo == nil {
@@ -1337,6 +1406,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.KafkaTopicAclConnection.Edges(childComplexity), true
 
+	case "KafkaTopicAclConnection.nodes":
+		if e.complexity.KafkaTopicAclConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.KafkaTopicAclConnection.Nodes(childComplexity), true
+
 	case "KafkaTopicAclConnection.pageInfo":
 		if e.complexity.KafkaTopicAclConnection.PageInfo == nil {
 			break
@@ -1420,6 +1496,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.KafkaTopicConnection.Edges(childComplexity), true
+
+	case "KafkaTopicConnection.nodes":
+		if e.complexity.KafkaTopicConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.KafkaTopicConnection.Nodes(childComplexity), true
 
 	case "KafkaTopicConnection.pageInfo":
 		if e.complexity.KafkaTopicConnection.PageInfo == nil {
@@ -1591,6 +1674,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.OpenSearchAccessConnection.Edges(childComplexity), true
 
+	case "OpenSearchAccessConnection.nodes":
+		if e.complexity.OpenSearchAccessConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.OpenSearchAccessConnection.Nodes(childComplexity), true
+
 	case "OpenSearchAccessConnection.pageInfo":
 		if e.complexity.OpenSearchAccessConnection.PageInfo == nil {
 			break
@@ -1618,6 +1708,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.OpenSearchConnection.Edges(childComplexity), true
+
+	case "OpenSearchConnection.nodes":
+		if e.complexity.OpenSearchConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.OpenSearchConnection.Nodes(childComplexity), true
 
 	case "OpenSearchConnection.pageInfo":
 		if e.complexity.OpenSearchConnection.PageInfo == nil {
@@ -1824,6 +1921,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RedisInstanceAccessConnection.Edges(childComplexity), true
 
+	case "RedisInstanceAccessConnection.nodes":
+		if e.complexity.RedisInstanceAccessConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.RedisInstanceAccessConnection.Nodes(childComplexity), true
+
 	case "RedisInstanceAccessConnection.pageInfo":
 		if e.complexity.RedisInstanceAccessConnection.PageInfo == nil {
 			break
@@ -1851,6 +1955,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RedisInstanceConnection.Edges(childComplexity), true
+
+	case "RedisInstanceConnection.nodes":
+		if e.complexity.RedisInstanceConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.RedisInstanceConnection.Nodes(childComplexity), true
 
 	case "RedisInstanceConnection.pageInfo":
 		if e.complexity.RedisInstanceConnection.PageInfo == nil {
@@ -1914,6 +2025,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RepositoryConnection.Edges(childComplexity), true
+
+	case "RepositoryConnection.nodes":
+		if e.complexity.RepositoryConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.RepositoryConnection.Nodes(childComplexity), true
 
 	case "RepositoryConnection.pageInfo":
 		if e.complexity.RepositoryConnection.PageInfo == nil {
@@ -2191,6 +2309,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SqlInstanceConnection.Edges(childComplexity), true
 
+	case "SqlInstanceConnection.nodes":
+		if e.complexity.SqlInstanceConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.SqlInstanceConnection.Nodes(childComplexity), true
+
 	case "SqlInstanceConnection.pageInfo":
 		if e.complexity.SqlInstanceConnection.PageInfo == nil {
 			break
@@ -2232,6 +2357,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SqlInstanceFlagConnection.Edges(childComplexity), true
+
+	case "SqlInstanceFlagConnection.nodes":
+		if e.complexity.SqlInstanceFlagConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.SqlInstanceFlagConnection.Nodes(childComplexity), true
 
 	case "SqlInstanceFlagConnection.pageInfo":
 		if e.complexity.SqlInstanceFlagConnection.PageInfo == nil {
@@ -2302,6 +2434,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.SqlInstanceUserConnection.Edges(childComplexity), true
+
+	case "SqlInstanceUserConnection.nodes":
+		if e.complexity.SqlInstanceUserConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.SqlInstanceUserConnection.Nodes(childComplexity), true
 
 	case "SqlInstanceUserConnection.pageInfo":
 		if e.complexity.SqlInstanceUserConnection.PageInfo == nil {
@@ -2568,6 +2707,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamConnection.Edges(childComplexity), true
 
+	case "TeamConnection.nodes":
+		if e.complexity.TeamConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.TeamConnection.Nodes(childComplexity), true
+
 	case "TeamConnection.pageInfo":
 		if e.complexity.TeamConnection.PageInfo == nil {
 			break
@@ -2714,6 +2860,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamMemberConnection.Edges(childComplexity), true
+
+	case "TeamMemberConnection.nodes":
+		if e.complexity.TeamMemberConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberConnection.Nodes(childComplexity), true
 
 	case "TeamMemberConnection.pageInfo":
 		if e.complexity.TeamMemberConnection.PageInfo == nil {
@@ -2888,6 +3041,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserConnection.Edges(childComplexity), true
 
+	case "UserConnection.nodes":
+		if e.complexity.UserConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.UserConnection.Nodes(childComplexity), true
+
 	case "UserConnection.pageInfo":
 		if e.complexity.UserConnection.PageInfo == nil {
 			break
@@ -3059,6 +3219,7 @@ var sources = []*ast.Source{
 
 type ApplicationConnection {
 	pageInfo: PageInfo!
+	nodes: [Application!]!
 	edges: [ApplicationEdge!]!
 }
 
@@ -3172,6 +3333,9 @@ type AuditEntryConnection {
 	"Pagination information."
 	pageInfo: PageInfo!
 
+	"List of nodes."
+	nodes: [AuditEntry!]!
+
 	"List of edges."
 	edges: [AuditEntryEdge!]!
 }
@@ -3232,6 +3396,7 @@ type Job implements Node & Workload {
 
 type JobConnection {
 	pageInfo: PageInfo!
+	nodes: [Job!]!
 	edges: [JobEdge!]!
 }
 
@@ -3589,66 +3754,79 @@ type SqlInstanceUser {
 
 type BigQueryDatasetAccessConnection {
 	pageInfo: PageInfo!
+	nodes: [BigQueryDatasetAccess!]!
 	edges: [BigQueryDatasetAccessEdge!]!
 }
 
 type BigQueryDatasetConnection {
 	pageInfo: PageInfo!
+	nodes: [BigQueryDataset!]!
 	edges: [BigQueryDatasetEdge!]!
 }
 
 type BucketConnection {
 	pageInfo: PageInfo!
+	nodes: [Bucket!]!
 	edges: [BucketEdge!]!
 }
 
 type BucketCorsConnection {
 	pageInfo: PageInfo!
+	nodes: [BucketCors!]!
 	edges: [BucketCorsEdge!]!
 }
 
 type KafkaTopicConnection {
 	pageInfo: PageInfo!
+	nodes: [KafkaTopic!]!
 	edges: [KafkaTopicEdge!]!
 }
 
 type KafkaTopicAclConnection {
 	pageInfo: PageInfo!
+	nodes: [KafkaTopicAcl!]!
 	edges: [KafkaTopicAclEdge!]!
 }
 
 type OpenSearchAccessConnection {
 	pageInfo: PageInfo!
+	nodes: [OpenSearchAccess!]!
 	edges: [OpenSearchAccessEdge!]!
 }
 
 type OpenSearchConnection {
 	pageInfo: PageInfo!
+	nodes: [OpenSearch!]!
 	edges: [OpenSearchEdge!]!
 }
 
 type RedisInstanceAccessConnection {
 	pageInfo: PageInfo!
+	nodes: [RedisInstanceAccess!]!
 	edges: [RedisInstanceAccessEdge!]!
 }
 
 type RedisInstanceConnection {
 	pageInfo: PageInfo!
+	nodes: [RedisInstance!]!
 	edges: [RedisInstanceEdge!]!
 }
 
 type SqlInstanceConnection {
 	pageInfo: PageInfo!
+	nodes: [SqlInstance!]!
 	edges: [SqlInstanceEdge!]!
 }
 
 type SqlInstanceFlagConnection {
 	pageInfo: PageInfo!
+	nodes: [SqlInstanceFlag!]!
 	edges: [SqlInstanceFlagEdge!]!
 }
 
 type SqlInstanceUserConnection {
 	pageInfo: PageInfo!
+	nodes: [SqlInstanceUser!]!
 	edges: [SqlInstanceUserEdge!]!
 }
 
@@ -3887,6 +4065,9 @@ type RemoveRepositoryFromTeamPayload {
 type RepositoryConnection {
 	"Pagination information."
 	pageInfo: PageInfo!
+
+	"List of nodes."
+	nodes: [Repository!]!
 
 	"List of edges."
 	edges: [RepositoryEdge]
@@ -4160,6 +4341,9 @@ type TeamConnection {
 	"Pagination information."
 	pageInfo: PageInfo!
 
+	"List of nodes."
+	nodes: [Team!]!
+
 	"List of edges."
 	edges: [TeamEdge!]!
 }
@@ -4167,6 +4351,9 @@ type TeamConnection {
 type TeamMemberConnection {
 	"Pagination information."
 	pageInfo: PageInfo!
+
+	"List of nodes."
+	nodes: [TeamMember!]!
 
 	"List of edges."
 	edges: [TeamMemberEdge!]!
@@ -4425,6 +4612,9 @@ type User implements Node {
 type UserConnection {
 	"Pagination information."
 	pageInfo: PageInfo!
+
+	"List of nodes."
+	nodes: [User!]!
 
 	"List of edges."
 	edges: [UserEdge!]!
@@ -6058,6 +6248,60 @@ func (ec *executionContext) fieldContext_ApplicationConnection_pageInfo(_ contex
 	return fc, nil
 }
 
+func (ec *executionContext) _ApplicationConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*application.Application]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*application.Application)
+	fc.Result = res
+	return ec.marshalNApplication2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Application_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Application_name(ctx, field)
+			case "team":
+				return ec.fieldContext_Application_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_Application_environment(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ApplicationConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*application.Application]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ApplicationConnection_edges(ctx, field)
 	if err != nil {
@@ -6257,6 +6501,50 @@ func (ec *executionContext) fieldContext_AuditEntryConnection_pageInfo(_ context
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuditEntryConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[auditv1.AuditEntry]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuditEntryConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]auditv1.AuditEntry)
+	fc.Result = res
+	return ec.marshalNAuditEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditEntryᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuditEntryConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuditEntryConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
 		},
 	}
 	return fc, nil
@@ -6766,6 +7054,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_access(ctx context.Cont
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_BigQueryDatasetAccessConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_BigQueryDatasetAccessConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_BigQueryDatasetAccessConnection_edges(ctx, field)
 			}
@@ -7065,6 +7355,56 @@ func (ec *executionContext) fieldContext_BigQueryDatasetAccessConnection_pageInf
 	return fc, nil
 }
 
+func (ec *executionContext) _BigQueryDatasetAccessConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*bigquery.BigQueryDatasetAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDatasetAccessConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*bigquery.BigQueryDatasetAccess)
+	fc.Result = res
+	return ec.marshalNBigQueryDatasetAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccessᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDatasetAccessConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDatasetAccessConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "role":
+				return ec.fieldContext_BigQueryDatasetAccess_role(ctx, field)
+			case "email":
+				return ec.fieldContext_BigQueryDatasetAccess_email(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetAccess", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _BigQueryDatasetAccessConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*bigquery.BigQueryDatasetAccess]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_BigQueryDatasetAccessConnection_edges(ctx, field)
 	if err != nil {
@@ -7260,6 +7600,72 @@ func (ec *executionContext) fieldContext_BigQueryDatasetConnection_pageInfo(_ co
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BigQueryDatasetConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*bigquery.BigQueryDataset]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDatasetConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*bigquery.BigQueryDataset)
+	fc.Result = res
+	return ec.marshalNBigQueryDataset2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐBigQueryDatasetᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDatasetConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDatasetConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_BigQueryDataset_id(ctx, field)
+			case "name":
+				return ec.fieldContext_BigQueryDataset_name(ctx, field)
+			case "team":
+				return ec.fieldContext_BigQueryDataset_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_BigQueryDataset_environment(ctx, field)
+			case "cascadingDelete":
+				return ec.fieldContext_BigQueryDataset_cascadingDelete(ctx, field)
+			case "description":
+				return ec.fieldContext_BigQueryDataset_description(ctx, field)
+			case "access":
+				return ec.fieldContext_BigQueryDataset_access(ctx, field)
+			case "status":
+				return ec.fieldContext_BigQueryDataset_status(ctx, field)
+			case "workload":
+				return ec.fieldContext_BigQueryDataset_workload(ctx, field)
+			case "cost":
+				return ec.fieldContext_BigQueryDataset_cost(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BigQueryDataset", field.Name)
 		},
 	}
 	return fc, nil
@@ -7923,6 +8329,8 @@ func (ec *executionContext) fieldContext_Bucket_cors(ctx context.Context, field 
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_BucketCorsConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_BucketCorsConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_BucketCorsConnection_edges(ctx, field)
 			}
@@ -8127,6 +8535,74 @@ func (ec *executionContext) fieldContext_BucketConnection_pageInfo(_ context.Con
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BucketConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*bucket.Bucket]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BucketConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*bucket.Bucket)
+	fc.Result = res
+	return ec.marshalNBucket2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐBucketᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BucketConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BucketConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Bucket_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Bucket_name(ctx, field)
+			case "team":
+				return ec.fieldContext_Bucket_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_Bucket_environment(ctx, field)
+			case "cascadingDelete":
+				return ec.fieldContext_Bucket_cascadingDelete(ctx, field)
+			case "publicAccessPrevention":
+				return ec.fieldContext_Bucket_publicAccessPrevention(ctx, field)
+			case "uniformBucketLevelAccess":
+				return ec.fieldContext_Bucket_uniformBucketLevelAccess(ctx, field)
+			case "cors":
+				return ec.fieldContext_Bucket_cors(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Bucket_projectId(ctx, field)
+			case "workload":
+				return ec.fieldContext_Bucket_workload(ctx, field)
+			case "status":
+				return ec.fieldContext_Bucket_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Bucket", field.Name)
 		},
 	}
 	return fc, nil
@@ -8406,6 +8882,60 @@ func (ec *executionContext) fieldContext_BucketCorsConnection_pageInfo(_ context
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BucketCorsConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*bucket.BucketCors]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BucketCorsConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*bucket.BucketCors)
+	fc.Result = res
+	return ec.marshalNBucketCors2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐBucketCorsᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BucketCorsConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BucketCorsConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "maxAgeSeconds":
+				return ec.fieldContext_BucketCors_maxAgeSeconds(ctx, field)
+			case "methods":
+				return ec.fieldContext_BucketCors_methods(ctx, field)
+			case "origins":
+				return ec.fieldContext_BucketCors_origins(ctx, field)
+			case "responseHeaders":
+				return ec.fieldContext_BucketCors_responseHeaders(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BucketCors", field.Name)
 		},
 	}
 	return fc, nil
@@ -9104,6 +9634,60 @@ func (ec *executionContext) fieldContext_JobConnection_pageInfo(_ context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _JobConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*job.Job]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*job.Job)
+	fc.Result = res
+	return ec.marshalNJob2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Job_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Job_name(ctx, field)
+			case "team":
+				return ec.fieldContext_Job_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_Job_environment(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _JobConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*job.Job]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_JobConnection_edges(ctx, field)
 	if err != nil {
@@ -9533,6 +10117,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_acl(ctx context.Context, fie
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_KafkaTopicAclConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_KafkaTopicAclConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_KafkaTopicAclConnection_edges(ctx, field)
 			}
@@ -10021,6 +10607,62 @@ func (ec *executionContext) fieldContext_KafkaTopicAclConnection_pageInfo(_ cont
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _KafkaTopicAclConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*kafkatopic.KafkaTopicACL]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaTopicAclConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*kafkatopic.KafkaTopicACL)
+	fc.Result = res
+	return ec.marshalNKafkaTopicAcl2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopicACLᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_KafkaTopicAclConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaTopicAclConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "access":
+				return ec.fieldContext_KafkaTopicAcl_access(ctx, field)
+			case "applicationName":
+				return ec.fieldContext_KafkaTopicAcl_applicationName(ctx, field)
+			case "teamName":
+				return ec.fieldContext_KafkaTopicAcl_teamName(ctx, field)
+			case "team":
+				return ec.fieldContext_KafkaTopicAcl_team(ctx, field)
+			case "workload":
+				return ec.fieldContext_KafkaTopicAcl_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type KafkaTopicAcl", field.Name)
 		},
 	}
 	return fc, nil
@@ -10555,6 +11197,68 @@ func (ec *executionContext) fieldContext_KafkaTopicConnection_pageInfo(_ context
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _KafkaTopicConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*kafkatopic.KafkaTopic]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaTopicConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*kafkatopic.KafkaTopic)
+	fc.Result = res
+	return ec.marshalNKafkaTopic2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopicᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_KafkaTopicConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaTopicConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_KafkaTopic_id(ctx, field)
+			case "name":
+				return ec.fieldContext_KafkaTopic_name(ctx, field)
+			case "team":
+				return ec.fieldContext_KafkaTopic_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_KafkaTopic_environment(ctx, field)
+			case "acl":
+				return ec.fieldContext_KafkaTopic_acl(ctx, field)
+			case "configuration":
+				return ec.fieldContext_KafkaTopic_configuration(ctx, field)
+			case "pool":
+				return ec.fieldContext_KafkaTopic_pool(ctx, field)
+			case "status":
+				return ec.fieldContext_KafkaTopic_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type KafkaTopic", field.Name)
 		},
 	}
 	return fc, nil
@@ -11425,6 +12129,8 @@ func (ec *executionContext) fieldContext_OpenSearch_access(ctx context.Context, 
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_OpenSearchAccessConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_OpenSearchAccessConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_OpenSearchAccessConnection_edges(ctx, field)
 			}
@@ -11633,6 +12339,56 @@ func (ec *executionContext) fieldContext_OpenSearchAccessConnection_pageInfo(_ c
 	return fc, nil
 }
 
+func (ec *executionContext) _OpenSearchAccessConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*opensearch.OpenSearchAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_OpenSearchAccessConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*opensearch.OpenSearchAccess)
+	fc.Result = res
+	return ec.marshalNOpenSearchAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearchAccessᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_OpenSearchAccessConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearchAccessConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "workload":
+				return ec.fieldContext_OpenSearchAccess_workload(ctx, field)
+			case "access":
+				return ec.fieldContext_OpenSearchAccess_access(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type OpenSearchAccess", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _OpenSearchAccessConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*opensearch.OpenSearchAccess]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_OpenSearchAccessConnection_edges(ctx, field)
 	if err != nil {
@@ -11828,6 +12584,68 @@ func (ec *executionContext) fieldContext_OpenSearchConnection_pageInfo(_ context
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _OpenSearchConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*opensearch.OpenSearch]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_OpenSearchConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*opensearch.OpenSearch)
+	fc.Result = res
+	return ec.marshalNOpenSearch2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearchᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_OpenSearchConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearchConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_OpenSearch_id(ctx, field)
+			case "name":
+				return ec.fieldContext_OpenSearch_name(ctx, field)
+			case "team":
+				return ec.fieldContext_OpenSearch_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_OpenSearch_environment(ctx, field)
+			case "status":
+				return ec.fieldContext_OpenSearch_status(ctx, field)
+			case "workload":
+				return ec.fieldContext_OpenSearch_workload(ctx, field)
+			case "access":
+				return ec.fieldContext_OpenSearch_access(ctx, field)
+			case "cost":
+				return ec.fieldContext_OpenSearch_cost(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type OpenSearch", field.Name)
 		},
 	}
 	return fc, nil
@@ -12340,6 +13158,8 @@ func (ec *executionContext) fieldContext_Query_teams(ctx context.Context, field 
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_TeamConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_TeamConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_TeamConnection_edges(ctx, field)
 			}
@@ -12508,6 +13328,8 @@ func (ec *executionContext) fieldContext_Query_users(ctx context.Context, field 
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_UserConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_UserConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_UserConnection_edges(ctx, field)
 			}
@@ -13005,6 +13827,8 @@ func (ec *executionContext) fieldContext_RedisInstance_access(ctx context.Contex
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_RedisInstanceAccessConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_RedisInstanceAccessConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_RedisInstanceAccessConnection_edges(ctx, field)
 			}
@@ -13302,6 +14126,56 @@ func (ec *executionContext) fieldContext_RedisInstanceAccessConnection_pageInfo(
 	return fc, nil
 }
 
+func (ec *executionContext) _RedisInstanceAccessConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*redis.RedisInstanceAccess]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisInstanceAccessConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*redis.RedisInstanceAccess)
+	fc.Result = res
+	return ec.marshalNRedisInstanceAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋredisᚐRedisInstanceAccessᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedisInstanceAccessConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedisInstanceAccessConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "workload":
+				return ec.fieldContext_RedisInstanceAccess_workload(ctx, field)
+			case "access":
+				return ec.fieldContext_RedisInstanceAccess_access(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RedisInstanceAccess", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _RedisInstanceAccessConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*redis.RedisInstanceAccess]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_RedisInstanceAccessConnection_edges(ctx, field)
 	if err != nil {
@@ -13497,6 +14371,68 @@ func (ec *executionContext) fieldContext_RedisInstanceConnection_pageInfo(_ cont
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RedisInstanceConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*redis.RedisInstance]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisInstanceConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*redis.RedisInstance)
+	fc.Result = res
+	return ec.marshalNRedisInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋredisᚐRedisInstanceᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedisInstanceConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedisInstanceConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RedisInstance_id(ctx, field)
+			case "name":
+				return ec.fieldContext_RedisInstance_name(ctx, field)
+			case "team":
+				return ec.fieldContext_RedisInstance_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_RedisInstance_environment(ctx, field)
+			case "access":
+				return ec.fieldContext_RedisInstance_access(ctx, field)
+			case "cost":
+				return ec.fieldContext_RedisInstance_cost(ctx, field)
+			case "workload":
+				return ec.fieldContext_RedisInstance_workload(ctx, field)
+			case "status":
+				return ec.fieldContext_RedisInstance_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RedisInstance", field.Name)
 		},
 	}
 	return fc, nil
@@ -13981,6 +14917,58 @@ func (ec *executionContext) fieldContext_RepositoryConnection_pageInfo(_ context
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RepositoryConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*repository.Repository]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RepositoryConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*repository.Repository)
+	fc.Result = res
+	return ec.marshalNRepository2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐRepositoryᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RepositoryConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RepositoryConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Repository_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Repository_name(ctx, field)
+			case "team":
+				return ec.fieldContext_Repository_team(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Repository", field.Name)
 		},
 	}
 	return fc, nil
@@ -15492,6 +16480,8 @@ func (ec *executionContext) fieldContext_SqlInstance_flags(ctx context.Context, 
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_SqlInstanceFlagConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_SqlInstanceFlagConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_SqlInstanceFlagConnection_edges(ctx, field)
 			}
@@ -15553,6 +16543,8 @@ func (ec *executionContext) fieldContext_SqlInstance_users(ctx context.Context, 
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_SqlInstanceUserConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_SqlInstanceUserConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_SqlInstanceUserConnection_edges(ctx, field)
 			}
@@ -15829,6 +16821,94 @@ func (ec *executionContext) fieldContext_SqlInstanceConnection_pageInfo(_ contex
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstanceConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstance]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstanceConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*sqlinstance.SQLInstance)
+	fc.Result = res
+	return ec.marshalNSqlInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstanceᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstanceConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstanceConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_SqlInstance_id(ctx, field)
+			case "name":
+				return ec.fieldContext_SqlInstance_name(ctx, field)
+			case "team":
+				return ec.fieldContext_SqlInstance_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_SqlInstance_environment(ctx, field)
+			case "workload":
+				return ec.fieldContext_SqlInstance_workload(ctx, field)
+			case "cascadingDelete":
+				return ec.fieldContext_SqlInstance_cascadingDelete(ctx, field)
+			case "connectionName":
+				return ec.fieldContext_SqlInstance_connectionName(ctx, field)
+			case "diskAutoresize":
+				return ec.fieldContext_SqlInstance_diskAutoresize(ctx, field)
+			case "diskAutoresizeLimit":
+				return ec.fieldContext_SqlInstance_diskAutoresizeLimit(ctx, field)
+			case "highAvailability":
+				return ec.fieldContext_SqlInstance_highAvailability(ctx, field)
+			case "healthy":
+				return ec.fieldContext_SqlInstance_healthy(ctx, field)
+			case "maintenanceVersion":
+				return ec.fieldContext_SqlInstance_maintenanceVersion(ctx, field)
+			case "maintenanceWindow":
+				return ec.fieldContext_SqlInstance_maintenanceWindow(ctx, field)
+			case "backupConfiguration":
+				return ec.fieldContext_SqlInstance_backupConfiguration(ctx, field)
+			case "projectId":
+				return ec.fieldContext_SqlInstance_projectId(ctx, field)
+			case "tier":
+				return ec.fieldContext_SqlInstance_tier(ctx, field)
+			case "version":
+				return ec.fieldContext_SqlInstance_version(ctx, field)
+			case "status":
+				return ec.fieldContext_SqlInstance_status(ctx, field)
+			case "database":
+				return ec.fieldContext_SqlInstance_database(ctx, field)
+			case "flags":
+				return ec.fieldContext_SqlInstance_flags(ctx, field)
+			case "users":
+				return ec.fieldContext_SqlInstance_users(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SqlInstance", field.Name)
 		},
 	}
 	return fc, nil
@@ -16155,6 +17235,56 @@ func (ec *executionContext) fieldContext_SqlInstanceFlagConnection_pageInfo(_ co
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstanceFlagConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstanceFlag]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstanceFlagConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*sqlinstance.SQLInstanceFlag)
+	fc.Result = res
+	return ec.marshalNSqlInstanceFlag2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstanceFlagᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstanceFlagConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstanceFlagConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_SqlInstanceFlag_name(ctx, field)
+			case "value":
+				return ec.fieldContext_SqlInstanceFlag_value(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SqlInstanceFlag", field.Name)
 		},
 	}
 	return fc, nil
@@ -16613,6 +17743,56 @@ func (ec *executionContext) fieldContext_SqlInstanceUserConnection_pageInfo(_ co
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SqlInstanceUserConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstanceUser]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SqlInstanceUserConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*sqlinstance.SQLInstanceUser)
+	fc.Result = res
+	return ec.marshalNSqlInstanceUser2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SqlInstanceUserConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SqlInstanceUserConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_SqlInstanceUser_name(ctx, field)
+			case "authentication":
+				return ec.fieldContext_SqlInstanceUser_authentication(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SqlInstanceUser", field.Name)
 		},
 	}
 	return fc, nil
@@ -17277,6 +18457,8 @@ func (ec *executionContext) fieldContext_Team_members(ctx context.Context, field
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_TeamMemberConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_TeamMemberConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_TeamMemberConnection_edges(ctx, field)
 			}
@@ -17567,6 +18749,8 @@ func (ec *executionContext) fieldContext_Team_applications(ctx context.Context, 
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_ApplicationConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_ApplicationConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_ApplicationConnection_edges(ctx, field)
 			}
@@ -17628,6 +18812,8 @@ func (ec *executionContext) fieldContext_Team_auditEntries(ctx context.Context, 
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_AuditEntryConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_AuditEntryConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_AuditEntryConnection_edges(ctx, field)
 			}
@@ -17689,6 +18875,8 @@ func (ec *executionContext) fieldContext_Team_jobs(ctx context.Context, field gr
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_JobConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_JobConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_JobConnection_edges(ctx, field)
 			}
@@ -17750,6 +18938,8 @@ func (ec *executionContext) fieldContext_Team_bigQueryDatasets(ctx context.Conte
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_BigQueryDatasetConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_BigQueryDatasetConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_BigQueryDatasetConnection_edges(ctx, field)
 			}
@@ -17811,6 +19001,8 @@ func (ec *executionContext) fieldContext_Team_redisInstances(ctx context.Context
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_RedisInstanceConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_RedisInstanceConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_RedisInstanceConnection_edges(ctx, field)
 			}
@@ -17872,6 +19064,8 @@ func (ec *executionContext) fieldContext_Team_openSearch(ctx context.Context, fi
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_OpenSearchConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_OpenSearchConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_OpenSearchConnection_edges(ctx, field)
 			}
@@ -17933,6 +19127,8 @@ func (ec *executionContext) fieldContext_Team_buckets(ctx context.Context, field
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_BucketConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_BucketConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_BucketConnection_edges(ctx, field)
 			}
@@ -17994,6 +19190,8 @@ func (ec *executionContext) fieldContext_Team_kafkaTopics(ctx context.Context, f
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_KafkaTopicConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_KafkaTopicConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_KafkaTopicConnection_edges(ctx, field)
 			}
@@ -18055,6 +19253,8 @@ func (ec *executionContext) fieldContext_Team_sqlInstances(ctx context.Context, 
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_SqlInstanceConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_SqlInstanceConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_SqlInstanceConnection_edges(ctx, field)
 			}
@@ -18116,6 +19316,8 @@ func (ec *executionContext) fieldContext_Team_repositories(ctx context.Context, 
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_RepositoryConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_RepositoryConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_RepositoryConnection_edges(ctx, field)
 			}
@@ -18187,6 +19389,102 @@ func (ec *executionContext) fieldContext_TeamConnection_pageInfo(_ context.Conte
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*team.Team]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*team.Team)
+	fc.Result = res
+	return ec.marshalNTeam2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			case "applications":
+				return ec.fieldContext_Team_applications(ctx, field)
+			case "auditEntries":
+				return ec.fieldContext_Team_auditEntries(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Team_jobs(ctx, field)
+			case "bigQueryDatasets":
+				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
+			case "redisInstances":
+				return ec.fieldContext_Team_redisInstances(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "repositories":
+				return ec.fieldContext_Team_repositories(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
 	}
 	return fc, nil
@@ -19296,6 +20594,58 @@ func (ec *executionContext) fieldContext_TeamMemberConnection_pageInfo(_ context
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamMemberConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*team.TeamMember]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*team.TeamMember)
+	fc.Result = res
+	return ec.marshalNTeamMember2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMemberᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "team":
+				return ec.fieldContext_TeamMember_team(ctx, field)
+			case "user":
+				return ec.fieldContext_TeamMember_user(ctx, field)
+			case "role":
+				return ec.fieldContext_TeamMember_role(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamMember", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamMemberConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*team.TeamMember]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamMemberConnection_edges(ctx, field)
 	if err != nil {
@@ -20368,6 +21718,8 @@ func (ec *executionContext) fieldContext_User_teams(ctx context.Context, field g
 			switch field.Name {
 			case "pageInfo":
 				return ec.fieldContext_TeamMemberConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_TeamMemberConnection_nodes(ctx, field)
 			case "edges":
 				return ec.fieldContext_TeamMemberConnection_edges(ctx, field)
 			}
@@ -20439,6 +21791,62 @@ func (ec *executionContext) fieldContext_UserConnection_pageInfo(_ context.Conte
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*user.User]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*user.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋuserᚐUserᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "externalId":
+				return ec.fieldContext_User_externalId(ctx, field)
+			case "teams":
+				return ec.fieldContext_User_teams(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
 	}
 	return fc, nil
@@ -23568,6 +24976,11 @@ func (ec *executionContext) _ApplicationConnection(ctx context.Context, sel ast.
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "nodes":
+			out.Values[i] = ec._ApplicationConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "edges":
 			out.Values[i] = ec._ApplicationConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -23653,6 +25066,11 @@ func (ec *executionContext) _AuditEntryConnection(ctx context.Context, sel ast.S
 			out.Values[i] = graphql.MarshalString("AuditEntryConnection")
 		case "pageInfo":
 			out.Values[i] = ec._AuditEntryConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._AuditEntryConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -24021,6 +25439,11 @@ func (ec *executionContext) _BigQueryDatasetAccessConnection(ctx context.Context
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "nodes":
+			out.Values[i] = ec._BigQueryDatasetAccessConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "edges":
 			out.Values[i] = ec._BigQueryDatasetAccessConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -24106,6 +25529,11 @@ func (ec *executionContext) _BigQueryDatasetConnection(ctx context.Context, sel 
 			out.Values[i] = graphql.MarshalString("BigQueryDatasetConnection")
 		case "pageInfo":
 			out.Values[i] = ec._BigQueryDatasetConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._BigQueryDatasetConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -24448,6 +25876,11 @@ func (ec *executionContext) _BucketConnection(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "nodes":
+			out.Values[i] = ec._BucketConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "edges":
 			out.Values[i] = ec._BucketConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -24540,6 +25973,11 @@ func (ec *executionContext) _BucketCorsConnection(ctx context.Context, sel ast.S
 			out.Values[i] = graphql.MarshalString("BucketCorsConnection")
 		case "pageInfo":
 			out.Values[i] = ec._BucketCorsConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._BucketCorsConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -24863,6 +26301,11 @@ func (ec *executionContext) _JobConnection(ctx context.Context, sel ast.Selectio
 			out.Values[i] = graphql.MarshalString("JobConnection")
 		case "pageInfo":
 			out.Values[i] = ec._JobConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._JobConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -25233,6 +26676,11 @@ func (ec *executionContext) _KafkaTopicAclConnection(ctx context.Context, sel as
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "nodes":
+			out.Values[i] = ec._KafkaTopicAclConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "edges":
 			out.Values[i] = ec._KafkaTopicAclConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -25368,6 +26816,11 @@ func (ec *executionContext) _KafkaTopicConnection(ctx context.Context, sel ast.S
 			out.Values[i] = graphql.MarshalString("KafkaTopicConnection")
 		case "pageInfo":
 			out.Values[i] = ec._KafkaTopicConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._KafkaTopicConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -25876,6 +27329,11 @@ func (ec *executionContext) _OpenSearchAccessConnection(ctx context.Context, sel
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "nodes":
+			out.Values[i] = ec._OpenSearchAccessConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "edges":
 			out.Values[i] = ec._OpenSearchAccessConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -25961,6 +27419,11 @@ func (ec *executionContext) _OpenSearchConnection(ctx context.Context, sel ast.S
 			out.Values[i] = graphql.MarshalString("OpenSearchConnection")
 		case "pageInfo":
 			out.Values[i] = ec._OpenSearchConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._OpenSearchConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -26602,6 +28065,11 @@ func (ec *executionContext) _RedisInstanceAccessConnection(ctx context.Context, 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "nodes":
+			out.Values[i] = ec._RedisInstanceAccessConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "edges":
 			out.Values[i] = ec._RedisInstanceAccessConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -26687,6 +28155,11 @@ func (ec *executionContext) _RedisInstanceConnection(ctx context.Context, sel as
 			out.Values[i] = graphql.MarshalString("RedisInstanceConnection")
 		case "pageInfo":
 			out.Values[i] = ec._RedisInstanceConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._RedisInstanceConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -26933,6 +28406,11 @@ func (ec *executionContext) _RepositoryConnection(ctx context.Context, sel ast.S
 			out.Values[i] = graphql.MarshalString("RepositoryConnection")
 		case "pageInfo":
 			out.Values[i] = ec._RepositoryConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._RepositoryConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -27490,6 +28968,11 @@ func (ec *executionContext) _SqlInstanceConnection(ctx context.Context, sel ast.
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "nodes":
+			out.Values[i] = ec._SqlInstanceConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "edges":
 			out.Values[i] = ec._SqlInstanceConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -27619,6 +29102,11 @@ func (ec *executionContext) _SqlInstanceFlagConnection(ctx context.Context, sel 
 			out.Values[i] = graphql.MarshalString("SqlInstanceFlagConnection")
 		case "pageInfo":
 			out.Values[i] = ec._SqlInstanceFlagConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._SqlInstanceFlagConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -27833,6 +29321,11 @@ func (ec *executionContext) _SqlInstanceUserConnection(ctx context.Context, sel 
 			out.Values[i] = graphql.MarshalString("SqlInstanceUserConnection")
 		case "pageInfo":
 			out.Values[i] = ec._SqlInstanceUserConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._SqlInstanceUserConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -28535,6 +30028,11 @@ func (ec *executionContext) _TeamConnection(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "nodes":
+			out.Values[i] = ec._TeamConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "edges":
 			out.Values[i] = ec._TeamConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -28894,6 +30392,11 @@ func (ec *executionContext) _TeamMemberConnection(ctx context.Context, sel ast.S
 			out.Values[i] = graphql.MarshalString("TeamMemberConnection")
 		case "pageInfo":
 			out.Values[i] = ec._TeamMemberConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._TeamMemberConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -29268,6 +30771,11 @@ func (ec *executionContext) _UserConnection(ctx context.Context, sel ast.Selecti
 			out.Values[i] = graphql.MarshalString("UserConnection")
 		case "pageInfo":
 			out.Values[i] = ec._UserConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._UserConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -29688,6 +31196,50 @@ func (ec *executionContext) marshalNAddRepositoryToTeamPayload2ᚖgithubᚗcom�
 	return ec._AddRepositoryToTeamPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNApplication2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationᚄ(ctx context.Context, sel ast.SelectionSet, v []*application.Application) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplication(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplication(ctx context.Context, sel ast.SelectionSet, v *application.Application) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -29796,6 +31348,50 @@ func (ec *executionContext) marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinter
 	return ec._AuditEntry(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNAuditEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditEntryᚄ(ctx context.Context, sel ast.SelectionSet, v []auditv1.AuditEntry) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditEntry(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNAuditEntryConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[auditv1.AuditEntry]) graphql.Marshaler {
 	return ec._AuditEntryConnection(ctx, sel, &v)
 }
@@ -29874,6 +31470,50 @@ func (ec *executionContext) marshalNAuditResourceType2githubᚗcomᚋnaisᚋapi�
 	return res
 }
 
+func (ec *executionContext) marshalNBigQueryDataset2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐBigQueryDatasetᚄ(ctx context.Context, sel ast.SelectionSet, v []*bigquery.BigQueryDataset) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐBigQueryDataset(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐBigQueryDataset(ctx context.Context, sel ast.SelectionSet, v *bigquery.BigQueryDataset) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -29882,6 +31522,50 @@ func (ec *executionContext) marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapi
 		return graphql.Null
 	}
 	return ec._BigQueryDataset(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNBigQueryDatasetAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccessᚄ(ctx context.Context, sel ast.SelectionSet, v []*bigquery.BigQueryDatasetAccess) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBigQueryDatasetAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccess(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNBigQueryDatasetAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐBigQueryDatasetAccess(ctx context.Context, sel ast.SelectionSet, v *bigquery.BigQueryDatasetAccess) graphql.Marshaler {
@@ -30063,6 +31747,50 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) marshalNBucket2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐBucketᚄ(ctx context.Context, sel ast.SelectionSet, v []*bucket.Bucket) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBucket2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐBucket(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNBucket2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐBucket(ctx context.Context, sel ast.SelectionSet, v *bucket.Bucket) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -30085,6 +31813,50 @@ func (ec *executionContext) marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋap
 		return graphql.Null
 	}
 	return ec._BucketConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNBucketCors2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐBucketCorsᚄ(ctx context.Context, sel ast.SelectionSet, v []*bucket.BucketCors) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBucketCors2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐBucketCors(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNBucketCors2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐBucketCors(ctx context.Context, sel ast.SelectionSet, v *bucket.BucketCors) graphql.Marshaler {
@@ -30311,6 +32083,50 @@ func (ec *executionContext) marshalNInt2int64(ctx context.Context, sel ast.Selec
 	return res
 }
 
+func (ec *executionContext) marshalNJob2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobᚄ(ctx context.Context, sel ast.SelectionSet, v []*job.Job) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJob(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJob(ctx context.Context, sel ast.SelectionSet, v *job.Job) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -30393,6 +32209,50 @@ func (ec *executionContext) marshalNJobOrderField2githubᚗcomᚋnaisᚋapiᚋin
 	return v
 }
 
+func (ec *executionContext) marshalNKafkaTopic2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopicᚄ(ctx context.Context, sel ast.SelectionSet, v []*kafkatopic.KafkaTopic) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.KafkaTopic) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -30401,6 +32261,50 @@ func (ec *executionContext) marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 		return graphql.Null
 	}
 	return ec._KafkaTopic(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNKafkaTopicAcl2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopicACLᚄ(ctx context.Context, sel ast.SelectionSet, v []*kafkatopic.KafkaTopicACL) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNKafkaTopicAcl2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopicACL(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNKafkaTopicAcl2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopicACL(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.KafkaTopicACL) graphql.Marshaler {
@@ -30567,6 +32471,50 @@ func (ec *executionContext) marshalNKafkaTopicStatus2ᚖgithubᚗcomᚋnaisᚋap
 	return ec._KafkaTopicStatus(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNOpenSearch2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearchᚄ(ctx context.Context, sel ast.SelectionSet, v []*opensearch.OpenSearch) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearch(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearch(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearch) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -30575,6 +32523,50 @@ func (ec *executionContext) marshalNOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 		return graphql.Null
 	}
 	return ec._OpenSearch(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNOpenSearchAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearchAccessᚄ(ctx context.Context, sel ast.SelectionSet, v []*opensearch.OpenSearchAccess) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNOpenSearchAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearchAccess(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNOpenSearchAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearchAccess(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearchAccess) graphql.Marshaler {
@@ -30755,6 +32747,50 @@ func (ec *executionContext) marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinterna
 	return ec._PageInfo(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalNRedisInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋredisᚐRedisInstanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*redis.RedisInstance) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRedisInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋredisᚐRedisInstance(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNRedisInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋredisᚐRedisInstance(ctx context.Context, sel ast.SelectionSet, v *redis.RedisInstance) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -30763,6 +32799,50 @@ func (ec *executionContext) marshalNRedisInstance2ᚖgithubᚗcomᚋnaisᚋapi�
 		return graphql.Null
 	}
 	return ec._RedisInstance(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRedisInstanceAccess2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋredisᚐRedisInstanceAccessᚄ(ctx context.Context, sel ast.SelectionSet, v []*redis.RedisInstanceAccess) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRedisInstanceAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋredisᚐRedisInstanceAccess(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNRedisInstanceAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋredisᚐRedisInstanceAccess(ctx context.Context, sel ast.SelectionSet, v *redis.RedisInstanceAccess) graphql.Marshaler {
@@ -30948,6 +33028,50 @@ func (ec *executionContext) marshalNRemoveRepositoryFromTeamPayload2ᚖgithubᚗ
 	return ec._RemoveRepositoryFromTeamPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNRepository2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐRepositoryᚄ(ctx context.Context, sel ast.SelectionSet, v []*repository.Repository) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRepository2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐRepository(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNRepository2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐRepository(ctx context.Context, sel ast.SelectionSet, v *repository.Repository) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -30996,6 +33120,50 @@ func (ec *executionContext) marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 		return graphql.Null
 	}
 	return v
+}
+
+func (ec *executionContext) marshalNSqlInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*sqlinstance.SQLInstance) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstance(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstance(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.SQLInstance) graphql.Marshaler {
@@ -31051,6 +33219,50 @@ func (ec *executionContext) marshalNSqlInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapi
 				defer wg.Done()
 			}
 			ret[i] = ec.marshalNSqlInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNSqlInstanceFlag2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstanceFlagᚄ(ctx context.Context, sel ast.SelectionSet, v []*sqlinstance.SQLInstanceFlag) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSqlInstanceFlag2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstanceFlag(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -31160,6 +33372,50 @@ func (ec *executionContext) marshalNSqlInstanceStatus2ᚖgithubᚗcomᚋnaisᚋa
 		return graphql.Null
 	}
 	return ec._SqlInstanceStatus(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNSqlInstanceUser2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*sqlinstance.SQLInstanceUser) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSqlInstanceUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstanceUser(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNSqlInstanceUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstanceUser(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.SQLInstanceUser) graphql.Marshaler {
@@ -31314,6 +33570,50 @@ func (ec *executionContext) marshalNTeam2githubᚗcomᚋnaisᚋapiᚋinternalᚋ
 	return ec._Team(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalNTeam2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.Team) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeam(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeam(ctx context.Context, sel ast.SelectionSet, v *team.Team) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -31442,6 +33742,50 @@ func (ec *executionContext) marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapi
 		return graphql.Null
 	}
 	return ec._TeamEnvironment(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamMember2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMemberᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamMember) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMember(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMember(ctx context.Context, sel ast.SelectionSet, v *team.TeamMember) graphql.Marshaler {
@@ -31636,6 +33980,50 @@ func (ec *executionContext) marshalNUpdateTeamPayload2ᚖgithubᚗcomᚋnaisᚋa
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋuserᚐUser(ctx context.Context, sel ast.SelectionSet, v user.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋuserᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*user.User) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋuserᚐUser(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋuserᚐUser(ctx context.Context, sel ast.SelectionSet, v *user.User) graphql.Marshaler {
