@@ -6803,9 +6803,9 @@ func (ec *executionContext) _BigQueryDataset_status(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(bigquery.BigQueryDatasetStatus)
+	res := resTmp.(*bigquery.BigQueryDatasetStatus)
 	fc.Result = res
-	return ec.marshalNBigQueryDatasetStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐBigQueryDatasetStatus(ctx, field.Selections, res)
+	return ec.marshalNBigQueryDatasetStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐBigQueryDatasetStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_BigQueryDataset_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8045,9 +8045,9 @@ func (ec *executionContext) _Bucket_status(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(bucket.BucketStatus)
+	res := resTmp.(*bucket.BucketStatus)
 	fc.Result = res
-	return ec.marshalNBucketStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐBucketStatus(ctx, field.Selections, res)
+	return ec.marshalNBucketStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐBucketStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Bucket_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9673,9 +9673,9 @@ func (ec *executionContext) _KafkaTopic_status(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(kafkatopic.KafkaTopicStatus)
+	res := resTmp.(*kafkatopic.KafkaTopicStatus)
 	fc.Result = res
-	return ec.marshalNKafkaTopicStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopicStatus(ctx, field.Selections, res)
+	return ec.marshalNKafkaTopicStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopicStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_KafkaTopic_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -11312,9 +11312,9 @@ func (ec *executionContext) _OpenSearch_status(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(opensearch.OpenSearchStatus)
+	res := resTmp.(*opensearch.OpenSearchStatus)
 	fc.Result = res
-	return ec.marshalNOpenSearchStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearchStatus(ctx, field.Selections, res)
+	return ec.marshalNOpenSearchStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearchStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_OpenSearch_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -13127,9 +13127,9 @@ func (ec *executionContext) _RedisInstance_status(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(redis.RedisInstanceStatus)
+	res := resTmp.(*redis.RedisInstanceStatus)
 	fc.Result = res
-	return ec.marshalNRedisInstanceStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋredisᚐRedisInstanceStatus(ctx, field.Selections, res)
+	return ec.marshalNRedisInstanceStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋredisᚐRedisInstanceStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RedisInstance_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -15359,9 +15359,9 @@ func (ec *executionContext) _SqlInstance_status(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(sqlinstance.SQLInstanceStatus)
+	res := resTmp.(*sqlinstance.SQLInstanceStatus)
 	fc.Result = res
-	return ec.marshalNSqlInstanceStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstanceStatus(ctx, field.Selections, res)
+	return ec.marshalNSqlInstanceStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstanceStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SqlInstance_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -30029,8 +30029,14 @@ func (ec *executionContext) marshalNBigQueryDatasetOrderField2githubᚗcomᚋnai
 	return v
 }
 
-func (ec *executionContext) marshalNBigQueryDatasetStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐBigQueryDatasetStatus(ctx context.Context, sel ast.SelectionSet, v bigquery.BigQueryDatasetStatus) graphql.Marshaler {
-	return ec._BigQueryDatasetStatus(ctx, sel, &v)
+func (ec *executionContext) marshalNBigQueryDatasetStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐBigQueryDatasetStatus(ctx context.Context, sel ast.SelectionSet, v *bigquery.BigQueryDatasetStatus) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._BigQueryDatasetStatus(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
@@ -30202,8 +30208,14 @@ func (ec *executionContext) marshalNBucketOrderField2githubᚗcomᚋnaisᚋapi�
 	return v
 }
 
-func (ec *executionContext) marshalNBucketStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐBucketStatus(ctx context.Context, sel ast.SelectionSet, v bucket.BucketStatus) graphql.Marshaler {
-	return ec._BucketStatus(ctx, sel, &v)
+func (ec *executionContext) marshalNBucketStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐBucketStatus(ctx context.Context, sel ast.SelectionSet, v *bucket.BucketStatus) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._BucketStatus(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNCreateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐCreateTeamInput(ctx context.Context, v interface{}) (team.CreateTeamInput, error) {
@@ -30536,8 +30548,14 @@ func (ec *executionContext) marshalNKafkaTopicOrderField2githubᚗcomᚋnaisᚋa
 	return v
 }
 
-func (ec *executionContext) marshalNKafkaTopicStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopicStatus(ctx context.Context, sel ast.SelectionSet, v kafkatopic.KafkaTopicStatus) graphql.Marshaler {
-	return ec._KafkaTopicStatus(ctx, sel, &v)
+func (ec *executionContext) marshalNKafkaTopicStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopicStatus(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.KafkaTopicStatus) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._KafkaTopicStatus(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearch(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearch) graphql.Marshaler {
@@ -30704,8 +30722,14 @@ func (ec *executionContext) marshalNOpenSearchOrderField2githubᚗcomᚋnaisᚋa
 	return v
 }
 
-func (ec *executionContext) marshalNOpenSearchStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearchStatus(ctx context.Context, sel ast.SelectionSet, v opensearch.OpenSearchStatus) graphql.Marshaler {
-	return ec._OpenSearchStatus(ctx, sel, &v)
+func (ec *executionContext) marshalNOpenSearchStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearchStatus(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearchStatus) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._OpenSearchStatus(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋmodelv1ᚐOrderDirection(ctx context.Context, v interface{}) (modelv1.OrderDirection, error) {
@@ -30886,8 +30910,14 @@ func (ec *executionContext) marshalNRedisInstanceOrderField2githubᚗcomᚋnais�
 	return v
 }
 
-func (ec *executionContext) marshalNRedisInstanceStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋredisᚐRedisInstanceStatus(ctx context.Context, sel ast.SelectionSet, v redis.RedisInstanceStatus) graphql.Marshaler {
-	return ec._RedisInstanceStatus(ctx, sel, &v)
+func (ec *executionContext) marshalNRedisInstanceStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋredisᚐRedisInstanceStatus(ctx context.Context, sel ast.SelectionSet, v *redis.RedisInstanceStatus) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RedisInstanceStatus(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNRemoveRepositoryFromTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐRemoveRepositoryFromTeamInput(ctx context.Context, v interface{}) (repository.RemoveRepositoryFromTeamInput, error) {
@@ -31113,8 +31143,14 @@ func (ec *executionContext) marshalNSqlInstanceOrderField2githubᚗcomᚋnaisᚋ
 	return v
 }
 
-func (ec *executionContext) marshalNSqlInstanceStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstanceStatus(ctx context.Context, sel ast.SelectionSet, v sqlinstance.SQLInstanceStatus) graphql.Marshaler {
-	return ec._SqlInstanceStatus(ctx, sel, &v)
+func (ec *executionContext) marshalNSqlInstanceStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstanceStatus(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.SQLInstanceStatus) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SqlInstanceStatus(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNSqlInstanceUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstanceUser(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.SQLInstanceUser) graphql.Marshaler {
