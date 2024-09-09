@@ -269,7 +269,6 @@ func (c *Client) retrieveProject(ctx context.Context, instance *WorkloadInstance
 
 func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.ImageDetails, error) {
 	name, version, _ := strings.Cut(image, ":")
-
 	p, err := c.client.GetProject(ctx, name, version)
 	if err != nil {
 		return nil, fmt.Errorf("getting project by name %s and version %s: %w", name, version, err)

@@ -17,13 +17,43 @@ extend enum OrderByField {
   SEVERITY_UNASSIGNED
 }
 
-type VulnerabilitySummaryForTeam {
+type VulnerabilityNode {
+  id: ID!
+  workloadName: String!
+  env: String!
+  summary: VulnerabilitySummary
+  hasBom: Boolean!
+}
+
+type VulnerabilitySummary {
   riskScore: Int!
   critical: Int!
   high: Int!
   medium: Int!
   low: Int!
   unassigned: Int!
+}
+
+type VulnerabilitySummaryForTeam {
+  riskScore: Int!
+  critical: Int!
+  high: Int!
+  medium: Int!
+  low: Int!
   bomCount: Int!
+  unassigned: Int!
   coverage: Float!
+}
+
+type VulnerabilityList {
+  nodes: [VulnerabilityNode!]!
+  pageInfo: PageInfo!
+}
+
+input VulnerabilityFilter {
+  "Filter by environment"
+  envs: [String!]
+
+  "Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report."
+  requireSbom: Boolean
 }

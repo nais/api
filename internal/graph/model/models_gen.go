@@ -967,14 +967,43 @@ type VulnIDAlias struct {
 	Source string `json:"source"`
 }
 
+type VulnerabilityFilter struct {
+	// Filter by environment
+	Envs []string `json:"envs,omitempty"`
+	// Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report.
+	RequireSbom *bool `json:"requireSbom,omitempty"`
+}
+
+type VulnerabilityList struct {
+	Nodes    []*VulnerabilityNode `json:"nodes"`
+	PageInfo PageInfo             `json:"pageInfo"`
+}
+
+type VulnerabilityNode struct {
+	ID           scalar.Ident          `json:"id"`
+	WorkloadName string                `json:"workloadName"`
+	Env          string                `json:"env"`
+	Summary      *VulnerabilitySummary `json:"summary,omitempty"`
+	HasBom       bool                  `json:"hasBom"`
+}
+
+type VulnerabilitySummary struct {
+	RiskScore  int `json:"riskScore"`
+	Critical   int `json:"critical"`
+	High       int `json:"high"`
+	Medium     int `json:"medium"`
+	Low        int `json:"low"`
+	Unassigned int `json:"unassigned"`
+}
+
 type VulnerabilitySummaryForTeam struct {
 	RiskScore  int     `json:"riskScore"`
 	Critical   int     `json:"critical"`
 	High       int     `json:"high"`
 	Medium     int     `json:"medium"`
 	Low        int     `json:"low"`
-	Unassigned int     `json:"unassigned"`
 	BomCount   int     `json:"bomCount"`
+	Unassigned int     `json:"unassigned"`
 	Coverage   float64 `json:"coverage"`
 }
 

@@ -463,7 +463,23 @@ type Team {
     limit: Int
   ): DeploymentList!
 
+  "The vulnerabilities for the team's applications."
+  vulnerabilities(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order entries by"
+    orderBy: OrderBy
+
+    filter: VulnerabilityFilter
+  ): VulnerabilityList!
+
+  "The vulnerabilities summary for the team's applications."
   vulnerabilitiesSummary: VulnerabilitySummaryForTeam!
+
 
   "Get all secrets for the team."
   secrets: [Secret!]! @auth
