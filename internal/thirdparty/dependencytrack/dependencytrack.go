@@ -112,14 +112,14 @@ func (c *Client) GetVulnerabilityStatus(ctx context.Context, image string) (mode
 		return nil, fmt.Errorf("getting project by name %s and version %s: %w", name, version, err)
 	}
 
-	if !hasBom(p) {
+	v, sum := c.isVulnerable(p)
+	if sum == nil {
 		return model.MissingSbom{
 			Revision: "",
 			Level:    model.ErrorLevelError,
 		}, nil
 	}
 
-	v, sum := c.isVulnerable(p, true)
 	if v {
 		return model.Vulnerable{
 			Revision: "",
@@ -130,10 +130,10 @@ func (c *Client) GetVulnerabilityStatus(ctx context.Context, image string) (mode
 	return nil, nil
 }
 
-func (c *Client) isVulnerable(p *dependencytrack.Project, sbom bool) (bool, *model.ImageVulnerabilitySummary) {
-	sum := c.createSummaryForImage(p, sbom)
+func (c *Client) isVulnerable(p *dependencytrack.Project) (bool, *model.ImageVulnerabilitySummary) {
+	sum := c.createSummaryForImage(p)
 	if sum == nil {
-		return false, nil
+		return true, nil
 	}
 	return sum.Critical > 0 || sum.High > 0 || sum.Medium > 0 || sum.Low > 0, sum
 }
@@ -186,7 +186,7 @@ func (c *Client) GetProjectMetrics(ctx context.Context, instance *WorkloadInstan
 // Due to the nature of the DependencyTrack API, the 'LastBomImportFormat' is not reliable to determine if a project has a BOM.
 // The 'LastBomImportFormat' can be empty even if the project has a BOM.
 // As a fallback, we can check if projects has registered any components, then we assume that if a project has components, it has a BOM.
-func hasBom(p *dependencytrack.Project) bool {
+func hasSbom(p *dependencytrack.Project) bool {
 	if p == nil {
 		return false
 	}
@@ -208,8 +208,8 @@ func (c *Client) retrieveFindings(ctx context.Context, uuid string, suppressed b
 	return findings, nil
 }
 
-func (c *Client) createSummaryForImage(project *dependencytrack.Project, hasBom bool) *model.ImageVulnerabilitySummary {
-	if !hasBom || project.Metrics == nil {
+func (c *Client) createSummaryForImage(project *dependencytrack.Project) *model.ImageVulnerabilitySummary {
+	if !hasSbom(project) {
 		return nil
 	}
 
@@ -280,7 +280,7 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 			ID:      scalar.ImageIdent(name, version),
 			Name:    image,
 			Version: version,
-			Summary: c.createSummaryForImage(nil, false),
+			Summary: c.createSummaryForImage(nil),
 			Rekor:   model.Rekor{},
 		}, nil
 	}
@@ -290,9 +290,9 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 		ID:         scalar.ImageIdent(p.Name, p.Version),
 		Rekor:      parseRekorTags(p.Tags),
 		Version:    p.Version,
-		HasSbom:    hasBom(p),
+		HasSbom:    hasSbom(p),
 		ProjectID:  p.Uuid,
-		Summary:    c.createSummaryForImage(p, hasBom(p)),
+		Summary:    c.createSummaryForImage(p),
 		ProjectURL: c.frontendUrl + "/projects/" + p.Uuid,
 		GQLVars: model.ImageDetailsGQLVars{
 			WorkloadReferences: parseWorkloadRefTags(p.Tags),
@@ -417,8 +417,8 @@ func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId s
 		Rekor:     parseRekorTags(p.Tags),
 		Version:   p.Version,
 		ProjectID: p.Uuid,
-		HasSbom:   hasBom(p),
-		Summary:   c.createSummaryForImage(p, hasBom(p)),
+		HasSbom:   hasSbom(p),
+		Summary:   c.createSummaryForImage(p),
 		GQLVars: model.ImageDetailsGQLVars{
 			WorkloadReferences: parseWorkloadRefTags(p.Tags),
 		},
@@ -454,10 +454,10 @@ func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.
 			ID:        scalar.ImageIdent(p.Name, p.Version),
 			ProjectID: p.Uuid,
 			Name:      p.Name,
-			Summary:   c.createSummaryForImage(p, hasBom(p)),
+			Summary:   c.createSummaryForImage(p),
 			Rekor:     parseRekorTags(p.Tags),
 			Version:   p.Version,
-			HasSbom:   hasBom(p),
+			HasSbom:   hasSbom(p),
 			GQLVars: model.ImageDetailsGQLVars{
 				WorkloadReferences: parseWorkloadRefTags(p.Tags),
 			},
@@ -563,4 +563,28 @@ func containsAllTags(tags []dependencytrack.Tag, s ...string) bool {
 		}
 	}
 	return found == len(s)
+}
+
+func (c *Client) UploadProject(ctx context.Context, image, name, version, team string, bom []byte) error {
+	tags := []string{
+		dependencytrack.EnvironmentTagPrefix.With("dev"),
+		dependencytrack.TeamTagPrefix.With(team),
+		dependencytrack.WorkloadTagPrefix.With("dev|" + team + "|app|" + name),
+		dependencytrack.ImageTagPrefix.With(image),
+	}
+	createdP, err := c.client.CreateProject(ctx, image, version, team, tags)
+	if err != nil {
+		// since we are creating the project, we can ignore the conflict error
+		if !dependencytrack.IsConflict(err) {
+			return fmt.Errorf("creating project: %w", err)
+		}
+		return nil
+	}
+
+	err = c.client.UploadProject(ctx, image, version, createdP.Uuid, false, bom)
+	if err != nil {
+		return fmt.Errorf("uploading bom: %w", err)
+	}
+	return nil
+
 }

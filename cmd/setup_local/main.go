@@ -3,8 +3,12 @@ package main
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/in-toto/in-toto-golang/in_toto"
+	"github.com/nais/api/internal/thirdparty/dependencytrack"
+	"log"
 	"math/rand"
 	"os"
 	"strings"
@@ -37,14 +41,15 @@ type seedConfig struct {
 	NumTeams          *int
 	NumOwnersPerTeam  *int
 	NumMembersPerTeam *int
-	VulnSeed          *VulnSeed
+	DependencyTrack   *DependencyTrack
 	ForceSeed         *bool
 	ProvisionPubSub   *bool
 }
 
-type VulnSeed struct {
-	NumVulnAppsForTeam *int
-	NumVulnPerApp      *int
+type DependencyTrack struct {
+	Url      string `env:"DEPENDENCY_TRACK_URL,default=http://localhost:9010"`
+	Username string `env:"DEPENDENCY_TRACK_USERNAME,default=admin"`
+	Password string `env:"DEPENDENCY_TRACK_PASSWORD,default=yolo"`
 }
 
 func newSeedConfig(ctx context.Context) (*seedConfig, error) {
@@ -60,8 +65,9 @@ func newSeedConfig(ctx context.Context) (*seedConfig, error) {
 	cfg.NumMembersPerTeam = flag.Int("members", 10, "number of members per team")
 	cfg.ForceSeed = flag.Bool("force", false, "seed regardless of existing database content")
 	cfg.ProvisionPubSub = flag.Bool("provision_pub_sub", true, "set up pubsub credentials")
-	cfg.VulnSeed.NumVulnAppsForTeam = flag.Int("vuln-apps", 5, "number of vulnerable apps per team")
-	cfg.VulnSeed.NumVulnPerApp = flag.Int("vuln-per-app", 10, "number of vulnerabilities per app")
+	cfg.DependencyTrack.Username = *flag.String("dependency_track_username", "admin", "username for dependency track")
+	cfg.DependencyTrack.Password = *flag.String("dependency_track_password", "yolo", "password for dependency track")
+	cfg.DependencyTrack.Url = *flag.String("dependency_track_url", "http://localhost:9010", "url for dependency track")
 	flag.Parse()
 
 	return cfg, nil
@@ -146,6 +152,8 @@ func run(ctx context.Context, cfg *seedConfig, log logrus.FieldLogger) error {
 
 	emails := map[string]struct{}{}
 	slugs := map[string]struct{}{}
+
+	uploadFakeSbom(cfg.DependencyTrack, log)
 
 	if !*cfg.ForceSeed {
 		if existingUsers, err := getAllUsers(ctx, db); len(existingUsers) != 0 || err != nil {
@@ -381,4 +389,33 @@ func getAllTeams(ctx context.Context, db database.TeamRepo) ([]*database.Team, e
 	}
 
 	return teams, nil
+}
+
+func uploadFakeSbom(track *DependencyTrack, log logrus.FieldLogger) {
+	ctx := context.Background()
+	client := dependencytrack.New(track.Url, track.Username, track.Password, "http://localhost:9020", log.WithFields(logrus.Fields{"setup": "dependencytrack"}))
+	sbom, err := getSbom()
+	err = client.UploadProject(ctx, "ghcr.io/nais/testapp/testapp", "nais-deploy-canary", "2020-02-25-f61e7b7", "devteam", sbom)
+	if err != nil {
+		log.Fatalf("upload project: %v", err)
+	}
+}
+
+func getSbom() ([]byte, error) {
+	read, err := os.ReadFile("data/sbom/sbom.json")
+	if err != nil {
+		log.Fatalf("read file: %v", err)
+	}
+
+	metadata := &in_toto.CycloneDXStatement{}
+	err = json.Unmarshal(read, metadata)
+	if err != nil {
+		log.Fatalf("unmarshal: %v", err)
+	}
+
+	sbom, err := json.Marshal(metadata.Predicate)
+	if err != nil {
+		log.Fatalf("marshal: %v", err)
+	}
+	return sbom, nil
 }
