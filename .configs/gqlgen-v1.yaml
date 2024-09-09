@@ -49,7 +49,7 @@ omit_getters: true
 omit_gqlgen_file_notice: true
 
 # Setting this to false will generate type instances for required struct fields, and type pointers for optional fields
-struct_fields_always_pointers: false
+struct_fields_always_pointers: true
 
 # Because we're using gofumpt, and in general run our code often enough, we can disable building and running go mod tidy during gqlgen generate
 # This will speed up the generation process
