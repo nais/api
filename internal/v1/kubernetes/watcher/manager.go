@@ -1,9 +1,11 @@
 package watcher
 
 import (
+	"context"
 	"fmt"
 
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/tools/cache"
 
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -33,6 +35,8 @@ type Manager struct {
 	managers map[string]*clusterManager
 	scheme   *runtime.Scheme
 	log      logrus.FieldLogger
+
+	cacheSyncs []cache.InformerSynced
 }
 
 func NewManager(scheme *runtime.Scheme, tenant string, cfg Config, log logrus.FieldLogger, opts ...Option) (*Manager, error) {
@@ -80,6 +84,14 @@ func (m *Manager) Stop() {
 	for _, mgr := range m.managers {
 		mgr.informer.Shutdown()
 	}
+}
+
+func (m *Manager) WaitForReady(ctx context.Context) bool {
+	return cache.WaitForCacheSync(ctx.Done(), m.cacheSyncs...)
+}
+
+func (m *Manager) addCacheSync(sync cache.InformerSynced) {
+	m.cacheSyncs = append(m.cacheSyncs, sync)
 }
 
 func Watch[T Object](mgr *Manager, obj T, opts ...WatchOption) *Watcher[T] {

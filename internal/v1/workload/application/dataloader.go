@@ -17,8 +17,10 @@ func NewLoaderContext(ctx context.Context, appWatcher *watcher.Watcher[*nais_io_
 	return context.WithValue(ctx, loadersKey, newLoaders(appWatcher, defaultOpts))
 }
 
-func NewWatcher(mgr *watcher.Manager) *watcher.Watcher[*nais_io_v1alpha1.Application] {
-	return watcher.Watch(mgr, &nais_io_v1alpha1.Application{})
+func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*nais_io_v1alpha1.Application] {
+	w := watcher.Watch(mgr, &nais_io_v1alpha1.Application{})
+	w.Start(ctx)
+	return w
 }
 
 func fromContext(ctx context.Context) *loaders {

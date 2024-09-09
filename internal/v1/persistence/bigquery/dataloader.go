@@ -18,8 +18,8 @@ func NewLoaderContext(ctx context.Context, bqWatcher *watcher.Watcher[*BigQueryD
 	return context.WithValue(ctx, loadersKey, newLoaders(bqWatcher, defaultOpts))
 }
 
-func NewWatcher(mgr *watcher.Manager) *watcher.Watcher[*BigQueryDataset] {
-	return watcher.Watch(mgr, &BigQueryDataset{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
+func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*BigQueryDataset] {
+	w := watcher.Watch(mgr, &BigQueryDataset{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
 		if o.GetKind() != "BigQueryDataset" {
 			return nil, false
 		}
@@ -33,6 +33,8 @@ func NewWatcher(mgr *watcher.Manager) *watcher.Watcher[*BigQueryDataset] {
 		Version:  "v1",
 		Resource: "bigquerydatasets",
 	}))
+	w.Start(ctx)
+	return w
 }
 
 func fromContext(ctx context.Context) *loaders {

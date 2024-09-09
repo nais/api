@@ -81,16 +81,13 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphHandler))
 	})
 
-	// TODO: Make this nicer
-	appWatcher := application.NewWatcher(watcherMgr)
-	appWatcher.Start(ctx)
-	if !appWatcher.WaitForReady(ctx, 10*time.Second) {
-		return errors.New("application watcher did not become ready")
-	}
-	bqWatcher := bigquery.NewWatcher(watcherMgr)
-	bqWatcher.Start(ctx)
-	if !bqWatcher.WaitForReady(ctx, 10*time.Second) {
-		return errors.New("bigquery watcher did not become ready")
+	appWatcher := application.NewWatcher(ctx, watcherMgr)
+	bqWatcher := bigquery.NewWatcher(ctx, watcherMgr)
+
+	syncCtx, cancelSync := context.WithTimeout(ctx, 20*time.Second)
+	defer cancelSync()
+	if watcherMgr.WaitForReady(syncCtx) {
+		return errors.New("timed out waiting for watchers to be ready")
 	}
 
 	router.Route("/graphql", func(r chi.Router) {

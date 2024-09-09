@@ -2,12 +2,10 @@ package watcher
 
 import (
 	"context"
-	"time"
 
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/tools/cache"
 )
 
 type WatchOption func(*watcherSettings)
@@ -41,7 +39,9 @@ func newWatcher[T Object](mgr *Manager, obj T, settings *watcherSettings, log lo
 		log:       log,
 	}
 	for cluster, client := range mgr.managers {
-		w.watchers = append(w.watchers, newClusterWatcher(client, cluster, w, obj, settings, log.WithField("cluster", cluster)))
+		watcher := newClusterWatcher(client, cluster, w, obj, settings, log.WithField("cluster", cluster))
+		w.watchers = append(w.watchers, watcher)
+		mgr.addCacheSync(watcher.informer.Informer().HasSynced)
 	}
 	return w
 }
@@ -52,19 +52,19 @@ func (w *Watcher[T]) Start(ctx context.Context) {
 	}
 }
 
-func (w *Watcher[T]) WaitForReady(ctx context.Context, timeout time.Duration) bool {
-	ctx, cancel := context.WithTimeout(ctx, timeout)
-	defer cancel()
+// func (w *Watcher[T]) WaitForReady(ctx context.Context, timeout time.Duration) bool {
+// 	ctx, cancel := context.WithTimeout(ctx, timeout)
+// 	defer cancel()
 
-	var syncs []cache.InformerSynced
-	for _, watcher := range w.watchers {
-		if !watcher.isRegistered {
-			continue
-		}
-		syncs = append(syncs, watcher.informer.Informer().HasSynced)
-	}
-	return cache.WaitForCacheSync(ctx.Done(), syncs...)
-}
+// 	var syncs []cache.InformerSynced
+// 	for _, watcher := range w.watchers {
+// 		if !watcher.isRegistered {
+// 			continue
+// 		}
+// 		syncs = append(syncs, watcher.informer.Informer().HasSynced)
+// 	}
+// 	return cache.WaitForCacheSync(ctx.Done(), syncs...)
+// }
 
 func (w *Watcher[T]) add(cluster string, obj T) {
 	if w == nil {
