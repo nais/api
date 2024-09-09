@@ -25,7 +25,7 @@ type KafkaTopic struct {
 	Name            string                   `json:"name"`
 	Pool            string                   `json:"pool"`
 	Configuration   *KafkaTopicConfiguration `json:"configuration,omitempty"`
-	Status          KafkaTopicStatus         `json:"status"`
+	Status          *KafkaTopicStatus        `json:"status"`
 	ACLs            []*KafkaTopicACL         `json:"-"`
 	TeamSlug        slug.Slug                `json:"-"`
 	EnvironmentName string                   `json:"-"`
@@ -179,9 +179,9 @@ func toKafkaTopicACLs(acls []kafka_nais_io_v1.TopicACL, envName string) []*Kafka
 	return ret
 }
 
-func toKafkaTopicStatus(status *kafka_nais_io_v1.TopicStatus) KafkaTopicStatus {
+func toKafkaTopicStatus(status *kafka_nais_io_v1.TopicStatus) *KafkaTopicStatus {
 	// TODO: Implement
-	return KafkaTopicStatus{}
+	return &KafkaTopicStatus{}
 }
 
 func toKafkaTopic(u *unstructured.Unstructured, envName string) (*KafkaTopic, error) {

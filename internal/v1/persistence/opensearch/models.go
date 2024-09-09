@@ -25,7 +25,7 @@ type (
 
 type OpenSearch struct {
 	Name            string                 `json:"name"`
-	Status          OpenSearchStatus       `json:"status"`
+	Status          *OpenSearchStatus      `json:"status"`
 	TeamSlug        slug.Slug              `json:"-"`
 	EnvironmentName string                 `json:"-"`
 	OwnerReference  *metav1.OwnerReference `json:"-"`
@@ -143,7 +143,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 	return &OpenSearch{
 		Name:            obj.Name,
 		EnvironmentName: envName,
-		Status: OpenSearchStatus{
+		Status: &OpenSearchStatus{
 			Conditions: obj.Status.Conditions,
 			State:      obj.Status.State,
 		},

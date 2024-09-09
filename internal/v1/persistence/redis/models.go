@@ -25,7 +25,7 @@ type (
 
 type RedisInstance struct {
 	Name            string                 `json:"name"`
-	Status          RedisInstanceStatus    `json:"status"`
+	Status          *RedisInstanceStatus   `json:"status"`
 	TeamSlug        slug.Slug              `json:"-"`
 	EnvironmentName string                 `json:"-"`
 	OwnerReference  *metav1.OwnerReference `json:"-"`
@@ -148,7 +148,7 @@ func toRedisInstance(u *unstructured.Unstructured, envName string) (*RedisInstan
 	return &RedisInstance{
 		Name:            obj.Name,
 		EnvironmentName: envName,
-		Status: RedisInstanceStatus{
+		Status: &RedisInstanceStatus{
 			Conditions: obj.Status.Conditions,
 			State:      obj.Status.State,
 		},

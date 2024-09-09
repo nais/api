@@ -31,7 +31,7 @@ type BigQueryDataset struct {
 	Description     *string                  `json:"description,omitempty"`
 	CascadingDelete bool                     `json:"cascadingDelete"`
 	Location        string                   `json:"location"`
-	Status          BigQueryDatasetStatus    `json:"status"`
+	Status          *BigQueryDatasetStatus   `json:"status"`
 	Access          []*BigQueryDatasetAccess `json:"-"`
 	TeamSlug        slug.Slug                `json:"-"`
 	EnvironmentName string                   `json:"-"`
@@ -165,8 +165,8 @@ func toBigQueryDatasetAccess(access []bigquery_nais_io_v1.DatasetAccess) []*BigQ
 	return ret
 }
 
-func toBigQueryDatasetStatus(s bigquery_nais_io_v1.BigQueryDatasetStatus) BigQueryDatasetStatus {
-	ret := BigQueryDatasetStatus{
+func toBigQueryDatasetStatus(s bigquery_nais_io_v1.BigQueryDatasetStatus) *BigQueryDatasetStatus {
+	ret := &BigQueryDatasetStatus{
 		CreationTime: time.Unix(int64(s.CreationTime), 0),
 		Conditions:   s.Conditions,
 	}

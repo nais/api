@@ -29,7 +29,7 @@ type Bucket struct {
 	CascadingDelete          bool                   `json:"cascadingDelete"`
 	PublicAccessPrevention   string                 `json:"publicAccessPrevention"`
 	UniformBucketLevelAccess bool                   `json:"uniformBucketLevelAccess"`
-	Status                   BucketStatus           `json:"status"`
+	Status                   *BucketStatus          `json:"status"`
 	Cors                     []*BucketCors          `json:"-"`
 	TeamSlug                 slug.Slug              `json:"-"`
 	EnvironmentName          string                 `json:"-"`
@@ -110,9 +110,9 @@ func toBucketCors(cors []storage_cnrm_cloud_google_com_v1beta1.BucketCors) []*Bu
 	return ret
 }
 
-func toBucketStatus(status storage_cnrm_cloud_google_com_v1beta1.StorageBucketStatus) BucketStatus {
+func toBucketStatus(status storage_cnrm_cloud_google_com_v1beta1.StorageBucketStatus) *BucketStatus {
 	// TODO: Implement
-	return BucketStatus{}
+	return &BucketStatus{}
 }
 
 func toBucket(u *unstructured.Unstructured, env string) (*Bucket, error) {

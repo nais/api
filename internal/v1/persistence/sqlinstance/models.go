@@ -62,7 +62,7 @@ type SQLInstance struct {
 	ProjectID           string                          `json:"projectId"`
 	Tier                string                          `json:"tier"`
 	Version             *string                         `json:"version,omitempty"`
-	Status              SQLInstanceStatus               `json:"status"`
+	Status              *SQLInstanceStatus              `json:"status"`
 	Flags               []*SQLInstanceFlag              `json:"-"`
 	EnvironmentName     string                          `json:"-"`
 	TeamSlug            slug.Slug                       `json:"-"`
@@ -216,8 +216,8 @@ func toSQLInstanceBackupConfiguration(cfg *sql_cnrm_cloud_google_com_v1beta1.Ins
 	return ret
 }
 
-func toSQLInstanceStatus(status sql_cnrm_cloud_google_com_v1beta1.SQLInstanceStatus) SQLInstanceStatus {
-	ret := SQLInstanceStatus{
+func toSQLInstanceStatus(status sql_cnrm_cloud_google_com_v1beta1.SQLInstanceStatus) *SQLInstanceStatus {
+	ret := &SQLInstanceStatus{
 		PublicIPAddress: status.PublicIpAddress,
 	}
 
