@@ -3,7 +3,8 @@ interface Workload implements Node {
 	name: String!
 	team: Team!
 	environment: TeamEnvironment!
-	# image: String!
+	image: ContainerImage!
+
 	# deployInfo: DeployInfo!
 	# accessPolicy: AccessPolicy!
 	# status: WorkloadStatus!
@@ -11,4 +12,13 @@ interface Workload implements Node {
 	# variables: [Variable!]!
 	# resources: Resources!
 	# persistence: [Persistence!]!
+}
+
+type ContainerImage implements Node {
+	"The globally unique ID of the container image node."
+	id: ID!
+	"Name of the container image."
+	name: String!
+	"Tag of the container image."
+	tag: String!
 }

@@ -6,10 +6,10 @@ import (
 	"strconv"
 
 	"github.com/nais/api/internal/graph/model"
-	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/workload"
 )
 
 type (
@@ -18,9 +18,7 @@ type (
 )
 
 type Job struct {
-	Name            string    `json:"name"`
-	EnvironmentName string    `json:"-"`
-	TeamSlug        slug.Slug `json:"-"`
+	workload.Base
 }
 
 func (Job) IsNode()     {}
@@ -77,8 +75,10 @@ func (e JobOrderField) MarshalGQL(w io.Writer) {
 
 func toGraphJob(a *model.NaisJob) *Job {
 	return &Job{
-		Name:            a.Name,
-		EnvironmentName: a.Env.Name,
-		TeamSlug:        a.GQLVars.Team,
+		Base: workload.Base{
+			Name:            a.Name,
+			EnvironmentName: a.Env.Name,
+			TeamSlug:        a.GQLVars.Team,
+		},
 	}
 }

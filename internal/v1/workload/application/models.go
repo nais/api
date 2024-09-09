@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/workload"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 )
 
@@ -18,9 +19,7 @@ type (
 )
 
 type Application struct {
-	Name            string    `json:"name"`
-	EnvironmentName string    `json:"-"`
-	TeamSlug        slug.Slug `json:"-"`
+	workload.Base
 }
 
 func (Application) IsWorkload() {}
@@ -77,8 +76,11 @@ func (e ApplicationOrderField) MarshalGQL(w io.Writer) {
 
 func toGraphApplication(a *nais_io_v1alpha1.Application, environmentName string) *Application {
 	return &Application{
-		Name:            a.Name,
-		EnvironmentName: environmentName, // a.Env.Name,
-		TeamSlug:        slug.Slug(a.Namespace),
+		Base: workload.Base{
+			Name:            a.Name,
+			EnvironmentName: environmentName,
+			TeamSlug:        slug.Slug(a.Namespace),
+			ImageString:     a.Spec.Image,
+		},
 	}
 }

@@ -23,6 +23,7 @@ type Job implements Node & Workload {
 	name: String!
 	team: Team!
 	environment: TeamEnvironment!
+	image: ContainerImage!
 
 	# image: String!
 	# deployInfo: DeployInfo!

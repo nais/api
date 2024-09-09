@@ -37,6 +37,7 @@ autobind:
   - "github.com/nais/api/internal/v1/persistence/sqlinstance"
   - "github.com/nais/api/internal/v1/team"
   - "github.com/nais/api/internal/v1/user"
+  - "github.com/nais/api/internal/v1/vulnerability"
   - "github.com/nais/api/internal/v1/workload"
   - "github.com/nais/api/internal/v1/workload/application"
   - "github.com/nais/api/internal/v1/workload/job"
