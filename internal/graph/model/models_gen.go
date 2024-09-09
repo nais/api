@@ -584,12 +584,12 @@ type MaskinportenScope struct {
 	Exposes  []*Expose  `json:"exposes"`
 }
 
-type MissingSbom struct {
+type MissingSbomError struct {
 	Revision string     `json:"revision"`
 	Level    ErrorLevel `json:"level"`
 }
 
-func (MissingSbom) IsStateError() {}
+func (MissingSbomError) IsStateError() {}
 
 // Monthly cost type.
 type MonthlyCost struct {
@@ -978,13 +978,13 @@ type VulnerabilitySummaryForTeam struct {
 	Coverage   float64 `json:"coverage"`
 }
 
-type Vulnerable struct {
+type VulnerableError struct {
 	Revision string                     `json:"revision"`
 	Level    ErrorLevel                 `json:"level"`
 	Summary  *ImageVulnerabilitySummary `json:"summary,omitempty"`
 }
 
-func (Vulnerable) IsStateError() {}
+func (VulnerableError) IsStateError() {}
 
 type AuditEventAction string
 

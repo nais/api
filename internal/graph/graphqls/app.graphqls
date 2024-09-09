@@ -164,13 +164,13 @@ type OutboundAccessError implements StateError {
   rule: Rule!
 }
 
-type Vulnerable implements StateError {
+type VulnerableError implements StateError {
   revision: String!
   level: ErrorLevel!
   summary: ImageVulnerabilitySummary
 }
 
-type MissingSbom implements StateError {
+type MissingSbomError implements StateError {
   revision: String!
   level: ErrorLevel!
 }

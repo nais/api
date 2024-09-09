@@ -114,14 +114,14 @@ func (c *Client) GetVulnerabilityStatus(ctx context.Context, image string) (mode
 
 	v, sum := c.isVulnerable(p)
 	if sum == nil {
-		return model.MissingSbom{
+		return model.MissingSbomError{
 			Revision: "",
 			Level:    model.ErrorLevelError,
 		}, nil
 	}
 
 	if v {
-		return model.Vulnerable{
+		return model.VulnerableError{
 			Revision: "",
 			Level:    model.ErrorLevelWarning,
 			Summary:  sum,

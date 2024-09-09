@@ -808,7 +808,7 @@ type ComplexityRoot struct {
 		Exposes  func(childComplexity int) int
 	}
 
-	MissingSbom struct {
+	MissingSbomError struct {
 		Level    func(childComplexity int) int
 		Revision func(childComplexity int) int
 	}
@@ -1421,7 +1421,7 @@ type ComplexityRoot struct {
 		Unassigned func(childComplexity int) int
 	}
 
-	Vulnerable struct {
+	VulnerableError struct {
 		Level    func(childComplexity int) int
 		Revision func(childComplexity int) int
 		Summary  func(childComplexity int) int
@@ -4705,19 +4705,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MaskinportenScope.Exposes(childComplexity), true
 
-	case "MissingSbom.level":
-		if e.complexity.MissingSbom.Level == nil {
+	case "MissingSbomError.level":
+		if e.complexity.MissingSbomError.Level == nil {
 			break
 		}
 
-		return e.complexity.MissingSbom.Level(childComplexity), true
+		return e.complexity.MissingSbomError.Level(childComplexity), true
 
-	case "MissingSbom.revision":
-		if e.complexity.MissingSbom.Revision == nil {
+	case "MissingSbomError.revision":
+		if e.complexity.MissingSbomError.Revision == nil {
 			break
 		}
 
-		return e.complexity.MissingSbom.Revision(childComplexity), true
+		return e.complexity.MissingSbomError.Revision(childComplexity), true
 
 	case "MonthlyCost.cost":
 		if e.complexity.MonthlyCost.Cost == nil {
@@ -7739,26 +7739,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.VulnerabilitySummaryForTeam.Unassigned(childComplexity), true
 
-	case "Vulnerable.level":
-		if e.complexity.Vulnerable.Level == nil {
+	case "VulnerableError.level":
+		if e.complexity.VulnerableError.Level == nil {
 			break
 		}
 
-		return e.complexity.Vulnerable.Level(childComplexity), true
+		return e.complexity.VulnerableError.Level(childComplexity), true
 
-	case "Vulnerable.revision":
-		if e.complexity.Vulnerable.Revision == nil {
+	case "VulnerableError.revision":
+		if e.complexity.VulnerableError.Revision == nil {
 			break
 		}
 
-		return e.complexity.Vulnerable.Revision(childComplexity), true
+		return e.complexity.VulnerableError.Revision(childComplexity), true
 
-	case "Vulnerable.summary":
-		if e.complexity.Vulnerable.Summary == nil {
+	case "VulnerableError.summary":
+		if e.complexity.VulnerableError.Summary == nil {
 			break
 		}
 
-		return e.complexity.Vulnerable.Summary(childComplexity), true
+		return e.complexity.VulnerableError.Summary(childComplexity), true
 
 	case "WorkloadStatus.errors":
 		if e.complexity.WorkloadStatus.Errors == nil {
@@ -8112,13 +8112,13 @@ type OutboundAccessError implements StateError {
   rule: Rule!
 }
 
-type Vulnerable implements StateError {
+type VulnerableError implements StateError {
   revision: String!
   level: ErrorLevel!
   summary: ImageVulnerabilitySummary
 }
 
-type MissingSbom implements StateError {
+type MissingSbomError implements StateError {
   revision: String!
   level: ErrorLevel!
 }
@@ -33434,8 +33434,8 @@ func (ec *executionContext) fieldContext_MaskinportenScope_exposes(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _MissingSbom_revision(ctx context.Context, field graphql.CollectedField, obj *model.MissingSbom) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MissingSbom_revision(ctx, field)
+func (ec *executionContext) _MissingSbomError_revision(ctx context.Context, field graphql.CollectedField, obj *model.MissingSbomError) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MissingSbomError_revision(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -33465,9 +33465,9 @@ func (ec *executionContext) _MissingSbom_revision(ctx context.Context, field gra
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MissingSbom_revision(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MissingSbomError_revision(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "MissingSbom",
+		Object:     "MissingSbomError",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -33478,8 +33478,8 @@ func (ec *executionContext) fieldContext_MissingSbom_revision(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _MissingSbom_level(ctx context.Context, field graphql.CollectedField, obj *model.MissingSbom) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MissingSbom_level(ctx, field)
+func (ec *executionContext) _MissingSbomError_level(ctx context.Context, field graphql.CollectedField, obj *model.MissingSbomError) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MissingSbomError_level(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -33509,9 +33509,9 @@ func (ec *executionContext) _MissingSbom_level(ctx context.Context, field graphq
 	return ec.marshalNErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐErrorLevel(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MissingSbom_level(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MissingSbomError_level(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "MissingSbom",
+		Object:     "MissingSbomError",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -55210,8 +55210,8 @@ func (ec *executionContext) fieldContext_VulnerabilitySummaryForTeam_coverage(_ 
 	return fc, nil
 }
 
-func (ec *executionContext) _Vulnerable_revision(ctx context.Context, field graphql.CollectedField, obj *model.Vulnerable) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Vulnerable_revision(ctx, field)
+func (ec *executionContext) _VulnerableError_revision(ctx context.Context, field graphql.CollectedField, obj *model.VulnerableError) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerableError_revision(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -55241,9 +55241,9 @@ func (ec *executionContext) _Vulnerable_revision(ctx context.Context, field grap
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Vulnerable_revision(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerableError_revision(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Vulnerable",
+		Object:     "VulnerableError",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -55254,8 +55254,8 @@ func (ec *executionContext) fieldContext_Vulnerable_revision(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Vulnerable_level(ctx context.Context, field graphql.CollectedField, obj *model.Vulnerable) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Vulnerable_level(ctx, field)
+func (ec *executionContext) _VulnerableError_level(ctx context.Context, field graphql.CollectedField, obj *model.VulnerableError) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerableError_level(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -55285,9 +55285,9 @@ func (ec *executionContext) _Vulnerable_level(ctx context.Context, field graphql
 	return ec.marshalNErrorLevel2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐErrorLevel(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Vulnerable_level(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerableError_level(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Vulnerable",
+		Object:     "VulnerableError",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -55298,8 +55298,8 @@ func (ec *executionContext) fieldContext_Vulnerable_level(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Vulnerable_summary(ctx context.Context, field graphql.CollectedField, obj *model.Vulnerable) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Vulnerable_summary(ctx, field)
+func (ec *executionContext) _VulnerableError_summary(ctx context.Context, field graphql.CollectedField, obj *model.VulnerableError) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerableError_summary(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -55326,9 +55326,9 @@ func (ec *executionContext) _Vulnerable_summary(ctx context.Context, field graph
 	return ec.marshalOImageVulnerabilitySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐImageVulnerabilitySummary(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Vulnerable_summary(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_VulnerableError_summary(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Vulnerable",
+		Object:     "VulnerableError",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -58298,20 +58298,20 @@ func (ec *executionContext) _StateError(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._OutboundAccessError(ctx, sel, obj)
-	case model.Vulnerable:
-		return ec._Vulnerable(ctx, sel, &obj)
-	case *model.Vulnerable:
+	case model.VulnerableError:
+		return ec._VulnerableError(ctx, sel, &obj)
+	case *model.VulnerableError:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Vulnerable(ctx, sel, obj)
-	case model.MissingSbom:
-		return ec._MissingSbom(ctx, sel, &obj)
-	case *model.MissingSbom:
+		return ec._VulnerableError(ctx, sel, obj)
+	case model.MissingSbomError:
+		return ec._MissingSbomError(ctx, sel, &obj)
+	case *model.MissingSbomError:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._MissingSbom(ctx, sel, obj)
+		return ec._MissingSbomError(ctx, sel, obj)
 	case model.FailedRunError:
 		return ec._FailedRunError(ctx, sel, &obj)
 	case *model.FailedRunError:
@@ -65002,24 +65002,24 @@ func (ec *executionContext) _MaskinportenScope(ctx context.Context, sel ast.Sele
 	return out
 }
 
-var missingSbomImplementors = []string{"MissingSbom", "StateError"}
+var missingSbomErrorImplementors = []string{"MissingSbomError", "StateError"}
 
-func (ec *executionContext) _MissingSbom(ctx context.Context, sel ast.SelectionSet, obj *model.MissingSbom) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, missingSbomImplementors)
+func (ec *executionContext) _MissingSbomError(ctx context.Context, sel ast.SelectionSet, obj *model.MissingSbomError) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, missingSbomErrorImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("MissingSbom")
+			out.Values[i] = graphql.MarshalString("MissingSbomError")
 		case "revision":
-			out.Values[i] = ec._MissingSbom_revision(ctx, field, obj)
+			out.Values[i] = ec._MissingSbomError_revision(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "level":
-			out.Values[i] = ec._MissingSbom_level(ctx, field, obj)
+			out.Values[i] = ec._MissingSbomError_level(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -72444,29 +72444,29 @@ func (ec *executionContext) _VulnerabilitySummaryForTeam(ctx context.Context, se
 	return out
 }
 
-var vulnerableImplementors = []string{"Vulnerable", "StateError"}
+var vulnerableErrorImplementors = []string{"VulnerableError", "StateError"}
 
-func (ec *executionContext) _Vulnerable(ctx context.Context, sel ast.SelectionSet, obj *model.Vulnerable) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, vulnerableImplementors)
+func (ec *executionContext) _VulnerableError(ctx context.Context, sel ast.SelectionSet, obj *model.VulnerableError) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, vulnerableErrorImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Vulnerable")
+			out.Values[i] = graphql.MarshalString("VulnerableError")
 		case "revision":
-			out.Values[i] = ec._Vulnerable_revision(ctx, field, obj)
+			out.Values[i] = ec._VulnerableError_revision(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "level":
-			out.Values[i] = ec._Vulnerable_level(ctx, field, obj)
+			out.Values[i] = ec._VulnerableError_level(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "summary":
-			out.Values[i] = ec._Vulnerable_summary(ctx, field, obj)
+			out.Values[i] = ec._VulnerableError_summary(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
