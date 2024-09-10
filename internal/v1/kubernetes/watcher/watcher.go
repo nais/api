@@ -70,17 +70,29 @@ func (w *Watcher[T]) add(cluster string, obj T) {
 	if w == nil {
 		panic("watcher is nil")
 	}
-	w.log.Debug("Adding object", "cluster", cluster, "name", obj.GetName(), "namespace", obj.GetNamespace())
+	w.log.WithFields(logrus.Fields{
+		"cluster":   cluster,
+		"name":      obj.GetName(),
+		"namespace": obj.GetNamespace(),
+	}).Debug("Adding object")
 	w.datastore.Add(cluster, obj)
 }
 
 func (w *Watcher[T]) remove(cluster string, obj T) {
-	w.log.Debug("Removing object", "cluster", cluster, "name", obj.GetName(), "namespace", obj.GetNamespace())
+	w.log.WithFields(logrus.Fields{
+		"cluster":   cluster,
+		"name":      obj.GetName(),
+		"namespace": obj.GetNamespace(),
+	}).Debug("Removing object")
 	w.datastore.Remove(cluster, obj)
 }
 
 func (w *Watcher[T]) update(cluster string, obj T) {
-	w.log.Debug("Updating object", "cluster", cluster, "name", obj.GetName(), "namespace", obj.GetNamespace())
+	w.log.WithFields(logrus.Fields{
+		"cluster":   cluster,
+		"name":      obj.GetName(),
+		"namespace": obj.GetNamespace(),
+	}).Debug("Updating object")
 	w.datastore.Update(cluster, obj)
 }
 

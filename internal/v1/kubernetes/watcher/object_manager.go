@@ -52,7 +52,7 @@ func newClusterManager(client dynamic.Interface, scheme *runtime.Scheme, config 
 func (c *clusterManager) gvk(obj runtime.Object) schema.GroupVersionKind {
 	gvks, _, err := c.scheme.ObjectKinds(obj)
 	if err != nil || len(gvks) == 0 {
-		c.log.Info("failed to get GVKs", "error", err)
+		c.log.WithError(err).Info("failed to get GVKs")
 		return schema.GroupVersionKind{}
 	}
 
@@ -73,7 +73,7 @@ func (c *clusterManager) gvk(obj runtime.Object) schema.GroupVersionKind {
 
 func (c *clusterManager) createInformer(obj runtime.Object, gvr *schema.GroupVersionResource) (informers.GenericInformer, error) {
 	if gvr != nil {
-		c.log.Info("creating informer", "resource", gvr.String())
+		c.log.WithField("resource", gvr.String()).Info("creating informer")
 		return c.informer.ForResource(*gvr), nil
 	}
 	gvk := c.gvk(obj)
@@ -82,6 +82,6 @@ func (c *clusterManager) createInformer(obj runtime.Object, gvr *schema.GroupVer
 	}
 
 	plural, _ := meta.UnsafeGuessKindToResource(gvk)
-	c.log.Info("creating informer", "resource", plural.String())
+	c.log.WithField("resource", plural.String()).Info("creating informer")
 	return c.informer.ForResource(plural), nil
 }

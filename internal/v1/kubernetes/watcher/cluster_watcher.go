@@ -31,7 +31,7 @@ type clusterWatcher[T Object] struct {
 func newClusterWatcher[T Object](mgr *clusterManager, cluster string, watcher *Watcher[T], obj T, settings *watcherSettings, log logrus.FieldLogger) *clusterWatcher[T] {
 	inf, err := mgr.createInformer(obj, settings.gvr)
 	if err != nil {
-		mgr.log.Error("creating informer", "error", err)
+		mgr.log.WithError(err).Error("creating informer")
 		return &clusterWatcher[T]{
 			client:       mgr.client,
 			isRegistered: false,
@@ -72,7 +72,10 @@ func (w *clusterWatcher[T]) convert(obj *unstructured.Unstructured) (T, bool) {
 
 	var t T
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(obj.Object, &t); err != nil {
-		w.log.Error("converting object", "error", err, "target", fmt.Sprintf("%T", obj))
+		w.log.
+			WithError(err).
+			WithField("target", fmt.Sprintf("%T", obj)).
+			Error("converting object")
 		return t, false
 	}
 	return t, true
