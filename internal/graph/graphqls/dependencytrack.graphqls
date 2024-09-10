@@ -43,6 +43,8 @@ type VulnerabilitySummaryForTeam {
   bomCount: Int!
   unassigned: Int!
   coverage: Float!
+  riskScoreTrend: Float!
+  totalWorkloads: Int!
 }
 
 type VulnerabilityList {

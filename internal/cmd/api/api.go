@@ -177,6 +177,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		cfg.DependencyTrack.Username,
 		cfg.DependencyTrack.Password,
 		cfg.DependencyTrack.Frontend,
+		fmt.Sprintf("https://nais-prometheus.%s.cloud.nais.io", cfg.TenantDomain),
 		log.WithField("client", "dependencytrack"),
 	)
 

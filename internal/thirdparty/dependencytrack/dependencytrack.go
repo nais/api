@@ -29,6 +29,7 @@ type DependencytrackClient interface {
 	GetVulnerabilityStatus(ctx context.Context, image string) (model.StateError, error)
 	SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.AnalysisTrail, error)
 	GetAnalysisTrailForImage(ctx context.Context, projectID, componentID, vulnerabilityID string) (*model.AnalysisTrail, error)
+	GetRiskScoreTrend(ctx context.Context, namespace string, from time.Time, to time.Time) (float64, error)
 }
 
 type WorkloadInstance struct {
@@ -67,7 +68,7 @@ type Client struct {
 	cache       *cache.Cache
 }
 
-func New(endpoint, username, password, frontend string, log *logrus.Entry) *Client {
+func New(endpoint, username, password, frontend, prometheusUrl string, log *logrus.Entry) *Client {
 	c := dependencytrack.New(
 		endpoint,
 		username,
@@ -78,6 +79,16 @@ func New(endpoint, username, password, frontend string, log *logrus.Entry) *Clie
 	)
 
 	ch := cache.New(10*time.Minute, 5*time.Minute)
+
+	//promClient, err := promapi.NewClient(promapi.Config{
+	//	Address: prometheusUrl,
+	//})
+	//
+	//if err != nil {
+	//	log.Fatalf("creating prometheus client: %v", err)
+	//}
+
+	//m.prometheus = promv1.NewAPI(promClient)
 
 	return &Client{
 		client:      c,
@@ -103,6 +114,10 @@ func (c *Client) WithClient(client dependencytrack.Client) *Client {
 func (c *Client) WithCache(cache *cache.Cache) *Client {
 	c.cache = cache
 	return c
+}
+
+func (c *Client) GetRiskScoreTrend(ctx context.Context, namespace string, from time.Time, to time.Time) (float64, error) {
+	return 0.0, nil
 }
 
 func (c *Client) GetVulnerabilityStatus(ctx context.Context, image string) (model.StateError, error) {

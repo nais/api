@@ -1434,14 +1434,16 @@ type ComplexityRoot struct {
 	}
 
 	VulnerabilitySummaryForTeam struct {
-		BomCount   func(childComplexity int) int
-		Coverage   func(childComplexity int) int
-		Critical   func(childComplexity int) int
-		High       func(childComplexity int) int
-		Low        func(childComplexity int) int
-		Medium     func(childComplexity int) int
-		RiskScore  func(childComplexity int) int
-		Unassigned func(childComplexity int) int
+		BomCount       func(childComplexity int) int
+		Coverage       func(childComplexity int) int
+		Critical       func(childComplexity int) int
+		High           func(childComplexity int) int
+		Low            func(childComplexity int) int
+		Medium         func(childComplexity int) int
+		RiskScore      func(childComplexity int) int
+		RiskScoreTrend func(childComplexity int) int
+		TotalWorkloads func(childComplexity int) int
+		Unassigned     func(childComplexity int) int
 	}
 
 	VulnerableError struct {
@@ -7859,6 +7861,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.VulnerabilitySummaryForTeam.RiskScore(childComplexity), true
 
+	case "VulnerabilitySummaryForTeam.riskScoreTrend":
+		if e.complexity.VulnerabilitySummaryForTeam.RiskScoreTrend == nil {
+			break
+		}
+
+		return e.complexity.VulnerabilitySummaryForTeam.RiskScoreTrend(childComplexity), true
+
+	case "VulnerabilitySummaryForTeam.totalWorkloads":
+		if e.complexity.VulnerabilitySummaryForTeam.TotalWorkloads == nil {
+			break
+		}
+
+		return e.complexity.VulnerabilitySummaryForTeam.TotalWorkloads(childComplexity), true
+
 	case "VulnerabilitySummaryForTeam.unassigned":
 		if e.complexity.VulnerabilitySummaryForTeam.Unassigned == nil {
 			break
@@ -8825,6 +8841,8 @@ type VulnerabilitySummaryForTeam {
   bomCount: Int!
   unassigned: Int!
   coverage: Float!
+  riskScoreTrend: Float!
+  totalWorkloads: Int!
 }
 
 type VulnerabilityList {
@@ -51480,6 +51498,10 @@ func (ec *executionContext) fieldContext_Team_vulnerabilitiesSummary(_ context.C
 				return ec.fieldContext_VulnerabilitySummaryForTeam_unassigned(ctx, field)
 			case "coverage":
 				return ec.fieldContext_VulnerabilitySummaryForTeam_coverage(ctx, field)
+			case "riskScoreTrend":
+				return ec.fieldContext_VulnerabilitySummaryForTeam_riskScoreTrend(ctx, field)
+			case "totalWorkloads":
+				return ec.fieldContext_VulnerabilitySummaryForTeam_totalWorkloads(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type VulnerabilitySummaryForTeam", field.Name)
 		},
@@ -56149,6 +56171,94 @@ func (ec *executionContext) fieldContext_VulnerabilitySummaryForTeam_coverage(_ 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VulnerabilitySummaryForTeam_riskScoreTrend(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilitySummaryForTeam) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilitySummaryForTeam_riskScoreTrend(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RiskScoreTrend, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VulnerabilitySummaryForTeam_riskScoreTrend(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnerabilitySummaryForTeam",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VulnerabilitySummaryForTeam_totalWorkloads(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilitySummaryForTeam) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilitySummaryForTeam_totalWorkloads(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalWorkloads, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VulnerabilitySummaryForTeam_totalWorkloads(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnerabilitySummaryForTeam",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -73596,6 +73706,16 @@ func (ec *executionContext) _VulnerabilitySummaryForTeam(ctx context.Context, se
 			}
 		case "coverage":
 			out.Values[i] = ec._VulnerabilitySummaryForTeam_coverage(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "riskScoreTrend":
+			out.Values[i] = ec._VulnerabilitySummaryForTeam_riskScoreTrend(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalWorkloads":
+			out.Values[i] = ec._VulnerabilitySummaryForTeam_totalWorkloads(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

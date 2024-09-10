@@ -1481,6 +1481,9 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		retVal.Coverage = float64(retVal.BomCount) / float64(len(apps)+len(jobs)) * 100
 	}
 
+	retVal.TotalWorkloads = len(apps) + len(jobs)
+
+	// add trend risk score
 	return retVal, nil
 }
 
