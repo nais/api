@@ -11,6 +11,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/workload"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 type (
@@ -20,6 +21,8 @@ type (
 
 type Application struct {
 	workload.Base
+
+	Resources *ApplicationResources `json:"resources"`
 }
 
 func (Application) IsWorkload() {}
@@ -105,6 +108,55 @@ type KafkaLagScalingStrategy struct {
 func (KafkaLagScalingStrategy) IsScalingStrategy() {}
 
 func toGraphApplication(a *nais_io_v1alpha1.Application, environmentName string) *Application {
+	r := &ApplicationResources{
+		Limits:   &workload.WorkloadResourceQuantity{},
+		Requests: &workload.WorkloadResourceQuantity{},
+		Scaling:  &ApplicationScaling{},
+	}
+
+	q, err := resource.ParseQuantity(a.Spec.Resources.Limits.Cpu)
+	if err == nil {
+		r.Limits.CPU = q.AsApproximateFloat64()
+	}
+
+	m, err := resource.ParseQuantity(a.Spec.Resources.Limits.Memory)
+	if err == nil {
+		r.Limits.Memory = m.Value()
+	}
+
+	q, err = resource.ParseQuantity(a.Spec.Resources.Requests.Cpu)
+	if err == nil {
+		r.Requests.CPU = q.AsApproximateFloat64()
+	}
+
+	m, err = resource.ParseQuantity(a.Spec.Resources.Requests.Memory)
+	if err == nil {
+		r.Requests.Memory = m.Value()
+	}
+
+	if a.Spec.Replicas != nil {
+		if a.Spec.Replicas.Min != nil {
+			r.Scaling.MinInstances = *a.Spec.Replicas.Min
+		}
+		if a.Spec.Replicas.Max != nil {
+			r.Scaling.MaxInstances = *a.Spec.Replicas.Max
+		}
+
+		if a.Spec.Replicas.ScalingStrategy != nil && a.Spec.Replicas.ScalingStrategy.Cpu != nil && a.Spec.Replicas.ScalingStrategy.Cpu.ThresholdPercentage > 0 {
+			r.Scaling.Strategies = append(r.Scaling.Strategies, CPUScalingStrategy{
+				Threshold: a.Spec.Replicas.ScalingStrategy.Cpu.ThresholdPercentage,
+			})
+		}
+
+		if a.Spec.Replicas.ScalingStrategy != nil && a.Spec.Replicas.ScalingStrategy.Kafka != nil && a.Spec.Replicas.ScalingStrategy.Kafka.Threshold > 0 {
+			r.Scaling.Strategies = append(r.Scaling.Strategies, KafkaLagScalingStrategy{
+				Threshold:     a.Spec.Replicas.ScalingStrategy.Kafka.Threshold,
+				ConsumerGroup: a.Spec.Replicas.ScalingStrategy.Kafka.ConsumerGroup,
+				Topic:         a.Spec.Replicas.ScalingStrategy.Kafka.Topic,
+			})
+		}
+	}
+
 	return &Application{
 		Base: workload.Base{
 			Name:            a.Name,
@@ -112,5 +164,6 @@ func toGraphApplication(a *nais_io_v1alpha1.Application, environmentName string)
 			TeamSlug:        slug.Slug(a.Namespace),
 			ImageString:     a.Spec.Image,
 		},
+		Resources: r,
 	}
 }

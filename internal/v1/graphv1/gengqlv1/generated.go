@@ -717,8 +717,6 @@ type ComplexityRoot struct {
 type ApplicationResolver interface {
 	Team(ctx context.Context, obj *application.Application) (*team.Team, error)
 	Environment(ctx context.Context, obj *application.Application) (*team.TeamEnvironment, error)
-
-	Resources(ctx context.Context, obj *application.Application) (*application.ApplicationResources, error)
 }
 type BigQueryDatasetResolver interface {
 	Team(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.Team, error)
@@ -6955,7 +6953,7 @@ func (ec *executionContext) _Application_resources(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Application().Resources(rctx, obj)
+		return obj.Resources, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6976,8 +6974,8 @@ func (ec *executionContext) fieldContext_Application_resources(_ context.Context
 	fc = &graphql.FieldContext{
 		Object:     "Application",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "limits":
@@ -24739,9 +24737,9 @@ func (ec *executionContext) _WorkloadResourceQuantity_memory(ctx context.Context
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(int64)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_WorkloadResourceQuantity_memory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -27792,41 +27790,10 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "resources":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Application_resources(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._Application_resources(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -34910,10 +34877,6 @@ func (ec *executionContext) unmarshalNApplicationOrderField2githubᚗcomᚋnais�
 
 func (ec *executionContext) marshalNApplicationOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationOrderField(ctx context.Context, sel ast.SelectionSet, v application.ApplicationOrderField) graphql.Marshaler {
 	return v
-}
-
-func (ec *executionContext) marshalNApplicationResources2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationResources(ctx context.Context, sel ast.SelectionSet, v application.ApplicationResources) graphql.Marshaler {
-	return ec._ApplicationResources(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNApplicationResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationResources(ctx context.Context, sel ast.SelectionSet, v *application.ApplicationResources) graphql.Marshaler {

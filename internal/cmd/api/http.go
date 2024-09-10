@@ -101,7 +101,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 				dataloadgen.WithTracer(otel.Tracer("dataloader")),
 			}
 
-			ctx = application.NewLoaderContext(ctx, appWatcher, opts)
+			ctx = application.NewLoaderContext(ctx, appWatcher)
 			ctx = bigquery.NewLoaderContext(ctx, bqWatcher, opts)
 			ctx = bucket.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = job.NewLoaderContext(ctx, k8sClient, opts)

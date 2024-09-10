@@ -49,11 +49,12 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Application, error) {
-	return fromContext(ctx).applicationLoader.Load(ctx, applicationIdentifier{
-		namespace:   teamSlug.String(),
-		environment: environment,
-		name:        name,
-	})
+	a, err := fromContext(ctx).appWatcher.Get(teamSlug.String(), environment, name)
+	if err != nil {
+		return nil, err
+	}
+	return toGraphApplication(a, environment), nil
+
 }
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*Application, error) {

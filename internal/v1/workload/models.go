@@ -48,5 +48,5 @@ type WorkloadResources interface {
 
 type WorkloadResourceQuantity struct {
 	CPU    float64 `json:"cpu"`
-	Memory int     `json:"memory"`
+	Memory int64   `json:"memory"`
 }
