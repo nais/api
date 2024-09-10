@@ -40,13 +40,12 @@ const (
 	ApplicationOrderFieldName           ApplicationOrderField = "NAME"
 	ApplicationOrderFieldStatus         ApplicationOrderField = "STATUS"
 	ApplicationOrderFieldEnvironment    ApplicationOrderField = "ENVIRONMENT"
-	ApplicationOrderFieldRiskScore      ApplicationOrderField = "RISK_SCORE"
 	ApplicationOrderFieldDeploymentTime ApplicationOrderField = "DEPLOYMENT_TIME"
 )
 
 func (e ApplicationOrderField) IsValid() bool {
 	switch e {
-	case ApplicationOrderFieldStatus, ApplicationOrderFieldName, ApplicationOrderFieldEnvironment, ApplicationOrderFieldRiskScore, ApplicationOrderFieldDeploymentTime:
+	case ApplicationOrderFieldStatus, ApplicationOrderFieldName, ApplicationOrderFieldEnvironment, ApplicationOrderFieldDeploymentTime:
 		return true
 	}
 	return false

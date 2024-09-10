@@ -89,9 +89,6 @@ enum ApplicationOrderField {
 	"Order applications by the name of the environment."
 	ENVIRONMENT
 
-	"Order applications by the risk score."
-	RISK_SCORE
-
 	"Order applications by the deployment time."
 	DEPLOYMENT_TIME
 }
