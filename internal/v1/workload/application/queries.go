@@ -36,8 +36,6 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 		slices.SortStableFunc(ret, func(a, b *Application) int {
 			return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
 		})
-	case ApplicationOrderFieldVulnerabilities:
-		panic("not implemented yet")
 	case ApplicationOrderFieldRiskScore:
 		panic("not implemented yet")
 	case ApplicationOrderFieldDeploymentTime:

@@ -3461,27 +3461,23 @@ var sources = []*ast.Source{
 	): ApplicationConnection!
 }
 
-type ApplicationConnection {
-	pageInfo: PageInfo!
-	nodes: [Application!]!
-	edges: [ApplicationEdge!]!
-}
-
-type ApplicationEdge {
-	cursor: Cursor!
-	node: Application!
-}
-
 type Application implements Node & Workload {
+	"The globally unique ID of the application."
 	id: ID!
+
+	"The name of the application."
 	name: String!
+
+	"The team that owns the application."
 	team: Team!
+
+	"The environment the application is deployed in."
 	environment: TeamEnvironment!
+
+	"The container image of the application."
 	image: ContainerImage!
 
-	# image: String!
 	# deployInfo: DeployInfo!
-	# env: Env!
 	# accessPolicy: AccessPolicy!
 	# status: WorkloadStatus!
 	# authz: [Authz!]!
@@ -3498,17 +3494,48 @@ type Application implements Node & Workload {
 	# secrets: [Secret!]!
 }
 
+type ApplicationConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"List of nodes."
+	nodes: [Application!]!
+
+	"List of edges."
+	edges: [ApplicationEdge!]!
+}
+
+type ApplicationEdge {
+	"Cursor for this edge that can be used for pagination."
+	cursor: Cursor!
+
+	"The application."
+	node: Application!
+}
+
+"Ordering options when fetching applications."
 input ApplicationOrder {
+	"The field to order items by."
 	field: ApplicationOrderField!
+
+	"The direction to order items by."
 	direction: OrderDirection!
 }
 
 enum ApplicationOrderField {
-	STATUS
+	"Order applications by name."
 	NAME
+
+	"Order applications by status."
+	STATUS
+
+	"Order applications by the name of the environment."
 	ENVIRONMENT
-	VULNERABILITIES
+
+	"Order applications by the risk score."
 	RISK_SCORE
+
+	"Order applications by the deployment time."
 	DEPLOYMENT_TIME
 }
 `, BuiltIn: false},
@@ -5028,10 +5055,19 @@ enum ImageVulnerabilityOrderField {
 }
 `, BuiltIn: false},
 	{Name: "../schema/workloads.graphqls", Input: `interface Workload implements Node {
+	"The globally unique ID of the workload."
 	id: ID!
+
+	"The name of the workload."
 	name: String!
+
+	"The team that owns the workload."
 	team: Team!
+
+	"The environment the workload is deployed in."
 	environment: TeamEnvironment!
+
+	"The container image of the workload."
 	image: ContainerImage!
 
 	# deployInfo: DeployInfo!
@@ -5046,8 +5082,10 @@ enum ImageVulnerabilityOrderField {
 type ContainerImage implements Node {
 	"The globally unique ID of the container image node."
 	id: ID!
+
 	"Name of the container image."
 	name: String!
+
 	"Tag of the container image."
 	tag: String!
 }

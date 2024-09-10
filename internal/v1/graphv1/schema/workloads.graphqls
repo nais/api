@@ -1,8 +1,17 @@
 interface Workload implements Node {
+	"The globally unique ID of the workload."
 	id: ID!
+
+	"The name of the workload."
 	name: String!
+
+	"The team that owns the workload."
 	team: Team!
+
+	"The environment the workload is deployed in."
 	environment: TeamEnvironment!
+
+	"The container image of the workload."
 	image: ContainerImage!
 
 	# deployInfo: DeployInfo!
@@ -17,8 +26,10 @@ interface Workload implements Node {
 type ContainerImage implements Node {
 	"The globally unique ID of the container image node."
 	id: ID!
+
 	"Name of the container image."
 	name: String!
+
 	"Tag of the container image."
 	tag: String!
 }

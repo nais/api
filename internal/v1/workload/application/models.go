@@ -37,17 +37,16 @@ type ApplicationOrder struct {
 type ApplicationOrderField string
 
 const (
-	ApplicationOrderFieldStatus          ApplicationOrderField = "STATUS"
-	ApplicationOrderFieldName            ApplicationOrderField = "NAME"
-	ApplicationOrderFieldEnvironment     ApplicationOrderField = "ENVIRONMENT"
-	ApplicationOrderFieldVulnerabilities ApplicationOrderField = "VULNERABILITIES"
-	ApplicationOrderFieldRiskScore       ApplicationOrderField = "RISK_SCORE"
-	ApplicationOrderFieldDeploymentTime  ApplicationOrderField = "DEPLOYMENT_TIME"
+	ApplicationOrderFieldName           ApplicationOrderField = "NAME"
+	ApplicationOrderFieldStatus         ApplicationOrderField = "STATUS"
+	ApplicationOrderFieldEnvironment    ApplicationOrderField = "ENVIRONMENT"
+	ApplicationOrderFieldRiskScore      ApplicationOrderField = "RISK_SCORE"
+	ApplicationOrderFieldDeploymentTime ApplicationOrderField = "DEPLOYMENT_TIME"
 )
 
 func (e ApplicationOrderField) IsValid() bool {
 	switch e {
-	case ApplicationOrderFieldStatus, ApplicationOrderFieldName, ApplicationOrderFieldEnvironment, ApplicationOrderFieldVulnerabilities, ApplicationOrderFieldRiskScore, ApplicationOrderFieldDeploymentTime:
+	case ApplicationOrderFieldStatus, ApplicationOrderFieldName, ApplicationOrderFieldEnvironment, ApplicationOrderFieldRiskScore, ApplicationOrderFieldDeploymentTime:
 		return true
 	}
 	return false
