@@ -30,6 +30,7 @@ import (
 	"github.com/nais/api/internal/v1/role"
 	"github.com/nais/api/internal/v1/team"
 	"github.com/nais/api/internal/v1/user"
+	"github.com/nais/api/internal/v1/vulnerability"
 	"github.com/nais/api/internal/v1/workload/application"
 	"github.com/nais/api/internal/v1/workload/job"
 	"github.com/prometheus/client_golang/prometheus"
@@ -45,7 +46,7 @@ import (
 )
 
 // runHttpServer will start the HTTP server
-func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool, db database.Database, watcherMgr *watcher.Manager, k8sClient *k8s.Client, sqlAdminService *legacysqlinstance.SqlAdminService, authHandler authn.Handler, graphHandler *handler.Server, graphv1Handler *handler.Server, reg prometheus.Gatherer, log logrus.FieldLogger) error {
+func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool, db database.Database, watcherMgr *watcher.Manager, k8sClient *k8s.Client, sqlAdminService *legacysqlinstance.SqlAdminService, authHandler authn.Handler, graphHandler *handler.Server, graphv1Handler *handler.Server, reg prometheus.Gatherer, vClient *vulnerability.Client, log logrus.FieldLogger) error {
 	router := chi.NewRouter()
 	router.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
 	router.Get("/healthz", func(_ http.ResponseWriter, _ *http.Request) {})
@@ -86,7 +87,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 
 	syncCtx, cancelSync := context.WithTimeout(ctx, 20*time.Second)
 	defer cancelSync()
-	if watcherMgr.WaitForReady(syncCtx) {
+	if !watcherMgr.WaitForReady(syncCtx) {
 		return errors.New("timed out waiting for watchers to be ready")
 	}
 
@@ -115,6 +116,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 			ctx = repository.NewLoaderContext(ctx, pool)
 			ctx = role.NewLoaderContext(ctx, pool)
 			ctx = auditv1.NewLoaderContext(ctx, pool, opts)
+			ctx = vulnerability.NewLoaderContext(ctx, vClient, log, opts)
 			return ctx
 		}))
 		r.Use(otelhttp.NewMiddleware("graphqlv1", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))

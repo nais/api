@@ -42,6 +42,7 @@ import (
 	"github.com/nais/api/internal/v1/kubernetes"
 	fakev1 "github.com/nais/api/internal/v1/kubernetes/fake"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
+	"github.com/nais/api/internal/v1/vulnerability"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2/google"
@@ -292,9 +293,15 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
+	vulnClient := vulnerability.New(cfg.DependencyTrack.Endpoint,
+		cfg.DependencyTrack.Username,
+		cfg.DependencyTrack.Password,
+		cfg.DependencyTrack.Frontend,
+		log.WithField("client", "dependencytrack"))
+
 	// HTTP server
 	wg.Go(func() error {
-		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, db, watcherMgr, k8sClient, sqlInstanceClient.Admin, authHandler, graphHandler, graphv1Handler, promReg, log)
+		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, db, watcherMgr, k8sClient, sqlInstanceClient.Admin, authHandler, graphHandler, graphv1Handler, promReg, vulnClient, log)
 	})
 
 	wg.Go(func() error {
