@@ -72,6 +72,38 @@ func (e ApplicationOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type ScalingStrategy interface {
+	IsScalingStrategy()
+}
+
+type ApplicationResources struct {
+	Limits   *workload.WorkloadResourceQuantity `json:"limits"`
+	Requests *workload.WorkloadResourceQuantity `json:"requests"`
+	Scaling  *ApplicationScaling                `json:"scaling"`
+}
+
+func (ApplicationResources) IsWorkloadResources() {}
+
+type ApplicationScaling struct {
+	MinInstances int               `json:"minInstances"`
+	MaxInstances int               `json:"maxInstances"`
+	Strategies   []ScalingStrategy `json:"strategies"`
+}
+
+type CPUScalingStrategy struct {
+	Threshold int `json:"threshold"`
+}
+
+func (CPUScalingStrategy) IsScalingStrategy() {}
+
+type KafkaLagScalingStrategy struct {
+	Threshold     int    `json:"threshold"`
+	ConsumerGroup string `json:"consumerGroup"`
+	Topic         string `json:"topic"`
+}
+
+func (KafkaLagScalingStrategy) IsScalingStrategy() {}
+
 func toGraphApplication(a *nais_io_v1alpha1.Application, environmentName string) *Application {
 	return &Application{
 		Base: workload.Base{

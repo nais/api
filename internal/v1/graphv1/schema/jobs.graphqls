@@ -25,6 +25,9 @@ type Job implements Node & Workload {
 	environment: TeamEnvironment!
 	image: ContainerImage!
 
+	"Resources for the job."
+	resources: JobResources!
+
 	# image: String!
 	# deployInfo: DeployInfo!
 	# accessPolicy: AccessPolicy!
@@ -32,7 +35,6 @@ type Job implements Node & Workload {
 	# authz: [Authz!]!
 	# persistence: [Persistence!]!
 	# variables: [Variable!]!
-	# resources: Resources!
 	# type: WorkloadType!
 
 	# imageDetails: ImageDetails!
@@ -43,6 +45,11 @@ type Job implements Node & Workload {
 	# parallelism: Int!
 	# retries: Int!
 	# secrets: [Secret!]!
+}
+
+type JobResources implements WorkloadResources {
+	limits: WorkloadResourceQuantity!
+	requests: WorkloadResourceQuantity!
 }
 
 type JobConnection {

@@ -92,6 +92,7 @@ type ComplexityRoot struct {
 		ID          func(childComplexity int) int
 		Image       func(childComplexity int) int
 		Name        func(childComplexity int) int
+		Resources   func(childComplexity int) int
 		Team        func(childComplexity int) int
 	}
 
@@ -104,6 +105,18 @@ type ComplexityRoot struct {
 	ApplicationEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	ApplicationResources struct {
+		Limits   func(childComplexity int) int
+		Requests func(childComplexity int) int
+		Scaling  func(childComplexity int) int
+	}
+
+	ApplicationScaling struct {
+		MaxInstances func(childComplexity int) int
+		MinInstances func(childComplexity int) int
+		Strategies   func(childComplexity int) int
 	}
 
 	AuditEntryConnection struct {
@@ -209,6 +222,10 @@ type ComplexityRoot struct {
 		State func(childComplexity int) int
 	}
 
+	CPUScalingStrategy struct {
+		Threshold func(childComplexity int) int
+	}
+
 	ContainerImage struct {
 		HasSbom              func(childComplexity int) int
 		ID                   func(childComplexity int) int
@@ -258,6 +275,7 @@ type ComplexityRoot struct {
 		ID          func(childComplexity int) int
 		Image       func(childComplexity int) int
 		Name        func(childComplexity int) int
+		Resources   func(childComplexity int) int
 		Team        func(childComplexity int) int
 	}
 
@@ -270,6 +288,17 @@ type ComplexityRoot struct {
 	JobEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	JobResources struct {
+		Limits   func(childComplexity int) int
+		Requests func(childComplexity int) int
+	}
+
+	KafkaLagScalingStrategy struct {
+		ConsumerGroup func(childComplexity int) int
+		Threshold     func(childComplexity int) int
+		Topic         func(childComplexity int) int
 	}
 
 	KafkaTopic struct {
@@ -678,11 +707,18 @@ type ComplexityRoot struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
 	}
+
+	WorkloadResourceQuantity struct {
+		CPU    func(childComplexity int) int
+		Memory func(childComplexity int) int
+	}
 }
 
 type ApplicationResolver interface {
 	Team(ctx context.Context, obj *application.Application) (*team.Team, error)
 	Environment(ctx context.Context, obj *application.Application) (*team.TeamEnvironment, error)
+
+	Resources(ctx context.Context, obj *application.Application) (*application.ApplicationResources, error)
 }
 type BigQueryDatasetResolver interface {
 	Team(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.Team, error)
@@ -709,6 +745,8 @@ type ContainerImageResolver interface {
 type JobResolver interface {
 	Team(ctx context.Context, obj *job.Job) (*team.Team, error)
 	Environment(ctx context.Context, obj *job.Job) (*team.TeamEnvironment, error)
+
+	Resources(ctx context.Context, obj *job.Job) (*job.JobResources, error)
 }
 type KafkaTopicResolver interface {
 	Team(ctx context.Context, obj *kafkatopic.KafkaTopic) (*team.Team, error)
@@ -852,6 +890,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Application.Name(childComplexity), true
 
+	case "Application.resources":
+		if e.complexity.Application.Resources == nil {
+			break
+		}
+
+		return e.complexity.Application.Resources(childComplexity), true
+
 	case "Application.team":
 		if e.complexity.Application.Team == nil {
 			break
@@ -893,6 +938,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ApplicationEdge.Node(childComplexity), true
+
+	case "ApplicationResources.limits":
+		if e.complexity.ApplicationResources.Limits == nil {
+			break
+		}
+
+		return e.complexity.ApplicationResources.Limits(childComplexity), true
+
+	case "ApplicationResources.requests":
+		if e.complexity.ApplicationResources.Requests == nil {
+			break
+		}
+
+		return e.complexity.ApplicationResources.Requests(childComplexity), true
+
+	case "ApplicationResources.scaling":
+		if e.complexity.ApplicationResources.Scaling == nil {
+			break
+		}
+
+		return e.complexity.ApplicationResources.Scaling(childComplexity), true
+
+	case "ApplicationScaling.maxInstances":
+		if e.complexity.ApplicationScaling.MaxInstances == nil {
+			break
+		}
+
+		return e.complexity.ApplicationScaling.MaxInstances(childComplexity), true
+
+	case "ApplicationScaling.minInstances":
+		if e.complexity.ApplicationScaling.MinInstances == nil {
+			break
+		}
+
+		return e.complexity.ApplicationScaling.MinInstances(childComplexity), true
+
+	case "ApplicationScaling.strategies":
+		if e.complexity.ApplicationScaling.Strategies == nil {
+			break
+		}
+
+		return e.complexity.ApplicationScaling.Strategies(childComplexity), true
 
 	case "AuditEntryConnection.edges":
 		if e.complexity.AuditEntryConnection.Edges == nil {
@@ -1289,6 +1376,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.BucketStatus.State(childComplexity), true
 
+	case "CPUScalingStrategy.threshold":
+		if e.complexity.CPUScalingStrategy.Threshold == nil {
+			break
+		}
+
+		return e.complexity.CPUScalingStrategy.Threshold(childComplexity), true
+
 	case "ContainerImage.hasSBOM":
 		if e.complexity.ContainerImage.HasSbom == nil {
 			break
@@ -1504,6 +1598,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Job.Name(childComplexity), true
 
+	case "Job.resources":
+		if e.complexity.Job.Resources == nil {
+			break
+		}
+
+		return e.complexity.Job.Resources(childComplexity), true
+
 	case "Job.team":
 		if e.complexity.Job.Team == nil {
 			break
@@ -1545,6 +1646,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.JobEdge.Node(childComplexity), true
+
+	case "JobResources.limits":
+		if e.complexity.JobResources.Limits == nil {
+			break
+		}
+
+		return e.complexity.JobResources.Limits(childComplexity), true
+
+	case "JobResources.requests":
+		if e.complexity.JobResources.Requests == nil {
+			break
+		}
+
+		return e.complexity.JobResources.Requests(childComplexity), true
+
+	case "KafkaLagScalingStrategy.consumerGroup":
+		if e.complexity.KafkaLagScalingStrategy.ConsumerGroup == nil {
+			break
+		}
+
+		return e.complexity.KafkaLagScalingStrategy.ConsumerGroup(childComplexity), true
+
+	case "KafkaLagScalingStrategy.threshold":
+		if e.complexity.KafkaLagScalingStrategy.Threshold == nil {
+			break
+		}
+
+		return e.complexity.KafkaLagScalingStrategy.Threshold(childComplexity), true
+
+	case "KafkaLagScalingStrategy.topic":
+		if e.complexity.KafkaLagScalingStrategy.Topic == nil {
+			break
+		}
+
+		return e.complexity.KafkaLagScalingStrategy.Topic(childComplexity), true
 
 	case "KafkaTopic.acl":
 		if e.complexity.KafkaTopic.ACL == nil {
@@ -3312,6 +3448,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserEdge.Node(childComplexity), true
 
+	case "WorkloadResourceQuantity.cpu":
+		if e.complexity.WorkloadResourceQuantity.CPU == nil {
+			break
+		}
+
+		return e.complexity.WorkloadResourceQuantity.CPU(childComplexity), true
+
+	case "WorkloadResourceQuantity.memory":
+		if e.complexity.WorkloadResourceQuantity.Memory == nil {
+			break
+		}
+
+		return e.complexity.WorkloadResourceQuantity.Memory(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -3461,6 +3611,9 @@ var sources = []*ast.Source{
 	): ApplicationConnection!
 }
 
+"""
+TODO: write
+"""
 type Application implements Node & Workload {
 	"The globally unique ID of the application."
 	id: ID!
@@ -3477,6 +3630,9 @@ type Application implements Node & Workload {
 	"The container image of the application."
 	image: ContainerImage!
 
+	"Resources for the application."
+	resources: ApplicationResources!
+
 	# deployInfo: DeployInfo!
 	# accessPolicy: AccessPolicy!
 	# status: WorkloadStatus!
@@ -3492,6 +3648,54 @@ type Application implements Node & Workload {
 	# autoScaling: AutoScaling!
 	# manifest: String!
 	# secrets: [Secret!]!
+}
+
+type ApplicationResources implements WorkloadResources {
+	"Instances using resources above this threshold will be killed."
+	limits: WorkloadResourceQuantity!
+
+	"How many resources are allocated to each instance."
+	requests: WorkloadResourceQuantity!
+
+	"Scaling strategies for the application."
+	scaling: ApplicationScaling!
+}
+
+"""
+TODO: write
+"""
+type ApplicationScaling {
+	"The minimum number of application instances."
+	minInstances: Int!
+
+	"The maximum number of application instances."
+	maxInstances: Int!
+
+	"Scaling strategies for the application."
+	strategies: [ScalingStrategy!]!
+}
+
+union ScalingStrategy = CPUScalingStrategy | KafkaLagScalingStrategy
+
+"""
+A scaling strategy based on CPU usage
+
+Read more: https://docs.nais.io/workloads/application/reference/automatic-scaling/#cpu-based-scaling
+"""
+type CPUScalingStrategy {
+	"The threshold that must be met for the scaling to trigger."
+	threshold: Int!
+}
+
+type KafkaLagScalingStrategy {
+	"The threshold that must be met for the scaling to trigger."
+	threshold: Int!
+
+	"The consumer group of the topic."
+	consumerGroup: String!
+
+	"The name of the Kafka topic."
+	topic: String! # TODO: String or KafkaTopic?
 }
 
 type ApplicationConnection {
@@ -3531,9 +3735,6 @@ enum ApplicationOrderField {
 
 	"Order applications by the name of the environment."
 	ENVIRONMENT
-
-	"Order applications by the risk score."
-	RISK_SCORE
 
 	"Order applications by the deployment time."
 	DEPLOYMENT_TIME
@@ -3647,6 +3848,9 @@ type Job implements Node & Workload {
 	environment: TeamEnvironment!
 	image: ContainerImage!
 
+	"Resources for the job."
+	resources: JobResources!
+
 	# image: String!
 	# deployInfo: DeployInfo!
 	# accessPolicy: AccessPolicy!
@@ -3654,7 +3858,6 @@ type Job implements Node & Workload {
 	# authz: [Authz!]!
 	# persistence: [Persistence!]!
 	# variables: [Variable!]!
-	# resources: Resources!
 	# type: WorkloadType!
 
 	# imageDetails: ImageDetails!
@@ -3665,6 +3868,11 @@ type Job implements Node & Workload {
 	# parallelism: Int!
 	# retries: Int!
 	# secrets: [Secret!]!
+}
+
+type JobResources implements WorkloadResources {
+	limits: WorkloadResourceQuantity!
+	requests: WorkloadResourceQuantity!
 }
 
 type JobConnection {
@@ -5070,12 +5278,14 @@ enum ImageVulnerabilityOrderField {
 	"The container image of the workload."
 	image: ContainerImage!
 
+	"The resources allocated to the workload."
+	resources: WorkloadResources!
+
 	# deployInfo: DeployInfo!
 	# accessPolicy: AccessPolicy!
 	# status: WorkloadStatus!
 	# authz: [Authz!]!
 	# variables: [Variable!]!
-	# resources: Resources!
 	# persistence: [Persistence!]!
 }
 
@@ -5088,6 +5298,22 @@ type ContainerImage implements Node {
 
 	"Tag of the container image."
 	tag: String!
+}
+
+interface WorkloadResources {
+	"Instances using resources above this threshold will be killed."
+	limits: WorkloadResourceQuantity!
+
+	"Resources requested by the workload."
+	requests: WorkloadResourceQuantity!
+}
+
+type WorkloadResourceQuantity {
+	"The number of CPU cores."
+	cpu: Float!
+
+	"The amount of memory in bytes."
+	memory: Int!
 }
 `, BuiltIn: false},
 }
@@ -6715,6 +6941,58 @@ func (ec *executionContext) fieldContext_Application_image(_ context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Application_resources(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Application_resources(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Application().Resources(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*application.ApplicationResources)
+	fc.Result = res
+	return ec.marshalNApplicationResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationResources(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Application_resources(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Application",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "limits":
+				return ec.fieldContext_ApplicationResources_limits(ctx, field)
+			case "requests":
+				return ec.fieldContext_ApplicationResources_requests(ctx, field)
+			case "scaling":
+				return ec.fieldContext_ApplicationResources_scaling(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ApplicationResources", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ApplicationConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*application.Application]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ApplicationConnection_pageInfo(ctx, field)
 	if err != nil {
@@ -6820,6 +7098,8 @@ func (ec *executionContext) fieldContext_ApplicationConnection_nodes(_ context.C
 				return ec.fieldContext_Application_environment(ctx, field)
 			case "image":
 				return ec.fieldContext_Application_image(ctx, field)
+			case "resources":
+				return ec.fieldContext_Application_resources(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 		},
@@ -6970,8 +7250,294 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 				return ec.fieldContext_Application_environment(ctx, field)
 			case "image":
 				return ec.fieldContext_Application_image(ctx, field)
+			case "resources":
+				return ec.fieldContext_Application_resources(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationResources_limits(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationResources) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationResources_limits(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Limits, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*workload.WorkloadResourceQuantity)
+	fc.Result = res
+	return ec.marshalNWorkloadResourceQuantity2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚐWorkloadResourceQuantity(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationResources_limits(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationResources",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cpu":
+				return ec.fieldContext_WorkloadResourceQuantity_cpu(ctx, field)
+			case "memory":
+				return ec.fieldContext_WorkloadResourceQuantity_memory(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WorkloadResourceQuantity", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationResources_requests(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationResources) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationResources_requests(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Requests, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*workload.WorkloadResourceQuantity)
+	fc.Result = res
+	return ec.marshalNWorkloadResourceQuantity2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚐWorkloadResourceQuantity(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationResources_requests(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationResources",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cpu":
+				return ec.fieldContext_WorkloadResourceQuantity_cpu(ctx, field)
+			case "memory":
+				return ec.fieldContext_WorkloadResourceQuantity_memory(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WorkloadResourceQuantity", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationResources_scaling(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationResources) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationResources_scaling(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Scaling, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*application.ApplicationScaling)
+	fc.Result = res
+	return ec.marshalNApplicationScaling2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationScaling(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationResources_scaling(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationResources",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "minInstances":
+				return ec.fieldContext_ApplicationScaling_minInstances(ctx, field)
+			case "maxInstances":
+				return ec.fieldContext_ApplicationScaling_maxInstances(ctx, field)
+			case "strategies":
+				return ec.fieldContext_ApplicationScaling_strategies(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ApplicationScaling", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationScaling_minInstances(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationScaling) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationScaling_minInstances(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MinInstances, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationScaling_minInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationScaling",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationScaling_maxInstances(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationScaling) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationScaling_maxInstances(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxInstances, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationScaling_maxInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationScaling",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationScaling_strategies(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationScaling) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationScaling_strategies(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Strategies, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]application.ScalingStrategy)
+	fc.Result = res
+	return ec.marshalNScalingStrategy2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐScalingStrategyᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationScaling_strategies(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationScaling",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ScalingStrategy does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9772,6 +10338,50 @@ func (ec *executionContext) fieldContext_BucketStatus_state(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _CPUScalingStrategy_threshold(ctx context.Context, field graphql.CollectedField, obj *application.CPUScalingStrategy) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CPUScalingStrategy_threshold(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Threshold, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CPUScalingStrategy_threshold(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CPUScalingStrategy",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ContainerImage_id(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ContainerImage_id(ctx, field)
 	if err != nil {
@@ -11345,6 +11955,56 @@ func (ec *executionContext) fieldContext_Job_image(_ context.Context, field grap
 	return fc, nil
 }
 
+func (ec *executionContext) _Job_resources(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Job_resources(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Job().Resources(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*job.JobResources)
+	fc.Result = res
+	return ec.marshalNJobResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobResources(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Job_resources(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "limits":
+				return ec.fieldContext_JobResources_limits(ctx, field)
+			case "requests":
+				return ec.fieldContext_JobResources_requests(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type JobResources", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _JobConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*job.Job]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_JobConnection_pageInfo(ctx, field)
 	if err != nil {
@@ -11450,6 +12110,8 @@ func (ec *executionContext) fieldContext_JobConnection_nodes(_ context.Context, 
 				return ec.fieldContext_Job_environment(ctx, field)
 			case "image":
 				return ec.fieldContext_Job_image(ctx, field)
+			case "resources":
+				return ec.fieldContext_Job_resources(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
 		},
@@ -11600,8 +12262,242 @@ func (ec *executionContext) fieldContext_JobEdge_node(_ context.Context, field g
 				return ec.fieldContext_Job_environment(ctx, field)
 			case "image":
 				return ec.fieldContext_Job_image(ctx, field)
+			case "resources":
+				return ec.fieldContext_Job_resources(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobResources_limits(ctx context.Context, field graphql.CollectedField, obj *job.JobResources) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobResources_limits(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Limits, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*workload.WorkloadResourceQuantity)
+	fc.Result = res
+	return ec.marshalNWorkloadResourceQuantity2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚐWorkloadResourceQuantity(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobResources_limits(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobResources",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cpu":
+				return ec.fieldContext_WorkloadResourceQuantity_cpu(ctx, field)
+			case "memory":
+				return ec.fieldContext_WorkloadResourceQuantity_memory(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WorkloadResourceQuantity", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobResources_requests(ctx context.Context, field graphql.CollectedField, obj *job.JobResources) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobResources_requests(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Requests, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*workload.WorkloadResourceQuantity)
+	fc.Result = res
+	return ec.marshalNWorkloadResourceQuantity2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚐWorkloadResourceQuantity(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobResources_requests(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobResources",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cpu":
+				return ec.fieldContext_WorkloadResourceQuantity_cpu(ctx, field)
+			case "memory":
+				return ec.fieldContext_WorkloadResourceQuantity_memory(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WorkloadResourceQuantity", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _KafkaLagScalingStrategy_threshold(ctx context.Context, field graphql.CollectedField, obj *application.KafkaLagScalingStrategy) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaLagScalingStrategy_threshold(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Threshold, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_KafkaLagScalingStrategy_threshold(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaLagScalingStrategy",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _KafkaLagScalingStrategy_consumerGroup(ctx context.Context, field graphql.CollectedField, obj *application.KafkaLagScalingStrategy) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaLagScalingStrategy_consumerGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ConsumerGroup, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_KafkaLagScalingStrategy_consumerGroup(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaLagScalingStrategy",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _KafkaLagScalingStrategy_topic(ctx context.Context, field graphql.CollectedField, obj *application.KafkaLagScalingStrategy) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaLagScalingStrategy_topic(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Topic, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_KafkaLagScalingStrategy_topic(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaLagScalingStrategy",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -23773,6 +24669,94 @@ func (ec *executionContext) fieldContext_UserEdge_node(_ context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _WorkloadResourceQuantity_cpu(ctx context.Context, field graphql.CollectedField, obj *workload.WorkloadResourceQuantity) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadResourceQuantity_cpu(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CPU, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadResourceQuantity_cpu(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadResourceQuantity",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadResourceQuantity_memory(ctx context.Context, field graphql.CollectedField, obj *workload.WorkloadResourceQuantity) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadResourceQuantity_memory(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Memory, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadResourceQuantity_memory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadResourceQuantity",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext___Directive_name(ctx, field)
 	if err != nil {
@@ -26597,6 +27581,29 @@ func (ec *executionContext) _Persistence(ctx context.Context, sel ast.SelectionS
 	}
 }
 
+func (ec *executionContext) _ScalingStrategy(ctx context.Context, sel ast.SelectionSet, obj application.ScalingStrategy) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case application.CPUScalingStrategy:
+		return ec._CPUScalingStrategy(ctx, sel, &obj)
+	case *application.CPUScalingStrategy:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._CPUScalingStrategy(ctx, sel, obj)
+	case application.KafkaLagScalingStrategy:
+		return ec._KafkaLagScalingStrategy(ctx, sel, &obj)
+	case *application.KafkaLagScalingStrategy:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._KafkaLagScalingStrategy(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _Workload(ctx context.Context, sel ast.SelectionSet, obj workload.Workload) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -26615,6 +27622,29 @@ func (ec *executionContext) _Workload(ctx context.Context, sel ast.SelectionSet,
 			return graphql.Null
 		}
 		return ec._Job(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
+func (ec *executionContext) _WorkloadResources(ctx context.Context, sel ast.SelectionSet, obj workload.WorkloadResources) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case application.ApplicationResources:
+		return ec._ApplicationResources(ctx, sel, &obj)
+	case *application.ApplicationResources:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationResources(ctx, sel, obj)
+	case job.JobResources:
+		return ec._JobResources(ctx, sel, &obj)
+	case *job.JobResources:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobResources(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -26761,6 +27791,42 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "resources":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Application_resources(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -26851,6 +27917,104 @@ func (ec *executionContext) _ApplicationEdge(ctx context.Context, sel ast.Select
 			}
 		case "node":
 			out.Values[i] = ec._ApplicationEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var applicationResourcesImplementors = []string{"ApplicationResources", "WorkloadResources"}
+
+func (ec *executionContext) _ApplicationResources(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationResources) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, applicationResourcesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ApplicationResources")
+		case "limits":
+			out.Values[i] = ec._ApplicationResources_limits(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "requests":
+			out.Values[i] = ec._ApplicationResources_requests(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "scaling":
+			out.Values[i] = ec._ApplicationResources_scaling(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var applicationScalingImplementors = []string{"ApplicationScaling"}
+
+func (ec *executionContext) _ApplicationScaling(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationScaling) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, applicationScalingImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ApplicationScaling")
+		case "minInstances":
+			out.Values[i] = ec._ApplicationScaling_minInstances(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "maxInstances":
+			out.Values[i] = ec._ApplicationScaling_maxInstances(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "strategies":
+			out.Values[i] = ec._ApplicationScaling_strategies(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -27960,6 +29124,45 @@ func (ec *executionContext) _BucketStatus(ctx context.Context, sel ast.Selection
 	return out
 }
 
+var cPUScalingStrategyImplementors = []string{"CPUScalingStrategy", "ScalingStrategy"}
+
+func (ec *executionContext) _CPUScalingStrategy(ctx context.Context, sel ast.SelectionSet, obj *application.CPUScalingStrategy) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, cPUScalingStrategyImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CPUScalingStrategy")
+		case "threshold":
+			out.Values[i] = ec._CPUScalingStrategy_threshold(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var containerImageImplementors = []string{"ContainerImage", "Node"}
 
 func (ec *executionContext) _ContainerImage(ctx context.Context, sel ast.SelectionSet, obj *workload.ContainerImage) graphql.Marshaler {
@@ -28479,6 +29682,42 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "resources":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Job_resources(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -28569,6 +29808,99 @@ func (ec *executionContext) _JobEdge(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "node":
 			out.Values[i] = ec._JobEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var jobResourcesImplementors = []string{"JobResources", "WorkloadResources"}
+
+func (ec *executionContext) _JobResources(ctx context.Context, sel ast.SelectionSet, obj *job.JobResources) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobResourcesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("JobResources")
+		case "limits":
+			out.Values[i] = ec._JobResources_limits(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "requests":
+			out.Values[i] = ec._JobResources_requests(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var kafkaLagScalingStrategyImplementors = []string{"KafkaLagScalingStrategy", "ScalingStrategy"}
+
+func (ec *executionContext) _KafkaLagScalingStrategy(ctx context.Context, sel ast.SelectionSet, obj *application.KafkaLagScalingStrategy) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaLagScalingStrategyImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("KafkaLagScalingStrategy")
+		case "threshold":
+			out.Values[i] = ec._KafkaLagScalingStrategy_threshold(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "consumerGroup":
+			out.Values[i] = ec._KafkaLagScalingStrategy_consumerGroup(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "topic":
+			out.Values[i] = ec._KafkaLagScalingStrategy_topic(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -33065,6 +34397,50 @@ func (ec *executionContext) _UserEdge(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var workloadResourceQuantityImplementors = []string{"WorkloadResourceQuantity"}
+
+func (ec *executionContext) _WorkloadResourceQuantity(ctx context.Context, sel ast.SelectionSet, obj *workload.WorkloadResourceQuantity) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadResourceQuantityImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadResourceQuantity")
+		case "cpu":
+			out.Values[i] = ec._WorkloadResourceQuantity_cpu(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "memory":
+			out.Values[i] = ec._WorkloadResourceQuantity_memory(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var __DirectiveImplementors = []string{"__Directive"}
 
 func (ec *executionContext) ___Directive(ctx context.Context, sel ast.SelectionSet, obj *introspection.Directive) graphql.Marshaler {
@@ -33534,6 +34910,30 @@ func (ec *executionContext) unmarshalNApplicationOrderField2githubᚗcomᚋnais�
 
 func (ec *executionContext) marshalNApplicationOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationOrderField(ctx context.Context, sel ast.SelectionSet, v application.ApplicationOrderField) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) marshalNApplicationResources2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationResources(ctx context.Context, sel ast.SelectionSet, v application.ApplicationResources) graphql.Marshaler {
+	return ec._ApplicationResources(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNApplicationResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationResources(ctx context.Context, sel ast.SelectionSet, v *application.ApplicationResources) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ApplicationResources(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNApplicationScaling2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationScaling(ctx context.Context, sel ast.SelectionSet, v *application.ApplicationScaling) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ApplicationScaling(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNAuditAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditAction(ctx context.Context, v interface{}) (auditv1.AuditAction, error) {
@@ -34579,6 +35979,20 @@ func (ec *executionContext) marshalNJobOrderField2githubᚗcomᚋnaisᚋapiᚋin
 	return v
 }
 
+func (ec *executionContext) marshalNJobResources2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobResources(ctx context.Context, sel ast.SelectionSet, v job.JobResources) graphql.Marshaler {
+	return ec._JobResources(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNJobResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobResources(ctx context.Context, sel ast.SelectionSet, v *job.JobResources) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._JobResources(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNKafkaTopic2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopicᚄ(ctx context.Context, sel ast.SelectionSet, v []*kafkatopic.KafkaTopic) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -35464,6 +36878,60 @@ func (ec *executionContext) marshalNRepositoryConnection2ᚖgithubᚗcomᚋnais�
 		return graphql.Null
 	}
 	return ec._RepositoryConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNScalingStrategy2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐScalingStrategy(ctx context.Context, sel ast.SelectionSet, v application.ScalingStrategy) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ScalingStrategy(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNScalingStrategy2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐScalingStrategyᚄ(ctx context.Context, sel ast.SelectionSet, v []application.ScalingStrategy) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNScalingStrategy2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐScalingStrategy(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, v interface{}) (slug.Slug, error) {
@@ -36496,6 +37964,16 @@ func (ec *executionContext) marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinterna
 		return graphql.Null
 	}
 	return ec._Workload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNWorkloadResourceQuantity2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚐWorkloadResourceQuantity(ctx context.Context, sel ast.SelectionSet, v *workload.WorkloadResourceQuantity) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._WorkloadResourceQuantity(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

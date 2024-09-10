@@ -41,3 +41,12 @@ func (c ContainerImage) Ref() string {
 func (c ContainerImage) ID() ident.Ident {
 	return newImageIdent(c.Name + ":" + c.Tag)
 }
+
+type WorkloadResources interface {
+	IsWorkloadResources()
+}
+
+type WorkloadResourceQuantity struct {
+	CPU    float64 `json:"cpu"`
+	Memory int     `json:"memory"`
+}

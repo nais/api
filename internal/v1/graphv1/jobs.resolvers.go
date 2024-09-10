@@ -19,6 +19,10 @@ func (r *jobResolver) Environment(ctx context.Context, obj *job.Job) (*team.Team
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
+func (r *jobResolver) Resources(ctx context.Context, obj *job.Job) (*job.JobResources, error) {
+	panic(fmt.Errorf("not implemented: Resources - resources"))
+}
+
 func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder) (*pagination.Connection[*job.Job], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {

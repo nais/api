@@ -18,6 +18,9 @@ extend type Team {
 	): ApplicationConnection!
 }
 
+"""
+TODO: write
+"""
 type Application implements Node & Workload {
 	"The globally unique ID of the application."
 	id: ID!
@@ -34,6 +37,9 @@ type Application implements Node & Workload {
 	"The container image of the application."
 	image: ContainerImage!
 
+	"Resources for the application."
+	resources: ApplicationResources!
+
 	# deployInfo: DeployInfo!
 	# accessPolicy: AccessPolicy!
 	# status: WorkloadStatus!
@@ -49,6 +55,54 @@ type Application implements Node & Workload {
 	# autoScaling: AutoScaling!
 	# manifest: String!
 	# secrets: [Secret!]!
+}
+
+type ApplicationResources implements WorkloadResources {
+	"Instances using resources above this threshold will be killed."
+	limits: WorkloadResourceQuantity!
+
+	"How many resources are allocated to each instance."
+	requests: WorkloadResourceQuantity!
+
+	"Scaling strategies for the application."
+	scaling: ApplicationScaling!
+}
+
+"""
+TODO: write
+"""
+type ApplicationScaling {
+	"The minimum number of application instances."
+	minInstances: Int!
+
+	"The maximum number of application instances."
+	maxInstances: Int!
+
+	"Scaling strategies for the application."
+	strategies: [ScalingStrategy!]!
+}
+
+union ScalingStrategy = CPUScalingStrategy | KafkaLagScalingStrategy
+
+"""
+A scaling strategy based on CPU usage
+
+Read more: https://docs.nais.io/workloads/application/reference/automatic-scaling/#cpu-based-scaling
+"""
+type CPUScalingStrategy {
+	"The threshold that must be met for the scaling to trigger."
+	threshold: Int!
+}
+
+type KafkaLagScalingStrategy {
+	"The threshold that must be met for the scaling to trigger."
+	threshold: Int!
+
+	"The consumer group of the topic."
+	consumerGroup: String!
+
+	"The name of the Kafka topic."
+	topic: String! # TODO: String or KafkaTopic?
 }
 
 type ApplicationConnection {

@@ -14,12 +14,14 @@ interface Workload implements Node {
 	"The container image of the workload."
 	image: ContainerImage!
 
+	"The resources allocated to the workload."
+	resources: WorkloadResources!
+
 	# deployInfo: DeployInfo!
 	# accessPolicy: AccessPolicy!
 	# status: WorkloadStatus!
 	# authz: [Authz!]!
 	# variables: [Variable!]!
-	# resources: Resources!
 	# persistence: [Persistence!]!
 }
 
@@ -32,4 +34,20 @@ type ContainerImage implements Node {
 
 	"Tag of the container image."
 	tag: String!
+}
+
+interface WorkloadResources {
+	"Instances using resources above this threshold will be killed."
+	limits: WorkloadResourceQuantity!
+
+	"Resources requested by the workload."
+	requests: WorkloadResourceQuantity!
+}
+
+type WorkloadResourceQuantity {
+	"The number of CPU cores."
+	cpu: Float!
+
+	"The amount of memory in bytes."
+	memory: Int!
 }

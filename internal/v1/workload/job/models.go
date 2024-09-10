@@ -73,6 +73,13 @@ func (e JobOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type JobResources struct {
+	Limits   *workload.WorkloadResourceQuantity `json:"limits"`
+	Requests *workload.WorkloadResourceQuantity `json:"requests"`
+}
+
+func (JobResources) IsWorkloadResources() {}
+
 func toGraphJob(a *model.NaisJob) *Job {
 	return &Job{
 		Base: workload.Base{
