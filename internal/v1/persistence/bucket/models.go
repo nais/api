@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/v1/persistence"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/utils/ptr"
 )
 
@@ -39,6 +40,19 @@ type Bucket struct {
 func (Bucket) IsPersistence() {}
 
 func (Bucket) IsNode() {}
+func (b *Bucket) GetName() string { return b.Name }
+
+func (b *Bucket) GetNamespace() string { return b.TeamSlug.String() }
+
+func (b *Bucket) GetLabels() map[string]string { return nil }
+
+func (b *Bucket) GetObjectKind() schema.ObjectKind {
+	return schema.EmptyObjectKind
+}
+
+func (b *Bucket) DeepCopyObject() runtime.Object {
+	return b
+}
 
 func (b Bucket) ID() ident.Ident {
 	return newIdent(b.TeamSlug, b.EnvironmentName, b.Name)

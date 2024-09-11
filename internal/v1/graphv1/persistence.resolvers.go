@@ -41,7 +41,10 @@ func (r *applicationResolver) OpenSearch(ctx context.Context, obj *application.A
 }
 
 func (r *applicationResolver) Buckets(ctx context.Context, obj *application.Application, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error) {
-	panic(fmt.Errorf("not implemented: Buckets - buckets"))
+	if obj.Spec.GCP == nil {
+		return pagination.EmptyConnection[*bucket.Bucket](), nil
+	}
+	return bucket.ListForWorkload(ctx, obj.TeamSlug, obj.Spec.GCP.Buckets, orderBy)
 }
 
 func (r *applicationResolver) KafkaTopics(ctx context.Context, obj *application.Application, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error) {
@@ -128,11 +131,14 @@ func (r *jobResolver) RedisInstances(ctx context.Context, obj *job.Job, orderBy 
 }
 
 func (r *jobResolver) OpenSearch(ctx context.Context, obj *job.Job) (*opensearch.OpenSearch, error) {
-	panic(fmt.Errorf("not implemented: OpenSearch - openSearch"))
+	return opensearch.GetForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.OpenSearch)
 }
 
 func (r *jobResolver) Buckets(ctx context.Context, obj *job.Job, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error) {
-	panic(fmt.Errorf("not implemented: Buckets - buckets"))
+	if obj.Spec.GCP == nil {
+		return pagination.EmptyConnection[*bucket.Bucket](), nil
+	}
+	return bucket.ListForWorkload(ctx, obj.TeamSlug, obj.Spec.GCP.Buckets, orderBy)
 }
 
 func (r *jobResolver) KafkaTopics(ctx context.Context, obj *job.Job, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error) {
