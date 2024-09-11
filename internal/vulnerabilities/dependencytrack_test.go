@@ -1,4 +1,4 @@
-package dependencytrack
+package vulnerabilities
 
 import (
 	"context"
@@ -43,7 +43,7 @@ func TestClient_GetFindingsForImage(t *testing.T) {
 
 	for _, tc := range tt {
 		mock := NewMockInternalClient(t)
-		c := New("endpoint", "username", "password", "frontend", log).WithClient(mock)
+		c := NewDependencyTrackClient(DependencyTrackConfig{}, log, WithClient(mock))
 		tc.expect(tc.input, mock)
 		f, err := c.GetFindingsForImageByProjectID(ctx, "uuid", false)
 		tc.assert(t, f, err)

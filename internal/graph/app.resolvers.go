@@ -19,7 +19,7 @@ func (r *appResolver) Persistence(ctx context.Context, obj *model.App) ([]model.
 }
 
 func (r *appResolver) ImageDetails(ctx context.Context, obj *model.App) (*model.ImageDetails, error) {
-	image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, obj.Image)
+	image, err := r.vulnerabilities.GetMetadataForImage(ctx, obj.Image)
 	if err != nil {
 		return nil, fmt.Errorf("getting metadata for image %q: %w", obj.Image, err)
 	}
@@ -124,7 +124,7 @@ func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, en
 		return nil, apierror.ErrAppNotFound
 	}
 
-	vuln, err := r.dependencyTrackClient.GetVulnerabilityStatus(ctx, app.Image)
+	vuln, err := r.vulnerabilities.GetVulnerabilityStatus(ctx, app.Image)
 	if err != nil {
 		return nil, fmt.Errorf("getting vulnerability status for image %q: %w", app.Image, err)
 	}

@@ -1145,7 +1145,7 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 			severities := map[string]int{}
 			images := []*model.ImageDetails{}
 			for _, app := range apps {
-				image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, app.Image)
+				image, err := r.vulnerabilities.GetMetadataForImage(ctx, app.Image)
 				if err != nil {
 					return nil, fmt.Errorf("getting metadata for image %q: %w", app.Image, err)
 				}
@@ -1177,7 +1177,7 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 			riskScores := map[string]int{}
 			images := []*model.ImageDetails{}
 			for _, app := range apps {
-				image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, app.Image)
+				image, err := r.vulnerabilities.GetMetadataForImage(ctx, app.Image)
 				if err != nil {
 					return nil, fmt.Errorf("getting metadata for image %q: %w", app.Image, err)
 				}
@@ -1296,7 +1296,7 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 			severities := map[string]int{}
 			images := []*model.ImageDetails{}
 			for _, job := range naisjobs {
-				image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, job.Image)
+				image, err := r.vulnerabilities.GetMetadataForImage(ctx, job.Image)
 				if err != nil {
 					return nil, fmt.Errorf("getting metadata for image %q: %w", job.Image, err)
 				}
@@ -1328,7 +1328,7 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 			riskScores := map[string]int{}
 			images := []*model.ImageDetails{}
 			for _, job := range naisjobs {
-				image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, job.Image)
+				image, err := r.vulnerabilities.GetMetadataForImage(ctx, job.Image)
 				if err != nil {
 					return nil, fmt.Errorf("getting metadata for image %q: %w", job.Image, err)
 				}
@@ -1430,7 +1430,7 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 }
 
 func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummaryForTeam, error) {
-	images, err := r.dependencyTrackClient.GetMetadataForTeam(ctx, obj.Slug.String())
+	images, err := r.vulnerabilities.GetMetadataForTeam(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting metadata for team %q: %w", obj.Slug.String(), err)
 	}

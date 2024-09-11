@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/nais/api/internal/vulnerabilities"
 	"os"
 	"os/signal"
 	"syscall"
@@ -36,7 +37,6 @@ import (
 	"github.com/nais/api/internal/resourceusage"
 	fakeresourceusage "github.com/nais/api/internal/resourceusage/fake"
 	"github.com/nais/api/internal/sqlinstance"
-	"github.com/nais/api/internal/thirdparty/dependencytrack"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/sethvargo/go-envconfig"
@@ -172,15 +172,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	pubsubTopic := pubsubClient.Topic("nais-api")
 
-	dependencyTrackClient := dependencytrack.New(
-		cfg.DependencyTrack.Endpoint,
-		cfg.DependencyTrack.Username,
-		cfg.DependencyTrack.Password,
-		cfg.DependencyTrack.Frontend,
-		fmt.Sprintf("https://nais-prometheus.%s.cloud.nais.io", cfg.TenantDomain),
-		log.WithField("client", "dependencytrack"),
-	)
-
 	var hookdClient graph.HookdClient
 	var resourceUsageClient resourceusage.ResourceUsageClient
 	if cfg.WithFakeClients {
@@ -202,7 +193,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	resolver := graph.NewResolver(
 		hookdClient,
 		k8sClient,
-		dependencyTrackClient,
+		vulnerabilities.NewManager(cfg.ToVulnerabilitiesConfig()),
 		resourceUsageClient,
 		db,
 		cfg.Tenant,

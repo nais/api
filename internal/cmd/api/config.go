@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"github.com/nais/api/internal/vulnerabilities"
 	"strings"
 
 	"github.com/nais/api/internal/fixtures"
@@ -220,4 +221,15 @@ func NewConfig(ctx context.Context, lookuper envconfig.Lookuper) (*Config, error
 	}
 
 	return cfg, nil
+}
+
+func (c *Config) ToVulnerabilitiesConfig() *vulnerabilities.Config {
+	return &vulnerabilities.Config{
+		DependencyTrack: vulnerabilities.DependencyTrackConfig{
+			Endpoint:    c.DependencyTrack.Endpoint,
+			FrontendUrl: c.DependencyTrack.Frontend,
+			Username:    c.DependencyTrack.Username,
+			Password:    c.DependencyTrack.Password,
+		},
+	}
 }

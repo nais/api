@@ -40,7 +40,7 @@ func (r *naisJobResolver) Persistence(ctx context.Context, obj *model.NaisJob) (
 }
 
 func (r *naisJobResolver) ImageDetails(ctx context.Context, obj *model.NaisJob) (*model.ImageDetails, error) {
-	image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, obj.Image)
+	image, err := r.vulnerabilities.GetMetadataForImage(ctx, obj.Image)
 	if err != nil {
 		return nil, fmt.Errorf("getting metadata for image %q: %w", obj.Image, err)
 	}

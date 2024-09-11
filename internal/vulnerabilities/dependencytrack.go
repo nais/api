@@ -1,4 +1,4 @@
-package dependencytrack
+package vulnerabilities
 
 import (
 	"context"
@@ -19,9 +19,13 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
-var _ DependencytrackClient = &Client{}
+const (
+	dependencyTrackAdminTeam = "Administrators"
+)
 
-type DependencytrackClient interface {
+var _ Client = &dependencyTrackClient{}
+
+type Client interface {
 	GetMetadataForImageByProjectID(ctx context.Context, projectID string) (*model.ImageDetails, error)
 	GetMetadataForImage(ctx context.Context, image string) (*model.ImageDetails, error)
 	GetFindingsForImageByProjectID(ctx context.Context, projectID string, suppressed bool) ([]*model.Finding, error)
@@ -29,7 +33,17 @@ type DependencytrackClient interface {
 	GetVulnerabilityStatus(ctx context.Context, image string) (model.StateError, error)
 	SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.AnalysisTrail, error)
 	GetAnalysisTrailForImage(ctx context.Context, projectID, componentID, vulnerabilityID string) (*model.AnalysisTrail, error)
-	GetRiskScoreTrend(ctx context.Context, namespace string, from time.Time, to time.Time) (float64, error)
+}
+
+type dependencyTrackClient struct {
+	client      dependencytrack.Client
+	frontendUrl string
+	log         logrus.FieldLogger
+	cache       *cache.Cache
+}
+
+type DependencyTrackConfig struct {
+	Endpoint, Username, Password, FrontendUrl string
 }
 
 type WorkloadInstance struct {
@@ -61,66 +75,40 @@ type VulnerabilityMetrics struct {
 	LastOccurrence  int64 `json:"lastOccurrence"`
 }
 
-type Client struct {
-	client      dependencytrack.Client
-	frontendUrl string
-	log         logrus.FieldLogger
-	cache       *cache.Cache
-}
+type DependencyTrackOption func(*dependencyTrackClient)
 
-func New(endpoint, username, password, frontend, prometheusUrl string, log *logrus.Entry) *Client {
+func NewDependencyTrackClient(cfg DependencyTrackConfig, log *logrus.Entry, opts ...DependencyTrackOption) Client {
 	c := dependencytrack.New(
-		endpoint,
-		username,
-		password,
-		dependencytrack.WithApiKeySource("Administrators"),
+		cfg.Endpoint,
+		cfg.Username,
+		cfg.Password,
+		dependencytrack.WithApiKeySource(dependencyTrackAdminTeam),
 		dependencytrack.WithLogger(log),
 		dependencytrack.WithHttpClient(&http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}),
 	)
-
 	ch := cache.New(10*time.Minute, 5*time.Minute)
 
-	//promClient, err := promapi.NewClient(promapi.Config{
-	//	Address: prometheusUrl,
-	//})
-	//
-	//if err != nil {
-	//	log.Fatalf("creating prometheus client: %v", err)
-	//}
-
-	//m.prometheus = promv1.NewAPI(promClient)
-
-	return &Client{
+	dc := &dependencyTrackClient{
 		client:      c,
-		frontendUrl: frontend,
+		frontendUrl: cfg.FrontendUrl,
 		log:         log,
 		cache:       ch,
 	}
-}
 
-func (c *Client) Init(ctx context.Context) error {
-	_, err := c.client.Headers(ctx)
-	if err != nil {
-		return fmt.Errorf("initializing DependencyTrack client: %w", err)
+	for _, opt := range opts {
+		opt(dc)
 	}
-	return nil
+
+	return dc
 }
 
-func (c *Client) WithClient(client dependencytrack.Client) *Client {
-	c.client = client
-	return c
+func WithClient(client dependencytrack.Client) DependencyTrackOption {
+	return func(c *dependencyTrackClient) {
+		c.client = client
+	}
 }
 
-func (c *Client) WithCache(cache *cache.Cache) *Client {
-	c.cache = cache
-	return c
-}
-
-func (c *Client) GetRiskScoreTrend(ctx context.Context, namespace string, from time.Time, to time.Time) (float64, error) {
-	return 0.0, nil
-}
-
-func (c *Client) GetVulnerabilityStatus(ctx context.Context, image string) (model.StateError, error) {
+func (c *dependencyTrackClient) GetVulnerabilityStatus(ctx context.Context, image string) (model.StateError, error) {
 	name, version, _ := strings.Cut(image, ":")
 	p, err := c.client.GetProject(ctx, name, version)
 	if err != nil {
@@ -145,15 +133,7 @@ func (c *Client) GetVulnerabilityStatus(ctx context.Context, image string) (mode
 	return nil, nil
 }
 
-func (c *Client) isVulnerable(p *dependencytrack.Project) (bool, *model.ImageVulnerabilitySummary) {
-	sum := c.createSummaryForImage(p)
-	if sum == nil {
-		return true, nil
-	}
-	return sum.Critical > 0 || sum.High > 0 || sum.Medium > 0 || sum.Low > 0, sum
-}
-
-func (c *Client) GetProjectMetrics(ctx context.Context, instance *WorkloadInstance, date string) (*ProjectMetric, error) {
+func (c *dependencyTrackClient) GetProjectMetrics(ctx context.Context, instance *WorkloadInstance, date string) (*ProjectMetric, error) {
 	p, err := c.retrieveProject(ctx, instance)
 	if err != nil {
 		return nil, fmt.Errorf("getting project by workload %s: %w", instance.ID(), err)
@@ -198,91 +178,7 @@ func (c *Client) GetProjectMetrics(ctx context.Context, instance *WorkloadInstan
 	}, nil
 }
 
-// Due to the nature of the DependencyTrack API, the 'LastBomImportFormat' is not reliable to determine if a project has a BOM.
-// The 'LastBomImportFormat' can be empty even if the project has a BOM.
-// As a fallback, we can check if projects has registered any components, then we assume that if a project has components, it has a BOM.
-func hasSbom(p *dependencytrack.Project) bool {
-	if p == nil {
-		return false
-	}
-	return p.LastBomImportFormat != "" || p.Metrics != nil && p.Metrics.Components > 0
-}
-
-func (c *Client) retrieveFindings(ctx context.Context, uuid string, suppressed bool) ([]*dependencytrack.Finding, error) {
-	if v, ok := c.cache.Get(uuid); ok {
-		return v.([]*dependencytrack.Finding), nil
-	}
-
-	findings, err := c.client.GetFindings(ctx, uuid, suppressed)
-	if err != nil {
-		return nil, fmt.Errorf("retrieveFindings from DependencyTrack: %w", err)
-	}
-
-	c.cache.Set(uuid, findings, cache.DefaultExpiration)
-
-	return findings, nil
-}
-
-func (c *Client) createSummaryForImage(project *dependencytrack.Project) *model.ImageVulnerabilitySummary {
-	if !hasSbom(project) {
-		return nil
-	}
-
-	return &model.ImageVulnerabilitySummary{
-		ID:         scalar.ImageVulnerabilitySummaryIdent(project.Uuid),
-		Total:      project.Metrics.FindingsTotal,
-		RiskScore:  int(project.Metrics.InheritedRiskScore),
-		Critical:   project.Metrics.Critical,
-		High:       project.Metrics.High,
-		Medium:     project.Metrics.Medium,
-		Low:        project.Metrics.Low,
-		Unassigned: project.Metrics.Unassigned,
-	}
-}
-
-func (c *Client) retrieveProjectById(ctx context.Context, projectId string) (*dependencytrack.Project, error) {
-	project, err := c.client.GetProjectById(ctx, projectId)
-	if err != nil {
-		return nil, fmt.Errorf("getting projects from DependencyTrack: %w", err)
-	}
-
-	return project, nil
-}
-
-func (c *Client) retrieveProjectsForTeam(ctx context.Context, team string) ([]*dependencytrack.Project, error) {
-	tag := url.QueryEscape("team:" + team)
-
-	projects, err := c.client.GetProjectsByTag(ctx, tag)
-	if err != nil {
-		return nil, fmt.Errorf("getting projects from DependencyTrack: %w", err)
-	}
-
-	return projects, nil
-}
-
-func (c *Client) retrieveProject(ctx context.Context, instance *WorkloadInstance) (*dependencytrack.Project, error) {
-	instanceImageTag := dependencytrack.ImageTagPrefix.With(instance.Image)
-	tag := url.QueryEscape(instanceImageTag)
-	projects, err := c.client.GetProjectsByTag(ctx, tag)
-	if err != nil {
-		return nil, fmt.Errorf("getting projects from DependencyTrack: %w", err)
-	}
-
-	if len(projects) == 0 {
-		return nil, nil
-	}
-
-	var p *dependencytrack.Project
-	for _, project := range projects {
-		if containsAllTags(project.Tags, instanceImageTag) {
-			p = project
-			break
-		}
-	}
-	return p, nil
-}
-
-func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.ImageDetails, error) {
+func (c *dependencyTrackClient) GetMetadataForImage(ctx context.Context, image string) (*model.ImageDetails, error) {
 	name, version, _ := strings.Cut(image, ":")
 	p, err := c.client.GetProject(ctx, name, version)
 	if err != nil {
@@ -312,6 +208,291 @@ func (c *Client) GetMetadataForImage(ctx context.Context, image string) (*model.
 			WorkloadReferences: parseWorkloadRefTags(p.Tags),
 		},
 	}, nil
+}
+
+func (c *dependencyTrackClient) GetFindingsForImageByProjectID(ctx context.Context, projectId string, suppressed bool) ([]*model.Finding, error) {
+	findings, err := c.retrieveFindings(ctx, projectId, suppressed)
+	if err != nil {
+		return nil, fmt.Errorf("retrieving findings for project %s: %w", projectId, err)
+	}
+
+	retFindings := make([]*model.Finding, 0)
+	for _, f := range findings {
+		aliases := []*model.VulnIDAlias{}
+
+		for _, alias := range f.Vulnerability.Aliases {
+			if alias.CveId != "" {
+				aliases = append(aliases, &model.VulnIDAlias{
+					Name:   alias.CveId,
+					Source: "NVD",
+				})
+			}
+			if alias.GhsaId != "" {
+				aliases = append(aliases, &model.VulnIDAlias{
+					Name:   alias.GhsaId,
+					Source: "GHSA",
+				})
+			}
+		}
+
+		retFindings = append(retFindings, &model.Finding{
+			ID:              scalar.FindingIdent(f.Vulnerability.VulnId),
+			ParentID:        projectId,
+			VulnID:          f.Vulnerability.VulnId,
+			VulnerabilityID: f.Vulnerability.UUID,
+			Source:          f.Vulnerability.Source,
+			ComponentID:     f.Component.UUID,
+			Severity:        f.Vulnerability.Severity,
+			Description:     f.Vulnerability.Title,
+			PackageURL:      f.Component.PURL,
+			Aliases:         aliases,
+			IsSuppressed:    f.Analysis.IsSuppressed,
+			State:           f.Analysis.State,
+		})
+	}
+	return retFindings, nil
+}
+
+func (c *dependencyTrackClient) GetMetadataForImageByProjectID(ctx context.Context, projectId string) (*model.ImageDetails, error) {
+	p, err := c.retrieveProjectById(ctx, projectId)
+	if err != nil {
+		return nil, fmt.Errorf("getting project by id %s: %w", projectId, err)
+	}
+
+	if p == nil {
+		return nil, fmt.Errorf("project not found: %s", projectId)
+	}
+
+	return &model.ImageDetails{
+		Name:      p.Name + ":" + p.Version,
+		ID:        scalar.ImageIdent(p.Name, p.Version),
+		Rekor:     parseRekorTags(p.Tags),
+		Version:   p.Version,
+		ProjectID: p.Uuid,
+		HasSbom:   hasSbom(p),
+		Summary:   c.createSummaryForImage(p),
+		GQLVars: model.ImageDetailsGQLVars{
+			WorkloadReferences: parseWorkloadRefTags(p.Tags),
+		},
+	}, nil
+}
+
+func (c *dependencyTrackClient) GetMetadataForTeam(ctx context.Context, team string) ([]*model.ImageDetails, error) {
+	projects, err := c.retrieveProjectsForTeam(ctx, team)
+	if err != nil {
+		return nil, fmt.Errorf("getting projects by team %s: %w", team, err)
+	}
+
+	if projects == nil {
+		return nil, nil
+	}
+
+	images := make([]*model.ImageDetails, 0)
+	for _, p := range projects {
+		if p == nil {
+			continue
+		}
+
+		// TODO: Find a better way to filter out these images
+		if p.Name == "europe-north1-docker.pkg.dev/nais-io/nais/images/wonderwall" {
+			continue
+		}
+
+		if p.Name == "europe-north1-docker.pkg.dev/nais-io/nais/images/elector" {
+			continue
+		}
+
+		image := &model.ImageDetails{
+			ID:        scalar.ImageIdent(p.Name, p.Version),
+			ProjectID: p.Uuid,
+			Name:      p.Name,
+			Summary:   c.createSummaryForImage(p),
+			Rekor:     parseRekorTags(p.Tags),
+			Version:   p.Version,
+			HasSbom:   hasSbom(p),
+			GQLVars: model.ImageDetailsGQLVars{
+				WorkloadReferences: parseWorkloadRefTags(p.Tags),
+			},
+		}
+		images = append(images, image)
+	}
+
+	return images, nil
+}
+
+func (c *dependencyTrackClient) SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.AnalysisTrail, error) {
+	comment = fmt.Sprintf("on-behalf-of:%s|suppressed:%t|state:%s|comment:%s", suppressedBy, suppress, analysisState, comment)
+	analysisRequest := &dependencytrack.AnalysisRequest{
+		Vulnerability:         vulnerabilityID,
+		Component:             componentID,
+		Project:               projectID,
+		AnalysisState:         analysisState,
+		AnalysisJustification: "NOT_SET",
+		AnalysisResponse:      "NOT_SET",
+		Comment:               comment,
+		IsSuppressed:          suppress,
+	}
+
+	err := c.client.RecordAnalysis(ctx, analysisRequest)
+	if err != nil {
+		return nil, fmt.Errorf("suppressing finding: %w", err)
+	}
+
+	trail, err := c.client.GetAnalysisTrail(ctx, projectID, componentID, vulnerabilityID)
+	if err != nil {
+		return nil, fmt.Errorf("getting analysis trail: %w", err)
+	}
+
+	if err = c.client.TriggerAnalysis(ctx, projectID); err != nil {
+		return nil, fmt.Errorf("triggering analysis: %w", err)
+	}
+
+	return &model.AnalysisTrail{
+		ID:           scalar.AnalysisTrailIdent(projectID, componentID, vulnerabilityID),
+		State:        trail.AnalysisState,
+		IsSuppressed: trail.IsSuppressed,
+		GQLVars: model.AnalysisTrailGQLVars{
+			Comments: parseComments(trail),
+		},
+	}, nil
+}
+
+func (c *dependencyTrackClient) GetAnalysisTrailForImage(ctx context.Context, projectID, componentID, vulnerabilityID string) (*model.AnalysisTrail, error) {
+	trail, err := c.client.GetAnalysisTrail(ctx, projectID, componentID, vulnerabilityID)
+	if err != nil {
+		return nil, fmt.Errorf("getting analysis trail: %w", err)
+	}
+
+	if trail == nil {
+		return &model.AnalysisTrail{ID: scalar.AnalysisTrailIdent(projectID, componentID, vulnerabilityID)}, nil
+	}
+
+	retAnalysisTrail := &model.AnalysisTrail{
+		ID:           scalar.AnalysisTrailIdent(projectID, componentID, vulnerabilityID),
+		State:        trail.AnalysisState,
+		IsSuppressed: trail.IsSuppressed,
+		GQLVars: model.AnalysisTrailGQLVars{
+			Comments: parseComments(trail),
+		},
+	}
+
+	return retAnalysisTrail, nil
+}
+
+func (c *dependencyTrackClient) UploadProject(ctx context.Context, image, name, version, team string, bom []byte) error {
+	tags := []string{
+		dependencytrack.EnvironmentTagPrefix.With("dev"),
+		dependencytrack.TeamTagPrefix.With(team),
+		dependencytrack.WorkloadTagPrefix.With("dev|" + team + "|app|" + name),
+		dependencytrack.ImageTagPrefix.With(image),
+	}
+	createdP, err := c.client.CreateProject(ctx, image, version, team, tags)
+	if err != nil {
+		// since we are creating the project, we can ignore the conflict error
+		if !dependencytrack.IsConflict(err) {
+			return fmt.Errorf("creating project: %w", err)
+		}
+		return nil
+	}
+
+	err = c.client.UploadProject(ctx, image, version, createdP.Uuid, false, bom)
+	if err != nil {
+		return fmt.Errorf("uploading bom: %w", err)
+	}
+	return nil
+
+}
+
+func (c *dependencyTrackClient) isVulnerable(p *dependencytrack.Project) (bool, *model.ImageVulnerabilitySummary) {
+	sum := c.createSummaryForImage(p)
+	if sum == nil {
+		return true, nil
+	}
+	return sum.Critical > 0 || sum.High > 0 || sum.Medium > 0 || sum.Low > 0, sum
+}
+
+// Due to the nature of the DependencyTrack API, the 'LastBomImportFormat' is not reliable to determine if a project has a BOM.
+// The 'LastBomImportFormat' can be empty even if the project has a BOM.
+// As a fallback, we can check if projects has registered any components, then we assume that if a project has components, it has a BOM.
+func hasSbom(p *dependencytrack.Project) bool {
+	if p == nil {
+		return false
+	}
+	return p.LastBomImportFormat != "" || p.Metrics != nil && p.Metrics.Components > 0
+}
+
+func (c *dependencyTrackClient) retrieveFindings(ctx context.Context, uuid string, suppressed bool) ([]*dependencytrack.Finding, error) {
+	if v, ok := c.cache.Get(uuid); ok {
+		return v.([]*dependencytrack.Finding), nil
+	}
+
+	findings, err := c.client.GetFindings(ctx, uuid, suppressed)
+	if err != nil {
+		return nil, fmt.Errorf("retrieveFindings from DependencyTrack: %w", err)
+	}
+
+	c.cache.Set(uuid, findings, cache.DefaultExpiration)
+
+	return findings, nil
+}
+
+func (c *dependencyTrackClient) createSummaryForImage(project *dependencytrack.Project) *model.ImageVulnerabilitySummary {
+	if !hasSbom(project) {
+		return nil
+	}
+
+	return &model.ImageVulnerabilitySummary{
+		ID:         scalar.ImageVulnerabilitySummaryIdent(project.Uuid),
+		Total:      project.Metrics.FindingsTotal,
+		RiskScore:  int(project.Metrics.InheritedRiskScore),
+		Critical:   project.Metrics.Critical,
+		High:       project.Metrics.High,
+		Medium:     project.Metrics.Medium,
+		Low:        project.Metrics.Low,
+		Unassigned: project.Metrics.Unassigned,
+	}
+}
+
+func (c *dependencyTrackClient) retrieveProjectById(ctx context.Context, projectId string) (*dependencytrack.Project, error) {
+	project, err := c.client.GetProjectById(ctx, projectId)
+	if err != nil {
+		return nil, fmt.Errorf("getting projects from DependencyTrack: %w", err)
+	}
+
+	return project, nil
+}
+
+func (c *dependencyTrackClient) retrieveProjectsForTeam(ctx context.Context, team string) ([]*dependencytrack.Project, error) {
+	tag := url.QueryEscape("team:" + team)
+
+	projects, err := c.client.GetProjectsByTag(ctx, tag)
+	if err != nil {
+		return nil, fmt.Errorf("getting projects from DependencyTrack: %w", err)
+	}
+
+	return projects, nil
+}
+
+func (c *dependencyTrackClient) retrieveProject(ctx context.Context, instance *WorkloadInstance) (*dependencytrack.Project, error) {
+	instanceImageTag := dependencytrack.ImageTagPrefix.With(instance.Image)
+	tag := url.QueryEscape(instanceImageTag)
+	projects, err := c.client.GetProjectsByTag(ctx, tag)
+	if err != nil {
+		return nil, fmt.Errorf("getting projects from DependencyTrack: %w", err)
+	}
+
+	if len(projects) == 0 {
+		return nil, nil
+	}
+
+	var p *dependencytrack.Project
+	for _, project := range projects {
+		if containsAllTags(project.Tags, instanceImageTag) {
+			p = project
+			break
+		}
+	}
+	return p, nil
 }
 
 func parseRekorTags(tags []dependencytrack.Tag) model.Rekor {
@@ -372,153 +553,6 @@ func parseWorkloadRefTags(tags []dependencytrack.Tag) []*model.WorkloadReference
 	return workloads
 }
 
-func (c *Client) GetFindingsForImageByProjectID(ctx context.Context, projectId string, suppressed bool) ([]*model.Finding, error) {
-	findings, err := c.retrieveFindings(ctx, projectId, suppressed)
-	if err != nil {
-		return nil, fmt.Errorf("retrieving findings for project %s: %w", projectId, err)
-	}
-
-	retFindings := make([]*model.Finding, 0)
-	for _, f := range findings {
-		aliases := []*model.VulnIDAlias{}
-
-		for _, alias := range f.Vulnerability.Aliases {
-			if alias.CveId != "" {
-				aliases = append(aliases, &model.VulnIDAlias{
-					Name:   alias.CveId,
-					Source: "NVD",
-				})
-			}
-			if alias.GhsaId != "" {
-				aliases = append(aliases, &model.VulnIDAlias{
-					Name:   alias.GhsaId,
-					Source: "GHSA",
-				})
-			}
-		}
-
-		retFindings = append(retFindings, &model.Finding{
-			ID:              scalar.FindingIdent(f.Vulnerability.VulnId),
-			ParentID:        projectId,
-			VulnID:          f.Vulnerability.VulnId,
-			VulnerabilityID: f.Vulnerability.UUID,
-			Source:          f.Vulnerability.Source,
-			ComponentID:     f.Component.UUID,
-			Severity:        f.Vulnerability.Severity,
-			Description:     f.Vulnerability.Title,
-			PackageURL:      f.Component.PURL,
-			Aliases:         aliases,
-			IsSuppressed:    f.Analysis.IsSuppressed,
-			State:           f.Analysis.State,
-		})
-	}
-	return retFindings, nil
-}
-
-func (c *Client) GetMetadataForImageByProjectID(ctx context.Context, projectId string) (*model.ImageDetails, error) {
-	p, err := c.retrieveProjectById(ctx, projectId)
-	if err != nil {
-		return nil, fmt.Errorf("getting project by id %s: %w", projectId, err)
-	}
-
-	if p == nil {
-		return nil, fmt.Errorf("project not found: %s", projectId)
-	}
-
-	return &model.ImageDetails{
-		Name:      p.Name + ":" + p.Version,
-		ID:        scalar.ImageIdent(p.Name, p.Version),
-		Rekor:     parseRekorTags(p.Tags),
-		Version:   p.Version,
-		ProjectID: p.Uuid,
-		HasSbom:   hasSbom(p),
-		Summary:   c.createSummaryForImage(p),
-		GQLVars: model.ImageDetailsGQLVars{
-			WorkloadReferences: parseWorkloadRefTags(p.Tags),
-		},
-	}, nil
-}
-
-func (c *Client) GetMetadataForTeam(ctx context.Context, team string) ([]*model.ImageDetails, error) {
-	projects, err := c.retrieveProjectsForTeam(ctx, team)
-	if err != nil {
-		return nil, fmt.Errorf("getting projects by team %s: %w", team, err)
-	}
-
-	if projects == nil {
-		return nil, nil
-	}
-
-	images := make([]*model.ImageDetails, 0)
-	for _, p := range projects {
-		if p == nil {
-			continue
-		}
-
-		// TODO: Find a better way to filter out these images
-		if p.Name == "europe-north1-docker.pkg.dev/nais-io/nais/images/wonderwall" {
-			continue
-		}
-
-		if p.Name == "europe-north1-docker.pkg.dev/nais-io/nais/images/elector" {
-			continue
-		}
-
-		image := &model.ImageDetails{
-			ID:        scalar.ImageIdent(p.Name, p.Version),
-			ProjectID: p.Uuid,
-			Name:      p.Name,
-			Summary:   c.createSummaryForImage(p),
-			Rekor:     parseRekorTags(p.Tags),
-			Version:   p.Version,
-			HasSbom:   hasSbom(p),
-			GQLVars: model.ImageDetailsGQLVars{
-				WorkloadReferences: parseWorkloadRefTags(p.Tags),
-			},
-		}
-		images = append(images, image)
-	}
-
-	return images, nil
-}
-
-func (c *Client) SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.AnalysisTrail, error) {
-	comment = fmt.Sprintf("on-behalf-of:%s|suppressed:%t|state:%s|comment:%s", suppressedBy, suppress, analysisState, comment)
-	analysisRequest := &dependencytrack.AnalysisRequest{
-		Vulnerability:         vulnerabilityID,
-		Component:             componentID,
-		Project:               projectID,
-		AnalysisState:         analysisState,
-		AnalysisJustification: "NOT_SET",
-		AnalysisResponse:      "NOT_SET",
-		Comment:               comment,
-		IsSuppressed:          suppress,
-	}
-
-	err := c.client.RecordAnalysis(ctx, analysisRequest)
-	if err != nil {
-		return nil, fmt.Errorf("suppressing finding: %w", err)
-	}
-
-	trail, err := c.client.GetAnalysisTrail(ctx, projectID, componentID, vulnerabilityID)
-	if err != nil {
-		return nil, fmt.Errorf("getting analysis trail: %w", err)
-	}
-
-	if err = c.client.TriggerAnalysis(ctx, projectID); err != nil {
-		return nil, fmt.Errorf("triggering analysis: %w", err)
-	}
-
-	return &model.AnalysisTrail{
-		ID:           scalar.AnalysisTrailIdent(projectID, componentID, vulnerabilityID),
-		State:        trail.AnalysisState,
-		IsSuppressed: trail.IsSuppressed,
-		GQLVars: model.AnalysisTrailGQLVars{
-			Comments: parseComments(trail),
-		},
-	}, nil
-}
-
 func parseComments(trail *dependencytrack.Analysis) []*model.AnalysisComment {
 	comments := make([]*model.AnalysisComment, 0)
 	for _, comment := range trail.AnalysisComments {
@@ -544,28 +578,6 @@ func parseComments(trail *dependencytrack.Analysis) []*model.AnalysisComment {
 	return comments
 }
 
-func (c *Client) GetAnalysisTrailForImage(ctx context.Context, projectID, componentID, vulnerabilityID string) (*model.AnalysisTrail, error) {
-	trail, err := c.client.GetAnalysisTrail(ctx, projectID, componentID, vulnerabilityID)
-	if err != nil {
-		return nil, fmt.Errorf("getting analysis trail: %w", err)
-	}
-
-	if trail == nil {
-		return &model.AnalysisTrail{ID: scalar.AnalysisTrailIdent(projectID, componentID, vulnerabilityID)}, nil
-	}
-
-	retAnalysisTrail := &model.AnalysisTrail{
-		ID:           scalar.AnalysisTrailIdent(projectID, componentID, vulnerabilityID),
-		State:        trail.AnalysisState,
-		IsSuppressed: trail.IsSuppressed,
-		GQLVars: model.AnalysisTrailGQLVars{
-			Comments: parseComments(trail),
-		},
-	}
-
-	return retAnalysisTrail, nil
-}
-
 func containsAllTags(tags []dependencytrack.Tag, s ...string) bool {
 	found := 0
 	for _, t := range s {
@@ -577,28 +589,4 @@ func containsAllTags(tags []dependencytrack.Tag, s ...string) bool {
 		}
 	}
 	return found == len(s)
-}
-
-func (c *Client) UploadProject(ctx context.Context, image, name, version, team string, bom []byte) error {
-	tags := []string{
-		dependencytrack.EnvironmentTagPrefix.With("dev"),
-		dependencytrack.TeamTagPrefix.With(team),
-		dependencytrack.WorkloadTagPrefix.With("dev|" + team + "|app|" + name),
-		dependencytrack.ImageTagPrefix.With(image),
-	}
-	createdP, err := c.client.CreateProject(ctx, image, version, team, tags)
-	if err != nil {
-		// since we are creating the project, we can ignore the conflict error
-		if !dependencytrack.IsConflict(err) {
-			return fmt.Errorf("creating project: %w", err)
-		}
-		return nil
-	}
-
-	err = c.client.UploadProject(ctx, image, version, createdP.Uuid, false, bom)
-	if err != nil {
-		return fmt.Errorf("uploading bom: %w", err)
-	}
-	return nil
-
 }

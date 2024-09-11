@@ -3,9 +3,8 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/nais/api/internal/vulnerabilities"
 	"slices"
-
-	"github.com/nais/api/internal/thirdparty/dependencytrack"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"
@@ -120,7 +119,7 @@ type HookdClient interface {
 type Resolver struct {
 	hookdClient           HookdClient
 	k8sClient             *k8s.Client
-	dependencyTrackClient dependencytrack.DependencytrackClient
+	vulnerabilities       *vulnerabilities.Manager
 	resourceUsageClient   resourceusage.ResourceUsageClient
 	searcher              *search.Searcher
 	log                   logrus.FieldLogger
@@ -145,7 +144,7 @@ type Resolver struct {
 // NewResolver creates a new GraphQL resolver with the given dependencies
 func NewResolver(hookdClient HookdClient,
 	k8sClient *k8s.Client,
-	dependencyTrackClient dependencytrack.DependencytrackClient,
+	vulnerabilitiesMgr *vulnerabilities.Manager,
 	resourceUsageClient resourceusage.ResourceUsageClient,
 	db database.Database,
 	tenant string,
@@ -168,7 +167,7 @@ func NewResolver(hookdClient HookdClient,
 	return &Resolver{
 		hookdClient:           hookdClient,
 		k8sClient:             k8sClient,
-		dependencyTrackClient: dependencyTrackClient,
+		vulnerabilities:       vulnerabilitiesMgr,
 		resourceUsageClient:   resourceUsageClient,
 		tenant:                tenant,
 		tenantDomain:          tenantDomain,
