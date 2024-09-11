@@ -45,6 +45,7 @@ type dependencyTrackClient struct {
 
 type DependencyTrackConfig struct {
 	Endpoint, Username, Password, FrontendUrl string
+	EnableFakes                               bool
 }
 
 type WorkloadInstance struct {
@@ -88,6 +89,10 @@ func NewDependencyTrackClient(cfg DependencyTrackConfig, log *logrus.Entry, opts
 		dependencytrack.WithHttpClient(&http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}),
 	)
 	ch := cache.New(10*time.Minute, 5*time.Minute)
+
+	if cfg.EnableFakes {
+		c = NewFakeDependencyTrackClient(c)
+	}
 
 	dc := &dependencyTrackClient{
 		client:      c,
