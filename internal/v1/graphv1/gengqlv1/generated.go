@@ -91,6 +91,7 @@ type ComplexityRoot struct {
 		Environment func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Image       func(childComplexity int) int
+		Ingresses   func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Resources   func(childComplexity int) int
 		Team        func(childComplexity int) int
@@ -878,6 +879,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Application.Image(childComplexity), true
+
+	case "Application.ingresses":
+		if e.complexity.Application.Ingresses == nil {
+			break
+		}
+
+		return e.complexity.Application.Ingresses(childComplexity), true
 
 	case "Application.name":
 		if e.complexity.Application.Name == nil {
@@ -3629,6 +3637,9 @@ type Application implements Node & Workload {
 	"Resources for the application."
 	resources: ApplicationResources!
 
+	"List of ingresses for the application."
+	ingresses: [String!]!
+
 	# deployInfo: DeployInfo!
 	# accessPolicy: AccessPolicy!
 	# status: WorkloadStatus!
@@ -3638,7 +3649,7 @@ type Application implements Node & Workload {
 	# type: WorkloadType!
 	#
 	# imageDetails: ImageDetails!
-	# ingresses: [String!]!
+	#
 	# instances: [Instance!]!
 	# autoScaling: AutoScaling!
 	# manifest: String!
@@ -7013,6 +7024,50 @@ func (ec *executionContext) fieldContext_Application_resources(_ context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Application_ingresses(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Application_ingresses(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Ingresses(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Application_ingresses(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Application",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ApplicationConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*application.Application]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ApplicationConnection_pageInfo(ctx, field)
 	if err != nil {
@@ -7120,6 +7175,8 @@ func (ec *executionContext) fieldContext_ApplicationConnection_nodes(_ context.C
 				return ec.fieldContext_Application_image(ctx, field)
 			case "resources":
 				return ec.fieldContext_Application_resources(ctx, field)
+			case "ingresses":
+				return ec.fieldContext_Application_ingresses(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 		},
@@ -7272,6 +7329,8 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 				return ec.fieldContext_Application_image(ctx, field)
 			case "resources":
 				return ec.fieldContext_Application_resources(ctx, field)
+			case "ingresses":
+				return ec.fieldContext_Application_ingresses(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 		},
@@ -11989,7 +12048,7 @@ func (ec *executionContext) _Job_resources(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Resources, nil
+		return obj.Resources(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12010,7 +12069,7 @@ func (ec *executionContext) fieldContext_Job_resources(_ context.Context, field 
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
@@ -27813,6 +27872,11 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 			}
 		case "resources":
 			out.Values[i] = ec._Application_resources(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "ingresses":
+			out.Values[i] = ec._Application_ingresses(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

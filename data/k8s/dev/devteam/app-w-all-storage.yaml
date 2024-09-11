@@ -21,6 +21,8 @@ spec:
         - ipv4: 127.12.13.14
         - ipv4: 10.11.12.13
   image: navikt/app-w-all-storage:latest
+  ingresses:
+    - "https://storageapp.example.com"
   gcp:
     sqlInstances:
       - type: POSTGRES_15

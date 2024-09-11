@@ -106,6 +106,14 @@ type KafkaLagScalingStrategy struct {
 
 func (KafkaLagScalingStrategy) IsScalingStrategy() {}
 
+func (a *Application) Ingresses() []string {
+	ret := make([]string, len(a.Spec.Ingresses))
+	for i, ingress := range a.Spec.Ingresses {
+		ret[i] = string(ingress)
+	}
+	return ret
+}
+
 func (a *Application) Resources() *ApplicationResources {
 	ret := &ApplicationResources{
 		Limits:   &workload.WorkloadResourceQuantity{},

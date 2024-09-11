@@ -40,6 +40,9 @@ type Application implements Node & Workload {
 	"Resources for the application."
 	resources: ApplicationResources!
 
+	"List of ingresses for the application."
+	ingresses: [String!]!
+
 	# deployInfo: DeployInfo!
 	# accessPolicy: AccessPolicy!
 	# status: WorkloadStatus!
@@ -49,7 +52,6 @@ type Application implements Node & Workload {
 	# type: WorkloadType!
 	#
 	# imageDetails: ImageDetails!
-	# ingresses: [String!]!
 	# instances: [Instance!]!
 	# autoScaling: AutoScaling!
 	# manifest: String!
