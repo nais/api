@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/nais/api/internal/slug"
+
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
@@ -21,7 +22,6 @@ type (
 
 type Application struct {
 	workload.Base
-
 	Resources *ApplicationResources `json:"resources"`
 }
 
@@ -107,63 +107,66 @@ type KafkaLagScalingStrategy struct {
 
 func (KafkaLagScalingStrategy) IsScalingStrategy() {}
 
-func toGraphApplication(a *nais_io_v1alpha1.Application, environmentName string) *Application {
-	r := &ApplicationResources{
+func toGraphApplicationResources(spec nais_io_v1alpha1.ApplicationSpec) *ApplicationResources {
+	ret := &ApplicationResources{
 		Limits:   &workload.WorkloadResourceQuantity{},
 		Requests: &workload.WorkloadResourceQuantity{},
 		Scaling:  &ApplicationScaling{},
 	}
 
-	q, err := resource.ParseQuantity(a.Spec.Resources.Limits.Cpu)
-	if err == nil {
-		r.Limits.CPU = q.AsApproximateFloat64()
+	if q, err := resource.ParseQuantity(spec.Resources.Limits.Cpu); err == nil {
+		ret.Limits.CPU = q.AsApproximateFloat64()
 	}
 
-	m, err := resource.ParseQuantity(a.Spec.Resources.Limits.Memory)
-	if err == nil {
-		r.Limits.Memory = m.Value()
+	if m, err := resource.ParseQuantity(spec.Resources.Limits.Memory); err == nil {
+		ret.Limits.Memory = m.Value()
 	}
 
-	q, err = resource.ParseQuantity(a.Spec.Resources.Requests.Cpu)
-	if err == nil {
-		r.Requests.CPU = q.AsApproximateFloat64()
+	if q, err := resource.ParseQuantity(spec.Resources.Requests.Cpu); err == nil {
+		ret.Requests.CPU = q.AsApproximateFloat64()
 	}
 
-	m, err = resource.ParseQuantity(a.Spec.Resources.Requests.Memory)
-	if err == nil {
-		r.Requests.Memory = m.Value()
+	if m, err := resource.ParseQuantity(spec.Resources.Requests.Memory); err == nil {
+		ret.Requests.Memory = m.Value()
 	}
 
-	if a.Spec.Replicas != nil {
-		if a.Spec.Replicas.Min != nil {
-			r.Scaling.MinInstances = *a.Spec.Replicas.Min
-		}
-		if a.Spec.Replicas.Max != nil {
-			r.Scaling.MaxInstances = *a.Spec.Replicas.Max
+	replicas := spec.Replicas
+	if replicas != nil {
+		if replicas.Min != nil {
+			ret.Scaling.MinInstances = *replicas.Min
 		}
 
-		if a.Spec.Replicas.ScalingStrategy != nil && a.Spec.Replicas.ScalingStrategy.Cpu != nil && a.Spec.Replicas.ScalingStrategy.Cpu.ThresholdPercentage > 0 {
-			r.Scaling.Strategies = append(r.Scaling.Strategies, CPUScalingStrategy{
-				Threshold: a.Spec.Replicas.ScalingStrategy.Cpu.ThresholdPercentage,
+		if replicas.Max != nil {
+			ret.Scaling.MaxInstances = *replicas.Max
+		}
+
+		strategy := replicas.ScalingStrategy
+		if strategy != nil && strategy.Cpu != nil && strategy.Cpu.ThresholdPercentage > 0 {
+			ret.Scaling.Strategies = append(ret.Scaling.Strategies, CPUScalingStrategy{
+				Threshold: strategy.Cpu.ThresholdPercentage,
 			})
 		}
 
-		if a.Spec.Replicas.ScalingStrategy != nil && a.Spec.Replicas.ScalingStrategy.Kafka != nil && a.Spec.Replicas.ScalingStrategy.Kafka.Threshold > 0 {
-			r.Scaling.Strategies = append(r.Scaling.Strategies, KafkaLagScalingStrategy{
-				Threshold:     a.Spec.Replicas.ScalingStrategy.Kafka.Threshold,
-				ConsumerGroup: a.Spec.Replicas.ScalingStrategy.Kafka.ConsumerGroup,
-				Topic:         a.Spec.Replicas.ScalingStrategy.Kafka.Topic,
+		if strategy != nil && strategy.Kafka != nil && strategy.Kafka.Threshold > 0 {
+			ret.Scaling.Strategies = append(ret.Scaling.Strategies, KafkaLagScalingStrategy{
+				Threshold:     strategy.Kafka.Threshold,
+				ConsumerGroup: strategy.Kafka.ConsumerGroup,
+				Topic:         strategy.Kafka.Topic,
 			})
 		}
 	}
 
+	return ret
+}
+
+func toGraphApplication(application *nais_io_v1alpha1.Application, environmentName string) *Application {
 	return &Application{
 		Base: workload.Base{
-			Name:            a.Name,
+			Name:            application.Name,
 			EnvironmentName: environmentName,
-			TeamSlug:        slug.Slug(a.Namespace),
-			ImageString:     a.Spec.Image,
+			TeamSlug:        slug.Slug(application.Namespace),
+			ImageString:     application.Spec.Image,
 		},
-		Resources: r,
+		Resources: toGraphApplicationResources(application.Spec),
 	}
 }

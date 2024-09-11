@@ -19,6 +19,7 @@ type (
 
 type Job struct {
 	workload.Base
+	Resources *JobResources `json:"resources"`
 }
 
 func (Job) IsNode()     {}
