@@ -743,8 +743,6 @@ type ContainerImageResolver interface {
 type JobResolver interface {
 	Team(ctx context.Context, obj *job.Job) (*team.Team, error)
 	Environment(ctx context.Context, obj *job.Job) (*team.TeamEnvironment, error)
-
-	Resources(ctx context.Context, obj *job.Job) (*job.JobResources, error)
 }
 type KafkaTopicResolver interface {
 	Team(ctx context.Context, obj *kafkatopic.KafkaTopic) (*team.Team, error)
@@ -11967,7 +11965,7 @@ func (ec *executionContext) _Job_resources(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Job().Resources(rctx, obj)
+		return obj.Resources, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11988,8 +11986,8 @@ func (ec *executionContext) fieldContext_Job_resources(_ context.Context, field 
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "limits":
@@ -29650,41 +29648,10 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "resources":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Job_resources(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._Job_resources(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -35940,10 +35907,6 @@ func (ec *executionContext) unmarshalNJobOrderField2githubᚗcomᚋnaisᚋapiᚋ
 
 func (ec *executionContext) marshalNJobOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobOrderField(ctx context.Context, sel ast.SelectionSet, v job.JobOrderField) graphql.Marshaler {
 	return v
-}
-
-func (ec *executionContext) marshalNJobResources2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobResources(ctx context.Context, sel ast.SelectionSet, v job.JobResources) graphql.Marshaler {
-	return ec._JobResources(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNJobResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobResources(ctx context.Context, sel ast.SelectionSet, v *job.JobResources) graphql.Marshaler {

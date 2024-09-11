@@ -5,11 +5,13 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/workload"
+	"github.com/nais/liberator/pkg/apis/nais.io/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 type (
@@ -81,12 +83,46 @@ type JobResources struct {
 
 func (JobResources) IsWorkloadResources() {}
 
-func toGraphJob(a *model.NaisJob) *Job {
+func toGraphJobResources(resources *nais_io_v1.ResourceRequirements) *JobResources {
+	ret := &JobResources{
+		Limits:   &workload.WorkloadResourceQuantity{},
+		Requests: &workload.WorkloadResourceQuantity{},
+	}
+
+	if resources == nil {
+		return ret
+	}
+
+	if resources.Limits != nil {
+		if q, err := resource.ParseQuantity(resources.Limits.Cpu); err == nil {
+			ret.Limits.CPU = q.AsApproximateFloat64()
+		}
+
+		if m, err := resource.ParseQuantity(resources.Limits.Memory); err == nil {
+			ret.Limits.Memory = m.Value()
+		}
+	}
+
+	if resources.Requests != nil {
+		if q, err := resource.ParseQuantity(resources.Requests.Cpu); err == nil {
+			ret.Requests.CPU = q.AsApproximateFloat64()
+		}
+
+		if m, err := resource.ParseQuantity(resources.Requests.Memory); err == nil {
+			ret.Requests.Memory = m.Value()
+		}
+	}
+
+	return ret
+}
+
+func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {
 	return &Job{
 		Base: workload.Base{
-			Name:            a.Name,
-			EnvironmentName: a.Env.Name,
-			TeamSlug:        a.GQLVars.Team,
+			Name:            job.Name,
+			EnvironmentName: environmentName,
+			TeamSlug:        slug.Slug(job.Namespace),
 		},
+		Resources: toGraphJobResources(job.Spec.Resources),
 	}
 }
