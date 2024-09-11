@@ -3,7 +3,6 @@ package graph
 import (
 	"context"
 	"fmt"
-	"github.com/nais/api/internal/vulnerabilities"
 	"slices"
 
 	"cloud.google.com/go/pubsub"
@@ -34,6 +33,7 @@ import (
 	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/unleash"
+	"github.com/nais/api/internal/vulnerabilities"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"

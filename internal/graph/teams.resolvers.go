@@ -23,6 +23,7 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/hookd"
+	"github.com/nais/api/internal/vulnerabilities"
 	"github.com/nais/api/pkg/protoapi"
 	"github.com/sourcegraph/conc/pool"
 	"k8s.io/utils/ptr"
@@ -1389,43 +1390,41 @@ func (r *teamResolver) Deployments(ctx context.Context, obj *model.Team, offset 
 }
 
 func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy, filter *model.VulnerabilityFilter) (*model.VulnerabilityList, error) {
+	images, err := r.vulnerabilities.GetMetadataForTeam(ctx, obj.Slug.String())
+	if err != nil {
+		return nil, fmt.Errorf("getting metadata for team %q: %w", obj.Slug.String(), err)
+	}
+
+	nodes := make([]*model.VulnerabilityNode, 0)
+	for _, image := range images {
+		for _, ref := range image.GQLVars.WorkloadReferences {
+			if filter != nil && len(filter.Envs) > 0 {
+				if !ref.ContainsEnv(filter.Envs) {
+					continue
+				}
+			}
+
+			nodes = append(nodes, &model.VulnerabilityNode{
+				ID:           scalar.VulnerabilitiesIdent(fmt.Sprintf("%s:%s:%s:%s:%s", ref.Environment, ref.Team, ref.Name, ref.WorkloadType, image.Name)),
+				WorkloadName: ref.Name,
+				WorkloadType: ref.WorkloadType,
+				Env:          ref.Environment,
+				Summary:      image.Summary,
+				HasBom:       image.HasSbom,
+			})
+		}
+	}
+
+	if orderBy != nil {
+		vulnerabilities.Sort(nodes, orderBy.Field, orderBy.Direction)
+	}
+
+	pagination := model.NewPagination(offset, limit)
+	workloads, pageInfo := model.PaginatedSlice(nodes, pagination)
+
 	return &model.VulnerabilityList{
-		Nodes: []*model.VulnerabilityNode{
-			{
-				ID: scalar.Ident{
-					ID:   "1",
-					Type: "vulnerability",
-				},
-				WorkloadName: "workload1",
-				Env:          "dev",
-				Summary: &model.VulnerabilitySummary{
-					RiskScore:  45,
-					Critical:   0,
-					High:       5,
-					Medium:     45,
-					Low:        1,
-					Unassigned: 0,
-				},
-				HasBom: true,
-			},
-			{
-				ID: scalar.Ident{
-					ID:   "2",
-					Type: "vulnerability",
-				},
-				WorkloadName: "workload2",
-				Env:          "dev",
-				Summary: &model.VulnerabilitySummary{
-					RiskScore:  123,
-					Critical:   1,
-					High:       5,
-					Medium:     20,
-					Low:        2,
-					Unassigned: 1,
-				},
-				HasBom: true,
-			},
-		},
+		Nodes:    workloads,
+		PageInfo: pageInfo,
 	}, nil
 }
 

@@ -39,3 +39,12 @@ type WorkloadReference struct {
 	WorkloadType string       `json:"workloadType"`
 	Environment  string       `json:"environment"`
 }
+
+func (w *WorkloadReference) ContainsEnv(envs []string) bool {
+	for _, e := range envs {
+		if w.Environment == e {
+			return true
+		}
+	}
+	return false
+}

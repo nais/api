@@ -20,18 +20,10 @@ extend enum OrderByField {
 type VulnerabilityNode {
   id: ID!
   workloadName: String!
+  workloadType: String!
   env: String!
-  summary: VulnerabilitySummary
+  summary: ImageVulnerabilitySummary
   hasBom: Boolean!
-}
-
-type VulnerabilitySummary {
-  riskScore: Int!
-  critical: Int!
-  high: Int!
-  medium: Int!
-  low: Int!
-  unassigned: Int!
 }
 
 type VulnerabilitySummaryForTeam {

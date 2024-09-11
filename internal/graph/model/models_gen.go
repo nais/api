@@ -980,20 +980,12 @@ type VulnerabilityList struct {
 }
 
 type VulnerabilityNode struct {
-	ID           scalar.Ident          `json:"id"`
-	WorkloadName string                `json:"workloadName"`
-	Env          string                `json:"env"`
-	Summary      *VulnerabilitySummary `json:"summary,omitempty"`
-	HasBom       bool                  `json:"hasBom"`
-}
-
-type VulnerabilitySummary struct {
-	RiskScore  int `json:"riskScore"`
-	Critical   int `json:"critical"`
-	High       int `json:"high"`
-	Medium     int `json:"medium"`
-	Low        int `json:"low"`
-	Unassigned int `json:"unassigned"`
+	ID           scalar.Ident               `json:"id"`
+	WorkloadName string                     `json:"workloadName"`
+	WorkloadType string                     `json:"workloadType"`
+	Env          string                     `json:"env"`
+	Summary      *ImageVulnerabilitySummary `json:"summary,omitempty"`
+	HasBom       bool                       `json:"hasBom"`
 }
 
 type VulnerabilitySummaryForTeam struct {
@@ -1230,22 +1222,6 @@ const (
 	OrderByFieldDeployed OrderByField = "DEPLOYED"
 	// Order by status
 	OrderByFieldStatus OrderByField = "STATUS"
-	// Order by appName.
-	OrderByFieldAppName OrderByField = "APP_NAME"
-	// Order by env.
-	OrderByFieldEnvName OrderByField = "ENV_NAME"
-	// Order by risk score
-	OrderByFieldRiskScore OrderByField = "RISK_SCORE"
-	// Order apps by vulnerability severity critical
-	OrderByFieldSeverityCritical OrderByField = "SEVERITY_CRITICAL"
-	// Order apps by vulnerability severity high
-	OrderByFieldSeverityHigh OrderByField = "SEVERITY_HIGH"
-	// Order apps by vulnerability severity medium
-	OrderByFieldSeverityMedium OrderByField = "SEVERITY_MEDIUM"
-	// Order apps by vulnerability severity low
-	OrderByFieldSeverityLow OrderByField = "SEVERITY_LOW"
-	// Order apps by vulnerability severity unassigned
-	OrderByFieldSeverityUnassigned OrderByField = "SEVERITY_UNASSIGNED"
 	// Order by severity.
 	OrderByFieldSeverity OrderByField = "SEVERITY"
 	// Order by packageUrl
@@ -1266,6 +1242,22 @@ const (
 	OrderByFieldDisk OrderByField = "DISK"
 	// Order by access
 	OrderByFieldAccess OrderByField = "ACCESS"
+	// Order by appName.
+	OrderByFieldAppName OrderByField = "APP_NAME"
+	// Order by env.
+	OrderByFieldEnvName OrderByField = "ENV_NAME"
+	// Order by risk score
+	OrderByFieldRiskScore OrderByField = "RISK_SCORE"
+	// Order apps by vulnerability severity critical
+	OrderByFieldSeverityCritical OrderByField = "SEVERITY_CRITICAL"
+	// Order apps by vulnerability severity high
+	OrderByFieldSeverityHigh OrderByField = "SEVERITY_HIGH"
+	// Order apps by vulnerability severity medium
+	OrderByFieldSeverityMedium OrderByField = "SEVERITY_MEDIUM"
+	// Order apps by vulnerability severity low
+	OrderByFieldSeverityLow OrderByField = "SEVERITY_LOW"
+	// Order apps by vulnerability severity unassigned
+	OrderByFieldSeverityUnassigned OrderByField = "SEVERITY_UNASSIGNED"
 )
 
 var AllOrderByField = []OrderByField{
@@ -1273,14 +1265,6 @@ var AllOrderByField = []OrderByField{
 	OrderByFieldEnv,
 	OrderByFieldDeployed,
 	OrderByFieldStatus,
-	OrderByFieldAppName,
-	OrderByFieldEnvName,
-	OrderByFieldRiskScore,
-	OrderByFieldSeverityCritical,
-	OrderByFieldSeverityHigh,
-	OrderByFieldSeverityMedium,
-	OrderByFieldSeverityLow,
-	OrderByFieldSeverityUnassigned,
 	OrderByFieldSeverity,
 	OrderByFieldPackageURL,
 	OrderByFieldState,
@@ -1291,11 +1275,19 @@ var AllOrderByField = []OrderByField{
 	OrderByFieldMemory,
 	OrderByFieldDisk,
 	OrderByFieldAccess,
+	OrderByFieldAppName,
+	OrderByFieldEnvName,
+	OrderByFieldRiskScore,
+	OrderByFieldSeverityCritical,
+	OrderByFieldSeverityHigh,
+	OrderByFieldSeverityMedium,
+	OrderByFieldSeverityLow,
+	OrderByFieldSeverityUnassigned,
 }
 
 func (e OrderByField) IsValid() bool {
 	switch e {
-	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned, OrderByFieldSeverity, OrderByFieldPackageURL, OrderByFieldState, OrderByFieldIsSuppressed, OrderByFieldVersion, OrderByFieldCost, OrderByFieldCPU, OrderByFieldMemory, OrderByFieldDisk, OrderByFieldAccess:
+	case OrderByFieldName, OrderByFieldEnv, OrderByFieldDeployed, OrderByFieldStatus, OrderByFieldSeverity, OrderByFieldPackageURL, OrderByFieldState, OrderByFieldIsSuppressed, OrderByFieldVersion, OrderByFieldCost, OrderByFieldCPU, OrderByFieldMemory, OrderByFieldDisk, OrderByFieldAccess, OrderByFieldAppName, OrderByFieldEnvName, OrderByFieldRiskScore, OrderByFieldSeverityCritical, OrderByFieldSeverityHigh, OrderByFieldSeverityMedium, OrderByFieldSeverityLow, OrderByFieldSeverityUnassigned:
 		return true
 	}
 	return false

@@ -1422,15 +1422,7 @@ type ComplexityRoot struct {
 		ID           func(childComplexity int) int
 		Summary      func(childComplexity int) int
 		WorkloadName func(childComplexity int) int
-	}
-
-	VulnerabilitySummary struct {
-		Critical   func(childComplexity int) int
-		High       func(childComplexity int) int
-		Low        func(childComplexity int) int
-		Medium     func(childComplexity int) int
-		RiskScore  func(childComplexity int) int
-		Unassigned func(childComplexity int) int
+		WorkloadType func(childComplexity int) int
 	}
 
 	VulnerabilitySummaryForTeam struct {
@@ -7770,47 +7762,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.VulnerabilityNode.WorkloadName(childComplexity), true
 
-	case "VulnerabilitySummary.critical":
-		if e.complexity.VulnerabilitySummary.Critical == nil {
+	case "VulnerabilityNode.workloadType":
+		if e.complexity.VulnerabilityNode.WorkloadType == nil {
 			break
 		}
 
-		return e.complexity.VulnerabilitySummary.Critical(childComplexity), true
-
-	case "VulnerabilitySummary.high":
-		if e.complexity.VulnerabilitySummary.High == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilitySummary.High(childComplexity), true
-
-	case "VulnerabilitySummary.low":
-		if e.complexity.VulnerabilitySummary.Low == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilitySummary.Low(childComplexity), true
-
-	case "VulnerabilitySummary.medium":
-		if e.complexity.VulnerabilitySummary.Medium == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilitySummary.Medium(childComplexity), true
-
-	case "VulnerabilitySummary.riskScore":
-		if e.complexity.VulnerabilitySummary.RiskScore == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilitySummary.RiskScore(childComplexity), true
-
-	case "VulnerabilitySummary.unassigned":
-		if e.complexity.VulnerabilitySummary.Unassigned == nil {
-			break
-		}
-
-		return e.complexity.VulnerabilitySummary.Unassigned(childComplexity), true
+		return e.complexity.VulnerabilityNode.WorkloadType(childComplexity), true
 
 	case "VulnerabilitySummaryForTeam.bomCount":
 		if e.complexity.VulnerabilitySummaryForTeam.BomCount == nil {
@@ -8794,68 +8751,6 @@ type CostEntry {
 
   "The cost in euros."
   cost: Float!
-}
-`, BuiltIn: false},
-	{Name: "../graphqls/dependencytrack.graphqls", Input: `extend enum OrderByField {
-  "Order by appName."
-  APP_NAME
-  "Order by env."
-  ENV_NAME
-  "Order by risk score"
-  RISK_SCORE
-  "Order apps by vulnerability severity critical"
-  SEVERITY_CRITICAL
-  "Order apps by vulnerability severity high"
-  SEVERITY_HIGH
-  "Order apps by vulnerability severity medium"
-  SEVERITY_MEDIUM
-  "Order apps by vulnerability severity low"
-  SEVERITY_LOW
-  "Order apps by vulnerability severity unassigned"
-  SEVERITY_UNASSIGNED
-}
-
-type VulnerabilityNode {
-  id: ID!
-  workloadName: String!
-  env: String!
-  summary: VulnerabilitySummary
-  hasBom: Boolean!
-}
-
-type VulnerabilitySummary {
-  riskScore: Int!
-  critical: Int!
-  high: Int!
-  medium: Int!
-  low: Int!
-  unassigned: Int!
-}
-
-type VulnerabilitySummaryForTeam {
-  riskScore: Int!
-  critical: Int!
-  high: Int!
-  medium: Int!
-  low: Int!
-  bomCount: Int!
-  unassigned: Int!
-  coverage: Float!
-  riskScoreTrend: Float!
-  totalWorkloads: Int!
-}
-
-type VulnerabilityList {
-  nodes: [VulnerabilityNode!]!
-  pageInfo: PageInfo!
-}
-
-input VulnerabilityFilter {
-  "Filter by environment"
-  envs: [String!]
-
-  "Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report."
-  requireSbom: Boolean
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/deploy.graphqls", Input: `extend type Query {
@@ -10823,6 +10718,60 @@ type UserList {
 type TeamMemberList {
   nodes: [TeamMember!]!
   pageInfo: PageInfo!
+}
+`, BuiltIn: false},
+	{Name: "../graphqls/vulnerabilities.graphqls", Input: `extend enum OrderByField {
+  "Order by appName."
+  APP_NAME
+  "Order by env."
+  ENV_NAME
+  "Order by risk score"
+  RISK_SCORE
+  "Order apps by vulnerability severity critical"
+  SEVERITY_CRITICAL
+  "Order apps by vulnerability severity high"
+  SEVERITY_HIGH
+  "Order apps by vulnerability severity medium"
+  SEVERITY_MEDIUM
+  "Order apps by vulnerability severity low"
+  SEVERITY_LOW
+  "Order apps by vulnerability severity unassigned"
+  SEVERITY_UNASSIGNED
+}
+
+type VulnerabilityNode {
+  id: ID!
+  workloadName: String!
+  workloadType: String!
+  env: String!
+  summary: ImageVulnerabilitySummary
+  hasBom: Boolean!
+}
+
+type VulnerabilitySummaryForTeam {
+  riskScore: Int!
+  critical: Int!
+  high: Int!
+  medium: Int!
+  low: Int!
+  bomCount: Int!
+  unassigned: Int!
+  coverage: Float!
+  riskScoreTrend: Float!
+  totalWorkloads: Int!
+}
+
+type VulnerabilityList {
+  nodes: [VulnerabilityNode!]!
+  pageInfo: PageInfo!
+}
+
+input VulnerabilityFilter {
+  "Filter by environment"
+  envs: [String!]
+
+  "Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report."
+  requireSbom: Boolean
 }
 `, BuiltIn: false},
 	{Name: "../graphqls/workload.graphqls", Input: `interface Workload {
@@ -55264,6 +55213,8 @@ func (ec *executionContext) fieldContext_VulnerabilityList_nodes(_ context.Conte
 				return ec.fieldContext_VulnerabilityNode_id(ctx, field)
 			case "workloadName":
 				return ec.fieldContext_VulnerabilityNode_workloadName(ctx, field)
+			case "workloadType":
+				return ec.fieldContext_VulnerabilityNode_workloadType(ctx, field)
 			case "env":
 				return ec.fieldContext_VulnerabilityNode_env(ctx, field)
 			case "summary":
@@ -55417,6 +55368,50 @@ func (ec *executionContext) fieldContext_VulnerabilityNode_workloadName(_ contex
 	return fc, nil
 }
 
+func (ec *executionContext) _VulnerabilityNode_workloadType(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityNode) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VulnerabilityNode_workloadType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.WorkloadType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VulnerabilityNode_workloadType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnerabilityNode",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _VulnerabilityNode_env(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilityNode) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_VulnerabilityNode_env(ctx, field)
 	if err != nil {
@@ -55484,9 +55479,9 @@ func (ec *executionContext) _VulnerabilityNode_summary(ctx context.Context, fiel
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.VulnerabilitySummary)
+	res := resTmp.(*model.ImageVulnerabilitySummary)
 	fc.Result = res
-	return ec.marshalOVulnerabilitySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilitySummary(ctx, field.Selections, res)
+	return ec.marshalOImageVulnerabilitySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐImageVulnerabilitySummary(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_VulnerabilityNode_summary(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -55497,20 +55492,24 @@ func (ec *executionContext) fieldContext_VulnerabilityNode_summary(_ context.Con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_ImageVulnerabilitySummary_id(ctx, field)
+			case "total":
+				return ec.fieldContext_ImageVulnerabilitySummary_total(ctx, field)
 			case "riskScore":
-				return ec.fieldContext_VulnerabilitySummary_riskScore(ctx, field)
+				return ec.fieldContext_ImageVulnerabilitySummary_riskScore(ctx, field)
 			case "critical":
-				return ec.fieldContext_VulnerabilitySummary_critical(ctx, field)
+				return ec.fieldContext_ImageVulnerabilitySummary_critical(ctx, field)
 			case "high":
-				return ec.fieldContext_VulnerabilitySummary_high(ctx, field)
+				return ec.fieldContext_ImageVulnerabilitySummary_high(ctx, field)
 			case "medium":
-				return ec.fieldContext_VulnerabilitySummary_medium(ctx, field)
+				return ec.fieldContext_ImageVulnerabilitySummary_medium(ctx, field)
 			case "low":
-				return ec.fieldContext_VulnerabilitySummary_low(ctx, field)
+				return ec.fieldContext_ImageVulnerabilitySummary_low(ctx, field)
 			case "unassigned":
-				return ec.fieldContext_VulnerabilitySummary_unassigned(ctx, field)
+				return ec.fieldContext_ImageVulnerabilitySummary_unassigned(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type VulnerabilitySummary", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilitySummary", field.Name)
 		},
 	}
 	return fc, nil
@@ -55555,270 +55554,6 @@ func (ec *executionContext) fieldContext_VulnerabilityNode_hasBom(_ context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilitySummary_riskScore(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilitySummary) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilitySummary_riskScore(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.RiskScore, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilitySummary_riskScore(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilitySummary",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilitySummary_critical(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilitySummary) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilitySummary_critical(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Critical, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilitySummary_critical(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilitySummary",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilitySummary_high(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilitySummary) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilitySummary_high(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.High, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilitySummary_high(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilitySummary",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilitySummary_medium(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilitySummary) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilitySummary_medium(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Medium, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilitySummary_medium(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilitySummary",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilitySummary_low(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilitySummary) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilitySummary_low(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Low, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilitySummary_low(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilitySummary",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _VulnerabilitySummary_unassigned(ctx context.Context, field graphql.CollectedField, obj *model.VulnerabilitySummary) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_VulnerabilitySummary_unassigned(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Unassigned, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_VulnerabilitySummary_unassigned(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilitySummary",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -73559,6 +73294,11 @@ func (ec *executionContext) _VulnerabilityNode(ctx context.Context, sel ast.Sele
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "workloadType":
+			out.Values[i] = ec._VulnerabilityNode_workloadType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "env":
 			out.Values[i] = ec._VulnerabilityNode_env(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -73568,70 +73308,6 @@ func (ec *executionContext) _VulnerabilityNode(ctx context.Context, sel ast.Sele
 			out.Values[i] = ec._VulnerabilityNode_summary(ctx, field, obj)
 		case "hasBom":
 			out.Values[i] = ec._VulnerabilityNode_hasBom(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var vulnerabilitySummaryImplementors = []string{"VulnerabilitySummary"}
-
-func (ec *executionContext) _VulnerabilitySummary(ctx context.Context, sel ast.SelectionSet, obj *model.VulnerabilitySummary) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, vulnerabilitySummaryImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("VulnerabilitySummary")
-		case "riskScore":
-			out.Values[i] = ec._VulnerabilitySummary_riskScore(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "critical":
-			out.Values[i] = ec._VulnerabilitySummary_critical(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "high":
-			out.Values[i] = ec._VulnerabilitySummary_high(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "medium":
-			out.Values[i] = ec._VulnerabilitySummary_medium(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "low":
-			out.Values[i] = ec._VulnerabilitySummary_low(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "unassigned":
-			out.Values[i] = ec._VulnerabilitySummary_unassigned(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -79440,13 +79116,6 @@ func (ec *executionContext) unmarshalOVulnerabilityFilter2ᚖgithubᚗcomᚋnais
 	}
 	res, err := ec.unmarshalInputVulnerabilityFilter(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOVulnerabilitySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐVulnerabilitySummary(ctx context.Context, sel ast.SelectionSet, v *model.VulnerabilitySummary) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._VulnerabilitySummary(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkload(ctx context.Context, sel ast.SelectionSet, v model.Workload) graphql.Marshaler {
