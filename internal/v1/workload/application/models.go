@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/workload"
+	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"k8s.io/apimachinery/pkg/api/resource"
 )
@@ -106,30 +107,36 @@ type KafkaLagScalingStrategy struct {
 
 func (KafkaLagScalingStrategy) IsScalingStrategy() {}
 
-func toGraphApplicationResources(spec nais_io_v1alpha1.ApplicationSpec) *ApplicationResources {
+func toGraphApplicationResources(resources *nais_io_v1.ResourceRequirements, replicas *nais_io_v1.Replicas) *ApplicationResources {
 	ret := &ApplicationResources{
 		Limits:   &workload.WorkloadResourceQuantity{},
 		Requests: &workload.WorkloadResourceQuantity{},
 		Scaling:  &ApplicationScaling{},
 	}
 
-	if q, err := resource.ParseQuantity(spec.Resources.Limits.Cpu); err == nil {
-		ret.Limits.CPU = q.AsApproximateFloat64()
+	if resources != nil {
+		if resources.Limits != nil {
+			if q, err := resource.ParseQuantity(resources.Limits.Cpu); err == nil {
+				ret.Limits.CPU = q.AsApproximateFloat64()
+			}
+
+			if m, err := resource.ParseQuantity(resources.Limits.Memory); err == nil {
+				ret.Limits.Memory = m.Value()
+			}
+		}
+
+		if resources.Requests != nil {
+			if q, err := resource.ParseQuantity(resources.Requests.Cpu); err == nil {
+				ret.Requests.CPU = q.AsApproximateFloat64()
+			}
+
+			if m, err := resource.ParseQuantity(resources.Requests.Memory); err == nil {
+				ret.Requests.Memory = m.Value()
+			}
+		}
+
 	}
 
-	if m, err := resource.ParseQuantity(spec.Resources.Limits.Memory); err == nil {
-		ret.Limits.Memory = m.Value()
-	}
-
-	if q, err := resource.ParseQuantity(spec.Resources.Requests.Cpu); err == nil {
-		ret.Requests.CPU = q.AsApproximateFloat64()
-	}
-
-	if m, err := resource.ParseQuantity(spec.Resources.Requests.Memory); err == nil {
-		ret.Requests.Memory = m.Value()
-	}
-
-	replicas := spec.Replicas
 	if replicas != nil {
 		if replicas.Min != nil {
 			ret.Scaling.MinInstances = *replicas.Min
@@ -166,6 +173,6 @@ func toGraphApplication(application *nais_io_v1alpha1.Application, environmentNa
 			TeamSlug:        slug.Slug(application.Namespace),
 			ImageString:     application.Spec.Image,
 		},
-		Resources: toGraphApplicationResources(application.Spec),
+		Resources: toGraphApplicationResources(application.Spec.Resources, application.Spec.Replicas),
 	}
 }
