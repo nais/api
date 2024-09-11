@@ -36,6 +36,8 @@ spec:
         cascadingDelete: true
       - name: donotdelete_bq
         permission: READWRITE
+      - name: contests
+        permission: READWRITE
     buckets:
       - name: deleteme_bucket
         cascadingDelete: true

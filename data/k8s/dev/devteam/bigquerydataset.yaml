@@ -8,7 +8,7 @@ metadata:
   labels:
     app: app-w-all-storage
     team: devteam
-  name: devteam-blobstorage
+  name: app-w-all-storage-deleteme_bq-23424asf324
   namespace: devteam
   ownerReferences:
     - apiVersion: nais.io/v1alpha1
@@ -22,7 +22,7 @@ spec:
     - role: WRITER
       userByEmail: devteam--devteam-xwdklji@nais-dev-xyza.iam.gserviceaccount.com
   location: europe-north1
-  name: devteam_metrikker
+  name: deleteme_bq
   project: devteam-dev-1234
 status:
   conditions:

@@ -11,6 +11,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/loaderv1"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/persistence"
 	"github.com/nais/api/internal/v1/persistence/bigquery"
 	"github.com/nais/api/internal/v1/persistence/bucket"
 	"github.com/nais/api/internal/v1/persistence/kafkatopic"
@@ -19,8 +20,38 @@ import (
 	"github.com/nais/api/internal/v1/persistence/sqlinstance"
 	"github.com/nais/api/internal/v1/team"
 	"github.com/nais/api/internal/v1/workload"
+	"github.com/nais/api/internal/v1/workload/application"
+	"github.com/nais/api/internal/v1/workload/job"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+func (r *applicationResolver) BigQueryDatasets(ctx context.Context, obj *application.Application, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error) {
+	if obj.Spec.GCP == nil {
+		return pagination.EmptyConnection[*bigquery.BigQueryDataset](), nil
+	}
+
+	return bigquery.ListForWorkload(ctx, obj.TeamSlug, obj.Spec.GCP.BigQueryDatasets, orderBy)
+}
+
+func (r *applicationResolver) RedisInstances(ctx context.Context, obj *application.Application, orderBy *redis.RedisInstanceOrder) (*pagination.Connection[*redis.RedisInstance], error) {
+	return redis.ListForWorkload(ctx, obj.TeamSlug, obj.Spec.Redis, orderBy)
+}
+
+func (r *applicationResolver) OpenSearch(ctx context.Context, obj *application.Application, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error) {
+	panic(fmt.Errorf("not implemented: OpenSearch - openSearch"))
+}
+
+func (r *applicationResolver) Buckets(ctx context.Context, obj *application.Application, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error) {
+	panic(fmt.Errorf("not implemented: Buckets - buckets"))
+}
+
+func (r *applicationResolver) KafkaTopics(ctx context.Context, obj *application.Application, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error) {
+	panic(fmt.Errorf("not implemented: KafkaTopics - kafkaTopics"))
+}
+
+func (r *applicationResolver) SQLInstances(ctx context.Context, obj *application.Application, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error) {
+	panic(fmt.Errorf("not implemented: SQLInstances - sqlInstances"))
+}
 
 func (r *bigQueryDatasetResolver) Team(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
@@ -83,6 +114,34 @@ func (r *bucketResolver) Cors(ctx context.Context, obj *bucket.Bucket, first *in
 
 func (r *bucketResolver) Workload(ctx context.Context, obj *bucket.Bucket) (workload.Workload, error) {
 	return r.workload(ctx, obj.OwnerReference, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *jobResolver) BigQueryDatasets(ctx context.Context, obj *job.Job, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error) {
+	if obj.Spec.GCP == nil {
+		return pagination.EmptyConnection[*bigquery.BigQueryDataset](), nil
+	}
+
+	return bigquery.ListForWorkload(ctx, obj.TeamSlug, obj.Spec.GCP.BigQueryDatasets, orderBy)
+}
+
+func (r *jobResolver) RedisInstances(ctx context.Context, obj *job.Job, orderBy *redis.RedisInstanceOrder) (*pagination.Connection[*redis.RedisInstance], error) {
+	return redis.ListForWorkload(ctx, obj.TeamSlug, obj.Spec.Redis, orderBy)
+}
+
+func (r *jobResolver) OpenSearch(ctx context.Context, obj *job.Job, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error) {
+	panic(fmt.Errorf("not implemented: OpenSearch - openSearch"))
+}
+
+func (r *jobResolver) Buckets(ctx context.Context, obj *job.Job, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error) {
+	panic(fmt.Errorf("not implemented: Buckets - buckets"))
+}
+
+func (r *jobResolver) KafkaTopics(ctx context.Context, obj *job.Job, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error) {
+	panic(fmt.Errorf("not implemented: KafkaTopics - kafkaTopics"))
+}
+
+func (r *jobResolver) SQLInstances(ctx context.Context, obj *job.Job, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error) {
+	panic(fmt.Errorf("not implemented: SQLInstances - sqlInstances"))
 }
 
 func (r *kafkaTopicResolver) Team(ctx context.Context, obj *kafkatopic.KafkaTopic) (*team.Team, error) {
@@ -210,7 +269,14 @@ func (r *redisInstanceResolver) Workload(ctx context.Context, obj *redis.RedisIn
 }
 
 func (r *redisInstanceAccessResolver) Workload(ctx context.Context, obj *redis.RedisInstanceAccess) (workload.Workload, error) {
-	return r.workload(ctx, obj.OwnerReference, obj.TeamSlug, obj.EnvironmentName)
+	switch obj.WorkloadReference.Type {
+	case persistence.WorkloadTypeApplication:
+		return application.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name)
+	case persistence.WorkloadTypeJob:
+		return job.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name)
+	default:
+		return nil, fmt.Errorf("unknown workload type: %v", obj.WorkloadReference.Type)
+	}
 }
 
 func (r *sqlDatabaseResolver) Team(ctx context.Context, obj *sqlinstance.SQLDatabase) (*team.Team, error) {

@@ -27,6 +27,7 @@ type (
 )
 
 type BigQueryDataset struct {
+	// Name equals to the Instance name, not the kubernetes resource name
 	Name            string                   `json:"name"`
 	Description     *string                  `json:"description,omitempty"`
 	CascadingDelete bool                     `json:"cascadingDelete"`
@@ -37,6 +38,7 @@ type BigQueryDataset struct {
 	EnvironmentName string                   `json:"-"`
 	OwnerReference  *metav1.OwnerReference   `json:"-"`
 	ProjectID       string                   `json:"-"`
+	K8sResourceName string                   `json:"-"`
 }
 
 func (BigQueryDataset) IsPersistence() {}
@@ -186,7 +188,8 @@ func toBigQueryDataset(u *unstructured.Unstructured, environmentName string) (*B
 	}
 
 	ret := &BigQueryDataset{
-		Name:            obj.GetName(),
+		Name:            obj.Spec.Name,
+		K8sResourceName: obj.Name,
 		CascadingDelete: obj.Spec.CascadingDelete,
 		Access:          toBigQueryDatasetAccess(obj.Spec.Access),
 		Location:        obj.Spec.Location,

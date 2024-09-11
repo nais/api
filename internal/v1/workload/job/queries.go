@@ -11,12 +11,7 @@ import (
 )
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *JobOrder) (*JobConnection, error) {
-	allJobs := fromContext(ctx).jobWatcher.GetByNamespace(teamSlug.String())
-	ret := make([]*Job, len(allJobs))
-	for i, obj := range allJobs {
-		ret[i] = toGraphJob(obj.Obj, obj.Cluster)
-	}
-
+	ret := ListAllForTeam(ctx, teamSlug)
 	if orderBy != nil {
 		switch orderBy.Field {
 		case JobOrderFieldName:
@@ -35,7 +30,17 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	}
 
 	jobs := pagination.Slice(ret, page)
-	return pagination.NewConnection(jobs, page, int32(len(allJobs))), nil
+	return pagination.NewConnection(jobs, page, int32(len(ret))), nil
+}
+
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*Job {
+	allJobs := fromContext(ctx).jobWatcher.GetByNamespace(teamSlug.String())
+	ret := make([]*Job, len(allJobs))
+	for i, obj := range allJobs {
+		ret[i] = toGraphJob(obj.Obj, obj.Cluster)
+	}
+
+	return ret
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Job, error) {

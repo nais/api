@@ -14,6 +14,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 type (
@@ -35,15 +36,29 @@ func (RedisInstance) IsPersistence() {}
 
 func (RedisInstance) IsNode() {}
 
+func (r *RedisInstance) GetName() string { return r.Name }
+
+func (r *RedisInstance) GetNamespace() string { return r.TeamSlug.String() }
+
+func (r *RedisInstance) GetLabels() map[string]string { return nil }
+
+func (r *RedisInstance) GetObjectKind() schema.ObjectKind {
+	return schema.EmptyObjectKind
+}
+
+func (r *RedisInstance) DeepCopyObject() runtime.Object {
+	return r
+}
+
 func (r RedisInstance) ID() ident.Ident {
 	return newIdent(r.TeamSlug, r.EnvironmentName, r.Name)
 }
 
 type RedisInstanceAccess struct {
-	Access          string                 `json:"access"`
-	TeamSlug        slug.Slug              `json:"-"`
-	EnvironmentName string                 `json:"-"`
-	OwnerReference  *metav1.OwnerReference `json:"-"`
+	Access            string                        `json:"access"`
+	TeamSlug          slug.Slug                     `json:"-"`
+	EnvironmentName   string                        `json:"-"`
+	WorkloadReference persistence.WorkloadReference `json:"-"`
 }
 
 type RedisInstanceStatus struct {

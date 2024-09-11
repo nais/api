@@ -11,14 +11,7 @@ import (
 )
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *ApplicationOrder) (*ApplicationConnection, error) {
-	k8s := fromContext(ctx).appWatcher
-
-	allApplications := k8s.GetByNamespace(teamSlug.String())
-
-	ret := make([]*Application, len(allApplications))
-	for i, obj := range allApplications {
-		ret[i] = toGraphApplication(obj.Obj, obj.Cluster)
-	}
+	ret := ListAllForTeam(ctx, teamSlug)
 
 	if orderBy == nil {
 		orderBy = &ApplicationOrder{
@@ -45,7 +38,19 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	}
 
 	apps := pagination.Slice(ret, page)
-	return pagination.NewConnection(apps, page, int32(len(allApplications))), nil
+	return pagination.NewConnection(apps, page, int32(len(ret))), nil
+}
+
+func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*Application {
+	k8s := fromContext(ctx).appWatcher
+
+	allApplications := k8s.GetByNamespace(teamSlug.String())
+
+	ret := make([]*Application, len(allApplications))
+	for i, obj := range allApplications {
+		ret[i] = toGraphApplication(obj.Obj, obj.Cluster)
+	}
+	return ret
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Application, error) {

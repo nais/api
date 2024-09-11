@@ -27,3 +27,15 @@ func OwnerReference(refs []metav1.OwnerReference) *metav1.OwnerReference {
 	}
 	return nil
 }
+
+type WorkloadReference struct {
+	Name string
+	Type WorkloadType
+}
+
+type WorkloadType int
+
+const (
+	WorkloadTypeApplication WorkloadType = iota
+	WorkloadTypeJob
+)

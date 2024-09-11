@@ -37,6 +37,22 @@ func NewConvertConnection[T any, F any](nodes []T, page *Pagination, total int32
 	return c
 }
 
+func NewConnectionWithoutPagination[T any](nodes []T) *Connection[T] {
+	page := &Pagination{
+		limit: int32(len(nodes)),
+	}
+	return NewConnection(nodes, page, int32(len(nodes)))
+}
+
+func EmptyConnection[T any]() *Connection[T] {
+	return &Connection[T]{
+		Edges: []Edge[T]{},
+		PageInfo: PageInfo{
+			TotalCount: 0,
+		},
+	}
+}
+
 func NewConvertConnectionWithError[T any, F any](nodes []T, page *Pagination, total int32, fn func(from T) (F, error)) (*Connection[F], error) {
 	edges := make([]Edge[F], len(nodes))
 	for i, node := range nodes {

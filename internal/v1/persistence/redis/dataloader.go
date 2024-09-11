@@ -3,17 +3,36 @@ package redis
 import (
 	"context"
 
-	"github.com/nais/api/internal/k8s"
-	"github.com/nais/api/internal/v1/graphv1/loaderv1"
-	"github.com/vikstrous/dataloadgen"
+	"github.com/nais/api/internal/v1/kubernetes/watcher"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, k8sClient *k8s.Client, defaultOpts []dataloadgen.Option) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(k8sClient, defaultOpts))
+func NewLoaderContext(ctx context.Context, redisWatcher *watcher.Watcher[*RedisInstance]) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(redisWatcher))
+}
+
+func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*RedisInstance] {
+	w := watcher.Watch(mgr, &RedisInstance{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
+		if o.GetKind() != "Redis" {
+			return nil, false
+		}
+		ret, err := toRedisInstance(o, environmentName)
+		if err != nil {
+			return nil, false
+		}
+		return ret, true
+	}), watcher.WithGVR(schema.GroupVersionResource{
+		Group:    "aiven.io",
+		Version:  "v1alpha1",
+		Resource: "redis",
+	}))
+	w.Start(ctx)
+	return w
 }
 
 func fromContext(ctx context.Context) *loaders {
@@ -21,42 +40,15 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	k8sClient   *client
-	redisLoader *dataloadgen.Loader[resourceIdentifier, *RedisInstance]
+	client *client
 }
 
-func newLoaders(k8sClient *k8s.Client, opts []dataloadgen.Option) *loaders {
+func newLoaders(watcher *watcher.Watcher[*RedisInstance]) *loaders {
 	client := &client{
-		informers: k8sClient.Informers(),
-	}
-
-	redisLoader := &dataloader{
-		k8sClient: client,
+		watcher: watcher,
 	}
 
 	return &loaders{
-		k8sClient:   client,
-		redisLoader: dataloadgen.NewLoader(redisLoader.list, opts...),
+		client: client,
 	}
-}
-
-type dataloader struct {
-	k8sClient *client
-}
-
-type resourceIdentifier struct {
-	namespace   string
-	environment string
-	name        string
-}
-
-func (l dataloader) list(ctx context.Context, ids []resourceIdentifier) ([]*RedisInstance, []error) {
-	makeKey := func(obj *RedisInstance) resourceIdentifier {
-		return resourceIdentifier{
-			namespace:   obj.TeamSlug.String(),
-			environment: obj.EnvironmentName,
-			name:        obj.Name,
-		}
-	}
-	return loaderv1.LoadModels(ctx, ids, l.k8sClient.getRedisInstances, func(d *RedisInstance) *RedisInstance { return d }, makeKey)
 }

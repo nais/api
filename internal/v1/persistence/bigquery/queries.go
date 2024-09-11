@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
+	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*BigQueryDataset, error) {
@@ -32,6 +33,29 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	all := fromContext(ctx).watcher.GetByNamespace(teamSlug.String())
 	ret := watcher.Objects(all)
 
+	orderDatasets(ret, orderBy)
+
+	datasets := pagination.Slice(ret, page)
+	return pagination.NewConnection(datasets, page, int32(len(ret))), nil
+}
+
+func ListForWorkload(ctx context.Context, teamSlug slug.Slug, datasets []nais_io_v1.CloudBigQueryDataset, orderBy *BigQueryDatasetOrder) (*BigQueryDatasetConnection, error) {
+	all := fromContext(ctx).watcher.GetByNamespace(teamSlug.String())
+	ret := make([]*BigQueryDataset, 0)
+
+	for _, dataset := range datasets {
+		for _, d := range all {
+			if d.Obj.Name == dataset.Name {
+				ret = append(ret, d.Obj)
+			}
+		}
+	}
+
+	orderDatasets(ret, orderBy)
+	return pagination.NewConnectionWithoutPagination(ret), nil
+}
+
+func orderDatasets(datasets []*BigQueryDataset, orderBy *BigQueryDatasetOrder) {
 	if orderBy == nil {
 		orderBy = &BigQueryDatasetOrder{
 			Field:     BigQueryDatasetOrderFieldName,
@@ -40,15 +64,12 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	}
 	switch orderBy.Field {
 	case BigQueryDatasetOrderFieldName:
-		slices.SortStableFunc(ret, func(a, b *BigQueryDataset) int {
+		slices.SortStableFunc(datasets, func(a, b *BigQueryDataset) int {
 			return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
 		})
 	case BigQueryDatasetOrderFieldEnvironment:
-		slices.SortStableFunc(ret, func(a, b *BigQueryDataset) int {
+		slices.SortStableFunc(datasets, func(a, b *BigQueryDataset) int {
 			return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
 		})
 	}
-
-	datasets := pagination.Slice(ret, page)
-	return pagination.NewConnection(datasets, page, int32(len(ret))), nil
 }

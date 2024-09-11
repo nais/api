@@ -85,6 +85,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 	appWatcher := application.NewWatcher(ctx, watcherMgr)
 	jobWatcher := job.NewWatcher(ctx, watcherMgr)
 	bqWatcher := bigquery.NewWatcher(ctx, watcherMgr)
+	redisWatcher := redis.NewWatcher(ctx, watcherMgr)
 
 	syncCtx, cancelSync := context.WithTimeout(ctx, 20*time.Second)
 	defer cancelSync()
@@ -108,7 +109,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 			ctx = job.NewLoaderContext(ctx, jobWatcher)
 			ctx = kafkatopic.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = opensearch.NewLoaderContext(ctx, k8sClient, opts)
-			ctx = redis.NewLoaderContext(ctx, k8sClient, opts)
+			ctx = redis.NewLoaderContext(ctx, redisWatcher)
 			ctx = sqlinstance.NewLoaderContext(ctx, k8sClient, sqlAdminService, opts)
 			pool := db.GetPool()
 			ctx = databasev1.NewLoaderContext(ctx, pool)
