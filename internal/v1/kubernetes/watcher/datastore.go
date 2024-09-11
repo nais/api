@@ -1,7 +1,6 @@
 package watcher
 
 import (
-	"errors"
 	"slices"
 	"strings"
 	"sync"
@@ -9,7 +8,23 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 )
 
-var ErrNotFound = errors.New("not found")
+type ErrorNotFound struct {
+	Cluster   string
+	Namespace string
+	Name      string
+}
+
+func (e *ErrorNotFound) Error() string {
+	return "not found: " + e.Cluster + "/" + e.Namespace + "/" + e.Name
+}
+
+func (e *ErrorNotFound) As(v any) bool {
+	if _, ok := v.(*ErrorNotFound); ok {
+		return true
+	}
+
+	return false
+}
 
 type Filter func(obj Object, cluster string) bool
 
@@ -188,5 +203,5 @@ func (d *DataStore[T]) Get(cluster, namespace, name string) (T, error) {
 		}
 	}
 	var t T
-	return t, ErrNotFound
+	return t, &ErrorNotFound{Cluster: cluster, Namespace: namespace, Name: name}
 }
