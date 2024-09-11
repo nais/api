@@ -14,6 +14,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 type (
@@ -24,26 +25,40 @@ type (
 )
 
 type OpenSearch struct {
-	Name            string                 `json:"name"`
-	Status          *OpenSearchStatus      `json:"status"`
-	TeamSlug        slug.Slug              `json:"-"`
-	EnvironmentName string                 `json:"-"`
-	OwnerReference  *metav1.OwnerReference `json:"-"`
+	Name              string                         `json:"name"`
+	Status            *OpenSearchStatus              `json:"status"`
+	TeamSlug          slug.Slug                      `json:"-"`
+	EnvironmentName   string                         `json:"-"`
+	WorkloadReference *persistence.WorkloadReference `json:"-"`
 }
 
 func (OpenSearch) IsPersistence() {}
 
 func (OpenSearch) IsNode() {}
 
+func (r *OpenSearch) GetName() string { return r.Name }
+
+func (r *OpenSearch) GetNamespace() string { return r.TeamSlug.String() }
+
+func (r *OpenSearch) GetLabels() map[string]string { return nil }
+
+func (r *OpenSearch) GetObjectKind() schema.ObjectKind {
+	return schema.EmptyObjectKind
+}
+
+func (r *OpenSearch) DeepCopyObject() runtime.Object {
+	return r
+}
+
 func (o OpenSearch) ID() ident.Ident {
 	return newIdent(o.TeamSlug, o.EnvironmentName, o.Name)
 }
 
 type OpenSearchAccess struct {
-	Access          string                 `json:"access"`
-	TeamSlug        slug.Slug              `json:"-"`
-	EnvironmentName string                 `json:"-"`
-	OwnerReference  *metav1.OwnerReference `json:"-"`
+	Access            string                         `json:"access"`
+	TeamSlug          slug.Slug                      `json:"-"`
+	EnvironmentName   string                         `json:"-"`
+	WorkloadReference *persistence.WorkloadReference `json:"-"`
 }
 
 type OpenSearchStatus struct {
@@ -147,7 +162,7 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 			Conditions: obj.Status.Conditions,
 			State:      obj.Status.State,
 		},
-		TeamSlug:       slug.Slug(obj.GetNamespace()),
-		OwnerReference: persistence.OwnerReference(obj.OwnerReferences),
+		TeamSlug:          slug.Slug(obj.GetNamespace()),
+		WorkloadReference: persistence.WorkloadReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 	}, nil
 }

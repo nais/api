@@ -14,7 +14,6 @@ import (
 	"github.com/nais/api/internal/v1/persistence"
 	"google.golang.org/api/sqladmin/v1"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/utils/ptr"
@@ -66,7 +65,7 @@ type SQLInstance struct {
 	Flags               []*SQLInstanceFlag              `json:"-"`
 	EnvironmentName     string                          `json:"-"`
 	TeamSlug            slug.Slug                       `json:"-"`
-	OwnerReference      *metav1.OwnerReference          `json:"-"`
+	WorkloadReference   *persistence.WorkloadReference  `json:"-"`
 }
 
 func (SQLInstance) IsPersistence() {}
@@ -303,7 +302,7 @@ func toSQLInstance(u *unstructured.Unstructured, environmentName string) (*SQLIn
 		Status:              toSQLInstanceStatus(obj.Status),
 		EnvironmentName:     environmentName,
 		TeamSlug:            slug.Slug(obj.GetNamespace()),
-		OwnerReference:      persistence.OwnerReference(obj.OwnerReferences),
+		WorkloadReference:   persistence.WorkloadReferenceFromOwnerReferences(obj.OwnerReferences),
 		Flags:               toSQLInstanceFlags(obj.Spec.Settings.DatabaseFlags),
 	}, nil
 }

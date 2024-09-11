@@ -129,11 +129,8 @@ extend interface Workload {
 		orderBy: RedisInstanceOrder
 	): RedisInstanceConnection!
 
-	"OpenSearch instances referenced by the workload. This does not currently support pagination, but will return all available OpenSearch instances."
-	openSearch(
-		"Ordering options for items returned from the connection."
-		orderBy: OpenSearchOrder
-	): OpenSearchConnection!
+	"OpenSearch instance referenced by the workload."
+	openSearch: OpenSearch
 
 	"Google Cloud Storage referenced by the workload. This does not currently support pagination, but will return all available buckets."
 	buckets(
@@ -171,11 +168,8 @@ extend type Application {
 		orderBy: RedisInstanceOrder
 	): RedisInstanceConnection!
 
-	"OpenSearch instances referenced by the application. This does not currently support pagination, but will return all available OpenSearch instances."
-	openSearch(
-		"Ordering options for items returned from the connection."
-		orderBy: OpenSearchOrder
-	): OpenSearchConnection!
+	"OpenSearch instance referenced by the workload."
+	openSearch: OpenSearch
 
 	"Google Cloud Storage referenced by the application. This does not currently support pagination, but will return all available buckets."
 	buckets(
@@ -213,11 +207,8 @@ extend type Job {
 		orderBy: RedisInstanceOrder
 	): RedisInstanceConnection!
 
-	"OpenSearch instances referenced by the job. This does not currently support pagination, but will return all available OpenSearch instances."
-	openSearch(
-		"Ordering options for items returned from the connection."
-		orderBy: OpenSearchOrder
-	): OpenSearchConnection!
+	"OpenSearch instance referenced by the workload."
+	openSearch: OpenSearch
 
 	"Google Cloud Storage referenced by the job. This does not currently support pagination, but will return all available buckets."
 	buckets(

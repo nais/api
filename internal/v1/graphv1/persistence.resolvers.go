@@ -22,7 +22,6 @@ import (
 	"github.com/nais/api/internal/v1/workload"
 	"github.com/nais/api/internal/v1/workload/application"
 	"github.com/nais/api/internal/v1/workload/job"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func (r *applicationResolver) BigQueryDatasets(ctx context.Context, obj *application.Application, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error) {
@@ -37,8 +36,8 @@ func (r *applicationResolver) RedisInstances(ctx context.Context, obj *applicati
 	return redis.ListForWorkload(ctx, obj.TeamSlug, obj.Spec.Redis, orderBy)
 }
 
-func (r *applicationResolver) OpenSearch(ctx context.Context, obj *application.Application, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error) {
-	panic(fmt.Errorf("not implemented: OpenSearch - openSearch"))
+func (r *applicationResolver) OpenSearch(ctx context.Context, obj *application.Application) (*opensearch.OpenSearch, error) {
+	return opensearch.GetForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.OpenSearch)
 }
 
 func (r *applicationResolver) Buckets(ctx context.Context, obj *application.Application, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error) {
@@ -86,7 +85,7 @@ func (r *bigQueryDatasetResolver) Access(ctx context.Context, obj *bigquery.BigQ
 }
 
 func (r *bigQueryDatasetResolver) Workload(ctx context.Context, obj *bigquery.BigQueryDataset) (workload.Workload, error) {
-	return r.workload(ctx, obj.OwnerReference, obj.TeamSlug, obj.EnvironmentName)
+	return r.workload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *bigQueryDatasetResolver) Cost(ctx context.Context, obj *bigquery.BigQueryDataset) (float64, error) {
@@ -113,7 +112,7 @@ func (r *bucketResolver) Cors(ctx context.Context, obj *bucket.Bucket, first *in
 }
 
 func (r *bucketResolver) Workload(ctx context.Context, obj *bucket.Bucket) (workload.Workload, error) {
-	return r.workload(ctx, obj.OwnerReference, obj.TeamSlug, obj.EnvironmentName)
+	return r.workload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *jobResolver) BigQueryDatasets(ctx context.Context, obj *job.Job, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error) {
@@ -128,7 +127,7 @@ func (r *jobResolver) RedisInstances(ctx context.Context, obj *job.Job, orderBy 
 	return redis.ListForWorkload(ctx, obj.TeamSlug, obj.Spec.Redis, orderBy)
 }
 
-func (r *jobResolver) OpenSearch(ctx context.Context, obj *job.Job, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error) {
+func (r *jobResolver) OpenSearch(ctx context.Context, obj *job.Job) (*opensearch.OpenSearch, error) {
 	panic(fmt.Errorf("not implemented: OpenSearch - openSearch"))
 }
 
@@ -207,10 +206,11 @@ func (r *kafkaTopicAclResolver) Workload(ctx context.Context, obj *kafkatopic.Ka
 		return nil, nil
 	}
 
-	owner := &metav1.OwnerReference{
-		Kind: "Application",
+	owner := &persistence.WorkloadReference{
+		Type: persistence.WorkloadTypeApplication,
 		Name: obj.ApplicationName,
 	}
+
 	return r.workload(ctx, owner, slug.Slug(obj.TeamName), obj.EnvironmentName)
 }
 
@@ -223,7 +223,7 @@ func (r *openSearchResolver) Environment(ctx context.Context, obj *opensearch.Op
 }
 
 func (r *openSearchResolver) Workload(ctx context.Context, obj *opensearch.OpenSearch) (workload.Workload, error) {
-	return r.workload(ctx, obj.OwnerReference, obj.TeamSlug, obj.EnvironmentName)
+	return r.workload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *openSearchResolver) Access(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchAccessOrder) (*pagination.Connection[*opensearch.OpenSearchAccess], error) {
@@ -240,7 +240,7 @@ func (r *openSearchResolver) Cost(ctx context.Context, obj *opensearch.OpenSearc
 }
 
 func (r *openSearchAccessResolver) Workload(ctx context.Context, obj *opensearch.OpenSearchAccess) (workload.Workload, error) {
-	return r.workload(ctx, obj.OwnerReference, obj.TeamSlug, obj.EnvironmentName)
+	return r.workload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *redisInstanceResolver) Team(ctx context.Context, obj *redis.RedisInstance) (*team.Team, error) {
@@ -265,7 +265,7 @@ func (r *redisInstanceResolver) Cost(ctx context.Context, obj *redis.RedisInstan
 }
 
 func (r *redisInstanceResolver) Workload(ctx context.Context, obj *redis.RedisInstance) (workload.Workload, error) {
-	return r.workload(ctx, obj.OwnerReference, obj.TeamSlug, obj.EnvironmentName)
+	return r.workload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *redisInstanceAccessResolver) Workload(ctx context.Context, obj *redis.RedisInstanceAccess) (workload.Workload, error) {
@@ -296,7 +296,7 @@ func (r *sqlInstanceResolver) Environment(ctx context.Context, obj *sqlinstance.
 }
 
 func (r *sqlInstanceResolver) Workload(ctx context.Context, obj *sqlinstance.SQLInstance) (workload.Workload, error) {
-	return r.workload(ctx, obj.OwnerReference, obj.TeamSlug, obj.EnvironmentName)
+	return r.workload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *sqlInstanceResolver) Database(ctx context.Context, obj *sqlinstance.SQLInstance) (*sqlinstance.SQLDatabase, error) {

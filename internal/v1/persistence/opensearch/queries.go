@@ -8,6 +8,8 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/kubernetes/watcher"
+	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 )
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*OpenSearch, error) {
@@ -20,45 +22,28 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*OpenSearch, error) {
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*OpenSearch, error) {
-	return fromContext(ctx).openSearchLoader.Load(ctx, resourceIdentifier{
-		namespace:   teamSlug.String(),
-		environment: environment,
-		name:        name,
-	})
+	return fromContext(ctx).client.watcher.Get(environment, teamSlug.String(), name)
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *OpenSearchOrder) (*OpenSearchConnection, error) {
-	all, err := fromContext(ctx).k8sClient.getOpenSearchesForTeam(ctx, teamSlug)
-	if err != nil {
-		return nil, err
-	}
+	all := fromContext(ctx).client.watcher.GetByNamespace(teamSlug.String())
+	ret := watcher.Objects(all)
 
-	if orderBy != nil {
-		switch orderBy.Field {
-		case OpenSearchOrderFieldName:
-			slices.SortStableFunc(all, func(a, b *OpenSearch) int {
-				return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
-			})
-		case OpenSearchOrderFieldEnvironment:
-			slices.SortStableFunc(all, func(a, b *OpenSearch) int {
-				return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
-			})
-		}
-	}
+	orderOpenSearch(ret, orderBy)
 
-	instances := pagination.Slice(all, page)
-	return pagination.NewConnection(instances, page, int32(len(all))), nil
+	instances := pagination.Slice(ret, page)
+	return pagination.NewConnection(instances, page, int32(len(ret))), nil
 }
 
 func ListAccess(ctx context.Context, openSearch *OpenSearch, page *pagination.Pagination, orderBy *OpenSearchAccessOrder) (*OpenSearchAccessConnection, error) {
-	k8sClient := fromContext(ctx).k8sClient
+	k8sClient := fromContext(ctx).client
 
-	applicationAccess, err := k8sClient.getAccessForApplications(openSearch.EnvironmentName, openSearch.Name, openSearch.TeamSlug)
+	applicationAccess, err := k8sClient.getAccessForApplications(ctx, openSearch.EnvironmentName, openSearch.Name, openSearch.TeamSlug)
 	if err != nil {
 		return nil, err
 	}
 
-	jobAccess, err := k8sClient.getAccessForJobs(openSearch.EnvironmentName, openSearch.Name, openSearch.TeamSlug)
+	jobAccess, err := k8sClient.getAccessForJobs(ctx, openSearch.EnvironmentName, openSearch.Name, openSearch.TeamSlug)
 	if err != nil {
 		return nil, err
 	}
@@ -75,11 +60,34 @@ func ListAccess(ctx context.Context, openSearch *OpenSearch, page *pagination.Pa
 			})
 		case OpenSearchAccessOrderFieldWorkload:
 			slices.SortStableFunc(all, func(a, b *OpenSearchAccess) int {
-				return modelv1.Compare(a.OwnerReference.Name, b.OwnerReference.Name, orderBy.Direction)
+				return modelv1.Compare(a.WorkloadReference.Name, b.WorkloadReference.Name, orderBy.Direction)
 			})
 		}
 	}
 
 	ret := pagination.Slice(all, page)
 	return pagination.NewConnection(ret, page, int32(len(all))), nil
+}
+
+func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environment string, reference *nais_io_v1.OpenSearch) (*OpenSearch, error) {
+	if reference == nil {
+		return nil, nil
+	}
+
+	return fromContext(ctx).client.watcher.Get(environment, teamSlug.String(), openSearchNamer(teamSlug, reference.Instance))
+}
+
+func orderOpenSearch(ret []*OpenSearch, orderBy *OpenSearchOrder) {
+	if orderBy != nil {
+		switch orderBy.Field {
+		case OpenSearchOrderFieldName:
+			slices.SortStableFunc(ret, func(a, b *OpenSearch) int {
+				return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
+			})
+		case OpenSearchOrderFieldEnvironment:
+			slices.SortStableFunc(ret, func(a, b *OpenSearch) int {
+				return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
+			})
+		}
+	}
 }

@@ -25,11 +25,11 @@ type (
 )
 
 type RedisInstance struct {
-	Name            string                 `json:"name"`
-	Status          *RedisInstanceStatus   `json:"status"`
-	TeamSlug        slug.Slug              `json:"-"`
-	EnvironmentName string                 `json:"-"`
-	OwnerReference  *metav1.OwnerReference `json:"-"`
+	Name              string                         `json:"name"`
+	Status            *RedisInstanceStatus           `json:"status"`
+	TeamSlug          slug.Slug                      `json:"-"`
+	EnvironmentName   string                         `json:"-"`
+	WorkloadReference *persistence.WorkloadReference `json:"-"`
 }
 
 func (RedisInstance) IsPersistence() {}
@@ -55,10 +55,10 @@ func (r RedisInstance) ID() ident.Ident {
 }
 
 type RedisInstanceAccess struct {
-	Access            string                        `json:"access"`
-	TeamSlug          slug.Slug                     `json:"-"`
-	EnvironmentName   string                        `json:"-"`
-	WorkloadReference persistence.WorkloadReference `json:"-"`
+	Access            string                         `json:"access"`
+	TeamSlug          slug.Slug                      `json:"-"`
+	EnvironmentName   string                         `json:"-"`
+	WorkloadReference *persistence.WorkloadReference `json:"-"`
 }
 
 type RedisInstanceStatus struct {
@@ -167,7 +167,7 @@ func toRedisInstance(u *unstructured.Unstructured, envName string) (*RedisInstan
 			Conditions: obj.Status.Conditions,
 			State:      obj.Status.State,
 		},
-		TeamSlug:       slug.Slug(obj.GetNamespace()),
-		OwnerReference: persistence.OwnerReference(obj.OwnerReferences),
+		TeamSlug:          slug.Slug(obj.GetNamespace()),
+		WorkloadReference: persistence.WorkloadReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 	}, nil
 }

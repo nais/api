@@ -11,7 +11,6 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/persistence"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/utils/ptr"
@@ -25,16 +24,16 @@ type (
 )
 
 type Bucket struct {
-	Name                     string                 `json:"name"`
-	CascadingDelete          bool                   `json:"cascadingDelete"`
-	PublicAccessPrevention   string                 `json:"publicAccessPrevention"`
-	UniformBucketLevelAccess bool                   `json:"uniformBucketLevelAccess"`
-	Status                   *BucketStatus          `json:"status"`
-	Cors                     []*BucketCors          `json:"-"`
-	TeamSlug                 slug.Slug              `json:"-"`
-	EnvironmentName          string                 `json:"-"`
-	OwnerReference           *metav1.OwnerReference `json:"-"`
-	ProjectID                string                 `json:"-"`
+	Name                     string                         `json:"name"`
+	CascadingDelete          bool                           `json:"cascadingDelete"`
+	PublicAccessPrevention   string                         `json:"publicAccessPrevention"`
+	UniformBucketLevelAccess bool                           `json:"uniformBucketLevelAccess"`
+	Status                   *BucketStatus                  `json:"status"`
+	Cors                     []*BucketCors                  `json:"-"`
+	TeamSlug                 slug.Slug                      `json:"-"`
+	EnvironmentName          string                         `json:"-"`
+	WorkloadReference        *persistence.WorkloadReference `json:"-"`
+	ProjectID                string                         `json:"-"`
 }
 
 func (Bucket) IsPersistence() {}
@@ -131,7 +130,7 @@ func toBucket(u *unstructured.Unstructured, env string) (*Bucket, error) {
 		Name:                     obj.Name,
 		CascadingDelete:          obj.Annotations["cnrm.cloud.google.com/deletion-policy"] == "abandon",
 		PublicAccessPrevention:   ptr.Deref(obj.Spec.PublicAccessPrevention, ""),
-		OwnerReference:           persistence.OwnerReference(obj.OwnerReferences),
+		WorkloadReference:        persistence.WorkloadReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 		TeamSlug:                 slug.Slug(obj.GetNamespace()),
 		EnvironmentName:          env,
 		ProjectID:                projectId,

@@ -28,6 +28,28 @@ func OwnerReference(refs []metav1.OwnerReference) *metav1.OwnerReference {
 	return nil
 }
 
+func WorkloadReferenceFromOwnerReferences(ownerReferences []metav1.OwnerReference) *WorkloadReference {
+	if len(ownerReferences) == 0 {
+		return nil
+	}
+
+	for _, o := range ownerReferences {
+		switch o.Kind {
+		case "Naisjob":
+			return &WorkloadReference{
+				Name: o.Name,
+				Type: WorkloadTypeJob,
+			}
+		case "Application":
+			return &WorkloadReference{
+				Name: o.Name,
+				Type: WorkloadTypeApplication,
+			}
+		}
+	}
+	return nil
+}
+
 type WorkloadReference struct {
 	Name string
 	Type WorkloadType

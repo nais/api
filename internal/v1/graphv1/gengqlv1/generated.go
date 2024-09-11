@@ -96,7 +96,7 @@ type ComplexityRoot struct {
 		Ingresses        func(childComplexity int) int
 		KafkaTopics      func(childComplexity int, orderBy *kafkatopic.KafkaTopicOrder) int
 		Name             func(childComplexity int) int
-		OpenSearch       func(childComplexity int, orderBy *opensearch.OpenSearchOrder) int
+		OpenSearch       func(childComplexity int) int
 		RedisInstances   func(childComplexity int, orderBy *redis.RedisInstanceOrder) int
 		Resources        func(childComplexity int) int
 		SQLInstances     func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
@@ -285,7 +285,7 @@ type ComplexityRoot struct {
 		Image            func(childComplexity int) int
 		KafkaTopics      func(childComplexity int, orderBy *kafkatopic.KafkaTopicOrder) int
 		Name             func(childComplexity int) int
-		OpenSearch       func(childComplexity int, orderBy *opensearch.OpenSearchOrder) int
+		OpenSearch       func(childComplexity int) int
 		RedisInstances   func(childComplexity int, orderBy *redis.RedisInstanceOrder) int
 		Resources        func(childComplexity int) int
 		SQLInstances     func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
@@ -733,7 +733,7 @@ type ApplicationResolver interface {
 
 	BigQueryDatasets(ctx context.Context, obj *application.Application, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
 	RedisInstances(ctx context.Context, obj *application.Application, orderBy *redis.RedisInstanceOrder) (*pagination.Connection[*redis.RedisInstance], error)
-	OpenSearch(ctx context.Context, obj *application.Application, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error)
+	OpenSearch(ctx context.Context, obj *application.Application) (*opensearch.OpenSearch, error)
 	Buckets(ctx context.Context, obj *application.Application, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
 	KafkaTopics(ctx context.Context, obj *application.Application, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error)
 	SQLInstances(ctx context.Context, obj *application.Application, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
@@ -766,7 +766,7 @@ type JobResolver interface {
 
 	BigQueryDatasets(ctx context.Context, obj *job.Job, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
 	RedisInstances(ctx context.Context, obj *job.Job, orderBy *redis.RedisInstanceOrder) (*pagination.Connection[*redis.RedisInstance], error)
-	OpenSearch(ctx context.Context, obj *job.Job, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error)
+	OpenSearch(ctx context.Context, obj *job.Job) (*opensearch.OpenSearch, error)
 	Buckets(ctx context.Context, obj *job.Job, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
 	KafkaTopics(ctx context.Context, obj *job.Job, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error)
 	SQLInstances(ctx context.Context, obj *job.Job, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
@@ -961,12 +961,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Application_openSearch_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Application.OpenSearch(childComplexity, args["orderBy"].(*opensearch.OpenSearchOrder)), true
+		return e.complexity.Application.OpenSearch(childComplexity), true
 
 	case "Application.redisInstances":
 		if e.complexity.Application.RedisInstances == nil {
@@ -1741,12 +1736,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Job_openSearch_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Job.OpenSearch(childComplexity, args["orderBy"].(*opensearch.OpenSearchOrder)), true
+		return e.complexity.Job.OpenSearch(childComplexity), true
 
 	case "Job.redisInstances":
 		if e.complexity.Job.RedisInstances == nil {
@@ -4231,11 +4221,8 @@ extend interface Workload {
 		orderBy: RedisInstanceOrder
 	): RedisInstanceConnection!
 
-	"OpenSearch instances referenced by the workload. This does not currently support pagination, but will return all available OpenSearch instances."
-	openSearch(
-		"Ordering options for items returned from the connection."
-		orderBy: OpenSearchOrder
-	): OpenSearchConnection!
+	"OpenSearch instance referenced by the workload."
+	openSearch: OpenSearch
 
 	"Google Cloud Storage referenced by the workload. This does not currently support pagination, but will return all available buckets."
 	buckets(
@@ -4273,11 +4260,8 @@ extend type Application {
 		orderBy: RedisInstanceOrder
 	): RedisInstanceConnection!
 
-	"OpenSearch instances referenced by the application. This does not currently support pagination, but will return all available OpenSearch instances."
-	openSearch(
-		"Ordering options for items returned from the connection."
-		orderBy: OpenSearchOrder
-	): OpenSearchConnection!
+	"OpenSearch instance referenced by the workload."
+	openSearch: OpenSearch
 
 	"Google Cloud Storage referenced by the application. This does not currently support pagination, but will return all available buckets."
 	buckets(
@@ -4315,11 +4299,8 @@ extend type Job {
 		orderBy: RedisInstanceOrder
 	): RedisInstanceConnection!
 
-	"OpenSearch instances referenced by the job. This does not currently support pagination, but will return all available OpenSearch instances."
-	openSearch(
-		"Ordering options for items returned from the connection."
-		orderBy: OpenSearchOrder
-	): OpenSearchConnection!
+	"OpenSearch instance referenced by the workload."
+	openSearch: OpenSearch
 
 	"Google Cloud Storage referenced by the job. This does not currently support pagination, but will return all available buckets."
 	buckets(
@@ -5698,21 +5679,6 @@ func (ec *executionContext) field_Application_kafkaTopics_args(ctx context.Conte
 	return args, nil
 }
 
-func (ec *executionContext) field_Application_openSearch_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *opensearch.OpenSearchOrder
-	if tmp, ok := rawArgs["orderBy"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
-		arg0, err = ec.unmarshalOOpenSearchOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearchOrder(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["orderBy"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Application_redisInstances_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -5924,21 +5890,6 @@ func (ec *executionContext) field_Job_kafkaTopics_args(ctx context.Context, rawA
 	if tmp, ok := rawArgs["orderBy"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
 		arg0, err = ec.unmarshalOKafkaTopicOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopicOrder(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["orderBy"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Job_openSearch_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *opensearch.OpenSearchOrder
-	if tmp, ok := rawArgs["orderBy"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
-		arg0, err = ec.unmarshalOOpenSearchOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearchOrder(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7687,24 +7638,21 @@ func (ec *executionContext) _Application_openSearch(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Application().OpenSearch(rctx, obj, fc.Args["orderBy"].(*opensearch.OpenSearchOrder))
+		return ec.resolvers.Application().OpenSearch(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(*pagination.Connection[*opensearch.OpenSearch])
+	res := resTmp.(*opensearch.OpenSearch)
 	fc.Result = res
-	return ec.marshalNOpenSearchConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
+	return ec.marshalOOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearch(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Application_openSearch(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Application_openSearch(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Application",
 		Field:      field,
@@ -7712,26 +7660,25 @@ func (ec *executionContext) fieldContext_Application_openSearch(ctx context.Cont
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "pageInfo":
-				return ec.fieldContext_OpenSearchConnection_pageInfo(ctx, field)
-			case "nodes":
-				return ec.fieldContext_OpenSearchConnection_nodes(ctx, field)
-			case "edges":
-				return ec.fieldContext_OpenSearchConnection_edges(ctx, field)
+			case "id":
+				return ec.fieldContext_OpenSearch_id(ctx, field)
+			case "name":
+				return ec.fieldContext_OpenSearch_name(ctx, field)
+			case "team":
+				return ec.fieldContext_OpenSearch_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_OpenSearch_environment(ctx, field)
+			case "status":
+				return ec.fieldContext_OpenSearch_status(ctx, field)
+			case "workload":
+				return ec.fieldContext_OpenSearch_workload(ctx, field)
+			case "access":
+				return ec.fieldContext_OpenSearch_access(ctx, field)
+			case "cost":
+				return ec.fieldContext_OpenSearch_cost(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type OpenSearchConnection", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type OpenSearch", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Application_openSearch_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -13105,24 +13052,21 @@ func (ec *executionContext) _Job_openSearch(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Job().OpenSearch(rctx, obj, fc.Args["orderBy"].(*opensearch.OpenSearchOrder))
+		return ec.resolvers.Job().OpenSearch(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(*pagination.Connection[*opensearch.OpenSearch])
+	res := resTmp.(*opensearch.OpenSearch)
 	fc.Result = res
-	return ec.marshalNOpenSearchConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
+	return ec.marshalOOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearch(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Job_openSearch(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Job_openSearch(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
@@ -13130,26 +13074,25 @@ func (ec *executionContext) fieldContext_Job_openSearch(ctx context.Context, fie
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "pageInfo":
-				return ec.fieldContext_OpenSearchConnection_pageInfo(ctx, field)
-			case "nodes":
-				return ec.fieldContext_OpenSearchConnection_nodes(ctx, field)
-			case "edges":
-				return ec.fieldContext_OpenSearchConnection_edges(ctx, field)
+			case "id":
+				return ec.fieldContext_OpenSearch_id(ctx, field)
+			case "name":
+				return ec.fieldContext_OpenSearch_name(ctx, field)
+			case "team":
+				return ec.fieldContext_OpenSearch_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_OpenSearch_environment(ctx, field)
+			case "status":
+				return ec.fieldContext_OpenSearch_status(ctx, field)
+			case "workload":
+				return ec.fieldContext_OpenSearch_workload(ctx, field)
+			case "access":
+				return ec.fieldContext_OpenSearch_access(ctx, field)
+			case "cost":
+				return ec.fieldContext_OpenSearch_cost(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type OpenSearchConnection", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type OpenSearch", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Job_openSearch_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -29238,16 +29181,13 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 		case "openSearch":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._Application_openSearch(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
 				return res
 			}
 
@@ -31314,16 +31254,13 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 		case "openSearch":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._Job_openSearch(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
 				return res
 			}
 
@@ -40123,6 +40060,13 @@ func (ec *executionContext) marshalONode2githubᚗcomᚋnaisᚋapiᚋinternalᚋ
 		return graphql.Null
 	}
 	return ec._Node(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearch(ctx context.Context, sel ast.SelectionSet, v *opensearch.OpenSearch) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._OpenSearch(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOOpenSearchAccessOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋopensearchᚐOpenSearchAccessOrder(ctx context.Context, v interface{}) (*opensearch.OpenSearchAccessOrder, error) {

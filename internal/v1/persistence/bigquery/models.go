@@ -28,17 +28,17 @@ type (
 
 type BigQueryDataset struct {
 	// Name equals to the Instance name, not the kubernetes resource name
-	Name            string                   `json:"name"`
-	Description     *string                  `json:"description,omitempty"`
-	CascadingDelete bool                     `json:"cascadingDelete"`
-	Location        string                   `json:"location"`
-	Status          *BigQueryDatasetStatus   `json:"status"`
-	Access          []*BigQueryDatasetAccess `json:"-"`
-	TeamSlug        slug.Slug                `json:"-"`
-	EnvironmentName string                   `json:"-"`
-	OwnerReference  *metav1.OwnerReference   `json:"-"`
-	ProjectID       string                   `json:"-"`
-	K8sResourceName string                   `json:"-"`
+	Name              string                         `json:"name"`
+	Description       *string                        `json:"description,omitempty"`
+	CascadingDelete   bool                           `json:"cascadingDelete"`
+	Location          string                         `json:"location"`
+	Status            *BigQueryDatasetStatus         `json:"status"`
+	Access            []*BigQueryDatasetAccess       `json:"-"`
+	TeamSlug          slug.Slug                      `json:"-"`
+	EnvironmentName   string                         `json:"-"`
+	WorkloadReference *persistence.WorkloadReference `json:"-"`
+	ProjectID         string                         `json:"-"`
+	K8sResourceName   string                         `json:"-"`
 }
 
 func (BigQueryDataset) IsPersistence() {}
@@ -188,16 +188,16 @@ func toBigQueryDataset(u *unstructured.Unstructured, environmentName string) (*B
 	}
 
 	ret := &BigQueryDataset{
-		Name:            obj.Spec.Name,
-		K8sResourceName: obj.Name,
-		CascadingDelete: obj.Spec.CascadingDelete,
-		Access:          toBigQueryDatasetAccess(obj.Spec.Access),
-		Location:        obj.Spec.Location,
-		Status:          toBigQueryDatasetStatus(obj.Status),
-		TeamSlug:        slug.Slug(obj.GetNamespace()),
-		EnvironmentName: environmentName,
-		OwnerReference:  persistence.OwnerReference(obj.OwnerReferences),
-		ProjectID:       obj.Spec.Project,
+		Name:              obj.Spec.Name,
+		K8sResourceName:   obj.Name,
+		CascadingDelete:   obj.Spec.CascadingDelete,
+		Access:            toBigQueryDatasetAccess(obj.Spec.Access),
+		Location:          obj.Spec.Location,
+		Status:            toBigQueryDatasetStatus(obj.Status),
+		TeamSlug:          slug.Slug(obj.GetNamespace()),
+		EnvironmentName:   environmentName,
+		WorkloadReference: persistence.WorkloadReferenceFromOwnerReferences(obj.GetOwnerReferences()),
+		ProjectID:         obj.Spec.Project,
 	}
 
 	if obj.Spec.Description != "" {
