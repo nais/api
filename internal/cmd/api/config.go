@@ -225,6 +225,7 @@ func NewConfig(ctx context.Context, lookuper envconfig.Lookuper) (*Config, error
 
 func (c *Config) ToVulnerabilitiesConfig() *vulnerabilities.Config {
 	return &vulnerabilities.Config{
+		EnableFakes: c.WithFakeClients,
 		DependencyTrack: vulnerabilities.DependencyTrackConfig{
 			Endpoint:    c.DependencyTrack.Endpoint,
 			FrontendUrl: c.DependencyTrack.Frontend,

@@ -7,7 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/in-toto/in-toto-golang/in_toto"
-	"github.com/nais/api/internal/thirdparty/dependencytrack"
+	"github.com/nais/api/internal/vulnerabilities"
 	"log"
 	"math/rand"
 	"os"
@@ -393,7 +393,16 @@ func getAllTeams(ctx context.Context, db database.TeamRepo) ([]*database.Team, e
 
 func uploadFakeSbom(track *DependencyTrack, log logrus.FieldLogger) {
 	ctx := context.Background()
-	client := dependencytrack.New(track.Url, track.Username, track.Password, "http://localhost:9020", log.WithFields(logrus.Fields{"setup": "dependencytrack"}))
+	client := vulnerabilities.NewManager(
+		&vulnerabilities.Config{
+			DependencyTrack: vulnerabilities.DependencyTrackConfig{
+				Endpoint:    track.Url,
+				Username:    track.Username,
+				Password:    track.Password,
+				FrontendUrl: "http://localhost:9020",
+			},
+		},
+	)
 	sbom, err := getSbom()
 	err = client.UploadProject(ctx, "ghcr.io/nais/testapp/testapp", "nais-deploy-canary", "2020-02-25-f61e7b7", "devteam", sbom)
 	if err != nil {

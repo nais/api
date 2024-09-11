@@ -33,6 +33,7 @@ type Client interface {
 	GetVulnerabilityStatus(ctx context.Context, image string) (model.StateError, error)
 	SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.AnalysisTrail, error)
 	GetAnalysisTrailForImage(ctx context.Context, projectID, componentID, vulnerabilityID string) (*model.AnalysisTrail, error)
+	UploadProject(ctx context.Context, image, name, version, team string, bom []byte) error
 }
 
 type dependencyTrackClient struct {

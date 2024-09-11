@@ -9,6 +9,7 @@ type Manager struct {
 }
 
 type Config struct {
+	EnableFakes     bool
 	DependencyTrack DependencyTrackConfig
 }
 
@@ -17,6 +18,9 @@ func NewManager(cfg *Config) *Manager {
 		cfg.DependencyTrack,
 		log.WithField("client", "dependencytrack"),
 	)
+	if cfg.EnableFakes {
+		dependencytrackClient = NewFake(dependencytrackClient)
+	}
 	return &Manager{
 		Client: dependencytrackClient,
 	}
