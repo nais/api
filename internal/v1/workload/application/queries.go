@@ -54,7 +54,6 @@ func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Ap
 		return nil, err
 	}
 	return toGraphApplication(a, environment), nil
-
 }
 
 func GetByIdent(ctx context.Context, id ident.Ident) (*Application, error) {
