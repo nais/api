@@ -6975,7 +6975,7 @@ func (ec *executionContext) _Application_resources(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Resources, nil
+		return obj.Resources(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6996,7 +6996,7 @@ func (ec *executionContext) fieldContext_Application_resources(_ context.Context
 	fc = &graphql.FieldContext{
 		Object:     "Application",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {

@@ -21,7 +21,7 @@ type (
 
 type Job struct {
 	workload.Base
-	Resources *JobResources `json:"resources"`
+	Spec *nais_io_v1.NaisjobSpec `json:"-"`
 }
 
 func (Job) IsNode()     {}
@@ -81,12 +81,13 @@ type JobResources struct {
 
 func (JobResources) IsWorkloadResources() {}
 
-func toGraphJobResources(resources *nais_io_v1.ResourceRequirements) *JobResources {
+func (j *Job) Resources() *JobResources {
 	ret := &JobResources{
 		Limits:   &workload.WorkloadResourceQuantity{},
 		Requests: &workload.WorkloadResourceQuantity{},
 	}
 
+	resources := j.Spec.Resources
 	if resources == nil {
 		return ret
 	}
@@ -121,6 +122,6 @@ func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {
 			EnvironmentName: environmentName,
 			TeamSlug:        slug.Slug(job.Namespace),
 		},
-		Resources: toGraphJobResources(job.Spec.Resources),
+		Spec: &job.Spec,
 	}
 }

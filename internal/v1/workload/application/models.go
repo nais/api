@@ -10,7 +10,6 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/workload"
-	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"k8s.io/apimachinery/pkg/api/resource"
 )
@@ -22,7 +21,7 @@ type (
 
 type Application struct {
 	workload.Base
-	Resources *ApplicationResources `json:"resources"`
+	Spec *nais_io_v1alpha1.ApplicationSpec `json:"-"`
 }
 
 func (Application) IsWorkload() {}
@@ -107,14 +106,14 @@ type KafkaLagScalingStrategy struct {
 
 func (KafkaLagScalingStrategy) IsScalingStrategy() {}
 
-func toGraphApplicationResources(resources *nais_io_v1.ResourceRequirements, replicas *nais_io_v1.Replicas) *ApplicationResources {
+func (a *Application) Resources() *ApplicationResources {
 	ret := &ApplicationResources{
 		Limits:   &workload.WorkloadResourceQuantity{},
 		Requests: &workload.WorkloadResourceQuantity{},
 		Scaling:  &ApplicationScaling{},
 	}
 
-	if resources != nil {
+	if resources := a.Spec.Resources; resources != nil {
 		if resources.Limits != nil {
 			if q, err := resource.ParseQuantity(resources.Limits.Cpu); err == nil {
 				ret.Limits.CPU = q.AsApproximateFloat64()
@@ -137,7 +136,7 @@ func toGraphApplicationResources(resources *nais_io_v1.ResourceRequirements, rep
 
 	}
 
-	if replicas != nil {
+	if replicas := a.Spec.Replicas; replicas != nil {
 		if replicas.Min != nil {
 			ret.Scaling.MinInstances = *replicas.Min
 		}
@@ -173,6 +172,6 @@ func toGraphApplication(application *nais_io_v1alpha1.Application, environmentNa
 			TeamSlug:        slug.Slug(application.Namespace),
 			ImageString:     application.Spec.Image,
 		},
-		Resources: toGraphApplicationResources(application.Spec.Resources, application.Spec.Replicas),
+		Spec: &application.Spec,
 	}
 }
