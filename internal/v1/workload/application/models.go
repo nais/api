@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/nais/api/internal/slug"
-
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
