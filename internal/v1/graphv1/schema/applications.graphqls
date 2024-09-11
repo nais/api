@@ -46,7 +46,6 @@ type Application implements Node & Workload {
 	# authz: [Authz!]!
 	# variables: [Variable!]!
 	# persistence: [Persistence!]!
-	# resources: Resources!
 	# type: WorkloadType!
 	#
 	# imageDetails: ImageDetails!
@@ -102,7 +101,7 @@ type KafkaLagScalingStrategy {
 	consumerGroup: String!
 
 	"The name of the Kafka topic."
-	topic: String! # TODO: String or KafkaTopic?
+	topicName: String!
 }
 
 type ApplicationConnection {

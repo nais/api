@@ -298,7 +298,7 @@ type ComplexityRoot struct {
 	KafkaLagScalingStrategy struct {
 		ConsumerGroup func(childComplexity int) int
 		Threshold     func(childComplexity int) int
-		Topic         func(childComplexity int) int
+		TopicName     func(childComplexity int) int
 	}
 
 	KafkaTopic struct {
@@ -1671,12 +1671,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.KafkaLagScalingStrategy.Threshold(childComplexity), true
 
-	case "KafkaLagScalingStrategy.topic":
-		if e.complexity.KafkaLagScalingStrategy.Topic == nil {
+	case "KafkaLagScalingStrategy.topicName":
+		if e.complexity.KafkaLagScalingStrategy.TopicName == nil {
 			break
 		}
 
-		return e.complexity.KafkaLagScalingStrategy.Topic(childComplexity), true
+		return e.complexity.KafkaLagScalingStrategy.TopicName(childComplexity), true
 
 	case "KafkaTopic.acl":
 		if e.complexity.KafkaTopic.ACL == nil {
@@ -3635,7 +3635,6 @@ type Application implements Node & Workload {
 	# authz: [Authz!]!
 	# variables: [Variable!]!
 	# persistence: [Persistence!]!
-	# resources: Resources!
 	# type: WorkloadType!
 	#
 	# imageDetails: ImageDetails!
@@ -3691,7 +3690,7 @@ type KafkaLagScalingStrategy {
 	consumerGroup: String!
 
 	"The name of the Kafka topic."
-	topic: String! # TODO: String or KafkaTopic?
+	topicName: String!
 }
 
 type ApplicationConnection {
@@ -12455,8 +12454,8 @@ func (ec *executionContext) fieldContext_KafkaLagScalingStrategy_consumerGroup(_
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaLagScalingStrategy_topic(ctx context.Context, field graphql.CollectedField, obj *application.KafkaLagScalingStrategy) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_KafkaLagScalingStrategy_topic(ctx, field)
+func (ec *executionContext) _KafkaLagScalingStrategy_topicName(ctx context.Context, field graphql.CollectedField, obj *application.KafkaLagScalingStrategy) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaLagScalingStrategy_topicName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -12469,7 +12468,7 @@ func (ec *executionContext) _KafkaLagScalingStrategy_topic(ctx context.Context, 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Topic, nil
+		return obj.TopicName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12486,7 +12485,7 @@ func (ec *executionContext) _KafkaLagScalingStrategy_topic(ctx context.Context, 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_KafkaLagScalingStrategy_topic(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KafkaLagScalingStrategy_topicName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaLagScalingStrategy",
 		Field:      field,
@@ -29833,8 +29832,8 @@ func (ec *executionContext) _KafkaLagScalingStrategy(ctx context.Context, sel as
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "topic":
-			out.Values[i] = ec._KafkaLagScalingStrategy_topic(ctx, field, obj)
+		case "topicName":
+			out.Values[i] = ec._KafkaLagScalingStrategy_topicName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

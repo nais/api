@@ -102,7 +102,7 @@ func (CPUScalingStrategy) IsScalingStrategy() {}
 type KafkaLagScalingStrategy struct {
 	Threshold     int    `json:"threshold"`
 	ConsumerGroup string `json:"consumerGroup"`
-	Topic         string `json:"topic"`
+	TopicName     string `json:"topicName"`
 }
 
 func (KafkaLagScalingStrategy) IsScalingStrategy() {}
@@ -157,7 +157,7 @@ func toGraphApplicationResources(resources *nais_io_v1.ResourceRequirements, rep
 			ret.Scaling.Strategies = append(ret.Scaling.Strategies, KafkaLagScalingStrategy{
 				Threshold:     strategy.Kafka.Threshold,
 				ConsumerGroup: strategy.Kafka.ConsumerGroup,
-				Topic:         strategy.Kafka.Topic,
+				TopicName:     strategy.Kafka.Topic,
 			})
 		}
 	}
