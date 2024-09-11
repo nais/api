@@ -27,10 +27,6 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 			slices.SortStableFunc(ret, func(a, b *Job) int {
 				return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
 			})
-		case JobOrderFieldVulnerabilities:
-			panic("not implemented yet")
-		case JobOrderFieldRiskScore:
-			panic("not implemented yet")
 		case JobOrderFieldDeploymentTime:
 			panic("not implemented yet")
 		case JobOrderFieldStatus:

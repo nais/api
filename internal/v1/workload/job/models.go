@@ -39,17 +39,15 @@ type JobOrder struct {
 type JobOrderField string
 
 const (
-	JobOrderFieldStatus          JobOrderField = "STATUS"
-	JobOrderFieldName            JobOrderField = "NAME"
-	JobOrderFieldEnvironment     JobOrderField = "ENVIRONMENT"
-	JobOrderFieldVulnerabilities JobOrderField = "VULNERABILITIES"
-	JobOrderFieldRiskScore       JobOrderField = "RISK_SCORE"
-	JobOrderFieldDeploymentTime  JobOrderField = "DEPLOYMENT_TIME"
+	JobOrderFieldStatus         JobOrderField = "STATUS"
+	JobOrderFieldName           JobOrderField = "NAME"
+	JobOrderFieldEnvironment    JobOrderField = "ENVIRONMENT"
+	JobOrderFieldDeploymentTime JobOrderField = "DEPLOYMENT_TIME"
 )
 
 func (e JobOrderField) IsValid() bool {
 	switch e {
-	case JobOrderFieldStatus, JobOrderFieldName, JobOrderFieldEnvironment, JobOrderFieldVulnerabilities, JobOrderFieldRiskScore, JobOrderFieldDeploymentTime:
+	case JobOrderFieldStatus, JobOrderFieldName, JobOrderFieldEnvironment, JobOrderFieldDeploymentTime:
 		return true
 	}
 	return false

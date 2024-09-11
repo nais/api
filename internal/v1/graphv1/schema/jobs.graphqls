@@ -19,10 +19,19 @@ extend type Team {
 }
 
 type Job implements Node & Workload {
+	"The globally unique ID of the job."
 	id: ID!
+
+	"The name of the job."
 	name: String!
+
+	"The team that owns the job."
 	team: Team!
+
+	"The environment the job is deployed in."
 	environment: TeamEnvironment!
+
+	"The container image of the job."
 	image: ContainerImage!
 
 	"Resources for the job."
@@ -53,26 +62,42 @@ type JobResources implements WorkloadResources {
 }
 
 type JobConnection {
+	"Pagination information."
 	pageInfo: PageInfo!
+
+	"List of nodes."
 	nodes: [Job!]!
+
+	"List of edges."
 	edges: [JobEdge!]!
 }
 
 type JobEdge {
+	"Cursor for this edge that can be used for pagination."
 	cursor: Cursor!
+
+	"The job."
 	node: Job!
 }
 
 input JobOrder {
+	"The field to order items by."
 	field: JobOrderField!
+
+	"The direction to order items by."
 	direction: OrderDirection!
 }
 
 enum JobOrderField {
-	STATUS
+	"Order jobs by name."
 	NAME
+
+	"Order jobs by status."
+	STATUS
+
+	"Order jobs by the name of the environment."
 	ENVIRONMENT
-	VULNERABILITIES
-	RISK_SCORE
+
+	"Order applications by the deployment time."
 	DEPLOYMENT_TIME
 }
