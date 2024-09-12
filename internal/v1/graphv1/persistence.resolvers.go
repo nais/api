@@ -159,7 +159,11 @@ func (r *jobResolver) KafkaTopicAcls(ctx context.Context, obj *job.Job, orderBy 
 }
 
 func (r *jobResolver) SQLInstances(ctx context.Context, obj *job.Job, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error) {
-	panic(fmt.Errorf("not implemented: SQLInstances - sqlInstances"))
+	if obj.Spec.GCP == nil || len(obj.Spec.GCP.SqlInstances) == 0 {
+		return pagination.EmptyConnection[*sqlinstance.SQLInstance](), nil
+	}
+
+	return sqlinstance.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.GCP.SqlInstances, orderBy)
 }
 
 func (r *kafkaTopicResolver) Team(ctx context.Context, obj *kafkatopic.KafkaTopic) (*team.Team, error) {
