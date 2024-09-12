@@ -1,0 +1,2347 @@
+[
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-2/image-2",
+    "lastBomImportFormat": "CycloneDX 1.5",
+    "lastBomImport": 1721742390570,
+    "lastInheritedRiskScore": 329,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/image-2/.github/workflows/maven.yml@refs/heads/dev2-deploy"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:sha256:7f9d4f6aa87e5bb5d5d669efd5e3674f648b9fa5ea097a6622a18a6258911286"
+      },
+      {
+        "name": "env:dev"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-2/image-2:2024.07.23-13.44-e49d5e3"
+      },
+      {
+        "name": "integrated-time:1721742330"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-2/image-2"
+      },
+      {
+        "name": "rekor:114445974"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/image-2/actions/runs/10060071605/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-2"
+      },
+      {
+        "name": "version:2024.07.23-13.44-e49d5e3"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/dev2-deploy"
+      },
+      {
+        "name": "workflow-sha:e49d5e30bf590d808be7149724b50f2ec784f970"
+      },
+      {
+        "name": "workload:dev|repo-2|app|workload-2"
+      }
+    ],
+    "uuid": "7dada130-27fe-405d-a44f-bd29cffd4982",
+    "version": "2024.07.23-13.44-e49d5e3",
+    "parent": null,
+    "metrics": {
+      "critical": 3,
+      "high": 19,
+      "medium": 28,
+      "low": 0,
+      "unassigned": 24,
+      "vulnerabilities": 74,
+      "vulnerableComponents": 26,
+      "components": 279,
+      "suppressed": 0,
+      "findingsTotal": 74,
+      "findingsAudited": 0,
+      "findingsUnaudited": 74,
+      "inheritedRiskScore": 329,
+      "firstOccurrence": 1725439730595,
+      "lastOccurrence": 1726053304367
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-3/image-3",
+    "lastInheritedRiskScore": 184,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-3/.github/workflows/maven.yml@refs/heads/master"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:8251dfbe05eb60c712ce29a58ca664d9e1175e6d773545250e2d95e15c845214"
+      },
+      {
+        "name": "env:dev"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-3/workload-3:2024.09.09-07.00-824e836"
+      },
+      {
+        "name": "integrated-time:1725865277"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-3/workload-3"
+      },
+      {
+        "name": "rekor:128794663"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-3/actions/runs/10768130183/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-3"
+      },
+      {
+        "name": "version:2024.09.09-07.00-824e836"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/master"
+      },
+      {
+        "name": "workflow-sha:824e836bee380701feb6e6db9fb6a8f1a8524cc5"
+      },
+      {
+        "name": "workload:dev|repo-3|app|workload-3"
+      }
+    ],
+    "uuid": "f6f8fae8-90de-4187-bea8-03448e59b74b",
+    "version": "2024.09.09-07.00-824e836",
+    "parent": null,
+    "metrics": {
+      "critical": 3,
+      "high": 18,
+      "medium": 13,
+      "low": 0,
+      "unassigned": 5,
+      "vulnerabilities": 39,
+      "vulnerableComponents": 17,
+      "components": 274,
+      "suppressed": 0,
+      "findingsTotal": 39,
+      "findingsAudited": 0,
+      "findingsUnaudited": 39,
+      "inheritedRiskScore": 184,
+      "firstOccurrence": 1725865816758,
+      "lastOccurrence": 1726058323577
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-4/image-4",
+    "lastBomImportFormat": "CycloneDX 1.6",
+    "lastBomImport": 1725869829797,
+    "lastInheritedRiskScore": 184,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-4/.github/workflows/maven.yml@refs/heads/prod-deploy"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:2b87a99a5d3d0ae00e2560cb58cd5e0accbc592822f3b4a736f099b46367ef7e"
+      },
+      {
+        "name": "env:superprod"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-4/workload-4:2024.09.09-08.04-b294bc3"
+      },
+      {
+        "name": "integrated-time:1725869138"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-4/workload-4"
+      },
+      {
+        "name": "rekor:128801730"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-4/actions/runs/10769050126/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-4"
+      },
+      {
+        "name": "version:2024.09.09-08.04-b294bc3"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/prod-deploy"
+      },
+      {
+        "name": "workflow-sha:b294bc30788c04d6d5e10bfe818b9f1b29a9bf41"
+      },
+      {
+        "name": "workload:superprod|repo-4|app|workload-4"
+      }
+    ],
+    "uuid": "3ffa068b-7fe7-4b9a-b915-a6de4ceb4a95",
+    "version": "2024.09.09-08.04-b294bc3",
+    "parent": null,
+    "metrics": {
+      "critical": 3,
+      "high": 18,
+      "medium": 13,
+      "low": 0,
+      "unassigned": 5,
+      "vulnerabilities": 39,
+      "vulnerableComponents": 17,
+      "components": 274,
+      "suppressed": 0,
+      "findingsTotal": 39,
+      "findingsAudited": 0,
+      "findingsUnaudited": 39,
+      "inheritedRiskScore": 184,
+      "firstOccurrence": 1725869929883,
+      "lastOccurrence": 1726058200787
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-5/image-5",
+    "lastInheritedRiskScore": 230,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-5/.github/workflows/maven.yml@refs/heads/main"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:9574798d987b21b597c32a2f2564b7270f045949fe0bedad71abe0ed65e1ee7f"
+      },
+      {
+        "name": "env:dev"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-5/workload-5:2024.09.09-07.01-7cd3a26"
+      },
+      {
+        "name": "integrated-time:1725865339"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-5/workload-5"
+      },
+      {
+        "name": "rekor:128794747"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-5/actions/runs/10768141957/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-5"
+      },
+      {
+        "name": "version:2024.09.09-07.01-7cd3a26"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/main"
+      },
+      {
+        "name": "workflow-sha:7cd3a26ca6d6f7ace08c3e8e497d16ec7e542177"
+      },
+      {
+        "name": "workload:dev|repo-5|app|workload-5"
+      }
+    ],
+    "uuid": "2a7915d7-ed4c-4225-834d-15030badf742",
+    "version": "2024.09.09-07.01-7cd3a26",
+    "parent": null,
+    "metrics": {
+      "critical": 3,
+      "high": 22,
+      "medium": 18,
+      "low": 1,
+      "unassigned": 7,
+      "vulnerabilities": 51,
+      "vulnerableComponents": 25,
+      "components": 362,
+      "suppressed": 0,
+      "findingsTotal": 51,
+      "findingsAudited": 0,
+      "findingsUnaudited": 51,
+      "inheritedRiskScore": 230,
+      "firstOccurrence": 1725865586597,
+      "lastOccurrence": 1726058331252
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-6/image-6",
+    "lastBomImportFormat": "CycloneDX 1.5",
+    "lastBomImport": 1721742260816,
+    "lastInheritedRiskScore": 375,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/image-6/.github/workflows/maven.yml@refs/heads/dev2-deploy"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:sha256:5f1d9d57ef7d628f1aab5ae316694c451c88b24fa80360e874b48734ee17fb7c"
+      },
+      {
+        "name": "env:dev"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-6/image-6:2024.07.23-13.42-9fed5ec"
+      },
+      {
+        "name": "integrated-time:1721742199"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-6/image-6"
+      },
+      {
+        "name": "rekor:114445131"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/image-6/actions/runs/10060078377/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-6"
+      },
+      {
+        "name": "version:2024.07.23-13.42-9fed5ec"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/dev2-deploy"
+      },
+      {
+        "name": "workflow-sha:9fed5ec3187dfb6e5f93975b355f42370e06cf45"
+      },
+      {
+        "name": "workload:dev|repo-6|app|workload-6"
+      }
+    ],
+    "uuid": "c4fb97bb-1272-42bc-b685-37932c2efe18",
+    "version": "2024.07.23-13.42-9fed5ec",
+    "parent": null,
+    "metrics": {
+      "critical": 3,
+      "high": 23,
+      "medium": 33,
+      "low": 1,
+      "unassigned": 26,
+      "vulnerabilities": 86,
+      "vulnerableComponents": 34,
+      "components": 367,
+      "suppressed": 0,
+      "findingsTotal": 86,
+      "findingsAudited": 0,
+      "findingsUnaudited": 86,
+      "inheritedRiskScore": 375,
+      "firstOccurrence": 1725439707823,
+      "lastOccurrence": 1726053304367
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-7/image-7",
+    "lastBomImportFormat": "CycloneDX 1.6",
+    "lastBomImport": 1725869630635,
+    "lastInheritedRiskScore": 230,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-7/.github/workflows/maven.yml@refs/heads/prod-deploy"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:16c7628fa2201c160473def06a158aab2be5b82db25b9117b3fdefa5d644fa32"
+      },
+      {
+        "name": "env:superprod"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-7/workload-7:2024.09.09-08.04-e1abc44"
+      },
+      {
+        "name": "integrated-time:1725869129"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-7/workload-7"
+      },
+      {
+        "name": "rekor:128801702"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-7/actions/runs/10769051159/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-7"
+      },
+      {
+        "name": "version:2024.09.09-08.04-e1abc44"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/prod-deploy"
+      },
+      {
+        "name": "workflow-sha:e1abc4467db7d02e2eb31fb0e42be5b670fdcf94"
+      },
+      {
+        "name": "workload:superprod|repo-7|app|workload-7"
+      }
+    ],
+    "uuid": "3e70710f-9d8a-4d54-b545-968fcc2797ce",
+    "version": "2024.09.09-08.04-e1abc44",
+    "parent": null,
+    "metrics": {
+      "critical": 3,
+      "high": 22,
+      "medium": 18,
+      "low": 1,
+      "unassigned": 7,
+      "vulnerabilities": 51,
+      "vulnerableComponents": 25,
+      "components": 362,
+      "suppressed": 0,
+      "findingsTotal": 51,
+      "findingsAudited": 0,
+      "findingsUnaudited": 51,
+      "inheritedRiskScore": 230,
+      "firstOccurrence": 1725929955488,
+      "lastOccurrence": 1726058218448
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-8/image-8",
+    "lastInheritedRiskScore": 214,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-8/.github/workflows/maven.yml@refs/heads/prod-deploy"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:d6c745baa4c76e9b5a776403f0bf974989704d319c45a6cbbab9bf8784b3aa61"
+      },
+      {
+        "name": "env:superprod"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-8/workload-8:2024.09.11-06.37-6fa0d48"
+      },
+      {
+        "name": "integrated-time:1726036770"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-8/workload-8"
+      },
+      {
+        "name": "rekor:129414621"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-8/actions/runs/10806330488/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-8"
+      },
+      {
+        "name": "version:2024.09.11-06.37-6fa0d48"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/prod-deploy"
+      },
+      {
+        "name": "workflow-sha:6fa0d487e7db39e3623877d3e55fc07c9e781e02"
+      },
+      {
+        "name": "workload:superprod|repo-8|app|workload-8"
+      }
+    ],
+    "uuid": "390fd2ac-a308-4642-b992-ef8bfcd32f1b",
+    "version": "2024.09.11-06.37-6fa0d48",
+    "parent": null,
+    "metrics": {
+      "critical": 3,
+      "high": 21,
+      "medium": 18,
+      "low": 0,
+      "unassigned": 5,
+      "vulnerabilities": 47,
+      "vulnerableComponents": 23,
+      "components": 300,
+      "suppressed": 0,
+      "findingsTotal": 47,
+      "findingsAudited": 0,
+      "findingsUnaudited": 47,
+      "inheritedRiskScore": 214,
+      "firstOccurrence": 1726037127351,
+      "lastOccurrence": 1726056693914
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-9/image-9",
+    "lastBomImportFormat": "CycloneDX 1.5",
+    "lastBomImport": 1722320486444,
+    "lastInheritedRiskScore": 276,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/image-9/.github/workflows/maven.yml@refs/heads/dev2-deploy"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:sha256:3f93c827162f44108a1df115806bdea958cf2bb60f688b582aa55db3ecb32693"
+      },
+      {
+        "name": "env:dev"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-9/image-9:2024.07.30-06.13-200178e"
+      },
+      {
+        "name": "integrated-time:1722320426"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-9/image-9"
+      },
+      {
+        "name": "rekor:116638726"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/image-9/actions/runs/10157105630/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-9"
+      },
+      {
+        "name": "version:2024.07.30-06.13-200178e"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/dev2-deploy"
+      },
+      {
+        "name": "workflow-sha:200178e8853c303fa3b102533b7d1b94f6d4d2b7"
+      },
+      {
+        "name": "workload:dev|repo-9|app|workload-9"
+      }
+    ],
+    "uuid": "270d9bd4-d5b7-4a3b-847f-c561f2453900",
+    "version": "2024.07.30-06.13-200178e",
+    "parent": null,
+    "metrics": {
+      "critical": 3,
+      "high": 21,
+      "medium": 32,
+      "low": 0,
+      "unassigned": 9,
+      "vulnerabilities": 65,
+      "vulnerableComponents": 29,
+      "components": 300,
+      "suppressed": 0,
+      "findingsTotal": 65,
+      "findingsAudited": 0,
+      "findingsUnaudited": 65,
+      "inheritedRiskScore": 276,
+      "firstOccurrence": 1725440959741,
+      "lastOccurrence": 1726053146293
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-10/image-10",
+    "lastBomImportFormat": "CycloneDX 1.6",
+    "lastBomImport": 1725969389338,
+    "lastInheritedRiskScore": 214,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-10/.github/workflows/maven.yml@refs/heads/master"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:d3f139ed5547b6ce8269d1bad4074e79ae3f2805009634026a80901a264781b7"
+      },
+      {
+        "name": "env:dev"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-10/workload-10:2024.09.10-11.52-18c52ee"
+      },
+      {
+        "name": "integrated-time:1725969213"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-10/workload-10"
+      },
+      {
+        "name": "rekor:129176382"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-10/actions/runs/10791835046/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-10"
+      },
+      {
+        "name": "version:2024.09.10-11.52-18c52ee"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/master"
+      },
+      {
+        "name": "workflow-sha:18c52ee37d90bb37fbea5699313a5b8efd39f833"
+      },
+      {
+        "name": "workload:dev|repo-10|app|workload-10"
+      }
+    ],
+    "uuid": "328ca0bd-4e55-4bf6-9991-648b418234bf",
+    "version": "2024.09.10-11.52-18c52ee",
+    "parent": null,
+    "metrics": {
+      "critical": 3,
+      "high": 21,
+      "medium": 18,
+      "low": 0,
+      "unassigned": 5,
+      "vulnerabilities": 47,
+      "vulnerableComponents": 23,
+      "components": 300,
+      "suppressed": 0,
+      "findingsTotal": 47,
+      "findingsAudited": 0,
+      "findingsUnaudited": 47,
+      "inheritedRiskScore": 214,
+      "firstOccurrence": 1725969445557,
+      "lastOccurrence": 1726057153927
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-11/image-11",
+    "lastBomImportFormat": "CycloneDX 1.6",
+    "lastBomImport": 1724245722206,
+    "lastInheritedRiskScore": 184,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-11/.github/workflows/maven.yml@refs/heads/main"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:sha256:c850887531ed2ce6604cdca898644086b0aa130d1925604a2a5c70f3bd5197f2"
+      },
+      {
+        "name": "env:dev"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-11/workload-11:2024.08.21-13.05-8acc0f3"
+      },
+      {
+        "name": "integrated-time:1724245592"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-11/workload-11"
+      },
+      {
+        "name": "rekor:123513351"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-11/actions/runs/10490495035/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-11"
+      },
+      {
+        "name": "version:2024.08.21-13.05-8acc0f3"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/main"
+      },
+      {
+        "name": "workflow-sha:8acc0f3742338541fc139f684807608bb1bbbb16"
+      },
+      {
+        "name": "workload:dev|repo-11|app|workload-11"
+      }
+    ],
+    "uuid": "b65192a4-6e1c-46d7-949e-67fdb027157d",
+    "version": "2024.08.21-13.05-8acc0f3",
+    "parent": null,
+    "metrics": {
+      "critical": 3,
+      "high": 18,
+      "medium": 13,
+      "low": 0,
+      "unassigned": 5,
+      "vulnerabilities": 39,
+      "vulnerableComponents": 17,
+      "components": 181,
+      "suppressed": 0,
+      "findingsTotal": 39,
+      "findingsAudited": 0,
+      "findingsUnaudited": 39,
+      "inheritedRiskScore": 184,
+      "firstOccurrence": 1725445986520,
+      "lastOccurrence": 1726059817365
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-12/image-12",
+    "lastBomImportFormat": "CycloneDX 1.6",
+    "lastBomImport": 1724246953874,
+    "lastInheritedRiskScore": 184,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-12/.github/workflows/maven.yml@refs/heads/prod-deploy"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:sha256:5cbabf1e8378c6bb153125e34fab24ebc1a9de9ab02f07f80ae1cbd36014b221"
+      },
+      {
+        "name": "env:superprod"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-12/workload-12:2024.08.21-13.26-d0ddf1d"
+      },
+      {
+        "name": "integrated-time:1724246824"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-12/workload-12"
+      },
+      {
+        "name": "rekor:123523690"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-12/actions/runs/10490845087/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-12"
+      },
+      {
+        "name": "version:2024.08.21-13.26-d0ddf1d"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/prod-deploy"
+      },
+      {
+        "name": "workflow-sha:d0ddf1d35ce799434d702a6dd4be4ff2cde3eeba"
+      },
+      {
+        "name": "workload:superprod|repo-12|app|workload-12"
+      }
+    ],
+    "uuid": "eb50f5a0-f23b-4b8a-81d6-d9bebcb3d1c8",
+    "version": "2024.08.21-13.26-d0ddf1d",
+    "parent": null,
+    "metrics": {
+      "critical": 3,
+      "high": 18,
+      "medium": 13,
+      "low": 0,
+      "unassigned": 5,
+      "vulnerabilities": 39,
+      "vulnerableComponents": 17,
+      "components": 181,
+      "suppressed": 0,
+      "findingsTotal": 39,
+      "findingsAudited": 0,
+      "findingsUnaudited": 39,
+      "inheritedRiskScore": 184,
+      "firstOccurrence": 1725446025300,
+      "lastOccurrence": 1726059817365
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-13/image-13",
+    "lastBomImportFormat": "CycloneDX 1.6",
+    "lastBomImport": 1725870176014,
+    "lastInheritedRiskScore": 12807,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/repo-13-bemanning/.github/workflows/nodejs.yml@refs/heads/prod-deploy"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:3627fbf1f5aab3988b603554b686110e8f163518c21f9013fa3f5327b6ec517d"
+      },
+      {
+        "name": "env:superprod"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-13/repo-13-bemanning:2024.09.09-08.06-80a5491"
+      },
+      {
+        "name": "integrated-time:1725869295"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-13/repo-13-bemanning"
+      },
+      {
+        "name": "rekor:128802097"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/repo-13-bemanning/actions/runs/10769058692/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-13"
+      },
+      {
+        "name": "version:2024.09.09-08.06-80a5491"
+      },
+      {
+        "name": "workflow-name:node ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/prod-deploy"
+      },
+      {
+        "name": "workflow-sha:80a5491a906226870c07e51f67005717699db19d"
+      },
+      {
+        "name": "workload:superprod|repo-13|app|repo-13-bemanning"
+      }
+    ],
+    "uuid": "3b622ccd-2431-4d44-9b1f-2ef02b25a46c",
+    "version": "2024.09.09-08.06-80a5491",
+    "parent": null,
+    "metrics": {
+      "critical": 111,
+      "high": 919,
+      "medium": 1362,
+      "low": 346,
+      "unassigned": 534,
+      "vulnerabilities": 3272,
+      "vulnerableComponents": 296,
+      "components": 2696,
+      "suppressed": 0,
+      "findingsTotal": 3272,
+      "findingsAudited": 0,
+      "findingsUnaudited": 3272,
+      "inheritedRiskScore": 12807,
+      "firstOccurrence": 1726056679442,
+      "lastOccurrence": 1726058130794
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-14/image-14",
+    "lastBomImportFormat": "CycloneDX 1.5",
+    "lastBomImport": 1721891897721,
+    "lastInheritedRiskScore": 12810,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/repo-14-bemanning/.github/workflows/nodejs.yml@refs/heads/master"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:sha256:4b0a967f847f6943c04891e48928e09af1e2707ed2093ab45f4af48928383b22"
+      },
+      {
+        "name": "env:dev"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-14/repo-14-bemanning:2024.07.25-07.10-7fd35be"
+      },
+      {
+        "name": "integrated-time:1721891553"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-14/repo-14-bemanning"
+      },
+      {
+        "name": "rekor:115127730"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/repo-14-bemanning/actions/runs/10089712486/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-14"
+      },
+      {
+        "name": "version:2024.07.25-07.10-7fd35be"
+      },
+      {
+        "name": "workflow-name:node ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/master"
+      },
+      {
+        "name": "workflow-sha:7fd35be7dcb3a43e669a4077f744c8e1bb3da39c"
+      },
+      {
+        "name": "workload:dev|repo-14|app|repo-14-bemanning"
+      },
+      {
+        "name": "workload:dev|repo-14|app|repo-14-bemanning-test"
+      }
+    ],
+    "uuid": "83d3c457-d714-4bbf-8c9b-ae1665bd2180",
+    "version": "2024.07.25-07.10-7fd35be",
+    "parent": null,
+    "metrics": {
+      "critical": 111,
+      "high": 919,
+      "medium": 1363,
+      "low": 346,
+      "unassigned": 534,
+      "vulnerabilities": 3273,
+      "vulnerableComponents": 296,
+      "components": 2696,
+      "suppressed": 0,
+      "findingsTotal": 3273,
+      "findingsAudited": 0,
+      "findingsUnaudited": 3273,
+      "inheritedRiskScore": 12810,
+      "firstOccurrence": 1726042874202,
+      "lastOccurrence": 1726053179387
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-15/image-15",
+    "lastBomImportFormat": "CycloneDX 1.6",
+    "lastBomImport": 1726056868090,
+    "lastInheritedRiskScore": 12079,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-15/.github/workflows/main.yaml@refs/heads/main"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:1f68e136257f43a19d2e8aa46ebe2a7fe86d5c723262dbd5f9063819082ad674"
+      },
+      {
+        "name": "env:dev"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-15/workload-15:2024.09.11-12.08-d9e1ded"
+      },
+      {
+        "name": "integrated-time:1726056625"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-15/workload-15"
+      },
+      {
+        "name": "rekor:129483976"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-15/actions/runs/10811269167/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-15"
+      },
+      {
+        "name": "version:2024.09.11-12.08-d9e1ded"
+      },
+      {
+        "name": "workflow-name:build, push, and deploy"
+      },
+      {
+        "name": "workflow-ref:refs/heads/main"
+      },
+      {
+        "name": "workflow-sha:d9e1ded49e5bbc14036b8a825821a165653b173b"
+      },
+      {
+        "name": "workload:dev|repo-15|app|workload-15"
+      },
+      {
+        "name": "workload:dev|repo-15|app|workload-15-test"
+      }
+    ],
+    "uuid": "e209b388-11f6-4f25-be8d-0c93b72a1042",
+    "version": "2024.09.11-12.08-d9e1ded",
+    "parent": null,
+    "metrics": {
+      "critical": 94,
+      "high": 831,
+      "medium": 1335,
+      "low": 344,
+      "unassigned": 527,
+      "vulnerabilities": 3131,
+      "vulnerableComponents": 196,
+      "components": 2097,
+      "suppressed": 0,
+      "findingsTotal": 3131,
+      "findingsAudited": 0,
+      "findingsUnaudited": 3131,
+      "inheritedRiskScore": 12079,
+      "firstOccurrence": 1726057952592,
+      "lastOccurrence": 1726057952592
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-16/image-16",
+    "lastInheritedRiskScore": 12070,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-16/.github/workflows/main.yaml@refs/heads/prod-deploy"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:89aa266c5ced77f860c2ddf5924a1c84673fd2349fc945771e218775bece6f6c"
+      },
+      {
+        "name": "env:superprod"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-16/workload-16:2024.09.10-07.07-eb2fb43"
+      },
+      {
+        "name": "integrated-time:1725952151"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-16/workload-16"
+      },
+      {
+        "name": "rekor:129117375"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-16/actions/runs/10787475012/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-16"
+      },
+      {
+        "name": "version:2024.09.10-07.07-eb2fb43"
+      },
+      {
+        "name": "workflow-name:build, push, and deploy"
+      },
+      {
+        "name": "workflow-ref:refs/heads/prod-deploy"
+      },
+      {
+        "name": "workflow-sha:eb2fb438f1f547a6120a9e557574905e66c08243"
+      },
+      {
+        "name": "workload:superprod|repo-16|app|workload-16"
+      }
+    ],
+    "uuid": "b31e8bae-2d90-4a76-a94d-77510279c5af",
+    "version": "2024.09.10-07.07-eb2fb43",
+    "parent": null,
+    "metrics": {
+      "critical": 94,
+      "high": 831,
+      "medium": 1335,
+      "low": 344,
+      "unassigned": 527,
+      "vulnerabilities": 3131,
+      "vulnerableComponents": 196,
+      "components": 2097,
+      "suppressed": 0,
+      "findingsTotal": 3131,
+      "findingsAudited": 0,
+      "findingsUnaudited": 3131,
+      "inheritedRiskScore": 12079,
+      "firstOccurrence": 1726059969965,
+      "lastOccurrence": 1726059969965
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-17/image-17",
+    "lastInheritedRiskScore": 12112,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-17/.github/workflows/deploy.yaml@refs/heads/prod-deploy"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:8c98a2a806f9cd63546d7bdf3f24d4dd595f9b0da7704753db30a17e6b83a0f3"
+      },
+      {
+        "name": "env:superprod"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-17/workload-17:2024.09.09-08.07-36200ec"
+      },
+      {
+        "name": "integrated-time:1725869375"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-17/workload-17"
+      },
+      {
+        "name": "rekor:128802219"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-17/actions/runs/10769059424/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-17"
+      },
+      {
+        "name": "version:2024.09.09-08.07-36200ec"
+      },
+      {
+        "name": "workflow-name:build, push, and deploy"
+      },
+      {
+        "name": "workflow-ref:refs/heads/prod-deploy"
+      },
+      {
+        "name": "workflow-sha:36200ecf16c7a89127150aa51513daa99644448e"
+      },
+      {
+        "name": "workload:superprod|repo-17|app|workload-17"
+      }
+    ],
+    "uuid": "38f9af75-fe27-48b6-a521-d68afa7c7dde",
+    "version": "2024.09.09-08.07-36200ec",
+    "parent": null,
+    "metrics": {
+      "critical": 97,
+      "high": 832,
+      "medium": 1336,
+      "low": 344,
+      "unassigned": 526,
+      "vulnerabilities": 3135,
+      "vulnerableComponents": 198,
+      "components": 1636,
+      "suppressed": 0,
+      "findingsTotal": 3135,
+      "findingsAudited": 0,
+      "findingsUnaudited": 3135,
+      "inheritedRiskScore": 12112,
+      "firstOccurrence": 1725930051456,
+      "lastOccurrence": 1726058130794
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-18/image-18",
+    "lastBomImportFormat": "CycloneDX 1.6",
+    "lastBomImport": 1724062155179,
+    "lastInheritedRiskScore": 12115,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/image-18/.github/workflows/deploy.yaml@refs/heads/test-deploy"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:sha256:749a52994d2537d39bc2d071c7af6c66fcc797457cf4bdffc5c5fdd7ab3e30e7"
+      },
+      {
+        "name": "env:dev"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-18/image-18:2024.08.19-10.04-651e4e2"
+      },
+      {
+        "name": "integrated-time:1724062006"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-18/image-18"
+      },
+      {
+        "name": "rekor:122753518"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/image-18/actions/runs/10451253155/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-18"
+      },
+      {
+        "name": "version:2024.08.19-10.04-651e4e2"
+      },
+      {
+        "name": "workflow-name:build, push, and deploy"
+      },
+      {
+        "name": "workflow-ref:refs/heads/test-deploy"
+      },
+      {
+        "name": "workflow-sha:651e4e2d83b83375f68ecab858a2c28036b20105"
+      },
+      {
+        "name": "workload:dev|repo-18|app|workload-18"
+      }
+    ],
+    "uuid": "31b2fc91-ce17-48ac-aa86-a9fdcd6d2627",
+    "version": "2024.08.19-10.04-651e4e2",
+    "parent": null,
+    "metrics": {
+      "critical": 97,
+      "high": 832,
+      "medium": 1337,
+      "low": 344,
+      "unassigned": 526,
+      "vulnerabilities": 3136,
+      "vulnerableComponents": 198,
+      "components": 1642,
+      "suppressed": 0,
+      "findingsTotal": 3136,
+      "findingsAudited": 0,
+      "findingsUnaudited": 3136,
+      "inheritedRiskScore": 12115,
+      "firstOccurrence": 1725926826444,
+      "lastOccurrence": 1726059978102
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-19/image-19",
+    "lastBomImportFormat": "CycloneDX 1.5",
+    "lastBomImport": 1721810329566,
+    "lastInheritedRiskScore": 12115,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-19/.github/workflows/deploy.yaml@refs/heads/main"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:sha256:e54c41149a689a63e09aea57a3d249f7ffd3d9da847fbbed83683bf3109427fa"
+      },
+      {
+        "name": "env:dev"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-19/workload-19:2024.07.24-08.33-8b66bff"
+      },
+      {
+        "name": "integrated-time:1721810146"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-19/workload-19"
+      },
+      {
+        "name": "rekor:114751231"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-19/actions/runs/10073220948/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-19"
+      },
+      {
+        "name": "version:2024.07.24-08.33-8b66bff"
+      },
+      {
+        "name": "workflow-name:build, push, and deploy"
+      },
+      {
+        "name": "workflow-ref:refs/heads/main"
+      },
+      {
+        "name": "workflow-sha:8b66bffddef75ec997e4c7de7544a77461d7902a"
+      },
+      {
+        "name": "workload:dev|repo-19|app|workload-19"
+      }
+    ],
+    "uuid": "bae3f555-78fe-4417-9ac3-33da992a2a55",
+    "version": "2024.07.24-08.33-8b66bff",
+    "parent": null,
+    "metrics": {
+      "critical": 97,
+      "high": 832,
+      "medium": 1337,
+      "low": 344,
+      "unassigned": 526,
+      "vulnerabilities": 3136,
+      "vulnerableComponents": 198,
+      "components": 1636,
+      "suppressed": 0,
+      "findingsTotal": 3136,
+      "findingsAudited": 0,
+      "findingsUnaudited": 3136,
+      "inheritedRiskScore": 12115,
+      "firstOccurrence": 1725927397436,
+      "lastOccurrence": 1726053254802
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-20/image-20",
+    "lastBomImportFormat": "CycloneDX 1.6",
+    "lastBomImport": 1726053772954,
+    "lastInheritedRiskScore": 49,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-20/.github/workflows/maven.yml@refs/heads/main"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:f078d0c67e8f5a565d2dac6206aaf9e78ac03e555b6b565c60da2d317f4bae2c"
+      },
+      {
+        "name": "env:dev"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-20/workload-20:2024.09.11-11.18-9eba3b1"
+      },
+      {
+        "name": "integrated-time:1726053593"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-20/workload-20"
+      },
+      {
+        "name": "rekor:129477059"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-20/actions/runs/10810547488/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-20"
+      },
+      {
+        "name": "version:2024.09.11-11.18-9eba3b1"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/main"
+      },
+      {
+        "name": "workflow-sha:9eba3b1c481860af5ad9ae05ebb7c72c6f5ffb41"
+      },
+      {
+        "name": "workload:dev|repo-20|app|workload-20"
+      }
+    ],
+    "uuid": "26dbed5f-938f-41f1-875e-a76ecdca3a72",
+    "version": "2024.09.11-11.18-9eba3b1",
+    "parent": null,
+    "metrics": {
+      "critical": 0,
+      "high": 4,
+      "medium": 3,
+      "low": 0,
+      "unassigned": 4,
+      "vulnerabilities": 11,
+      "vulnerableComponents": 7,
+      "components": 248,
+      "suppressed": 0,
+      "findingsTotal": 11,
+      "findingsAudited": 0,
+      "findingsUnaudited": 11,
+      "inheritedRiskScore": 49,
+      "firstOccurrence": 1726053809268,
+      "lastOccurrence": 1726055979326
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-21/image-21",
+    "lastBomImportFormat": "CycloneDX 1.6",
+    "lastBomImport": 1725881720738,
+    "lastInheritedRiskScore": 49,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-21/.github/workflows/maven.yml@refs/heads/prod-deploy"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:2d7a30894aaf71aa7ed0dcea4791e6a5b071ce85c33d6e019d8736411e64fd99"
+      },
+      {
+        "name": "env:superprod"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-21/workload-21:2024.09.09-11.27-7ead58d"
+      },
+      {
+        "name": "integrated-time:1725881323"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-21/workload-21"
+      },
+      {
+        "name": "rekor:128844728"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-21/actions/runs/10772237888/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-21"
+      },
+      {
+        "name": "version:2024.09.09-11.27-7ead58d"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/prod-deploy"
+      },
+      {
+        "name": "workflow-sha:7ead58db02d7fe8d71edf0c1946e5683fb54f3b0"
+      },
+      {
+        "name": "workload:superprod|repo-21|app|workload-21"
+      }
+    ],
+    "uuid": "7c2cf231-fb1b-4db1-b12f-4b14d41cac0c",
+    "version": "2024.09.09-11.27-7ead58d",
+    "parent": null,
+    "metrics": {
+      "critical": 0,
+      "high": 4,
+      "medium": 3,
+      "low": 0,
+      "unassigned": 4,
+      "vulnerabilities": 11,
+      "vulnerableComponents": 7,
+      "components": 246,
+      "suppressed": 0,
+      "findingsTotal": 11,
+      "findingsAudited": 0,
+      "findingsUnaudited": 11,
+      "inheritedRiskScore": 49,
+      "firstOccurrence": 1725881757194,
+      "lastOccurrence": 1726058032287
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-22/image-22",
+    "lastBomImportFormat": "CycloneDX 1.6",
+    "lastBomImport": 1725966617332,
+    "lastInheritedRiskScore": 49,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/image-22/.github/workflows/maven.yml@refs/heads/test-deploy"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:c265c19cb207a2a249d8ed7b340d1f3401cee4ad4b23a7036b4f4824c6246b17"
+      },
+      {
+        "name": "env:dev"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-22/image-22:2024.09.10-11.05-7ead58d"
+      },
+      {
+        "name": "integrated-time:1725966409"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-22/image-22"
+      },
+      {
+        "name": "rekor:129169974"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/image-22/actions/runs/10791162766/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-22"
+      },
+      {
+        "name": "version:2024.09.10-11.05-7ead58d"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/test-deploy"
+      },
+      {
+        "name": "workflow-sha:7ead58db02d7fe8d71edf0c1946e5683fb54f3b0"
+      },
+      {
+        "name": "workload:dev|repo-22|app|workload-22"
+      }
+    ],
+    "uuid": "e51e30ec-7ad8-42e9-8272-33ba77c68807",
+    "version": "2024.09.10-11.05-7ead58d",
+    "parent": null,
+    "metrics": {
+      "critical": 0,
+      "high": 4,
+      "medium": 3,
+      "low": 0,
+      "unassigned": 4,
+      "vulnerabilities": 11,
+      "vulnerableComponents": 7,
+      "components": 246,
+      "suppressed": 0,
+      "findingsTotal": 11,
+      "findingsAudited": 0,
+      "findingsUnaudited": 11,
+      "inheritedRiskScore": 49,
+      "firstOccurrence": 1725966652014,
+      "lastOccurrence": 1726057276972
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-23/image-23",
+    "lastBomImportFormat": "CycloneDX 1.5",
+    "lastBomImport": 1717498878182,
+    "lastInheritedRiskScore": 775,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-23/.github/workflows/maven.yml@refs/heads/prod-deploy"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:sha256:8d87196350f1bf94848305b85f6c2eb1c46f77fc8214a8e0f6634a7244dafa45"
+      },
+      {
+        "name": "env:superprod"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-23/workload-23:2024.01.02-08.43-e1c9324"
+      },
+      {
+        "name": "integrated-time:1704185124"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-23/workload-23"
+      },
+      {
+        "name": "rekor:60783703"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-23/actions/runs/7383776462/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-23"
+      },
+      {
+        "name": "version:2024.01.02-08.43-e1c9324"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/prod-deploy"
+      },
+      {
+        "name": "workflow-sha:e1c93245257774e330428d2272d7b3b13cb53226"
+      },
+      {
+        "name": "workload:superprod|repo-23|app|workload-23"
+      }
+    ],
+    "uuid": "0d8d7477-ef89-48aa-831f-354d8e6df286",
+    "version": "2024.01.02-08.43-e1c9324",
+    "parent": null,
+    "metrics": {
+      "critical": 2,
+      "high": 48,
+      "medium": 88,
+      "low": 1,
+      "unassigned": 50,
+      "vulnerabilities": 189,
+      "vulnerableComponents": 59,
+      "components": 224,
+      "suppressed": 0,
+      "findingsTotal": 189,
+      "findingsAudited": 0,
+      "findingsUnaudited": 189,
+      "inheritedRiskScore": 775,
+      "firstOccurrence": 1725428765986,
+      "lastOccurrence": 1726054426084
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-24/image-24",
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-24/.github/workflows/maven.yml@refs/heads/main"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:sha256:36a6d1d9dca52a866dc66bb9787c868c9c2877154a26806bf3a5f46f23360d2a"
+      },
+      {
+        "name": "env:dev"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-24/workload-24:2023.10.19-06.46-3bbe075"
+      },
+      {
+        "name": "integrated-time:1697698081"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-24/workload-24"
+      },
+      {
+        "name": "rekor:44042514"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-24/actions/runs/6570884771/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-24"
+      },
+      {
+        "name": "version:2023.10.19-06.46-3bbe075"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/main"
+      },
+      {
+        "name": "workflow-sha:3bbe075d45660932157aa955217f1263ee44d7eb"
+      },
+      {
+        "name": "workload:dev|repo-24|app|workload-24"
+      }
+    ],
+    "uuid": "5f5f9fb5-e8ca-4a9b-8412-d0e08f474989",
+    "version": "2023.10.19-06.46-3bbe075",
+    "parent": null,
+    "metrics": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "unassigned": 0,
+      "vulnerabilities": 0,
+      "vulnerableComponents": 0,
+      "components": 0,
+      "suppressed": 0,
+      "findingsTotal": 0,
+      "findingsAudited": 0,
+      "findingsUnaudited": 0,
+      "inheritedRiskScore": 0,
+      "firstOccurrence": 1717505086279,
+      "lastOccurrence": 1726054353591
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-25/image-25",
+    "lastBomImportFormat": "CycloneDX 1.6",
+    "lastBomImport": 1725869594248,
+    "lastInheritedRiskScore": 214,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-25/.github/workflows/maven.yml@refs/heads/prod-deploy"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:567bc1151d762819ad91c2369d4741937db50ed726ac6506e934e9c58a2bba4f"
+      },
+      {
+        "name": "env:superprod"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-25/workload-25:2024.09.09-08.04-c619361"
+      },
+      {
+        "name": "integrated-time:1725869118"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-25/workload-25"
+      },
+      {
+        "name": "rekor:128801673"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-25/actions/runs/10769056749/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-25"
+      },
+      {
+        "name": "version:2024.09.09-08.04-c619361"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/prod-deploy"
+      },
+      {
+        "name": "workflow-sha:c619361932043173cd103db7e21e8fbf4c9e9b48"
+      },
+      {
+        "name": "workload:superprod|repo-25|app|workload-25"
+      }
+    ],
+    "uuid": "2596df6a-9470-4f07-a0a1-eefba056692c",
+    "version": "2024.09.09-08.04-c619361",
+    "parent": null,
+    "metrics": {
+      "critical": 3,
+      "high": 21,
+      "medium": 18,
+      "low": 0,
+      "unassigned": 5,
+      "vulnerabilities": 47,
+      "vulnerableComponents": 23,
+      "components": 299,
+      "suppressed": 0,
+      "findingsTotal": 47,
+      "findingsAudited": 0,
+      "findingsUnaudited": 47,
+      "inheritedRiskScore": 214,
+      "firstOccurrence": 1725929958360,
+      "lastOccurrence": 1726058253770
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-26/image-26",
+    "lastBomImportFormat": "CycloneDX 1.5",
+    "lastBomImport": 1718623588739,
+    "lastInheritedRiskScore": 372,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/image-26/.github/workflows/maven.yml@refs/heads/dev2-deploy"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:sha256:c513df8fa83f26fe4eb7c3c4a186ed90d9c470ee2bb77ddcdbf99d01ae1f4f12"
+      },
+      {
+        "name": "env:dev"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-26/image-26:2024.06.17-11.03-4678113"
+      },
+      {
+        "name": "integrated-time:1718622268"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-26/image-26"
+      },
+      {
+        "name": "rekor:103438609"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/image-26/actions/runs/9546522479/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-26"
+      },
+      {
+        "name": "version:2024.06.17-11.03-4678113"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/dev2-deploy"
+      },
+      {
+        "name": "workflow-sha:4678113792816d111c4b33c9f0ddded1edc4d873"
+      },
+      {
+        "name": "workload:dev|repo-26|app|workload-26"
+      }
+    ],
+    "uuid": "833c1469-2908-48b0-966c-c046715c855f",
+    "version": "2024.06.17-11.03-4678113",
+    "parent": null,
+    "metrics": {
+      "critical": 3,
+      "high": 24,
+      "medium": 34,
+      "low": 0,
+      "unassigned": 24,
+      "vulnerabilities": 85,
+      "vulnerableComponents": 33,
+      "components": 304,
+      "suppressed": 0,
+      "findingsTotal": 85,
+      "findingsAudited": 0,
+      "findingsUnaudited": 85,
+      "inheritedRiskScore": 372,
+      "firstOccurrence": 1725434870991,
+      "lastOccurrence": 1726053818227
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-27/image-27",
+    "lastBomImportFormat": "CycloneDX 1.6",
+    "lastBomImport": 1725868206009,
+    "lastInheritedRiskScore": 214,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-27/.github/workflows/maven.yml@refs/heads/master"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:360d95ef46ae86a2d189d76727a94819e19af1c28113e8423d42274b30af6855"
+      },
+      {
+        "name": "env:dev"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-27/workload-27:2024.09.09-07.44-c5eaf10"
+      },
+      {
+        "name": "integrated-time:1725867972"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-27/workload-27"
+      },
+      {
+        "name": "rekor:128799524"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-27/actions/runs/10768778566/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-27"
+      },
+      {
+        "name": "version:2024.09.09-07.44-c5eaf10"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/master"
+      },
+      {
+        "name": "workflow-sha:c5eaf106a7f1474bda94ee6097d205bab43db4cf"
+      },
+      {
+        "name": "workload:dev|repo-27|app|workload-27"
+      }
+    ],
+    "uuid": "52926244-f0e4-4c46-a7ba-db502304387b",
+    "version": "2024.09.09-07.44-c5eaf10",
+    "parent": null,
+    "metrics": {
+      "critical": 3,
+      "high": 21,
+      "medium": 18,
+      "low": 0,
+      "unassigned": 5,
+      "vulnerabilities": 47,
+      "vulnerableComponents": 23,
+      "components": 299,
+      "suppressed": 0,
+      "findingsTotal": 47,
+      "findingsAudited": 0,
+      "findingsUnaudited": 47,
+      "inheritedRiskScore": 214,
+      "firstOccurrence": 1725868269993,
+      "lastOccurrence": 1726058272490
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-28/image-28",
+    "lastBomImportFormat": "CycloneDX 1.5",
+    "lastBomImport": 1717502222254,
+    "lastInheritedRiskScore": 449,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-28/.github/workflows/maven.yml@refs/heads/prod-deploy"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:sha256:e6ddb3511371359cd768ae3bc59fea1cfc33d74954f5d857bdb569b9ace784d2"
+      },
+      {
+        "name": "env:superprod"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-28/workload-28:2024.05.03-10.59-c56f9e3"
+      },
+      {
+        "name": "integrated-time:1714734048"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-28/workload-28"
+      },
+      {
+        "name": "rekor:90791350"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-28/actions/runs/8937938237/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-28"
+      },
+      {
+        "name": "version:2024.05.03-10.59-c56f9e3"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/prod-deploy"
+      },
+      {
+        "name": "workflow-sha:c56f9e39b089d3f4b02da02183ce073ec27a0a04"
+      },
+      {
+        "name": "workload:superprod|repo-28|app|workload-28"
+      }
+    ],
+    "uuid": "34178e78-f394-43fc-9bb0-d727117ae53c",
+    "version": "2024.05.03-10.59-c56f9e3",
+    "parent": null,
+    "metrics": {
+      "critical": 3,
+      "high": 26,
+      "medium": 33,
+      "low": 0,
+      "unassigned": 38,
+      "vulnerabilities": 100,
+      "vulnerableComponents": 35,
+      "components": 252,
+      "suppressed": 0,
+      "findingsTotal": 100,
+      "findingsAudited": 0,
+      "findingsUnaudited": 100,
+      "inheritedRiskScore": 449,
+      "firstOccurrence": 1725431653984,
+      "lastOccurrence": 1726054034991
+    }
+  },
+  {
+    "active": true,
+    "author": "",
+    "classifier": "APPLICATION",
+    "group": "europe-north1-docker.pkg.dev",
+    "name": "europe-north1-docker.pkg.dev/nais-management-233d/repo-29/image-29",
+    "lastBomImportFormat": "CycloneDX 1.5",
+    "lastBomImport": 1717502169565,
+    "lastInheritedRiskScore": 449,
+    "publisher": "europe-north1-docker.pkg.dev",
+    "tags": [
+      {
+        "name": "build-config-uri:https://github.com/navikt/workload-29/.github/workflows/maven.yml@refs/heads/master"
+      },
+      {
+        "name": "build-trigger:push"
+      },
+      {
+        "name": "digest:sha256:7110582613999903b84ef38bac7598730b38fd821a2724a23da5e074071f2c7a"
+      },
+      {
+        "name": "env:dev"
+      },
+      {
+        "name": "image:europe-north1-docker.pkg.dev/nais-management-233d/repo-29/workload-29:2024.05.03-10.52-c2451d5"
+      },
+      {
+        "name": "integrated-time:1714733601"
+      },
+      {
+        "name": "oidc-issuer:https://token.actions.githubusercontent.com"
+      },
+      {
+        "name": "project:europe-north1-docker.pkg.dev/nais-management-233d/repo-29/workload-29"
+      },
+      {
+        "name": "rekor:90790710"
+      },
+      {
+        "name": "run-invocation-uri:https://github.com/navikt/workload-29/actions/runs/8937871829/attempts/1"
+      },
+      {
+        "name": "source-repo-owner-uri:https://github.com/navikt"
+      },
+      {
+        "name": "team:repo-29"
+      },
+      {
+        "name": "version:2024.05.03-10.52-c2451d5"
+      },
+      {
+        "name": "workflow-name:java ci"
+      },
+      {
+        "name": "workflow-ref:refs/heads/master"
+      },
+      {
+        "name": "workflow-sha:c2451d53732e43c4c598cbb447a79e5f843ea219"
+      },
+      {
+        "name": "workload:dev|repo-29|app|workload-29"
+      }
+    ],
+    "uuid": "4d7ea843-5d31-43a0-aabe-bc81dbddde6b",
+    "version": "2024.05.03-10.52-c2451d5",
+    "parent": null,
+    "metrics": {
+      "critical": 3,
+      "high": 26,
+      "medium": 33,
+      "low": 0,
+      "unassigned": 38,
+      "vulnerabilities": 100,
+      "vulnerableComponents": 35,
+      "components": 252,
+      "suppressed": 0,
+      "findingsTotal": 100,
+      "findingsAudited": 0,
+      "findingsUnaudited": 100,
+      "inheritedRiskScore": 449,
+      "firstOccurrence": 1725431680304,
+      "lastOccurrence": 1726054023351
+    }
+  }
+]

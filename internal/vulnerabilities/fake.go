@@ -2,7 +2,9 @@ package vulnerabilities
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/nais/dependencytrack/pkg/client"
+	"os"
 )
 
 func NewFakeDependencyTrackClient(c client.Client) client.Client {
@@ -14,33 +16,18 @@ type fakeDependencyTrackClient struct {
 }
 
 func (f *fakeDependencyTrackClient) GetProjectsByTag(ctx context.Context, tag string) ([]*client.Project, error) {
+	b, err := os.ReadFile("data/dependencytrack/projects.json")
+	if err != nil {
+		return nil, err
+	}
 
-	projects := make([]*client.Project, 0)
-	projects = append(projects, &client.Project{
-		Name:    "",
-		Tags:    nil,
-		Uuid:    "",
-		Version: "",
-		Metrics: &client.ProjectMetric{
-			Critical:             0,
-			High:                 0,
-			Medium:               0,
-			Low:                  0,
-			Unassigned:           0,
-			Vulnerabilities:      0,
-			VulnerableComponents: 0,
-			Components:           0,
-			Suppressed:           0,
-			FindingsTotal:        0,
-			FindingsAudited:      0,
-			FindingsUnaudited:    0,
-			InheritedRiskScore:   0,
-			FirstOccurrence:      0,
-			LastOccurrence:       0,
-		},
-	})
+	var projects []*client.Project
+	err = json.Unmarshal(b, &projects)
+	if err != nil {
+		return nil, err
+	}
+
 	return projects, nil
-	//return f.Client.GetProjectsByTag(ctx, tag)
 }
 
 var _ client.Client = (*fakeDependencyTrackClient)(nil)
