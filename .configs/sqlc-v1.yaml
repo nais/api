@@ -75,3 +75,12 @@ sql:
         <<: *default_go
         package: "repositorysql"
         out: "../internal/v1/github/repository/repositorysql"
+
+  - <<: *default_domain
+    name: "Cost SQL"
+    queries: "../internal/v1/cost/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "costsql"
+        out: "../internal/v1/cost/costsql"

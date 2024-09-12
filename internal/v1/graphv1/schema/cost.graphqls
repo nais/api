@@ -1,0 +1,63 @@
+extend interface Workload {
+  "The cost for a workload."
+  cost: WorkloadCost!
+}
+
+extend type Application {
+  "The cost for the application."
+  cost: WorkloadCost!
+}
+
+extend type Job {
+  "The cost for the job."
+  cost: WorkloadCost!
+}
+
+extend type Team {
+  "The cost for the team."
+  cost: TeamCost!
+}
+
+type WorkloadCost {
+  "Get the daily cost for a workload."
+  daily(to: Date!, from: Date!): CostDaily!
+  "Get the monthly cost for a workload. Will include up to 12 months of data."
+  monthly: CostMonthly!
+}
+
+type TeamCost {
+  "Get the daily cost for a team."
+  daily(to: Date!, from: Date!): CostDaily!
+  "Get the monthly cost for a team. Will include up to 12 months of data."
+  monthly: CostMonthly!
+}
+
+type CostDaily {
+  "The total cost for the period."
+  sum: Float!
+  "The cost series."
+  entries: [CostDailyEntry!]!
+}
+
+type CostDailyEntry {
+  "Name of the service the cost is for."
+  service: String!
+  "The cost for the service."
+  sum: Float!
+  "The cost series."
+  series: [CostSeries!]!
+}
+
+type CostMonthly {
+  "The total cost for the period."
+  sum: Float!
+  "The cost series."
+  series: [CostSeries!]!
+}
+
+type CostSeries {
+  "Date for the cost entry."
+  date: Date!
+  "The cost in euros."
+  sum: Float!
+}
