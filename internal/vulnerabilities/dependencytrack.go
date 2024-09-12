@@ -123,6 +123,7 @@ func (c *dependencyTrackClient) GetVulnerabilityStatus(ctx context.Context, imag
 
 	v, sum := c.isVulnerable(p)
 	if sum == nil {
+		// TODO: Set revision..
 		return model.MissingSbomError{
 			Revision: "",
 			Level:    model.ErrorLevelError,
@@ -130,6 +131,7 @@ func (c *dependencyTrackClient) GetVulnerabilityStatus(ctx context.Context, imag
 	}
 
 	if v {
+		// TODO: Set revision..
 		return model.VulnerableError{
 			Revision: "",
 			Level:    model.ErrorLevelWarning,
