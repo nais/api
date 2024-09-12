@@ -88,6 +88,8 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 	redisWatcher := redis.NewWatcher(ctx, watcherMgr)
 	openSearchWatcher := opensearch.NewWatcher(ctx, watcherMgr)
 	bucketWatcher := bucket.NewWatcher(ctx, watcherMgr)
+	sqlDatabaseWatcher := sqlinstance.NewDatabaseWatcher(ctx, watcherMgr)
+	sqlInstanceWatcher := sqlinstance.NewInstanceWatcher(ctx, watcherMgr)
 
 	syncCtx, cancelSync := context.WithTimeout(ctx, 20*time.Second)
 	defer cancelSync()
@@ -112,7 +114,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 			ctx = kafkatopic.NewLoaderContext(ctx, k8sClient, opts)
 			ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher)
 			ctx = redis.NewLoaderContext(ctx, redisWatcher)
-			ctx = sqlinstance.NewLoaderContext(ctx, k8sClient, sqlAdminService, opts)
+			ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher)
 			pool := db.GetPool()
 			ctx = databasev1.NewLoaderContext(ctx, pool)
 			ctx = team.NewLoaderContext(ctx, pool, opts)

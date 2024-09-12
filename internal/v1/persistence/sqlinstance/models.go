@@ -16,6 +16,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/utils/ptr"
 )
 
@@ -42,6 +43,20 @@ type SQLDatabase struct {
 func (SQLDatabase) IsPersistence() {}
 
 func (SQLDatabase) IsNode() {}
+
+func (d *SQLDatabase) GetName() string { return d.Name }
+
+func (d *SQLDatabase) GetNamespace() string { return d.TeamSlug.String() }
+
+func (d *SQLDatabase) GetLabels() map[string]string { return nil }
+
+func (d *SQLDatabase) GetObjectKind() schema.ObjectKind {
+	return schema.EmptyObjectKind
+}
+
+func (d *SQLDatabase) DeepCopyObject() runtime.Object {
+	return d
+}
 
 func (d SQLDatabase) ID() ident.Ident {
 	return newDatabaseIdent(d.TeamSlug, d.EnvironmentName, d.SQLInstanceName)
@@ -71,6 +86,20 @@ type SQLInstance struct {
 func (SQLInstance) IsPersistence() {}
 
 func (SQLInstance) IsNode() {}
+
+func (i *SQLInstance) GetName() string { return i.Name }
+
+func (i *SQLInstance) GetNamespace() string { return i.TeamSlug.String() }
+
+func (i *SQLInstance) GetLabels() map[string]string { return nil }
+
+func (i *SQLInstance) GetObjectKind() schema.ObjectKind {
+	return schema.EmptyObjectKind
+}
+
+func (i *SQLInstance) DeepCopyObject() runtime.Object {
+	return i
+}
 
 func (i SQLInstance) ID() ident.Ident {
 	return newIdent(i.TeamSlug, i.EnvironmentName, i.Name)
@@ -250,16 +279,10 @@ func toSQLInstanceFlags(flags []sql_cnrm_cloud_google_com_v1beta1.InstanceDataba
 	return ret
 }
 
-func toSQLDatabase(u *unstructured.Unstructured, environmentName, sqlInstanceName string) (*SQLDatabase, error) {
+func toSQLDatabase(u *unstructured.Unstructured, environmentName string) (*SQLDatabase, error) {
 	obj := &sql_cnrm_cloud_google_com_v1beta1.SQLDatabase{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, obj); err != nil {
 		return nil, fmt.Errorf("converting to SQL database: %w", err)
-	}
-
-	// TODO: Investigate if this is the correct way to identify the SQL database of an SQL instance
-	// TODO: Does not handle abandoned databases
-	if obj.Spec.InstanceRef.Name != sqlInstanceName {
-		return nil, nil
 	}
 
 	return &SQLDatabase{
@@ -268,7 +291,7 @@ func toSQLDatabase(u *unstructured.Unstructured, environmentName, sqlInstanceNam
 		Collation:       obj.Spec.Collation,
 		DeletionPolicy:  obj.Spec.DeletionPolicy,
 		Healthy:         healthy(obj.Status.Conditions),
-		SQLInstanceName: sqlInstanceName,
+		SQLInstanceName: obj.Spec.InstanceRef.Name,
 		EnvironmentName: environmentName,
 		TeamSlug:        slug.Slug(obj.GetNamespace()),
 	}, nil

@@ -8,9 +8,9 @@ import (
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
-	"github.com/nais/api/internal/v1/graphv1/loaderv1"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/nais/api/internal/v1/persistence"
 	"github.com/nais/api/internal/v1/persistence/bigquery"
 	"github.com/nais/api/internal/v1/persistence/bucket"
@@ -307,11 +307,13 @@ func (r *sqlInstanceResolver) Workload(ctx context.Context, obj *sqlinstance.SQL
 
 func (r *sqlInstanceResolver) Database(ctx context.Context, obj *sqlinstance.SQLInstance) (*sqlinstance.SQLDatabase, error) {
 	db, err := sqlinstance.GetDatabase(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
-	if errors.Is(err, loaderv1.ErrObjectNotFound) {
-		return nil, nil
-	} else if err != nil {
+	if err != nil {
+		if errors.Is(err, &watcher.ErrorNotFound{}) {
+			return nil, nil
+		}
 		return nil, err
 	}
+
 	return db, err
 }
 
