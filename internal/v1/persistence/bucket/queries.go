@@ -51,7 +51,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, references []nais_
 	return pagination.NewConnectionWithoutPagination(ret), nil
 }
 
-func orderBuckets(datasets []*Bucket, orderBy *BucketOrder) {
+func orderBuckets(buckets []*Bucket, orderBy *BucketOrder) {
 	if orderBy == nil {
 		orderBy = &BucketOrder{
 			Field:     BucketOrderFieldName,
@@ -60,7 +60,7 @@ func orderBuckets(datasets []*Bucket, orderBy *BucketOrder) {
 	}
 	switch orderBy.Field {
 	case BucketOrderFieldName:
-		slices.SortStableFunc(datasets, func(a, b *Bucket) int {
+		slices.SortStableFunc(buckets, func(a, b *Bucket) int {
 			return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
 		})
 	}

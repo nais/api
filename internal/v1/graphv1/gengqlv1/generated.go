@@ -94,7 +94,7 @@ type ComplexityRoot struct {
 		ID               func(childComplexity int) int
 		Image            func(childComplexity int) int
 		Ingresses        func(childComplexity int) int
-		KafkaTopics      func(childComplexity int, orderBy *kafkatopic.KafkaTopicOrder) int
+		KafkaTopicAcls   func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
 		Name             func(childComplexity int) int
 		OpenSearch       func(childComplexity int) int
 		RedisInstances   func(childComplexity int, orderBy *redis.RedisInstanceOrder) int
@@ -283,7 +283,7 @@ type ComplexityRoot struct {
 		Environment      func(childComplexity int) int
 		ID               func(childComplexity int) int
 		Image            func(childComplexity int) int
-		KafkaTopics      func(childComplexity int, orderBy *kafkatopic.KafkaTopicOrder) int
+		KafkaTopicAcls   func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
 		Name             func(childComplexity int) int
 		OpenSearch       func(childComplexity int) int
 		RedisInstances   func(childComplexity int, orderBy *redis.RedisInstanceOrder) int
@@ -330,6 +330,7 @@ type ComplexityRoot struct {
 		ApplicationName func(childComplexity int) int
 		Team            func(childComplexity int) int
 		TeamName        func(childComplexity int) int
+		Topic           func(childComplexity int) int
 		Workload        func(childComplexity int) int
 	}
 
@@ -735,7 +736,7 @@ type ApplicationResolver interface {
 	RedisInstances(ctx context.Context, obj *application.Application, orderBy *redis.RedisInstanceOrder) (*pagination.Connection[*redis.RedisInstance], error)
 	OpenSearch(ctx context.Context, obj *application.Application) (*opensearch.OpenSearch, error)
 	Buckets(ctx context.Context, obj *application.Application, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
-	KafkaTopics(ctx context.Context, obj *application.Application, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error)
+	KafkaTopicAcls(ctx context.Context, obj *application.Application, orderBy *kafkatopic.KafkaTopicACLOrder) (*pagination.Connection[*kafkatopic.KafkaTopicACL], error)
 	SQLInstances(ctx context.Context, obj *application.Application, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
 }
 type BigQueryDatasetResolver interface {
@@ -768,7 +769,7 @@ type JobResolver interface {
 	RedisInstances(ctx context.Context, obj *job.Job, orderBy *redis.RedisInstanceOrder) (*pagination.Connection[*redis.RedisInstance], error)
 	OpenSearch(ctx context.Context, obj *job.Job) (*opensearch.OpenSearch, error)
 	Buckets(ctx context.Context, obj *job.Job, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
-	KafkaTopics(ctx context.Context, obj *job.Job, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error)
+	KafkaTopicAcls(ctx context.Context, obj *job.Job, orderBy *kafkatopic.KafkaTopicACLOrder) (*pagination.Connection[*kafkatopic.KafkaTopicACL], error)
 	SQLInstances(ctx context.Context, obj *job.Job, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
 }
 type KafkaTopicResolver interface {
@@ -779,6 +780,7 @@ type KafkaTopicResolver interface {
 type KafkaTopicAclResolver interface {
 	Team(ctx context.Context, obj *kafkatopic.KafkaTopicACL) (*team.Team, error)
 	Workload(ctx context.Context, obj *kafkatopic.KafkaTopicACL) (workload.Workload, error)
+	Topic(ctx context.Context, obj *kafkatopic.KafkaTopicACL) (*kafkatopic.KafkaTopic, error)
 }
 type MutationResolver interface {
 	AddRepositoryToTeam(ctx context.Context, input repository.AddRepositoryToTeamInput) (*repository.AddRepositoryToTeamPayload, error)
@@ -937,17 +939,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Application.Ingresses(childComplexity), true
 
-	case "Application.kafkaTopics":
-		if e.complexity.Application.KafkaTopics == nil {
+	case "Application.kafkaTopicAcls":
+		if e.complexity.Application.KafkaTopicAcls == nil {
 			break
 		}
 
-		args, err := ec.field_Application_kafkaTopics_args(context.TODO(), rawArgs)
+		args, err := ec.field_Application_kafkaTopicAcls_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Application.KafkaTopics(childComplexity, args["orderBy"].(*kafkatopic.KafkaTopicOrder)), true
+		return e.complexity.Application.KafkaTopicAcls(childComplexity, args["orderBy"].(*kafkatopic.KafkaTopicACLOrder)), true
 
 	case "Application.name":
 		if e.complexity.Application.Name == nil {
@@ -1712,17 +1714,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Job.Image(childComplexity), true
 
-	case "Job.kafkaTopics":
-		if e.complexity.Job.KafkaTopics == nil {
+	case "Job.kafkaTopicAcls":
+		if e.complexity.Job.KafkaTopicAcls == nil {
 			break
 		}
 
-		args, err := ec.field_Job_kafkaTopics_args(context.TODO(), rawArgs)
+		args, err := ec.field_Job_kafkaTopicAcls_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Job.KafkaTopics(childComplexity, args["orderBy"].(*kafkatopic.KafkaTopicOrder)), true
+		return e.complexity.Job.KafkaTopicAcls(childComplexity, args["orderBy"].(*kafkatopic.KafkaTopicACLOrder)), true
 
 	case "Job.name":
 		if e.complexity.Job.Name == nil {
@@ -1934,6 +1936,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.KafkaTopicAcl.TeamName(childComplexity), true
+
+	case "KafkaTopicAcl.topic":
+		if e.complexity.KafkaTopicAcl.Topic == nil {
+			break
+		}
+
+		return e.complexity.KafkaTopicAcl.Topic(childComplexity), true
 
 	case "KafkaTopicAcl.workload":
 		if e.complexity.KafkaTopicAcl.Workload == nil {
@@ -4230,11 +4239,11 @@ extend interface Workload {
 		orderBy: BucketOrder
 	): BucketConnection!
 
-	"Kafka topics referenced by the workload. This does not currently support pagination, but will return all available Kafka topics."
-	kafkaTopics(
+	"Kafka topics the workload has access to. This does not currently support pagination, but will return all available Kafka topics."
+	kafkaTopicAcls(
 		"Ordering options for items returned from the connection."
-		orderBy: KafkaTopicOrder
-	): KafkaTopicConnection!
+		orderBy: KafkaTopicAclOrder
+	): KafkaTopicAclConnection!
 
 	"SQL instances referenced by the workload. This does not currently support pagination, but will return all available SQL instances."
 	sqlInstances(
@@ -4269,11 +4278,11 @@ extend type Application {
 		orderBy: BucketOrder
 	): BucketConnection!
 
-	"Kafka topics referenced by the application. This does not currently support pagination, but will return all available Kafka topics."
-	kafkaTopics(
+	"Kafka topics the application has access to. This does not currently support pagination, but will return all available Kafka topics."
+	kafkaTopicAcls(
 		"Ordering options for items returned from the connection."
-		orderBy: KafkaTopicOrder
-	): KafkaTopicConnection!
+		orderBy: KafkaTopicAclOrder
+	): KafkaTopicAclConnection!
 
 	"SQL instances referenced by the application. This does not currently support pagination, but will return all available SQL instances."
 	sqlInstances(
@@ -4308,11 +4317,11 @@ extend type Job {
 		orderBy: BucketOrder
 	): BucketConnection!
 
-	"Kafka topics referenced by the job. This does not currently support pagination, but will return all available Kafka topics."
-	kafkaTopics(
+	"Kafka topics the job has access to. This does not currently support pagination, but will return all available Kafka topics."
+	kafkaTopicAcls(
 		"Ordering options for items returned from the connection."
-		orderBy: KafkaTopicOrder
-	): KafkaTopicConnection!
+		orderBy: KafkaTopicAclOrder
+	): KafkaTopicAclConnection!
 
 	"SQL instances referenced by the job. This does not currently support pagination, but will return all available SQL instances."
 	sqlInstances(
@@ -4406,6 +4415,7 @@ type KafkaTopicAcl {
 	teamName: String!
 	team: Team
 	workload: Workload
+	topic: KafkaTopic!
 }
 
 type KafkaTopicConfiguration {
@@ -4768,6 +4778,7 @@ enum KafkaTopicOrderField {
 }
 
 enum KafkaTopicAclOrderField {
+	TOPIC_NAME
 	TEAM_SLUG
 	CONSUMER
 	ACCESS
@@ -5664,13 +5675,13 @@ func (ec *executionContext) field_Application_buckets_args(ctx context.Context, 
 	return args, nil
 }
 
-func (ec *executionContext) field_Application_kafkaTopics_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Application_kafkaTopicAcls_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *kafkatopic.KafkaTopicOrder
+	var arg0 *kafkatopic.KafkaTopicACLOrder
 	if tmp, ok := rawArgs["orderBy"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
-		arg0, err = ec.unmarshalOKafkaTopicOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopicOrder(ctx, tmp)
+		arg0, err = ec.unmarshalOKafkaTopicAclOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopicACLOrder(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -5883,13 +5894,13 @@ func (ec *executionContext) field_Job_buckets_args(ctx context.Context, rawArgs 
 	return args, nil
 }
 
-func (ec *executionContext) field_Job_kafkaTopics_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Job_kafkaTopicAcls_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *kafkatopic.KafkaTopicOrder
+	var arg0 *kafkatopic.KafkaTopicACLOrder
 	if tmp, ok := rawArgs["orderBy"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
-		arg0, err = ec.unmarshalOKafkaTopicOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopicOrder(ctx, tmp)
+		arg0, err = ec.unmarshalOKafkaTopicAclOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopicACLOrder(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7746,8 +7757,8 @@ func (ec *executionContext) fieldContext_Application_buckets(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Application_kafkaTopics(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Application_kafkaTopics(ctx, field)
+func (ec *executionContext) _Application_kafkaTopicAcls(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Application_kafkaTopicAcls(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -7760,7 +7771,7 @@ func (ec *executionContext) _Application_kafkaTopics(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Application().KafkaTopics(rctx, obj, fc.Args["orderBy"].(*kafkatopic.KafkaTopicOrder))
+		return ec.resolvers.Application().KafkaTopicAcls(rctx, obj, fc.Args["orderBy"].(*kafkatopic.KafkaTopicACLOrder))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7772,12 +7783,12 @@ func (ec *executionContext) _Application_kafkaTopics(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*pagination.Connection[*kafkatopic.KafkaTopic])
+	res := resTmp.(*pagination.Connection[*kafkatopic.KafkaTopicACL])
 	fc.Result = res
-	return ec.marshalNKafkaTopicConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
+	return ec.marshalNKafkaTopicAclConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Application_kafkaTopics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Application_kafkaTopicAcls(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Application",
 		Field:      field,
@@ -7786,13 +7797,13 @@ func (ec *executionContext) fieldContext_Application_kafkaTopics(ctx context.Con
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "pageInfo":
-				return ec.fieldContext_KafkaTopicConnection_pageInfo(ctx, field)
+				return ec.fieldContext_KafkaTopicAclConnection_pageInfo(ctx, field)
 			case "nodes":
-				return ec.fieldContext_KafkaTopicConnection_nodes(ctx, field)
+				return ec.fieldContext_KafkaTopicAclConnection_nodes(ctx, field)
 			case "edges":
-				return ec.fieldContext_KafkaTopicConnection_edges(ctx, field)
+				return ec.fieldContext_KafkaTopicAclConnection_edges(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type KafkaTopicConnection", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type KafkaTopicAclConnection", field.Name)
 		},
 	}
 	defer func() {
@@ -7802,7 +7813,7 @@ func (ec *executionContext) fieldContext_Application_kafkaTopics(ctx context.Con
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Application_kafkaTopics_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Application_kafkaTopicAcls_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -7989,8 +8000,8 @@ func (ec *executionContext) fieldContext_ApplicationConnection_nodes(_ context.C
 				return ec.fieldContext_Application_openSearch(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Application_buckets(ctx, field)
-			case "kafkaTopics":
-				return ec.fieldContext_Application_kafkaTopics(ctx, field)
+			case "kafkaTopicAcls":
+				return ec.fieldContext_Application_kafkaTopicAcls(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Application_sqlInstances(ctx, field)
 			}
@@ -8155,8 +8166,8 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 				return ec.fieldContext_Application_openSearch(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Application_buckets(ctx, field)
-			case "kafkaTopics":
-				return ec.fieldContext_Application_kafkaTopics(ctx, field)
+			case "kafkaTopicAcls":
+				return ec.fieldContext_Application_kafkaTopicAcls(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Application_sqlInstances(ctx, field)
 			}
@@ -13160,8 +13171,8 @@ func (ec *executionContext) fieldContext_Job_buckets(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_kafkaTopics(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Job_kafkaTopics(ctx, field)
+func (ec *executionContext) _Job_kafkaTopicAcls(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Job_kafkaTopicAcls(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -13174,7 +13185,7 @@ func (ec *executionContext) _Job_kafkaTopics(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Job().KafkaTopics(rctx, obj, fc.Args["orderBy"].(*kafkatopic.KafkaTopicOrder))
+		return ec.resolvers.Job().KafkaTopicAcls(rctx, obj, fc.Args["orderBy"].(*kafkatopic.KafkaTopicACLOrder))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13186,12 +13197,12 @@ func (ec *executionContext) _Job_kafkaTopics(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*pagination.Connection[*kafkatopic.KafkaTopic])
+	res := resTmp.(*pagination.Connection[*kafkatopic.KafkaTopicACL])
 	fc.Result = res
-	return ec.marshalNKafkaTopicConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
+	return ec.marshalNKafkaTopicAclConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Job_kafkaTopics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Job_kafkaTopicAcls(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
@@ -13200,13 +13211,13 @@ func (ec *executionContext) fieldContext_Job_kafkaTopics(ctx context.Context, fi
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "pageInfo":
-				return ec.fieldContext_KafkaTopicConnection_pageInfo(ctx, field)
+				return ec.fieldContext_KafkaTopicAclConnection_pageInfo(ctx, field)
 			case "nodes":
-				return ec.fieldContext_KafkaTopicConnection_nodes(ctx, field)
+				return ec.fieldContext_KafkaTopicAclConnection_nodes(ctx, field)
 			case "edges":
-				return ec.fieldContext_KafkaTopicConnection_edges(ctx, field)
+				return ec.fieldContext_KafkaTopicAclConnection_edges(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type KafkaTopicConnection", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type KafkaTopicAclConnection", field.Name)
 		},
 	}
 	defer func() {
@@ -13216,7 +13227,7 @@ func (ec *executionContext) fieldContext_Job_kafkaTopics(ctx context.Context, fi
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Job_kafkaTopics_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Job_kafkaTopicAcls_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -13401,8 +13412,8 @@ func (ec *executionContext) fieldContext_JobConnection_nodes(_ context.Context, 
 				return ec.fieldContext_Job_openSearch(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Job_buckets(ctx, field)
-			case "kafkaTopics":
-				return ec.fieldContext_Job_kafkaTopics(ctx, field)
+			case "kafkaTopicAcls":
+				return ec.fieldContext_Job_kafkaTopicAcls(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Job_sqlInstances(ctx, field)
 			}
@@ -13565,8 +13576,8 @@ func (ec *executionContext) fieldContext_JobEdge_node(_ context.Context, field g
 				return ec.fieldContext_Job_openSearch(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Job_buckets(ctx, field)
-			case "kafkaTopics":
-				return ec.fieldContext_Job_kafkaTopics(ctx, field)
+			case "kafkaTopicAcls":
+				return ec.fieldContext_Job_kafkaTopicAcls(ctx, field)
 			case "sqlInstances":
 				return ec.fieldContext_Job_sqlInstances(ctx, field)
 			}
@@ -14528,6 +14539,68 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_workload(_ context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _KafkaTopicAcl_topic(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaTopicAcl_topic(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.KafkaTopicAcl().Topic(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*kafkatopic.KafkaTopic)
+	fc.Result = res
+	return ec.marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_KafkaTopicAcl_topic(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KafkaTopicAcl",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_KafkaTopic_id(ctx, field)
+			case "name":
+				return ec.fieldContext_KafkaTopic_name(ctx, field)
+			case "team":
+				return ec.fieldContext_KafkaTopic_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_KafkaTopic_environment(ctx, field)
+			case "acl":
+				return ec.fieldContext_KafkaTopic_acl(ctx, field)
+			case "configuration":
+				return ec.fieldContext_KafkaTopic_configuration(ctx, field)
+			case "pool":
+				return ec.fieldContext_KafkaTopic_pool(ctx, field)
+			case "status":
+				return ec.fieldContext_KafkaTopic_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type KafkaTopic", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _KafkaTopicAclConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*kafkatopic.KafkaTopicACL]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_KafkaTopicAclConnection_pageInfo(ctx, field)
 	if err != nil {
@@ -14633,6 +14706,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAclConnection_nodes(_ context
 				return ec.fieldContext_KafkaTopicAcl_team(ctx, field)
 			case "workload":
 				return ec.fieldContext_KafkaTopicAcl_workload(ctx, field)
+			case "topic":
+				return ec.fieldContext_KafkaTopicAcl_topic(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type KafkaTopicAcl", field.Name)
 		},
@@ -14783,6 +14858,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAclEdge_node(_ context.Contex
 				return ec.fieldContext_KafkaTopicAcl_team(ctx, field)
 			case "workload":
 				return ec.fieldContext_KafkaTopicAcl_workload(ctx, field)
+			case "topic":
+				return ec.fieldContext_KafkaTopicAcl_topic(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type KafkaTopicAcl", field.Name)
 		},
@@ -29247,7 +29324,7 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "kafkaTopics":
+		case "kafkaTopicAcls":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -29256,7 +29333,7 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Application_kafkaTopics(ctx, field, obj)
+				res = ec._Application_kafkaTopicAcls(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -31320,7 +31397,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "kafkaTopics":
+		case "kafkaTopicAcls":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -31329,7 +31406,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_kafkaTopics(ctx, field, obj)
+				res = ec._Job_kafkaTopicAcls(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -31834,6 +31911,42 @@ func (ec *executionContext) _KafkaTopicAcl(ctx context.Context, sel ast.Selectio
 					}
 				}()
 				res = ec._KafkaTopicAcl_workload(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "topic":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._KafkaTopicAcl_topic(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -37657,6 +37770,10 @@ func (ec *executionContext) marshalNJobResources2ᚖgithubᚗcomᚋnaisᚋapiᚋ
 		return graphql.Null
 	}
 	return ec._JobResources(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNKafkaTopic2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx context.Context, sel ast.SelectionSet, v kafkatopic.KafkaTopic) graphql.Marshaler {
+	return ec._KafkaTopic(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNKafkaTopic2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopicᚄ(ctx context.Context, sel ast.SelectionSet, v []*kafkatopic.KafkaTopic) graphql.Marshaler {

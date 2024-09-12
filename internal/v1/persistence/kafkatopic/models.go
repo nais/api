@@ -5,6 +5,8 @@ import (
 	"io"
 	"strconv"
 
+	"k8s.io/apimachinery/pkg/runtime/schema"
+
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
@@ -37,6 +39,20 @@ func (KafkaTopic) IsNode() {}
 
 func (k KafkaTopic) ID() ident.Ident {
 	return newIdent(k.TeamSlug, k.EnvironmentName, k.Name)
+}
+
+func (k *KafkaTopic) GetName() string { return k.Name }
+
+func (k *KafkaTopic) GetNamespace() string { return k.TeamSlug.String() }
+
+func (k *KafkaTopic) GetLabels() map[string]string { return nil }
+
+func (k *KafkaTopic) GetObjectKind() schema.ObjectKind {
+	return schema.EmptyObjectKind
+}
+
+func (k *KafkaTopic) DeepCopyObject() runtime.Object {
+	return k
 }
 
 type KafkaTopicOrder struct {
@@ -81,10 +97,14 @@ func (e KafkaTopicOrderField) MarshalGQL(w io.Writer) {
 }
 
 type KafkaTopicACL struct {
-	Access          string `json:"access"`
+	// ApplicationName is the name used for the ACL rule. Can contain wildcards.
 	ApplicationName string `json:"applicationName"`
-	TeamName        string `json:"teamName"`
-	EnvironmentName string `json:"-"`
+	// TeamName is the name used for the ACL rule. Can contain wildcards.
+	TeamName        string    `json:"teamName"`
+	Access          string    `json:"access"`
+	EnvironmentName string    `json:"-"`
+	TopicName       string    `json:"-"`
+	TeamSlug        slug.Slug `json:"-"`
 }
 
 type KafkaTopicACLOrder struct {
@@ -110,14 +130,15 @@ type KafkaTopicStatus struct {
 type KafkaTopicACLOrderField string
 
 const (
-	KafkaTopicACLOrderFieldTeamSlug KafkaTopicACLOrderField = "TEAM_SLUG"
-	KafkaTopicACLOrderFieldConsumer KafkaTopicACLOrderField = "CONSUMER"
-	KafkaTopicACLOrderFieldAccess   KafkaTopicACLOrderField = "ACCESS"
+	KafkaTopicACLOrderFieldTopicName KafkaTopicACLOrderField = "TOPIC_NAME"
+	KafkaTopicACLOrderFieldTeamSlug  KafkaTopicACLOrderField = "TEAM_SLUG"
+	KafkaTopicACLOrderFieldConsumer  KafkaTopicACLOrderField = "CONSUMER"
+	KafkaTopicACLOrderFieldAccess    KafkaTopicACLOrderField = "ACCESS"
 )
 
 func (e KafkaTopicACLOrderField) IsValid() bool {
 	switch e {
-	case KafkaTopicACLOrderFieldTeamSlug, KafkaTopicACLOrderFieldConsumer, KafkaTopicACLOrderFieldAccess:
+	case KafkaTopicACLOrderFieldTopicName, KafkaTopicACLOrderFieldTeamSlug, KafkaTopicACLOrderFieldConsumer, KafkaTopicACLOrderFieldAccess:
 		return true
 	}
 	return false
@@ -166,7 +187,7 @@ func toKafkaTopicConfiguration(cfg *kafka_nais_io_v1.Config) *KafkaTopicConfigur
 	}
 }
 
-func toKafkaTopicACLs(acls []kafka_nais_io_v1.TopicACL, envName string) []*KafkaTopicACL {
+func toKafkaTopicACLs(acls []kafka_nais_io_v1.TopicACL, teamSlug slug.Slug, envName, topicName string) []*KafkaTopicACL {
 	ret := make([]*KafkaTopicACL, len(acls))
 	for i, a := range acls {
 		ret[i] = &KafkaTopicACL{
@@ -174,6 +195,8 @@ func toKafkaTopicACLs(acls []kafka_nais_io_v1.TopicACL, envName string) []*Kafka
 			ApplicationName: a.Application,
 			TeamName:        a.Team,
 			EnvironmentName: envName,
+			TopicName:       topicName,
+			TeamSlug:        teamSlug,
 		}
 	}
 	return ret
@@ -191,15 +214,15 @@ func toKafkaTopic(u *unstructured.Unstructured, envName string) (*KafkaTopic, er
 		return nil, fmt.Errorf("converting to KafkaTopic: %w", err)
 	}
 
-	teamSlug := obj.GetNamespace()
+	teamSlug := slug.Slug(obj.GetNamespace())
 
 	return &KafkaTopic{
 		Name:            obj.Name,
 		Pool:            obj.Spec.Pool,
 		Configuration:   toKafkaTopicConfiguration(obj.Spec.Config),
 		Status:          toKafkaTopicStatus(obj.Status),
-		ACLs:            toKafkaTopicACLs(obj.Spec.ACL, envName),
-		TeamSlug:        slug.Slug(teamSlug),
+		ACLs:            toKafkaTopicACLs(obj.Spec.ACL, teamSlug, envName, obj.Name),
+		TeamSlug:        teamSlug,
 		EnvironmentName: envName,
 	}, nil
 }

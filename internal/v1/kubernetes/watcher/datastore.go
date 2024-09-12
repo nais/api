@@ -205,3 +205,27 @@ func (d *DataStore[T]) Get(cluster, namespace, name string) (T, error) {
 	var t T
 	return t, &ErrorNotFound{Cluster: cluster, Namespace: namespace, Name: name}
 }
+
+func (d *DataStore[T]) All() []T {
+	d.lock.RLock()
+	defer d.lock.RUnlock()
+
+	size := 0
+	for _, l := range d.cluster {
+		size += len(l)
+	}
+
+	ret := make([]T, size)
+	if size == 0 {
+		return ret
+	}
+
+	i := 0
+	for _, l := range d.cluster {
+		for _, o := range l {
+			ret[i] = o.Obj
+			i++
+		}
+	}
+	return ret
+}

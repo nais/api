@@ -138,11 +138,11 @@ extend interface Workload {
 		orderBy: BucketOrder
 	): BucketConnection!
 
-	"Kafka topics referenced by the workload. This does not currently support pagination, but will return all available Kafka topics."
-	kafkaTopics(
+	"Kafka topics the workload has access to. This does not currently support pagination, but will return all available Kafka topics."
+	kafkaTopicAcls(
 		"Ordering options for items returned from the connection."
-		orderBy: KafkaTopicOrder
-	): KafkaTopicConnection!
+		orderBy: KafkaTopicAclOrder
+	): KafkaTopicAclConnection!
 
 	"SQL instances referenced by the workload. This does not currently support pagination, but will return all available SQL instances."
 	sqlInstances(
@@ -177,11 +177,11 @@ extend type Application {
 		orderBy: BucketOrder
 	): BucketConnection!
 
-	"Kafka topics referenced by the application. This does not currently support pagination, but will return all available Kafka topics."
-	kafkaTopics(
+	"Kafka topics the application has access to. This does not currently support pagination, but will return all available Kafka topics."
+	kafkaTopicAcls(
 		"Ordering options for items returned from the connection."
-		orderBy: KafkaTopicOrder
-	): KafkaTopicConnection!
+		orderBy: KafkaTopicAclOrder
+	): KafkaTopicAclConnection!
 
 	"SQL instances referenced by the application. This does not currently support pagination, but will return all available SQL instances."
 	sqlInstances(
@@ -216,11 +216,11 @@ extend type Job {
 		orderBy: BucketOrder
 	): BucketConnection!
 
-	"Kafka topics referenced by the job. This does not currently support pagination, but will return all available Kafka topics."
-	kafkaTopics(
+	"Kafka topics the job has access to. This does not currently support pagination, but will return all available Kafka topics."
+	kafkaTopicAcls(
 		"Ordering options for items returned from the connection."
-		orderBy: KafkaTopicOrder
-	): KafkaTopicConnection!
+		orderBy: KafkaTopicAclOrder
+	): KafkaTopicAclConnection!
 
 	"SQL instances referenced by the job. This does not currently support pagination, but will return all available SQL instances."
 	sqlInstances(
@@ -314,6 +314,7 @@ type KafkaTopicAcl {
 	teamName: String!
 	team: Team
 	workload: Workload
+	topic: KafkaTopic!
 }
 
 type KafkaTopicConfiguration {
@@ -676,6 +677,7 @@ enum KafkaTopicOrderField {
 }
 
 enum KafkaTopicAclOrderField {
+	TOPIC_NAME
 	TEAM_SLUG
 	CONSUMER
 	ACCESS

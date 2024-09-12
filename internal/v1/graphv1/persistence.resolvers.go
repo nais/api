@@ -44,11 +44,16 @@ func (r *applicationResolver) Buckets(ctx context.Context, obj *application.Appl
 	if obj.Spec.GCP == nil {
 		return pagination.EmptyConnection[*bucket.Bucket](), nil
 	}
+
 	return bucket.ListForWorkload(ctx, obj.TeamSlug, obj.Spec.GCP.Buckets, orderBy)
 }
 
-func (r *applicationResolver) KafkaTopics(ctx context.Context, obj *application.Application, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error) {
-	panic(fmt.Errorf("not implemented: KafkaTopics - kafkaTopics"))
+func (r *applicationResolver) KafkaTopicAcls(ctx context.Context, obj *application.Application, orderBy *kafkatopic.KafkaTopicACLOrder) (*pagination.Connection[*kafkatopic.KafkaTopicACL], error) {
+	if obj.Spec.Kafka == nil {
+		return pagination.EmptyConnection[*kafkatopic.KafkaTopicACL](), nil
+	}
+
+	return kafkatopic.ListForWorkload(ctx, obj.TeamSlug, obj.Name, obj.Spec.Kafka.Pool, orderBy)
 }
 
 func (r *applicationResolver) SQLInstances(ctx context.Context, obj *application.Application, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error) {
@@ -141,8 +146,12 @@ func (r *jobResolver) Buckets(ctx context.Context, obj *job.Job, orderBy *bucket
 	return bucket.ListForWorkload(ctx, obj.TeamSlug, obj.Spec.GCP.Buckets, orderBy)
 }
 
-func (r *jobResolver) KafkaTopics(ctx context.Context, obj *job.Job, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error) {
-	panic(fmt.Errorf("not implemented: KafkaTopics - kafkaTopics"))
+func (r *jobResolver) KafkaTopicAcls(ctx context.Context, obj *job.Job, orderBy *kafkatopic.KafkaTopicACLOrder) (*pagination.Connection[*kafkatopic.KafkaTopicACL], error) {
+	if obj.Spec.Kafka == nil {
+		return pagination.EmptyConnection[*kafkatopic.KafkaTopicACL](), nil
+	}
+
+	return kafkatopic.ListForWorkload(ctx, obj.TeamSlug, obj.Name, obj.Spec.Kafka.Pool, orderBy)
 }
 
 func (r *jobResolver) SQLInstances(ctx context.Context, obj *job.Job, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error) {
@@ -218,6 +227,10 @@ func (r *kafkaTopicAclResolver) Workload(ctx context.Context, obj *kafkatopic.Ka
 	}
 
 	return r.workload(ctx, owner, slug.Slug(obj.TeamName), obj.EnvironmentName)
+}
+
+func (r *kafkaTopicAclResolver) Topic(ctx context.Context, obj *kafkatopic.KafkaTopicACL) (*kafkatopic.KafkaTopic, error) {
+	return kafkatopic.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.TopicName)
 }
 
 func (r *openSearchResolver) Team(ctx context.Context, obj *opensearch.OpenSearch) (*team.Team, error) {

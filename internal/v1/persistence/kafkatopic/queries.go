@@ -3,6 +3,9 @@ package kafkatopic
 import (
 	"context"
 	"slices"
+	"strings"
+
+	"github.com/nais/api/internal/v1/kubernetes/watcher"
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
@@ -20,32 +23,92 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*KafkaTopic, error) {
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*KafkaTopic, error) {
-	return fromContext(ctx).kafkaTopicLoader.Load(ctx, resourceIdentifier{
-		namespace:   teamSlug.String(),
-		environment: environment,
-		name:        name,
-	})
+	return fromContext(ctx).watcher.Get(environment, teamSlug.String(), name)
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *KafkaTopicOrder) (*KafkaTopicConnection, error) {
-	all, err := fromContext(ctx).k8sClient.getKafkaTopicsForTeam(ctx, teamSlug)
-	if err != nil {
-		return nil, err
-	}
+	outer := fromContext(ctx).watcher.GetByNamespace(teamSlug.String())
 
-	if orderBy != nil {
-		switch orderBy.Field {
-		case KafkaTopicOrderFieldName:
-			slices.SortStableFunc(all, func(a, b *KafkaTopic) int {
-				return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
-			})
-		case KafkaTopicOrderFieldEnvironment:
-			slices.SortStableFunc(all, func(a, b *KafkaTopic) int {
-				return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
-			})
+	all := watcher.Objects(outer)
+	orderTopics(all, orderBy)
+
+	slice := pagination.Slice(all, page)
+	return pagination.NewConnection(slice, page, int32(len(all))), nil
+}
+
+func ListForWorkload(ctx context.Context, teamSlug slug.Slug, workloadName, poolName string, orderBy *KafkaTopicACLOrder) (*KafkaTopicACLConnection, error) {
+	topics := fromContext(ctx).watcher.All()
+	ret := make([]*KafkaTopicACL, 0)
+	for _, t := range topics {
+		if t.Pool != poolName {
+			continue
+		}
+
+		for _, acl := range t.ACLs {
+			if stringMatch(teamSlug.String(), acl.TeamName) && stringMatch(workloadName, acl.ApplicationName) {
+				ret = append(ret, acl)
+			}
 		}
 	}
+	orderTopicACLs(ret, orderBy)
+	return pagination.NewConnectionWithoutPagination(ret), nil
+}
 
-	instances := pagination.Slice(all, page)
-	return pagination.NewConnection(instances, page, int32(len(all))), nil
+func stringMatch(s, pattern string) bool {
+	if pattern == "*" {
+		return true
+	}
+
+	if !strings.Contains(pattern, "*") {
+		return s == pattern
+	}
+
+	pattern = strings.Replace(pattern, "*", "", 1)
+	return strings.HasPrefix(s, pattern)
+}
+
+func orderTopics(topics []*KafkaTopic, orderBy *KafkaTopicOrder) {
+	if orderBy == nil {
+		orderBy = &KafkaTopicOrder{
+			Field:     KafkaTopicOrderFieldName,
+			Direction: modelv1.OrderDirectionAsc,
+		}
+	}
+	switch orderBy.Field {
+	case KafkaTopicOrderFieldName:
+		slices.SortStableFunc(topics, func(a, b *KafkaTopic) int {
+			return modelv1.Compare(a.Name, b.Name, orderBy.Direction)
+		})
+	case KafkaTopicOrderFieldEnvironment:
+		slices.SortStableFunc(topics, func(a, b *KafkaTopic) int {
+			return modelv1.Compare(a.EnvironmentName, b.EnvironmentName, orderBy.Direction)
+		})
+	}
+}
+
+func orderTopicACLs(topics []*KafkaTopicACL, orderBy *KafkaTopicACLOrder) {
+	if orderBy == nil {
+		orderBy = &KafkaTopicACLOrder{
+			Field:     KafkaTopicACLOrderFieldTopicName,
+			Direction: modelv1.OrderDirectionAsc,
+		}
+	}
+	switch orderBy.Field {
+	case KafkaTopicACLOrderFieldTopicName:
+		slices.SortStableFunc(topics, func(a, b *KafkaTopicACL) int {
+			return modelv1.Compare(a.TopicName, b.TopicName, orderBy.Direction)
+		})
+	case KafkaTopicACLOrderFieldAccess:
+		slices.SortStableFunc(topics, func(a, b *KafkaTopicACL) int {
+			return modelv1.Compare(a.Access, b.Access, orderBy.Direction)
+		})
+	case KafkaTopicACLOrderFieldConsumer:
+		slices.SortStableFunc(topics, func(a, b *KafkaTopicACL) int {
+			return modelv1.Compare(a.ApplicationName, b.ApplicationName, orderBy.Direction)
+		})
+	case KafkaTopicACLOrderFieldTeamSlug:
+		slices.SortStableFunc(topics, func(a, b *KafkaTopicACL) int {
+			return modelv1.Compare(a.TeamName, b.TeamName, orderBy.Direction)
+		})
+	}
 }

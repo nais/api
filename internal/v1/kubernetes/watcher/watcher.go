@@ -96,6 +96,10 @@ func (w *Watcher[T]) update(cluster string, obj T) {
 	w.datastore.Update(cluster, obj)
 }
 
+func (w *Watcher[T]) All() []T {
+	return w.datastore.All()
+}
+
 func (w *Watcher[T]) Get(cluster, namespace, name string) (T, error) {
 	return w.datastore.Get(cluster, namespace, name)
 }
