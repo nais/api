@@ -14,7 +14,6 @@ import (
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/loader"
-	"github.com/nais/api/internal/k8s"
 	legacysqlinstance "github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/v1/auditv1"
 	"github.com/nais/api/internal/v1/databasev1"
@@ -46,7 +45,7 @@ import (
 )
 
 // runHttpServer will start the HTTP server
-func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool, db database.Database, watcherMgr *watcher.Manager, k8sClient *k8s.Client, sqlAdminService *legacysqlinstance.SqlAdminService, authHandler authn.Handler, graphHandler *handler.Server, graphv1Handler *handler.Server, reg prometheus.Gatherer, vClient *vulnerability.Client, log logrus.FieldLogger) error {
+func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool, db database.Database, watcherMgr *watcher.Manager, sqlAdminService *legacysqlinstance.SqlAdminService, authHandler authn.Handler, graphHandler *handler.Server, graphv1Handler *handler.Server, reg prometheus.Gatherer, vClient *vulnerability.Client, log logrus.FieldLogger) error {
 	router := chi.NewRouter()
 	router.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
 	router.Get("/healthz", func(_ http.ResponseWriter, _ *http.Request) {})

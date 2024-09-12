@@ -301,7 +301,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	// HTTP server
 	wg.Go(func() error {
-		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, db, watcherMgr, k8sClient, sqlInstanceClient.Admin, authHandler, graphHandler, graphv1Handler, promReg, vulnClient, log)
+		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, db, watcherMgr, sqlInstanceClient.Admin, authHandler, graphHandler, graphv1Handler, promReg, vulnClient, log)
 	})
 
 	wg.Go(func() error {
