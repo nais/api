@@ -178,7 +178,7 @@ func (r *kafkaTopicResolver) ACL(ctx context.Context, obj *kafkatopic.KafkaTopic
 			if filter.Team != nil && string(*filter.Team) != acl.TeamName && acl.TeamName != "*" {
 				continue
 			}
-			if filter.Application != nil && *filter.Application != acl.ApplicationName && acl.ApplicationName != "*" {
+			if filter.Workload != nil && *filter.Workload != acl.WorkloadName && acl.WorkloadName != "*" {
 				continue
 			}
 
@@ -200,7 +200,7 @@ func (r *kafkaTopicResolver) ACL(ctx context.Context, obj *kafkatopic.KafkaTopic
 			})
 		case kafkatopic.KafkaTopicACLOrderFieldConsumer:
 			slices.SortStableFunc(filteredACLs, func(a, b *kafkatopic.KafkaTopicACL) int {
-				return modelv1.Compare(a.ApplicationName, b.ApplicationName, orderBy.Direction)
+				return modelv1.Compare(a.WorkloadName, b.WorkloadName, orderBy.Direction)
 			})
 		}
 	}
@@ -217,13 +217,13 @@ func (r *kafkaTopicAclResolver) Team(ctx context.Context, obj *kafkatopic.KafkaT
 }
 
 func (r *kafkaTopicAclResolver) Workload(ctx context.Context, obj *kafkatopic.KafkaTopicACL) (workload.Workload, error) {
-	if obj.ApplicationName == "*" || obj.TeamName == "*" {
+	if obj.WorkloadName == "*" || obj.TeamName == "*" {
 		return nil, nil
 	}
 
 	owner := &persistence.WorkloadReference{
 		Type: persistence.WorkloadTypeApplication,
-		Name: obj.ApplicationName,
+		Name: obj.WorkloadName,
 	}
 
 	return r.workload(ctx, owner, slug.Slug(obj.TeamName), obj.EnvironmentName)

@@ -97,8 +97,8 @@ func (e KafkaTopicOrderField) MarshalGQL(w io.Writer) {
 }
 
 type KafkaTopicACL struct {
-	// ApplicationName is the name used for the ACL rule. Can contain wildcards.
-	ApplicationName string `json:"applicationName"`
+	// WorkloadName is the name used for the ACL rule. Can contain wildcards.
+	WorkloadName string `json:"workloadName"`
 	// TeamName is the name used for the ACL rule. Can contain wildcards.
 	TeamName        string    `json:"teamName"`
 	Access          string    `json:"access"`
@@ -166,8 +166,8 @@ func (e KafkaTopicACLOrderField) MarshalGQL(w io.Writer) {
 }
 
 type KafkaTopicACLFilter struct {
-	Team        *slug.Slug `json:"team,omitempty"`
-	Application *string    `json:"application,omitempty"`
+	Team     *slug.Slug `json:"team,omitempty"`
+	Workload *string    `json:"workload,omitempty"`
 }
 
 func toKafkaTopicConfiguration(cfg *kafka_nais_io_v1.Config) *KafkaTopicConfiguration {
@@ -192,7 +192,7 @@ func toKafkaTopicACLs(acls []kafka_nais_io_v1.TopicACL, teamSlug slug.Slug, envN
 	for i, a := range acls {
 		ret[i] = &KafkaTopicACL{
 			Access:          a.Access,
-			ApplicationName: a.Application,
+			WorkloadName:    a.Application,
 			TeamName:        a.Team,
 			EnvironmentName: envName,
 			TopicName:       topicName,

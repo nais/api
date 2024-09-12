@@ -310,7 +310,7 @@ type KafkaTopic implements Persistence & Node {
 
 type KafkaTopicAcl {
 	access: String!
-	applicationName: String!
+	workloadName: String!
 	teamName: String!
 	team: Team
 	workload: Workload
@@ -613,7 +613,7 @@ input BucketOrder {
 
 input KafkaTopicAclFilter {
 	team: Slug
-	application: String
+	workload: String
 }
 
 input KafkaTopicOrder {

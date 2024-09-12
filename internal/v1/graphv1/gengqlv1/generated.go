@@ -326,12 +326,12 @@ type ComplexityRoot struct {
 	}
 
 	KafkaTopicAcl struct {
-		Access          func(childComplexity int) int
-		ApplicationName func(childComplexity int) int
-		Team            func(childComplexity int) int
-		TeamName        func(childComplexity int) int
-		Topic           func(childComplexity int) int
-		Workload        func(childComplexity int) int
+		Access       func(childComplexity int) int
+		Team         func(childComplexity int) int
+		TeamName     func(childComplexity int) int
+		Topic        func(childComplexity int) int
+		Workload     func(childComplexity int) int
+		WorkloadName func(childComplexity int) int
 	}
 
 	KafkaTopicAclConnection struct {
@@ -1916,13 +1916,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.KafkaTopicAcl.Access(childComplexity), true
 
-	case "KafkaTopicAcl.applicationName":
-		if e.complexity.KafkaTopicAcl.ApplicationName == nil {
-			break
-		}
-
-		return e.complexity.KafkaTopicAcl.ApplicationName(childComplexity), true
-
 	case "KafkaTopicAcl.team":
 		if e.complexity.KafkaTopicAcl.Team == nil {
 			break
@@ -1950,6 +1943,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.KafkaTopicAcl.Workload(childComplexity), true
+
+	case "KafkaTopicAcl.workloadName":
+		if e.complexity.KafkaTopicAcl.WorkloadName == nil {
+			break
+		}
+
+		return e.complexity.KafkaTopicAcl.WorkloadName(childComplexity), true
 
 	case "KafkaTopicAclConnection.edges":
 		if e.complexity.KafkaTopicAclConnection.Edges == nil {
@@ -4411,7 +4411,7 @@ type KafkaTopic implements Persistence & Node {
 
 type KafkaTopicAcl {
 	access: String!
-	applicationName: String!
+	workloadName: String!
 	teamName: String!
 	team: Team
 	workload: Workload
@@ -4714,7 +4714,7 @@ input BucketOrder {
 
 input KafkaTopicAclFilter {
 	team: Slug
-	application: String
+	workload: String
 }
 
 input KafkaTopicOrder {
@@ -14317,8 +14317,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_access(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicAcl_applicationName(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_KafkaTopicAcl_applicationName(ctx, field)
+func (ec *executionContext) _KafkaTopicAcl_workloadName(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KafkaTopicAcl_workloadName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -14331,7 +14331,7 @@ func (ec *executionContext) _KafkaTopicAcl_applicationName(ctx context.Context, 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ApplicationName, nil
+		return obj.WorkloadName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14348,7 +14348,7 @@ func (ec *executionContext) _KafkaTopicAcl_applicationName(ctx context.Context, 
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_KafkaTopicAcl_applicationName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KafkaTopicAcl_workloadName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicAcl",
 		Field:      field,
@@ -14698,8 +14698,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAclConnection_nodes(_ context
 			switch field.Name {
 			case "access":
 				return ec.fieldContext_KafkaTopicAcl_access(ctx, field)
-			case "applicationName":
-				return ec.fieldContext_KafkaTopicAcl_applicationName(ctx, field)
+			case "workloadName":
+				return ec.fieldContext_KafkaTopicAcl_workloadName(ctx, field)
 			case "teamName":
 				return ec.fieldContext_KafkaTopicAcl_teamName(ctx, field)
 			case "team":
@@ -14850,8 +14850,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAclEdge_node(_ context.Contex
 			switch field.Name {
 			case "access":
 				return ec.fieldContext_KafkaTopicAcl_access(ctx, field)
-			case "applicationName":
-				return ec.fieldContext_KafkaTopicAcl_applicationName(ctx, field)
+			case "workloadName":
+				return ec.fieldContext_KafkaTopicAcl_workloadName(ctx, field)
 			case "teamName":
 				return ec.fieldContext_KafkaTopicAcl_teamName(ctx, field)
 			case "team":
@@ -28198,7 +28198,7 @@ func (ec *executionContext) unmarshalInputKafkaTopicAclFilter(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"team", "application"}
+	fieldsInOrder := [...]string{"team", "workload"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -28212,13 +28212,13 @@ func (ec *executionContext) unmarshalInputKafkaTopicAclFilter(ctx context.Contex
 				return it, err
 			}
 			it.Team = data
-		case "application":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("application"))
+		case "workload":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workload"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Application = data
+			it.Workload = data
 		}
 	}
 
@@ -31858,8 +31858,8 @@ func (ec *executionContext) _KafkaTopicAcl(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "applicationName":
-			out.Values[i] = ec._KafkaTopicAcl_applicationName(ctx, field, obj)
+		case "workloadName":
+			out.Values[i] = ec._KafkaTopicAcl_workloadName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

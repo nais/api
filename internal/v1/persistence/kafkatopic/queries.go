@@ -45,7 +45,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, workloadName, pool
 		}
 
 		for _, acl := range t.ACLs {
-			if stringMatch(teamSlug.String(), acl.TeamName) && stringMatch(workloadName, acl.ApplicationName) {
+			if stringMatch(teamSlug.String(), acl.TeamName) && stringMatch(workloadName, acl.WorkloadName) {
 				ret = append(ret, acl)
 			}
 		}
@@ -104,7 +104,7 @@ func orderTopicACLs(topics []*KafkaTopicACL, orderBy *KafkaTopicACLOrder) {
 		})
 	case KafkaTopicACLOrderFieldConsumer:
 		slices.SortStableFunc(topics, func(a, b *KafkaTopicACL) int {
-			return modelv1.Compare(a.ApplicationName, b.ApplicationName, orderBy.Direction)
+			return modelv1.Compare(a.WorkloadName, b.WorkloadName, orderBy.Direction)
 		})
 	case KafkaTopicACLOrderFieldTeamSlug:
 		slices.SortStableFunc(topics, func(a, b *KafkaTopicACL) int {
