@@ -11,7 +11,7 @@ import (
 
 func NewFakeDependencyTrackClient(c client.Client) client.Client {
 
-	b, err := os.ReadFile("data/dependencytrack/projects.json")
+	b, err := os.ReadFile("data/dependencytrack/devteam.json")
 	if err != nil {
 		log.Fatalf("failed to read fake data: %s", err)
 	}

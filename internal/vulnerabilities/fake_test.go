@@ -29,20 +29,25 @@ func TestMaskFakeData(t *testing.T) {
 			continue
 		}
 
+		if i > 8 {
+			break
+		}
+
 		team := "devteam"
 		version := p.Version
-		workloadName := fmt.Sprintf("workload-%d", i)
+		workloadName := fmt.Sprintf("nais-deploy-chicken-%d", i+1)
 		workloadType := "app"
 		env := "dev"
 		projectName := fmt.Sprintf("europe-north1-docker.pkg.dev/nais-management-233d/%s/%s", team, workloadName)
 
 		if i%2 == 0 {
-			env = "superprod"
 			workloadType = "job"
 		}
 
 		p.Name = projectName
-		p.Tags = createTags(env, team, workloadType, workloadName, version)
+		tags := createTags(env, team, workloadType, workloadName, version)
+		tags = append(tags, createTags("superprod", team, workloadType, workloadName, version)...)
+		p.Tags = tags
 
 		filtered = append(filtered, p)
 	}
