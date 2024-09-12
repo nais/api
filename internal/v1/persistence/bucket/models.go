@@ -39,7 +39,7 @@ type Bucket struct {
 
 func (Bucket) IsPersistence() {}
 
-func (Bucket) IsNode() {}
+func (Bucket) IsNode()            {}
 func (b *Bucket) GetName() string { return b.Name }
 
 func (b *Bucket) GetNamespace() string { return b.TeamSlug.String() }
