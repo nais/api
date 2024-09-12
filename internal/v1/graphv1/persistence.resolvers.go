@@ -57,7 +57,11 @@ func (r *applicationResolver) KafkaTopicAcls(ctx context.Context, obj *applicati
 }
 
 func (r *applicationResolver) SQLInstances(ctx context.Context, obj *application.Application, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error) {
-	panic(fmt.Errorf("not implemented: SQLInstances - sqlInstances"))
+	if obj.Spec.GCP == nil || len(obj.Spec.GCP.SqlInstances) == 0 {
+		return pagination.EmptyConnection[*sqlinstance.SQLInstance](), nil
+	}
+
+	return sqlinstance.ListForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.GCP.SqlInstances, orderBy)
 }
 
 func (r *bigQueryDatasetResolver) Team(ctx context.Context, obj *bigquery.BigQueryDataset) (*team.Team, error) {
@@ -321,7 +325,9 @@ func (r *sqlInstanceResolver) Workload(ctx context.Context, obj *sqlinstance.SQL
 func (r *sqlInstanceResolver) Database(ctx context.Context, obj *sqlinstance.SQLInstance) (*sqlinstance.SQLDatabase, error) {
 	db, err := sqlinstance.GetDatabase(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
 	if err != nil {
-		if errors.Is(err, &watcher.ErrorNotFound{}) {
+		var errNotFound *watcher.ErrorNotFound
+
+		if errors.As(err, &errNotFound) {
 			return nil, nil
 		}
 		return nil, err

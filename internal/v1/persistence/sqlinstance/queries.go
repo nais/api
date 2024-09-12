@@ -7,6 +7,7 @@ import (
 	"slices"
 
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
+	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
@@ -39,6 +40,24 @@ func GetDatabaseByIdent(ctx context.Context, id ident.Ident) (*SQLDatabase, erro
 
 func GetDatabase(ctx context.Context, teamSlug slug.Slug, environmentName, sqlInstanceName string) (*SQLDatabase, error) {
 	return fromContext(ctx).sqlDatabaseWatcher.Get(environmentName, teamSlug.String(), sqlInstanceName)
+}
+
+func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, references []nais_io_v1.CloudSqlInstance, orderBy *SQLInstanceOrder) (*SQLInstanceConnection, error) {
+	all := fromContext(ctx).sqlInstanceWatcher.GetByNamespace(teamSlug.String())
+
+	ret := make([]*SQLInstance, 0)
+
+	for _, ref := range references {
+		for _, d := range all {
+			if d.Obj.Name == ref.Name && d.Obj.EnvironmentName == environmentName {
+				ret = append(ret, d.Obj)
+			}
+		}
+	}
+
+	orderSqlInstances(ret, orderBy)
+
+	return pagination.NewConnectionWithoutPagination(ret), nil
 }
 
 func orderSqlInstances(instances []*SQLInstance, orderBy *SQLInstanceOrder) {
