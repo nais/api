@@ -17,7 +17,7 @@ type Querier interface {
 	CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults
 	CurrentSqlInstancesCostForTeam(ctx context.Context, arg CurrentSqlInstancesCostForTeamParams) (float32, error)
 	// DailyCostForTeam will fetch the daily cost for a specific team across all apps and envs in a date range.
-	DailyCostForTeam(ctx context.Context, arg DailyCostForTeamParams) ([]*Cost, error)
+	DailyCostForTeam(ctx context.Context, arg DailyCostForTeamParams) ([]*DailyCostForTeamRow, error)
 	// DailyCostForWorkload will fetch the daily cost for a specific workload in an environment, across all cost types in a
 	// date range.
 	DailyCostForWorkload(ctx context.Context, arg DailyCostForWorkloadParams) ([]*DailyCostForWorkloadRow, error)
@@ -25,8 +25,8 @@ type Querier interface {
 	DailyEnvCostForTeam(ctx context.Context, arg DailyEnvCostForTeamParams) ([]*DailyEnvCostForTeamRow, error)
 	// LastCostDate will return the last date that has a cost.
 	LastCostDate(ctx context.Context) (pgtype.Date, error)
-	MonthlyCostForApp(ctx context.Context, arg MonthlyCostForAppParams) ([]*MonthlyCostForAppRow, error)
 	MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*CostMonthlyTeam, error)
+	MonthlyCostForWorkload(ctx context.Context, arg MonthlyCostForWorkloadParams) ([]*MonthlyCostForWorkloadRow, error)
 	RefreshCostMonthlyTeam(ctx context.Context) error
 }
 

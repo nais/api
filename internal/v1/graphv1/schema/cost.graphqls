@@ -1,3 +1,44 @@
+extend type Team {
+	"The cost for the team."
+	cost: TeamCost!
+}
+
+type TeamCost {
+	daily(
+		"Start date of the period, inclusive."
+		from: Date!
+
+		"End date of the period, inclusive."
+		to: Date!
+	): TeamCostPeriod!
+
+	monthlySummary: TeamCostMonthlySummary!
+}
+
+type TeamCostMonthlySummary {
+	"The total cost for the last 12 months."
+	sum: Float!
+
+	"The cost series."
+	series: [TeamCostMonthlySample!]! # TODO: Ask Vebjørn about naming things for analytic purposes
+}
+
+type TeamCostMonthlySample {
+	"The last date with cost data in the month."
+	date: Date!
+
+	"The total cost for the month."
+	cost: Float!
+}
+
+type TeamCostPeriod {
+	"The total cost for the period."
+	sum: Float!
+
+	"The cost series."
+	series: [ServiceCostSeries!]!
+}
+
 extend interface Workload {
 	"The cost for a workload."
 	cost: WorkloadCost!
@@ -32,10 +73,10 @@ type WorkloadCostPeriod {
 	sum: Float!
 
 	"The cost series."
-	series: [WorkloadCostSeries!]!
+	series: [ServiceCostSeries!]!
 }
 
-type WorkloadCostSeries {
+type ServiceCostSeries {
 	"The date for the cost. When calculating the cost for a monthly period, the date will be the last day of the month that has cost data."
 	date: Date!
 
@@ -43,10 +84,10 @@ type WorkloadCostSeries {
 	sum: Float!
 
 	"The cost for the services used by the workload."
-	services: [WorkloadCostService!]!
+	services: [ServiceCost!]!
 }
 
-type WorkloadCostService {
+type ServiceCost {
 	"The name of the service."
 	service: String!
 

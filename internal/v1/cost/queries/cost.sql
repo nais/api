@@ -6,7 +6,7 @@ FROM
 	cost
 ;
 
--- name: MonthlyCostForApp :many
+-- name: MonthlyCostForWorkload :many
 WITH
 	last_run AS (
 		SELECT
@@ -16,9 +16,10 @@ WITH
 	)
 SELECT
 	team_slug,
-	app,
+	app AS workload,
 	environment,
 	DATE_TRUNC('month', date)::date AS MONTH,
+	cost_type AS service,
 	-- Extract last day of known cost samples for the month, or the last recorded date
 	-- This helps with estimation etc
 	MAX(
@@ -33,12 +34,13 @@ FROM
 	LEFT JOIN last_run ON TRUE
 WHERE
 	c.team_slug = @team_slug::slug
-	AND c.app = @app
+	AND c.app = @workload
 	AND c.environment = @environment::TEXT
 GROUP BY
 	team_slug,
 	app,
 	environment,
+	service,
 	MONTH
 ORDER BY
 	MONTH DESC
@@ -117,32 +119,46 @@ WHERE
 		AND app = @workload
 	)
 ORDER BY
-	cost.date,
+	date_range.date,
 	service ASC
 ;
 
 -- DailyCostForTeam will fetch the daily cost for a specific team across all apps and envs in a date range.
 -- name: DailyCostForTeam :many
+WITH
+	date_range AS (
+		SELECT
+			*
+		FROM
+			GENERATE_SERIES(
+				@from_date::date,
+				@to_date::date,
+				'1 day'::INTERVAL
+			) AS date
+	)
 SELECT
-	*
+	date_range.date::date AS date,
+	cost.cost_type AS service,
+	COALESCE(SUM(cost.daily_cost), 0)::REAL AS cost
 FROM
-	cost
+	date_range
+	LEFT OUTER JOIN cost ON cost.date = date_range.date
 WHERE
-	date >= @from_date::date
-	AND date <= @to_date::date
-	AND team_slug = @team_slug::slug
+	team_slug IS NULL
+	OR team_slug = @team_slug::slug
+GROUP BY
+	date_range.date,
+	service
 ORDER BY
-	date,
-	environment,
-	app,
-	cost_type ASC
+	date_range.date,
+	service ASC
 ;
 
 -- DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
 -- name: DailyEnvCostForTeam :many
 SELECT
 	team_slug,
-	app,
+	app AS workload,
 	date,
 	SUM(daily_cost)::REAL AS daily_cost
 FROM
@@ -169,7 +185,7 @@ FROM
 WHERE
 	team_slug = @team_slug
 	AND cost_type = @cost_type
-	AND app = @app_name
+	AND app = @workload
 	AND date >= @from_date
 	AND date <= @to_date
 	AND environment = @environment::TEXT

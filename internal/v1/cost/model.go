@@ -11,12 +11,16 @@ type WorkloadCost struct {
 	TeamSlug        slug.Slug `json:"-"`
 }
 
-type WorkloadCostSeries struct {
-	Date     scalar.Date            `json:"date"`
-	Services []*WorkloadCostService `json:"services"`
+type TeamCost struct {
+	TeamSlug slug.Slug `json:"-"`
 }
 
-func (w *WorkloadCostSeries) Sum() float64 {
+type ServiceCostSeries struct {
+	Date     scalar.Date    `json:"date"`
+	Services []*ServiceCost `json:"services"`
+}
+
+func (w *ServiceCostSeries) Sum() float64 {
 	sum := 0.0
 	for _, service := range w.Services {
 		sum += service.Cost
@@ -25,7 +29,7 @@ func (w *WorkloadCostSeries) Sum() float64 {
 }
 
 type WorkloadCostPeriod struct {
-	Series []*WorkloadCostSeries `json:"series"`
+	Series []*ServiceCostSeries `json:"series"`
 }
 
 func (w *WorkloadCostPeriod) Sum() float64 {
@@ -36,7 +40,36 @@ func (w *WorkloadCostPeriod) Sum() float64 {
 	return sum
 }
 
-type WorkloadCostService struct {
+type ServiceCost struct {
 	Service string  `json:"service"`
 	Cost    float64 `json:"cost"`
+}
+
+type TeamCostPeriod struct {
+	Series []*ServiceCostSeries `json:"series"`
+}
+
+func (w *TeamCostPeriod) Sum() float64 {
+	sum := 0.0
+	for _, period := range w.Series {
+		sum += period.Sum()
+	}
+	return sum
+}
+
+type TeamCostMonthlySample struct {
+	Date scalar.Date `json:"date"`
+	Cost float64     `json:"cost"`
+}
+
+type TeamCostMonthlySummary struct {
+	Series []*TeamCostMonthlySample `json:"series"`
+}
+
+func (t *TeamCostMonthlySummary) Sum() float64 {
+	sum := 0.0
+	for _, period := range t.Series {
+		sum += period.Cost
+	}
+	return sum
 }

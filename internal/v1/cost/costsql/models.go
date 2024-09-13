@@ -7,16 +7,6 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-type Cost struct {
-	ID          int32
-	Environment *string
-	TeamSlug    slug.Slug
-	App         string
-	CostType    string
-	Date        pgtype.Date
-	DailyCost   float32
-}
-
 type CostMonthlyTeam struct {
 	TeamSlug         slug.Slug
 	Month            pgtype.Date
