@@ -26,6 +26,10 @@ func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, aft
 	return job.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
+func (r *teamEnvironmentResolver) Job(ctx context.Context, obj *team.TeamEnvironment, name string) (*job.Job, error) {
+	return job.Get(ctx, obj.TeamSlug, obj.Name, name)
+}
+
 func (r *Resolver) Job() gengqlv1.JobResolver { return &jobResolver{r} }
 
 type jobResolver struct{ *Resolver }

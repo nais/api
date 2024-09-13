@@ -18,6 +18,11 @@ extend type Team {
 	): JobConnection!
 }
 
+extend type TeamEnvironment {
+	"NAIS job in the team environment."
+	job(name: String!): Job!
+}
+
 type Job implements Node & Workload {
 	"The globally unique ID of the job."
 	id: ID!
