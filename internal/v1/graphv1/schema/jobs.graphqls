@@ -44,7 +44,6 @@ type Job implements Node & Workload {
 
 	# image: String!
 	# deployInfo: DeployInfo!
-	# accessPolicy: AccessPolicy!
 	# status: WorkloadStatus!
 	# authz: [Authz!]!
 	# persistence: [Persistence!]!

@@ -18,11 +18,8 @@ interface Workload implements Node {
 	resources: WorkloadResources!
 
 	# deployInfo: DeployInfo!
-	# accessPolicy: AccessPolicy!
 	# status: WorkloadStatus!
 	# authz: [Authz!]!
-	# variables: [Variable!]!
-	# persistence: [Persistence!]!
 }
 
 type ContainerImage implements Node {

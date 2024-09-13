@@ -1,0 +1,49 @@
+extend interface Workload {
+	"Network policies for the workload."
+	networkPolicy: NetworkPolicy!
+}
+
+extend type Application {
+	"Network policies for the application."
+	networkPolicy: NetworkPolicy!
+}
+
+extend type Job {
+	"Network policies for the job."
+	networkPolicy: NetworkPolicy!
+}
+
+interface ExternalNetworkPolicyTarget {
+	target: String!
+}
+
+type ExternalNetworkPolicyHost implements ExternalNetworkPolicyTarget {
+	target: String!
+}
+
+type ExternalNetworkPolicyIpv4 implements ExternalNetworkPolicyTarget {
+	target: String!
+	ports: [Int!]!
+}
+
+type NetworkPolicyRule {
+	targetWorkloadName: String!
+	targetWorkload: Workload
+	targetTeamSlug: Slug!
+	targetTeam: Team
+	mutual: Boolean!
+}
+
+type InboundNetworkPolicy {
+	rules: [NetworkPolicyRule!]!
+}
+
+type OutboundNetworkPolicy {
+	rules: [NetworkPolicyRule!]!
+	external: [ExternalNetworkPolicyTarget!]!
+}
+
+type NetworkPolicy {
+	inbound: InboundNetworkPolicy!
+	outbound: OutboundNetworkPolicy!
+}

@@ -42,6 +42,7 @@ autobind:
   - "github.com/nais/api/internal/v1/workload"
   - "github.com/nais/api/internal/v1/workload/application"
   - "github.com/nais/api/internal/v1/workload/job"
+  - "github.com/nais/api/internal/v1/workload/netpol"
   # - "github.com/nais/api/internal/v1/graphv1/modelv1/auditevent"
 
 # Don't generate Get<FieldName> functions for fields included in the GraphQL interfaces

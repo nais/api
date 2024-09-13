@@ -49,7 +49,6 @@ type Application implements Node & Workload {
 	ingresses: [String!]!
 
 	# deployInfo: DeployInfo!
-	# accessPolicy: AccessPolicy!
 	# status: WorkloadStatus!
 	# authz: [Authz!]!
 	# variables: [Variable!]!
