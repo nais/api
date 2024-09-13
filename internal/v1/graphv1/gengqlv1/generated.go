@@ -626,6 +626,7 @@ type ComplexityRoot struct {
 		CdnBucket              func(childComplexity int) int
 		Cost                   func(childComplexity int) int
 		DeletionInProgress     func(childComplexity int) int
+		Environment            func(childComplexity int, name string) int
 		Environments           func(childComplexity int) int
 		GitHubTeamSlug         func(childComplexity int) int
 		GoogleArtifactRegistry func(childComplexity int) int
@@ -690,6 +691,7 @@ type ComplexityRoot struct {
 	}
 
 	TeamEnvironment struct {
+		Application        func(childComplexity int, name string) int
 		GCPProjectID       func(childComplexity int) int
 		ID                 func(childComplexity int) int
 		Name               func(childComplexity int) int
@@ -889,6 +891,7 @@ type TeamResolver interface {
 	ViewerIsOwner(ctx context.Context, obj *team.Team) (bool, error)
 	ViewerIsMember(ctx context.Context, obj *team.Team) (bool, error)
 	Environments(ctx context.Context, obj *team.Team) ([]*team.TeamEnvironment, error)
+	Environment(ctx context.Context, obj *team.Team, name string) (*team.TeamEnvironment, error)
 	Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder) (*pagination.Connection[*application.Application], error)
 	AuditEntries(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[auditv1.AuditEntry], error)
 	Cost(ctx context.Context, obj *team.Team) (*cost.TeamCost, error)
@@ -907,6 +910,7 @@ type TeamCostResolver interface {
 }
 type TeamEnvironmentResolver interface {
 	Team(ctx context.Context, obj *team.TeamEnvironment) (*team.Team, error)
+	Application(ctx context.Context, obj *team.TeamEnvironment, name string) (*application.Application, error)
 }
 type TeamMemberResolver interface {
 	Team(ctx context.Context, obj *team.TeamMember) (*team.Team, error)
@@ -3206,6 +3210,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.DeletionInProgress(childComplexity), true
 
+	case "Team.environment":
+		if e.complexity.Team.Environment == nil {
+			break
+		}
+
+		args, err := ec.field_Team_environment_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Team.Environment(childComplexity, args["name"].(string)), true
+
 	case "Team.environments":
 		if e.complexity.Team.Environments == nil {
 			break
@@ -3525,6 +3541,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamEdge.Node(childComplexity), true
+
+	case "TeamEnvironment.application":
+		if e.complexity.TeamEnvironment.Application == nil {
+			break
+		}
+
+		args, err := ec.field_TeamEnvironment_application_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.TeamEnvironment.Application(childComplexity, args["name"].(string)), true
 
 	case "TeamEnvironment.gcpProjectID":
 		if e.complexity.TeamEnvironment.GCPProjectID == nil {
@@ -3991,6 +4019,11 @@ var sources = []*ast.Source{
 		"Ordering options for items returned from the connection."
 		orderBy: ApplicationOrder
 	): ApplicationConnection!
+}
+
+extend type TeamEnvironment {
+	"NAIS application in the team environment."
+	application(name: String!): Application!
 }
 
 """
@@ -5401,6 +5434,8 @@ type Team implements Node {
 
 	"Environments for the team."
 	environments: [TeamEnvironment!]!
+
+	environment(name: String!): TeamEnvironment!
 }
 
 type TeamEnvironment implements Node {
@@ -6761,6 +6796,21 @@ func (ec *executionContext) field_TeamCost_daily_args(ctx context.Context, rawAr
 	return args, nil
 }
 
+func (ec *executionContext) field_TeamEnvironment_application_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["name"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["name"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Team_applications_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -6953,6 +7003,21 @@ func (ec *executionContext) field_Team_buckets_args(ctx context.Context, rawArgs
 		}
 	}
 	args["orderBy"] = arg4
+	return args, nil
+}
+
+func (ec *executionContext) field_Team_environment_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["name"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["name"] = arg0
 	return args, nil
 }
 
@@ -7626,6 +7691,8 @@ func (ec *executionContext) fieldContext_Application_team(_ context.Context, fie
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -7704,6 +7771,8 @@ func (ec *executionContext) fieldContext_Application_environment(_ context.Conte
 				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
 			case "team":
 				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -9266,6 +9335,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(_ context.Context,
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -9344,6 +9415,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_environment(_ context.C
 				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
 			case "team":
 				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -10496,6 +10569,8 @@ func (ec *executionContext) fieldContext_Bucket_team(_ context.Context, field gr
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -10574,6 +10649,8 @@ func (ec *executionContext) fieldContext_Bucket_environment(_ context.Context, f
 				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
 			case "team":
 				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -12076,6 +12153,8 @@ func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -13148,6 +13227,8 @@ func (ec *executionContext) fieldContext_Job_team(_ context.Context, field graph
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -13226,6 +13307,8 @@ func (ec *executionContext) fieldContext_Job_environment(_ context.Context, fiel
 				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
 			case "team":
 				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -14448,6 +14531,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(_ context.Context, fiel
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -14526,6 +14611,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_environment(_ context.Contex
 				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
 			case "team":
 				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -14945,6 +15032,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_team(_ context.Context, f
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -16441,6 +16530,8 @@ func (ec *executionContext) fieldContext_OpenSearch_team(_ context.Context, fiel
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -16519,6 +16610,8 @@ func (ec *executionContext) fieldContext_OpenSearch_environment(_ context.Contex
 				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
 			case "team":
 				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -17776,6 +17869,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -18232,6 +18327,8 @@ func (ec *executionContext) fieldContext_RedisInstance_team(_ context.Context, f
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -18310,6 +18407,8 @@ func (ec *executionContext) fieldContext_RedisInstance_environment(_ context.Con
 				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
 			case "team":
 				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -19370,6 +19469,8 @@ func (ec *executionContext) fieldContext_Repository_team(_ context.Context, fiel
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -20033,6 +20134,8 @@ func (ec *executionContext) fieldContext_SqlDatabase_team(_ context.Context, fie
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -20111,6 +20214,8 @@ func (ec *executionContext) fieldContext_SqlDatabase_environment(_ context.Conte
 				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
 			case "team":
 				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -20442,6 +20547,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(_ context.Context, fie
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -20520,6 +20627,8 @@ func (ec *executionContext) fieldContext_SqlInstance_environment(_ context.Conte
 				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
 			case "team":
 				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -22771,6 +22880,8 @@ func (ec *executionContext) fieldContext_SynchronizeTeamPayload_team(_ context.C
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -23466,9 +23577,80 @@ func (ec *executionContext) fieldContext_Team_environments(_ context.Context, fi
 				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
 			case "team":
 				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Team_environment(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_environment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().Environment(rctx, obj, fc.Args["name"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEnvironment)
+	fc.Result = res
+	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_environment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Team_environment_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -24278,6 +24460,8 @@ func (ec *executionContext) fieldContext_TeamConnection_nodes(_ context.Context,
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -25252,6 +25436,8 @@ func (ec *executionContext) fieldContext_TeamEdge_node(_ context.Context, field 
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -25523,6 +25709,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_team(_ context.Context,
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -25548,6 +25736,91 @@ func (ec *executionContext) fieldContext_TeamEnvironment_team(_ context.Context,
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironment_application(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironment_application(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamEnvironment().Application(rctx, obj, fc.Args["name"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*application.Application)
+	fc.Result = res
+	return ec.marshalNApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplication(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironment_application(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironment",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Application_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Application_name(ctx, field)
+			case "team":
+				return ec.fieldContext_Application_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_Application_environment(ctx, field)
+			case "image":
+				return ec.fieldContext_Application_image(ctx, field)
+			case "resources":
+				return ec.fieldContext_Application_resources(ctx, field)
+			case "ingresses":
+				return ec.fieldContext_Application_ingresses(ctx, field)
+			case "cost":
+				return ec.fieldContext_Application_cost(ctx, field)
+			case "bigQueryDatasets":
+				return ec.fieldContext_Application_bigQueryDatasets(ctx, field)
+			case "redisInstances":
+				return ec.fieldContext_Application_redisInstances(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Application_openSearch(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Application_buckets(ctx, field)
+			case "kafkaTopicAcls":
+				return ec.fieldContext_Application_kafkaTopicAcls(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Application_sqlInstances(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_TeamEnvironment_application_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -25621,6 +25894,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, fiel
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -26686,6 +26961,8 @@ func (ec *executionContext) fieldContext_UpdateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "environments":
 				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -36499,6 +36776,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "environment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_environment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "applications":
 			field := field
 
@@ -37363,6 +37676,42 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 					}
 				}()
 				res = ec._TeamEnvironment_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "application":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamEnvironment_application(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -38532,6 +38881,10 @@ func (ec *executionContext) marshalNAddRepositoryToTeamPayload2ᚖgithubᚗcom�
 		return graphql.Null
 	}
 	return ec._AddRepositoryToTeamPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNApplication2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplication(ctx context.Context, sel ast.SelectionSet, v application.Application) graphql.Marshaler {
+	return ec._Application(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNApplication2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationᚄ(ctx context.Context, sel ast.SelectionSet, v []*application.Application) graphql.Marshaler {

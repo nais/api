@@ -54,7 +54,7 @@ func ListAllForTeam(ctx context.Context, teamSlug slug.Slug) []*Application {
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Application, error) {
-	a, err := fromContext(ctx).appWatcher.Get(teamSlug.String(), environment, name)
+	a, err := fromContext(ctx).appWatcher.Get(environment, teamSlug.String(), name)
 	if err != nil {
 		return nil, err
 	}

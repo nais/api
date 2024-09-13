@@ -120,6 +120,8 @@ type Team implements Node {
 
 	"Environments for the team."
 	environments: [TeamEnvironment!]!
+
+	environment(name: String!): TeamEnvironment!
 }
 
 type TeamEnvironment implements Node {

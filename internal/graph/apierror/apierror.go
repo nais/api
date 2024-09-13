@@ -32,6 +32,10 @@ var (
 	ErrUnleashEmptyAllowedTeams        = Errorf("You must specify at least one team that is allowed to access the Unleash instance.")
 )
 
+type graphError interface {
+	GraphError() string
+}
+
 // Error is an error that can be presented to end-users
 type Error struct {
 	err error
@@ -65,6 +69,9 @@ func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
 			return originalError
 		case Error:
 			// Error is already formatted for end-user consumption.
+			return err
+		case graphError:
+			err.Message = originalError.GraphError()
 			return err
 		case authz.ErrMissingRole:
 			err.Message = fmt.Sprintf("You are authenticated, but your account is not authorized to perform this action. Specifically, you need the %q role.", originalError.Role())

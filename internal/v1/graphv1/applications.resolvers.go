@@ -26,6 +26,10 @@ func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *
 	return application.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
+func (r *teamEnvironmentResolver) Application(ctx context.Context, obj *team.TeamEnvironment, name string) (*application.Application, error) {
+	return application.Get(ctx, obj.TeamSlug, obj.Name, name)
+}
+
 func (r *Resolver) Application() gengqlv1.ApplicationResolver { return &applicationResolver{r} }
 
 type applicationResolver struct{ *Resolver }

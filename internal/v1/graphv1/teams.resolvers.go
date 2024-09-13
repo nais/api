@@ -98,6 +98,10 @@ func (r *teamResolver) Environments(ctx context.Context, obj *team.Team) ([]*tea
 	return team.ListTeamEnvironments(ctx, obj.Slug)
 }
 
+func (r *teamResolver) Environment(ctx context.Context, obj *team.Team, name string) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.Slug, name)
+}
+
 func (r *teamEnvironmentResolver) Team(ctx context.Context, obj *team.TeamEnvironment) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
 }

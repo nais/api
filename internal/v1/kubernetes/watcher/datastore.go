@@ -18,6 +18,10 @@ func (e *ErrorNotFound) Error() string {
 	return "not found: " + e.Cluster + "/" + e.Namespace + "/" + e.Name
 }
 
+func (e *ErrorNotFound) GraphError() string {
+	return "Resource not found: " + e.Cluster + "/" + e.Namespace + "/" + e.Name
+}
+
 func (e *ErrorNotFound) As(v any) bool {
 	if _, ok := v.(*ErrorNotFound); ok {
 		return true

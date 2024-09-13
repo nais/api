@@ -18,6 +18,11 @@ extend type Team {
 	): ApplicationConnection!
 }
 
+extend type TeamEnvironment {
+	"NAIS application in the team environment."
+	application(name: String!): Application!
+}
+
 """
 TODO: write
 """
