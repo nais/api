@@ -12,7 +12,7 @@ import (
 
 const costForInstance = `-- name: CostForInstance :one
 SELECT
-	COALESCE(SUM(daily_cost), 0)::real
+	COALESCE(SUM(daily_cost), 0)::REAL
 FROM
 	cost
 WHERE
@@ -21,7 +21,7 @@ WHERE
 	AND app = $3
 	AND date >= $4
 	AND date <= $5
-	AND environment = $6::text
+	AND environment = $6::TEXT
 `
 
 type CostForInstanceParams struct {
@@ -49,7 +49,7 @@ func (q *Queries) CostForInstance(ctx context.Context, arg CostForInstanceParams
 
 const costForTeam = `-- name: CostForTeam :one
 SELECT
-	COALESCE(SUM(daily_cost), 0)::real
+	COALESCE(SUM(daily_cost), 0)::REAL
 FROM
 	cost
 WHERE
@@ -80,7 +80,7 @@ func (q *Queries) CostForTeam(ctx context.Context, arg CostForTeamParams) (float
 
 const currentSqlInstancesCostForTeam = `-- name: CurrentSqlInstancesCostForTeam :one
 SELECT
-	COALESCE(SUM(daily_cost), 0)::real
+	COALESCE(SUM(daily_cost), 0)::REAL
 FROM
 	cost
 WHERE
@@ -101,66 +101,6 @@ func (q *Queries) CurrentSqlInstancesCostForTeam(ctx context.Context, arg Curren
 	var column_1 float32
 	err := row.Scan(&column_1)
 	return column_1, err
-}
-
-const dailyCostForApp = `-- name: DailyCostForApp :many
-SELECT
-	id, environment, team_slug, app, cost_type, date, daily_cost
-FROM
-	cost
-WHERE
-	date >= $1::date
-	AND date <= $2::date
-	AND environment = $3::text
-	AND team_slug = $4::slug
-	AND app = $5
-ORDER BY
-	date,
-	cost_type ASC
-`
-
-type DailyCostForAppParams struct {
-	FromDate    pgtype.Date
-	ToDate      pgtype.Date
-	Environment string
-	TeamSlug    slug.Slug
-	App         string
-}
-
-// DailyCostForApp will fetch the daily cost for a specific team app in a specific environment, across all cost types
-// in a date range.
-func (q *Queries) DailyCostForApp(ctx context.Context, arg DailyCostForAppParams) ([]*Cost, error) {
-	rows, err := q.db.Query(ctx, dailyCostForApp,
-		arg.FromDate,
-		arg.ToDate,
-		arg.Environment,
-		arg.TeamSlug,
-		arg.App,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []*Cost{}
-	for rows.Next() {
-		var i Cost
-		if err := rows.Scan(
-			&i.ID,
-			&i.Environment,
-			&i.TeamSlug,
-			&i.App,
-			&i.CostType,
-			&i.Date,
-			&i.DailyCost,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const dailyCostForTeam = `-- name: DailyCostForTeam :many
@@ -214,12 +154,95 @@ func (q *Queries) DailyCostForTeam(ctx context.Context, arg DailyCostForTeamPara
 	return items, nil
 }
 
+const dailyCostForWorkload = `-- name: DailyCostForWorkload :many
+WITH
+	date_range AS (
+		SELECT
+			date
+		FROM
+			GENERATE_SERIES(
+				$4::date,
+				$5::date,
+				'1 day'::INTERVAL
+			) AS date
+	)
+SELECT
+	date_range.date::date AS date,
+	cost.environment,
+	cost.team_slug,
+	cost.cost_type AS service,
+	cost.daily_cost
+FROM
+	date_range
+	LEFT OUTER JOIN cost ON cost.date = date_range.date
+WHERE
+	environment IS NULL
+	OR (
+		environment = $1::TEXT
+		AND team_slug = $2::slug
+		AND app = $3
+	)
+ORDER BY
+	cost.date,
+	service ASC
+`
+
+type DailyCostForWorkloadParams struct {
+	Environment string
+	TeamSlug    slug.Slug
+	Workload    string
+	FromDate    pgtype.Date
+	ToDate      pgtype.Date
+}
+
+type DailyCostForWorkloadRow struct {
+	Date        pgtype.Date
+	Environment *string
+	TeamSlug    *slug.Slug
+	Service     *string
+	DailyCost   *float32
+}
+
+// DailyCostForWorkload will fetch the daily cost for a specific workload in an environment, across all cost types in a
+// date range.
+func (q *Queries) DailyCostForWorkload(ctx context.Context, arg DailyCostForWorkloadParams) ([]*DailyCostForWorkloadRow, error) {
+	rows, err := q.db.Query(ctx, dailyCostForWorkload,
+		arg.Environment,
+		arg.TeamSlug,
+		arg.Workload,
+		arg.FromDate,
+		arg.ToDate,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*DailyCostForWorkloadRow{}
+	for rows.Next() {
+		var i DailyCostForWorkloadRow
+		if err := rows.Scan(
+			&i.Date,
+			&i.Environment,
+			&i.TeamSlug,
+			&i.Service,
+			&i.DailyCost,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const dailyEnvCostForTeam = `-- name: DailyEnvCostForTeam :many
 SELECT
 	team_slug,
 	app,
 	date,
-	SUM(daily_cost)::real AS daily_cost
+	SUM(daily_cost)::REAL AS daily_cost
 FROM
 	cost
 WHERE
@@ -308,30 +331,30 @@ SELECT
 	team_slug,
 	app,
 	environment,
-	date_trunc('month', date)::date AS month,
+	DATE_TRUNC('month', date)::date AS MONTH,
 	-- Extract last day of known cost samples for the month, or the last recorded date
 	-- This helps with estimation etc
 	MAX(
 		CASE
-			WHEN date_trunc('month', date) < date_trunc('month', last_run) THEN date_trunc('month', date) + interval '1 month' - interval '1 day'
-			ELSE date_trunc('day', last_run)
+			WHEN DATE_TRUNC('month', date) < DATE_TRUNC('month', last_run) THEN DATE_TRUNC('month', date) + INTERVAL '1 month' - INTERVAL '1 day'
+			ELSE DATE_TRUNC('day', last_run)
 		END
 	)::date AS last_recorded_date,
-	SUM(daily_cost)::real AS daily_cost
+	SUM(daily_cost)::REAL AS daily_cost
 FROM
 	cost c
-	LEFT JOIN last_run ON true
+	LEFT JOIN last_run ON TRUE
 WHERE
 	c.team_slug = $1::slug
 	AND c.app = $2
-	AND c.environment = $3::text
+	AND c.environment = $3::TEXT
 GROUP BY
 	team_slug,
 	app,
 	environment,
-	month
+	MONTH
 ORDER BY
-	month DESC
+	MONTH DESC
 LIMIT
 	12
 `
@@ -386,7 +409,7 @@ FROM
 WHERE
 	team_slug = $1::slug
 ORDER BY
-	month DESC
+	MONTH DESC
 LIMIT
 	12
 `

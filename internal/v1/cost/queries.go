@@ -2,83 +2,51 @@ package cost
 
 import (
 	"context"
+	"slices"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/cost/costsql"
 	"github.com/nais/api/internal/v1/graphv1/scalar"
+	"golang.org/x/exp/maps"
+	"k8s.io/utils/ptr"
 )
 
-func ForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, fromDate, toDate time.Time) (*CostDaily, error) {
-	rows, err := db(ctx).DailyCostForApp(ctx, costsql.DailyCostForAppParams{
+func DailyForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, fromDate, toDate time.Time) (*WorkloadCostPeriod, error) {
+	rows, err := db(ctx).DailyCostForWorkload(ctx, costsql.DailyCostForWorkloadParams{
 		FromDate:    pgtype.Date{Time: fromDate, Valid: true},
 		ToDate:      pgtype.Date{Time: toDate, Valid: true},
-		Environment: environmentName,
 		TeamSlug:    teamSlug,
-		App:         workloadName,
+		Environment: environmentName,
+		Workload:    workloadName,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	costs, sum := dailyCostsFromDatabaseRows(from, to, rows)
-
-	series := make([]*CostDailyEntry, 0)
-	for costType, data := range costs {
-		costTypeSum := 0.0
-		for _, cost := range data {
-			costTypeSum += cost.Cost
-		}
-		series = append(series, &model.CostSeries{
-			CostType: costType,
-			Sum:      costTypeSum,
-			Data:     data,
-		})
-	}
-}
-
-func dailyCostsFromDatabaseRows(from, to scalar.Date, rows []*costsql.Cost) (SortedDailyCosts, float64) {
-	sum := 0.0
-	daily := CostDaily{}
+	daily := make(map[pgtype.Date]*WorkloadCostSeries)
 	for _, row := range rows {
-		if _, exists := daily[row.CostType]; !exists {
-			daily[row.CostType] = make(map[scalar.Date]float64)
-		}
-		date := scalar.NewDate(row.Date.Time)
-		if _, exists := daily[row.CostType][date]; !exists {
-			daily[row.CostType][date] = 0.0
-		}
-
-		daily[row.CostType][date] += float64(row.DailyCost)
-		sum += float64(row.DailyCost)
-	}
-
-	return normalizeDailyCosts(from, to, daily), sum
-}
-
-// normalizeDailyCosts will make sure all dates in the "from -> to" range are present in the returned map for all cost
-// types. The dates will also be sorted in ascending order.
-func normalizeDailyCosts(start, end time.Time, costs DailyCosts) SortedDailyCosts {
-	sortedDailyCost := make(SortedDailyCosts)
-	for k, daysInSeries := range costs {
-		data := make([]*model.CostEntry, 0)
-		for day := start; !day.After(end); day = day.AddDate(0, 0, 1) {
-			date := scalar.NewDate(day)
-			cost := 0.0
-			if c, exists := daysInSeries[date]; exists {
-				cost = c
+		if _, exists := daily[row.Date]; !exists {
+			daily[row.Date] = &WorkloadCostSeries{
+				Date: scalar.NewDate(row.Date.Time),
 			}
+		}
 
-			data = append(data, &model.CostEntry{
-				Date: date,
-				Cost: cost,
+		if row.Service != nil {
+			daily[row.Date].Services = append(daily[row.Date].Services, &WorkloadCostService{
+				Service: *row.Service,
+				Cost:    float64(ptr.Deref(row.DailyCost, 0)),
 			})
 		}
-
-		sortedDailyCost[k] = data
 	}
 
-	return sortedDailyCost
+	ret := maps.Values(daily)
+	slices.SortFunc(ret, func(a, b *WorkloadCostSeries) int {
+		return a.Date.Time().Compare(b.Date.Time())
+	})
+
+	return &WorkloadCostPeriod{
+		Series: ret,
+	}, nil
 }

@@ -1,47 +1,42 @@
 package cost
 
-import "github.com/nais/api/internal/v1/graphv1/scalar"
-
-type CostDaily struct {
-	// The total cost for the period.
-	Sum float64 `json:"sum"`
-	// The cost series.
-	Entries []*CostDailyEntry `json:"entries"`
-}
-
-type CostDailyEntry struct {
-	// Name of the service the cost is for.
-	Service string `json:"service"`
-	// The cost for the service.
-	Sum float64 `json:"sum"`
-	// The cost series.
-	Series []*CostSeries `json:"series"`
-}
-
-type CostMonthly struct {
-	// The total cost for the period.
-	Sum float64 `json:"sum"`
-	// The cost series.
-	Series []*CostSeries `json:"series"`
-}
-
-type CostSeries struct {
-	// Date for the cost entry.
-	Date scalar.Date `json:"date"`
-	// The cost in euros.
-	Sum float64 `json:"sum"`
-}
-
-type TeamCost struct {
-	// Get the daily cost for a team.
-	Daily *CostDaily `json:"daily"`
-	// Get the monthly cost for a team. Will include up to 12 months of data.
-	Monthly *CostMonthly `json:"monthly"`
-}
+import (
+	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/v1/graphv1/scalar"
+)
 
 type WorkloadCost struct {
-	// Get the daily cost for a workload.
-	Daily *CostDaily `json:"daily"`
-	// Get the monthly cost for a workload. Will include up to 12 months of data.
-	Monthly *CostMonthly `json:"monthly"`
+	EnvironmentName string    `json:"-"`
+	WorkloadName    string    `json:"-"`
+	TeamSlug        slug.Slug `json:"-"`
+}
+
+type WorkloadCostSeries struct {
+	Date     scalar.Date            `json:"date"`
+	Services []*WorkloadCostService `json:"services"`
+}
+
+func (w *WorkloadCostSeries) Sum() float64 {
+	sum := 0.0
+	for _, service := range w.Services {
+		sum += service.Cost
+	}
+	return sum
+}
+
+type WorkloadCostPeriod struct {
+	Series []*WorkloadCostSeries `json:"series"`
+}
+
+func (w *WorkloadCostPeriod) Sum() float64 {
+	sum := 0.0
+	for _, period := range w.Series {
+		sum += period.Sum()
+	}
+	return sum
+}
+
+type WorkloadCostService struct {
+	Service string  `json:"service"`
+	Cost    float64 `json:"cost"`
 }

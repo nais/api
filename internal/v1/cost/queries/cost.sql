@@ -3,7 +3,8 @@
 SELECT
 	MAX(date)::date AS date
 FROM
-	cost;
+	cost
+;
 
 -- name: MonthlyCostForApp :many
 WITH
@@ -17,32 +18,33 @@ SELECT
 	team_slug,
 	app,
 	environment,
-	date_trunc('month', date)::date AS month,
+	DATE_TRUNC('month', date)::date AS MONTH,
 	-- Extract last day of known cost samples for the month, or the last recorded date
 	-- This helps with estimation etc
 	MAX(
 		CASE
-			WHEN date_trunc('month', date) < date_trunc('month', last_run) THEN date_trunc('month', date) + interval '1 month' - interval '1 day'
-			ELSE date_trunc('day', last_run)
+			WHEN DATE_TRUNC('month', date) < DATE_TRUNC('month', last_run) THEN DATE_TRUNC('month', date) + INTERVAL '1 month' - INTERVAL '1 day'
+			ELSE DATE_TRUNC('day', last_run)
 		END
 	)::date AS last_recorded_date,
-	SUM(daily_cost)::real AS daily_cost
+	SUM(daily_cost)::REAL AS daily_cost
 FROM
 	cost c
-	LEFT JOIN last_run ON true
+	LEFT JOIN last_run ON TRUE
 WHERE
 	c.team_slug = @team_slug::slug
 	AND c.app = @app
-	AND c.environment = @environment::text
+	AND c.environment = @environment::TEXT
 GROUP BY
 	team_slug,
 	app,
 	environment,
-	month
+	MONTH
 ORDER BY
-	month DESC
+	MONTH DESC
 LIMIT
-	12;
+	12
+;
 
 -- name: MonthlyCostForTeam :many
 SELECT
@@ -52,9 +54,10 @@ FROM
 WHERE
 	team_slug = @team_slug::slug
 ORDER BY
-	month DESC
+	MONTH DESC
 LIMIT
-	12;
+	12
+;
 
 -- CostUpsert will insert or update a cost record. If there is a conflict on the daily_cost_key constrant, the
 -- daily_cost column will be updated.
@@ -80,24 +83,43 @@ VALUES
 ON CONFLICT ON CONSTRAINT daily_cost_key DO
 UPDATE
 SET
-	daily_cost = EXCLUDED.daily_cost;
+	daily_cost = EXCLUDED.daily_cost
+;
 
--- DailyCostForApp will fetch the daily cost for a specific team app in a specific environment, across all cost types
--- in a date range.
--- name: DailyCostForApp :many
+-- DailyCostForWorkload will fetch the daily cost for a specific workload in an environment, across all cost types in a
+-- date range.
+-- name: DailyCostForWorkload :many
+WITH
+	date_range AS (
+		SELECT
+			*
+		FROM
+			GENERATE_SERIES(
+				@from_date::date,
+				@to_date::date,
+				'1 day'::INTERVAL
+			) AS date
+	)
 SELECT
-	*
+	date_range.date::date AS date,
+	cost.environment,
+	cost.team_slug,
+	cost.cost_type AS service,
+	cost.daily_cost
 FROM
-	cost
+	date_range
+	LEFT OUTER JOIN cost ON cost.date = date_range.date
 WHERE
-	date >= @from_date::date
-	AND date <= @to_date::date
-	AND environment = @environment::text
-	AND team_slug = @team_slug::slug
-	AND app = @app
+	environment IS NULL
+	OR (
+		environment = @environment::TEXT
+		AND team_slug = @team_slug::slug
+		AND app = @workload
+	)
 ORDER BY
-	date,
-	cost_type ASC;
+	cost.date,
+	service ASC
+;
 
 -- DailyCostForTeam will fetch the daily cost for a specific team across all apps and envs in a date range.
 -- name: DailyCostForTeam :many
@@ -113,7 +135,8 @@ ORDER BY
 	date,
 	environment,
 	app,
-	cost_type ASC;
+	cost_type ASC
+;
 
 -- DailyEnvCostForTeam will fetch the daily cost for a specific team and environment across all apps in a date range.
 -- name: DailyEnvCostForTeam :many
@@ -121,7 +144,7 @@ SELECT
 	team_slug,
 	app,
 	date,
-	SUM(daily_cost)::real AS daily_cost
+	SUM(daily_cost)::REAL AS daily_cost
 FROM
 	cost
 WHERE
@@ -135,11 +158,12 @@ GROUP BY
 	date
 ORDER BY
 	date,
-	app ASC;
+	app ASC
+;
 
 -- name: CostForInstance :one
 SELECT
-	COALESCE(SUM(daily_cost), 0)::real
+	COALESCE(SUM(daily_cost), 0)::REAL
 FROM
 	cost
 WHERE
@@ -148,29 +172,33 @@ WHERE
 	AND app = @app_name
 	AND date >= @from_date
 	AND date <= @to_date
-	AND environment = @environment::text;
+	AND environment = @environment::TEXT
+;
 
 -- name: CostForTeam :one
 SELECT
-	COALESCE(SUM(daily_cost), 0)::real
+	COALESCE(SUM(daily_cost), 0)::REAL
 FROM
 	cost
 WHERE
 	team_slug = @team_slug
 	AND cost_type = @cost_type
 	AND date >= @from_date
-	AND date <= @to_date;
+	AND date <= @to_date
+;
 
 -- name: CurrentSqlInstancesCostForTeam :one
 SELECT
-	COALESCE(SUM(daily_cost), 0)::real
+	COALESCE(SUM(daily_cost), 0)::REAL
 FROM
 	cost
 WHERE
 	team_slug = @team_slug
 	AND cost_type = 'Cloud SQL'
 	AND date >= @from_date
-	AND date <= @to_date;
+	AND date <= @to_date
+;
 
 -- name: RefreshCostMonthlyTeam :exec
-REFRESH MATERIALIZED VIEW CONCURRENTLY cost_monthly_team;
+REFRESH MATERIALIZED VIEW CONCURRENTLY cost_monthly_team
+;
