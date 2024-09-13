@@ -124,7 +124,7 @@ func (r *queryResolver) App(ctx context.Context, name string, team slug.Slug, en
 		return nil, apierror.ErrAppNotFound
 	}
 
-	vuln, err := r.vulnerabilities.GetVulnerabilityStatus(ctx, app.Image)
+	vuln, err := r.vulnerabilities.GetVulnerabilityStatus(ctx, app.Image, app.DeployInfo.CommitSha)
 	if err != nil {
 		return nil, fmt.Errorf("getting vulnerability status for image %q: %w", app.Image, err)
 	}

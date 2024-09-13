@@ -80,6 +80,16 @@ func (r *queryResolver) Naisjob(ctx context.Context, name string, team slug.Slug
 		return nil, err
 	}
 
+	vuln, err := r.vulnerabilities.GetVulnerabilityStatus(ctx, job.Image, job.DeployInfo.CommitSha)
+	if err != nil {
+		return nil, fmt.Errorf("getting vulnerability status for image %q: %w", job.Image, err)
+	}
+
+	if vuln != nil {
+		job.Status.State = model.StateNotnais
+		job.Status.Errors = append(job.Status.Errors, vuln)
+	}
+
 	return job, nil
 }
 

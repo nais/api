@@ -30,7 +30,7 @@ type Client interface {
 	GetMetadataForImage(ctx context.Context, image string) (*model.ImageDetails, error)
 	GetFindingsForImageByProjectID(ctx context.Context, projectID string, suppressed bool) ([]*model.Finding, error)
 	GetMetadataForTeam(ctx context.Context, team string) ([]*model.ImageDetails, error)
-	GetVulnerabilityStatus(ctx context.Context, image string) (model.StateError, error)
+	GetVulnerabilityStatus(ctx context.Context, image string, revision string) (model.StateError, error)
 	SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.AnalysisTrail, error)
 	GetAnalysisTrailForImage(ctx context.Context, projectID, componentID, vulnerabilityID string) (*model.AnalysisTrail, error)
 	UploadProject(ctx context.Context, image, name, version, team string, bom []byte) error
@@ -114,7 +114,7 @@ func WithClient(client dependencytrack.Client) DependencyTrackOption {
 	}
 }
 
-func (c *dependencyTrackClient) GetVulnerabilityStatus(ctx context.Context, image string) (model.StateError, error) {
+func (c *dependencyTrackClient) GetVulnerabilityStatus(ctx context.Context, image string, revision string) (model.StateError, error) {
 	name, version, _ := strings.Cut(image, ":")
 	p, err := c.client.GetProject(ctx, name, version)
 	if err != nil {
@@ -123,17 +123,15 @@ func (c *dependencyTrackClient) GetVulnerabilityStatus(ctx context.Context, imag
 
 	v, sum := c.isVulnerable(p)
 	if sum == nil {
-		// TODO: Set revision..
 		return model.MissingSbomError{
-			Revision: "",
-			Level:    model.ErrorLevelError,
+			Revision: revision,
+			Level:    model.ErrorLevelWarning,
 		}, nil
 	}
 
 	if v {
-		// TODO: Set revision..
 		return model.VulnerableError{
-			Revision: "",
+			Revision: revision,
 			Level:    model.ErrorLevelWarning,
 			Summary:  sum,
 		}, nil
@@ -416,7 +414,15 @@ func (c *dependencyTrackClient) isVulnerable(p *dependencytrack.Project) (bool, 
 	if sum == nil {
 		return true, nil
 	}
-	return sum.Critical > 0 || sum.High > 0 || sum.Medium > 0 || sum.Low > 0, sum
+	if sum.Critical > 0 {
+		return true, sum
+	}
+	// if the amount of high vulnerabilities is greater than 50 % of the total amount of vulnerabilities, we consider the image as vulnerable
+	if sum.RiskScore > 100 && sum.High > sum.RiskScore/2 {
+		return true, sum
+	}
+
+	return false, sum
 }
 
 // Due to the nature of the DependencyTrack API, the 'LastBomImportFormat' is not reliable to determine if a project has a BOM.
