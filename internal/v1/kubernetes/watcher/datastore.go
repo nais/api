@@ -30,6 +30,14 @@ func (e *ErrorNotFound) As(v any) bool {
 	return false
 }
 
+func (e *ErrorNotFound) Is(v error) bool {
+	if _, ok := v.(*ErrorNotFound); ok {
+		return true
+	}
+
+	return false
+}
+
 type Filter func(obj Object, cluster string) bool
 
 func WithLabels(lbls labels.Selector) Filter {
