@@ -773,6 +773,20 @@ type Requests struct {
 	Memory string `json:"memory"`
 }
 
+// A teams inventory of resources.
+type ResourceInventory struct {
+	TotalJobs                int  `json:"totalJobs"`
+	TotalApps                int  `json:"totalApps"`
+	TotalSQLInstances        int  `json:"totalSqlInstances"`
+	TotalRedisInstances      int  `json:"totalRedisInstances"`
+	TotalOpenSearchInstances int  `json:"totalOpenSearchInstances"`
+	TotalKafkaTopics         int  `json:"totalKafkaTopics"`
+	TotalBuckets             int  `json:"totalBuckets"`
+	TotalBigQueryDatasets    int  `json:"totalBigQueryDatasets"`
+	TotalBucket              int  `json:"totalBucket"`
+	IsEmpty                  bool `json:"isEmpty"`
+}
+
 type RestartAppResult struct {
 	Error *string `json:"error,omitempty"`
 }

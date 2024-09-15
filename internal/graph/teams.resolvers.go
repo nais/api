@@ -868,6 +868,110 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 	return ret, nil
 }
 
+func (r *teamResolver) ResourceInventory(ctx context.Context, obj *model.Team) (*model.ResourceInventory, error) {
+	wg := pool.NewWithResults[any]().WithErrors().WithFirstError()
+	results := make(map[string]int)
+	wg.Go(func() (any, error) {
+		apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
+		if err != nil {
+			return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
+		}
+		results["apps"] = len(apps)
+		return results, nil
+	})
+
+	wg.Go(func() (any, error) {
+		jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
+		if err != nil {
+			return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
+		}
+		results["jobs"] = len(jobs)
+		return results, nil
+	})
+
+	wg.Go(func() (any, error) {
+		teamEnvs, _, err := r.database.GetTeamEnvironments(ctx, obj.Slug, database.Page{Limit: 50})
+		if err != nil {
+			return nil, err
+		}
+		sqlInstances, _, err := r.sqlInstanceClient.SqlInstances(ctx, obj.Slug, teamEnvs)
+		if err != nil {
+			return nil, fmt.Errorf("getting SQL instances from Kubernetes: %w", err)
+		}
+		results["sqlInstances"] = len(sqlInstances)
+		return results, nil
+	})
+
+	wg.Go(func() (any, error) {
+		buckets, _, err := r.bucketClient.Buckets(ctx, obj.Slug)
+		if err != nil {
+			return nil, fmt.Errorf("getting buckets from Kubernetes: %w", err)
+		}
+		results["buckets"] = len(buckets)
+		return results, nil
+	})
+
+	wg.Go(func() (any, error) {
+		redis, _, err := r.redisClient.Redis(ctx, obj.Slug)
+		if err != nil {
+			return nil, fmt.Errorf("getting redis from Kubernetes: %w", err)
+		}
+		results["redis"] = len(redis)
+		return results, nil
+	})
+
+	wg.Go(func() (any, error) {
+		kafkaTopics, err := r.kafkaClient.Topics(ctx, obj.Slug)
+		if err != nil {
+			return nil, fmt.Errorf("getting kafka topics from Kubernetes: %w", err)
+		}
+		results["kafkaTopics"] = len(kafkaTopics)
+		return results, nil
+	})
+
+	wg.Go(func() (any, error) {
+		bigQueries, err := r.bigQueryDatasetClient.BigQueryDatasets(ctx, obj.Slug)
+		if err != nil {
+			return nil, fmt.Errorf("getting bigquery datasets from Kubernetes: %w", err)
+		}
+		results["bigQueries"] = len(bigQueries)
+		return results, nil
+	})
+
+	wgRes, err := wg.Wait()
+	if err != nil {
+		return nil, err
+	}
+
+	inventory := &model.ResourceInventory{}
+	inventory.IsEmpty = true
+	for _, result := range wgRes {
+		for k, v := range result.(map[string]int) {
+			switch k {
+			case "apps":
+				inventory.TotalApps = v
+			case "jobs":
+				inventory.TotalJobs = v
+			case "sqlInstances":
+				inventory.TotalSQLInstances = v
+			case "buckets":
+				inventory.TotalBuckets = v
+			case "redis":
+				inventory.TotalRedisInstances = v
+			case "kafkaTopics":
+				inventory.TotalKafkaTopics = v
+			case "bigQueries":
+				inventory.TotalBigQueryDatasets = v
+			}
+			if v > 0 {
+				inventory.IsEmpty = false
+			}
+		}
+	}
+
+	return inventory, nil
+}
+
 func (r *teamResolver) SQLInstance(ctx context.Context, obj *model.Team, name string, env string) (*model.SQLInstance, error) {
 	return r.sqlInstanceClient.SqlInstance(ctx, env, obj.Slug, name)
 }

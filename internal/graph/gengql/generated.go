@@ -1063,6 +1063,19 @@ type ComplexityRoot struct {
 		Memory func(childComplexity int) int
 	}
 
+	ResourceInventory struct {
+		IsEmpty                  func(childComplexity int) int
+		TotalApps                func(childComplexity int) int
+		TotalBigQueryDatasets    func(childComplexity int) int
+		TotalBucket              func(childComplexity int) int
+		TotalBuckets             func(childComplexity int) int
+		TotalJobs                func(childComplexity int) int
+		TotalKafkaTopics         func(childComplexity int) int
+		TotalOpenSearchInstances func(childComplexity int) int
+		TotalRedisInstances      func(childComplexity int) int
+		TotalSQLInstances        func(childComplexity int) int
+	}
+
 	Resources struct {
 		Limits   func(childComplexity int) int
 		Requests func(childComplexity int) int
@@ -1277,6 +1290,7 @@ type ComplexityRoot struct {
 		Redis                  func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		RedisInstance          func(childComplexity int, name string, env string) int
 		Repositories           func(childComplexity int, offset *int, limit *int) int
+		ResourceInventory      func(childComplexity int) int
 		SQLInstance            func(childComplexity int, name string, env string) int
 		SQLInstances           func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 		Secret                 func(childComplexity int, name string, env string) int
@@ -1677,6 +1691,7 @@ type TeamResolver interface {
 	ViewerIsOwner(ctx context.Context, obj *model.Team) (bool, error)
 	ViewerIsMember(ctx context.Context, obj *model.Team) (bool, error)
 	Status(ctx context.Context, obj *model.Team) (*model.TeamStatus, error)
+	ResourceInventory(ctx context.Context, obj *model.Team) (*model.ResourceInventory, error)
 	SQLInstance(ctx context.Context, obj *model.Team, name string, env string) (*model.SQLInstance, error)
 	SQLInstances(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.SQLInstancesList, error)
 	Bucket(ctx context.Context, obj *model.Team, name string, env string) (*model.Bucket, error)
@@ -6087,6 +6102,76 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Requests.Memory(childComplexity), true
 
+	case "ResourceInventory.isEmpty":
+		if e.complexity.ResourceInventory.IsEmpty == nil {
+			break
+		}
+
+		return e.complexity.ResourceInventory.IsEmpty(childComplexity), true
+
+	case "ResourceInventory.totalApps":
+		if e.complexity.ResourceInventory.TotalApps == nil {
+			break
+		}
+
+		return e.complexity.ResourceInventory.TotalApps(childComplexity), true
+
+	case "ResourceInventory.totalBigQueryDatasets":
+		if e.complexity.ResourceInventory.TotalBigQueryDatasets == nil {
+			break
+		}
+
+		return e.complexity.ResourceInventory.TotalBigQueryDatasets(childComplexity), true
+
+	case "ResourceInventory.totalBucket":
+		if e.complexity.ResourceInventory.TotalBucket == nil {
+			break
+		}
+
+		return e.complexity.ResourceInventory.TotalBucket(childComplexity), true
+
+	case "ResourceInventory.totalBuckets":
+		if e.complexity.ResourceInventory.TotalBuckets == nil {
+			break
+		}
+
+		return e.complexity.ResourceInventory.TotalBuckets(childComplexity), true
+
+	case "ResourceInventory.totalJobs":
+		if e.complexity.ResourceInventory.TotalJobs == nil {
+			break
+		}
+
+		return e.complexity.ResourceInventory.TotalJobs(childComplexity), true
+
+	case "ResourceInventory.totalKafkaTopics":
+		if e.complexity.ResourceInventory.TotalKafkaTopics == nil {
+			break
+		}
+
+		return e.complexity.ResourceInventory.TotalKafkaTopics(childComplexity), true
+
+	case "ResourceInventory.totalOpenSearchInstances":
+		if e.complexity.ResourceInventory.TotalOpenSearchInstances == nil {
+			break
+		}
+
+		return e.complexity.ResourceInventory.TotalOpenSearchInstances(childComplexity), true
+
+	case "ResourceInventory.totalRedisInstances":
+		if e.complexity.ResourceInventory.TotalRedisInstances == nil {
+			break
+		}
+
+		return e.complexity.ResourceInventory.TotalRedisInstances(childComplexity), true
+
+	case "ResourceInventory.totalSqlInstances":
+		if e.complexity.ResourceInventory.TotalSQLInstances == nil {
+			break
+		}
+
+		return e.complexity.ResourceInventory.TotalSQLInstances(childComplexity), true
+
 	case "Resources.limits":
 		if e.complexity.Resources.Limits == nil {
 			break
@@ -7157,6 +7242,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Team.Repositories(childComplexity, args["offset"].(*int), args["limit"].(*int)), true
+
+	case "Team.resourceInventory":
+		if e.complexity.Team.ResourceInventory == nil {
+			break
+		}
+
+		return e.complexity.Team.ResourceInventory(childComplexity), true
 
 	case "Team.sqlInstance":
 		if e.complexity.Team.SQLInstance == nil {
@@ -10161,6 +10253,9 @@ type Team {
   "The status of the team."
   status: TeamStatus!
 
+  "The teams resources"
+  resourceInventory: ResourceInventory!
+
   "Get an SQL instance by name and env."
   sqlInstance(
     "The name of the instance."
@@ -10487,6 +10582,20 @@ type AppsStatus {
 type JobsStatus {
   total: Int!
   failing: Int!
+}
+
+"A teams inventory of resources."
+type ResourceInventory {
+  totalJobs: Int!
+  totalApps: Int!
+  totalSqlInstances: Int!
+  totalRedisInstances: Int!
+  totalOpenSearchInstances: Int!
+  totalKafkaTopics: Int!
+  totalBuckets: Int!
+  totalBigQueryDatasets: Int!
+  totalBucket: Int!
+  isEmpty: Boolean!
 }
 
 "Deployment key type."
@@ -14441,6 +14550,8 @@ func (ec *executionContext) fieldContext_App_team(_ context.Context, field graph
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -15748,6 +15859,8 @@ func (ec *executionContext) fieldContext_AuditEventMemberAdded_team(_ context.Co
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -16381,6 +16494,8 @@ func (ec *executionContext) fieldContext_AuditEventMemberRemoved_team(_ context.
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -16968,6 +17083,8 @@ func (ec *executionContext) fieldContext_AuditEventMemberSetRole_team(_ context.
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -17601,6 +17718,8 @@ func (ec *executionContext) fieldContext_AuditEventTeamAddRepository_team(_ cont
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -18188,6 +18307,8 @@ func (ec *executionContext) fieldContext_AuditEventTeamRemoveRepository_team(_ c
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -18775,6 +18896,8 @@ func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannel_tea
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -19408,6 +19531,8 @@ func (ec *executionContext) fieldContext_AuditEventTeamSetDefaultSlackChannel_te
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -19995,6 +20120,8 @@ func (ec *executionContext) fieldContext_AuditEventTeamSetPurpose_team(_ context
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -21590,6 +21717,8 @@ func (ec *executionContext) fieldContext_BaseAuditEvent_team(_ context.Context, 
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -22003,6 +22132,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(_ context.Context,
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -23036,6 +23167,8 @@ func (ec *executionContext) fieldContext_Bucket_team(_ context.Context, field gr
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -25141,6 +25274,8 @@ func (ec *executionContext) fieldContext_Deployment_team(_ context.Context, fiel
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -31952,6 +32087,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(_ context.Context, fiel
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -35008,6 +35145,8 @@ func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -35173,6 +35312,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -35338,6 +35479,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeamSlackAlertsChannel(c
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -35503,6 +35646,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUserFromTeam(ctx context
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -35815,6 +35960,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -35980,6 +36127,8 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -37524,6 +37673,8 @@ func (ec *executionContext) fieldContext_NaisJob_team(_ context.Context, field g
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -38440,6 +38591,8 @@ func (ec *executionContext) fieldContext_OpenSearch_team(_ context.Context, fiel
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -40399,6 +40552,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -42059,6 +42214,8 @@ func (ec *executionContext) fieldContext_ReconcilerError_team(_ context.Context,
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -42555,6 +42712,8 @@ func (ec *executionContext) fieldContext_Redis_team(_ context.Context, field gra
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -43907,6 +44066,446 @@ func (ec *executionContext) fieldContext_Requests_memory(_ context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _ResourceInventory_totalJobs(ctx context.Context, field graphql.CollectedField, obj *model.ResourceInventory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ResourceInventory_totalJobs(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalJobs, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ResourceInventory_totalJobs(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ResourceInventory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ResourceInventory_totalApps(ctx context.Context, field graphql.CollectedField, obj *model.ResourceInventory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ResourceInventory_totalApps(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalApps, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ResourceInventory_totalApps(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ResourceInventory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ResourceInventory_totalSqlInstances(ctx context.Context, field graphql.CollectedField, obj *model.ResourceInventory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ResourceInventory_totalSqlInstances(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalSQLInstances, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ResourceInventory_totalSqlInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ResourceInventory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ResourceInventory_totalRedisInstances(ctx context.Context, field graphql.CollectedField, obj *model.ResourceInventory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ResourceInventory_totalRedisInstances(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalRedisInstances, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ResourceInventory_totalRedisInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ResourceInventory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ResourceInventory_totalOpenSearchInstances(ctx context.Context, field graphql.CollectedField, obj *model.ResourceInventory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ResourceInventory_totalOpenSearchInstances(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalOpenSearchInstances, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ResourceInventory_totalOpenSearchInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ResourceInventory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ResourceInventory_totalKafkaTopics(ctx context.Context, field graphql.CollectedField, obj *model.ResourceInventory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ResourceInventory_totalKafkaTopics(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalKafkaTopics, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ResourceInventory_totalKafkaTopics(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ResourceInventory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ResourceInventory_totalBuckets(ctx context.Context, field graphql.CollectedField, obj *model.ResourceInventory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ResourceInventory_totalBuckets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalBuckets, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ResourceInventory_totalBuckets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ResourceInventory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ResourceInventory_totalBigQueryDatasets(ctx context.Context, field graphql.CollectedField, obj *model.ResourceInventory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ResourceInventory_totalBigQueryDatasets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalBigQueryDatasets, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ResourceInventory_totalBigQueryDatasets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ResourceInventory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ResourceInventory_totalBucket(ctx context.Context, field graphql.CollectedField, obj *model.ResourceInventory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ResourceInventory_totalBucket(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalBucket, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ResourceInventory_totalBucket(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ResourceInventory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ResourceInventory_isEmpty(ctx context.Context, field graphql.CollectedField, obj *model.ResourceInventory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ResourceInventory_isEmpty(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsEmpty, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ResourceInventory_isEmpty(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ResourceInventory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Resources_limits(ctx context.Context, field graphql.CollectedField, obj *model.Resources) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Resources_limits(ctx, field)
 	if err != nil {
@@ -44313,6 +44912,8 @@ func (ec *executionContext) fieldContext_Role_targetTeam(_ context.Context, fiel
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -45473,6 +46074,8 @@ func (ec *executionContext) fieldContext_Secret_team(_ context.Context, field gr
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -47374,6 +47977,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(_ context.Context, fie
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -50220,6 +50825,72 @@ func (ec *executionContext) fieldContext_Team_status(_ context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_resourceInventory(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_resourceInventory(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().ResourceInventory(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ResourceInventory)
+	fc.Result = res
+	return ec.marshalNResourceInventory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceInventory(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_resourceInventory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalJobs":
+				return ec.fieldContext_ResourceInventory_totalJobs(ctx, field)
+			case "totalApps":
+				return ec.fieldContext_ResourceInventory_totalApps(ctx, field)
+			case "totalSqlInstances":
+				return ec.fieldContext_ResourceInventory_totalSqlInstances(ctx, field)
+			case "totalRedisInstances":
+				return ec.fieldContext_ResourceInventory_totalRedisInstances(ctx, field)
+			case "totalOpenSearchInstances":
+				return ec.fieldContext_ResourceInventory_totalOpenSearchInstances(ctx, field)
+			case "totalKafkaTopics":
+				return ec.fieldContext_ResourceInventory_totalKafkaTopics(ctx, field)
+			case "totalBuckets":
+				return ec.fieldContext_ResourceInventory_totalBuckets(ctx, field)
+			case "totalBigQueryDatasets":
+				return ec.fieldContext_ResourceInventory_totalBigQueryDatasets(ctx, field)
+			case "totalBucket":
+				return ec.fieldContext_ResourceInventory_totalBucket(ctx, field)
+			case "isEmpty":
+				return ec.fieldContext_ResourceInventory_isEmpty(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ResourceInventory", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_sqlInstance(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_sqlInstance(ctx, field)
 	if err != nil {
@@ -52138,6 +52809,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, f
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -52272,6 +52945,8 @@ func (ec *executionContext) fieldContext_TeamList_nodes(_ context.Context, field
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -52458,6 +53133,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, fiel
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -53156,6 +53833,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_team(_ context.Cont
 				return ec.fieldContext_Team_viewerIsMember(ctx, field)
 			case "status":
 				return ec.fieldContext_Team_status(ctx, field)
+			case "resourceInventory":
+				return ec.fieldContext_Team_resourceInventory(ctx, field)
 			case "sqlInstance":
 				return ec.fieldContext_Team_sqlInstance(ctx, field)
 			case "sqlInstances":
@@ -68704,6 +69383,90 @@ func (ec *executionContext) _Requests(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var resourceInventoryImplementors = []string{"ResourceInventory"}
+
+func (ec *executionContext) _ResourceInventory(ctx context.Context, sel ast.SelectionSet, obj *model.ResourceInventory) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, resourceInventoryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ResourceInventory")
+		case "totalJobs":
+			out.Values[i] = ec._ResourceInventory_totalJobs(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalApps":
+			out.Values[i] = ec._ResourceInventory_totalApps(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalSqlInstances":
+			out.Values[i] = ec._ResourceInventory_totalSqlInstances(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalRedisInstances":
+			out.Values[i] = ec._ResourceInventory_totalRedisInstances(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalOpenSearchInstances":
+			out.Values[i] = ec._ResourceInventory_totalOpenSearchInstances(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalKafkaTopics":
+			out.Values[i] = ec._ResourceInventory_totalKafkaTopics(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalBuckets":
+			out.Values[i] = ec._ResourceInventory_totalBuckets(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalBigQueryDatasets":
+			out.Values[i] = ec._ResourceInventory_totalBigQueryDatasets(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalBucket":
+			out.Values[i] = ec._ResourceInventory_totalBucket(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "isEmpty":
+			out.Values[i] = ec._ResourceInventory_isEmpty(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var resourcesImplementors = []string{"Resources"}
 
 func (ec *executionContext) _Resources(ctx context.Context, sel ast.SelectionSet, obj *model.Resources) graphql.Marshaler {
@@ -70842,6 +71605,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Team_status(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "resourceInventory":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_resourceInventory(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -76773,6 +77572,20 @@ func (ec *executionContext) marshalNRepositoryList2ᚖgithubᚗcomᚋnaisᚋapi�
 
 func (ec *executionContext) marshalNRequests2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐRequests(ctx context.Context, sel ast.SelectionSet, v model.Requests) graphql.Marshaler {
 	return ec._Requests(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNResourceInventory2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceInventory(ctx context.Context, sel ast.SelectionSet, v model.ResourceInventory) graphql.Marshaler {
+	return ec._ResourceInventory(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNResourceInventory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceInventory(ctx context.Context, sel ast.SelectionSet, v *model.ResourceInventory) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ResourceInventory(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNResources2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResources(ctx context.Context, sel ast.SelectionSet, v model.Resources) graphql.Marshaler {

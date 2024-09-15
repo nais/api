@@ -307,6 +307,9 @@ type Team {
   "The status of the team."
   status: TeamStatus!
 
+  "The teams resources"
+  resourceInventory: ResourceInventory!
+
   "Get an SQL instance by name and env."
   sqlInstance(
     "The name of the instance."
@@ -633,6 +636,20 @@ type AppsStatus {
 type JobsStatus {
   total: Int!
   failing: Int!
+}
+
+"A teams inventory of resources."
+type ResourceInventory {
+  totalJobs: Int!
+  totalApps: Int!
+  totalSqlInstances: Int!
+  totalRedisInstances: Int!
+  totalOpenSearchInstances: Int!
+  totalKafkaTopics: Int!
+  totalBuckets: Int!
+  totalBigQueryDatasets: Int!
+  totalBucket: Int!
+  isEmpty: Boolean!
 }
 
 "Deployment key type."
