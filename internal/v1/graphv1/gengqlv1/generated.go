@@ -4300,7 +4300,11 @@ type Application implements Node & Workload {
 	# secrets: [Secret!]!
 }
 
-union ApplicationAuthIntegrations = EntraIDAuthIntegration | IDPortenAuthIntegration | MaskinportenAuthIntegration | TokenXAuthIntegration
+union ApplicationAuthIntegrations =
+	| EntraIDAuthIntegration
+	| IDPortenAuthIntegration
+	| MaskinportenAuthIntegration
+	| TokenXAuthIntegration
 
 type ApplicationResources implements WorkloadResources {
 	"Instances using resources above this threshold will be killed."
@@ -6274,18 +6278,22 @@ type WorkloadResourceQuantity {
 }
 
 type EntraIDAuthIntegration {
+	# TODO: Figure out what to put here
 	tmp: Boolean!
 }
 
 type IDPortenAuthIntegration {
+	# TODO: Figure out what to put here
 	tmp: Boolean!
 }
 
 type MaskinportenAuthIntegration {
+	# TODO: Figure out what to put here
 	tmp: Boolean!
 }
 
 type TokenXAuthIntegration {
+	# TODO: Figure out what to put here
 	tmp: Boolean!
 }
 `, BuiltIn: false},

@@ -50,17 +50,21 @@ type WorkloadResourceQuantity {
 }
 
 type EntraIDAuthIntegration {
+	# TODO: Figure out what to put here
 	tmp: Boolean!
 }
 
 type IDPortenAuthIntegration {
+	# TODO: Figure out what to put here
 	tmp: Boolean!
 }
 
 type MaskinportenAuthIntegration {
+	# TODO: Figure out what to put here
 	tmp: Boolean!
 }
 
 type TokenXAuthIntegration {
+	# TODO: Figure out what to put here
 	tmp: Boolean!
 }
