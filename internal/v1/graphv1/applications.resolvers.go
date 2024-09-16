@@ -6,6 +6,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/team"
+	"github.com/nais/api/internal/v1/workload"
 	"github.com/nais/api/internal/v1/workload/application"
 )
 
@@ -15,6 +16,28 @@ func (r *applicationResolver) Team(ctx context.Context, obj *application.Applica
 
 func (r *applicationResolver) Environment(ctx context.Context, obj *application.Application) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *applicationResolver) AuthIntegrations(ctx context.Context, obj *application.Application) ([]workload.ApplicationAuthIntegrations, error) {
+	ret := make([]workload.ApplicationAuthIntegrations, 0)
+
+	if v := workload.GetEntraIDAuthIntegrationForApplication(obj.Spec.Azure); v != nil {
+		ret = append(ret, v)
+	}
+
+	if v := workload.GetMaskinPortenAuthIntegration(obj.Spec.Maskinporten); v != nil {
+		ret = append(ret, v)
+	}
+
+	if v := workload.GetTokenXAuthIntegration(obj.Spec.TokenX); v != nil {
+		ret = append(ret, v)
+	}
+
+	if v := workload.GetIDPortenAuthIntegration(obj.Spec.IDPorten); v != nil {
+		ret = append(ret, v)
+	}
+
+	return ret, nil
 }
 
 func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder) (*pagination.Connection[*application.Application], error) {

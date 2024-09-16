@@ -18,6 +18,9 @@ metadata:
   resourceVersion: "4085586970"
   uid: 3152cb5a-95f5-4418-8bd2-13b6d9f6058f
 spec:
+  azure:
+    application:
+      enabled: true
   command:
     - dataproduct-apps-topics
   gcp:

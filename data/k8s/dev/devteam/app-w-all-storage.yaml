@@ -7,6 +7,15 @@ metadata:
     team: devteam
 
 spec:
+  idporten:
+    enabled: true
+  maskinporten:
+    enabled: true
+  tokenx:
+    enabled: true
+  azure:
+    application:
+      enabled: true
   accessPolicy:
     inbound:
       rules:

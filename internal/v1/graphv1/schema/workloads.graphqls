@@ -48,3 +48,19 @@ type WorkloadResourceQuantity {
 	"The amount of memory in bytes."
 	memory: Int!
 }
+
+type EntraIDAuthIntegration {
+	tmp: Boolean!
+}
+
+type IDPortenAuthIntegration {
+	tmp: Boolean!
+}
+
+type MaskinportenAuthIntegration {
+	tmp: Boolean!
+}
+
+type TokenXAuthIntegration {
+	tmp: Boolean!
+}

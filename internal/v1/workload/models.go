@@ -50,3 +50,39 @@ type WorkloadResourceQuantity struct {
 	CPU    float64 `json:"cpu"`
 	Memory int64   `json:"memory"`
 }
+
+type AuthIntegration interface {
+	IsAuthIntegration()
+}
+
+type ApplicationAuthIntegrations interface {
+	AuthIntegration
+}
+
+type JobAuthIntegrations interface {
+	AuthIntegration
+}
+
+type EntraIDAuthIntegration struct {
+	Tmp bool `json:"tmp"`
+}
+
+func (EntraIDAuthIntegration) IsAuthIntegration() {}
+
+type IDPortenAuthIntegration struct {
+	Tmp bool `json:"tmp"`
+}
+
+func (IDPortenAuthIntegration) IsAuthIntegration() {}
+
+type MaskinportenAuthIntegration struct {
+	Tmp bool `json:"tmp"`
+}
+
+func (MaskinportenAuthIntegration) IsAuthIntegration() {}
+
+type TokenXAuthIntegration struct {
+	Tmp bool `json:"tmp"`
+}
+
+func (TokenXAuthIntegration) IsAuthIntegration() {}
