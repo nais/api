@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/internal/v1/workload"
 	"github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+	"k8s.io/utils/ptr"
 )
 
 type (
@@ -22,6 +23,11 @@ type (
 type Job struct {
 	workload.Base
 	Spec *nais_io_v1.NaisjobSpec `json:"-"`
+}
+
+type JobSchedule struct {
+	Expression string `json:"expression"`
+	TimeZone   string `json:"timeZone"`
 }
 
 func (Job) IsNode()     {}
@@ -113,6 +119,17 @@ func (j *Job) Resources() *JobResources {
 	}
 
 	return ret
+}
+
+func (j *Job) Schedule() *JobSchedule {
+	if j.Spec.Schedule == "" {
+		return nil
+	}
+
+	return &JobSchedule{
+		Expression: j.Spec.Schedule,
+		TimeZone:   ptr.Deref(j.Spec.TimeZone, "UTC"),
+	}
 }
 
 func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {

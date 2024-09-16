@@ -323,6 +323,7 @@ type ComplexityRoot struct {
 		RedisInstances   func(childComplexity int, orderBy *redis.RedisInstanceOrder) int
 		Resources        func(childComplexity int) int
 		SQLInstances     func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
+		Schedule         func(childComplexity int) int
 		Team             func(childComplexity int) int
 	}
 
@@ -340,6 +341,11 @@ type ComplexityRoot struct {
 	JobResources struct {
 		Limits   func(childComplexity int) int
 		Requests func(childComplexity int) int
+	}
+
+	JobSchedule struct {
+		Expression func(childComplexity int) int
+		TimeZone   func(childComplexity int) int
 	}
 
 	KafkaLagScalingStrategy struct {
@@ -874,6 +880,7 @@ type JobResolver interface {
 	Environment(ctx context.Context, obj *job.Job) (*team.TeamEnvironment, error)
 
 	AuthIntegrations(ctx context.Context, obj *job.Job) ([]workload.JobAuthIntegrations, error)
+
 	Cost(ctx context.Context, obj *job.Job) (*cost.WorkloadCost, error)
 	NetworkPolicy(ctx context.Context, obj *job.Job) (*netpol.NetworkPolicy, error)
 	BigQueryDatasets(ctx context.Context, obj *job.Job, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
@@ -1991,6 +1998,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Job.SQLInstances(childComplexity, args["orderBy"].(*sqlinstance.SQLInstanceOrder)), true
 
+	case "Job.schedule":
+		if e.complexity.Job.Schedule == nil {
+			break
+		}
+
+		return e.complexity.Job.Schedule(childComplexity), true
+
 	case "Job.team":
 		if e.complexity.Job.Team == nil {
 			break
@@ -2046,6 +2060,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.JobResources.Requests(childComplexity), true
+
+	case "JobSchedule.expression":
+		if e.complexity.JobSchedule.Expression == nil {
+			break
+		}
+
+		return e.complexity.JobSchedule.Expression(childComplexity), true
+
+	case "JobSchedule.timeZone":
+		if e.complexity.JobSchedule.TimeZone == nil {
+			break
+		}
+
+		return e.complexity.JobSchedule.TimeZone(childComplexity), true
 
 	case "KafkaLagScalingStrategy.consumerGroup":
 		if e.complexity.KafkaLagScalingStrategy.ConsumerGroup == nil {
@@ -4621,22 +4649,25 @@ type Job implements Node & Workload {
 	"List of authentication and authorization for the job."
 	authIntegrations: [JobAuthIntegrations!]!
 
+	"Optional schedule for the job."
+	schedule: JobSchedule
+
 	# image: String!
 	# deployInfo: DeployInfo!
 	# status: WorkloadStatus!
 	# authz: [Authz!]!
-	# persistence: [Persistence!]!
-	# variables: [Variable!]!
-	# type: WorkloadType!
-
 	# imageDetails: ImageDetails!
 	# runs: [Run!]!
 	# manifest: String!
-	# schedule: String!
 	# completions: Int!
 	# parallelism: Int!
 	# retries: Int!
 	# secrets: [Secret!]!
+}
+
+type JobSchedule {
+	expression: String!
+	timeZone: String!
 }
 
 union JobAuthIntegrations = EntraIDAuthIntegration | MaskinportenAuthIntegration
@@ -16613,6 +16644,53 @@ func (ec *executionContext) fieldContext_Job_authIntegrations(_ context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Job_schedule(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Job_schedule(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Schedule(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*job.JobSchedule)
+	fc.Result = res
+	return ec.marshalOJobSchedule2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobSchedule(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Job_schedule(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "expression":
+				return ec.fieldContext_JobSchedule_expression(ctx, field)
+			case "timeZone":
+				return ec.fieldContext_JobSchedule_timeZone(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type JobSchedule", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Job_cost(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Job_cost(ctx, field)
 	if err != nil {
@@ -17196,6 +17274,8 @@ func (ec *executionContext) fieldContext_JobConnection_nodes(_ context.Context, 
 				return ec.fieldContext_Job_resources(ctx, field)
 			case "authIntegrations":
 				return ec.fieldContext_Job_authIntegrations(ctx, field)
+			case "schedule":
+				return ec.fieldContext_Job_schedule(ctx, field)
 			case "cost":
 				return ec.fieldContext_Job_cost(ctx, field)
 			case "networkPolicy":
@@ -17366,6 +17446,8 @@ func (ec *executionContext) fieldContext_JobEdge_node(_ context.Context, field g
 				return ec.fieldContext_Job_resources(ctx, field)
 			case "authIntegrations":
 				return ec.fieldContext_Job_authIntegrations(ctx, field)
+			case "schedule":
+				return ec.fieldContext_Job_schedule(ctx, field)
 			case "cost":
 				return ec.fieldContext_Job_cost(ctx, field)
 			case "networkPolicy":
@@ -17484,6 +17566,94 @@ func (ec *executionContext) fieldContext_JobResources_requests(_ context.Context
 				return ec.fieldContext_WorkloadResourceQuantity_memory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type WorkloadResourceQuantity", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobSchedule_expression(ctx context.Context, field graphql.CollectedField, obj *job.JobSchedule) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobSchedule_expression(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Expression, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobSchedule_expression(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobSchedule",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobSchedule_timeZone(ctx context.Context, field graphql.CollectedField, obj *job.JobSchedule) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobSchedule_timeZone(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TimeZone, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobSchedule_timeZone(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobSchedule",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -29655,6 +29825,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_job(ctx context.Context
 				return ec.fieldContext_Job_resources(ctx, field)
 			case "authIntegrations":
 				return ec.fieldContext_Job_authIntegrations(ctx, field)
+			case "schedule":
+				return ec.fieldContext_Job_schedule(ctx, field)
 			case "cost":
 				return ec.fieldContext_Job_cost(ctx, field)
 			case "networkPolicy":
@@ -39168,6 +39340,28 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "schedule":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._Job_schedule(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._Job_schedule(ctx, field, obj)
 		case "cost":
 			field := field
 
@@ -39639,6 +39833,90 @@ func (ec *executionContext) _JobResources(ctx context.Context, sel ast.Selection
 				continue
 			}
 			out.Values[i] = ec._JobResources_requests(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var jobScheduleImplementors = []string{"JobSchedule"}
+
+func (ec *executionContext) _JobSchedule(ctx context.Context, sel ast.SelectionSet, obj *job.JobSchedule) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobScheduleImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("JobSchedule")
+		case "expression":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._JobSchedule_expression(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._JobSchedule_expression(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "timeZone":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._JobSchedule_timeZone(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._JobSchedule_timeZone(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -53777,6 +54055,13 @@ func (ec *executionContext) unmarshalOJobOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 	}
 	res, err := ec.unmarshalInputJobOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOJobSchedule2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobSchedule(ctx context.Context, sel ast.SelectionSet, v *job.JobSchedule) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._JobSchedule(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOKafkaTopicAclFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopicACLFilter(ctx context.Context, v interface{}) (*kafkatopic.KafkaTopicACLFilter, error) {

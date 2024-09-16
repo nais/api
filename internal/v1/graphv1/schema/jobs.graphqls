@@ -45,22 +45,25 @@ type Job implements Node & Workload {
 	"List of authentication and authorization for the job."
 	authIntegrations: [JobAuthIntegrations!]!
 
+	"Optional schedule for the job."
+	schedule: JobSchedule
+
 	# image: String!
 	# deployInfo: DeployInfo!
 	# status: WorkloadStatus!
 	# authz: [Authz!]!
-	# persistence: [Persistence!]!
-	# variables: [Variable!]!
-	# type: WorkloadType!
-
 	# imageDetails: ImageDetails!
 	# runs: [Run!]!
 	# manifest: String!
-	# schedule: String!
 	# completions: Int!
 	# parallelism: Int!
 	# retries: Int!
 	# secrets: [Secret!]!
+}
+
+type JobSchedule {
+	expression: String!
+	timeZone: String!
 }
 
 union JobAuthIntegrations = EntraIDAuthIntegration | MaskinportenAuthIntegration

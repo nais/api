@@ -32,6 +32,7 @@ spec:
   readiness:
     path: /isReady
   schedule: 45 3 * * *
+  timeZone: "Europe/Oslo"
   envFrom:
     - secret: my-secret
     - secret: my-other-secret
