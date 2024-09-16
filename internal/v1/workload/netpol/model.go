@@ -34,7 +34,11 @@ type NetworkPolicy struct {
 type NetworkPolicyRule struct {
 	TargetWorkloadName string    `json:"targetWorkloadName"`
 	TargetTeamSlug     slug.Slug `json:"targetTeamSlug"`
-	TargetEnvironment  string    `json:"-"`
+
+	EnvironmentName string    `json:"-"`
+	TeamSlug        slug.Slug `json:"-"`
+	WorkloadName    string    `json:"-"`
+	IsOutbound      bool      `json:"-"`
 }
 
 type OutboundNetworkPolicy struct {

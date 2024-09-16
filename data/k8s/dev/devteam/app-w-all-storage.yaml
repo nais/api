@@ -15,6 +15,7 @@ spec:
           permissions:
             roles:
               - rap-read
+        - application: dataproduct-apps-topics
     outbound:
       rules:
         - application: some-app
@@ -22,6 +23,7 @@ spec:
           permissions:
             roles:
               - some-role
+        - application: dataproduct-apps-topics
       external:
         - host: vg.no
         - host: foo.bar.com

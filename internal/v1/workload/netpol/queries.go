@@ -4,16 +4,34 @@ import (
 	"context"
 
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/v1/workload/application"
+	"github.com/nais/api/internal/v1/workload/job"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 )
 
-func ListForWorkload(ctx context.Context, policy *nais_io_v1.AccessPolicy) (*NetworkPolicy, error) {
+func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, workloadName string, policy *nais_io_v1.AccessPolicy) (*NetworkPolicy, error) {
+	if policy == nil {
+		return &NetworkPolicy{
+			Inbound:  &InboundNetworkPolicy{},
+			Outbound: &OutboundNetworkPolicy{},
+		}, nil
+	}
+
+	defaultSlug := func(s string) slug.Slug {
+		if s == "" {
+			return teamSlug
+		}
+		return slug.Slug(s)
+	}
+
 	inbound := &InboundNetworkPolicy{}
 	for _, rule := range policy.Inbound.Rules {
 		inbound.Rules = append(inbound.Rules, &NetworkPolicyRule{
 			TargetWorkloadName: rule.Application,
-			TargetTeamSlug:     slug.Slug(rule.Namespace),
-			TargetEnvironment:  rule.Cluster,
+			TargetTeamSlug:     defaultSlug(rule.Namespace),
+			EnvironmentName:    environmentName,
+			TeamSlug:           teamSlug,
+			WorkloadName:       workloadName,
 		})
 	}
 
@@ -21,8 +39,11 @@ func ListForWorkload(ctx context.Context, policy *nais_io_v1.AccessPolicy) (*Net
 	for _, rule := range policy.Outbound.Rules {
 		outbound.Rules = append(outbound.Rules, &NetworkPolicyRule{
 			TargetWorkloadName: rule.Application,
-			TargetTeamSlug:     slug.Slug(rule.Namespace),
-			TargetEnvironment:  rule.Cluster,
+			TargetTeamSlug:     defaultSlug(rule.Namespace),
+			EnvironmentName:    environmentName,
+			IsOutbound:         true,
+			TeamSlug:           teamSlug,
+			WorkloadName:       workloadName,
 		})
 	}
 
@@ -49,4 +70,65 @@ func ListForWorkload(ctx context.Context, policy *nais_io_v1.AccessPolicy) (*Net
 		Inbound:  inbound,
 		Outbound: outbound,
 	}, nil
+}
+
+func AllowsInboundWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, allowsTeamSlug slug.Slug, allowsWorkloadName string) bool {
+	var ap *nais_io_v1.AccessPolicy
+
+	app, err := application.Get(ctx, teamSlug, environmentName, workloadName)
+	if err == nil {
+		ap = app.Spec.AccessPolicy
+	} else {
+		job, err := job.Get(ctx, teamSlug, environmentName, workloadName)
+		if err == nil {
+			ap = job.Spec.AccessPolicy
+		}
+	}
+
+	if ap == nil {
+		return false
+	}
+
+	return allowsWorkload(ap.Inbound.Rules.GetRules(), teamSlug, environmentName, allowsTeamSlug, allowsWorkloadName)
+}
+
+func AllowsOutboundWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, allowsTeamSlug slug.Slug, allowsWorkloadName string) bool {
+	var ap *nais_io_v1.AccessPolicy
+
+	app, err := application.Get(ctx, teamSlug, environmentName, workloadName)
+	if err == nil {
+		ap = app.Spec.AccessPolicy
+	} else {
+		job, err := job.Get(ctx, teamSlug, environmentName, workloadName)
+		if err == nil {
+			ap = job.Spec.AccessPolicy
+		}
+	}
+
+	if ap == nil {
+		return false
+	}
+
+	return allowsWorkload(ap.Outbound.Rules, teamSlug, environmentName, allowsTeamSlug, allowsWorkloadName)
+}
+
+func allowsWorkload(rules []nais_io_v1.AccessPolicyRule, teamSlug slug.Slug, environmentName string, allowsTeamSlug slug.Slug, allowsWorkloadName string) bool {
+	for _, rule := range rules {
+		// If cluster is empty or matches the environment name
+		if equalOrWildcard(rule.Cluster, environmentName) || rule.Cluster == "" {
+			// If application matches or is a wildcard
+			if equalOrWildcard(rule.Application, allowsWorkloadName) {
+				// If namespace matches or is a wildcard, or if it's empty and the team slug matches
+				if equalOrWildcard(rule.Namespace, allowsTeamSlug.String()) || (rule.Namespace == "" && allowsTeamSlug == teamSlug) {
+					return true
+				}
+			}
+		}
+	}
+
+	return false
+}
+
+func equalOrWildcard(a, b string) bool {
+	return a == "*" || a == b
 }

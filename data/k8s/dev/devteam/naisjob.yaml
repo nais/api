@@ -35,6 +35,13 @@ spec:
   filesFrom:
     - mountPath: /var/run/secrets
       secret: my-secret
+  accessPolicy:
+    inbound:
+      rules:
+        - application: app-w-all-storage
+    outbound:
+      rules:
+        - application: app-w-all-storage
 status:
   conditions:
     - lastTransitionTime: "2024-01-05T22:35:39Z"
