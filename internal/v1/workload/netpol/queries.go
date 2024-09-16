@@ -73,18 +73,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName st
 }
 
 func AllowsInboundWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, allowsTeamSlug slug.Slug, allowsWorkloadName string) bool {
-	var ap *nais_io_v1.AccessPolicy
-
-	app, err := application.Get(ctx, teamSlug, environmentName, workloadName)
-	if err == nil {
-		ap = app.Spec.AccessPolicy
-	} else {
-		job, err := job.Get(ctx, teamSlug, environmentName, workloadName)
-		if err == nil {
-			ap = job.Spec.AccessPolicy
-		}
-	}
-
+	ap := accessPolicyForWorkload(ctx, teamSlug, environmentName, workloadName)
 	if ap == nil {
 		return false
 	}
@@ -93,23 +82,28 @@ func AllowsInboundWorkload(ctx context.Context, teamSlug slug.Slug, environmentN
 }
 
 func AllowsOutboundWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, allowsTeamSlug slug.Slug, allowsWorkloadName string) bool {
-	var ap *nais_io_v1.AccessPolicy
-
-	app, err := application.Get(ctx, teamSlug, environmentName, workloadName)
-	if err == nil {
-		ap = app.Spec.AccessPolicy
-	} else {
-		job, err := job.Get(ctx, teamSlug, environmentName, workloadName)
-		if err == nil {
-			ap = job.Spec.AccessPolicy
-		}
-	}
-
+	ap := accessPolicyForWorkload(ctx, teamSlug, environmentName, workloadName)
 	if ap == nil {
 		return false
 	}
 
 	return allowsWorkload(ap.Outbound.Rules, teamSlug, environmentName, allowsTeamSlug, allowsWorkloadName)
+}
+
+// accessPolicyForWorkload returns the AccessPolicy for a workload, if it exists. The function looks up applications
+// first, then jobs.
+func accessPolicyForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string) *nais_io_v1.AccessPolicy {
+	app, _ := application.Get(ctx, teamSlug, environmentName, workloadName)
+	if app != nil && app.Spec != nil {
+		return app.Spec.AccessPolicy
+	}
+
+	job, _ := job.Get(ctx, teamSlug, environmentName, workloadName)
+	if job != nil && job.Spec != nil {
+		return job.Spec.AccessPolicy
+	}
+
+	return nil
 }
 
 func allowsWorkload(rules []nais_io_v1.AccessPolicyRule, teamSlug slug.Slug, environmentName string, allowsTeamSlug slug.Slug, allowsWorkloadName string) bool {
