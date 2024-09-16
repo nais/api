@@ -15,10 +15,12 @@ extend type Job {
 
 interface ExternalNetworkPolicyTarget {
 	target: String!
+	ports: [Int!]!
 }
 
 type ExternalNetworkPolicyHost implements ExternalNetworkPolicyTarget {
 	target: String!
+	ports: [Int!]!
 }
 
 type ExternalNetworkPolicyIpv4 implements ExternalNetworkPolicyTarget {

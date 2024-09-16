@@ -255,6 +255,7 @@ type ComplexityRoot struct {
 	}
 
 	ExternalNetworkPolicyHost struct {
+		Ports  func(childComplexity int) int
 		Target func(childComplexity int) int
 	}
 
@@ -1657,6 +1658,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CreateTeamPayload.Team(childComplexity), true
+
+	case "ExternalNetworkPolicyHost.ports":
+		if e.complexity.ExternalNetworkPolicyHost.Ports == nil {
+			break
+		}
+
+		return e.complexity.ExternalNetworkPolicyHost.Ports(childComplexity), true
 
 	case "ExternalNetworkPolicyHost.target":
 		if e.complexity.ExternalNetworkPolicyHost.Target == nil {
@@ -4620,10 +4628,12 @@ extend type Job {
 
 interface ExternalNetworkPolicyTarget {
 	target: String!
+	ports: [Int!]!
 }
 
 type ExternalNetworkPolicyHost implements ExternalNetworkPolicyTarget {
 	target: String!
+	ports: [Int!]!
 }
 
 type ExternalNetworkPolicyIpv4 implements ExternalNetworkPolicyTarget {
@@ -12510,6 +12520,50 @@ func (ec *executionContext) fieldContext_ExternalNetworkPolicyHost_target(_ cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExternalNetworkPolicyHost_ports(ctx context.Context, field graphql.CollectedField, obj *netpol.ExternalNetworkPolicyHost) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExternalNetworkPolicyHost_ports(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Ports, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]int)
+	fc.Result = res
+	return ec.marshalNInt2ᚕintᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExternalNetworkPolicyHost_ports(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExternalNetworkPolicyHost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -33779,6 +33833,11 @@ func (ec *executionContext) _ExternalNetworkPolicyHost(ctx context.Context, sel 
 			out.Values[i] = graphql.MarshalString("ExternalNetworkPolicyHost")
 		case "target":
 			out.Values[i] = ec._ExternalNetworkPolicyHost_target(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "ports":
+			out.Values[i] = ec._ExternalNetworkPolicyHost_ports(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

@@ -16,10 +16,22 @@ spec:
             roles:
               - rap-read
     outbound:
+      rules:
+        - application: some-app
+          namespace: bot
+          permissions:
+            roles:
+              - some-role
       external:
         - host: vg.no
+        - host: foo.bar.com
+          ports:
+            - port: 9200
         - ipv4: 127.12.13.14
         - ipv4: 10.11.12.13
+          ports:
+            - port: 443
+            - port: 444
   image: navikt/app-w-all-storage:latest
   ingresses:
     - "https://storageapp.example.com"

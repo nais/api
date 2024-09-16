@@ -17,7 +17,7 @@ func (r *applicationResolver) NetworkPolicy(ctx context.Context, obj *applicatio
 }
 
 func (r *jobResolver) NetworkPolicy(ctx context.Context, obj *job.Job) (*netpol.NetworkPolicy, error) {
-	panic(fmt.Errorf("not implemented: NetworkPolicy - networkPolicy"))
+	return netpol.ListForWorkload(ctx, obj.Spec.AccessPolicy)
 }
 
 func (r *networkPolicyRuleResolver) TargetWorkload(ctx context.Context, obj *netpol.NetworkPolicyRule) (workload.Workload, error) {

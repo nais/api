@@ -10,6 +10,7 @@ type ExternalNetworkPolicyTarget interface {
 
 type ExternalNetworkPolicyHost struct {
 	Target string `json:"target"`
+	Ports  []int  `json:"ports"`
 }
 
 func (ExternalNetworkPolicyHost) IsExternalNetworkPolicyTarget() {}
