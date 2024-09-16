@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/vektah/gqlparser/v2/ast"
+
 	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -212,10 +214,10 @@ func NewHandler(config gengql.Config, log logrus.FieldLogger) (*handler.Server, 
 	graphHandler.AddTransport(SSE{}) // Support subscriptions
 	graphHandler.AddTransport(transport.Options{})
 	graphHandler.AddTransport(transport.POST{})
-	graphHandler.SetQueryCache(lru.New(1000))
+	graphHandler.SetQueryCache(lru.New[*ast.QueryDocument](1000))
 	graphHandler.Use(extension.Introspection{})
 	graphHandler.Use(extension.AutomaticPersistedQuery{
-		Cache: lru.New(100),
+		Cache: lru.New[string](100),
 	})
 	graphHandler.SetErrorPresenter(apierror.GetErrorPresenter(log))
 	graphHandler.Use(otelgqlgen.Middleware(
