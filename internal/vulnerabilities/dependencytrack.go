@@ -116,6 +116,7 @@ func WithClient(client dependencytrack.Client) DependencyTrackOption {
 
 func (c *dependencyTrackClient) GetVulnerabilityStatus(ctx context.Context, image string, revision string) (model.StateError, error) {
 	name, version, _ := strings.Cut(image, ":")
+	// TODO: vurder cache?
 	p, err := c.client.GetProject(ctx, name, version)
 	if err != nil {
 		return nil, fmt.Errorf("getting project by name %s and version %s: %w", name, version, err)

@@ -164,8 +164,9 @@ type ComplexityRoot struct {
 	}
 
 	AppsStatus struct {
-		Failing func(childComplexity int) int
-		Total   func(childComplexity int) int
+		Failing         func(childComplexity int) int
+		NotNais         func(childComplexity int) int
+		Vulnerabilities func(childComplexity int) int
 	}
 
 	AuditEventList struct {
@@ -723,8 +724,9 @@ type ComplexityRoot struct {
 	}
 
 	JobsStatus struct {
-		Failing func(childComplexity int) int
-		Total   func(childComplexity int) int
+		Failing         func(childComplexity int) int
+		NotNais         func(childComplexity int) int
+		Vulnerabilities func(childComplexity int) int
 	}
 
 	KafkaLagScalingStrategy struct {
@@ -1340,6 +1342,7 @@ type ComplexityRoot struct {
 		Apps         func(childComplexity int) int
 		Jobs         func(childComplexity int) int
 		SQLInstances func(childComplexity int) int
+		State        func(childComplexity int) int
 	}
 
 	TeamSync struct {
@@ -2084,12 +2087,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AppsStatus.Failing(childComplexity), true
 
-	case "AppsStatus.total":
-		if e.complexity.AppsStatus.Total == nil {
+	case "AppsStatus.notNais":
+		if e.complexity.AppsStatus.NotNais == nil {
 			break
 		}
 
-		return e.complexity.AppsStatus.Total(childComplexity), true
+		return e.complexity.AppsStatus.NotNais(childComplexity), true
+
+	case "AppsStatus.vulnerabilities":
+		if e.complexity.AppsStatus.Vulnerabilities == nil {
+			break
+		}
+
+		return e.complexity.AppsStatus.Vulnerabilities(childComplexity), true
 
 	case "AuditEventList.nodes":
 		if e.complexity.AuditEventList.Nodes == nil {
@@ -4411,12 +4421,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.JobsStatus.Failing(childComplexity), true
 
-	case "JobsStatus.total":
-		if e.complexity.JobsStatus.Total == nil {
+	case "JobsStatus.notNais":
+		if e.complexity.JobsStatus.NotNais == nil {
 			break
 		}
 
-		return e.complexity.JobsStatus.Total(childComplexity), true
+		return e.complexity.JobsStatus.NotNais(childComplexity), true
+
+	case "JobsStatus.vulnerabilities":
+		if e.complexity.JobsStatus.Vulnerabilities == nil {
+			break
+		}
+
+		return e.complexity.JobsStatus.Vulnerabilities(childComplexity), true
 
 	case "KafkaLagScalingStrategy.consumerGroup":
 		if e.complexity.KafkaLagScalingStrategy.ConsumerGroup == nil {
@@ -7487,6 +7504,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamStatus.SQLInstances(childComplexity), true
 
+	case "TeamStatus.state":
+		if e.complexity.TeamStatus.State == nil {
+			break
+		}
+
+		return e.complexity.TeamStatus.State(childComplexity), true
+
 	case "TeamSync.correlationID":
 		if e.complexity.TeamSync.CorrelationID == nil {
 			break
@@ -10429,7 +10453,6 @@ type Team {
   "The vulnerabilities summary for the team's applications."
   vulnerabilitiesSummary: VulnerabilitySummaryForTeam!
 
-
   "Get all secrets for the team."
   secrets: [Secret!]! @auth
 
@@ -10464,7 +10487,7 @@ type TeamUtilizationData {
   team: Team!
 
   "The requested amount of resources"
-  requested: Float! 
+  requested: Float!
 
   "The current resource usage."
   used: Float!
@@ -10479,7 +10502,7 @@ type AppUtilizationData {
   app: App!
 
   "The requested amount of resources"
-  requested: Float! 
+  requested: Float!
 
   "The current resource usage."
   used: Float!
@@ -10567,6 +10590,7 @@ type TeamMemberReconciler {
 
 "Team status."
 type TeamStatus {
+  state: State!
   apps: AppsStatus!
   jobs: JobsStatus!
   sqlInstances: SqlInstancesStatus!
@@ -10574,14 +10598,16 @@ type TeamStatus {
 
 "Team status for apps."
 type AppsStatus {
-  total: Int!
   failing: Int!
+  notNais: Int!
+  vulnerabilities: Int!
 }
 
 "Team status for jobs."
 type JobsStatus {
-  total: Int!
   failing: Int!
+  notNais: Int!
+  vulnerabilities: Int!
 }
 
 "A teams inventory of resources."
@@ -15288,50 +15314,6 @@ func (ec *executionContext) fieldContext_AppUtilizationData_used(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _AppsStatus_total(ctx context.Context, field graphql.CollectedField, obj *model.AppsStatus) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AppsStatus_total(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Total, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AppsStatus_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AppsStatus",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _AppsStatus_failing(ctx context.Context, field graphql.CollectedField, obj *model.AppsStatus) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AppsStatus_failing(ctx, field)
 	if err != nil {
@@ -15364,6 +15346,94 @@ func (ec *executionContext) _AppsStatus_failing(ctx context.Context, field graph
 }
 
 func (ec *executionContext) fieldContext_AppsStatus_failing(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AppsStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AppsStatus_notNais(ctx context.Context, field graphql.CollectedField, obj *model.AppsStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AppsStatus_notNais(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NotNais, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AppsStatus_notNais(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AppsStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AppsStatus_vulnerabilities(ctx context.Context, field graphql.CollectedField, obj *model.AppsStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AppsStatus_vulnerabilities(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Vulnerabilities, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AppsStatus_vulnerabilities(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AppsStatus",
 		Field:      field,
@@ -31536,50 +31606,6 @@ func (ec *executionContext) fieldContext_InvalidNaisYamlError_detail(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _JobsStatus_total(ctx context.Context, field graphql.CollectedField, obj *model.JobsStatus) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_JobsStatus_total(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Total, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_JobsStatus_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "JobsStatus",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _JobsStatus_failing(ctx context.Context, field graphql.CollectedField, obj *model.JobsStatus) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_JobsStatus_failing(ctx, field)
 	if err != nil {
@@ -31612,6 +31638,94 @@ func (ec *executionContext) _JobsStatus_failing(ctx context.Context, field graph
 }
 
 func (ec *executionContext) fieldContext_JobsStatus_failing(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobsStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobsStatus_notNais(ctx context.Context, field graphql.CollectedField, obj *model.JobsStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobsStatus_notNais(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NotNais, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobsStatus_notNais(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobsStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobsStatus_vulnerabilities(ctx context.Context, field graphql.CollectedField, obj *model.JobsStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobsStatus_vulnerabilities(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Vulnerabilities, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobsStatus_vulnerabilities(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobsStatus",
 		Field:      field,
@@ -50812,6 +50926,8 @@ func (ec *executionContext) fieldContext_Team_status(_ context.Context, field gr
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "state":
+				return ec.fieldContext_TeamStatus_state(ctx, field)
 			case "apps":
 				return ec.fieldContext_TeamStatus_apps(ctx, field)
 			case "jobs":
@@ -53558,6 +53674,50 @@ func (ec *executionContext) fieldContext_TeamMemberReconciler_enabled(_ context.
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamStatus_state(ctx context.Context, field graphql.CollectedField, obj *model.TeamStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamStatus_state(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.State, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.State)
+	fc.Result = res
+	return ec.marshalNState2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐState(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamStatus_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type State does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamStatus_apps(ctx context.Context, field graphql.CollectedField, obj *model.TeamStatus) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamStatus_apps(ctx, field)
 	if err != nil {
@@ -53597,10 +53757,12 @@ func (ec *executionContext) fieldContext_TeamStatus_apps(_ context.Context, fiel
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "total":
-				return ec.fieldContext_AppsStatus_total(ctx, field)
 			case "failing":
 				return ec.fieldContext_AppsStatus_failing(ctx, field)
+			case "notNais":
+				return ec.fieldContext_AppsStatus_notNais(ctx, field)
+			case "vulnerabilities":
+				return ec.fieldContext_AppsStatus_vulnerabilities(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AppsStatus", field.Name)
 		},
@@ -53647,10 +53809,12 @@ func (ec *executionContext) fieldContext_TeamStatus_jobs(_ context.Context, fiel
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "total":
-				return ec.fieldContext_JobsStatus_total(ctx, field)
 			case "failing":
 				return ec.fieldContext_JobsStatus_failing(ctx, field)
+			case "notNais":
+				return ec.fieldContext_JobsStatus_notNais(ctx, field)
+			case "vulnerabilities":
+				return ec.fieldContext_JobsStatus_vulnerabilities(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type JobsStatus", field.Name)
 		},
@@ -60716,13 +60880,18 @@ func (ec *executionContext) _AppsStatus(ctx context.Context, sel ast.SelectionSe
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("AppsStatus")
-		case "total":
-			out.Values[i] = ec._AppsStatus_total(ctx, field, obj)
+		case "failing":
+			out.Values[i] = ec._AppsStatus_failing(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "failing":
-			out.Values[i] = ec._AppsStatus_failing(ctx, field, obj)
+		case "notNais":
+			out.Values[i] = ec._AppsStatus_notNais(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "vulnerabilities":
+			out.Values[i] = ec._AppsStatus_vulnerabilities(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -65790,13 +65959,18 @@ func (ec *executionContext) _JobsStatus(ctx context.Context, sel ast.SelectionSe
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobsStatus")
-		case "total":
-			out.Values[i] = ec._JobsStatus_total(ctx, field, obj)
+		case "failing":
+			out.Values[i] = ec._JobsStatus_failing(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "failing":
-			out.Values[i] = ec._JobsStatus_failing(ctx, field, obj)
+		case "notNais":
+			out.Values[i] = ec._JobsStatus_notNais(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "vulnerabilities":
+			out.Values[i] = ec._JobsStatus_vulnerabilities(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -73027,6 +73201,11 @@ func (ec *executionContext) _TeamStatus(ctx context.Context, sel ast.SelectionSe
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamStatus")
+		case "state":
+			out.Values[i] = ec._TeamStatus_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "apps":
 			out.Values[i] = ec._TeamStatus_apps(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

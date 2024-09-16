@@ -483,7 +483,6 @@ type Team {
   "The vulnerabilities summary for the team's applications."
   vulnerabilitiesSummary: VulnerabilitySummaryForTeam!
 
-
   "Get all secrets for the team."
   secrets: [Secret!]! @auth
 
@@ -518,7 +517,7 @@ type TeamUtilizationData {
   team: Team!
 
   "The requested amount of resources"
-  requested: Float! 
+  requested: Float!
 
   "The current resource usage."
   used: Float!
@@ -533,7 +532,7 @@ type AppUtilizationData {
   app: App!
 
   "The requested amount of resources"
-  requested: Float! 
+  requested: Float!
 
   "The current resource usage."
   used: Float!
@@ -621,6 +620,7 @@ type TeamMemberReconciler {
 
 "Team status."
 type TeamStatus {
+  state: State!
   apps: AppsStatus!
   jobs: JobsStatus!
   sqlInstances: SqlInstancesStatus!
@@ -628,14 +628,16 @@ type TeamStatus {
 
 "Team status for apps."
 type AppsStatus {
-  total: Int!
   failing: Int!
+  notNais: Int!
+  vulnerabilities: Int!
 }
 
 "Team status for jobs."
 type JobsStatus {
-  total: Int!
   failing: Int!
+  notNais: Int!
+  vulnerabilities: Int!
 }
 
 "A teams inventory of resources."

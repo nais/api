@@ -785,14 +785,27 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 			return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
 		}
 		failingApps := 0
+		notNais := 0
+		vulnz := 0
 		for _, app := range apps {
 			if app.Status.State == model.StateFailing {
 				failingApps++
 			}
+			if app.Status.State == model.StateNotnais {
+				notNais++
+			}
+			vuln, err := r.vulnerabilities.GetVulnerabilityStatus(ctx, app.Image, app.DeployInfo.CommitSha)
+			if err != nil {
+				return nil, fmt.Errorf("getting vulnerability status for image %q: %w", app.Image, err)
+			}
+			if vuln != nil {
+				vulnz++
+			}
 		}
 		return model.AppsStatus{
-			Total:   len(apps),
-			Failing: failingApps,
+			Failing:         failingApps,
+			NotNais:         notNais,
+			Vulnerabilities: vulnz,
 		}, nil
 	})
 
@@ -802,14 +815,28 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 			return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
 		}
 		failingJobs := 0
+		notNais := 0
+		vulnz := 0
 		for _, job := range jobs {
 			if job.Status.State == model.StateFailing {
 				failingJobs++
 			}
+			if job.Status.State == model.StateNotnais {
+				notNais++
+			}
+			vuln, err := r.vulnerabilities.GetVulnerabilityStatus(ctx, job.Image, job.DeployInfo.CommitSha)
+			if err != nil {
+				return nil, fmt.Errorf("getting vulnerability status for image %q: %w", job.Image, err)
+			}
+			if vuln != nil {
+				vulnz++
+			}
+
 		}
 		return model.JobsStatus{
-			Total:   len(jobs),
-			Failing: failingJobs,
+			Failing:         failingJobs,
+			NotNais:         notNais,
+			Vulnerabilities: vulnz,
 		}, nil
 	})
 
@@ -841,7 +868,6 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 			}
 		}
 		return model.SQLInstancesStatus{
-			Total:           len(sqlInstances),
 			Failing:         failingSqlInstances,
 			OtherConditions: otherConditions,
 		}, nil
@@ -853,15 +879,28 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 	}
 
 	ret := &model.TeamStatus{}
-
+	ret.State = model.StateNais
 	for _, r := range res {
 		switch v := r.(type) {
 		case model.AppsStatus:
 			ret.Apps = v
+			if v.Failing > 0 {
+				ret.State = model.StateFailing
+			} else if v.Failing == 0 && v.NotNais > 0 {
+				ret.State = model.StateNotnais
+			}
 		case model.JobsStatus:
 			ret.Jobs = v
+			if v.Failing > 0 {
+				ret.State = model.StateFailing
+			} else if v.Failing == 0 && v.NotNais > 0 {
+				ret.State = model.StateNotnais
+			}
 		case model.SQLInstancesStatus:
 			ret.SQLInstances = v
+			if v.Failing > 0 {
+				ret.State = model.StateFailing
+			}
 		}
 	}
 

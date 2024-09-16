@@ -91,8 +91,9 @@ type AppList struct {
 
 // Team status for apps.
 type AppsStatus struct {
-	Total   int `json:"total"`
-	Failing int `json:"failing"`
+	Failing         int `json:"failing"`
+	NotNais         int `json:"notNais"`
+	Vulnerabilities int `json:"vulnerabilities"`
 }
 
 type AuditEventMemberAddedData struct {
@@ -505,8 +506,9 @@ func (InvalidNaisYamlError) IsStateError() {}
 
 // Team status for jobs.
 type JobsStatus struct {
-	Total   int `json:"total"`
-	Failing int `json:"failing"`
+	Failing         int `json:"failing"`
+	NotNais         int `json:"notNais"`
+	Vulnerabilities int `json:"vulnerabilities"`
 }
 
 type KafkaLagScalingStrategy struct {
@@ -909,6 +911,7 @@ type TeamMemberList struct {
 
 // Team status.
 type TeamStatus struct {
+	State        State              `json:"state"`
 	Apps         AppsStatus         `json:"apps"`
 	Jobs         JobsStatus         `json:"jobs"`
 	SQLInstances SQLInstancesStatus `json:"sqlInstances"`
