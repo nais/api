@@ -32,6 +32,15 @@ func (r *jobResolver) AuthIntegrations(ctx context.Context, obj *job.Job) ([]wor
 	return ret, nil
 }
 
+func (r *jobResolver) Runs(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*job.JobRun], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+
+	return job.Runs(ctx, obj.TeamSlug, obj.Name, page)
+}
+
 func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder) (*pagination.Connection[*job.Job], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {

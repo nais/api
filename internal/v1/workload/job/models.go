@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
@@ -11,13 +12,16 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/workload"
 	"github.com/nais/liberator/pkg/apis/nais.io/v1"
+	batchv1 "k8s.io/api/batch/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/utils/ptr"
 )
 
 type (
-	JobConnection = pagination.Connection[*Job]
-	JobEdge       = pagination.Edge[*Job]
+	JobConnection    = pagination.Connection[*Job]
+	JobEdge          = pagination.Edge[*Job]
+	JobRunConnection = pagination.Connection[*JobRun]
+	JobRunEdge       = pagination.Edge[*JobRun]
 )
 
 type Job struct {
@@ -28,6 +32,21 @@ type Job struct {
 type JobSchedule struct {
 	Expression string `json:"expression"`
 	TimeZone   string `json:"timeZone"`
+}
+
+type JobRun struct {
+	Name            string     `json:"name"`
+	StartTime       *time.Time `json:"startTime"`
+	CompletionTime  *time.Time `json:"completionTime"`
+	CreationTime    time.Time  `json:"-"`
+	EnvironmentName string     `json:"-"`
+	TeamSlug        slug.Slug  `json:"-"`
+}
+
+func (JobRun) IsNode() {}
+
+func (j JobRun) ID() ident.Ident {
+	return newJobRunIdent(j.TeamSlug, j.EnvironmentName, j.Name)
 }
 
 func (Job) IsNode()     {}
@@ -140,5 +159,50 @@ func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {
 			TeamSlug:        slug.Slug(job.Namespace),
 		},
 		Spec: &job.Spec,
+	}
+}
+
+func toGraphJobRun(run *batchv1.Job, environmentName string) *JobRun {
+	var startTime, completionTime *time.Time
+
+	if run.Status.CompletionTime != nil {
+		completionTime = &run.Status.CompletionTime.Time
+	}
+
+	if run.Status.StartTime != nil {
+		startTime = &run.Status.StartTime.Time
+	}
+
+	/*
+		podReq, err := labels.NewRequirement("job-name", selection.Equals, []string{job.Name})
+		if err != nil {
+			return nil, c.error(ctx, err, "creating label selector")
+		}
+		podSelector := labels.NewSelector().Add(*podReq)
+		pods, err := c.informers[env].Pod.Lister().Pods(team).List(podSelector)
+		if err != nil {
+			return nil, c.error(ctx, err, "listing job instance pods")
+		}
+
+		var podNames []string
+		for _, pod := range pods {
+			podNames = append(podNames, pod.Name)
+		}
+	*/
+
+	return &JobRun{
+		Name:            run.Name,
+		EnvironmentName: environmentName,
+		TeamSlug:        slug.Slug(run.Namespace),
+		StartTime:       startTime,
+		CompletionTime:  completionTime,
+		CreationTime:    run.CreationTimestamp.Time,
+		/*
+			PodNames:       podNames,
+			Failed:         failed(job),
+			Duration:       duration(job).String(),
+			Image:          job.Spec.Template.Spec.Containers[0].Image,
+			Message:        Message(job),
+		*/
 	}
 }

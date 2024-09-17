@@ -125,3 +125,666 @@ status:
   synchronizationHash: 6e0cb332b94540ec
   synchronizationState: RolloutComplete
   synchronizationTime: 1704838351872468010
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    batch.kubernetes.io/cronjob-scheduled-timestamp: "2024-09-02T03:45:00Z"
+    nais.io/deploymentCorrelationID: 4027de17-5b94-4190-8201-68cb60c59b6c
+  creationTimestamp: "2024-09-02T03:45:00Z"
+  generation: 1
+  labels:
+    app: dataproduct-apps-topics
+    team: aura
+  name: dataproduct-apps-topics-28754145
+  namespace: aura
+  ownerReferences:
+    - apiVersion: batch/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: CronJob
+      name: dataproduct-apps-topics
+      uid: 9aacd2a4-3e60-4aae-a903-75efeca3d669
+  resourceVersion: "4956436194"
+  uid: b7d0c998-9799-4585-b72b-592b76a40efd
+spec:
+  backoffLimit: 6
+  completionMode: NonIndexed
+  completions: 1
+  manualSelector: false
+  parallelism: 1
+  podReplacementPolicy: TerminatingOrFailed
+  selector:
+    matchLabels:
+      batch.kubernetes.io/controller-uid: b7d0c998-9799-4585-b72b-592b76a40efd
+  suspend: false
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: dataproduct-apps-topics
+      creationTimestamp: null
+      labels:
+        app: dataproduct-apps-topics
+        batch.kubernetes.io/controller-uid: b7d0c998-9799-4585-b72b-592b76a40efd
+        batch.kubernetes.io/job-name: dataproduct-apps-topics-28754145
+        controller-uid: b7d0c998-9799-4585-b72b-592b76a40efd
+        job-name: dataproduct-apps-topics-28754145
+        nais.io/naisjob: "true"
+        team: aura
+      name: dataproduct-apps-topics
+      namespace: aura
+      ownerReferences:
+        - apiVersion: nais.io/v1
+          kind: Naisjob
+          name: dataproduct-apps-topics
+          uid: 68002180-a3a5-41e0-a7b7-cd7ba70df7a1
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - dataproduct-apps-topics
+                topologyKey: kubernetes.io/hostname
+              weight: 10
+      containers:
+        - command:
+            - dataproduct-apps-topics
+          image: europe-north1-docker.pkg.dev/nais-io/nais/images/dataproduct-apps:20240830103811-7b6c7fc
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - sleep
+                  - "5"
+          name: dataproduct-apps-topics
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 200m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1069
+            runAsNonRoot: true
+            runAsUser: 1069
+            seccompProfile:
+              type: RuntimeDefault
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /etc/ssl/certs/java/cacerts
+              name: ca-bundle-jks
+              readOnly: true
+              subPath: ca-bundle.jks
+            - mountPath: /etc/ssl/certs/ca-certificates.crt
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/pki/tls/certs/ca-bundle.crt
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/ssl/ca-bundle.pem
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/pki/tls/cacert.pem
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /tmp
+              name: writable-tmp
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+        - name: gh-docker-credentials
+        - name: gar-docker-credentials
+      restartPolicy: Never
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 1069
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccount: dataproduct-apps-topics
+      serviceAccountName: dataproduct-apps-topics
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: ca-bundle-jks
+          name: ca-bundle-jks
+        - configMap:
+            defaultMode: 420
+            name: ca-bundle-pem
+          name: ca-bundle-pem
+        - emptyDir: {}
+          name: writable-tmp
+status:
+  conditions:
+    - lastProbeTime: "2024-09-02T04:54:55Z"
+      lastTransitionTime: "2024-09-02T04:54:55Z"
+      message: Job has reached the specified backoff limit
+      reason: BackoffLimitExceeded
+      status: "True"
+      type: Failed
+  failed: 7
+  ready: 0
+  startTime: "2024-09-02T03:45:00Z"
+  terminating: 0
+  uncountedTerminatedPods: {}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    batch.kubernetes.io/cronjob-scheduled-timestamp: "2024-09-15T03:45:00Z"
+    nais.io/deploymentCorrelationID: 67764195-4803-4baf-aa94-28e4ac8487d6
+  creationTimestamp: "2024-09-15T03:45:00Z"
+  generation: 1
+  labels:
+    apiserver-access: enabled
+    app: dataproduct-apps-topics
+    team: aura
+  name: dataproduct-apps-topics-28772865
+  namespace: aura
+  ownerReferences:
+    - apiVersion: batch/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: CronJob
+      name: dataproduct-apps-topics
+      uid: 9aacd2a4-3e60-4aae-a903-75efeca3d669
+  resourceVersion: "5026702083"
+  uid: da156328-3dc6-4324-a330-8e3fec55c954
+spec:
+  backoffLimit: 6
+  completionMode: NonIndexed
+  completions: 1
+  manualSelector: false
+  parallelism: 1
+  podReplacementPolicy: TerminatingOrFailed
+  selector:
+    matchLabels:
+      batch.kubernetes.io/controller-uid: da156328-3dc6-4324-a330-8e3fec55c954
+  suspend: false
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: dataproduct-apps-topics
+      creationTimestamp: null
+      labels:
+        apiserver-access: enabled
+        app: dataproduct-apps-topics
+        batch.kubernetes.io/controller-uid: da156328-3dc6-4324-a330-8e3fec55c954
+        batch.kubernetes.io/job-name: dataproduct-apps-topics-28772865
+        controller-uid: da156328-3dc6-4324-a330-8e3fec55c954
+        job-name: dataproduct-apps-topics-28772865
+        nais.io/naisjob: "true"
+        team: aura
+      name: dataproduct-apps-topics
+      namespace: aura
+      ownerReferences:
+        - apiVersion: nais.io/v1
+          kind: Naisjob
+          name: dataproduct-apps-topics
+          uid: 68002180-a3a5-41e0-a7b7-cd7ba70df7a1
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - dataproduct-apps-topics
+                topologyKey: kubernetes.io/hostname
+              weight: 10
+      containers:
+        - command:
+            - dataproduct-apps-topics
+          image: europe-north1-docker.pkg.dev/nais-io/nais/images/dataproduct-apps:20240912134256-f435989
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - sleep
+                  - "5"
+          name: dataproduct-apps-topics
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 200m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1069
+            runAsNonRoot: true
+            runAsUser: 1069
+            seccompProfile:
+              type: RuntimeDefault
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /etc/ssl/certs/java/cacerts
+              name: ca-bundle-jks
+              readOnly: true
+              subPath: ca-bundle.jks
+            - mountPath: /etc/ssl/certs/ca-certificates.crt
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/pki/tls/certs/ca-bundle.crt
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/ssl/ca-bundle.pem
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/pki/tls/cacert.pem
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /tmp
+              name: writable-tmp
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+        - name: gh-docker-credentials
+        - name: gar-docker-credentials
+      restartPolicy: Never
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 1069
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccount: dataproduct-apps-topics
+      serviceAccountName: dataproduct-apps-topics
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: ca-bundle-jks
+          name: ca-bundle-jks
+        - configMap:
+            defaultMode: 420
+            name: ca-bundle-pem
+          name: ca-bundle-pem
+        - emptyDir: {}
+          name: writable-tmp
+status:
+  completionTime: "2024-09-15T03:45:19Z"
+  conditions:
+    - lastProbeTime: "2024-09-15T03:45:19Z"
+      lastTransitionTime: "2024-09-15T03:45:19Z"
+      status: "True"
+      type: Complete
+  ready: 0
+  startTime: "2024-09-15T03:45:00Z"
+  succeeded: 1
+  terminating: 0
+  uncountedTerminatedPods: {}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    batch.kubernetes.io/cronjob-scheduled-timestamp: "2024-09-16T03:45:00Z"
+    nais.io/deploymentCorrelationID: 67764195-4803-4baf-aa94-28e4ac8487d6
+  creationTimestamp: "2024-09-16T03:45:00Z"
+  generation: 1
+  labels:
+    apiserver-access: enabled
+    app: dataproduct-apps-topics
+    team: aura
+  name: dataproduct-apps-topics-28774305
+  namespace: aura
+  ownerReferences:
+    - apiVersion: batch/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: CronJob
+      name: dataproduct-apps-topics
+      uid: 9aacd2a4-3e60-4aae-a903-75efeca3d669
+  resourceVersion: "5031919758"
+  uid: 1e02b8da-6fb8-47bf-b1bc-fcc981cdb9ce
+spec:
+  backoffLimit: 6
+  completionMode: NonIndexed
+  completions: 1
+  manualSelector: false
+  parallelism: 1
+  podReplacementPolicy: TerminatingOrFailed
+  selector:
+    matchLabels:
+      batch.kubernetes.io/controller-uid: 1e02b8da-6fb8-47bf-b1bc-fcc981cdb9ce
+  suspend: false
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: dataproduct-apps-topics
+      creationTimestamp: null
+      labels:
+        apiserver-access: enabled
+        app: dataproduct-apps-topics
+        batch.kubernetes.io/controller-uid: 1e02b8da-6fb8-47bf-b1bc-fcc981cdb9ce
+        batch.kubernetes.io/job-name: dataproduct-apps-topics-28774305
+        controller-uid: 1e02b8da-6fb8-47bf-b1bc-fcc981cdb9ce
+        job-name: dataproduct-apps-topics-28774305
+        nais.io/naisjob: "true"
+        team: aura
+      name: dataproduct-apps-topics
+      namespace: aura
+      ownerReferences:
+        - apiVersion: nais.io/v1
+          kind: Naisjob
+          name: dataproduct-apps-topics
+          uid: 68002180-a3a5-41e0-a7b7-cd7ba70df7a1
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - dataproduct-apps-topics
+                topologyKey: kubernetes.io/hostname
+              weight: 10
+      containers:
+        - command:
+            - dataproduct-apps-topics
+          image: europe-north1-docker.pkg.dev/nais-io/nais/images/dataproduct-apps:20240912134256-f435989
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - sleep
+                  - "5"
+          name: dataproduct-apps-topics
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 200m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1069
+            runAsNonRoot: true
+            runAsUser: 1069
+            seccompProfile:
+              type: RuntimeDefault
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /etc/ssl/certs/java/cacerts
+              name: ca-bundle-jks
+              readOnly: true
+              subPath: ca-bundle.jks
+            - mountPath: /etc/ssl/certs/ca-certificates.crt
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/pki/tls/certs/ca-bundle.crt
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/ssl/ca-bundle.pem
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/pki/tls/cacert.pem
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /tmp
+              name: writable-tmp
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+        - name: gh-docker-credentials
+        - name: gar-docker-credentials
+      restartPolicy: Never
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 1069
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccount: dataproduct-apps-topics
+      serviceAccountName: dataproduct-apps-topics
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: ca-bundle-jks
+          name: ca-bundle-jks
+        - configMap:
+            defaultMode: 420
+            name: ca-bundle-pem
+          name: ca-bundle-pem
+        - emptyDir: {}
+          name: writable-tmp
+status:
+  completionTime: "2024-09-16T03:45:21Z"
+  conditions:
+    - lastProbeTime: "2024-09-16T03:45:21Z"
+      lastTransitionTime: "2024-09-16T03:45:21Z"
+      status: "True"
+      type: Complete
+  ready: 0
+  startTime: "2024-09-16T03:45:00Z"
+  succeeded: 1
+  terminating: 0
+  uncountedTerminatedPods: {}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    batch.kubernetes.io/cronjob-scheduled-timestamp: "2024-09-17T03:45:00Z"
+    nais.io/deploymentCorrelationID: 67764195-4803-4baf-aa94-28e4ac8487d6
+  creationTimestamp: "2024-09-17T03:45:00Z"
+  generation: 1
+  labels:
+    apiserver-access: enabled
+    app: dataproduct-apps-topics
+    team: aura
+  name: dataproduct-apps-topics-28775745
+  namespace: aura
+  ownerReferences:
+    - apiVersion: batch/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: CronJob
+      name: dataproduct-apps-topics
+      uid: 9aacd2a4-3e60-4aae-a903-75efeca3d669
+  resourceVersion: "5037397238"
+  uid: d8963bee-df6e-4394-8db6-3139020257fa
+spec:
+  backoffLimit: 6
+  completionMode: NonIndexed
+  completions: 1
+  manualSelector: false
+  parallelism: 1
+  podReplacementPolicy: TerminatingOrFailed
+  selector:
+    matchLabels:
+      batch.kubernetes.io/controller-uid: d8963bee-df6e-4394-8db6-3139020257fa
+  suspend: false
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: dataproduct-apps-topics
+      creationTimestamp: null
+      labels:
+        apiserver-access: enabled
+        app: dataproduct-apps-topics
+        batch.kubernetes.io/controller-uid: d8963bee-df6e-4394-8db6-3139020257fa
+        batch.kubernetes.io/job-name: dataproduct-apps-topics-28775745
+        controller-uid: d8963bee-df6e-4394-8db6-3139020257fa
+        job-name: dataproduct-apps-topics-28775745
+        nais.io/naisjob: "true"
+        team: aura
+      name: dataproduct-apps-topics
+      namespace: aura
+      ownerReferences:
+        - apiVersion: nais.io/v1
+          kind: Naisjob
+          name: dataproduct-apps-topics
+          uid: 68002180-a3a5-41e0-a7b7-cd7ba70df7a1
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - dataproduct-apps-topics
+                topologyKey: kubernetes.io/hostname
+              weight: 10
+      containers:
+        - command:
+            - dataproduct-apps-topics
+          image: europe-north1-docker.pkg.dev/nais-io/nais/images/dataproduct-apps:20240912134256-f435989
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - sleep
+                  - "5"
+          name: dataproduct-apps-topics
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 200m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1069
+            runAsNonRoot: true
+            runAsUser: 1069
+            seccompProfile:
+              type: RuntimeDefault
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /etc/ssl/certs/java/cacerts
+              name: ca-bundle-jks
+              readOnly: true
+              subPath: ca-bundle.jks
+            - mountPath: /etc/ssl/certs/ca-certificates.crt
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/pki/tls/certs/ca-bundle.crt
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/ssl/ca-bundle.pem
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/pki/tls/cacert.pem
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
+              name: ca-bundle-pem
+              readOnly: true
+              subPath: ca-bundle.pem
+            - mountPath: /tmp
+              name: writable-tmp
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+        - name: gh-docker-credentials
+        - name: gar-docker-credentials
+      restartPolicy: Never
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 1069
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccount: dataproduct-apps-topics
+      serviceAccountName: dataproduct-apps-topics
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: ca-bundle-jks
+          name: ca-bundle-jks
+        - configMap:
+            defaultMode: 420
+            name: ca-bundle-pem
+          name: ca-bundle-pem
+        - emptyDir: {}
+          name: writable-tmp
+status:
+  completionTime: "2024-09-17T03:45:21Z"
+  conditions:
+    - lastProbeTime: "2024-09-17T03:45:21Z"
+      lastTransitionTime: "2024-09-17T03:45:21Z"
+      status: "True"
+      type: Complete
+  ready: 0
+  startTime: "2024-09-17T03:45:00Z"
+  succeeded: 1
+  terminating: 0
+  uncountedTerminatedPods: {}

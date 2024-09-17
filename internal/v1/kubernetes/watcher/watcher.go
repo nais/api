@@ -104,12 +104,12 @@ func (w *Watcher[T]) Get(cluster, namespace, name string) (T, error) {
 	return w.datastore.Get(cluster, namespace, name)
 }
 
-func (w *Watcher[T]) GetByCluster(cluster string) []EnvironmentWrapper[T] {
-	return w.datastore.GetByCluster(cluster)
+func (w *Watcher[T]) GetByCluster(cluster string, filter ...Filter) []EnvironmentWrapper[T] {
+	return w.datastore.GetByCluster(cluster, filter...)
 }
 
-func (w *Watcher[T]) GetByNamespace(namespace string) []EnvironmentWrapper[T] {
-	return w.datastore.GetByNamespace(namespace)
+func (w *Watcher[T]) GetByNamespace(namespace string, filter ...Filter) []EnvironmentWrapper[T] {
+	return w.datastore.GetByNamespace(namespace, filter...)
 }
 
 func Objects[T Object](list []EnvironmentWrapper[T]) []T {

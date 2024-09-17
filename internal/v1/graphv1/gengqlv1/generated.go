@@ -322,6 +322,7 @@ type ComplexityRoot struct {
 		OpenSearch       func(childComplexity int) int
 		RedisInstances   func(childComplexity int, orderBy *redis.RedisInstanceOrder) int
 		Resources        func(childComplexity int) int
+		Runs             func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		SQLInstances     func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
 		Schedule         func(childComplexity int) int
 		Team             func(childComplexity int) int
@@ -341,6 +342,24 @@ type ComplexityRoot struct {
 	JobResources struct {
 		Limits   func(childComplexity int) int
 		Requests func(childComplexity int) int
+	}
+
+	JobRun struct {
+		CompletionTime func(childComplexity int) int
+		ID             func(childComplexity int) int
+		Name           func(childComplexity int) int
+		StartTime      func(childComplexity int) int
+	}
+
+	JobRunConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	JobRunEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	JobSchedule struct {
@@ -881,6 +900,7 @@ type JobResolver interface {
 
 	AuthIntegrations(ctx context.Context, obj *job.Job) ([]workload.JobAuthIntegrations, error)
 
+	Runs(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*job.JobRun], error)
 	Cost(ctx context.Context, obj *job.Job) (*cost.WorkloadCost, error)
 	NetworkPolicy(ctx context.Context, obj *job.Job) (*netpol.NetworkPolicy, error)
 	BigQueryDatasets(ctx context.Context, obj *job.Job, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
@@ -1986,6 +2006,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Job.Resources(childComplexity), true
 
+	case "Job.runs":
+		if e.complexity.Job.Runs == nil {
+			break
+		}
+
+		args, err := ec.field_Job_runs_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Job.Runs(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
 	case "Job.sqlInstances":
 		if e.complexity.Job.SQLInstances == nil {
 			break
@@ -2060,6 +2092,69 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.JobResources.Requests(childComplexity), true
+
+	case "JobRun.completionTime":
+		if e.complexity.JobRun.CompletionTime == nil {
+			break
+		}
+
+		return e.complexity.JobRun.CompletionTime(childComplexity), true
+
+	case "JobRun.id":
+		if e.complexity.JobRun.ID == nil {
+			break
+		}
+
+		return e.complexity.JobRun.ID(childComplexity), true
+
+	case "JobRun.name":
+		if e.complexity.JobRun.Name == nil {
+			break
+		}
+
+		return e.complexity.JobRun.Name(childComplexity), true
+
+	case "JobRun.startTime":
+		if e.complexity.JobRun.StartTime == nil {
+			break
+		}
+
+		return e.complexity.JobRun.StartTime(childComplexity), true
+
+	case "JobRunConnection.edges":
+		if e.complexity.JobRunConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.JobRunConnection.Edges(childComplexity), true
+
+	case "JobRunConnection.nodes":
+		if e.complexity.JobRunConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.JobRunConnection.Nodes(childComplexity), true
+
+	case "JobRunConnection.pageInfo":
+		if e.complexity.JobRunConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.JobRunConnection.PageInfo(childComplexity), true
+
+	case "JobRunEdge.cursor":
+		if e.complexity.JobRunEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.JobRunEdge.Cursor(childComplexity), true
+
+	case "JobRunEdge.node":
+		if e.complexity.JobRunEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.JobRunEdge.Node(childComplexity), true
 
 	case "JobSchedule.expression":
 		if e.complexity.JobSchedule.Expression == nil {
@@ -4649,15 +4744,29 @@ type Job implements Node & Workload {
 	"List of authentication and authorization for the job."
 	authIntegrations: [JobAuthIntegrations!]!
 
-	"Optional schedule for the job."
+	"Optional schedule for the job. Jobs with no schedule are run once."
 	schedule: JobSchedule
+
+	"The job runs."
+	runs(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): JobRunConnection!
 
 	# image: String!
 	# deployInfo: DeployInfo!
 	# status: WorkloadStatus!
 	# authz: [Authz!]!
 	# imageDetails: ImageDetails!
-	# runs: [Run!]!
 	# manifest: String!
 	# completions: Int!
 	# parallelism: Int!
@@ -4666,7 +4775,10 @@ type Job implements Node & Workload {
 }
 
 type JobSchedule {
+	"The cron expression for the job."
 	expression: String!
+
+	"The time zone for the job. Defaults to UTC."
 	timeZone: String!
 }
 
@@ -4675,6 +4787,26 @@ union JobAuthIntegrations = EntraIDAuthIntegration | MaskinportenAuthIntegration
 type JobResources implements WorkloadResources {
 	limits: WorkloadResourceQuantity!
 	requests: WorkloadResourceQuantity!
+}
+
+type JobRun implements Node {
+	"The globally unique ID of the job."
+	id: ID!
+
+	"The name of the job."
+	name: String!
+
+	"The start time of the job."
+	startTime: Time
+
+	"The completion time of the job."
+	completionTime: Time
+
+	# podNames: [String!]!
+	# duration: String!
+	# image: String!
+	# message: String!
+	# failed: Boolean!
 }
 
 type JobConnection {
@@ -4688,12 +4820,31 @@ type JobConnection {
 	edges: [JobEdge!]!
 }
 
+type JobRunConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"List of nodes."
+	nodes: [JobRun!]!
+
+	"List of edges."
+	edges: [JobRunEdge!]!
+}
+
 type JobEdge {
 	"Cursor for this edge that can be used for pagination."
 	cursor: Cursor!
 
 	"The job."
 	node: Job!
+}
+
+type JobRunEdge {
+	"Cursor for this edge that can be used for pagination."
+	cursor: Cursor!
+
+	"The job run."
+	node: JobRun!
 }
 
 input JobOrder {
@@ -7013,6 +7164,119 @@ func (ec *executionContext) field_Job_redisInstances_argsOrderBy(
 	}
 
 	var zeroVal *redis.RedisInstanceOrder
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Job_runs_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Job_runs_argsFirst(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := ec.field_Job_runs_argsAfter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := ec.field_Job_runs_argsLast(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := ec.field_Job_runs_argsBefore(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	return args, nil
+}
+func (ec *executionContext) field_Job_runs_argsFirst(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["first"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+	if tmp, ok := rawArgs["first"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Job_runs_argsAfter(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["after"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+	if tmp, ok := rawArgs["after"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Job_runs_argsLast(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["last"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+	if tmp, ok := rawArgs["last"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Job_runs_argsBefore(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["before"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+	if tmp, ok := rawArgs["before"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
 	return zeroVal, nil
 }
 
@@ -16691,6 +16955,69 @@ func (ec *executionContext) fieldContext_Job_schedule(_ context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Job_runs(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Job_runs(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Job().Runs(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*pagination.Connection[*job.JobRun])
+	fc.Result = res
+	return ec.marshalNJobRunConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Job_runs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_JobRunConnection_pageInfo(ctx, field)
+			case "nodes":
+				return ec.fieldContext_JobRunConnection_nodes(ctx, field)
+			case "edges":
+				return ec.fieldContext_JobRunConnection_edges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type JobRunConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Job_runs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Job_cost(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Job_cost(ctx, field)
 	if err != nil {
@@ -17276,6 +17603,8 @@ func (ec *executionContext) fieldContext_JobConnection_nodes(_ context.Context, 
 				return ec.fieldContext_Job_authIntegrations(ctx, field)
 			case "schedule":
 				return ec.fieldContext_Job_schedule(ctx, field)
+			case "runs":
+				return ec.fieldContext_Job_runs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Job_cost(ctx, field)
 			case "networkPolicy":
@@ -17448,6 +17777,8 @@ func (ec *executionContext) fieldContext_JobEdge_node(_ context.Context, field g
 				return ec.fieldContext_Job_authIntegrations(ctx, field)
 			case "schedule":
 				return ec.fieldContext_Job_schedule(ctx, field)
+			case "runs":
+				return ec.fieldContext_Job_runs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Job_cost(ctx, field)
 			case "networkPolicy":
@@ -17566,6 +17897,434 @@ func (ec *executionContext) fieldContext_JobResources_requests(_ context.Context
 				return ec.fieldContext_WorkloadResourceQuantity_memory(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type WorkloadResourceQuantity", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobRun_id(ctx context.Context, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobRun_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobRun_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRun",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobRun_name(ctx context.Context, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobRun_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobRun_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRun",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobRun_startTime(ctx context.Context, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobRun_startTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StartTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobRun_startTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRun",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobRun_completionTime(ctx context.Context, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobRun_completionTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CompletionTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobRun_completionTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRun",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobRunConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*job.JobRun]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobRunConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobRunConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRunConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobRunConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*job.JobRun]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobRunConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*job.JobRun)
+	fc.Result = res
+	return ec.marshalNJobRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobRunᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobRunConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRunConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_JobRun_id(ctx, field)
+			case "name":
+				return ec.fieldContext_JobRun_name(ctx, field)
+			case "startTime":
+				return ec.fieldContext_JobRun_startTime(ctx, field)
+			case "completionTime":
+				return ec.fieldContext_JobRun_completionTime(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type JobRun", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobRunConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*job.JobRun]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobRunConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]pagination.Edge[*job.JobRun])
+	fc.Result = res
+	return ec.marshalNJobRunEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobRunConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRunConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cursor":
+				return ec.fieldContext_JobRunEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_JobRunEdge_node(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type JobRunEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobRunEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*job.JobRun]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobRunEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.Cursor)
+	fc.Result = res
+	return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobRunEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRunEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobRunEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*job.JobRun]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobRunEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*job.JobRun)
+	fc.Result = res
+	return ec.marshalNJobRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobRun(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobRunEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRunEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_JobRun_id(ctx, field)
+			case "name":
+				return ec.fieldContext_JobRun_name(ctx, field)
+			case "startTime":
+				return ec.fieldContext_JobRun_startTime(ctx, field)
+			case "completionTime":
+				return ec.fieldContext_JobRun_completionTime(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type JobRun", field.Name)
 		},
 	}
 	return fc, nil
@@ -29827,6 +30586,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_job(ctx context.Context
 				return ec.fieldContext_Job_authIntegrations(ctx, field)
 			case "schedule":
 				return ec.fieldContext_Job_schedule(ctx, field)
+			case "runs":
+				return ec.fieldContext_Job_runs(ctx, field)
 			case "cost":
 				return ec.fieldContext_Job_cost(ctx, field)
 			case "networkPolicy":
@@ -34638,19 +35399,45 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case sqlinstance.SQLInstance:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "SQLInstance"})) == 0 {
+	case sqlinstance.SQLDatabase:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "SQLDatabase"})) == 0 {
 			return graphql.Empty{}
 		}
-		return ec._SqlInstance(ctx, sel, &obj)
-	case *sqlinstance.SQLInstance:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "SQLInstance"})) == 0 {
+		return ec._SqlDatabase(ctx, sel, &obj)
+	case *sqlinstance.SQLDatabase:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "SQLDatabase"})) == 0 {
 			return graphql.Empty{}
 		}
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SqlInstance(ctx, sel, obj)
+		return ec._SqlDatabase(ctx, sel, obj)
+	case team.TeamUpdatedAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamUpdatedAuditEntry"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._TeamUpdatedAuditEntry(ctx, sel, &obj)
+	case *team.TeamUpdatedAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamUpdatedAuditEntry"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamUpdatedAuditEntry(ctx, sel, obj)
+	case application.Application:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Application"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._Application(ctx, sel, &obj)
+	case *application.Application:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Application"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Application(ctx, sel, obj)
 	case team.TeamCreatedAuditEntry:
 		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamCreatedAuditEntry"})) == 0 {
 			return graphql.Empty{}
@@ -34664,32 +35451,19 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamCreatedAuditEntry(ctx, sel, obj)
-	case job.Job:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Job"})) == 0 {
+	case sqlinstance.SQLInstance:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "SQLInstance"})) == 0 {
 			return graphql.Empty{}
 		}
-		return ec._Job(ctx, sel, &obj)
-	case *job.Job:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Job"})) == 0 {
-			return graphql.Empty{}
-		}
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Job(ctx, sel, obj)
-	case redis.RedisInstance:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "RedisInstance"})) == 0 {
-			return graphql.Empty{}
-		}
-		return ec._RedisInstance(ctx, sel, &obj)
-	case *redis.RedisInstance:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "RedisInstance"})) == 0 {
+		return ec._SqlInstance(ctx, sel, &obj)
+	case *sqlinstance.SQLInstance:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "SQLInstance"})) == 0 {
 			return graphql.Empty{}
 		}
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RedisInstance(ctx, sel, obj)
+		return ec._SqlInstance(ctx, sel, obj)
 	case bigquery.BigQueryDataset:
 		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "BigQueryDataset"})) == 0 {
 			return graphql.Empty{}
@@ -34729,45 +35503,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._KafkaTopic(ctx, sel, obj)
-	case application.Application:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Application"})) == 0 {
-			return graphql.Empty{}
-		}
-		return ec._Application(ctx, sel, &obj)
-	case *application.Application:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Application"})) == 0 {
-			return graphql.Empty{}
-		}
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Application(ctx, sel, obj)
-	case sqlinstance.SQLDatabase:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "SQLDatabase"})) == 0 {
-			return graphql.Empty{}
-		}
-		return ec._SqlDatabase(ctx, sel, &obj)
-	case *sqlinstance.SQLDatabase:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "SQLDatabase"})) == 0 {
-			return graphql.Empty{}
-		}
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SqlDatabase(ctx, sel, obj)
-	case team.TeamUpdatedAuditEntry:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamUpdatedAuditEntry"})) == 0 {
-			return graphql.Empty{}
-		}
-		return ec._TeamUpdatedAuditEntry(ctx, sel, &obj)
-	case *team.TeamUpdatedAuditEntry:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamUpdatedAuditEntry"})) == 0 {
-			return graphql.Empty{}
-		}
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamUpdatedAuditEntry(ctx, sel, obj)
 	case opensearch.OpenSearch:
 		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "OpenSearch"})) == 0 {
 			return graphql.Empty{}
@@ -34781,19 +35516,53 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._OpenSearch(ctx, sel, obj)
-	case vulnerability.ImageVulnerability:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "ImageVulnerability"})) == 0 {
+	case redis.RedisInstance:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "RedisInstance"})) == 0 {
 			return graphql.Empty{}
 		}
-		return ec._ImageVulnerability(ctx, sel, &obj)
-	case *vulnerability.ImageVulnerability:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "ImageVulnerability"})) == 0 {
+		return ec._RedisInstance(ctx, sel, &obj)
+	case *redis.RedisInstance:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "RedisInstance"})) == 0 {
 			return graphql.Empty{}
 		}
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ImageVulnerability(ctx, sel, obj)
+		return ec._RedisInstance(ctx, sel, obj)
+	case job.Job:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Job"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._Job(ctx, sel, &obj)
+	case *job.Job:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Job"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Job(ctx, sel, obj)
+	case persistence.Persistence:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Persistence"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Persistence(ctx, sel, obj)
+	case job.JobRun:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "JobRun"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._JobRun(ctx, sel, &obj)
+	case *job.JobRun:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "JobRun"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobRun(ctx, sel, obj)
 	case team.Team:
 		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Team"})) == 0 {
 			return graphql.Empty{}
@@ -34854,6 +35623,27 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._User(ctx, sel, obj)
+	case vulnerability.ImageVulnerability:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "ImageVulnerability"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._ImageVulnerability(ctx, sel, &obj)
+	case *vulnerability.ImageVulnerability:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "ImageVulnerability"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ImageVulnerability(ctx, sel, obj)
+	case workload.Workload:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Workload"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Workload(ctx, sel, obj)
 	case workload.ContainerImage:
 		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "ContainerImage"})) == 0 {
 			return graphql.Empty{}
@@ -34867,22 +35657,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ContainerImage(ctx, sel, obj)
-	case workload.Workload:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Workload"})) == 0 {
-			return graphql.Empty{}
-		}
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Workload(ctx, sel, obj)
-	case persistence.Persistence:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Persistence"})) == 0 {
-			return graphql.Empty{}
-		}
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Persistence(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -39362,6 +40136,31 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 				continue
 			}
 			out.Values[i] = ec._Job_schedule(ctx, field, obj)
+		case "runs":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._Job_runs(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._Job_runs(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "cost":
 			field := field
 
@@ -39833,6 +40632,327 @@ func (ec *executionContext) _JobResources(ctx context.Context, sel ast.Selection
 				continue
 			}
 			out.Values[i] = ec._JobResources_requests(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var jobRunImplementors = []string{"JobRun", "Node"}
+
+func (ec *executionContext) _JobRun(ctx context.Context, sel ast.SelectionSet, obj *job.JobRun) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobRunImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("JobRun")
+		case "id":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._JobRun_id(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._JobRun_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._JobRun_name(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._JobRun_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "startTime":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._JobRun_startTime(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._JobRun_startTime(ctx, field, obj)
+		case "completionTime":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._JobRun_completionTime(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._JobRun_completionTime(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var jobRunConnectionImplementors = []string{"JobRunConnection"}
+
+func (ec *executionContext) _JobRunConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*job.JobRun]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobRunConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("JobRunConnection")
+		case "pageInfo":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._JobRunConnection_pageInfo(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._JobRunConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._JobRunConnection_nodes(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._JobRunConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._JobRunConnection_edges(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._JobRunConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var jobRunEdgeImplementors = []string{"JobRunEdge"}
+
+func (ec *executionContext) _JobRunEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*job.JobRun]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobRunEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("JobRunEdge")
+		case "cursor":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._JobRunEdge_cursor(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._JobRunEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._JobRunEdge_node(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._JobRunEdge_node(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -51376,6 +52496,122 @@ func (ec *executionContext) marshalNJobResources2ᚖgithubᚗcomᚋnaisᚋapiᚋ
 		return graphql.Null
 	}
 	return ec._JobResources(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNJobRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobRunᚄ(ctx context.Context, sel ast.SelectionSet, v []*job.JobRun) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := true
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNJobRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobRun(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNJobRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobRun(ctx context.Context, sel ast.SelectionSet, v *job.JobRun) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._JobRun(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNJobRunConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*job.JobRun]) graphql.Marshaler {
+	return ec._JobRunConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNJobRunConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*job.JobRun]) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._JobRunConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNJobRunEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*job.JobRun]) graphql.Marshaler {
+	return ec._JobRunEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNJobRunEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*job.JobRun]) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := true
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNJobRunEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNKafkaTopic2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx context.Context, sel ast.SelectionSet, v kafkatopic.KafkaTopic) graphql.Marshaler {

@@ -9,16 +9,9 @@ import (
 	"reflect"
 	"strings"
 
-	sql_cnrm_cloud_google_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/sql/v1beta1"
-	storage_cnrm_cloud_gogle_com_v1beta1 "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/storage/v1beta1"
+	"github.com/nais/api/internal/v1/kubernetes"
 	liberator_aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
-	bigquery_nais_io_v1 "github.com/nais/liberator/pkg/apis/google.nais.io/v1"
-	kafka_nais_io_v1 "github.com/nais/liberator/pkg/apis/kafka.nais.io/v1"
-	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
-	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
-	appsv1 "k8s.io/api/apps/v1"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -46,9 +39,12 @@ func (c *clusterResources) append(o clusterResources) {
 // Each yaml file in the directory will be created as a resource, where resources in a "teams" directory
 // will be created in a namespace with the same name as the file.
 func Clients(dir fs.FS) func(cluster string) (dynamic.Interface, error) {
-	scheme := newScheme()
+	scheme, err := kubernetes.NewScheme()
+	if err != nil {
+		panic(err)
+	}
 	resources := make(map[string]*clusterResources)
-	err := fs.WalkDir(dir, ".", func(path string, d fs.DirEntry, err error) error {
+	err = fs.WalkDir(dir, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -90,21 +86,6 @@ func Clients(dir fs.FS) func(cluster string) (dynamic.Interface, error) {
 
 		return c.Dynamic, nil
 	}
-}
-
-func newScheme() *runtime.Scheme {
-	scheme := runtime.NewScheme()
-	nais_io_v1.AddToScheme(scheme)
-	nais_io_v1alpha1.AddToScheme(scheme)
-	kafka_nais_io_v1.AddToScheme(scheme)
-	corev1.AddToScheme(scheme)
-	appsv1.AddToScheme(scheme)
-	sql_cnrm_cloud_google_com_v1beta1.AddToScheme(scheme)
-	storage_cnrm_cloud_gogle_com_v1beta1.AddToScheme(scheme)
-	bigquery_nais_io_v1.AddToScheme(scheme)
-	liberator_aiven_io_v1alpha1.AddToScheme(scheme)
-	unleash_nais_io_v1.AddToScheme(scheme)
-	return scheme
 }
 
 func parseCluster(path string) string {

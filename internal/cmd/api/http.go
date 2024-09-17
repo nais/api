@@ -84,6 +84,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 
 	appWatcher := application.NewWatcher(ctx, watcherMgr)
 	jobWatcher := job.NewWatcher(ctx, watcherMgr)
+	runWatcher := job.NewRunWatcher(ctx, watcherMgr)
 	bqWatcher := bigquery.NewWatcher(ctx, watcherMgr)
 	redisWatcher := redis.NewWatcher(ctx, watcherMgr)
 	openSearchWatcher := opensearch.NewWatcher(ctx, watcherMgr)
@@ -111,7 +112,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 			ctx = application.NewLoaderContext(ctx, appWatcher)
 			ctx = bigquery.NewLoaderContext(ctx, bqWatcher, opts)
 			ctx = bucket.NewLoaderContext(ctx, bucketWatcher)
-			ctx = job.NewLoaderContext(ctx, jobWatcher)
+			ctx = job.NewLoaderContext(ctx, jobWatcher, runWatcher)
 			ctx = kafkatopic.NewLoaderContext(ctx, kafkaTopicWatcher)
 			ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher)
 			ctx = redis.NewLoaderContext(ctx, redisWatcher)

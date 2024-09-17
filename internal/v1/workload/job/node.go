@@ -11,14 +11,20 @@ type identType int
 
 const (
 	identKey identType = iota
+	jobRunIdentKey
 )
 
 func init() {
 	ident.RegisterIdentType(identKey, "J", GetByIdent)
+	ident.RegisterIdentType(jobRunIdentKey, "JR", GetByJobRunIdent)
 }
 
 func newIdent(teamSlug slug.Slug, environment, name string) ident.Ident {
 	return ident.NewIdent(identKey, teamSlug.String(), environment, name)
+}
+
+func newJobRunIdent(teamSlug slug.Slug, environment, name string) ident.Ident {
+	return ident.NewIdent(jobRunIdentKey, teamSlug.String(), environment, name)
 }
 
 func parseIdent(id ident.Ident) (teamSlug slug.Slug, environment, name string, err error) {
