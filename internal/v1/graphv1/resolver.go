@@ -3,9 +3,6 @@ package graphv1
 import (
 	"fmt"
 
-	"github.com/vektah/gqlparser/v2/ast"
-
-	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -16,11 +13,12 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
+	"github.com/vektah/gqlparser/v2/ast"
 	"go.opentelemetry.io/otel"
 )
 
 type Resolver struct {
-	pubsubTopic *pubsub.Topic
+	pubsubTopic PubsubTopic
 	log         logrus.FieldLogger
 }
 
@@ -32,7 +30,7 @@ func WithLogger(log logrus.FieldLogger) ResolverOption {
 	}
 }
 
-func NewResolver(topic *pubsub.Topic, opts ...ResolverOption) *Resolver {
+func NewResolver(topic PubsubTopic, opts ...ResolverOption) *Resolver {
 	resolver := &Resolver{
 		pubsubTopic: topic,
 	}

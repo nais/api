@@ -14,7 +14,34 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
+
+type PubsubTopic interface {
+	Publish(ctx context.Context, msg protoreflect.ProtoMessage, attrs map[string]string) (string, error)
+	String() string
+}
+
+type TopicWrapper struct {
+	Topic *pubsub.Topic
+}
+
+func (t *TopicWrapper) Publish(ctx context.Context, msg protoreflect.ProtoMessage, attrs map[string]string) (string, error) {
+	b, err := proto.Marshal(msg)
+	if err != nil {
+		return "", err
+	}
+
+	res := t.Topic.Publish(ctx, &pubsub.Message{
+		Data:       b,
+		Attributes: attrs,
+	})
+	return res.Get(ctx)
+}
+
+func (t *TopicWrapper) String() string {
+	return t.Topic.String()
+}
 
 func (r *Resolver) triggerTeamCreatedEvent(ctx context.Context, teamSlug slug.Slug, correlationID uuid.UUID) error {
 	return r.triggerEvent(
@@ -47,12 +74,6 @@ func (r *Resolver) triggerEvent(ctx context.Context, event protoapi.EventTypes, 
 		))
 	defer span.End()
 
-	b, err := proto.Marshal(msg)
-	if err != nil {
-		span.RecordError(err)
-		return err
-	}
-
 	attrs := map[string]string{
 		"CorrelationID": correlationID.String(),
 		"EventType":     event.String(),
@@ -60,15 +81,10 @@ func (r *Resolver) triggerEvent(ctx context.Context, event protoapi.EventTypes, 
 
 	otel.GetTextMapPropagator().Inject(ctx, propagation.MapCarrier(attrs))
 
-	pubsubMessage := &pubsub.Message{
-		Data:       b,
-		Attributes: attrs,
-	}
-	id, err := r.pubsubTopic.Publish(ctx, pubsubMessage).Get(ctx)
+	id, err := r.pubsubTopic.Publish(ctx, msg, attrs)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
-		return err
 	} else {
 		span.SetAttributes(semconv.MessagingMessageID(id))
 	}

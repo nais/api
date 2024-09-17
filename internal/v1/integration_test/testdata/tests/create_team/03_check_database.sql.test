@@ -1,0 +1,17 @@
+-- type: row
+SELECT * FROM teams WHERE slug = '{{ .teamSlug }}'
+
+RETURNS
+
+{
+  "azure_group_id": null,
+  "gar_repository": null,
+  "github_team_slug": null,
+  "google_group_email": null,
+  "last_successful_sync": null,
+  "cdn_bucket": null,
+  "delete_key_confirmed_at": null,
+  "purpose": "some purpose",
+  "slack_channel": "#channel",
+  "slug": "newteam"
+}

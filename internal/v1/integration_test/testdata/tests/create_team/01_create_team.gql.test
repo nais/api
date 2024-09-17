@@ -1,0 +1,30 @@
+mutation {
+  createTeam(
+    input: {slug: "newteam", purpose: "some purpose", slackChannel: "#channel"}
+  ) {
+    team {
+      id
+      slug
+    }
+  }
+}
+
+RETURNS
+
+OPTION data.createTeam.team.id=IGNORE
+
+ENDOPTS
+
+{
+  "data": {
+    "createTeam": {
+      "team": {
+        "slug": "newteam",
+        "id": "something"
+      }
+    }
+  }
+}
+
+STORE teamSlug=data.createTeam.team.slug
+STORE teamID=data.createTeam.team.id

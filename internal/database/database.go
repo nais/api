@@ -184,6 +184,15 @@ func NewPool(ctx context.Context, dsn string, log logrus.FieldLogger, migrate bo
 	return conn, nil
 }
 
+func NewQuerier(pool *pgxpool.Pool) Database {
+	return &database{
+		querier: &Queries{
+			Queries:  gensql.New(pool),
+			connPool: pool,
+		},
+	}
+}
+
 // migrateDatabaseSchema runs database migrations
 func migrateDatabaseSchema(driver, dsn string, log logrus.FieldLogger) error {
 	goose.SetBaseFS(embedMigrations)

@@ -11,3 +11,4 @@ __debug_bin*
 .envrc
 node_modules
 package-lock.json
+hack/coverprofile.txt

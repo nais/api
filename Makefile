@@ -83,5 +83,6 @@ stop-integration-test-db:
 start-integration-test-db: stop-integration-test-db
 	docker run -d -e POSTGRES_PASSWORD=postgres --name $(TEST_POSTGRES_CONTAINER_NAME) -p $(TEST_POSTGRES_CONTAINER_PORT):5432 postgres:14-alpine
 
-integration-test: start-integration-test-db
-	go test ./... -tags=db_integration_test
+integration_test:
+	rm -f hack/coverprofile.txt
+	go test -coverprofile=hack/coverprofile.txt -coverpkg github.com/nais/api/... -v -tags integration_test --race ./internal/v1/integration_test

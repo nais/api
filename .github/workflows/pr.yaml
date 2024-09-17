@@ -35,6 +35,7 @@ jobs:
             ${{ steps.go-cache.outputs.gomodcache }}
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
       - run: make test-with-cc
+      - run: make integration_test
       - run: helm lint --strict ./charts
       - run: make staticcheck
       - run: make vulncheck

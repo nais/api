@@ -265,7 +265,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	graphv1Handler, err := graphv1.NewHandler(gengqlv1.Config{
 		Resolvers: graphv1.NewResolver(
-			pubsubTopic,
+			&graphv1.TopicWrapper{Topic: pubsubTopic},
 			graphv1.WithLogger(log),
 		),
 	}, log)

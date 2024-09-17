@@ -43,6 +43,13 @@ func Clients(dir fs.FS) func(cluster string) (dynamic.Interface, error) {
 	if err != nil {
 		panic(err)
 	}
+
+	if dir == nil {
+		return func(cluster string) (dynamic.Interface, error) {
+			return newDynamicClient(scheme), nil
+		}
+	}
+
 	resources := make(map[string]*clusterResources)
 	err = fs.WalkDir(dir, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -81,7 +88,8 @@ func Clients(dir fs.FS) func(cluster string) (dynamic.Interface, error) {
 	return func(cluster string) (dynamic.Interface, error) {
 		c, ok := ret[cluster]
 		if !ok {
-			return nil, fmt.Errorf("no fake client for cluster %s", cluster)
+			return newDynamicClient(scheme), nil
+			// return nil, fmt.Errorf("no fake client for cluster %s", cluster)
 		}
 
 		return c.Dynamic, nil
@@ -111,16 +119,26 @@ func parseResources(scheme *runtime.Scheme, dir fs.FS, path string) clusterResou
 			continue
 		}
 
-		r := &unstructured.Unstructured{}
-		if err := yaml.Unmarshal(p, &r); err != nil {
-			panic(err)
-		}
+		v := ParseResource(scheme, p, ns)
 
-		kt := scheme.KnownTypes(r.GetObjectKind().GroupVersionKind().GroupVersion())
-		if kt == nil {
-			panic(fmt.Errorf("unknown group version: %q", r.GetObjectKind().GroupVersionKind().GroupVersion()))
-		}
+		ret.dynamic = append(ret.dynamic, v)
+	}
 
+	return ret
+}
+
+func ParseResource(scheme *runtime.Scheme, b []byte, ns string) (v runtime.Object) {
+	r := &unstructured.Unstructured{}
+	if err := yaml.Unmarshal(b, &r); err != nil {
+		panic(err)
+	}
+
+	kt := scheme.KnownTypes(r.GetObjectKind().GroupVersionKind().GroupVersion())
+	if kt == nil {
+		panic(fmt.Errorf("unknown group version: %q", r.GetObjectKind().GroupVersionKind().GroupVersion()))
+	}
+
+	if ns != "" {
 		r.SetNamespace(ns)
 		lbls := r.GetLabels()
 		if lbls == nil {
@@ -128,23 +146,19 @@ func parseResources(scheme *runtime.Scheme, dir fs.FS, path string) clusterResou
 		}
 		lbls["team"] = ns
 		r.SetLabels(lbls)
-
-		var v runtime.Object
-		if t, ok := kt[r.GetObjectKind().GroupVersionKind().Kind]; ok {
-			v = reflect.New(t).Interface().(runtime.Object)
-			if err := scheme.Convert(r, v, nil); err != nil {
-				panic(err)
-			}
-			v.GetObjectKind().SetGroupVersionKind(r.GetObjectKind().GroupVersionKind())
-
-		} else {
-			panic(fmt.Errorf("unknown kind: %q", r.GetObjectKind().GroupVersionKind()))
-		}
-
-		ret.dynamic = append(ret.dynamic, v)
 	}
 
-	return ret
+	if t, ok := kt[r.GetObjectKind().GroupVersionKind().Kind]; ok {
+		v = reflect.New(t).Interface().(runtime.Object)
+		if err := scheme.Convert(r, v, nil); err != nil {
+			panic(err)
+		}
+		v.GetObjectKind().SetGroupVersionKind(r.GetObjectKind().GroupVersionKind())
+
+	} else {
+		panic(fmt.Errorf("unknown kind: %q", r.GetObjectKind().GroupVersionKind()))
+	}
+	return v
 }
 
 // This is a hack around how k8s unsafeGuesses resource plurals

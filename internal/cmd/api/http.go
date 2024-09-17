@@ -82,52 +82,15 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphHandler))
 	})
 
-	appWatcher := application.NewWatcher(ctx, watcherMgr)
-	jobWatcher := job.NewWatcher(ctx, watcherMgr)
-	runWatcher := job.NewRunWatcher(ctx, watcherMgr)
-	bqWatcher := bigquery.NewWatcher(ctx, watcherMgr)
-	redisWatcher := redis.NewWatcher(ctx, watcherMgr)
-	openSearchWatcher := opensearch.NewWatcher(ctx, watcherMgr)
-	bucketWatcher := bucket.NewWatcher(ctx, watcherMgr)
-	sqlDatabaseWatcher := sqlinstance.NewDatabaseWatcher(ctx, watcherMgr)
-	sqlInstanceWatcher := sqlinstance.NewInstanceWatcher(ctx, watcherMgr)
-	kafkaTopicWatcher := kafkatopic.NewWatcher(ctx, watcherMgr)
-
-	syncCtx, cancelSync := context.WithTimeout(ctx, 20*time.Second)
-	defer cancelSync()
-	if !watcherMgr.WaitForReady(syncCtx) {
-		return errors.New("timed out waiting for watchers to be ready")
+	graphMiddleware, err := ConfigureV1Graph(ctx, watcherMgr, db, sqlAdminService, vClient, log)
+	if err != nil {
+		return err
 	}
 
 	router.Route("/graphql", func(r chi.Router) {
 		r.Use(middlewares...)
 		r.Use(middleware.RequireAuthenticatedUser())
-		r.Use(loaderv1.Middleware(func(ctx context.Context) context.Context {
-			opts := []dataloadgen.Option{
-				dataloadgen.WithWait(time.Millisecond),
-				dataloadgen.WithBatchCapacity(250),
-				dataloadgen.WithTracer(otel.Tracer("dataloader")),
-			}
-
-			ctx = application.NewLoaderContext(ctx, appWatcher)
-			ctx = bigquery.NewLoaderContext(ctx, bqWatcher, opts)
-			ctx = bucket.NewLoaderContext(ctx, bucketWatcher)
-			ctx = job.NewLoaderContext(ctx, jobWatcher, runWatcher)
-			ctx = kafkatopic.NewLoaderContext(ctx, kafkaTopicWatcher)
-			ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher)
-			ctx = redis.NewLoaderContext(ctx, redisWatcher)
-			ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher)
-			pool := db.GetPool()
-			ctx = databasev1.NewLoaderContext(ctx, pool)
-			ctx = team.NewLoaderContext(ctx, pool, opts)
-			ctx = user.NewLoaderContext(ctx, pool, opts)
-			ctx = cost.NewLoaderContext(ctx, pool)
-			ctx = repository.NewLoaderContext(ctx, pool)
-			ctx = role.NewLoaderContext(ctx, pool)
-			ctx = auditv1.NewLoaderContext(ctx, pool, opts)
-			ctx = vulnerability.NewLoaderContext(ctx, vClient, log, opts)
-			return ctx
-		}))
+		r.Use(graphMiddleware)
 		r.Use(otelhttp.NewMiddleware("graphqlv1", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))
 		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphv1Handler))
 	})
@@ -166,4 +129,49 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 		return nil
 	})
 	return wg.Wait()
+}
+
+func ConfigureV1Graph(ctx context.Context, watcherMgr *watcher.Manager, db database.Database, sqlAdminService *legacysqlinstance.SqlAdminService, vClient *vulnerability.Client, log logrus.FieldLogger) (func(http.Handler) http.Handler, error) {
+	appWatcher := application.NewWatcher(ctx, watcherMgr)
+	jobWatcher := job.NewWatcher(ctx, watcherMgr)
+	runWatcher := job.NewRunWatcher(ctx, watcherMgr)
+	bqWatcher := bigquery.NewWatcher(ctx, watcherMgr)
+	redisWatcher := redis.NewWatcher(ctx, watcherMgr)
+	openSearchWatcher := opensearch.NewWatcher(ctx, watcherMgr)
+	bucketWatcher := bucket.NewWatcher(ctx, watcherMgr)
+	sqlDatabaseWatcher := sqlinstance.NewDatabaseWatcher(ctx, watcherMgr)
+	sqlInstanceWatcher := sqlinstance.NewInstanceWatcher(ctx, watcherMgr)
+	kafkaTopicWatcher := kafkatopic.NewWatcher(ctx, watcherMgr)
+
+	syncCtx, cancelSync := context.WithTimeout(ctx, 20*time.Second)
+	defer cancelSync()
+	if !watcherMgr.WaitForReady(syncCtx) {
+		return nil, errors.New("timed out waiting for watchers to be ready")
+	}
+
+	dataloaderOpts := []dataloadgen.Option{
+		dataloadgen.WithWait(time.Millisecond),
+		dataloadgen.WithBatchCapacity(250),
+		dataloadgen.WithTracer(otel.Tracer("dataloader")),
+	}
+	return loaderv1.Middleware(func(ctx context.Context) context.Context {
+		ctx = application.NewLoaderContext(ctx, appWatcher)
+		ctx = bigquery.NewLoaderContext(ctx, bqWatcher, dataloaderOpts)
+		ctx = bucket.NewLoaderContext(ctx, bucketWatcher)
+		ctx = job.NewLoaderContext(ctx, jobWatcher, runWatcher)
+		ctx = kafkatopic.NewLoaderContext(ctx, kafkaTopicWatcher)
+		ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher)
+		ctx = redis.NewLoaderContext(ctx, redisWatcher)
+		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher)
+		pool := db.GetPool()
+		ctx = databasev1.NewLoaderContext(ctx, pool)
+		ctx = team.NewLoaderContext(ctx, pool, dataloaderOpts)
+		ctx = user.NewLoaderContext(ctx, pool, dataloaderOpts)
+		ctx = cost.NewLoaderContext(ctx, pool)
+		ctx = repository.NewLoaderContext(ctx, pool)
+		ctx = role.NewLoaderContext(ctx, pool)
+		ctx = auditv1.NewLoaderContext(ctx, pool, dataloaderOpts)
+		ctx = vulnerability.NewLoaderContext(ctx, vClient, log, dataloaderOpts)
+		return ctx
+	}), nil
 }
