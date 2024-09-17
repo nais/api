@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/nais/api/internal/slug"
@@ -11,8 +12,9 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/workload"
-	"github.com/nais/liberator/pkg/apis/nais.io/v1"
+	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	batchv1 "k8s.io/api/batch/v1"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/utils/ptr"
 )
@@ -37,16 +39,101 @@ type JobSchedule struct {
 type JobRun struct {
 	Name            string     `json:"name"`
 	StartTime       *time.Time `json:"startTime"`
-	CompletionTime  *time.Time `json:"completionTime"`
 	CreationTime    time.Time  `json:"-"`
 	EnvironmentName string     `json:"-"`
 	TeamSlug        slug.Slug  `json:"-"`
+
+	spec *batchv1.Job
 }
 
 func (JobRun) IsNode() {}
 
 func (j JobRun) ID() ident.Ident {
 	return newJobRunIdent(j.TeamSlug, j.EnvironmentName, j.Name)
+}
+
+func (j *JobRun) Status() JobRunStatus {
+	if j.spec.Status.StartTime == nil {
+		return JobRunStatusPending
+	}
+
+	if ptr.Deref(j.spec.Status.Ready, 0) > 0 || ptr.Deref(j.spec.Status.Terminating, 0) > 0 {
+		return JobRunStatusRunning
+	}
+
+	if j.spec.Status.CompletionTime == nil {
+		for _, cs := range j.spec.Status.Conditions {
+			if cs.Status == corev1.ConditionTrue && cs.Type == batchv1.JobFailed {
+				return JobRunStatusFailed
+			}
+		}
+
+		return JobRunStatusRunning
+	}
+
+	return JobRunStatusSucceeded
+}
+
+func (j *JobRun) CompletionTime() *time.Time {
+	switch j.Status() {
+	case JobRunStatusSucceeded:
+		return &j.spec.Status.CompletionTime.Time
+	case JobRunStatusFailed:
+		for _, cs := range j.spec.Status.Conditions {
+			if cs.Status == corev1.ConditionTrue && cs.Type == batchv1.JobFailed {
+				return &cs.LastTransitionTime.Time
+			}
+		}
+	}
+	return nil
+}
+
+func (j *JobRun) Image() *workload.ContainerImage {
+	name, tag, _ := strings.Cut(j.spec.Spec.Template.Spec.Containers[0].Image, ":")
+	return &workload.ContainerImage{
+		Name: name,
+		Tag:  tag,
+	}
+}
+
+type JobRunStatus int
+
+const (
+	JobRunStatusUnknown JobRunStatus = iota
+	JobRunStatusPending
+	JobRunStatusRunning
+	JobRunStatusSucceeded
+	JobRunStatusFailed
+)
+
+func (e JobRunStatus) IsValid() bool {
+	switch e {
+	case JobRunStatusUnknown, JobRunStatusPending, JobRunStatusRunning, JobRunStatusSucceeded, JobRunStatusFailed:
+		return true
+	}
+	return false
+}
+
+func (e JobRunStatus) String() string {
+	switch e {
+	case JobRunStatusPending:
+		return "PENDING"
+	case JobRunStatusRunning:
+		return "RUNNING"
+	case JobRunStatusSucceeded:
+		return "SUCCEEDED"
+	case JobRunStatusFailed:
+		return "FAILED"
+	}
+	return "UNKNOWN"
+}
+
+func (e *JobRunStatus) UnmarshalGQL(v interface{}) error {
+	panic("not implemented")
+}
+
+func (e JobRunStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (Job) IsNode()     {}
@@ -163,11 +250,7 @@ func toGraphJob(job *nais_io_v1.Naisjob, environmentName string) *Job {
 }
 
 func toGraphJobRun(run *batchv1.Job, environmentName string) *JobRun {
-	var startTime, completionTime *time.Time
-
-	if run.Status.CompletionTime != nil {
-		completionTime = &run.Status.CompletionTime.Time
-	}
+	var startTime *time.Time
 
 	if run.Status.StartTime != nil {
 		startTime = &run.Status.StartTime.Time
@@ -195,13 +278,11 @@ func toGraphJobRun(run *batchv1.Job, environmentName string) *JobRun {
 		EnvironmentName: environmentName,
 		TeamSlug:        slug.Slug(run.Namespace),
 		StartTime:       startTime,
-		CompletionTime:  completionTime,
 		CreationTime:    run.CreationTimestamp.Time,
+
+		spec: run,
 		/*
 			PodNames:       podNames,
-			Failed:         failed(job),
-			Duration:       duration(job).String(),
-			Image:          job.Spec.Template.Spec.Containers[0].Image,
 			Message:        Message(job),
 		*/
 	}

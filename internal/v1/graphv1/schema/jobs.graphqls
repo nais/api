@@ -91,10 +91,10 @@ type JobResources implements WorkloadResources {
 }
 
 type JobRun implements Node {
-	"The globally unique ID of the job."
+	"The globally unique ID of the job run."
 	id: ID!
 
-	"The name of the job."
+	"The name of the job run."
 	name: String!
 
 	"The start time of the job."
@@ -103,11 +103,33 @@ type JobRun implements Node {
 	"The completion time of the job."
 	completionTime: Time
 
+	"The status of the job run."
+	status: JobRunStatus!
+
+	image: ContainerImage!
+
 	# podNames: [String!]!
 	# duration: String!
 	# image: String!
 	# message: String!
 	# failed: Boolean!
+}
+
+enum JobRunStatus {
+	"Job run is pending."
+	PENDING
+
+	"Job run is running."
+	RUNNING
+
+	"Job run is succeeded."
+	SUCCEEDED
+
+	"Job run is failed."
+	FAILED
+
+	"Job run is unknown."
+	UNKNOWN
 }
 
 type JobConnection {
