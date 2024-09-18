@@ -19,6 +19,9 @@ extend type Query {
 
 	"Get a user by its ID."
 	user(id: ID!): User!
+
+    "The currently authenticated user."
+    me: AuthenticatedUser!
 }
 
 """
@@ -107,3 +110,6 @@ enum UserTeamOrderField {
 	"The unique slug of the team."
 	TEAM_SLUG
 }
+
+"Authenticated user type. Can be a user or a service account."
+union AuthenticatedUser = User #| ServiceAccount

@@ -520,6 +520,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		Me    func(childComplexity int) int
 		Node  func(childComplexity int, id ident.Ident) int
 		Team  func(childComplexity int, slug slug.Slug) int
 		Teams func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) int
@@ -973,6 +974,7 @@ type QueryResolver interface {
 	Team(ctx context.Context, slug slug.Slug) (*team.Team, error)
 	Users(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) (*pagination.Connection[*user.User], error)
 	User(ctx context.Context, id ident.Ident) (*user.User, error)
+	Me(ctx context.Context) (user.AuthenticatedUser, error)
 }
 type RedisInstanceResolver interface {
 	Team(ctx context.Context, obj *redis.RedisInstance) (*team.Team, error)
@@ -2815,6 +2817,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PageInfo.TotalCount(childComplexity), true
+
+	case "Query.me":
+		if e.complexity.Query.Me == nil {
+			break
+		}
+
+		return e.complexity.Query.Me(childComplexity), true
 
 	case "Query.node":
 		if e.complexity.Query.Node == nil {
@@ -6399,6 +6408,9 @@ type TeamUpdatedAuditEntryDataUpdatedField {
 
 	"Get a user by its ID."
 	user(id: ID!): User!
+
+    "The currently authenticated user."
+    me: AuthenticatedUser!
 }
 
 """
@@ -6487,6 +6499,9 @@ enum UserTeamOrderField {
 	"The unique slug of the team."
 	TEAM_SLUG
 }
+
+"Authenticated user type. Can be a user or a service account."
+union AuthenticatedUser = User #| ServiceAccount
 `, BuiltIn: false},
 	{Name: "../schema/vulnerability.graphqls", Input: `extend type ContainerImage {
 	"Whether the image has a software bill of materials (SBOM) attached to it."
@@ -23269,6 +23284,50 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_me(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Me(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(user.AuthenticatedUser)
+	fc.Result = res
+	return ec.marshalNAuthenticatedUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋuserᚐAuthenticatedUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_me(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuthenticatedUser does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query___type(ctx, field)
 	if err != nil {
@@ -36259,6 +36318,28 @@ func (ec *executionContext) _AuditEntry(ctx context.Context, sel ast.SelectionSe
 	}
 }
 
+func (ec *executionContext) _AuthenticatedUser(ctx context.Context, sel ast.SelectionSet, obj user.AuthenticatedUser) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case user.User:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"AuthenticatedUser", "User"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._User(ctx, sel, &obj)
+	case *user.User:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"AuthenticatedUser", "User"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._User(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _ExternalNetworkPolicyTarget(ctx context.Context, sel ast.SelectionSet, obj netpol.ExternalNetworkPolicyTarget) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -44738,6 +44819,15 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "me":
+			field := field
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Query_me(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "__type":
 			field := field
 
@@ -50707,7 +50797,7 @@ func (ec *executionContext) _UpdateTeamPayload(ctx context.Context, sel ast.Sele
 	return out
 }
 
-var userImplementors = []string{"User", "Node"}
+var userImplementors = []string{"User", "Node", "AuthenticatedUser"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *user.User) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, userImplementors)
@@ -52706,6 +52796,16 @@ func (ec *executionContext) marshalNAuditResourceType2githubᚗcomᚋnaisᚋapi�
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNAuthenticatedUser2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋuserᚐAuthenticatedUser(ctx context.Context, sel ast.SelectionSet, v user.AuthenticatedUser) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AuthenticatedUser(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNBigQueryDataset2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐBigQueryDatasetᚄ(ctx context.Context, sel ast.SelectionSet, v []*bigquery.BigQueryDataset) graphql.Marshaler {

@@ -27,6 +27,8 @@ type User struct {
 
 func (User) IsNode() {}
 
+func (User) IsAuthenticatedUser() {}
+
 func (u User) ID() ident.Ident {
 	return newIdent(u.UUID)
 }
@@ -87,4 +89,9 @@ func (e *UserOrderField) UnmarshalGQL(v interface{}) error {
 
 func (e UserOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Authenticated user type. Can be a user or a service account.
+type AuthenticatedUser interface {
+	IsAuthenticatedUser()
 }
