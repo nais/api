@@ -59,10 +59,6 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 
 	middlewares := []func(http.Handler) http.Handler{}
 
-	if insecureAuth {
-		middlewares = append(middlewares, auth.InsecureUserHeader(db))
-	}
-
 	middlewares = append(middlewares,
 		cors.New(
 			cors.Options{
@@ -71,12 +67,17 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 				AllowCredentials: true,
 			},
 		).Handler,
-
-		middleware.ApiKeyAuthentication(db),
-		middleware.Oauth2Authentication(db, authHandler),
 	)
 	router.Route("/query", func(r chi.Router) {
-		r.Use(middlewares...)
+		oldMiddlewares := append(middlewares,
+			middleware.ApiKeyAuthentication(db),
+			middleware.Oauth2Authentication(db, authHandler),
+		)
+
+		if insecureAuth {
+			oldMiddlewares = append([]func(http.Handler) http.Handler{auth.InsecureUserHeader(db)}, oldMiddlewares...)
+		}
+		r.Use(oldMiddlewares...)
 		r.Use(loader.Middleware(db))
 		r.Use(otelhttp.NewMiddleware("graphql", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))
 		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphHandler))
@@ -88,9 +89,16 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 	}
 
 	router.Route("/graphql", func(r chi.Router) {
-		r.Use(middlewares...)
-		r.Use(middleware.RequireAuthenticatedUser())
+		v1Middlewares := append(middlewares,
+			middleware.Oauth2AuthenticationV1(db, authHandler),
+			middleware.RequireAuthenticatedUser(),
+		)
+
+		if insecureAuth {
+			v1Middlewares = append([]func(http.Handler) http.Handler{auth.InsecureUserHeaderV1(db)}, v1Middlewares...)
+		}
 		r.Use(graphMiddleware)
+		r.Use(v1Middlewares...)
 		r.Use(otelhttp.NewMiddleware("graphqlv1", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))
 		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphv1Handler))
 	})

@@ -27,7 +27,9 @@ type User struct {
 
 func (User) IsNode() {}
 
-func (User) IsAuthenticatedUser() {}
+func (u *User) GetID() uuid.UUID       { return u.UUID }
+func (u *User) Identity() string       { return u.Email }
+func (u *User) IsServiceAccount() bool { return false }
 
 func (u User) ID() ident.Ident {
 	return newIdent(u.UUID)
@@ -93,5 +95,7 @@ func (e UserOrderField) MarshalGQL(w io.Writer) {
 
 // Authenticated user type. Can be a user or a service account.
 type AuthenticatedUser interface {
-	IsAuthenticatedUser()
+	GetID() uuid.UUID
+	Identity() string
+	IsServiceAccount() bool
 }

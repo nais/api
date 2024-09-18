@@ -36322,11 +36322,6 @@ func (ec *executionContext) _AuthenticatedUser(ctx context.Context, sel ast.Sele
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case user.User:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"AuthenticatedUser", "User"})) == 0 {
-			return graphql.Empty{}
-		}
-		return ec._User(ctx, sel, &obj)
 	case *user.User:
 		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"AuthenticatedUser", "User"})) == 0 {
 			return graphql.Empty{}

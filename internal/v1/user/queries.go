@@ -39,3 +39,11 @@ func List(ctx context.Context, page *pagination.Pagination, orderBy *UserOrder) 
 	}
 	return pagination.NewConvertConnection(ret, page, int32(total), toGraphUser), nil
 }
+
+func GetByEmail(ctx context.Context, email string) (*User, error) {
+	usr, err := fromContext(ctx).internalQuerier.GetByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+	return toGraphUser(usr), nil
+}

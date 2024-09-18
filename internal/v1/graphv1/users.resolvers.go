@@ -3,6 +3,7 @@ package graphv1
 import (
 	"context"
 
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
@@ -24,7 +25,7 @@ func (r *queryResolver) User(ctx context.Context, id ident.Ident) (*user.User, e
 }
 
 func (r *queryResolver) Me(ctx context.Context) (user.AuthenticatedUser, error) {
-	panic("not implemented")
+	return authz.ActorFromContext(ctx).User, nil
 }
 
 func (r *userResolver) Teams(ctx context.Context, obj *user.User, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.UserTeamOrder) (*pagination.Connection[*team.TeamMember], error) {
