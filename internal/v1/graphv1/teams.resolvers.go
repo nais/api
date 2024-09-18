@@ -64,6 +64,14 @@ func (r *mutationResolver) SynchronizeTeam(ctx context.Context, input team.Synch
 	panic(fmt.Errorf("not implemented: SynchronizeTeam - synchronizeTeam"))
 }
 
+func (r *mutationResolver) RequestTeamDeletion(ctx context.Context, input team.RequestTeamDeletionInput) (*team.RequestTeamDeletionPayload, error) {
+	panic(fmt.Errorf("not implemented: RequestTeamDeletion - requestTeamDeletion"))
+}
+
+func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, input team.ConfirmTeamDeletionInput) (*team.ConfirmTeamDeletionPayload, error) {
+	panic(fmt.Errorf("not implemented: ConfirmTeamDeletion - confirmTeamDeletion"))
+}
+
 func (r *queryResolver) Teams(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) (*pagination.Connection[*team.Team], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -102,6 +110,14 @@ func (r *teamResolver) Environment(ctx context.Context, obj *team.Team, name str
 	return team.GetTeamEnvironment(ctx, obj.Slug, name)
 }
 
+func (r *teamDeleteKeyResolver) CreatedBy(ctx context.Context, obj *team.TeamDeleteKey) (*user.User, error) {
+	panic(fmt.Errorf("not implemented: CreatedBy - createdBy"))
+}
+
+func (r *teamDeleteKeyResolver) Team(ctx context.Context, obj *team.TeamDeleteKey) (*team.Team, error) {
+	panic(fmt.Errorf("not implemented: Team - team"))
+}
+
 func (r *teamEnvironmentResolver) Team(ctx context.Context, obj *team.TeamEnvironment) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
 }
@@ -116,6 +132,8 @@ func (r *teamMemberResolver) User(ctx context.Context, obj *team.TeamMember) (*u
 
 func (r *Resolver) Team() gengqlv1.TeamResolver { return &teamResolver{r} }
 
+func (r *Resolver) TeamDeleteKey() gengqlv1.TeamDeleteKeyResolver { return &teamDeleteKeyResolver{r} }
+
 func (r *Resolver) TeamEnvironment() gengqlv1.TeamEnvironmentResolver {
 	return &teamEnvironmentResolver{r}
 }
@@ -124,6 +142,7 @@ func (r *Resolver) TeamMember() gengqlv1.TeamMemberResolver { return &teamMember
 
 type (
 	teamResolver            struct{ *Resolver }
+	teamDeleteKeyResolver   struct{ *Resolver }
 	teamEnvironmentResolver struct{ *Resolver }
 	teamMemberResolver      struct{ *Resolver }
 )

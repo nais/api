@@ -358,3 +358,25 @@ type UpdateTeamPayload struct {
 type SynchronizeTeamPayload struct {
 	Team *Team `json:"team"`
 }
+
+type RequestTeamDeletionInput struct {
+	Slug slug.Slug `json:"slug"`
+}
+
+type RequestTeamDeletionPayload struct {
+	Key *TeamDeleteKey `json:"key"`
+}
+
+type TeamDeleteKey struct {
+	Key       string    `json:"key"`
+	CreatedAt time.Time `json:"createdAt"`
+	Expires   time.Time `json:"expires"`
+}
+
+type ConfirmTeamDeletionInput struct {
+	Key string `json:"key"`
+}
+
+type ConfirmTeamDeletionPayload struct {
+	Temp bool `json:"temp"`
+}

@@ -51,6 +51,30 @@ extend type Mutation {
 	asynchronous.
 	"""
 	synchronizeTeam(input: SynchronizeTeamInput!): SynchronizeTeamPayload!
+
+	"""
+	Request a key that can be used to trigger a team deletion process
+
+	Deleting a team is a two step process. First an owner of the team (or an admin) must request a team deletion key,
+	and then a second owner of the team (or an admin) must confirm the deletion using the confirmTeamDeletion mutation.
+
+	The returned delete key is valid for an hour, and can only be used once.
+
+	Note: Service accounts are not allowed to request team delete keys.
+	"""
+	requestTeamDeletion(input: RequestTeamDeletionInput!): RequestTeamDeletionPayload!
+
+	"""
+	Confirm a team deletion
+
+	This will start the actual team deletion process, which will be done in an asynchronous manner. All external
+	entities controlled by NAIS will also be deleted.
+
+	WARNING: There is no going back after starting this process.
+
+	Note: Service accounts are not allowed to confirm a team deletion.
+	"""
+	confirmTeamDeletion(input: ConfirmTeamDeletionInput!): ConfirmTeamDeletionPayload!
 }
 
 """
@@ -167,6 +191,34 @@ type SynchronizeTeamPayload {
 	team: Team
 }
 
+type RequestTeamDeletionPayload {
+	"The delete key for the team. This can be used to confirm the deletion of the team."
+	key: TeamDeleteKey!
+}
+
+type ConfirmTeamDeletionPayload {
+	# TODO: Come up with something useful to return here, for instance a trace ID that the user can use to track the
+	# deletion process.
+	temp: Boolean!
+}
+
+type TeamDeleteKey {
+	"The unique key used to confirm the deletion of a team."
+	key: String!
+
+	"The creation timestamp of the key."
+	createdAt: Time!
+
+	"Expiration timestamp of the key."
+	expires: Time!
+
+	"The user who created the key."
+	createdBy: User!
+
+	"The team the delete key is for."
+	team: Team!
+}
+
 type TeamConnection {
 	"Pagination information."
 	pageInfo: PageInfo!
@@ -270,6 +322,16 @@ input TeamMemberOrder {
 
 	"The direction to order items by."
 	direction: OrderDirection!
+}
+
+input RequestTeamDeletionInput {
+	"Slug of the team to request a team deletion key for."
+	slug: Slug!
+}
+
+input ConfirmTeamDeletionInput {
+	"Deletion key, acquired using the requestTeamDeletion mutation."
+	key: String!
 }
 
 "Possible fields to order teams by."
