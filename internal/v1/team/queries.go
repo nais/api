@@ -239,19 +239,25 @@ func GetDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error) {
 	return toGraphTeamDeleteKey(ret), nil
 }
 
-func CreateDeleteKey(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*TeamDeleteKey, error) {
+func CreateDeleteKey(ctx context.Context, teamSlug slug.Slug, actor *authz.Actor) (*TeamDeleteKey, error) {
 	var key *teamsql.TeamDeleteKey
 	var err error
 	err = databasev1.Transaction(ctx, func(ctx context.Context) error {
 		key, err = db(ctx).CreateDeleteKey(ctx, teamsql.CreateDeleteKeyParams{
 			TeamSlug:  teamSlug,
-			CreatedBy: userID,
+			CreatedBy: actor.User.GetID(),
 		})
 		if err != nil {
 			return err
 		}
 
-		return nil
+		return auditv1.Create(ctx, auditv1.CreateInput{
+			Action:       auditActionCreateDeleteKey,
+			Actor:        actor.User,
+			ResourceType: auditResourceTypeTeam,
+			ResourceName: teamSlug.String(),
+			TeamSlug:     ptr.To(teamSlug),
+		})
 	})
 	if err != nil {
 		return nil, err
@@ -260,7 +266,7 @@ func CreateDeleteKey(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) 
 	return toGraphTeamDeleteKey(key), nil
 }
 
-func ConfirmDeleteKey(ctx context.Context, teamSlug slug.Slug, deleteKey uuid.UUID) error {
+func ConfirmDeleteKey(ctx context.Context, teamSlug slug.Slug, deleteKey uuid.UUID, actor *authz.Actor) error {
 	return databasev1.Transaction(ctx, func(ctx context.Context) error {
 		db := db(ctx)
 
@@ -272,6 +278,12 @@ func ConfirmDeleteKey(ctx context.Context, teamSlug slug.Slug, deleteKey uuid.UU
 			return err
 		}
 
-		return nil
+		return auditv1.Create(ctx, auditv1.CreateInput{
+			Action:       auditActionConfirmDeleteKey,
+			Actor:        actor.User,
+			ResourceType: auditResourceTypeTeam,
+			ResourceName: teamSlug.String(),
+			TeamSlug:     ptr.To(teamSlug),
+		})
 	})
 }

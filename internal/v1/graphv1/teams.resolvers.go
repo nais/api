@@ -28,7 +28,6 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input team.CreateTeam
 		return nil, err
 	}
 
-	// TODO: Correlation ID?
 	correlationID := uuid.New()
 	if err := r.triggerTeamCreatedEvent(ctx, input.Slug, correlationID); err != nil {
 		return nil, fmt.Errorf("failed to trigger team created event: %w", err)
@@ -51,7 +50,6 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, input team.UpdateTeam
 		return nil, err
 	}
 
-	// TODO: Correlation ID?
 	correlationID := uuid.New()
 	if err := r.triggerTeamUpdatedEvent(ctx, input.Slug, correlationID); err != nil {
 		return nil, fmt.Errorf("failed to trigger team updated event: %w", err)
@@ -76,7 +74,7 @@ func (r *mutationResolver) RequestTeamDeletion(ctx context.Context, input team.R
 		return nil, err
 	}
 
-	deleteKey, err := team.CreateDeleteKey(ctx, input.Slug, actor.User.GetID())
+	deleteKey, err := team.CreateDeleteKey(ctx, input.Slug, actor)
 	if err != nil {
 		return nil, err
 	}
@@ -114,11 +112,10 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, input team.C
 		return nil, apierror.Errorf("Team delete key has expired, you need to request a new key.")
 	}
 
-	if err := team.ConfirmDeleteKey(ctx, deleteKey.TeamSlug, uid); err != nil {
+	if err := team.ConfirmDeleteKey(ctx, deleteKey.TeamSlug, uid, actor); err != nil {
 		return nil, err
 	}
 
-	// TODO: Correlation ID?
 	correlationID := uuid.New()
 	if err := r.triggerTeamDeletedEvent(ctx, deleteKey.TeamSlug, correlationID); err != nil {
 		return nil, fmt.Errorf("failed to trigger team created event: %w", err)

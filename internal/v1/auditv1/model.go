@@ -39,7 +39,6 @@ type (
 )
 
 type GenericAuditEntry struct {
-	Action          AuditAction       `json:"action"`
 	Actor           string            `json:"actor"`
 	CreatedAt       time.Time         `json:"createdAt"`
 	EnvironmentName *string           `json:"environmentName,omitempty"`
@@ -47,6 +46,7 @@ type GenericAuditEntry struct {
 	ResourceType    AuditResourceType `json:"resourceType"`
 	ResourceName    string            `json:"resourceName"`
 	TeamSlug        *slug.Slug        `json:"teamSlug,omitempty"`
+	Action          AuditAction       `json:"-"`
 	UUID            uuid.UUID         `json:"-"`
 	Data            []byte            `json:"-"`
 }

@@ -737,6 +737,17 @@ type ComplexityRoot struct {
 		ViewerIsOwner          func(childComplexity int) int
 	}
 
+	TeamConfirmDeleteKeyAuditEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
 	TeamConnection struct {
 		Edges    func(childComplexity int) int
 		Nodes    func(childComplexity int) int
@@ -763,8 +774,18 @@ type ComplexityRoot struct {
 		Sum    func(childComplexity int) int
 	}
 
+	TeamCreateDeleteKeyAuditEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
 	TeamCreatedAuditEntry struct {
-		Action          func(childComplexity int) int
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		EnvironmentName func(childComplexity int) int
@@ -816,7 +837,6 @@ type ComplexityRoot struct {
 	}
 
 	TeamUpdatedAuditEntry struct {
-		Action          func(childComplexity int) int
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		Data            func(childComplexity int) int
@@ -3808,6 +3828,62 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.ViewerIsOwner(childComplexity), true
 
+	case "TeamConfirmDeleteKeyAuditEntry.actor":
+		if e.complexity.TeamConfirmDeleteKeyAuditEntry.Actor == nil {
+			break
+		}
+
+		return e.complexity.TeamConfirmDeleteKeyAuditEntry.Actor(childComplexity), true
+
+	case "TeamConfirmDeleteKeyAuditEntry.createdAt":
+		if e.complexity.TeamConfirmDeleteKeyAuditEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.TeamConfirmDeleteKeyAuditEntry.CreatedAt(childComplexity), true
+
+	case "TeamConfirmDeleteKeyAuditEntry.environmentName":
+		if e.complexity.TeamConfirmDeleteKeyAuditEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.TeamConfirmDeleteKeyAuditEntry.EnvironmentName(childComplexity), true
+
+	case "TeamConfirmDeleteKeyAuditEntry.id":
+		if e.complexity.TeamConfirmDeleteKeyAuditEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.TeamConfirmDeleteKeyAuditEntry.ID(childComplexity), true
+
+	case "TeamConfirmDeleteKeyAuditEntry.message":
+		if e.complexity.TeamConfirmDeleteKeyAuditEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.TeamConfirmDeleteKeyAuditEntry.Message(childComplexity), true
+
+	case "TeamConfirmDeleteKeyAuditEntry.resourceName":
+		if e.complexity.TeamConfirmDeleteKeyAuditEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.TeamConfirmDeleteKeyAuditEntry.ResourceName(childComplexity), true
+
+	case "TeamConfirmDeleteKeyAuditEntry.resourceType":
+		if e.complexity.TeamConfirmDeleteKeyAuditEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.TeamConfirmDeleteKeyAuditEntry.ResourceType(childComplexity), true
+
+	case "TeamConfirmDeleteKeyAuditEntry.teamSlug":
+		if e.complexity.TeamConfirmDeleteKeyAuditEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.TeamConfirmDeleteKeyAuditEntry.TeamSlug(childComplexity), true
+
 	case "TeamConnection.edges":
 		if e.complexity.TeamConnection.Edges == nil {
 			break
@@ -3890,12 +3966,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamCostPeriod.Sum(childComplexity), true
 
-	case "TeamCreatedAuditEntry.action":
-		if e.complexity.TeamCreatedAuditEntry.Action == nil {
+	case "TeamCreateDeleteKeyAuditEntry.actor":
+		if e.complexity.TeamCreateDeleteKeyAuditEntry.Actor == nil {
 			break
 		}
 
-		return e.complexity.TeamCreatedAuditEntry.Action(childComplexity), true
+		return e.complexity.TeamCreateDeleteKeyAuditEntry.Actor(childComplexity), true
+
+	case "TeamCreateDeleteKeyAuditEntry.createdAt":
+		if e.complexity.TeamCreateDeleteKeyAuditEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.TeamCreateDeleteKeyAuditEntry.CreatedAt(childComplexity), true
+
+	case "TeamCreateDeleteKeyAuditEntry.environmentName":
+		if e.complexity.TeamCreateDeleteKeyAuditEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.TeamCreateDeleteKeyAuditEntry.EnvironmentName(childComplexity), true
+
+	case "TeamCreateDeleteKeyAuditEntry.id":
+		if e.complexity.TeamCreateDeleteKeyAuditEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.TeamCreateDeleteKeyAuditEntry.ID(childComplexity), true
+
+	case "TeamCreateDeleteKeyAuditEntry.message":
+		if e.complexity.TeamCreateDeleteKeyAuditEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.TeamCreateDeleteKeyAuditEntry.Message(childComplexity), true
+
+	case "TeamCreateDeleteKeyAuditEntry.resourceName":
+		if e.complexity.TeamCreateDeleteKeyAuditEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.TeamCreateDeleteKeyAuditEntry.ResourceName(childComplexity), true
+
+	case "TeamCreateDeleteKeyAuditEntry.resourceType":
+		if e.complexity.TeamCreateDeleteKeyAuditEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.TeamCreateDeleteKeyAuditEntry.ResourceType(childComplexity), true
+
+	case "TeamCreateDeleteKeyAuditEntry.teamSlug":
+		if e.complexity.TeamCreateDeleteKeyAuditEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.TeamCreateDeleteKeyAuditEntry.TeamSlug(childComplexity), true
 
 	case "TeamCreatedAuditEntry.actor":
 		if e.complexity.TeamCreatedAuditEntry.Actor == nil {
@@ -4116,13 +4241,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamMemberEdge.Node(childComplexity), true
-
-	case "TeamUpdatedAuditEntry.action":
-		if e.complexity.TeamUpdatedAuditEntry.Action == nil {
-			break
-		}
-
-		return e.complexity.TeamUpdatedAuditEntry.Action(childComplexity), true
 
 	case "TeamUpdatedAuditEntry.actor":
 		if e.complexity.TeamUpdatedAuditEntry.Actor == nil {
@@ -4666,9 +4784,6 @@ interface AuditEntry implements Node {
 	"ID of the entry."
 	id: ID!
 
-	"String representation of the action performed."
-	action: AuditAction!
-
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
@@ -4689,17 +4804,6 @@ interface AuditEntry implements Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
-}
-
-"Possible actions that can be performed on a resource."
-enum AuditAction {
-	ADDED
-	CREATED
-	DELETED
-	REMOVED
-	RESTARTED
-	UPDATED
-	SYNCHRONIZED
 }
 
 "The type of the resource that was affected by the action."
@@ -6317,9 +6421,6 @@ type TeamCreatedAuditEntry implements AuditEntry & Node {
 	"ID of the entry."
 	id: ID!
 
-	"String representation of the action performed."
-	action: AuditAction!
-
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
@@ -6345,9 +6446,6 @@ type TeamCreatedAuditEntry implements AuditEntry & Node {
 type TeamUpdatedAuditEntry implements AuditEntry & Node {
 	"ID of the entry."
 	id: ID!
-
-	"String representation of the action performed."
-	action: AuditAction!
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
@@ -6389,6 +6487,58 @@ type TeamUpdatedAuditEntryDataUpdatedField {
 	"The new value of the field."
 	newValue: String
 }
+
+type TeamCreateDeleteKeyAuditEntry implements AuditEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: AuditResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
+
+type TeamConfirmDeleteKeyAuditEntry implements AuditEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: AuditResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
 `, BuiltIn: false},
 	{Name: "../schema/users.graphqls", Input: `extend type Query {
 	"Get a list of users."
@@ -6412,8 +6562,8 @@ type TeamUpdatedAuditEntryDataUpdatedField {
 	"Get a user by its ID."
 	user(id: ID!): User!
 
-    "The currently authenticated user."
-    me: AuthenticatedUser!
+	"The currently authenticated user."
+	me: AuthenticatedUser!
 }
 
 """
@@ -29691,6 +29841,355 @@ func (ec *executionContext) fieldContext_Team_repositories(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyAuditEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamConfirmDeleteKeyAuditEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyAuditEntry_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamConfirmDeleteKeyAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyAuditEntry_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamConfirmDeleteKeyAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyAuditEntry_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamConfirmDeleteKeyAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyAuditEntry_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(auditv1.AuditResourceType)
+	fc.Result = res
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamConfirmDeleteKeyAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyAuditEntry_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamConfirmDeleteKeyAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyAuditEntry_teamSlug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TeamSlug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*slug.Slug)
+	fc.Result = res
+	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamConfirmDeleteKeyAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamConfirmDeleteKeyAuditEntry_environmentName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnvironmentName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamConfirmDeleteKeyAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*team.Team]) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamConnection_pageInfo(ctx, field)
 	if err != nil {
@@ -30286,6 +30785,355 @@ func (ec *executionContext) fieldContext_TeamCostPeriod_series(_ context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyAuditEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamCreateDeleteKeyAuditEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyAuditEntry_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamCreateDeleteKeyAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyAuditEntry_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamCreateDeleteKeyAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyAuditEntry_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamCreateDeleteKeyAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyAuditEntry_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(auditv1.AuditResourceType)
+	fc.Result = res
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamCreateDeleteKeyAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyAuditEntry_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamCreateDeleteKeyAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyAuditEntry_teamSlug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TeamSlug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*slug.Slug)
+	fc.Result = res
+	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamCreateDeleteKeyAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamCreateDeleteKeyAuditEntry_environmentName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnvironmentName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamCreateDeleteKeyAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamCreateDeleteKeyAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamCreatedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedAuditEntry) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamCreatedAuditEntry_id(ctx, field)
 	if err != nil {
@@ -30325,50 +31173,6 @@ func (ec *executionContext) fieldContext_TeamCreatedAuditEntry_id(_ context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamCreatedAuditEntry_action(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamCreatedAuditEntry_action(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Action, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(auditv1.AuditAction)
-	fc.Result = res
-	return ec.marshalNAuditAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditAction(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamCreatedAuditEntry_action(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamCreatedAuditEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditAction does not have child fields")
 		},
 	}
 	return fc, nil
@@ -32057,50 +32861,6 @@ func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_id(_ context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TeamUpdatedAuditEntry_action(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedAuditEntry) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamUpdatedAuditEntry_action(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Action, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(auditv1.AuditAction)
-	fc.Result = res
-	return ec.marshalNAuditAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditAction(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TeamUpdatedAuditEntry_action(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TeamUpdatedAuditEntry",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AuditAction does not have child fields")
 		},
 	}
 	return fc, nil
@@ -36316,6 +37076,32 @@ func (ec *executionContext) _AuditEntry(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._TeamUpdatedAuditEntry(ctx, sel, obj)
+	case team.TeamCreateDeleteKeyAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"AuditEntry", "TeamCreateDeleteKeyAuditEntry"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._TeamCreateDeleteKeyAuditEntry(ctx, sel, &obj)
+	case *team.TeamCreateDeleteKeyAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"AuditEntry", "TeamCreateDeleteKeyAuditEntry"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamCreateDeleteKeyAuditEntry(ctx, sel, obj)
+	case team.TeamConfirmDeleteKeyAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"AuditEntry", "TeamConfirmDeleteKeyAuditEntry"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._TeamConfirmDeleteKeyAuditEntry(ctx, sel, &obj)
+	case *team.TeamConfirmDeleteKeyAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"AuditEntry", "TeamConfirmDeleteKeyAuditEntry"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamConfirmDeleteKeyAuditEntry(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -36451,19 +37237,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Application(ctx, sel, obj)
-	case team.TeamCreatedAuditEntry:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamCreatedAuditEntry"})) == 0 {
-			return graphql.Empty{}
-		}
-		return ec._TeamCreatedAuditEntry(ctx, sel, &obj)
-	case *team.TeamCreatedAuditEntry:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamCreatedAuditEntry"})) == 0 {
-			return graphql.Empty{}
-		}
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamCreatedAuditEntry(ctx, sel, obj)
 	case sqlinstance.SQLInstance:
 		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "SQLInstance"})) == 0 {
 			return graphql.Empty{}
@@ -36477,6 +37250,19 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._SqlInstance(ctx, sel, obj)
+	case team.TeamConfirmDeleteKeyAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamConfirmDeleteKeyAuditEntry"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._TeamConfirmDeleteKeyAuditEntry(ctx, sel, &obj)
+	case *team.TeamConfirmDeleteKeyAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamConfirmDeleteKeyAuditEntry"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamConfirmDeleteKeyAuditEntry(ctx, sel, obj)
 	case bigquery.BigQueryDataset:
 		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "BigQueryDataset"})) == 0 {
 			return graphql.Empty{}
@@ -36529,19 +37315,19 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._OpenSearch(ctx, sel, obj)
-	case redis.RedisInstance:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "RedisInstance"})) == 0 {
+	case team.TeamCreateDeleteKeyAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamCreateDeleteKeyAuditEntry"})) == 0 {
 			return graphql.Empty{}
 		}
-		return ec._RedisInstance(ctx, sel, &obj)
-	case *redis.RedisInstance:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "RedisInstance"})) == 0 {
+		return ec._TeamCreateDeleteKeyAuditEntry(ctx, sel, &obj)
+	case *team.TeamCreateDeleteKeyAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamCreateDeleteKeyAuditEntry"})) == 0 {
 			return graphql.Empty{}
 		}
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RedisInstance(ctx, sel, obj)
+		return ec._TeamCreateDeleteKeyAuditEntry(ctx, sel, obj)
 	case job.Job:
 		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Job"})) == 0 {
 			return graphql.Empty{}
@@ -36555,27 +37341,32 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Job(ctx, sel, obj)
-	case persistence.Persistence:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Persistence"})) == 0 {
+	case team.TeamCreatedAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamCreatedAuditEntry"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._TeamCreatedAuditEntry(ctx, sel, &obj)
+	case *team.TeamCreatedAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamCreatedAuditEntry"})) == 0 {
 			return graphql.Empty{}
 		}
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Persistence(ctx, sel, obj)
-	case job.JobRun:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "JobRun"})) == 0 {
+		return ec._TeamCreatedAuditEntry(ctx, sel, obj)
+	case redis.RedisInstance:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "RedisInstance"})) == 0 {
 			return graphql.Empty{}
 		}
-		return ec._JobRun(ctx, sel, &obj)
-	case *job.JobRun:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "JobRun"})) == 0 {
+		return ec._RedisInstance(ctx, sel, &obj)
+	case *redis.RedisInstance:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "RedisInstance"})) == 0 {
 			return graphql.Empty{}
 		}
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobRun(ctx, sel, obj)
+		return ec._RedisInstance(ctx, sel, obj)
 	case team.Team:
 		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Team"})) == 0 {
 			return graphql.Empty{}
@@ -36602,6 +37393,27 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamEnvironment(ctx, sel, obj)
+	case workload.ContainerImage:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "ContainerImage"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._ContainerImage(ctx, sel, &obj)
+	case *workload.ContainerImage:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "ContainerImage"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ContainerImage(ctx, sel, obj)
+	case auditv1.AuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "AuditEntry"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AuditEntry(ctx, sel, obj)
 	case repository.Repository:
 		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Repository"})) == 0 {
 			return graphql.Empty{}
@@ -36615,14 +37427,14 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Repository(ctx, sel, obj)
-	case auditv1.AuditEntry:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "AuditEntry"})) == 0 {
+	case persistence.Persistence:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Persistence"})) == 0 {
 			return graphql.Empty{}
 		}
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._AuditEntry(ctx, sel, obj)
+		return ec._Persistence(ctx, sel, obj)
 	case user.User:
 		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "User"})) == 0 {
 			return graphql.Empty{}
@@ -36657,19 +37469,19 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Workload(ctx, sel, obj)
-	case workload.ContainerImage:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "ContainerImage"})) == 0 {
+	case job.JobRun:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "JobRun"})) == 0 {
 			return graphql.Empty{}
 		}
-		return ec._ContainerImage(ctx, sel, &obj)
-	case *workload.ContainerImage:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "ContainerImage"})) == 0 {
+		return ec._JobRun(ctx, sel, &obj)
+	case *job.JobRun:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "JobRun"})) == 0 {
 			return graphql.Empty{}
 		}
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ContainerImage(ctx, sel, obj)
+		return ec._JobRun(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -48788,6 +49600,237 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
+var teamConfirmDeleteKeyAuditEntryImplementors = []string{"TeamConfirmDeleteKeyAuditEntry", "AuditEntry", "Node"}
+
+func (ec *executionContext) _TeamConfirmDeleteKeyAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamConfirmDeleteKeyAuditEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamConfirmDeleteKeyAuditEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamConfirmDeleteKeyAuditEntry")
+		case "id":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamConfirmDeleteKeyAuditEntry_id(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamConfirmDeleteKeyAuditEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamConfirmDeleteKeyAuditEntry_actor(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamConfirmDeleteKeyAuditEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamConfirmDeleteKeyAuditEntry_createdAt(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamConfirmDeleteKeyAuditEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamConfirmDeleteKeyAuditEntry_message(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamConfirmDeleteKeyAuditEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamConfirmDeleteKeyAuditEntry_resourceType(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamConfirmDeleteKeyAuditEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamConfirmDeleteKeyAuditEntry_resourceName(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamConfirmDeleteKeyAuditEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamConfirmDeleteKeyAuditEntry_teamSlug(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamConfirmDeleteKeyAuditEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamConfirmDeleteKeyAuditEntry_environmentName(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamConfirmDeleteKeyAuditEntry_environmentName(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var teamConnectionImplementors = []string{"TeamConnection"}
 
 func (ec *executionContext) _TeamConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*team.Team]) graphql.Marshaler {
@@ -49233,6 +50276,237 @@ func (ec *executionContext) _TeamCostPeriod(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var teamCreateDeleteKeyAuditEntryImplementors = []string{"TeamCreateDeleteKeyAuditEntry", "AuditEntry", "Node"}
+
+func (ec *executionContext) _TeamCreateDeleteKeyAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamCreateDeleteKeyAuditEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamCreateDeleteKeyAuditEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamCreateDeleteKeyAuditEntry")
+		case "id":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamCreateDeleteKeyAuditEntry_id(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamCreateDeleteKeyAuditEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamCreateDeleteKeyAuditEntry_actor(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamCreateDeleteKeyAuditEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamCreateDeleteKeyAuditEntry_createdAt(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamCreateDeleteKeyAuditEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamCreateDeleteKeyAuditEntry_message(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamCreateDeleteKeyAuditEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamCreateDeleteKeyAuditEntry_resourceType(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamCreateDeleteKeyAuditEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamCreateDeleteKeyAuditEntry_resourceName(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamCreateDeleteKeyAuditEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamCreateDeleteKeyAuditEntry_teamSlug(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamCreateDeleteKeyAuditEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamCreateDeleteKeyAuditEntry_environmentName(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamCreateDeleteKeyAuditEntry_environmentName(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var teamCreatedAuditEntryImplementors = []string{"TeamCreatedAuditEntry", "AuditEntry", "Node"}
 
 func (ec *executionContext) _TeamCreatedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamCreatedAuditEntry) graphql.Marshaler {
@@ -49266,31 +50540,6 @@ func (ec *executionContext) _TeamCreatedAuditEntry(ctx context.Context, sel ast.
 				continue
 			}
 			out.Values[i] = ec._TeamCreatedAuditEntry_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "action":
-			field := field
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return ec._TeamCreatedAuditEntry_action(ctx, field, obj)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-			out.Values[i] = ec._TeamCreatedAuditEntry_action(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -50273,31 +51522,6 @@ func (ec *executionContext) _TeamUpdatedAuditEntry(ctx context.Context, sel ast.
 				continue
 			}
 			out.Values[i] = ec._TeamUpdatedAuditEntry_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "action":
-			field := field
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return ec._TeamUpdatedAuditEntry_action(ctx, field, obj)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-			out.Values[i] = ec._TeamUpdatedAuditEntry_action(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -52646,22 +53870,6 @@ func (ec *executionContext) marshalNApplicationScaling2ᚖgithubᚗcomᚋnaisᚋ
 		return graphql.Null
 	}
 	return ec._ApplicationScaling(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNAuditAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditAction(ctx context.Context, v interface{}) (auditv1.AuditAction, error) {
-	tmp, err := graphql.UnmarshalString(v)
-	res := auditv1.AuditAction(tmp)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNAuditAction2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditAction(ctx context.Context, sel ast.SelectionSet, v auditv1.AuditAction) graphql.Marshaler {
-	res := graphql.MarshalString(string(v))
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
 }
 
 func (ec *executionContext) marshalNAuditEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditEntry(ctx context.Context, sel ast.SelectionSet, v auditv1.AuditEntry) graphql.Marshaler {

@@ -19,9 +19,6 @@ interface AuditEntry implements Node {
 	"ID of the entry."
 	id: ID!
 
-	"String representation of the action performed."
-	action: AuditAction!
-
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
@@ -42,17 +39,6 @@ interface AuditEntry implements Node {
 
 	"The environment name that the entry belongs to."
 	environmentName: String
-}
-
-"Possible actions that can be performed on a resource."
-enum AuditAction {
-	ADDED
-	CREATED
-	DELETED
-	REMOVED
-	RESTARTED
-	UPDATED
-	SYNCHRONIZED
 }
 
 "The type of the resource that was affected by the action."

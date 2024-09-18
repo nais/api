@@ -20,8 +20,8 @@ extend type Query {
 	"Get a user by its ID."
 	user(id: ID!): User!
 
-    "The currently authenticated user."
-    me: AuthenticatedUser!
+	"The currently authenticated user."
+	me: AuthenticatedUser!
 }
 
 """

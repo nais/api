@@ -7,7 +7,9 @@ import (
 )
 
 const (
-	auditResourceTypeTeam auditv1.AuditResourceType = "TEAM"
+	auditResourceTypeTeam       auditv1.AuditResourceType = "TEAM"
+	auditActionCreateDeleteKey  auditv1.AuditAction       = "CREATE_DELETE_KEY"
+	auditActionConfirmDeleteKey                           = "CONFIRM_DELETE_KEY"
 )
 
 func init() {
@@ -32,6 +34,14 @@ func init() {
 				GenericAuditEntry: entry.WithMessage("Updated team"),
 				Data:              data,
 			}, nil
+		case auditActionCreateDeleteKey:
+			return TeamCreateDeleteKeyAuditEntry{
+				GenericAuditEntry: entry.WithMessage("Create delete key"),
+			}, nil
+		case auditActionConfirmDeleteKey:
+			return TeamConfirmDeleteKeyAuditEntry{
+				GenericAuditEntry: entry.WithMessage("Confirm delete key"),
+			}, nil
 		default:
 			return nil, fmt.Errorf("unsupported team audit entry action: %q", entry.Action)
 		}
@@ -55,4 +65,12 @@ type TeamUpdatedAuditEntryDataUpdatedField struct {
 	Field    string  `json:"field"`
 	OldValue *string `json:"oldValue,omitempty"`
 	NewValue *string `json:"newValue,omitempty"`
+}
+
+type TeamConfirmDeleteKeyAuditEntry struct {
+	auditv1.GenericAuditEntry
+}
+
+type TeamCreateDeleteKeyAuditEntry struct {
+	auditv1.GenericAuditEntry
 }

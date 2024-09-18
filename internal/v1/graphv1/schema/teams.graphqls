@@ -369,9 +369,6 @@ type TeamCreatedAuditEntry implements AuditEntry & Node {
 	"ID of the entry."
 	id: ID!
 
-	"String representation of the action performed."
-	action: AuditAction!
-
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
 
@@ -397,9 +394,6 @@ type TeamCreatedAuditEntry implements AuditEntry & Node {
 type TeamUpdatedAuditEntry implements AuditEntry & Node {
 	"ID of the entry."
 	id: ID!
-
-	"String representation of the action performed."
-	action: AuditAction!
 
 	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
 	actor: String!
@@ -440,4 +434,56 @@ type TeamUpdatedAuditEntryDataUpdatedField {
 
 	"The new value of the field."
 	newValue: String
+}
+
+type TeamCreateDeleteKeyAuditEntry implements AuditEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: AuditResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+}
+
+type TeamConfirmDeleteKeyAuditEntry implements AuditEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: AuditResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
 }
