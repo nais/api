@@ -15,6 +15,7 @@ type Querier interface {
 	// CountMembers returns the total number of team members of a non-deleted team.
 	CountMembers(ctx context.Context, teamSlug *slug.Slug) (int64, error)
 	Create(ctx context.Context, arg CreateParams) (*Team, error)
+	CreateDeleteKey(ctx context.Context, arg CreateDeleteKeyParams) (*TeamDeleteKey, error)
 	Get(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	List(ctx context.Context, arg ListParams) ([]*Team, error)
 	ListBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)

@@ -118,6 +118,14 @@ type TeamAllEnvironment struct {
 	SlackAlertsChannel string
 }
 
+type TeamDeleteKey struct {
+	Key         uuid.UUID
+	TeamSlug    slug.Slug
+	CreatedAt   pgtype.Timestamptz
+	CreatedBy   uuid.UUID
+	ConfirmedAt pgtype.Timestamptz
+}
+
 type User struct {
 	ID         uuid.UUID
 	Email      string

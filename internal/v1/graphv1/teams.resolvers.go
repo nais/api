@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
+	"github.com/nais/api/internal/database/gensql"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
@@ -65,7 +66,23 @@ func (r *mutationResolver) SynchronizeTeam(ctx context.Context, input team.Synch
 }
 
 func (r *mutationResolver) RequestTeamDeletion(ctx context.Context, input team.RequestTeamDeletionInput) (*team.RequestTeamDeletionPayload, error) {
-	panic(fmt.Errorf("not implemented: RequestTeamDeletion - requestTeamDeletion"))
+	actor := authz.ActorFromContext(ctx)
+	if err := authz.RequireTeamRole(actor, input.Slug, gensql.RoleNameTeamowner); err != nil {
+		return nil, err
+	}
+
+	if _, err := team.Get(ctx, input.Slug); err != nil {
+		return nil, err
+	}
+
+	deleteKey, err := team.CreateDeleteKey(ctx, input.Slug, actor.User.GetID())
+	if err != nil {
+		return nil, err
+	}
+
+	return &team.RequestTeamDeletionPayload{
+		Key: deleteKey,
+	}, nil
 }
 
 func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, input team.ConfirmTeamDeletionInput) (*team.ConfirmTeamDeletionPayload, error) {

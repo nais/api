@@ -5993,6 +5993,8 @@ extend type Mutation {
 	Deleting a team is a two step process. First an owner of the team (or an admin) must request a team deletion key,
 	and then a second owner of the team (or an admin) must confirm the deletion using the confirmTeamDeletion mutation.
 
+	The returned delete key is valid for an hour, and can only be used once.
+
 	Note: Service accounts are not allowed to request team delete keys.
 	"""
 	requestTeamDeletion(input: RequestTeamDeletionInput!): RequestTeamDeletionPayload!
@@ -30717,7 +30719,7 @@ func (ec *executionContext) _TeamDeleteKey_expires(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Expires, nil
+		return obj.Expires(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -30738,7 +30740,7 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_expires(_ context.Context
 	fc = &graphql.FieldContext{
 		Object:     "TeamDeleteKey",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Time does not have child fields")

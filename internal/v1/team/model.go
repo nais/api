@@ -258,6 +258,13 @@ func toGraphTeamEnvironment(m *teamsql.TeamAllEnvironment) *TeamEnvironment {
 	}
 }
 
+func toGraphTeamDeleteKey(key *teamsql.TeamDeleteKey) *TeamDeleteKey {
+	return &TeamDeleteKey{
+		Key:       key.Key.String(),
+		CreatedAt: key.CreatedAt.Time,
+	}
+}
+
 type UserTeamOrder struct {
 	Field     UserTeamOrderField     `json:"field"`
 	Direction modelv1.OrderDirection `json:"direction"`
@@ -370,7 +377,10 @@ type RequestTeamDeletionPayload struct {
 type TeamDeleteKey struct {
 	Key       string    `json:"key"`
 	CreatedAt time.Time `json:"createdAt"`
-	Expires   time.Time `json:"expires"`
+}
+
+func (k *TeamDeleteKey) Expires() time.Time {
+	return k.CreatedAt.Add(time.Hour)
 }
 
 type ConfirmTeamDeletionInput struct {

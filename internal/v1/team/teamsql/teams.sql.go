@@ -6,6 +6,7 @@ package teamsql
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -52,6 +53,33 @@ func (q *Queries) Create(ctx context.Context, arg CreateParams) (*Team, error) {
 		&i.GarRepository,
 		&i.CdnBucket,
 		&i.DeleteKeyConfirmedAt,
+	)
+	return &i, err
+}
+
+const createDeleteKey = `-- name: CreateDeleteKey :one
+INSERT INTO
+	team_delete_keys (team_slug, created_by)
+VALUES
+	($1, $2)
+RETURNING
+	key, team_slug, created_at, created_by, confirmed_at
+`
+
+type CreateDeleteKeyParams struct {
+	TeamSlug  slug.Slug
+	CreatedBy uuid.UUID
+}
+
+func (q *Queries) CreateDeleteKey(ctx context.Context, arg CreateDeleteKeyParams) (*TeamDeleteKey, error) {
+	row := q.db.QueryRow(ctx, createDeleteKey, arg.TeamSlug, arg.CreatedBy)
+	var i TeamDeleteKey
+	err := row.Scan(
+		&i.Key,
+		&i.TeamSlug,
+		&i.CreatedAt,
+		&i.CreatedBy,
+		&i.ConfirmedAt,
 	)
 	return &i, err
 }

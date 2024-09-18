@@ -229,3 +229,14 @@ func ListTeamEnvironments(ctx context.Context, teamSlug slug.Slug) ([]*TeamEnvir
 
 	return ret, nil
 }
+
+func CreateDeleteKey(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*TeamDeleteKey, error) {
+	key, err := db(ctx).CreateDeleteKey(ctx, teamsql.CreateDeleteKeyParams{
+		TeamSlug:  teamSlug,
+		CreatedBy: userID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return toGraphTeamDeleteKey(key), nil
+}

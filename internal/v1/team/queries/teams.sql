@@ -98,7 +98,6 @@ ORDER BY
 	team_all_environments.environment ASC
 ;
 
--- ListEnvironmentsBySlug
 -- name: ListEnvironmentsBySlug :many
 SELECT
 	*
@@ -108,4 +107,13 @@ WHERE
 	team_slug = @slug
 ORDER BY
 	environment ASC
+;
+
+-- name: CreateDeleteKey :one
+INSERT INTO
+	team_delete_keys (team_slug, created_by)
+VALUES
+	(@team_slug, @created_by)
+RETURNING
+	*
 ;
