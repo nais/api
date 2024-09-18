@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strconv"
-
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -27,6 +25,8 @@ import (
 	"github.com/nais/api/pkg/protoapi"
 	"github.com/sourcegraph/conc/pool"
 	"k8s.io/utils/ptr"
+	"slices"
+	"strconv"
 )
 
 func (r *appUtilizationDataResolver) App(ctx context.Context, obj *model.AppUtilizationData) (*model.App, error) {
@@ -1538,35 +1538,129 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 		return nil, fmt.Errorf("getting metadata for team %q: %w", obj.Slug.String(), err)
 	}
 
+	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
+	if err != nil {
+		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
+	}
+	jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
+	if err != nil {
+		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
+	}
+
+	// ------------ START Alternativ 1: Samle alle apps og jobs i en liste av model.Workload (som er et interface), og iterer over denne:
+
+	workloads := make([]model.Workload, 0)
+	for _, app := range apps {
+		workloads = append(workloads, app)
+	}
+	for _, job := range jobs {
+		workloads = append(workloads, job)
+	}
+
 	nodes := make([]*model.VulnerabilityNode, 0)
-	for _, image := range images {
-		for _, ref := range image.GQLVars.WorkloadReferences {
-			if filter != nil && len(filter.Envs) > 0 {
-				if !ref.ContainsEnv(filter.Envs) {
-					continue
+	for _, workload := range workloads {
+		node := &model.VulnerabilityNode{}
+
+		switch workload.(type) {
+		case *model.App:
+			app := workload.(*model.App)
+			node.ID = scalar.VulnerabilitiesIdent(fmt.Sprintf("%s:%s:%s:%s", app.Env.Name, obj.Slug.String(), "app", app.Name))
+			node.WorkloadName = app.Name
+			node.WorkloadType = "app"
+			node.Env = app.Env.Name
+		case *model.NaisJob:
+			job := workload.(*model.NaisJob)
+			node.ID = scalar.VulnerabilitiesIdent(fmt.Sprintf("%s:%s:%s:%s", job.Env.Name, obj.Slug.String(), "job", job.Name))
+			node.WorkloadName = job.Name
+			node.WorkloadType = "job"
+			node.Env = job.Env.Name
+		default:
+			continue
+		}
+
+		for _, image := range images {
+			if image.GQLVars.ContainsReference(node.Env, obj.Slug.String(), node.WorkloadType, node.WorkloadName) {
+				node.HasBom = image.HasSbom
+				node.Summary = image.Summary
+				break
+			}
+		}
+		if filter != nil && len(filter.Envs) > 0 {
+			if !slices.Contains(filter.Envs, node.Env) {
+				continue
+			}
+		}
+
+		nodes = append(nodes, node)
+	}
+	//------------ END Alternativ 1
+
+	// ------------ START Alternativ 2: Iterere over apps og jobs hver for seg, og lage en liste av model.VulnerabilityNode direkte:
+	/*	nodes := make([]*model.VulnerabilityNode, 0)
+
+		for _, app := range apps {
+			wType := strings.ToLower(app.Type().String())
+
+			node := &model.VulnerabilityNode{
+				ID:           scalar.VulnerabilitiesIdent(fmt.Sprintf("%s:%s:%s:%s", app.Env.Name, obj.Slug.String(), "app", app.Name)),
+				WorkloadName: app.Name,
+				WorkloadType: wType,
+				Env:          app.Env.Name,
+			}
+
+			for _, image := range images {
+				if image.GQLVars.ContainsReference(app.Env.Name, app.Env.Team, wType, app.Name) {
+					node.HasBom = image.HasSbom
+					node.Summary = image.Summary
+					break
 				}
 			}
 
-			nodes = append(nodes, &model.VulnerabilityNode{
-				ID:           scalar.VulnerabilitiesIdent(fmt.Sprintf("%s:%s:%s:%s:%s", ref.Environment, ref.Team, ref.Name, ref.WorkloadType, image.Name)),
-				WorkloadName: ref.Name,
-				WorkloadType: ref.WorkloadType,
-				Env:          ref.Environment,
-				Summary:      image.Summary,
-				HasBom:       image.HasSbom,
-			})
+			if filter != nil && len(filter.Envs) > 0 {
+				if !slices.Contains(filter.Envs, node.Env) {
+					continue
+				}
+			}
+			nodes = append(nodes, node)
 		}
-	}
+
+		for _, job := range jobs {
+
+			wType := strings.ToLower(job.Type().String())
+
+			node := &model.VulnerabilityNode{
+				ID:           scalar.VulnerabilitiesIdent(fmt.Sprintf("%s:%s:%s:%s", job.Env.Name, obj.Slug.String(), "job", job.Name)),
+				WorkloadName: job.Name,
+				WorkloadType: wType,
+				Env:          job.Env.Name,
+			}
+
+			for _, image := range images {
+				if image.GQLVars.ContainsReference(job.Env.Name, job.Env.Team, wType, job.Name) {
+					node.HasBom = image.HasSbom
+					node.Summary = image.Summary
+					break
+				}
+			}
+
+			if filter != nil && len(filter.Envs) > 0 {
+				if !slices.Contains(filter.Envs, node.Env) {
+					continue
+				}
+			}
+			nodes = append(nodes, node)
+		}*/
+	//------------ END Alternativ 2
 
 	if orderBy != nil {
 		vulnerabilities.Sort(nodes, orderBy.Field, orderBy.Direction)
 	}
 
 	pagination := model.NewPagination(offset, limit)
-	workloads, pageInfo := model.PaginatedSlice(nodes, pagination)
+	nodes, pageInfo := model.PaginatedSlice(nodes, pagination)
 
 	return &model.VulnerabilityList{
-		Nodes:    workloads,
+		Nodes:    nodes,
 		PageInfo: pageInfo,
 	}, nil
 }

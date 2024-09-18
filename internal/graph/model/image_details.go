@@ -48,3 +48,25 @@ func (w *WorkloadReference) ContainsEnv(envs []string) bool {
 	}
 	return false
 }
+
+func (i ImageDetailsGQLVars) ContainsReference(env, team, workloadType, name string) bool {
+	for _, r := range i.WorkloadReferences {
+		if r.Matches(env, team, workloadType, name) {
+			return true
+		}
+	}
+	return false
+}
+
+func (i ImageDetailsGQLVars) GetWorkloadReference(env, team, workloadType, name string) *WorkloadReference {
+	for _, r := range i.WorkloadReferences {
+		if r.Matches(env, team, workloadType, name) {
+			return r
+		}
+	}
+	return nil
+}
+
+func (w *WorkloadReference) Matches(env, team, workloadType, name string) bool {
+	return w.Environment == env && w.Team == team && w.WorkloadType == workloadType && w.Name == name
+}

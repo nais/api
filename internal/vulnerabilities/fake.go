@@ -42,40 +42,42 @@ func (f *fakeDependencyTrackClient) GetProjectsByTag(ctx context.Context, tag st
 
 	team := strings.Split(value, ":")[1]
 	for i := range 6 {
-		p := &client.Project{
-			Name:    fmt.Sprintf("nais-deploy-chicken-%d", i+2),
-			Tags:    make([]client.Tag, 0),
-			Uuid:    uuid.New().String(),
-			Version: uuid.New().String(),
-			Metrics: &client.ProjectMetric{
-				Critical:           i,
-				High:               i * 2,
-				Medium:             i + 2,
-				Low:                i + 1,
-				Unassigned:         i,
-				FindingsTotal:      i + (i * 2) + (i + 2) + (i + 1) + i,
-				InheritedRiskScore: float64(i*10 + (i*2)*5 + (i+2)*3 + (i + 1) + i*5),
-				Components:         i + 1,
-			},
-			LastBomImport: 1,
-		}
-
-		workloadType := "app"
-		if i%2 != 0 {
-			workloadType = "job"
-		}
-		p.Tags = append(p.Tags, client.Tag{Name: "team:" + team})
-		p.Tags = append(p.Tags, client.Tag{Name: "project:" + p.Name})
-		p.Tags = append(p.Tags, client.Tag{Name: "image:" + p.Name + ":" + p.Version})
-		p.Tags = append(p.Tags, client.Tag{Name: fmt.Sprintf("workload:%s|%s|%s|%s", "dev", team, workloadType, p.Name)})
-		p.Tags = append(p.Tags, client.Tag{Name: "env:" + "dev"})
-		p.Tags = append(p.Tags, client.Tag{Name: fmt.Sprintf("workload:%s|%s|%s|%s", "superprod", team, workloadType, p.Name)})
-		p.Tags = append(p.Tags, client.Tag{Name: "env:" + "superprod"})
-
+		p := createProject(team, "app", fmt.Sprintf("nais-deploy-chicken-%d", i+2), i)
 		projects = append(projects, p)
 	}
+	projects = append(projects, createProject(team, "job", "dataproduct-apps-topics", 4))
+	projects = append(projects, createProject(team, "job", "dataproduct-naisjobs-topics", 7))
 
 	return projects, nil
+}
+
+func createProject(team, workloadType, name string, vulnFactor int) *client.Project {
+	p := &client.Project{
+		Name:    name,
+		Tags:    make([]client.Tag, 0),
+		Uuid:    uuid.New().String(),
+		Version: uuid.New().String(),
+		Metrics: &client.ProjectMetric{
+			Critical:           vulnFactor,
+			High:               vulnFactor * 2,
+			Medium:             vulnFactor + 2,
+			Low:                vulnFactor + 1,
+			Unassigned:         vulnFactor,
+			FindingsTotal:      vulnFactor + (vulnFactor * 2) + (vulnFactor + 2) + (vulnFactor + 1) + vulnFactor,
+			InheritedRiskScore: float64(vulnFactor*10 + (vulnFactor*2)*5 + (vulnFactor+2)*3 + (vulnFactor + 1) + vulnFactor*5),
+			Components:         vulnFactor + 1,
+		},
+		LastBomImport: 1,
+	}
+
+	p.Tags = append(p.Tags, client.Tag{Name: "team:" + team})
+	p.Tags = append(p.Tags, client.Tag{Name: "project:" + p.Name})
+	p.Tags = append(p.Tags, client.Tag{Name: "image:" + p.Name + ":" + p.Version})
+	p.Tags = append(p.Tags, client.Tag{Name: fmt.Sprintf("workload:%s|%s|%s|%s", "dev", team, workloadType, p.Name)})
+	p.Tags = append(p.Tags, client.Tag{Name: "env:" + "dev"})
+	p.Tags = append(p.Tags, client.Tag{Name: fmt.Sprintf("workload:%s|%s|%s|%s", "superprod", team, workloadType, p.Name)})
+	p.Tags = append(p.Tags, client.Tag{Name: "env:" + "superprod"})
+	return p
 }
 
 var _ client.Client = (*fakeDependencyTrackClient)(nil)
