@@ -14,6 +14,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/auditv1"
 	"github.com/nais/api/internal/v1/cost"
@@ -244,7 +245,7 @@ type ComplexityRoot struct {
 	}
 
 	ConfirmTeamDeletionPayload struct {
-		Temp func(childComplexity int) int
+		CorrelationID func(childComplexity int) int
 	}
 
 	ContainerImage struct {
@@ -1688,12 +1689,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CPUScalingStrategy.Threshold(childComplexity), true
 
-	case "ConfirmTeamDeletionPayload.temp":
-		if e.complexity.ConfirmTeamDeletionPayload.Temp == nil {
+	case "ConfirmTeamDeletionPayload.correlationID":
+		if e.complexity.ConfirmTeamDeletionPayload.CorrelationID == nil {
 			break
 		}
 
-		return e.complexity.ConfirmTeamDeletionPayload.Temp(childComplexity), true
+		return e.complexity.ConfirmTeamDeletionPayload.CorrelationID(childComplexity), true
 
 	case "ContainerImage.hasSBOM":
 		if e.complexity.ContainerImage.HasSbom == nil {
@@ -5893,6 +5894,9 @@ A cursor for use in pagination
 Cursors are opaque strings that are returned by the server for paginated results, and used when performing backwards / forwards pagination.
 """
 scalar Cursor
+
+"Universally Unique Identifier."
+scalar UUID
 `, BuiltIn: false},
 	{Name: "../schema/schema.graphqls", Input: `"The query root for the NAIS GraphQL API."
 type Query {
@@ -6141,9 +6145,8 @@ type RequestTeamDeletionPayload {
 }
 
 type ConfirmTeamDeletionPayload {
-	# TODO: Come up with something useful to return here, for instance a trace ID that the user can use to track the
-	# deletion process.
-	temp: Boolean!
+	"The correlation ID for the deletion process."
+	correlationID: UUID!
 }
 
 type TeamDeleteKey {
@@ -15188,8 +15191,8 @@ func (ec *executionContext) fieldContext_CPUScalingStrategy_threshold(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfirmTeamDeletionPayload_temp(ctx context.Context, field graphql.CollectedField, obj *team.ConfirmTeamDeletionPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ConfirmTeamDeletionPayload_temp(ctx, field)
+func (ec *executionContext) _ConfirmTeamDeletionPayload_correlationID(ctx context.Context, field graphql.CollectedField, obj *team.ConfirmTeamDeletionPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ConfirmTeamDeletionPayload_correlationID(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -15202,7 +15205,7 @@ func (ec *executionContext) _ConfirmTeamDeletionPayload_temp(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Temp, nil
+		return obj.CorrelationID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15214,19 +15217,19 @@ func (ec *executionContext) _ConfirmTeamDeletionPayload_temp(ctx context.Context
 		}
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ConfirmTeamDeletionPayload_temp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ConfirmTeamDeletionPayload_correlationID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ConfirmTeamDeletionPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
+			return nil, errors.New("field of type UUID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -21126,8 +21129,8 @@ func (ec *executionContext) fieldContext_Mutation_confirmTeamDeletion(ctx contex
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "temp":
-				return ec.fieldContext_ConfirmTeamDeletionPayload_temp(ctx, field)
+			case "correlationID":
+				return ec.fieldContext_ConfirmTeamDeletionPayload_correlationID(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ConfirmTeamDeletionPayload", field.Name)
 		},
@@ -39756,7 +39759,7 @@ func (ec *executionContext) _ConfirmTeamDeletionPayload(ctx context.Context, sel
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ConfirmTeamDeletionPayload")
-		case "temp":
+		case "correlationID":
 			field := field
 
 			if field.Deferrable != nil {
@@ -39770,14 +39773,14 @@ func (ec *executionContext) _ConfirmTeamDeletionPayload(ctx context.Context, sel
 					deferred[field.Deferrable.Label] = dfs
 				}
 				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return ec._ConfirmTeamDeletionPayload_temp(ctx, field, obj)
+					return ec._ConfirmTeamDeletionPayload_correlationID(ctx, field, obj)
 				})
 
 				// don't run the out.Concurrently() call below
 				out.Values[i] = graphql.Null
 				continue
 			}
-			out.Values[i] = ec._ConfirmTeamDeletionPayload_temp(ctx, field, obj)
+			out.Values[i] = ec._ConfirmTeamDeletionPayload_correlationID(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -56128,6 +56131,21 @@ func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v in
 
 func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
 	res := graphql.MarshalTime(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, v interface{}) (uuid.UUID, error) {
+	res, err := graphql.UnmarshalUUID(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, sel ast.SelectionSet, v uuid.UUID) graphql.Marshaler {
+	res := graphql.MarshalUUID(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")

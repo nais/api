@@ -197,9 +197,8 @@ type RequestTeamDeletionPayload {
 }
 
 type ConfirmTeamDeletionPayload {
-	# TODO: Come up with something useful to return here, for instance a trace ID that the user can use to track the
-	# deletion process.
-	temp: Boolean!
+	"The correlation ID for the deletion process."
+	correlationID: UUID!
 }
 
 type TeamDeleteKey {

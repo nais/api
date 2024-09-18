@@ -117,3 +117,28 @@ VALUES
 RETURNING
 	*
 ;
+
+-- name: GetDeleteKey :one
+SELECT
+	*
+FROM
+	team_delete_keys
+WHERE
+	key = @key
+;
+
+-- name: ConfirmDeleteKey :exec
+UPDATE team_delete_keys
+SET
+	confirmed_at = NOW()
+WHERE
+	key = @key
+;
+
+-- name: SetDeleteKeyConfirmedAt :exec
+UPDATE teams
+SET
+	delete_key_confirmed_at = NOW()
+WHERE
+	slug = @slug
+;

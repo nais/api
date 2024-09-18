@@ -10,6 +10,19 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
+const confirmDeleteKey = `-- name: ConfirmDeleteKey :exec
+UPDATE team_delete_keys
+SET
+	confirmed_at = NOW()
+WHERE
+	key = $1
+`
+
+func (q *Queries) ConfirmDeleteKey(ctx context.Context, key uuid.UUID) error {
+	_, err := q.db.Exec(ctx, confirmDeleteKey, key)
+	return err
+}
+
 const count = `-- name: Count :one
 SELECT
 	COUNT(*)
@@ -107,6 +120,28 @@ func (q *Queries) Get(ctx context.Context, argSlug slug.Slug) (*Team, error) {
 		&i.GarRepository,
 		&i.CdnBucket,
 		&i.DeleteKeyConfirmedAt,
+	)
+	return &i, err
+}
+
+const getDeleteKey = `-- name: GetDeleteKey :one
+SELECT
+	key, team_slug, created_at, created_by, confirmed_at
+FROM
+	team_delete_keys
+WHERE
+	key = $1
+`
+
+func (q *Queries) GetDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error) {
+	row := q.db.QueryRow(ctx, getDeleteKey, key)
+	var i TeamDeleteKey
+	err := row.Scan(
+		&i.Key,
+		&i.TeamSlug,
+		&i.CreatedAt,
+		&i.CreatedBy,
+		&i.ConfirmedAt,
 	)
 	return &i, err
 }
@@ -220,7 +255,6 @@ ORDER BY
 	environment ASC
 `
 
-// ListEnvironmentsBySlug
 func (q *Queries) ListEnvironmentsBySlug(ctx context.Context, argSlug slug.Slug) ([]*TeamAllEnvironment, error) {
 	rows, err := q.db.Query(ctx, listEnvironmentsBySlug, argSlug)
 	if err != nil {
@@ -300,6 +334,19 @@ func (q *Queries) ListEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg Li
 		return nil, err
 	}
 	return items, nil
+}
+
+const setDeleteKeyConfirmedAt = `-- name: SetDeleteKeyConfirmedAt :exec
+UPDATE teams
+SET
+	delete_key_confirmed_at = NOW()
+WHERE
+	slug = $1
+`
+
+func (q *Queries) SetDeleteKeyConfirmedAt(ctx context.Context, argSlug slug.Slug) error {
+	_, err := q.db.Exec(ctx, setDeleteKeyConfirmedAt, argSlug)
+	return err
 }
 
 const slugAvailable = `-- name: SlugAvailable :one

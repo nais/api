@@ -65,6 +65,17 @@ func (r *Resolver) triggerTeamUpdatedEvent(ctx context.Context, teamSlug slug.Sl
 	)
 }
 
+func (r *Resolver) triggerTeamDeletedEvent(ctx context.Context, teamSlug slug.Slug, correlationID uuid.UUID) error {
+	return r.triggerEvent(
+		ctx,
+		protoapi.EventTypes_EVENT_TEAM_DELETED,
+		&protoapi.EventTeamDeleted{
+			Slug: teamSlug.String(),
+		},
+		correlationID,
+	)
+}
+
 func (r *Resolver) triggerEvent(ctx context.Context, event protoapi.EventTypes, msg proto.Message, correlationID uuid.UUID) error {
 	ctx, span := otel.Tracer("").
 		Start(ctx, "trigger Pub/Sub event", trace.WithSpanKind(trace.SpanKindProducer), trace.WithAttributes(

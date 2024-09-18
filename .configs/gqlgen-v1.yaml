@@ -69,6 +69,10 @@ models:
     model:
       - github.com/nais/api/internal/v1/graphv1/ident.Ident
 
+  UUID:
+    model:
+      - github.com/99designs/gqlgen/graphql.UUID
+
   Int:
     model:
       - github.com/99designs/gqlgen/graphql.Int

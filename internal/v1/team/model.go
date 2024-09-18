@@ -259,9 +259,16 @@ func toGraphTeamEnvironment(m *teamsql.TeamAllEnvironment) *TeamEnvironment {
 }
 
 func toGraphTeamDeleteKey(key *teamsql.TeamDeleteKey) *TeamDeleteKey {
+	var confirmedAt *time.Time
+	if key.ConfirmedAt.Valid {
+		confirmedAt = &key.ConfirmedAt.Time
+	}
 	return &TeamDeleteKey{
-		Key:       key.Key.String(),
-		CreatedAt: key.CreatedAt.Time,
+		Key:             key.Key.String(),
+		CreatedAt:       key.CreatedAt.Time,
+		ConfirmedAt:     confirmedAt,
+		CreatedByUserID: key.CreatedBy,
+		TeamSlug:        key.TeamSlug,
 	}
 }
 
@@ -375,12 +382,19 @@ type RequestTeamDeletionPayload struct {
 }
 
 type TeamDeleteKey struct {
-	Key       string    `json:"key"`
-	CreatedAt time.Time `json:"createdAt"`
+	Key             string     `json:"key"`
+	CreatedAt       time.Time  `json:"createdAt"`
+	ConfirmedAt     *time.Time `json:"-"`
+	CreatedByUserID uuid.UUID  `json:"-"`
+	TeamSlug        slug.Slug  `json:"-"`
 }
 
 func (k *TeamDeleteKey) Expires() time.Time {
 	return k.CreatedAt.Add(time.Hour)
+}
+
+func (k *TeamDeleteKey) HasExpired() bool {
+	return time.Now().After(k.Expires())
 }
 
 type ConfirmTeamDeletionInput struct {
@@ -388,5 +402,5 @@ type ConfirmTeamDeletionInput struct {
 }
 
 type ConfirmTeamDeletionPayload struct {
-	Temp bool `json:"temp"`
+	CorrelationID uuid.UUID `json:"correlationID"`
 }

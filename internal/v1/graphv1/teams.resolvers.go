@@ -8,6 +8,7 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/roles"
 	"github.com/nais/api/internal/database/gensql"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
@@ -86,7 +87,46 @@ func (r *mutationResolver) RequestTeamDeletion(ctx context.Context, input team.R
 }
 
 func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, input team.ConfirmTeamDeletionInput) (*team.ConfirmTeamDeletionPayload, error) {
-	panic(fmt.Errorf("not implemented: ConfirmTeamDeletion - confirmTeamDeletion"))
+	uid, err := uuid.Parse(input.Key)
+	if err != nil {
+		return nil, apierror.Errorf("Invalid deletion key: %q", input.Key)
+	}
+
+	deleteKey, err := team.GetDeleteKey(ctx, uid)
+	if err != nil {
+		return nil, apierror.Errorf("Unknown deletion key: %q", input.Key)
+	}
+
+	actor := authz.ActorFromContext(ctx)
+	if err := authz.RequireTeamRole(actor, deleteKey.TeamSlug, gensql.RoleNameTeamowner); err != nil {
+		return nil, err
+	}
+
+	if actor.User.GetID() == deleteKey.CreatedByUserID {
+		return nil, apierror.Errorf("You cannot confirm your own delete key.")
+	}
+
+	if deleteKey.ConfirmedAt != nil {
+		return nil, apierror.Errorf("Key has already been confirmed, team is currently being deleted.")
+	}
+
+	if deleteKey.HasExpired() {
+		return nil, apierror.Errorf("Team delete key has expired, you need to request a new key.")
+	}
+
+	if err := team.ConfirmDeleteKey(ctx, deleteKey.TeamSlug, uid); err != nil {
+		return nil, err
+	}
+
+	// TODO: Correlation ID?
+	correlationID := uuid.New()
+	if err := r.triggerTeamDeletedEvent(ctx, deleteKey.TeamSlug, correlationID); err != nil {
+		return nil, fmt.Errorf("failed to trigger team created event: %w", err)
+	}
+
+	return &team.ConfirmTeamDeletionPayload{
+		CorrelationID: correlationID,
+	}, nil
 }
 
 func (r *queryResolver) Teams(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) (*pagination.Connection[*team.Team], error) {
@@ -128,11 +168,11 @@ func (r *teamResolver) Environment(ctx context.Context, obj *team.Team, name str
 }
 
 func (r *teamDeleteKeyResolver) CreatedBy(ctx context.Context, obj *team.TeamDeleteKey) (*user.User, error) {
-	panic(fmt.Errorf("not implemented: CreatedBy - createdBy"))
+	return user.Get(ctx, obj.CreatedByUserID)
 }
 
 func (r *teamDeleteKeyResolver) Team(ctx context.Context, obj *team.TeamDeleteKey) (*team.Team, error) {
-	panic(fmt.Errorf("not implemented: Team - team"))
+	return team.Get(ctx, obj.TeamSlug)
 }
 
 func (r *teamEnvironmentResolver) Team(ctx context.Context, obj *team.TeamEnvironment) (*team.Team, error) {

@@ -230,13 +230,48 @@ func ListTeamEnvironments(ctx context.Context, teamSlug slug.Slug) ([]*TeamEnvir
 	return ret, nil
 }
 
+func GetDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error) {
+	ret, err := db(ctx).GetDeleteKey(ctx, key)
+	if err != nil {
+		return nil, err
+	}
+
+	return toGraphTeamDeleteKey(ret), nil
+}
+
 func CreateDeleteKey(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (*TeamDeleteKey, error) {
-	key, err := db(ctx).CreateDeleteKey(ctx, teamsql.CreateDeleteKeyParams{
-		TeamSlug:  teamSlug,
-		CreatedBy: userID,
+	var key *teamsql.TeamDeleteKey
+	var err error
+	err = databasev1.Transaction(ctx, func(ctx context.Context) error {
+		key, err = db(ctx).CreateDeleteKey(ctx, teamsql.CreateDeleteKeyParams{
+			TeamSlug:  teamSlug,
+			CreatedBy: userID,
+		})
+		if err != nil {
+			return err
+		}
+
+		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
+
 	return toGraphTeamDeleteKey(key), nil
+}
+
+func ConfirmDeleteKey(ctx context.Context, teamSlug slug.Slug, deleteKey uuid.UUID) error {
+	return databasev1.Transaction(ctx, func(ctx context.Context) error {
+		db := db(ctx)
+
+		if err := db.ConfirmDeleteKey(ctx, deleteKey); err != nil {
+			return err
+		}
+
+		if err := db.SetDeleteKeyConfirmedAt(ctx, teamSlug); err != nil {
+			return err
+		}
+
+		return nil
+	})
 }

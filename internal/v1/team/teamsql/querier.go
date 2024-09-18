@@ -10,6 +10,7 @@ import (
 )
 
 type Querier interface {
+	ConfirmDeleteKey(ctx context.Context, key uuid.UUID) error
 	Count(ctx context.Context) (int64, error)
 	CountForUser(ctx context.Context, userID uuid.UUID) (int64, error)
 	// CountMembers returns the total number of team members of a non-deleted team.
@@ -17,9 +18,9 @@ type Querier interface {
 	Create(ctx context.Context, arg CreateParams) (*Team, error)
 	CreateDeleteKey(ctx context.Context, arg CreateDeleteKeyParams) (*TeamDeleteKey, error)
 	Get(ctx context.Context, argSlug slug.Slug) (*Team, error)
+	GetDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
 	List(ctx context.Context, arg ListParams) ([]*Team, error)
 	ListBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)
-	// ListEnvironmentsBySlug
 	ListEnvironmentsBySlug(ctx context.Context, argSlug slug.Slug) ([]*TeamAllEnvironment, error)
 	// ListEnvironmentsBySlugsAndEnvNames returns a slice of team environments for a list of teams/envs, excluding
 	// deleted teams.
@@ -28,6 +29,7 @@ type Querier interface {
 	ListForUser(ctx context.Context, arg ListForUserParams) ([]*ListForUserRow, error)
 	// ListMembers returns a slice of team members of a non-deleted team.
 	ListMembers(ctx context.Context, arg ListMembersParams) ([]*ListMembersRow, error)
+	SetDeleteKeyConfirmedAt(ctx context.Context, argSlug slug.Slug) error
 	SlugAvailable(ctx context.Context, argSlug slug.Slug) (bool, error)
 	Update(ctx context.Context, arg UpdateParams) (*Team, error)
 }
