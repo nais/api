@@ -10,15 +10,16 @@ import (
 )
 
 type Querier interface {
+	AddMember(ctx context.Context, arg AddMemberParams) error
 	ConfirmDeleteKey(ctx context.Context, key uuid.UUID) error
 	Count(ctx context.Context) (int64, error)
 	CountForUser(ctx context.Context, userID uuid.UUID) (int64, error)
-	// CountMembers returns the total number of team members of a non-deleted team.
 	CountMembers(ctx context.Context, teamSlug *slug.Slug) (int64, error)
 	Create(ctx context.Context, arg CreateParams) (*Team, error)
 	CreateDeleteKey(ctx context.Context, arg CreateDeleteKeyParams) (*TeamDeleteKey, error)
 	Get(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	GetDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
+	GetMember(ctx context.Context, arg GetMemberParams) (*User, error)
 	List(ctx context.Context, arg ListParams) ([]*Team, error)
 	ListBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)
 	ListEnvironmentsBySlug(ctx context.Context, argSlug slug.Slug) ([]*TeamAllEnvironment, error)
@@ -27,7 +28,6 @@ type Querier interface {
 	// Input is two arrays of equal length, one for slugs and one for names
 	ListEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg ListEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamAllEnvironment, error)
 	ListForUser(ctx context.Context, arg ListForUserParams) ([]*ListForUserRow, error)
-	// ListMembers returns a slice of team members of a non-deleted team.
 	ListMembers(ctx context.Context, arg ListMembersParams) ([]*ListMembersRow, error)
 	SetDeleteKeyConfirmedAt(ctx context.Context, argSlug slug.Slug) error
 	SlugAvailable(ctx context.Context, argSlug slug.Slug) (bool, error)

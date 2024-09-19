@@ -16,6 +16,14 @@ import (
 	"github.com/nais/api/internal/v1/user"
 )
 
+func (r *addTeamMemberPayloadResolver) User(ctx context.Context, obj *team.AddTeamMemberPayload) (*user.User, error) {
+	return user.Get(ctx, obj.UserID)
+}
+
+func (r *addTeamMemberPayloadResolver) Team(ctx context.Context, obj *team.AddTeamMemberPayload) (*team.Team, error) {
+	return team.Get(ctx, obj.TeamSlug)
+}
+
 func (r *mutationResolver) CreateTeam(ctx context.Context, input team.CreateTeamInput) (*team.CreateTeamPayload, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationTeamsCreate)
@@ -126,6 +134,34 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, input team.C
 	}, nil
 }
 
+func (r *mutationResolver) AddTeamMember(ctx context.Context, input team.AddTeamMemberInput) (*team.AddTeamMemberPayload, error) {
+	actor := authz.ActorFromContext(ctx)
+	if err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMembersAdmin, input.TeamSlug); err != nil {
+		return nil, err
+	}
+
+	u, err := user.GetByEmail(ctx, input.UserEmail)
+	if err != nil {
+		return nil, err
+	}
+
+	input.UserID = u.UUID
+	if err := team.AddMember(ctx, input, actor); err != nil {
+		return nil, err
+	}
+
+	correlationID := uuid.New()
+	if err := r.triggerTeamUpdatedEvent(ctx, input.TeamSlug, correlationID); err != nil {
+		return nil, err
+	}
+
+	return &team.AddTeamMemberPayload{
+		CorrelationID: correlationID,
+		UserID:        u.UUID,
+		TeamSlug:      input.TeamSlug,
+	}, nil
+}
+
 func (r *queryResolver) Teams(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) (*pagination.Connection[*team.Team], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -184,6 +220,14 @@ func (r *teamMemberResolver) User(ctx context.Context, obj *team.TeamMember) (*u
 	return user.Get(ctx, obj.UserID)
 }
 
+func (r *teamMemberAddedAuditEntryDataResolver) User(ctx context.Context, obj *team.TeamMemberAddedAuditEntryData) (*user.User, error) {
+	return user.Get(ctx, obj.UserID)
+}
+
+func (r *Resolver) AddTeamMemberPayload() gengqlv1.AddTeamMemberPayloadResolver {
+	return &addTeamMemberPayloadResolver{r}
+}
+
 func (r *Resolver) Team() gengqlv1.TeamResolver { return &teamResolver{r} }
 
 func (r *Resolver) TeamDeleteKey() gengqlv1.TeamDeleteKeyResolver { return &teamDeleteKeyResolver{r} }
@@ -194,9 +238,15 @@ func (r *Resolver) TeamEnvironment() gengqlv1.TeamEnvironmentResolver {
 
 func (r *Resolver) TeamMember() gengqlv1.TeamMemberResolver { return &teamMemberResolver{r} }
 
+func (r *Resolver) TeamMemberAddedAuditEntryData() gengqlv1.TeamMemberAddedAuditEntryDataResolver {
+	return &teamMemberAddedAuditEntryDataResolver{r}
+}
+
 type (
-	teamResolver            struct{ *Resolver }
-	teamDeleteKeyResolver   struct{ *Resolver }
-	teamEnvironmentResolver struct{ *Resolver }
-	teamMemberResolver      struct{ *Resolver }
+	addTeamMemberPayloadResolver          struct{ *Resolver }
+	teamResolver                          struct{ *Resolver }
+	teamDeleteKeyResolver                 struct{ *Resolver }
+	teamEnvironmentResolver               struct{ *Resolver }
+	teamMemberResolver                    struct{ *Resolver }
+	teamMemberAddedAuditEntryDataResolver struct{ *Resolver }
 )

@@ -2,8 +2,10 @@ package team
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/slug"
@@ -286,4 +288,57 @@ func ConfirmDeleteKey(ctx context.Context, teamSlug slug.Slug, deleteKey uuid.UU
 			TeamSlug:     ptr.To(teamSlug),
 		})
 	})
+}
+
+func AddMember(ctx context.Context, input AddTeamMemberInput, actor *authz.Actor) error {
+	_, err := db(ctx).GetMember(ctx, teamsql.GetMemberParams{
+		TeamSlug: input.TeamSlug,
+		UserID:   input.UserID,
+	})
+	if !errors.Is(err, pgx.ErrNoRows) {
+		return apierror.Errorf("User is already a member of the team.")
+	}
+
+	roleName, err := teamMemberRoleToSqlRole(input.Role)
+	if err != nil {
+		return err
+	}
+
+	return databasev1.Transaction(ctx, func(ctx context.Context) error {
+		params := teamsql.AddMemberParams{
+			UserID:   input.UserID,
+			RoleName: roleName,
+			TeamSlug: input.TeamSlug,
+		}
+		if err := db(ctx).AddMember(ctx, params); err != nil {
+			return err
+		}
+
+		return auditv1.Create(ctx, auditv1.CreateInput{
+			Action:       auditActionAddMember,
+			Actor:        actor.User,
+			ResourceType: auditResourceTypeTeam,
+			ResourceName: input.TeamSlug.String(),
+			TeamSlug:     ptr.To(input.TeamSlug),
+			Data: &TeamMemberAddedAuditEntryData{
+				Role:      input.Role,
+				UserID:    input.UserID,
+				UserEmail: input.UserEmail,
+			},
+		})
+	})
+}
+
+func teamMemberRoleToSqlRole(role TeamMemberRole) (teamsql.RoleName, error) {
+	var roleName teamsql.RoleName
+	switch role {
+	case TeamMemberRoleMember:
+		roleName = teamsql.RoleNameTeammember
+	case TeamMemberRoleOwner:
+		roleName = teamsql.RoleNameTeamowner
+	default:
+		return "", apierror.Errorf("Unknown team member role: %q", role)
+	}
+
+	return roleName, nil
 }

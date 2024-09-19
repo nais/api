@@ -1,4 +1,3 @@
--- ListMembers returns a slice of team members of a non-deleted team.
 -- name: ListMembers :many
 SELECT
 	sqlc.embed(users),
@@ -36,7 +35,6 @@ OFFSET
 	sqlc.arg('offset')
 ;
 
--- CountMembers returns the total number of team members of a non-deleted team.
 -- name: CountMembers :one
 SELECT
 	COUNT(user_roles.*)
@@ -79,4 +77,24 @@ FROM
 	JOIN teams ON teams.slug = user_roles.target_team_slug
 WHERE
 	user_roles.user_id = @user_id
+;
+
+-- name: GetMember :one
+SELECT
+	users.*
+FROM
+	user_roles
+	JOIN teams ON teams.slug = user_roles.target_team_slug
+	JOIN users ON users.id = user_roles.user_id
+WHERE
+	user_roles.target_team_slug = @team_slug::slug
+	AND user_roles.user_id = @user_id
+;
+
+-- name: AddMember :exec
+INSERT INTO
+	user_roles (user_id, role_name, target_team_slug)
+VALUES
+	(@user_id, @role_name, @team_slug::slug)
+ON CONFLICT DO NOTHING
 ;

@@ -10,6 +10,25 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
+const addMember = `-- name: AddMember :exec
+INSERT INTO
+	user_roles (user_id, role_name, target_team_slug)
+VALUES
+	($1, $2, $3::slug)
+ON CONFLICT DO NOTHING
+`
+
+type AddMemberParams struct {
+	UserID   uuid.UUID
+	RoleName RoleName
+	TeamSlug slug.Slug
+}
+
+func (q *Queries) AddMember(ctx context.Context, arg AddMemberParams) error {
+	_, err := q.db.Exec(ctx, addMember, arg.UserID, arg.RoleName, arg.TeamSlug)
+	return err
+}
+
 const countForUser = `-- name: CountForUser :one
 SELECT
 	COUNT(user_roles.*)
@@ -37,12 +56,40 @@ WHERE
 	user_roles.target_team_slug = $1
 `
 
-// CountMembers returns the total number of team members of a non-deleted team.
 func (q *Queries) CountMembers(ctx context.Context, teamSlug *slug.Slug) (int64, error) {
 	row := q.db.QueryRow(ctx, countMembers, teamSlug)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const getMember = `-- name: GetMember :one
+SELECT
+	users.id, users.email, users.name, users.external_id
+FROM
+	user_roles
+	JOIN teams ON teams.slug = user_roles.target_team_slug
+	JOIN users ON users.id = user_roles.user_id
+WHERE
+	user_roles.target_team_slug = $1::slug
+	AND user_roles.user_id = $2
+`
+
+type GetMemberParams struct {
+	TeamSlug slug.Slug
+	UserID   uuid.UUID
+}
+
+func (q *Queries) GetMember(ctx context.Context, arg GetMemberParams) (*User, error) {
+	row := q.db.QueryRow(ctx, getMember, arg.TeamSlug, arg.UserID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Name,
+		&i.ExternalID,
+	)
+	return &i, err
 }
 
 const listForUser = `-- name: ListForUser :many
@@ -165,7 +212,6 @@ type ListMembersRow struct {
 	UserRole UserRole
 }
 
-// ListMembers returns a slice of team members of a non-deleted team.
 func (q *Queries) ListMembers(ctx context.Context, arg ListMembersParams) ([]*ListMembersRow, error) {
 	rows, err := q.db.Query(ctx, listMembers,
 		arg.TeamSlug,

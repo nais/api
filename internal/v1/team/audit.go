@@ -3,6 +3,7 @@ package team
 import (
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/v1/auditv1"
 )
 
@@ -10,6 +11,7 @@ const (
 	auditResourceTypeTeam       auditv1.AuditResourceType = "TEAM"
 	auditActionCreateDeleteKey  auditv1.AuditAction       = "CREATE_DELETE_KEY"
 	auditActionConfirmDeleteKey                           = "CONFIRM_DELETE_KEY"
+	auditActionAddMember                                  = "ADD_MEMBER"
 )
 
 func init() {
@@ -42,6 +44,17 @@ func init() {
 			return TeamConfirmDeleteKeyAuditEntry{
 				GenericAuditEntry: entry.WithMessage("Confirm delete key"),
 			}, nil
+		case auditActionAddMember:
+			data, err := auditv1.TransformData(entry, func(data *TeamMemberAddedAuditEntryData) *TeamMemberAddedAuditEntryData {
+				return data
+			})
+			if err != nil {
+				return nil, err
+			}
+			return TeamMemberAddedAuditEntry{
+				GenericAuditEntry: entry.WithMessage("Add member"),
+				Data:              data,
+			}, nil
 		default:
 			return nil, fmt.Errorf("unsupported team audit entry action: %q", entry.Action)
 		}
@@ -73,4 +86,15 @@ type TeamConfirmDeleteKeyAuditEntry struct {
 
 type TeamCreateDeleteKeyAuditEntry struct {
 	auditv1.GenericAuditEntry
+}
+
+type TeamMemberAddedAuditEntry struct {
+	auditv1.GenericAuditEntry
+	Data *TeamMemberAddedAuditEntryData `json:"data,omitempty"`
+}
+
+type TeamMemberAddedAuditEntryData struct {
+	Role      TeamMemberRole `json:"role"`
+	UserID    uuid.UUID      `json:"userID"`
+	UserEmail string         `json:"userEmail"`
 }

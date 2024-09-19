@@ -404,3 +404,16 @@ type ConfirmTeamDeletionInput struct {
 type ConfirmTeamDeletionPayload struct {
 	CorrelationID uuid.UUID `json:"correlationID"`
 }
+
+type AddTeamMemberInput struct {
+	TeamSlug  slug.Slug      `json:"teamSlug"`
+	UserEmail string         `json:"userEmail"`
+	Role      TeamMemberRole `json:"role"`
+	UserID    uuid.UUID      `json:"-"`
+}
+
+type AddTeamMemberPayload struct {
+	CorrelationID uuid.UUID `json:"correlationID"`
+	UserID        uuid.UUID `json:"-"`
+	TeamSlug      slug.Slug `json:"-"`
+}
