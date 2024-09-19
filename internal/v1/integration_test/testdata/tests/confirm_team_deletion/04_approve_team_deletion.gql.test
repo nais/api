@@ -1,0 +1,21 @@
+mutation {
+  confirmTeamDeletion(input: {
+    key: "{{ .deleteKey }}"
+  }) {
+    correlationID
+  }
+}
+
+RETURNS
+
+OPTION data.confirmTeamDeletion.correlationID=NOTNULL
+
+ENDOPTS
+
+{
+  "data": {
+    "confirmTeamDeletion": {
+      "correlationID": "something"
+    }
+  }
+}
