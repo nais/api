@@ -159,6 +159,7 @@ type Team implements Node {
 	"Environments for the team."
 	environments: [TeamEnvironment!]!
 
+	"Get a specific environment for the team."
 	environment(name: String!): TeamEnvironment!
 }
 
