@@ -1,0 +1,18 @@
+-- type: row
+SELECT
+    team_delete_keys.confirmed_at,
+    team_delete_keys.team_slug,
+    users.email
+FROM
+    team_delete_keys
+JOIN
+    users ON users.id = team_delete_keys.created_by
+WHERE key = '{{ .deleteKey }}'
+
+RETURNS
+
+{
+  "confirmed_at": null,
+  "team_slug": "delete-me",
+  "email": "authenticated@example.com"
+}
