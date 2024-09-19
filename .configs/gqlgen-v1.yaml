@@ -36,6 +36,7 @@ autobind:
   - "github.com/nais/api/internal/v1/persistence/opensearch"
   - "github.com/nais/api/internal/v1/persistence/redis"
   - "github.com/nais/api/internal/v1/persistence/sqlinstance"
+  - "github.com/nais/api/internal/v1/reconciler"
   - "github.com/nais/api/internal/v1/team"
   - "github.com/nais/api/internal/v1/user"
   - "github.com/nais/api/internal/v1/vulnerability"

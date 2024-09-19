@@ -84,3 +84,12 @@ sql:
         <<: *default_go
         package: "costsql"
         out: "../internal/v1/cost/costsql"
+
+  - <<: *default_domain
+    name: "Reconciler SQL"
+    queries: "../internal/v1/reconciler/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "reconcilersql"
+        out: "../internal/v1/reconciler/reconcilersql"

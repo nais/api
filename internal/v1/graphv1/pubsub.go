@@ -76,6 +76,33 @@ func (r *Resolver) triggerTeamDeletedEvent(ctx context.Context, teamSlug slug.Sl
 	)
 }
 
+func (r *Resolver) triggerReconcilerEnabledEvent(ctx context.Context, reconcilerName string, correlationID uuid.UUID) error {
+	return r.triggerEvent(
+		ctx,
+		protoapi.EventTypes_EVENT_RECONCILER_ENABLED,
+		&protoapi.EventReconcilerEnabled{Reconciler: reconcilerName},
+		correlationID,
+	)
+}
+
+func (r *Resolver) triggerReconcilerDisabledEvent(ctx context.Context, reconcilerName string, correlationID uuid.UUID) error {
+	return r.triggerEvent(
+		ctx,
+		protoapi.EventTypes_EVENT_RECONCILER_DISABLED,
+		&protoapi.EventReconcilerDisabled{Reconciler: reconcilerName},
+		correlationID,
+	)
+}
+
+func (r *Resolver) triggerReconcilerConfiguredEvent(ctx context.Context, reconcilerName string, correlationID uuid.UUID) error {
+	return r.triggerEvent(
+		ctx,
+		protoapi.EventTypes_EVENT_RECONCILER_CONFIGURED,
+		&protoapi.EventReconcilerConfigured{Reconciler: reconcilerName},
+		correlationID,
+	)
+}
+
 func (r *Resolver) triggerEvent(ctx context.Context, event protoapi.EventTypes, msg proto.Message, correlationID uuid.UUID) error {
 	ctx, span := otel.Tracer("").
 		Start(ctx, "trigger Pub/Sub event", trace.WithSpanKind(trace.SpanKindProducer), trace.WithAttributes(

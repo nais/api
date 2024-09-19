@@ -27,6 +27,7 @@ import (
 	"github.com/nais/api/internal/v1/persistence/opensearch"
 	"github.com/nais/api/internal/v1/persistence/redis"
 	"github.com/nais/api/internal/v1/persistence/sqlinstance"
+	"github.com/nais/api/internal/v1/reconciler"
 	"github.com/nais/api/internal/v1/role"
 	"github.com/nais/api/internal/v1/team"
 	"github.com/nais/api/internal/v1/user"
@@ -180,6 +181,7 @@ func ConfigureV1Graph(ctx context.Context, watcherMgr *watcher.Manager, db datab
 		ctx = role.NewLoaderContext(ctx, pool)
 		ctx = auditv1.NewLoaderContext(ctx, pool, dataloaderOpts)
 		ctx = vulnerability.NewLoaderContext(ctx, vClient, log, dataloaderOpts)
+		ctx = reconciler.NewLoaderContext(ctx, pool, dataloaderOpts)
 		return ctx
 	}), nil
 }
