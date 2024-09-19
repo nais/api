@@ -8,6 +8,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/searchv1"
 )
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *ApplicationOrder) (*ApplicationConnection, error) {
@@ -67,4 +68,21 @@ func GetByIdent(ctx context.Context, id ident.Ident) (*Application, error) {
 		return nil, err
 	}
 	return Get(ctx, teamSlug, env, name)
+}
+
+func Search(ctx context.Context, q string) ([]*searchv1.Result, error) {
+	apps := fromContext(ctx).appWatcher.All()
+
+	ret := make([]*searchv1.Result, 0)
+	for _, app := range apps {
+		rank := searchv1.Match(q, app.Obj.Name)
+		if searchv1.Include(rank) {
+			ret = append(ret, &searchv1.Result{
+				Rank: rank,
+				Node: toGraphApplication(app.Obj, app.Cluster),
+			})
+		}
+	}
+
+	return ret, nil
 }

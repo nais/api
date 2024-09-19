@@ -33,8 +33,8 @@ type RedisInstance struct {
 }
 
 func (RedisInstance) IsPersistence() {}
-
-func (RedisInstance) IsNode() {}
+func (RedisInstance) IsSearchNode()  {}
+func (RedisInstance) IsNode()        {}
 
 func (r *RedisInstance) GetName() string { return r.Name }
 

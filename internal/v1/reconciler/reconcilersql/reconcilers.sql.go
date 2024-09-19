@@ -226,6 +226,8 @@ FROM
 	reconcilers
 WHERE
 	name = ANY ($1::TEXT[])
+ORDER BY
+	name ASC
 `
 
 func (q *Queries) ListByNames(ctx context.Context, names []string) ([]*Reconciler, error) {

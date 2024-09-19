@@ -336,6 +336,66 @@ func (q *Queries) ListEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg Li
 	return items, nil
 }
 
+const search = `-- name: Search :many
+WITH
+	result AS (
+		SELECT
+			slug,
+			levenshtein ($1, slug) AS RANK
+		FROM
+			teams
+		ORDER BY
+			RANK ASC
+		LIMIT
+			10
+	)
+SELECT
+	teams.slug, teams.purpose, teams.last_successful_sync, teams.slack_channel, teams.google_group_email, teams.azure_group_id, teams.github_team_slug, teams.gar_repository, teams.cdn_bucket, teams.delete_key_confirmed_at,
+	RANK
+FROM
+	teams
+	JOIN result ON teams.slug = result.slug
+ORDER BY
+	result.rank ASC
+`
+
+type SearchRow struct {
+	Team Team
+	Rank int32
+}
+
+func (q *Queries) Search(ctx context.Context, query string) ([]*SearchRow, error) {
+	rows, err := q.db.Query(ctx, search, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*SearchRow{}
+	for rows.Next() {
+		var i SearchRow
+		if err := rows.Scan(
+			&i.Team.Slug,
+			&i.Team.Purpose,
+			&i.Team.LastSuccessfulSync,
+			&i.Team.SlackChannel,
+			&i.Team.GoogleGroupEmail,
+			&i.Team.AzureGroupID,
+			&i.Team.GithubTeamSlug,
+			&i.Team.GarRepository,
+			&i.Team.CdnBucket,
+			&i.Team.DeleteKeyConfirmedAt,
+			&i.Rank,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const setDeleteKeyConfirmedAt = `-- name: SetDeleteKeyConfirmedAt :exec
 UPDATE teams
 SET

@@ -15,6 +15,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/role"
 	"github.com/nais/api/internal/v1/role/rolesql"
+	"github.com/nais/api/internal/v1/searchv1"
 	"github.com/nais/api/internal/v1/team/teamsql"
 	"github.com/nais/api/internal/v1/validate"
 	"k8s.io/utils/ptr"
@@ -288,6 +289,23 @@ func ConfirmDeleteKey(ctx context.Context, teamSlug slug.Slug, deleteKey uuid.UU
 			TeamSlug:     ptr.To(teamSlug),
 		})
 	})
+}
+
+func Search(ctx context.Context, q string) ([]*searchv1.Result, error) {
+	ret, err := db(ctx).Search(ctx, q)
+	if err != nil {
+		return nil, err
+	}
+
+	results := make([]*searchv1.Result, len(ret))
+	for i, team := range ret {
+		results[i] = &searchv1.Result{
+			Node: toGraphTeam(&team.Team),
+			Rank: searchv1.Match(q, team.Team.Slug.String()),
+		}
+	}
+
+	return results, nil
 }
 
 func AddMember(ctx context.Context, input AddTeamMemberInput, actor *authz.Actor) error {

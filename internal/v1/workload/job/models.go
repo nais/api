@@ -31,6 +31,10 @@ type Job struct {
 	Spec *nais_io_v1.NaisjobSpec `json:"-"`
 }
 
+func (Job) IsNode()       {}
+func (Job) IsSearchNode() {}
+func (Job) IsWorkload()   {}
+
 type JobSchedule struct {
 	Expression string `json:"expression"`
 	TimeZone   string `json:"timeZone"`
@@ -135,9 +139,6 @@ func (e *JobRunStatus) UnmarshalGQL(v interface{}) error {
 func (e JobRunStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
-
-func (Job) IsNode()     {}
-func (Job) IsWorkload() {}
 
 func (j Job) ID() ident.Ident {
 	return newIdent(j.TeamSlug, j.EnvironmentName, j.Name)

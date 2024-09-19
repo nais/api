@@ -160,3 +160,8 @@ enum ApplicationOrderField {
 	"Order applications by the deployment time."
 	DEPLOYMENT_TIME
 }
+
+extend union SearchNode = Application
+extend enum SearchType {
+	APPLICATION
+}

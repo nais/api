@@ -37,8 +37,8 @@ type Bucket struct {
 	ProjectID                string                         `json:"-"`
 }
 
-func (Bucket) IsPersistence() {}
-
+func (Bucket) IsPersistence()     {}
+func (Bucket) IsSearchNode()      {}
 func (Bucket) IsNode()            {}
 func (b *Bucket) GetName() string { return b.Name }
 

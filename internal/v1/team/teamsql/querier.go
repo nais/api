@@ -29,6 +29,7 @@ type Querier interface {
 	ListEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg ListEnvironmentsBySlugsAndEnvNamesParams) ([]*TeamAllEnvironment, error)
 	ListForUser(ctx context.Context, arg ListForUserParams) ([]*ListForUserRow, error)
 	ListMembers(ctx context.Context, arg ListMembersParams) ([]*ListMembersRow, error)
+	Search(ctx context.Context, query string) ([]*SearchRow, error)
 	SetDeleteKeyConfirmedAt(ctx context.Context, argSlug slug.Slug) error
 	SlugAvailable(ctx context.Context, argSlug slug.Slug) (bool, error)
 	Update(ctx context.Context, arg UpdateParams) (*Team, error)

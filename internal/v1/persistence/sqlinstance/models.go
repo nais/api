@@ -41,8 +41,7 @@ type SQLDatabase struct {
 }
 
 func (SQLDatabase) IsPersistence() {}
-
-func (SQLDatabase) IsNode() {}
+func (SQLDatabase) IsNode()        {}
 
 func (d *SQLDatabase) GetName() string { return d.Name }
 
@@ -84,8 +83,8 @@ type SQLInstance struct {
 }
 
 func (SQLInstance) IsPersistence() {}
-
-func (SQLInstance) IsNode() {}
+func (SQLInstance) IsSearchNode()  {}
+func (SQLInstance) IsNode()        {}
 
 func (i *SQLInstance) GetName() string { return i.Name }
 

@@ -24,8 +24,9 @@ type Application struct {
 	Spec *nais_io_v1alpha1.ApplicationSpec `json:"-"`
 }
 
-func (Application) IsWorkload() {}
-func (Application) IsNode()     {}
+func (Application) IsNode()       {}
+func (Application) IsSearchNode() {}
+func (Application) IsWorkload()   {}
 
 func (a Application) ID() ident.Ident {
 	return newIdent(a.TeamSlug, a.EnvironmentName, a.Name)

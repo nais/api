@@ -36,7 +36,8 @@ type Team struct {
 	DeleteKeyConfirmedAt   *time.Time `json:"-"`
 }
 
-func (Team) IsNode() {}
+func (Team) IsNode()       {}
+func (Team) IsSearchNode() {}
 
 func (t Team) DeletionInProgress() bool {
 	return t.DeleteKeyConfirmedAt != nil

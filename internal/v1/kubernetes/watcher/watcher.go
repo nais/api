@@ -96,7 +96,7 @@ func (w *Watcher[T]) update(cluster string, obj T) {
 	w.datastore.Update(cluster, obj)
 }
 
-func (w *Watcher[T]) All() []T {
+func (w *Watcher[T]) All() []*EnvironmentWrapper[T] {
 	return w.datastore.All()
 }
 
@@ -104,15 +104,15 @@ func (w *Watcher[T]) Get(cluster, namespace, name string) (T, error) {
 	return w.datastore.Get(cluster, namespace, name)
 }
 
-func (w *Watcher[T]) GetByCluster(cluster string, filter ...Filter) []EnvironmentWrapper[T] {
+func (w *Watcher[T]) GetByCluster(cluster string, filter ...Filter) []*EnvironmentWrapper[T] {
 	return w.datastore.GetByCluster(cluster, filter...)
 }
 
-func (w *Watcher[T]) GetByNamespace(namespace string, filter ...Filter) []EnvironmentWrapper[T] {
+func (w *Watcher[T]) GetByNamespace(namespace string, filter ...Filter) []*EnvironmentWrapper[T] {
 	return w.datastore.GetByNamespace(namespace, filter...)
 }
 
-func Objects[T Object](list []EnvironmentWrapper[T]) []T {
+func Objects[T Object](list []*EnvironmentWrapper[T]) []T {
 	ret := make([]T, len(list))
 	for i, obj := range list {
 		ret[i] = obj.Obj

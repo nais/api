@@ -48,10 +48,10 @@ func WithLabels(lbls labels.Selector) Filter {
 
 type List[T Object] []*EnvironmentWrapper[T]
 
-func (l List[T]) Clone() []EnvironmentWrapper[T] {
-	ret := make([]EnvironmentWrapper[T], len(l))
+func (l List[T]) Clone() []*EnvironmentWrapper[T] {
+	ret := make([]*EnvironmentWrapper[T], len(l))
 	for i, v := range l {
-		ret[i] = EnvironmentWrapper[T]{
+		ret[i] = &EnvironmentWrapper[T]{
 			Cluster: v.Cluster,
 			Obj:     v.Obj.DeepCopyObject().(T),
 		}
@@ -160,7 +160,7 @@ func (d *DataStore[T]) Update(cluster string, obj T) {
 	}
 }
 
-func (d *DataStore[T]) GetByNamespace(namespace string, filters ...Filter) []EnvironmentWrapper[T] {
+func (d *DataStore[T]) GetByNamespace(namespace string, filters ...Filter) []*EnvironmentWrapper[T] {
 	d.lock.RLock()
 	defer d.lock.RUnlock()
 
@@ -172,7 +172,7 @@ func (d *DataStore[T]) GetByNamespace(namespace string, filters ...Filter) []Env
 		return ret
 	}
 
-	return slices.DeleteFunc(ret, func(o EnvironmentWrapper[T]) bool {
+	return slices.DeleteFunc(ret, func(o *EnvironmentWrapper[T]) bool {
 		for _, f := range filters {
 			if !f(o.Obj, o.Cluster) {
 				return true
@@ -182,7 +182,7 @@ func (d *DataStore[T]) GetByNamespace(namespace string, filters ...Filter) []Env
 	})
 }
 
-func (d *DataStore[T]) GetByCluster(cluster string, filters ...Filter) []EnvironmentWrapper[T] {
+func (d *DataStore[T]) GetByCluster(cluster string, filters ...Filter) []*EnvironmentWrapper[T] {
 	d.lock.RLock()
 	defer d.lock.RUnlock()
 
@@ -195,7 +195,7 @@ func (d *DataStore[T]) GetByCluster(cluster string, filters ...Filter) []Environ
 		return ret
 	}
 
-	return slices.DeleteFunc(ret, func(o EnvironmentWrapper[T]) bool {
+	return slices.DeleteFunc(ret, func(o *EnvironmentWrapper[T]) bool {
 		for _, f := range filters {
 			if !f(o.Obj, o.Cluster) {
 				return true
@@ -218,7 +218,7 @@ func (d *DataStore[T]) Get(cluster, namespace, name string) (T, error) {
 	return t, &ErrorNotFound{Cluster: cluster, Namespace: namespace, Name: name}
 }
 
-func (d *DataStore[T]) All() []T {
+func (d *DataStore[T]) All() []*EnvironmentWrapper[T] {
 	d.lock.RLock()
 	defer d.lock.RUnlock()
 
@@ -227,7 +227,7 @@ func (d *DataStore[T]) All() []T {
 		size += len(l)
 	}
 
-	ret := make([]T, size)
+	ret := make([]*EnvironmentWrapper[T], size)
 	if size == 0 {
 		return ret
 	}
@@ -235,7 +235,7 @@ func (d *DataStore[T]) All() []T {
 	i := 0
 	for _, l := range d.cluster {
 		for _, o := range l {
-			ret[i] = o.Obj
+			ret[i] = o
 			i++
 		}
 	}

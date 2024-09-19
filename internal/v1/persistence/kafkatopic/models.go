@@ -34,8 +34,8 @@ type KafkaTopic struct {
 }
 
 func (KafkaTopic) IsPersistence() {}
-
-func (KafkaTopic) IsNode() {}
+func (KafkaTopic) IsSearchNode()  {}
+func (KafkaTopic) IsNode()        {}
 
 func (k KafkaTopic) ID() ident.Ident {
 	return newIdent(k.TeamSlug, k.EnvironmentName, k.Name)

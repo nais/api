@@ -33,8 +33,8 @@ type OpenSearch struct {
 }
 
 func (OpenSearch) IsPersistence() {}
-
-func (OpenSearch) IsNode() {}
+func (OpenSearch) IsSearchNode()  {}
+func (OpenSearch) IsNode()        {}
 
 func (r *OpenSearch) GetName() string { return r.Name }
 

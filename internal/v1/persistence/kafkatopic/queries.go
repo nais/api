@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
+	"github.com/nais/api/internal/v1/searchv1"
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
@@ -39,7 +40,7 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 func ListForWorkload(ctx context.Context, teamSlug slug.Slug, workloadName, poolName string, orderBy *KafkaTopicACLOrder) (*KafkaTopicACLConnection, error) {
 	topics := fromContext(ctx).watcher.All()
 	ret := make([]*KafkaTopicACL, 0)
-	for _, t := range topics {
+	for _, t := range watcher.Objects(topics) {
 		if t.Pool != poolName {
 			continue
 		}
@@ -52,6 +53,23 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, workloadName, pool
 	}
 	orderTopicACLs(ret, orderBy)
 	return pagination.NewConnectionWithoutPagination(ret), nil
+}
+
+func Search(ctx context.Context, q string) ([]*searchv1.Result, error) {
+	apps := fromContext(ctx).watcher.All()
+
+	ret := make([]*searchv1.Result, 0)
+	for _, app := range apps {
+		rank := searchv1.Match(q, app.Obj.Name)
+		if searchv1.Include(rank) {
+			ret = append(ret, &searchv1.Result{
+				Rank: rank,
+				Node: app.Obj,
+			})
+		}
+	}
+
+	return ret, nil
 }
 
 func stringMatch(s, pattern string) bool {

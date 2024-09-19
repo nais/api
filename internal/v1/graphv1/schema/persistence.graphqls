@@ -713,3 +713,16 @@ enum SqlInstanceUserOrderField {
 	NAME
 	AUTHENTICATION
 }
+
+
+
+
+extend union SearchNode = SqlInstance | RedisInstance | OpenSearch | KafkaTopic | Bucket | BigQueryDataset
+extend enum SearchType {
+	SQL_INSTANCE
+	REDIS_INSTANCE
+	OPENSEARCH
+	KAFKA_TOPIC
+	BUCKET
+	BIGQUERY_DATASET
+}

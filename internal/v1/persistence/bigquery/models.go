@@ -42,8 +42,8 @@ type BigQueryDataset struct {
 }
 
 func (BigQueryDataset) IsPersistence() {}
-
-func (BigQueryDataset) IsNode() {}
+func (BigQueryDataset) IsSearchNode()  {}
+func (BigQueryDataset) IsNode()        {}
 
 func (b *BigQueryDataset) GetName() string { return b.Name }
 

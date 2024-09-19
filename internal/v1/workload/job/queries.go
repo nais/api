@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
+	"github.com/nais/api/internal/v1/searchv1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
 )
@@ -98,4 +99,21 @@ func Runs(ctx context.Context, teamSlug slug.Slug, jobName string, page *paginat
 
 	runs := pagination.Slice(ret, page)
 	return pagination.NewConnection(runs, page, int32(len(ret))), nil
+}
+
+func Search(ctx context.Context, q string) ([]*searchv1.Result, error) {
+	apps := fromContext(ctx).jobWatcher.All()
+
+	ret := make([]*searchv1.Result, 0)
+	for _, app := range apps {
+		rank := searchv1.Match(q, app.Obj.Name)
+		if searchv1.Include(rank) {
+			ret = append(ret, &searchv1.Result{
+				Rank: rank,
+				Node: toGraphJob(app.Obj, app.Cluster),
+			})
+		}
+	}
+
+	return ret, nil
 }

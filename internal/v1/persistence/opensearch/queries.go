@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
+	"github.com/nais/api/internal/v1/searchv1"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 )
 
@@ -75,6 +76,23 @@ func GetForWorkload(ctx context.Context, teamSlug slug.Slug, environment string,
 	}
 
 	return fromContext(ctx).client.watcher.Get(environment, teamSlug.String(), openSearchNamer(teamSlug, reference.Instance))
+}
+
+func Search(ctx context.Context, q string) ([]*searchv1.Result, error) {
+	apps := fromContext(ctx).client.watcher.All()
+
+	ret := make([]*searchv1.Result, 0)
+	for _, app := range apps {
+		rank := searchv1.Match(q, app.Obj.Name)
+		if searchv1.Include(rank) {
+			ret = append(ret, &searchv1.Result{
+				Rank: rank,
+				Node: app.Obj,
+			})
+		}
+	}
+
+	return ret, nil
 }
 
 func orderOpenSearch(ret []*OpenSearch, orderBy *OpenSearchOrder) {

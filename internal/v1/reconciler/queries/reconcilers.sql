@@ -65,6 +65,8 @@ FROM
 	reconcilers
 WHERE
 	name = ANY (@names::TEXT[])
+ORDER BY
+	name ASC
 ;
 
 -- name: GetConfig :many
