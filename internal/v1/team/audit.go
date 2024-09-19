@@ -12,6 +12,7 @@ const (
 	auditActionCreateDeleteKey  auditv1.AuditAction       = "CREATE_DELETE_KEY"
 	auditActionConfirmDeleteKey                           = "CONFIRM_DELETE_KEY"
 	auditActionAddMember                                  = "ADD_MEMBER"
+	auditActionRemoveMember                               = "REMOVE_MEMBER"
 )
 
 func init() {
@@ -53,6 +54,17 @@ func init() {
 			}
 			return TeamMemberAddedAuditEntry{
 				GenericAuditEntry: entry.WithMessage("Add member"),
+				Data:              data,
+			}, nil
+		case auditActionRemoveMember:
+			data, err := auditv1.TransformData(entry, func(data *TeamMemberRemovedAuditEntryData) *TeamMemberRemovedAuditEntryData {
+				return data
+			})
+			if err != nil {
+				return nil, err
+			}
+			return TeamMemberRemovedAuditEntry{
+				GenericAuditEntry: entry.WithMessage("Remove member"),
 				Data:              data,
 			}, nil
 		default:
@@ -97,4 +109,14 @@ type TeamMemberAddedAuditEntryData struct {
 	Role      TeamMemberRole `json:"role"`
 	UserID    uuid.UUID      `json:"userID"`
 	UserEmail string         `json:"userEmail"`
+}
+
+type TeamMemberRemovedAuditEntry struct {
+	auditv1.GenericAuditEntry
+	Data *TeamMemberRemovedAuditEntryData `json:"data"`
+}
+
+type TeamMemberRemovedAuditEntryData struct {
+	UserID    uuid.UUID `json:"userID"`
+	UserEmail string    `json:"userEmail"`
 }

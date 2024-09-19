@@ -418,3 +418,15 @@ type AddTeamMemberPayload struct {
 	UserID        uuid.UUID `json:"-"`
 	TeamSlug      slug.Slug `json:"-"`
 }
+
+type RemoveTeamMemberInput struct {
+	TeamSlug  slug.Slug `json:"teamSlug"`
+	UserEmail string    `json:"userEmail"`
+	UserID    uuid.UUID `json:"-"`
+}
+
+type RemoveTeamMemberPayload struct {
+	CorrelationID uuid.UUID `json:"correlationID"`
+	UserID        uuid.UUID `json:"-"`
+	TeamSlug      slug.Slug `json:"-"`
+}

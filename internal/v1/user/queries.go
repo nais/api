@@ -10,7 +10,11 @@ import (
 )
 
 func Get(ctx context.Context, userID uuid.UUID) (*User, error) {
-	return fromContext(ctx).userLoader.Load(ctx, userID)
+	user, err := fromContext(ctx).userLoader.Load(ctx, userID)
+	if err != nil {
+		return nil, handleError(err)
+	}
+	return user, nil
 }
 
 func GetByIdent(ctx context.Context, ident ident.Ident) (*User, error) {
@@ -41,9 +45,9 @@ func List(ctx context.Context, page *pagination.Pagination, orderBy *UserOrder) 
 }
 
 func GetByEmail(ctx context.Context, email string) (*User, error) {
-	usr, err := fromContext(ctx).internalQuerier.GetByEmail(ctx, email)
+	u, err := db(ctx).GetByEmail(ctx, email)
 	if err != nil {
-		return nil, err
+		return nil, handleError(err)
 	}
-	return toGraphUser(usr), nil
+	return toGraphUser(u), nil
 }

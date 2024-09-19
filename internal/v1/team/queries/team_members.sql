@@ -98,3 +98,10 @@ VALUES
 	(@user_id, @role_name, @team_slug::slug)
 ON CONFLICT DO NOTHING
 ;
+
+-- name: RemoveMember :exec
+DELETE FROM user_roles
+WHERE
+	user_id = @user_id
+	AND target_team_slug = @team_slug::slug
+;

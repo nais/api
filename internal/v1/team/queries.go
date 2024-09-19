@@ -347,6 +347,40 @@ func AddMember(ctx context.Context, input AddTeamMemberInput, actor *authz.Actor
 	})
 }
 
+func RemoveMember(ctx context.Context, input RemoveTeamMemberInput, actor *authz.Actor) error {
+	_, err := db(ctx).GetMember(ctx, teamsql.GetMemberParams{
+		TeamSlug: input.TeamSlug,
+		UserID:   input.UserID,
+	})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return apierror.Errorf("User is not a member of the team.")
+	} else if err != nil {
+		return err
+	}
+
+	return databasev1.Transaction(ctx, func(ctx context.Context) error {
+		params := teamsql.RemoveMemberParams{
+			UserID:   input.UserID,
+			TeamSlug: input.TeamSlug,
+		}
+		if err := db(ctx).RemoveMember(ctx, params); err != nil {
+			return err
+		}
+
+		return auditv1.Create(ctx, auditv1.CreateInput{
+			Action:       auditActionRemoveMember,
+			Actor:        actor.User,
+			ResourceType: auditResourceTypeTeam,
+			ResourceName: input.TeamSlug.String(),
+			TeamSlug:     ptr.To(input.TeamSlug),
+			Data: &TeamMemberRemovedAuditEntryData{
+				UserID:    input.UserID,
+				UserEmail: input.UserEmail,
+			},
+		})
+	})
+}
+
 func teamMemberRoleToSqlRole(role TeamMemberRole) (teamsql.RoleName, error) {
 	var roleName teamsql.RoleName
 	switch role {

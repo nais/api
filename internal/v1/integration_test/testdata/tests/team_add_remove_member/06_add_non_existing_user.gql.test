@@ -1,0 +1,27 @@
+mutation {
+	addTeamMember(input:{
+    	teamSlug: "{{ .teamSlug }}"
+    	userEmail: "doesnotexist@example.com"
+    	role: MEMBER
+  	}) {
+    	correlationID
+  	}
+}
+
+RETURNS
+
+OPTION data.addTeamMember.correlationID=IGNORE
+
+ENDOPTS
+
+{
+	"data": null,
+	"errors": [
+		{
+			"message": "The specified user was not found.",
+			"path": [
+				"addTeamMember"
+			]
+		}
+	]
+}

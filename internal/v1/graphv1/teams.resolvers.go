@@ -140,6 +140,11 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, input team.AddTeam
 		return nil, err
 	}
 
+	_, err := team.Get(ctx, input.TeamSlug)
+	if err != nil {
+		return nil, err
+	}
+
 	u, err := user.GetByEmail(ctx, input.UserEmail)
 	if err != nil {
 		return nil, err
@@ -162,6 +167,39 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, input team.AddTeam
 	}, nil
 }
 
+func (r *mutationResolver) RemoveTeamMember(ctx context.Context, input team.RemoveTeamMemberInput) (*team.RemoveTeamMemberPayload, error) {
+	actor := authz.ActorFromContext(ctx)
+	if err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMembersAdmin, input.TeamSlug); err != nil {
+		return nil, err
+	}
+
+	_, err := team.Get(ctx, input.TeamSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	u, err := user.GetByEmail(ctx, input.UserEmail)
+	if err != nil {
+		return nil, err
+	}
+
+	input.UserID = u.UUID
+	if err := team.RemoveMember(ctx, input, actor); err != nil {
+		return nil, err
+	}
+
+	correlationID := uuid.New()
+	if err := r.triggerTeamUpdatedEvent(ctx, input.TeamSlug, correlationID); err != nil {
+		return nil, err
+	}
+
+	return &team.RemoveTeamMemberPayload{
+		CorrelationID: correlationID,
+		UserID:        u.UUID,
+		TeamSlug:      input.TeamSlug,
+	}, nil
+}
+
 func (r *queryResolver) Teams(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) (*pagination.Connection[*team.Team], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -173,6 +211,14 @@ func (r *queryResolver) Teams(ctx context.Context, first *int, after *pagination
 
 func (r *queryResolver) Team(ctx context.Context, slug slug.Slug) (*team.Team, error) {
 	return team.Get(ctx, slug)
+}
+
+func (r *removeTeamMemberPayloadResolver) User(ctx context.Context, obj *team.RemoveTeamMemberPayload) (*user.User, error) {
+	return user.Get(ctx, obj.UserID)
+}
+
+func (r *removeTeamMemberPayloadResolver) Team(ctx context.Context, obj *team.RemoveTeamMemberPayload) (*team.Team, error) {
+	return team.Get(ctx, obj.TeamSlug)
 }
 
 func (r *teamResolver) Members(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) (*pagination.Connection[*team.TeamMember], error) {
@@ -224,8 +270,16 @@ func (r *teamMemberAddedAuditEntryDataResolver) User(ctx context.Context, obj *t
 	return user.Get(ctx, obj.UserID)
 }
 
+func (r *teamMemberRemovedAuditEntryDataResolver) User(ctx context.Context, obj *team.TeamMemberRemovedAuditEntryData) (*user.User, error) {
+	return user.Get(ctx, obj.UserID)
+}
+
 func (r *Resolver) AddTeamMemberPayload() gengqlv1.AddTeamMemberPayloadResolver {
 	return &addTeamMemberPayloadResolver{r}
+}
+
+func (r *Resolver) RemoveTeamMemberPayload() gengqlv1.RemoveTeamMemberPayloadResolver {
+	return &removeTeamMemberPayloadResolver{r}
 }
 
 func (r *Resolver) Team() gengqlv1.TeamResolver { return &teamResolver{r} }
@@ -242,11 +296,17 @@ func (r *Resolver) TeamMemberAddedAuditEntryData() gengqlv1.TeamMemberAddedAudit
 	return &teamMemberAddedAuditEntryDataResolver{r}
 }
 
+func (r *Resolver) TeamMemberRemovedAuditEntryData() gengqlv1.TeamMemberRemovedAuditEntryDataResolver {
+	return &teamMemberRemovedAuditEntryDataResolver{r}
+}
+
 type (
-	addTeamMemberPayloadResolver          struct{ *Resolver }
-	teamResolver                          struct{ *Resolver }
-	teamDeleteKeyResolver                 struct{ *Resolver }
-	teamEnvironmentResolver               struct{ *Resolver }
-	teamMemberResolver                    struct{ *Resolver }
-	teamMemberAddedAuditEntryDataResolver struct{ *Resolver }
+	addTeamMemberPayloadResolver            struct{ *Resolver }
+	removeTeamMemberPayloadResolver         struct{ *Resolver }
+	teamResolver                            struct{ *Resolver }
+	teamDeleteKeyResolver                   struct{ *Resolver }
+	teamEnvironmentResolver                 struct{ *Resolver }
+	teamMemberResolver                      struct{ *Resolver }
+	teamMemberAddedAuditEntryDataResolver   struct{ *Resolver }
+	teamMemberRemovedAuditEntryDataResolver struct{ *Resolver }
 )

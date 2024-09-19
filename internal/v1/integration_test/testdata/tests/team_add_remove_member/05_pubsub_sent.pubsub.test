@@ -1,0 +1,9 @@
+RETURNS
+
+OPTION topic=topic
+
+ENDOPTS
+
+{
+  	"slug": "myteam"
+}

@@ -1,0 +1,69 @@
+mutation {
+	addTeamMember(input:{
+    	teamSlug: "{{ .teamSlug }}"
+    	userEmail: "email-3@example.com"
+    	role: OWNER
+  	}) {
+    	correlationID
+    	user {
+      		email
+      		name
+    	}
+    	team {
+      		members {
+        		nodes {
+          			role
+          			user {
+            			email
+            			name
+          			}
+        		}
+      		}
+    	}
+  	}
+}
+
+RETURNS
+
+OPTION data.addTeamMember.correlationID=IGNORE
+
+ENDOPTS
+
+{
+	"data": {
+    	"addTeamMember": {
+      		"correlationID": "something",
+      		"team": {
+        		"members": {
+          			"nodes": [
+            			{
+              				"role": "OWNER",
+              				"user": {
+                				"email": "authenticated@example.com",
+                				"name": "Authenticated User"
+              				}
+            			},
+            			{
+              				"role": "MEMBER",
+              				"user": {
+                				"email": "email-2@example.com",
+                				"name": "name-2"
+              				}
+            			},
+            			{
+							"role": "OWNER",
+							"user": {
+								"email": "email-3@example.com",
+								"name": "name-3"
+							}
+						}
+          			]
+        		}
+      		},
+      		"user": {
+        		"email": "email-3@example.com",
+        		"name": "name-3"
+      		}
+    	}
+  	}
+}

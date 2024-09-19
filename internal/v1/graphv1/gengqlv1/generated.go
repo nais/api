@@ -79,6 +79,7 @@ type ResolverRoot interface {
 	Reconciler() ReconcilerResolver
 	RedisInstance() RedisInstanceResolver
 	RedisInstanceAccess() RedisInstanceAccessResolver
+	RemoveTeamMemberPayload() RemoveTeamMemberPayloadResolver
 	Repository() RepositoryResolver
 	SqlDatabase() SqlDatabaseResolver
 	SqlInstance() SqlInstanceResolver
@@ -88,6 +89,7 @@ type ResolverRoot interface {
 	TeamEnvironment() TeamEnvironmentResolver
 	TeamMember() TeamMemberResolver
 	TeamMemberAddedAuditEntryData() TeamMemberAddedAuditEntryDataResolver
+	TeamMemberRemovedAuditEntryData() TeamMemberRemovedAuditEntryDataResolver
 	User() UserResolver
 	WorkloadCost() WorkloadCostResolver
 }
@@ -462,6 +464,7 @@ type ComplexityRoot struct {
 		DisableReconciler        func(childComplexity int, name string) int
 		EnableReconciler         func(childComplexity int, name string) int
 		RemoveRepositoryFromTeam func(childComplexity int, input repository.RemoveRepositoryFromTeamInput) int
+		RemoveTeamMember         func(childComplexity int, input team.RemoveTeamMemberInput) int
 		RequestTeamDeletion      func(childComplexity int, input team.RequestTeamDeletionInput) int
 		SynchronizeTeam          func(childComplexity int, input team.SynchronizeTeamInput) int
 		UpdateTeam               func(childComplexity int, input team.UpdateTeamInput) int
@@ -619,6 +622,12 @@ type ComplexityRoot struct {
 
 	RemoveRepositoryFromTeamPayload struct {
 		Success func(childComplexity int) int
+	}
+
+	RemoveTeamMemberPayload struct {
+		CorrelationID func(childComplexity int) int
+		Team          func(childComplexity int) int
+		User          func(childComplexity int) int
 	}
 
 	Repository struct {
@@ -913,6 +922,24 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	TeamMemberRemovedAuditEntry struct {
+		Actor           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		ResourceName    func(childComplexity int) int
+		ResourceType    func(childComplexity int) int
+		TeamSlug        func(childComplexity int) int
+	}
+
+	TeamMemberRemovedAuditEntryData struct {
+		User      func(childComplexity int) int
+		UserEmail func(childComplexity int) int
+		UserID    func(childComplexity int) int
+	}
+
 	TeamUpdatedAuditEntry struct {
 		Actor           func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
@@ -1067,6 +1094,7 @@ type MutationResolver interface {
 	RequestTeamDeletion(ctx context.Context, input team.RequestTeamDeletionInput) (*team.RequestTeamDeletionPayload, error)
 	ConfirmTeamDeletion(ctx context.Context, input team.ConfirmTeamDeletionInput) (*team.ConfirmTeamDeletionPayload, error)
 	AddTeamMember(ctx context.Context, input team.AddTeamMemberInput) (*team.AddTeamMemberPayload, error)
+	RemoveTeamMember(ctx context.Context, input team.RemoveTeamMemberInput) (*team.RemoveTeamMemberPayload, error)
 }
 type NetworkPolicyRuleResolver interface {
 	TargetWorkload(ctx context.Context, obj *netpol.NetworkPolicyRule) (workload.Workload, error)
@@ -1108,6 +1136,10 @@ type RedisInstanceResolver interface {
 }
 type RedisInstanceAccessResolver interface {
 	Workload(ctx context.Context, obj *redis.RedisInstanceAccess) (workload.Workload, error)
+}
+type RemoveTeamMemberPayloadResolver interface {
+	User(ctx context.Context, obj *team.RemoveTeamMemberPayload) (*user.User, error)
+	Team(ctx context.Context, obj *team.RemoveTeamMemberPayload) (*team.Team, error)
 }
 type RepositoryResolver interface {
 	Team(ctx context.Context, obj *repository.Repository) (*team.Team, error)
@@ -1164,6 +1196,9 @@ type TeamMemberResolver interface {
 }
 type TeamMemberAddedAuditEntryDataResolver interface {
 	User(ctx context.Context, obj *team.TeamMemberAddedAuditEntryData) (*user.User, error)
+}
+type TeamMemberRemovedAuditEntryDataResolver interface {
+	User(ctx context.Context, obj *team.TeamMemberRemovedAuditEntryData) (*user.User, error)
 }
 type UserResolver interface {
 	Teams(ctx context.Context, obj *user.User, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.UserTeamOrder) (*pagination.Connection[*team.TeamMember], error)
@@ -2728,6 +2763,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.RemoveRepositoryFromTeam(childComplexity, args["input"].(repository.RemoveRepositoryFromTeamInput)), true
 
+	case "Mutation.removeTeamMember":
+		if e.complexity.Mutation.RemoveTeamMember == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_removeTeamMember_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RemoveTeamMember(childComplexity, args["input"].(team.RemoveTeamMemberInput)), true
+
 	case "Mutation.requestTeamDeletion":
 		if e.complexity.Mutation.RequestTeamDeletion == nil {
 			break
@@ -3382,6 +3429,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RemoveRepositoryFromTeamPayload.Success(childComplexity), true
+
+	case "RemoveTeamMemberPayload.correlationID":
+		if e.complexity.RemoveTeamMemberPayload.CorrelationID == nil {
+			break
+		}
+
+		return e.complexity.RemoveTeamMemberPayload.CorrelationID(childComplexity), true
+
+	case "RemoveTeamMemberPayload.team":
+		if e.complexity.RemoveTeamMemberPayload.Team == nil {
+			break
+		}
+
+		return e.complexity.RemoveTeamMemberPayload.Team(childComplexity), true
+
+	case "RemoveTeamMemberPayload.user":
+		if e.complexity.RemoveTeamMemberPayload.User == nil {
+			break
+		}
+
+		return e.complexity.RemoveTeamMemberPayload.User(childComplexity), true
 
 	case "Repository.id":
 		if e.complexity.Repository.ID == nil {
@@ -4698,6 +4766,90 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamMemberEdge.Node(childComplexity), true
 
+	case "TeamMemberRemovedAuditEntry.actor":
+		if e.complexity.TeamMemberRemovedAuditEntry.Actor == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberRemovedAuditEntry.Actor(childComplexity), true
+
+	case "TeamMemberRemovedAuditEntry.createdAt":
+		if e.complexity.TeamMemberRemovedAuditEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberRemovedAuditEntry.CreatedAt(childComplexity), true
+
+	case "TeamMemberRemovedAuditEntry.data":
+		if e.complexity.TeamMemberRemovedAuditEntry.Data == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberRemovedAuditEntry.Data(childComplexity), true
+
+	case "TeamMemberRemovedAuditEntry.environmentName":
+		if e.complexity.TeamMemberRemovedAuditEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberRemovedAuditEntry.EnvironmentName(childComplexity), true
+
+	case "TeamMemberRemovedAuditEntry.id":
+		if e.complexity.TeamMemberRemovedAuditEntry.ID == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberRemovedAuditEntry.ID(childComplexity), true
+
+	case "TeamMemberRemovedAuditEntry.message":
+		if e.complexity.TeamMemberRemovedAuditEntry.Message == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberRemovedAuditEntry.Message(childComplexity), true
+
+	case "TeamMemberRemovedAuditEntry.resourceName":
+		if e.complexity.TeamMemberRemovedAuditEntry.ResourceName == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberRemovedAuditEntry.ResourceName(childComplexity), true
+
+	case "TeamMemberRemovedAuditEntry.resourceType":
+		if e.complexity.TeamMemberRemovedAuditEntry.ResourceType == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberRemovedAuditEntry.ResourceType(childComplexity), true
+
+	case "TeamMemberRemovedAuditEntry.teamSlug":
+		if e.complexity.TeamMemberRemovedAuditEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberRemovedAuditEntry.TeamSlug(childComplexity), true
+
+	case "TeamMemberRemovedAuditEntryData.user":
+		if e.complexity.TeamMemberRemovedAuditEntryData.User == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberRemovedAuditEntryData.User(childComplexity), true
+
+	case "TeamMemberRemovedAuditEntryData.userEmail":
+		if e.complexity.TeamMemberRemovedAuditEntryData.UserEmail == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberRemovedAuditEntryData.UserEmail(childComplexity), true
+
+	case "TeamMemberRemovedAuditEntryData.userID":
+		if e.complexity.TeamMemberRemovedAuditEntryData.UserID == nil {
+			break
+		}
+
+		return e.complexity.TeamMemberRemovedAuditEntryData.UserID(childComplexity), true
+
 	case "TeamUpdatedAuditEntry.actor":
 		if e.complexity.TeamUpdatedAuditEntry.Actor == nil {
 			break
@@ -4987,6 +5139,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRedisInstanceAccessOrder,
 		ec.unmarshalInputRedisInstanceOrder,
 		ec.unmarshalInputRemoveRepositoryFromTeamInput,
+		ec.unmarshalInputRemoveTeamMemberInput,
 		ec.unmarshalInputRequestTeamDeletionInput,
 		ec.unmarshalInputSearchFilter,
 		ec.unmarshalInputSqlInstanceOrder,
@@ -6827,11 +6980,18 @@ extend type Mutation {
 	confirmTeamDeletion(input: ConfirmTeamDeletionInput!): ConfirmTeamDeletionPayload!
 
 	"""
-	Add a user to a team
+	Add a team member
 
-	If the user is already a member or an owner of the team, the mutation will fail.
+	If the user is already a member or an owner of the team, the mutation will result in an error.
 	"""
 	addTeamMember(input: AddTeamMemberInput!): AddTeamMemberPayload!
+
+	"""
+	Remove a team member
+
+	If the user is not already a member or an owner of the team, the mutation will result in an error.
+	"""
+	removeTeamMember(input: RemoveTeamMemberInput!): RemoveTeamMemberPayload!
 }
 
 """
@@ -6966,6 +7126,17 @@ type AddTeamMemberPayload {
 	user: User!
 
 	"The team that the member was added to."
+	team: Team!
+}
+
+type RemoveTeamMemberPayload {
+	"Correlation ID to trace the process."
+	correlationID: UUID!
+
+	"The user that was removed from the team."
+	user: User!
+
+	"The team that the member was removed from."
 	team: Team!
 }
 
@@ -7110,6 +7281,14 @@ input AddTeamMemberInput {
 
 	"The role that the user will have in the team."
 	role: TeamMemberRole!
+}
+
+input RemoveTeamMemberInput {
+	"Slug of the team that the member should be removed from."
+	teamSlug: Slug!
+
+	"The email address of the user to remove from the team."
+	userEmail: String!
 }
 
 "Possible fields to order teams by."
@@ -7292,8 +7471,8 @@ type TeamMemberAddedAuditEntry implements AuditEntry & Node {
 	"The environment name that the entry belongs to."
 	environmentName: String
 
-	"Data associated with the update."
-	data: TeamMemberAddedAuditEntryData
+	"Data associated with the action."
+	data: TeamMemberAddedAuditEntryData!
 }
 
 type TeamMemberAddedAuditEntryData {
@@ -7304,6 +7483,46 @@ type TeamMemberAddedAuditEntryData {
 	userID: UUID!
 
 	"The email address of the user that was added."
+	userEmail: String!
+
+	"The user itself."
+	user: User
+}
+
+type TeamMemberRemovedAuditEntry implements AuditEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: AuditResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the action."
+	data: TeamMemberRemovedAuditEntryData!
+}
+
+type TeamMemberRemovedAuditEntryData {
+	"The ID of the user that was removed."
+	userID: UUID!
+
+	"The email address of the user that was removed."
 	userEmail: String!
 
 	"The user itself."
@@ -8959,6 +9178,38 @@ func (ec *executionContext) field_Mutation_removeRepositoryFromTeam_argsInput(
 	}
 
 	var zeroVal repository.RemoveRepositoryFromTeamInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_removeTeamMember_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_removeTeamMember_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_removeTeamMember_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (team.RemoveTeamMemberInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal team.RemoveTeamMemberInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNRemoveTeamMemberInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐRemoveTeamMemberInput(ctx, tmp)
+	}
+
+	var zeroVal team.RemoveTeamMemberInput
 	return zeroVal, nil
 }
 
@@ -23165,6 +23416,69 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_removeTeamMember(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_removeTeamMember(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RemoveTeamMember(rctx, fc.Args["input"].(team.RemoveTeamMemberInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.RemoveTeamMemberPayload)
+	fc.Result = res
+	return ec.marshalNRemoveTeamMemberPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐRemoveTeamMemberPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_removeTeamMember(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "correlationID":
+				return ec.fieldContext_RemoveTeamMemberPayload_correlationID(ctx, field)
+			case "user":
+				return ec.fieldContext_RemoveTeamMemberPayload_user(ctx, field)
+			case "team":
+				return ec.fieldContext_RemoveTeamMemberPayload_team(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RemoveTeamMemberPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_removeTeamMember_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _NetworkPolicy_inbound(ctx context.Context, field graphql.CollectedField, obj *netpol.NetworkPolicy) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_NetworkPolicy_inbound(ctx, field)
 	if err != nil {
@@ -27554,6 +27868,206 @@ func (ec *executionContext) fieldContext_RemoveRepositoryFromTeamPayload_success
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RemoveTeamMemberPayload_correlationID(ctx context.Context, field graphql.CollectedField, obj *team.RemoveTeamMemberPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RemoveTeamMemberPayload_correlationID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CorrelationID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uuid.UUID)
+	fc.Result = res
+	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_correlationID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RemoveTeamMemberPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UUID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RemoveTeamMemberPayload_user(ctx context.Context, field graphql.CollectedField, obj *team.RemoveTeamMemberPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RemoveTeamMemberPayload_user(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.RemoveTeamMemberPayload().User(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*user.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋuserᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RemoveTeamMemberPayload",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "externalID":
+				return ec.fieldContext_User_externalID(ctx, field)
+			case "teams":
+				return ec.fieldContext_User_teams(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RemoveTeamMemberPayload_team(ctx context.Context, field graphql.CollectedField, obj *team.RemoveTeamMemberPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RemoveTeamMemberPayload_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.RemoveTeamMemberPayload().Team(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.Team)
+	fc.Result = res
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RemoveTeamMemberPayload",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
+			case "applications":
+				return ec.fieldContext_Team_applications(ctx, field)
+			case "auditEntries":
+				return ec.fieldContext_Team_auditEntries(ctx, field)
+			case "cost":
+				return ec.fieldContext_Team_cost(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Team_jobs(ctx, field)
+			case "bigQueryDatasets":
+				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
+			case "redisInstances":
+				return ec.fieldContext_Team_redisInstances(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "repositories":
+				return ec.fieldContext_Team_repositories(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
 	}
 	return fc, nil
@@ -36062,11 +36576,14 @@ func (ec *executionContext) _TeamMemberAddedAuditEntry_data(ctx context.Context,
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*team.TeamMemberAddedAuditEntryData)
 	fc.Result = res
-	return ec.marshalOTeamMemberAddedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMemberAddedAuditEntryData(ctx, field.Selections, res)
+	return ec.marshalNTeamMemberAddedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMemberAddedAuditEntryData(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -36526,6 +37043,548 @@ func (ec *executionContext) fieldContext_TeamMemberEdge_node(_ context.Context, 
 				return ec.fieldContext_TeamMember_role(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamMember", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberRemovedAuditEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntry_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ident.Ident)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋidentᚐIdent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberRemovedAuditEntry",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberRemovedAuditEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntry_actor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Actor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberRemovedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberRemovedAuditEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntry_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberRemovedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberRemovedAuditEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntry_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberRemovedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberRemovedAuditEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntry_resourceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(auditv1.AuditResourceType)
+	fc.Result = res
+	return ec.marshalNAuditResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋauditv1ᚐAuditResourceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberRemovedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuditResourceType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberRemovedAuditEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntry_resourceName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResourceName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberRemovedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberRemovedAuditEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntry_teamSlug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TeamSlug, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*slug.Slug)
+	fc.Result = res
+	return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberRemovedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Slug does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberRemovedAuditEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntry_environmentName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnvironmentName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberRemovedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberRemovedAuditEntry_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntry) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntry_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamMemberRemovedAuditEntryData)
+	fc.Result = res
+	return ec.marshalNTeamMemberRemovedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMemberRemovedAuditEntryData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberRemovedAuditEntry",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "userID":
+				return ec.fieldContext_TeamMemberRemovedAuditEntryData_userID(ctx, field)
+			case "userEmail":
+				return ec.fieldContext_TeamMemberRemovedAuditEntryData_userEmail(ctx, field)
+			case "user":
+				return ec.fieldContext_TeamMemberRemovedAuditEntryData_user(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamMemberRemovedAuditEntryData", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberRemovedAuditEntryData_userID(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntryData_userID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uuid.UUID)
+	fc.Result = res
+	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntryData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberRemovedAuditEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UUID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberRemovedAuditEntryData_userEmail(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntryData_userEmail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserEmail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntryData_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberRemovedAuditEntryData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMemberRemovedAuditEntryData_user(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedAuditEntryData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMemberRemovedAuditEntryData_user(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamMemberRemovedAuditEntryData().User(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*user.User)
+	fc.Result = res
+	return ec.marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋuserᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntryData_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMemberRemovedAuditEntryData",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "externalID":
+				return ec.fieldContext_User_externalID(ctx, field)
+			case "teams":
+				return ec.fieldContext_User_teams(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
 	}
 	return fc, nil
@@ -40706,6 +41765,40 @@ func (ec *executionContext) unmarshalInputRemoveRepositoryFromTeamInput(ctx cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRemoveTeamMemberInput(ctx context.Context, obj interface{}) (team.RemoveTeamMemberInput, error) {
+	var it team.RemoveTeamMemberInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"teamSlug", "userEmail"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		case "userEmail":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userEmail"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserEmail = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRequestTeamDeletionInput(ctx context.Context, obj interface{}) (team.RequestTeamDeletionInput, error) {
 	var it team.RequestTeamDeletionInput
 	asMap := map[string]interface{}{}
@@ -41207,6 +42300,19 @@ func (ec *executionContext) _AuditEntry(ctx context.Context, sel ast.SelectionSe
 			return graphql.Null
 		}
 		return ec._TeamMemberAddedAuditEntry(ctx, sel, obj)
+	case team.TeamMemberRemovedAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"AuditEntry", "TeamMemberRemovedAuditEntry"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._TeamMemberRemovedAuditEntry(ctx, sel, &obj)
+	case *team.TeamMemberRemovedAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"AuditEntry", "TeamMemberRemovedAuditEntry"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamMemberRemovedAuditEntry(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -41316,123 +42422,32 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamConfirmDeleteKeyAuditEntry(ctx, sel, obj)
-	case team.TeamUpdatedAuditEntry:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamUpdatedAuditEntry"})) == 0 {
+	case team.TeamCreateDeleteKeyAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamCreateDeleteKeyAuditEntry"})) == 0 {
 			return graphql.Empty{}
 		}
-		return ec._TeamUpdatedAuditEntry(ctx, sel, &obj)
-	case *team.TeamUpdatedAuditEntry:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamUpdatedAuditEntry"})) == 0 {
-			return graphql.Empty{}
-		}
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._TeamUpdatedAuditEntry(ctx, sel, obj)
-	case job.Job:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Job"})) == 0 {
-			return graphql.Empty{}
-		}
-		return ec._Job(ctx, sel, &obj)
-	case *job.Job:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Job"})) == 0 {
+		return ec._TeamCreateDeleteKeyAuditEntry(ctx, sel, &obj)
+	case *team.TeamCreateDeleteKeyAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamCreateDeleteKeyAuditEntry"})) == 0 {
 			return graphql.Empty{}
 		}
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Job(ctx, sel, obj)
-	case sqlinstance.SQLDatabase:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "SQLDatabase"})) == 0 {
+		return ec._TeamCreateDeleteKeyAuditEntry(ctx, sel, obj)
+	case team.TeamMemberRemovedAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamMemberRemovedAuditEntry"})) == 0 {
 			return graphql.Empty{}
 		}
-		return ec._SqlDatabase(ctx, sel, &obj)
-	case *sqlinstance.SQLDatabase:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "SQLDatabase"})) == 0 {
-			return graphql.Empty{}
-		}
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._SqlDatabase(ctx, sel, obj)
-	case sqlinstance.SQLInstance:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "SQLInstance"})) == 0 {
-			return graphql.Empty{}
-		}
-		return ec._SqlInstance(ctx, sel, &obj)
-	case *sqlinstance.SQLInstance:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "SQLInstance"})) == 0 {
+		return ec._TeamMemberRemovedAuditEntry(ctx, sel, &obj)
+	case *team.TeamMemberRemovedAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamMemberRemovedAuditEntry"})) == 0 {
 			return graphql.Empty{}
 		}
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SqlInstance(ctx, sel, obj)
-	case bigquery.BigQueryDataset:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "BigQueryDataset"})) == 0 {
-			return graphql.Empty{}
-		}
-		return ec._BigQueryDataset(ctx, sel, &obj)
-	case *bigquery.BigQueryDataset:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "BigQueryDataset"})) == 0 {
-			return graphql.Empty{}
-		}
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._BigQueryDataset(ctx, sel, obj)
-	case bucket.Bucket:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Bucket"})) == 0 {
-			return graphql.Empty{}
-		}
-		return ec._Bucket(ctx, sel, &obj)
-	case *bucket.Bucket:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Bucket"})) == 0 {
-			return graphql.Empty{}
-		}
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Bucket(ctx, sel, obj)
-	case kafkatopic.KafkaTopic:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "KafkaTopic"})) == 0 {
-			return graphql.Empty{}
-		}
-		return ec._KafkaTopic(ctx, sel, &obj)
-	case *kafkatopic.KafkaTopic:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "KafkaTopic"})) == 0 {
-			return graphql.Empty{}
-		}
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._KafkaTopic(ctx, sel, obj)
-	case opensearch.OpenSearch:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "OpenSearch"})) == 0 {
-			return graphql.Empty{}
-		}
-		return ec._OpenSearch(ctx, sel, &obj)
-	case *opensearch.OpenSearch:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "OpenSearch"})) == 0 {
-			return graphql.Empty{}
-		}
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._OpenSearch(ctx, sel, obj)
-	case redis.RedisInstance:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "RedisInstance"})) == 0 {
-			return graphql.Empty{}
-		}
-		return ec._RedisInstance(ctx, sel, &obj)
-	case *redis.RedisInstance:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "RedisInstance"})) == 0 {
-			return graphql.Empty{}
-		}
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._RedisInstance(ctx, sel, obj)
+		return ec._TeamMemberRemovedAuditEntry(ctx, sel, obj)
 	case team.TeamMemberAddedAuditEntry:
 		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamMemberAddedAuditEntry"})) == 0 {
 			return graphql.Empty{}
@@ -41459,19 +42474,32 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Application(ctx, sel, obj)
-	case team.TeamCreateDeleteKeyAuditEntry:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamCreateDeleteKeyAuditEntry"})) == 0 {
+	case bigquery.BigQueryDataset:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "BigQueryDataset"})) == 0 {
 			return graphql.Empty{}
 		}
-		return ec._TeamCreateDeleteKeyAuditEntry(ctx, sel, &obj)
-	case *team.TeamCreateDeleteKeyAuditEntry:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamCreateDeleteKeyAuditEntry"})) == 0 {
+		return ec._BigQueryDataset(ctx, sel, &obj)
+	case *bigquery.BigQueryDataset:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "BigQueryDataset"})) == 0 {
 			return graphql.Empty{}
 		}
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamCreateDeleteKeyAuditEntry(ctx, sel, obj)
+		return ec._BigQueryDataset(ctx, sel, obj)
+	case bucket.Bucket:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Bucket"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._Bucket(ctx, sel, &obj)
+	case *bucket.Bucket:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Bucket"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Bucket(ctx, sel, obj)
 	case team.TeamCreatedAuditEntry:
 		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamCreatedAuditEntry"})) == 0 {
 			return graphql.Empty{}
@@ -41485,40 +42513,97 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamCreatedAuditEntry(ctx, sel, obj)
-	case repository.Repository:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Repository"})) == 0 {
+	case opensearch.OpenSearch:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "OpenSearch"})) == 0 {
 			return graphql.Empty{}
 		}
-		return ec._Repository(ctx, sel, &obj)
-	case *repository.Repository:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Repository"})) == 0 {
-			return graphql.Empty{}
-		}
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._Repository(ctx, sel, obj)
-	case team.Team:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Team"})) == 0 {
-			return graphql.Empty{}
-		}
-		return ec._Team(ctx, sel, &obj)
-	case *team.Team:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Team"})) == 0 {
+		return ec._OpenSearch(ctx, sel, &obj)
+	case *opensearch.OpenSearch:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "OpenSearch"})) == 0 {
 			return graphql.Empty{}
 		}
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Team(ctx, sel, obj)
-	case auditv1.AuditEntry:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "AuditEntry"})) == 0 {
+		return ec._OpenSearch(ctx, sel, obj)
+	case redis.RedisInstance:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "RedisInstance"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._RedisInstance(ctx, sel, &obj)
+	case *redis.RedisInstance:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "RedisInstance"})) == 0 {
 			return graphql.Empty{}
 		}
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._AuditEntry(ctx, sel, obj)
+		return ec._RedisInstance(ctx, sel, obj)
+	case sqlinstance.SQLDatabase:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "SQLDatabase"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._SqlDatabase(ctx, sel, &obj)
+	case *sqlinstance.SQLDatabase:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "SQLDatabase"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SqlDatabase(ctx, sel, obj)
+	case sqlinstance.SQLInstance:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "SQLInstance"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._SqlInstance(ctx, sel, &obj)
+	case *sqlinstance.SQLInstance:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "SQLInstance"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._SqlInstance(ctx, sel, obj)
+	case job.Job:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Job"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._Job(ctx, sel, &obj)
+	case *job.Job:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Job"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Job(ctx, sel, obj)
+	case team.TeamUpdatedAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamUpdatedAuditEntry"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._TeamUpdatedAuditEntry(ctx, sel, &obj)
+	case *team.TeamUpdatedAuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamUpdatedAuditEntry"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TeamUpdatedAuditEntry(ctx, sel, obj)
+	case kafkatopic.KafkaTopic:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "KafkaTopic"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._KafkaTopic(ctx, sel, &obj)
+	case *kafkatopic.KafkaTopic:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "KafkaTopic"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._KafkaTopic(ctx, sel, obj)
 	case team.TeamEnvironment:
 		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "TeamEnvironment"})) == 0 {
 			return graphql.Empty{}
@@ -41532,45 +42617,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._TeamEnvironment(ctx, sel, obj)
-	case vulnerability.ImageVulnerability:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "ImageVulnerability"})) == 0 {
-			return graphql.Empty{}
-		}
-		return ec._ImageVulnerability(ctx, sel, &obj)
-	case *vulnerability.ImageVulnerability:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "ImageVulnerability"})) == 0 {
-			return graphql.Empty{}
-		}
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ImageVulnerability(ctx, sel, obj)
-	case workload.ContainerImage:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "ContainerImage"})) == 0 {
-			return graphql.Empty{}
-		}
-		return ec._ContainerImage(ctx, sel, &obj)
-	case *workload.ContainerImage:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "ContainerImage"})) == 0 {
-			return graphql.Empty{}
-		}
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ContainerImage(ctx, sel, obj)
-	case user.User:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "User"})) == 0 {
-			return graphql.Empty{}
-		}
-		return ec._User(ctx, sel, &obj)
-	case *user.User:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "User"})) == 0 {
-			return graphql.Empty{}
-		}
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._User(ctx, sel, obj)
 	case persistence.Persistence:
 		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Persistence"})) == 0 {
 			return graphql.Empty{}
@@ -41579,14 +42625,27 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Persistence(ctx, sel, obj)
-	case workload.Workload:
-		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Workload"})) == 0 {
+	case auditv1.AuditEntry:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "AuditEntry"})) == 0 {
 			return graphql.Empty{}
 		}
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Workload(ctx, sel, obj)
+		return ec._AuditEntry(ctx, sel, obj)
+	case team.Team:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Team"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._Team(ctx, sel, &obj)
+	case *team.Team:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Team"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Team(ctx, sel, obj)
 	case job.JobRun:
 		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "JobRun"})) == 0 {
 			return graphql.Empty{}
@@ -41600,6 +42659,66 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._JobRun(ctx, sel, obj)
+	case repository.Repository:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Repository"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._Repository(ctx, sel, &obj)
+	case *repository.Repository:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Repository"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Repository(ctx, sel, obj)
+	case user.User:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "User"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._User(ctx, sel, &obj)
+	case *user.User:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "User"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._User(ctx, sel, obj)
+	case vulnerability.ImageVulnerability:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "ImageVulnerability"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._ImageVulnerability(ctx, sel, &obj)
+	case *vulnerability.ImageVulnerability:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "ImageVulnerability"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ImageVulnerability(ctx, sel, obj)
+	case workload.Workload:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "Workload"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Workload(ctx, sel, obj)
+	case workload.ContainerImage:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "ContainerImage"})) == 0 {
+			return graphql.Empty{}
+		}
+		return ec._ContainerImage(ctx, sel, &obj)
+	case *workload.ContainerImage:
+		if len(graphql.CollectFields(ec.OperationContext, sel, []string{"Node", "ContainerImage"})) == 0 {
+			return graphql.Empty{}
+		}
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ContainerImage(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -48700,6 +49819,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "removeTeamMember":
+			field := field
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_removeTeamMember(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -51431,6 +52559,115 @@ func (ec *executionContext) _RemoveRepositoryFromTeamPayload(ctx context.Context
 				continue
 			}
 			out.Values[i] = ec._RemoveRepositoryFromTeamPayload_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var removeTeamMemberPayloadImplementors = []string{"RemoveTeamMemberPayload"}
+
+func (ec *executionContext) _RemoveTeamMemberPayload(ctx context.Context, sel ast.SelectionSet, obj *team.RemoveTeamMemberPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, removeTeamMemberPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RemoveTeamMemberPayload")
+		case "correlationID":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._RemoveTeamMemberPayload_correlationID(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._RemoveTeamMemberPayload_correlationID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "user":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._RemoveTeamMemberPayload_user(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._RemoveTeamMemberPayload_user(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "team":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._RemoveTeamMemberPayload_team(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._RemoveTeamMemberPayload_team(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -56709,6 +57946,9 @@ func (ec *executionContext) _TeamMemberAddedAuditEntry(ctx context.Context, sel 
 				continue
 			}
 			out.Values[i] = ec._TeamMemberAddedAuditEntry_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -57033,6 +58273,368 @@ func (ec *executionContext) _TeamMemberEdge(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamMemberRemovedAuditEntryImplementors = []string{"TeamMemberRemovedAuditEntry", "AuditEntry", "Node"}
+
+func (ec *executionContext) _TeamMemberRemovedAuditEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberRemovedAuditEntry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberRemovedAuditEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamMemberRemovedAuditEntry")
+		case "id":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamMemberRemovedAuditEntry_id(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamMemberRemovedAuditEntry_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actor":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamMemberRemovedAuditEntry_actor(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamMemberRemovedAuditEntry_actor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamMemberRemovedAuditEntry_createdAt(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamMemberRemovedAuditEntry_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamMemberRemovedAuditEntry_message(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamMemberRemovedAuditEntry_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceType":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamMemberRemovedAuditEntry_resourceType(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamMemberRemovedAuditEntry_resourceType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resourceName":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamMemberRemovedAuditEntry_resourceName(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamMemberRemovedAuditEntry_resourceName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamSlug":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamMemberRemovedAuditEntry_teamSlug(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamMemberRemovedAuditEntry_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamMemberRemovedAuditEntry_environmentName(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamMemberRemovedAuditEntry_environmentName(ctx, field, obj)
+		case "data":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamMemberRemovedAuditEntry_data(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamMemberRemovedAuditEntry_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamMemberRemovedAuditEntryDataImplementors = []string{"TeamMemberRemovedAuditEntryData"}
+
+func (ec *executionContext) _TeamMemberRemovedAuditEntryData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberRemovedAuditEntryData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberRemovedAuditEntryDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamMemberRemovedAuditEntryData")
+		case "userID":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamMemberRemovedAuditEntryData_userID(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamMemberRemovedAuditEntryData_userID(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userEmail":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamMemberRemovedAuditEntryData_userEmail(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamMemberRemovedAuditEntryData_userEmail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "user":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._TeamMemberRemovedAuditEntryData_user(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._TeamMemberRemovedAuditEntryData_user(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -62104,6 +63706,25 @@ func (ec *executionContext) marshalNRemoveRepositoryFromTeamPayload2ᚖgithubᚗ
 	return ec._RemoveRepositoryFromTeamPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNRemoveTeamMemberInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐRemoveTeamMemberInput(ctx context.Context, v interface{}) (team.RemoveTeamMemberInput, error) {
+	res, err := ec.unmarshalInputRemoveTeamMemberInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRemoveTeamMemberPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐRemoveTeamMemberPayload(ctx context.Context, sel ast.SelectionSet, v team.RemoveTeamMemberPayload) graphql.Marshaler {
+	return ec._RemoveTeamMemberPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRemoveTeamMemberPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐRemoveTeamMemberPayload(ctx context.Context, sel ast.SelectionSet, v *team.RemoveTeamMemberPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RemoveTeamMemberPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNRepository2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐRepositoryᚄ(ctx context.Context, sel ast.SelectionSet, v []*repository.Repository) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -63282,6 +64903,16 @@ func (ec *executionContext) marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 	return ec._TeamMember(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNTeamMemberAddedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMemberAddedAuditEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberAddedAuditEntryData) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamMemberAddedAuditEntryData(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNTeamMemberConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*team.TeamMember]) graphql.Marshaler {
 	return ec._TeamMemberConnection(ctx, sel, &v)
 }
@@ -63352,6 +64983,16 @@ func (ec *executionContext) unmarshalNTeamMemberOrderField2githubᚗcomᚋnais�
 
 func (ec *executionContext) marshalNTeamMemberOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMemberOrderField(ctx context.Context, sel ast.SelectionSet, v team.TeamMemberOrderField) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) marshalNTeamMemberRemovedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMemberRemovedAuditEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberRemovedAuditEntryData) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamMemberRemovedAuditEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMemberRole(ctx context.Context, v interface{}) (team.TeamMemberRole, error) {
@@ -64382,13 +66023,6 @@ func (ec *executionContext) marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 		return graphql.Null
 	}
 	return ec._Team(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOTeamMemberAddedAuditEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMemberAddedAuditEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberAddedAuditEntryData) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._TeamMemberAddedAuditEntryData(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOTeamMemberOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMemberOrder(ctx context.Context, v interface{}) (*team.TeamMemberOrder, error) {

@@ -246,3 +246,20 @@ func (q *Queries) ListMembers(ctx context.Context, arg ListMembersParams) ([]*Li
 	}
 	return items, nil
 }
+
+const removeMember = `-- name: RemoveMember :exec
+DELETE FROM user_roles
+WHERE
+	user_id = $1
+	AND target_team_slug = $2::slug
+`
+
+type RemoveMemberParams struct {
+	UserID   uuid.UUID
+	TeamSlug slug.Slug
+}
+
+func (q *Queries) RemoveMember(ctx context.Context, arg RemoveMemberParams) error {
+	_, err := q.db.Exec(ctx, removeMember, arg.UserID, arg.TeamSlug)
+	return err
+}
