@@ -93,12 +93,7 @@ func (r *mutationResolver) RequestTeamDeletion(ctx context.Context, input team.R
 }
 
 func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, input team.ConfirmTeamDeletionInput) (*team.ConfirmTeamDeletionPayload, error) {
-	uid, err := uuid.Parse(input.Key)
-	if err != nil {
-		return nil, apierror.Errorf("Invalid deletion key: %q", input.Key)
-	}
-
-	deleteKey, err := team.GetDeleteKey(ctx, uid)
+	deleteKey, err := team.GetDeleteKey(ctx, input.Slug, input.Key)
 	if err != nil {
 		return nil, apierror.Errorf("Unknown deletion key: %q", input.Key)
 	}
@@ -120,7 +115,7 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, input team.C
 		return nil, apierror.Errorf("Team delete key has expired, you need to request a new key.")
 	}
 
-	if err := team.ConfirmDeleteKey(ctx, deleteKey.TeamSlug, uid, actor); err != nil {
+	if err := team.ConfirmDeleteKey(ctx, deleteKey.TeamSlug, input.Key, actor); err != nil {
 		return nil, err
 	}
 
@@ -244,6 +239,10 @@ func (r *teamResolver) Environments(ctx context.Context, obj *team.Team) ([]*tea
 
 func (r *teamResolver) Environment(ctx context.Context, obj *team.Team, name string) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.Slug, name)
+}
+
+func (r *teamResolver) DeleteKey(ctx context.Context, obj *team.Team, key uuid.UUID) (*team.TeamDeleteKey, error) {
+	return team.GetDeleteKey(ctx, obj.Slug, key)
 }
 
 func (r *teamDeleteKeyResolver) CreatedBy(ctx context.Context, obj *team.TeamDeleteKey) (*user.User, error) {

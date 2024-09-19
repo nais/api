@@ -233,8 +233,11 @@ func ListTeamEnvironments(ctx context.Context, teamSlug slug.Slug) ([]*TeamEnvir
 	return ret, nil
 }
 
-func GetDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error) {
-	ret, err := db(ctx).GetDeleteKey(ctx, key)
+func GetDeleteKey(ctx context.Context, teamSlug slug.Slug, key uuid.UUID) (*TeamDeleteKey, error) {
+	ret, err := db(ctx).GetDeleteKey(ctx, teamsql.GetDeleteKeyParams{
+		Key:  key,
+		Slug: teamSlug,
+	})
 	if err != nil {
 		return nil, err
 	}

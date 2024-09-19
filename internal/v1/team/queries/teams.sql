@@ -125,6 +125,7 @@ FROM
 	team_delete_keys
 WHERE
 	key = @key
+	AND team_slug = @slug::slug
 ;
 
 -- name: ConfirmDeleteKey :exec

@@ -18,7 +18,7 @@ type Querier interface {
 	Create(ctx context.Context, arg CreateParams) (*Team, error)
 	CreateDeleteKey(ctx context.Context, arg CreateDeleteKeyParams) (*TeamDeleteKey, error)
 	Get(ctx context.Context, argSlug slug.Slug) (*Team, error)
-	GetDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error)
+	GetDeleteKey(ctx context.Context, arg GetDeleteKeyParams) (*TeamDeleteKey, error)
 	GetMember(ctx context.Context, arg GetMemberParams) (*User, error)
 	List(ctx context.Context, arg ListParams) ([]*Team, error)
 	ListBySlugs(ctx context.Context, slugs []slug.Slug) ([]*Team, error)

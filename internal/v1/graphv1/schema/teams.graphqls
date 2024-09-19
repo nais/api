@@ -161,6 +161,9 @@ type Team implements Node {
 
 	"Get a specific environment for the team."
 	environment(name: String!): TeamEnvironment!
+
+	"Get a delete key for the team."
+	deleteKey(key: UUID!): TeamDeleteKey!
 }
 
 type TeamEnvironment implements Node {
@@ -240,7 +243,7 @@ type RemoveTeamMemberPayload {
 
 type TeamDeleteKey {
 	"The unique key used to confirm the deletion of a team."
-	key: String!
+	key: UUID!
 
 	"The creation timestamp of the key."
 	createdAt: Time!
@@ -366,8 +369,11 @@ input RequestTeamDeletionInput {
 }
 
 input ConfirmTeamDeletionInput {
+	"Slug of the team to confirm deletion for."
+	slug: Slug!
+
 	"Deletion key, acquired using the requestTeamDeletion mutation."
-	key: String!
+	key: UUID!
 }
 
 input AddTeamMemberInput {

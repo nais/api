@@ -1,11 +1,11 @@
 INSERT INTO user_roles(
-  role_name,
-  user_id,
-  target_team_slug
+  	role_name,
+  	user_id,
+  	target_team_slug
 ) VALUES (
-  'Team owner',
-  (SELECT id FROM users WHERE email = 'authenticated@example.com'),
-  'delete-me'
+  	'Team owner',
+  	(SELECT id FROM users WHERE email = 'authenticated@example.com'),
+  	'{{ .teamSlug }}'
 );
 
 RETURNS

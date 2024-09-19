@@ -1,9 +1,10 @@
 mutation {
-  confirmTeamDeletion(input: {
-    key: "{{ .deleteKey }}"
-  }) {
-    correlationID
-  }
+  	confirmTeamDeletion(input: {
+		slug: "{{ .teamSlug }}",
+    	key: "{{ .deleteKey }}"
+  	}) {
+    	correlationID
+  	}
 }
 
 RETURNS
@@ -13,9 +14,9 @@ OPTION data.confirmTeamDeletion.correlationID=NOTNULL
 ENDOPTS
 
 {
-  "data": {
-    "confirmTeamDeletion": {
-      "correlationID": "something"
-    }
-  }
+  	"data": {
+    	"confirmTeamDeletion": {
+      		"correlationID": "something"
+    	}
+  	}
 }

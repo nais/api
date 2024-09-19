@@ -5,5 +5,5 @@ OPTION topic=topic
 ENDOPTS
 
 {
-  "slug": "delete-me"
+  	"slug": "delete-me"
 }

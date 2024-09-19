@@ -781,6 +781,7 @@ type ComplexityRoot struct {
 		Buckets                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) int
 		CdnBucket              func(childComplexity int) int
 		Cost                   func(childComplexity int) int
+		DeleteKey              func(childComplexity int, key uuid.UUID) int
 		DeletionInProgress     func(childComplexity int) int
 		Environment            func(childComplexity int, name string) int
 		Environments           func(childComplexity int) int
@@ -1164,6 +1165,7 @@ type TeamResolver interface {
 	ViewerIsMember(ctx context.Context, obj *team.Team) (bool, error)
 	Environments(ctx context.Context, obj *team.Team) ([]*team.TeamEnvironment, error)
 	Environment(ctx context.Context, obj *team.Team, name string) (*team.TeamEnvironment, error)
+	DeleteKey(ctx context.Context, obj *team.Team, key uuid.UUID) (*team.TeamDeleteKey, error)
 	Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder) (*pagination.Connection[*application.Application], error)
 	AuditEntries(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[auditv1.AuditEntry], error)
 	Cost(ctx context.Context, obj *team.Team) (*cost.TeamCost, error)
@@ -4069,6 +4071,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.Cost(childComplexity), true
 
+	case "Team.deleteKey":
+		if e.complexity.Team.DeleteKey == nil {
+			break
+		}
+
+		args, err := ec.field_Team_deleteKey_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Team.DeleteKey(childComplexity, args["key"].(uuid.UUID)), true
+
 	case "Team.deletionInProgress":
 		if e.complexity.Team.DeletionInProgress == nil {
 			break
@@ -5774,7 +5788,6 @@ enum JobOrderField {
 	DEPLOYMENT_TIME
 }
 
-
 extend union SearchNode = Job
 extend enum SearchType {
 	JOB
@@ -6548,10 +6561,13 @@ enum SqlInstanceUserOrderField {
 	AUTHENTICATION
 }
 
-
-
-
-extend union SearchNode = SqlInstance | RedisInstance | OpenSearch | KafkaTopic | Bucket | BigQueryDataset
+extend union SearchNode =
+	| SqlInstance
+	| RedisInstance
+	| OpenSearch
+	| KafkaTopic
+	| Bucket
+	| BigQueryDataset
 extend enum SearchType {
 	SQL_INSTANCE
 	REDIS_INSTANCE
@@ -7062,7 +7078,11 @@ type Team implements Node {
 	"Environments for the team."
 	environments: [TeamEnvironment!]!
 
+	"Get a specific environment for the team."
 	environment(name: String!): TeamEnvironment!
+
+	"Get a delete key for the team."
+	deleteKey(key: UUID!): TeamDeleteKey!
 }
 
 type TeamEnvironment implements Node {
@@ -7142,7 +7162,7 @@ type RemoveTeamMemberPayload {
 
 type TeamDeleteKey {
 	"The unique key used to confirm the deletion of a team."
-	key: String!
+	key: UUID!
 
 	"The creation timestamp of the key."
 	createdAt: Time!
@@ -7268,8 +7288,11 @@ input RequestTeamDeletionInput {
 }
 
 input ConfirmTeamDeletionInput {
+	"Slug of the team to confirm deletion for."
+	slug: Slug!
+
 	"Deletion key, acquired using the requestTeamDeletion mutation."
-	key: String!
+	key: UUID!
 }
 
 input AddTeamMemberInput {
@@ -11159,6 +11182,38 @@ func (ec *executionContext) field_Team_buckets_argsOrderBy(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Team_deleteKey_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Team_deleteKey_argsKey(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["key"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Team_deleteKey_argsKey(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (uuid.UUID, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["key"]
+	if !ok {
+		var zeroVal uuid.UUID
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
+	if tmp, ok := rawArgs["key"]; ok {
+		return ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+	}
+
+	var zeroVal uuid.UUID
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Team_environment_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -12778,6 +12833,8 @@ func (ec *executionContext) fieldContext_AddTeamMemberPayload_team(_ context.Con
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -12968,6 +13025,8 @@ func (ec *executionContext) fieldContext_Application_team(_ context.Context, fie
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -14718,6 +14777,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(_ context.Context,
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -15956,6 +16017,8 @@ func (ec *executionContext) fieldContext_Bucket_team(_ context.Context, field gr
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -17588,6 +17651,8 @@ func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -18984,6 +19049,8 @@ func (ec *executionContext) fieldContext_Job_team(_ context.Context, field graph
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -21138,6 +21205,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(_ context.Context, fiel
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -21643,6 +21712,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_team(_ context.Context, f
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -23774,6 +23845,8 @@ func (ec *executionContext) fieldContext_NetworkPolicyRule_targetTeam(_ context.
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -24008,6 +24081,8 @@ func (ec *executionContext) fieldContext_OpenSearch_team(_ context.Context, fiel
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -25577,6 +25652,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -26886,6 +26963,8 @@ func (ec *executionContext) fieldContext_RedisInstance_team(_ context.Context, f
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -28044,6 +28123,8 @@ func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_team(_ context.
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -28066,6 +28147,8 @@ func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_team(_ context.
 				return ec.fieldContext_Team_sqlInstances(ctx, field)
 			case "repositories":
 				return ec.fieldContext_Team_repositories(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
 		},
@@ -28232,6 +28315,8 @@ func (ec *executionContext) fieldContext_Repository_team(_ context.Context, fiel
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -29193,6 +29278,8 @@ func (ec *executionContext) fieldContext_SqlDatabase_team(_ context.Context, fie
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -29610,6 +29697,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(_ context.Context, fie
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -31947,6 +32036,8 @@ func (ec *executionContext) fieldContext_SynchronizeTeamPayload_team(_ context.C
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -32720,6 +32811,73 @@ func (ec *executionContext) fieldContext_Team_environment(ctx context.Context, f
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Team_environment_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Team_deleteKey(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_deleteKey(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().DeleteKey(rctx, obj, fc.Args["key"].(uuid.UUID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamDeleteKey)
+	fc.Result = res
+	return ec.marshalNTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamDeleteKey(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_deleteKey(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "key":
+				return ec.fieldContext_TeamDeleteKey_key(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_TeamDeleteKey_createdAt(ctx, field)
+			case "expires":
+				return ec.fieldContext_TeamDeleteKey_expires(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_TeamDeleteKey_createdBy(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamDeleteKey_team(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamDeleteKey", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Team_deleteKey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -33945,6 +34103,8 @@ func (ec *executionContext) fieldContext_TeamConnection_nodes(_ context.Context,
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -35139,9 +35299,9 @@ func (ec *executionContext) _TeamDeleteKey_key(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamDeleteKey_key(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -35151,7 +35311,7 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_key(_ context.Context, fi
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type UUID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -35372,6 +35532,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, f
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -35518,6 +35680,8 @@ func (ec *executionContext) fieldContext_TeamEdge_node(_ context.Context, field 
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -35793,6 +35957,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_team(_ context.Context,
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -36075,6 +36241,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, fiel
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -38274,6 +38442,8 @@ func (ec *executionContext) fieldContext_UpdateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_environments(ctx, field)
 			case "environment":
 				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
 			case "applications":
 				return ec.fieldContext_Team_applications(ctx, field)
 			case "auditEntries":
@@ -41330,16 +41500,23 @@ func (ec *executionContext) unmarshalInputConfirmTeamDeletionInput(ctx context.C
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"key"}
+	fieldsInOrder := [...]string{"slug", "key"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "slug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Slug = data
 		case "key":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -55697,6 +55874,31 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "deleteKey":
+			field := field
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return ec._Team_deleteKey(ctx, field, obj)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+			out.Values[i] = ec._Team_deleteKey(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "applications":
 			field := field
 
@@ -64731,6 +64933,10 @@ func (ec *executionContext) marshalNTeamCostPeriod2ᚖgithubᚗcomᚋnaisᚋapi�
 		return graphql.Null
 	}
 	return ec._TeamCostPeriod(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamDeleteKey2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamDeleteKey(ctx context.Context, sel ast.SelectionSet, v team.TeamDeleteKey) graphql.Marshaler {
+	return ec._TeamDeleteKey(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamDeleteKey(ctx context.Context, sel ast.SelectionSet, v *team.TeamDeleteKey) graphql.Marshaler {

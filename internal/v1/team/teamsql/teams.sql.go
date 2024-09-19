@@ -131,10 +131,16 @@ FROM
 	team_delete_keys
 WHERE
 	key = $1
+	AND team_slug = $2::slug
 `
 
-func (q *Queries) GetDeleteKey(ctx context.Context, key uuid.UUID) (*TeamDeleteKey, error) {
-	row := q.db.QueryRow(ctx, getDeleteKey, key)
+type GetDeleteKeyParams struct {
+	Key  uuid.UUID
+	Slug slug.Slug
+}
+
+func (q *Queries) GetDeleteKey(ctx context.Context, arg GetDeleteKeyParams) (*TeamDeleteKey, error) {
+	row := q.db.QueryRow(ctx, getDeleteKey, arg.Key, arg.Slug)
 	var i TeamDeleteKey
 	err := row.Scan(
 		&i.Key,

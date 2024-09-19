@@ -265,7 +265,7 @@ func toGraphTeamDeleteKey(key *teamsql.TeamDeleteKey) *TeamDeleteKey {
 		confirmedAt = &key.ConfirmedAt.Time
 	}
 	return &TeamDeleteKey{
-		Key:             key.Key.String(),
+		Key:             key.Key,
 		CreatedAt:       key.CreatedAt.Time,
 		ConfirmedAt:     confirmedAt,
 		CreatedByUserID: key.CreatedBy,
@@ -383,7 +383,7 @@ type RequestTeamDeletionPayload struct {
 }
 
 type TeamDeleteKey struct {
-	Key             string     `json:"key"`
+	Key             uuid.UUID  `json:"key"`
 	CreatedAt       time.Time  `json:"createdAt"`
 	ConfirmedAt     *time.Time `json:"-"`
 	CreatedByUserID uuid.UUID  `json:"-"`
@@ -399,7 +399,8 @@ func (k *TeamDeleteKey) HasExpired() bool {
 }
 
 type ConfirmTeamDeletionInput struct {
-	Key string `json:"key"`
+	Key  uuid.UUID `json:"key"`
+	Slug slug.Slug `json:"slug"`
 }
 
 type ConfirmTeamDeletionPayload struct {
