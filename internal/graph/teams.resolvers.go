@@ -1547,8 +1547,6 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
 	}
 
-	// ------------ START Alternativ 1: Samle alle apps og jobs i en liste av model.Workload (som er et interface), og iterer over denne:
-
 	workloads := make([]model.Workload, 0)
 	for _, app := range apps {
 		workloads = append(workloads, app)
@@ -1559,6 +1557,7 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 
 	nodes := make([]*model.VulnerabilityNode, 0)
 	for _, workload := range workloads {
+
 		node := &model.VulnerabilityNode{}
 
 		switch workload.(type) {
@@ -1593,64 +1592,6 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 
 		nodes = append(nodes, node)
 	}
-	//------------ END Alternativ 1
-
-	// ------------ START Alternativ 2: Iterere over apps og jobs hver for seg, og lage en liste av model.VulnerabilityNode direkte:
-	/*	nodes := make([]*model.VulnerabilityNode, 0)
-
-		for _, app := range apps {
-			wType := strings.ToLower(app.Type().String())
-
-			node := &model.VulnerabilityNode{
-				ID:           scalar.VulnerabilitiesIdent(fmt.Sprintf("%s:%s:%s:%s", app.Env.Name, obj.Slug.String(), "app", app.Name)),
-				WorkloadName: app.Name,
-				WorkloadType: wType,
-				Env:          app.Env.Name,
-			}
-
-			for _, image := range images {
-				if image.GQLVars.ContainsReference(app.Env.Name, app.Env.Team, wType, app.Name) {
-					node.HasBom = image.HasSbom
-					node.Summary = image.Summary
-					break
-				}
-			}
-
-			if filter != nil && len(filter.Envs) > 0 {
-				if !slices.Contains(filter.Envs, node.Env) {
-					continue
-				}
-			}
-			nodes = append(nodes, node)
-		}
-
-		for _, job := range jobs {
-
-			wType := strings.ToLower(job.Type().String())
-
-			node := &model.VulnerabilityNode{
-				ID:           scalar.VulnerabilitiesIdent(fmt.Sprintf("%s:%s:%s:%s", job.Env.Name, obj.Slug.String(), "job", job.Name)),
-				WorkloadName: job.Name,
-				WorkloadType: wType,
-				Env:          job.Env.Name,
-			}
-
-			for _, image := range images {
-				if image.GQLVars.ContainsReference(job.Env.Name, job.Env.Team, wType, job.Name) {
-					node.HasBom = image.HasSbom
-					node.Summary = image.Summary
-					break
-				}
-			}
-
-			if filter != nil && len(filter.Envs) > 0 {
-				if !slices.Contains(filter.Envs, node.Env) {
-					continue
-				}
-			}
-			nodes = append(nodes, node)
-		}*/
-	//------------ END Alternativ 2
 
 	if orderBy != nil {
 		vulnerabilities.Sort(nodes, orderBy.Field, orderBy.Direction)
@@ -1665,6 +1606,7 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 	}, nil
 }
 
+// TODO: this will return a summary for unique images and not workloads. We get a mismatch between this and the table with workloads..
 func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummaryForTeam, error) {
 	images, err := r.vulnerabilities.GetMetadataForTeam(ctx, obj.Slug.String())
 	if err != nil {

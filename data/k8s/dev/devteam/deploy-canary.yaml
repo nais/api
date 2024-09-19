@@ -23,7 +23,7 @@ spec:
   env:
     - name: DEPLOY_START
       value: "1704981602000000000"
-  image: ghcr.io/nais/testapp/testapp:2020-02-25-f61e7b7
+  image: ghcr.io/nais/nais-deploy-canary-1:1
   liveness:
     path: /ping
   port: 8080
@@ -104,7 +104,7 @@ spec:
   env:
     - name: DEPLOY_START
       value: "1704981602000000000"
-  image: ghcr.io/nais/testapp/testapp:2020-02-25-f61e7b7
+  image: ghcr.io/nais/testapp:1
   liveness:
     path: /ping
   port: 8080
@@ -174,7 +174,7 @@ spec:
   env:
     - name: DEPLOY_START
       value: "1704981602000000000"
-  image: ghcr.io/nais/testapp/testapp:2020-02-25-f61e7b7
+  image: ghcr.io/nais/nais-deploy-chicken-1:1
   liveness:
     path: /ping
   port: 8080
@@ -244,7 +244,7 @@ spec:
   env:
     - name: DEPLOY_START
       value: "1704981602000000000"
-  image: ghcr.io/nais/testapp/testapp:2020-02-25-f61e7b7
+  image: ghcr.io/nais/nais-deploy-chicken-2:1
   liveness:
     path: /ping
   port: 8080
@@ -314,7 +314,7 @@ spec:
   env:
     - name: DEPLOY_START
       value: "1704981602000000000"
-  image: ghcr.io/nais/testapp/testapp:2020-02-25-f61e7b7
+  image: ghcr.io/nais/nais-deploy-chicken-3:1
   liveness:
     path: /ping
   port: 8080
@@ -453,7 +453,7 @@ spec:
   env:
     - name: DEPLOY_START
       value: "1704981602000000000"
-  image: ghcr.io/nais/testapp/testapp:2020-02-25-f61e7b7
+  image: ghcr.io/nais/nais-deploy-chicken-4:1
   liveness:
     path: /ping
   port: 8080
@@ -523,7 +523,7 @@ spec:
   env:
     - name: DEPLOY_START
       value: "1704981602000000000"
-  image: ghcr.io/nais/testapp/testapp:2020-02-25-f61e7b7
+  image: ghcr.io/nais/nais-deploy-chicken-5:1
   liveness:
     path: /ping
   port: 8080
@@ -593,7 +593,7 @@ spec:
   env:
     - name: DEPLOY_START
       value: "1704981602000000000"
-  image: ghcr.io/nais/testapp/testapp:2020-02-25-f61e7b7
+  image: ghcr.io/nais/nais-deploy-chicken-6:1
   liveness:
     path: /ping
   port: 8080
@@ -663,7 +663,7 @@ spec:
   env:
     - name: DEPLOY_START
       value: "1704981602000000000"
-  image: ghcr.io/nais/testapp/testapp:2020-02-25-f61e7b7
+  image: ghcr.io/nais/nais-deploy-chicken-7:1
   liveness:
     path: /ping
   port: 8080
@@ -733,7 +733,7 @@ spec:
   env:
     - name: DEPLOY_START
       value: "1704981602000000000"
-  image: ghcr.io/nais/testapp/testapp:2020-02-25-f61e7b7
+  image: ghcr.io/nais/nais-deploy-chicken-8:1
   liveness:
     path: /ping
   port: 8080

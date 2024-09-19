@@ -1,0 +1,116 @@
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  annotations:
+    deploy.nais.io/client-version: 2023-12-19-bbbb39b
+    deploy.nais.io/github-actor: jhrv
+    deploy.nais.io/github-sha: c0b39684d253c19e39fd0afeecf203aef943fe7b
+    deploy.nais.io/github-workflow-run-url: https://github.com/nais/dataproduct-apps/actions/runs/7427397068
+    kubernetes.io/change-cause: 'nais deploy: commit c0b39684d253c19e39fd0afeecf203aef943fe7b:
+      https://github.com/nais/dataproduct-apps/actions/runs/7427397068'
+    nais.io/deploymentCorrelationID: 54c600b1-c2a6-4018-9fb3-649df7a8920d
+  creationTimestamp: "2022-07-06T09:45:17Z"
+  finalizers:
+    - naiserator.nais.io/finalizer
+  generation: 243
+  name: dataproduct-apps-topics
+  resourceVersion: "4085586970"
+  uid: 3152cb5a-95f5-4418-8bd2-13b6d9f6058f
+spec:
+  command:
+    - dataproduct-apps-topics
+  gcp:
+    buckets:
+      - name: dataproduct-apps-topics2
+  image: europe-north1-docker.pkg.dev/nais-io/nais/images/console-frontend:2024-06-06-144439-4d5bb22
+  liveness:
+    path: /isHealthy
+  readiness:
+    path: /isReady
+  schedule: 45 3 * * *
+  envFrom:
+    - secret: my-secret
+    - secret: my-other-secret
+  filesFrom:
+    - mountPath: /var/run/secrets
+      secret: my-secret
+status:
+  conditions:
+    - lastTransitionTime: "2024-01-05T22:35:39Z"
+      message: complete
+      reason: RolloutComplete
+      status: "True"
+      type: Ready
+    - lastTransitionTime: "2024-01-05T22:35:39Z"
+      message: complete
+      reason: RolloutComplete
+      status: "False"
+      type: Stalled
+    - lastTransitionTime: "2024-01-05T22:35:39Z"
+      message: complete
+      reason: RolloutComplete
+      status: "False"
+      type: Reconciling
+  correlationID: 54c600b1-c2a6-4018-9fb3-649df7a8920d
+  deploymentRolloutStatus: complete
+  rolloutCompleteTime: 1704838357272567094
+  synchronizationHash: 6e0cb332b94540ec
+  synchronizationState: RolloutComplete
+  synchronizationTime: 1704838351872468010
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  annotations:
+    deploy.nais.io/client-version: 2023-12-19-bbbb39b
+    deploy.nais.io/github-actor: jhrv
+    deploy.nais.io/github-sha: c0b39684d253c19e39fd0afeecf203aef943fe7b
+    deploy.nais.io/github-workflow-run-url: https://github.com/nais/dataproduct-apps/actions/runs/7427397068
+    kubernetes.io/change-cause: 'nais deploy: commit c0b39684d253c19e39fd0afeecf203aef943fe7b:
+      https://github.com/nais/dataproduct-apps/actions/runs/7427397068'
+    nais.io/deploymentCorrelationID: 54c600b1-c2a6-4018-9fb3-649df7a8920d
+  creationTimestamp: "2022-07-06T09:45:17Z"
+  finalizers:
+    - naiserator.nais.io/finalizer
+  generation: 243
+  name: dataproduct-naisjobs-topics
+  resourceVersion: "4085586970"
+  uid: 3152cb5a-95f5-4418-8bd2-13b6d9f6058f
+spec:
+  command:
+    - dataproduct-apps-topics
+  gcp:
+    buckets:
+      - name: dataproduct-apps-topics2
+  image: europe-north1-docker.pkg.dev/nais-io/nais/images/dataproduct-apps:20240105223344-c0b3968
+  liveness:
+    path: /isHealthy
+  readiness:
+    path: /isReady
+  schedule: 45 3 * * *
+  envFrom:
+    - secret: other-secret
+status:
+  conditions:
+    - lastTransitionTime: "2024-01-05T22:35:39Z"
+      message: complete
+      reason: RolloutComplete
+      status: "True"
+      type: Ready
+    - lastTransitionTime: "2024-01-05T22:35:39Z"
+      message: complete
+      reason: RolloutComplete
+      status: "False"
+      type: Stalled
+    - lastTransitionTime: "2024-01-05T22:35:39Z"
+      message: complete
+      reason: RolloutComplete
+      status: "False"
+      type: Reconciling
+  correlationID: 54c600b1-c2a6-4018-9fb3-649df7a8920d
+  deploymentRolloutStatus: complete
+  rolloutCompleteTime: 1704838357272567094
+  synchronizationHash: 6e0cb332b94540ec
+  synchronizationState: RolloutComplete
+  synchronizationTime: 1704838351872468010
