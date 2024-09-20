@@ -1,13 +1,13 @@
 mutation {
   	createTeam(
-    	input: {
-      		slug: "myteam",
-      		purpose: "some purpose",
-      		slackChannel: "#channel"
-    	}
+		input: {
+	  		slug: "myteam",
+	  		purpose: "some purpose",
+	  		slackChannel: "#channel"
+		}
   	) {
-    	team {
-      		slug
+		team {
+	  		slug
 		}
   	}
 }
@@ -16,11 +16,11 @@ RETURNS
 
 {
   	"data": {
-    	"createTeam": {
-      		"team": {
-        		"slug": "myteam"
-      		}
-    	}
+		"createTeam": {
+	  		"team": {
+				"slug": "myteam"
+	  		}
+		}
   	}
 }
 

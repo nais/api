@@ -16,14 +16,6 @@ import (
 	"github.com/nais/api/internal/v1/user"
 )
 
-func (r *addTeamMemberPayloadResolver) User(ctx context.Context, obj *team.AddTeamMemberPayload) (*user.User, error) {
-	return user.Get(ctx, obj.UserID)
-}
-
-func (r *addTeamMemberPayloadResolver) Team(ctx context.Context, obj *team.AddTeamMemberPayload) (*team.Team, error) {
-	return team.Get(ctx, obj.TeamSlug)
-}
-
 func (r *mutationResolver) CreateTeam(ctx context.Context, input team.CreateTeamInput) (*team.CreateTeamPayload, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireGlobalAuthorization(actor, roles.AuthorizationTeamsCreate)
@@ -156,8 +148,11 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, input team.AddTeam
 	}
 
 	return &team.AddTeamMemberPayload{
-		UserID:   u.UUID,
-		TeamSlug: input.TeamSlug,
+		Member: team.TeamMember{
+			Role:     input.Role,
+			TeamSlug: input.TeamSlug,
+			UserID:   u.UUID,
+		},
 	}, nil
 }
 
@@ -271,10 +266,6 @@ func (r *teamMemberRemovedAuditEntryDataResolver) User(ctx context.Context, obj 
 	return user.Get(ctx, obj.UserID)
 }
 
-func (r *Resolver) AddTeamMemberPayload() gengqlv1.AddTeamMemberPayloadResolver {
-	return &addTeamMemberPayloadResolver{r}
-}
-
 func (r *Resolver) RemoveTeamMemberPayload() gengqlv1.RemoveTeamMemberPayloadResolver {
 	return &removeTeamMemberPayloadResolver{r}
 }
@@ -298,7 +289,6 @@ func (r *Resolver) TeamMemberRemovedAuditEntryData() gengqlv1.TeamMemberRemovedA
 }
 
 type (
-	addTeamMemberPayloadResolver            struct{ *Resolver }
 	removeTeamMemberPayloadResolver         struct{ *Resolver }
 	teamResolver                            struct{ *Resolver }
 	teamDeleteKeyResolver                   struct{ *Resolver }

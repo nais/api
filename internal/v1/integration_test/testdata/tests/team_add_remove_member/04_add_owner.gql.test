@@ -1,24 +1,27 @@
 mutation {
 	addTeamMember(input:{
-    	teamSlug: "{{ .teamSlug }}"
-    	userEmail: "email-3@example.com"
-    	role: OWNER
+		teamSlug: "{{ .teamSlug }}"
+		userEmail: "email-3@example.com"
+		role: OWNER
   	}) {
-    	user {
-      		email
-      		name
-    	}
-    	team {
-      		members {
-        		nodes {
-          			role
-          			user {
-            			email
-            			name
-          			}
-        		}
-      		}
-    	}
+  		member {
+  			role
+			user {
+				email
+				name
+			}
+			team {
+				members {
+					nodes {
+						role
+						user {
+							email
+							name
+						}
+					}
+				}
+			}
+		}
   	}
 }
 
@@ -26,38 +29,41 @@ RETURNS
 
 {
 	"data": {
-    	"addTeamMember": {
-      		"team": {
-        		"members": {
-          			"nodes": [
-            			{
-              				"role": "OWNER",
-              				"user": {
-                				"email": "authenticated@example.com",
-                				"name": "Authenticated User"
-              				}
-            			},
-            			{
-              				"role": "MEMBER",
-              				"user": {
-                				"email": "email-2@example.com",
-                				"name": "name-2"
-              				}
-            			},
-            			{
-							"role": "OWNER",
-							"user": {
-								"email": "email-3@example.com",
-								"name": "name-3"
+		"addTeamMember": {
+			"member": {
+				"role": "OWNER",
+				"team": {
+					"members": {
+						"nodes": [
+							{
+								"role": "OWNER",
+								"user": {
+									"email": "authenticated@example.com",
+									"name": "Authenticated User"
+								}
+							},
+							{
+								"role": "MEMBER",
+								"user": {
+									"email": "email-2@example.com",
+									"name": "name-2"
+								}
+							},
+							{
+								"role": "OWNER",
+								"user": {
+									"email": "email-3@example.com",
+									"name": "name-3"
+								}
 							}
-						}
-          			]
-        		}
-      		},
-      		"user": {
-        		"email": "email-3@example.com",
-        		"name": "name-3"
-      		}
-    	}
+						]
+					}
+				},
+				"user": {
+					"email": "email-3@example.com",
+					"name": "name-3"
+				}
+			}
+		}
   	}
 }

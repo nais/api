@@ -220,11 +220,8 @@ type ConfirmTeamDeletionPayload {
 }
 
 type AddTeamMemberPayload {
-	"The user that was added to the team."
-	user: User!
-
-	"The team that the member was added to."
-	team: Team!
+	"The added team member."
+	member: TeamMember!
 }
 
 type RemoveTeamMemberPayload {

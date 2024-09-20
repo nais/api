@@ -1,11 +1,13 @@
 mutation {
 	addTeamMember(input:{
-    	teamSlug: "{{ .teamSlug }}"
-    	userEmail: "doesnotexist@example.com"
-    	role: MEMBER
+		teamSlug: "{{ .teamSlug }}"
+		userEmail: "doesnotexist@example.com"
+		role: MEMBER
   	}) {
-    	user {
-			email
+		member {
+			user {
+				email
+			}
 		}
   	}
 }

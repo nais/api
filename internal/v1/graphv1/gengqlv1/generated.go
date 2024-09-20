@@ -63,7 +63,6 @@ type Config struct {
 }
 
 type ResolverRoot interface {
-	AddTeamMemberPayload() AddTeamMemberPayloadResolver
 	Application() ApplicationResolver
 	BigQueryDataset() BigQueryDatasetResolver
 	Bucket() BucketResolver
@@ -103,8 +102,7 @@ type ComplexityRoot struct {
 	}
 
 	AddTeamMemberPayload struct {
-		Team func(childComplexity int) int
-		User func(childComplexity int) int
+		Member func(childComplexity int) int
 	}
 
 	Application struct {
@@ -1015,10 +1013,6 @@ type ComplexityRoot struct {
 	}
 }
 
-type AddTeamMemberPayloadResolver interface {
-	User(ctx context.Context, obj *team.AddTeamMemberPayload) (*user.User, error)
-	Team(ctx context.Context, obj *team.AddTeamMemberPayload) (*team.Team, error)
-}
 type ApplicationResolver interface {
 	Team(ctx context.Context, obj *application.Application) (*team.Team, error)
 	Environment(ctx context.Context, obj *application.Application) (*team.TeamEnvironment, error)
@@ -1234,19 +1228,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AddRepositoryToTeamPayload.Repository(childComplexity), true
 
-	case "AddTeamMemberPayload.team":
-		if e.complexity.AddTeamMemberPayload.Team == nil {
+	case "AddTeamMemberPayload.member":
+		if e.complexity.AddTeamMemberPayload.Member == nil {
 			break
 		}
 
-		return e.complexity.AddTeamMemberPayload.Team(childComplexity), true
-
-	case "AddTeamMemberPayload.user":
-		if e.complexity.AddTeamMemberPayload.User == nil {
-			break
-		}
-
-		return e.complexity.AddTeamMemberPayload.User(childComplexity), true
+		return e.complexity.AddTeamMemberPayload.Member(childComplexity), true
 
 	case "Application.authIntegrations":
 		if e.complexity.Application.AuthIntegrations == nil {
@@ -7123,11 +7110,8 @@ type ConfirmTeamDeletionPayload {
 }
 
 type AddTeamMemberPayload {
-	"The user that was added to the team."
-	user: User!
-
-	"The team that the member was added to."
-	team: Team!
+	"The added team member."
+	member: TeamMember!
 }
 
 type RemoveTeamMemberPayload {
@@ -12640,8 +12624,8 @@ func (ec *executionContext) fieldContext_AddRepositoryToTeamPayload_repository(_
 	return fc, nil
 }
 
-func (ec *executionContext) _AddTeamMemberPayload_user(ctx context.Context, field graphql.CollectedField, obj *team.AddTeamMemberPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AddTeamMemberPayload_user(ctx, field)
+func (ec *executionContext) _AddTeamMemberPayload_member(ctx context.Context, field graphql.CollectedField, obj *team.AddTeamMemberPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AddTeamMemberPayload_member(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -12654,7 +12638,7 @@ func (ec *executionContext) _AddTeamMemberPayload_user(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.AddTeamMemberPayload().User(rctx, obj)
+		return obj.Member, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12666,135 +12650,27 @@ func (ec *executionContext) _AddTeamMemberPayload_user(ctx context.Context, fiel
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*user.User)
+	res := resTmp.(team.TeamMember)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋuserᚐUser(ctx, field.Selections, res)
+	return ec.marshalNTeamMember2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMember(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AddTeamMemberPayload_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AddTeamMemberPayload_member(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AddTeamMemberPayload",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			case "name":
-				return ec.fieldContext_User_name(ctx, field)
-			case "externalID":
-				return ec.fieldContext_User_externalID(ctx, field)
-			case "teams":
-				return ec.fieldContext_User_teams(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamMember_team(ctx, field)
+			case "user":
+				return ec.fieldContext_TeamMember_user(ctx, field)
+			case "role":
+				return ec.fieldContext_TeamMember_role(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AddTeamMemberPayload_team(ctx context.Context, field graphql.CollectedField, obj *team.AddTeamMemberPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AddTeamMemberPayload_team(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.AddTeamMemberPayload().Team(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*team.Team)
-	fc.Result = res
-	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeam(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AddTeamMemberPayload_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AddTeamMemberPayload",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Team_slug(ctx, field)
-			case "slackChannel":
-				return ec.fieldContext_Team_slackChannel(ctx, field)
-			case "purpose":
-				return ec.fieldContext_Team_purpose(ctx, field)
-			case "azureGroupID":
-				return ec.fieldContext_Team_azureGroupID(ctx, field)
-			case "gitHubTeamSlug":
-				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
-			case "googleGroupEmail":
-				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
-			case "googleArtifactRegistry":
-				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
-			case "cdnBucket":
-				return ec.fieldContext_Team_cdnBucket(ctx, field)
-			case "members":
-				return ec.fieldContext_Team_members(ctx, field)
-			case "lastSuccessfulSync":
-				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
-			case "deletionInProgress":
-				return ec.fieldContext_Team_deletionInProgress(ctx, field)
-			case "viewerIsOwner":
-				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
-			case "viewerIsMember":
-				return ec.fieldContext_Team_viewerIsMember(ctx, field)
-			case "environments":
-				return ec.fieldContext_Team_environments(ctx, field)
-			case "environment":
-				return ec.fieldContext_Team_environment(ctx, field)
-			case "deleteKey":
-				return ec.fieldContext_Team_deleteKey(ctx, field)
-			case "applications":
-				return ec.fieldContext_Team_applications(ctx, field)
-			case "auditEntries":
-				return ec.fieldContext_Team_auditEntries(ctx, field)
-			case "cost":
-				return ec.fieldContext_Team_cost(ctx, field)
-			case "jobs":
-				return ec.fieldContext_Team_jobs(ctx, field)
-			case "bigQueryDatasets":
-				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
-			case "redisInstances":
-				return ec.fieldContext_Team_redisInstances(ctx, field)
-			case "openSearch":
-				return ec.fieldContext_Team_openSearch(ctx, field)
-			case "buckets":
-				return ec.fieldContext_Team_buckets(ctx, field)
-			case "kafkaTopics":
-				return ec.fieldContext_Team_kafkaTopics(ctx, field)
-			case "sqlInstances":
-				return ec.fieldContext_Team_sqlInstances(ctx, field)
-			case "repositories":
-				return ec.fieldContext_Team_repositories(ctx, field)
-			case "workloads":
-				return ec.fieldContext_Team_workloads(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TeamMember", field.Name)
 		},
 	}
 	return fc, nil
@@ -23397,10 +23273,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "user":
-				return ec.fieldContext_AddTeamMemberPayload_user(ctx, field)
-			case "team":
-				return ec.fieldContext_AddTeamMemberPayload_team(ctx, field)
+			case "member":
+				return ec.fieldContext_AddTeamMemberPayload_member(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AddTeamMemberPayload", field.Name)
 		},
@@ -43192,7 +43066,7 @@ func (ec *executionContext) _AddTeamMemberPayload(ctx context.Context, sel ast.S
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("AddTeamMemberPayload")
-		case "user":
+		case "member":
 			field := field
 
 			if field.Deferrable != nil {
@@ -43206,39 +43080,14 @@ func (ec *executionContext) _AddTeamMemberPayload(ctx context.Context, sel ast.S
 					deferred[field.Deferrable.Label] = dfs
 				}
 				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return ec._AddTeamMemberPayload_user(ctx, field, obj)
+					return ec._AddTeamMemberPayload_member(ctx, field, obj)
 				})
 
 				// don't run the out.Concurrently() call below
 				out.Values[i] = graphql.Null
 				continue
 			}
-			out.Values[i] = ec._AddTeamMemberPayload_user(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "team":
-			field := field
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return ec._AddTeamMemberPayload_team(ctx, field, obj)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-			out.Values[i] = ec._AddTeamMemberPayload_team(ctx, field, obj)
+			out.Values[i] = ec._AddTeamMemberPayload_member(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -64889,6 +64738,10 @@ func (ec *executionContext) marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapi
 		return graphql.Null
 	}
 	return ec._TeamEnvironment(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamMember2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMember(ctx context.Context, sel ast.SelectionSet, v team.TeamMember) graphql.Marshaler {
+	return ec._TeamMember(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNTeamMember2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMemberᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamMember) graphql.Marshaler {

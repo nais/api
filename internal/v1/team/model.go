@@ -415,8 +415,7 @@ type AddTeamMemberInput struct {
 }
 
 type AddTeamMemberPayload struct {
-	UserID   uuid.UUID `json:"-"`
-	TeamSlug slug.Slug `json:"-"`
+	Member TeamMember `json:"member"`
 }
 
 type RemoveTeamMemberInput struct {
