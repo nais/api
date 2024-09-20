@@ -4,15 +4,13 @@ mutation {
     	userEmail: "doesnotexist@example.com"
     	role: MEMBER
   	}) {
-    	correlationID
+    	user {
+			email
+		}
   	}
 }
 
 RETURNS
-
-OPTION data.addTeamMember.correlationID=IGNORE
-
-ENDOPTS
 
 {
 	"data": null,

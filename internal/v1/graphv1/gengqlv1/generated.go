@@ -103,9 +103,8 @@ type ComplexityRoot struct {
 	}
 
 	AddTeamMemberPayload struct {
-		CorrelationID func(childComplexity int) int
-		Team          func(childComplexity int) int
-		User          func(childComplexity int) int
+		Team func(childComplexity int) int
+		User func(childComplexity int) int
 	}
 
 	Application struct {
@@ -258,7 +257,7 @@ type ComplexityRoot struct {
 	}
 
 	ConfirmTeamDeletionPayload struct {
-		CorrelationID func(childComplexity int) int
+		DeletionStarted func(childComplexity int) int
 	}
 
 	ContainerImage struct {
@@ -625,9 +624,8 @@ type ComplexityRoot struct {
 	}
 
 	RemoveTeamMemberPayload struct {
-		CorrelationID func(childComplexity int) int
-		Team          func(childComplexity int) int
-		User          func(childComplexity int) int
+		Team func(childComplexity int) int
+		User func(childComplexity int) int
 	}
 
 	Repository struct {
@@ -1235,13 +1233,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AddRepositoryToTeamPayload.Repository(childComplexity), true
-
-	case "AddTeamMemberPayload.correlationID":
-		if e.complexity.AddTeamMemberPayload.CorrelationID == nil {
-			break
-		}
-
-		return e.complexity.AddTeamMemberPayload.CorrelationID(childComplexity), true
 
 	case "AddTeamMemberPayload.team":
 		if e.complexity.AddTeamMemberPayload.Team == nil {
@@ -1873,12 +1864,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CPUScalingStrategy.Threshold(childComplexity), true
 
-	case "ConfirmTeamDeletionPayload.correlationID":
-		if e.complexity.ConfirmTeamDeletionPayload.CorrelationID == nil {
+	case "ConfirmTeamDeletionPayload.deletionStarted":
+		if e.complexity.ConfirmTeamDeletionPayload.DeletionStarted == nil {
 			break
 		}
 
-		return e.complexity.ConfirmTeamDeletionPayload.CorrelationID(childComplexity), true
+		return e.complexity.ConfirmTeamDeletionPayload.DeletionStarted(childComplexity), true
 
 	case "ContainerImage.hasSBOM":
 		if e.complexity.ContainerImage.HasSbom == nil {
@@ -3431,13 +3422,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RemoveRepositoryFromTeamPayload.Success(childComplexity), true
-
-	case "RemoveTeamMemberPayload.correlationID":
-		if e.complexity.RemoveTeamMemberPayload.CorrelationID == nil {
-			break
-		}
-
-		return e.complexity.RemoveTeamMemberPayload.CorrelationID(childComplexity), true
 
 	case "RemoveTeamMemberPayload.team":
 		if e.complexity.RemoveTeamMemberPayload.Team == nil {
@@ -7134,14 +7118,11 @@ type RequestTeamDeletionPayload {
 }
 
 type ConfirmTeamDeletionPayload {
-	"The correlation ID for the deletion process."
-	correlationID: UUID!
+	"Whether or not the asynchronous deletion process was started."
+	deletionStarted: Boolean!
 }
 
 type AddTeamMemberPayload {
-	"Correlation ID to trace the process."
-	correlationID: UUID!
-
 	"The user that was added to the team."
 	user: User!
 
@@ -7150,9 +7131,6 @@ type AddTeamMemberPayload {
 }
 
 type RemoveTeamMemberPayload {
-	"Correlation ID to trace the process."
-	correlationID: UUID!
-
 	"The user that was removed from the team."
 	user: User!
 
@@ -12662,50 +12640,6 @@ func (ec *executionContext) fieldContext_AddRepositoryToTeamPayload_repository(_
 	return fc, nil
 }
 
-func (ec *executionContext) _AddTeamMemberPayload_correlationID(ctx context.Context, field graphql.CollectedField, obj *team.AddTeamMemberPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AddTeamMemberPayload_correlationID(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CorrelationID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(uuid.UUID)
-	fc.Result = res
-	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AddTeamMemberPayload_correlationID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AddTeamMemberPayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type UUID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _AddTeamMemberPayload_user(ctx context.Context, field graphql.CollectedField, obj *team.AddTeamMemberPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AddTeamMemberPayload_user(ctx, field)
 	if err != nil {
@@ -17243,8 +17177,8 @@ func (ec *executionContext) fieldContext_CPUScalingStrategy_threshold(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfirmTeamDeletionPayload_correlationID(ctx context.Context, field graphql.CollectedField, obj *team.ConfirmTeamDeletionPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ConfirmTeamDeletionPayload_correlationID(ctx, field)
+func (ec *executionContext) _ConfirmTeamDeletionPayload_deletionStarted(ctx context.Context, field graphql.CollectedField, obj *team.ConfirmTeamDeletionPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ConfirmTeamDeletionPayload_deletionStarted(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -17257,7 +17191,7 @@ func (ec *executionContext) _ConfirmTeamDeletionPayload_correlationID(ctx contex
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CorrelationID, nil
+		return obj.DeletionStarted, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17269,19 +17203,19 @@ func (ec *executionContext) _ConfirmTeamDeletionPayload_correlationID(ctx contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(uuid.UUID)
+	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ConfirmTeamDeletionPayload_correlationID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ConfirmTeamDeletionPayload_deletionStarted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ConfirmTeamDeletionPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type UUID does not have child fields")
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -23404,8 +23338,8 @@ func (ec *executionContext) fieldContext_Mutation_confirmTeamDeletion(ctx contex
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "correlationID":
-				return ec.fieldContext_ConfirmTeamDeletionPayload_correlationID(ctx, field)
+			case "deletionStarted":
+				return ec.fieldContext_ConfirmTeamDeletionPayload_deletionStarted(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ConfirmTeamDeletionPayload", field.Name)
 		},
@@ -23463,8 +23397,6 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "correlationID":
-				return ec.fieldContext_AddTeamMemberPayload_correlationID(ctx, field)
 			case "user":
 				return ec.fieldContext_AddTeamMemberPayload_user(ctx, field)
 			case "team":
@@ -23526,8 +23458,6 @@ func (ec *executionContext) fieldContext_Mutation_removeTeamMember(ctx context.C
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "correlationID":
-				return ec.fieldContext_RemoveTeamMemberPayload_correlationID(ctx, field)
 			case "user":
 				return ec.fieldContext_RemoveTeamMemberPayload_user(ctx, field)
 			case "team":
@@ -27947,50 +27877,6 @@ func (ec *executionContext) fieldContext_RemoveRepositoryFromTeamPayload_success
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _RemoveTeamMemberPayload_correlationID(ctx context.Context, field graphql.CollectedField, obj *team.RemoveTeamMemberPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RemoveTeamMemberPayload_correlationID(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CorrelationID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(uuid.UUID)
-	fc.Result = res
-	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_correlationID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RemoveTeamMemberPayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type UUID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -43306,31 +43192,6 @@ func (ec *executionContext) _AddTeamMemberPayload(ctx context.Context, sel ast.S
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("AddTeamMemberPayload")
-		case "correlationID":
-			field := field
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return ec._AddTeamMemberPayload_correlationID(ctx, field, obj)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-			out.Values[i] = ec._AddTeamMemberPayload_correlationID(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "user":
 			field := field
 
@@ -46220,7 +46081,7 @@ func (ec *executionContext) _ConfirmTeamDeletionPayload(ctx context.Context, sel
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ConfirmTeamDeletionPayload")
-		case "correlationID":
+		case "deletionStarted":
 			field := field
 
 			if field.Deferrable != nil {
@@ -46234,14 +46095,14 @@ func (ec *executionContext) _ConfirmTeamDeletionPayload(ctx context.Context, sel
 					deferred[field.Deferrable.Label] = dfs
 				}
 				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return ec._ConfirmTeamDeletionPayload_correlationID(ctx, field, obj)
+					return ec._ConfirmTeamDeletionPayload_deletionStarted(ctx, field, obj)
 				})
 
 				// don't run the out.Concurrently() call below
 				out.Values[i] = graphql.Null
 				continue
 			}
-			out.Values[i] = ec._ConfirmTeamDeletionPayload_correlationID(ctx, field, obj)
+			out.Values[i] = ec._ConfirmTeamDeletionPayload_deletionStarted(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -52773,31 +52634,6 @@ func (ec *executionContext) _RemoveTeamMemberPayload(ctx context.Context, sel as
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("RemoveTeamMemberPayload")
-		case "correlationID":
-			field := field
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return ec._RemoveTeamMemberPayload_correlationID(ctx, field, obj)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-			out.Values[i] = ec._RemoveTeamMemberPayload_correlationID(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "user":
 			field := field
 

@@ -404,7 +404,7 @@ type ConfirmTeamDeletionInput struct {
 }
 
 type ConfirmTeamDeletionPayload struct {
-	CorrelationID uuid.UUID `json:"correlationID"`
+	DeletionStarted bool `json:"deletionStarted"`
 }
 
 type AddTeamMemberInput struct {
@@ -415,9 +415,8 @@ type AddTeamMemberInput struct {
 }
 
 type AddTeamMemberPayload struct {
-	CorrelationID uuid.UUID `json:"correlationID"`
-	UserID        uuid.UUID `json:"-"`
-	TeamSlug      slug.Slug `json:"-"`
+	UserID   uuid.UUID `json:"-"`
+	TeamSlug slug.Slug `json:"-"`
 }
 
 type RemoveTeamMemberInput struct {
@@ -427,7 +426,6 @@ type RemoveTeamMemberInput struct {
 }
 
 type RemoveTeamMemberPayload struct {
-	CorrelationID uuid.UUID `json:"correlationID"`
-	UserID        uuid.UUID `json:"-"`
-	TeamSlug      slug.Slug `json:"-"`
+	UserID   uuid.UUID `json:"-"`
+	TeamSlug slug.Slug `json:"-"`
 }

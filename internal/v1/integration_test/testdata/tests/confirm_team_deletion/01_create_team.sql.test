@@ -1,8 +1,8 @@
 -- type: row
 INSERT INTO teams(
-  	slug,
-  	purpose,
-  	slack_channel
+	slug,
+	purpose,
+	slack_channel
 ) VALUES (
 	'delete-me',
 	'Delete me',

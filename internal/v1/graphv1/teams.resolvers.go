@@ -125,7 +125,7 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, input team.C
 	}
 
 	return &team.ConfirmTeamDeletionPayload{
-		CorrelationID: correlationID,
+		DeletionStarted: true,
 	}, nil
 }
 
@@ -156,9 +156,8 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, input team.AddTeam
 	}
 
 	return &team.AddTeamMemberPayload{
-		CorrelationID: correlationID,
-		UserID:        u.UUID,
-		TeamSlug:      input.TeamSlug,
+		UserID:   u.UUID,
+		TeamSlug: input.TeamSlug,
 	}, nil
 }
 
@@ -189,9 +188,8 @@ func (r *mutationResolver) RemoveTeamMember(ctx context.Context, input team.Remo
 	}
 
 	return &team.RemoveTeamMemberPayload{
-		CorrelationID: correlationID,
-		UserID:        u.UUID,
-		TeamSlug:      input.TeamSlug,
+		UserID:   u.UUID,
+		TeamSlug: input.TeamSlug,
 	}, nil
 }
 

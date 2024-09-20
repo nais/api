@@ -4,7 +4,6 @@ mutation {
     	userEmail: "email-3@example.com"
     	role: OWNER
   	}) {
-    	correlationID
     	user {
       		email
       		name
@@ -25,14 +24,9 @@ mutation {
 
 RETURNS
 
-OPTION data.addTeamMember.correlationID=IGNORE
-
-ENDOPTS
-
 {
 	"data": {
     	"addTeamMember": {
-      		"correlationID": "something",
       		"team": {
         		"members": {
           			"nodes": [

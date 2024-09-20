@@ -215,14 +215,11 @@ type RequestTeamDeletionPayload {
 }
 
 type ConfirmTeamDeletionPayload {
-	"The correlation ID for the deletion process."
-	correlationID: UUID!
+	"Whether or not the asynchronous deletion process was started."
+	deletionStarted: Boolean!
 }
 
 type AddTeamMemberPayload {
-	"Correlation ID to trace the process."
-	correlationID: UUID!
-
 	"The user that was added to the team."
 	user: User!
 
@@ -231,9 +228,6 @@ type AddTeamMemberPayload {
 }
 
 type RemoveTeamMemberPayload {
-	"Correlation ID to trace the process."
-	correlationID: UUID!
-
 	"The user that was removed from the team."
 	user: User!
 
