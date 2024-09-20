@@ -23,7 +23,8 @@ type VulnerabilityNode {
   workloadType: String!
   env: String!
   summary: ImageVulnerabilitySummary
-  hasBom: Boolean!
+  hasSbom: Boolean!
+  status: WorkloadStatus!
 }
 
 type VulnerabilitySummaryForTeam {
@@ -37,6 +38,24 @@ type VulnerabilitySummaryForTeam {
   coverage: Float!
   riskScoreTrend: Float!
   totalWorkloads: Int!
+  workloadStatus: [VulnerabilityStatus!]!
+}
+
+type VulnerabilityStatus {
+  workload: String!
+  workloadType: String!
+  env: String!
+  state: VulnerabilityState!
+  description: String!
+}
+
+enum VulnerabilityState {
+  "The workload has no vulnerabilities."
+  OK
+  "The workload has vulnerabilities above a threshold."
+  VULNERABLE
+  "The workload is missing a Software Bill of Materials (SBOM)."
+  MISSING_SBOM
 }
 
 type VulnerabilityList {

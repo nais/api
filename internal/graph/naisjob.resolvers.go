@@ -80,7 +80,7 @@ func (r *queryResolver) Naisjob(ctx context.Context, name string, team slug.Slug
 		return nil, err
 	}
 
-	vuln, err := r.vulnerabilities.GetVulnerabilityStatus(ctx, job.Image, job.DeployInfo.CommitSha)
+	vuln, err := r.vulnerabilities.GetVulnerabilityError(ctx, job.Image, job.DeployInfo.CommitSha)
 	if err != nil {
 		return nil, fmt.Errorf("getting vulnerability status for image %q: %w", job.Image, err)
 	}

@@ -1002,20 +1002,30 @@ type VulnerabilityNode struct {
 	WorkloadType string                     `json:"workloadType"`
 	Env          string                     `json:"env"`
 	Summary      *ImageVulnerabilitySummary `json:"summary,omitempty"`
-	HasBom       bool                       `json:"hasBom"`
+	HasSbom      bool                       `json:"hasSbom"`
+	Status       WorkloadStatus             `json:"status"`
+}
+
+type VulnerabilityStatus struct {
+	Workload     string             `json:"workload"`
+	WorkloadType string             `json:"workloadType"`
+	Env          string             `json:"env"`
+	State        VulnerabilityState `json:"state"`
+	Description  string             `json:"description"`
 }
 
 type VulnerabilitySummaryForTeam struct {
-	RiskScore      int     `json:"riskScore"`
-	Critical       int     `json:"critical"`
-	High           int     `json:"high"`
-	Medium         int     `json:"medium"`
-	Low            int     `json:"low"`
-	BomCount       int     `json:"bomCount"`
-	Unassigned     int     `json:"unassigned"`
-	Coverage       float64 `json:"coverage"`
-	RiskScoreTrend float64 `json:"riskScoreTrend"`
-	TotalWorkloads int     `json:"totalWorkloads"`
+	RiskScore      int                    `json:"riskScore"`
+	Critical       int                    `json:"critical"`
+	High           int                    `json:"high"`
+	Medium         int                    `json:"medium"`
+	Low            int                    `json:"low"`
+	BomCount       int                    `json:"bomCount"`
+	Unassigned     int                    `json:"unassigned"`
+	Coverage       float64                `json:"coverage"`
+	RiskScoreTrend float64                `json:"riskScoreTrend"`
+	TotalWorkloads int                    `json:"totalWorkloads"`
+	WorkloadStatus []*VulnerabilityStatus `json:"workloadStatus"`
 }
 
 type VulnerableError struct {
@@ -1659,6 +1669,52 @@ func (e *UsersyncRunStatus) UnmarshalGQL(v interface{}) error {
 }
 
 func (e UsersyncRunStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type VulnerabilityState string
+
+const (
+	// The workload has no vulnerabilities.
+	VulnerabilityStateOk VulnerabilityState = "OK"
+	// The workload has vulnerabilities above a threshold.
+	VulnerabilityStateVulnerable VulnerabilityState = "VULNERABLE"
+	// The workload is missing a Software Bill of Materials (SBOM).
+	VulnerabilityStateMissingSbom VulnerabilityState = "MISSING_SBOM"
+)
+
+var AllVulnerabilityState = []VulnerabilityState{
+	VulnerabilityStateOk,
+	VulnerabilityStateVulnerable,
+	VulnerabilityStateMissingSbom,
+}
+
+func (e VulnerabilityState) IsValid() bool {
+	switch e {
+	case VulnerabilityStateOk, VulnerabilityStateVulnerable, VulnerabilityStateMissingSbom:
+		return true
+	}
+	return false
+}
+
+func (e VulnerabilityState) String() string {
+	return string(e)
+}
+
+func (e *VulnerabilityState) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = VulnerabilityState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid VulnerabilityState", str)
+	}
+	return nil
+}
+
+func (e VulnerabilityState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

@@ -30,7 +30,8 @@ type Client interface {
 	GetMetadataForImage(ctx context.Context, image string) (*model.ImageDetails, error)
 	GetFindingsForImageByProjectID(ctx context.Context, projectID string, suppressed bool) ([]*model.Finding, error)
 	GetMetadataForTeam(ctx context.Context, team string) ([]*model.ImageDetails, error)
-	GetVulnerabilityStatus(ctx context.Context, image string, revision string) (model.StateError, error)
+	GetVulnerabilityError(ctx context.Context, image string, revision string) (model.StateError, error)
+	GetVulnerabilityState(summary *model.ImageVulnerabilitySummary) model.VulnerabilityState
 	SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.AnalysisTrail, error)
 	GetAnalysisTrailForImage(ctx context.Context, projectID, componentID, vulnerabilityID string) (*model.AnalysisTrail, error)
 	UploadProject(ctx context.Context, image, name, version, team string, bom []byte) error
@@ -114,7 +115,7 @@ func WithClient(client dependencytrack.Client) DependencyTrackOption {
 	}
 }
 
-func (c *dependencyTrackClient) GetVulnerabilityStatus(ctx context.Context, image string, revision string) (model.StateError, error) {
+func (c *dependencyTrackClient) GetVulnerabilityError(ctx context.Context, image string, revision string) (model.StateError, error) {
 	name, version, _ := strings.Cut(image, ":")
 	// TODO: vurder cache?
 	p, err := c.client.GetProject(ctx, name, version)
@@ -122,22 +123,39 @@ func (c *dependencyTrackClient) GetVulnerabilityStatus(ctx context.Context, imag
 		return nil, fmt.Errorf("getting project by name %s and version %s: %w", name, version, err)
 	}
 
-	v, sum := c.isVulnerable(p)
-	if sum == nil {
+	sum := c.createSummaryForImage(p)
+
+	switch c.GetVulnerabilityState(sum) {
+	case model.VulnerabilityStateOk:
+		return nil, nil
+	case model.VulnerabilityStateMissingSbom:
 		return model.MissingSbomError{
 			Revision: revision,
 			Level:    model.ErrorLevelWarning,
 		}, nil
-	}
-
-	if v {
+	case model.VulnerabilityStateVulnerable:
 		return model.VulnerableError{
 			Revision: revision,
 			Level:    model.ErrorLevelWarning,
 			Summary:  sum,
 		}, nil
+
 	}
 	return nil, nil
+}
+
+func (c *dependencyTrackClient) GetVulnerabilityState(summary *model.ImageVulnerabilitySummary) model.VulnerabilityState {
+	switch {
+	case summary == nil:
+		return model.VulnerabilityStateMissingSbom
+	case summary.Critical > 0:
+		return model.VulnerabilityStateVulnerable
+	// if the amount of high vulnerabilities is greater than 50 % of the total amount of vulnerabilities, we consider the image as vulnerable
+	case summary.RiskScore > 100 && summary.High > summary.RiskScore/2:
+		return model.VulnerabilityStateVulnerable
+	}
+
+	return model.VulnerabilityStateOk
 }
 
 func (c *dependencyTrackClient) GetProjectMetrics(ctx context.Context, instance *WorkloadInstance, date string) (*ProjectMetric, error) {
@@ -407,22 +425,6 @@ func (c *dependencyTrackClient) UploadProject(ctx context.Context, image, name, 
 		return fmt.Errorf("uploading bom: %w", err)
 	}
 	return nil
-}
-
-func (c *dependencyTrackClient) isVulnerable(p *dependencytrack.Project) (bool, *model.ImageVulnerabilitySummary) {
-	sum := c.createSummaryForImage(p)
-	if sum == nil {
-		return true, nil
-	}
-	if sum.Critical > 0 {
-		return true, sum
-	}
-	// if the amount of high vulnerabilities is greater than 50 % of the total amount of vulnerabilities, we consider the image as vulnerable
-	if sum.RiskScore > 100 && sum.High > sum.RiskScore/2 {
-		return true, sum
-	}
-
-	return false, sum
 }
 
 // Due to the nature of the DependencyTrack API, the 'LastBomImportFormat' is not reliable to determine if a project has a BOM.

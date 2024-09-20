@@ -795,7 +795,7 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 			if app.Status.State == model.StateNotnais {
 				notNais++
 			}
-			vuln, err := r.vulnerabilities.GetVulnerabilityStatus(ctx, app.Image, app.DeployInfo.CommitSha)
+			vuln, err := r.vulnerabilities.GetVulnerabilityError(ctx, app.Image, app.DeployInfo.CommitSha)
 			if err != nil {
 				return nil, fmt.Errorf("getting vulnerability status for image %q: %w", app.Image, err)
 			}
@@ -825,7 +825,7 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 			if job.Status.State == model.StateNotnais {
 				notNais++
 			}
-			vuln, err := r.vulnerabilities.GetVulnerabilityStatus(ctx, job.Image, job.DeployInfo.CommitSha)
+			vuln, err := r.vulnerabilities.GetVulnerabilityError(ctx, job.Image, job.DeployInfo.CommitSha)
 			if err != nil {
 				return nil, fmt.Errorf("getting vulnerability status for image %q: %w", job.Image, err)
 			}
@@ -1387,10 +1387,6 @@ func (r *teamResolver) Workloads(ctx context.Context, obj *model.Team, offset *i
 	pagination := model.NewPagination(offset, limit)
 	nodes, pageInfo := model.PaginatedSlice(nodes, pagination)
 
-	//if orderBy != nil {
-	//	vulnerabilities.Sort2(nodes, orderBy.Field, orderBy.Direction)
-	//}
-
 	return &model.WorkloadList{
 		Nodes:    nodes,
 		PageInfo: pageInfo,
@@ -1611,7 +1607,7 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 
 		for _, image := range images {
 			if image.GQLVars.ContainsReference(node.Env, obj.Slug.String(), node.WorkloadType, node.WorkloadName) {
-				node.HasBom = image.HasSbom
+				node.HasSbom = image.HasSbom
 				node.Summary = image.Summary
 				break
 			}
@@ -1638,7 +1634,7 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 	}, nil
 }
 
-// TODO: this will return a summary for unique images and not workloads. We get a mismatch between this and the table with workloads..
+// TODO: refactor and extract to functions
 func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummaryForTeam, error) {
 	images, err := r.vulnerabilities.GetMetadataForTeam(ctx, obj.Slug.String())
 	if err != nil {
@@ -1662,9 +1658,12 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		workloads = append(workloads, job)
 	}
 
-	retVal := &model.VulnerabilitySummaryForTeam{}
+	retVal := &model.VulnerabilitySummaryForTeam{
+		WorkloadStatus: make([]*model.VulnerabilityStatus, 0),
+	}
 	for _, workload := range workloads {
 		var env, team, wType, name string
+
 		switch w := workload.(type) {
 		case *model.App:
 			env = w.Env.Name
@@ -1679,33 +1678,68 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		default:
 			continue
 		}
-		for _, image := range images {
-			if image.Summary == nil {
+
+		var image *model.ImageDetails
+
+		for _, i := range images {
+			if i.Summary == nil {
 				continue
 			}
-			if image.GQLVars.ContainsReference(env, team, wType, name) {
-				if image.Summary.Critical > 0 {
-					retVal.Critical += image.Summary.Critical
-				}
-				if image.Summary.High > 0 {
-					retVal.High += image.Summary.High
-				}
-				if image.Summary.Medium > 0 {
-					retVal.Medium += image.Summary.Medium
-				}
-				if image.Summary.Low > 0 {
-					retVal.Low += image.Summary.Low
-				}
-				if image.Summary.Unassigned > 0 {
-					retVal.Unassigned += image.Summary.Unassigned
-				}
-				if image.Summary.RiskScore > 0 {
-					retVal.RiskScore += image.Summary.RiskScore
-				}
-				retVal.BomCount += 1
+			if i.GQLVars.ContainsReference(env, team, wType, name) {
+				image = i
+				break
 			}
 		}
+
+		if image == nil {
+			retVal.WorkloadStatus = append(retVal.WorkloadStatus, &model.VulnerabilityStatus{
+				Workload:     name,
+				WorkloadType: wType,
+				Env:          env,
+				State:        r.vulnerabilities.GetVulnerabilityState(nil),
+				Description:  "No vulnerability data available, your workload might be vulnerable",
+			})
+			continue
+		}
+
+		if image.Summary.Critical > 0 {
+			retVal.Critical += image.Summary.Critical
+		}
+		if image.Summary.High > 0 {
+			retVal.High += image.Summary.High
+		}
+		if image.Summary.Medium > 0 {
+			retVal.Medium += image.Summary.Medium
+		}
+		if image.Summary.Low > 0 {
+			retVal.Low += image.Summary.Low
+		}
+		if image.Summary.Unassigned > 0 {
+			retVal.Unassigned += image.Summary.Unassigned
+		}
+		if image.Summary.RiskScore > 0 {
+			retVal.RiskScore += image.Summary.RiskScore
+		}
+		retVal.BomCount += 1
+
+		s := r.vulnerabilities.GetVulnerabilityState(image.Summary)
+		desc := "Your workload is considered vulnerable."
+		if s == model.VulnerabilityStateOk {
+			desc = "Your workload is considered ok."
+		}
+
+		retVal.WorkloadStatus = append(retVal.WorkloadStatus, &model.VulnerabilityStatus{
+			Workload:     name,
+			WorkloadType: wType,
+			Env:          env,
+			State:        s,
+			Description:  desc,
+		})
 	}
+
+	model.SortWith(retVal.WorkloadStatus, func(a, b *model.VulnerabilityStatus) bool {
+		return model.Compare(a.State, b.State, model.SortOrderDesc)
+	})
 
 	if len(apps) == 0 && len(jobs) == 0 {
 		retVal.Coverage = 0.0
@@ -1715,7 +1749,6 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 
 	retVal.TotalWorkloads = len(apps) + len(jobs)
 
-	// add trend risk score
 	return retVal, nil
 }
 
