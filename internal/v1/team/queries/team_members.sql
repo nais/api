@@ -81,7 +81,8 @@ WHERE
 
 -- name: GetMember :one
 SELECT
-	users.*
+	users.*,
+	user_roles.role_name
 FROM
 	user_roles
 	JOIN teams ON teams.slug = user_roles.target_team_slug

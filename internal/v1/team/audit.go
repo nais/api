@@ -13,6 +13,7 @@ const (
 	auditActionConfirmDeleteKey                           = "CONFIRM_DELETE_KEY"
 	auditActionAddMember                                  = "ADD_MEMBER"
 	auditActionRemoveMember                               = "REMOVE_MEMBER"
+	auditActionSetMemberRole                              = "SET_MEMBER_ROLE"
 )
 
 func init() {
@@ -67,6 +68,17 @@ func init() {
 				GenericAuditEntry: entry.WithMessage("Remove member"),
 				Data:              data,
 			}, nil
+		case auditActionSetMemberRole:
+			data, err := auditv1.TransformData(entry, func(data *TeamMemberSetRoleAuditEntryData) *TeamMemberSetRoleAuditEntryData {
+				return data
+			})
+			if err != nil {
+				return nil, err
+			}
+			return TeamMemberSetRoleAuditEntry{
+				GenericAuditEntry: entry.WithMessage("Set member role"),
+				Data:              data,
+			}, nil
 		default:
 			return nil, fmt.Errorf("unsupported team audit entry action: %q", entry.Action)
 		}
@@ -102,7 +114,7 @@ type TeamCreateDeleteKeyAuditEntry struct {
 
 type TeamMemberAddedAuditEntry struct {
 	auditv1.GenericAuditEntry
-	Data *TeamMemberAddedAuditEntryData `json:"data,omitempty"`
+	Data *TeamMemberAddedAuditEntryData `json:"data"`
 }
 
 type TeamMemberAddedAuditEntryData struct {
@@ -119,4 +131,15 @@ type TeamMemberRemovedAuditEntry struct {
 type TeamMemberRemovedAuditEntryData struct {
 	UserID    uuid.UUID `json:"userID"`
 	UserEmail string    `json:"userEmail"`
+}
+
+type TeamMemberSetRoleAuditEntry struct {
+	auditv1.GenericAuditEntry
+	Data *TeamMemberSetRoleAuditEntryData `json:"data"`
+}
+
+type TeamMemberSetRoleAuditEntryData struct {
+	Role      TeamMemberRole `json:"role"`
+	UserID    uuid.UUID      `json:"userID"`
+	UserEmail string         `json:"userEmail"`
 }

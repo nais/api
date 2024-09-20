@@ -320,15 +320,10 @@ func AddMember(ctx context.Context, input AddTeamMemberInput, actor *authz.Actor
 		return apierror.Errorf("User is already a member of the team.")
 	}
 
-	roleName, err := teamMemberRoleToSqlRole(input.Role)
-	if err != nil {
-		return err
-	}
-
 	return databasev1.Transaction(ctx, func(ctx context.Context) error {
 		params := teamsql.AddMemberParams{
 			UserID:   input.UserID,
-			RoleName: roleName,
+			RoleName: teamMemberRoleToSqlRole(input.Role),
 			TeamSlug: input.TeamSlug,
 		}
 		if err := db(ctx).AddMember(ctx, params); err != nil {
@@ -384,6 +379,55 @@ func RemoveMember(ctx context.Context, input RemoveTeamMemberInput, actor *authz
 	})
 }
 
+func SetMemberRole(ctx context.Context, input SetTeamMemberRoleInput, actor *authz.Actor) error {
+	m, err := db(ctx).GetMember(ctx, teamsql.GetMemberParams{
+		TeamSlug: input.TeamSlug,
+		UserID:   input.UserID,
+	})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return apierror.Errorf("User is not a member of the team.")
+	} else if err != nil {
+		return err
+	}
+
+	roleName := teamMemberRoleToSqlRole(input.Role)
+	if m.RoleName == roleName {
+		return apierror.Errorf("Member already has the %q role.", input.Role)
+	}
+
+	return databasev1.Transaction(ctx, func(ctx context.Context) error {
+		err := db(ctx).RemoveMember(ctx, teamsql.RemoveMemberParams{
+			UserID:   input.UserID,
+			TeamSlug: input.TeamSlug,
+		})
+		if err != nil {
+			return err
+		}
+
+		err = db(ctx).AddMember(ctx, teamsql.AddMemberParams{
+			UserID:   input.UserID,
+			RoleName: roleName,
+			TeamSlug: input.TeamSlug,
+		})
+		if err != nil {
+			return err
+		}
+
+		return auditv1.Create(ctx, auditv1.CreateInput{
+			Action:       auditActionSetMemberRole,
+			Actor:        actor.User,
+			ResourceType: auditResourceTypeTeam,
+			ResourceName: input.TeamSlug.String(),
+			TeamSlug:     ptr.To(input.TeamSlug),
+			Data: &TeamMemberSetRoleAuditEntryData{
+				Role:      input.Role,
+				UserID:    input.UserID,
+				UserEmail: input.UserEmail,
+			},
+		})
+	})
+}
+
 func UserIsOwner(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (bool, error) {
 	return db(ctx).UserIsOwner(ctx, teamsql.UserIsOwnerParams{
 		UserID:   userID,
@@ -396,18 +440,4 @@ func UserIsMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (bo
 		UserID:   userID,
 		TeamSlug: teamSlug,
 	})
-}
-
-func teamMemberRoleToSqlRole(role TeamMemberRole) (teamsql.RoleName, error) {
-	var roleName teamsql.RoleName
-	switch role {
-	case TeamMemberRoleMember:
-		roleName = teamsql.RoleNameTeammember
-	case TeamMemberRoleOwner:
-		roleName = teamsql.RoleNameTeamowner
-	default:
-		return "", apierror.Errorf("Unknown team member role: %q", role)
-	}
-
-	return roleName, nil
 }

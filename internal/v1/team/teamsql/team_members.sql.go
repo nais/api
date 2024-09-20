@@ -65,7 +65,8 @@ func (q *Queries) CountMembers(ctx context.Context, teamSlug *slug.Slug) (int64,
 
 const getMember = `-- name: GetMember :one
 SELECT
-	users.id, users.email, users.name, users.external_id
+	users.id, users.email, users.name, users.external_id,
+	user_roles.role_name
 FROM
 	user_roles
 	JOIN teams ON teams.slug = user_roles.target_team_slug
@@ -80,14 +81,23 @@ type GetMemberParams struct {
 	UserID   uuid.UUID
 }
 
-func (q *Queries) GetMember(ctx context.Context, arg GetMemberParams) (*User, error) {
+type GetMemberRow struct {
+	ID         uuid.UUID
+	Email      string
+	Name       string
+	ExternalID string
+	RoleName   RoleName
+}
+
+func (q *Queries) GetMember(ctx context.Context, arg GetMemberParams) (*GetMemberRow, error) {
 	row := q.db.QueryRow(ctx, getMember, arg.TeamSlug, arg.UserID)
-	var i User
+	var i GetMemberRow
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
 		&i.Name,
 		&i.ExternalID,
+		&i.RoleName,
 	)
 	return &i, err
 }

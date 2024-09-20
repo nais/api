@@ -89,6 +89,13 @@ extend type Mutation {
 	If the user is not already a member or an owner of the team, the mutation will result in an error.
 	"""
 	removeTeamMember(input: RemoveTeamMemberInput!): RemoveTeamMemberPayload!
+
+	"""
+	Assign a role to a team member
+
+	The user must already be a member of the team for this mutation to succeed.
+	"""
+	setTeamMemberRole(input: SetTeamMemberRoleInput!): SetTeamMemberRolePayload!
 }
 
 """
@@ -230,6 +237,11 @@ type RemoveTeamMemberPayload {
 
 	"The team that the member was removed from."
 	team: Team!
+}
+
+type SetTeamMemberRolePayload {
+	"The updated team member."
+	member: TeamMember!
 }
 
 type TeamDeleteKey {
@@ -384,6 +396,17 @@ input RemoveTeamMemberInput {
 
 	"The email address of the user to remove from the team."
 	userEmail: String!
+}
+
+input SetTeamMemberRoleInput {
+	"The slug of the team."
+	teamSlug: Slug!
+
+	"The email address of the user."
+	userEmail: String!
+
+	"The role to assign."
+	role: TeamMemberRole!
 }
 
 "Possible fields to order teams by."
@@ -618,6 +641,49 @@ type TeamMemberRemovedAuditEntryData {
 	userID: UUID!
 
 	"The email address of the user that was removed."
+	userEmail: String!
+
+	"The user itself."
+	user: User
+}
+
+type TeamMemberSetRoleAuditEntry implements AuditEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: AuditResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the action."
+	data: TeamMemberSetRoleAuditEntryData!
+}
+
+type TeamMemberSetRoleAuditEntryData {
+	"The role that the user was assigned."
+	role: TeamMemberRole!
+
+	"The ID of the user that was added."
+	userID: UUID!
+
+	"The email address of the user that was added."
 	userEmail: String!
 
 	"The user itself."

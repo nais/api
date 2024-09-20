@@ -159,6 +159,14 @@ func (e TeamMemberRole) IsValid() bool {
 	return false
 }
 
+func teamMemberRoleToSqlRole(role TeamMemberRole) teamsql.RoleName {
+	if role == TeamMemberRoleMember {
+		return teamsql.RoleNameTeammember
+	}
+
+	return teamsql.RoleNameTeamowner
+}
+
 func teamMemberRoleFromSqlTeamRole(t teamsql.RoleName) TeamMemberRole {
 	if t == teamsql.RoleNameTeamowner {
 		return TeamMemberRoleOwner
@@ -415,7 +423,7 @@ type AddTeamMemberInput struct {
 }
 
 type AddTeamMemberPayload struct {
-	Member TeamMember `json:"member"`
+	Member *TeamMember `json:"member"`
 }
 
 type RemoveTeamMemberInput struct {
@@ -427,4 +435,15 @@ type RemoveTeamMemberInput struct {
 type RemoveTeamMemberPayload struct {
 	UserID   uuid.UUID `json:"-"`
 	TeamSlug slug.Slug `json:"-"`
+}
+
+type SetTeamMemberRoleInput struct {
+	TeamSlug  slug.Slug      `json:"teamSlug"`
+	UserEmail string         `json:"userEmail"`
+	Role      TeamMemberRole `json:"role"`
+	UserID    uuid.UUID      `json:"-"`
+}
+
+type SetTeamMemberRolePayload struct {
+	Member *TeamMember `json:"member"`
 }

@@ -148,7 +148,7 @@ func (r *mutationResolver) AddTeamMember(ctx context.Context, input team.AddTeam
 	}
 
 	return &team.AddTeamMemberPayload{
-		Member: team.TeamMember{
+		Member: &team.TeamMember{
 			Role:     input.Role,
 			TeamSlug: input.TeamSlug,
 			UserID:   u.UUID,
@@ -185,6 +185,41 @@ func (r *mutationResolver) RemoveTeamMember(ctx context.Context, input team.Remo
 	return &team.RemoveTeamMemberPayload{
 		UserID:   u.UUID,
 		TeamSlug: input.TeamSlug,
+	}, nil
+}
+
+func (r *mutationResolver) SetTeamMemberRole(ctx context.Context, input team.SetTeamMemberRoleInput) (*team.SetTeamMemberRolePayload, error) {
+	actor := authz.ActorFromContext(ctx)
+	if err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMembersAdmin, input.TeamSlug); err != nil {
+		return nil, err
+	}
+
+	_, err := team.Get(ctx, input.TeamSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	u, err := user.GetByEmail(ctx, input.UserEmail)
+	if err != nil {
+		return nil, err
+	}
+
+	input.UserID = u.UUID
+	if err := team.SetMemberRole(ctx, input, actor); err != nil {
+		return nil, err
+	}
+
+	correlationID := uuid.New()
+	if err := r.triggerTeamUpdatedEvent(ctx, input.TeamSlug, correlationID); err != nil {
+		return nil, err
+	}
+
+	return &team.SetTeamMemberRolePayload{
+		Member: &team.TeamMember{
+			Role:     input.Role,
+			TeamSlug: input.TeamSlug,
+			UserID:   u.UUID,
+		},
 	}, nil
 }
 
@@ -266,6 +301,10 @@ func (r *teamMemberRemovedAuditEntryDataResolver) User(ctx context.Context, obj 
 	return user.Get(ctx, obj.UserID)
 }
 
+func (r *teamMemberSetRoleAuditEntryDataResolver) User(ctx context.Context, obj *team.TeamMemberSetRoleAuditEntryData) (*user.User, error) {
+	return user.Get(ctx, obj.UserID)
+}
+
 func (r *Resolver) RemoveTeamMemberPayload() gengqlv1.RemoveTeamMemberPayloadResolver {
 	return &removeTeamMemberPayloadResolver{r}
 }
@@ -288,6 +327,10 @@ func (r *Resolver) TeamMemberRemovedAuditEntryData() gengqlv1.TeamMemberRemovedA
 	return &teamMemberRemovedAuditEntryDataResolver{r}
 }
 
+func (r *Resolver) TeamMemberSetRoleAuditEntryData() gengqlv1.TeamMemberSetRoleAuditEntryDataResolver {
+	return &teamMemberSetRoleAuditEntryDataResolver{r}
+}
+
 type (
 	removeTeamMemberPayloadResolver         struct{ *Resolver }
 	teamResolver                            struct{ *Resolver }
@@ -296,4 +339,5 @@ type (
 	teamMemberResolver                      struct{ *Resolver }
 	teamMemberAddedAuditEntryDataResolver   struct{ *Resolver }
 	teamMemberRemovedAuditEntryDataResolver struct{ *Resolver }
+	teamMemberSetRoleAuditEntryDataResolver struct{ *Resolver }
 )

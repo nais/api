@@ -1,0 +1,25 @@
+mutation {
+	setTeamMemberRole(
+		input: {
+			teamSlug: "{{ .teamSlug }}",
+			userEmail: "email-1@example.com",
+			role: OWNER
+		}
+	) {
+		member {
+			role
+		}
+	}
+}
+
+RETURNS
+
+{
+	"data": {
+		"setTeamMemberRole": {
+			"member": {
+				"role": "OWNER"
+			}
+		}
+	}
+}
