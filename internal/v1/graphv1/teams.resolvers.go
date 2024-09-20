@@ -219,11 +219,11 @@ func (r *teamResolver) Members(ctx context.Context, obj *team.Team, first *int, 
 }
 
 func (r *teamResolver) ViewerIsOwner(ctx context.Context, obj *team.Team) (bool, error) {
-	panic(fmt.Errorf("not implemented: ViewerIsOwner - viewerIsOwner"))
+	return team.UserIsOwner(ctx, obj.Slug, authz.ActorFromContext(ctx).User.GetID())
 }
 
 func (r *teamResolver) ViewerIsMember(ctx context.Context, obj *team.Team) (bool, error) {
-	panic(fmt.Errorf("not implemented: ViewerIsMember - viewerIsMember"))
+	return team.UserIsMember(ctx, obj.Slug, authz.ActorFromContext(ctx).User.GetID())
 }
 
 func (r *teamResolver) Environments(ctx context.Context, obj *team.Team) ([]*team.TeamEnvironment, error) {

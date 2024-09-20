@@ -1,0 +1,21 @@
+INSERT INTO teams(
+	slug,
+	purpose,
+	slack_channel
+) VALUES (
+	'member',
+	'Member',
+	'#member'
+), (
+ 	'owner',
+ 	'Owner',
+ 	'#owner'
+), (
+	'not-a-member',
+	'not-a-member',
+	'#not-a-member'
+);
+
+RETURNS
+
+[]

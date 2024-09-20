@@ -34,6 +34,8 @@ type Querier interface {
 	SetDeleteKeyConfirmedAt(ctx context.Context, argSlug slug.Slug) error
 	SlugAvailable(ctx context.Context, argSlug slug.Slug) (bool, error)
 	Update(ctx context.Context, arg UpdateParams) (*Team, error)
+	UserIsMember(ctx context.Context, arg UserIsMemberParams) (bool, error)
+	UserIsOwner(ctx context.Context, arg UserIsOwnerParams) (bool, error)
 }
 
 var _ Querier = (*Queries)(nil)

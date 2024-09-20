@@ -384,6 +384,20 @@ func RemoveMember(ctx context.Context, input RemoveTeamMemberInput, actor *authz
 	})
 }
 
+func UserIsOwner(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (bool, error) {
+	return db(ctx).UserIsOwner(ctx, teamsql.UserIsOwnerParams{
+		UserID:   userID,
+		TeamSlug: teamSlug,
+	})
+}
+
+func UserIsMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (bool, error) {
+	return db(ctx).UserIsMember(ctx, teamsql.UserIsMemberParams{
+		UserID:   userID,
+		TeamSlug: teamSlug,
+	})
+}
+
 func teamMemberRoleToSqlRole(role TeamMemberRole) (teamsql.RoleName, error) {
 	var roleName teamsql.RoleName
 	switch role {

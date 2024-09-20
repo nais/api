@@ -263,3 +263,55 @@ func (q *Queries) RemoveMember(ctx context.Context, arg RemoveMemberParams) erro
 	_, err := q.db.Exec(ctx, removeMember, arg.UserID, arg.TeamSlug)
 	return err
 }
+
+const userIsMember = `-- name: UserIsMember :one
+SELECT
+	EXISTS (
+		SELECT
+			id
+		FROM
+			user_roles
+		WHERE
+			user_id = $1
+			AND target_team_slug = $2::slug
+			AND role_name IN ('Team member', 'Team owner')
+	)
+`
+
+type UserIsMemberParams struct {
+	UserID   uuid.UUID
+	TeamSlug slug.Slug
+}
+
+func (q *Queries) UserIsMember(ctx context.Context, arg UserIsMemberParams) (bool, error) {
+	row := q.db.QueryRow(ctx, userIsMember, arg.UserID, arg.TeamSlug)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const userIsOwner = `-- name: UserIsOwner :one
+SELECT
+	EXISTS (
+		SELECT
+			id
+		FROM
+			user_roles
+		WHERE
+			user_id = $1
+			AND target_team_slug = $2::slug
+			AND role_name = 'Team owner'
+	)
+`
+
+type UserIsOwnerParams struct {
+	UserID   uuid.UUID
+	TeamSlug slug.Slug
+}
+
+func (q *Queries) UserIsOwner(ctx context.Context, arg UserIsOwnerParams) (bool, error) {
+	row := q.db.QueryRow(ctx, userIsOwner, arg.UserID, arg.TeamSlug)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}

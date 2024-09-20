@@ -105,3 +105,31 @@ WHERE
 	user_id = @user_id
 	AND target_team_slug = @team_slug::slug
 ;
+
+-- name: UserIsMember :one
+SELECT
+	EXISTS (
+		SELECT
+			id
+		FROM
+			user_roles
+		WHERE
+			user_id = @user_id
+			AND target_team_slug = @team_slug::slug
+			AND role_name IN ('Team member', 'Team owner')
+	)
+;
+
+-- name: UserIsOwner :one
+SELECT
+	EXISTS (
+		SELECT
+			id
+		FROM
+			user_roles
+		WHERE
+			user_id = @user_id
+			AND target_team_slug = @team_slug::slug
+			AND role_name = 'Team owner'
+	)
+;
