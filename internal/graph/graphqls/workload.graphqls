@@ -2,6 +2,7 @@ interface Workload {
   id: ID!
   name: String!
   image: String!
+  imageDetails: ImageDetails!
   deployInfo: DeployInfo!
   env: Env!
   accessPolicy: AccessPolicy!
@@ -17,4 +18,9 @@ interface Workload {
 enum WorkloadType {
   APP
   NAISJOB
+}
+
+type WorkloadList {
+  nodes: [Workload!]!
+  pageInfo: PageInfo!
 }

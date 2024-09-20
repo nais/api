@@ -6,15 +6,15 @@ package vulnerabilities
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/nais/dependencytrack/pkg/client"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/nais/dependencytrack/pkg/client"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMaskFakeData(t *testing.T) {
-
 	// replace file with file containing real data
 	b, err := os.ReadFile("fakedata/projects.json")
 	assert.NoError(t, err)
@@ -54,7 +54,7 @@ func TestMaskFakeData(t *testing.T) {
 
 	out, err := json.MarshalIndent(filtered, "", "  ")
 	assert.NoError(t, err)
-	err = os.WriteFile("fakedata/projects.json", out, 0644)
+	err = os.WriteFile("fakedata/projects.json", out, 0o644)
 	assert.NoError(t, err)
 }
 

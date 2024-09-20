@@ -3,8 +3,9 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/nais/api/internal/vulnerabilities"
 	"strings"
+
+	"github.com/nais/api/internal/vulnerabilities"
 
 	"github.com/nais/api/internal/fixtures"
 	"github.com/nais/api/internal/graph"

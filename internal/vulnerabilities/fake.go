@@ -3,6 +3,7 @@ package vulnerabilities
 import (
 	"context"
 	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/nais/dependencytrack/pkg/client"
 )
@@ -19,13 +20,13 @@ type fakeDependencyTrackClient struct {
 
 func (f *fakeDependencyTrackClient) GetProject(_ context.Context, name, version string) (*client.Project, error) {
 	for _, p := range f.projects {
-
 		if p.Name == name {
 			return p, nil
 		}
 	}
 	return nil, nil
 }
+
 func (f *fakeDependencyTrackClient) GetFindings(ctx context.Context, projectUuid string, suppressed bool) ([]*client.Finding, error) {
 	p, err := f.Client.GetProject(ctx, "ghcr.io/nais/testapp/testapp", "2020-02-25-f61e7b7")
 	if err != nil {
@@ -72,9 +73,9 @@ func createProject(team, workloadType, name, version string, vulnFactor int) *cl
 	p.Tags = append(p.Tags, client.Tag{Name: "team:" + team})
 	p.Tags = append(p.Tags, client.Tag{Name: "project:" + p.Name})
 	p.Tags = append(p.Tags, client.Tag{Name: "image:" + p.Name + ":" + p.Version})
-	p.Tags = append(p.Tags, client.Tag{Name: fmt.Sprintf("workload:%s|%s|%s|%s", "dev", team, workloadType, p.Name)})
+	p.Tags = append(p.Tags, client.Tag{Name: fmt.Sprintf("workload:%s|%s|%s|%s", "dev", team, workloadType, name)})
 	p.Tags = append(p.Tags, client.Tag{Name: "env:" + "dev"})
-	p.Tags = append(p.Tags, client.Tag{Name: fmt.Sprintf("workload:%s|%s|%s|%s", "superprod", team, workloadType, p.Name)})
+	p.Tags = append(p.Tags, client.Tag{Name: fmt.Sprintf("workload:%s|%s|%s|%s", "superprod", team, workloadType, name)})
 	p.Tags = append(p.Tags, client.Tag{Name: "env:" + "superprod"})
 	return p
 }

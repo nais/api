@@ -442,6 +442,18 @@ type Team {
     orderBy: OrderBy
   ): AppList!
 
+  "The workloads owned by the team."
+  workloads(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order entries by"
+    orderBy: OrderBy
+  ): WorkloadList!
+
   "The deploy key of the team."
   deployKey: DeploymentKey! @auth
 

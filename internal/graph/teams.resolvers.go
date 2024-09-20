@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
+	"strconv"
+
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -25,8 +28,6 @@ import (
 	"github.com/nais/api/pkg/protoapi"
 	"github.com/sourcegraph/conc/pool"
 	"k8s.io/utils/ptr"
-	"slices"
-	"strconv"
 )
 
 func (r *appUtilizationDataResolver) App(ctx context.Context, obj *model.AppUtilizationData) (*model.App, error) {
@@ -1363,6 +1364,39 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 	}, nil
 }
 
+func (r *teamResolver) Workloads(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.WorkloadList, error) {
+	var nodes []model.Workload
+	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
+	if err != nil {
+		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
+	}
+
+	for _, app := range apps {
+		nodes = append(nodes, app)
+	}
+
+	jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
+	if err != nil {
+		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
+	}
+
+	for _, job := range jobs {
+		nodes = append(nodes, job)
+	}
+
+	pagination := model.NewPagination(offset, limit)
+	nodes, pageInfo := model.PaginatedSlice(nodes, pagination)
+
+	//if orderBy != nil {
+	//	vulnerabilities.Sort2(nodes, orderBy.Field, orderBy.Direction)
+	//}
+
+	return &model.WorkloadList{
+		Nodes:    nodes,
+		PageInfo: pageInfo,
+	}, nil
+}
+
 func (r *teamResolver) DeployKey(ctx context.Context, obj *model.Team) (*model.DeploymentKey, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireTeamAuthorization(actor, roles.AuthorizationDeployKeyView, obj.Slug)
@@ -1560,19 +1594,17 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 
 		node := &model.VulnerabilityNode{}
 
-		switch workload.(type) {
+		switch w := workload.(type) {
 		case *model.App:
-			app := workload.(*model.App)
-			node.ID = scalar.VulnerabilitiesIdent(fmt.Sprintf("%s:%s:%s:%s", app.Env.Name, obj.Slug.String(), "app", app.Name))
-			node.WorkloadName = app.Name
+			node.ID = scalar.VulnerabilitiesIdent(fmt.Sprintf("%s:%s:%s:%s", w.Env.Name, obj.Slug.String(), "app", w.Name))
+			node.WorkloadName = w.Name
 			node.WorkloadType = "app"
-			node.Env = app.Env.Name
+			node.Env = w.Env.Name
 		case *model.NaisJob:
-			job := workload.(*model.NaisJob)
-			node.ID = scalar.VulnerabilitiesIdent(fmt.Sprintf("%s:%s:%s:%s", job.Env.Name, obj.Slug.String(), "job", job.Name))
-			node.WorkloadName = job.Name
+			node.ID = scalar.VulnerabilitiesIdent(fmt.Sprintf("%s:%s:%s:%s", w.Env.Name, obj.Slug.String(), "job", w.Name))
+			node.WorkloadName = w.Name
 			node.WorkloadType = "job"
-			node.Env = job.Env.Name
+			node.Env = w.Env.Name
 		default:
 			continue
 		}
@@ -1613,37 +1645,6 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		return nil, fmt.Errorf("getting metadata for team %q: %w", obj.Slug.String(), err)
 	}
 
-	retVal := &model.VulnerabilitySummaryForTeam{}
-	for _, image := range images {
-		if image.Summary == nil {
-			continue
-		}
-		if image.Summary.Critical > 0 {
-			retVal.Critical += image.Summary.Critical
-		}
-		if image.Summary.High > 0 {
-			retVal.High += image.Summary.High
-		}
-		if image.Summary.Medium > 0 {
-			retVal.Medium += image.Summary.Medium
-		}
-		if image.Summary.Low > 0 {
-			retVal.Low += image.Summary.Low
-		}
-		if image.Summary.Unassigned > 0 {
-			retVal.Unassigned += image.Summary.Unassigned
-		}
-		if image.Summary.RiskScore > 0 {
-			retVal.RiskScore += image.Summary.RiskScore
-		}
-
-		for _, ref := range image.GQLVars.WorkloadReferences {
-			if ref.Team == obj.Slug.String() {
-				retVal.BomCount += 1
-			}
-		}
-	}
-
 	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
@@ -1651,6 +1652,59 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 	jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
+	}
+
+	workloads := make([]model.Workload, 0)
+	for _, app := range apps {
+		workloads = append(workloads, app)
+	}
+	for _, job := range jobs {
+		workloads = append(workloads, job)
+	}
+
+	retVal := &model.VulnerabilitySummaryForTeam{}
+	for _, workload := range workloads {
+		var env, team, wType, name string
+		switch w := workload.(type) {
+		case *model.App:
+			env = w.Env.Name
+			team = obj.Slug.String()
+			wType = "app"
+			name = w.Name
+		case *model.NaisJob:
+			env = w.Env.Name
+			team = obj.Slug.String()
+			wType = "job"
+			name = w.Name
+		default:
+			continue
+		}
+		for _, image := range images {
+			if image.Summary == nil {
+				continue
+			}
+			if image.GQLVars.ContainsReference(env, team, wType, name) {
+				if image.Summary.Critical > 0 {
+					retVal.Critical += image.Summary.Critical
+				}
+				if image.Summary.High > 0 {
+					retVal.High += image.Summary.High
+				}
+				if image.Summary.Medium > 0 {
+					retVal.Medium += image.Summary.Medium
+				}
+				if image.Summary.Low > 0 {
+					retVal.Low += image.Summary.Low
+				}
+				if image.Summary.Unassigned > 0 {
+					retVal.Unassigned += image.Summary.Unassigned
+				}
+				if image.Summary.RiskScore > 0 {
+					retVal.RiskScore += image.Summary.RiskScore
+				}
+				retVal.BomCount += 1
+			}
+		}
 	}
 
 	if len(apps) == 0 && len(jobs) == 0 {

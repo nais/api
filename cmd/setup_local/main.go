@@ -6,14 +6,15 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/in-toto/in-toto-golang/in_toto"
-	"github.com/nais/api/internal/vulnerabilities"
 	"log"
 	"math/rand"
 	"os"
 	"strings"
 	"time"
 	"unicode"
+
+	"github.com/in-toto/in-toto-golang/in_toto"
+	"github.com/nais/api/internal/vulnerabilities"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/google/uuid"
@@ -404,6 +405,9 @@ func uploadFakeSbom(track *DependencyTrack, log logrus.FieldLogger) {
 		},
 	)
 	sbom, err := getSbom()
+	if err != nil {
+		log.Fatalf("get sbom: %v", err)
+	}
 	err = client.UploadProject(ctx, "ghcr.io/nais/testapp/testapp", "nais-deploy-canary", "2020-02-25-f61e7b7", "devteam", sbom)
 	if err != nil {
 		log.Fatalf("upload project: %v", err)

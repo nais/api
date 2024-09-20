@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/nais/api/internal/vulnerabilities"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/nais/api/internal/vulnerabilities"
 
 	"github.com/nais/api/internal/audit"
 	"github.com/nais/api/internal/bigquery"

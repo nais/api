@@ -23,7 +23,7 @@ spec:
   gcp:
     buckets:
       - name: dataproduct-apps-topics2
-  image: europe-north1-docker.pkg.dev/nais-io/nais/images/console-frontend:2024-06-06-144439-4d5bb22
+  image: ghcr.io/nais/dataproduct-apps-topics:v1
   liveness:
     path: /isHealthy
   readiness:
@@ -83,7 +83,7 @@ spec:
   gcp:
     buckets:
       - name: dataproduct-apps-topics2
-  image: europe-north1-docker.pkg.dev/nais-io/nais/images/dataproduct-apps:20240105223344-c0b3968
+  image: ghcr.io/nais/dataproduct-naisjobs-topics:v1
   liveness:
     path: /isHealthy
   readiness:

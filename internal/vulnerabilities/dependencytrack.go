@@ -407,7 +407,6 @@ func (c *dependencyTrackClient) UploadProject(ctx context.Context, image, name, 
 		return fmt.Errorf("uploading bom: %w", err)
 	}
 	return nil
-
 }
 
 func (c *dependencyTrackClient) isVulnerable(p *dependencytrack.Project) (bool, *model.ImageVulnerabilitySummary) {

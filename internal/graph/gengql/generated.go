@@ -1306,6 +1306,7 @@ type ComplexityRoot struct {
 		ViewerIsOwner          func(childComplexity int) int
 		Vulnerabilities        func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy, filter *model.VulnerabilityFilter) int
 		VulnerabilitiesSummary func(childComplexity int) int
+		Workloads              func(childComplexity int, offset *int, limit *int, orderBy *model.OrderBy) int
 	}
 
 	TeamDeleteKey struct {
@@ -1459,6 +1460,11 @@ type ComplexityRoot struct {
 		Level    func(childComplexity int) int
 		Revision func(childComplexity int) int
 		Summary  func(childComplexity int) int
+	}
+
+	WorkloadList struct {
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
 	}
 
 	WorkloadStatus struct {
@@ -1708,6 +1714,7 @@ type TeamResolver interface {
 	BigQuery(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.BigQueryDatasetList, error)
 	BigQueryDataset(ctx context.Context, obj *model.Team, name string, env string) (*model.BigQueryDataset, error)
 	Apps(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.AppList, error)
+	Workloads(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.WorkloadList, error)
 	DeployKey(ctx context.Context, obj *model.Team) (*model.DeploymentKey, error)
 	Naisjobs(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.NaisJobList, error)
 	Deployments(ctx context.Context, obj *model.Team, offset *int, limit *int) (*model.DeploymentList, error)
@@ -7378,6 +7385,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.VulnerabilitiesSummary(childComplexity), true
 
+	case "Team.workloads":
+		if e.complexity.Team.Workloads == nil {
+			break
+		}
+
+		args, err := ec.field_Team_workloads_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Team.Workloads(childComplexity, args["offset"].(*int), args["limit"].(*int), args["orderBy"].(*model.OrderBy)), true
+
 	case "TeamDeleteKey.createdAt":
 		if e.complexity.TeamDeleteKey.CreatedAt == nil {
 			break
@@ -7975,6 +7994,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.VulnerableError.Summary(childComplexity), true
+
+	case "WorkloadList.nodes":
+		if e.complexity.WorkloadList.Nodes == nil {
+			break
+		}
+
+		return e.complexity.WorkloadList.Nodes(childComplexity), true
+
+	case "WorkloadList.pageInfo":
+		if e.complexity.WorkloadList.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.WorkloadList.PageInfo(childComplexity), true
 
 	case "WorkloadStatus.errors":
 		if e.complexity.WorkloadStatus.Errors == nil {
@@ -10412,6 +10445,18 @@ type Team {
     orderBy: OrderBy
   ): AppList!
 
+  "The workloads owned by the team."
+  workloads(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order entries by"
+    orderBy: OrderBy
+  ): WorkloadList!
+
   "The deploy key of the team."
   deployKey: DeploymentKey! @auth
 
@@ -10913,6 +10958,7 @@ input VulnerabilityFilter {
   id: ID!
   name: String!
   image: String!
+  imageDetails: ImageDetails!
   deployInfo: DeployInfo!
   env: Env!
   accessPolicy: AccessPolicy!
@@ -10928,6 +10974,11 @@ input VulnerabilityFilter {
 enum WorkloadType {
   APP
   NAISJOB
+}
+
+type WorkloadList {
+  nodes: [Workload!]!
+  pageInfo: PageInfo!
 }
 `, BuiltIn: false},
 }
@@ -13040,6 +13091,39 @@ func (ec *executionContext) field_Team_vulnerabilities_args(ctx context.Context,
 	return args, nil
 }
 
+func (ec *executionContext) field_Team_workloads_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	var arg2 *model.OrderBy
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+		arg2, err = ec.unmarshalOOrderBy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderBy(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_User_teams_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -14604,6 +14688,8 @@ func (ec *executionContext) fieldContext_App_team(_ context.Context, field graph
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -15957,6 +16043,8 @@ func (ec *executionContext) fieldContext_AuditEventMemberAdded_team(_ context.Co
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -16592,6 +16680,8 @@ func (ec *executionContext) fieldContext_AuditEventMemberRemoved_team(_ context.
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -17181,6 +17271,8 @@ func (ec *executionContext) fieldContext_AuditEventMemberSetRole_team(_ context.
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -17816,6 +17908,8 @@ func (ec *executionContext) fieldContext_AuditEventTeamAddRepository_team(_ cont
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -18405,6 +18499,8 @@ func (ec *executionContext) fieldContext_AuditEventTeamRemoveRepository_team(_ c
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -18994,6 +19090,8 @@ func (ec *executionContext) fieldContext_AuditEventTeamSetAlertsSlackChannel_tea
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -19629,6 +19727,8 @@ func (ec *executionContext) fieldContext_AuditEventTeamSetDefaultSlackChannel_te
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -20218,6 +20318,8 @@ func (ec *executionContext) fieldContext_AuditEventTeamSetPurpose_team(_ context
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -21815,6 +21917,8 @@ func (ec *executionContext) fieldContext_BaseAuditEvent_team(_ context.Context, 
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -22230,6 +22334,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(_ context.Context,
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -23265,6 +23371,8 @@ func (ec *executionContext) fieldContext_Bucket_team(_ context.Context, field gr
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -25372,6 +25480,8 @@ func (ec *executionContext) fieldContext_Deployment_team(_ context.Context, fiel
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -32229,6 +32339,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(_ context.Context, fiel
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -35287,6 +35399,8 @@ func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -35454,6 +35568,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeam(ctx context.Context
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -35621,6 +35737,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTeamSlackAlertsChannel(c
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -35788,6 +35906,8 @@ func (ec *executionContext) fieldContext_Mutation_removeUserFromTeam(ctx context
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -36102,6 +36222,8 @@ func (ec *executionContext) fieldContext_Mutation_addTeamMember(ctx context.Cont
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -36269,6 +36391,8 @@ func (ec *executionContext) fieldContext_Mutation_setTeamMemberRole(ctx context.
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -37815,6 +37939,8 @@ func (ec *executionContext) fieldContext_NaisJob_team(_ context.Context, field g
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -38733,6 +38859,8 @@ func (ec *executionContext) fieldContext_OpenSearch_team(_ context.Context, fiel
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -40694,6 +40822,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -42356,6 +42486,8 @@ func (ec *executionContext) fieldContext_ReconcilerError_team(_ context.Context,
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -42854,6 +42986,8 @@ func (ec *executionContext) fieldContext_Redis_team(_ context.Context, field gra
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -45054,6 +45188,8 @@ func (ec *executionContext) fieldContext_Role_targetTeam(_ context.Context, fiel
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -46216,6 +46352,8 @@ func (ec *executionContext) fieldContext_Secret_team(_ context.Context, field gr
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -48119,6 +48257,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(_ context.Context, fie
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -51922,6 +52062,67 @@ func (ec *executionContext) fieldContext_Team_apps(ctx context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_workloads(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_workloads(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().Workloads(rctx, obj, fc.Args["offset"].(*int), fc.Args["limit"].(*int), fc.Args["orderBy"].(*model.OrderBy))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.WorkloadList)
+	fc.Result = res
+	return ec.marshalNWorkloadList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkloadList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_workloads(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "nodes":
+				return ec.fieldContext_WorkloadList_nodes(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_WorkloadList_pageInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WorkloadList", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Team_workloads_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_deployKey(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_deployKey(ctx, field)
 	if err != nil {
@@ -52953,6 +53154,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, f
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -53089,6 +53292,8 @@ func (ec *executionContext) fieldContext_TeamList_nodes(_ context.Context, field
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -53277,6 +53482,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, fiel
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -54025,6 +54232,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_team(_ context.Cont
 				return ec.fieldContext_Team_bigQueryDataset(ctx, field)
 			case "apps":
 				return ec.fieldContext_Team_apps(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
 			case "deployKey":
 				return ec.fieldContext_Team_deployKey(ctx, field)
 			case "naisjobs":
@@ -56984,6 +57193,102 @@ func (ec *executionContext) fieldContext_VulnerableError_summary(_ context.Conte
 				return ec.fieldContext_ImageVulnerabilitySummary_unassigned(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilitySummary", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadList_nodes(ctx context.Context, field graphql.CollectedField, obj *model.WorkloadList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadList_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]model.Workload)
+	fc.Result = res
+	return ec.marshalNWorkload2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkloadᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadList_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadList_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.WorkloadList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WorkloadList_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WorkloadList_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
 	}
 	return fc, nil
@@ -72309,6 +72614,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "workloads":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_workloads(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "deployKey":
 			field := field
 
@@ -74419,6 +74760,50 @@ func (ec *executionContext) _VulnerableError(ctx context.Context, sel ast.Select
 			}
 		case "summary":
 			out.Values[i] = ec._VulnerableError_summary(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var workloadListImplementors = []string{"WorkloadList"}
+
+func (ec *executionContext) _WorkloadList(ctx context.Context, sel ast.SelectionSet, obj *model.WorkloadList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadListImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadList")
+		case "nodes":
+			out.Values[i] = ec._WorkloadList_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pageInfo":
+			out.Values[i] = ec._WorkloadList_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -79377,6 +79762,20 @@ func (ec *executionContext) marshalNWorkload2ᚕgithubᚗcomᚋnaisᚋapiᚋinte
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNWorkloadList2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkloadList(ctx context.Context, sel ast.SelectionSet, v model.WorkloadList) graphql.Marshaler {
+	return ec._WorkloadList(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNWorkloadList2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkloadList(ctx context.Context, sel ast.SelectionSet, v *model.WorkloadList) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._WorkloadList(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNWorkloadStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐWorkloadStatus(ctx context.Context, sel ast.SelectionSet, v model.WorkloadStatus) graphql.Marshaler {
