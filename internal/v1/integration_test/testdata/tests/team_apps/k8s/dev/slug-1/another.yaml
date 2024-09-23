@@ -1,0 +1,6 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: another-app
+spec:
+  image: navikt/app-name:latest

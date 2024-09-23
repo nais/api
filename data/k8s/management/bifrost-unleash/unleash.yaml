@@ -20,52 +20,52 @@ spec:
     ssl: "false"
   existingServiceAccountName: bifrost-unleash-sql-user
   extraContainers:
-  - args:
-    - --structured-logs
-    - --port=5432
-    - nais-management-1234:europe-north1:bifrost-123
-    image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.1.0
-    name: sql-proxy
-    resources:
-      limits:
-        memory: 100Mi
-      requests:
-        cpu: 10m
-        memory: 100Mi
-    securityContext:
-      allowPrivilegeEscalation: false
-      capabilities:
-        drop:
-        - ALL
-      privileged: false
-      runAsNonRoot: true
-      runAsUser: 65532
+    - args:
+        - --structured-logs
+        - --port=5432
+        - nais-management-1234:europe-north1:bifrost-123
+      image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.1.0
+      name: sql-proxy
+      resources:
+        limits:
+          memory: 100Mi
+        requests:
+          cpu: 10m
+          memory: 100Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+        privileged: false
+        runAsNonRoot: true
+        runAsUser: 65532
   extraEnvVars:
-  - name: GOOGLE_IAP_AUDIENCE
-    value: /projects/123/global/backendServices/456
-  - name: TEAMS_API_URL
-    value: https://console.nav.cloud.nais.io/query
-  - name: TEAMS_API_TOKEN
-    valueFrom:
-      secretKeyRef:
-        key: token
-        name: teams-api-token
-  - name: TEAMS_ALLOWED_TEAMS
-    value: test,devteam
-  - name: TEAMS_ALLOWED_NAMESPACES
-    value: test,devteam
-  - name: TEAMS_ALLOWED_CLUSTERS
-    value: dev-gcp,prod-gcp
-  - name: LOG_LEVEL
-    value: warn
+    - name: GOOGLE_IAP_AUDIENCE
+      value: /projects/123/global/backendServices/456
+    - name: TEAMS_API_URL
+      value: https://console.nav.cloud.nais.io/query
+    - name: TEAMS_API_TOKEN
+      valueFrom:
+        secretKeyRef:
+          key: token
+          name: teams-api-token
+    - name: TEAMS_ALLOWED_TEAMS
+      value: test,devteam
+    - name: TEAMS_ALLOWED_NAMESPACES
+      value: test,devteam
+    - name: TEAMS_ALLOWED_CLUSTERS
+      value: dev-gcp,prod-gcp
+    - name: LOG_LEVEL
+      value: warn
   federation:
     clusters:
-    - dev-gcp
-    - prod-gcp
+      - dev-gcp
+      - prod-gcp
     enabled: true
     namespaces:
-    - test
-    - devteam
+      - test
+      - devteam
     secretNonce: abc123
   networkPolicy:
     allowAll: false
@@ -73,22 +73,22 @@ spec:
     allowDNS: true
     enabled: true
     extraEgressRules:
-    - ports:
-      - port: 3307
-        protocol: TCP
-      to:
-      - ipBlock:
-          cidr: 1.2.3.4/32
-    - ports:
-      - port: 3000
-        protocol: TCP
-      to:
-      - namespaceSelector:
-          matchLabels:
-            kubernetes.io/metadata.name: nais-system
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/name: teams-backend
+      - ports:
+          - port: 3307
+            protocol: TCP
+        to:
+          - ipBlock:
+              cidr: 1.2.3.4/32
+      - ports:
+          - port: 3000
+            protocol: TCP
+        to:
+          - namespaceSelector:
+              matchLabels:
+                kubernetes.io/metadata.name: nais-system
+            podSelector:
+              matchLabels:
+                app.kubernetes.io/name: teams-backend
   prometheus:
     enabled: true
   resources:
@@ -105,16 +105,16 @@ spec:
     path: /
 status:
   conditions:
-  - lastTransitionTime: "2023-09-20T07:11:48Z"
-    message: Reconciled successfully
-    reason: Reconciling
-    status: "True"
-    type: Reconciled
-  - lastTransitionTime: "2024-04-04T10:39:29Z"
-    message: Successfully connected to Unleash instance
-    reason: Reconciling
-    status: "True"
-    type: Connected
+    - lastTransitionTime: "2023-09-20T07:11:48Z"
+      message: Reconciled successfully
+      reason: Reconciling
+      status: "True"
+      type: Reconciled
+    - lastTransitionTime: "2024-04-04T10:39:29Z"
+      message: Successfully connected to Unleash instance
+      reason: Reconciling
+      status: "True"
+      type: Connected
   connected: true
   reconciled: true
   version: 5.9.6

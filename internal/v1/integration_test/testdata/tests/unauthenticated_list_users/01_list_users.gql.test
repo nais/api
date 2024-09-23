@@ -1,0 +1,25 @@
+{
+  users(first: 5) {
+    nodes {
+      name
+      email
+    }
+    pageInfo {
+      totalCount
+      hasNextPage
+      hasPreviousPage
+    }
+  }
+}
+
+RETURNS
+
+ENDOPTS
+
+{
+  "errors": [
+    {
+      "message": "Unauthorized"
+    }
+  ]
+}

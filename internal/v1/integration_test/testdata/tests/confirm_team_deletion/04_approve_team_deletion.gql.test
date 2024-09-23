@@ -1,0 +1,18 @@
+mutation {
+	confirmTeamDeletion(input: {
+		slug: "{{ .teamSlug }}",
+		key: "{{ .deleteKey }}"
+	}) {
+		deletionStarted
+	}
+}
+
+RETURNS
+
+{
+	"data": {
+		"confirmTeamDeletion": {
+			"deletionStarted": true
+		}
+	}
+}

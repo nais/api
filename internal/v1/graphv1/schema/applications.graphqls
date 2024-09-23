@@ -1,0 +1,167 @@
+extend type Team {
+	"NAIS applications owned by the team."
+	applications(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Ordering options for items returned from the connection."
+		orderBy: ApplicationOrder
+	): ApplicationConnection!
+}
+
+extend type TeamEnvironment {
+	"NAIS application in the team environment."
+	application(name: String!): Application!
+}
+
+"""
+TODO: write
+"""
+type Application implements Node & Workload {
+	"The globally unique ID of the application."
+	id: ID!
+
+	"The name of the application."
+	name: String!
+
+	"The team that owns the application."
+	team: Team!
+
+	"The environment the application is deployed in."
+	environment: TeamEnvironment!
+
+	"The container image of the application."
+	image: ContainerImage!
+
+	"Resources for the application."
+	resources: ApplicationResources!
+
+	"List of ingresses for the application."
+	ingresses: [String!]!
+
+	"List of authentication and authorization for the application."
+	authIntegrations: [ApplicationAuthIntegrations!]!
+
+	# deployInfo: DeployInfo!
+	# status: WorkloadStatus!
+	#
+	# variables: [Variable!]!
+	# persistence: [Persistence!]!
+	# type: WorkloadType!
+	#
+	# imageDetails: ImageDetails!
+	# instances: [Instance!]!
+	# autoScaling: AutoScaling!
+	# manifest: String!
+	# secrets: [Secret!]!
+}
+
+union ApplicationAuthIntegrations =
+	| EntraIDAuthIntegration
+	| IDPortenAuthIntegration
+	| MaskinportenAuthIntegration
+	| TokenXAuthIntegration
+
+type ApplicationResources implements WorkloadResources {
+	"Instances using resources above this threshold will be killed."
+	limits: WorkloadResourceQuantity!
+
+	"How many resources are allocated to each instance."
+	requests: WorkloadResourceQuantity!
+
+	"Scaling strategies for the application."
+	scaling: ApplicationScaling!
+}
+
+"""
+TODO: write
+"""
+type ApplicationScaling {
+	"The minimum number of application instances."
+	minInstances: Int!
+
+	"The maximum number of application instances."
+	maxInstances: Int!
+
+	"Scaling strategies for the application."
+	strategies: [ScalingStrategy!]!
+}
+
+union ScalingStrategy = CPUScalingStrategy | KafkaLagScalingStrategy
+
+"""
+A scaling strategy based on CPU usage
+
+Read more: https://docs.nais.io/workloads/application/reference/automatic-scaling/#cpu-based-scaling
+"""
+type CPUScalingStrategy {
+	"The threshold that must be met for the scaling to trigger."
+	threshold: Int!
+}
+
+type KafkaLagScalingStrategy {
+	"The threshold that must be met for the scaling to trigger."
+	threshold: Int!
+
+	"The consumer group of the topic."
+	consumerGroup: String!
+
+	"The name of the Kafka topic."
+	topicName: String!
+}
+
+type ApplicationConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"List of nodes."
+	nodes: [Application!]!
+
+	"List of edges."
+	edges: [ApplicationEdge!]!
+}
+
+type ApplicationEdge {
+	"Cursor for this edge that can be used for pagination."
+	cursor: Cursor!
+
+	"The application."
+	node: Application!
+}
+
+"Ordering options when fetching applications."
+input ApplicationOrder {
+	"The field to order items by."
+	field: ApplicationOrderField!
+
+	"The direction to order items by."
+	direction: OrderDirection!
+}
+
+enum ApplicationOrderField {
+	"Order applications by name."
+	NAME
+
+	"Order applications by status."
+	STATUS
+
+	"Order applications by the name of the environment."
+	ENVIRONMENT
+
+	"Order applications by the deployment time."
+	DEPLOYMENT_TIME
+}
+
+extend union SearchNode = Application
+extend enum SearchType {
+	APPLICATION
+}

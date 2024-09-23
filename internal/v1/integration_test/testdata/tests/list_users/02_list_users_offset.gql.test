@@ -1,0 +1,49 @@
+{
+  users(first: 5, after: "{{ .nextPageCursor }}") {
+    nodes {
+      name
+      email
+    }
+    pageInfo {
+      totalCount
+      hasNextPage
+      hasPreviousPage
+    }
+  }
+}
+
+RETURNS
+
+{
+  "data": {
+    "users": {
+      "nodes": [
+        {
+          "email": "email-13@example.com",
+          "name": "name-13"
+        },
+        {
+          "email": "email-14@example.com",
+          "name": "name-14"
+        },
+        {
+          "email": "email-15@example.com",
+          "name": "name-15"
+        },
+        {
+          "email": "email-16@example.com",
+          "name": "name-16"
+        },
+        {
+          "email": "email-17@example.com",
+          "name": "name-17"
+        }
+      ],
+      "pageInfo": {
+        "totalCount": 21,
+        "hasNextPage": true,
+        "hasPreviousPage": true
+      }
+    }
+  }
+}

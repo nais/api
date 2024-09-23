@@ -1,0 +1,17 @@
+{
+  node(id: "{{ .teamID }}") {
+    ... on Team {
+      slug
+    }
+  }
+}
+
+RETURNS
+
+{
+  "data": {
+    "node": {
+      "slug": "{{ .teamSlug }}"
+    }
+  }
+}

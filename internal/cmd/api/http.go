@@ -14,39 +14,51 @@ import (
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/graph/loader"
+	legacysqlinstance "github.com/nais/api/internal/sqlinstance"
+	"github.com/nais/api/internal/v1/auditv1"
+	"github.com/nais/api/internal/v1/cost"
+	"github.com/nais/api/internal/v1/databasev1"
+	"github.com/nais/api/internal/v1/github/repository"
+	"github.com/nais/api/internal/v1/graphv1/loaderv1"
+	"github.com/nais/api/internal/v1/kubernetes/watcher"
+	"github.com/nais/api/internal/v1/persistence/bigquery"
+	"github.com/nais/api/internal/v1/persistence/bucket"
+	"github.com/nais/api/internal/v1/persistence/kafkatopic"
+	"github.com/nais/api/internal/v1/persistence/opensearch"
+	"github.com/nais/api/internal/v1/persistence/redis"
+	"github.com/nais/api/internal/v1/persistence/sqlinstance"
+	"github.com/nais/api/internal/v1/reconciler"
+	"github.com/nais/api/internal/v1/role"
+	"github.com/nais/api/internal/v1/team"
+	"github.com/nais/api/internal/v1/user"
+	"github.com/nais/api/internal/v1/vulnerability"
+	"github.com/nais/api/internal/v1/workload/application"
+	"github.com/nais/api/internal/v1/workload/job"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
+	"github.com/vikstrous/dataloadgen"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/sync/errgroup"
 )
 
 // runHttpServer will start the HTTP server
-func runHttpServer(
-	ctx context.Context,
-	listenAddress string,
-	insecureAuth bool,
-	db database.Database,
-	authHandler authn.Handler,
-	graphHandler *handler.Server,
-	reg prometheus.Gatherer,
-	log logrus.FieldLogger,
-) error {
+func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool, db database.Database, watcherMgr *watcher.Manager, sqlAdminService *legacysqlinstance.SqlAdminService, authHandler authn.Handler, graphHandler *handler.Server, graphv1Handler *handler.Server, reg prometheus.Gatherer, vClient *vulnerability.Client, log logrus.FieldLogger) error {
 	router := chi.NewRouter()
 	router.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
 	router.Get("/healthz", func(_ http.ResponseWriter, _ *http.Request) {})
 	router.Method("GET", "/",
 		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL playground", "/query"), "playground")),
 	)
+	router.Method("GET", "/v1",
+		otelhttp.WithRouteTag("playground", otelhttp.NewHandler(playground.Handler("GraphQL v1 playground", "/graphql"), "playground")),
+	)
 
 	middlewares := []func(http.Handler) http.Handler{}
-
-	if insecureAuth {
-		middlewares = append(middlewares, auth.InsecureUserHeader(db))
-	}
 
 	middlewares = append(middlewares,
 		cors.New(
@@ -56,15 +68,40 @@ func runHttpServer(
 				AllowCredentials: true,
 			},
 		).Handler,
-
-		middleware.ApiKeyAuthentication(db),
-		middleware.Oauth2Authentication(db, authHandler),
-		loader.Middleware(db),
 	)
 	router.Route("/query", func(r chi.Router) {
-		r.Use(middlewares...)
+		oldMiddlewares := append(middlewares,
+			middleware.ApiKeyAuthentication(db),
+			middleware.Oauth2Authentication(db, authHandler),
+		)
+
+		if insecureAuth {
+			oldMiddlewares = append([]func(http.Handler) http.Handler{auth.InsecureUserHeader(db)}, oldMiddlewares...)
+		}
+		r.Use(oldMiddlewares...)
+		r.Use(loader.Middleware(db))
 		r.Use(otelhttp.NewMiddleware("graphql", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))
 		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphHandler))
+	})
+
+	graphMiddleware, err := ConfigureV1Graph(ctx, watcherMgr, db, sqlAdminService, vClient, log)
+	if err != nil {
+		return err
+	}
+
+	router.Route("/graphql", func(r chi.Router) {
+		v1Middlewares := append(middlewares,
+			middleware.Oauth2AuthenticationV1(db, authHandler),
+			middleware.RequireAuthenticatedUser(),
+		)
+
+		if insecureAuth {
+			v1Middlewares = append([]func(http.Handler) http.Handler{auth.InsecureUserHeaderV1(db)}, v1Middlewares...)
+		}
+		r.Use(graphMiddleware)
+		r.Use(v1Middlewares...)
+		r.Use(otelhttp.NewMiddleware("graphqlv1", otelhttp.WithPublicEndpoint(), otelhttp.WithSpanOptions(trace.WithAttributes(semconv.ServiceName("http")))))
+		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphv1Handler))
 	})
 
 	router.Route("/oauth2", func(r chi.Router) {
@@ -101,4 +138,50 @@ func runHttpServer(
 		return nil
 	})
 	return wg.Wait()
+}
+
+func ConfigureV1Graph(ctx context.Context, watcherMgr *watcher.Manager, db database.Database, sqlAdminService *legacysqlinstance.SqlAdminService, vClient *vulnerability.Client, log logrus.FieldLogger) (func(http.Handler) http.Handler, error) {
+	appWatcher := application.NewWatcher(ctx, watcherMgr)
+	jobWatcher := job.NewWatcher(ctx, watcherMgr)
+	runWatcher := job.NewRunWatcher(ctx, watcherMgr)
+	bqWatcher := bigquery.NewWatcher(ctx, watcherMgr)
+	redisWatcher := redis.NewWatcher(ctx, watcherMgr)
+	openSearchWatcher := opensearch.NewWatcher(ctx, watcherMgr)
+	bucketWatcher := bucket.NewWatcher(ctx, watcherMgr)
+	sqlDatabaseWatcher := sqlinstance.NewDatabaseWatcher(ctx, watcherMgr)
+	sqlInstanceWatcher := sqlinstance.NewInstanceWatcher(ctx, watcherMgr)
+	kafkaTopicWatcher := kafkatopic.NewWatcher(ctx, watcherMgr)
+
+	syncCtx, cancelSync := context.WithTimeout(ctx, 20*time.Second)
+	defer cancelSync()
+	if !watcherMgr.WaitForReady(syncCtx) {
+		return nil, errors.New("timed out waiting for watchers to be ready")
+	}
+
+	dataloaderOpts := []dataloadgen.Option{
+		dataloadgen.WithWait(time.Millisecond),
+		dataloadgen.WithBatchCapacity(250),
+		dataloadgen.WithTracer(otel.Tracer("dataloader")),
+	}
+	return loaderv1.Middleware(func(ctx context.Context) context.Context {
+		ctx = application.NewLoaderContext(ctx, appWatcher)
+		ctx = bigquery.NewLoaderContext(ctx, bqWatcher, dataloaderOpts)
+		ctx = bucket.NewLoaderContext(ctx, bucketWatcher)
+		ctx = job.NewLoaderContext(ctx, jobWatcher, runWatcher)
+		ctx = kafkatopic.NewLoaderContext(ctx, kafkaTopicWatcher)
+		ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher)
+		ctx = redis.NewLoaderContext(ctx, redisWatcher)
+		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher)
+		pool := db.GetPool()
+		ctx = databasev1.NewLoaderContext(ctx, pool)
+		ctx = team.NewLoaderContext(ctx, pool, dataloaderOpts)
+		ctx = user.NewLoaderContext(ctx, pool, dataloaderOpts)
+		ctx = cost.NewLoaderContext(ctx, pool)
+		ctx = repository.NewLoaderContext(ctx, pool)
+		ctx = role.NewLoaderContext(ctx, pool)
+		ctx = auditv1.NewLoaderContext(ctx, pool, dataloaderOpts)
+		ctx = vulnerability.NewLoaderContext(ctx, vClient, log, dataloaderOpts)
+		ctx = reconciler.NewLoaderContext(ctx, pool, dataloaderOpts)
+		return ctx
+	}), nil
 }

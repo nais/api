@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/database"
-	"github.com/nais/api/pkg/protoapi"
+	"github.com/nais/api/pkg/apiclient/protoapi"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

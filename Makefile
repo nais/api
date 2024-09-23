@@ -12,9 +12,18 @@ generate-sql:
 	go run github.com/sqlc-dev/sqlc/cmd/sqlc vet -f .configs/sqlc.yaml
 	go run mvdan.cc/gofumpt@latest -w ./internal/database/gensql
 
+generate-sql-v1:
+	go run github.com/sqlc-dev/sqlc/cmd/sqlc generate -f .configs/sqlc-v1.yaml
+	go run github.com/sqlc-dev/sqlc/cmd/sqlc vet -f .configs/sqlc-v1.yaml
+	go run mvdan.cc/gofumpt@latest -w ./
+
 generate-graphql:
 	go run github.com/99designs/gqlgen generate --config .configs/gqlgen.yaml
 	go run mvdan.cc/gofumpt@latest -w ./internal/graph
+
+generate-graphql-v1:
+	go run github.com/99designs/gqlgen generate --config .configs/gqlgen-v1.yaml
+	go run mvdan.cc/gofumpt@latest -w ./internal/v1/graphv1
 
 generate-mocks:
 	find internal pkg -type f -name "mock_*.go" -delete
@@ -23,8 +32,8 @@ generate-mocks:
 
 generate-proto:
 	protoc \
-		-I pkg/protoapi/schema/ \
-		./pkg/protoapi/schema/*.proto \
+		-I pkg/apiclient/protoapi/schema/ \
+		./pkg/apiclient/protoapi/schema/*.proto \
 		--go_out=. \
 		--go-grpc_out=.
 
@@ -39,10 +48,10 @@ debug:
 	env bash -c 'source local.env; dlv debug --headless --listen=:2345 --api-version=2 ./cmd/api'
 
 test:
-	go test ./...
+	go test ./... github.com/nais/api/pkg/apiclient/...
 
 test-with-cc:
-	go test -cover --race ./...
+	go test -cover --race ./... github.com/nais/api/pkg/apiclient/...
 
 check: staticcheck vulncheck deadcode
 
@@ -55,8 +64,12 @@ vulncheck:
 deadcode:
 	go run golang.org/x/tools/cmd/deadcode@latest -test ./...
 
-fmt:
+fmt: prettier
 	go run mvdan.cc/gofumpt@latest -w ./
+
+prettier:
+	npm install
+	npx prettier --write .
 
 helm-lint:
 	helm lint --strict ./charts
@@ -70,5 +83,6 @@ stop-integration-test-db:
 start-integration-test-db: stop-integration-test-db
 	docker run -d -e POSTGRES_PASSWORD=postgres --name $(TEST_POSTGRES_CONTAINER_NAME) -p $(TEST_POSTGRES_CONTAINER_PORT):5432 postgres:14-alpine
 
-integration-test: start-integration-test-db
-	go test ./... -tags=db_integration_test
+integration_test:
+	rm -f hack/coverprofile.txt
+	go test -coverprofile=hack/coverprofile.txt -coverpkg github.com/nais/api/... -v -tags integration_test --race ./internal/v1/integration_test

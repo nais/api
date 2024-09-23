@@ -11,8 +11,10 @@ import (
 )
 
 type Client struct {
+	// TODO: Move the admin service to the new domain package?
+	Admin *SqlAdminService
+
 	metrics      *Metrics
-	admin        *SqlAdminService
 	informers    k8s.ClusterInformers
 	log          logrus.FieldLogger
 	fakesEnabled bool
@@ -57,7 +59,7 @@ func NewClient(ctx context.Context, db database.Database, informers k8s.ClusterI
 	if err != nil {
 		return nil, err
 	}
-	client.admin = admin
+	client.Admin = admin
 
 	return client, nil
 }
