@@ -43,7 +43,8 @@ func (s *Slack) GetFeedbackMessageOptions(ctx context.Context, tenant string, in
 		blocks = append(blocks, userBlock)
 	}
 
-	uriBlock := slack.NewSectionBlock(slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*URI:* %s", input.URI), false, false), nil, nil)
+	url := fmt.Sprintf("https://console.%s.cloud.nais.io", tenant) + input.URI
+	uriBlock := slack.NewSectionBlock(slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*URL:* %s", url), false, false), nil, nil)
 	tenantBlock := slack.NewSectionBlock(slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*Tenant:* %s", tenant), false, false), nil, nil)
 	textBlock := slack.NewSectionBlock(slack.NewTextBlockObject("plain_text", input.Details, false, false), nil, nil)
 	blocks = append(blocks, uriBlock, tenantBlock, textBlock)
