@@ -35,6 +35,12 @@ type PageInfo {
 
 	"The total amount of items in the connection."
 	totalCount: Int!
+
+	"The offset of the first item in the connection."
+	pageStart: Int!
+
+	"The offset of the last item in the connection."
+	pageEnd: Int!
 }
 
 "Possible directions in which to order a list of items."

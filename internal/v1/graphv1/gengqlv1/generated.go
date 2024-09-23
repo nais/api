@@ -533,6 +533,8 @@ type ComplexityRoot struct {
 		EndCursor       func(childComplexity int) int
 		HasNextPage     func(childComplexity int) int
 		HasPreviousPage func(childComplexity int) int
+		PageEnd         func(childComplexity int) int
+		PageStart       func(childComplexity int) int
 		StartCursor     func(childComplexity int) int
 		TotalCount      func(childComplexity int) int
 	}
@@ -3067,6 +3069,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PageInfo.HasPreviousPage(childComplexity), true
+
+	case "PageInfo.pageEnd":
+		if e.complexity.PageInfo.PageEnd == nil {
+			break
+		}
+
+		return e.complexity.PageInfo.PageEnd(childComplexity), true
+
+	case "PageInfo.pageStart":
+		if e.complexity.PageInfo.PageStart == nil {
+			break
+		}
+
+		return e.complexity.PageInfo.PageStart(childComplexity), true
 
 	case "PageInfo.startCursor":
 		if e.complexity.PageInfo.StartCursor == nil {
@@ -6969,6 +6985,12 @@ type PageInfo {
 
 	"The total amount of items in the connection."
 	totalCount: Int!
+
+	"The offset of the first item in the connection."
+	pageStart: Int!
+
+	"The offset of the last item in the connection."
+	pageEnd: Int!
 }
 
 "Possible directions in which to order a list of items."
@@ -13887,6 +13909,10 @@ func (ec *executionContext) fieldContext_ApplicationConnection_pageInfo(_ contex
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -14477,6 +14503,10 @@ func (ec *executionContext) fieldContext_AuditEntryConnection_pageInfo(_ context
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -15338,6 +15368,10 @@ func (ec *executionContext) fieldContext_BigQueryDatasetAccessConnection_pageInf
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -15588,6 +15622,10 @@ func (ec *executionContext) fieldContext_BigQueryDatasetConnection_pageInfo(_ co
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -16535,6 +16573,10 @@ func (ec *executionContext) fieldContext_BucketConnection_pageInfo(_ context.Con
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -16882,6 +16924,10 @@ func (ec *executionContext) fieldContext_BucketCorsConnection_pageInfo(_ context
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -18353,6 +18399,10 @@ func (ec *executionContext) fieldContext_ImageVulnerabilityConnection_pageInfo(_
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -19975,6 +20025,10 @@ func (ec *executionContext) fieldContext_JobConnection_pageInfo(_ context.Contex
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -20657,6 +20711,10 @@ func (ec *executionContext) fieldContext_JobRunConnection_pageInfo(_ context.Con
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -21945,6 +22003,10 @@ func (ec *executionContext) fieldContext_KafkaTopicAclConnection_pageInfo(_ cont
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -22539,6 +22601,10 @@ func (ec *executionContext) fieldContext_KafkaTopicConnection_pageInfo(_ context
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -24608,6 +24674,10 @@ func (ec *executionContext) fieldContext_OpenSearchAccessConnection_pageInfo(_ c
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -24858,6 +24928,10 @@ func (ec *executionContext) fieldContext_OpenSearchConnection_pageInfo(_ context
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -25433,6 +25507,94 @@ func (ec *executionContext) fieldContext_PageInfo_totalCount(_ context.Context, 
 		Object:     "PageInfo",
 		Field:      field,
 		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PageInfo_pageStart(ctx context.Context, field graphql.CollectedField, obj *pagination.PageInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PageInfo_pageStart(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageStart(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int32)
+	fc.Result = res
+	return ec.marshalNInt2int32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PageInfo_pageStart(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PageInfo",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PageInfo_pageEnd(ctx context.Context, field graphql.CollectedField, obj *pagination.PageInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PageInfo_pageEnd(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageEnd(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int32)
+	fc.Result = res
+	return ec.marshalNInt2int32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PageInfo_pageEnd(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PageInfo",
+		Field:      field,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
@@ -26688,6 +26850,10 @@ func (ec *executionContext) fieldContext_ReconcilerConnection_pageInfo(_ context
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -27490,6 +27656,10 @@ func (ec *executionContext) fieldContext_RedisInstanceAccessConnection_pageInfo(
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -27740,6 +27910,10 @@ func (ec *executionContext) fieldContext_RedisInstanceConnection_pageInfo(_ cont
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -28454,6 +28628,10 @@ func (ec *executionContext) fieldContext_RepositoryConnection_pageInfo(_ context
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -28761,6 +28939,10 @@ func (ec *executionContext) fieldContext_SearchNodeConnection_pageInfo(_ context
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -30954,6 +31136,10 @@ func (ec *executionContext) fieldContext_SqlInstanceConnection_pageInfo(_ contex
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -31368,6 +31554,10 @@ func (ec *executionContext) fieldContext_SqlInstanceFlagConnection_pageInfo(_ co
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -31876,6 +32066,10 @@ func (ec *executionContext) fieldContext_SqlInstanceUserConnection_pageInfo(_ co
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -34134,6 +34328,10 @@ func (ec *executionContext) fieldContext_TeamConnection_pageInfo(_ context.Conte
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -37120,6 +37318,10 @@ func (ec *executionContext) fieldContext_TeamMemberConnection_pageInfo(_ context
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -39460,6 +39662,10 @@ func (ec *executionContext) fieldContext_UserConnection_pageInfo(_ context.Conte
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -39722,6 +39928,10 @@ func (ec *executionContext) fieldContext_WorkloadConnection_pageInfo(_ context.C
 				return ec.fieldContext_PageInfo_startCursor(ctx, field)
 			case "totalCount":
 				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
 		},
@@ -48554,6 +48764,16 @@ func (ec *executionContext) _PageInfo(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "pageStart":
+			out.Values[i] = ec._PageInfo_pageStart(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pageEnd":
+			out.Values[i] = ec._PageInfo_pageEnd(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -55604,6 +55824,21 @@ func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}
 
 func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
 	res := graphql.MarshalInt(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNInt2int32(ctx context.Context, v interface{}) (int32, error) {
+	res, err := graphql.UnmarshalInt32(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInt2int32(ctx context.Context, sel ast.SelectionSet, v int32) graphql.Marshaler {
+	res := graphql.MarshalInt32(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")

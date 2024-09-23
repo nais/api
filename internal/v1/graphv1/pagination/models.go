@@ -26,6 +26,20 @@ type PageInfo struct {
 	EndCursor       *Cursor `json:"endCursor"`
 }
 
+func (p *PageInfo) PageStart() int32 {
+	if p.StartCursor == nil {
+		return 0
+	}
+	return p.StartCursor.Offset + 1
+}
+
+func (p *PageInfo) PageEnd() int32 {
+	if p.EndCursor == nil {
+		return 0
+	}
+	return p.EndCursor.Offset + 1
+}
+
 func NewConnection[T any](nodes []T, page *Pagination, total int32) *Connection[T] {
 	return NewConvertConnection(nodes, page, total, func(from T) T { return from })
 }
