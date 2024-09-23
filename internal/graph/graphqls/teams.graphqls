@@ -493,7 +493,9 @@ type Team {
   ): VulnerabilityList!
 
   "The vulnerabilities summary for the team's applications."
-  vulnerabilitiesSummary: VulnerabilitySummaryForTeam!
+  vulnerabilitiesSummary(
+    filter: VulnerabilityFilter
+  ): VulnerabilitySummaryForTeam!
 
   "Get all secrets for the team."
   secrets: [Secret!]! @auth

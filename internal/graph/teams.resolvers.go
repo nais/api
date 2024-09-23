@@ -1635,7 +1635,7 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 }
 
 // TODO: refactor and extract to functions
-func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummaryForTeam, error) {
+func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Team, filter *model.VulnerabilityFilter) (*model.VulnerabilitySummaryForTeam, error) {
 	images, err := r.vulnerabilities.GetMetadataForTeam(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting metadata for team %q: %w", obj.Slug.String(), err)
@@ -1658,9 +1658,8 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		workloads = append(workloads, job)
 	}
 
-	retVal := &model.VulnerabilitySummaryForTeam{
-		WorkloadStatus: make([]*model.VulnerabilityStatus, 0),
-	}
+	vulnWorkloads := 0
+	retVal := &model.VulnerabilitySummaryForTeam{}
 	for _, workload := range workloads {
 		var env, team, wType, name string
 
@@ -1679,6 +1678,14 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 			continue
 		}
 
+		if filter != nil && len(filter.Envs) > 0 {
+			if !slices.Contains(filter.Envs, env) {
+				continue
+			}
+		}
+
+		retVal.TotalWorkloads += 1
+
 		var image *model.ImageDetails
 
 		for _, i := range images {
@@ -1692,13 +1699,6 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		}
 
 		if image == nil {
-			retVal.WorkloadStatus = append(retVal.WorkloadStatus, &model.VulnerabilityStatus{
-				Workload:     name,
-				WorkloadType: wType,
-				Env:          env,
-				State:        r.vulnerabilities.GetVulnerabilityState(nil),
-				Description:  "No vulnerability data available, your workload might be vulnerable",
-			})
 			continue
 		}
 
@@ -1723,31 +1723,32 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		retVal.BomCount += 1
 
 		s := r.vulnerabilities.GetVulnerabilityState(image.Summary)
-		desc := "Your workload is considered vulnerable."
-		if s == model.VulnerabilityStateOk {
-			desc = "Your workload is considered ok."
+		if s == model.VulnerabilityStateVulnerable {
+			vulnWorkloads += 1
 		}
-
-		retVal.WorkloadStatus = append(retVal.WorkloadStatus, &model.VulnerabilityStatus{
-			Workload:     name,
-			WorkloadType: wType,
-			Env:          env,
-			State:        s,
-			Description:  desc,
-		})
 	}
-
-	model.SortWith(retVal.WorkloadStatus, func(a, b *model.VulnerabilityStatus) bool {
-		return model.Compare(a.State, b.State, model.SortOrderDesc)
-	})
 
 	if len(apps) == 0 && len(jobs) == 0 {
 		retVal.Coverage = 0.0
 	} else {
-		retVal.Coverage = float64(retVal.BomCount) / float64(len(apps)+len(jobs)) * 100
+		retVal.Coverage = float64(retVal.BomCount) / float64(retVal.TotalWorkloads) * 100
 	}
 
-	retVal.TotalWorkloads = len(apps) + len(jobs)
+	if retVal.Coverage < 90 {
+		retVal.Status = append(retVal.Status, &model.VulnerabilityStatus{
+			State:       model.VulnerabilityStateCoverageTooLow,
+			Title:       "SBOM coverage",
+			Description: "SBOM coverage is below 90% (number of workloads with SBOM / total number of workloads)",
+		})
+	}
+
+	if vulnWorkloads > 0 {
+		retVal.Status = append(retVal.Status, &model.VulnerabilityStatus{
+			State:       model.VulnerabilityStateVulnerable,
+			Title:       "Too many vulnerable workloads",
+			Description: "The threshold for a vulnerable workload is a riskscore above 100 or a critical vulnerability",
+		})
+	}
 
 	return retVal, nil
 }

@@ -1007,11 +1007,9 @@ type VulnerabilityNode struct {
 }
 
 type VulnerabilityStatus struct {
-	Workload     string             `json:"workload"`
-	WorkloadType string             `json:"workloadType"`
-	Env          string             `json:"env"`
-	State        VulnerabilityState `json:"state"`
-	Description  string             `json:"description"`
+	State       VulnerabilityState `json:"state"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
 }
 
 type VulnerabilitySummaryForTeam struct {
@@ -1025,7 +1023,7 @@ type VulnerabilitySummaryForTeam struct {
 	Coverage       float64                `json:"coverage"`
 	RiskScoreTrend float64                `json:"riskScoreTrend"`
 	TotalWorkloads int                    `json:"totalWorkloads"`
-	WorkloadStatus []*VulnerabilityStatus `json:"workloadStatus"`
+	Status         []*VulnerabilityStatus `json:"status"`
 }
 
 type VulnerableError struct {
@@ -1675,23 +1673,24 @@ func (e UsersyncRunStatus) MarshalGQL(w io.Writer) {
 type VulnerabilityState string
 
 const (
-	// The workload has no vulnerabilities.
-	VulnerabilityStateOk VulnerabilityState = "OK"
-	// The workload has vulnerabilities above a threshold.
-	VulnerabilityStateVulnerable VulnerabilityState = "VULNERABLE"
-	// The workload is missing a Software Bill of Materials (SBOM).
-	VulnerabilityStateMissingSbom VulnerabilityState = "MISSING_SBOM"
+	VulnerabilityStateOk                         VulnerabilityState = "OK"
+	VulnerabilityStateTooManyVulnerableWorkloads VulnerabilityState = "TOO_MANY_VULNERABLE_WORKLOADS"
+	VulnerabilityStateCoverageTooLow             VulnerabilityState = "COVERAGE_TOO_LOW"
+	VulnerabilityStateVulnerable                 VulnerabilityState = "VULNERABLE"
+	VulnerabilityStateMissingSbom                VulnerabilityState = "MISSING_SBOM"
 )
 
 var AllVulnerabilityState = []VulnerabilityState{
 	VulnerabilityStateOk,
+	VulnerabilityStateTooManyVulnerableWorkloads,
+	VulnerabilityStateCoverageTooLow,
 	VulnerabilityStateVulnerable,
 	VulnerabilityStateMissingSbom,
 }
 
 func (e VulnerabilityState) IsValid() bool {
 	switch e {
-	case VulnerabilityStateOk, VulnerabilityStateVulnerable, VulnerabilityStateMissingSbom:
+	case VulnerabilityStateOk, VulnerabilityStateTooManyVulnerableWorkloads, VulnerabilityStateCoverageTooLow, VulnerabilityStateVulnerable, VulnerabilityStateMissingSbom:
 		return true
 	}
 	return false
