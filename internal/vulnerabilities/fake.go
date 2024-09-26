@@ -3,6 +3,12 @@ package vulnerabilities
 import (
 	"context"
 	"fmt"
+	"sort"
+	"strings"
+	"time"
+
+	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
+	"github.com/prometheus/common/model"
 
 	"github.com/google/uuid"
 	"github.com/nais/dependencytrack/pkg/client"
@@ -81,3 +87,50 @@ func createProject(team, workloadType, name, version string, vulnFactor int) *cl
 }
 
 var _ client.Client = (*fakeDependencyTrackClient)(nil)
+
+type FakePrometheusClient struct {
+	projects []*client.Project
+}
+
+var _ VulnerabilityPrometheus = &FakePrometheusClient{}
+
+func NewFakePrometheusClient() VulnerabilityPrometheus {
+	projects := createTestdata()
+	return &FakePrometheusClient{projects: projects}
+}
+
+func (f FakePrometheusClient) Query(_ context.Context, query string, _ time.Time, _ ...promv1.Option) (model.Value, promv1.Warnings, error) {
+	// Stores aggregated risk scores per team
+	teamRiskScores := make(map[string]float64)
+
+	for _, p := range f.projects {
+		for _, tag := range p.Tags {
+			if strings.HasPrefix(tag.Name, "team:") {
+				team := strings.TrimPrefix(tag.Name, "team:")
+
+				// Aggregate risk score for the team
+				if strings.Contains(query, "slsa_workload_riskscore") {
+					teamRiskScores[team] += p.Metrics.InheritedRiskScore
+				}
+			}
+		}
+	}
+
+	val := model.Vector{}
+	for teamName, riskScore := range teamRiskScores {
+		val = append(val, &model.Sample{
+			Metric: model.Metric{
+				"workload_namespace": model.LabelValue(teamName),
+			},
+			Value:     model.SampleValue(riskScore),
+			Timestamp: 1234567,
+		})
+	}
+
+	// Sort the results by risk score (descending order)
+	sort.Slice(val, func(i, j int) bool {
+		return val[i].Value > val[j].Value
+	})
+
+	return val, nil, nil
+}

@@ -1026,6 +1026,12 @@ type VulnerabilitySummaryForTeam struct {
 	Status         []*VulnerabilityStatus `json:"status"`
 }
 
+type VulnerabilityTeamRank struct {
+	Rank  int    `json:"rank"`
+	Score int    `json:"score"`
+	Env   string `json:"env"`
+}
+
 type VulnerableError struct {
 	Revision string                     `json:"revision"`
 	Level    ErrorLevel                 `json:"level"`

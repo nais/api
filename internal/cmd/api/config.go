@@ -224,7 +224,7 @@ func NewConfig(ctx context.Context, lookuper envconfig.Lookuper) (*Config, error
 	return cfg, nil
 }
 
-func (c *Config) ToVulnerabilitiesConfig() *vulnerabilities.Config {
+func (c *Config) ToVulnerabilitiesConfig(clusters []string) *vulnerabilities.Config {
 	return &vulnerabilities.Config{
 		DependencyTrack: vulnerabilities.DependencyTrackConfig{
 			EnableFakes: c.WithFakeClients,
@@ -232,6 +232,11 @@ func (c *Config) ToVulnerabilitiesConfig() *vulnerabilities.Config {
 			FrontendUrl: c.DependencyTrack.Frontend,
 			Username:    c.DependencyTrack.Username,
 			Password:    c.DependencyTrack.Password,
+		},
+		Prometheus: vulnerabilities.PrometheusConfig{
+			Tenant:      c.Tenant,
+			Clusters:    clusters,
+			EnableFakes: c.WithFakeClients,
 		},
 	}
 }

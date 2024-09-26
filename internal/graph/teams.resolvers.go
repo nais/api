@@ -1753,6 +1753,44 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 	return retVal, nil
 }
 
+func (r *teamResolver) VulnerabilityTeamRank(ctx context.Context, obj *model.Team, filter *model.VulnerabilityFilter) ([]*model.VulnerabilityTeamRank, error) {
+	var envs []string
+	if filter == nil {
+		teamEnvs, _, err := r.database.GetTeamEnvironments(ctx, obj.Slug, database.Page{Limit: 50})
+		if err != nil {
+			return nil, err
+		}
+		for _, env := range teamEnvs {
+			envs = append(envs, env.Environment)
+		}
+	} else {
+		envs = filter.Envs
+	}
+
+	// get all teams in a tenant, to be used as filter
+	allTeamsInTenant, err := r.database.GetAllTeamSlugs(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// add filter for team environments
+	queryResults := make([]*model.VulnerabilityTeamRank, 0)
+	for _, e := range envs {
+		query := fmt.Sprintf("topk(%d, sum(slsa_workload_riskscore) by (workload_namespace))", len(allTeamsInTenant))
+		res, err := r.vulnerabilities.PromQuery(ctx, query, e)
+		if err != nil {
+			return nil, fmt.Errorf("getting prometheus query result: %w", err)
+		}
+		score := vulnerabilities.GetTeamVulnerabilityScore(res, obj.Slug.String(), e)
+		if err != nil {
+			return nil, err
+		}
+		queryResults = append(queryResults, score)
+	}
+
+	return queryResults, nil
+}
+
 func (r *teamResolver) Secrets(ctx context.Context, obj *model.Team) ([]*model.Secret, error) {
 	actor := authz.ActorFromContext(ctx)
 	err := authz.RequireTeamMembership(actor, obj.Slug)

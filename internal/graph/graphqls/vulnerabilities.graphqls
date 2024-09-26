@@ -67,3 +67,9 @@ input VulnerabilityFilter {
   "Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report."
   requireSbom: Boolean
 }
+
+type VulnerabilityTeamRank {
+  rank: Int!
+  score: Int!
+  env: String!
+}

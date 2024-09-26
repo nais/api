@@ -241,10 +241,15 @@ func (c *dependencyTrackClient) GetFindingsForImageByProjectID(ctx context.Conte
 		return nil, fmt.Errorf("retrieving findings for project %s: %w", projectId, err)
 	}
 
+	foundFindings := map[string]bool{}
 	retFindings := make([]*model.Finding, 0)
 	for _, f := range findings {
-		aliases := []*model.VulnIDAlias{}
+		// skip if we already have the finding
+		if found := foundFindings[f.Vulnerability.VulnId]; found {
+			continue
+		}
 
+		var aliases []*model.VulnIDAlias
 		for _, alias := range f.Vulnerability.Aliases {
 			if alias.CveId != "" {
 				aliases = append(aliases, &model.VulnIDAlias{
@@ -274,6 +279,7 @@ func (c *dependencyTrackClient) GetFindingsForImageByProjectID(ctx context.Conte
 			IsSuppressed:    f.Analysis.IsSuppressed,
 			State:           f.Analysis.State,
 		})
+		foundFindings[f.Vulnerability.VulnId] = true
 	}
 	return retFindings, nil
 }
