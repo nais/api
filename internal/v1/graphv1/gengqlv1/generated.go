@@ -283,7 +283,7 @@ type ComplexityRoot struct {
 	}
 
 	EntraIDAuthIntegration struct {
-		Tmp func(childComplexity int) int
+		Name func(childComplexity int) int
 	}
 
 	ExternalNetworkPolicyHost struct {
@@ -297,7 +297,7 @@ type ComplexityRoot struct {
 	}
 
 	IDPortenAuthIntegration struct {
-		Tmp func(childComplexity int) int
+		Name func(childComplexity int) int
 	}
 
 	ImageVulnerability struct {
@@ -465,7 +465,7 @@ type ComplexityRoot struct {
 	}
 
 	MaskinportenAuthIntegration struct {
-		Tmp func(childComplexity int) int
+		Name func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -1008,7 +1008,7 @@ type ComplexityRoot struct {
 	}
 
 	TokenXAuthIntegration struct {
-		Tmp func(childComplexity int) int
+		Name func(childComplexity int) int
 	}
 
 	UpdateTeamPayload struct {
@@ -2017,12 +2017,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CreateTeamPayload.Team(childComplexity), true
 
-	case "EntraIDAuthIntegration.tmp":
-		if e.complexity.EntraIDAuthIntegration.Tmp == nil {
+	case "EntraIDAuthIntegration.name":
+		if e.complexity.EntraIDAuthIntegration.Name == nil {
 			break
 		}
 
-		return e.complexity.EntraIDAuthIntegration.Tmp(childComplexity), true
+		return e.complexity.EntraIDAuthIntegration.Name(childComplexity), true
 
 	case "ExternalNetworkPolicyHost.ports":
 		if e.complexity.ExternalNetworkPolicyHost.Ports == nil {
@@ -2052,12 +2052,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ExternalNetworkPolicyIpv4.Target(childComplexity), true
 
-	case "IDPortenAuthIntegration.tmp":
-		if e.complexity.IDPortenAuthIntegration.Tmp == nil {
+	case "IDPortenAuthIntegration.name":
+		if e.complexity.IDPortenAuthIntegration.Name == nil {
 			break
 		}
 
-		return e.complexity.IDPortenAuthIntegration.Tmp(childComplexity), true
+		return e.complexity.IDPortenAuthIntegration.Name(childComplexity), true
 
 	case "ImageVulnerability.description":
 		if e.complexity.ImageVulnerability.Description == nil {
@@ -2759,12 +2759,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.KafkaTopicStatus.State(childComplexity), true
 
-	case "MaskinportenAuthIntegration.tmp":
-		if e.complexity.MaskinportenAuthIntegration.Tmp == nil {
+	case "MaskinportenAuthIntegration.name":
+		if e.complexity.MaskinportenAuthIntegration.Name == nil {
 			break
 		}
 
-		return e.complexity.MaskinportenAuthIntegration.Tmp(childComplexity), true
+		return e.complexity.MaskinportenAuthIntegration.Name(childComplexity), true
 
 	case "Mutation.addRepositoryToTeam":
 		if e.complexity.Mutation.AddRepositoryToTeam == nil {
@@ -5195,12 +5195,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamUtilizationEnvironmentDataPoint.Value(childComplexity), true
 
-	case "TokenXAuthIntegration.tmp":
-		if e.complexity.TokenXAuthIntegration.Tmp == nil {
+	case "TokenXAuthIntegration.name":
+		if e.complexity.TokenXAuthIntegration.Name == nil {
 			break
 		}
 
-		return e.complexity.TokenXAuthIntegration.Tmp(childComplexity), true
+		return e.complexity.TokenXAuthIntegration.Name(childComplexity), true
 
 	case "UpdateTeamPayload.team":
 		if e.complexity.UpdateTeamPayload.Team == nil {
@@ -8302,24 +8302,29 @@ type WorkloadResourceQuantity {
 	memory: Int!
 }
 
-type EntraIDAuthIntegration {
-	# TODO: Figure out what to put here
-	tmp: Boolean!
+interface AuthIntegration {
+	"The name of the integration."
+	name: String!
 }
 
-type IDPortenAuthIntegration {
-	# TODO: Figure out what to put here
-	tmp: Boolean!
+type EntraIDAuthIntegration implements AuthIntegration {
+	"The name of the integration."
+	name: String!
 }
 
-type MaskinportenAuthIntegration {
-	# TODO: Figure out what to put here
-	tmp: Boolean!
+type IDPortenAuthIntegration implements AuthIntegration {
+	"The name of the integration."
+	name: String!
 }
 
-type TokenXAuthIntegration {
-	# TODO: Figure out what to put here
-	tmp: Boolean!
+type MaskinportenAuthIntegration implements AuthIntegration {
+	"The name of the integration."
+	name: String!
+}
+
+type TokenXAuthIntegration implements AuthIntegration {
+	"The name of the integration."
+	name: String!
 }
 
 type WorkloadConnection {
@@ -18319,8 +18324,8 @@ func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _EntraIDAuthIntegration_tmp(ctx context.Context, field graphql.CollectedField, obj *workload.EntraIDAuthIntegration) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_EntraIDAuthIntegration_tmp(ctx, field)
+func (ec *executionContext) _EntraIDAuthIntegration_name(ctx context.Context, field graphql.CollectedField, obj *workload.EntraIDAuthIntegration) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EntraIDAuthIntegration_name(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -18333,7 +18338,7 @@ func (ec *executionContext) _EntraIDAuthIntegration_tmp(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Tmp, nil
+		return obj.Name(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18345,19 +18350,19 @@ func (ec *executionContext) _EntraIDAuthIntegration_tmp(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EntraIDAuthIntegration_tmp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EntraIDAuthIntegration_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EntraIDAuthIntegration",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -18539,8 +18544,8 @@ func (ec *executionContext) fieldContext_ExternalNetworkPolicyIpv4_ports(_ conte
 	return fc, nil
 }
 
-func (ec *executionContext) _IDPortenAuthIntegration_tmp(ctx context.Context, field graphql.CollectedField, obj *workload.IDPortenAuthIntegration) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_IDPortenAuthIntegration_tmp(ctx, field)
+func (ec *executionContext) _IDPortenAuthIntegration_name(ctx context.Context, field graphql.CollectedField, obj *workload.IDPortenAuthIntegration) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IDPortenAuthIntegration_name(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -18553,7 +18558,7 @@ func (ec *executionContext) _IDPortenAuthIntegration_tmp(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Tmp, nil
+		return obj.Name(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18565,19 +18570,19 @@ func (ec *executionContext) _IDPortenAuthIntegration_tmp(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_IDPortenAuthIntegration_tmp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_IDPortenAuthIntegration_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IDPortenAuthIntegration",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -23517,8 +23522,8 @@ func (ec *executionContext) fieldContext_KafkaTopicStatus_state(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _MaskinportenAuthIntegration_tmp(ctx context.Context, field graphql.CollectedField, obj *workload.MaskinportenAuthIntegration) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MaskinportenAuthIntegration_tmp(ctx, field)
+func (ec *executionContext) _MaskinportenAuthIntegration_name(ctx context.Context, field graphql.CollectedField, obj *workload.MaskinportenAuthIntegration) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MaskinportenAuthIntegration_name(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -23531,7 +23536,7 @@ func (ec *executionContext) _MaskinportenAuthIntegration_tmp(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Tmp, nil
+		return obj.Name(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23543,19 +23548,19 @@ func (ec *executionContext) _MaskinportenAuthIntegration_tmp(ctx context.Context
 		}
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MaskinportenAuthIntegration_tmp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MaskinportenAuthIntegration_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MaskinportenAuthIntegration",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -40073,8 +40078,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationEnvironmentDataPoint_env
 	return fc, nil
 }
 
-func (ec *executionContext) _TokenXAuthIntegration_tmp(ctx context.Context, field graphql.CollectedField, obj *workload.TokenXAuthIntegration) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TokenXAuthIntegration_tmp(ctx, field)
+func (ec *executionContext) _TokenXAuthIntegration_name(ctx context.Context, field graphql.CollectedField, obj *workload.TokenXAuthIntegration) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TokenXAuthIntegration_name(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -40087,7 +40092,7 @@ func (ec *executionContext) _TokenXAuthIntegration_tmp(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Tmp, nil
+		return obj.Name(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -40099,19 +40104,19 @@ func (ec *executionContext) _TokenXAuthIntegration_tmp(ctx context.Context, fiel
 		}
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TokenXAuthIntegration_tmp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TokenXAuthIntegration_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TokenXAuthIntegration",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -44668,6 +44673,43 @@ func (ec *executionContext) _AuditEntry(ctx context.Context, sel ast.SelectionSe
 	}
 }
 
+func (ec *executionContext) _AuthIntegration(ctx context.Context, sel ast.SelectionSet, obj workload.AuthIntegration) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case workload.EntraIDAuthIntegration:
+		return ec._EntraIDAuthIntegration(ctx, sel, &obj)
+	case *workload.EntraIDAuthIntegration:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._EntraIDAuthIntegration(ctx, sel, obj)
+	case workload.IDPortenAuthIntegration:
+		return ec._IDPortenAuthIntegration(ctx, sel, &obj)
+	case *workload.IDPortenAuthIntegration:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._IDPortenAuthIntegration(ctx, sel, obj)
+	case workload.MaskinportenAuthIntegration:
+		return ec._MaskinportenAuthIntegration(ctx, sel, &obj)
+	case *workload.MaskinportenAuthIntegration:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._MaskinportenAuthIntegration(ctx, sel, obj)
+	case workload.TokenXAuthIntegration:
+		return ec._TokenXAuthIntegration(ctx, sel, &obj)
+	case *workload.TokenXAuthIntegration:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._TokenXAuthIntegration(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _AuthenticatedUser(ctx context.Context, sel ast.SelectionSet, obj user.AuthenticatedUser) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -47322,7 +47364,7 @@ func (ec *executionContext) _CreateTeamPayload(ctx context.Context, sel ast.Sele
 	return out
 }
 
-var entraIDAuthIntegrationImplementors = []string{"EntraIDAuthIntegration", "ApplicationAuthIntegrations", "JobAuthIntegrations"}
+var entraIDAuthIntegrationImplementors = []string{"EntraIDAuthIntegration", "ApplicationAuthIntegrations", "JobAuthIntegrations", "AuthIntegration"}
 
 func (ec *executionContext) _EntraIDAuthIntegration(ctx context.Context, sel ast.SelectionSet, obj *workload.EntraIDAuthIntegration) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, entraIDAuthIntegrationImplementors)
@@ -47333,8 +47375,8 @@ func (ec *executionContext) _EntraIDAuthIntegration(ctx context.Context, sel ast
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("EntraIDAuthIntegration")
-		case "tmp":
-			out.Values[i] = ec._EntraIDAuthIntegration_tmp(ctx, field, obj)
+		case "name":
+			out.Values[i] = ec._EntraIDAuthIntegration_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -47449,7 +47491,7 @@ func (ec *executionContext) _ExternalNetworkPolicyIpv4(ctx context.Context, sel 
 	return out
 }
 
-var iDPortenAuthIntegrationImplementors = []string{"IDPortenAuthIntegration", "ApplicationAuthIntegrations"}
+var iDPortenAuthIntegrationImplementors = []string{"IDPortenAuthIntegration", "ApplicationAuthIntegrations", "AuthIntegration"}
 
 func (ec *executionContext) _IDPortenAuthIntegration(ctx context.Context, sel ast.SelectionSet, obj *workload.IDPortenAuthIntegration) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, iDPortenAuthIntegrationImplementors)
@@ -47460,8 +47502,8 @@ func (ec *executionContext) _IDPortenAuthIntegration(ctx context.Context, sel as
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("IDPortenAuthIntegration")
-		case "tmp":
-			out.Values[i] = ec._IDPortenAuthIntegration_tmp(ctx, field, obj)
+		case "name":
+			out.Values[i] = ec._IDPortenAuthIntegration_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -49289,7 +49331,7 @@ func (ec *executionContext) _KafkaTopicStatus(ctx context.Context, sel ast.Selec
 	return out
 }
 
-var maskinportenAuthIntegrationImplementors = []string{"MaskinportenAuthIntegration", "ApplicationAuthIntegrations", "JobAuthIntegrations"}
+var maskinportenAuthIntegrationImplementors = []string{"MaskinportenAuthIntegration", "ApplicationAuthIntegrations", "JobAuthIntegrations", "AuthIntegration"}
 
 func (ec *executionContext) _MaskinportenAuthIntegration(ctx context.Context, sel ast.SelectionSet, obj *workload.MaskinportenAuthIntegration) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, maskinportenAuthIntegrationImplementors)
@@ -49300,8 +49342,8 @@ func (ec *executionContext) _MaskinportenAuthIntegration(ctx context.Context, se
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("MaskinportenAuthIntegration")
-		case "tmp":
-			out.Values[i] = ec._MaskinportenAuthIntegration_tmp(ctx, field, obj)
+		case "name":
+			out.Values[i] = ec._MaskinportenAuthIntegration_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -55328,7 +55370,7 @@ func (ec *executionContext) _TeamUtilizationEnvironmentDataPoint(ctx context.Con
 	return out
 }
 
-var tokenXAuthIntegrationImplementors = []string{"TokenXAuthIntegration", "ApplicationAuthIntegrations"}
+var tokenXAuthIntegrationImplementors = []string{"TokenXAuthIntegration", "ApplicationAuthIntegrations", "AuthIntegration"}
 
 func (ec *executionContext) _TokenXAuthIntegration(ctx context.Context, sel ast.SelectionSet, obj *workload.TokenXAuthIntegration) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, tokenXAuthIntegrationImplementors)
@@ -55339,8 +55381,8 @@ func (ec *executionContext) _TokenXAuthIntegration(ctx context.Context, sel ast.
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TokenXAuthIntegration")
-		case "tmp":
-			out.Values[i] = ec._TokenXAuthIntegration_tmp(ctx, field, obj)
+		case "name":
+			out.Values[i] = ec._TokenXAuthIntegration_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

@@ -77,29 +77,33 @@ type JobAuthIntegrations interface {
 	AuthIntegration
 }
 
-type EntraIDAuthIntegration struct {
-	Tmp bool `json:"tmp"`
-}
+type EntraIDAuthIntegration struct{}
 
 func (EntraIDAuthIntegration) IsAuthIntegration() {}
-
-type IDPortenAuthIntegration struct {
-	Tmp bool `json:"tmp"`
+func (EntraIDAuthIntegration) Name() string {
+	return "Microsoft Entra ID"
 }
+
+type IDPortenAuthIntegration struct{}
 
 func (IDPortenAuthIntegration) IsAuthIntegration() {}
-
-type MaskinportenAuthIntegration struct {
-	Tmp bool `json:"tmp"`
+func (IDPortenAuthIntegration) Name() string {
+	return "ID-porten"
 }
+
+type MaskinportenAuthIntegration struct{}
 
 func (MaskinportenAuthIntegration) IsAuthIntegration() {}
-
-type TokenXAuthIntegration struct {
-	Tmp bool `json:"tmp"`
+func (MaskinportenAuthIntegration) Name() string {
+	return "Maskinporten"
 }
 
+type TokenXAuthIntegration struct{}
+
 func (TokenXAuthIntegration) IsAuthIntegration() {}
+func (TokenXAuthIntegration) Name() string {
+	return "TokenX"
+}
 
 // Ordering options when fetching workloads.
 type WorkloadOrder struct {
