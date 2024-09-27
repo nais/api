@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/internal/v1/searchv1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
+	"sigs.k8s.io/yaml"
 )
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *JobOrder) (*JobConnection, error) {
@@ -116,4 +117,31 @@ func Search(ctx context.Context, q string) ([]*searchv1.Result, error) {
 	}
 
 	return ret, nil
+}
+
+func Manifest(ctx context.Context, teamSlug slug.Slug, environmentName, name string) (*JobManifest, error) {
+	job, err := fromContext(ctx).jobWatcher.Get(environmentName, teamSlug.String(), name)
+	if err != nil {
+		return nil, err
+	}
+
+	manifest := map[string]any{
+		"spec":       job.Spec,
+		"apiVersion": job.APIVersion,
+		"kind":       job.Kind,
+		"metadata": map[string]any{
+			"labels":    job.GetLabels(),
+			"name":      name,
+			"namespace": teamSlug.String(),
+		},
+	}
+
+	b, err := yaml.Marshal(manifest)
+	if err != nil {
+		return nil, err
+	}
+
+	return &JobManifest{
+		Content: string(b),
+	}, nil
 }

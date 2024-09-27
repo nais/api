@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/searchv1"
+	"sigs.k8s.io/yaml"
 )
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *ApplicationOrder) (*ApplicationConnection, error) {
@@ -85,4 +86,31 @@ func Search(ctx context.Context, q string) ([]*searchv1.Result, error) {
 	}
 
 	return ret, nil
+}
+
+func Manifest(ctx context.Context, teamSlug slug.Slug, environmentName, name string) (*ApplicationManifest, error) {
+	application, err := fromContext(ctx).appWatcher.Get(environmentName, teamSlug.String(), name)
+	if err != nil {
+		return nil, err
+	}
+
+	manifest := map[string]any{
+		"spec":       application.Spec,
+		"apiVersion": application.APIVersion,
+		"kind":       application.Kind,
+		"metadata": map[string]any{
+			"labels":    application.GetLabels(),
+			"name":      name,
+			"namespace": teamSlug.String(),
+		},
+	}
+
+	b, err := yaml.Marshal(manifest)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ApplicationManifest{
+		Content: string(b),
+	}, nil
 }

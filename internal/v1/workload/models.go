@@ -157,3 +157,7 @@ func (e *WorkloadOrderField) UnmarshalGQL(v interface{}) error {
 func (e WorkloadOrderField) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
+
+type WorkloadManifest interface {
+	IsWorkloadManifest()
+}

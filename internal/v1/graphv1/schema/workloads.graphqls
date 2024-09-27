@@ -37,9 +37,17 @@ interface Workload implements Node {
 	"The resources allocated to the workload."
 	resources: WorkloadResources!
 
+	"The workload manifest."
+	manifest: WorkloadManifest!
+
 	# deployInfo: DeployInfo!
 	# status: WorkloadStatus!
-	# authz: [Authz!]!
+	# secrets: [Secret!]!
+}
+
+interface WorkloadManifest {
+	"The manifest content, serialized as a YAML document."
+	content: String!
 }
 
 type ContainerImage implements Node {

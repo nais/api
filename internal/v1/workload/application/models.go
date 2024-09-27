@@ -32,6 +32,12 @@ func (a Application) ID() ident.Ident {
 	return newIdent(a.TeamSlug, a.EnvironmentName, a.Name)
 }
 
+type ApplicationManifest struct {
+	Content string `json:"content"`
+}
+
+func (ApplicationManifest) IsWorkloadManifest() {}
+
 type ApplicationOrder struct {
 	Field     ApplicationOrderField  `json:"field"`
 	Direction modelv1.OrderDirection `json:"direction"`

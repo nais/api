@@ -40,6 +40,10 @@ func (r *applicationResolver) AuthIntegrations(ctx context.Context, obj *applica
 	return ret, nil
 }
 
+func (r *applicationResolver) Manifest(ctx context.Context, obj *application.Application) (*application.ApplicationManifest, error) {
+	return application.Manifest(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
+}
+
 func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder) (*pagination.Connection[*application.Application], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {

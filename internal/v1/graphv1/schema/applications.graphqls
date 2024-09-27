@@ -51,18 +51,16 @@ type Application implements Node & Workload {
 	"List of authentication and authorization for the application."
 	authIntegrations: [ApplicationAuthIntegrations!]!
 
-	# deployInfo: DeployInfo!
-	# status: WorkloadStatus!
-	#
-	# variables: [Variable!]!
-	# persistence: [Persistence!]!
-	# type: WorkloadType!
-	#
-	# imageDetails: ImageDetails!
+	"The application manifest."
+	manifest: ApplicationManifest!
+
 	# instances: [Instance!]!
 	# autoScaling: AutoScaling!
-	# manifest: String!
-	# secrets: [Secret!]!
+}
+
+type ApplicationManifest implements WorkloadManifest {
+	"The manifest content, serialized as a YAML document."
+	content: String!
 }
 
 union ApplicationAuthIntegrations =

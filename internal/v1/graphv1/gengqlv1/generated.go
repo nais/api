@@ -116,6 +116,7 @@ type ComplexityRoot struct {
 		Image            func(childComplexity int) int
 		Ingresses        func(childComplexity int) int
 		KafkaTopicAcls   func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
+		Manifest         func(childComplexity int) int
 		Name             func(childComplexity int) int
 		NetworkPolicy    func(childComplexity int) int
 		OpenSearch       func(childComplexity int) int
@@ -134,6 +135,10 @@ type ComplexityRoot struct {
 	ApplicationEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	ApplicationManifest struct {
+		Content func(childComplexity int) int
 	}
 
 	ApplicationResources struct {
@@ -334,6 +339,7 @@ type ComplexityRoot struct {
 		ID               func(childComplexity int) int
 		Image            func(childComplexity int) int
 		KafkaTopicAcls   func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
+		Manifest         func(childComplexity int) int
 		Name             func(childComplexity int) int
 		NetworkPolicy    func(childComplexity int) int
 		OpenSearch       func(childComplexity int) int
@@ -354,6 +360,10 @@ type ComplexityRoot struct {
 	JobEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	JobManifest struct {
+		Content func(childComplexity int) int
 	}
 
 	JobResources struct {
@@ -1045,6 +1055,7 @@ type ApplicationResolver interface {
 	Environment(ctx context.Context, obj *application.Application) (*team.TeamEnvironment, error)
 
 	AuthIntegrations(ctx context.Context, obj *application.Application) ([]workload.ApplicationAuthIntegrations, error)
+	Manifest(ctx context.Context, obj *application.Application) (*application.ApplicationManifest, error)
 	Cost(ctx context.Context, obj *application.Application) (*cost.WorkloadCost, error)
 	NetworkPolicy(ctx context.Context, obj *application.Application) (*netpol.NetworkPolicy, error)
 	BigQueryDatasets(ctx context.Context, obj *application.Application, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
@@ -1083,6 +1094,7 @@ type JobResolver interface {
 	AuthIntegrations(ctx context.Context, obj *job.Job) ([]workload.JobAuthIntegrations, error)
 
 	Runs(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*job.JobRun], error)
+	Manifest(ctx context.Context, obj *job.Job) (*job.JobManifest, error)
 	Cost(ctx context.Context, obj *job.Job) (*cost.WorkloadCost, error)
 	NetworkPolicy(ctx context.Context, obj *job.Job) (*netpol.NetworkPolicy, error)
 	BigQueryDatasets(ctx context.Context, obj *job.Job, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
@@ -1344,6 +1356,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Application.KafkaTopicAcls(childComplexity, args["orderBy"].(*kafkatopic.KafkaTopicACLOrder)), true
 
+	case "Application.manifest":
+		if e.complexity.Application.Manifest == nil {
+			break
+		}
+
+		return e.complexity.Application.Manifest(childComplexity), true
+
 	case "Application.name":
 		if e.complexity.Application.Name == nil {
 			break
@@ -1437,6 +1456,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ApplicationEdge.Node(childComplexity), true
+
+	case "ApplicationManifest.content":
+		if e.complexity.ApplicationManifest.Content == nil {
+			break
+		}
+
+		return e.complexity.ApplicationManifest.Content(childComplexity), true
 
 	case "ApplicationResources.limits":
 		if e.complexity.ApplicationResources.Limits == nil {
@@ -2196,6 +2222,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Job.KafkaTopicAcls(childComplexity, args["orderBy"].(*kafkatopic.KafkaTopicACLOrder)), true
 
+	case "Job.manifest":
+		if e.complexity.Job.Manifest == nil {
+			break
+		}
+
+		return e.complexity.Job.Manifest(childComplexity), true
+
 	case "Job.name":
 		if e.complexity.Job.Name == nil {
 			break
@@ -2308,6 +2341,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.JobEdge.Node(childComplexity), true
+
+	case "JobManifest.content":
+		if e.complexity.JobManifest.Content == nil {
+			break
+		}
+
+		return e.complexity.JobManifest.Content(childComplexity), true
 
 	case "JobResources.limits":
 		if e.complexity.JobResources.Limits == nil {
@@ -5442,18 +5482,16 @@ type Application implements Node & Workload {
 	"List of authentication and authorization for the application."
 	authIntegrations: [ApplicationAuthIntegrations!]!
 
-	# deployInfo: DeployInfo!
-	# status: WorkloadStatus!
-	#
-	# variables: [Variable!]!
-	# persistence: [Persistence!]!
-	# type: WorkloadType!
-	#
-	# imageDetails: ImageDetails!
+	"The application manifest."
+	manifest: ApplicationManifest!
+
 	# instances: [Instance!]!
 	# autoScaling: AutoScaling!
-	# manifest: String!
-	# secrets: [Secret!]!
+}
+
+type ApplicationManifest implements WorkloadManifest {
+	"The manifest content, serialized as a YAML document."
+	content: String!
 }
 
 union ApplicationAuthIntegrations =
@@ -5786,16 +5824,13 @@ type Job implements Node & Workload {
 		before: Cursor
 	): JobRunConnection!
 
-	# image: String!
-	# deployInfo: DeployInfo!
-	# status: WorkloadStatus!
-	# authz: [Authz!]!
-	# imageDetails: ImageDetails!
-	# manifest: String!
-	# completions: Int!
-	# parallelism: Int!
-	# retries: Int!
-	# secrets: [Secret!]!
+	"The job manifest."
+	manifest: JobManifest!
+}
+
+type JobManifest implements WorkloadManifest {
+	"The manifest content, serialized as a YAML document."
+	content: String!
 }
 
 type JobSchedule {
@@ -8017,9 +8052,17 @@ interface Workload implements Node {
 	"The resources allocated to the workload."
 	resources: WorkloadResources!
 
+	"The workload manifest."
+	manifest: WorkloadManifest!
+
 	# deployInfo: DeployInfo!
 	# status: WorkloadStatus!
-	# authz: [Authz!]!
+	# secrets: [Secret!]!
+}
+
+interface WorkloadManifest {
+	"The manifest content, serialized as a YAML document."
+	content: String!
 }
 
 type ContainerImage implements Node {
@@ -13386,6 +13429,54 @@ func (ec *executionContext) fieldContext_Application_authIntegrations(_ context.
 	return fc, nil
 }
 
+func (ec *executionContext) _Application_manifest(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Application_manifest(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Application().Manifest(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*application.ApplicationManifest)
+	fc.Result = res
+	return ec.marshalNApplicationManifest2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationManifest(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Application_manifest(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Application",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "content":
+				return ec.fieldContext_ApplicationManifest_content(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ApplicationManifest", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Application_cost(ctx context.Context, field graphql.CollectedField, obj *application.Application) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Application_cost(ctx, field)
 	if err != nil {
@@ -13975,6 +14066,8 @@ func (ec *executionContext) fieldContext_ApplicationConnection_nodes(_ context.C
 				return ec.fieldContext_Application_ingresses(ctx, field)
 			case "authIntegrations":
 				return ec.fieldContext_Application_authIntegrations(ctx, field)
+			case "manifest":
+				return ec.fieldContext_Application_manifest(ctx, field)
 			case "cost":
 				return ec.fieldContext_Application_cost(ctx, field)
 			case "networkPolicy":
@@ -14147,6 +14240,8 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 				return ec.fieldContext_Application_ingresses(ctx, field)
 			case "authIntegrations":
 				return ec.fieldContext_Application_authIntegrations(ctx, field)
+			case "manifest":
+				return ec.fieldContext_Application_manifest(ctx, field)
 			case "cost":
 				return ec.fieldContext_Application_cost(ctx, field)
 			case "networkPolicy":
@@ -14165,6 +14260,50 @@ func (ec *executionContext) fieldContext_ApplicationEdge_node(_ context.Context,
 				return ec.fieldContext_Application_sqlInstances(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationManifest_content(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationManifest) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ApplicationManifest_content(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Content, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ApplicationManifest_content(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationManifest",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -19502,6 +19641,54 @@ func (ec *executionContext) fieldContext_Job_runs(ctx context.Context, field gra
 	return fc, nil
 }
 
+func (ec *executionContext) _Job_manifest(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Job_manifest(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Job().Manifest(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*job.JobManifest)
+	fc.Result = res
+	return ec.marshalNJobManifest2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobManifest(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Job_manifest(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "content":
+				return ec.fieldContext_JobManifest_content(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type JobManifest", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Job_cost(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Job_cost(ctx, field)
 	if err != nil {
@@ -20093,6 +20280,8 @@ func (ec *executionContext) fieldContext_JobConnection_nodes(_ context.Context, 
 				return ec.fieldContext_Job_schedule(ctx, field)
 			case "runs":
 				return ec.fieldContext_Job_runs(ctx, field)
+			case "manifest":
+				return ec.fieldContext_Job_manifest(ctx, field)
 			case "cost":
 				return ec.fieldContext_Job_cost(ctx, field)
 			case "networkPolicy":
@@ -20267,6 +20456,8 @@ func (ec *executionContext) fieldContext_JobEdge_node(_ context.Context, field g
 				return ec.fieldContext_Job_schedule(ctx, field)
 			case "runs":
 				return ec.fieldContext_Job_runs(ctx, field)
+			case "manifest":
+				return ec.fieldContext_Job_manifest(ctx, field)
 			case "cost":
 				return ec.fieldContext_Job_cost(ctx, field)
 			case "networkPolicy":
@@ -20285,6 +20476,50 @@ func (ec *executionContext) fieldContext_JobEdge_node(_ context.Context, field g
 				return ec.fieldContext_Job_sqlInstances(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobManifest_content(ctx context.Context, field graphql.CollectedField, obj *job.JobManifest) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JobManifest_content(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Content, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JobManifest_content(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobManifest",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -36352,6 +36587,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_application(ctx context
 				return ec.fieldContext_Application_ingresses(ctx, field)
 			case "authIntegrations":
 				return ec.fieldContext_Application_authIntegrations(ctx, field)
+			case "manifest":
+				return ec.fieldContext_Application_manifest(ctx, field)
 			case "cost":
 				return ec.fieldContext_Application_cost(ctx, field)
 			case "networkPolicy":
@@ -36443,6 +36680,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_job(ctx context.Context
 				return ec.fieldContext_Job_schedule(ctx, field)
 			case "runs":
 				return ec.fieldContext_Job_runs(ctx, field)
+			case "manifest":
+				return ec.fieldContext_Job_manifest(ctx, field)
 			case "cost":
 				return ec.fieldContext_Job_cost(ctx, field)
 			case "networkPolicy":
@@ -43811,6 +44050,29 @@ func (ec *executionContext) _Workload(ctx context.Context, sel ast.SelectionSet,
 	}
 }
 
+func (ec *executionContext) _WorkloadManifest(ctx context.Context, sel ast.SelectionSet, obj workload.WorkloadManifest) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case application.ApplicationManifest:
+		return ec._ApplicationManifest(ctx, sel, &obj)
+	case *application.ApplicationManifest:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationManifest(ctx, sel, obj)
+	case job.JobManifest:
+		return ec._JobManifest(ctx, sel, &obj)
+	case *job.JobManifest:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._JobManifest(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _WorkloadResources(ctx context.Context, sel ast.SelectionSet, obj workload.WorkloadResources) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -44034,6 +44296,42 @@ func (ec *executionContext) _Application(ctx context.Context, sel ast.SelectionS
 					}
 				}()
 				res = ec._Application_authIntegrations(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "manifest":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Application_manifest(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -44435,6 +44733,45 @@ func (ec *executionContext) _ApplicationEdge(ctx context.Context, sel ast.Select
 			}
 		case "node":
 			out.Values[i] = ec._ApplicationEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var applicationManifestImplementors = []string{"ApplicationManifest", "WorkloadManifest"}
+
+func (ec *executionContext) _ApplicationManifest(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationManifest) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, applicationManifestImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ApplicationManifest")
+		case "content":
+			out.Values[i] = ec._ApplicationManifest_content(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -46523,6 +46860,42 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "manifest":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Job_manifest(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "cost":
 			field := field
 
@@ -46898,6 +47271,45 @@ func (ec *executionContext) _JobEdge(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "node":
 			out.Values[i] = ec._JobEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var jobManifestImplementors = []string{"JobManifest", "WorkloadManifest"}
+
+func (ec *executionContext) _JobManifest(ctx context.Context, sel ast.SelectionSet, obj *job.JobManifest) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobManifestImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("JobManifest")
+		case "content":
+			out.Values[i] = ec._JobManifest_content(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -54813,6 +55225,20 @@ func (ec *executionContext) marshalNApplicationEdge2ᚕgithubᚗcomᚋnaisᚋapi
 	return ret
 }
 
+func (ec *executionContext) marshalNApplicationManifest2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationManifest(ctx context.Context, sel ast.SelectionSet, v application.ApplicationManifest) graphql.Marshaler {
+	return ec._ApplicationManifest(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNApplicationManifest2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationManifest(ctx context.Context, sel ast.SelectionSet, v *application.ApplicationManifest) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ApplicationManifest(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNApplicationOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationOrderField(ctx context.Context, v interface{}) (application.ApplicationOrderField, error) {
 	var res application.ApplicationOrderField
 	err := res.UnmarshalGQL(v)
@@ -56066,6 +56492,20 @@ func (ec *executionContext) marshalNJobEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinter
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNJobManifest2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobManifest(ctx context.Context, sel ast.SelectionSet, v job.JobManifest) graphql.Marshaler {
+	return ec._JobManifest(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNJobManifest2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobManifest(ctx context.Context, sel ast.SelectionSet, v *job.JobManifest) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._JobManifest(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNJobOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobOrderField(ctx context.Context, v interface{}) (job.JobOrderField, error) {

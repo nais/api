@@ -63,16 +63,13 @@ type Job implements Node & Workload {
 		before: Cursor
 	): JobRunConnection!
 
-	# image: String!
-	# deployInfo: DeployInfo!
-	# status: WorkloadStatus!
-	# authz: [Authz!]!
-	# imageDetails: ImageDetails!
-	# manifest: String!
-	# completions: Int!
-	# parallelism: Int!
-	# retries: Int!
-	# secrets: [Secret!]!
+	"The job manifest."
+	manifest: JobManifest!
+}
+
+type JobManifest implements WorkloadManifest {
+	"The manifest content, serialized as a YAML document."
+	content: String!
 }
 
 type JobSchedule {

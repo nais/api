@@ -35,6 +35,12 @@ func (Job) IsNode()       {}
 func (Job) IsSearchNode() {}
 func (Job) IsWorkload()   {}
 
+type JobManifest struct {
+	Content string `json:"content"`
+}
+
+func (JobManifest) IsWorkloadManifest() {}
+
 type JobSchedule struct {
 	Expression string `json:"expression"`
 	TimeZone   string `json:"timeZone"`
