@@ -1,0 +1,63 @@
+extend type Application {
+	utilization: WorkloadUtilization!
+}
+
+extend type Team {
+	workloadUtilization(resourceType: UtilizationResourceType!): [WorkloadUtilizationData]!
+}
+
+type WorkloadUtilizationData {
+	"The workload."
+	workload: Workload!
+
+	"The requested amount of resources"
+	requested: Float!
+
+	"The current resource usage."
+	used: Float!
+}
+
+type TeamUtilizationEnvironmentDataPoint {
+	"Value of the used resource at the given timestamp."
+	value: Float!
+
+	"The team environment"
+	environment: TeamEnvironment!
+}
+
+type WorkloadUtilization {
+	"Get the current usage for the requested resource type."
+	current(resourceType: UtilizationResourceType!): Float!
+
+	"Gets the requested amount of resources for the requested resource type."
+	requested(resourceType: UtilizationResourceType!): Float!
+
+	"Usage between start and end with step size for given resource type."
+	series(input: WorkloadUtilizationSeriesInput!): [UtilizationDataPoint!]!
+}
+
+input WorkloadUtilizationSeriesInput {
+	"Fetch resource usage from this timestamp."
+	start: Time!
+
+	"Fetch resource usage until this timestamp."
+	end: Time!
+
+	"Resource type."
+	resourceType: UtilizationResourceType!
+}
+
+"Resource type."
+enum UtilizationResourceType {
+	CPU
+	MEMORY
+}
+
+"Resource utilization type."
+type UtilizationDataPoint {
+	"Timestamp of the value."
+	timestamp: Time!
+
+	"Value of the used resource at the given timestamp."
+	value: Float!
+}

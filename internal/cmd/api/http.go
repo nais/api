@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -31,6 +32,7 @@ import (
 	"github.com/nais/api/internal/v1/role"
 	"github.com/nais/api/internal/v1/team"
 	"github.com/nais/api/internal/v1/user"
+	"github.com/nais/api/internal/v1/utilization"
 	"github.com/nais/api/internal/v1/vulnerability"
 	"github.com/nais/api/internal/v1/workload/application"
 	"github.com/nais/api/internal/v1/workload/job"
@@ -47,7 +49,7 @@ import (
 )
 
 // runHttpServer will start the HTTP server
-func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool, db database.Database, watcherMgr *watcher.Manager, sqlAdminService *legacysqlinstance.SqlAdminService, authHandler authn.Handler, graphHandler *handler.Server, graphv1Handler *handler.Server, reg prometheus.Gatherer, vClient *vulnerability.Client, log logrus.FieldLogger) error {
+func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool, tenantName string, clusters []string, db database.Database, watcherMgr *watcher.Manager, sqlAdminService *legacysqlinstance.SqlAdminService, authHandler authn.Handler, graphHandler *handler.Server, graphv1Handler *handler.Server, reg prometheus.Gatherer, vClient *vulnerability.Client, log logrus.FieldLogger) error {
 	router := chi.NewRouter()
 	router.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
 	router.Get("/healthz", func(_ http.ResponseWriter, _ *http.Request) {})
@@ -84,7 +86,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 		r.Method("POST", "/", otelhttp.WithRouteTag("query", graphHandler))
 	})
 
-	graphMiddleware, err := ConfigureV1Graph(ctx, watcherMgr, db, sqlAdminService, vClient, log)
+	graphMiddleware, err := ConfigureV1Graph(ctx, watcherMgr, db, sqlAdminService, vClient, tenantName, clusters, log)
 	if err != nil {
 		return err
 	}
@@ -140,7 +142,7 @@ func runHttpServer(ctx context.Context, listenAddress string, insecureAuth bool,
 	return wg.Wait()
 }
 
-func ConfigureV1Graph(ctx context.Context, watcherMgr *watcher.Manager, db database.Database, sqlAdminService *legacysqlinstance.SqlAdminService, vClient *vulnerability.Client, log logrus.FieldLogger) (func(http.Handler) http.Handler, error) {
+func ConfigureV1Graph(ctx context.Context, watcherMgr *watcher.Manager, db database.Database, sqlAdminService *legacysqlinstance.SqlAdminService, vClient *vulnerability.Client, tenantName string, clusters []string, log logrus.FieldLogger) (func(http.Handler) http.Handler, error) {
 	appWatcher := application.NewWatcher(ctx, watcherMgr)
 	jobWatcher := job.NewWatcher(ctx, watcherMgr)
 	runWatcher := job.NewRunWatcher(ctx, watcherMgr)
@@ -151,6 +153,11 @@ func ConfigureV1Graph(ctx context.Context, watcherMgr *watcher.Manager, db datab
 	sqlDatabaseWatcher := sqlinstance.NewDatabaseWatcher(ctx, watcherMgr)
 	sqlInstanceWatcher := sqlinstance.NewInstanceWatcher(ctx, watcherMgr)
 	kafkaTopicWatcher := kafkatopic.NewWatcher(ctx, watcherMgr)
+
+	utilizationClient, err := utilization.NewClient(clusters, tenantName, log)
+	if err != nil {
+		return nil, fmt.Errorf("create utilization client: %w", err)
+	}
 
 	syncCtx, cancelSync := context.WithTimeout(ctx, 20*time.Second)
 	defer cancelSync()
@@ -171,6 +178,7 @@ func ConfigureV1Graph(ctx context.Context, watcherMgr *watcher.Manager, db datab
 		ctx = kafkatopic.NewLoaderContext(ctx, kafkaTopicWatcher)
 		ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher)
 		ctx = redis.NewLoaderContext(ctx, redisWatcher)
+		ctx = utilization.NewLoaderContext(ctx, utilizationClient)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, sqlDatabaseWatcher, sqlInstanceWatcher)
 		pool := db.GetPool()
 		ctx = databasev1.NewLoaderContext(ctx, pool)
