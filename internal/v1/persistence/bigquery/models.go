@@ -10,7 +10,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
-	"github.com/nais/api/internal/v1/persistence"
+	"github.com/nais/api/internal/v1/workload"
 	bigquery_nais_io_v1 "github.com/nais/liberator/pkg/apis/google.nais.io/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -28,17 +28,17 @@ type (
 
 type BigQueryDataset struct {
 	// Name equals to the Instance name, not the kubernetes resource name
-	Name              string                         `json:"name"`
-	Description       *string                        `json:"description,omitempty"`
-	CascadingDelete   bool                           `json:"cascadingDelete"`
-	Location          string                         `json:"location"`
-	Status            *BigQueryDatasetStatus         `json:"status"`
-	Access            []*BigQueryDatasetAccess       `json:"-"`
-	TeamSlug          slug.Slug                      `json:"-"`
-	EnvironmentName   string                         `json:"-"`
-	WorkloadReference *persistence.WorkloadReference `json:"-"`
-	ProjectID         string                         `json:"-"`
-	K8sResourceName   string                         `json:"-"`
+	Name              string                   `json:"name"`
+	Description       *string                  `json:"description,omitempty"`
+	CascadingDelete   bool                     `json:"cascadingDelete"`
+	Location          string                   `json:"location"`
+	Status            *BigQueryDatasetStatus   `json:"status"`
+	Access            []*BigQueryDatasetAccess `json:"-"`
+	TeamSlug          slug.Slug                `json:"-"`
+	EnvironmentName   string                   `json:"-"`
+	WorkloadReference *workload.Reference      `json:"-"`
+	ProjectID         string                   `json:"-"`
+	K8sResourceName   string                   `json:"-"`
 }
 
 func (BigQueryDataset) IsPersistence() {}
@@ -196,7 +196,7 @@ func toBigQueryDataset(u *unstructured.Unstructured, environmentName string) (*B
 		Status:            toBigQueryDatasetStatus(obj.Status),
 		TeamSlug:          slug.Slug(obj.GetNamespace()),
 		EnvironmentName:   environmentName,
-		WorkloadReference: persistence.WorkloadReferenceFromOwnerReferences(obj.GetOwnerReferences()),
+		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 		ProjectID:         obj.Spec.Project,
 	}
 

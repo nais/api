@@ -5,7 +5,7 @@ import (
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
-	"github.com/nais/api/internal/v1/persistence"
+	"github.com/nais/api/internal/v1/workload"
 	"github.com/nais/api/internal/v1/workload/application"
 	"github.com/nais/api/internal/v1/workload/job"
 )
@@ -29,9 +29,9 @@ func (c client) getAccessForApplications(ctx context.Context, environmentName, r
 					Access:          r.Access,
 					TeamSlug:        teamSlug,
 					EnvironmentName: environmentName,
-					WorkloadReference: &persistence.WorkloadReference{
+					WorkloadReference: &workload.Reference{
 						Name: w.Name,
-						Type: persistence.WorkloadTypeApplication,
+						Type: workload.TypeApplication,
 					},
 				})
 			}
@@ -52,9 +52,9 @@ func (c client) getAccessForJobs(ctx context.Context, environmentName, redisInst
 					Access:          r.Access,
 					TeamSlug:        teamSlug,
 					EnvironmentName: environmentName,
-					WorkloadReference: &persistence.WorkloadReference{
+					WorkloadReference: &workload.Reference{
 						Name: w.Name,
-						Type: persistence.WorkloadTypeJob,
+						Type: workload.TypeJob,
 					},
 				})
 			}

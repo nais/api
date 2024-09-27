@@ -20,7 +20,7 @@ func (r *jobResolver) NetworkPolicy(ctx context.Context, obj *job.Job) (*netpol.
 }
 
 func (r *networkPolicyRuleResolver) TargetWorkload(ctx context.Context, obj *netpol.NetworkPolicyRule) (workload.Workload, error) {
-	return getWorkload(ctx, obj.TargetTeamSlug, obj.EnvironmentName, obj.TargetWorkloadName)
+	return tryWorkload(ctx, obj.TargetTeamSlug, obj.EnvironmentName, obj.TargetWorkloadName)
 }
 
 func (r *networkPolicyRuleResolver) TargetTeam(ctx context.Context, obj *netpol.NetworkPolicyRule) (*team.Team, error) {

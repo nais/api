@@ -40,7 +40,7 @@ func (r *workloadUtilizationResolver) Series(ctx context.Context, obj *utilizati
 }
 
 func (r *workloadUtilizationDataResolver) Workload(ctx context.Context, obj *utilization.WorkloadUtilizationData) (workload.Workload, error) {
-	return getWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadName)
+	return tryWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadName)
 }
 
 func (r *Resolver) TeamUtilizationEnvironmentDataPoint() gengqlv1.TeamUtilizationEnvironmentDataPointResolver {

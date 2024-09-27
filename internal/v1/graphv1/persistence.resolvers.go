@@ -11,7 +11,6 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
-	"github.com/nais/api/internal/v1/persistence"
 	"github.com/nais/api/internal/v1/persistence/bigquery"
 	"github.com/nais/api/internal/v1/persistence/bucket"
 	"github.com/nais/api/internal/v1/persistence/kafkatopic"
@@ -97,7 +96,7 @@ func (r *bigQueryDatasetResolver) Access(ctx context.Context, obj *bigquery.BigQ
 }
 
 func (r *bigQueryDatasetResolver) Workload(ctx context.Context, obj *bigquery.BigQueryDataset) (workload.Workload, error) {
-	return r.workload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
+	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *bigQueryDatasetResolver) Cost(ctx context.Context, obj *bigquery.BigQueryDataset) (float64, error) {
@@ -124,7 +123,7 @@ func (r *bucketResolver) Cors(ctx context.Context, obj *bucket.Bucket, first *in
 }
 
 func (r *bucketResolver) Workload(ctx context.Context, obj *bucket.Bucket) (workload.Workload, error) {
-	return r.workload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
+	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *jobResolver) BigQueryDatasets(ctx context.Context, obj *job.Job, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error) {
@@ -229,12 +228,12 @@ func (r *kafkaTopicAclResolver) Workload(ctx context.Context, obj *kafkatopic.Ka
 		return nil, nil
 	}
 
-	owner := &persistence.WorkloadReference{
-		Type: persistence.WorkloadTypeApplication,
+	owner := &workload.Reference{
+		Type: workload.TypeApplication,
 		Name: obj.WorkloadName,
 	}
 
-	return r.workload(ctx, owner, slug.Slug(obj.TeamName), obj.EnvironmentName)
+	return getWorkload(ctx, owner, slug.Slug(obj.TeamName), obj.EnvironmentName)
 }
 
 func (r *kafkaTopicAclResolver) Topic(ctx context.Context, obj *kafkatopic.KafkaTopicACL) (*kafkatopic.KafkaTopic, error) {
@@ -250,7 +249,7 @@ func (r *openSearchResolver) Environment(ctx context.Context, obj *opensearch.Op
 }
 
 func (r *openSearchResolver) Workload(ctx context.Context, obj *opensearch.OpenSearch) (workload.Workload, error) {
-	return r.workload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
+	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *openSearchResolver) Access(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchAccessOrder) (*pagination.Connection[*opensearch.OpenSearchAccess], error) {
@@ -267,7 +266,7 @@ func (r *openSearchResolver) Cost(ctx context.Context, obj *opensearch.OpenSearc
 }
 
 func (r *openSearchAccessResolver) Workload(ctx context.Context, obj *opensearch.OpenSearchAccess) (workload.Workload, error) {
-	return r.workload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
+	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *redisInstanceResolver) Team(ctx context.Context, obj *redis.RedisInstance) (*team.Team, error) {
@@ -292,18 +291,11 @@ func (r *redisInstanceResolver) Cost(ctx context.Context, obj *redis.RedisInstan
 }
 
 func (r *redisInstanceResolver) Workload(ctx context.Context, obj *redis.RedisInstance) (workload.Workload, error) {
-	return r.workload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
+	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *redisInstanceAccessResolver) Workload(ctx context.Context, obj *redis.RedisInstanceAccess) (workload.Workload, error) {
-	switch obj.WorkloadReference.Type {
-	case persistence.WorkloadTypeApplication:
-		return application.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name)
-	case persistence.WorkloadTypeJob:
-		return job.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name)
-	default:
-		return nil, fmt.Errorf("unknown workload type: %v", obj.WorkloadReference.Type)
-	}
+	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *sqlDatabaseResolver) Team(ctx context.Context, obj *sqlinstance.SQLDatabase) (*team.Team, error) {
@@ -323,7 +315,7 @@ func (r *sqlInstanceResolver) Environment(ctx context.Context, obj *sqlinstance.
 }
 
 func (r *sqlInstanceResolver) Workload(ctx context.Context, obj *sqlinstance.SQLInstance) (workload.Workload, error) {
-	return r.workload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
+	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *sqlInstanceResolver) Database(ctx context.Context, obj *sqlinstance.SQLInstance) (*sqlinstance.SQLDatabase, error) {

@@ -9,7 +9,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
-	"github.com/nais/api/internal/v1/persistence"
+	"github.com/nais/api/internal/v1/workload"
 	aiven_io_v1alpha1 "github.com/nais/liberator/pkg/apis/aiven.io/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -25,11 +25,11 @@ type (
 )
 
 type OpenSearch struct {
-	Name              string                         `json:"name"`
-	Status            *OpenSearchStatus              `json:"status"`
-	TeamSlug          slug.Slug                      `json:"-"`
-	EnvironmentName   string                         `json:"-"`
-	WorkloadReference *persistence.WorkloadReference `json:"-"`
+	Name              string              `json:"name"`
+	Status            *OpenSearchStatus   `json:"status"`
+	TeamSlug          slug.Slug           `json:"-"`
+	EnvironmentName   string              `json:"-"`
+	WorkloadReference *workload.Reference `json:"-"`
 }
 
 func (OpenSearch) IsPersistence() {}
@@ -55,10 +55,10 @@ func (o OpenSearch) ID() ident.Ident {
 }
 
 type OpenSearchAccess struct {
-	Access            string                         `json:"access"`
-	TeamSlug          slug.Slug                      `json:"-"`
-	EnvironmentName   string                         `json:"-"`
-	WorkloadReference *persistence.WorkloadReference `json:"-"`
+	Access            string              `json:"access"`
+	TeamSlug          slug.Slug           `json:"-"`
+	EnvironmentName   string              `json:"-"`
+	WorkloadReference *workload.Reference `json:"-"`
 }
 
 type OpenSearchStatus struct {
@@ -163,6 +163,6 @@ func toOpenSearch(u *unstructured.Unstructured, envName string) (*OpenSearch, er
 			State:      obj.Status.State,
 		},
 		TeamSlug:          slug.Slug(obj.GetNamespace()),
-		WorkloadReference: persistence.WorkloadReferenceFromOwnerReferences(obj.GetOwnerReferences()),
+		WorkloadReference: workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 	}, nil
 }

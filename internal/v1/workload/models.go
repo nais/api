@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type (
@@ -105,24 +106,17 @@ func (TokenXAuthIntegration) Name() string {
 	return "TokenX"
 }
 
-// Ordering options when fetching workloads.
 type WorkloadOrder struct {
-	// The field to order items by.
-	Field WorkloadOrderField `json:"field"`
-	// The direction to order items by.
+	Field     WorkloadOrderField     `json:"field"`
 	Direction modelv1.OrderDirection `json:"direction"`
 }
 
 type WorkloadOrderField string
 
 const (
-	// Order Workloads by name.
-	WorkloadOrderFieldName WorkloadOrderField = "NAME"
-	// Order Workloads by status.
-	WorkloadOrderFieldStatus WorkloadOrderField = "STATUS"
-	// Order Workloads by the name of the environment.
-	WorkloadOrderFieldEnvironment WorkloadOrderField = "ENVIRONMENT"
-	// Order Workloads by the deployment time.
+	WorkloadOrderFieldName           WorkloadOrderField = "NAME"
+	WorkloadOrderFieldStatus         WorkloadOrderField = "STATUS"
+	WorkloadOrderFieldEnvironment    WorkloadOrderField = "ENVIRONMENT"
 	WorkloadOrderFieldDeploymentTime WorkloadOrderField = "DEPLOYMENT_TIME"
 )
 
@@ -164,4 +158,43 @@ func (e WorkloadOrderField) MarshalGQL(w io.Writer) {
 
 type WorkloadManifest interface {
 	IsWorkloadManifest()
+}
+
+type Type int
+
+const (
+	TypeApplication Type = iota
+	TypeJob
+)
+
+type Reference struct {
+	// Name is the name of the referenced workload.
+	Name string
+
+	// Type is the type of the referenced workload.
+	Type Type
+}
+
+// ReferenceFromOwnerReferences returns a Reference for the first valid owner reference. If none can be found, nil is
+// returned.
+func ReferenceFromOwnerReferences(ownerReferences []metav1.OwnerReference) *Reference {
+	if len(ownerReferences) == 0 {
+		return nil
+	}
+
+	for _, o := range ownerReferences {
+		switch o.Kind {
+		case "Naisjob":
+			return &Reference{
+				Name: o.Name,
+				Type: TypeJob,
+			}
+		case "Application":
+			return &Reference{
+				Name: o.Name,
+				Type: TypeApplication,
+			}
+		}
+	}
+	return nil
 }

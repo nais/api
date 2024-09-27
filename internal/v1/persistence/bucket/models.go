@@ -10,7 +10,7 @@ import (
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
-	"github.com/nais/api/internal/v1/persistence"
+	"github.com/nais/api/internal/v1/workload"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -25,16 +25,16 @@ type (
 )
 
 type Bucket struct {
-	Name                     string                         `json:"name"`
-	CascadingDelete          bool                           `json:"cascadingDelete"`
-	PublicAccessPrevention   string                         `json:"publicAccessPrevention"`
-	UniformBucketLevelAccess bool                           `json:"uniformBucketLevelAccess"`
-	Status                   *BucketStatus                  `json:"status"`
-	Cors                     []*BucketCors                  `json:"-"`
-	TeamSlug                 slug.Slug                      `json:"-"`
-	EnvironmentName          string                         `json:"-"`
-	WorkloadReference        *persistence.WorkloadReference `json:"-"`
-	ProjectID                string                         `json:"-"`
+	Name                     string              `json:"name"`
+	CascadingDelete          bool                `json:"cascadingDelete"`
+	PublicAccessPrevention   string              `json:"publicAccessPrevention"`
+	UniformBucketLevelAccess bool                `json:"uniformBucketLevelAccess"`
+	Status                   *BucketStatus       `json:"status"`
+	Cors                     []*BucketCors       `json:"-"`
+	TeamSlug                 slug.Slug           `json:"-"`
+	EnvironmentName          string              `json:"-"`
+	WorkloadReference        *workload.Reference `json:"-"`
+	ProjectID                string              `json:"-"`
 }
 
 func (Bucket) IsPersistence()     {}
@@ -144,7 +144,7 @@ func toBucket(u *unstructured.Unstructured, env string) (*Bucket, error) {
 		Name:                     obj.Name,
 		CascadingDelete:          obj.Annotations["cnrm.cloud.google.com/deletion-policy"] == "abandon",
 		PublicAccessPrevention:   ptr.Deref(obj.Spec.PublicAccessPrevention, ""),
-		WorkloadReference:        persistence.WorkloadReferenceFromOwnerReferences(obj.GetOwnerReferences()),
+		WorkloadReference:        workload.ReferenceFromOwnerReferences(obj.GetOwnerReferences()),
 		TeamSlug:                 slug.Slug(obj.GetNamespace()),
 		EnvironmentName:          env,
 		ProjectID:                projectId,
