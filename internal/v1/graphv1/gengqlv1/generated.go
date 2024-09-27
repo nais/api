@@ -68,6 +68,7 @@ type ResolverRoot interface {
 	BigQueryDataset() BigQueryDatasetResolver
 	Bucket() BucketResolver
 	ContainerImage() ContainerImageResolver
+	ContainerImageWorkloadReference() ContainerImageWorkloadReferenceResolver
 	Job() JobResolver
 	KafkaTopic() KafkaTopicResolver
 	KafkaTopicAcl() KafkaTopicAclResolver
@@ -276,6 +277,22 @@ type ComplexityRoot struct {
 		Tag                  func(childComplexity int) int
 		Vulnerabilities      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.ImageVulnerabilityOrder) int
 		VulnerabilitySummary func(childComplexity int) int
+		WorkloadReferences   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+	}
+
+	ContainerImageWorkloadReference struct {
+		Workload func(childComplexity int) int
+	}
+
+	ContainerImageWorkloadReferenceConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	ContainerImageWorkloadReferenceEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	CreateTeamPayload struct {
@@ -1115,6 +1132,10 @@ type ContainerImageResolver interface {
 	HasSbom(ctx context.Context, obj *workload.ContainerImage) (bool, error)
 	Vulnerabilities(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.ImageVulnerabilityOrder) (*pagination.Connection[*vulnerability.ImageVulnerability], error)
 	VulnerabilitySummary(ctx context.Context, obj *workload.ContainerImage) (*vulnerability.ImageVulnerabilitySummary, error)
+	WorkloadReferences(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*vulnerability.ContainerImageWorkloadReference], error)
+}
+type ContainerImageWorkloadReferenceResolver interface {
+	Workload(ctx context.Context, obj *vulnerability.ContainerImageWorkloadReference) (workload.Workload, error)
 }
 type JobResolver interface {
 	Team(ctx context.Context, obj *job.Job) (*team.Team, error)
@@ -2009,6 +2030,60 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ContainerImage.VulnerabilitySummary(childComplexity), true
+
+	case "ContainerImage.workloadReferences":
+		if e.complexity.ContainerImage.WorkloadReferences == nil {
+			break
+		}
+
+		args, err := ec.field_ContainerImage_workloadReferences_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.ContainerImage.WorkloadReferences(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
+	case "ContainerImageWorkloadReference.workload":
+		if e.complexity.ContainerImageWorkloadReference.Workload == nil {
+			break
+		}
+
+		return e.complexity.ContainerImageWorkloadReference.Workload(childComplexity), true
+
+	case "ContainerImageWorkloadReferenceConnection.edges":
+		if e.complexity.ContainerImageWorkloadReferenceConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.ContainerImageWorkloadReferenceConnection.Edges(childComplexity), true
+
+	case "ContainerImageWorkloadReferenceConnection.nodes":
+		if e.complexity.ContainerImageWorkloadReferenceConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.ContainerImageWorkloadReferenceConnection.Nodes(childComplexity), true
+
+	case "ContainerImageWorkloadReferenceConnection.pageInfo":
+		if e.complexity.ContainerImageWorkloadReferenceConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.ContainerImageWorkloadReferenceConnection.PageInfo(childComplexity), true
+
+	case "ContainerImageWorkloadReferenceEdge.cursor":
+		if e.complexity.ContainerImageWorkloadReferenceEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.ContainerImageWorkloadReferenceEdge.Cursor(childComplexity), true
+
+	case "ContainerImageWorkloadReferenceEdge.node":
+		if e.complexity.ContainerImageWorkloadReferenceEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.ContainerImageWorkloadReferenceEdge.Node(childComplexity), true
 
 	case "CreateTeamPayload.team":
 		if e.complexity.CreateTeamPayload.Team == nil {
@@ -8127,6 +8202,21 @@ type UtilizationDataPoint {
 
 	"Get the summary of the vulnerabilities of the image."
 	vulnerabilitySummary: ImageVulnerabilitySummary
+
+	"Workloads using this container image."
+	workloadReferences(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): ContainerImageWorkloadReferenceConnection!
 }
 
 type ImageVulnerabilitySummary {
@@ -8163,12 +8253,36 @@ type ImageVulnerabilityConnection {
 	nodes: [ImageVulnerability!]!
 }
 
+type ContainerImageWorkloadReferenceConnection {
+	"Information to aid in pagination."
+	pageInfo: PageInfo!
+
+	"List of edges."
+	edges: [ContainerImageWorkloadReferenceEdge!]!
+
+	"List of nodes."
+	nodes: [ContainerImageWorkloadReference!]!
+}
+
 type ImageVulnerabilityEdge {
 	"A cursor for use in pagination."
 	cursor: Cursor!
 
 	"The image vulnerability."
 	node: ImageVulnerability!
+}
+
+type ContainerImageWorkloadReferenceEdge {
+	"A cursor for use in pagination."
+	cursor: Cursor!
+
+	"The workload reference."
+	node: ContainerImageWorkloadReference!
+}
+
+type ContainerImageWorkloadReference {
+	"The workload using the container image."
+	workload: Workload!
 }
 
 type ImageVulnerability implements Node {
@@ -8926,6 +9040,119 @@ func (ec *executionContext) field_ContainerImage_vulnerabilities_argsOrderBy(
 	}
 
 	var zeroVal *vulnerability.ImageVulnerabilityOrder
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_ContainerImage_workloadReferences_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_ContainerImage_workloadReferences_argsFirst(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := ec.field_ContainerImage_workloadReferences_argsAfter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := ec.field_ContainerImage_workloadReferences_argsLast(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := ec.field_ContainerImage_workloadReferences_argsBefore(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	return args, nil
+}
+func (ec *executionContext) field_ContainerImage_workloadReferences_argsFirst(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["first"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+	if tmp, ok := rawArgs["first"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_ContainerImage_workloadReferences_argsAfter(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["after"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+	if tmp, ok := rawArgs["after"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_ContainerImage_workloadReferences_argsLast(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*int, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["last"]
+	if !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+	if tmp, ok := rawArgs["last"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_ContainerImage_workloadReferences_argsBefore(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*pagination.Cursor, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["before"]
+	if !ok {
+		var zeroVal *pagination.Cursor
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+	if tmp, ok := rawArgs["before"]; ok {
+		return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx, tmp)
+	}
+
+	var zeroVal *pagination.Cursor
 	return zeroVal, nil
 }
 
@@ -13627,6 +13854,8 @@ func (ec *executionContext) fieldContext_Application_image(_ context.Context, fi
 				return ec.fieldContext_ContainerImage_vulnerabilities(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_ContainerImage_vulnerabilitySummary(ctx, field)
+			case "workloadReferences":
+				return ec.fieldContext_ContainerImage_workloadReferences(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ContainerImage", field.Name)
 		},
@@ -18221,6 +18450,363 @@ func (ec *executionContext) fieldContext_ContainerImage_vulnerabilitySummary(_ c
 	return fc, nil
 }
 
+func (ec *executionContext) _ContainerImage_workloadReferences(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ContainerImage_workloadReferences(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ContainerImage().WorkloadReferences(rctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*pagination.Connection[*vulnerability.ContainerImageWorkloadReference])
+	fc.Result = res
+	return ec.marshalNContainerImageWorkloadReferenceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ContainerImage_workloadReferences(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ContainerImage",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pageInfo":
+				return ec.fieldContext_ContainerImageWorkloadReferenceConnection_pageInfo(ctx, field)
+			case "edges":
+				return ec.fieldContext_ContainerImageWorkloadReferenceConnection_edges(ctx, field)
+			case "nodes":
+				return ec.fieldContext_ContainerImageWorkloadReferenceConnection_nodes(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ContainerImageWorkloadReferenceConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_ContainerImage_workloadReferences_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ContainerImageWorkloadReference_workload(ctx context.Context, field graphql.CollectedField, obj *vulnerability.ContainerImageWorkloadReference) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ContainerImageWorkloadReference_workload(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ContainerImageWorkloadReference().Workload(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(workload.Workload)
+	fc.Result = res
+	return ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚐWorkload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ContainerImageWorkloadReference_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ContainerImageWorkloadReference",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ContainerImageWorkloadReferenceConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*vulnerability.ContainerImageWorkloadReference]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ContainerImageWorkloadReferenceConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ContainerImageWorkloadReferenceConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ContainerImageWorkloadReferenceConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_PageInfo_totalCount(ctx, field)
+			case "pageStart":
+				return ec.fieldContext_PageInfo_pageStart(ctx, field)
+			case "pageEnd":
+				return ec.fieldContext_PageInfo_pageEnd(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ContainerImageWorkloadReferenceConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*vulnerability.ContainerImageWorkloadReference]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ContainerImageWorkloadReferenceConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]pagination.Edge[*vulnerability.ContainerImageWorkloadReference])
+	fc.Result = res
+	return ec.marshalNContainerImageWorkloadReferenceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ContainerImageWorkloadReferenceConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ContainerImageWorkloadReferenceConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cursor":
+				return ec.fieldContext_ContainerImageWorkloadReferenceEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_ContainerImageWorkloadReferenceEdge_node(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ContainerImageWorkloadReferenceEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ContainerImageWorkloadReferenceConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*vulnerability.ContainerImageWorkloadReference]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ContainerImageWorkloadReferenceConnection_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nodes(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*vulnerability.ContainerImageWorkloadReference)
+	fc.Result = res
+	return ec.marshalNContainerImageWorkloadReference2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐContainerImageWorkloadReferenceᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ContainerImageWorkloadReferenceConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ContainerImageWorkloadReferenceConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "workload":
+				return ec.fieldContext_ContainerImageWorkloadReference_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ContainerImageWorkloadReference", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ContainerImageWorkloadReferenceEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*vulnerability.ContainerImageWorkloadReference]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ContainerImageWorkloadReferenceEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(pagination.Cursor)
+	fc.Result = res
+	return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐCursor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ContainerImageWorkloadReferenceEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ContainerImageWorkloadReferenceEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Cursor does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ContainerImageWorkloadReferenceEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*vulnerability.ContainerImageWorkloadReference]) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ContainerImageWorkloadReferenceEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*vulnerability.ContainerImageWorkloadReference)
+	fc.Result = res
+	return ec.marshalNContainerImageWorkloadReference2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐContainerImageWorkloadReference(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ContainerImageWorkloadReferenceEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ContainerImageWorkloadReferenceEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "workload":
+				return ec.fieldContext_ContainerImageWorkloadReference_workload(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ContainerImageWorkloadReference", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CreateTeamPayload_team(ctx context.Context, field graphql.CollectedField, obj *team.CreateTeamPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CreateTeamPayload_team(ctx, field)
 	if err != nil {
@@ -19839,6 +20425,8 @@ func (ec *executionContext) fieldContext_Job_image(_ context.Context, field grap
 				return ec.fieldContext_ContainerImage_vulnerabilities(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_ContainerImage_vulnerabilitySummary(ctx, field)
+			case "workloadReferences":
+				return ec.fieldContext_ContainerImage_workloadReferences(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ContainerImage", field.Name)
 		},
@@ -21299,6 +21887,8 @@ func (ec *executionContext) fieldContext_JobRun_image(_ context.Context, field g
 				return ec.fieldContext_ContainerImage_vulnerabilities(ctx, field)
 			case "vulnerabilitySummary":
 				return ec.fieldContext_ContainerImage_vulnerabilitySummary(ctx, field)
+			case "workloadReferences":
+				return ec.fieldContext_ContainerImage_workloadReferences(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ContainerImage", field.Name)
 		},
@@ -47305,6 +47895,205 @@ func (ec *executionContext) _ContainerImage(ctx context.Context, sel ast.Selecti
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "workloadReferences":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ContainerImage_workloadReferences(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var containerImageWorkloadReferenceImplementors = []string{"ContainerImageWorkloadReference"}
+
+func (ec *executionContext) _ContainerImageWorkloadReference(ctx context.Context, sel ast.SelectionSet, obj *vulnerability.ContainerImageWorkloadReference) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, containerImageWorkloadReferenceImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ContainerImageWorkloadReference")
+		case "workload":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ContainerImageWorkloadReference_workload(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var containerImageWorkloadReferenceConnectionImplementors = []string{"ContainerImageWorkloadReferenceConnection"}
+
+func (ec *executionContext) _ContainerImageWorkloadReferenceConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*vulnerability.ContainerImageWorkloadReference]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, containerImageWorkloadReferenceConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ContainerImageWorkloadReferenceConnection")
+		case "pageInfo":
+			out.Values[i] = ec._ContainerImageWorkloadReferenceConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._ContainerImageWorkloadReferenceConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "nodes":
+			out.Values[i] = ec._ContainerImageWorkloadReferenceConnection_nodes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var containerImageWorkloadReferenceEdgeImplementors = []string{"ContainerImageWorkloadReferenceEdge"}
+
+func (ec *executionContext) _ContainerImageWorkloadReferenceEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*vulnerability.ContainerImageWorkloadReference]) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, containerImageWorkloadReferenceEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ContainerImageWorkloadReferenceEdge")
+		case "cursor":
+			out.Values[i] = ec._ContainerImageWorkloadReferenceEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			out.Values[i] = ec._ContainerImageWorkloadReferenceEdge_node(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -57461,6 +58250,122 @@ func (ec *executionContext) marshalNContainerImage2ᚖgithubᚗcomᚋnaisᚋapi�
 		return graphql.Null
 	}
 	return ec._ContainerImage(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNContainerImageWorkloadReference2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐContainerImageWorkloadReferenceᚄ(ctx context.Context, sel ast.SelectionSet, v []*vulnerability.ContainerImageWorkloadReference) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNContainerImageWorkloadReference2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐContainerImageWorkloadReference(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNContainerImageWorkloadReference2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐContainerImageWorkloadReference(ctx context.Context, sel ast.SelectionSet, v *vulnerability.ContainerImageWorkloadReference) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ContainerImageWorkloadReference(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNContainerImageWorkloadReferenceConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*vulnerability.ContainerImageWorkloadReference]) graphql.Marshaler {
+	return ec._ContainerImageWorkloadReferenceConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNContainerImageWorkloadReferenceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*vulnerability.ContainerImageWorkloadReference]) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ContainerImageWorkloadReferenceConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNContainerImageWorkloadReferenceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*vulnerability.ContainerImageWorkloadReference]) graphql.Marshaler {
+	return ec._ContainerImageWorkloadReferenceEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNContainerImageWorkloadReferenceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*vulnerability.ContainerImageWorkloadReference]) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNContainerImageWorkloadReferenceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalNCreateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐCreateTeamInput(ctx context.Context, v interface{}) (team.CreateTeamInput, error) {

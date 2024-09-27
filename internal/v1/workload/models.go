@@ -54,7 +54,7 @@ func (c ContainerImage) Ref() string {
 }
 
 func (c ContainerImage) ID() ident.Ident {
-	return newImageIdent(c.Name + ":" + c.Tag)
+	return newImageIdent(c.Ref())
 }
 
 type WorkloadResources interface {
