@@ -78,6 +78,8 @@ func TestRunner(t *testing.T) {
 	}
 }
 
+const tenantName = "some-tenant"
+
 func clusters() []string {
 	return []string{"dev", "staging"}
 }
@@ -153,7 +155,7 @@ func newGQLRunner(ctx context.Context, t *testing.T, config *Config, db database
 		t.Fatal(err)
 	}
 
-	graphMiddleware, err := api.ConfigureV1Graph(ctx, watcherMgr, db, nil, nil, log)
+	graphMiddleware, err := api.ConfigureV1Graph(ctx, watcherMgr, db, nil, nil, tenantName, clusters(), log)
 	if err != nil {
 		t.Fatal(err)
 	}
