@@ -92,6 +92,7 @@ type ResolverRoot interface {
 	TeamMemberAddedAuditEntryData() TeamMemberAddedAuditEntryDataResolver
 	TeamMemberRemovedAuditEntryData() TeamMemberRemovedAuditEntryDataResolver
 	TeamMemberSetRoleAuditEntryData() TeamMemberSetRoleAuditEntryDataResolver
+	TeamUtilizationData() TeamUtilizationDataResolver
 	TeamUtilizationEnvironmentDataPoint() TeamUtilizationEnvironmentDataPointResolver
 	User() UserResolver
 	WorkloadCost() WorkloadCostResolver
@@ -572,14 +573,15 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Me          func(childComplexity int) int
-		Node        func(childComplexity int, id ident.Ident) int
-		Reconcilers func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Search      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter searchv1.SearchFilter) int
-		Team        func(childComplexity int, slug slug.Slug) int
-		Teams       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) int
-		User        func(childComplexity int, id ident.Ident) int
-		Users       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int
+		Me               func(childComplexity int) int
+		Node             func(childComplexity int, id ident.Ident) int
+		Reconcilers      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Search           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter searchv1.SearchFilter) int
+		Team             func(childComplexity int, slug slug.Slug) int
+		Teams            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder) int
+		TeamsUtilization func(childComplexity int, resourceType utilization.UtilizationResourceType) int
+		User             func(childComplexity int, id ident.Ident) int
+		Users            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int
 	}
 
 	Reconciler struct {
@@ -1020,6 +1022,13 @@ type ComplexityRoot struct {
 		OldValue func(childComplexity int) int
 	}
 
+	TeamUtilizationData struct {
+		Environment func(childComplexity int) int
+		Requested   func(childComplexity int) int
+		Team        func(childComplexity int) int
+		Used        func(childComplexity int) int
+	}
+
 	TeamUtilizationEnvironmentDataPoint struct {
 		Environment func(childComplexity int) int
 		Value       func(childComplexity int) int
@@ -1217,6 +1226,7 @@ type QueryResolver interface {
 	Users(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) (*pagination.Connection[*user.User], error)
 	User(ctx context.Context, id ident.Ident) (*user.User, error)
 	Me(ctx context.Context) (user.AuthenticatedUser, error)
+	TeamsUtilization(ctx context.Context, resourceType utilization.UtilizationResourceType) ([]*utilization.TeamUtilizationData, error)
 }
 type ReconcilerResolver interface {
 	Config(ctx context.Context, obj *reconciler.Reconciler) ([]*reconciler.ReconcilerConfig, error)
@@ -1300,6 +1310,11 @@ type TeamMemberRemovedAuditEntryDataResolver interface {
 }
 type TeamMemberSetRoleAuditEntryDataResolver interface {
 	User(ctx context.Context, obj *team.TeamMemberSetRoleAuditEntryData) (*user.User, error)
+}
+type TeamUtilizationDataResolver interface {
+	Team(ctx context.Context, obj *utilization.TeamUtilizationData) (*team.Team, error)
+
+	Environment(ctx context.Context, obj *utilization.TeamUtilizationData) (*team.TeamEnvironment, error)
 }
 type TeamUtilizationEnvironmentDataPointResolver interface {
 	Environment(ctx context.Context, obj *utilization.TeamUtilizationEnvironmentDataPoint) (*team.TeamEnvironment, error)
@@ -3341,6 +3356,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Teams(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*team.TeamOrder)), true
 
+	case "Query.teamsUtilization":
+		if e.complexity.Query.TeamsUtilization == nil {
+			break
+		}
+
+		args, err := ec.field_Query_teamsUtilization_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.TeamsUtilization(childComplexity, args["resourceType"].(utilization.UtilizationResourceType)), true
+
 	case "Query.user":
 		if e.complexity.Query.User == nil {
 			break
@@ -5275,6 +5302,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamUpdatedAuditEntryDataUpdatedField.OldValue(childComplexity), true
+
+	case "TeamUtilizationData.environment":
+		if e.complexity.TeamUtilizationData.Environment == nil {
+			break
+		}
+
+		return e.complexity.TeamUtilizationData.Environment(childComplexity), true
+
+	case "TeamUtilizationData.requested":
+		if e.complexity.TeamUtilizationData.Requested == nil {
+			break
+		}
+
+		return e.complexity.TeamUtilizationData.Requested(childComplexity), true
+
+	case "TeamUtilizationData.team":
+		if e.complexity.TeamUtilizationData.Team == nil {
+			break
+		}
+
+		return e.complexity.TeamUtilizationData.Team(childComplexity), true
+
+	case "TeamUtilizationData.used":
+		if e.complexity.TeamUtilizationData.Used == nil {
+			break
+		}
+
+		return e.complexity.TeamUtilizationData.Used(childComplexity), true
 
 	case "TeamUtilizationEnvironmentDataPoint.environment":
 		if e.complexity.TeamUtilizationEnvironmentDataPoint.Environment == nil {
@@ -8198,6 +8253,10 @@ extend type Team {
 	workloadUtilization(resourceType: UtilizationResourceType!): [WorkloadUtilizationData]!
 }
 
+extend type Query {
+  teamsUtilization(resourceType: UtilizationResourceType!): [TeamUtilizationData!]!
+}
+
 type WorkloadUtilizationData {
 	"The workload."
 	workload: Workload!
@@ -8252,6 +8311,20 @@ type UtilizationDataPoint {
 
 	"Value of the used resource at the given timestamp."
 	value: Float!
+}
+
+type TeamUtilizationData {
+  "The team."
+  team: Team!
+
+  "The requested amount of resources"
+  requested: Float!
+
+  "The current resource usage."
+  used: Float!
+
+  "The environment for the utilization data."
+  environment: TeamEnvironment!
 }
 `, BuiltIn: false},
 	{Name: "../schema/vulnerability.graphqls", Input: `extend type ContainerImage {
@@ -10624,6 +10697,38 @@ func (ec *executionContext) field_Query_team_argsSlug(
 	}
 
 	var zeroVal slug.Slug
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_teamsUtilization_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Query_teamsUtilization_argsResourceType(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["resourceType"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_teamsUtilization_argsResourceType(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (utilization.UtilizationResourceType, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["resourceType"]
+	if !ok {
+		var zeroVal utilization.UtilizationResourceType
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceType"))
+	if tmp, ok := rawArgs["resourceType"]; ok {
+		return ec.unmarshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋutilizationᚐUtilizationResourceType(ctx, tmp)
+	}
+
+	var zeroVal utilization.UtilizationResourceType
 	return zeroVal, nil
 }
 
@@ -27496,6 +27601,71 @@ func (ec *executionContext) fieldContext_Query_me(_ context.Context, field graph
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_teamsUtilization(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_teamsUtilization(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().TeamsUtilization(rctx, fc.Args["resourceType"].(utilization.UtilizationResourceType))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*utilization.TeamUtilizationData)
+	fc.Result = res
+	return ec.marshalNTeamUtilizationData2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋutilizationᚐTeamUtilizationDataᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_teamsUtilization(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "team":
+				return ec.fieldContext_TeamUtilizationData_team(ctx, field)
+			case "requested":
+				return ec.fieldContext_TeamUtilizationData_requested(ctx, field)
+			case "used":
+				return ec.fieldContext_TeamUtilizationData_used(ctx, field)
+			case "environment":
+				return ec.fieldContext_TeamUtilizationData_environment(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamUtilizationData", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_teamsUtilization_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query___type(ctx, field)
 	if err != nil {
@@ -40767,6 +40937,262 @@ func (ec *executionContext) fieldContext_TeamUpdatedAuditEntryDataUpdatedField_n
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamUtilizationData_team(ctx context.Context, field graphql.CollectedField, obj *utilization.TeamUtilizationData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUtilizationData_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamUtilizationData().Team(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.Team)
+	fc.Result = res
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUtilizationData_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUtilizationData",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "applications":
+				return ec.fieldContext_Team_applications(ctx, field)
+			case "auditEntries":
+				return ec.fieldContext_Team_auditEntries(ctx, field)
+			case "cost":
+				return ec.fieldContext_Team_cost(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Team_jobs(ctx, field)
+			case "bigQueryDatasets":
+				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
+			case "redisInstances":
+				return ec.fieldContext_Team_redisInstances(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "repositories":
+				return ec.fieldContext_Team_repositories(ctx, field)
+			case "workloadUtilization":
+				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "vulnerabilitySummary":
+				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamUtilizationData_requested(ctx context.Context, field graphql.CollectedField, obj *utilization.TeamUtilizationData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUtilizationData_requested(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Requested, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUtilizationData_requested(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUtilizationData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamUtilizationData_used(ctx context.Context, field graphql.CollectedField, obj *utilization.TeamUtilizationData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUtilizationData_used(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Used, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUtilizationData_used(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUtilizationData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamUtilizationData_environment(ctx context.Context, field graphql.CollectedField, obj *utilization.TeamUtilizationData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamUtilizationData_environment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamUtilizationData().Environment(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamEnvironment)
+	fc.Result = res
+	return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamEnvironment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamUtilizationData_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamUtilizationData",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			case "gcpProjectID":
+				return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			case "slackAlertsChannel":
+				return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			case "team":
+				return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			case "application":
+				return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			case "job":
+				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamUtilizationEnvironmentDataPoint_value(ctx context.Context, field graphql.CollectedField, obj *utilization.TeamUtilizationEnvironmentDataPoint) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamUtilizationEnvironmentDataPoint_value(ctx, field)
 	if err != nil {
@@ -51864,6 +52290,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "teamsUtilization":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_teamsUtilization(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "__type":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -56654,6 +57102,122 @@ func (ec *executionContext) _TeamUpdatedAuditEntryDataUpdatedField(ctx context.C
 			out.Values[i] = ec._TeamUpdatedAuditEntryDataUpdatedField_oldValue(ctx, field, obj)
 		case "newValue":
 			out.Values[i] = ec._TeamUpdatedAuditEntryDataUpdatedField_newValue(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var teamUtilizationDataImplementors = []string{"TeamUtilizationData"}
+
+func (ec *executionContext) _TeamUtilizationData(ctx context.Context, sel ast.SelectionSet, obj *utilization.TeamUtilizationData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, teamUtilizationDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TeamUtilizationData")
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamUtilizationData_team(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "requested":
+			out.Values[i] = ec._TeamUtilizationData_requested(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "used":
+			out.Values[i] = ec._TeamUtilizationData_used(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "environment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamUtilizationData_environment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -62211,6 +62775,60 @@ func (ec *executionContext) marshalNTeamUpdatedAuditEntryDataUpdatedField2ᚖgit
 		return graphql.Null
 	}
 	return ec._TeamUpdatedAuditEntryDataUpdatedField(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamUtilizationData2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋutilizationᚐTeamUtilizationDataᚄ(ctx context.Context, sel ast.SelectionSet, v []*utilization.TeamUtilizationData) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTeamUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋutilizationᚐTeamUtilizationData(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNTeamUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋutilizationᚐTeamUtilizationData(ctx context.Context, sel ast.SelectionSet, v *utilization.TeamUtilizationData) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TeamUtilizationData(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTeamVulnerabilitySummary2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋvulnerabilityᚐTeamVulnerabilitySummary(ctx context.Context, sel ast.SelectionSet, v vulnerability.TeamVulnerabilitySummary) graphql.Marshaler {

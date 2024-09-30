@@ -6,6 +6,10 @@ extend type Team {
 	workloadUtilization(resourceType: UtilizationResourceType!): [WorkloadUtilizationData]!
 }
 
+extend type Query {
+	teamsUtilization(resourceType: UtilizationResourceType!): [TeamUtilizationData!]!
+}
+
 type WorkloadUtilizationData {
 	"The workload."
 	workload: Workload!
@@ -60,4 +64,18 @@ type UtilizationDataPoint {
 
 	"Value of the used resource at the given timestamp."
 	value: Float!
+}
+
+type TeamUtilizationData {
+	"The team."
+	team: Team!
+
+	"The requested amount of resources"
+	requested: Float!
+
+	"The current resource usage."
+	used: Float!
+
+	"The environment for the utilization data."
+	environment: TeamEnvironment!
 }

@@ -19,8 +19,20 @@ func (r *applicationResolver) Utilization(ctx context.Context, obj *application.
 	}, nil
 }
 
+func (r *queryResolver) TeamsUtilization(ctx context.Context, resourceType utilization.UtilizationResourceType) ([]*utilization.TeamUtilizationData, error) {
+	return utilization.ForTeams(ctx, resourceType)
+}
+
 func (r *teamResolver) WorkloadUtilization(ctx context.Context, obj *team.Team, resourceType utilization.UtilizationResourceType) ([]*utilization.WorkloadUtilizationData, error) {
 	return utilization.ForTeam(ctx, obj.Slug, resourceType)
+}
+
+func (r *teamUtilizationDataResolver) Team(ctx context.Context, obj *utilization.TeamUtilizationData) (*team.Team, error) {
+	return team.Get(ctx, obj.TeamSlug)
+}
+
+func (r *teamUtilizationDataResolver) Environment(ctx context.Context, obj *utilization.TeamUtilizationData) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
 func (r *teamUtilizationEnvironmentDataPointResolver) Environment(ctx context.Context, obj *utilization.TeamUtilizationEnvironmentDataPoint) (*team.TeamEnvironment, error) {
@@ -43,6 +55,10 @@ func (r *workloadUtilizationDataResolver) Workload(ctx context.Context, obj *uti
 	return tryWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadName)
 }
 
+func (r *Resolver) TeamUtilizationData() gengqlv1.TeamUtilizationDataResolver {
+	return &teamUtilizationDataResolver{r}
+}
+
 func (r *Resolver) TeamUtilizationEnvironmentDataPoint() gengqlv1.TeamUtilizationEnvironmentDataPointResolver {
 	return &teamUtilizationEnvironmentDataPointResolver{r}
 }
@@ -56,6 +72,7 @@ func (r *Resolver) WorkloadUtilizationData() gengqlv1.WorkloadUtilizationDataRes
 }
 
 type (
+	teamUtilizationDataResolver                 struct{ *Resolver }
 	teamUtilizationEnvironmentDataPointResolver struct{ *Resolver }
 	workloadUtilizationResolver                 struct{ *Resolver }
 	workloadUtilizationDataResolver             struct{ *Resolver }
