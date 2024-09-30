@@ -1006,6 +1006,12 @@ type VulnerabilityNode struct {
 	Status       WorkloadStatus             `json:"status"`
 }
 
+type VulnerabilityRanking struct {
+	Rank       int                       `json:"rank"`
+	TotalTeams int                       `json:"totalTeams"`
+	Trend      VulnerabilityRankingTrend `json:"trend"`
+}
+
 type VulnerabilityStatus struct {
 	State       VulnerabilityState `json:"state"`
 	Title       string             `json:"title"`
@@ -1021,15 +1027,9 @@ type VulnerabilitySummaryForTeam struct {
 	BomCount       int                    `json:"bomCount"`
 	Unassigned     int                    `json:"unassigned"`
 	Coverage       float64                `json:"coverage"`
-	RiskScoreTrend float64                `json:"riskScoreTrend"`
 	TotalWorkloads int                    `json:"totalWorkloads"`
+	TeamRanking    VulnerabilityRanking   `json:"teamRanking"`
 	Status         []*VulnerabilityStatus `json:"status"`
-}
-
-type VulnerabilityTeamRank struct {
-	Rank  int    `json:"rank"`
-	Score int    `json:"score"`
-	Env   string `json:"env"`
 }
 
 type VulnerableError struct {
@@ -1673,6 +1673,49 @@ func (e *UsersyncRunStatus) UnmarshalGQL(v interface{}) error {
 }
 
 func (e UsersyncRunStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type VulnerabilityRankingTrend string
+
+const (
+	VulnerabilityRankingTrendUp   VulnerabilityRankingTrend = "UP"
+	VulnerabilityRankingTrendDown VulnerabilityRankingTrend = "DOWN"
+	VulnerabilityRankingTrendFlat VulnerabilityRankingTrend = "FLAT"
+)
+
+var AllVulnerabilityRankingTrend = []VulnerabilityRankingTrend{
+	VulnerabilityRankingTrendUp,
+	VulnerabilityRankingTrendDown,
+	VulnerabilityRankingTrendFlat,
+}
+
+func (e VulnerabilityRankingTrend) IsValid() bool {
+	switch e {
+	case VulnerabilityRankingTrendUp, VulnerabilityRankingTrendDown, VulnerabilityRankingTrendFlat:
+		return true
+	}
+	return false
+}
+
+func (e VulnerabilityRankingTrend) String() string {
+	return string(e)
+}
+
+func (e *VulnerabilityRankingTrend) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = VulnerabilityRankingTrend(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid VulnerabilityRankingTrend", str)
+	}
+	return nil
+}
+
+func (e VulnerabilityRankingTrend) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

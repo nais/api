@@ -11,6 +11,7 @@ import (
 type Manager struct {
 	Client
 	prometheusClients clusterPrometheusClients
+	cfg               *Config
 }
 
 type Config struct {
@@ -36,6 +37,7 @@ func NewManager(cfg *Config) *Manager {
 	manager := &Manager{
 		Client:            dependencytrackClient,
 		prometheusClients: prometheusClientMap,
+		cfg:               cfg,
 	}
 
 	return manager

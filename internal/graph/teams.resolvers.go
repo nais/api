@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"slices"
 	"strconv"
+	"time"
 
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
@@ -1750,45 +1751,36 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		})
 	}
 
-	return retVal, nil
-}
-
-func (r *teamResolver) VulnerabilityTeamRank(ctx context.Context, obj *model.Team, filter *model.VulnerabilityFilter) ([]*model.VulnerabilityTeamRank, error) {
-	var envs []string
-	if filter == nil {
-		teamEnvs, _, err := r.database.GetTeamEnvironments(ctx, obj.Slug, database.Page{Limit: 50})
-		if err != nil {
-			return nil, err
-		}
-		for _, env := range teamEnvs {
-			envs = append(envs, env.Environment)
-		}
-	} else {
-		envs = filter.Envs
-	}
-
-	// get all teams in a tenant, to be used as filter
-	allTeamsInTenant, err := r.database.GetAllTeamSlugs(ctx)
+	allTeamSlugs, err := r.database.GetAllTeamSlugs(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("getting all team slugs: %w", err)
 	}
 
-	// add filter for team environments
-	queryResults := make([]*model.VulnerabilityTeamRank, 0)
-	for _, e := range envs {
-		query := fmt.Sprintf("topk(%d, sum(slsa_workload_riskscore) by (workload_namespace))", len(allTeamsInTenant))
-		res, err := r.vulnerabilities.PromQuery(ctx, query, e)
-		if err != nil {
-			return nil, fmt.Errorf("getting prometheus query result: %w", err)
-		}
-		score := vulnerabilities.GetTeamVulnerabilityScore(res, obj.Slug.String(), e)
-		if err != nil {
-			return nil, err
-		}
-		queryResults = append(queryResults, score)
+	currentRank, err := r.vulnerabilities.Ranking(ctx, obj.Slug.String(), time.Now())
+	if err != nil {
+		return nil, fmt.Errorf("getting team ranking: %w", err)
 	}
 
-	return queryResults, nil
+	previousRank, err := r.vulnerabilities.Ranking(ctx, obj.Slug.String(), time.Now().AddDate(0, -1, 0))
+	if err != nil {
+		return nil, fmt.Errorf("getting previous ranking: %w", err)
+	}
+
+	retVal.TeamRanking = model.VulnerabilityRanking{
+		Rank:       currentRank,
+		TotalTeams: len(allTeamSlugs),
+	}
+
+	switch {
+	case currentRank > previousRank:
+		retVal.TeamRanking.Trend = model.VulnerabilityRankingTrendDown
+	case currentRank < previousRank:
+		retVal.TeamRanking.Trend = model.VulnerabilityRankingTrendUp
+	default:
+		retVal.TeamRanking.Trend = model.VulnerabilityRankingTrendFlat
+	}
+
+	return retVal, nil
 }
 
 func (r *teamResolver) Secrets(ctx context.Context, obj *model.Team) ([]*model.Secret, error) {

@@ -36,9 +36,21 @@ type VulnerabilitySummaryForTeam {
   bomCount: Int!
   unassigned: Int!
   coverage: Float!
-  riskScoreTrend: Float!
   totalWorkloads: Int!
+  teamRanking: VulnerabilityRanking!
   status: [VulnerabilityStatus!]!
+}
+
+type VulnerabilityRanking {
+  rank: Int!
+  totalTeams: Int!
+  trend: VulnerabilityRankingTrend!
+}
+
+enum VulnerabilityRankingTrend {
+  UP
+  DOWN
+  FLAT
 }
 
 type VulnerabilityStatus {
@@ -66,10 +78,4 @@ input VulnerabilityFilter {
 
   "Require the presence of a Software Bill of Materials (SBOM) in the vulnerability report."
   requireSbom: Boolean
-}
-
-type VulnerabilityTeamRank {
-  rank: Int!
-  score: Int!
-  env: String!
 }

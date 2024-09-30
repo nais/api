@@ -497,10 +497,6 @@ type Team {
     filter: VulnerabilityFilter
   ): VulnerabilitySummaryForTeam!
 
-  vulnerabilityTeamRank(
-    filter: VulnerabilityFilter
-  ): [VulnerabilityTeamRank!]!
-
   "Get all secrets for the team."
   secrets: [Secret!]! @auth
 

@@ -3,9 +3,9 @@ package vulnerabilities
 import (
 	"context"
 	"fmt"
+	"sort"
 	"time"
 
-	"github.com/nais/api/internal/graph/model"
 	prom "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom_model "github.com/prometheus/common/model"
 )
@@ -24,7 +24,7 @@ type VulnerabilityPrometheus interface {
 	Query(ctx context.Context, query string, ts time.Time, opts ...prom.Option) (prom_model.Value, prom.Warnings, error)
 }
 
-func (m *Manager) PromQuery(ctx context.Context, q, cluster string) (prom_model.Vector, error) {
+func (m *Manager) PromQuery(ctx context.Context, q, cluster string, time time.Time) (prom_model.Vector, error) {
 	if m.prometheusClients == nil {
 		return nil, fmt.Errorf("no prometheus clients configured")
 	}
@@ -34,7 +34,7 @@ func (m *Manager) PromQuery(ctx context.Context, q, cluster string) (prom_model.
 		return nil, fmt.Errorf("no prometheus client configured for cluster: %s", cluster)
 	}
 
-	val, _, err := prometheusClient.Query(ctx, q, time.Now())
+	val, _, err := prometheusClient.Query(ctx, q, time)
 	if err != nil {
 		return nil, err
 	}
@@ -50,20 +50,32 @@ func (m *Manager) PromQuery(ctx context.Context, q, cluster string) (prom_model.
 	return val.(prom_model.Vector), nil
 }
 
-func GetTeamVulnerabilityScore(samples prom_model.Vector, team string, env string) *model.VulnerabilityTeamRank {
+func (m *Manager) Ranking(ctx context.Context, team string, time time.Time) (int, error) {
+	samples := make(prom_model.Vector, 0)
+	for _, e := range m.cfg.Prometheus.Clusters {
+		query := "sum(slsa_workload_riskscore) by (workload_namespace)"
+		res, err := m.PromQuery(ctx, query, e, time)
+		if err != nil {
+			return 0, fmt.Errorf("getting prometheus query result: %w", err)
+		}
+		samples = append(samples, res...)
+	}
+
+	sort.SliceStable(samples, func(i, j int) bool {
+		return samples[i].Value > samples[j].Value
+	})
+
 	rank := 0
-	for _, sample := range samples {
-		rank++
-		namespace := string(sample.Metric[PrometheusMetricTeamLabel])
+	for i, s := range samples {
+		namespace := string(s.Metric[PrometheusMetricTeamLabel])
 		if namespace != team {
 			continue
 		}
 
-		return &model.VulnerabilityTeamRank{
-			Score: int(sample.Value),
-			Rank:  rank,
-			Env:   env,
+		if rank == 0 {
+			rank = i + 1
 		}
 	}
-	return nil
+
+	return rank, nil
 }
