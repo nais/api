@@ -25,6 +25,7 @@ omit_root_models: true
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
 autobind:
+  - "github.com/99designs/gqlgen/graphql/introspection" # Without this line in the beginning, a `prelude.resolver.go` is generated
   - "github.com/nais/api/internal/v1/auditv1"
   - "github.com/nais/api/internal/v1/cost"
   - "github.com/nais/api/internal/v1/github/repository"
