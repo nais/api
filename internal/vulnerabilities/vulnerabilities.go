@@ -1,11 +1,13 @@
 package vulnerabilities
 
 import (
+	"context"
 	"fmt"
-
+	"github.com/nais/api/internal/graph/model"
 	promapi "github.com/prometheus/client_golang/api"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	log "github.com/sirupsen/logrus"
+	"time"
 )
 
 type Manager struct {
@@ -41,6 +43,132 @@ func NewManager(cfg *Config) *Manager {
 	}
 
 	return manager
+}
+
+func (m *Manager) GetSummaryForTeam(ctx context.Context, workloads []model.Workload, team string, totalTeams int) (*model.VulnerabilitySummaryForTeam, error) {
+	images, err := m.GetMetadataForTeam(ctx, team)
+	if err != nil {
+		return nil, fmt.Errorf("getting metadata for team %q: %w", team, err)
+	}
+
+	vulnWorkloads := 0
+	retVal := &model.VulnerabilitySummaryForTeam{}
+	for _, workload := range workloads {
+		env, wType, name := workloadDetails(workload)
+		retVal.TotalWorkloads += 1
+
+		image := getImageDetails(images, env, team, wType, name)
+		if image == nil {
+			continue
+		}
+
+		retVal.Critical += image.Summary.Critical
+		retVal.High += image.Summary.High
+		retVal.Medium += image.Summary.Medium
+		retVal.Low += image.Summary.Low
+		retVal.Unassigned += image.Summary.Unassigned
+		retVal.RiskScore += image.Summary.RiskScore
+		retVal.BomCount += 1
+
+		s := getVulnerabilityState(image.Summary)
+		if s == model.VulnerabilityStateVulnerable {
+			vulnWorkloads += 1
+		}
+	}
+
+	if len(workloads) == 0 {
+		retVal.Coverage = 0.0
+	} else {
+		retVal.Coverage = float64(retVal.BomCount) / float64(retVal.TotalWorkloads) * 100
+	}
+
+	if retVal.Coverage < 90 {
+		retVal.Status = append(retVal.Status, &model.VulnerabilityStatus{
+			State:       model.VulnerabilityStateCoverageTooLow,
+			Title:       "SBOM coverage",
+			Description: "SBOM coverage is below 90% (number of workloads with SBOM / total number of workloads)",
+		})
+	}
+
+	if vulnWorkloads > 0 {
+		retVal.Status = append(retVal.Status, &model.VulnerabilityStatus{
+			State:       model.VulnerabilityStateVulnerable,
+			Title:       "Too many vulnerable workloads",
+			Description: "The threshold for a vulnerable workload is a riskscore above 100 or a critical vulnerability",
+		})
+	}
+
+	ranking, err := m.teamRanking(ctx, team, totalTeams)
+	if err != nil {
+		return nil, fmt.Errorf("getting team ranking: %w", err)
+	}
+	retVal.TeamRanking = ranking
+
+	return retVal, nil
+}
+
+func getVulnerabilityState(summary *model.ImageVulnerabilitySummary) model.VulnerabilityState {
+	switch {
+	case summary == nil:
+		return model.VulnerabilityStateMissingSbom
+	case summary.Critical > 0:
+		return model.VulnerabilityStateVulnerable
+	// if the amount of high vulnerabilities is greater than 50 % of the total amount of vulnerabilities, we consider the image as vulnerable
+	case summary.RiskScore > 100 && summary.High > summary.RiskScore/2:
+		return model.VulnerabilityStateVulnerable
+	}
+
+	return model.VulnerabilityStateOk
+}
+
+func (m *Manager) teamRanking(ctx context.Context, team string, teams int) (model.VulnerabilityRanking, error) {
+	currentRank, err := m.ranking(ctx, team, time.Now())
+	if err != nil {
+		return model.VulnerabilityRanking{}, fmt.Errorf("getting team ranking: %w", err)
+	}
+
+	previousRank, err := m.ranking(ctx, team, time.Now().AddDate(0, -1, 0))
+	if err != nil {
+		return model.VulnerabilityRanking{}, fmt.Errorf("getting previous ranking: %w", err)
+	}
+
+	retVal := model.VulnerabilityRanking{
+		Rank:       currentRank,
+		TotalTeams: teams,
+	}
+
+	switch {
+	case currentRank > previousRank:
+		retVal.Trend = model.VulnerabilityRankingTrendDown
+	case currentRank < previousRank:
+		retVal.Trend = model.VulnerabilityRankingTrendUp
+	default:
+		retVal.Trend = model.VulnerabilityRankingTrendFlat
+	}
+
+	return retVal, nil
+}
+
+func getImageDetails(images []*model.ImageDetails, env, team, wType, name string) (image *model.ImageDetails) {
+	for _, i := range images {
+		if i.Summary == nil {
+			continue
+		}
+		if i.GQLVars.ContainsReference(env, team, wType, name) {
+			return i
+		}
+	}
+	return nil
+}
+
+func workloadDetails(workload model.Workload) (env, wType, name string) {
+	switch w := workload.(type) {
+	case *model.App:
+		return w.Env.Name, "app", w.Name
+	case *model.NaisJob:
+		return w.Env.Name, "job", w.Name
+	}
+	return "", "", ""
 }
 
 func (c *Config) prometheusClients() (clusterPrometheusClients, error) {

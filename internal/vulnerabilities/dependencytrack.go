@@ -31,7 +31,6 @@ type Client interface {
 	GetFindingsForImageByProjectID(ctx context.Context, projectID string, suppressed bool) ([]*model.Finding, error)
 	GetMetadataForTeam(ctx context.Context, team string) ([]*model.ImageDetails, error)
 	GetVulnerabilityError(ctx context.Context, image string, revision string) (model.StateError, error)
-	GetVulnerabilityState(summary *model.ImageVulnerabilitySummary) model.VulnerabilityState
 	SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.AnalysisTrail, error)
 	GetAnalysisTrailForImage(ctx context.Context, projectID, componentID, vulnerabilityID string) (*model.AnalysisTrail, error)
 	UploadProject(ctx context.Context, image, name, version, team string, bom []byte) error
@@ -125,7 +124,7 @@ func (c *dependencyTrackClient) GetVulnerabilityError(ctx context.Context, image
 
 	sum := c.createSummaryForImage(p)
 
-	switch c.GetVulnerabilityState(sum) {
+	switch getVulnerabilityState(sum) {
 	case model.VulnerabilityStateOk:
 		return nil, nil
 	case model.VulnerabilityStateMissingSbom:
@@ -142,20 +141,6 @@ func (c *dependencyTrackClient) GetVulnerabilityError(ctx context.Context, image
 
 	}
 	return nil, nil
-}
-
-func (c *dependencyTrackClient) GetVulnerabilityState(summary *model.ImageVulnerabilitySummary) model.VulnerabilityState {
-	switch {
-	case summary == nil:
-		return model.VulnerabilityStateMissingSbom
-	case summary.Critical > 0:
-		return model.VulnerabilityStateVulnerable
-	// if the amount of high vulnerabilities is greater than 50 % of the total amount of vulnerabilities, we consider the image as vulnerable
-	case summary.RiskScore > 100 && summary.High > summary.RiskScore/2:
-		return model.VulnerabilityStateVulnerable
-	}
-
-	return model.VulnerabilityStateOk
 }
 
 func (c *dependencyTrackClient) GetProjectMetrics(ctx context.Context, instance *WorkloadInstance, date string) (*ProjectMetric, error) {

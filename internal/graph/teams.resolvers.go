@@ -4,10 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"slices"
-	"strconv"
-	"time"
-
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -29,6 +25,8 @@ import (
 	"github.com/nais/api/pkg/protoapi"
 	"github.com/sourcegraph/conc/pool"
 	"k8s.io/utils/ptr"
+	"slices"
+	"strconv"
 )
 
 func (r *appUtilizationDataResolver) App(ctx context.Context, obj *model.AppUtilizationData) (*model.App, error) {
@@ -1635,13 +1633,7 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 	}, nil
 }
 
-// TODO: refactor and extract to functions
 func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Team, filter *model.VulnerabilityFilter) (*model.VulnerabilitySummaryForTeam, error) {
-	images, err := r.vulnerabilities.GetMetadataForTeam(ctx, obj.Slug.String())
-	if err != nil {
-		return nil, fmt.Errorf("getting metadata for team %q: %w", obj.Slug.String(), err)
-	}
-
 	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
@@ -1653,102 +1645,21 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 
 	workloads := make([]model.Workload, 0)
 	for _, app := range apps {
+		if filter != nil && len(filter.Envs) > 0 {
+			if !slices.Contains(filter.Envs, app.Env.Name) {
+				continue
+			}
+		}
 		workloads = append(workloads, app)
 	}
+
 	for _, job := range jobs {
-		workloads = append(workloads, job)
-	}
-
-	vulnWorkloads := 0
-	retVal := &model.VulnerabilitySummaryForTeam{}
-	for _, workload := range workloads {
-		var env, team, wType, name string
-
-		switch w := workload.(type) {
-		case *model.App:
-			env = w.Env.Name
-			team = obj.Slug.String()
-			wType = "app"
-			name = w.Name
-		case *model.NaisJob:
-			env = w.Env.Name
-			team = obj.Slug.String()
-			wType = "job"
-			name = w.Name
-		default:
-			continue
-		}
-
 		if filter != nil && len(filter.Envs) > 0 {
-			if !slices.Contains(filter.Envs, env) {
+			if !slices.Contains(filter.Envs, job.Env.Name) {
 				continue
 			}
 		}
-
-		retVal.TotalWorkloads += 1
-
-		var image *model.ImageDetails
-
-		for _, i := range images {
-			if i.Summary == nil {
-				continue
-			}
-			if i.GQLVars.ContainsReference(env, team, wType, name) {
-				image = i
-				break
-			}
-		}
-
-		if image == nil {
-			continue
-		}
-
-		if image.Summary.Critical > 0 {
-			retVal.Critical += image.Summary.Critical
-		}
-		if image.Summary.High > 0 {
-			retVal.High += image.Summary.High
-		}
-		if image.Summary.Medium > 0 {
-			retVal.Medium += image.Summary.Medium
-		}
-		if image.Summary.Low > 0 {
-			retVal.Low += image.Summary.Low
-		}
-		if image.Summary.Unassigned > 0 {
-			retVal.Unassigned += image.Summary.Unassigned
-		}
-		if image.Summary.RiskScore > 0 {
-			retVal.RiskScore += image.Summary.RiskScore
-		}
-		retVal.BomCount += 1
-
-		s := r.vulnerabilities.GetVulnerabilityState(image.Summary)
-		if s == model.VulnerabilityStateVulnerable {
-			vulnWorkloads += 1
-		}
-	}
-
-	if len(apps) == 0 && len(jobs) == 0 {
-		retVal.Coverage = 0.0
-	} else {
-		retVal.Coverage = float64(retVal.BomCount) / float64(retVal.TotalWorkloads) * 100
-	}
-
-	if retVal.Coverage < 90 {
-		retVal.Status = append(retVal.Status, &model.VulnerabilityStatus{
-			State:       model.VulnerabilityStateCoverageTooLow,
-			Title:       "SBOM coverage",
-			Description: "SBOM coverage is below 90% (number of workloads with SBOM / total number of workloads)",
-		})
-	}
-
-	if vulnWorkloads > 0 {
-		retVal.Status = append(retVal.Status, &model.VulnerabilityStatus{
-			State:       model.VulnerabilityStateVulnerable,
-			Title:       "Too many vulnerable workloads",
-			Description: "The threshold for a vulnerable workload is a riskscore above 100 or a critical vulnerability",
-		})
+		workloads = append(workloads, job)
 	}
 
 	allTeamSlugs, err := r.database.GetAllTeamSlugs(ctx)
@@ -1756,31 +1667,7 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		return nil, fmt.Errorf("getting all team slugs: %w", err)
 	}
 
-	currentRank, err := r.vulnerabilities.Ranking(ctx, obj.Slug.String(), time.Now())
-	if err != nil {
-		return nil, fmt.Errorf("getting team ranking: %w", err)
-	}
-
-	previousRank, err := r.vulnerabilities.Ranking(ctx, obj.Slug.String(), time.Now().AddDate(0, -1, 0))
-	if err != nil {
-		return nil, fmt.Errorf("getting previous ranking: %w", err)
-	}
-
-	retVal.TeamRanking = model.VulnerabilityRanking{
-		Rank:       currentRank,
-		TotalTeams: len(allTeamSlugs),
-	}
-
-	switch {
-	case currentRank > previousRank:
-		retVal.TeamRanking.Trend = model.VulnerabilityRankingTrendDown
-	case currentRank < previousRank:
-		retVal.TeamRanking.Trend = model.VulnerabilityRankingTrendUp
-	default:
-		retVal.TeamRanking.Trend = model.VulnerabilityRankingTrendFlat
-	}
-
-	return retVal, nil
+	return r.vulnerabilities.GetSummaryForTeam(ctx, workloads, obj.Slug.String(), len(allTeamSlugs))
 }
 
 func (r *teamResolver) Secrets(ctx context.Context, obj *model.Team) ([]*model.Secret, error) {

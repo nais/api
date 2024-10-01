@@ -24,7 +24,7 @@ type VulnerabilityPrometheus interface {
 	Query(ctx context.Context, query string, ts time.Time, opts ...prom.Option) (prom_model.Value, prom.Warnings, error)
 }
 
-func (m *Manager) PromQuery(ctx context.Context, q, cluster string, time time.Time) (prom_model.Vector, error) {
+func (m *Manager) promQuery(ctx context.Context, q, cluster string, time time.Time) (prom_model.Vector, error) {
 	if m.prometheusClients == nil {
 		return nil, fmt.Errorf("no prometheus clients configured")
 	}
@@ -50,11 +50,11 @@ func (m *Manager) PromQuery(ctx context.Context, q, cluster string, time time.Ti
 	return val.(prom_model.Vector), nil
 }
 
-func (m *Manager) Ranking(ctx context.Context, team string, time time.Time) (int, error) {
+func (m *Manager) ranking(ctx context.Context, team string, time time.Time) (int, error) {
 	samples := make(prom_model.Vector, 0)
 	for _, e := range m.cfg.Prometheus.Clusters {
 		query := "sum(slsa_workload_riskscore) by (workload_namespace)"
-		res, err := m.PromQuery(ctx, query, e, time)
+		res, err := m.promQuery(ctx, query, e, time)
 		if err != nil {
 			return 0, fmt.Errorf("getting prometheus query result: %w", err)
 		}
