@@ -138,3 +138,19 @@ func MonthlySummaryForTeam(ctx context.Context, teamSlug slug.Slug) (*TeamCostMo
 
 	return ret, nil
 }
+
+func MonthlyCostForService(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName, costType string) (float32, error) {
+	now := time.Now()
+
+	to := pgtype.Date{Time: now, Valid: true}
+	from := pgtype.Date{Time: now.AddDate(0, 0, -32), Valid: true}
+
+	return db(ctx).CostForInstance(ctx, costsql.CostForInstanceParams{
+		FromDate:    from,
+		ToDate:      to,
+		TeamSlug:    teamSlug,
+		CostType:    costType,
+		Workload:    workloadName,
+		Environment: environmentName,
+	})
+}

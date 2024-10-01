@@ -94,3 +94,27 @@ type ServiceCost {
 	"The cost in euros."
 	cost: Float!
 }
+
+extend type OpenSearch {
+	cost: OpenSearchCost!
+}
+
+type OpenSearchCost {
+	sum: Float!
+}
+
+extend type RedisInstance {
+	cost: RedisInstanceCost!
+}
+
+type RedisInstanceCost {
+	sum: Float!
+}
+
+extend type BigQueryDataset {
+	cost: BigQueryDatasetCost!
+}
+
+type BigQueryDatasetCost {
+	sum: Float!
+}

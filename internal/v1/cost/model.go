@@ -73,3 +73,15 @@ func (t *TeamCostMonthlySummary) Sum() float64 {
 	}
 	return sum
 }
+
+type BigQueryDatasetCost struct {
+	Sum float64 `json:"sum"`
+}
+
+type OpenSearchCost struct {
+	Sum float64 `json:"sum"`
+}
+
+type RedisInstanceCost struct {
+	Sum float64 `json:"sum"`
+}

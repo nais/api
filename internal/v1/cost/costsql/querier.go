@@ -15,7 +15,6 @@ type Querier interface {
 	// CostUpsert will insert or update a cost record. If there is a conflict on the daily_cost_key constrant, the
 	// daily_cost column will be updated.
 	CostUpsert(ctx context.Context, arg []CostUpsertParams) *CostUpsertBatchResults
-	CurrentSqlInstancesCostForTeam(ctx context.Context, arg CurrentSqlInstancesCostForTeamParams) (float32, error)
 	// DailyCostForTeam will fetch the daily cost for a specific team across all apps and envs in a date range.
 	DailyCostForTeam(ctx context.Context, arg DailyCostForTeamParams) ([]*DailyCostForTeamRow, error)
 	// DailyCostForWorkload will fetch the daily cost for a specific workload in an environment, across all cost types in a
@@ -27,6 +26,17 @@ type Querier interface {
 	LastCostDate(ctx context.Context) (pgtype.Date, error)
 	MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*CostMonthlyTeam, error)
 	MonthlyCostForWorkload(ctx context.Context, arg MonthlyCostForWorkloadParams) ([]*MonthlyCostForWorkloadRow, error)
+	// -- name: CurrentSqlInstancesCostForTeam :one
+	// SELECT
+	// 	COALESCE(SUM(daily_cost), 0)::REAL
+	// FROM
+	// 	cost
+	// WHERE
+	// 	team_slug = @team_slug
+	// 	AND cost_type = 'Cloud SQL'
+	// 	AND date >= @from_date
+	// 	AND date <= @to_date
+	// ;
 	RefreshCostMonthlyTeam(ctx context.Context) error
 }
 

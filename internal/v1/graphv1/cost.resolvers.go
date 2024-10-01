@@ -8,9 +8,13 @@ import (
 	"github.com/nais/api/internal/v1/cost"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/scalar"
+	"github.com/nais/api/internal/v1/persistence/bigquery"
+	"github.com/nais/api/internal/v1/persistence/opensearch"
+	"github.com/nais/api/internal/v1/persistence/redis"
 	"github.com/nais/api/internal/v1/team"
 	"github.com/nais/api/internal/v1/workload/application"
 	"github.com/nais/api/internal/v1/workload/job"
+	"github.com/sirupsen/logrus"
 )
 
 func (r *applicationResolver) Cost(ctx context.Context, obj *application.Application) (*cost.WorkloadCost, error) {
@@ -21,11 +25,65 @@ func (r *applicationResolver) Cost(ctx context.Context, obj *application.Applica
 	}, nil
 }
 
+func (r *bigQueryDatasetResolver) Cost(ctx context.Context, obj *bigquery.BigQueryDataset) (*cost.BigQueryDatasetCost, error) {
+	sum, err := cost.MonthlyCostForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "BigQuery")
+	if err != nil {
+		r.log.WithError(err).WithFields(logrus.Fields{
+			"EnvironmentName": obj.EnvironmentName,
+			"WorkloadName":    obj.Name,
+			"TeamSlug":        obj.TeamSlug,
+		}).Warn("failed to get monthly cost for BigQuery dataset")
+		return &cost.BigQueryDatasetCost{
+			Sum: 0,
+		}, nil
+	}
+
+	return &cost.BigQueryDatasetCost{
+		Sum: float64(sum),
+	}, nil
+}
+
 func (r *jobResolver) Cost(ctx context.Context, obj *job.Job) (*cost.WorkloadCost, error) {
 	return &cost.WorkloadCost{
 		EnvironmentName: obj.EnvironmentName,
 		WorkloadName:    obj.Name,
 		TeamSlug:        obj.TeamSlug,
+	}, nil
+}
+
+func (r *openSearchResolver) Cost(ctx context.Context, obj *opensearch.OpenSearch) (*cost.OpenSearchCost, error) {
+	sum, err := cost.MonthlyCostForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "Redis")
+	if err != nil {
+		r.log.WithError(err).WithFields(logrus.Fields{
+			"EnvironmentName": obj.EnvironmentName,
+			"WorkloadName":    obj.Name,
+			"TeamSlug":        obj.TeamSlug,
+		}).Warn("failed to get monthly cost for OpenSearch")
+		return &cost.OpenSearchCost{
+			Sum: 0,
+		}, nil
+	}
+
+	return &cost.OpenSearchCost{
+		Sum: float64(sum),
+	}, nil
+}
+
+func (r *redisInstanceResolver) Cost(ctx context.Context, obj *redis.RedisInstance) (*cost.RedisInstanceCost, error) {
+	sum, err := cost.MonthlyCostForService(ctx, obj.TeamSlug, obj.EnvironmentName, obj.WorkloadReference.Name, "Redis")
+	if err != nil {
+		r.log.WithError(err).WithFields(logrus.Fields{
+			"EnvironmentName": obj.EnvironmentName,
+			"WorkloadName":    obj.Name,
+			"TeamSlug":        obj.TeamSlug,
+		}).Warn("failed to get monthly cost for Redis instance")
+		return &cost.RedisInstanceCost{
+			Sum: 0,
+		}, nil
+	}
+
+	return &cost.RedisInstanceCost{
+		Sum: float64(sum),
 	}, nil
 }
 

@@ -206,6 +206,10 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
+	BigQueryDatasetCost struct {
+		Sum func(childComplexity int) int
+	}
+
 	BigQueryDatasetEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
@@ -548,6 +552,10 @@ type ComplexityRoot struct {
 		PageInfo func(childComplexity int) int
 	}
 
+	OpenSearchCost struct {
+		Sum func(childComplexity int) int
+	}
+
 	OpenSearchEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
@@ -644,6 +652,10 @@ type ComplexityRoot struct {
 		Edges    func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
+	}
+
+	RedisInstanceCost struct {
+		Sum func(childComplexity int) int
 	}
 
 	RedisInstanceEdge struct {
@@ -1139,7 +1151,7 @@ type BigQueryDatasetResolver interface {
 	Access(ctx context.Context, obj *bigquery.BigQueryDataset, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetAccessOrder) (*pagination.Connection[*bigquery.BigQueryDatasetAccess], error)
 
 	Workload(ctx context.Context, obj *bigquery.BigQueryDataset) (workload.Workload, error)
-	Cost(ctx context.Context, obj *bigquery.BigQueryDataset) (float64, error)
+	Cost(ctx context.Context, obj *bigquery.BigQueryDataset) (*cost.BigQueryDatasetCost, error)
 }
 type BucketResolver interface {
 	Team(ctx context.Context, obj *bucket.Bucket) (*team.Team, error)
@@ -1212,7 +1224,7 @@ type OpenSearchResolver interface {
 
 	Workload(ctx context.Context, obj *opensearch.OpenSearch) (workload.Workload, error)
 	Access(ctx context.Context, obj *opensearch.OpenSearch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchAccessOrder) (*pagination.Connection[*opensearch.OpenSearchAccess], error)
-	Cost(ctx context.Context, obj *opensearch.OpenSearch) (float64, error)
+	Cost(ctx context.Context, obj *opensearch.OpenSearch) (*cost.OpenSearchCost, error)
 }
 type OpenSearchAccessResolver interface {
 	Workload(ctx context.Context, obj *opensearch.OpenSearchAccess) (workload.Workload, error)
@@ -1236,8 +1248,9 @@ type RedisInstanceResolver interface {
 	Team(ctx context.Context, obj *redis.RedisInstance) (*team.Team, error)
 	Environment(ctx context.Context, obj *redis.RedisInstance) (*team.TeamEnvironment, error)
 	Access(ctx context.Context, obj *redis.RedisInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceAccessOrder) (*pagination.Connection[*redis.RedisInstanceAccess], error)
-	Cost(ctx context.Context, obj *redis.RedisInstance) (float64, error)
 	Workload(ctx context.Context, obj *redis.RedisInstance) (workload.Workload, error)
+
+	Cost(ctx context.Context, obj *redis.RedisInstance) (*cost.RedisInstanceCost, error)
 }
 type RedisInstanceAccessResolver interface {
 	Workload(ctx context.Context, obj *redis.RedisInstanceAccess) (workload.Workload, error)
@@ -1782,6 +1795,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BigQueryDatasetConnection.PageInfo(childComplexity), true
+
+	case "BigQueryDatasetCost.sum":
+		if e.complexity.BigQueryDatasetCost.Sum == nil {
+			break
+		}
+
+		return e.complexity.BigQueryDatasetCost.Sum(childComplexity), true
 
 	case "BigQueryDatasetEdge.cursor":
 		if e.complexity.BigQueryDatasetEdge.Cursor == nil {
@@ -3205,6 +3225,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.OpenSearchConnection.PageInfo(childComplexity), true
 
+	case "OpenSearchCost.sum":
+		if e.complexity.OpenSearchCost.Sum == nil {
+			break
+		}
+
+		return e.complexity.OpenSearchCost.Sum(childComplexity), true
+
 	case "OpenSearchEdge.cursor":
 		if e.complexity.OpenSearchEdge.Cursor == nil {
 			break
@@ -3641,6 +3668,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RedisInstanceConnection.PageInfo(childComplexity), true
+
+	case "RedisInstanceCost.sum":
+		if e.complexity.RedisInstanceCost.Sum == nil {
+			break
+		}
+
+		return e.complexity.RedisInstanceCost.Sum(childComplexity), true
 
 	case "RedisInstanceEdge.cursor":
 		if e.complexity.RedisInstanceEdge.Cursor == nil {
@@ -6110,6 +6144,30 @@ type ServiceCost {
 	"The cost in euros."
 	cost: Float!
 }
+
+extend type OpenSearch {
+	cost: OpenSearchCost!
+}
+
+type OpenSearchCost {
+	sum: Float!
+}
+
+extend type RedisInstance {
+	cost: RedisInstanceCost!
+}
+
+type RedisInstanceCost {
+	sum: Float!
+}
+
+extend type BigQueryDataset {
+	cost: BigQueryDatasetCost!
+}
+
+type BigQueryDatasetCost {
+	sum: Float!
+}
 `, BuiltIn: false},
 	{Name: "../schema/jobs.graphqls", Input: `extend type Team {
 	"NAIS jobs owned by the team."
@@ -6613,7 +6671,6 @@ type BigQueryDataset implements Persistence & Node {
 	): BigQueryDatasetAccessConnection!
 	status: BigQueryDatasetStatus!
 	workload: Workload
-	cost: Float!
 }
 
 type BigQueryDatasetAccess {
@@ -6707,7 +6764,6 @@ type OpenSearch implements Persistence & Node {
 		before: Cursor
 		orderBy: OpenSearchAccessOrder
 	): OpenSearchAccessConnection!
-	cost: Float!
 }
 
 type OpenSearchAccess {
@@ -6731,7 +6787,6 @@ type RedisInstance implements Persistence & Node {
 		before: Cursor
 		orderBy: RedisInstanceAccessOrder
 	): RedisInstanceAccessConnection!
-	cost: Float!
 	workload: Workload
 	status: RedisInstanceStatus!
 }
@@ -8254,7 +8309,7 @@ extend type Team {
 }
 
 extend type Query {
-  teamsUtilization(resourceType: UtilizationResourceType!): [TeamUtilizationData!]!
+	teamsUtilization(resourceType: UtilizationResourceType!): [TeamUtilizationData!]!
 }
 
 type WorkloadUtilizationData {
@@ -8314,17 +8369,17 @@ type UtilizationDataPoint {
 }
 
 type TeamUtilizationData {
-  "The team."
-  team: Team!
+	"The team."
+	team: Team!
 
-  "The requested amount of resources"
-  requested: Float!
+	"The requested amount of resources"
+	requested: Float!
 
-  "The current resource usage."
-  used: Float!
+	"The current resource usage."
+	used: Float!
 
-  "The environment for the utilization data."
-  environment: TeamEnvironment!
+	"The environment for the utilization data."
+	environment: TeamEnvironment!
 }
 `, BuiltIn: false},
 	{Name: "../schema/vulnerability.graphqls", Input: `extend type ContainerImage {
@@ -16192,9 +16247,9 @@ func (ec *executionContext) _BigQueryDataset_cost(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(float64)
+	res := resTmp.(*cost.BigQueryDatasetCost)
 	fc.Result = res
-	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+	return ec.marshalNBigQueryDatasetCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐBigQueryDatasetCost(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_BigQueryDataset_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -16204,7 +16259,11 @@ func (ec *executionContext) fieldContext_BigQueryDataset_cost(_ context.Context,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
+			switch field.Name {
+			case "sum":
+				return ec.fieldContext_BigQueryDatasetCost_sum(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetCost", field.Name)
 		},
 	}
 	return fc, nil
@@ -16723,6 +16782,50 @@ func (ec *executionContext) fieldContext_BigQueryDatasetConnection_edges(_ conte
 				return ec.fieldContext_BigQueryDatasetEdge_node(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type BigQueryDatasetEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BigQueryDatasetCost_sum(ctx context.Context, field graphql.CollectedField, obj *cost.BigQueryDatasetCost) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BigQueryDatasetCost_sum(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Sum, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BigQueryDatasetCost_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BigQueryDatasetCost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -25983,9 +26086,9 @@ func (ec *executionContext) _OpenSearch_cost(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(float64)
+	res := resTmp.(*cost.OpenSearchCost)
 	fc.Result = res
-	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+	return ec.marshalNOpenSearchCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐOpenSearchCost(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_OpenSearch_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -25995,7 +26098,11 @@ func (ec *executionContext) fieldContext_OpenSearch_cost(_ context.Context, fiel
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
+			switch field.Name {
+			case "sum":
+				return ec.fieldContext_OpenSearchCost_sum(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type OpenSearchCost", field.Name)
 		},
 	}
 	return fc, nil
@@ -26510,6 +26617,50 @@ func (ec *executionContext) fieldContext_OpenSearchConnection_edges(_ context.Co
 				return ec.fieldContext_OpenSearchEdge_node(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type OpenSearchEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _OpenSearchCost_sum(ctx context.Context, field graphql.CollectedField, obj *cost.OpenSearchCost) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_OpenSearchCost_sum(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Sum, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_OpenSearchCost_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OpenSearchCost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -28923,50 +29074,6 @@ func (ec *executionContext) fieldContext_RedisInstance_access(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _RedisInstance_cost(ctx context.Context, field graphql.CollectedField, obj *redis.RedisInstance) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RedisInstance_cost(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.RedisInstance().Cost(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(float64)
-	fc.Result = res
-	return ec.marshalNFloat2float64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_RedisInstance_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RedisInstance",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Float does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _RedisInstance_workload(ctx context.Context, field graphql.CollectedField, obj *redis.RedisInstance) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_RedisInstance_workload(ctx, field)
 	if err != nil {
@@ -29051,6 +29158,54 @@ func (ec *executionContext) fieldContext_RedisInstance_status(_ context.Context,
 				return ec.fieldContext_RedisInstanceStatus_state(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type RedisInstanceStatus", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RedisInstance_cost(ctx context.Context, field graphql.CollectedField, obj *redis.RedisInstance) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisInstance_cost(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.RedisInstance().Cost(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*cost.RedisInstanceCost)
+	fc.Result = res
+	return ec.marshalNRedisInstanceCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐRedisInstanceCost(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedisInstance_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedisInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "sum":
+				return ec.fieldContext_RedisInstanceCost_sum(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RedisInstanceCost", field.Name)
 		},
 	}
 	return fc, nil
@@ -29507,12 +29662,12 @@ func (ec *executionContext) fieldContext_RedisInstanceConnection_nodes(_ context
 				return ec.fieldContext_RedisInstance_environment(ctx, field)
 			case "access":
 				return ec.fieldContext_RedisInstance_access(ctx, field)
-			case "cost":
-				return ec.fieldContext_RedisInstance_cost(ctx, field)
 			case "workload":
 				return ec.fieldContext_RedisInstance_workload(ctx, field)
 			case "status":
 				return ec.fieldContext_RedisInstance_status(ctx, field)
+			case "cost":
+				return ec.fieldContext_RedisInstance_cost(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type RedisInstance", field.Name)
 		},
@@ -29565,6 +29720,50 @@ func (ec *executionContext) fieldContext_RedisInstanceConnection_edges(_ context
 				return ec.fieldContext_RedisInstanceEdge_node(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type RedisInstanceEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RedisInstanceCost_sum(ctx context.Context, field graphql.CollectedField, obj *cost.RedisInstanceCost) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedisInstanceCost_sum(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Sum, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedisInstanceCost_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedisInstanceCost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -29663,12 +29862,12 @@ func (ec *executionContext) fieldContext_RedisInstanceEdge_node(_ context.Contex
 				return ec.fieldContext_RedisInstance_environment(ctx, field)
 			case "access":
 				return ec.fieldContext_RedisInstance_access(ctx, field)
-			case "cost":
-				return ec.fieldContext_RedisInstance_cost(ctx, field)
 			case "workload":
 				return ec.fieldContext_RedisInstance_workload(ctx, field)
 			case "status":
 				return ec.fieldContext_RedisInstance_status(ctx, field)
+			case "cost":
+				return ec.fieldContext_RedisInstance_cost(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type RedisInstance", field.Name)
 		},
@@ -48098,6 +48297,45 @@ func (ec *executionContext) _BigQueryDatasetConnection(ctx context.Context, sel 
 	return out
 }
 
+var bigQueryDatasetCostImplementors = []string{"BigQueryDatasetCost"}
+
+func (ec *executionContext) _BigQueryDatasetCost(ctx context.Context, sel ast.SelectionSet, obj *cost.BigQueryDatasetCost) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, bigQueryDatasetCostImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("BigQueryDatasetCost")
+		case "sum":
+			out.Values[i] = ec._BigQueryDatasetCost_sum(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var bigQueryDatasetEdgeImplementors = []string{"BigQueryDatasetEdge"}
 
 func (ec *executionContext) _BigQueryDatasetEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*bigquery.BigQueryDataset]) graphql.Marshaler {
@@ -51908,6 +52146,45 @@ func (ec *executionContext) _OpenSearchConnection(ctx context.Context, sel ast.S
 	return out
 }
 
+var openSearchCostImplementors = []string{"OpenSearchCost"}
+
+func (ec *executionContext) _OpenSearchCost(ctx context.Context, sel ast.SelectionSet, obj *cost.OpenSearchCost) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, openSearchCostImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("OpenSearchCost")
+		case "sum":
+			out.Values[i] = ec._OpenSearchCost_sum(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var openSearchEdgeImplementors = []string{"OpenSearchEdge"}
 
 func (ec *executionContext) _OpenSearchEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*opensearch.OpenSearch]) graphql.Marshaler {
@@ -52752,42 +53029,6 @@ func (ec *executionContext) _RedisInstance(ctx context.Context, sel ast.Selectio
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "cost":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._RedisInstance_cost(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "workload":
 			field := field
 
@@ -52826,6 +53067,42 @@ func (ec *executionContext) _RedisInstance(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "cost":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._RedisInstance_cost(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -53040,6 +53317,45 @@ func (ec *executionContext) _RedisInstanceConnection(ctx context.Context, sel as
 			}
 		case "edges":
 			out.Values[i] = ec._RedisInstanceConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var redisInstanceCostImplementors = []string{"RedisInstanceCost"}
+
+func (ec *executionContext) _RedisInstanceCost(ctx context.Context, sel ast.SelectionSet, obj *cost.RedisInstanceCost) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, redisInstanceCostImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RedisInstanceCost")
+		case "sum":
+			out.Values[i] = ec._RedisInstanceCost_sum(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -59119,6 +59435,20 @@ func (ec *executionContext) marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋ
 	return ec._BigQueryDatasetConnection(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNBigQueryDatasetCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐBigQueryDatasetCost(ctx context.Context, sel ast.SelectionSet, v cost.BigQueryDatasetCost) graphql.Marshaler {
+	return ec._BigQueryDatasetCost(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNBigQueryDatasetCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐBigQueryDatasetCost(ctx context.Context, sel ast.SelectionSet, v *cost.BigQueryDatasetCost) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._BigQueryDatasetCost(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNBigQueryDatasetEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*bigquery.BigQueryDataset]) graphql.Marshaler {
 	return ec._BigQueryDatasetEdge(ctx, sel, &v)
 }
@@ -60812,6 +61142,20 @@ func (ec *executionContext) marshalNOpenSearchConnection2ᚖgithubᚗcomᚋnais�
 	return ec._OpenSearchConnection(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNOpenSearchCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐOpenSearchCost(ctx context.Context, sel ast.SelectionSet, v cost.OpenSearchCost) graphql.Marshaler {
+	return ec._OpenSearchCost(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNOpenSearchCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐOpenSearchCost(ctx context.Context, sel ast.SelectionSet, v *cost.OpenSearchCost) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._OpenSearchCost(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNOpenSearchEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*opensearch.OpenSearch]) graphql.Marshaler {
 	return ec._OpenSearchEdge(ctx, sel, &v)
 }
@@ -61292,6 +61636,20 @@ func (ec *executionContext) marshalNRedisInstanceConnection2ᚖgithubᚗcomᚋna
 		return graphql.Null
 	}
 	return ec._RedisInstanceConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRedisInstanceCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐRedisInstanceCost(ctx context.Context, sel ast.SelectionSet, v cost.RedisInstanceCost) graphql.Marshaler {
+	return ec._RedisInstanceCost(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRedisInstanceCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋcostᚐRedisInstanceCost(ctx context.Context, sel ast.SelectionSet, v *cost.RedisInstanceCost) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RedisInstanceCost(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNRedisInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*redis.RedisInstance]) graphql.Marshaler {

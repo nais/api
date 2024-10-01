@@ -78,31 +78,6 @@ func (q *Queries) CostForTeam(ctx context.Context, arg CostForTeamParams) (float
 	return column_1, err
 }
 
-const currentSqlInstancesCostForTeam = `-- name: CurrentSqlInstancesCostForTeam :one
-SELECT
-	COALESCE(SUM(daily_cost), 0)::REAL
-FROM
-	cost
-WHERE
-	team_slug = $1
-	AND cost_type = 'Cloud SQL'
-	AND date >= $2
-	AND date <= $3
-`
-
-type CurrentSqlInstancesCostForTeamParams struct {
-	TeamSlug slug.Slug
-	FromDate pgtype.Date
-	ToDate   pgtype.Date
-}
-
-func (q *Queries) CurrentSqlInstancesCostForTeam(ctx context.Context, arg CurrentSqlInstancesCostForTeamParams) (float32, error) {
-	row := q.db.QueryRow(ctx, currentSqlInstancesCostForTeam, arg.TeamSlug, arg.FromDate, arg.ToDate)
-	var column_1 float32
-	err := row.Scan(&column_1)
-	return column_1, err
-}
-
 const dailyCostForTeam = `-- name: DailyCostForTeam :many
 WITH
 	date_range AS (
@@ -456,9 +431,27 @@ func (q *Queries) MonthlyCostForWorkload(ctx context.Context, arg MonthlyCostFor
 }
 
 const refreshCostMonthlyTeam = `-- name: RefreshCostMonthlyTeam :exec
+
 REFRESH MATERIALIZED VIEW CONCURRENTLY cost_monthly_team
 `
 
+// -- name: CurrentSqlInstancesCostForTeam :one
+// SELECT
+//
+//	COALESCE(SUM(daily_cost), 0)::REAL
+//
+// FROM
+//
+//	cost
+//
+// WHERE
+//
+//	team_slug = @team_slug
+//	AND cost_type = 'Cloud SQL'
+//	AND date >= @from_date
+//	AND date <= @to_date
+//
+// ;
 func (q *Queries) RefreshCostMonthlyTeam(ctx context.Context) error {
 	_, err := q.db.Exec(ctx, refreshCostMonthlyTeam)
 	return err

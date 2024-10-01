@@ -3,7 +3,6 @@ package graphv1
 import (
 	"context"
 	"errors"
-	"fmt"
 	"slices"
 
 	"github.com/nais/api/internal/slug"
@@ -97,11 +96,6 @@ func (r *bigQueryDatasetResolver) Access(ctx context.Context, obj *bigquery.BigQ
 
 func (r *bigQueryDatasetResolver) Workload(ctx context.Context, obj *bigquery.BigQueryDataset) (workload.Workload, error) {
 	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
-}
-
-func (r *bigQueryDatasetResolver) Cost(ctx context.Context, obj *bigquery.BigQueryDataset) (float64, error) {
-	// Should we make cost a separate domain?
-	panic(fmt.Errorf("not implemented: Cost - cost"))
 }
 
 func (r *bucketResolver) Team(ctx context.Context, obj *bucket.Bucket) (*team.Team, error) {
@@ -261,10 +255,6 @@ func (r *openSearchResolver) Access(ctx context.Context, obj *opensearch.OpenSea
 	return opensearch.ListAccess(ctx, obj, page, orderBy)
 }
 
-func (r *openSearchResolver) Cost(ctx context.Context, obj *opensearch.OpenSearch) (float64, error) {
-	panic(fmt.Errorf("not implemented: Cost - cost"))
-}
-
 func (r *openSearchAccessResolver) Workload(ctx context.Context, obj *opensearch.OpenSearchAccess) (workload.Workload, error) {
 	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }
@@ -284,10 +274,6 @@ func (r *redisInstanceResolver) Access(ctx context.Context, obj *redis.RedisInst
 	}
 
 	return redis.ListAccess(ctx, obj, page, orderBy)
-}
-
-func (r *redisInstanceResolver) Cost(ctx context.Context, obj *redis.RedisInstance) (float64, error) {
-	panic(fmt.Errorf("not implemented: Cost - cost"))
 }
 
 func (r *redisInstanceResolver) Workload(ctx context.Context, obj *redis.RedisInstance) (workload.Workload, error) {
