@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/graph/scalar"
 	promapi "github.com/prometheus/client_golang/api"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	log "github.com/sirupsen/logrus"
@@ -43,6 +44,38 @@ func NewManager(cfg *Config) *Manager {
 	}
 
 	return manager
+}
+
+func (m *Manager) GetVulnerabilitiesForTeam(ctx context.Context, workloads []model.Workload, team string) ([]*model.VulnerabilityNode, error) {
+	images, err := m.GetMetadataForTeam(ctx, team)
+	if err != nil {
+		return nil, fmt.Errorf("getting metadata for team %q: %w", team, err)
+	}
+
+	nodes := make([]*model.VulnerabilityNode, 0)
+	for _, workload := range workloads {
+		env, wType, name := workloadDetails(workload)
+		if env == "" || wType == "" || name == "" {
+			continue
+		}
+
+		node := &model.VulnerabilityNode{
+			ID:           scalar.VulnerabilitiesIdent(fmt.Sprintf("%s:%s:%s:%s", env, team, wType, name)),
+			Env:          env,
+			WorkloadType: wType,
+			WorkloadName: name,
+		}
+
+		image := getImageDetails(images, env, team, wType, name)
+		if image != nil {
+			node.HasSbom = image.HasSbom
+			node.Summary = image.Summary
+		}
+
+		nodes = append(nodes, node)
+	}
+
+	return nodes, nil
 }
 
 func (m *Manager) GetSummaryForTeam(ctx context.Context, workloads []model.Workload, team string, totalTeams int) (*model.VulnerabilitySummaryForTeam, error) {

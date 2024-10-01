@@ -26,7 +26,6 @@ const (
 var _ Client = &dependencyTrackClient{}
 
 type Client interface {
-	GetMetadataForImageByProjectID(ctx context.Context, projectID string) (*model.ImageDetails, error)
 	GetMetadataForImage(ctx context.Context, image string) (*model.ImageDetails, error)
 	GetFindingsForImageByProjectID(ctx context.Context, projectID string, suppressed bool) ([]*model.Finding, error)
 	GetMetadataForTeam(ctx context.Context, team string) ([]*model.ImageDetails, error)
@@ -267,30 +266,6 @@ func (c *dependencyTrackClient) GetFindingsForImageByProjectID(ctx context.Conte
 		foundFindings[f.Vulnerability.VulnId] = true
 	}
 	return retFindings, nil
-}
-
-func (c *dependencyTrackClient) GetMetadataForImageByProjectID(ctx context.Context, projectId string) (*model.ImageDetails, error) {
-	p, err := c.retrieveProjectById(ctx, projectId)
-	if err != nil {
-		return nil, fmt.Errorf("getting project by id %s: %w", projectId, err)
-	}
-
-	if p == nil {
-		return nil, fmt.Errorf("project not found: %s", projectId)
-	}
-
-	return &model.ImageDetails{
-		Name:      p.Name + ":" + p.Version,
-		ID:        scalar.ImageIdent(p.Name, p.Version),
-		Rekor:     parseRekorTags(p.Tags),
-		Version:   p.Version,
-		ProjectID: p.Uuid,
-		HasSbom:   hasSbom(p),
-		Summary:   c.createSummaryForImage(p),
-		GQLVars: model.ImageDetailsGQLVars{
-			WorkloadReferences: parseWorkloadRefTags(p.Tags),
-		},
-	}, nil
 }
 
 func (c *dependencyTrackClient) GetMetadataForTeam(ctx context.Context, team string) ([]*model.ImageDetails, error) {

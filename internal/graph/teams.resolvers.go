@@ -1562,11 +1562,6 @@ func (r *teamResolver) Deployments(ctx context.Context, obj *model.Team, offset 
 }
 
 func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy, filter *model.VulnerabilityFilter) (*model.VulnerabilityList, error) {
-	images, err := r.vulnerabilities.GetMetadataForTeam(ctx, obj.Slug.String())
-	if err != nil {
-		return nil, fmt.Errorf("getting metadata for team %q: %w", obj.Slug.String(), err)
-	}
-
 	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
@@ -1578,46 +1573,25 @@ func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, off
 
 	workloads := make([]model.Workload, 0)
 	for _, app := range apps {
-		workloads = append(workloads, app)
-	}
-	for _, job := range jobs {
-		workloads = append(workloads, job)
-	}
-
-	nodes := make([]*model.VulnerabilityNode, 0)
-	for _, workload := range workloads {
-
-		node := &model.VulnerabilityNode{}
-
-		switch w := workload.(type) {
-		case *model.App:
-			node.ID = scalar.VulnerabilitiesIdent(fmt.Sprintf("%s:%s:%s:%s", w.Env.Name, obj.Slug.String(), "app", w.Name))
-			node.WorkloadName = w.Name
-			node.WorkloadType = "app"
-			node.Env = w.Env.Name
-		case *model.NaisJob:
-			node.ID = scalar.VulnerabilitiesIdent(fmt.Sprintf("%s:%s:%s:%s", w.Env.Name, obj.Slug.String(), "job", w.Name))
-			node.WorkloadName = w.Name
-			node.WorkloadType = "job"
-			node.Env = w.Env.Name
-		default:
-			continue
-		}
-
-		for _, image := range images {
-			if image.GQLVars.ContainsReference(node.Env, obj.Slug.String(), node.WorkloadType, node.WorkloadName) {
-				node.HasSbom = image.HasSbom
-				node.Summary = image.Summary
-				break
-			}
-		}
 		if filter != nil && len(filter.Envs) > 0 {
-			if !slices.Contains(filter.Envs, node.Env) {
+			if !slices.Contains(filter.Envs, app.Env.Name) {
 				continue
 			}
 		}
+		workloads = append(workloads, app)
+	}
+	for _, job := range jobs {
+		if filter != nil && len(filter.Envs) > 0 {
+			if !slices.Contains(filter.Envs, job.Env.Name) {
+				continue
+			}
+		}
+		workloads = append(workloads, job)
+	}
 
-		nodes = append(nodes, node)
+	nodes, err := r.vulnerabilities.GetVulnerabilitiesForTeam(ctx, workloads, obj.Slug.String())
+	if err != nil {
+		return nil, err
 	}
 
 	if orderBy != nil {
