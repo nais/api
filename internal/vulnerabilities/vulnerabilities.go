@@ -125,7 +125,7 @@ func (m *Manager) GetSummaryForTeam(ctx context.Context, workloads []model.Workl
 
 	if vulnWorkloads > 0 {
 		retVal.Status = append(retVal.Status, &model.VulnerabilityStatus{
-			State:       model.VulnerabilityStateVulnerable,
+			State:       model.VulnerabilityStateTooManyVulnerableWorkloads,
 			Title:       "Too many vulnerable workloads",
 			Description: "The threshold for a vulnerable workload is a riskscore above 100 or a critical vulnerability",
 		})
