@@ -26,17 +26,6 @@ type Querier interface {
 	LastCostDate(ctx context.Context) (pgtype.Date, error)
 	MonthlyCostForTeam(ctx context.Context, teamSlug slug.Slug) ([]*CostMonthlyTeam, error)
 	MonthlyCostForWorkload(ctx context.Context, arg MonthlyCostForWorkloadParams) ([]*MonthlyCostForWorkloadRow, error)
-	// -- name: CurrentSqlInstancesCostForTeam :one
-	// SELECT
-	// 	COALESCE(SUM(daily_cost), 0)::REAL
-	// FROM
-	// 	cost
-	// WHERE
-	// 	team_slug = @team_slug
-	// 	AND cost_type = 'Cloud SQL'
-	// 	AND date >= @from_date
-	// 	AND date <= @to_date
-	// ;
 	RefreshCostMonthlyTeam(ctx context.Context) error
 }
 
