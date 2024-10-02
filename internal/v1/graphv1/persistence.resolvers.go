@@ -227,7 +227,11 @@ func (r *kafkaTopicAclResolver) Workload(ctx context.Context, obj *kafkatopic.Ka
 		Name: obj.WorkloadName,
 	}
 
-	return getWorkload(ctx, owner, slug.Slug(obj.TeamName), obj.EnvironmentName)
+	w, err := getWorkload(ctx, owner, slug.Slug(obj.TeamName), obj.EnvironmentName)
+	if errors.Is(err, &watcher.ErrorNotFound{}) {
+		return nil, nil
+	}
+	return w, err
 }
 
 func (r *kafkaTopicAclResolver) Topic(ctx context.Context, obj *kafkatopic.KafkaTopicACL) (*kafkatopic.KafkaTopic, error) {
