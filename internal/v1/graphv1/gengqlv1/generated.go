@@ -911,6 +911,7 @@ type ComplexityRoot struct {
 
 	TeamEnvironment struct {
 		Application        func(childComplexity int, name string) int
+		BigQueryDataset    func(childComplexity int, name string) int
 		Bucket             func(childComplexity int, name string) int
 		GCPProjectID       func(childComplexity int) int
 		ID                 func(childComplexity int) int
@@ -918,6 +919,8 @@ type ComplexityRoot struct {
 		KafkaTopic         func(childComplexity int, name string) int
 		Name               func(childComplexity int) int
 		OpenSearchInstance func(childComplexity int, name string) int
+		RedisInstance      func(childComplexity int, name string) int
+		SQLInstance        func(childComplexity int, name string) int
 		SlackAlertsChannel func(childComplexity int) int
 		Team               func(childComplexity int) int
 	}
@@ -1291,9 +1294,12 @@ type TeamEnvironmentResolver interface {
 	Team(ctx context.Context, obj *team.TeamEnvironment) (*team.Team, error)
 	Application(ctx context.Context, obj *team.TeamEnvironment, name string) (*application.Application, error)
 	Job(ctx context.Context, obj *team.TeamEnvironment, name string) (*job.Job, error)
+	BigQueryDataset(ctx context.Context, obj *team.TeamEnvironment, name string) (*bigquery.BigQueryDataset, error)
 	Bucket(ctx context.Context, obj *team.TeamEnvironment, name string) (*bucket.Bucket, error)
 	KafkaTopic(ctx context.Context, obj *team.TeamEnvironment, name string) (*kafkatopic.KafkaTopic, error)
 	OpenSearchInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*opensearch.OpenSearch, error)
+	RedisInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*redis.RedisInstance, error)
+	SQLInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*sqlinstance.SQLInstance, error)
 }
 type TeamMemberResolver interface {
 	Team(ctx context.Context, obj *team.TeamMember) (*team.Team, error)
@@ -4779,6 +4785,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamEnvironment.Application(childComplexity, args["name"].(string)), true
 
+	case "TeamEnvironment.bigQueryDataset":
+		if e.complexity.TeamEnvironment.BigQueryDataset == nil {
+			break
+		}
+
+		args, err := ec.field_TeamEnvironment_bigQueryDataset_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.TeamEnvironment.BigQueryDataset(childComplexity, args["name"].(string)), true
+
 	case "TeamEnvironment.bucket":
 		if e.complexity.TeamEnvironment.Bucket == nil {
 			break
@@ -4847,6 +4865,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TeamEnvironment.OpenSearchInstance(childComplexity, args["name"].(string)), true
+
+	case "TeamEnvironment.redisInstance":
+		if e.complexity.TeamEnvironment.RedisInstance == nil {
+			break
+		}
+
+		args, err := ec.field_TeamEnvironment_redisInstance_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.TeamEnvironment.RedisInstance(childComplexity, args["name"].(string)), true
+
+	case "TeamEnvironment.sqlInstance":
+		if e.complexity.TeamEnvironment.SQLInstance == nil {
+			break
+		}
+
+		args, err := ec.field_TeamEnvironment_sqlInstance_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.TeamEnvironment.SQLInstance(childComplexity, args["name"].(string)), true
 
 	case "TeamEnvironment.slackAlertsChannel":
 		if e.complexity.TeamEnvironment.SlackAlertsChannel == nil {
@@ -6472,6 +6514,9 @@ extend type Team {
 }
 
 extend type TeamEnvironment {
+	"BigQuery datasets in the team environment."
+	bigQueryDataset(name: String!): BigQueryDataset!
+
 	"Storage bucket in the team environment."
 	bucket(name: String!): Bucket!
 
@@ -6480,6 +6525,12 @@ extend type TeamEnvironment {
 
 	"OpenSearch instance in the team environment."
 	openSearchInstance(name: String!): OpenSearch!
+
+	"Redis instance in the team environment."
+	redisInstance(name: String!): RedisInstance!
+
+	"SQL instance in the team environment."
+	sqlInstance(name: String!): SqlInstance!
 }
 
 ###
@@ -11404,6 +11455,38 @@ func (ec *executionContext) field_TeamEnvironment_application_argsName(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_TeamEnvironment_bigQueryDataset_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_TeamEnvironment_bigQueryDataset_argsName(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["name"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_TeamEnvironment_bigQueryDataset_argsName(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (string, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["name"]
+	if !ok {
+		var zeroVal string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+	if tmp, ok := rawArgs["name"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_TeamEnvironment_bucket_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -11511,6 +11594,70 @@ func (ec *executionContext) field_TeamEnvironment_openSearchInstance_args(ctx co
 	return args, nil
 }
 func (ec *executionContext) field_TeamEnvironment_openSearchInstance_argsName(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (string, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["name"]
+	if !ok {
+		var zeroVal string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+	if tmp, ok := rawArgs["name"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_TeamEnvironment_redisInstance_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_TeamEnvironment_redisInstance_argsName(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["name"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_TeamEnvironment_redisInstance_argsName(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (string, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["name"]
+	if !ok {
+		var zeroVal string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+	if tmp, ok := rawArgs["name"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_TeamEnvironment_sqlInstance_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_TeamEnvironment_sqlInstance_argsName(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["name"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_TeamEnvironment_sqlInstance_argsName(
 	ctx context.Context,
 	rawArgs map[string]interface{},
 ) (string, error) {
@@ -13974,12 +14121,18 @@ func (ec *executionContext) fieldContext_Application_environment(_ context.Conte
 				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
 			case "kafkaTopic":
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearchInstance":
 				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -15898,12 +16051,18 @@ func (ec *executionContext) fieldContext_BigQueryDataset_environment(_ context.C
 				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
 			case "kafkaTopic":
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearchInstance":
 				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -17204,12 +17363,18 @@ func (ec *executionContext) fieldContext_Bucket_environment(_ context.Context, f
 				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
 			case "kafkaTopic":
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearchInstance":
 				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -20069,12 +20234,18 @@ func (ec *executionContext) fieldContext_Job_environment(_ context.Context, fiel
 				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
 			case "kafkaTopic":
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearchInstance":
 				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -22343,12 +22514,18 @@ func (ec *executionContext) fieldContext_KafkaTopic_environment(_ context.Contex
 				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
 			case "kafkaTopic":
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearchInstance":
 				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -25298,12 +25475,18 @@ func (ec *executionContext) fieldContext_OpenSearch_environment(_ context.Contex
 				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
 			case "kafkaTopic":
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearchInstance":
 				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -28407,12 +28590,18 @@ func (ec *executionContext) fieldContext_RedisInstance_environment(_ context.Con
 				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
 			case "kafkaTopic":
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearchInstance":
 				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -30812,12 +31001,18 @@ func (ec *executionContext) fieldContext_SqlDatabase_environment(_ context.Conte
 				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
 			case "kafkaTopic":
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearchInstance":
 				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -31241,12 +31436,18 @@ func (ec *executionContext) fieldContext_SqlInstance_environment(_ context.Conte
 				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
 			case "kafkaTopic":
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearchInstance":
 				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -34219,12 +34420,18 @@ func (ec *executionContext) fieldContext_Team_environments(_ context.Context, fi
 				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
 			case "kafkaTopic":
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearchInstance":
 				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -34285,12 +34492,18 @@ func (ec *executionContext) fieldContext_Team_environment(ctx context.Context, f
 				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
 			case "kafkaTopic":
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearchInstance":
 				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -37813,6 +38026,83 @@ func (ec *executionContext) fieldContext_TeamEnvironment_job(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _TeamEnvironment_bigQueryDataset(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamEnvironment().BigQueryDataset(rctx, obj, fc.Args["name"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*bigquery.BigQueryDataset)
+	fc.Result = res
+	return ec.marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐBigQueryDataset(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironment_bigQueryDataset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironment",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_BigQueryDataset_id(ctx, field)
+			case "name":
+				return ec.fieldContext_BigQueryDataset_name(ctx, field)
+			case "team":
+				return ec.fieldContext_BigQueryDataset_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_BigQueryDataset_environment(ctx, field)
+			case "cascadingDelete":
+				return ec.fieldContext_BigQueryDataset_cascadingDelete(ctx, field)
+			case "description":
+				return ec.fieldContext_BigQueryDataset_description(ctx, field)
+			case "access":
+				return ec.fieldContext_BigQueryDataset_access(ctx, field)
+			case "status":
+				return ec.fieldContext_BigQueryDataset_status(ctx, field)
+			case "workload":
+				return ec.fieldContext_BigQueryDataset_workload(ctx, field)
+			case "cost":
+				return ec.fieldContext_BigQueryDataset_cost(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BigQueryDataset", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_TeamEnvironment_bigQueryDataset_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TeamEnvironment_bucket(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TeamEnvironment_bucket(ctx, field)
 	if err != nil {
@@ -38028,6 +38318,178 @@ func (ec *executionContext) fieldContext_TeamEnvironment_openSearchInstance(ctx 
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_TeamEnvironment_openSearchInstance_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironment_redisInstance(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamEnvironment().RedisInstance(rctx, obj, fc.Args["name"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*redis.RedisInstance)
+	fc.Result = res
+	return ec.marshalNRedisInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋredisᚐRedisInstance(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironment_redisInstance(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironment",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RedisInstance_id(ctx, field)
+			case "name":
+				return ec.fieldContext_RedisInstance_name(ctx, field)
+			case "team":
+				return ec.fieldContext_RedisInstance_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_RedisInstance_environment(ctx, field)
+			case "access":
+				return ec.fieldContext_RedisInstance_access(ctx, field)
+			case "workload":
+				return ec.fieldContext_RedisInstance_workload(ctx, field)
+			case "status":
+				return ec.fieldContext_RedisInstance_status(ctx, field)
+			case "cost":
+				return ec.fieldContext_RedisInstance_cost(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RedisInstance", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_TeamEnvironment_redisInstance_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamEnvironment_sqlInstance(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TeamEnvironment().SQLInstance(rctx, obj, fc.Args["name"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*sqlinstance.SQLInstance)
+	fc.Result = res
+	return ec.marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstance(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamEnvironment_sqlInstance(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamEnvironment",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_SqlInstance_id(ctx, field)
+			case "name":
+				return ec.fieldContext_SqlInstance_name(ctx, field)
+			case "team":
+				return ec.fieldContext_SqlInstance_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_SqlInstance_environment(ctx, field)
+			case "workload":
+				return ec.fieldContext_SqlInstance_workload(ctx, field)
+			case "cascadingDelete":
+				return ec.fieldContext_SqlInstance_cascadingDelete(ctx, field)
+			case "connectionName":
+				return ec.fieldContext_SqlInstance_connectionName(ctx, field)
+			case "diskAutoresize":
+				return ec.fieldContext_SqlInstance_diskAutoresize(ctx, field)
+			case "diskAutoresizeLimit":
+				return ec.fieldContext_SqlInstance_diskAutoresizeLimit(ctx, field)
+			case "highAvailability":
+				return ec.fieldContext_SqlInstance_highAvailability(ctx, field)
+			case "healthy":
+				return ec.fieldContext_SqlInstance_healthy(ctx, field)
+			case "maintenanceVersion":
+				return ec.fieldContext_SqlInstance_maintenanceVersion(ctx, field)
+			case "maintenanceWindow":
+				return ec.fieldContext_SqlInstance_maintenanceWindow(ctx, field)
+			case "backupConfiguration":
+				return ec.fieldContext_SqlInstance_backupConfiguration(ctx, field)
+			case "projectID":
+				return ec.fieldContext_SqlInstance_projectID(ctx, field)
+			case "tier":
+				return ec.fieldContext_SqlInstance_tier(ctx, field)
+			case "version":
+				return ec.fieldContext_SqlInstance_version(ctx, field)
+			case "status":
+				return ec.fieldContext_SqlInstance_status(ctx, field)
+			case "database":
+				return ec.fieldContext_SqlInstance_database(ctx, field)
+			case "flags":
+				return ec.fieldContext_SqlInstance_flags(ctx, field)
+			case "users":
+				return ec.fieldContext_SqlInstance_users(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SqlInstance", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_TeamEnvironment_sqlInstance_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -41039,12 +41501,18 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_environment(_ conte
 				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
 			case "kafkaTopic":
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearchInstance":
 				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -41149,12 +41617,18 @@ func (ec *executionContext) fieldContext_TeamUtilizationEnvironmentDataPoint_env
 				return ec.fieldContext_TeamEnvironment_application(ctx, field)
 			case "job":
 				return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			case "bigQueryDataset":
+				return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
 			case "bucket":
 				return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
 			case "kafkaTopic":
 				return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
 			case "openSearchInstance":
 				return ec.fieldContext_TeamEnvironment_openSearchInstance(ctx, field)
+			case "redisInstance":
+				return ec.fieldContext_TeamEnvironment_redisInstance(ctx, field)
+			case "sqlInstance":
+				return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamEnvironment", field.Name)
 		},
@@ -56071,6 +56545,42 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "bigQueryDataset":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamEnvironment_bigQueryDataset(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "bucket":
 			field := field
 
@@ -56153,6 +56663,78 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 					}
 				}()
 				res = ec._TeamEnvironment_openSearchInstance(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "redisInstance":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamEnvironment_redisInstance(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "sqlInstance":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TeamEnvironment_sqlInstance(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -58830,6 +59412,10 @@ func (ec *executionContext) marshalNAuthenticatedUser2githubᚗcomᚋnaisᚋapi�
 	return ec._AuthenticatedUser(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNBigQueryDataset2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐBigQueryDataset(ctx context.Context, sel ast.SelectionSet, v bigquery.BigQueryDataset) graphql.Marshaler {
+	return ec._BigQueryDataset(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNBigQueryDataset2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbigqueryᚐBigQueryDatasetᚄ(ctx context.Context, sel ast.SelectionSet, v []*bigquery.BigQueryDataset) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -60925,6 +61511,10 @@ func (ec *executionContext) marshalNReconcilerEdge2ᚕgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
+func (ec *executionContext) marshalNRedisInstance2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋredisᚐRedisInstance(ctx context.Context, sel ast.SelectionSet, v redis.RedisInstance) graphql.Marshaler {
+	return ec._RedisInstance(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNRedisInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋredisᚐRedisInstanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*redis.RedisInstance) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -61652,6 +62242,10 @@ func (ec *executionContext) marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 		return graphql.Null
 	}
 	return v
+}
+
+func (ec *executionContext) marshalNSqlInstance2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstance(ctx context.Context, sel ast.SelectionSet, v sqlinstance.SQLInstance) graphql.Marshaler {
+	return ec._SqlInstance(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNSqlInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋsqlinstanceᚐSQLInstanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*sqlinstance.SQLInstance) graphql.Marshaler {

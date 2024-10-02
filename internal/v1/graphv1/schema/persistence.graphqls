@@ -115,6 +115,9 @@ extend type Team {
 }
 
 extend type TeamEnvironment {
+	"BigQuery datasets in the team environment."
+	bigQueryDataset(name: String!): BigQueryDataset!
+
 	"Storage bucket in the team environment."
 	bucket(name: String!): Bucket!
 
@@ -123,6 +126,12 @@ extend type TeamEnvironment {
 
 	"OpenSearch instance in the team environment."
 	openSearchInstance(name: String!): OpenSearch!
+
+	"Redis instance in the team environment."
+	redisInstance(name: String!): RedisInstance!
+
+	"SQL instance in the team environment."
+	sqlInstance(name: String!): SqlInstance!
 }
 
 ###

@@ -385,6 +385,10 @@ func (r *teamResolver) SQLInstances(ctx context.Context, obj *team.Team, first *
 	return sqlinstance.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
+func (r *teamEnvironmentResolver) BigQueryDataset(ctx context.Context, obj *team.TeamEnvironment, name string) (*bigquery.BigQueryDataset, error) {
+	return bigquery.Get(ctx, obj.TeamSlug, obj.Name, name)
+}
+
 func (r *teamEnvironmentResolver) Bucket(ctx context.Context, obj *team.TeamEnvironment, name string) (*bucket.Bucket, error) {
 	return bucket.Get(ctx, obj.TeamSlug, obj.Name, name)
 }
@@ -395,6 +399,14 @@ func (r *teamEnvironmentResolver) KafkaTopic(ctx context.Context, obj *team.Team
 
 func (r *teamEnvironmentResolver) OpenSearchInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*opensearch.OpenSearch, error) {
 	return opensearch.Get(ctx, obj.TeamSlug, obj.Name, name)
+}
+
+func (r *teamEnvironmentResolver) RedisInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*redis.RedisInstance, error) {
+	return redis.Get(ctx, obj.TeamSlug, obj.Name, name)
+}
+
+func (r *teamEnvironmentResolver) SQLInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*sqlinstance.SQLInstance, error) {
+	return sqlinstance.Get(ctx, obj.TeamSlug, obj.Name, name)
 }
 
 func (r *Resolver) BigQueryDataset() gengqlv1.BigQueryDatasetResolver {
