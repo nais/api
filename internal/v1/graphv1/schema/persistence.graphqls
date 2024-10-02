@@ -57,8 +57,6 @@ extend type Team {
 		orderBy: OpenSearchOrder
 	): OpenSearchConnection!
 
-	"Named Google Cloud Storage bucket owned by the team."
-	bucket(name: String!, environment: String!): Bucket!
 
 	"Google Cloud Storage buckets owned by the team."
 	buckets(
@@ -78,8 +76,6 @@ extend type Team {
 		orderBy: BucketOrder
 	): BucketConnection!
 
-	"Named Kafka topic owned by the team."
-	kafkaTopic(name: String!, environment: String!): KafkaTopic!
 
 	"Kafka topics owned by the team."
 	kafkaTopics(
@@ -116,6 +112,14 @@ extend type Team {
 		"Ordering options for items returned from the connection."
 		orderBy: SqlInstanceOrder
 	): SqlInstanceConnection!
+}
+
+extend type TeamEnvironment {
+	"Storage bucket in the team environment."
+	bucket(name: String!): Bucket!
+
+	"Kafka topic in the team environment."
+	kafkaTopic(name: String!): KafkaTopic!
 }
 
 ###
