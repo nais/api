@@ -1,0 +1,14 @@
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-name-test
+spec:
+  image: navikt/app-name:latest
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-second-test
+spec:
+  image: navikt/app-name:latest

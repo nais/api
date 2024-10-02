@@ -113,7 +113,7 @@ func newManager(t *testing.T) testmanager.CreateRunnerFunc[*Config] {
 
 		k8sRunner := apiRunner.NewK8sRunner()
 		runners := []testmanager.Runner{
-			newGQLRunner(ctx, t, config, db, topic, k8sRunner),
+			newGQLRunner(ctx, t, config, db, topic),
 			runner.NewSQLRunner(pool),
 			k8sRunner,
 			topic,
@@ -128,7 +128,7 @@ func newManager(t *testing.T) testmanager.CreateRunnerFunc[*Config] {
 	}
 }
 
-func newGQLRunner(ctx context.Context, t *testing.T, config *Config, db database.Database, topic graphv1.PubsubTopic, k8sRunner *apiRunner.K8s) testmanager.Runner {
+func newGQLRunner(ctx context.Context, t *testing.T, config *Config, db database.Database, topic graphv1.PubsubTopic) testmanager.Runner {
 	log := logrus.New()
 	log.Out = io.Discard
 
@@ -155,7 +155,7 @@ func newGQLRunner(ctx context.Context, t *testing.T, config *Config, db database
 		t.Fatal(err)
 	}
 
-	graphMiddleware, err := api.ConfigureV1Graph(ctx, watcherMgr, db, nil, nil, tenantName, clusters(), log)
+	graphMiddleware, err := api.ConfigureV1Graph(ctx, true, watcherMgr, db, nil, nil, tenantName, clusters(), log)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -216,7 +216,6 @@ func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, 
 
 	container, err := postgres.RunContainer(ctx,
 		testcontainers.WithLogger(lg),
-		testcontainers.WithImage("docker.io/postgres:16-alpine"),
 		postgres.WithDatabase("example"),
 		postgres.WithUsername("example"),
 		postgres.WithPassword("example"),

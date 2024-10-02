@@ -26,12 +26,10 @@ type clients struct {
 }
 
 type clusterResources struct {
-	core    []runtime.Object
 	dynamic []runtime.Object
 }
 
 func (c *clusterResources) append(o clusterResources) {
-	c.core = append(c.core, o.core...)
 	c.dynamic = append(c.dynamic, o.dynamic...)
 }
 
@@ -80,14 +78,14 @@ func Clients(dir fs.FS) func(cluster string) (dynamic.Interface, error) {
 
 	for cluster, objs := range resources {
 		ret[cluster] = clients{
-			Dynamic: newDynamicClient(scheme,
-				objs.dynamic...),
+			Dynamic: newDynamicClient(scheme, objs.dynamic...),
 		}
 	}
 
 	return func(cluster string) (dynamic.Interface, error) {
 		c, ok := ret[cluster]
 		if !ok {
+			fmt.Println("no fake client for cluster", cluster)
 			return newDynamicClient(scheme), nil
 			// return nil, fmt.Errorf("no fake client for cluster %s", cluster)
 		}
@@ -200,7 +198,6 @@ func newDynamicClient(scheme *runtime.Scheme, objs ...runtime.Object) dynamic.In
 			panic(fmt.Errorf("no registered kinds for %v", obj))
 		}
 		for _, gvk := range gvks {
-
 			gvr, _ := meta.UnsafeGuessKindToResource(gvk)
 
 			gvr.Resource = depluralized(gvr.Resource)

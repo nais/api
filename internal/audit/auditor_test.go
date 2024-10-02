@@ -110,7 +110,6 @@ func newDb(ctx context.Context) (db database.Database, closer func(), err error)
 
 	container, err := postgres.RunContainer(ctx,
 		testcontainers.WithLogger(lg),
-		testcontainers.WithImage("docker.io/postgres:16-alpine"),
 		postgres.WithDatabase("example"),
 		postgres.WithUsername("example"),
 		postgres.WithPassword("example"),
