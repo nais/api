@@ -828,6 +828,7 @@ type ComplexityRoot struct {
 		AuditEntries           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		AzureGroupID           func(childComplexity int) int
 		BigQueryDatasets       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) int
+		Bucket                 func(childComplexity int, name string, environment string) int
 		Buckets                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) int
 		CdnBucket              func(childComplexity int) int
 		Cost                   func(childComplexity int) int
@@ -840,6 +841,7 @@ type ComplexityRoot struct {
 		GoogleGroupEmail       func(childComplexity int) int
 		ID                     func(childComplexity int) int
 		Jobs                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder) int
+		KafkaTopic             func(childComplexity int, name string, environment string) int
 		KafkaTopics            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder) int
 		LastSuccessfulSync     func(childComplexity int) int
 		Members                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) int
@@ -1290,7 +1292,9 @@ type TeamResolver interface {
 	BigQueryDatasets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetOrder) (*pagination.Connection[*bigquery.BigQueryDataset], error)
 	RedisInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *redis.RedisInstanceOrder) (*pagination.Connection[*redis.RedisInstance], error)
 	OpenSearch(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error)
+	Bucket(ctx context.Context, obj *team.Team, name string, environment string) (*bucket.Bucket, error)
 	Buckets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error)
+	KafkaTopic(ctx context.Context, obj *team.Team, name string, environment string) (*kafkatopic.KafkaTopic, error)
 	KafkaTopics(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error)
 	SQLInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
 	Repositories(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*repository.Repository], error)
@@ -4317,6 +4321,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.BigQueryDatasets(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*bigquery.BigQueryDatasetOrder)), true
 
+	case "Team.bucket":
+		if e.complexity.Team.Bucket == nil {
+			break
+		}
+
+		args, err := ec.field_Team_bucket_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Team.Bucket(childComplexity, args["name"].(string), args["environment"].(string)), true
+
 	case "Team.buckets":
 		if e.complexity.Team.Buckets == nil {
 			break
@@ -4420,6 +4436,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Team.Jobs(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*job.JobOrder)), true
+
+	case "Team.kafkaTopic":
+		if e.complexity.Team.KafkaTopic == nil {
+			break
+		}
+
+		args, err := ec.field_Team_kafkaTopic_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Team.KafkaTopic(childComplexity, args["name"].(string), args["environment"].(string)), true
 
 	case "Team.kafkaTopics":
 		if e.complexity.Team.KafkaTopics == nil {
@@ -6476,6 +6504,9 @@ extend type Team {
 		orderBy: OpenSearchOrder
 	): OpenSearchConnection!
 
+	"Named Google Cloud Storage bucket owned by the team."
+	bucket(name: String!, environment: String!): Bucket!
+
 	"Google Cloud Storage buckets owned by the team."
 	buckets(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -6493,6 +6524,9 @@ extend type Team {
 		"Ordering options for items returned from the connection."
 		orderBy: BucketOrder
 	): BucketConnection!
+
+	"Named Kafka topic owned by the team."
+	kafkaTopic(name: String!, environment: String!): KafkaTopic!
 
 	"Kafka topics owned by the team."
 	kafkaTopics(
@@ -12008,6 +12042,65 @@ func (ec *executionContext) field_Team_bigQueryDatasets_argsOrderBy(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Team_bucket_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Team_bucket_argsName(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["name"] = arg0
+	arg1, err := ec.field_Team_bucket_argsEnvironment(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["environment"] = arg1
+	return args, nil
+}
+func (ec *executionContext) field_Team_bucket_argsName(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (string, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["name"]
+	if !ok {
+		var zeroVal string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+	if tmp, ok := rawArgs["name"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Team_bucket_argsEnvironment(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (string, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["environment"]
+	if !ok {
+		var zeroVal string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
+	if tmp, ok := rawArgs["environment"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Team_buckets_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -12349,6 +12442,65 @@ func (ec *executionContext) field_Team_jobs_argsOrderBy(
 	}
 
 	var zeroVal *job.JobOrder
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Team_kafkaTopic_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Team_kafkaTopic_argsName(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["name"] = arg0
+	arg1, err := ec.field_Team_kafkaTopic_argsEnvironment(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["environment"] = arg1
+	return args, nil
+}
+func (ec *executionContext) field_Team_kafkaTopic_argsName(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (string, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["name"]
+	if !ok {
+		var zeroVal string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+	if tmp, ok := rawArgs["name"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Team_kafkaTopic_argsEnvironment(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (string, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["environment"]
+	if !ok {
+		var zeroVal string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
+	if tmp, ok := rawArgs["environment"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
 	return zeroVal, nil
 }
 
@@ -13983,8 +14135,12 @@ func (ec *executionContext) fieldContext_Application_team(_ context.Context, fie
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -15901,8 +16057,12 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(_ context.Context,
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -17201,8 +17361,12 @@ func (ec *executionContext) fieldContext_Bucket_team(_ context.Context, field gr
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -19204,8 +19368,12 @@ func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -20610,8 +20778,12 @@ func (ec *executionContext) fieldContext_Job_team(_ context.Context, field graph
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -22878,8 +23050,12 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(_ context.Context, fiel
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -23389,8 +23565,12 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_team(_ context.Context, f
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -25587,8 +25767,12 @@ func (ec *executionContext) fieldContext_NetworkPolicyRule_targetTeam(_ context.
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -25827,8 +26011,12 @@ func (ec *executionContext) fieldContext_OpenSearch_team(_ context.Context, fiel
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -27546,8 +27734,12 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -28930,8 +29122,12 @@ func (ec *executionContext) fieldContext_RedisInstance_team(_ context.Context, f
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -30106,8 +30302,12 @@ func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_team(_ context.
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -30302,8 +30502,12 @@ func (ec *executionContext) fieldContext_Repository_team(_ context.Context, fiel
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -31329,8 +31533,12 @@ func (ec *executionContext) fieldContext_SqlDatabase_team(_ context.Context, fie
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -31752,8 +31960,12 @@ func (ec *executionContext) fieldContext_SqlInstance_team(_ context.Context, fie
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -34107,8 +34319,12 @@ func (ec *executionContext) fieldContext_SynchronizeTeamPayload_team(_ context.C
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -35371,6 +35587,85 @@ func (ec *executionContext) fieldContext_Team_openSearch(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_bucket(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_bucket(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().Bucket(rctx, obj, fc.Args["name"].(string), fc.Args["environment"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*bucket.Bucket)
+	fc.Result = res
+	return ec.marshalNBucket2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐBucket(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_bucket(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Bucket_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Bucket_name(ctx, field)
+			case "team":
+				return ec.fieldContext_Bucket_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_Bucket_environment(ctx, field)
+			case "cascadingDelete":
+				return ec.fieldContext_Bucket_cascadingDelete(ctx, field)
+			case "publicAccessPrevention":
+				return ec.fieldContext_Bucket_publicAccessPrevention(ctx, field)
+			case "uniformBucketLevelAccess":
+				return ec.fieldContext_Bucket_uniformBucketLevelAccess(ctx, field)
+			case "cors":
+				return ec.fieldContext_Bucket_cors(ctx, field)
+			case "projectID":
+				return ec.fieldContext_Bucket_projectID(ctx, field)
+			case "workload":
+				return ec.fieldContext_Bucket_workload(ctx, field)
+			case "status":
+				return ec.fieldContext_Bucket_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Bucket", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Team_bucket_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_buckets(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_buckets(ctx, field)
 	if err != nil {
@@ -35428,6 +35723,79 @@ func (ec *executionContext) fieldContext_Team_buckets(ctx context.Context, field
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Team_buckets_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Team_kafkaTopic(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_kafkaTopic(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().KafkaTopic(rctx, obj, fc.Args["name"].(string), fc.Args["environment"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*kafkatopic.KafkaTopic)
+	fc.Result = res
+	return ec.marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_kafkaTopic(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_KafkaTopic_id(ctx, field)
+			case "name":
+				return ec.fieldContext_KafkaTopic_name(ctx, field)
+			case "team":
+				return ec.fieldContext_KafkaTopic_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_KafkaTopic_environment(ctx, field)
+			case "acl":
+				return ec.fieldContext_KafkaTopic_acl(ctx, field)
+			case "configuration":
+				return ec.fieldContext_KafkaTopic_configuration(ctx, field)
+			case "pool":
+				return ec.fieldContext_KafkaTopic_pool(ctx, field)
+			case "status":
+				return ec.fieldContext_KafkaTopic_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type KafkaTopic", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Team_kafkaTopic_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -36307,8 +36675,12 @@ func (ec *executionContext) fieldContext_TeamConnection_nodes(_ context.Context,
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -37740,8 +38112,12 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, f
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -37892,8 +38268,12 @@ func (ec *executionContext) fieldContext_TeamEdge_node(_ context.Context, field 
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -38173,8 +38553,12 @@ func (ec *executionContext) fieldContext_TeamEnvironment_team(_ context.Context,
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -38467,8 +38851,12 @@ func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, fiel
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -41223,8 +41611,12 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_team(_ context.Cont
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -41976,8 +42368,12 @@ func (ec *executionContext) fieldContext_UpdateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_redisInstances(ctx, field)
 			case "openSearch":
 				return ec.fieldContext_Team_openSearch(ctx, field)
+			case "bucket":
+				return ec.fieldContext_Team_bucket(ctx, field)
 			case "buckets":
 				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopic":
+				return ec.fieldContext_Team_kafkaTopic(ctx, field)
 			case "kafkaTopics":
 				return ec.fieldContext_Team_kafkaTopics(ctx, field)
 			case "sqlInstances":
@@ -55514,6 +55910,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "bucket":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_bucket(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "buckets":
 			field := field
 
@@ -55524,6 +55956,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Team_buckets(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "kafkaTopic":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_kafkaTopic(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -59530,6 +59998,10 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNBucket2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐBucket(ctx context.Context, sel ast.SelectionSet, v bucket.Bucket) graphql.Marshaler {
+	return ec._Bucket(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNBucket2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋpersistenceᚋbucketᚐBucketᚄ(ctx context.Context, sel ast.SelectionSet, v []*bucket.Bucket) graphql.Marshaler {

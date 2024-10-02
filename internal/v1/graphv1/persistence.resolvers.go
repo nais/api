@@ -364,6 +364,10 @@ func (r *teamResolver) OpenSearch(ctx context.Context, obj *team.Team, first *in
 	return opensearch.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
+func (r *teamResolver) Bucket(ctx context.Context, obj *team.Team, name string, environment string) (*bucket.Bucket, error) {
+	return bucket.Get(ctx, obj.Slug, environment, name)
+}
+
 func (r *teamResolver) Buckets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) (*pagination.Connection[*bucket.Bucket], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -371,6 +375,10 @@ func (r *teamResolver) Buckets(ctx context.Context, obj *team.Team, first *int, 
 	}
 
 	return bucket.ListForTeam(ctx, obj.Slug, page, orderBy)
+}
+
+func (r *teamResolver) KafkaTopic(ctx context.Context, obj *team.Team, name string, environment string) (*kafkatopic.KafkaTopic, error) {
+	return kafkatopic.Get(ctx, obj.Slug, environment, name)
 }
 
 func (r *teamResolver) KafkaTopics(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder) (*pagination.Connection[*kafkatopic.KafkaTopic], error) {
