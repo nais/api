@@ -349,7 +349,7 @@ func (r *teamResolver) RedisInstances(ctx context.Context, obj *team.Team, first
 	return redis.ListForTeam(ctx, obj.Slug, page, orderBy)
 }
 
-func (r *teamResolver) OpenSearch(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error) {
+func (r *teamResolver) OpenSearchInstances(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) (*pagination.Connection[*opensearch.OpenSearch], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -391,6 +391,10 @@ func (r *teamEnvironmentResolver) Bucket(ctx context.Context, obj *team.TeamEnvi
 
 func (r *teamEnvironmentResolver) KafkaTopic(ctx context.Context, obj *team.TeamEnvironment, name string) (*kafkatopic.KafkaTopic, error) {
 	return kafkatopic.Get(ctx, obj.TeamSlug, obj.Name, name)
+}
+
+func (r *teamEnvironmentResolver) OpenSearchInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*opensearch.OpenSearch, error) {
+	return opensearch.Get(ctx, obj.TeamSlug, obj.Name, name)
 }
 
 func (r *Resolver) BigQueryDataset() gengqlv1.BigQueryDatasetResolver {
