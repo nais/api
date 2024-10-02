@@ -106,16 +106,6 @@ func (r *bucketResolver) Environment(ctx context.Context, obj *bucket.Bucket) (*
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *bucketResolver) Cors(ctx context.Context, obj *bucket.Bucket, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*bucket.BucketCors], error) {
-	page, err := pagination.ParsePage(first, after, last, before)
-	if err != nil {
-		return nil, err
-	}
-
-	ret := pagination.Slice(obj.Cors, page)
-	return pagination.NewConnection(ret, page, int32(len(obj.Cors))), nil
-}
-
 func (r *bucketResolver) Workload(ctx context.Context, obj *bucket.Bucket) (workload.Workload, error) {
 	return getWorkload(ctx, obj.WorkloadReference, obj.TeamSlug, obj.EnvironmentName)
 }

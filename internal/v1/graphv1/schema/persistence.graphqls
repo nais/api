@@ -278,18 +278,10 @@ type Bucket implements Persistence & Node {
 	cascadingDelete: Boolean!
 	publicAccessPrevention: String!
 	uniformBucketLevelAccess: Boolean!
-	cors(first: Int, after: Cursor, last: Int, before: Cursor): BucketCorsConnection!
-	projectID: String!
 	workload: Workload
 	status: BucketStatus!
 }
 
-type BucketCors {
-	maxAgeSeconds: Int
-	methods: [String!]!
-	origins: [String!]!
-	responseHeaders: [String!]!
-}
 
 type BucketStatus {
 	state: String!
@@ -474,12 +466,6 @@ type BucketConnection {
 	edges: [BucketEdge!]!
 }
 
-type BucketCorsConnection {
-	pageInfo: PageInfo!
-	nodes: [BucketCors!]!
-	edges: [BucketCorsEdge!]!
-}
-
 type KafkaTopicConnection {
 	pageInfo: PageInfo!
 	nodes: [KafkaTopic!]!
@@ -549,10 +535,7 @@ type BucketEdge {
 	node: Bucket!
 }
 
-type BucketCorsEdge {
-	cursor: Cursor!
-	node: BucketCors!
-}
+
 
 type KafkaTopicEdge {
 	cursor: Cursor!
