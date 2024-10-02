@@ -20,7 +20,7 @@ type PrometheusConfig struct {
 	Clusters    []string
 }
 
-type VulnerabilityPrometheus interface {
+type Prometheus interface {
 	Query(ctx context.Context, query string, ts time.Time, opts ...prom.Option) (prom_model.Value, prom.Warnings, error)
 }
 

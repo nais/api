@@ -92,9 +92,9 @@ type FakePrometheusClient struct {
 	projects []*client.Project
 }
 
-var _ VulnerabilityPrometheus = &FakePrometheusClient{}
+var _ Prometheus = &FakePrometheusClient{}
 
-func NewFakePrometheusClient() VulnerabilityPrometheus {
+func NewFakePrometheusClient() Prometheus {
 	projects := createTestdata()
 	return &FakePrometheusClient{projects: projects}
 }

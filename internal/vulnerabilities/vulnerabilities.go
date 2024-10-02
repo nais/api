@@ -23,27 +23,48 @@ type Config struct {
 }
 
 type (
-	clusterPrometheusClients map[string]VulnerabilityPrometheus
+	clusterPrometheusClients map[string]Prometheus
 )
 
-func NewManager(cfg *Config) *Manager {
-	dependencytrackClient := NewDependencyTrackClient(
-		cfg.DependencyTrack,
-		log.WithField("client", "dependencytrack"),
-	)
+type Options = func(*Manager)
 
-	prometheusClientMap, err := cfg.prometheusClients()
-	if err != nil {
-		log.WithError(err).Fatal("Failed to create prometheus clients")
+func NewManager(cfg *Config, opts ...Options) *Manager {
+	m := &Manager{
+		cfg: cfg,
 	}
 
-	manager := &Manager{
-		Client:            dependencytrackClient,
-		prometheusClients: prometheusClientMap,
-		cfg:               cfg,
+	for _, opt := range opts {
+		opt(m)
 	}
 
-	return manager
+	if m.Client == nil {
+		m.Client = NewDependencyTrackClient(
+			cfg.DependencyTrack,
+			log.WithField("client", "dependencytrack"),
+		)
+	}
+
+	if m.prometheusClients == nil {
+		prometheusClientMap, err := cfg.prometheusClients()
+		if err != nil {
+			log.WithError(err).Fatal("Failed to create prometheus clients")
+		}
+		m.prometheusClients = prometheusClientMap
+	}
+
+	return m
+}
+
+func WithDependencyTrackClient(client Client) func(*Manager) {
+	return func(m *Manager) {
+		m.Client = client
+	}
+}
+
+func WithPrometheusClients(clients clusterPrometheusClients) func(*Manager) {
+	return func(m *Manager) {
+		m.prometheusClients = clients
+	}
 }
 
 func (m *Manager) GetVulnerabilitiesForTeam(ctx context.Context, workloads []model.Workload, team string) ([]*model.VulnerabilityNode, error) {
