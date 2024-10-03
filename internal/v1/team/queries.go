@@ -187,6 +187,23 @@ func ListForUser(ctx context.Context, userID uuid.UUID, page *pagination.Paginat
 	return pagination.NewConvertConnection(ret, page, int32(total), toGraphUserTeam), nil
 }
 
+func GetMemberByEmail(ctx context.Context, teamSlug slug.Slug, email string) (*TeamMember, error) {
+	q := db(ctx)
+
+	m, err := q.GetMemberByEmail(ctx, teamsql.GetMemberByEmailParams{
+		TeamSlug: teamSlug,
+		Email:    email,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &TeamMember{
+		Role:     TeamMemberRole(m.RoleName),
+		TeamSlug: teamSlug,
+		UserID:   m.ID,
+	}, nil
+}
+
 func ListMembers(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *TeamMemberOrder) (*TeamMemberConnection, error) {
 	q := db(ctx)
 

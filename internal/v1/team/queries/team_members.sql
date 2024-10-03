@@ -92,6 +92,19 @@ WHERE
 	AND user_roles.user_id = @user_id
 ;
 
+-- name: GetMemberByEmail :one
+SELECT
+	users.*,
+	user_roles.role_name
+FROM
+	user_roles
+	JOIN teams ON teams.slug = user_roles.target_team_slug
+	JOIN users ON users.id = user_roles.user_id
+WHERE
+	user_roles.target_team_slug = @team_slug::slug
+	AND users.email = @email
+;
+
 -- name: AddMember :exec
 INSERT INTO
 	user_roles (user_id, role_name, target_team_slug)

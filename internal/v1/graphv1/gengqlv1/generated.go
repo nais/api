@@ -822,6 +822,7 @@ type ComplexityRoot struct {
 		Jobs                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder) int
 		KafkaTopics            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *kafkatopic.KafkaTopicOrder) int
 		LastSuccessfulSync     func(childComplexity int) int
+		Member                 func(childComplexity int, email string) int
 		Members                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) int
 		OpenSearchInstances    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder) int
 		Purpose                func(childComplexity int) int
@@ -1260,6 +1261,7 @@ type SqlInstanceResolver interface {
 	Users(ctx context.Context, obj *sqlinstance.SQLInstance, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *sqlinstance.SQLInstanceUserOrder) (*pagination.Connection[*sqlinstance.SQLInstanceUser], error)
 }
 type TeamResolver interface {
+	Member(ctx context.Context, obj *team.Team, email string) (*team.TeamMember, error)
 	Members(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) (*pagination.Connection[*team.TeamMember], error)
 
 	ViewerIsOwner(ctx context.Context, obj *team.Team) (bool, error)
@@ -4347,6 +4349,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Team.LastSuccessfulSync(childComplexity), true
+
+	case "Team.member":
+		if e.complexity.Team.Member == nil {
+			break
+		}
+
+		args, err := ec.field_Team_member_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Team.Member(childComplexity, args["email"].(string)), true
 
 	case "Team.members":
 		if e.complexity.Team.Members == nil {
@@ -7611,6 +7625,9 @@ type Team implements Node {
 
 	"The CDN bucket for the team. This value is managed by the Google CDN reconciler."
 	cdnBucket: String
+
+	"Get a specific member of the team."
+	member(email: String!): TeamMember!
 
 	"Team members."
 	members(
@@ -12556,6 +12573,38 @@ func (ec *executionContext) field_Team_kafkaTopics_argsOrderBy(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Team_member_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Team_member_argsEmail(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["email"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Team_member_argsEmail(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (string, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["email"]
+	if !ok {
+		var zeroVal string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+	if tmp, ok := rawArgs["email"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Team_members_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -14017,6 +14066,8 @@ func (ec *executionContext) fieldContext_Application_team(_ context.Context, fie
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -15947,6 +15998,8 @@ func (ec *executionContext) fieldContext_BigQueryDataset_team(_ context.Context,
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -17259,6 +17312,8 @@ func (ec *executionContext) fieldContext_Bucket_team(_ context.Context, field gr
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -18724,6 +18779,8 @@ func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -20130,6 +20187,8 @@ func (ec *executionContext) fieldContext_Job_team(_ context.Context, field graph
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -22410,6 +22469,8 @@ func (ec *executionContext) fieldContext_KafkaTopic_team(_ context.Context, fiel
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -22933,6 +22994,8 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_team(_ context.Context, f
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -25131,6 +25194,8 @@ func (ec *executionContext) fieldContext_NetworkPolicyRule_targetTeam(_ context.
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -25371,6 +25436,8 @@ func (ec *executionContext) fieldContext_OpenSearch_team(_ context.Context, fiel
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -27102,6 +27169,8 @@ func (ec *executionContext) fieldContext_Query_team(ctx context.Context, field g
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -28486,6 +28555,8 @@ func (ec *executionContext) fieldContext_RedisInstance_team(_ context.Context, f
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -29674,6 +29745,8 @@ func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_team(_ context.
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -29870,6 +29943,8 @@ func (ec *executionContext) fieldContext_Repository_team(_ context.Context, fiel
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -30897,6 +30972,8 @@ func (ec *executionContext) fieldContext_SqlDatabase_team(_ context.Context, fie
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -31332,6 +31409,8 @@ func (ec *executionContext) fieldContext_SqlInstance_team(_ context.Context, fie
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -33699,6 +33778,8 @@ func (ec *executionContext) fieldContext_SynchronizeTeamPayload_team(_ context.C
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -34127,6 +34208,69 @@ func (ec *executionContext) fieldContext_Team_cdnBucket(_ context.Context, field
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Team_member(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_member(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Team().Member(rctx, obj, fc.Args["email"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*team.TeamMember)
+	fc.Result = res
+	return ec.marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMember(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_member(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "team":
+				return ec.fieldContext_TeamMember_team(ctx, field)
+			case "user":
+				return ec.fieldContext_TeamMember_user(ctx, field)
+			case "role":
+				return ec.fieldContext_TeamMember_role(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TeamMember", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Team_member_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -35923,6 +36067,8 @@ func (ec *executionContext) fieldContext_TeamConnection_nodes(_ context.Context,
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -37356,6 +37502,8 @@ func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, f
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -37508,6 +37656,8 @@ func (ec *executionContext) fieldContext_TeamEdge_node(_ context.Context, field 
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -37789,6 +37939,8 @@ func (ec *executionContext) fieldContext_TeamEnvironment_team(_ context.Context,
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -38553,6 +38705,8 @@ func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, fiel
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -41309,6 +41463,8 @@ func (ec *executionContext) fieldContext_TeamUtilizationData_team(_ context.Cont
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -42086,6 +42242,8 @@ func (ec *executionContext) fieldContext_UpdateTeamPayload_team(_ context.Contex
 				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
 			case "cdnBucket":
 				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
 			case "members":
 				return ec.fieldContext_Team_members(ctx, field)
 			case "lastSuccessfulSync":
@@ -54994,6 +55152,42 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Team_googleArtifactRegistry(ctx, field, obj)
 		case "cdnBucket":
 			out.Values[i] = ec._Team_cdnBucket(ctx, field, obj)
+		case "member":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Team_member(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "members":
 			field := field
 
@@ -62978,6 +63172,10 @@ func (ec *executionContext) marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapi
 		return graphql.Null
 	}
 	return ec._TeamEnvironment(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTeamMember2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMember(ctx context.Context, sel ast.SelectionSet, v team.TeamMember) graphql.Marshaler {
+	return ec._TeamMember(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNTeamMember2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMemberᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamMember) graphql.Marshaler {
