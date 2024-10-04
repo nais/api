@@ -56,7 +56,7 @@ type RepositoryConnection {
 	nodes: [Repository!]!
 
 	"List of edges."
-	edges: [RepositoryEdge]
+	edges: [RepositoryEdge!]!
 }
 
 type RepositoryEdge {

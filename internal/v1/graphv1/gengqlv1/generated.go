@@ -6470,7 +6470,6 @@ extend type Team {
 		orderBy: OpenSearchOrder
 	): OpenSearchConnection!
 
-
 	"Google Cloud Storage buckets owned by the team."
 	buckets(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -6488,7 +6487,6 @@ extend type Team {
 		"Ordering options for items returned from the connection."
 		orderBy: BucketOrder
 	): BucketConnection!
-
 
 	"Kafka topics owned by the team."
 	kafkaTopics(
@@ -6710,7 +6708,6 @@ type Bucket implements Persistence & Node {
 	workload: Workload
 	status: BucketStatus!
 }
-
 
 type BucketStatus {
 	state: String!
@@ -6963,8 +6960,6 @@ type BucketEdge {
 	cursor: Cursor!
 	node: Bucket!
 }
-
-
 
 type KafkaTopicEdge {
 	cursor: Cursor!
@@ -7334,7 +7329,7 @@ type RepositoryConnection {
 	nodes: [Repository!]!
 
 	"List of edges."
-	edges: [RepositoryEdge]
+	edges: [RepositoryEdge!]!
 }
 
 type RepositoryEdge {
@@ -30129,11 +30124,14 @@ func (ec *executionContext) _RepositoryConnection_edges(ctx context.Context, fie
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.([]pagination.Edge[*repository.Repository])
 	fc.Result = res
-	return ec.marshalORepositoryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx, field.Selections, res)
+	return ec.marshalNRepositoryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RepositoryConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -53826,6 +53824,9 @@ func (ec *executionContext) _RepositoryConnection(ctx context.Context, sel ast.S
 			}
 		case "edges":
 			out.Values[i] = ec._RepositoryConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -62091,6 +62092,54 @@ func (ec *executionContext) marshalNRepositoryConnection2ᚖgithubᚗcomᚋnais�
 	return ec._RepositoryConnection(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNRepositoryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*repository.Repository]) graphql.Marshaler {
+	return ec._RepositoryEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRepositoryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*repository.Repository]) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRepositoryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalNRequestTeamDeletionInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐRequestTeamDeletionInput(ctx context.Context, v interface{}) (team.RequestTeamDeletionInput, error) {
 	res, err := ec.unmarshalInputRequestTeamDeletionInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -64414,51 +64463,6 @@ func (ec *executionContext) unmarshalORedisInstanceOrder2ᚖgithubᚗcomᚋnais�
 	}
 	res, err := ec.unmarshalInputRedisInstanceOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalORepositoryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*repository.Repository]) graphql.Marshaler {
-	return ec._RepositoryEdge(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalORepositoryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*repository.Repository]) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalORepositoryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋpaginationᚐEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
 }
 
 func (ec *executionContext) unmarshalOSearchType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋsearchv1ᚐSearchType(ctx context.Context, v interface{}) (*searchv1.SearchType, error) {
