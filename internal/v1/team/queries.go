@@ -198,7 +198,7 @@ func GetMemberByEmail(ctx context.Context, teamSlug slug.Slug, email string) (*T
 		return nil, err
 	}
 	return &TeamMember{
-		Role:     TeamMemberRole(m.RoleName),
+		Role:     teamMemberRoleFromSqlTeamRole(m.RoleName),
 		TeamSlug: teamSlug,
 		UserID:   m.ID,
 	}, nil
