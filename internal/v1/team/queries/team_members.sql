@@ -10,10 +10,10 @@ WHERE
 	user_roles.target_team_slug = @team_slug::slug
 ORDER BY
 	CASE
-		WHEN @order_by::TEXT = 'name:asc' THEN users.name
+		WHEN @order_by::TEXT = 'name:asc' THEN LOWER(users.name)
 	END ASC,
 	CASE
-		WHEN @order_by::TEXT = 'name:desc' THEN users.name
+		WHEN @order_by::TEXT = 'name:desc' THEN LOWER(users.name)
 	END DESC,
 	CASE
 		WHEN @order_by::TEXT = 'email:asc' THEN users.email

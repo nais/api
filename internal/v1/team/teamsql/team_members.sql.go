@@ -224,10 +224,10 @@ WHERE
 	user_roles.target_team_slug = $1::slug
 ORDER BY
 	CASE
-		WHEN $2::TEXT = 'name:asc' THEN users.name
+		WHEN $2::TEXT = 'name:asc' THEN LOWER(users.name)
 	END ASC,
 	CASE
-		WHEN $2::TEXT = 'name:desc' THEN users.name
+		WHEN $2::TEXT = 'name:desc' THEN LOWER(users.name)
 	END DESC,
 	CASE
 		WHEN $2::TEXT = 'email:asc' THEN users.email
