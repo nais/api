@@ -100,32 +100,3 @@ WHERE
 	reconciler = @reconciler_name
 	AND key = @key
 ;
-
--- -- name: ResetReconcilerConfig :exec
--- UPDATE reconciler_config
--- SET value = NULL
--- WHERE reconciler = @reconciler_name;
--- -- name: ConfigureReconciler :exec
--- UPDATE reconciler_config
--- SET value = @value::TEXT
--- WHERE reconciler = @reconciler_name AND key = @key;
--- -- name: AddReconcilerOptOut :exec
--- INSERT INTO reconciler_opt_outs (team_slug, user_id, reconciler_name)
--- VALUES (@team_slug, @user_id, @reconciler_name) ON CONFLICT DO NOTHING;
--- -- name: RemoveReconcilerOptOut :exec
--- DELETE FROM reconciler_opt_outs
--- WHERE team_slug = @team_slug AND user_id = @user_id AND reconciler_name = @reconciler_name;
--- -- name: UpsertReconciler :one
--- INSERT INTO reconcilers (name, display_name, description, member_aware, enabled)
--- VALUES (@name, @display_name, @description, @member_aware, @enabled_if_new)
--- ON CONFLICT (name) DO UPDATE
--- SET display_name = EXCLUDED.display_name, description = EXCLUDED.description, member_aware = EXCLUDED.member_aware
--- RETURNING *;
--- -- name: UpsertReconcilerConfig :exec
--- INSERT INTO reconciler_config (reconciler, key, display_name, description, secret)
--- VALUES (@reconciler, @key, @display_name, @description, @secret)
--- ON CONFLICT (reconciler, key) DO UPDATE
--- SET display_name = EXCLUDED.display_name, description = EXCLUDED.description, secret = EXCLUDED.secret;
--- -- name: DeleteReconcilerConfig :exec
--- DELETE FROM reconciler_config
--- WHERE reconciler = @reconciler AND key = ANY(@keys::TEXT[]);
