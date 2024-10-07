@@ -102,6 +102,45 @@ func (q *Queries) GetMember(ctx context.Context, arg GetMemberParams) (*GetMembe
 	return &i, err
 }
 
+const getMemberByEmail = `-- name: GetMemberByEmail :one
+SELECT
+	users.id, users.email, users.name, users.external_id,
+	user_roles.role_name
+FROM
+	user_roles
+	JOIN teams ON teams.slug = user_roles.target_team_slug
+	JOIN users ON users.id = user_roles.user_id
+WHERE
+	user_roles.target_team_slug = $1::slug
+	AND users.email = $2
+`
+
+type GetMemberByEmailParams struct {
+	TeamSlug slug.Slug
+	Email    string
+}
+
+type GetMemberByEmailRow struct {
+	ID         uuid.UUID
+	Email      string
+	Name       string
+	ExternalID string
+	RoleName   RoleName
+}
+
+func (q *Queries) GetMemberByEmail(ctx context.Context, arg GetMemberByEmailParams) (*GetMemberByEmailRow, error) {
+	row := q.db.QueryRow(ctx, getMemberByEmail, arg.TeamSlug, arg.Email)
+	var i GetMemberByEmailRow
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Name,
+		&i.ExternalID,
+		&i.RoleName,
+	)
+	return &i, err
+}
+
 const listForUser = `-- name: ListForUser :many
 SELECT
 	users.id, users.email, users.name, users.external_id,
@@ -185,10 +224,10 @@ WHERE
 	user_roles.target_team_slug = $1::slug
 ORDER BY
 	CASE
-		WHEN $2::TEXT = 'name:asc' THEN users.name
+		WHEN $2::TEXT = 'name:asc' THEN LOWER(users.name)
 	END ASC,
 	CASE
-		WHEN $2::TEXT = 'name:desc' THEN users.name
+		WHEN $2::TEXT = 'name:desc' THEN LOWER(users.name)
 	END DESC,
 	CASE
 		WHEN $2::TEXT = 'email:asc' THEN users.email

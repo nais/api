@@ -244,6 +244,10 @@ func (r *removeTeamMemberPayloadResolver) Team(ctx context.Context, obj *team.Re
 	return team.Get(ctx, obj.TeamSlug)
 }
 
+func (r *teamResolver) Member(ctx context.Context, obj *team.Team, email string) (*team.TeamMember, error) {
+	return team.GetMemberByEmail(ctx, obj.Slug, email)
+}
+
 func (r *teamResolver) Members(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) (*pagination.Connection[*team.TeamMember], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
