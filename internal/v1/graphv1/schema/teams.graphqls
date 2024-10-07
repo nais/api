@@ -221,30 +221,30 @@ type SynchronizeTeamPayload {
 
 type RequestTeamDeletionPayload {
 	"The delete key for the team. This can be used to confirm the deletion of the team."
-	key: TeamDeleteKey!
+	key: TeamDeleteKey
 }
 
 type ConfirmTeamDeletionPayload {
 	"Whether or not the asynchronous deletion process was started."
-	deletionStarted: Boolean!
+	deletionStarted: Boolean
 }
 
 type AddTeamMemberPayload {
 	"The added team member."
-	member: TeamMember!
+	member: TeamMember
 }
 
 type RemoveTeamMemberPayload {
 	"The user that was removed from the team."
-	user: User!
+	user: User
 
 	"The team that the member was removed from."
-	team: Team!
+	team: Team
 }
 
 type SetTeamMemberRolePayload {
 	"The updated team member."
-	member: TeamMember!
+	member: TeamMember
 }
 
 type TeamDeleteKey {

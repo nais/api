@@ -7305,7 +7305,7 @@ input AddRepositoryToTeamInput {
 
 type AddRepositoryToTeamPayload {
 	"Repository that was added to the team."
-	repository: Repository!
+	repository: Repository
 }
 
 input RemoveRepositoryFromTeamInput {
@@ -7318,7 +7318,7 @@ input RemoveRepositoryFromTeamInput {
 
 type RemoveRepositoryFromTeamPayload {
 	"Whether or not the repository was removed from the team."
-	success: Boolean!
+	success: Boolean
 }
 
 type RepositoryConnection {
@@ -7709,30 +7709,30 @@ type SynchronizeTeamPayload {
 
 type RequestTeamDeletionPayload {
 	"The delete key for the team. This can be used to confirm the deletion of the team."
-	key: TeamDeleteKey!
+	key: TeamDeleteKey
 }
 
 type ConfirmTeamDeletionPayload {
 	"Whether or not the asynchronous deletion process was started."
-	deletionStarted: Boolean!
+	deletionStarted: Boolean
 }
 
 type AddTeamMemberPayload {
 	"The added team member."
-	member: TeamMember!
+	member: TeamMember
 }
 
 type RemoveTeamMemberPayload {
 	"The user that was removed from the team."
-	user: User!
+	user: User
 
 	"The team that the member was removed from."
-	team: Team!
+	team: Team
 }
 
 type SetTeamMemberRolePayload {
 	"The updated team member."
-	member: TeamMember!
+	member: TeamMember
 }
 
 type TeamDeleteKey {
@@ -13833,14 +13833,11 @@ func (ec *executionContext) _AddRepositoryToTeamPayload_repository(ctx context.C
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*repository.Repository)
 	fc.Result = res
-	return ec.marshalNRepository2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐRepository(ctx, field.Selections, res)
+	return ec.marshalORepository2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐRepository(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AddRepositoryToTeamPayload_repository(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -13885,14 +13882,11 @@ func (ec *executionContext) _AddTeamMemberPayload_member(ctx context.Context, fi
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*team.TeamMember)
 	fc.Result = res
-	return ec.marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMember(ctx, field.Selections, res)
+	return ec.marshalOTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMember(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AddTeamMemberPayload_member(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -18044,14 +18038,11 @@ func (ec *executionContext) _ConfirmTeamDeletionPayload_deletionStarted(ctx cont
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalOBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ConfirmTeamDeletionPayload_deletionStarted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -29604,14 +29595,11 @@ func (ec *executionContext) _RemoveRepositoryFromTeamPayload_success(ctx context
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalOBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RemoveRepositoryFromTeamPayload_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -29648,14 +29636,11 @@ func (ec *executionContext) _RemoveTeamMemberPayload_user(ctx context.Context, f
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*user.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋuserᚐUser(ctx, field.Selections, res)
+	return ec.marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋuserᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -29704,14 +29689,11 @@ func (ec *executionContext) _RemoveTeamMemberPayload_team(ctx context.Context, f
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*team.Team)
 	fc.Result = res
-	return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeam(ctx, field.Selections, res)
+	return ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeam(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -30270,14 +30252,11 @@ func (ec *executionContext) _RequestTeamDeletionPayload_key(ctx context.Context,
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*team.TeamDeleteKey)
 	fc.Result = res
-	return ec.marshalNTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamDeleteKey(ctx, field.Selections, res)
+	return ec.marshalOTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamDeleteKey(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RequestTeamDeletionPayload_key(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -30794,14 +30773,11 @@ func (ec *executionContext) _SetTeamMemberRolePayload_member(ctx context.Context
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*team.TeamMember)
 	fc.Result = res
-	return ec.marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMember(ctx, field.Selections, res)
+	return ec.marshalOTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMember(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SetTeamMemberRolePayload_member(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -47262,9 +47238,6 @@ func (ec *executionContext) _AddRepositoryToTeamPayload(ctx context.Context, sel
 			out.Values[i] = graphql.MarshalString("AddRepositoryToTeamPayload")
 		case "repository":
 			out.Values[i] = ec._AddRepositoryToTeamPayload_repository(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -47301,9 +47274,6 @@ func (ec *executionContext) _AddTeamMemberPayload(ctx context.Context, sel ast.S
 			out.Values[i] = graphql.MarshalString("AddTeamMemberPayload")
 		case "member":
 			out.Values[i] = ec._AddTeamMemberPayload_member(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -49070,9 +49040,6 @@ func (ec *executionContext) _ConfirmTeamDeletionPayload(ctx context.Context, sel
 			out.Values[i] = graphql.MarshalString("ConfirmTeamDeletionPayload")
 		case "deletionStarted":
 			out.Values[i] = ec._ConfirmTeamDeletionPayload_deletionStarted(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -53589,9 +53556,6 @@ func (ec *executionContext) _RemoveRepositoryFromTeamPayload(ctx context.Context
 			out.Values[i] = graphql.MarshalString("RemoveRepositoryFromTeamPayload")
 		case "success":
 			out.Values[i] = ec._RemoveRepositoryFromTeamPayload_success(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -53629,16 +53593,13 @@ func (ec *executionContext) _RemoveTeamMemberPayload(ctx context.Context, sel as
 		case "user":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._RemoveTeamMemberPayload_user(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
 				return res
 			}
 
@@ -53665,16 +53626,13 @@ func (ec *executionContext) _RemoveTeamMemberPayload(ctx context.Context, sel as
 		case "team":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._RemoveTeamMemberPayload_team(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
 				return res
 			}
 
@@ -53907,9 +53865,6 @@ func (ec *executionContext) _RequestTeamDeletionPayload(ctx context.Context, sel
 			out.Values[i] = graphql.MarshalString("RequestTeamDeletionPayload")
 		case "key":
 			out.Values[i] = ec._RequestTeamDeletionPayload_key(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -54132,9 +54087,6 @@ func (ec *executionContext) _SetTeamMemberRolePayload(ctx context.Context, sel a
 			out.Values[i] = graphql.MarshalString("SetTeamMemberRolePayload")
 		case "member":
 			out.Values[i] = ec._SetTeamMemberRolePayload_member(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -64465,6 +64417,13 @@ func (ec *executionContext) unmarshalORedisInstanceOrder2ᚖgithubᚗcomᚋnais�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalORepository2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐRepository(ctx context.Context, sel ast.SelectionSet, v *repository.Repository) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Repository(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOSearchType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋsearchv1ᚐSearchType(ctx context.Context, v interface{}) (*searchv1.SearchType, error) {
 	if v == nil {
 		return nil, nil
@@ -64555,6 +64514,20 @@ func (ec *executionContext) marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 		return graphql.Null
 	}
 	return ec._Team(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamDeleteKey(ctx context.Context, sel ast.SelectionSet, v *team.TeamDeleteKey) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TeamDeleteKey(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMember(ctx context.Context, sel ast.SelectionSet, v *team.TeamMember) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TeamMember(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOTeamMemberOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeamMemberOrder(ctx context.Context, v interface{}) (*team.TeamMemberOrder, error) {

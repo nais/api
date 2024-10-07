@@ -32,7 +32,7 @@ input AddRepositoryToTeamInput {
 
 type AddRepositoryToTeamPayload {
 	"Repository that was added to the team."
-	repository: Repository!
+	repository: Repository
 }
 
 input RemoveRepositoryFromTeamInput {
@@ -45,7 +45,7 @@ input RemoveRepositoryFromTeamInput {
 
 type RemoveRepositoryFromTeamPayload {
 	"Whether or not the repository was removed from the team."
-	success: Boolean!
+	success: Boolean
 }
 
 type RepositoryConnection {
