@@ -7,7 +7,7 @@ require (
 	cloud.google.com/go/bigquery v1.61.0
 	cloud.google.com/go/monitoring v1.20.1
 	cloud.google.com/go/pubsub v1.40.0
-	github.com/99designs/gqlgen v0.17.53
+	github.com/99designs/gqlgen v0.17.55
 	github.com/GoogleCloudPlatform/k8s-config-connector v1.120.1
 	github.com/bombsimon/logrusr/v4 v4.1.0
 	github.com/btcsuite/btcutil v1.0.2
@@ -41,7 +41,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/testcontainers/testcontainers-go v0.33.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.31.0
-	github.com/vektah/gqlparser/v2 v2.5.16
+	github.com/vektah/gqlparser/v2 v2.5.17
 	github.com/vektra/mockery/v2 v2.43.2
 	github.com/vikstrous/dataloadgen v0.0.6
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.53.0

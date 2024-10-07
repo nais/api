@@ -546,7 +546,7 @@ type ComplexityRoot struct {
 	}
 
 	Env struct {
-		GcpProjectID       func(childComplexity int) int
+		GCPProjectID       func(childComplexity int) int
 		ID                 func(childComplexity int) int
 		Name               func(childComplexity int) int
 		Secrets            func(childComplexity int) int
@@ -1505,7 +1505,7 @@ type DeployInfoResolver interface {
 type EnvResolver interface {
 	ID(ctx context.Context, obj *model.Env) (*scalar.Ident, error)
 
-	GcpProjectID(ctx context.Context, obj *model.Env) (*string, error)
+	GCPProjectID(ctx context.Context, obj *model.Env) (*string, error)
 	SlackAlertsChannel(ctx context.Context, obj *model.Env) (string, error)
 	Secrets(ctx context.Context, obj *model.Env) ([]*model.Secret, error)
 }
@@ -3630,11 +3630,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.DeprecatedRegistryError.Tag(childComplexity), true
 
 	case "Env.gcpProjectID":
-		if e.complexity.Env.GcpProjectID == nil {
+		if e.complexity.Env.GCPProjectID == nil {
 			break
 		}
 
-		return e.complexity.Env.GcpProjectID(childComplexity), true
+		return e.complexity.Env.GCPProjectID(childComplexity), true
 
 	case "Env.id":
 		if e.complexity.Env.ID == nil {
@@ -29663,7 +29663,7 @@ func (ec *executionContext) _Env_gcpProjectID(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Env().GcpProjectID(rctx, obj)
+		return ec.resolvers.Env().GCPProjectID(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -31380,7 +31380,7 @@ func (ec *executionContext) fieldContext_Flag_value(_ context.Context, field gra
 	return fc, nil
 }
 
-func (ec *executionContext) _GcpProject_environment(ctx context.Context, field graphql.CollectedField, obj *model.GcpProject) (ret graphql.Marshaler) {
+func (ec *executionContext) _GcpProject_environment(ctx context.Context, field graphql.CollectedField, obj *model.GCPProject) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_GcpProject_environment(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -31424,7 +31424,7 @@ func (ec *executionContext) fieldContext_GcpProject_environment(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _GcpProject_projectName(ctx context.Context, field graphql.CollectedField, obj *model.GcpProject) (ret graphql.Marshaler) {
+func (ec *executionContext) _GcpProject_projectName(ctx context.Context, field graphql.CollectedField, obj *model.GCPProject) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_GcpProject_projectName(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -31468,7 +31468,7 @@ func (ec *executionContext) fieldContext_GcpProject_projectName(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _GcpProject_projectId(ctx context.Context, field graphql.CollectedField, obj *model.GcpProject) (ret graphql.Marshaler) {
+func (ec *executionContext) _GcpProject_projectId(ctx context.Context, field graphql.CollectedField, obj *model.GCPProject) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_GcpProject_projectId(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -66726,7 +66726,7 @@ func (ec *executionContext) _Flag(ctx context.Context, sel ast.SelectionSet, obj
 
 var gcpProjectImplementors = []string{"GcpProject"}
 
-func (ec *executionContext) _GcpProject(ctx context.Context, sel ast.SelectionSet, obj *model.GcpProject) graphql.Marshaler {
+func (ec *executionContext) _GcpProject(ctx context.Context, sel ast.SelectionSet, obj *model.GCPProject) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, gcpProjectImplementors)
 
 	out := graphql.NewFieldSet(fields)

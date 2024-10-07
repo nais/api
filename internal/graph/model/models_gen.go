@@ -398,7 +398,7 @@ type Flag struct {
 }
 
 // GCP project type.
-type GcpProject struct {
+type GCPProject struct {
 	// The environment for the project.
 	Environment string `json:"environment"`
 	// The display name of the project.
