@@ -3,6 +3,7 @@ package graphv1
 import (
 	"context"
 
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/team"
@@ -53,10 +54,16 @@ func (r *deleteApplicationPayloadResolver) Team(ctx context.Context, obj *applic
 }
 
 func (r *mutationResolver) DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error) {
+	if err := authz.RequireTeamMembershipCtx(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
 	return application.Delete(ctx, input.TeamSlug, input.EnvironmentName, input.Name)
 }
 
 func (r *mutationResolver) RestartApplication(ctx context.Context, input application.RestartApplicationInput) (*application.RestartApplicationPayload, error) {
+	if err := authz.RequireTeamMembershipCtx(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
 	err := application.Restart(ctx, input.TeamSlug, input.EnvironmentName, input.Name)
 	if err != nil {
 		return nil, err

@@ -69,6 +69,7 @@ type ResolverRoot interface {
 	ContainerImage() ContainerImageResolver
 	ContainerImageWorkloadReference() ContainerImageWorkloadReferenceResolver
 	DeleteApplicationPayload() DeleteApplicationPayloadResolver
+	DeleteJobPayload() DeleteJobPayloadResolver
 	Job() JobResolver
 	KafkaTopic() KafkaTopicResolver
 	KafkaTopicAcl() KafkaTopicAclResolver
@@ -289,6 +290,10 @@ type ComplexityRoot struct {
 		Team func(childComplexity int) int
 	}
 
+	DeleteJobPayload struct {
+		Team func(childComplexity int) int
+	}
+
 	EntraIDAuthIntegration struct {
 		Name func(childComplexity int) int
 	}
@@ -482,6 +487,7 @@ type ComplexityRoot struct {
 		ConfirmTeamDeletion      func(childComplexity int, input team.ConfirmTeamDeletionInput) int
 		CreateTeam               func(childComplexity int, input team.CreateTeamInput) int
 		DeleteApplication        func(childComplexity int, input application.DeleteApplicationInput) int
+		DeleteJob                func(childComplexity int, input job.DeleteJobInput) int
 		DisableReconciler        func(childComplexity int, name string) int
 		EnableReconciler         func(childComplexity int, name string) int
 		RemoveRepositoryFromTeam func(childComplexity int, input repository.RemoveRepositoryFromTeamInput) int
@@ -1169,6 +1175,9 @@ type ContainerImageWorkloadReferenceResolver interface {
 type DeleteApplicationPayloadResolver interface {
 	Team(ctx context.Context, obj *application.DeleteApplicationPayload) (*team.Team, error)
 }
+type DeleteJobPayloadResolver interface {
+	Team(ctx context.Context, obj *job.DeleteJobPayload) (*team.Team, error)
+}
 type JobResolver interface {
 	Team(ctx context.Context, obj *job.Job) (*team.Team, error)
 	Environment(ctx context.Context, obj *job.Job) (*team.TeamEnvironment, error)
@@ -1199,6 +1208,7 @@ type KafkaTopicAclResolver interface {
 type MutationResolver interface {
 	DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error)
 	RestartApplication(ctx context.Context, input application.RestartApplicationInput) (*application.RestartApplicationPayload, error)
+	DeleteJob(ctx context.Context, input job.DeleteJobInput) (*job.DeleteJobPayload, error)
 	EnableReconciler(ctx context.Context, name string) (*reconciler.Reconciler, error)
 	DisableReconciler(ctx context.Context, name string) (*reconciler.Reconciler, error)
 	ConfigureReconciler(ctx context.Context, name string, config []*reconciler.ReconcilerConfigInput) (*reconciler.Reconciler, error)
@@ -2076,6 +2086,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.DeleteApplicationPayload.Team(childComplexity), true
 
+	case "DeleteJobPayload.team":
+		if e.complexity.DeleteJobPayload.Team == nil {
+			break
+		}
+
+		return e.complexity.DeleteJobPayload.Team(childComplexity), true
+
 	case "EntraIDAuthIntegration.name":
 		if e.complexity.EntraIDAuthIntegration.Name == nil {
 			break
@@ -2896,6 +2913,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteApplication(childComplexity, args["input"].(application.DeleteApplicationInput)), true
+
+	case "Mutation.deleteJob":
+		if e.complexity.Mutation.DeleteJob == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteJob_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteJob(childComplexity, args["input"].(job.DeleteJobInput)), true
 
 	case "Mutation.disableReconciler":
 		if e.complexity.Mutation.DisableReconciler == nil {
@@ -5745,6 +5774,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputConfirmTeamDeletionInput,
 		ec.unmarshalInputCreateTeamInput,
 		ec.unmarshalInputDeleteApplicationInput,
+		ec.unmarshalInputDeleteJobInput,
 		ec.unmarshalInputImageVulnerabilityOrder,
 		ec.unmarshalInputJobOrder,
 		ec.unmarshalInputKafkaTopicAclFilter,
@@ -6279,6 +6309,11 @@ type BigQueryDatasetCost {
 	): JobConnection!
 }
 
+extend type Mutation {
+	"Delete an job."
+	deleteJob(input: DeleteJobInput!): DeleteJobPayload!
+}
+
 extend type TeamEnvironment {
 	"NAIS job in the team environment."
 	job(name: String!): Job!
@@ -6453,6 +6488,20 @@ enum JobOrderField {
 extend union SearchNode = Job
 extend enum SearchType {
 	JOB
+}
+
+input DeleteJobInput {
+	"Name of the job."
+	name: String!
+	"Slug of the team that owns the job."
+	teamSlug: Slug!
+	"Name of the environment where the job runs."
+	environmentName: String!
+}
+
+type DeleteJobPayload {
+	"The team that owned the deleted job."
+	team: Team
 }
 `, BuiltIn: false},
 	{Name: "../schema/netpol.graphqls", Input: `extend interface Workload {
@@ -10023,6 +10072,38 @@ func (ec *executionContext) field_Mutation_deleteApplication_argsInput(
 	}
 
 	var zeroVal application.DeleteApplicationInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteJob_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_deleteJob_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_deleteJob_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (job.DeleteJobInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal job.DeleteJobInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNDeleteJobInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐDeleteJobInput(ctx, tmp)
+	}
+
+	var zeroVal job.DeleteJobInput
 	return zeroVal, nil
 }
 
@@ -19116,6 +19197,113 @@ func (ec *executionContext) fieldContext_DeleteApplicationPayload_team(_ context
 	return fc, nil
 }
 
+func (ec *executionContext) _DeleteJobPayload_team(ctx context.Context, field graphql.CollectedField, obj *job.DeleteJobPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteJobPayload_team(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.DeleteJobPayload().Team(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*team.Team)
+	fc.Result = res
+	return ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐTeam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeleteJobPayload_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteJobPayload",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Team_slug(ctx, field)
+			case "slackChannel":
+				return ec.fieldContext_Team_slackChannel(ctx, field)
+			case "purpose":
+				return ec.fieldContext_Team_purpose(ctx, field)
+			case "azureGroupID":
+				return ec.fieldContext_Team_azureGroupID(ctx, field)
+			case "gitHubTeamSlug":
+				return ec.fieldContext_Team_gitHubTeamSlug(ctx, field)
+			case "googleGroupEmail":
+				return ec.fieldContext_Team_googleGroupEmail(ctx, field)
+			case "googleArtifactRegistry":
+				return ec.fieldContext_Team_googleArtifactRegistry(ctx, field)
+			case "cdnBucket":
+				return ec.fieldContext_Team_cdnBucket(ctx, field)
+			case "member":
+				return ec.fieldContext_Team_member(ctx, field)
+			case "members":
+				return ec.fieldContext_Team_members(ctx, field)
+			case "lastSuccessfulSync":
+				return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			case "deletionInProgress":
+				return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			case "viewerIsOwner":
+				return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			case "viewerIsMember":
+				return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			case "environments":
+				return ec.fieldContext_Team_environments(ctx, field)
+			case "environment":
+				return ec.fieldContext_Team_environment(ctx, field)
+			case "deleteKey":
+				return ec.fieldContext_Team_deleteKey(ctx, field)
+			case "applications":
+				return ec.fieldContext_Team_applications(ctx, field)
+			case "auditEntries":
+				return ec.fieldContext_Team_auditEntries(ctx, field)
+			case "cost":
+				return ec.fieldContext_Team_cost(ctx, field)
+			case "jobs":
+				return ec.fieldContext_Team_jobs(ctx, field)
+			case "bigQueryDatasets":
+				return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
+			case "redisInstances":
+				return ec.fieldContext_Team_redisInstances(ctx, field)
+			case "openSearchInstances":
+				return ec.fieldContext_Team_openSearchInstances(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Team_buckets(ctx, field)
+			case "kafkaTopics":
+				return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Team_sqlInstances(ctx, field)
+			case "repositories":
+				return ec.fieldContext_Team_repositories(ctx, field)
+			case "workloadUtilization":
+				return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			case "vulnerabilitySummary":
+				return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
+			case "workloads":
+				return ec.fieldContext_Team_workloads(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _EntraIDAuthIntegration_name(ctx context.Context, field graphql.CollectedField, obj *workload.EntraIDAuthIntegration) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_EntraIDAuthIntegration_name(ctx, field)
 	if err != nil {
@@ -24510,6 +24698,65 @@ func (ec *executionContext) fieldContext_Mutation_restartApplication(ctx context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_restartApplication_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteJob(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteJob(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteJob(rctx, fc.Args["input"].(job.DeleteJobInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*job.DeleteJobPayload)
+	fc.Result = res
+	return ec.marshalNDeleteJobPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐDeleteJobPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteJob(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "team":
+				return ec.fieldContext_DeleteJobPayload_team(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeleteJobPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteJob_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -46297,6 +46544,47 @@ func (ec *executionContext) unmarshalInputDeleteApplicationInput(ctx context.Con
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDeleteJobInput(ctx context.Context, obj interface{}) (job.DeleteJobInput, error) {
+	var it job.DeleteJobInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "teamSlug", "environmentName"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		case "environmentName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnvironmentName = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputImageVulnerabilityOrder(ctx context.Context, obj interface{}) (vulnerability.ImageVulnerabilityOrder, error) {
 	var it vulnerability.ImageVulnerabilityOrder
 	asMap := map[string]interface{}{}
@@ -50123,6 +50411,73 @@ func (ec *executionContext) _DeleteApplicationPayload(ctx context.Context, sel a
 	return out
 }
 
+var deleteJobPayloadImplementors = []string{"DeleteJobPayload"}
+
+func (ec *executionContext) _DeleteJobPayload(ctx context.Context, sel ast.SelectionSet, obj *job.DeleteJobPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deleteJobPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteJobPayload")
+		case "team":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._DeleteJobPayload_team(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var entraIDAuthIntegrationImplementors = []string{"EntraIDAuthIntegration", "ApplicationAuthIntegrations", "JobAuthIntegrations", "AuthIntegration"}
 
 func (ec *executionContext) _EntraIDAuthIntegration(ctx context.Context, sel ast.SelectionSet, obj *workload.EntraIDAuthIntegration) graphql.Marshaler {
@@ -52158,6 +52513,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "restartApplication":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_restartApplication(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteJob":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteJob(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -60947,6 +61309,25 @@ func (ec *executionContext) marshalNDeleteApplicationPayload2ᚖgithubᚗcomᚋn
 		return graphql.Null
 	}
 	return ec._DeleteApplicationPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNDeleteJobInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐDeleteJobInput(ctx context.Context, v interface{}) (job.DeleteJobInput, error) {
+	res, err := ec.unmarshalInputDeleteJobInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDeleteJobPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐDeleteJobPayload(ctx context.Context, sel ast.SelectionSet, v job.DeleteJobPayload) graphql.Marshaler {
+	return ec._DeleteJobPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDeleteJobPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐDeleteJobPayload(ctx context.Context, sel ast.SelectionSet, v *job.DeleteJobPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DeleteJobPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNExternalNetworkPolicyTarget2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋnetpolᚐExternalNetworkPolicyTarget(ctx context.Context, sel ast.SelectionSet, v netpol.ExternalNetworkPolicyTarget) graphql.Marshaler {

@@ -18,6 +18,11 @@ extend type Team {
 	): JobConnection!
 }
 
+extend type Mutation {
+	"Delete an job."
+	deleteJob(input: DeleteJobInput!): DeleteJobPayload!
+}
+
 extend type TeamEnvironment {
 	"NAIS job in the team environment."
 	job(name: String!): Job!
@@ -192,4 +197,18 @@ enum JobOrderField {
 extend union SearchNode = Job
 extend enum SearchType {
 	JOB
+}
+
+input DeleteJobInput {
+	"Name of the job."
+	name: String!
+	"Slug of the team that owns the job."
+	teamSlug: Slug!
+	"Name of the environment where the job runs."
+	environmentName: String!
+}
+
+type DeleteJobPayload {
+	"The team that owned the deleted job."
+	team: Team
 }

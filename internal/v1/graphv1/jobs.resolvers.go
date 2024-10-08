@@ -3,12 +3,20 @@ package graphv1
 import (
 	"context"
 
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/team"
 	"github.com/nais/api/internal/v1/workload"
 	"github.com/nais/api/internal/v1/workload/job"
 )
+
+func (r *deleteJobPayloadResolver) Team(ctx context.Context, obj *job.DeleteJobPayload) (*team.Team, error) {
+	if obj.TeamSlug == nil {
+		return nil, nil
+	}
+	return team.Get(ctx, *obj.TeamSlug)
+}
 
 func (r *jobResolver) Team(ctx context.Context, obj *job.Job) (*team.Team, error) {
 	return team.Get(ctx, obj.TeamSlug)
@@ -45,6 +53,13 @@ func (r *jobResolver) Manifest(ctx context.Context, obj *job.Job) (*job.JobManif
 	return job.Manifest(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
 }
 
+func (r *mutationResolver) DeleteJob(ctx context.Context, input job.DeleteJobInput) (*job.DeleteJobPayload, error) {
+	if err := authz.RequireTeamMembershipCtx(ctx, input.TeamSlug); err != nil {
+		return nil, err
+	}
+	return job.Delete(ctx, input.TeamSlug, input.EnvironmentName, input.Name)
+}
+
 func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder) (*pagination.Connection[*job.Job], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -58,6 +73,13 @@ func (r *teamEnvironmentResolver) Job(ctx context.Context, obj *team.TeamEnviron
 	return job.Get(ctx, obj.TeamSlug, obj.Name, name)
 }
 
+func (r *Resolver) DeleteJobPayload() gengqlv1.DeleteJobPayloadResolver {
+	return &deleteJobPayloadResolver{r}
+}
+
 func (r *Resolver) Job() gengqlv1.JobResolver { return &jobResolver{r} }
 
-type jobResolver struct{ *Resolver }
+type (
+	deleteJobPayloadResolver struct{ *Resolver }
+	jobResolver              struct{ *Resolver }
+)

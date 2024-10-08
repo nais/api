@@ -294,3 +294,13 @@ func toGraphJobRun(run *batchv1.Job, environmentName string) *JobRun {
 		*/
 	}
 }
+
+type DeleteJobInput struct {
+	Name            string    `json:"name"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
+	EnvironmentName string    `json:"environmentName"`
+}
+
+type DeleteJobPayload struct {
+	TeamSlug *slug.Slug `json:"-"`
+}

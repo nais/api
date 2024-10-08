@@ -145,3 +145,13 @@ func Manifest(ctx context.Context, teamSlug slug.Slug, environmentName, name str
 		Content: string(b),
 	}, nil
 }
+
+func Delete(ctx context.Context, teamSlug slug.Slug, environmentName, name string) (*DeleteJobPayload, error) {
+	err := fromContext(ctx).jobWatcher.Delete(ctx, environmentName, teamSlug.String(), name)
+	if err != nil {
+		return nil, err
+	}
+	return &DeleteJobPayload{
+		TeamSlug: &teamSlug,
+	}, nil
+}

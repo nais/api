@@ -164,6 +164,11 @@ func RequireTeamMembership(actor *Actor, team slug.Slug) error {
 	return ErrMissingRole{role: string(gensql.RoleNameTeammember)}
 }
 
+// RequireTeamMembershipCtx checks that the given actor is a member of a specific team.
+func RequireTeamMembershipCtx(ctx context.Context, team slug.Slug) error {
+	return RequireTeamMembership(ActorFromContext(ctx), team)
+}
+
 // authorized Check if one of the authorizations in the map matches the required authorization.
 func authorized(authorizations map[roles.Authorization]struct{}, requiredAuthzName roles.Authorization) error {
 	for authorization := range authorizations {
