@@ -24,7 +24,11 @@ extend type TeamEnvironment {
 }
 
 extend type Mutation {
+	"Delete an application."
 	deleteApplication(input: DeleteApplicationInput!): DeleteApplicationPayload!
+
+	"Restart an application."
+	restartApplication(input: RestartApplicationInput!): RestartApplicationPayload!
 }
 
 """
@@ -178,6 +182,20 @@ input DeleteApplicationInput {
 }
 
 type DeleteApplicationPayload {
-	"Name of the team that owns the deleted application."
+	"The team that owned the deleted application."
 	team: Team
+}
+
+input RestartApplicationInput {
+	"Name of the application."
+	name: String!
+	"Slug of the team that owns the application."
+	teamSlug: Slug!
+	"Name of the environment where the application runs."
+	environmentName: String!
+}
+
+type RestartApplicationPayload {
+	"The application that was restarted."
+	application: Application
 }

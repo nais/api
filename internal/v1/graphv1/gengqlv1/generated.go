@@ -82,6 +82,7 @@ type ResolverRoot interface {
 	RedisInstanceAccess() RedisInstanceAccessResolver
 	RemoveTeamMemberPayload() RemoveTeamMemberPayloadResolver
 	Repository() RepositoryResolver
+	RestartApplicationPayload() RestartApplicationPayloadResolver
 	SqlDatabase() SqlDatabaseResolver
 	SqlInstance() SqlInstanceResolver
 	Team() TeamResolver
@@ -486,6 +487,7 @@ type ComplexityRoot struct {
 		RemoveRepositoryFromTeam func(childComplexity int, input repository.RemoveRepositoryFromTeamInput) int
 		RemoveTeamMember         func(childComplexity int, input team.RemoveTeamMemberInput) int
 		RequestTeamDeletion      func(childComplexity int, input team.RequestTeamDeletionInput) int
+		RestartApplication       func(childComplexity int, input application.RestartApplicationInput) int
 		SetTeamMemberRole        func(childComplexity int, input team.SetTeamMemberRoleInput) int
 		SynchronizeTeam          func(childComplexity int, input team.SynchronizeTeamInput) int
 		UpdateTeam               func(childComplexity int, input team.UpdateTeamInput) int
@@ -680,6 +682,10 @@ type ComplexityRoot struct {
 
 	RequestTeamDeletionPayload struct {
 		Key func(childComplexity int) int
+	}
+
+	RestartApplicationPayload struct {
+		Application func(childComplexity int) int
 	}
 
 	SearchNodeConnection struct {
@@ -1192,6 +1198,7 @@ type KafkaTopicAclResolver interface {
 }
 type MutationResolver interface {
 	DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error)
+	RestartApplication(ctx context.Context, input application.RestartApplicationInput) (*application.RestartApplicationPayload, error)
 	EnableReconciler(ctx context.Context, name string) (*reconciler.Reconciler, error)
 	DisableReconciler(ctx context.Context, name string) (*reconciler.Reconciler, error)
 	ConfigureReconciler(ctx context.Context, name string, config []*reconciler.ReconcilerConfigInput) (*reconciler.Reconciler, error)
@@ -1255,6 +1262,9 @@ type RemoveTeamMemberPayloadResolver interface {
 }
 type RepositoryResolver interface {
 	Team(ctx context.Context, obj *repository.Repository) (*team.Team, error)
+}
+type RestartApplicationPayloadResolver interface {
+	Application(ctx context.Context, obj *application.RestartApplicationPayload) (*application.Application, error)
 }
 type SqlDatabaseResolver interface {
 	Team(ctx context.Context, obj *sqlinstance.SQLDatabase) (*team.Team, error)
@@ -2947,6 +2957,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.RequestTeamDeletion(childComplexity, args["input"].(team.RequestTeamDeletionInput)), true
 
+	case "Mutation.restartApplication":
+		if e.complexity.Mutation.RestartApplication == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_restartApplication_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RestartApplication(childComplexity, args["input"].(application.RestartApplicationInput)), true
+
 	case "Mutation.setTeamMemberRole":
 		if e.complexity.Mutation.SetTeamMemberRole == nil {
 			break
@@ -3718,6 +3740,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RequestTeamDeletionPayload.Key(childComplexity), true
+
+	case "RestartApplicationPayload.application":
+		if e.complexity.RestartApplicationPayload.Application == nil {
+			break
+		}
+
+		return e.complexity.RestartApplicationPayload.Application(childComplexity), true
 
 	case "SearchNodeConnection.edges":
 		if e.complexity.SearchNodeConnection.Edges == nil {
@@ -5729,6 +5758,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRemoveRepositoryFromTeamInput,
 		ec.unmarshalInputRemoveTeamMemberInput,
 		ec.unmarshalInputRequestTeamDeletionInput,
+		ec.unmarshalInputRestartApplicationInput,
 		ec.unmarshalInputSearchFilter,
 		ec.unmarshalInputSetTeamMemberRoleInput,
 		ec.unmarshalInputSqlInstanceOrder,
@@ -5864,7 +5894,11 @@ extend type TeamEnvironment {
 }
 
 extend type Mutation {
+	"Delete an application."
 	deleteApplication(input: DeleteApplicationInput!): DeleteApplicationPayload!
+
+	"Restart an application."
+	restartApplication(input: RestartApplicationInput!): RestartApplicationPayload!
 }
 
 """
@@ -6018,8 +6052,22 @@ input DeleteApplicationInput {
 }
 
 type DeleteApplicationPayload {
-	"Name of the team that owns the deleted application."
+	"The team that owned the deleted application."
 	team: Team
+}
+
+input RestartApplicationInput {
+	"Name of the application."
+	name: String!
+	"Slug of the team that owns the application."
+	teamSlug: Slug!
+	"Name of the environment where the application runs."
+	environmentName: String!
+}
+
+type RestartApplicationPayload {
+	"The application that was restarted."
+	application: Application
 }
 `, BuiltIn: false},
 	{Name: "../schema/auditlog.graphqls", Input: `extend type Team {
@@ -10127,6 +10175,38 @@ func (ec *executionContext) field_Mutation_requestTeamDeletion_argsInput(
 	}
 
 	var zeroVal team.RequestTeamDeletionInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_restartApplication_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_restartApplication_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_restartApplication_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (application.RestartApplicationInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal application.RestartApplicationInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNRestartApplicationInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐRestartApplicationInput(ctx, tmp)
+	}
+
+	var zeroVal application.RestartApplicationInput
 	return zeroVal, nil
 }
 
@@ -24342,6 +24422,65 @@ func (ec *executionContext) fieldContext_Mutation_deleteApplication(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_restartApplication(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_restartApplication(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RestartApplication(rctx, fc.Args["input"].(application.RestartApplicationInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*application.RestartApplicationPayload)
+	fc.Result = res
+	return ec.marshalNRestartApplicationPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐRestartApplicationPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_restartApplication(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "application":
+				return ec.fieldContext_RestartApplicationPayload_application(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RestartApplicationPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_restartApplication_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_enableReconciler(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_enableReconciler(ctx, field)
 	if err != nil {
@@ -30521,6 +30660,85 @@ func (ec *executionContext) fieldContext_RequestTeamDeletionPayload_key(_ contex
 				return ec.fieldContext_TeamDeleteKey_team(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TeamDeleteKey", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RestartApplicationPayload_application(ctx context.Context, field graphql.CollectedField, obj *application.RestartApplicationPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RestartApplicationPayload_application(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.RestartApplicationPayload().Application(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*application.Application)
+	fc.Result = res
+	return ec.marshalOApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplication(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RestartApplicationPayload_application(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RestartApplicationPayload",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Application_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Application_name(ctx, field)
+			case "team":
+				return ec.fieldContext_Application_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_Application_environment(ctx, field)
+			case "image":
+				return ec.fieldContext_Application_image(ctx, field)
+			case "resources":
+				return ec.fieldContext_Application_resources(ctx, field)
+			case "ingresses":
+				return ec.fieldContext_Application_ingresses(ctx, field)
+			case "authIntegrations":
+				return ec.fieldContext_Application_authIntegrations(ctx, field)
+			case "manifest":
+				return ec.fieldContext_Application_manifest(ctx, field)
+			case "cost":
+				return ec.fieldContext_Application_cost(ctx, field)
+			case "networkPolicy":
+				return ec.fieldContext_Application_networkPolicy(ctx, field)
+			case "bigQueryDatasets":
+				return ec.fieldContext_Application_bigQueryDatasets(ctx, field)
+			case "redisInstances":
+				return ec.fieldContext_Application_redisInstances(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Application_openSearch(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Application_buckets(ctx, field)
+			case "kafkaTopicAcls":
+				return ec.fieldContext_Application_kafkaTopicAcls(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Application_sqlInstances(ctx, field)
+			case "utilization":
+				return ec.fieldContext_Application_utilization(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 		},
 	}
 	return fc, nil
@@ -46479,6 +46697,47 @@ func (ec *executionContext) unmarshalInputRequestTeamDeletionInput(ctx context.C
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRestartApplicationInput(ctx context.Context, obj interface{}) (application.RestartApplicationInput, error) {
+	var it application.RestartApplicationInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "teamSlug", "environmentName"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		case "environmentName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnvironmentName = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSearchFilter(ctx context.Context, obj interface{}) (searchv1.SearchFilter, error) {
 	var it searchv1.SearchFilter
 	asMap := map[string]interface{}{}
@@ -51834,6 +52093,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "restartApplication":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_restartApplication(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "enableReconciler":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_enableReconciler(ctx, field)
@@ -54222,6 +54488,73 @@ func (ec *executionContext) _RequestTeamDeletionPayload(ctx context.Context, sel
 			out.Values[i] = graphql.MarshalString("RequestTeamDeletionPayload")
 		case "key":
 			out.Values[i] = ec._RequestTeamDeletionPayload_key(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var restartApplicationPayloadImplementors = []string{"RestartApplicationPayload"}
+
+func (ec *executionContext) _RestartApplicationPayload(ctx context.Context, sel ast.SelectionSet, obj *application.RestartApplicationPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, restartApplicationPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RestartApplicationPayload")
+		case "application":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._RestartApplicationPayload_application(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -62487,6 +62820,25 @@ func (ec *executionContext) marshalNRequestTeamDeletionPayload2ᚖgithubᚗcom�
 	return ec._RequestTeamDeletionPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNRestartApplicationInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐRestartApplicationInput(ctx context.Context, v interface{}) (application.RestartApplicationInput, error) {
+	res, err := ec.unmarshalInputRestartApplicationInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRestartApplicationPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐRestartApplicationPayload(ctx context.Context, sel ast.SelectionSet, v application.RestartApplicationPayload) graphql.Marshaler {
+	return ec._RestartApplicationPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRestartApplicationPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐRestartApplicationPayload(ctx context.Context, sel ast.SelectionSet, v *application.RestartApplicationPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RestartApplicationPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNScalingStrategy2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐScalingStrategy(ctx context.Context, sel ast.SelectionSet, v application.ScalingStrategy) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -64563,6 +64915,13 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalOApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplication(ctx context.Context, sel ast.SelectionSet, v *application.Application) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Application(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOApplicationOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋapplicationᚐApplicationOrder(ctx context.Context, v interface{}) (*application.ApplicationOrder, error) {

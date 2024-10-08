@@ -137,7 +137,19 @@ func (w *clusterWatcher[T]) Client() dynamic.NamespaceableResourceInterface {
 	return w.manager.client.Resource(w.gvr)
 }
 
-func (w *clusterWatcher[T]) ImpersonatedClient(ctx context.Context) (dynamic.NamespaceableResourceInterface, error) {
+type ImpersonatedClientOption func(s *impersonatedSettings)
+
+type impersonatedSettings struct {
+	gvr *schema.GroupVersionResource
+}
+
+func WithImpersonatedClientGVR(gvr schema.GroupVersionResource) ImpersonatedClientOption {
+	return func(s *impersonatedSettings) {
+		s.gvr = &gvr
+	}
+}
+
+func (w *clusterWatcher[T]) ImpersonatedClient(ctx context.Context, opts ...ImpersonatedClientOption) (dynamic.NamespaceableResourceInterface, error) {
 	actor := authz.ActorFromContext(ctx)
 
 	groups, err := team.ListGCPGroupsForUser(ctx, actor.User.GetID())
@@ -145,11 +157,21 @@ func (w *clusterWatcher[T]) ImpersonatedClient(ctx context.Context) (dynamic.Nam
 		return nil, fmt.Errorf("listing GCP groups for user: %w", err)
 	}
 
+	settings := &impersonatedSettings{}
+	for _, opt := range opts {
+		opt(settings)
+	}
+
+	gvr := w.gvr
+	if settings.gvr != nil {
+		gvr = *settings.gvr
+	}
+
 	if _, ok := w.manager.client.(*fake.FakeDynamicClient); ok {
 		// Instead of configuring a custom client creator when using fake clients, we just
 		// type check the client and return it if it's a fake client.
 		w.log.WithField("groups", groups).Warn("impersonation is not supported in fake mode, but would impersonate with these groups")
-		return w.manager.client.Resource(w.gvr), nil
+		return w.manager.client.Resource(gvr), nil
 	}
 
 	cfg := rest.CopyConfig(w.manager.config)
@@ -163,5 +185,5 @@ func (w *clusterWatcher[T]) ImpersonatedClient(ctx context.Context) (dynamic.Nam
 		return nil, fmt.Errorf("creating dynamic client: %w", err)
 	}
 
-	return client.Resource(w.gvr), nil
+	return client.Resource(gvr), nil
 }

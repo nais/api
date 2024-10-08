@@ -198,5 +198,17 @@ type DeleteApplicationInput struct {
 }
 
 type DeleteApplicationPayload struct {
-	TeamSlug *slug.Slug `json:"teamSlug"`
+	TeamSlug *slug.Slug `json:"-"`
+}
+
+type RestartApplicationInput struct {
+	Name            string    `json:"name"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
+	EnvironmentName string    `json:"environmentName"`
+}
+
+type RestartApplicationPayload struct {
+	TeamSlug        slug.Slug `json:"-"`
+	ApplicationName string    `json:"-"`
+	EnvironmentName string    `json:"-"`
 }

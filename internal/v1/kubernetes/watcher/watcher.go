@@ -2,10 +2,12 @@ package watcher
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/dynamic"
 )
 
 type WatchOption func(*watcherSettings)
@@ -110,6 +112,16 @@ func (w *Watcher[T]) Delete(ctx context.Context, cluster, namespace string, name
 		Namespace: namespace,
 		Name:      name,
 	}
+}
+
+func (w *Watcher[T]) ImpersonatedClient(ctx context.Context, cluster string, opts ...ImpersonatedClientOption) (dynamic.NamespaceableResourceInterface, error) {
+	for _, watcher := range w.watchers {
+		if watcher.cluster == cluster {
+			return watcher.ImpersonatedClient(ctx, opts...)
+		}
+	}
+
+	return nil, fmt.Errorf("no watcher for cluster %s", cluster)
 }
 
 func Objects[T Object](list []*EnvironmentWrapper[T]) []T {

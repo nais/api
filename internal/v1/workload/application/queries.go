@@ -2,13 +2,19 @@ package application
 
 import (
 	"context"
+	"fmt"
 	"slices"
+	"time"
 
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
+	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/nais/api/internal/v1/searchv1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/yaml"
 )
 
@@ -123,4 +129,30 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environmentName, name strin
 	return &DeleteApplicationPayload{
 		TeamSlug: &teamSlug,
 	}, nil
+}
+
+func Restart(ctx context.Context, teamSlug slug.Slug, environmentName, name string) error {
+	opts := []watcher.ImpersonatedClientOption{
+		watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{
+			Group:    "apps",
+			Version:  "v1",
+			Resource: "deployments",
+		}),
+	}
+	client, err := fromContext(ctx).appWatcher.ImpersonatedClient(ctx, environmentName, opts...)
+	if err != nil {
+		return err
+	}
+
+	// depls, err := client.List(ctx, metav1.ListOptions{})
+	// if err != nil {
+	// 	return err
+	// }
+
+	b := []byte(fmt.Sprintf(`{"spec": {"template": {"metadata": {"annotations": {"kubectl.kubernetes.io/restartedAt": "%s"}}}}}`, time.Now().Format(time.RFC3339)))
+	if _, err := client.Namespace(teamSlug.String()).Patch(ctx, name, types.StrategicMergePatchType, b, metav1.PatchOptions{}); err != nil {
+		return err
+	}
+
+	return nil
 }

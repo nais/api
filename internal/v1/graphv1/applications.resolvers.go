@@ -56,6 +56,23 @@ func (r *mutationResolver) DeleteApplication(ctx context.Context, input applicat
 	return application.Delete(ctx, input.TeamSlug, input.EnvironmentName, input.Name)
 }
 
+func (r *mutationResolver) RestartApplication(ctx context.Context, input application.RestartApplicationInput) (*application.RestartApplicationPayload, error) {
+	err := application.Restart(ctx, input.TeamSlug, input.EnvironmentName, input.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return &application.RestartApplicationPayload{
+		TeamSlug:        input.TeamSlug,
+		EnvironmentName: input.EnvironmentName,
+		ApplicationName: input.Name,
+	}, nil
+}
+
+func (r *restartApplicationPayloadResolver) Application(ctx context.Context, obj *application.RestartApplicationPayload) (*application.Application, error) {
+	return application.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ApplicationName)
+}
+
 func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder) (*pagination.Connection[*application.Application], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -75,7 +92,12 @@ func (r *Resolver) DeleteApplicationPayload() gengqlv1.DeleteApplicationPayloadR
 	return &deleteApplicationPayloadResolver{r}
 }
 
+func (r *Resolver) RestartApplicationPayload() gengqlv1.RestartApplicationPayloadResolver {
+	return &restartApplicationPayloadResolver{r}
+}
+
 type (
-	applicationResolver              struct{ *Resolver }
-	deleteApplicationPayloadResolver struct{ *Resolver }
+	applicationResolver               struct{ *Resolver }
+	deleteApplicationPayloadResolver  struct{ *Resolver }
+	restartApplicationPayloadResolver struct{ *Resolver }
 )
