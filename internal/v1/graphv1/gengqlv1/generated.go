@@ -5865,9 +5865,7 @@ extend type TeamEnvironment {
 }
 
 extend type Mutation {
-	deleteApplication(
-		input: DeleteApplicationInput!
-	): DeleteApplicationPayload!
+	deleteApplication(input: DeleteApplicationInput!): DeleteApplicationPayload!
 }
 
 """
