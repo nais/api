@@ -4,11 +4,17 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/v1/team"
 	"github.com/sirupsen/logrus"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/dynamic/fake"
 	"k8s.io/client-go/informers"
+	"k8s.io/client-go/rest"
 )
 
 type Object interface {
@@ -19,33 +25,35 @@ type Object interface {
 }
 
 type clusterWatcher[T Object] struct {
-	client        dynamic.Interface
+	manager       *clusterManager
 	isRegistered  bool
 	informer      informers.GenericInformer
 	cluster       string
 	watcher       *Watcher[T]
 	log           logrus.FieldLogger
 	converterFunc func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool)
+	gvr           schema.GroupVersionResource
 }
 
 func newClusterWatcher[T Object](mgr *clusterManager, cluster string, watcher *Watcher[T], obj T, settings *watcherSettings, log logrus.FieldLogger) *clusterWatcher[T] {
-	inf, err := mgr.createInformer(obj, settings.gvr)
+	inf, gvr, err := mgr.createInformer(obj, settings.gvr)
 	if err != nil {
 		mgr.log.WithError(err).Error("creating informer")
 		return &clusterWatcher[T]{
-			client:       mgr.client,
+			manager:      mgr,
 			isRegistered: false,
 		}
 	}
 
 	w := &clusterWatcher[T]{
-		client:        mgr.client,
+		manager:       mgr,
 		isRegistered:  true,
 		informer:      inf,
 		watcher:       watcher,
 		cluster:       cluster,
 		log:           log,
 		converterFunc: settings.converter,
+		gvr:           gvr,
 	}
 
 	inf.Informer().AddEventHandler(w)
@@ -103,4 +111,57 @@ func (w *clusterWatcher[T]) OnDelete(obj any) {
 		return
 	}
 	w.watcher.remove(w.cluster, t)
+}
+
+func (w *clusterWatcher[T]) Delete(ctx context.Context, namespace, name string) error {
+	client, err := w.ImpersonatedClient(ctx)
+	if err != nil {
+		return fmt.Errorf("impersonating client: %w", err)
+	}
+
+	if _, ok := w.manager.client.(*fake.FakeDynamicClient); ok {
+		// This is a hack to make sure that the object is removed from the datastore
+		// when running with a fake client.
+		// The events created by the fake client are using the wrong type when calling
+		// watchers.
+		obj, err := client.Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
+		if err == nil {
+			w.OnDelete(obj)
+		}
+	}
+
+	return client.Namespace(namespace).Delete(ctx, name, metav1.DeleteOptions{})
+}
+
+func (w *clusterWatcher[T]) Client() dynamic.NamespaceableResourceInterface {
+	return w.manager.client.Resource(w.gvr)
+}
+
+func (w *clusterWatcher[T]) ImpersonatedClient(ctx context.Context) (dynamic.NamespaceableResourceInterface, error) {
+	actor := authz.ActorFromContext(ctx)
+
+	groups, err := team.ListGCPGroupsForUser(ctx, actor.User.GetID())
+	if err != nil {
+		return nil, fmt.Errorf("listing GCP groups for user: %w", err)
+	}
+
+	if _, ok := w.manager.client.(*fake.FakeDynamicClient); ok {
+		// Instead of configuring a custom client creator when using fake clients, we just
+		// type check the client and return it if it's a fake client.
+		w.log.WithField("groups", groups).Warn("impersonation is not supported in fake mode, but would impersonate with these groups")
+		return w.manager.client.Resource(w.gvr), nil
+	}
+
+	cfg := rest.CopyConfig(w.manager.config)
+	cfg.Impersonate = rest.ImpersonationConfig{
+		UserName: actor.User.Identity(),
+		Groups:   groups,
+	}
+
+	client, err := dynamic.NewForConfig(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("creating dynamic client: %w", err)
+	}
+
+	return client.Resource(w.gvr), nil
 }

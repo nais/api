@@ -44,6 +44,18 @@ func (r *applicationResolver) Manifest(ctx context.Context, obj *application.App
 	return application.Manifest(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name)
 }
 
+func (r *deleteApplicationPayloadResolver) Team(ctx context.Context, obj *application.DeleteApplicationPayload) (*team.Team, error) {
+	if obj.TeamSlug == nil {
+		return nil, nil
+	}
+
+	return team.Get(ctx, *obj.TeamSlug)
+}
+
+func (r *mutationResolver) DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error) {
+	return application.Delete(ctx, input.TeamSlug, input.EnvironmentName, input.Name)
+}
+
 func (r *teamResolver) Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder) (*pagination.Connection[*application.Application], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -59,4 +71,11 @@ func (r *teamEnvironmentResolver) Application(ctx context.Context, obj *team.Tea
 
 func (r *Resolver) Application() gengqlv1.ApplicationResolver { return &applicationResolver{r} }
 
-type applicationResolver struct{ *Resolver }
+func (r *Resolver) DeleteApplicationPayload() gengqlv1.DeleteApplicationPayloadResolver {
+	return &deleteApplicationPayloadResolver{r}
+}
+
+type (
+	applicationResolver              struct{ *Resolver }
+	deleteApplicationPayloadResolver struct{ *Resolver }
+)

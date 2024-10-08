@@ -12,7 +12,6 @@ import (
 	"github.com/nais/tester/testmanager/parser"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	dynfake "k8s.io/client-go/dynamic/fake"
-	k8sfake "k8s.io/client-go/kubernetes/fake"
 	"sigs.k8s.io/yaml"
 )
 
@@ -21,8 +20,7 @@ type named interface {
 }
 
 type clients struct {
-	ClientSet *k8sfake.Clientset
-	Dynamic   *dynfake.FakeDynamicClient
+	Dynamic *dynfake.FakeDynamicClient
 }
 
 type K8s struct {

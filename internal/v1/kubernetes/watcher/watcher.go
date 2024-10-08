@@ -10,11 +10,6 @@ import (
 
 type WatchOption func(*watcherSettings)
 
-type watcherSettings struct {
-	converter func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool)
-	gvr       *schema.GroupVersionResource
-}
-
 func WithConverter(fn func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool)) WatchOption {
 	return func(m *watcherSettings) {
 		m.converter = fn
@@ -25,6 +20,11 @@ func WithGVR(gvr schema.GroupVersionResource) WatchOption {
 	return func(m *watcherSettings) {
 		m.gvr = &gvr
 	}
+}
+
+type watcherSettings struct {
+	converter func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool)
+	gvr       *schema.GroupVersionResource
 }
 
 type Watcher[T Object] struct {
@@ -51,20 +51,6 @@ func (w *Watcher[T]) Start(ctx context.Context) {
 		go watcher.Start(ctx)
 	}
 }
-
-// func (w *Watcher[T]) WaitForReady(ctx context.Context, timeout time.Duration) bool {
-// 	ctx, cancel := context.WithTimeout(ctx, timeout)
-// 	defer cancel()
-
-// 	var syncs []cache.InformerSynced
-// 	for _, watcher := range w.watchers {
-// 		if !watcher.isRegistered {
-// 			continue
-// 		}
-// 		syncs = append(syncs, watcher.informer.Informer().HasSynced)
-// 	}
-// 	return cache.WaitForCacheSync(ctx.Done(), syncs...)
-// }
 
 func (w *Watcher[T]) add(cluster string, obj T) {
 	if w == nil {
@@ -110,6 +96,20 @@ func (w *Watcher[T]) GetByCluster(cluster string, filter ...Filter) []*Environme
 
 func (w *Watcher[T]) GetByNamespace(namespace string, filter ...Filter) []*EnvironmentWrapper[T] {
 	return w.datastore.GetByNamespace(namespace, filter...)
+}
+
+func (w *Watcher[T]) Delete(ctx context.Context, cluster, namespace string, name string) error {
+	for _, watcher := range w.watchers {
+		if watcher.cluster == cluster {
+			return watcher.Delete(ctx, namespace, name)
+		}
+	}
+
+	return &ErrorNotFound{
+		Cluster:   cluster,
+		Namespace: namespace,
+		Name:      name,
+	}
 }
 
 func Objects[T Object](list []*EnvironmentWrapper[T]) []T {

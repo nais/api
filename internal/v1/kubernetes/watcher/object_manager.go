@@ -17,6 +17,7 @@ import (
 )
 
 type clusterManager struct {
+	config   *rest.Config
 	client   dynamic.Interface
 	informer dynamicinformer.DynamicSharedInformerFactory
 	scheme   *runtime.Scheme
@@ -42,6 +43,7 @@ func newClusterManager(client dynamic.Interface, scheme *runtime.Scheme, config 
 	informer := dynamicinformer.NewDynamicSharedInformerFactory(client, 4*time.Hour)
 
 	return &clusterManager{
+		config:   config,
 		client:   client,
 		informer: informer,
 		scheme:   scheme,
@@ -71,17 +73,17 @@ func (c *clusterManager) gvk(obj runtime.Object) schema.GroupVersionKind {
 	// return schema.GroupVersionKind{}
 }
 
-func (c *clusterManager) createInformer(obj runtime.Object, gvr *schema.GroupVersionResource) (informers.GenericInformer, error) {
+func (c *clusterManager) createInformer(obj runtime.Object, gvr *schema.GroupVersionResource) (informers.GenericInformer, schema.GroupVersionResource, error) {
 	if gvr != nil {
 		c.log.WithField("resource", gvr.String()).Info("creating informer")
-		return c.informer.ForResource(*gvr), nil
+		return c.informer.ForResource(*gvr), *gvr, nil
 	}
 	gvk := c.gvk(obj)
 	if gvk.Empty() {
-		return nil, fmt.Errorf("failed to get GVK for object")
+		return nil, schema.GroupVersionResource{}, fmt.Errorf("failed to get GVK for object")
 	}
 
 	plural, _ := meta.UnsafeGuessKindToResource(gvk)
 	c.log.WithField("resource", plural.String()).Info("creating informer")
-	return c.informer.ForResource(plural), nil
+	return c.informer.ForResource(plural), plural, nil
 }

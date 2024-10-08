@@ -187,6 +187,10 @@ func ListForUser(ctx context.Context, userID uuid.UUID, page *pagination.Paginat
 	return pagination.NewConvertConnection(ret, page, int32(total), toGraphUserTeam), nil
 }
 
+func ListGCPGroupsForUser(ctx context.Context, userID uuid.UUID) ([]string, error) {
+	return db(ctx).ListGCPGroupsForUser(ctx, userID)
+}
+
 func GetMemberByEmail(ctx context.Context, teamSlug slug.Slug, email string) (*TeamMember, error) {
 	q := db(ctx)
 

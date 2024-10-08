@@ -114,3 +114,13 @@ func Manifest(ctx context.Context, teamSlug slug.Slug, environmentName, name str
 		Content: string(b),
 	}, nil
 }
+
+func Delete(ctx context.Context, teamSlug slug.Slug, environmentName, name string) (*DeleteApplicationPayload, error) {
+	err := fromContext(ctx).appWatcher.Delete(ctx, environmentName, teamSlug.String(), name)
+	if err != nil {
+		return nil, err
+	}
+	return &DeleteApplicationPayload{
+		TeamSlug: &teamSlug,
+	}, nil
+}

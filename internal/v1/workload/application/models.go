@@ -190,3 +190,13 @@ func toGraphApplication(application *nais_io_v1alpha1.Application, environmentNa
 		Spec: &application.Spec,
 	}
 }
+
+type DeleteApplicationInput struct {
+	Name            string    `json:"name"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
+	EnvironmentName string    `json:"environmentName"`
+}
+
+type DeleteApplicationPayload struct {
+	TeamSlug *slug.Slug `json:"teamSlug"`
+}

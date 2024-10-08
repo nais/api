@@ -23,6 +23,10 @@ extend type TeamEnvironment {
 	application(name: String!): Application!
 }
 
+extend type Mutation {
+	deleteApplication(input: DeleteApplicationInput!): DeleteApplicationPayload!
+}
+
 """
 TODO: write
 """
@@ -162,4 +166,18 @@ enum ApplicationOrderField {
 extend union SearchNode = Application
 extend enum SearchType {
 	APPLICATION
+}
+
+input DeleteApplicationInput {
+	"Name of the application."
+	name: String!
+	"Slug of the team that owns the application."
+	teamSlug: Slug!
+	"Name of the environment where the application runs."
+	environmentName: String!
+}
+
+type DeleteApplicationPayload {
+	"Name of the team that owns the deleted application."
+	team: Team
 }
