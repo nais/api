@@ -5,6 +5,10 @@ FROM
 	team_repositories
 WHERE
 	team_slug = @team_slug
+	AND CASE
+		WHEN sqlc.narg(search)::TEXT IS NOT NULL THEN github_repository ILIKE '%' || @search || '%'
+		ELSE TRUE
+	END
 ;
 
 -- name: ListForTeam :many
@@ -14,6 +18,10 @@ FROM
 	team_repositories
 WHERE
 	team_slug = @team_slug
+	AND CASE
+		WHEN sqlc.narg(search)::TEXT IS NOT NULL THEN github_repository ILIKE '%' || @search || '%'
+		ELSE TRUE
+	END
 ORDER BY
 	github_repository ASC
 LIMIT

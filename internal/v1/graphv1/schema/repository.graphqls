@@ -11,6 +11,8 @@ extend type Team {
 
 		"Get items before this cursor."
 		before: Cursor
+
+		filter: TeamRepositoryFilter
 	): RepositoryConnection!
 }
 
@@ -76,4 +78,9 @@ type Repository implements Node {
 
 	"Team this repository is connected to."
 	team: Team!
+}
+
+input TeamRepositoryFilter {
+	"Filter by repository name containing the phrase."
+	name: String
 }

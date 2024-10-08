@@ -21,19 +21,27 @@ func getByIdent(_ context.Context, id ident.Ident) (*Repository, error) {
 	}, nil
 }
 
-func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*RepositoryConnection, error) {
+func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, filter *TeamRepositoryFilter) (*RepositoryConnection, error) {
+	if filter == nil {
+		filter = &TeamRepositoryFilter{}
+	}
+
 	q := db(ctx)
 
 	ret, err := q.ListForTeam(ctx, repositorysql.ListForTeamParams{
 		TeamSlug: teamSlug,
 		Offset:   page.Offset(),
 		Limit:    page.Limit(),
+		Search:   filter.Name,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	total, err := q.CountForTeam(ctx, teamSlug)
+	total, err := q.CountForTeam(ctx, repositorysql.CountForTeamParams{
+		TeamSlug: teamSlug,
+		Search:   filter.Name,
+	})
 	if err != nil {
 		return nil, err
 	}

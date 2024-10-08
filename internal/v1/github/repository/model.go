@@ -47,3 +47,7 @@ type RemoveRepositoryFromTeamInput struct {
 type RemoveRepositoryFromTeamPayload struct {
 	Success bool `json:"success"`
 }
+
+type TeamRepositoryFilter struct {
+	Name *string `json:"name"`
+}

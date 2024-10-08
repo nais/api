@@ -4,12 +4,10 @@ package repositorysql
 
 import (
 	"context"
-
-	"github.com/nais/api/internal/slug"
 )
 
 type Querier interface {
-	CountForTeam(ctx context.Context, teamSlug slug.Slug) (int64, error)
+	CountForTeam(ctx context.Context, arg CountForTeamParams) (int64, error)
 	Create(ctx context.Context, arg CreateParams) (*TeamRepository, error)
 	ListForTeam(ctx context.Context, arg ListForTeamParams) ([]*TeamRepository, error)
 	Remove(ctx context.Context, arg RemoveParams) error
