@@ -173,7 +173,7 @@ type Team implements Node {
 	environment(name: String!): TeamEnvironment!
 
 	"Get a delete key for the team."
-	deleteKey(key: UUID!): TeamDeleteKey!
+	deleteKey(key: String!): TeamDeleteKey!
 }
 
 type TeamEnvironment implements Node {
@@ -249,7 +249,7 @@ type SetTeamMemberRolePayload {
 
 type TeamDeleteKey {
 	"The unique key used to confirm the deletion of a team."
-	key: UUID!
+	key: String!
 
 	"The creation timestamp of the key."
 	createdAt: Time!
@@ -379,7 +379,7 @@ input ConfirmTeamDeletionInput {
 	slug: Slug!
 
 	"Deletion key, acquired using the requestTeamDeletion mutation."
-	key: UUID!
+	key: String!
 }
 
 input AddTeamMemberInput {
@@ -601,7 +601,7 @@ type TeamMemberAddedAuditEntryData {
 	role: TeamMemberRole!
 
 	"The ID of the user that was added."
-	userID: UUID!
+	userID: ID!
 
 	"The email address of the user that was added."
 	userEmail: String!
@@ -641,7 +641,7 @@ type TeamMemberRemovedAuditEntry implements AuditEntry & Node {
 
 type TeamMemberRemovedAuditEntryData {
 	"The ID of the user that was removed."
-	userID: UUID!
+	userID: ID!
 
 	"The email address of the user that was removed."
 	userEmail: String!
@@ -684,7 +684,7 @@ type TeamMemberSetRoleAuditEntryData {
 	role: TeamMemberRole!
 
 	"The ID of the user that was added."
-	userID: UUID!
+	userID: ID!
 
 	"The email address of the user that was added."
 	userEmail: String!

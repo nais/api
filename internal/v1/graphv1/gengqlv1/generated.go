@@ -14,7 +14,6 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/google/uuid"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/auditv1"
 	"github.com/nais/api/internal/v1/cost"
@@ -817,7 +816,7 @@ type ComplexityRoot struct {
 		Buckets                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bucket.BucketOrder) int
 		CdnBucket              func(childComplexity int) int
 		Cost                   func(childComplexity int) int
-		DeleteKey              func(childComplexity int, key uuid.UUID) int
+		DeleteKey              func(childComplexity int, key string) int
 		DeletionInProgress     func(childComplexity int) int
 		Environment            func(childComplexity int, name string) int
 		Environments           func(childComplexity int) int
@@ -1278,7 +1277,7 @@ type TeamResolver interface {
 	ViewerIsMember(ctx context.Context, obj *team.Team) (bool, error)
 	Environments(ctx context.Context, obj *team.Team) ([]*team.TeamEnvironment, error)
 	Environment(ctx context.Context, obj *team.Team, name string) (*team.TeamEnvironment, error)
-	DeleteKey(ctx context.Context, obj *team.Team, key uuid.UUID) (*team.TeamDeleteKey, error)
+	DeleteKey(ctx context.Context, obj *team.Team, key string) (*team.TeamDeleteKey, error)
 	Applications(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *application.ApplicationOrder) (*pagination.Connection[*application.Application], error)
 	AuditEntries(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[auditv1.AuditEntry], error)
 	Cost(ctx context.Context, obj *team.Team) (*cost.TeamCost, error)
@@ -4292,7 +4291,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Team.DeleteKey(childComplexity, args["key"].(uuid.UUID)), true
+		return e.complexity.Team.DeleteKey(childComplexity, args["key"].(string)), true
 
 	case "Team.deletionInProgress":
 		if e.complexity.Team.DeletionInProgress == nil {
@@ -7428,9 +7427,6 @@ A cursor for use in pagination
 Cursors are opaque strings that are returned by the server for paginated results, and used when performing backwards / forwards pagination.
 """
 scalar Cursor
-
-"Universally Unique Identifier."
-scalar UUID
 `, BuiltIn: false},
 	{Name: "../schema/schema.graphqls", Input: `"The query root for the NAIS GraphQL API."
 type Query {
@@ -7709,7 +7705,7 @@ type Team implements Node {
 	environment(name: String!): TeamEnvironment!
 
 	"Get a delete key for the team."
-	deleteKey(key: UUID!): TeamDeleteKey!
+	deleteKey(key: String!): TeamDeleteKey!
 }
 
 type TeamEnvironment implements Node {
@@ -7785,7 +7781,7 @@ type SetTeamMemberRolePayload {
 
 type TeamDeleteKey {
 	"The unique key used to confirm the deletion of a team."
-	key: UUID!
+	key: String!
 
 	"The creation timestamp of the key."
 	createdAt: Time!
@@ -7915,7 +7911,7 @@ input ConfirmTeamDeletionInput {
 	slug: Slug!
 
 	"Deletion key, acquired using the requestTeamDeletion mutation."
-	key: UUID!
+	key: String!
 }
 
 input AddTeamMemberInput {
@@ -8137,7 +8133,7 @@ type TeamMemberAddedAuditEntryData {
 	role: TeamMemberRole!
 
 	"The ID of the user that was added."
-	userID: UUID!
+	userID: ID!
 
 	"The email address of the user that was added."
 	userEmail: String!
@@ -8177,7 +8173,7 @@ type TeamMemberRemovedAuditEntry implements AuditEntry & Node {
 
 type TeamMemberRemovedAuditEntryData {
 	"The ID of the user that was removed."
-	userID: UUID!
+	userID: ID!
 
 	"The email address of the user that was removed."
 	userEmail: String!
@@ -8220,7 +8216,7 @@ type TeamMemberSetRoleAuditEntryData {
 	role: TeamMemberRole!
 
 	"The ID of the user that was added."
-	userID: UUID!
+	userID: ID!
 
 	"The email address of the user that was added."
 	userEmail: String!
@@ -12317,22 +12313,22 @@ func (ec *executionContext) field_Team_deleteKey_args(ctx context.Context, rawAr
 func (ec *executionContext) field_Team_deleteKey_argsKey(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (uuid.UUID, error) {
+) (string, error) {
 	// We won't call the directive if the argument is null.
 	// Set call_argument_directives_with_null to true to call directives
 	// even if the argument is null.
 	_, ok := rawArgs["key"]
 	if !ok {
-		var zeroVal uuid.UUID
+		var zeroVal string
 		return zeroVal, nil
 	}
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
 	if tmp, ok := rawArgs["key"]; ok {
-		return ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+		return ec.unmarshalNString2string(ctx, tmp)
 	}
 
-	var zeroVal uuid.UUID
+	var zeroVal string
 	return zeroVal, nil
 }
 
@@ -34900,7 +34896,7 @@ func (ec *executionContext) _Team_deleteKey(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Team().DeleteKey(rctx, obj, fc.Args["key"].(uuid.UUID))
+		return ec.resolvers.Team().DeleteKey(rctx, obj, fc.Args["key"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -37491,7 +37487,7 @@ func (ec *executionContext) _TeamDeleteKey_key(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Key, nil
+		return obj.Key(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -37503,19 +37499,19 @@ func (ec *executionContext) _TeamDeleteKey_key(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(uuid.UUID)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamDeleteKey_key(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamDeleteKey",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type UUID does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -39539,7 +39535,7 @@ func (ec *executionContext) _TeamMemberAddedAuditEntryData_userID(ctx context.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.UserID, nil
+		return obj.UserID(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -39551,19 +39547,19 @@ func (ec *executionContext) _TeamMemberAddedAuditEntryData_userID(ctx context.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(uuid.UUID)
+	res := resTmp.(ident.Ident)
 	fc.Result = res
-	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamMemberAddedAuditEntryData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamMemberAddedAuditEntryData",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type UUID does not have child fields")
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -40339,7 +40335,7 @@ func (ec *executionContext) _TeamMemberRemovedAuditEntryData_userID(ctx context.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.UserID, nil
+		return obj.UserID(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -40351,19 +40347,19 @@ func (ec *executionContext) _TeamMemberRemovedAuditEntryData_userID(ctx context.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(uuid.UUID)
+	res := resTmp.(ident.Ident)
 	fc.Result = res
-	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamMemberRemovedAuditEntryData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamMemberRemovedAuditEntryData",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type UUID does not have child fields")
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -40927,7 +40923,7 @@ func (ec *executionContext) _TeamMemberSetRoleAuditEntryData_userID(ctx context.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.UserID, nil
+		return obj.UserID(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -40939,19 +40935,19 @@ func (ec *executionContext) _TeamMemberSetRoleAuditEntryData_userID(ctx context.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(uuid.UUID)
+	res := resTmp.(ident.Ident)
 	fc.Result = res
-	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgraphv1ᚋidentᚐIdent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamMemberSetRoleAuditEntryData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamMemberSetRoleAuditEntryData",
 		Field:      field,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type UUID does not have child fields")
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -45955,7 +45951,7 @@ func (ec *executionContext) unmarshalInputConfirmTeamDeletionInput(ctx context.C
 			it.Slug = data
 		case "key":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-			data, err := ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -63864,21 +63860,6 @@ func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v in
 
 func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
 	res := graphql.MarshalTime(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, v interface{}) (uuid.UUID, error) {
-	res, err := graphql.UnmarshalUUID(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, sel ast.SelectionSet, v uuid.UUID) graphql.Marshaler {
-	res := graphql.MarshalUUID(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")

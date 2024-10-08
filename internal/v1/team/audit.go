@@ -5,6 +5,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/v1/auditv1"
+	"github.com/nais/api/internal/v1/graphv1/ident"
+	"github.com/nais/api/internal/v1/user"
 )
 
 const (
@@ -119,8 +121,12 @@ type TeamMemberAddedAuditEntry struct {
 
 type TeamMemberAddedAuditEntryData struct {
 	Role      TeamMemberRole `json:"role"`
-	UserID    uuid.UUID      `json:"userID"`
+	UserUUID  uuid.UUID      `json:"userID"`
 	UserEmail string         `json:"userEmail"`
+}
+
+func (t TeamMemberAddedAuditEntryData) UserID() ident.Ident {
+	return user.NewIdent(t.UserUUID)
 }
 
 type TeamMemberRemovedAuditEntry struct {
@@ -129,8 +135,12 @@ type TeamMemberRemovedAuditEntry struct {
 }
 
 type TeamMemberRemovedAuditEntryData struct {
-	UserID    uuid.UUID `json:"userID"`
+	UserUUID  uuid.UUID `json:"userID"`
 	UserEmail string    `json:"userEmail"`
+}
+
+func (t TeamMemberRemovedAuditEntryData) UserID() ident.Ident {
+	return user.NewIdent(t.UserUUID)
 }
 
 type TeamMemberSetRoleAuditEntry struct {
@@ -140,6 +150,10 @@ type TeamMemberSetRoleAuditEntry struct {
 
 type TeamMemberSetRoleAuditEntryData struct {
 	Role      TeamMemberRole `json:"role"`
-	UserID    uuid.UUID      `json:"userID"`
+	UserUUID  uuid.UUID      `json:"userID"`
 	UserEmail string         `json:"userEmail"`
+}
+
+func (t TeamMemberSetRoleAuditEntryData) UserID() ident.Ident {
+	return user.NewIdent(t.UserUUID)
 }

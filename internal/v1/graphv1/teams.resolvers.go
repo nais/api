@@ -85,7 +85,12 @@ func (r *mutationResolver) RequestTeamDeletion(ctx context.Context, input team.R
 }
 
 func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, input team.ConfirmTeamDeletionInput) (*team.ConfirmTeamDeletionPayload, error) {
-	deleteKey, err := team.GetDeleteKey(ctx, input.Slug, input.Key)
+	keyUid, err := uuid.Parse(input.Key)
+	if err != nil {
+		return nil, apierror.Errorf("Invalid delete key: %s", input.Key)
+	}
+
+	deleteKey, err := team.GetDeleteKey(ctx, input.Slug, keyUid)
 	if err != nil {
 		return nil, apierror.Errorf("Unknown deletion key: %q", input.Key)
 	}
@@ -107,7 +112,7 @@ func (r *mutationResolver) ConfirmTeamDeletion(ctx context.Context, input team.C
 		return nil, apierror.Errorf("Team delete key has expired, you need to request a new key.")
 	}
 
-	if err := team.ConfirmDeleteKey(ctx, deleteKey.TeamSlug, input.Key, actor); err != nil {
+	if err := team.ConfirmDeleteKey(ctx, deleteKey.TeamSlug, keyUid, actor); err != nil {
 		return nil, err
 	}
 
@@ -273,8 +278,13 @@ func (r *teamResolver) Environment(ctx context.Context, obj *team.Team, name str
 	return team.GetTeamEnvironment(ctx, obj.Slug, name)
 }
 
-func (r *teamResolver) DeleteKey(ctx context.Context, obj *team.Team, key uuid.UUID) (*team.TeamDeleteKey, error) {
-	return team.GetDeleteKey(ctx, obj.Slug, key)
+func (r *teamResolver) DeleteKey(ctx context.Context, obj *team.Team, key string) (*team.TeamDeleteKey, error) {
+	uid, err := uuid.Parse(key)
+	if err != nil {
+		return nil, apierror.Errorf("Invalid delete key: %s", key)
+	}
+
+	return team.GetDeleteKey(ctx, obj.Slug, uid)
 }
 
 func (r *teamDeleteKeyResolver) CreatedBy(ctx context.Context, obj *team.TeamDeleteKey) (*user.User, error) {
@@ -298,15 +308,15 @@ func (r *teamMemberResolver) User(ctx context.Context, obj *team.TeamMember) (*u
 }
 
 func (r *teamMemberAddedAuditEntryDataResolver) User(ctx context.Context, obj *team.TeamMemberAddedAuditEntryData) (*user.User, error) {
-	return user.Get(ctx, obj.UserID)
+	return user.Get(ctx, obj.UserUUID)
 }
 
 func (r *teamMemberRemovedAuditEntryDataResolver) User(ctx context.Context, obj *team.TeamMemberRemovedAuditEntryData) (*user.User, error) {
-	return user.Get(ctx, obj.UserID)
+	return user.Get(ctx, obj.UserUUID)
 }
 
 func (r *teamMemberSetRoleAuditEntryDataResolver) User(ctx context.Context, obj *team.TeamMemberSetRoleAuditEntryData) (*user.User, error) {
-	return user.Get(ctx, obj.UserID)
+	return user.Get(ctx, obj.UserUUID)
 }
 
 func (r *Resolver) RemoveTeamMemberPayload() gengqlv1.RemoveTeamMemberPayloadResolver {

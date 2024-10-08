@@ -32,7 +32,7 @@ func (u *User) Identity() string       { return u.Email }
 func (u *User) IsServiceAccount() bool { return false }
 
 func (u User) ID() ident.Ident {
-	return newIdent(u.UUID)
+	return NewIdent(u.UUID)
 }
 
 func toGraphUser(u *usersql.User) *User {

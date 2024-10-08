@@ -18,7 +18,7 @@ func init() {
 	ident.RegisterIdentType(identKey, "U", GetByIdent)
 }
 
-func newIdent(uid uuid.UUID) ident.Ident {
+func NewIdent(uid uuid.UUID) ident.Ident {
 	return ident.NewIdent(identKey, base58.Encode(uid[:]))
 }
 
