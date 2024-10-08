@@ -359,7 +359,7 @@ func AddMember(ctx context.Context, input AddTeamMemberInput, actor *authz.Actor
 			TeamSlug:     ptr.To(input.TeamSlug),
 			Data: &TeamMemberAddedAuditEntryData{
 				Role:      input.Role,
-				UserID:    input.UserID,
+				UserUUID:  input.UserID,
 				UserEmail: input.UserEmail,
 			},
 		})
@@ -393,7 +393,7 @@ func RemoveMember(ctx context.Context, input RemoveTeamMemberInput, actor *authz
 			ResourceName: input.TeamSlug.String(),
 			TeamSlug:     ptr.To(input.TeamSlug),
 			Data: &TeamMemberRemovedAuditEntryData{
-				UserID:    input.UserID,
+				UserUUID:  input.UserID,
 				UserEmail: input.UserEmail,
 			},
 		})
@@ -442,7 +442,7 @@ func SetMemberRole(ctx context.Context, input SetTeamMemberRoleInput, actor *aut
 			TeamSlug:     ptr.To(input.TeamSlug),
 			Data: &TeamMemberSetRoleAuditEntryData{
 				Role:      input.Role,
-				UserID:    input.UserID,
+				UserUUID:  input.UserID,
 				UserEmail: input.UserEmail,
 			},
 		})
