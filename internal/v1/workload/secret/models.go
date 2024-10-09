@@ -11,6 +11,13 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
+const (
+	secretLabelManagedByKey        = "nais.io/managed-by"
+	secretLabelManagedByVal        = "console"
+	secretAnnotationLastModifiedAt = "console.nais.io/last-modified-at"
+	secretAnnotationLastModifiedBy = "console.nais.io/last-modified-by"
+)
+
 type (
 	SecretConnection = pagination.Connection[*Secret]
 	SecretEdge       = pagination.Edge[*Secret]
@@ -52,10 +59,25 @@ func (s *Secret) GetObjectKind() schema.ObjectKind {
 }
 
 func toGraphSecret(o *unstructured.Unstructured, environmentName string) *Secret {
+	var lastModifiedAt *time.Time
+	if t, ok := o.GetAnnotations()[secretAnnotationLastModifiedAt]; ok {
+		tm, err := time.Parse(time.RFC3339, t)
+		if err == nil {
+			lastModifiedAt = &tm
+		}
+	}
+
+	var lastModifiedBy *string
+	if email, ok := o.GetAnnotations()[secretAnnotationLastModifiedBy]; ok {
+		lastModifiedBy = &email
+	}
+
 	return &Secret{
-		Name:            o.GetName(),
-		TeamSlug:        slug.Slug(o.GetNamespace()),
-		EnvironmentName: environmentName,
+		Name:                o.GetName(),
+		TeamSlug:            slug.Slug(o.GetNamespace()),
+		EnvironmentName:     environmentName,
+		LastModifiedAt:      lastModifiedAt,
+		ModifiedByUserEmail: lastModifiedBy,
 	}
 }
 
