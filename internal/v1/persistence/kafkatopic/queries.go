@@ -56,15 +56,15 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, workloadName, pool
 }
 
 func Search(ctx context.Context, q string) ([]*searchv1.Result, error) {
-	apps := fromContext(ctx).watcher.All()
+	topics := fromContext(ctx).watcher.All()
 
 	ret := make([]*searchv1.Result, 0)
-	for _, app := range apps {
-		rank := searchv1.Match(q, app.Obj.Name)
+	for _, topic := range topics {
+		rank := searchv1.Match(q, topic.Obj.Name)
 		if searchv1.Include(rank) {
 			ret = append(ret, &searchv1.Result{
 				Rank: rank,
-				Node: app.Obj,
+				Node: topic.Obj,
 			})
 		}
 	}
