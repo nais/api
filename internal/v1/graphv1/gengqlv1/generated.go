@@ -96,6 +96,7 @@ type ResolverRoot interface {
 	TeamMemberSetRoleAuditEntryData() TeamMemberSetRoleAuditEntryDataResolver
 	TeamUtilizationData() TeamUtilizationDataResolver
 	TeamUtilizationEnvironmentDataPoint() TeamUtilizationEnvironmentDataPointResolver
+	TriggerJobPayload() TriggerJobPayloadResolver
 	User() UserResolver
 	WorkloadCost() WorkloadCostResolver
 	WorkloadUtilization() WorkloadUtilizationResolver
@@ -496,6 +497,7 @@ type ComplexityRoot struct {
 		RestartApplication       func(childComplexity int, input application.RestartApplicationInput) int
 		SetTeamMemberRole        func(childComplexity int, input team.SetTeamMemberRoleInput) int
 		SynchronizeTeam          func(childComplexity int, input team.SynchronizeTeamInput) int
+		TriggerJob               func(childComplexity int, input job.TriggerJobInput) int
 		UpdateTeam               func(childComplexity int, input team.UpdateTeamInput) int
 		UpdateTeamEnvironment    func(childComplexity int, input team.UpdateTeamEnvironmentInput) int
 	}
@@ -1089,6 +1091,11 @@ type ComplexityRoot struct {
 		Name func(childComplexity int) int
 	}
 
+	TriggerJobPayload struct {
+		Job    func(childComplexity int) int
+		JobRun func(childComplexity int) int
+	}
+
 	UpdateTeamEnvironmentPayload struct {
 		Environment func(childComplexity int) int
 	}
@@ -1237,6 +1244,7 @@ type MutationResolver interface {
 	DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error)
 	RestartApplication(ctx context.Context, input application.RestartApplicationInput) (*application.RestartApplicationPayload, error)
 	DeleteJob(ctx context.Context, input job.DeleteJobInput) (*job.DeleteJobPayload, error)
+	TriggerJob(ctx context.Context, input job.TriggerJobInput) (*job.TriggerJobPayload, error)
 	EnableReconciler(ctx context.Context, name string) (*reconciler.Reconciler, error)
 	DisableReconciler(ctx context.Context, name string) (*reconciler.Reconciler, error)
 	ConfigureReconciler(ctx context.Context, name string, config []*reconciler.ReconcilerConfigInput) (*reconciler.Reconciler, error)
@@ -1381,6 +1389,9 @@ type TeamUtilizationDataResolver interface {
 }
 type TeamUtilizationEnvironmentDataPointResolver interface {
 	Environment(ctx context.Context, obj *utilization.TeamUtilizationEnvironmentDataPoint) (*team.TeamEnvironment, error)
+}
+type TriggerJobPayloadResolver interface {
+	Job(ctx context.Context, obj *job.TriggerJobPayload) (*job.Job, error)
 }
 type UserResolver interface {
 	Teams(ctx context.Context, obj *user.User, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.UserTeamOrder) (*pagination.Connection[*team.TeamMember], error)
@@ -3050,6 +3061,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SynchronizeTeam(childComplexity, args["input"].(team.SynchronizeTeamInput)), true
+
+	case "Mutation.triggerJob":
+		if e.complexity.Mutation.TriggerJob == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_triggerJob_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.TriggerJob(childComplexity, args["input"].(job.TriggerJobInput)), true
 
 	case "Mutation.updateTeam":
 		if e.complexity.Mutation.UpdateTeam == nil {
@@ -5661,6 +5684,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TokenXAuthIntegration.Name(childComplexity), true
 
+	case "TriggerJobPayload.job":
+		if e.complexity.TriggerJobPayload.Job == nil {
+			break
+		}
+
+		return e.complexity.TriggerJobPayload.Job(childComplexity), true
+
+	case "TriggerJobPayload.jobRun":
+		if e.complexity.TriggerJobPayload.JobRun == nil {
+			break
+		}
+
+		return e.complexity.TriggerJobPayload.JobRun(childComplexity), true
+
 	case "UpdateTeamEnvironmentPayload.environment":
 		if e.complexity.UpdateTeamEnvironmentPayload.Environment == nil {
 			break
@@ -5943,6 +5980,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTeamMemberOrder,
 		ec.unmarshalInputTeamOrder,
 		ec.unmarshalInputTeamRepositoryFilter,
+		ec.unmarshalInputTriggerJobInput,
 		ec.unmarshalInputUpdateTeamEnvironmentInput,
 		ec.unmarshalInputUpdateTeamInput,
 		ec.unmarshalInputUserOrder,
@@ -6457,8 +6495,11 @@ type BigQueryDatasetCost {
 }
 
 extend type Mutation {
-	"Delete an job."
+	"Delete a job."
 	deleteJob(input: DeleteJobInput!): DeleteJobPayload!
+
+	"Trigger a job"
+	triggerJob(input: TriggerJobInput!): TriggerJobPayload!
 }
 
 extend type TeamEnvironment {
@@ -6649,6 +6690,24 @@ input DeleteJobInput {
 type DeleteJobPayload {
 	"The team that owned the deleted job."
 	team: Team
+}
+
+input TriggerJobInput {
+	"Name of the job."
+	name: String!
+	"Slug of the team that owns the job."
+	teamSlug: Slug!
+	"Name of the environment where the job runs."
+	environmentName: String!
+	"Name of the new run. Must be unique within the team."
+	runName: String!
+}
+
+type TriggerJobPayload {
+	"The job that was triggered."
+	job: Job
+	"The new job run."
+	jobRun: JobRun
 }
 `, BuiltIn: false},
 	{Name: "../schema/netpol.graphqls", Input: `extend interface Workload {
@@ -10576,6 +10635,38 @@ func (ec *executionContext) field_Mutation_synchronizeTeam_argsInput(
 	}
 
 	var zeroVal team.SynchronizeTeamInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_triggerJob_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_triggerJob_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_triggerJob_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (job.TriggerJobInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal job.TriggerJobInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNTriggerJobInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐTriggerJobInput(ctx, tmp)
+	}
+
+	var zeroVal job.TriggerJobInput
 	return zeroVal, nil
 }
 
@@ -25005,6 +25096,67 @@ func (ec *executionContext) fieldContext_Mutation_deleteJob(ctx context.Context,
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteJob_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_triggerJob(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_triggerJob(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().TriggerJob(rctx, fc.Args["input"].(job.TriggerJobInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*job.TriggerJobPayload)
+	fc.Result = res
+	return ec.marshalNTriggerJobPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐTriggerJobPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_triggerJob(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "job":
+				return ec.fieldContext_TriggerJobPayload_job(ctx, field)
+			case "jobRun":
+				return ec.fieldContext_TriggerJobPayload_jobRun(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TriggerJobPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_triggerJob_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -43832,6 +43984,140 @@ func (ec *executionContext) fieldContext_TokenXAuthIntegration_name(_ context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _TriggerJobPayload_job(ctx context.Context, field graphql.CollectedField, obj *job.TriggerJobPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TriggerJobPayload_job(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TriggerJobPayload().Job(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*job.Job)
+	fc.Result = res
+	return ec.marshalOJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJob(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TriggerJobPayload_job(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TriggerJobPayload",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Job_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Job_name(ctx, field)
+			case "team":
+				return ec.fieldContext_Job_team(ctx, field)
+			case "environment":
+				return ec.fieldContext_Job_environment(ctx, field)
+			case "image":
+				return ec.fieldContext_Job_image(ctx, field)
+			case "resources":
+				return ec.fieldContext_Job_resources(ctx, field)
+			case "authIntegrations":
+				return ec.fieldContext_Job_authIntegrations(ctx, field)
+			case "schedule":
+				return ec.fieldContext_Job_schedule(ctx, field)
+			case "runs":
+				return ec.fieldContext_Job_runs(ctx, field)
+			case "manifest":
+				return ec.fieldContext_Job_manifest(ctx, field)
+			case "cost":
+				return ec.fieldContext_Job_cost(ctx, field)
+			case "networkPolicy":
+				return ec.fieldContext_Job_networkPolicy(ctx, field)
+			case "bigQueryDatasets":
+				return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
+			case "redisInstances":
+				return ec.fieldContext_Job_redisInstances(ctx, field)
+			case "openSearch":
+				return ec.fieldContext_Job_openSearch(ctx, field)
+			case "buckets":
+				return ec.fieldContext_Job_buckets(ctx, field)
+			case "kafkaTopicAcls":
+				return ec.fieldContext_Job_kafkaTopicAcls(ctx, field)
+			case "sqlInstances":
+				return ec.fieldContext_Job_sqlInstances(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TriggerJobPayload_jobRun(ctx context.Context, field graphql.CollectedField, obj *job.TriggerJobPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TriggerJobPayload_jobRun(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.JobRun, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*job.JobRun)
+	fc.Result = res
+	return ec.marshalOJobRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobRun(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TriggerJobPayload_jobRun(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TriggerJobPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_JobRun_id(ctx, field)
+			case "name":
+				return ec.fieldContext_JobRun_name(ctx, field)
+			case "startTime":
+				return ec.fieldContext_JobRun_startTime(ctx, field)
+			case "completionTime":
+				return ec.fieldContext_JobRun_completionTime(ctx, field)
+			case "status":
+				return ec.fieldContext_JobRun_status(ctx, field)
+			case "image":
+				return ec.fieldContext_JobRun_image(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type JobRun", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _UpdateTeamEnvironmentPayload_environment(ctx context.Context, field graphql.CollectedField, obj *team.UpdateTeamEnvironmentPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UpdateTeamEnvironmentPayload_environment(ctx, field)
 	if err != nil {
@@ -48317,6 +48603,54 @@ func (ec *executionContext) unmarshalInputTeamRepositoryFilter(ctx context.Conte
 				return it, err
 			}
 			it.Name = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTriggerJobInput(ctx context.Context, obj interface{}) (job.TriggerJobInput, error) {
+	var it job.TriggerJobInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "teamSlug", "environmentName", "runName"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "teamSlug":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
+			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlug = data
+		case "environmentName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnvironmentName = data
+		case "runName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RunName = data
 		}
 	}
 
@@ -53572,6 +53906,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deleteJob":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteJob(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "triggerJob":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_triggerJob(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -60399,6 +60740,75 @@ func (ec *executionContext) _TokenXAuthIntegration(ctx context.Context, sel ast.
 	return out
 }
 
+var triggerJobPayloadImplementors = []string{"TriggerJobPayload"}
+
+func (ec *executionContext) _TriggerJobPayload(ctx context.Context, sel ast.SelectionSet, obj *job.TriggerJobPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, triggerJobPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TriggerJobPayload")
+		case "job":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TriggerJobPayload_job(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "jobRun":
+			out.Values[i] = ec._TriggerJobPayload_jobRun(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var updateTeamEnvironmentPayloadImplementors = []string{"UpdateTeamEnvironmentPayload"}
 
 func (ec *executionContext) _UpdateTeamEnvironmentPayload(ctx context.Context, sel ast.SelectionSet, obj *team.UpdateTeamEnvironmentPayload) graphql.Marshaler {
@@ -65985,6 +66395,25 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
+func (ec *executionContext) unmarshalNTriggerJobInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐTriggerJobInput(ctx context.Context, v interface{}) (job.TriggerJobInput, error) {
+	res, err := ec.unmarshalInputTriggerJobInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTriggerJobPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐTriggerJobPayload(ctx context.Context, sel ast.SelectionSet, v job.TriggerJobPayload) graphql.Marshaler {
+	return ec._TriggerJobPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTriggerJobPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐTriggerJobPayload(ctx context.Context, sel ast.SelectionSet, v *job.TriggerJobPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TriggerJobPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNUpdateTeamEnvironmentInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋteamᚐUpdateTeamEnvironmentInput(ctx context.Context, v interface{}) (team.UpdateTeamEnvironmentInput, error) {
 	res, err := ec.unmarshalInputUpdateTeamEnvironmentInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -66829,12 +67258,26 @@ func (ec *executionContext) marshalOInt2ᚖint64(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) marshalOJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJob(ctx context.Context, sel ast.SelectionSet, v *job.Job) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Job(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOJobOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobOrder(ctx context.Context, v interface{}) (*job.JobOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputJobOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOJobRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobRun(ctx context.Context, sel ast.SelectionSet, v *job.JobRun) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._JobRun(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOJobSchedule2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋjobᚐJobSchedule(ctx context.Context, sel ast.SelectionSet, v *job.JobSchedule) graphql.Marshaler {

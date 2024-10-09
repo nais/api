@@ -2,15 +2,21 @@ package job
 
 import (
 	"context"
+	"fmt"
 	"slices"
 
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
 	"github.com/nais/api/internal/v1/graphv1/pagination"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
 	"github.com/nais/api/internal/v1/searchv1"
+	batchv1 "k8s.io/api/batch/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/selection"
 	"sigs.k8s.io/yaml"
 )
@@ -154,4 +160,116 @@ func Delete(ctx context.Context, teamSlug slug.Slug, environmentName, name strin
 	return &DeleteJobPayload{
 		TeamSlug: &teamSlug,
 	}, nil
+}
+
+func Trigger(ctx context.Context, teamSlug slug.Slug, environmentName, name, runName string) (*JobRun, error) {
+	w := fromContext(ctx).jobWatcher
+	job, err := w.Get(environmentName, teamSlug.String(), name)
+	if err != nil {
+		return nil, err
+	}
+
+	if job.Spec.Schedule == "" {
+		return nil, apierror.Errorf("Only Jobs with a schedule is supported")
+	}
+
+	cjClient, err := w.ImpersonatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(batchv1.SchemeGroupVersion.WithResource("cronjobs")))
+	if err != nil {
+		return nil, fmt.Errorf("creating cronjob client: %w", err)
+	}
+
+	cronJob, err := cjClient.Namespace(teamSlug.String()).Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("getting cronjob: %w", err)
+	}
+
+	jobRun, err := createJobFromCronJob(runName, cronJob)
+	if err != nil {
+		return nil, fmt.Errorf("creating job from cronjob: %w", err)
+	}
+
+	jobClient, err := w.ImpersonatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(batchv1.SchemeGroupVersion.WithResource("jobs")))
+	if err != nil {
+		return nil, fmt.Errorf("creating job client: %w", err)
+	}
+
+	_, err = jobClient.Namespace(teamSlug.String()).Create(ctx, jobRun, metav1.CreateOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	jobRunBatch := &batchv1.Job{}
+
+	// Convert the unstructured object to a typed object
+	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(jobRun.Object, jobRunBatch); err != nil {
+		return nil, err
+	}
+
+	return toGraphJobRun(jobRunBatch, environmentName), nil
+}
+
+// createJobFromCronJob creates a Job from a CronJob.
+//
+// Copied from https://github.com/kubernetes/kubectl/blob/5f5894cd61c609d7b55aa0f9bc99967155c69a9f/pkg/cmd/create/create_job.go#L254
+func createJobFromCronJob(name string, cronJob *unstructured.Unstructured) (*unstructured.Unstructured, error) {
+	annotations := make(map[string]string)
+	annotations["cronjob.kubernetes.io/instantiate"] = "manual"
+
+	mp, ok, err := unstructured.NestedStringMap(cronJob.Object, "spec", "jobTemplate", "annotations")
+	if err != nil {
+		return nil, err
+	}
+
+	if ok {
+		for k, v := range mp {
+			annotations[k] = v
+		}
+	}
+
+	labels, _, err := unstructured.NestedStringMap(cronJob.Object, "spec", "jobTemplate", "metadata", "labels")
+	if err != nil {
+		return nil, err
+	}
+
+	spec, ok, err := unstructured.NestedMap(cronJob.Object, "spec", "jobTemplate", "spec")
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, fmt.Errorf("jobTemplate.spec not found")
+	}
+
+	job := &unstructured.Unstructured{
+		Object: map[string]any{
+			"apiVersion": "batch/v1",
+			"kind":       "Job",
+			"metadata": map[string]any{
+				"name":        name,
+				"annotations": annotations,
+				"labels":      labels,
+				"ownerReferences": []map[string]any{
+					{
+						"apiVersion":         "batch/v1",
+						"kind":               "CronJob",
+						"name":               cronJob.GetName(),
+						"uid":                cronJob.GetUID(),
+						"controller":         true,
+						"blockOwnerDeletion": true,
+					},
+				},
+			},
+			"spec": spec,
+		},
+	}
+	b, err := yaml.Marshal(job)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := &unstructured.Unstructured{}
+	if err := yaml.Unmarshal(b, &ret.Object); err != nil {
+		return nil, err
+	}
+
+	return ret, nil
 }

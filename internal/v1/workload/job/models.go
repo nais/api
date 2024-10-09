@@ -304,3 +304,21 @@ type DeleteJobInput struct {
 type DeleteJobPayload struct {
 	TeamSlug *slug.Slug `json:"-"`
 }
+
+type TriggerJobInput struct {
+	// Name of the job.
+	Name string `json:"name"`
+	// Slug of the team that owns the job.
+	TeamSlug slug.Slug `json:"teamSlug"`
+	// Name of the environment where the job runs.
+	EnvironmentName string `json:"environmentName"`
+	// Name of the new run. Must be unique within the team.
+	RunName string `json:"runName"`
+}
+
+type TriggerJobPayload struct {
+	JobName         string    `json:"jobName"`
+	TeamSlug        slug.Slug `json:"teamSlug"`
+	EnvironmentName string    `json:"environmentName"`
+	JobRun          *JobRun   `json:"jobRun"`
+}

@@ -60,6 +60,20 @@ func (r *mutationResolver) DeleteJob(ctx context.Context, input job.DeleteJobInp
 	return job.Delete(ctx, input.TeamSlug, input.EnvironmentName, input.Name)
 }
 
+func (r *mutationResolver) TriggerJob(ctx context.Context, input job.TriggerJobInput) (*job.TriggerJobPayload, error) {
+	ret, err := job.Trigger(ctx, input.TeamSlug, input.EnvironmentName, input.Name, input.RunName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &job.TriggerJobPayload{
+		JobRun:          ret,
+		JobName:         input.Name,
+		TeamSlug:        input.TeamSlug,
+		EnvironmentName: input.EnvironmentName,
+	}, nil
+}
+
 func (r *teamResolver) Jobs(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *job.JobOrder) (*pagination.Connection[*job.Job], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -73,13 +87,22 @@ func (r *teamEnvironmentResolver) Job(ctx context.Context, obj *team.TeamEnviron
 	return job.Get(ctx, obj.TeamSlug, obj.Name, name)
 }
 
+func (r *triggerJobPayloadResolver) Job(ctx context.Context, obj *job.TriggerJobPayload) (*job.Job, error) {
+	return job.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.JobName)
+}
+
 func (r *Resolver) DeleteJobPayload() gengqlv1.DeleteJobPayloadResolver {
 	return &deleteJobPayloadResolver{r}
 }
 
 func (r *Resolver) Job() gengqlv1.JobResolver { return &jobResolver{r} }
 
+func (r *Resolver) TriggerJobPayload() gengqlv1.TriggerJobPayloadResolver {
+	return &triggerJobPayloadResolver{r}
+}
+
 type (
-	deleteJobPayloadResolver struct{ *Resolver }
-	jobResolver              struct{ *Resolver }
+	deleteJobPayloadResolver  struct{ *Resolver }
+	jobResolver               struct{ *Resolver }
+	triggerJobPayloadResolver struct{ *Resolver }
 )

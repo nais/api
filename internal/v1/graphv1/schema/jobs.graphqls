@@ -19,8 +19,11 @@ extend type Team {
 }
 
 extend type Mutation {
-	"Delete an job."
+	"Delete a job."
 	deleteJob(input: DeleteJobInput!): DeleteJobPayload!
+
+	"Trigger a job"
+	triggerJob(input: TriggerJobInput!): TriggerJobPayload!
 }
 
 extend type TeamEnvironment {
@@ -211,4 +214,22 @@ input DeleteJobInput {
 type DeleteJobPayload {
 	"The team that owned the deleted job."
 	team: Team
+}
+
+input TriggerJobInput {
+	"Name of the job."
+	name: String!
+	"Slug of the team that owns the job."
+	teamSlug: Slug!
+	"Name of the environment where the job runs."
+	environmentName: String!
+	"Name of the new run. Must be unique within the team."
+	runName: String!
+}
+
+type TriggerJobPayload {
+	"The job that was triggered."
+	job: Job
+	"The new job run."
+	jobRun: JobRun
 }
