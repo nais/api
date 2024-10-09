@@ -42,6 +42,10 @@ func newWatcher[T Object](mgr *Manager, obj T, settings *watcherSettings, log lo
 	}
 	for cluster, client := range mgr.managers {
 		watcher := newClusterWatcher(client, cluster, w, obj, settings, log.WithField("cluster", cluster))
+		if !watcher.isRegistered {
+			continue
+		}
+
 		w.watchers = append(w.watchers, watcher)
 		mgr.addCacheSync(watcher.informer.Informer().HasSynced)
 	}

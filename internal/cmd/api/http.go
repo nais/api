@@ -36,6 +36,7 @@ import (
 	"github.com/nais/api/internal/v1/vulnerability"
 	"github.com/nais/api/internal/v1/workload/application"
 	"github.com/nais/api/internal/v1/workload/job"
+	"github.com/nais/api/internal/v1/workload/secret"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
@@ -153,6 +154,7 @@ func ConfigureV1Graph(ctx context.Context, fakeClients bool, watcherMgr *watcher
 	sqlDatabaseWatcher := sqlinstance.NewDatabaseWatcher(ctx, watcherMgr)
 	sqlInstanceWatcher := sqlinstance.NewInstanceWatcher(ctx, watcherMgr)
 	kafkaTopicWatcher := kafkatopic.NewWatcher(ctx, watcherMgr)
+	secretWatcher := secret.NewWatcher(ctx, watcherMgr)
 
 	var utilizationClient utilization.ResourceUsageClient
 	if fakeClients {
@@ -182,6 +184,7 @@ func ConfigureV1Graph(ctx context.Context, fakeClients bool, watcherMgr *watcher
 		ctx = bucket.NewLoaderContext(ctx, bucketWatcher)
 		ctx = job.NewLoaderContext(ctx, jobWatcher, runWatcher)
 		ctx = kafkatopic.NewLoaderContext(ctx, kafkaTopicWatcher)
+		ctx = secret.NewLoaderContext(ctx, secretWatcher)
 		ctx = opensearch.NewLoaderContext(ctx, openSearchWatcher)
 		ctx = redis.NewLoaderContext(ctx, redisWatcher)
 		ctx = utilization.NewLoaderContext(ctx, utilizationClient)
