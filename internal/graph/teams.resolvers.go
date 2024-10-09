@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
+	"strconv"
+
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -25,8 +28,6 @@ import (
 	"github.com/nais/api/pkg/protoapi"
 	"github.com/sourcegraph/conc/pool"
 	"k8s.io/utils/ptr"
-	"slices"
-	"strconv"
 )
 
 func (r *appUtilizationDataResolver) App(ctx context.Context, obj *model.AppUtilizationData) (*model.App, error) {
@@ -1359,35 +1360,6 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 
 	return &model.AppList{
 		Nodes:    apps,
-		PageInfo: pageInfo,
-	}, nil
-}
-
-func (r *teamResolver) Workloads(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy) (*model.WorkloadList, error) {
-	var nodes []model.Workload
-	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
-	if err != nil {
-		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
-	}
-
-	for _, app := range apps {
-		nodes = append(nodes, app)
-	}
-
-	jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
-	if err != nil {
-		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
-	}
-
-	for _, job := range jobs {
-		nodes = append(nodes, job)
-	}
-
-	pagination := model.NewPagination(offset, limit)
-	nodes, pageInfo := model.PaginatedSlice(nodes, pagination)
-
-	return &model.WorkloadList{
-		Nodes:    nodes,
 		PageInfo: pageInfo,
 	}, nil
 }

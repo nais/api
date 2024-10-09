@@ -38,10 +38,6 @@ type Persistence interface {
 	IsPersistence()
 }
 
-type ResourceStatus interface {
-	IsResourceStatus()
-}
-
 type ScalingStrategy interface {
 	IsScalingStrategy()
 }
@@ -1039,11 +1035,6 @@ type VulnerableError struct {
 }
 
 func (VulnerableError) IsStateError() {}
-
-type WorkloadList struct {
-	Nodes    []Workload `json:"nodes"`
-	PageInfo PageInfo   `json:"pageInfo"`
-}
 
 type AuditEventAction string
 
