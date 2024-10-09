@@ -101,6 +101,8 @@ func GetErrorPresenter(log logrus.FieldLogger) graphql.ErrorPresenterFunc {
 					msg = "The field must be at most " + verr.Param() + " characters long."
 				case "startswith":
 					msg = fmt.Sprintf("The field must start with %q.", verr.Param())
+				case "slackchannel", "optionalslackchannel":
+					msg = fmt.Sprintf("%q is not a valid Slack channel name. A valid channel name starts with a '#' and is between 3 and 80 characters long.", verr.Value())
 				}
 				err = &gqlerror.Error{
 					Message: msg,

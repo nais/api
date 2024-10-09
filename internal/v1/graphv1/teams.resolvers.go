@@ -60,6 +60,27 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, input team.UpdateTeam
 	}, nil
 }
 
+func (r *mutationResolver) UpdateTeamEnvironment(ctx context.Context, input team.UpdateTeamEnvironmentInput) (*team.UpdateTeamEnvironmentPayload, error) {
+	actor := authz.ActorFromContext(ctx)
+	if err := authz.RequireTeamAuthorization(actor, roles.AuthorizationTeamsMetadataUpdate, input.Slug); err != nil {
+		return nil, err
+	}
+
+	teamEnvironment, err := team.UpdateEnvironment(ctx, &input, actor)
+	if err != nil {
+		return nil, err
+	}
+
+	correlationID := uuid.New()
+	if err := r.triggerTeamUpdatedEvent(ctx, input.Slug, correlationID); err != nil {
+		return nil, fmt.Errorf("failed to trigger team updated event: %w", err)
+	}
+
+	return &team.UpdateTeamEnvironmentPayload{
+		Environment: teamEnvironment,
+	}, nil
+}
+
 func (r *mutationResolver) SynchronizeTeam(ctx context.Context, input team.SynchronizeTeamInput) (*team.SynchronizeTeamPayload, error) {
 	panic(fmt.Errorf("not implemented: SynchronizeTeam - synchronizeTeam"))
 }

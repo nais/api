@@ -1,0 +1,24 @@
+mutation {
+	updateTeam(
+		input: {slug: "{{ .teamSlug }}"}
+	) {
+		team {
+			purpose
+			slackChannel
+			environments {
+				name
+				slackAlertsChannel
+			}
+		}
+	}
+}
+
+RETURNS
+
+{
+	"data": null,
+	"errors": [{
+		"message": "Nothing to update.",
+		"path": ["updateTeam"]
+	}]
+}

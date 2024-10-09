@@ -45,6 +45,11 @@ extend type Mutation {
 	updateTeam(input: UpdateTeamInput!): UpdateTeamPayload!
 
 	"""
+	Update an environment for a team
+	"""
+	updateTeamEnvironment(input: UpdateTeamEnvironmentInput!): UpdateTeamEnvironmentPayload!
+
+	"""
 	Manually synchronize a team
 
 	This action will trigger a full synchronization of the team with the configured third party systems. The process is
@@ -214,6 +219,11 @@ type UpdateTeamPayload {
 	team: Team
 }
 
+type UpdateTeamEnvironmentPayload {
+	"The updated team environment."
+	environment: TeamEnvironment
+}
+
 type SynchronizeTeamPayload {
 	"The synchronized team."
 	team: Team
@@ -344,6 +354,17 @@ input UpdateTeamInput {
 	When omitted the existing value will not be updated.
 	"""
 	slackChannel: String
+}
+
+input UpdateTeamEnvironmentInput {
+	"Slug of the team to update."
+	slug: Slug!
+
+	"Name of the environment to update."
+	environmentName: String!
+
+	"Slack alerts channel for the environment. Set to an empty string to remove the existing value."
+	slackAlertsChannel: String
 }
 
 input SynchronizeTeamInput {
@@ -691,4 +712,52 @@ type TeamMemberSetRoleAuditEntryData {
 
 	"The user itself."
 	user: User
+}
+
+type TeamEnvironmentUpdatedAuditEntry implements AuditEntry & Node {
+	"ID of the entry."
+	id: ID!
+
+	"The identity of the actor who performed the action. The value is either the name of a service account, or the email address of a user."
+	actor: String!
+
+	"Creation time of the entry."
+	createdAt: Time!
+
+	"Message that summarizes the entry."
+	message: String!
+
+	"Type of the resource that was affected by the action."
+	resourceType: AuditResourceType!
+
+	"Name of the resource that was affected by the action."
+	resourceName: String!
+
+	"The team slug that the entry belongs to."
+	teamSlug: Slug!
+
+	"The environment name that the entry belongs to."
+	environmentName: String
+
+	"Data associated with the action."
+	data: TeamEnvironmentUpdatedAuditEntryData!
+}
+
+type TeamEnvironmentUpdatedAuditEntryData {
+	"The name of the environment that was updated."
+	environmentName: String!
+
+	"Fields that were updated."
+	updatedFields: [TeamEnvironmentUpdatedAuditEntryDataUpdatedField!]!
+}
+
+type TeamEnvironmentUpdatedAuditEntryDataUpdatedField {
+	"The name of the field."
+	field: String!
+
+	"The old value of the field."
+	oldValue: String
+
+	"The new value of the field."
+	newValue: String
 }

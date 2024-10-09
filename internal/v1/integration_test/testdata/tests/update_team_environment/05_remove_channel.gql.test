@@ -1,0 +1,38 @@
+mutation {
+	updateTeamEnvironment(
+		input: {slug: "{{ .teamSlug }}", environmentName: "dev", slackAlertsChannel: ""}
+	) {
+		environment {
+			name
+			team {
+				slug
+				environments {
+					name
+					slackAlertsChannel
+				}
+			}
+		}
+	}
+}
+
+RETURNS
+
+{
+	"data": {
+		"updateTeamEnvironment": {
+			"environment": {
+				"name": "dev",
+				"team": {
+					"slug": "{{ .teamSlug }}",
+					"environments": [{
+						"name": "dev",
+						"slackAlertsChannel": "#default"
+					}, {
+						"name": "staging",
+						"slackAlertsChannel": "#default"
+					}]
+				}
+			}
+		}
+	}
+}

@@ -84,6 +84,10 @@ func Update(ctx context.Context, input *UpdateTeamInput, actor *authz.Actor) (*T
 		return nil, err
 	}
 
+	if input.Purpose == nil && input.SlackChannel == nil {
+		return nil, apierror.Errorf("Nothing to update.")
+	}
+
 	var team *teamsql.Team
 	err = databasev1.Transaction(ctx, func(ctx context.Context) error {
 		team, err = db(ctx).Update(ctx, teamsql.UpdateParams{
@@ -461,4 +465,77 @@ func UserIsMember(ctx context.Context, teamSlug slug.Slug, userID uuid.UUID) (bo
 		UserID:   userID,
 		TeamSlug: teamSlug,
 	})
+}
+
+func UpdateEnvironment(ctx context.Context, input *UpdateTeamEnvironmentInput, actor *authz.Actor) (*TeamEnvironment, error) {
+	_, err := Get(ctx, input.Slug)
+	if err != nil {
+		return nil, err
+	}
+
+	existingTeamEnvironment, err := db(ctx).GetEnvironment(ctx, teamsql.GetEnvironmentParams{
+		Slug:        input.Slug,
+		Environment: input.EnvironmentName,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	input = input.Sanitized()
+	if err := validate.Validate(input); err != nil {
+		return nil, err
+	}
+
+	if input.SlackAlertsChannel == nil {
+		return nil, apierror.Errorf("Nothing to update.")
+	}
+
+	err = databasev1.Transaction(ctx, func(ctx context.Context) error {
+		if input.SlackAlertsChannel != nil && *input.SlackAlertsChannel == "" {
+			err = db(ctx).RemoveSlackAlertsChannel(ctx, teamsql.RemoveSlackAlertsChannelParams{
+				TeamSlug:    input.Slug,
+				Environment: input.EnvironmentName,
+			})
+		} else {
+			err = db(ctx).UpsertEnvironment(ctx, teamsql.UpsertEnvironmentParams{
+				TeamSlug:           input.Slug,
+				Environment:        input.EnvironmentName,
+				SlackAlertsChannel: input.SlackAlertsChannel,
+			})
+		}
+		if err != nil {
+			return err
+		}
+
+		return auditv1.Create(ctx, auditv1.CreateInput{
+			Action:       auditActionUpdateEnvironment,
+			Actor:        actor.User,
+			ResourceType: auditResourceTypeTeam,
+			ResourceName: input.Slug.String(),
+			TeamSlug:     ptr.To(input.Slug),
+			Data: &TeamEnvironmentUpdatedAuditEntryData{
+				EnvironmentName: input.EnvironmentName,
+				UpdatedFields: []*TeamEnvironmentUpdatedAuditEntryDataUpdatedField{
+					{
+						Field:    "slackAlertsChannel",
+						OldValue: &existingTeamEnvironment.SlackAlertsChannel,
+						NewValue: input.SlackAlertsChannel,
+					},
+				},
+			},
+		})
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	te, err := db(ctx).GetEnvironment(ctx, teamsql.GetEnvironmentParams{
+		Slug:        input.Slug,
+		Environment: input.EnvironmentName,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return toGraphTeamEnvironment(te), nil
 }

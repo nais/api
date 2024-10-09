@@ -1,0 +1,23 @@
+mutation {
+	updateTeamEnvironment(
+		input: {slug: "{{ .teamSlug }}", environmentName: "dev", slackAlertsChannel:"dev"}
+	) {
+		environment {
+			name
+		}
+	}
+}
+
+RETURNS
+
+{
+	"errors": [{
+		"extensions": {
+			"field": "slackAlertsChannel",
+			"rule": "optionalslackchannel"
+		},
+		"message": "\"dev\" is not a valid Slack channel name. A valid channel name starts with a '#' and is between 3 and 80 characters long.",
+		"path": ["updateTeamEnvironment"]
+	}],
+	"data": null
+}

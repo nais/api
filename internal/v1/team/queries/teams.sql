@@ -109,6 +109,16 @@ ORDER BY
 	environment ASC
 ;
 
+-- name: GetEnvironment :one
+SELECT
+	*
+FROM
+	team_all_environments
+WHERE
+	team_slug = @slug
+	AND environment = @environment
+;
+
 -- name: CreateDeleteKey :one
 INSERT INTO
 	team_delete_keys (team_slug, created_by)
@@ -165,4 +175,41 @@ FROM
 	JOIN result ON teams.slug = result.slug
 ORDER BY
 	result.rank ASC
+;
+
+-- name: UpsertEnvironment :exec
+INSERT INTO
+	team_environments (
+		team_slug,
+		environment,
+		slack_alerts_channel,
+		gcp_project_id
+	)
+VALUES
+	(
+		@team_slug,
+		@environment,
+		@slack_alerts_channel,
+		@gcp_project_id
+	)
+ON CONFLICT (team_slug, environment) DO
+UPDATE
+SET
+	slack_alerts_channel = COALESCE(
+		EXCLUDED.slack_alerts_channel,
+		team_environments.slack_alerts_channel
+	),
+	gcp_project_id = COALESCE(
+		EXCLUDED.gcp_project_id,
+		team_environments.gcp_project_id
+	)
+;
+
+-- name: RemoveSlackAlertsChannel :exec
+UPDATE team_environments
+SET
+	slack_alerts_channel = NULL
+WHERE
+	team_slug = @team_slug
+	AND environment = @environment
 ;

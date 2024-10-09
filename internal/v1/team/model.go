@@ -26,12 +26,12 @@ type (
 type Team struct {
 	Slug                   slug.Slug  `json:"slug"`
 	Purpose                string     `json:"purpose"`
-	AzureGroupID           *string    `json:"azureGroupID,omitempty"`
-	GitHubTeamSlug         *string    `json:"gitHubTeamSlug,omitempty"`
-	GoogleGroupEmail       *string    `json:"googleGroupEmail,omitempty"`
-	GoogleArtifactRegistry *string    `json:"googleArtifactRegistry,omitempty"`
-	CdnBucket              *string    `json:"cdnBucket,omitempty"`
-	LastSuccessfulSync     *time.Time `json:"lastSuccessfulSync,omitempty"`
+	AzureGroupID           *string    `json:"azureGroupID"`
+	GitHubTeamSlug         *string    `json:"gitHubTeamSlug"`
+	GoogleGroupEmail       *string    `json:"googleGroupEmail"`
+	GoogleArtifactRegistry *string    `json:"googleArtifactRegistry"`
+	CdnBucket              *string    `json:"cdnBucket"`
+	LastSuccessfulSync     *time.Time `json:"lastSuccessfulSync"`
 	SlackChannel           string     `json:"slackChannel"`
 	DeleteKeyConfirmedAt   *time.Time `json:"-"`
 }
@@ -247,9 +247,9 @@ func (e TeamMemberOrderField) MarshalGQL(w io.Writer) {
 
 type TeamEnvironment struct {
 	Name               string    `json:"name"`
-	TeamSlug           slug.Slug `json:"-"`
-	GCPProjectID       *string   `json:"gcpProjectID,omitempty"`
+	GCPProjectID       *string   `json:"gcpProjectID"`
 	SlackAlertsChannel string    `json:"slackAlertsChannel"`
+	TeamSlug           slug.Slug `json:"-"`
 }
 
 func (TeamEnvironment) IsNode() {}
@@ -332,7 +332,7 @@ func (e UserTeamOrderField) MarshalGQL(w io.Writer) {
 type CreateTeamInput struct {
 	Slug         slug.Slug `json:"slug" validate:"required,alphanum,min=3,max=30"`
 	Purpose      string    `json:"purpose" validate:"required"`
-	SlackChannel string    `json:"slackChannel" validate:"required,startswith=#,min=3,max=80"`
+	SlackChannel string    `json:"slackChannel" validate:"required,slackchannel"`
 }
 
 func (input *CreateTeamInput) Sanitized() *CreateTeamInput {
@@ -346,7 +346,7 @@ func (input *CreateTeamInput) Sanitized() *CreateTeamInput {
 type UpdateTeamInput struct {
 	Slug         slug.Slug `json:"slug"`
 	Purpose      *string   `json:"purpose" validate:"omitnil,min=1"`
-	SlackChannel *string   `json:"slackChannel" validate:"omitnil,startswith=#,min=3,max=80"`
+	SlackChannel *string   `json:"slackChannel" validate:"omitnil,optionalslackchannel"`
 }
 
 func (input *UpdateTeamInput) Sanitized() *UpdateTeamInput {
@@ -450,4 +450,27 @@ type SetTeamMemberRoleInput struct {
 
 type SetTeamMemberRolePayload struct {
 	Member *TeamMember `json:"member"`
+}
+
+type UpdateTeamEnvironmentInput struct {
+	Slug               slug.Slug `json:"slug"`
+	EnvironmentName    string    `json:"environmentName"`
+	SlackAlertsChannel *string   `json:"slackAlertsChannel" validate:"omitnil,optionalslackchannel"`
+}
+
+func (input *UpdateTeamEnvironmentInput) Sanitized() *UpdateTeamEnvironmentInput {
+	var slackChannel *string
+	if input.SlackAlertsChannel != nil {
+		slackChannel = ptr.To(strings.TrimSpace(*input.SlackAlertsChannel))
+	}
+
+	return &UpdateTeamEnvironmentInput{
+		Slug:               input.Slug,
+		EnvironmentName:    input.EnvironmentName,
+		SlackAlertsChannel: slackChannel,
+	}
+}
+
+type UpdateTeamEnvironmentPayload struct {
+	Environment *TeamEnvironment `json:"environment"`
 }

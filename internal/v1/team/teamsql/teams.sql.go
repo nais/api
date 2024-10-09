@@ -152,6 +152,35 @@ func (q *Queries) GetDeleteKey(ctx context.Context, arg GetDeleteKeyParams) (*Te
 	return &i, err
 }
 
+const getEnvironment = `-- name: GetEnvironment :one
+SELECT
+	team_slug, environment, gcp, gcp_project_id, id, slack_alerts_channel
+FROM
+	team_all_environments
+WHERE
+	team_slug = $1
+	AND environment = $2
+`
+
+type GetEnvironmentParams struct {
+	Slug        slug.Slug
+	Environment string
+}
+
+func (q *Queries) GetEnvironment(ctx context.Context, arg GetEnvironmentParams) (*TeamAllEnvironment, error) {
+	row := q.db.QueryRow(ctx, getEnvironment, arg.Slug, arg.Environment)
+	var i TeamAllEnvironment
+	err := row.Scan(
+		&i.TeamSlug,
+		&i.Environment,
+		&i.Gcp,
+		&i.GcpProjectID,
+		&i.ID,
+		&i.SlackAlertsChannel,
+	)
+	return &i, err
+}
+
 const list = `-- name: List :many
 SELECT
 	slug, purpose, last_successful_sync, slack_channel, google_group_email, azure_group_id, github_team_slug, gar_repository, cdn_bucket, delete_key_confirmed_at
@@ -342,6 +371,25 @@ func (q *Queries) ListEnvironmentsBySlugsAndEnvNames(ctx context.Context, arg Li
 	return items, nil
 }
 
+const removeSlackAlertsChannel = `-- name: RemoveSlackAlertsChannel :exec
+UPDATE team_environments
+SET
+	slack_alerts_channel = NULL
+WHERE
+	team_slug = $1
+	AND environment = $2
+`
+
+type RemoveSlackAlertsChannelParams struct {
+	TeamSlug    slug.Slug
+	Environment string
+}
+
+func (q *Queries) RemoveSlackAlertsChannel(ctx context.Context, arg RemoveSlackAlertsChannelParams) error {
+	_, err := q.db.Exec(ctx, removeSlackAlertsChannel, arg.TeamSlug, arg.Environment)
+	return err
+}
+
 const search = `-- name: Search :many
 WITH
 	result AS (
@@ -467,4 +515,49 @@ func (q *Queries) Update(ctx context.Context, arg UpdateParams) (*Team, error) {
 		&i.DeleteKeyConfirmedAt,
 	)
 	return &i, err
+}
+
+const upsertEnvironment = `-- name: UpsertEnvironment :exec
+INSERT INTO
+	team_environments (
+		team_slug,
+		environment,
+		slack_alerts_channel,
+		gcp_project_id
+	)
+VALUES
+	(
+		$1,
+		$2,
+		$3,
+		$4
+	)
+ON CONFLICT (team_slug, environment) DO
+UPDATE
+SET
+	slack_alerts_channel = COALESCE(
+		EXCLUDED.slack_alerts_channel,
+		team_environments.slack_alerts_channel
+	),
+	gcp_project_id = COALESCE(
+		EXCLUDED.gcp_project_id,
+		team_environments.gcp_project_id
+	)
+`
+
+type UpsertEnvironmentParams struct {
+	TeamSlug           slug.Slug
+	Environment        string
+	SlackAlertsChannel *string
+	GcpProjectID       *string
+}
+
+func (q *Queries) UpsertEnvironment(ctx context.Context, arg UpsertEnvironmentParams) error {
+	_, err := q.db.Exec(ctx, upsertEnvironment,
+		arg.TeamSlug,
+		arg.Environment,
+		arg.SlackAlertsChannel,
+		arg.GcpProjectID,
+	)
+	return err
 }

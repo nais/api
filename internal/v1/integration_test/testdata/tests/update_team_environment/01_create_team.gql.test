@@ -1,0 +1,23 @@
+mutation {
+  createTeam(
+    input: {slug: "myteam", purpose: "purpose", slackChannel: "#default"}
+  ) {
+    team {
+      slug
+    }
+  }
+}
+
+RETURNS
+
+{
+  "data": {
+    "createTeam": {
+      "team": {
+        "slug": "myteam"
+      }
+    }
+  }
+}
+
+STORE teamSlug=data.createTeam.team.slug

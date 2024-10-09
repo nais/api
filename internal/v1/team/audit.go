@@ -10,12 +10,13 @@ import (
 )
 
 const (
-	auditResourceTypeTeam       auditv1.AuditResourceType = "TEAM"
-	auditActionCreateDeleteKey  auditv1.AuditAction       = "CREATE_DELETE_KEY"
-	auditActionConfirmDeleteKey                           = "CONFIRM_DELETE_KEY"
-	auditActionAddMember                                  = "ADD_MEMBER"
-	auditActionRemoveMember                               = "REMOVE_MEMBER"
-	auditActionSetMemberRole                              = "SET_MEMBER_ROLE"
+	auditResourceTypeTeam        auditv1.AuditResourceType = "TEAM"
+	auditActionCreateDeleteKey   auditv1.AuditAction       = "CREATE_DELETE_KEY"
+	auditActionConfirmDeleteKey                            = "CONFIRM_DELETE_KEY"
+	auditActionAddMember                                   = "ADD_MEMBER"
+	auditActionRemoveMember                                = "REMOVE_MEMBER"
+	auditActionSetMemberRole                               = "SET_MEMBER_ROLE"
+	auditActionUpdateEnvironment                           = "UPDATE_ENVIRONMENT"
 )
 
 func init() {
@@ -81,6 +82,18 @@ func init() {
 				GenericAuditEntry: entry.WithMessage("Set member role"),
 				Data:              data,
 			}, nil
+		case auditActionUpdateEnvironment:
+			data, err := auditv1.TransformData(entry, func(data *TeamEnvironmentUpdatedAuditEntryData) *TeamEnvironmentUpdatedAuditEntryData {
+				return data
+			})
+			if err != nil {
+				return nil, err
+			}
+
+			return TeamEnvironmentUpdatedAuditEntry{
+				GenericAuditEntry: entry.WithMessage("Update environment"),
+				Data:              data,
+			}, nil
 		default:
 			return nil, fmt.Errorf("unsupported team audit entry action: %q", entry.Action)
 		}
@@ -93,17 +106,17 @@ type TeamCreatedAuditEntry struct {
 
 type TeamUpdatedAuditEntry struct {
 	auditv1.GenericAuditEntry
-	Data *TeamUpdatedAuditEntryData `json:"data,omitempty"`
+	Data *TeamUpdatedAuditEntryData `json:"data"`
 }
 
 type TeamUpdatedAuditEntryData struct {
-	UpdatedFields []*TeamUpdatedAuditEntryDataUpdatedField `json:"updatedFields,omitempty"`
+	UpdatedFields []*TeamUpdatedAuditEntryDataUpdatedField `json:"updatedFields"`
 }
 
 type TeamUpdatedAuditEntryDataUpdatedField struct {
 	Field    string  `json:"field"`
-	OldValue *string `json:"oldValue,omitempty"`
-	NewValue *string `json:"newValue,omitempty"`
+	OldValue *string `json:"oldValue"`
+	NewValue *string `json:"newValue"`
 }
 
 type TeamConfirmDeleteKeyAuditEntry struct {
@@ -156,4 +169,20 @@ type TeamMemberSetRoleAuditEntryData struct {
 
 func (t TeamMemberSetRoleAuditEntryData) UserID() ident.Ident {
 	return user.NewIdent(t.UserUUID)
+}
+
+type TeamEnvironmentUpdatedAuditEntry struct {
+	auditv1.GenericAuditEntry
+	Data *TeamEnvironmentUpdatedAuditEntryData `json:"data"`
+}
+
+type TeamEnvironmentUpdatedAuditEntryData struct {
+	EnvironmentName string                                              `json:"environmentName"`
+	UpdatedFields   []*TeamEnvironmentUpdatedAuditEntryDataUpdatedField `json:"updatedFields"`
+}
+
+type TeamEnvironmentUpdatedAuditEntryDataUpdatedField struct {
+	Field    string  `json:"field"`
+	OldValue *string `json:"oldValue"`
+	NewValue *string `json:"newValue"`
 }

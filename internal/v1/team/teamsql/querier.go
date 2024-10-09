@@ -19,6 +19,7 @@ type Querier interface {
 	CreateDeleteKey(ctx context.Context, arg CreateDeleteKeyParams) (*TeamDeleteKey, error)
 	Get(ctx context.Context, argSlug slug.Slug) (*Team, error)
 	GetDeleteKey(ctx context.Context, arg GetDeleteKeyParams) (*TeamDeleteKey, error)
+	GetEnvironment(ctx context.Context, arg GetEnvironmentParams) (*TeamAllEnvironment, error)
 	GetMember(ctx context.Context, arg GetMemberParams) (*GetMemberRow, error)
 	GetMemberByEmail(ctx context.Context, arg GetMemberByEmailParams) (*GetMemberByEmailRow, error)
 	List(ctx context.Context, arg ListParams) ([]*Team, error)
@@ -32,10 +33,12 @@ type Querier interface {
 	ListGCPGroupsForUser(ctx context.Context, userID uuid.UUID) ([]string, error)
 	ListMembers(ctx context.Context, arg ListMembersParams) ([]*ListMembersRow, error)
 	RemoveMember(ctx context.Context, arg RemoveMemberParams) error
+	RemoveSlackAlertsChannel(ctx context.Context, arg RemoveSlackAlertsChannelParams) error
 	Search(ctx context.Context, query string) ([]*SearchRow, error)
 	SetDeleteKeyConfirmedAt(ctx context.Context, argSlug slug.Slug) error
 	SlugAvailable(ctx context.Context, argSlug slug.Slug) (bool, error)
 	Update(ctx context.Context, arg UpdateParams) (*Team, error)
+	UpsertEnvironment(ctx context.Context, arg UpsertEnvironmentParams) error
 	UserIsMember(ctx context.Context, arg UserIsMemberParams) (bool, error)
 	UserIsOwner(ctx context.Context, arg UserIsOwnerParams) (bool, error)
 }
