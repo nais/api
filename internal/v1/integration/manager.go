@@ -1,13 +1,8 @@
-//go:build integration_test
-// +build integration_test
-
-package integration_test
+package integration
 
 import (
 	"context"
-	"embed"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io"
 	"io/fs"
@@ -16,7 +11,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/auth/authz"
@@ -26,12 +20,12 @@ import (
 	"github.com/nais/api/internal/usersync"
 	"github.com/nais/api/internal/v1/graphv1"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
-	apiRunner "github.com/nais/api/internal/v1/integration_test/runner"
+	apiRunner "github.com/nais/api/internal/v1/integration/runner"
 	"github.com/nais/api/internal/v1/kubernetes"
-	"github.com/nais/api/internal/v1/kubernetes/fake"
 	"github.com/nais/api/internal/v1/kubernetes/watcher"
-	"github.com/nais/tester/testmanager"
-	"github.com/nais/tester/testmanager/runner"
+	testmanager "github.com/nais/tester/lua"
+	"github.com/nais/tester/lua/runner"
+	"github.com/nais/tester/lua/spec"
 	"github.com/sirupsen/logrus"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
@@ -40,42 +34,38 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-//go:embed testdata/seeds/*.sql
-var seeds embed.FS
+// func TestMain(m *testing.M) {
+// 	flag.Parse()
 
-var (
-	postgresContainer *postgres.PostgresContainer
-	connectionString  string
-)
+// 	ctx := context.Background()
+// 	container, connStr, err := startPostgresql(ctx)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
 
-func TestMain(m *testing.M) {
-	flag.Parse()
+// 	postgresContainer = container
+// 	connectionString = connStr
 
-	ctx := context.Background()
-	container, connStr, err := startPostgresql(ctx)
+// 	code := m.Run()
+
+// 	if err := postgresContainer.Terminate(ctx); err != nil {
+// 		log.Fatalf("failed to terminate container: %s", err)
+// 	}
+
+// 	os.Exit(code)
+// }
+
+func TestRunner(ctx context.Context, skipSetup bool) (*testmanager.Manager, error) {
+	mgr, err := testmanager.New(newConfig, newManager(ctx, skipSetup), &runner.GQL{}, &runner.SQL{}, &runner.PubSub{}, &apiRunner.K8s{})
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	postgresContainer = container
-	connectionString = connStr
+	// if err := mgr.Run(ctx, os.DirFS("./testdata")); err != nil {
+	// 	return nil, err
+	// }
 
-	code := m.Run()
-
-	if err := postgresContainer.Terminate(ctx); err != nil {
-		log.Fatalf("failed to terminate container: %s", err)
-	}
-
-	os.Exit(code)
-}
-
-func TestRunner(t *testing.T) {
-	ctx := context.Background()
-	mgr := testmanager.New(t, newManager(t))
-
-	if err := mgr.Run(ctx, os.DirFS("./testdata/tests")); err != nil {
-		t.Fatal(err)
-	}
+	return mgr, nil
 }
 
 const tenantName = "some-tenant"
@@ -84,20 +74,37 @@ func clusters() []string {
 	return []string{"dev", "staging"}
 }
 
-func newManager(t *testing.T) testmanager.CreateRunnerFunc[*Config] {
-	return func(ctx context.Context, config *Config, state map[string]any) ([]testmanager.Runner, func(), []testmanager.Option, error) {
-		if config == nil {
+func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
+	if skipSetup {
+		return func(_ context.Context, _ string, _ any) (runners []spec.Runner, close func(), err error) {
+			return nil, func() {}, nil
+		}
+	}
+
+	container, connStr, err := startPostgresql(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	return func(ctx context.Context, dir string, configInput any) ([]spec.Runner, func(), error) {
+		config, ok := configInput.(*Config)
+		if !ok {
 			config = &Config{}
 		}
+
 		ctx, done := context.WithCancel(ctx)
 		cleanups := []func(){}
 
-		opts := []testmanager.Option{}
-
-		db, pool, cleanup, err := newDB(ctx, !config.SkipSeed)
+		scheme, err := kubernetes.NewScheme()
 		if err != nil {
 			done()
-			return nil, nil, opts, err
+			return nil, nil, fmt.Errorf("failed to create k8s scheme: %w", err)
+		}
+
+		db, pool, cleanup, err := newDB(ctx, container, connStr, !config.SkipSeed, filepath.Join(dir, "seeds"))
+		if err != nil {
+			done()
+			return nil, nil, err
 		}
 		cleanups = append(cleanups, cleanup)
 
@@ -109,14 +116,19 @@ func newManager(t *testing.T) testmanager.CreateRunnerFunc[*Config] {
 			log.Level = logrus.DebugLevel
 		}
 
+		k8sRunner := apiRunner.NewK8sRunner(scheme, dir, clusters())
 		topic := newPubsubRunner()
+		gqlRunner, err := newGQLRunner(ctx, db, topic, k8sRunner)
+		if err != nil {
+			done()
+			return nil, nil, err
+		}
 
-		k8sRunner := apiRunner.NewK8sRunner()
-		runners := []testmanager.Runner{
-			newGQLRunner(ctx, t, config, db, topic),
+		runners := []spec.Runner{
+			gqlRunner,
 			runner.NewSQLRunner(pool),
-			k8sRunner,
 			topic,
+			k8sRunner,
 		}
 
 		return runners, func() {
@@ -124,56 +136,71 @@ func newManager(t *testing.T) testmanager.CreateRunnerFunc[*Config] {
 				cleanup()
 			}
 			done()
-		}, opts, nil
+		}, nil
 	}
+
+	// return func(ctx context.Context, config *Config, state map[string]any) ([]testmanager.Runner, func(), []testmanager.Option, error) {
+	// 	if config == nil {
+	// 		config = &Config{}
+	// 	}
+	// 	ctx, done := context.WithCancel(ctx)
+	// 	cleanups := []func(){}
+
+	// 	opts := []testmanager.Option{}
+
+	// 	db, pool, cleanup, err := newDB(ctx, !config.SkipSeed)
+	// 	if err != nil {
+	// 		done()
+	// 		return nil, nil, opts, err
+	// 	}
+	// 	cleanups = append(cleanups, cleanup)
+
+	// 	log := logrus.New()
+
+	// 	log.Out = io.Discard
+	// 	if testing.Verbose() {
+	// 		log.Out = os.Stdout
+	// 		log.Level = logrus.DebugLevel
+	// 	}
+
+	// 	topic := newPubsubRunner()
+
+	// 	k8sRunner := apiRunner.NewK8sRunner()
+	// 	runners := []testmanager.Runner{
+	// 		newGQLRunner(ctx, t, config, db, topic),
+	// 		runner.NewSQLRunner(pool),
+	// 		k8sRunner,
+	// 		topic,
+	// 	}
+
+	// 	return runners, func() {
+	// 		for _, cleanup := range cleanups {
+	// 			cleanup()
+	// 		}
+	// 		done()
+	// 	}, opts, nil
+	// }
 }
 
-func newGQLRunner(ctx context.Context, t *testing.T, config *Config, db database.Database, topic graphv1.PubsubTopic) testmanager.Runner {
+func newGQLRunner(ctx context.Context, db database.Database, topic graphv1.PubsubTopic, k8sRunner *apiRunner.K8s) (spec.Runner, error) {
 	log := logrus.New()
 	log.Out = io.Discard
 
-	scheme, err := kubernetes.NewScheme()
-	if err != nil {
-		t.Fatalf("failed to create k8s scheme: %s", err)
-	}
-
-	k8sPath := filepath.Join("testdata", "tests", testmanager.TestDir(ctx), "k8s")
-	watcherOpts := []watcher.Option{}
-	hasK8s := false
-	if fi, err := os.Stat(k8sPath); err == nil && fi.IsDir() {
-		hasK8s = true
-		watcherOpts = append(watcherOpts, watcher.WithClientCreator(fake.Clients(os.DirFS(k8sPath))))
-	} else {
-		watcherOpts = append(watcherOpts, watcher.WithClientCreator(fake.Clients(nil)))
-	}
-
-	// TODO: Cleanup
-	watcherMgr, err := watcher.NewManager(scheme, "dev-nais", kubernetes.Config{
+	watcherMgr, err := watcher.NewManager(k8sRunner.Scheme, "dev-nais", kubernetes.Config{
 		Clusters: clusters(),
-	}, log.WithField("subsystem", "k8s_watcher"), watcherOpts...)
+	}, log.WithField("subsystem", "k8s_watcher"), watcher.WithClientCreator(k8sRunner.ClientCreator))
 	if err != nil {
-		t.Fatal(err)
+		return nil, fmt.Errorf("failed to create watcher manager: %w", err)
 	}
 
 	graphMiddleware, err := api.ConfigureV1Graph(ctx, true, watcherMgr, db, nil, nil, tenantName, clusters(), log)
 	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err != nil {
-		panic(fmt.Sprintf("failed to create k8s client: %s", err))
-	}
-
-	if hasK8s {
-		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-		defer cancel()
-		watcherMgr.WaitForReady(ctx)
+		return nil, fmt.Errorf("failed to configure v1 graph: %w", err)
 	}
 
 	resolver := graphv1.NewResolver(topic)
 
 	hlog := logrus.New()
-	hlog.Out = logrusTestLoggerWriter{t: t}
 	srv, err := graphv1.NewHandler(gengqlv1.Config{
 		Resolvers: resolver,
 	}, hlog)
@@ -182,10 +209,10 @@ func newGQLRunner(ctx context.Context, t *testing.T, config *Config, db database
 	}
 
 	authProxy := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !config.Unauthenticated {
+		if true /* !config.Unauthenticated */ {
 			ctx := r.Context()
 			email := "authenticated@example.com"
-			if config.Admin {
+			if false /* config.Admin */ {
 				email = "admin@example.com"
 			}
 
@@ -205,20 +232,21 @@ func newGQLRunner(ctx context.Context, t *testing.T, config *Config, db database
 		graphMiddleware(middleware.RequireAuthenticatedUser()(srv)).ServeHTTP(w, r)
 	})
 
-	return runner.NewGQLRunner(authProxy)
+	return runner.NewGQLRunner(authProxy), nil
 }
 
 func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, error) {
-	lg := log.New(io.Discard, "", 0)
-	if testing.Verbose() {
-		lg = log.New(os.Stderr, "", log.LstdFlags)
-	}
+	// lg := log.New(io.Discard, "", 0)
+	// if testing.Verbose() {
+	// 	lg = log.New(os.Stderr, "", log.LstdFlags)
+	// }
 
-	container, err := postgres.RunContainer(ctx,
-		testcontainers.WithLogger(lg),
+	container, err := postgres.Run(ctx, "docker.io/postgres:16-alpine",
+		// testcontainers.WithLogger(testcontainers.TestLogger(t)),
 		postgres.WithDatabase("example"),
 		postgres.WithUsername("example"),
 		postgres.WithPassword("example"),
+		postgres.WithSQLDriver("pgx"),
 		testcontainers.WithWaitStrategy(
 			wait.ForLog("database system is ready to accept connections").
 				WithOccurrence(2)),
@@ -240,18 +268,19 @@ func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, 
 	}
 
 	pool.Close()
-	if err := container.Snapshot(ctx); err != nil {
+	if err := container.Snapshot(ctx, postgres.WithSnapshotName("migrated")); err != nil {
 		return nil, "", fmt.Errorf("failed to snapshot: %w", err)
 	}
 
 	return container, connStr, nil
 }
 
-func newDB(ctx context.Context, seed bool) (database.Database, *pgxpool.Pool, func(), error) {
+// func newDB(ctx context.Context, seed bool, connectionString string) (database.Database, *pgxpool.Pool, func(), error) {
+func newDB(ctx context.Context, container *postgres.PostgresContainer, connStr string, seed bool, seeds string) (database.Database, *pgxpool.Pool, func(), error) {
 	logr := logrus.New()
 	logr.Out = io.Discard
 
-	pool, err := database.NewPool(ctx, connectionString, logr, false)
+	pool, err := database.NewPool(ctx, connStr, logr, false)
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to create pool: %w", err)
 	}
@@ -260,13 +289,14 @@ func newDB(ctx context.Context, seed bool) (database.Database, *pgxpool.Pool, fu
 
 	cleanup := func() {
 		pool.Close()
-		if err := postgresContainer.Restore(ctx); err != nil {
+		if err := container.Restore(ctx, postgres.WithSnapshotName("migrated")); err != nil {
 			log.Fatalf("failed to restore: %s", err)
 		}
 	}
 
 	if seed {
-		err := fs.WalkDir(seeds, ".", func(path string, d fs.DirEntry, err error) error {
+		seedFs := os.DirFS(seeds)
+		err := fs.WalkDir(seedFs, ".", func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
@@ -275,7 +305,7 @@ func newDB(ctx context.Context, seed bool) (database.Database, *pgxpool.Pool, fu
 				return nil
 			}
 
-			b, err := fs.ReadFile(seeds, path)
+			b, err := fs.ReadFile(seedFs, path)
 			if err != nil {
 				return err
 			}
@@ -357,13 +387,4 @@ func (p *pubsubRunner) Publish(ctx context.Context, msg protoreflect.ProtoMessag
 
 func (p *pubsubRunner) String() string {
 	return "topic"
-}
-
-type logrusTestLoggerWriter struct {
-	t *testing.T
-}
-
-func (l logrusTestLoggerWriter) Write(p []byte) (n int, err error) {
-	l.t.Log(string(p))
-	return len(p), nil
 }
