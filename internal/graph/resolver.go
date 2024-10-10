@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/vektah/gqlparser/v2/ast"
-
 	"cloud.google.com/go/pubsub"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -30,13 +28,14 @@ import (
 	"github.com/nais/api/internal/redis"
 	"github.com/nais/api/internal/resourceusage"
 	"github.com/nais/api/internal/search"
-	"github.com/nais/api/internal/slack"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/unleash"
+	"github.com/nais/api/internal/v1/feedback"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
+	"github.com/vektah/gqlparser/v2/ast"
 	"go.opentelemetry.io/otel"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -148,7 +147,7 @@ type Resolver struct {
 	kafkaClient           *kafka.Client
 	unleashMgr            *unleash.Manager
 	auditor               *audit.Auditor
-	slackClient           slack.SlackClient
+	feedbackClient        feedback.Client
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
@@ -172,7 +171,7 @@ func NewResolver(hookdClient HookdClient,
 	kafkaClient *kafka.Client,
 	unleashMgr *unleash.Manager,
 	auditer *audit.Auditor,
-	slack slack.SlackClient,
+	feedbackClient feedback.Client,
 ) *Resolver {
 	return &Resolver{
 		hookdClient:           hookdClient,
@@ -196,7 +195,7 @@ func NewResolver(hookdClient HookdClient,
 		kafkaClient:           kafkaClient,
 		unleashMgr:            unleashMgr,
 		auditor:               auditer,
-		slackClient:           slack,
+		feedbackClient:        feedbackClient,
 	}
 }
 

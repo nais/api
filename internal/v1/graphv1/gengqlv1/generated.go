@@ -17,6 +17,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v1/auditv1"
 	"github.com/nais/api/internal/v1/cost"
+	"github.com/nais/api/internal/v1/feedback"
 	"github.com/nais/api/internal/v1/github/repository"
 	"github.com/nais/api/internal/v1/graphv1/ident"
 	"github.com/nais/api/internal/v1/graphv1/modelv1"
@@ -484,24 +485,25 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddRepositoryToTeam      func(childComplexity int, input repository.AddRepositoryToTeamInput) int
-		AddTeamMember            func(childComplexity int, input team.AddTeamMemberInput) int
-		ConfigureReconciler      func(childComplexity int, name string, config []*reconciler.ReconcilerConfigInput) int
-		ConfirmTeamDeletion      func(childComplexity int, input team.ConfirmTeamDeletionInput) int
-		CreateTeam               func(childComplexity int, input team.CreateTeamInput) int
-		DeleteApplication        func(childComplexity int, input application.DeleteApplicationInput) int
-		DeleteJob                func(childComplexity int, input job.DeleteJobInput) int
-		DisableReconciler        func(childComplexity int, name string) int
-		EnableReconciler         func(childComplexity int, name string) int
-		RemoveRepositoryFromTeam func(childComplexity int, input repository.RemoveRepositoryFromTeamInput) int
-		RemoveTeamMember         func(childComplexity int, input team.RemoveTeamMemberInput) int
-		RequestTeamDeletion      func(childComplexity int, input team.RequestTeamDeletionInput) int
-		RestartApplication       func(childComplexity int, input application.RestartApplicationInput) int
-		SetTeamMemberRole        func(childComplexity int, input team.SetTeamMemberRoleInput) int
-		SynchronizeTeam          func(childComplexity int, input team.SynchronizeTeamInput) int
-		TriggerJob               func(childComplexity int, input job.TriggerJobInput) int
-		UpdateTeam               func(childComplexity int, input team.UpdateTeamInput) int
-		UpdateTeamEnvironment    func(childComplexity int, input team.UpdateTeamEnvironmentInput) int
+		AddRepositoryToTeam       func(childComplexity int, input repository.AddRepositoryToTeamInput) int
+		AddTeamMember             func(childComplexity int, input team.AddTeamMemberInput) int
+		ConfigureReconciler       func(childComplexity int, name string, config []*reconciler.ReconcilerConfigInput) int
+		ConfirmTeamDeletion       func(childComplexity int, input team.ConfirmTeamDeletionInput) int
+		CreateTeam                func(childComplexity int, input team.CreateTeamInput) int
+		DeleteApplication         func(childComplexity int, input application.DeleteApplicationInput) int
+		DeleteJob                 func(childComplexity int, input job.DeleteJobInput) int
+		DisableReconciler         func(childComplexity int, name string) int
+		EnableReconciler          func(childComplexity int, name string) int
+		RemoveRepositoryFromTeam  func(childComplexity int, input repository.RemoveRepositoryFromTeamInput) int
+		RemoveTeamMember          func(childComplexity int, input team.RemoveTeamMemberInput) int
+		ReportConsoleUserFeedback func(childComplexity int, input feedback.ReportConsoleUserFeedbackInput) int
+		RequestTeamDeletion       func(childComplexity int, input team.RequestTeamDeletionInput) int
+		RestartApplication        func(childComplexity int, input application.RestartApplicationInput) int
+		SetTeamMemberRole         func(childComplexity int, input team.SetTeamMemberRoleInput) int
+		SynchronizeTeam           func(childComplexity int, input team.SynchronizeTeamInput) int
+		TriggerJob                func(childComplexity int, input job.TriggerJobInput) int
+		UpdateTeam                func(childComplexity int, input team.UpdateTeamInput) int
+		UpdateTeamEnvironment     func(childComplexity int, input team.UpdateTeamEnvironmentInput) int
 	}
 
 	NetworkPolicy struct {
@@ -672,6 +674,10 @@ type ComplexityRoot struct {
 	RemoveTeamMemberPayload struct {
 		Team func(childComplexity int) int
 		User func(childComplexity int) int
+	}
+
+	ReportConsoleUserFeedbackPayload struct {
+		Reported func(childComplexity int) int
 	}
 
 	Repository struct {
@@ -1274,6 +1280,7 @@ type KafkaTopicAclResolver interface {
 type MutationResolver interface {
 	DeleteApplication(ctx context.Context, input application.DeleteApplicationInput) (*application.DeleteApplicationPayload, error)
 	RestartApplication(ctx context.Context, input application.RestartApplicationInput) (*application.RestartApplicationPayload, error)
+	ReportConsoleUserFeedback(ctx context.Context, input feedback.ReportConsoleUserFeedbackInput) (*feedback.ReportConsoleUserFeedbackPayload, error)
 	DeleteJob(ctx context.Context, input job.DeleteJobInput) (*job.DeleteJobPayload, error)
 	TriggerJob(ctx context.Context, input job.TriggerJobInput) (*job.TriggerJobPayload, error)
 	EnableReconciler(ctx context.Context, name string) (*reconciler.Reconciler, error)
@@ -3055,6 +3062,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.RemoveTeamMember(childComplexity, args["input"].(team.RemoveTeamMemberInput)), true
 
+	case "Mutation.reportConsoleUserFeedback":
+		if e.complexity.Mutation.ReportConsoleUserFeedback == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_reportConsoleUserFeedback_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ReportConsoleUserFeedback(childComplexity, args["input"].(feedback.ReportConsoleUserFeedbackInput)), true
+
 	case "Mutation.requestTeamDeletion":
 		if e.complexity.Mutation.RequestTeamDeletion == nil {
 			break
@@ -3811,6 +3830,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RemoveTeamMemberPayload.User(childComplexity), true
+
+	case "ReportConsoleUserFeedbackPayload.reported":
+		if e.complexity.ReportConsoleUserFeedbackPayload.Reported == nil {
+			break
+		}
+
+		return e.complexity.ReportConsoleUserFeedbackPayload.Reported(childComplexity), true
 
 	case "Repository.id":
 		if e.complexity.Repository.ID == nil {
@@ -6145,6 +6171,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRedisInstanceOrder,
 		ec.unmarshalInputRemoveRepositoryFromTeamInput,
 		ec.unmarshalInputRemoveTeamMemberInput,
+		ec.unmarshalInputReportConsoleUserFeedbackInput,
 		ec.unmarshalInputRequestTeamDeletionInput,
 		ec.unmarshalInputRestartApplicationInput,
 		ec.unmarshalInputSearchFilter,
@@ -6647,6 +6674,44 @@ extend type BigQueryDataset {
 
 type BigQueryDatasetCost {
 	sum: Float!
+}
+`, BuiltIn: false},
+	{Name: "../schema/feedback.graphqls", Input: `extend type Mutation {
+	"Report feedback regarding Console for the NAIS team."
+	reportConsoleUserFeedback(
+		input: ReportConsoleUserFeedbackInput!
+	): ReportConsoleUserFeedbackPayload!
+}
+
+input ReportConsoleUserFeedbackInput {
+	"The feedback content."
+	feedback: String!
+
+	"The path in Console the feedback is related to."
+	path: String!
+
+	"""
+	Whether the feedback should be reported anonymously or not.
+
+	When set to false the email address of the authenticated user will be submitted.
+	"""
+	anonymous: Boolean!
+
+	"Type of the feedback."
+	type: ConsoleUserFeedbackType!
+}
+
+type ReportConsoleUserFeedbackPayload {
+	"Whether or not the feedback entry was successfully reported."
+	reported: Boolean
+}
+
+"The type of a feedback entry."
+enum ConsoleUserFeedbackType {
+	BUG
+	CHANGE_REQUEST
+	OTHER
+	QUESTION
 }
 `, BuiltIn: false},
 	{Name: "../schema/jobs.graphqls", Input: `extend type Team {
@@ -10777,6 +10842,38 @@ func (ec *executionContext) field_Mutation_removeTeamMember_argsInput(
 	}
 
 	var zeroVal team.RemoveTeamMemberInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_reportConsoleUserFeedback_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_reportConsoleUserFeedback_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_reportConsoleUserFeedback_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (feedback.ReportConsoleUserFeedbackInput, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal feedback.ReportConsoleUserFeedbackInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNReportConsoleUserFeedbackInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋfeedbackᚐReportConsoleUserFeedbackInput(ctx, tmp)
+	}
+
+	var zeroVal feedback.ReportConsoleUserFeedbackInput
 	return zeroVal, nil
 }
 
@@ -25670,6 +25767,65 @@ func (ec *executionContext) fieldContext_Mutation_restartApplication(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_reportConsoleUserFeedback(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_reportConsoleUserFeedback(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().ReportConsoleUserFeedback(rctx, fc.Args["input"].(feedback.ReportConsoleUserFeedbackInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*feedback.ReportConsoleUserFeedbackPayload)
+	fc.Result = res
+	return ec.marshalNReportConsoleUserFeedbackPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋfeedbackᚐReportConsoleUserFeedbackPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_reportConsoleUserFeedback(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "reported":
+				return ec.fieldContext_ReportConsoleUserFeedbackPayload_reported(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ReportConsoleUserFeedbackPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_reportConsoleUserFeedback_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_deleteJob(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_deleteJob(ctx, field)
 	if err != nil {
@@ -31529,6 +31685,47 @@ func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_team(_ context.
 				return ec.fieldContext_Team_workloads(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ReportConsoleUserFeedbackPayload_reported(ctx context.Context, field graphql.CollectedField, obj *feedback.ReportConsoleUserFeedbackPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ReportConsoleUserFeedbackPayload_reported(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Reported, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ReportConsoleUserFeedbackPayload_reported(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ReportConsoleUserFeedbackPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -49910,6 +50107,54 @@ func (ec *executionContext) unmarshalInputRemoveTeamMemberInput(ctx context.Cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputReportConsoleUserFeedbackInput(ctx context.Context, obj interface{}) (feedback.ReportConsoleUserFeedbackInput, error) {
+	var it feedback.ReportConsoleUserFeedbackInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"feedback", "path", "anonymous", "type"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "feedback":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("feedback"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Feedback = data
+		case "path":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("path"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Path = data
+		case "anonymous":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("anonymous"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Anonymous = data
+		case "type":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			data, err := ec.unmarshalNConsoleUserFeedbackType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋfeedbackᚐConsoleUserFeedbackType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Type = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRequestTeamDeletionInput(ctx context.Context, obj interface{}) (team.RequestTeamDeletionInput, error) {
 	var it team.RequestTeamDeletionInput
 	asMap := map[string]interface{}{}
@@ -55544,6 +55789,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "reportConsoleUserFeedback":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_reportConsoleUserFeedback(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "deleteJob":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteJob(ctx, field)
@@ -57744,6 +57996,42 @@ func (ec *executionContext) _RemoveTeamMemberPayload(ctx context.Context, sel as
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var reportConsoleUserFeedbackPayloadImplementors = []string{"ReportConsoleUserFeedbackPayload"}
+
+func (ec *executionContext) _ReportConsoleUserFeedbackPayload(ctx context.Context, sel ast.SelectionSet, obj *feedback.ReportConsoleUserFeedbackPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, reportConsoleUserFeedbackPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ReportConsoleUserFeedbackPayload")
+		case "reported":
+			out.Values[i] = ec._ReportConsoleUserFeedbackPayload_reported(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -64868,6 +65156,16 @@ func (ec *executionContext) marshalNConfirmTeamDeletionPayload2ᚖgithubᚗcom�
 	return ec._ConfirmTeamDeletionPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNConsoleUserFeedbackType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋfeedbackᚐConsoleUserFeedbackType(ctx context.Context, v interface{}) (feedback.ConsoleUserFeedbackType, error) {
+	var res feedback.ConsoleUserFeedbackType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNConsoleUserFeedbackType2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋfeedbackᚐConsoleUserFeedbackType(ctx context.Context, sel ast.SelectionSet, v feedback.ConsoleUserFeedbackType) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNContainerImage2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚐContainerImage(ctx context.Context, sel ast.SelectionSet, v *workload.ContainerImage) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -66867,6 +67165,25 @@ func (ec *executionContext) marshalNRemoveTeamMemberPayload2ᚖgithubᚗcomᚋna
 		return graphql.Null
 	}
 	return ec._RemoveTeamMemberPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNReportConsoleUserFeedbackInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋfeedbackᚐReportConsoleUserFeedbackInput(ctx context.Context, v interface{}) (feedback.ReportConsoleUserFeedbackInput, error) {
+	res, err := ec.unmarshalInputReportConsoleUserFeedbackInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNReportConsoleUserFeedbackPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋfeedbackᚐReportConsoleUserFeedbackPayload(ctx context.Context, sel ast.SelectionSet, v feedback.ReportConsoleUserFeedbackPayload) graphql.Marshaler {
+	return ec._ReportConsoleUserFeedbackPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNReportConsoleUserFeedbackPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋfeedbackᚐReportConsoleUserFeedbackPayload(ctx context.Context, sel ast.SelectionSet, v *feedback.ReportConsoleUserFeedbackPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ReportConsoleUserFeedbackPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNRepository2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋgithubᚋrepositoryᚐRepositoryᚄ(ctx context.Context, sel ast.SelectionSet, v []*repository.Repository) graphql.Marshaler {

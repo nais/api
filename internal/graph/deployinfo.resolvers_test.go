@@ -8,7 +8,6 @@ import (
 	"github.com/nais/api/internal/graph"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
-	"github.com/nais/api/internal/slack/fake"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -110,7 +109,7 @@ func Test_deployInfoResolver_History(t *testing.T) {
 			nil,
 			nil,
 			nil,
-			fake.NewFakeSlackClient(),
+			nil,
 		).
 		DeployInfo().
 		History(ctx, deployInfo, nil, nil)

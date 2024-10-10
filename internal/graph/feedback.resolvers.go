@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/nais/api/internal/graph/model"
+	"github.com/nais/api/internal/v1/feedback"
 	"k8s.io/utils/ptr"
 )
 
@@ -21,8 +22,13 @@ func (r *mutationResolver) CreateFeedback(ctx context.Context, input model.Creat
 		}, nil
 	}
 
-	messageOptions := r.slackClient.GetFeedbackMessageOptions(ctx, r.tenant, input)
-	if _, _, err := r.slackClient.PostFeedbackMessage(messageOptions); err != nil {
+	i := &feedback.ReportConsoleUserFeedbackInput{
+		Feedback:  input.Details,
+		Path:      input.URI,
+		Anonymous: input.Anonymous,
+		Type:      feedback.ConsoleUserFeedbackType(input.Type),
+	}
+	if err := r.feedbackClient.PostFeedback(ctx, i); err != nil {
 		return &model.CreateFeedbackResult{
 			Created: false,
 			Error:   ptr.To(err.Error()),

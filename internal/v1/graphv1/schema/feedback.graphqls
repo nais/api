@@ -1,0 +1,37 @@
+extend type Mutation {
+	"Report feedback regarding Console for the NAIS team."
+	reportConsoleUserFeedback(
+		input: ReportConsoleUserFeedbackInput!
+	): ReportConsoleUserFeedbackPayload!
+}
+
+input ReportConsoleUserFeedbackInput {
+	"The feedback content."
+	feedback: String!
+
+	"The path in Console the feedback is related to."
+	path: String!
+
+	"""
+	Whether the feedback should be reported anonymously or not.
+
+	When set to false the email address of the authenticated user will be submitted.
+	"""
+	anonymous: Boolean!
+
+	"Type of the feedback."
+	type: ConsoleUserFeedbackType!
+}
+
+type ReportConsoleUserFeedbackPayload {
+	"Whether or not the feedback entry was successfully reported."
+	reported: Boolean
+}
+
+"The type of a feedback entry."
+enum ConsoleUserFeedbackType {
+	BUG
+	CHANGE_REQUEST
+	OTHER
+	QUESTION
+}
