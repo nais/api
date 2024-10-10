@@ -8085,19 +8085,19 @@ enum SearchType {
 	"The globally unique ID of the secret."
 	id: ID!
 
-  "The name of the secret."
+	"The name of the secret."
 	name: String!
 
-  "The environment the secret is deployed to."
+	"The environment the secret is deployed to."
 	environment: TeamEnvironment!
 
-  "The team that owns the secret."
+	"The team that owns the secret."
 	team: Team!
 
-  "The secret data."
+	"The secret data."
 	data: [SecretVariable!]!
 
-  "Applications that use the secret."
+	"Applications that use the secret."
 	applications(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
@@ -8112,7 +8112,7 @@ enum SearchType {
 		before: Cursor
 	): ApplicationConnection!
 
-  "Jobs that use the secret."
+	"Jobs that use the secret."
 	jobs(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
@@ -8127,28 +8127,28 @@ enum SearchType {
 		before: Cursor
 	): JobConnection!
 
-  "Last time the secret was modified."
+	"Last time the secret was modified."
 	lastModifiedAt: Time
 
-  "User who last modified the secret."
+	"User who last modified the secret."
 	lastModifiedBy: User
 }
 
 extend type Team {
-  "Secrets owned by the team."
-  secrets(
-    "Get the first n items in the connection. This can be used in combination with the after parameter."
-    first: Int
+	"Secrets owned by the team."
+	secrets(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
 
-    "Get items after this cursor."
-    after: Cursor
+		"Get items after this cursor."
+		after: Cursor
 
-    "Get the last n items in the connection. This can be used in combination with the before parameter."
-    last: Int
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
 
-    "Get items before this cursor."
-    before: Cursor
-  ): SecretConnection!
+		"Get items before this cursor."
+		before: Cursor
+	): SecretConnection!
 }
 
 type SecretConnection {
@@ -8170,10 +8170,12 @@ type SecretEdge {
 	node: Secret!
 }
 
-
 type SecretVariable {
-  name: String!
-  value: String!
+	"The name of the secret."
+	name: String!
+
+	"The value of the secret."
+	value: String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/teams.graphqls", Input: `extend type Query {
