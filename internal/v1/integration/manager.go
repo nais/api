@@ -374,9 +374,6 @@ func (p *pubsubRunner) Publish(ctx context.Context, msg protoreflect.ProtoMessag
 		return "", err
 	}
 
-	fmt.Println("### Publishing message ###")
-	fmt.Println(mp)
-
 	p.Receive("topic", runner.PubSubMessage{
 		Msg:        mp,
 		Attributes: attrs,

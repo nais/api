@@ -22,6 +22,10 @@ end
 ---@type table<string, any>
 State = {}
 
+--- Null ensures the value is null
+---@type userdata
+Null = {}
+
 ---@class TestFunctionTgql
 local TestFunctionTgql = {}
 
