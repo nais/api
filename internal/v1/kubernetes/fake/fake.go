@@ -25,14 +25,6 @@ type clients struct {
 	Dynamic dynamic.Interface
 }
 
-type clusterResources struct {
-	dynamic []runtime.Object
-}
-
-func (c *clusterResources) append(o clusterResources) {
-	c.dynamic = append(c.dynamic, o.dynamic...)
-}
-
 // Clients returns a new fake kubernetes clientset for each directory at root in the given directory.
 // Each yaml file in the directory will be created as a resource, where resources in a "teams" directory
 // will be created in a namespace with the same name as the file.
@@ -48,28 +40,7 @@ func Clients(dir fs.FS) func(cluster string) (dynamic.Interface, error) {
 		}
 	}
 
-	resources := make(map[string]*clusterResources)
-	err = fs.WalkDir(dir, ".", func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if filepath.Ext(path) != ".yaml" {
-			return nil
-		}
-
-		cluster := parseCluster(path)
-		if cluster == "" {
-			return nil
-		}
-
-		if resources[cluster] == nil {
-			resources[cluster] = &clusterResources{}
-		}
-		resources[cluster].append(parseResources(scheme, dir, path))
-
-		return nil
-	})
+	resources, err := ParseResources(scheme, dir)
 	if err != nil {
 		panic(err)
 	}
@@ -78,7 +49,7 @@ func Clients(dir fs.FS) func(cluster string) (dynamic.Interface, error) {
 
 	for cluster, objs := range resources {
 		ret[cluster] = clients{
-			Dynamic: newDynamicClient(scheme, objs.dynamic...),
+			Dynamic: newDynamicClient(scheme, objs...),
 		}
 	}
 
@@ -103,7 +74,31 @@ func parseCluster(path string) string {
 	return p[0]
 }
 
-func parseResources(scheme *runtime.Scheme, dir fs.FS, path string) clusterResources {
+func ParseResources(scheme *runtime.Scheme, dir fs.FS) (map[string][]runtime.Object, error) {
+	resources := make(map[string][]runtime.Object)
+	err := fs.WalkDir(dir, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if filepath.Ext(path) != ".yaml" {
+			return nil
+		}
+
+		cluster := parseCluster(path)
+		if cluster == "" {
+			return nil
+		}
+
+		resources[cluster] = append(resources[cluster], parseResources(scheme, dir, path)...)
+
+		return nil
+	})
+
+	return resources, err
+}
+
+func parseResources(scheme *runtime.Scheme, dir fs.FS, path string) []runtime.Object {
 	b, err := fs.ReadFile(dir, path)
 	if err != nil {
 		panic(err.Error())
@@ -111,7 +106,7 @@ func parseResources(scheme *runtime.Scheme, dir fs.FS, path string) clusterResou
 	parts := bytes.Split(b, []byte("\n---"))
 	ns := strings.Trim(filepath.Base(filepath.Dir(path)), string(filepath.Separator))
 
-	ret := clusterResources{}
+	ret := []runtime.Object{}
 	for _, p := range parts {
 		if len(bytes.TrimSpace(p)) == 0 {
 			continue
@@ -119,7 +114,7 @@ func parseResources(scheme *runtime.Scheme, dir fs.FS, path string) clusterResou
 
 		v := ParseResource(scheme, p, ns)
 
-		ret.dynamic = append(ret.dynamic, v)
+		ret = append(ret, v)
 	}
 
 	return ret
@@ -175,18 +170,20 @@ func depluralized(s string) string {
 	return s
 }
 
-func newDynamicClient(scheme *runtime.Scheme, objs ...runtime.Object) dynamic.Interface {
-	type namespaced interface {
-		GetNamespace() string
-	}
-
-	fc := dynfake.NewSimpleDynamicClientWithCustomListKinds(scheme,
+func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
+	return dynfake.NewSimpleDynamicClientWithCustomListKinds(scheme,
 		map[schema.GroupVersionResource]string{
 			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("redis"):        "RedisList",
 			liberator_aiven_io_v1alpha1.GroupVersion.WithResource("opensearches"): "OpenSearchList",
 			unleash_nais_io_v1.GroupVersion.WithResource("unleashes"):             "UnleashList",
 			unleash_nais_io_v1.GroupVersion.WithResource("remoteunleashes"):       "RemoteUnleashList",
 		})
+}
+
+func AddObjectToDynamicClient(scheme *runtime.Scheme, fc *dynfake.FakeDynamicClient, objs ...runtime.Object) {
+	type namespaced interface {
+		GetNamespace() string
+	}
 
 	for _, obj := range objs {
 		gvks, _, err := scheme.ObjectKinds(obj)
@@ -206,5 +203,10 @@ func newDynamicClient(scheme *runtime.Scheme, objs ...runtime.Object) dynamic.In
 			fc.Tracker().Create(gvr, obj, ns)
 		}
 	}
+}
+
+func newDynamicClient(scheme *runtime.Scheme, objs ...runtime.Object) dynamic.Interface {
+	fc := NewDynamicClient(scheme)
+	AddObjectToDynamicClient(scheme, fc, objs...)
 	return fc
 }
