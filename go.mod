@@ -44,6 +44,7 @@ require (
 	github.com/vektah/gqlparser/v2 v2.5.17
 	github.com/vektra/mockery/v2 v2.43.2
 	github.com/vikstrous/dataloadgen v0.0.6
+	github.com/yuin/gopher-lua v1.1.1
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.53.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.55.0
 	go.opentelemetry.io/otel v1.30.0
@@ -225,7 +226,6 @@ require (
 	github.com/urfave/cli/v2 v2.27.4 // indirect
 	github.com/wasilibs/go-pgquery v0.0.0-20240319230125-b9b2e95c69a7 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
-	github.com/yuin/gopher-lua v1.1.1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
 	go.einride.tech/aip v0.67.1 // indirect
