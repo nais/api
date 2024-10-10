@@ -21,6 +21,7 @@ import (
 
 const (
 	dependencyTrackAdminTeam = "Administrators"
+	platformImagePrefix      = "europe-north1-docker.pkg.dev/nais-io/nais"
 )
 
 var _ Client = &dependencyTrackClient{}
@@ -284,12 +285,8 @@ func (c *dependencyTrackClient) GetMetadataForTeam(ctx context.Context, team str
 			continue
 		}
 
-		// TODO: Find a better way to filter out these images
-		if p.Name == "europe-north1-docker.pkg.dev/nais-io/nais/images/wonderwall" {
-			continue
-		}
-
-		if p.Name == "europe-north1-docker.pkg.dev/nais-io/nais/images/elector" {
+		// skip platform images as the team does not own them
+		if strings.HasPrefix(p.Name, platformImagePrefix) {
 			continue
 		}
 
