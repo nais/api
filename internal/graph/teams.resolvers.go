@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"strconv"
 
 	"github.com/google/uuid"
@@ -23,6 +24,7 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/thirdparty/hookd"
+	"github.com/nais/api/internal/vulnerabilities"
 	"github.com/nais/api/pkg/protoapi"
 	"github.com/sourcegraph/conc/pool"
 	"k8s.io/utils/ptr"
@@ -784,14 +786,27 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 			return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
 		}
 		failingApps := 0
+		notNais := 0
+		workloads := make([]model.Workload, 0)
 		for _, app := range apps {
 			if app.Status.State == model.StateFailing {
 				failingApps++
 			}
+			if app.Status.State == model.StateNotnais {
+				notNais++
+			}
+			workloads = append(workloads, app)
 		}
+
+		vulnErrs, err := r.vulnerabilities.GetVulnerabilityErrors(ctx, workloads, obj.Slug.String())
+		if err != nil {
+			return nil, fmt.Errorf("getting vulnerability status for all images: %w", err)
+		}
+
 		return model.AppsStatus{
-			Total:   len(apps),
-			Failing: failingApps,
+			Failing:         failingApps,
+			NotNais:         notNais,
+			Vulnerabilities: len(vulnErrs),
 		}, nil
 	})
 
@@ -801,14 +816,27 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 			return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
 		}
 		failingJobs := 0
+		notNais := 0
+		workloads := make([]model.Workload, 0)
 		for _, job := range jobs {
 			if job.Status.State == model.StateFailing {
 				failingJobs++
 			}
+			if job.Status.State == model.StateNotnais {
+				notNais++
+			}
+			workloads = append(workloads, job)
 		}
+
+		vulnErrs, err := r.vulnerabilities.GetVulnerabilityErrors(ctx, workloads, obj.Slug.String())
+		if err != nil {
+			return nil, fmt.Errorf("getting vulnerability status for all images: %w", err)
+		}
+
 		return model.JobsStatus{
-			Total:   len(jobs),
-			Failing: failingJobs,
+			Failing:         failingJobs,
+			NotNais:         notNais,
+			Vulnerabilities: len(vulnErrs),
 		}, nil
 	})
 
@@ -840,7 +868,6 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 			}
 		}
 		return model.SQLInstancesStatus{
-			Total:           len(sqlInstances),
 			Failing:         failingSqlInstances,
 			OtherConditions: otherConditions,
 		}, nil
@@ -852,19 +879,136 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 	}
 
 	ret := &model.TeamStatus{}
-
+	ret.State = model.StateNais
 	for _, r := range res {
 		switch v := r.(type) {
 		case model.AppsStatus:
 			ret.Apps = v
+			if v.Failing > 0 {
+				ret.State = model.StateFailing
+			} else if v.Failing == 0 && v.NotNais > 0 {
+				ret.State = model.StateNotnais
+			}
 		case model.JobsStatus:
 			ret.Jobs = v
+			if v.Failing > 0 {
+				ret.State = model.StateFailing
+			} else if v.Failing == 0 && v.NotNais > 0 {
+				ret.State = model.StateNotnais
+			}
 		case model.SQLInstancesStatus:
 			ret.SQLInstances = v
+			if v.Failing > 0 {
+				ret.State = model.StateFailing
+			}
 		}
 	}
 
 	return ret, nil
+}
+
+func (r *teamResolver) ResourceInventory(ctx context.Context, obj *model.Team) (*model.ResourceInventory, error) {
+	wg := pool.NewWithResults[any]().WithErrors().WithFirstError()
+	results := make(map[string]int)
+	wg.Go(func() (any, error) {
+		apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
+		if err != nil {
+			return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
+		}
+		results["apps"] = len(apps)
+		return results, nil
+	})
+
+	wg.Go(func() (any, error) {
+		jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
+		if err != nil {
+			return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
+		}
+		results["jobs"] = len(jobs)
+		return results, nil
+	})
+
+	wg.Go(func() (any, error) {
+		teamEnvs, _, err := r.database.GetTeamEnvironments(ctx, obj.Slug, database.Page{Limit: 50})
+		if err != nil {
+			return nil, err
+		}
+		sqlInstances, _, err := r.sqlInstanceClient.SqlInstances(ctx, obj.Slug, teamEnvs)
+		if err != nil {
+			return nil, fmt.Errorf("getting SQL instances from Kubernetes: %w", err)
+		}
+		results["sqlInstances"] = len(sqlInstances)
+		return results, nil
+	})
+
+	wg.Go(func() (any, error) {
+		buckets, _, err := r.bucketClient.Buckets(ctx, obj.Slug)
+		if err != nil {
+			return nil, fmt.Errorf("getting buckets from Kubernetes: %w", err)
+		}
+		results["buckets"] = len(buckets)
+		return results, nil
+	})
+
+	wg.Go(func() (any, error) {
+		redis, _, err := r.redisClient.Redis(ctx, obj.Slug)
+		if err != nil {
+			return nil, fmt.Errorf("getting redis from Kubernetes: %w", err)
+		}
+		results["redis"] = len(redis)
+		return results, nil
+	})
+
+	wg.Go(func() (any, error) {
+		kafkaTopics, err := r.kafkaClient.Topics(ctx, obj.Slug)
+		if err != nil {
+			return nil, fmt.Errorf("getting kafka topics from Kubernetes: %w", err)
+		}
+		results["kafkaTopics"] = len(kafkaTopics)
+		return results, nil
+	})
+
+	wg.Go(func() (any, error) {
+		bigQueries, err := r.bigQueryDatasetClient.BigQueryDatasets(ctx, obj.Slug)
+		if err != nil {
+			return nil, fmt.Errorf("getting bigquery datasets from Kubernetes: %w", err)
+		}
+		results["bigQueries"] = len(bigQueries)
+		return results, nil
+	})
+
+	wgRes, err := wg.Wait()
+	if err != nil {
+		return nil, err
+	}
+
+	inventory := &model.ResourceInventory{}
+	inventory.IsEmpty = true
+	for _, result := range wgRes {
+		for k, v := range result.(map[string]int) {
+			switch k {
+			case "apps":
+				inventory.TotalApps = v
+			case "jobs":
+				inventory.TotalJobs = v
+			case "sqlInstances":
+				inventory.TotalSQLInstances = v
+			case "buckets":
+				inventory.TotalBuckets = v
+			case "redis":
+				inventory.TotalRedisInstances = v
+			case "kafkaTopics":
+				inventory.TotalKafkaTopics = v
+			case "bigQueries":
+				inventory.TotalBigQueryDatasets = v
+			}
+			if v > 0 {
+				inventory.IsEmpty = false
+			}
+		}
+	}
+
+	return inventory, nil
 }
 
 func (r *teamResolver) SQLInstance(ctx context.Context, obj *model.Team, name string, env string) (*model.SQLInstance, error) {
@@ -1145,7 +1289,7 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 			severities := map[string]int{}
 			images := []*model.ImageDetails{}
 			for _, app := range apps {
-				image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, app.Image)
+				image, err := r.vulnerabilities.GetMetadataForImage(ctx, app.Image)
 				if err != nil {
 					return nil, fmt.Errorf("getting metadata for image %q: %w", app.Image, err)
 				}
@@ -1177,7 +1321,7 @@ func (r *teamResolver) Apps(ctx context.Context, obj *model.Team, offset *int, l
 			riskScores := map[string]int{}
 			images := []*model.ImageDetails{}
 			for _, app := range apps {
-				image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, app.Image)
+				image, err := r.vulnerabilities.GetMetadataForImage(ctx, app.Image)
 				if err != nil {
 					return nil, fmt.Errorf("getting metadata for image %q: %w", app.Image, err)
 				}
@@ -1296,7 +1440,7 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 			severities := map[string]int{}
 			images := []*model.ImageDetails{}
 			for _, job := range naisjobs {
-				image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, job.Image)
+				image, err := r.vulnerabilities.GetMetadataForImage(ctx, job.Image)
 				if err != nil {
 					return nil, fmt.Errorf("getting metadata for image %q: %w", job.Image, err)
 				}
@@ -1328,7 +1472,7 @@ func (r *teamResolver) Naisjobs(ctx context.Context, obj *model.Team, offset *in
 			riskScores := map[string]int{}
 			images := []*model.ImageDetails{}
 			for _, job := range naisjobs {
-				image, err := r.dependencyTrackClient.GetMetadataForImage(ctx, job.Image)
+				image, err := r.vulnerabilities.GetMetadataForImage(ctx, job.Image)
 				if err != nil {
 					return nil, fmt.Errorf("getting metadata for image %q: %w", job.Image, err)
 				}
@@ -1388,43 +1532,7 @@ func (r *teamResolver) Deployments(ctx context.Context, obj *model.Team, offset 
 	}, nil
 }
 
-func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Team) (*model.VulnerabilitySummaryForTeam, error) {
-	images, err := r.dependencyTrackClient.GetMetadataForTeam(ctx, obj.Slug.String())
-	if err != nil {
-		return nil, fmt.Errorf("getting metadata for team %q: %w", obj.Slug.String(), err)
-	}
-
-	retVal := &model.VulnerabilitySummaryForTeam{}
-	for _, image := range images {
-		if image.Summary == nil {
-			continue
-		}
-		if image.Summary.Critical > 0 {
-			retVal.Critical += image.Summary.Critical
-		}
-		if image.Summary.High > 0 {
-			retVal.High += image.Summary.High
-		}
-		if image.Summary.Medium > 0 {
-			retVal.Medium += image.Summary.Medium
-		}
-		if image.Summary.Low > 0 {
-			retVal.Low += image.Summary.Low
-		}
-		if image.Summary.Unassigned > 0 {
-			retVal.Unassigned += image.Summary.Unassigned
-		}
-		if image.Summary.RiskScore > 0 {
-			retVal.RiskScore += image.Summary.RiskScore
-		}
-
-		for _, ref := range image.GQLVars.WorkloadReferences {
-			if ref.Team == obj.Slug.String() {
-				retVal.BomCount += 1
-			}
-		}
-	}
-
+func (r *teamResolver) Vulnerabilities(ctx context.Context, obj *model.Team, offset *int, limit *int, orderBy *model.OrderBy, filter *model.VulnerabilityFilter) (*model.VulnerabilityList, error) {
 	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
 	if err != nil {
 		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
@@ -1434,13 +1542,77 @@ func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Te
 		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
 	}
 
-	if len(apps) == 0 && len(jobs) == 0 {
-		retVal.Coverage = 0.0
-	} else {
-		retVal.Coverage = float64(retVal.BomCount) / float64(len(apps)+len(jobs)) * 100
+	workloads := make([]model.Workload, 0)
+	for _, app := range apps {
+		if filter != nil && len(filter.Envs) > 0 {
+			if !slices.Contains(filter.Envs, app.Env.Name) {
+				continue
+			}
+		}
+		workloads = append(workloads, app)
+	}
+	for _, job := range jobs {
+		if filter != nil && len(filter.Envs) > 0 {
+			if !slices.Contains(filter.Envs, job.Env.Name) {
+				continue
+			}
+		}
+		workloads = append(workloads, job)
 	}
 
-	return retVal, nil
+	nodes, err := r.vulnerabilities.GetVulnerabilitiesForTeam(ctx, workloads, obj.Slug.String())
+	if err != nil {
+		return nil, err
+	}
+
+	if orderBy != nil {
+		vulnerabilities.Sort(nodes, orderBy.Field, orderBy.Direction)
+	}
+
+	pagination := model.NewPagination(offset, limit)
+	nodes, pageInfo := model.PaginatedSlice(nodes, pagination)
+
+	return &model.VulnerabilityList{
+		Nodes:    nodes,
+		PageInfo: pageInfo,
+	}, nil
+}
+
+func (r *teamResolver) VulnerabilitiesSummary(ctx context.Context, obj *model.Team, filter *model.VulnerabilityFilter) (*model.VulnerabilitySummaryForTeam, error) {
+	apps, err := r.k8sClient.Apps(ctx, obj.Slug.String())
+	if err != nil {
+		return nil, fmt.Errorf("getting apps from Kubernetes: %w", err)
+	}
+	jobs, err := r.k8sClient.NaisJobs(ctx, obj.Slug.String())
+	if err != nil {
+		return nil, fmt.Errorf("getting naisjobs from Kubernetes: %w", err)
+	}
+
+	workloads := make([]model.Workload, 0)
+	for _, app := range apps {
+		if filter != nil && len(filter.Envs) > 0 {
+			if !slices.Contains(filter.Envs, app.Env.Name) {
+				continue
+			}
+		}
+		workloads = append(workloads, app)
+	}
+
+	for _, job := range jobs {
+		if filter != nil && len(filter.Envs) > 0 {
+			if !slices.Contains(filter.Envs, job.Env.Name) {
+				continue
+			}
+		}
+		workloads = append(workloads, job)
+	}
+
+	allTeamSlugs, err := r.database.GetAllTeamSlugs(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("getting all team slugs: %w", err)
+	}
+
+	return r.vulnerabilities.GetSummaryForTeam(ctx, workloads, obj.Slug.String(), len(allTeamSlugs))
 }
 
 func (r *teamResolver) Secrets(ctx context.Context, obj *model.Team) ([]*model.Secret, error) {

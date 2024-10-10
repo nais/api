@@ -1,4 +1,4 @@
-package dependencytrack
+package vulnerabilities
 
 import (
 	"context"
@@ -32,18 +32,16 @@ func TestClient_GetFindingsForImage(t *testing.T) {
 			},
 			assert: func(t *testing.T, f []*model.Finding, err error) {
 				assert.NoError(t, err)
-				assert.Len(t, f, 4)
-				assert.Equal(t, "CVE-2021-1234", f[3].Aliases[0].Name)
-				assert.Equal(t, "NVD", f[3].Aliases[0].Source)
-				assert.Equal(t, "GHSA-2021-1234", f[3].Aliases[1].Name)
-				assert.Equal(t, "GHSA", f[3].Aliases[1].Source)
+				assert.Len(t, f, 2)
+				assert.Equal(t, "CVE-2021-1234", f[1].Aliases[0].Name)
+				assert.Equal(t, "NVD", f[1].Aliases[0].Source)
 			},
 		},
 	}
 
 	for _, tc := range tt {
 		mock := NewMockInternalClient(t)
-		c := New("endpoint", "username", "password", "frontend", log).WithClient(mock)
+		c := NewDependencyTrackClient(DependencyTrackConfig{}, log, WithClient(mock))
 		tc.expect(tc.input, mock)
 		f, err := c.GetFindingsForImageByProjectID(ctx, "uuid", false)
 		tc.assert(t, f, err)

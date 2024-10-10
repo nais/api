@@ -64,7 +64,7 @@ services:
       - ./hack/bigquery-emulator-data.yaml:/data.yaml
 
   dtrack-apiserver:
-    image: dependencytrack/apiserver:4.11.3
+    image: dependencytrack/apiserver:4.11.7
     ports:
       - "9010:8080"
     environment:
@@ -79,7 +79,7 @@ services:
       - "dependency-track:/data"
 
   dtrack-frontend:
-    image: dependencytrack/frontend:4.11.3
+    image: dependencytrack/frontend:4.11.7
     depends_on:
       - dtrack-apiserver
     environment:

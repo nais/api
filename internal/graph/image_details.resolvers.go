@@ -22,7 +22,7 @@ func (r *analysisTrailResolver) Comments(ctx context.Context, obj *model.Analysi
 }
 
 func (r *findingResolver) AnalysisTrail(ctx context.Context, obj *model.Finding) (*model.AnalysisTrail, error) {
-	return r.dependencyTrackClient.GetAnalysisTrailForImage(ctx, obj.ParentID, obj.ComponentID, obj.VulnerabilityID)
+	return r.vulnerabilities.GetAnalysisTrailForImage(ctx, obj.ParentID, obj.ComponentID, obj.VulnerabilityID)
 }
 
 func (r *imageDetailsResolver) Findings(ctx context.Context, obj *model.ImageDetails, offset *int, limit *int, orderBy *model.OrderBy) (*model.FindingList, error) {
@@ -36,7 +36,7 @@ func (r *imageDetailsResolver) Findings(ctx context.Context, obj *model.ImageDet
 			},
 		}, nil
 	}
-	findings, err := r.dependencyTrackClient.GetFindingsForImageByProjectID(ctx, obj.ProjectID, true)
+	findings, err := r.vulnerabilities.GetFindingsForImageByProjectID(ctx, obj.ProjectID, true)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func (r *mutationResolver) SuppressFinding(ctx context.Context, analysisState st
 		return nil, fmt.Errorf("invalid analysis state: %s", analysisState)
 	}
 
-	trail, err := r.dependencyTrackClient.SuppressFinding(ctx, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy, suppress)
+	trail, err := r.vulnerabilities.SuppressFinding(ctx, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy, suppress)
 	if err != nil {
 		return nil, err
 	}

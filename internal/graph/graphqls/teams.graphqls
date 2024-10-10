@@ -307,6 +307,9 @@ type Team {
   "The status of the team."
   status: TeamStatus!
 
+  "The teams resources"
+  resourceInventory: ResourceInventory!
+
   "Get an SQL instance by name and env."
   sqlInstance(
     "The name of the instance."
@@ -463,7 +466,24 @@ type Team {
     limit: Int
   ): DeploymentList!
 
-  vulnerabilitiesSummary: VulnerabilitySummaryForTeam!
+  "The vulnerabilities for the team's applications."
+  vulnerabilities(
+    "Returns the first n entries from the list."
+    offset: Int
+
+    "Returns the last n entries from the list."
+    limit: Int
+
+    "Order entries by"
+    orderBy: OrderBy
+
+    filter: VulnerabilityFilter
+  ): VulnerabilityList!
+
+  "The vulnerabilities summary for the team's applications."
+  vulnerabilitiesSummary(
+    filter: VulnerabilityFilter
+  ): VulnerabilitySummaryForTeam!
 
   "Get all secrets for the team."
   secrets: [Secret!]! @auth
@@ -499,7 +519,7 @@ type TeamUtilizationData {
   team: Team!
 
   "The requested amount of resources"
-  requested: Float! 
+  requested: Float!
 
   "The current resource usage."
   used: Float!
@@ -514,7 +534,7 @@ type AppUtilizationData {
   app: App!
 
   "The requested amount of resources"
-  requested: Float! 
+  requested: Float!
 
   "The current resource usage."
   used: Float!
@@ -602,6 +622,7 @@ type TeamMemberReconciler {
 
 "Team status."
 type TeamStatus {
+  state: State!
   apps: AppsStatus!
   jobs: JobsStatus!
   sqlInstances: SqlInstancesStatus!
@@ -609,14 +630,30 @@ type TeamStatus {
 
 "Team status for apps."
 type AppsStatus {
-  total: Int!
   failing: Int!
+  notNais: Int!
+  vulnerabilities: Int!
 }
 
 "Team status for jobs."
 type JobsStatus {
-  total: Int!
   failing: Int!
+  notNais: Int!
+  vulnerabilities: Int!
+}
+
+"A teams inventory of resources."
+type ResourceInventory {
+  totalJobs: Int!
+  totalApps: Int!
+  totalSqlInstances: Int!
+  totalRedisInstances: Int!
+  totalOpenSearchInstances: Int!
+  totalKafkaTopics: Int!
+  totalBuckets: Int!
+  totalBigQueryDatasets: Int!
+  totalBucket: Int!
+  isEmpty: Boolean!
 }
 
 "Deployment key type."
