@@ -49,7 +49,7 @@ func createTestdata() []*client.Project {
 	projects := make([]*client.Project, 0)
 	team := "devteam"
 	for i := range 6 {
-		p := createProject(team, "app", fmt.Sprintf("nais-deploy-chicken-%d", i+2), fmt.Sprintf("v%d", i+2), i)
+		p := createProject(team, "app", fmt.Sprintf("nais-deploy-chicken-%d", i+2), "1", i)
 		projects = append(projects, p)
 	}
 	projects = append(projects, createProject(team, "job", "dataproduct-apps-topics", fmt.Sprintf("v%d", 1), 4))

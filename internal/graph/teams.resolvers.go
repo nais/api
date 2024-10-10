@@ -787,7 +787,7 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 		}
 		failingApps := 0
 		notNais := 0
-		vulnz := 0
+		workloads := make([]model.Workload, 0)
 		for _, app := range apps {
 			if app.Status.State == model.StateFailing {
 				failingApps++
@@ -795,18 +795,18 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 			if app.Status.State == model.StateNotnais {
 				notNais++
 			}
-			vuln, err := r.vulnerabilities.GetVulnerabilityError(ctx, app.Image, app.DeployInfo.CommitSha)
-			if err != nil {
-				return nil, fmt.Errorf("getting vulnerability status for image %q: %w", app.Image, err)
-			}
-			if vuln != nil {
-				vulnz++
-			}
+			workloads = append(workloads, app)
 		}
+
+		vulnErrs, err := r.vulnerabilities.GetVulnerabilityErrors(ctx, workloads, obj.Slug.String())
+		if err != nil {
+			return nil, fmt.Errorf("getting vulnerability status for all images: %w", err)
+		}
+
 		return model.AppsStatus{
 			Failing:         failingApps,
 			NotNais:         notNais,
-			Vulnerabilities: vulnz,
+			Vulnerabilities: len(vulnErrs),
 		}, nil
 	})
 
@@ -817,7 +817,7 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 		}
 		failingJobs := 0
 		notNais := 0
-		vulnz := 0
+		workloads := make([]model.Workload, 0)
 		for _, job := range jobs {
 			if job.Status.State == model.StateFailing {
 				failingJobs++
@@ -825,19 +825,18 @@ func (r *teamResolver) Status(ctx context.Context, obj *model.Team) (*model.Team
 			if job.Status.State == model.StateNotnais {
 				notNais++
 			}
-			vuln, err := r.vulnerabilities.GetVulnerabilityError(ctx, job.Image, job.DeployInfo.CommitSha)
-			if err != nil {
-				return nil, fmt.Errorf("getting vulnerability status for image %q: %w", job.Image, err)
-			}
-			if vuln != nil {
-				vulnz++
-			}
-
+			workloads = append(workloads, job)
 		}
+
+		vulnErrs, err := r.vulnerabilities.GetVulnerabilityErrors(ctx, workloads, obj.Slug.String())
+		if err != nil {
+			return nil, fmt.Errorf("getting vulnerability status for all images: %w", err)
+		}
+
 		return model.JobsStatus{
 			Failing:         failingJobs,
 			NotNais:         notNais,
-			Vulnerabilities: vulnz,
+			Vulnerabilities: len(vulnErrs),
 		}, nil
 	})
 

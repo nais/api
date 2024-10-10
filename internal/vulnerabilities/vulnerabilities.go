@@ -162,6 +162,60 @@ func (m *Manager) GetSummaryForTeam(ctx context.Context, workloads []model.Workl
 	return retVal, nil
 }
 
+func (m *Manager) GetVulnerabilityErrors(ctx context.Context, workloads []model.Workload, team string) ([]model.StateError, error) {
+	images, err := m.GetMetadataForTeam(ctx, team)
+	if err != nil {
+		return nil, fmt.Errorf("getting metadata for team %q: %w", team, err)
+	}
+
+	errors := make([]model.StateError, 0)
+	for _, workload := range workloads {
+		env, wType, name := workloadDetails(workload)
+		if env == "" || wType == "" || name == "" {
+			continue
+		}
+
+		var summary *model.ImageVulnerabilitySummary
+		if image := getImageDetails(images, env, team, wType, name); image != nil {
+			summary = image.Summary
+		}
+
+		revision := ""
+		switch w := workload.(type) {
+		case *model.App:
+			revision = w.DeployInfo.CommitSha
+		case *model.NaisJob:
+			revision = w.DeployInfo.CommitSha
+		}
+
+		vulnErr := stateToVulnerabilityError(summary, revision)
+		if vulnErr != nil {
+			errors = append(errors, vulnErr)
+		}
+	}
+
+	return errors, nil
+}
+
+func stateToVulnerabilityError(sum *model.ImageVulnerabilitySummary, revision string) model.StateError {
+	switch getVulnerabilityState(sum) {
+	case model.VulnerabilityStateOk:
+		return nil
+	case model.VulnerabilityStateMissingSbom:
+		return model.MissingSbomError{
+			Revision: revision,
+			Level:    model.ErrorLevelWarning,
+		}
+	case model.VulnerabilityStateVulnerable:
+		return model.VulnerableError{
+			Revision: revision,
+			Level:    model.ErrorLevelWarning,
+			Summary:  sum,
+		}
+	}
+	return nil
+}
+
 func getVulnerabilityState(summary *model.ImageVulnerabilitySummary) model.VulnerabilityState {
 	switch {
 	case summary == nil:

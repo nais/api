@@ -88,7 +88,7 @@ func NewDependencyTrackClient(cfg DependencyTrackConfig, log *logrus.Entry, opts
 		dependencytrack.WithLogger(log),
 		dependencytrack.WithHttpClient(&http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}),
 	)
-	ch := cache.New(10*time.Minute, 5*time.Minute)
+	ch := cache.New(5*time.Minute, 5*time.Minute)
 
 	if cfg.EnableFakes {
 		c = NewFakeDependencyTrackClient(c)
@@ -115,36 +115,17 @@ func WithClient(client dependencytrack.Client) DependencyTrackOption {
 }
 
 func (c *dependencyTrackClient) GetVulnerabilityError(ctx context.Context, image string, revision string) (model.StateError, error) {
-	name, version, _ := strings.Cut(image, ":")
-	// TODO: vurder cache?
-	p, err := c.client.GetProject(ctx, name, version)
+	p, err := c.retrieveProject(ctx, image)
 	if err != nil {
-		return nil, fmt.Errorf("getting project by name %s and version %s: %w", name, version, err)
+		return nil, fmt.Errorf("getting project by image %s: %w", image, err)
 	}
 
 	sum := c.createSummaryForImage(p)
-
-	switch getVulnerabilityState(sum) {
-	case model.VulnerabilityStateOk:
-		return nil, nil
-	case model.VulnerabilityStateMissingSbom:
-		return model.MissingSbomError{
-			Revision: revision,
-			Level:    model.ErrorLevelWarning,
-		}, nil
-	case model.VulnerabilityStateVulnerable:
-		return model.VulnerableError{
-			Revision: revision,
-			Level:    model.ErrorLevelWarning,
-			Summary:  sum,
-		}, nil
-
-	}
-	return nil, nil
+	return stateToVulnerabilityError(sum, revision), nil
 }
 
 func (c *dependencyTrackClient) GetProjectMetrics(ctx context.Context, instance *WorkloadInstance, date string) (*ProjectMetric, error) {
-	p, err := c.retrieveProject(ctx, instance)
+	p, err := c.retrieveProject(ctx, instance.Image)
 	if err != nil {
 		return nil, fmt.Errorf("getting project by workload %s: %w", instance.ID(), err)
 	}
@@ -433,19 +414,38 @@ func (c *dependencyTrackClient) createSummaryForImage(project *dependencytrack.P
 }
 
 func (c *dependencyTrackClient) retrieveProjectsForTeam(ctx context.Context, team string) ([]*dependencytrack.Project, error) {
-	tag := url.QueryEscape("team:" + team)
+	teamTag := dependencytrack.TeamTagPrefix.With(team)
+	tag := url.QueryEscape(teamTag)
+	if v, ok := c.cache.Get(teamTag); ok {
+		return v.([]*dependencytrack.Project), nil
+	}
 
 	projects, err := c.client.GetProjectsByTag(ctx, tag)
 	if err != nil {
 		return nil, fmt.Errorf("getting projects from DependencyTrack: %w", err)
 	}
 
+	for _, project := range projects {
+		if project == nil {
+			continue
+		}
+		instanceImageTag := dependencytrack.ImageTagPrefix.With(project.Name + ":" + project.Version)
+		c.cache.Set(instanceImageTag, project, cache.DefaultExpiration)
+	}
+
+	c.cache.Set(teamTag, projects, cache.DefaultExpiration)
+
 	return projects, nil
 }
 
-func (c *dependencyTrackClient) retrieveProject(ctx context.Context, instance *WorkloadInstance) (*dependencytrack.Project, error) {
-	instanceImageTag := dependencytrack.ImageTagPrefix.With(instance.Image)
+func (c *dependencyTrackClient) retrieveProject(ctx context.Context, image string) (*dependencytrack.Project, error) {
+	instanceImageTag := dependencytrack.ImageTagPrefix.With(image)
 	tag := url.QueryEscape(instanceImageTag)
+
+	if v, ok := c.cache.Get(instanceImageTag); ok {
+		return v.(*dependencytrack.Project), nil
+	}
+
 	projects, err := c.client.GetProjectsByTag(ctx, tag)
 	if err != nil {
 		return nil, fmt.Errorf("getting projects from DependencyTrack: %w", err)
@@ -459,6 +459,7 @@ func (c *dependencyTrackClient) retrieveProject(ctx context.Context, instance *W
 	for _, project := range projects {
 		if containsAllTags(project.Tags, instanceImageTag) {
 			p = project
+			c.cache.Set(instanceImageTag, p, cache.DefaultExpiration)
 			break
 		}
 	}
