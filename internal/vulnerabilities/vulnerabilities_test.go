@@ -3,6 +3,9 @@ package vulnerabilities
 import (
 	"context"
 	"fmt"
+	"sort"
+	"testing"
+
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/dependencytrack/pkg/client"
@@ -10,8 +13,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"sort"
-	"testing"
 )
 
 func TestManager_GetSummaryForTeam(t *testing.T) {

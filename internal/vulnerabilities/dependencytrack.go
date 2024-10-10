@@ -435,15 +435,6 @@ func (c *dependencyTrackClient) createSummaryForImage(project *dependencytrack.P
 	}
 }
 
-func (c *dependencyTrackClient) retrieveProjectById(ctx context.Context, projectId string) (*dependencytrack.Project, error) {
-	project, err := c.client.GetProjectById(ctx, projectId)
-	if err != nil {
-		return nil, fmt.Errorf("getting projects from DependencyTrack: %w", err)
-	}
-
-	return project, nil
-}
-
 func (c *dependencyTrackClient) retrieveProjectsForTeam(ctx context.Context, team string) ([]*dependencytrack.Project, error) {
 	tag := url.QueryEscape("team:" + team)
 

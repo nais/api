@@ -3,12 +3,13 @@ package vulnerabilities
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/scalar"
 	promapi "github.com/prometheus/client_golang/api"
 	promv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	log "github.com/sirupsen/logrus"
-	"time"
 )
 
 type Manager struct {
