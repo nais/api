@@ -36,8 +36,6 @@ import (
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/unleash"
-	"github.com/nais/api/internal/v1/feedback"
-	fakefeedback "github.com/nais/api/internal/v1/feedback/fake"
 	"github.com/nais/api/internal/v1/graphv1"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	"github.com/nais/api/internal/v1/kubernetes"
@@ -187,13 +185,10 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	var hookdClient graph.HookdClient
 	var resourceUsageClient resourceusage.ResourceUsageClient
-	var feedbackClient feedback.Client
 	if cfg.WithFakeClients {
-		feedbackClient = fakefeedback.NewClient(log)
 		hookdClient = fakehookd.New()
 		resourceUsageClient = fakeresourceusage.New(db, k8sClient)
 	} else {
-		feedbackClient = feedback.NewClient(cfg.Tenant, cfg.Slack.ApiToken, cfg.Slack.FeedbackChannelID)
 		hookdClient = hookd.New(cfg.Hookd.Endpoint, cfg.Hookd.PSK, log.WithField("client", "hookd"))
 		resourceUsageClient, err = resourceusage.New(cfg.K8s.AllClusterNames(), cfg.Tenant, log)
 		if err != nil {
@@ -227,7 +222,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		kafka.NewClient(k8sClient.Informers(), log, db),
 		unleashMgr,
 		audit.NewAuditor(db),
-		feedbackClient,
 	)
 
 	graphHandler, err := graph.NewHandler(gengql.Config{
@@ -305,7 +299,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	// HTTP server
 	wg.Go(func() error {
-		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, cfg.Tenant, cfg.K8s.Clusters, db, watcherMgr, sqlInstanceClient.Admin, authHandler, graphHandler, graphv1Handler, promReg, vulnClient, feedbackClient, log)
+		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, cfg.Tenant, cfg.K8s.Clusters, db, watcherMgr, sqlInstanceClient.Admin, authHandler, graphHandler, graphv1Handler, promReg, vulnClient, log)
 	})
 
 	wg.Go(func() error {

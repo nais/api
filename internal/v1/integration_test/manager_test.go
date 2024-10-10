@@ -24,7 +24,6 @@ import (
 	"github.com/nais/api/internal/cmd/api"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/usersync"
-	fakefeedback "github.com/nais/api/internal/v1/feedback/fake"
 	"github.com/nais/api/internal/v1/graphv1"
 	"github.com/nais/api/internal/v1/graphv1/gengqlv1"
 	apiRunner "github.com/nais/api/internal/v1/integration_test/runner"
@@ -156,7 +155,7 @@ func newGQLRunner(ctx context.Context, t *testing.T, config *Config, db database
 		t.Fatal(err)
 	}
 
-	graphMiddleware, err := api.ConfigureV1Graph(ctx, true, watcherMgr, db, nil, nil, tenantName, clusters(), fakefeedback.NewClient(log), log)
+	graphMiddleware, err := api.ConfigureV1Graph(ctx, true, watcherMgr, db, nil, nil, tenantName, clusters(), log)
 	if err != nil {
 		t.Fatal(err)
 	}

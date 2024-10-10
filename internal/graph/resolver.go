@@ -32,7 +32,7 @@ import (
 	"github.com/nais/api/internal/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/hookd"
 	"github.com/nais/api/internal/unleash"
-	"github.com/nais/api/internal/v1/feedback"
+
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -147,7 +147,6 @@ type Resolver struct {
 	kafkaClient           *kafka.Client
 	unleashMgr            *unleash.Manager
 	auditor               *audit.Auditor
-	feedbackClient        feedback.Client
 }
 
 // NewResolver creates a new GraphQL resolver with the given dependencies
@@ -171,7 +170,6 @@ func NewResolver(hookdClient HookdClient,
 	kafkaClient *kafka.Client,
 	unleashMgr *unleash.Manager,
 	auditer *audit.Auditor,
-	feedbackClient feedback.Client,
 ) *Resolver {
 	return &Resolver{
 		hookdClient:           hookdClient,
@@ -195,7 +193,6 @@ func NewResolver(hookdClient HookdClient,
 		kafkaClient:           kafkaClient,
 		unleashMgr:            unleashMgr,
 		auditor:               auditer,
-		feedbackClient:        feedbackClient,
 	}
 }
 
