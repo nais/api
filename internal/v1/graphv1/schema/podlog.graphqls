@@ -1,0 +1,38 @@
+type Subscription {
+	"""
+	Subscribe to workload logs
+
+	This subscription is used to stream logs from a specific workload. When filtering logs you must either specify an
+	application or a job owned by a team that is running in a specific environment. You can also filter logs on instance
+	name(s).
+	"""
+	workloadLog(filter: WorkloadLogSubscriptionFilter!): WorkloadLogLine!
+}
+
+input WorkloadLogSubscriptionFilter {
+	"Filter logs to a specific team."
+	team: Slug!
+
+	"Filter logs to a specific environment."
+	environment: String!
+
+	"Filter logs to a specific application."
+	application: String
+
+	"Filter logs to a specific job."
+	job: String
+
+	"Filter logs to a set of specific instance names."
+	instances: [String!]
+}
+
+type WorkloadLogLine {
+	"The timestamp of the log line."
+	time: Time!
+
+	"The log message."
+	message: String!
+
+	"The name of the instance that generated the log line."
+	instance: String!
+}
