@@ -1,20 +1,20 @@
 Test.gql("list users", function(t)
-	t.query([[
-    {
-      users(first: 5) {
-        nodes {
-          name
-          email
-        }
-        pageInfo {
-          totalCount
-          endCursor
-          hasNextPage
-          hasPreviousPage
-        }
-      }
-    }
-  ]])
+	t.query [[
+		query {
+			users(first: 5) {
+				nodes {
+					name
+					email
+				}
+				pageInfo {
+					totalCount
+					endCursor
+					hasNextPage
+					hasPreviousPage
+				}
+			}
+		}
+	]]
 
 	t.check {
 		data = {
@@ -54,21 +54,21 @@ end)
 
 Test.gql("list users with offset", function(t)
 	t.query(string.format([[
-    {
-      users(first: 5 after:"%s") {
-        nodes {
-          name
-          email
-        }
-        pageInfo {
-          totalCount
-          endCursor
-          hasNextPage
-          hasPreviousPage
-        }
-      }
-    }
-  ]], State.nextPageCursor))
+		query {
+			users(first: 5 after:"%s") {
+				nodes {
+					name
+					email
+				}
+				pageInfo {
+					totalCount
+					endCursor
+					hasNextPage
+					hasPreviousPage
+				}
+			}
+		}
+	]], State.nextPageCursor))
 
 	t.check {
 		data = {
@@ -97,7 +97,7 @@ Test.gql("list users with offset", function(t)
 				},
 				pageInfo = {
 					totalCount = 21,
-					endCursor = Ignore(true),
+					endCursor = Ignore(),
 					hasNextPage = true,
 					hasPreviousPage = true
 				}

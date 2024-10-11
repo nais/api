@@ -1,21 +1,30 @@
 -- This file is generated. Do not edit.
 
 
---- Ignore the field, if notNull is true, it will ensure the field is not null
----@param notNull? boolean
----@return string
-function Ignore(notNull)
-  print("Ignore: ", notNull)
-  return ""
+--- Ignore the field regardless of its value
+---@return userdata
+function Ignore()
+  print("Ignore")
+  ---@diagnostic disable-next-line: return-type-mismatch
+  return {}
+end
+
+--- Ensure the field is not null, but allow any other value
+---@return userdata
+function NotNull()
+	print("NotNull")
+  ---@diagnostic disable-next-line: return-type-mismatch
+	return {}
 end
 
 --- Save the field to the state. By default it will error if the field is null
 ---@param name string Name of the field in the state
----@param ignoreNull? boolean
----@return string
-function Save(name, ignoreNull)
-  print("Save: ", name, ignoreNull)
-  return ""
+---@param allowNull? boolean
+---@return userdata
+function Save(name, allowNull)
+  print("Save: ", name, allowNull)
+  ---@diagnostic disable-next-line: return-type-mismatch
+  return {}
 end
 
 --- State variables
@@ -24,6 +33,7 @@ State = {}
 
 --- Null ensures the value is null
 ---@type userdata
+---@diagnostic disable-next-line: assign-type-mismatch
 Null = {}
 
 ---@class TestFunctionTgql
@@ -124,6 +134,12 @@ end
 function Helper.SQLQueryRow(query, ...)
   print("SQLQueryRow")
   return {}
+end
+
+--- Check comment
+---@param topic string
+function Helper.emptyPubSubTopic(topic)
+  print("emptyPubSubTopic")
 end
 
 --- Read in k8s resources from a directory

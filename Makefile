@@ -86,3 +86,6 @@ start-integration-test-db: stop-integration-test-db
 integration_test:
 	rm -f hack/coverprofile.txt
 	go test -coverprofile=hack/coverprofile.txt -coverpkg github.com/nais/api/... -v -tags integration_test --race ./integration_tests
+
+tester_spec:
+	go run ./cmd/tester_spec

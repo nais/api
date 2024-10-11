@@ -1,21 +1,21 @@
 Config.Unauthenticated = true
 
 Test.gql("list users with unauthenticated request", function(t)
-	t.query([[
-    {
-  users(first: 5) {
-    nodes {
-      name
-    }
-  }
-}
-  ]])
+	t.query [[
+		query {
+			users(first: 5) {
+				nodes {
+					name
+				}
+			}
+		}
+	]]
 
 	t.check {
 		errors = {
-            {
-              message = "Unauthorized"
-            }
-        }
+			{
+				message = "Unauthorized"
+			}
+		}
 	}
 end)

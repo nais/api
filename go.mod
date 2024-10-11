@@ -24,7 +24,7 @@ require (
 	github.com/nais/bifrost v0.0.0-20240521085955-c2d2e61bfcd0
 	github.com/nais/dependencytrack v0.0.0-20240610080458-c76185696c11
 	github.com/nais/liberator v0.0.0-20240704120107-2f372679d62b
-	github.com/nais/tester v0.1.0-pre.3
+	github.com/nais/tester v0.1.0-pre.5
 	github.com/nais/unleasherator v0.0.0-20240513081022-06f454638fc1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.21.1
@@ -35,7 +35,6 @@ require (
 	github.com/rs/cors v1.11.0
 	github.com/sethvargo/go-envconfig v1.0.3
 	github.com/sirupsen/logrus v1.9.3
-	github.com/slack-go/slack v0.14.0
 	github.com/sourcegraph/conc v0.3.0
 	github.com/sqlc-dev/sqlc v1.26.0
 	github.com/stretchr/testify v1.9.0
