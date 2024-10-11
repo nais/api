@@ -15,6 +15,22 @@ import (
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 )
 
+func (r *mutationResolver) CreateSecret(ctx context.Context, input secret.CreateSecretInput) (*secret.CreateSecretPayload, error) {
+	if err := authz.RequireTeamMembershipCtx(ctx, input.Team); err != nil {
+		return nil, err
+	}
+
+	s, err := secret.Create(ctx, input.Team, input.Environment, input.Name, input.Data)
+	if err != nil {
+		return nil, err
+	}
+
+	return &secret.CreateSecretPayload{
+		Secret: s,
+	}, nil
+
+}
+
 func (r *secretResolver) Environment(ctx context.Context, obj *secret.Secret) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }

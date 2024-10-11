@@ -32,6 +32,27 @@ type Secret struct {
 	EnvironmentName string    `json:"-"`
 }
 
+type CreateSecretInput struct {
+	// The name of the secret.
+	Name string `json:"name"`
+	// The environment the secret is deployed to.
+	Environment string `json:"environment"`
+	// The team that owns the secret.
+	Team slug.Slug `json:"team"`
+	// The secret data.
+	Data []*SecretVariableInput `json:"data"`
+}
+
+type CreateSecretPayload struct {
+	// The created secret.
+	Secret *Secret `json:"secret"`
+}
+
+type SecretVariableInput struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
 func (s *Secret) ID() ident.Ident {
 	return newIdent(s.TeamSlug, s.EnvironmentName, s.Name)
 }
