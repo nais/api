@@ -28,7 +28,6 @@ func (r *mutationResolver) CreateSecret(ctx context.Context, input secret.Create
 	return &secret.CreateSecretPayload{
 		Secret: s,
 	}, nil
-
 }
 
 func (r *secretResolver) Environment(ctx context.Context, obj *secret.Secret) (*team.TeamEnvironment, error) {
