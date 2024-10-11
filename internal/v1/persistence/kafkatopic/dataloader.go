@@ -18,9 +18,6 @@ func NewLoaderContext(ctx context.Context, watcher *watcher.Watcher[*KafkaTopic]
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*KafkaTopic] {
 	w := watcher.Watch(mgr, &KafkaTopic{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
-		if o.GetKind() != "Topic" {
-			return nil, false
-		}
 		ret, err := toKafkaTopic(o, environmentName)
 		if err != nil {
 			return nil, false

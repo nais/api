@@ -18,9 +18,6 @@ func NewLoaderContext(ctx context.Context, watcher *watcher.Watcher[*Bucket]) co
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*Bucket] {
 	w := watcher.Watch(mgr, &Bucket{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
-		if o.GetKind() != "StorageBucket" {
-			return nil, false
-		}
 		ret, err := toBucket(o, environmentName)
 		if err != nil {
 			return nil, false

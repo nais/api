@@ -20,9 +20,6 @@ func NewLoaderContext(ctx context.Context, secretWatcher *watcher.Watcher[*Secre
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*Secret] {
 	w := watcher.Watch(mgr, &Secret{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
-		if o.GetKind() != "Secret" {
-			return nil, false
-		}
 		ret := toGraphSecret(o, environmentName)
 		return ret, true
 	}), watcher.WithGVR(schema.GroupVersionResource{

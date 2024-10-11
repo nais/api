@@ -18,9 +18,6 @@ func NewLoaderContext(ctx context.Context, redisWatcher *watcher.Watcher[*RedisI
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*RedisInstance] {
 	w := watcher.Watch(mgr, &RedisInstance{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
-		if o.GetKind() != "Redis" {
-			return nil, false
-		}
 		ret, err := toRedisInstance(o, environmentName)
 		if err != nil {
 			return nil, false

@@ -18,9 +18,6 @@ func NewLoaderContext(ctx context.Context, watcher *watcher.Watcher[*OpenSearch]
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*OpenSearch] {
 	w := watcher.Watch(mgr, &OpenSearch{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
-		if o.GetKind() != "OpenSearch" {
-			return nil, false
-		}
 		ret, err := toOpenSearch(o, environmentName)
 		if err != nil {
 			return nil, false

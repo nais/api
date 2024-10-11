@@ -20,9 +20,6 @@ func NewLoaderContext(ctx context.Context, bqWatcher *watcher.Watcher[*BigQueryD
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*BigQueryDataset] {
 	w := watcher.Watch(mgr, &BigQueryDataset{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
-		if o.GetKind() != "BigQueryDataset" {
-			return nil, false
-		}
 		ret, err := toBigQueryDataset(o, environmentName)
 		if err != nil {
 			return nil, false

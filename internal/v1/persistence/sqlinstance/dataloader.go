@@ -19,9 +19,6 @@ func NewLoaderContext(ctx context.Context, sqlAdminService *sqlinstance.SqlAdmin
 
 func NewInstanceWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*SQLInstance] {
 	w := watcher.Watch(mgr, &SQLInstance{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
-		if o.GetKind() != "SQLInstance" {
-			return nil, false
-		}
 		ret, err := toSQLInstance(o, environmentName)
 		if err != nil {
 			return nil, false
@@ -38,9 +35,6 @@ func NewInstanceWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watc
 
 func NewDatabaseWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*SQLDatabase] {
 	w := watcher.Watch(mgr, &SQLDatabase{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
-		if o.GetKind() != "SQLDatabase" {
-			return nil, false
-		}
 		ret, err := toSQLDatabase(o, environmentName)
 		if err != nil {
 			return nil, false
