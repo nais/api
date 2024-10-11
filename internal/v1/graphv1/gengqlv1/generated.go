@@ -8210,7 +8210,7 @@ extend type TeamEnvironment {
 	secret(
 		"The name of the secret."
 		name: String!
-	): Secret
+	): Secret!
 }
 
 type SecretConnection {
@@ -41766,11 +41766,14 @@ func (ec *executionContext) _TeamEnvironment_secret(ctx context.Context, field g
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*secret.Secret)
 	fc.Result = res
-	return ec.marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecret(ctx, field.Selections, res)
+	return ec.marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecret(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TeamEnvironment_secret(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -62077,13 +62080,16 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 		case "secret":
 			field := field
 
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._TeamEnvironment_secret(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -67859,6 +67865,10 @@ func (ec *executionContext) marshalNSearchNodeEdge2ᚕgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
+func (ec *executionContext) marshalNSecret2githubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecret(ctx context.Context, sel ast.SelectionSet, v secret.Secret) graphql.Marshaler {
+	return ec._Secret(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecretᚄ(ctx context.Context, sel ast.SelectionSet, v []*secret.Secret) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -70308,13 +70318,6 @@ func (ec *executionContext) marshalOSearchType2ᚖgithubᚗcomᚋnaisᚋapiᚋin
 		return graphql.Null
 	}
 	return v
-}
-
-func (ec *executionContext) marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv1ᚋworkloadᚋsecretᚐSecret(ctx context.Context, sel ast.SelectionSet, v *secret.Secret) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Secret(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, v interface{}) (*slug.Slug, error) {
