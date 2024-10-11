@@ -84,6 +84,10 @@ func (r *secretResolver) LastModifiedBy(ctx context.Context, obj *secret.Secret)
 }
 
 func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*secret.Secret], error) {
+	if err := authz.RequireTeamMembershipCtx(ctx, obj.Slug); err != nil {
+		return nil, nil
+	}
+
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -93,6 +97,10 @@ func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, 
 }
 
 func (r *teamEnvironmentResolver) Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error) {
+	if err := authz.RequireTeamMembershipCtx(ctx, obj.TeamSlug); err != nil {
+		return nil, nil
+	}
+
 	return secret.Get(ctx, obj.TeamSlug, obj.Name, name)
 }
 
