@@ -92,6 +92,10 @@ func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, 
 	return secret.ListForTeam(ctx, obj.Slug, page)
 }
 
+func (r *teamEnvironmentResolver) Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error) {
+	return secret.Get(ctx, obj.TeamSlug, obj.Name, name)
+}
+
 func (r *Resolver) Secret() gengqlv1.SecretResolver { return &secretResolver{r} }
 
 type secretResolver struct{ *Resolver }
