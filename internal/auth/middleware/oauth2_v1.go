@@ -11,7 +11,7 @@ import (
 	"github.com/nais/api/internal/v1/user"
 )
 
-// Oauth2Authentication If the request has a session cookie, look up the session from the store, and if it exists, try
+// Oauth2AuthenticationV1 If the request has a session cookie, look up the session from the store, and if it exists, try
 // to load the user with the email address stored in the session.
 func Oauth2AuthenticationV1(db database.Database, authHandler authn.Handler) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -41,14 +41,14 @@ func Oauth2AuthenticationV1(db database.Database, authHandler authn.Handler) fun
 				return
 			}
 
-			user, err := user.Get(ctx, session.UserID)
+			u, err := user.Get(ctx, session.UserID)
 			if err != nil {
 				_ = db.DeleteSession(ctx, sessionID)
 				next.ServeHTTP(w, r)
 				return
 			}
 
-			roles, err := db.GetUserRoles(ctx, user.UUID)
+			roles, err := db.GetUserRoles(ctx, u.UUID)
 			if err != nil {
 				next.ServeHTTP(w, r)
 				return
@@ -63,7 +63,7 @@ func Oauth2AuthenticationV1(db database.Database, authHandler authn.Handler) fun
 			}
 
 			authHandler.SetSessionCookie(w, session)
-			ctx = authz.ContextWithActor(r.Context(), user, roles)
+			ctx = authz.ContextWithActor(r.Context(), u, roles)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
 		return http.HandlerFunc(fn)
