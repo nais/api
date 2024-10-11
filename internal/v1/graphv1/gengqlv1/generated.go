@@ -8207,10 +8207,7 @@ extend type Team {
 }
 
 extend type TeamEnvironment {
-	secret(
-		"The name of the secret."
-		name: String!
-	): Secret!
+	secret("The name of the secret." name: String!): Secret!
 }
 
 type SecretConnection {
