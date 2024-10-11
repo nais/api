@@ -102,12 +102,6 @@ func RequireGlobalAuthorization(actor *Actor, requiredAuthzName roles.Authorizat
 	return authorized(authorizations, requiredAuthzName)
 }
 
-// RequireGlobalAuthorizationFromContext Require an actor in the context to have a specific authorization through a
-// globally assigned role.
-func RequireGlobalAuthorizationFromContext(ctx context.Context, requiredAuthzName roles.Authorization) error {
-	return RequireGlobalAuthorization(ActorFromContext(ctx), requiredAuthzName)
-}
-
 // RequireTeamAuthorization Require an actor to have a specific authorization through a globally assigned or a correctly
 // targeted role.
 func RequireTeamAuthorization(actor *Actor, requiredAuthzName roles.Authorization, targetTeamSlug slug.Slug) error {

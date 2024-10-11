@@ -21,19 +21,6 @@ type StaticCluster struct {
 	Token string
 }
 
-func (c *Config) IsStaticCluster(cluster string) bool {
-	for _, sc := range c.StaticClusters {
-		if sc.Name == cluster {
-			return true
-		}
-	}
-	return false
-}
-
-func (c *Config) IsGcp(cluster string) bool {
-	return !c.IsStaticCluster(cluster)
-}
-
 type ClusterConfigMap map[string]rest.Config
 
 func CreateClusterConfigMap(tenant string, cfg Config) (ClusterConfigMap, error) {

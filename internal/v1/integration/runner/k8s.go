@@ -19,10 +19,6 @@ import (
 
 var _ spec.Runner = &K8s{}
 
-type named interface {
-	GetName() string
-}
-
 type K8s struct {
 	Scheme *runtime.Scheme
 

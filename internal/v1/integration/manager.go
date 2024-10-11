@@ -174,7 +174,8 @@ func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, 
 		postgres.WithSQLDriver("pgx"),
 		testcontainers.WithWaitStrategy(
 			wait.ForLog("database system is ready to accept connections").
-				WithOccurrence(2)),
+				WithOccurrence(2),
+		),
 	)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to start container: %w", err)

@@ -108,11 +108,12 @@ func newDb(ctx context.Context) (db database.Database, closer func(), err error)
 		lg = log.New(os.Stderr, "", log.LstdFlags)
 	}
 
-	container, err := postgres.RunContainer(ctx,
+	container, err := postgres.Run(ctx, "docker.io/postgres:16-alpine",
 		testcontainers.WithLogger(lg),
 		postgres.WithDatabase("example"),
 		postgres.WithUsername("example"),
 		postgres.WithPassword("example"),
+		postgres.WithSQLDriver("pgx"),
 		testcontainers.WithWaitStrategy(
 			wait.ForLog("database system is ready to accept connections").
 				WithOccurrence(2),
@@ -121,17 +122,6 @@ func newDb(ctx context.Context) (db database.Database, closer func(), err error)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to start container: %w", err)
 	}
-
-	closeContainer := func() {
-		if err := container.Terminate(ctx); err != nil {
-			log.Fatalf("failed to terminate container: %s", err)
-		}
-	}
-	defer func() {
-		if err != nil {
-			closeContainer()
-		}
-	}()
 
 	connStr, err := container.ConnectionString(ctx, "sslmode=disable")
 	if err != nil {
@@ -146,7 +136,7 @@ func newDb(ctx context.Context) (db database.Database, closer func(), err error)
 	}
 
 	pool.Close()
-	if err := container.Snapshot(ctx); err != nil {
+	if err := container.Snapshot(ctx, postgres.WithSnapshotName("snapshot")); err != nil {
 		return nil, nil, fmt.Errorf("failed to snapshot: %w", err)
 	}
 
@@ -155,10 +145,5 @@ func newDb(ctx context.Context) (db database.Database, closer func(), err error)
 		return nil, nil, fmt.Errorf("failed to create database: %w", err)
 	}
 
-	closer = func() {
-		closeDb()
-		closeContainer()
-	}
-
-	return db, closer, nil
+	return db, closeDb, nil
 }
