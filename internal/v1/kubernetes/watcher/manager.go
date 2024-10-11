@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/nais/api/internal/v1/kubernetes"
+
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/tools/cache"
 
@@ -39,8 +41,8 @@ type Manager struct {
 	cacheSyncs []cache.InformerSynced
 }
 
-func NewManager(scheme *runtime.Scheme, tenant string, cfg Config, log logrus.FieldLogger, opts ...Option) (*Manager, error) {
-	ccm, err := CreateClusterConfigMap(tenant, cfg)
+func NewManager(scheme *runtime.Scheme, tenant string, cfg kubernetes.Config, log logrus.FieldLogger, opts ...Option) (*Manager, error) {
+	ccm, err := kubernetes.CreateClusterConfigMap(tenant, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("creating cluster config map: %w", err)
 	}

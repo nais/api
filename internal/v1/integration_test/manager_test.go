@@ -148,7 +148,7 @@ func newGQLRunner(ctx context.Context, t *testing.T, config *Config, db database
 	}
 
 	// TODO: Cleanup
-	watcherMgr, err := watcher.NewManager(scheme, "dev-nais", watcher.Config{
+	watcherMgr, err := watcher.NewManager(scheme, "dev-nais", kubernetes.Config{
 		Clusters: clusters(),
 	}, log.WithField("subsystem", "k8s_watcher"), watcherOpts...)
 	if err != nil {
