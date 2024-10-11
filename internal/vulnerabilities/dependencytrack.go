@@ -33,7 +33,6 @@ type Client interface {
 	GetVulnerabilityError(ctx context.Context, image string, revision string) (model.StateError, error)
 	SuppressFinding(ctx context.Context, analysisState, comment, componentID, projectID, vulnerabilityID, suppressedBy string, suppress bool) (*model.AnalysisTrail, error)
 	GetAnalysisTrailForImage(ctx context.Context, projectID, componentID, vulnerabilityID string) (*model.AnalysisTrail, error)
-	UploadProject(ctx context.Context, image, name, version, team string, bom []byte) error
 }
 
 type dependencyTrackClient struct {
@@ -348,29 +347,6 @@ func (c *dependencyTrackClient) GetAnalysisTrailForImage(ctx context.Context, pr
 	return retAnalysisTrail, nil
 }
 
-func (c *dependencyTrackClient) UploadProject(ctx context.Context, image, name, version, team string, bom []byte) error {
-	tags := []string{
-		dependencytrack.EnvironmentTagPrefix.With("dev"),
-		dependencytrack.TeamTagPrefix.With(team),
-		dependencytrack.WorkloadTagPrefix.With("dev|" + team + "|app|" + name),
-		dependencytrack.ImageTagPrefix.With(image),
-	}
-	createdP, err := c.client.CreateProject(ctx, image, version, team, tags)
-	if err != nil {
-		// since we are creating the project, we can ignore the conflict error
-		if !dependencytrack.IsConflict(err) {
-			return fmt.Errorf("creating project: %w", err)
-		}
-		return nil
-	}
-
-	err = c.client.UploadProject(ctx, image, version, createdP.Uuid, false, bom)
-	if err != nil {
-		return fmt.Errorf("uploading bom: %w", err)
-	}
-	return nil
-}
-
 // Due to the nature of the DependencyTrack API, the 'LastBomImportFormat' is not reliable to determine if a project has a BOM.
 // The 'LastBomImportFormat' can be empty even if the project has a BOM.
 // As a fallback, we can check if projects has registered any components, then we assume that if a project has components, it has a BOM.
@@ -526,6 +502,9 @@ func parseWorkloadRefTags(tags []dependencytrack.Tag) []*model.WorkloadReference
 
 func parseComments(trail *dependencytrack.Analysis) []*model.AnalysisComment {
 	comments := make([]*model.AnalysisComment, 0)
+	if trail == nil {
+		return comments
+	}
 	for _, comment := range trail.AnalysisComments {
 		timestamp := time.Unix(int64(comment.Timestamp)/1000, 0).Local()
 		after, found := strings.CutPrefix(comment.Comment, "on-behalf-of:")

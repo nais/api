@@ -3,6 +3,7 @@ package vulnerabilities
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"sort"
 	"strings"
 	"time"
@@ -16,12 +17,13 @@ import (
 
 func NewFakeDependencyTrackClient(c client.Client) client.Client {
 	projects := createTestdata()
-	return &fakeDependencyTrackClient{c, projects}
+	return &fakeDependencyTrackClient{c, projects, map[string]*client.Analysis{}}
 }
 
 type fakeDependencyTrackClient struct {
 	client.Client
-	projects []*client.Project
+	projects      []*client.Project
+	analysisTrail map[string]*client.Analysis
 }
 
 func (f *fakeDependencyTrackClient) GetProject(_ context.Context, name, version string) (*client.Project, error) {
@@ -34,11 +36,40 @@ func (f *fakeDependencyTrackClient) GetProject(_ context.Context, name, version 
 }
 
 func (f *fakeDependencyTrackClient) GetFindings(ctx context.Context, projectUuid string, suppressed bool) ([]*client.Finding, error) {
-	p, err := f.Client.GetProject(ctx, "ghcr.io/nais/testapp/testapp", "2020-02-25-f61e7b7")
-	if err != nil {
-		return nil, err
+	for _, p := range f.projects {
+		if p.Uuid == projectUuid {
+			return createFindings(p), nil
+		}
 	}
-	return f.Client.GetFindings(ctx, p.Uuid, suppressed)
+	return nil, nil
+}
+
+func (f *fakeDependencyTrackClient) GetAnalysisTrail(ctx context.Context, projectUuid, componentUuid, vulnerabilityUuid string) (*client.Analysis, error) {
+	return f.analysisTrail[projectUuid], nil
+}
+
+func (f *fakeDependencyTrackClient) RecordAnalysis(ctx context.Context, analysis *client.AnalysisRequest) error {
+	a := &client.Analysis{
+		AnalysisState:         analysis.AnalysisState,
+		AnalysisJustification: analysis.AnalysisJustification,
+		AnalysisResponse:      analysis.AnalysisResponse,
+		AnalysisDetails:       analysis.AnalysisDetails,
+		AnalysisComments: []client.AnalysisComment{
+			{
+				Timestamp: int(time.Now().Unix()),
+				Comment:   analysis.Comment,
+			},
+		},
+		IsSuppressed: analysis.IsSuppressed,
+	}
+
+	f.analysisTrail[analysis.Project] = a
+
+	return nil
+}
+
+func (f *fakeDependencyTrackClient) TriggerAnalysis(ctx context.Context, projectUuid string) error {
+	return nil
 }
 
 func (f *fakeDependencyTrackClient) GetProjectsByTag(ctx context.Context, tag string) ([]*client.Project, error) {
@@ -58,8 +89,9 @@ func createTestdata() []*client.Project {
 }
 
 func createProject(team, workloadType, name, version string, vulnFactor int) *client.Project {
+	pName := "ghcr.io/nais/" + name
 	p := &client.Project{
-		Name:    "ghcr.io/nais/" + name,
+		Name:    pName,
 		Tags:    make([]client.Tag, 0),
 		Uuid:    uuid.New().String(),
 		Version: version,
@@ -84,6 +116,65 @@ func createProject(team, workloadType, name, version string, vulnFactor int) *cl
 	p.Tags = append(p.Tags, client.Tag{Name: fmt.Sprintf("workload:%s|%s|%s|%s", "superprod", team, workloadType, name)})
 	p.Tags = append(p.Tags, client.Tag{Name: "env:" + "superprod"})
 	return p
+}
+
+func createFindings(p *client.Project) []*client.Finding {
+	findings := make([]*client.Finding, 0)
+
+	for i := range p.Metrics.Critical {
+		findings = append(findings, createFindingStruct(p.Uuid, 1, fmt.Sprintf("some-component-%d", i)))
+	}
+	for i := range p.Metrics.High {
+		findings = append(findings, createFindingStruct(p.Uuid, 2, fmt.Sprintf("some-component-%d", i)))
+	}
+	for i := range p.Metrics.Medium {
+		findings = append(findings, createFindingStruct(p.Uuid, 3, fmt.Sprintf("some-component-%d", i)))
+	}
+	for i := range p.Metrics.Low {
+		findings = append(findings, createFindingStruct(p.Uuid, 4, fmt.Sprintf("some-component-%d", i)))
+	}
+	for i := range p.Metrics.Unassigned {
+		findings = append(findings, createFindingStruct(p.Uuid, 5, fmt.Sprintf("some-component-%d", i)))
+	}
+
+	return findings
+}
+
+func createFindingStruct(projectId string, severity int, componentName string) *client.Finding {
+	sName := ""
+	switch severity {
+	case 1:
+		sName = "CRITICAL"
+	case 2:
+		sName = "HIGH"
+	case 3:
+		sName = "MEDIUM"
+	case 4:
+		sName = "LOW"
+	case 5:
+		sName = "UNASSIGNED"
+	}
+
+	return &client.Finding{
+		Component: client.Component{
+			UUID:    uuid.New().String(),
+			PURL:    fmt.Sprintf("pkg:golang/%s@v2.0.8?type=module", componentName),
+			Project: projectId,
+			Name:    componentName,
+		},
+		Vulnerability: client.Vulnerability{
+			UUID:         "31b633d1-557c-41e6-a7ab-b94a0b3e2c21",
+			VulnId:       fmt.Sprintf("CVE-2024-%d", rand.Intn(100000)),
+			Severity:     sName,
+			SeverityRank: severity,
+			Source:       "NVD",
+			Title:        "",
+		},
+		Analysis: client.VulnzAnalysis{
+			IsSuppressed: false,
+			State:        "",
+		},
+	}
 }
 
 var _ client.Client = (*fakeDependencyTrackClient)(nil)
