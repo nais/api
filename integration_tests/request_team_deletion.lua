@@ -70,8 +70,8 @@ Test.sql("Validate delete key", function(t)
 	]], State.deleteKey)
 
 	t.check {
-		confirmed_at= Null,
-		team_slug= TeamSlug,
-		email= "authenticated@example.com"
+		confirmed_at = Null,
+		team_slug = TeamSlug,
+		email = "authenticated@example.com"
 	}
 end)

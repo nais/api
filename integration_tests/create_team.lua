@@ -42,7 +42,7 @@ Test.pubsub("Check if pubsub message was sent", function(t)
 end)
 
 Test.sql("Check database", function(t)
-	t.queryRow ("SELECT * FROM teams WHERE slug = $1", "newteam")
+	t.queryRow("SELECT * FROM teams WHERE slug = $1", "newteam")
 
 	t.check {
 		azure_group_id = Null,
