@@ -1,9 +1,0 @@
-INSERT INTO teams(
-  slug,
-  purpose,
-  slack_channel
-) VALUES ('delete-me', 'Delete me', '#delete-me');
-
-RETURNS
-
-[]
