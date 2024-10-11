@@ -34,41 +34,14 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-// func TestMain(m *testing.M) {
-// 	flag.Parse()
-
-// 	ctx := context.Background()
-// 	container, connStr, err := startPostgresql(ctx)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	postgresContainer = container
-// 	connectionString = connStr
-
-// 	code := m.Run()
-
-// 	if err := postgresContainer.Terminate(ctx); err != nil {
-// 		log.Fatalf("failed to terminate container: %s", err)
-// 	}
-
-// 	os.Exit(code)
-// }
-
 func TestRunner(ctx context.Context, skipSetup bool) (*testmanager.Manager, error) {
 	mgr, err := testmanager.New(newConfig, newManager(ctx, skipSetup), &runner.GQL{}, &runner.SQL{}, &runner.PubSub{}, &apiRunner.K8s{})
 	if err != nil {
 		return nil, err
 	}
 
-	// if err := mgr.Run(ctx, os.DirFS("./testdata")); err != nil {
-	// 	return nil, err
-	// }
-
 	return mgr, nil
 }
-
-const tenantName = "some-tenant"
 
 func clusters() []string {
 	return []string{"dev", "staging"}
@@ -118,7 +91,7 @@ func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 
 		k8sRunner := apiRunner.NewK8sRunner(scheme, dir, clusters())
 		topic := newPubsubRunner()
-		gqlRunner, err := newGQLRunner(ctx, db, topic, k8sRunner)
+		gqlRunner, err := newGQLRunner(ctx, config, db, topic, k8sRunner)
 		if err != nil {
 			done()
 			return nil, nil, err
@@ -138,51 +111,9 @@ func newManager(ctx context.Context, skipSetup bool) testmanager.SetupFunc {
 			done()
 		}, nil
 	}
-
-	// return func(ctx context.Context, config *Config, state map[string]any) ([]testmanager.Runner, func(), []testmanager.Option, error) {
-	// 	if config == nil {
-	// 		config = &Config{}
-	// 	}
-	// 	ctx, done := context.WithCancel(ctx)
-	// 	cleanups := []func(){}
-
-	// 	opts := []testmanager.Option{}
-
-	// 	db, pool, cleanup, err := newDB(ctx, !config.SkipSeed)
-	// 	if err != nil {
-	// 		done()
-	// 		return nil, nil, opts, err
-	// 	}
-	// 	cleanups = append(cleanups, cleanup)
-
-	// 	log := logrus.New()
-
-	// 	log.Out = io.Discard
-	// 	if testing.Verbose() {
-	// 		log.Out = os.Stdout
-	// 		log.Level = logrus.DebugLevel
-	// 	}
-
-	// 	topic := newPubsubRunner()
-
-	// 	k8sRunner := apiRunner.NewK8sRunner()
-	// 	runners := []testmanager.Runner{
-	// 		newGQLRunner(ctx, t, config, db, topic),
-	// 		runner.NewSQLRunner(pool),
-	// 		k8sRunner,
-	// 		topic,
-	// 	}
-
-	// 	return runners, func() {
-	// 		for _, cleanup := range cleanups {
-	// 			cleanup()
-	// 		}
-	// 		done()
-	// 	}, opts, nil
-	// }
 }
 
-func newGQLRunner(ctx context.Context, db database.Database, topic graphv1.PubsubTopic, k8sRunner *apiRunner.K8s) (spec.Runner, error) {
+func newGQLRunner(ctx context.Context, config *Config, db database.Database, topic graphv1.PubsubTopic, k8sRunner *apiRunner.K8s) (spec.Runner, error) {
 	log := logrus.New()
 	log.Out = io.Discard
 
@@ -193,7 +124,7 @@ func newGQLRunner(ctx context.Context, db database.Database, topic graphv1.Pubsu
 		return nil, fmt.Errorf("failed to create watcher manager: %w", err)
 	}
 
-	graphMiddleware, err := api.ConfigureV1Graph(ctx, true, watcherMgr, db, nil, nil, tenantName, clusters(), log)
+	graphMiddleware, err := api.ConfigureV1Graph(ctx, true, watcherMgr, db, nil, nil, config.TenantName, clusters(), log)
 	if err != nil {
 		return nil, fmt.Errorf("failed to configure v1 graph: %w", err)
 	}
@@ -209,10 +140,10 @@ func newGQLRunner(ctx context.Context, db database.Database, topic graphv1.Pubsu
 	}
 
 	authProxy := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if true /* !config.Unauthenticated */ {
+		if !config.Unauthenticated {
 			ctx := r.Context()
 			email := "authenticated@example.com"
-			if false /* config.Admin */ {
+			if config.Admin {
 				email = "admin@example.com"
 			}
 
@@ -236,13 +167,7 @@ func newGQLRunner(ctx context.Context, db database.Database, topic graphv1.Pubsu
 }
 
 func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, error) {
-	// lg := log.New(io.Discard, "", 0)
-	// if testing.Verbose() {
-	// 	lg = log.New(os.Stderr, "", log.LstdFlags)
-	// }
-
 	container, err := postgres.Run(ctx, "docker.io/postgres:16-alpine",
-		// testcontainers.WithLogger(testcontainers.TestLogger(t)),
 		postgres.WithDatabase("example"),
 		postgres.WithUsername("example"),
 		postgres.WithPassword("example"),

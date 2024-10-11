@@ -137,8 +137,10 @@ end
 ---@field SkipSeed boolean
 ---@field Unauthenticated boolean
 ---@field Admin boolean
+---@field TenantName string
 Config = {
   SkipSeed = false,
   Unauthenticated = false,
   Admin = false,
+  TenantName = "some-tenant",
 }
