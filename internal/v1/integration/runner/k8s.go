@@ -11,6 +11,7 @@ import (
 	"github.com/nais/tester/lua/spec"
 	lua "github.com/yuin/gopher-lua"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
@@ -123,51 +124,16 @@ func (k *K8s) readK8sResources(L *lua.LState) int {
 	}
 
 	for cluster, objs := range resources {
-		fake.AddObjectToDynamicClient(k.Scheme, k.clients[cluster], objs...)
+		convertedObjs := make([]runtime.Object, len(objs))
+		for i, obj := range objs {
+			converted, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
+			if err != nil {
+				L.RaiseError("convert object: %v", err)
+			}
+			convertedObjs[i] = &unstructured.Unstructured{Object: converted}
+		}
+		fake.AddObjectToDynamicClient(k.Scheme, k.clients[cluster], convertedObjs...)
 	}
 
 	return 0
 }
-
-// func (k *K8s) Run(ctx context.Context, logf func(format string, args ...any), body []byte, state map[string]any) error {
-// 	f, err := parser.Parse(body, state)
-// 	if err != nil {
-// 		return fmt.Errorf("gql.Parse: %w", err)
-// 	}
-
-// 	data := &struct {
-// 		Cluster   string `yaml:"cluster"`
-// 		Namespace string `yaml:"namespace"`
-// 	}{}
-
-// 	if err := yaml.Unmarshal([]byte(f.Query), data); err != nil {
-// 		return fmt.Errorf("yaml.Unmarshal: %w", err)
-// 	}
-
-// 	return f.Execute(state, func() (any, error) {
-// 		scheme, err := v1kube.NewScheme()
-// 		if err != nil {
-// 			return nil, err
-// 		}
-
-// 		v := fake.ParseResource(scheme, []byte(f.Returns), "")
-
-// 		k.lock.Lock()
-// 		defer k.lock.Unlock()
-
-// 		clients, ok := k.clusters[data.Cluster]
-// 		if !ok {
-// 			return nil, fmt.Errorf("cluster %q not found", data.Cluster)
-// 		}
-
-// 		u := v.(named)
-
-// 		clients.Dynamic.Resource(v.GetObjectKind().GroupVersionKind().GroupVersion().WithResource(v.GetObjectKind().GroupVersionKind().Kind)).Namespace(data.Namespace).Get(ctx, u.GetName(), metav1.GetOptions{})
-
-// 		return u, nil
-// 	})
-// }
-
-// func (k *K8s) K8sPath(ctx context.Context) string {
-// 	return filepath.Join("testdata", "tests", testmanager.TestDir(ctx), "k8s")
-// }
