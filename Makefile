@@ -1,5 +1,8 @@
 TEST_POSTGRES_CONTAINER_NAME = nais-api-postgres-integration-test
 TEST_POSTGRES_CONTAINER_PORT = 5666
+LUA_FORMATTER_VERSION = 1.5.6
+BIN_DIR := $(shell pwd)/bin
+LUAFMT=$(BIN_DIR)/luafmt-$(LUA_FORMATTER_VERSION)
 
 .PHONY: all
 
@@ -64,8 +67,9 @@ vulncheck:
 deadcode:
 	go run golang.org/x/tools/cmd/deadcode@latest -test ./...
 
-fmt: prettier
+fmt: prettier install-lua-formatter
 	go run mvdan.cc/gofumpt@latest -w ./
+	$(LUAFMT)/bin/CodeFormat format -w . --ignores-file ".gitignore" -c ./.configs/luafmt.conf
 
 prettier:
 	npm install
@@ -89,3 +93,42 @@ integration_test:
 
 tester_spec:
 	go run ./cmd/tester_spec
+
+	LUA_FORMATTER_VERSION ?= latest  # Default version to latest
+
+LUA_FORMATTER_URL := https://github.com/CppCXY/EmmyLuaCodeStyle/releases/download/$(LUA_FORMATTER_VERSION)
+OS := $(shell uname -s)
+ARCH := $(shell uname -m)
+
+ifeq ($(OS), Darwin)
+  ifeq ($(ARCH), x86_64)
+    LUA_FORMATTER_FILE := darwin-x64
+  else
+    ifeq ($(ARCH), arm64)
+      LUA_FORMATTER_FILE := darwin-arm64
+    else
+      $(error Unsupported architecture: $(ARCH) on macOS)
+    endif
+  endif
+else ifeq ($(OS), Linux)
+  ifeq ($(ARCH), x86_64)
+    LUA_FORMATTER_FILE := linux-x64
+  else
+    ifeq ($(ARCH), aarch64)
+      LUA_FORMATTER_FILE := linux-aarch64
+    else
+      $(error Unsupported architecture: $(ARCH) on Linux)
+    endif
+  endif
+else
+  $(error Unsupported OS: $(OS))
+endif
+
+install-lua-formatter: $(LUAFMT)
+$(LUAFMT):
+	@mkdir -p $(LUAFMT)
+	@curl -L $(LUA_FORMATTER_URL)/$(LUA_FORMATTER_FILE).tar.gz -o /tmp/luafmt.tar.gz
+	@tar -xzf /tmp/luafmt.tar.gz -C $(LUAFMT)
+	@rm /tmp/luafmt.tar.gz
+	@mv $(LUAFMT)/$(LUA_FORMATTER_FILE)/* $(LUAFMT)/
+	@rmdir $(LUAFMT)/$(LUA_FORMATTER_FILE)
