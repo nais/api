@@ -187,7 +187,14 @@ func TestFakeQueryAll(t *testing.T) {
 		t.Fatalf("failed to create kubernetes scheme: %v", err)
 	}
 
-	mgr, err := watcher.NewManager(scheme, "nav", watcher.Config{Clusters: []string{"test", "dev"}}, logrus.New(), watcher.WithClientCreator(fake.Clients(os.DirFS("./testdata/"))))
+	tenant := "nav"
+	clusters := []string{"test", "dev"}
+	ccm, err := kubernetes.CreateClusterConfigMap(tenant, clusters)
+	if err != nil {
+		t.Fatalf("failed to create cluster config map: %v", err)
+	}
+
+	mgr, err := watcher.NewManager(scheme, ccm, logrus.New(), watcher.WithClientCreator(fake.Clients(os.DirFS("./testdata/"))))
 	if err != nil {
 		t.Fatalf("failed to create watcher manager: %v", err)
 	}
@@ -319,14 +326,16 @@ func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, 
 	// 	lg = log.New(os.Stderr, "", log.LstdFlags)
 	// }
 
-	container, err := postgres.RunContainer(ctx,
+	container, err := postgres.Run(ctx, "docker.io/postgres:16-alpine",
 		testcontainers.WithLogger(lg),
 		postgres.WithDatabase("example"),
 		postgres.WithUsername("example"),
 		postgres.WithPassword("example"),
+		postgres.WithSQLDriver("pgx"),
 		testcontainers.WithWaitStrategy(
 			wait.ForLog("database system is ready to accept connections").
-				WithOccurrence(2)),
+				WithOccurrence(2),
+		),
 	)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to start container: %w", err)
@@ -345,7 +354,7 @@ func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, 
 	}
 
 	pool.Close()
-	if err := container.Snapshot(ctx); err != nil {
+	if err := container.Snapshot(ctx, postgres.WithSnapshotName("migrated")); err != nil {
 		return nil, "", fmt.Errorf("failed to snapshot: %w", err)
 	}
 

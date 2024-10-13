@@ -5,13 +5,11 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/v1/kubernetes"
-
-	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/tools/cache"
-
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/cache"
 )
 
 type settings struct {
@@ -41,15 +39,10 @@ type Manager struct {
 	cacheSyncs []cache.InformerSynced
 }
 
-func NewManager(scheme *runtime.Scheme, tenant string, cfg kubernetes.Config, log logrus.FieldLogger, opts ...Option) (*Manager, error) {
-	ccm, err := kubernetes.CreateClusterConfigMap(tenant, cfg)
-	if err != nil {
-		return nil, fmt.Errorf("creating cluster config map: %w", err)
-	}
-
+func NewManager(scheme *runtime.Scheme, clusterConfig kubernetes.ClusterConfigMap, log logrus.FieldLogger, opts ...Option) (*Manager, error) {
 	s := &settings{
 		configCreator: func(cluster string) rest.Config {
-			return ccm[cluster]
+			return clusterConfig[cluster]
 		},
 	}
 	for _, opt := range opts {
@@ -58,9 +51,10 @@ func NewManager(scheme *runtime.Scheme, tenant string, cfg kubernetes.Config, lo
 
 	managers := map[string]*clusterManager{}
 
-	for cluster := range ccm {
+	for cluster := range clusterConfig {
 		cfg := s.configCreator(cluster)
 		var client dynamic.Interface
+		var err error
 		if s.clientCreator != nil {
 			client, err = s.clientCreator(cluster)
 			if err != nil {

@@ -244,21 +244,20 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	if cfg.WithFakeClients {
 		watcherOpts = append(watcherOpts, watcher.WithClientCreator(fakev1.Clients(os.DirFS("./data/k8s"))))
 	}
-	// TODO: Cleanup
-	watcherMgr, err := watcher.NewManager(scheme, cfg.Tenant, kubernetes.Config{
-		Clusters: cfg.K8s.Clusters,
-		StaticClusters: func() []kubernetes.StaticCluster {
-			ret := make([]kubernetes.StaticCluster, 0, len(cfg.K8s.Clusters))
-			for _, cluster := range cfg.K8s.Clusters {
-				ret = append(ret, kubernetes.StaticCluster{
-					Name: cluster,
-				})
-			}
-			return ret
-		}(),
-	}, log.WithField("subsystem", "k8s_watcher"), watcherOpts...)
+
+	clusterConfig, err := kubernetes.CreateClusterConfigMap(cfg.Tenant, cfg.K8s.Clusters)
+	if err != nil {
+		return fmt.Errorf("creating cluster config map: %w", err)
+	}
+
+	watcherMgr, err := watcher.NewManager(scheme, clusterConfig, log.WithField("subsystem", "k8s_watcher"), watcherOpts...)
 	if err != nil {
 		return fmt.Errorf("create k8s watcher manager: %w", err)
+	}
+
+	k8sClientSets, err := kubernetes.NewClientSets(clusterConfig)
+	if err != nil {
+		return fmt.Errorf("create k8s client sets: %w", err)
 	}
 
 	graphv1Handler, err := graphv1.NewHandler(gengqlv1.Config{
@@ -295,11 +294,12 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		cfg.DependencyTrack.Username,
 		cfg.DependencyTrack.Password,
 		cfg.DependencyTrack.Frontend,
-		log.WithField("client", "dependencytrack"))
+		log.WithField("client", "dependencytrack"),
+	)
 
 	// HTTP server
 	wg.Go(func() error {
-		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, cfg.Tenant, cfg.K8s.Clusters, db, watcherMgr, sqlInstanceClient.Admin, authHandler, graphHandler, graphv1Handler, promReg, vulnClient, log)
+		return runHttpServer(ctx, cfg.ListenAddress, cfg.WithFakeClients, cfg.Tenant, cfg.K8s.Clusters, db, k8sClientSets, watcherMgr, sqlInstanceClient.Admin, authHandler, graphHandler, graphv1Handler, promReg, vulnClient, log)
 	})
 
 	wg.Go(func() error {

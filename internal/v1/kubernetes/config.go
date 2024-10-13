@@ -9,12 +9,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd/api"
 )
 
-// Config is the configuration related to Kubernetes
-type Config struct {
-	Clusters       []string
-	StaticClusters []StaticCluster
-}
-
 type StaticCluster struct {
 	Name  string
 	Host  string
@@ -23,10 +17,10 @@ type StaticCluster struct {
 
 type ClusterConfigMap map[string]rest.Config
 
-func CreateClusterConfigMap(tenant string, cfg Config) (ClusterConfigMap, error) {
+func CreateClusterConfigMap(tenant string, clusters []string) (ClusterConfigMap, error) {
 	configs := ClusterConfigMap{}
 
-	for _, cluster := range cfg.Clusters {
+	for _, cluster := range clusters {
 		configs[cluster] = rest.Config{
 			Host: fmt.Sprintf("https://apiserver.%s.%s.cloud.nais.io", cluster, tenant),
 			AuthProvider: &api.AuthProviderConfig{
@@ -38,11 +32,14 @@ func CreateClusterConfigMap(tenant string, cfg Config) (ClusterConfigMap, error)
 		}
 	}
 
-	staticConfigs, err := getStaticClusterConfigs(cfg.StaticClusters)
-	if err != nil {
-		return nil, err
+	staticClusters := make([]StaticCluster, len(clusters))
+	for i, cluster := range clusters {
+		staticClusters[i] = StaticCluster{
+			Name: cluster,
+		}
 	}
 
+	staticConfigs := getStaticClusterConfigs(staticClusters)
 	for cluster, cfg := range staticConfigs {
 		configs[cluster] = cfg
 	}
@@ -50,7 +47,7 @@ func CreateClusterConfigMap(tenant string, cfg Config) (ClusterConfigMap, error)
 	return configs, nil
 }
 
-func getStaticClusterConfigs(clusters []StaticCluster) (ClusterConfigMap, error) {
+func getStaticClusterConfigs(clusters []StaticCluster) ClusterConfigMap {
 	configs := ClusterConfigMap{}
 	for _, cluster := range clusters {
 		configs[cluster.Name] = rest.Config{
@@ -64,5 +61,5 @@ func getStaticClusterConfigs(clusters []StaticCluster) (ClusterConfigMap, error)
 			},
 		}
 	}
-	return configs, nil
+	return configs
 }
