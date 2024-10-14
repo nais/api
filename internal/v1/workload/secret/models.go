@@ -48,6 +48,22 @@ type CreateSecretPayload struct {
 	Secret *Secret `json:"secret"`
 }
 
+type UpdateSecretInput struct {
+	// The name of the secret.
+	Name string `json:"name"`
+	// The environment the secret is deployed to.
+	Environment string `json:"environment"`
+	// The team that owns the secret.
+	Team slug.Slug `json:"team"`
+	// The secret data.
+	Data []*SecretVariableInput `json:"data"`
+}
+
+type UpdateSecretPayload struct {
+	// The created secret.
+	Secret *Secret `json:"secret"`
+}
+
 type SecretVariableInput struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`

@@ -30,6 +30,21 @@ func (r *mutationResolver) CreateSecret(ctx context.Context, input secret.Create
 	}, nil
 }
 
+func (r *mutationResolver) UpdateSecret(ctx context.Context, input secret.UpdateSecretInput) (*secret.UpdateSecretPayload, error) {
+	if err := authz.RequireTeamMembershipCtx(ctx, input.Team); err != nil {
+		return nil, nil
+	}
+
+	s, err := secret.Update(ctx, input.Team, input.Environment, input.Name, input.Data)
+	if err != nil {
+		return nil, err
+	}
+
+	return &secret.UpdateSecretPayload{
+		Secret: s,
+	}, nil
+}
+
 func (r *secretResolver) Environment(ctx context.Context, obj *secret.Secret) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }

@@ -79,6 +79,54 @@ func GetSecretData(ctx context.Context, teamSlug slug.Slug, environmentName, nam
 	return vars, nil
 }
 
+func Update(ctx context.Context, teamSlug slug.Slug, environment, name string, data []*SecretVariableInput) (*Secret, error) {
+	client, err := fromContext(ctx).secretWatcher.ImpersonatedClient(ctx, environment)
+	if err != nil {
+		return nil, err
+	}
+
+	err = validateSecretData(data)
+	if err != nil {
+		return nil, err
+	}
+
+	obj, err := client.Namespace(teamSlug.String()).Get(ctx, name, v1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	existingSecret := &corev1.Secret{}
+	err = runtime.DefaultUnstructuredConverter.FromUnstructured(obj.Object, &existingSecret)
+	if err != nil {
+		return nil, err
+	}
+
+	secretIsManaged := secretIsManagedByConsole(*existingSecret)
+	if !secretIsManaged {
+		return nil, fmt.Errorf("%q: %w", name, ErrSecretUnmanaged)
+	}
+
+	actor := authz.ActorFromContext(ctx)
+
+	existingSecret.Annotations = annotations(actor.User.Identity())
+	existingSecret.Labels = labels()
+	existingSecret.Data = secretTupleToMap(data)
+
+	unstructeredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(existingSecret)
+	if err != nil {
+		return nil, err
+	}
+
+	u := &unstructured.Unstructured{Object: unstructeredMap}
+
+	s, err := client.Namespace(teamSlug.String()).Update(ctx, u, v1.UpdateOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	return toGraphSecret(s, environment), nil
+}
+
 func Create(ctx context.Context, teamSlug slug.Slug, environment, name string, data []*SecretVariableInput) (*Secret, error) {
 	client, err := fromContext(ctx).secretWatcher.ImpersonatedClient(ctx, environment)
 	if err != nil {
@@ -168,4 +216,23 @@ func secretTupleToMap(data []*SecretVariableInput) map[string][]byte {
 		ret[tuple.Name] = []byte(tuple.Value)
 	}
 	return ret
+}
+
+func secretIsManagedByConsole(secret corev1.Secret) bool {
+	labels := secret.GetLabels()
+	if labels == nil {
+		labels = make(map[string]string)
+	}
+
+	secretLabel, ok := labels[secretLabelManagedByKey]
+	hasConsoleLabel := ok && secretLabel == secretLabelManagedByVal
+
+	isOpaque := secret.Type == corev1.SecretTypeOpaque || secret.Type == "kubernetes.io/Opaque"
+	hasOwnerReferences := len(secret.GetOwnerReferences()) > 0
+	hasFinalizers := len(secret.GetFinalizers()) > 0
+
+	typeLabel, ok := labels["type"]
+	isJwker := ok && typeLabel == "jwker.nais.io"
+
+	return hasConsoleLabel && isOpaque && !hasOwnerReferences && !hasFinalizers && !isJwker
 }
