@@ -27,8 +27,9 @@ var ErrSecretUnmanaged = errors.New("secret is not managed by console")
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*SecretConnection, error) {
 	all := fromContext(ctx).secretWatcher.GetByNamespace(teamSlug.String())
 
-	jobs := pagination.Slice(watcher.Objects(all), page)
-	return pagination.NewConnection(jobs, page, int32(len(all))), nil
+	secrets := pagination.Slice(watcher.Objects(all), page)
+
+	return pagination.NewConnection(secrets, page, int32(len(all))), nil
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Secret, error) {
@@ -79,6 +80,20 @@ func GetSecretData(ctx context.Context, teamSlug slug.Slug, environmentName, nam
 	return vars, nil
 }
 
+func Delete(ctx context.Context, teamSlug slug.Slug, environment, name string) (bool, error) {
+	_, err := fromContext(ctx).secretWatcher.Get(environment, teamSlug.String(), name)
+	if err != nil {
+		return false, err
+	}
+
+	err = fromContext(ctx).secretWatcher.Delete(ctx, environment, teamSlug.String(), name)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 func Update(ctx context.Context, teamSlug slug.Slug, environment, name string, data []*SecretVariableInput) (*Secret, error) {
 	client, err := fromContext(ctx).secretWatcher.ImpersonatedClient(ctx, environment)
 	if err != nil {
@@ -101,7 +116,7 @@ func Update(ctx context.Context, teamSlug slug.Slug, environment, name string, d
 		return nil, err
 	}
 
-	secretIsManaged := secretIsManagedByConsole(*existingSecret)
+	secretIsManaged := secretIsManagedByConsole(obj)
 	if !secretIsManaged {
 		return nil, fmt.Errorf("%q: %w", name, ErrSecretUnmanaged)
 	}
@@ -124,7 +139,9 @@ func Update(ctx context.Context, teamSlug slug.Slug, environment, name string, d
 		return nil, err
 	}
 
-	return toGraphSecret(s, environment), nil
+	retVal, _ := toGraphSecret(s, environment)
+
+	return retVal, nil
 }
 
 func Create(ctx context.Context, teamSlug slug.Slug, environment, name string, data []*SecretVariableInput) (*Secret, error) {
@@ -169,7 +186,11 @@ func Create(ctx context.Context, teamSlug slug.Slug, environment, name string, d
 		return nil, fmt.Errorf("creating secret: %w", err)
 	}
 
-	return toGraphSecret(s, environment), nil
+	retVal, ok := toGraphSecret(s, environment)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert secret to graph secret")
+	}
+	return retVal, nil
 }
 
 func annotations(user string) map[string]string {
@@ -218,7 +239,7 @@ func secretTupleToMap(data []*SecretVariableInput) map[string][]byte {
 	return ret
 }
 
-func secretIsManagedByConsole(secret corev1.Secret) bool {
+func secretIsManagedByConsole(secret *unstructured.Unstructured) bool {
 	labels := secret.GetLabels()
 	if labels == nil {
 		labels = make(map[string]string)
@@ -226,8 +247,8 @@ func secretIsManagedByConsole(secret corev1.Secret) bool {
 
 	secretLabel, ok := labels[secretLabelManagedByKey]
 	hasConsoleLabel := ok && secretLabel == secretLabelManagedByVal
-
-	isOpaque := secret.Type == corev1.SecretTypeOpaque || secret.Type == "kubernetes.io/Opaque"
+	secretType, _, _ := unstructured.NestedString(secret.Object, "type")
+	isOpaque := secretType == string(corev1.SecretTypeOpaque) || secretType == "kubernetes.io/Opaque"
 	hasOwnerReferences := len(secret.GetOwnerReferences()) > 0
 	hasFinalizers := len(secret.GetFinalizers()) > 0
 

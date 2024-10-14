@@ -95,7 +95,12 @@ func (s *Secret) GetObjectKind() schema.ObjectKind {
 	return schema.EmptyObjectKind
 }
 
-func toGraphSecret(o *unstructured.Unstructured, environmentName string) *Secret {
+func toGraphSecret(o *unstructured.Unstructured, environmentName string) (*Secret, bool) {
+	managedByConsole := secretIsManagedByConsole(o)
+	if !managedByConsole {
+		return nil, false
+	}
+
 	var lastModifiedAt *time.Time
 	if t, ok := o.GetAnnotations()[secretAnnotationLastModifiedAt]; ok {
 		tm, err := time.Parse(time.RFC3339, t)
@@ -115,10 +120,24 @@ func toGraphSecret(o *unstructured.Unstructured, environmentName string) *Secret
 		EnvironmentName:     environmentName,
 		LastModifiedAt:      lastModifiedAt,
 		ModifiedByUserEmail: lastModifiedBy,
-	}
+	}, true
 }
 
 type SecretVariable struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
+}
+
+type DeleteSecretInput struct {
+	// The name of the secret.
+	Name string `json:"name"`
+	// The environment the secret is deployed to.
+	Environment string `json:"environment"`
+	// The team that owns the secret.
+	Team slug.Slug `json:"team"`
+}
+
+type DeleteSecretPayload struct {
+	// The deleted secret.
+	SecretDeleted bool `json:"secretDeleted"`
 }

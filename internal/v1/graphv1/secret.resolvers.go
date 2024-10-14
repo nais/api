@@ -45,6 +45,23 @@ func (r *mutationResolver) UpdateSecret(ctx context.Context, input secret.Update
 	}, nil
 }
 
+func (r *mutationResolver) DeleteSecret(ctx context.Context, input secret.DeleteSecretInput) (*secret.DeleteSecretPayload, error) {
+	if err := authz.RequireTeamMembershipCtx(ctx, input.Team); err != nil {
+		return nil, nil
+	}
+
+	deleted, err := secret.Delete(ctx, input.Team, input.Environment, input.Name)
+	if err != nil {
+		return &secret.DeleteSecretPayload{
+			SecretDeleted: deleted,
+		}, err
+	}
+
+	return &secret.DeleteSecretPayload{
+		SecretDeleted: deleted,
+	}, nil
+}
+
 func (r *secretResolver) Environment(ctx context.Context, obj *secret.Secret) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
